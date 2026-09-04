@@ -1,5 +1,15 @@
 # Implementation Plan - Plan 005: Ship the v4-only consumer integration
 
+## Execution Context
+
+- Continue on the existing `style-refactor` branch and sync it with the latest remote state before editing.
+- Do not create the `codex/005-ship-v4-only-consumer-integration` branch mentioned in the original Plan 005 Git workflow section; this branch override is intentional for the existing PR #36 workflow.
+- Read `plans/005-ship-v4-only-consumer-integration.md` in full before making changes.
+- Treat this file as the execution entry point and current-context override, `plans/005-ship-v4-only-consumer-integration.md` as the normative detailed implementation plan, and `PRD.md` as the final authority if requirements conflict.
+- The original Plan 005 STOP conditions and Done criteria are normative. If a STOP condition is reached, stop and report instead of improvising around it.
+- Verify Plans 003 and 004 are complete in the current code before deleting their temporary compatibility layer.
+- Do not start or implement Plan 006 as part of this task.
+
 ## Goal Description
 
 Execute `plans/005-ship-v4-only-consumer-integration.md` to finalize Moraine's transition to a modern, engine-native styling architecture:
@@ -29,7 +39,7 @@ Execute `plans/005-ship-v4-only-consumer-integration.md` to finalize Moraine's t
 
 ### Package Configuration & Build Pipeline
 
-#### [MODIFY] [package.json](file:///Users/subf/Developer/project/moraine/package.json)
+#### [MODIFY] `package.json`
 
 - Remove `./tw3.css` and `./tw4.css` from `exports`.
 - Retain `./icon.css` export.
@@ -37,7 +47,7 @@ Execute `plans/005-ship-v4-only-consumer-integration.md` to finalize Moraine's t
 - Remove `"cls-variant"` from `dependencies`.
 - Update `peerDependencies.tailwindcss` to `"^4.0.0"`.
 
-#### [MODIFY] [tsdown.config.ts](file:///Users/subf/Developer/project/moraine/tsdown.config.ts)
+#### [MODIFY] `tsdown.config.ts`
 
 - Remove `tw3.css` and `tw4.css` generation, `baseUnocssConfig`, `presetWind3`, `createMigrateSyntaxTransformer`, and `simplify` extractor.
 - Retain normal JS/JSX build without component CSS generation.
@@ -48,22 +58,22 @@ Execute `plans/005-ship-v4-only-consumer-integration.md` to finalize Moraine's t
 
 ### Source Code Cleanup & Runtime Refactor
 
-#### [MODIFY] [src/shared/utils.ts](file:///Users/subf/Developer/project/moraine/src/shared/utils.ts)
+#### [MODIFY] `src/shared/utils.ts`
 
 - Remove `cls-variant` imports (`cls`, `cvaFactory`, `CvaFunction`).
 - Remove `extendCN` and `cva` implementations.
 - Retain `cn` (backed by `createCn`), `useId`, and event handlers.
 
-#### [MODIFY] [src/shared/types.ts](file:///Users/subf/Developer/project/moraine/src/shared/types.ts)
+#### [MODIFY] `src/shared/types.ts`
 
 - Import `ClassValue` from `./style/recipe.ts` instead of `cls-variant`.
 - Export `ClassValue`.
 
-#### [MODIFY] [src/index.ts](file:///Users/subf/Developer/project/moraine/src/index.ts)
+#### [MODIFY] `src/index.ts`
 
 - Export `{ cn, useId }` from `./shared/utils.ts` (remove `cva` and `extendCN`).
 
-#### [MODIFY] [src/overlays/base/menu/menu.tsx](file:///Users/subf/Developer/project/moraine/src/overlays/base/menu/menu.tsx)
+#### [MODIFY] `src/overlays/base/menu/menu.tsx`
 
 - Replace `ClassValueArray` from `cls-variant` with `ClassValue[]`.
 
@@ -76,7 +86,7 @@ Execute `plans/005-ship-v4-only-consumer-integration.md` to finalize Moraine's t
 - `src/unocss/migrate-syntax.ts`
 - `src/unocss/migrate-syntax.test.ts`
 
-#### [MODIFY] [src/unocss/theme.ts](file:///Users/subf/Developer/project/moraine/src/unocss/theme.ts)
+#### [MODIFY] `src/unocss/theme.ts`
 
 - Simplify `presetMoraine`:
   - Remove `wind3`, `enableComponentLayer`, prefix/hash transformers and options, dynamic imports of `@unocss/transformer-compile-class`.
@@ -86,12 +96,12 @@ Execute `plans/005-ship-v4-only-consumer-integration.md` to finalize Moraine's t
   - Retain `data-*` and `aria-*` attribute selector variants.
   - Retain `globalStyles` and `colorVariables` options.
 
-#### [MODIFY] [src/unocss/theme.test.ts](file:///Users/subf/Developer/project/moraine/src/unocss/theme.test.ts)
+#### [MODIFY] `src/unocss/theme.test.ts`
 
 - Update unit tests to remove tests for deleted options (`wind3`, `enableComponentLayer`, prefix, hash, component shortcuts).
 - Test Wind4 theme registration, animation primitives, data/aria variants, and color variables.
 
-#### [MODIFY] [src/tailwind/index.ts](file:///Users/subf/Developer/project/moraine/src/tailwind/index.ts)
+#### [MODIFY] `src/tailwind/index.ts`
 
 - Add default export `export default moraineTailwind()` so `@plugin "moraine/tailwind"` loads cleanly in Tailwind CSS v4.
 - Retain named export `export { moraineTailwind }`.
@@ -100,10 +110,12 @@ Execute `plans/005-ship-v4-only-consumer-integration.md` to finalize Moraine's t
 
 ### Consumer Fixtures
 
+The fixture must exercise the package artifact exactly as an installed consumer sees it. Use the project's nub-first tooling for normal scripts and package operations. For the package-packing step, prefer a repository-supported nub command if one exists; if nub does not expose the required pack operation, using the incumbent package manager solely to create the tarball is allowed. Do not weaken the fixture by replacing the packed artifact with workspace/source aliases.
+
 #### [NEW] `test/consumer-fixtures/tailwind-v4.test.ts`
 
 - Test Tailwind CSS v4 compiling against a packed `moraine` package tarball:
-  - Pack package with `npm pack` (or unpack into a sandbox node_modules).
+  - Pack the package and install/unpack that artifact into an isolated fixture `node_modules`.
   - Compile stylesheet containing `@import "tailwindcss"; @plugin "moraine/tailwind"; @source ".../node_modules/moraine/dist";`.
   - Assert the generated CSS contains:
     - `data-disabled` / `data-focused` / `aria-invalid` variants.
@@ -128,7 +140,7 @@ Execute `plans/005-ship-v4-only-consumer-integration.md` to finalize Moraine's t
 
 ### Documentation & Developer Guidelines
 
-#### [MODIFY] [docs/pages/styling.mdx](file:///Users/subf/Developer/project/moraine/docs/pages/styling.mdx)
+#### [MODIFY] `docs/pages/styling.mdx`
 
 - Frame as "Moraine styling system architecture refactor".
 - Document UnoCSS setup with `presetWind4()` and `presetMoraine()` (remove Wind3 and `enableComponentLayer`).
@@ -136,19 +148,19 @@ Execute `plans/005-ship-v4-only-consumer-integration.md` to finalize Moraine's t
 - Document `icon.css` as optional runtime asset.
 - Replace `cva` and `extendCN` sections with `cn` and `recipe` documentation.
 
-#### [MODIFY] [docs/pages/utils.mdx](file:///Users/subf/Developer/project/moraine/docs/pages/utils.mdx)
+#### [MODIFY] `docs/pages/utils.mdx`
 
 - Remove `cva` and `extendCN` references; document `cn`, `recipe`, and `useId`.
 
-#### [MODIFY] [docs/build/previews/source.ts](file:///Users/subf/Developer/project/moraine/docs/build/previews/source.ts) & [docs/build/previews/source.test.ts](file:///Users/subf/Developer/project/moraine/docs/build/previews/source.test.ts)
+#### [MODIFY] `docs/build/previews/source.ts` & `docs/build/previews/source.test.ts`
 
 - Remove `@src/tw3.css` and `@src/tw4.css` mapping, keeping only `@src/icon.css`.
 
-#### [MODIFY] [AGENTS.md](file:///Users/subf/Developer/project/moraine/AGENTS.md)
+#### [MODIFY] `AGENTS.md`
 
 - Replace any remaining references to `cva` with `recipe`.
 
-#### [MODIFY] [README.md](file:///Users/subf/Developer/project/moraine/README.md)
+#### [MODIFY] `README.md`
 
 - Update styling quickstart to reflect Tailwind v4 and UnoCSS Wind4 usage without precompiled CSS.
 
@@ -160,9 +172,9 @@ Execute `plans/005-ship-v4-only-consumer-integration.md` to finalize Moraine's t
 
 1. **Audit token scan**:
    ```bash
-   rg -n "\bcva\b|cls-variant|\bextendCN\b" src docs README.md package.json --glob '!src/shared/cva-common.class.ts'
+   rg -n "\bcva\b|cls-variant|\bextendCN\b" src docs README.md package.json
    ```
-   Must yield 0 matches.
+   Must yield 0 matches. Do not exclude legacy-named source files from this audit; any remaining source caller or compatibility artifact must be resolved before proceeding.
 2. **Build and asset check**:
    ```bash
    nub run build
@@ -184,3 +196,5 @@ Execute `plans/005-ship-v4-only-consumer-integration.md` to finalize Moraine's t
    ```bash
    nub run qa && nub run test
    ```
+
+After all checks pass, update `plans/README.md` to mark Plan 005 DONE. Do not mark it complete based on partial unit-test success, and do not begin Plan 006 in the same execution.
