@@ -7,7 +7,7 @@ export const AVATAR_IMAGE_CLASS =
 export const avatarRecipe = recipe({
   slots: ['root', 'image', 'fallback', 'fallbackIcon', 'badge'],
   base: {
-    root: 'text-muted-foreground rounded-full bg-muted inline-flex shrink-0 select-none items-center justify-center relative overflow-visible after:border after:border-border after:rounded-full after:pointer-events-none after:content-empty after:inset-0 after:absolute dark:after:mix-blend-lighten',
+    root: "text-muted-foreground rounded-full bg-muted inline-flex shrink-0 select-none items-center justify-center relative overflow-visible after:border after:border-border after:rounded-full after:pointer-events-none after:content-[''] after:inset-0 after:absolute dark:after:mix-blend-lighten",
     image: AVATAR_IMAGE_CLASS,
     fallback:
       'text-muted-foreground font-medium rounded-full bg-muted flex uppercase transition-opacity items-center inset-0 justify-center absolute',
@@ -86,7 +86,7 @@ export const avatarGroupRecipe = recipe({
 })
 
 export const avatarRootVariants = recipe({
-  base: 'text-muted-foreground rounded-full bg-muted inline-flex shrink-0 select-none items-center justify-center relative overflow-visible after:border after:border-border after:rounded-full after:pointer-events-none after:content-empty after:inset-0 after:absolute dark:after:mix-blend-lighten',
+  base: "text-muted-foreground rounded-full bg-muted inline-flex shrink-0 select-none items-center justify-center relative overflow-visible after:border after:border-border after:rounded-full after:pointer-events-none after:content-[''] after:inset-0 after:absolute dark:after:mix-blend-lighten",
   defaultVariants: { size: 'md' },
   variants: {
     size: {

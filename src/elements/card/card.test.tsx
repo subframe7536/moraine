@@ -10,7 +10,7 @@ describe('Card', () => {
     const root = screen.container.querySelector('[data-slot="root"]')
 
     expect(root?.className).toMatchInlineSnapshot(
-      `"text-card-foreground border border-border rounded-xl bg-card flex flex-col shadow-xs relative overflow-hidden not-dark:bg-clip-padding"`,
+      `"text-card-foreground border border-border rounded-xl bg-card flex flex-col shadow-xs relative overflow-hidden [html:not(.dark)_&]:bg-clip-padding"`,
     )
   })
 

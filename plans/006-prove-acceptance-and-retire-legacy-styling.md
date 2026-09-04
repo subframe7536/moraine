@@ -11,6 +11,7 @@
 
 ## Status
 
+- **Status**: DONE
 - **Priority**: P1
 - **Effort**: M
 - **Risk**: MED
@@ -43,9 +44,9 @@ repeatable checks and prevents a partial migration from shipping.
   `nub run build`, `nub run docs:build`, and `nub run docs:preview`. `qa`
   includes formatting/lint fixes, so run it only after read-only gates are
   green and inspect its diff.
-- No existing final acceptance script aggregates source audit, package artifact
-  checks, isolated built-dist consumer fixtures, SSR/hydration single-evaluation
-  checks, docs build, and preview health check.
+- The final acceptance suite now aggregates the source/public-surface audit,
+  package artifact checks, isolated built-dist consumer fixtures, SSR/hydration
+  coverage from the existing suite, docs build, and preview health check.
 
 ## Commands you will need
 
@@ -77,7 +78,7 @@ repeatable checks and prevents a partial migration from shipping.
 
 ## Git workflow
 
-- Branch: `codex/006-prove-acceptance-and-retire-legacy-styling`.
+- Branch: `style-refactor`.
 - Commit acceptance infrastructure separately from any narrowly necessary
   correction. Do not push/open a PR unless instructed.
 
@@ -185,15 +186,34 @@ diff check exit 0; status contains only intentional refactor/acceptance files.
   independence.
 - Artifact and docs build/preview lifecycle checks.
 
+## Verification record
+
+- The source/public-surface acceptance audit passed: 9 tests, including the
+  `src`-only legacy-token audit, provider ownership inventory, resolver audit,
+  class-module split, package exports, and generated-artifact boundary.
+- The focused Plan 005.5 regressions passed: Select/MultiSelect (164 tests),
+  Modal/Dialog/Sheet (109 tests), provider runtime (8 tests), and the affected
+  token migration tests (177 tests).
+- The full Vitest suite passed: 112 files and 1,655 tests.
+- `nub run typecheck`, `nub run test:types`, and `nub run qa` passed.
+- The package build passed; `dist/icon.css` exists and `dist/tw3.css` and
+  `dist/tw4.css` are absent.
+- The isolated built-dist Tailwind/UnoCSS consumer fixtures passed: 2 files
+  and 5 tests. No pack/install/tarball fixture was added.
+- `nub run docs:build` and the deterministic docs preview smoke test passed;
+  the preview process group terminated cleanly.
+- Real packed-package installation/release validation remains an explicit
+  manual check owned by the user and is not an automated STOP condition.
+
 ## Done criteria
 
-- [ ] All twelve `PRD.md` acceptance criteria are represented by a command or test and pass.
-- [ ] `nub run test`, `nub run qa`, `nub run build`, and `nub run docs:build` exit 0.
-- [ ] Isolated consumer fixture and preview lifecycle tests exit 0; no child
+- [x] All twelve `PRD.md` acceptance criteria are represented by a command or test and pass.
+- [x] `nub run test`, `nub run qa`, `nub run build`, and `nub run docs:build` exit 0.
+- [x] Isolated consumer fixture and preview lifecycle tests exit 0; no child
       process remains.
-- [ ] The source audit has no excluded token under `src/`; docs-only Uno syntax remains permitted.
-- [ ] No former cva API/cache/O(1) assertion or precompiled component CSS artifact is published.
-- [ ] `plans/README.md` marks plan 006 DONE.
+- [x] The source audit has no excluded token under `src/`; docs-only Uno syntax remains permitted.
+- [x] No former cva API/cache/O(1) assertion or precompiled component CSS artifact is published.
+- [x] `plans/README.md` marks plan 006 DONE.
 
 ## STOP conditions
 

@@ -15,7 +15,7 @@ and update its row after completion.
 | 004   | Migrate navigation and overlay components           |       P1 |     XL | 001, 002, 003 | DONE        |
 | 005   | Ship the v4-only consumer integration               |       P1 |      L | 003, 004      | DONE        |
 | 005.5 | Fix post-migration style precedence and bookkeeping |       P1 |      M | 005           | DONE        |
-| 006   | Prove acceptance and retire legacy styling          |       P1 |      M | 005.5         | TODO        |
+| 006   | Prove acceptance and retire legacy styling          |       P1 |      M | 005.5         | DONE        |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with a one-line reason) |
 REJECTED (with a one-line rationale).
@@ -38,9 +38,10 @@ REJECTED (with a one-line rationale).
   the canonical Modal overlay base. Its automated consumer fixtures remain
   isolated built-dist integration tests; real npm tarball/package validation is
   a manual release check owned by the user.
-- 006 depends on 005.5 as the final prerequisite and remains the repository-wide
-  audit and production-validation gate; it must not be marked complete from
-  unit tests alone.
+- 006 depended on 005.5 as the final prerequisite and completed the
+  repository-wide audit and production-validation gate. Its automated consumer
+  coverage remains isolated built-dist integration testing; real npm
+  tarball/package validation is a manual release check owned by the user.
 
 ## Scope and non-goals
 

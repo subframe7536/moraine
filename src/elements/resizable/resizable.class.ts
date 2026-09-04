@@ -11,7 +11,7 @@ export const resizableRecipe = recipe({
     panel: '',
     divider: '',
     handle:
-      'bg-border flex shrink-0 select-none items-center justify-center relative overflow-visible touch-none focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-disabled:cursor-default data-cross:cursor-move after:content-empty after:absolute',
+      "bg-border flex shrink-0 select-none items-center justify-center relative overflow-visible touch-none focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-disabled:cursor-default data-cross:cursor-move after:content-[''] after:absolute",
     crossTarget: 'border-0 bg-transparent h-2 w-2 cursor-move pointer-events-auto absolute z-base',
   },
   defaultVariants: {
@@ -47,7 +47,7 @@ export const resizableRootVariants = recipe({
 })
 
 export const resizableHandleVariants = recipe({
-  base: 'bg-border flex shrink-0 select-none items-center justify-center relative overflow-visible touch-none focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-disabled:cursor-default data-cross:cursor-move after:content-empty after:absolute',
+  base: "bg-border flex shrink-0 select-none items-center justify-center relative overflow-visible touch-none focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-disabled:cursor-default data-cross:cursor-move after:content-[''] after:absolute",
   defaultVariants: { orientation: 'horizontal' },
   variants: {
     orientation: {

@@ -149,6 +149,10 @@ Later values win when utility classes conflict. For a component root, the `class
 
 `style` and `styles` accept CSS property objects only.
 
+When migrating legacy components from `cva` or other variant helpers, replace
+variant helpers with `recipe({ ... })`
+and convert string `style` values to CSS property objects.
+
 ## `cn` and `recipe`
 
 `cn()` combines conditional class values and resolves supported utility conflicts. It does not generate CSS, scan component files, load the plugin or preset, or validate theme tokens.
