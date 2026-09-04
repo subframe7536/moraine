@@ -7,7 +7,9 @@ Current stage: pre-alpha. breaking change allowed.
 
 ## Essential Commands
 
-Use `nub` for package management and script execution. Prefer `nub` over `node`, `bun`, `npm`, `npx`, `pnpm`, and `yarn`.
+Use `nub` for package management and script execution. Prefer `nub` / `nubx` over `node`, `bun`, `npm`, `npx`, `pnpm`, and `yarn`.
+
+If not installed, follows the instructions at https://nubjs.com/start.md to install.
 
 ### Build & Development
 
