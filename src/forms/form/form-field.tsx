@@ -413,26 +413,16 @@ export function FormField<
         data-orientation={merged.orientation}
         {...rest}
         component={merged.as as any}
-        style={resolved.rootStyle()}
-        class={resolved.rootClass()}
+        {...resolved.rootClassAndStyle()}
       >
-        <div
-          data-slot="wrapper"
-          style={resolved.slotStyle('wrapper')}
-          class={resolved.slotClass('wrapper')}
-        >
+        <div data-slot="wrapper" {...resolved.slotClassAndStyle('wrapper')}>
           <Show when={showLabel()}>
-            <div
-              data-slot="labelWrapper"
-              style={resolved.slotStyle('labelWrapper')}
-              class={resolved.slotClass('labelWrapper')}
-            >
+            <div data-slot="labelWrapper" {...resolved.slotClassAndStyle('labelWrapper')}>
               <label
                 id={`${ariaId()}-label`}
                 for={resolvedLabelTargetId()}
                 data-slot="label"
-                style={resolved.slotStyle('label')}
-                class={resolved.slotClass('label')}
+                {...resolved.slotClassAndStyle('label')}
               >
                 {label()}
               </label>
@@ -441,8 +431,7 @@ export function FormField<
                 <span
                   id={`${ariaId()}-hint`}
                   data-slot="hint"
-                  style={resolved.slotStyle('hint')}
-                  class={resolved.slotClass('hint')}
+                  {...resolved.slotClassAndStyle('hint')}
                 >
                   {hint()}
                 </span>
@@ -454,19 +443,14 @@ export function FormField<
             <p
               id={`${ariaId()}-description`}
               data-slot="description"
-              style={resolved.slotStyle('description')}
-              class={resolved.slotClass('description')}
+              {...resolved.slotClassAndStyle('description')}
             >
               {description()}
             </p>
           </Show>
         </div>
 
-        <div
-          data-slot="container"
-          style={resolved.slotStyle('container')}
-          class={resolved.slotClass('container')}
-        >
+        <div data-slot="container" {...resolved.slotClassAndStyle('container')}>
           {fieldChildren}
 
           <Show
@@ -476,8 +460,7 @@ export function FormField<
                 <div
                   id={`${ariaId()}-help`}
                   data-slot="help"
-                  style={resolved.slotStyle('help')}
-                  class={resolved.slotClass('help')}
+                  {...resolved.slotClassAndStyle('help')}
                 >
                   {help()}
                 </div>
@@ -487,8 +470,7 @@ export function FormField<
             <div
               id={`${ariaId()}-error`}
               data-slot="error"
-              style={resolved.slotStyle('error')}
-              class={resolved.slotClass('error')}
+              {...resolved.slotClassAndStyle('error')}
             >
               {resolvedError()}
             </div>

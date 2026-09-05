@@ -16,7 +16,7 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useDisclosureState } from '../../shared/use-disclosure-state.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { callRef, cn, useId } from '../../shared/utils.ts'
+import { callRef, useId } from '../../shared/utils.ts'
 import { Icon } from '../icon/index.ts'
 import type { IconT } from '../icon/index.ts'
 
@@ -49,6 +49,9 @@ export namespace AccordionT {
 
     /** Panel that contains the item content when expanded. */
     content?: T
+
+    /** Inner container inside the collapsible panel for padding. */
+    contentInner?: T
   }
   export type Variant = never
   export type Classes = Slot<SlotClassValue>
@@ -382,8 +385,9 @@ export function Accordion(props: AccordionProps): JSX.Element {
       data-slot="root"
       data-disabled={merged.disabled ? '' : undefined}
       {...rest}
-      style={resolved.rootStyle()}
-      class={cn(resolved.rootClass(), merged.disabled && 'opacity-64 pointer-events-none')}
+      {...resolved.rootClassAndStyle({
+        state: merged.disabled && 'opacity-64 pointer-events-none',
+      })}
     >
       <For each={items()}>
         {(item) => {
@@ -422,14 +426,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
             return (
               <Show when={content()}>
-                {(value) => (
-                  <div
-                    style={resolved.slotStyle('contentInner')}
-                    class={resolved.slotClass('contentInner')}
-                  >
-                    {value()}
-                  </div>
-                )}
+                {(value) => <div {...resolved.slotClassAndStyle('contentInner')}>{value()}</div>}
               </Show>
             )
           }
@@ -517,16 +514,10 @@ export function Accordion(props: AccordionProps): JSX.Element {
           return (
             <div
               data-slot="item"
-              style={resolved.slotStyle('item')}
-              class={cn(resolved.slotClass('item'), item.class)}
+              {...resolved.slotClassAndStyle('item', { class: item.class })}
               {...itemDataAttrs()}
             >
-              <h3
-                data-slot="header"
-                style={resolved.slotStyle('header')}
-                class={resolved.slotClass('header')}
-                {...itemDataAttrs()}
-              >
+              <h3 data-slot="header" {...resolved.slotClassAndStyle('header')} {...itemDataAttrs()}>
                 <button
                   id={triggerId()}
                   type="button"
@@ -534,8 +525,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   aria-expanded={expanded()}
                   disabled={disabled()}
                   data-slot="trigger"
-                  style={resolved.slotStyle('trigger')}
-                  class={resolved.slotClass('trigger')}
+                  {...resolved.slotClassAndStyle('trigger')}
                   onClick={onTriggerClick}
                   onKeyDown={onTriggerKeyDown}
                   onKeyUp={onTriggerKeyUp}
@@ -553,19 +543,14 @@ export function Accordion(props: AccordionProps): JSX.Element {
                       <Icon
                         name={value()}
                         slotName="leading"
-                        style={resolved.slotStyle('leading')}
-                        class={resolved.slotClass('leading')}
+                        {...resolved.slotClassAndStyle('leading')}
                       />
                     )}
                   </Show>
 
                   <Show when={label()}>
                     {(value) => (
-                      <span
-                        data-slot="label"
-                        style={resolved.slotStyle('label')}
-                        class={resolved.slotClass('label')}
-                      >
+                      <span data-slot="label" {...resolved.slotClassAndStyle('label')}>
                         {value()}
                       </span>
                     )}
@@ -575,8 +560,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     <Icon
                       name={trailing()}
                       slotName="trailing"
-                      style={resolved.slotStyle('trailing')}
-                      class={resolved.slotClass('trailing')}
+                      {...resolved.slotClassAndStyle('trailing')}
                     />
                   </Show>
                 </button>
@@ -597,11 +581,11 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   role="region"
                   aria-labelledby={triggerId()}
                   data-slot="content"
-                  style={{
-                    '--mo-collapsible-content-height': `${contentHeight()}px`,
-                    ...resolved.slotStyle('content'),
-                  }}
-                  class={resolved.slotClass('content')}
+                  {...resolved.slotClassAndStyle('content', {
+                    style: {
+                      '--mo-collapsible-content-height': `${contentHeight()}px`,
+                    },
+                  })}
                   {...contentDataAttrs()}
                 >
                   {renderContent()}

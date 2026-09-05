@@ -1,13 +1,7 @@
-import {
-  CHECKABLE_INDICATOR_VARIANT,
-  TABLE_EDGE_ORIENTATION_VARIANT,
-  TEXT_SIZE_VARIANT,
-} from '../../shared/recipe-common.class.ts'
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
 export const radioGroupRecipe = recipe({
-  slots: ['root', 'item', 'control', 'container', 'indicator', 'wrapper', 'label', 'description'],
   base: {
     root: 'flex relative',
     item: 'flex items-start data-disabled:opacity-64 data-disabled:pointer-events-none',
@@ -16,8 +10,8 @@ export const radioGroupRecipe = recipe({
     container: 'flex items-center',
     indicator: 'rounded-full bg-primary-foreground',
     wrapper: 'flex flex-col gap-0.5 w-full',
-    label: '',
-    description: '',
+    label: 'text-foreground font-medium block',
+    description: 'text-muted-foreground leading-normal',
   },
   defaultVariants: {
     orientation: 'vertical',
@@ -35,18 +29,21 @@ export const radioGroupRecipe = recipe({
         control: 'size-3.5',
         container: 'h-4',
         indicator: 'size-1.5',
+        description: 'text-xs leading-normal',
       },
       md: {
         item: 'text-sm',
         control: 'size-4',
         container: 'h-5',
         indicator: 'size-2',
+        description: 'text-sm leading-normal',
       },
       lg: {
         item: 'text-base',
         control: 'size-4.5',
         container: 'h-6',
         indicator: 'size-2.5',
+        description: 'text-base leading-normal',
       },
     },
     variant: {
@@ -100,62 +97,4 @@ export const radioGroupRecipe = recipe({
   ],
 })
 
-export const radioGroupItemVariants = recipe({
-  base: 'flex items-start data-disabled:opacity-64 data-disabled:pointer-events-none',
-  defaultVariants: {
-    size: 'md',
-    indicator: 'start',
-  },
-  variants: {
-    size: TEXT_SIZE_VARIANT,
-    variant: {
-      card: 'border border-border rounded-md data-checked:border-primary',
-      table:
-        'border border-muted relative data-checked:border-primary/50 data-checked:bg-primary/10 data-checked:z-base',
-    },
-    indicator: CHECKABLE_INDICATOR_VARIANT,
-    tableOrientation: TABLE_EDGE_ORIENTATION_VARIANT,
-  },
-  compoundVariants: [
-    {
-      variants: { variant: 'card', size: 'sm' },
-      class: 'p-3',
-    },
-    {
-      variants: { variant: 'card', size: 'md' },
-      class: 'p-3.5',
-    },
-    {
-      variants: { variant: 'card', size: 'lg' },
-      class: 'p-4',
-    },
-    {
-      variants: { variant: 'table', size: 'sm' },
-      class: 'p-3',
-    },
-    {
-      variants: { variant: 'table', size: 'md' },
-      class: 'p-3.5',
-    },
-    {
-      variants: { variant: 'table', size: 'lg' },
-      class: 'p-4',
-    },
-  ],
-})
-
-type RadioGroupItemVariant = 'list' | 'card' | 'table'
-type RadioGroupItemIndicator = 'start' | 'end' | 'hidden'
-type RadioGroupItemVariantProps = Omit<
-  VariantProps<typeof radioGroupItemVariants>,
-  'variant' | 'indicator' | 'tableOrientation'
->
-
-export type RadioGroupVariantProps = Omit<
-  VariantProps<typeof radioGroupRecipe>,
-  'variant' | 'indicator' | 'tableOrientation'
-> &
-  RadioGroupItemVariantProps & {
-    variant?: RadioGroupItemVariant
-    indicator?: RadioGroupItemIndicator
-  }
+export type RadioGroupVariantProps = VariantProps<typeof radioGroupRecipe>

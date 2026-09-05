@@ -310,7 +310,6 @@ describe('MoraineProvider Solid Integration', () => {
 
 describe('Precedence Contract & resolveComponentStyle', () => {
   const testRecipe = recipe({
-    slots: ['root', 'leading', 'label'],
     base: {
       root: 'recipe-root text-sm',
       leading: 'recipe-leading size-4',
@@ -402,6 +401,16 @@ describe('Precedence Contract & resolveComponentStyle', () => {
     })
   })
 
+  test('merges an atomic base class before provider and instance root overrides', () => {
+    const resolved = resolveComponentStyle({
+      baseClass: 'recipe-root px-2',
+      provider: { classes: { root: 'provider-root px-3' } },
+      instance: { class: 'instance-root px-4' },
+    })
+
+    expect(resolved.rootClass()).toBe('recipe-root provider-root instance-root px-4')
+  })
+
   test('places dynamic group and state values before instance overrides', () => {
     const resolved = resolveComponentStyle({
       slots: testRecipe(),
@@ -424,5 +433,27 @@ describe('Precedence Contract & resolveComponentStyle', () => {
         state: { color: 'red' },
       }),
     ).toEqual({ color: 'green', width: '1px' })
+  })
+
+  test('slotClassAndStyle and rootClassAndStyle provide reactive class and style bindings', () => {
+    const resolved = resolveComponentStyle({
+      slots: testRecipe(),
+      instance: {
+        class: 'root-inst-class',
+        style: { margin: '8px' },
+        classes: { leading: 'lead-inst-class' },
+        styles: { leading: { color: 'blue' } },
+      },
+    })
+
+    const rootBinding = resolved.rootClassAndStyle()
+    expect(rootBinding.class).toContain('root-inst-class')
+    expect(rootBinding.style).toEqual({ margin: '8px' })
+
+    const slotBinding = resolved.slotClassAndStyle('leading', {
+      state: 'lead-state-class',
+    })
+    expect(slotBinding.class).toContain('lead-inst-class')
+    expect(slotBinding.style).toEqual({ color: 'blue' })
   })
 })

@@ -7,7 +7,7 @@ import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { callHandler, cn, useId } from '../../shared/utils.ts'
+import { callHandler, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
@@ -433,19 +433,14 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   return (
     <div
       data-slot="root"
-      style={resolved.rootStyle()}
-      class={resolved.rootClass()}
       onPointerDown={onRootPointerDown}
       {...dataAttrs()}
       {...rest}
+      {...resolved.rootClassAndStyle()}
     >
       <Show when={resolvedLeading()}>
         {(adornment) => (
-          <span
-            data-slot="leading"
-            style={resolved.slotStyle('leading')}
-            class={resolved.slotClass('leading')}
-          >
+          <span data-slot="leading" {...resolved.slotClassAndStyle('leading')}>
             <RenderAdornment value={adornment()} loading={isLeadingLoading()} />
           </span>
         )}
@@ -463,12 +458,11 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         autocomplete={merged.autocomplete}
         maxLength={merged.maxLength}
         data-slot="input"
-        style={resolved.slotStyle('input')}
-        class={cn(
-          resolved.slotClass('input'),
-          merged.type === 'file' &&
+        {...resolved.slotClassAndStyle('input', {
+          state:
+            merged.type === 'file' &&
             'text-muted-foreground file:font-medium file:me-1.5 file:outline-none',
-        )}
+        })}
         onInput={onInput}
         onChange={onChange}
         onBlur={onBlur}
@@ -482,11 +476,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
 
       <Show when={resolvedTrailing()}>
         {(adornment) => (
-          <span
-            data-slot="trailing"
-            style={resolved.slotStyle('trailing')}
-            class={resolved.slotClass('trailing')}
-          >
+          <span data-slot="trailing" {...resolved.slotClassAndStyle('trailing')}>
             <RenderAdornment value={adornment()} loading={isTrailingLoading()} />
           </span>
         )}

@@ -5,7 +5,6 @@ import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/i
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
 
 import type { KbdGroupVariantProps } from './kbd.class.ts'
 import { kbdGroupRecipe } from './kbd.class.ts'
@@ -29,7 +28,10 @@ export namespace KbdGroupT {
     /** Divider between shortcut steps pressed in sequence. */
     sequenceDivider?: T
   }
-  export type Variant = KbdGroupVariantProps
+  export type Variant = KbdGroupVariantProps & {
+    /** Visual style variant applied to rendered shortcut keys. */
+    variant?: KbdT.Variant['variant']
+  }
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -94,12 +96,8 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
     'style',
   ])
 
-  const size = () =>
-    (local.size ?? provider()?.variants?.size ?? 'md') as NonNullable<KbdGroupVariantProps['size']>
-  const variant = () =>
-    (props.variant ?? provider()?.variants?.variant ?? 'default') as NonNullable<
-      KbdGroupVariantProps['variant']
-    >
+  const size = () => local.size ?? provider()?.variants?.size ?? 'md'
+  const variant = () => props.variant ?? provider()?.variants?.variant ?? 'default'
 
   const groups = createMemo(() =>
     (local.sequence ?? (local.items ? [local.items] : [])).filter((items) => items.length > 0),
@@ -126,24 +124,19 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
 
   return (
     <Show when={groups().length > 0}>
-      <span data-slot="root" {...rest} class={resolved.rootClass()} style={resolved.rootStyle()}>
+      <span data-slot="root" {...rest} {...resolved.rootClassAndStyle()}>
         <For each={groups()}>
           {(items, groupIndex) => (
             <>
               <Show when={groupIndex() > 0}>
                 <span
                   data-slot="sequenceDivider"
-                  class={cn('text-muted-foreground', resolved.slotClass('sequenceDivider'))}
-                  style={resolved.slotStyle('sequenceDivider')}
+                  {...resolved.slotClassAndStyle('sequenceDivider')}
                 >
                   {resolveDivider(local.sequenceDividerRender, { index: groupIndex() - 1 }, 'then')}
                 </span>
               </Show>
-              <span
-                data-slot="chord"
-                class={cn('inline-flex gap-1 items-center', resolved.slotClass('chord'))}
-                style={resolved.slotStyle('chord')}
-              >
+              <span data-slot="chord" {...resolved.slotClassAndStyle('chord')}>
                 <For each={items}>
                   {(item, index) => (
                     <>
@@ -151,16 +144,11 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
                         {...toItemProps(item)}
                         size={size()}
                         variant={variant()}
-                        class={resolved.slotClass('item')}
-                        style={resolved.slotStyle('item')}
+                        {...resolved.slotClassAndStyle('item')}
                         slotName="item"
                       />
                       <Show when={index() < items.length - 1}>
-                        <span
-                          data-slot="divider"
-                          class={cn('text-muted-foreground', resolved.slotClass('divider'))}
-                          style={resolved.slotStyle('divider')}
-                        >
+                        <span data-slot="divider" {...resolved.slotClassAndStyle('divider')}>
                           {resolveDivider(local.dividerRender, { index: index() }, '+')}
                         </span>
                       </Show>

@@ -15,7 +15,7 @@ import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import { OverlayMenu } from '../base/menu/index.ts'
 import type {
   OverlayMenuFocusStrategy,
@@ -277,26 +277,6 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
     commitOpen(true)
   }
 
-  const menuClasses = new Proxy(
-    {},
-    {
-      get(_, prop: string) {
-        if (prop === 'content') {
-          return cn('min-w-32', resolved.slotClass('content'))
-        }
-        return resolved.slotClass(prop)
-      },
-    },
-  )
-  const menuStyles = new Proxy(
-    {},
-    {
-      get(_, prop: string) {
-        return resolved.slotStyle(prop)
-      },
-    },
-  )
-
   return (
     <>
       <Show when={triggerRender()}>
@@ -316,8 +296,12 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         onAutoFocusHandled={() => {
           setAutoFocusStrategy('none')
         }}
-        classes={menuClasses}
-        styles={menuStyles}
+        slotClassAndStyle={(slot, override, ...extra) => {
+          if (slot === 'content') {
+            return resolved.slotClassAndStyle('content', override, 'min-w-32', ...extra)
+          }
+          return resolved.slotClassAndStyle(slot, override, ...extra)
+        }}
         size={merged.size ?? undefined}
         items={merged.items}
         checkedIcon={merged.checkedIcon}

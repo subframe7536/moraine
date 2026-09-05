@@ -51,7 +51,6 @@ export const sliderStyleVars = defineStyleVars({
 })
 
 export const sliderRecipe = recipe({
-  slots: ['root', 'track', 'range', 'divider', 'thumb'],
   base: {
     root: 'group flex select-none items-center relative touch-none data-disabled:opacity-64 data-disabled:pointer-events-none',
     track: 'bg-input select-none translate-z-0 relative overflow-hidden',

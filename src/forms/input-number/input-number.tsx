@@ -16,7 +16,7 @@ import type { IconT } from '../../elements/icon/index.ts'
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callHandler, cn, useId } from '../../shared/utils.ts'
+import { callHandler, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
@@ -27,11 +27,7 @@ import type {
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { InputNumberOrientation, InputNumberVariantProps } from './input-number.class.ts'
-import {
-  inputNumberControlColumnVariants,
-  inputNumberRecipe,
-  resolveInputNumberAlign,
-} from './input-number.class.ts'
+import { inputNumberRecipe, resolveInputNumberAlign } from './input-number.class.ts'
 
 type ControlKind = 'increment' | 'decrement'
 type PointerType = 'mouse' | 'touch' | 'pen'
@@ -189,6 +185,9 @@ export namespace InputNumberT {
 
     /** Button that decreases the current numeric value. */
     decrement?: T
+
+    /** Column container for vertical increment/decrement controls. */
+    controls?: T
   }
 
   export type Variant = InputNumberVariantProps
@@ -503,8 +502,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
   const minValue = createMemo(() => merged.minValue ?? Number.MIN_SAFE_INTEGER)
   const maxValue = createMemo(() => merged.maxValue ?? Number.MAX_SAFE_INTEGER)
-  const stepValue = createMemo(() => merged.step ?? 1)
-  const largeStepValue = createMemo(() => merged.largeStep ?? stepValue() * 10)
+  const stepValue = createMemo(() =>
+    typeof merged.step === 'number' ? merged.step : Number(merged.step) || 1,
+  )
+  const largeStepValue = createMemo(() =>
+    typeof merged.largeStep === 'number'
+      ? merged.largeStep
+      : Number(merged.largeStep) || stepValue() * 10,
+  )
 
   const currentValue = createMemo(() => clamp(resolvedValue() ?? 0, minValue(), maxValue()))
   const formattedValue = createMemo(() => formatLocaleNumber(currentValue(), merged.locale))
@@ -966,9 +971,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       get 'data-active'() {
         return pressedControls()[kind] ? '' : undefined
       },
-      get style() {
-        return resolved.slotStyle(kind)
-      },
+      ...resolved.slotClassAndStyle(kind),
       onClick: (event) => onControlClick(kind, event),
       onPointerDown: (event) => onControlPointerDown(kind, event),
       onPointerUp: (event) => onControlPointerUp(kind, event),
@@ -976,9 +979,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       onLostPointerCapture: (event: PointerEvent) => onControlPointerCancel(kind, event),
       onPointerLeave: () => onControlPointerLeave(kind),
       onContextMenu: onControlContextMenu,
-      get class() {
-        return cn('select-none touch-none', resolved.slotClass(kind))
-      },
     }
   }
 
@@ -1087,8 +1087,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       id={`${field.id()}-root`}
       role="group"
       data-slot="root"
-      style={resolved.rootStyle()}
-      class={cn('items-stretch', resolved.rootClass())}
+      {...resolved.rootClassAndStyle()}
       {...dataAttrs()}
       {...rest}
     >
@@ -1115,8 +1114,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         aria-valuetext={formattedValue()}
         placeholder={merged.placeholder}
         data-slot="input"
-        style={resolved.slotStyle('input')}
-        class={resolved.slotClass('input')}
+        {...resolved.slotClassAndStyle('input')}
         onInput={(event) => {
           if (field.disabled() || readOnly()) {
             event.currentTarget.value = inputText()
@@ -1223,12 +1221,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>
-        <div
-          data-slot="controls"
-          class={inputNumberControlColumnVariants({
-            size: field.size(),
-          })}
-        >
+        <div data-slot="controls" {...resolved.slotClassAndStyle('controls')}>
           <Show when={showIncrement()}>
             <button {...resolveControlProps('increment')}>
               <Icon name={incrementIcon()} slotName="leading" />

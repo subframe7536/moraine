@@ -73,6 +73,13 @@
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
+    },
+    {
+      "name": "controls",
+      "description": "Column container for vertical increment/decrement controls.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "props": {

@@ -483,19 +483,14 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   return (
     <div
       data-slot="root"
-      style={resolved.rootStyle()}
-      class={resolved.rootClass()}
+      {...resolved.rootClassAndStyle()}
       onPointerDown={onRootPointerDown}
       data-focused={isFocused() ? '' : undefined}
       {...dataAttrs()}
       {...rest}
     >
       <Show when={showHeader()}>
-        <div
-          data-slot="header"
-          style={resolved.slotStyle('header')}
-          class={resolved.slotClass('header')}
-        >
+        <div data-slot="header" {...resolved.slotClassAndStyle('header')}>
           {header()}
         </div>
       </Show>
@@ -511,8 +506,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         readOnly={merged.readOnly}
         maxLength={merged.maxLength}
         data-slot="input"
-        style={resolved.slotStyle('input')}
-        class={resolved.slotClass('input')}
+        {...resolved.slotClassAndStyle('input')}
         onInput={onInput}
         onChange={onChange}
         onBlur={onBlur}
@@ -525,11 +519,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       {merged.children}
 
       <Show when={showFooter()}>
-        <div
-          data-slot="footer"
-          style={resolved.slotStyle('footer')}
-          class={resolved.slotClass('footer')}
-        >
+        <div data-slot="footer" {...resolved.slotClassAndStyle('footer')}>
           {footer()}
         </div>
       </Show>

@@ -3,7 +3,6 @@ import { For, Show, children as resolveChildren, splitProps, createMemo } from '
 
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
 
 import { ButtonGroupContext } from './button-group-context.ts'
 import type { ButtonGroupLayoutVariantProps } from './button-group.class.ts'
@@ -59,10 +58,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
     'children',
   ])
 
-  const orientation = () =>
-    (local.orientation ?? provider()?.variants?.orientation ?? 'horizontal') as NonNullable<
-      ButtonGroupLayoutVariantProps['orientation']
-    >
+  const orientation = () => local.orientation ?? provider()?.variants?.orientation ?? 'horizontal'
   const size = () => local.size ?? provider()?.variants?.size ?? 'md'
   const variant = () => local.variant ?? provider()?.variants?.variant ?? 'default'
 
@@ -106,9 +102,8 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
         data-orientation={orientation()}
         data-size={size()}
         data-variant={variant()}
-        style={resolved.rootStyle()}
-        class={resolved.rootClass()}
         {...rest}
+        {...resolved.rootClassAndStyle()}
       >
         <Show when={local.separator} fallback={resolvedChildren()}>
           <For each={childArray()}>
@@ -119,11 +114,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
                     data-slot="separator"
                     data-orientation={orientation() === 'horizontal' ? 'vertical' : 'horizontal'}
                     aria-hidden="true"
-                    class={cn(
-                      orientation() === 'horizontal' ? 'h-full w-px' : 'h-px w-full',
-                      resolved.slotClass('separator'),
-                    )}
-                    style={resolved.slotStyle('separator')}
+                    {...resolved.slotClassAndStyle('separator')}
                   />
                 </Show>
                 {child}

@@ -25,22 +25,11 @@ function mockInstantTooltipExit(): void {
       return style
     }
 
-    return new Proxy(style, {
-      get(target, property, receiver) {
-        if (property === 'animationDelay') {
-          return '0s'
-        }
-        if (property === 'animationDuration') {
-          return '0s'
-        }
-        if (property === 'animationName') {
-          return 'none'
-        }
-        if (property === 'display') {
-          return 'block'
-        }
-        return Reflect.get(target, property, receiver)
-      },
+    return Object.create(style, {
+      animationDelay: { value: '0s', configurable: true },
+      animationDuration: { value: '0s', configurable: true },
+      animationName: { value: 'none', configurable: true },
+      display: { value: 'block', configurable: true },
     })
   })
 }

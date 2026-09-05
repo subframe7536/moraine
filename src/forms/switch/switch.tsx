@@ -6,10 +6,9 @@ import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import { TEXT_SIZE_VARIANT } from '../../shared/recipe-common.class.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callHandler, cn, useId } from '../../shared/utils.ts'
+import { callHandler, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
@@ -397,13 +396,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   }
 
   return (
-    <div
-      data-slot="root"
-      {...rest}
-      style={resolved.rootStyle()}
-      class={resolved.rootClass()}
-      onClick={onRootClick}
-    >
+    <div data-slot="root" {...rest} {...resolved.rootClassAndStyle()} onClick={onRootClick}>
       <HiddenInput
         ref={(element) => {
           inputEl = element
@@ -442,9 +435,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         data-invalid={field.invalid() ? '' : undefined}
         aria-checked={Boolean(checked())}
         {...switchAriaAttrs()}
-        style={resolved.slotStyle('track')}
-        class={cn(
-          resolved.slotClass('track'),
+        {...resolved.slotClassAndStyle(
+          'track',
           field.disabled() && 'opacity-64 pointer-events-none',
         )}
         onPointerDown={onPointerDown}
@@ -458,8 +450,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           data-checked={checked() ? '' : undefined}
           data-disabled={field.disabled() ? '' : undefined}
           data-readonly={readOnly() ? '' : undefined}
-          style={resolved.slotStyle('thumb')}
-          class={resolved.slotClass('thumb')}
+          {...resolved.slotClassAndStyle('thumb')}
         >
           <Show when={resolvedIconName()} keyed>
             {(iconName) => (
@@ -468,10 +459,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
                 data-checked={!merged.loading && checked() ? '' : undefined}
                 data-unchecked={!merged.loading && !checked() ? '' : undefined}
                 data-loading={merged.loading ? '' : undefined}
-                class={cn(
-                  'text-primary size-4/5 transition-opacity absolute data-unchecked:text-muted-foreground data-checked:opacity-100 data-unchecked:opacity-90 data-loading:animate-spin',
-                  resolved.slotClass('icon'),
-                )}
+                class={resolved.slotClass('icon')}
               />
             )}
           </Show>
@@ -479,21 +467,15 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       </button>
 
       <Show when={showLabel() || showDescription()}>
-        <span
-          data-slot="wrapper"
-          style={resolved.slotStyle('wrapper')}
-          class={resolved.slotClass('wrapper')}
-        >
+        <span data-slot="wrapper" {...resolved.slotClassAndStyle('wrapper')}>
           <Show when={showLabel()}>
             <label
               for={field.id()}
               id={labelId()}
               data-slot="label"
-              style={resolved.slotStyle('label')}
-              class={cn(
-                'text-foreground leading-tight font-medium block cursor-pointer select-none',
+              {...resolved.slotClassAndStyle(
+                'label',
                 field.required() && "after:text-destructive after:ms-0.5 after:content-['*']",
-                resolved.slotClass('label'),
               )}
             >
               {label()}
@@ -504,12 +486,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
             <span
               id={descriptionId()}
               data-slot="description"
-              style={resolved.slotStyle('description')}
-              class={cn(
-                TEXT_SIZE_VARIANT[field.size()],
-                'text-muted-foreground leading-normal',
-                resolved.slotClass('description'),
-              )}
+              {...resolved.slotClassAndStyle('description')}
             >
               {description()}
             </span>

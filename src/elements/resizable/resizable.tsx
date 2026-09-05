@@ -15,7 +15,7 @@ import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/i
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { callRef, cn, useId } from '../../shared/utils.ts'
+import { callRef, useId } from '../../shared/utils.ts'
 
 import {
   collapsePanel,
@@ -38,11 +38,7 @@ import {
   useResizableHandle,
 } from './hook/index.ts'
 import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook/index.ts'
-import {
-  RESIZABLE_HANDLE_GRIP_CLASS,
-  resizableCrossTargetVariants,
-  resizableRecipe,
-} from './resizable.class.ts'
+import { resizableCrossTargetVariants, resizableRecipe } from './resizable.class.ts'
 import type { ResizableVariantProps } from './resizable.class.ts'
 
 export namespace ResizableT {
@@ -788,8 +784,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
       data-resizable-root
       data-orientation={orientation()}
       {...rest}
-      style={resolved.rootStyle()}
-      class={resolved.rootClass()}
+      {...resolved.rootClassAndStyle()}
     >
       <Index each={resolvedPanels()}>
         {(panel, index) => {
@@ -874,18 +869,15 @@ export function Resizable(props: ResizableProps): JSX.Element {
                 data-expanded={panelItem().collapsible && !collapsed() ? '' : undefined}
                 data-resizing={interactionResizing() ? '' : undefined}
                 data-transitioning={isTransitioning() ? '' : undefined}
-                class={cn(
-                  'min-h-0 min-w-0 overflow-auto data-transitioning:transition-flex-grow motion-reduce:transition-none',
-                  resolved.slotClass('panel'),
-                  panelItem().class,
-                )}
-                style={{
-                  'flex-grow': size(),
-                  'flex-shrink': 1,
-                  'flex-basis': 0,
-                  ...resolved.slotStyle('panel'),
-                  ...panelItem().style,
-                }}
+                {...resolved.slotClassAndStyle('panel', {
+                  class: panelItem().class,
+                  style: {
+                    'flex-grow': size(),
+                    'flex-shrink': 1,
+                    'flex-basis': 0,
+                    ...(panelItem().style as JSX.CSSProperties),
+                  },
+                })}
                 onTransitionEnd={(event) => onPanelTransitionFinish(index, event)}
                 onTransitionCancel={(event) => onPanelTransitionFinish(index, event)}
               >
@@ -904,12 +896,11 @@ export function Resizable(props: ResizableProps): JSX.Element {
                   aria-disabled={handleDisabled() ? 'true' : undefined}
                   tabIndex={handleDisabled() ? -1 : 0}
                   data-slot="divider"
-                  style={resolved.slotStyle('divider')}
                   data-orientation={orientation()}
                   data-active={bindings.active() ? '' : undefined}
                   data-cross={bindings.crossHovered() ? '' : undefined}
                   data-dragging={bindings.dragging() ? '' : undefined}
-                  class={resolved.slotClass('divider')}
+                  {...resolved.slotClassAndStyle('divider')}
                   onMouseEnter={bindings.onMouseEnter}
                   onMouseLeave={bindings.onMouseLeave}
                   onFocus={bindings.onFocus}
@@ -921,14 +912,12 @@ export function Resizable(props: ResizableProps): JSX.Element {
                     <div
                       data-slot="crossTarget"
                       data-resizable-handle-start-target
-                      style={resolved.slotStyle('crossTarget')}
-                      class={cn(
-                        resizableCrossTargetVariants({
+                      {...resolved.slotClassAndStyle('crossTarget', {
+                        state: resizableCrossTargetVariants({
                           orientation: orientation(),
                           target: 'start',
                         }),
-                        resolved.slotClass('crossTarget'),
-                      )}
+                      })}
                       onMouseEnter={() =>
                         bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_START)
                       }
@@ -941,18 +930,17 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       type="button"
                       data-slot="handle"
                       tabIndex={local.handleAction === 'collapse' ? undefined : -1}
-                      style={resolved.slotStyle('handle')}
                       onPointerDown={onHandlePointerDown}
                       onClick={onHandleClick}
-                      class={cn(
-                        RESIZABLE_HANDLE_GRIP_CLASS,
-                        handleCollapseAction() && 'active:cursor-pointer hover:cursor-pointer',
-                        !local.handleRender && [
-                          'bg-border flex shrink-0',
-                          orientation() === 'vertical' ? 'h-1 w-6' : 'h-6 w-1',
+                      {...resolved.slotClassAndStyle('handle', {
+                        state: [
+                          handleCollapseAction() && 'active:cursor-pointer hover:cursor-pointer',
+                          !local.handleRender && [
+                            'bg-border flex shrink-0',
+                            orientation() === 'vertical' ? 'h-1 w-6' : 'h-6 w-1',
+                          ],
                         ],
-                        resolved.slotClass('handle'),
-                      )}
+                      })}
                     >
                       <Show when={local.handleRender !== undefined}>
                         {renderComponentOrElement(local.handleRender, handleRenderProps)}
@@ -964,11 +952,12 @@ export function Resizable(props: ResizableProps): JSX.Element {
                     <div
                       data-slot="crossTarget"
                       data-resizable-handle-end-target
-                      style={resolved.slotStyle('crossTarget')}
-                      class={cn(
-                        resizableCrossTargetVariants({ orientation: orientation(), target: 'end' }),
-                        resolved.slotClass('crossTarget'),
-                      )}
+                      {...resolved.slotClassAndStyle('crossTarget', {
+                        state: resizableCrossTargetVariants({
+                          orientation: orientation(),
+                          target: 'end',
+                        }),
+                      })}
                       onMouseEnter={() =>
                         bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_END)
                       }

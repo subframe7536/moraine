@@ -2,21 +2,6 @@ import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
 export const fileUploadRecipe = recipe({
-  slots: [
-    'root',
-    'control',
-    'wrapper',
-    'icon',
-    'label',
-    'description',
-    'files',
-    'file',
-    'filePreview',
-    'fileMeta',
-    'fileName',
-    'fileSize',
-    'fileRemove',
-  ],
   base: {
     root: 'flex flex-col relative data-disabled:opacity-64 data-disabled:pointer-events-none',
     control:

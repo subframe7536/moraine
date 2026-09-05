@@ -15,10 +15,9 @@ import { Dynamic } from 'solid-js/web'
 
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import { TEXT_SIZE_VARIANT } from '../../shared/recipe-common.class.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { callRef, cn, useId } from '../../shared/utils.ts'
+import { callRef, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
@@ -30,7 +29,7 @@ import type {
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { RadioGroupVariantProps } from './radio-group.class.ts'
-import { radioGroupItemVariants, radioGroupRecipe } from './radio-group.class.ts'
+import { radioGroupRecipe } from './radio-group.class.ts'
 
 export namespace RadioGroupT {
   export interface Slot<T = unknown> {
@@ -450,11 +449,10 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       role="radiogroup"
       aria-orientation={orientation()}
       data-slot="root"
-      style={resolved.rootStyle()}
-      class={resolved.rootClass()}
       {...dataAttrs()}
       {...groupAriaAttrs()}
       {...rest}
+      {...resolved.rootClassAndStyle()}
     >
       <For each={normalizedItems()}>
         {(item) => {
@@ -482,22 +480,9 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               data-slot="item"
               data-checked={variant() === 'list' ? undefined : selected() ? '' : undefined}
               data-disabled={disabled() ? '' : undefined}
-              style={resolved.slotStyle('item')}
-              class={cn(
-                radioGroupItemVariants({
-                  size: field.size(),
-                  variant: itemVariant(),
-                  indicator: visibleIndicator(),
-                  tableOrientation: variant() === 'table' ? orientation() : undefined,
-                }),
-                resolved.slotClass('item'),
-              )}
+              {...resolved.slotClassAndStyle('item')}
             >
-              <div
-                data-slot="container"
-                style={resolved.slotStyle('container')}
-                class={resolved.slotClass('container')}
-              >
+              <div data-slot="container" {...resolved.slotClassAndStyle('container')}>
                 <HiddenInput
                   ref={(element) => {
                     inputRefs.set(item.id, element)
@@ -540,8 +525,9 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
 
                 <div
                   data-slot="control"
-                  style={resolved.slotStyle('control')}
-                  class={cn(resolved.slotClass('control'), indicator() === 'hidden' && 'sr-only')}
+                  {...resolved.slotClassAndStyle('control', {
+                    state: indicator() === 'hidden' && 'sr-only',
+                  })}
                   data-checked={selected() ? '' : undefined}
                   data-invalid={field.invalid() ? '' : undefined}
                   data-disabled={disabled() ? '' : undefined}
@@ -551,8 +537,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                   <Show when={selected()}>
                     <div
                       data-slot="indicator"
-                      style={resolved.slotStyle('indicator')}
-                      class={resolved.slotClass('indicator')}
+                      {...resolved.slotClassAndStyle('indicator')}
                       data-checked={selected() ? '' : undefined}
                       data-invalid={field.invalid() ? '' : undefined}
                       data-disabled={disabled() ? '' : undefined}
@@ -564,11 +549,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               </div>
 
               <Show when={item.label || item.description}>
-                <div
-                  data-slot="wrapper"
-                  style={resolved.slotStyle('wrapper')}
-                  class={resolved.slotClass('wrapper')}
-                >
+                <div data-slot="wrapper" {...resolved.slotClassAndStyle('wrapper')}>
                   <Show when={item.label}>
                     <Show
                       when={variant() === 'list'}
@@ -576,11 +557,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                         <p
                           id={item.labelId}
                           data-slot="label"
-                          style={resolved.slotStyle('label')}
-                          class={cn(
-                            'text-foreground font-medium block',
-                            resolved.slotClass('label'),
-                          )}
+                          {...resolved.slotClassAndStyle('label')}
                         >
                           {item.label}
                         </p>
@@ -590,8 +567,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                         id={item.labelId}
                         for={item.inputId}
                         data-slot="label"
-                        style={resolved.slotStyle('label')}
-                        class={cn('text-foreground font-medium block', resolved.slotClass('label'))}
+                        {...resolved.slotClassAndStyle('label')}
                       >
                         {item.label}
                       </label>
@@ -602,12 +578,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                     <p
                       id={item.descriptionId}
                       data-slot="description"
-                      style={resolved.slotStyle('description')}
-                      class={cn(
-                        TEXT_SIZE_VARIANT[field.size()],
-                        'text-muted-foreground leading-normal',
-                        resolved.slotClass('description'),
-                      )}
+                      {...resolved.slotClassAndStyle('description')}
                     >
                       {item.description}
                     </p>

@@ -197,6 +197,8 @@ export interface ComponentStyleInputs<
 > {
   /** Recipe slot functions for this instance. */
   slots?: SlotFns<S>
+  /** Resolved class from an atomic recipe. */
+  baseClass?: SlotClassValue
   /** Named slot rendered as the component root surface, when different from `root`. */
   rootSlot?: S
   /** Provider overrides (already deep-merged outer → inner). */
@@ -216,13 +218,6 @@ export interface ComponentStyleInputs<
   baseStyle?: JSX.CSSProperties
 }
 
-export interface ResolvedComponentStyle<S extends string> {
-  rootClass: () => string | undefined
-  rootStyle: () => JSX.CSSProperties
-  slotClass: (slot: S, override?: SlotClassOverride) => string | undefined
-  slotStyle: (slot: S, override?: SlotStyleOverride) => JSX.CSSProperties | undefined
-}
-
 export interface SlotClassOverride {
   group?: SlotClassValue
   state?: SlotClassValue
@@ -233,12 +228,50 @@ export interface SlotStyleOverride {
   state?: JSX.CSSProperties
 }
 
+export type SlotCombinedOverride =
+  | SlotClassValue
+  | {
+      group?: SlotClassValue
+      groupStyle?: JSX.CSSProperties
+      state?: SlotClassValue
+      stateStyle?: JSX.CSSProperties
+      class?: SlotClassValue
+      style?: JSX.CSSProperties
+    }
+
+export interface SlotBinding {
+  readonly class: string | undefined
+  readonly style: JSX.CSSProperties | undefined
+}
+
+export interface RootBinding {
+  readonly class: string | undefined
+  readonly style: JSX.CSSProperties
+}
+
+export interface ResolvedComponentStyle<S extends string> {
+  rootClass: () => string | undefined
+  rootStyle: () => JSX.CSSProperties
+  rootClassAndStyle: (...extra: SlotClassValue[]) => RootBinding
+  slotClass: (
+    slot: S,
+    override?: SlotClassOverride | SlotClassValue,
+    ...extra: SlotClassValue[]
+  ) => string | undefined
+  slotStyle: (slot: S, override?: SlotStyleOverride) => JSX.CSSProperties | undefined
+  slotClassAndStyle: (
+    slot: S,
+    override?: SlotCombinedOverride,
+    ...extra: SlotClassValue[]
+  ) => SlotBinding
+}
+
 /**
  * The single normative chain resolver.
  *
  * Ordering (weakest → strongest) matches the Inheritance and Override
  * Precedence table exactly:
- *   class: recipe slots → provider.classes[slot] → group.classes[slot]
+ *   class: recipe slots/base class → provider.classes[slot] → group.classes[slot]
  *          → stateCls[slot] → instance.classes[slot] → instance.class (root only)
  *   style: baseStyle → provider.styles[slot] → group.styles[slot]
  *          → instance.styles[slot] → instance.style (root only)
@@ -249,7 +282,7 @@ export function resolveComponentStyle<
   C = any,
   S_Style = any,
 >(inputs: ComponentStyleInputs<S, V, C, S_Style>): ResolvedComponentStyle<S> {
-  return {
+  const resolved: ResolvedComponentStyle<S> = {
     rootClass: () => {
       const rootSlot = inputs.rootSlot ?? ('root' as S)
       const providerClasses = inputs.provider?.classes as Record<string, SlotClassValue> | undefined
@@ -259,6 +292,7 @@ export function resolveComponentStyle<
 
       return (
         slot?.(
+          inputs.baseClass,
           providerClasses?.[rootSlot],
           groupClasses?.[rootSlot],
           inputs.stateCls?.[rootSlot],
@@ -266,6 +300,7 @@ export function resolveComponentStyle<
           inputs.instance?.class,
         ) ??
         cn(
+          inputs.baseClass,
           providerClasses?.[rootSlot],
           groupClasses?.[rootSlot],
           inputs.stateCls?.[rootSlot],
@@ -292,7 +327,26 @@ export function resolveComponentStyle<
         ...inputs.instance?.style,
       }
     },
-    slotClass: (slot, override) => {
+    rootClassAndStyle: (...extra: SlotClassValue[]) => ({
+      get class() {
+        return cn(resolved.rootClass(), ...extra) || undefined
+      },
+      get style() {
+        return resolved.rootStyle()
+      },
+    }),
+    slotClass: (slot, override, ...extra) => {
+      const isOverrideObject =
+        typeof override === 'object' &&
+        override !== null &&
+        !Array.isArray(override) &&
+        ('group' in override || 'state' in override || 'class' in override)
+
+      const groupOverride = isOverrideObject ? (override as SlotClassOverride).group : undefined
+      const stateOverride = isOverrideObject
+        ? cn((override as any).state ?? (override as any).class, ...extra)
+        : cn(override as SlotClassValue, ...extra)
+
       const providerClasses = inputs.provider?.classes as Record<string, SlotClassValue> | undefined
       const groupClasses = inputs.group?.classes as Record<string, SlotClassValue> | undefined
       const instanceClasses = inputs.instance?.classes as Record<string, SlotClassValue> | undefined
@@ -301,14 +355,14 @@ export function resolveComponentStyle<
       return (
         slotFn?.(
           providerClasses?.[slot],
-          cn(groupClasses?.[slot], override?.group),
-          cn(inputs.stateCls?.[slot], override?.state),
+          cn(groupClasses?.[slot], groupOverride),
+          cn(inputs.stateCls?.[slot], stateOverride),
           instanceClasses?.[slot],
         ) ??
         cn(
           providerClasses?.[slot],
-          cn(groupClasses?.[slot], override?.group),
-          cn(inputs.stateCls?.[slot], override?.state),
+          cn(groupClasses?.[slot], groupOverride),
+          cn(inputs.stateCls?.[slot], stateOverride),
           instanceClasses?.[slot],
         )
       )
@@ -330,7 +384,46 @@ export function resolveComponentStyle<
         ...instanceStyles?.[slot],
       }
     },
+    slotClassAndStyle: (slot, override, ...extra) => {
+      const isOverrideObject =
+        typeof override === 'object' &&
+        override !== null &&
+        !Array.isArray(override) &&
+        ('group' in override ||
+          'groupStyle' in override ||
+          'state' in override ||
+          'stateStyle' in override ||
+          'class' in override ||
+          'style' in override)
+
+      return {
+        get class() {
+          if (isOverrideObject) {
+            const obj = override as Record<string, any>
+            return resolved.slotClass(slot, {
+              group: obj.group,
+              state: cn(obj.state ?? obj.class, ...extra),
+            })
+          }
+          return resolved.slotClass(slot, {
+            state: cn(override, ...extra),
+          })
+        },
+        get style() {
+          if (isOverrideObject) {
+            const obj = override as Record<string, any>
+            return resolved.slotStyle(slot, {
+              group: obj.groupStyle,
+              state: obj.stateStyle ?? obj.style,
+            })
+          }
+          return resolved.slotStyle(slot)
+        },
+      }
+    },
   }
+
+  return resolved
 }
 
 export interface MoraineProviderProps {

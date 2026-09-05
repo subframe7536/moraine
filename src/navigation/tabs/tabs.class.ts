@@ -1,18 +1,15 @@
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-export const TABS_LEADING_CLASS = 'inline-flex shrink-0 items-center justify-center'
-
 export const tabsRecipe = recipe({
-  slots: ['root', 'list', 'indicator', 'trigger', 'leading', 'label', 'trailing', 'content'],
   base: {
     root: 'flex gap-2',
     list: 'p-1 inline-flex items-center relative',
     indicator: 'rounded-md transition-[transform,width,height] absolute',
     trigger:
       'text-muted-foreground font-medium px-2 py-1.5 outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-64 disabled:pointer-events-none',
-    leading: TABS_LEADING_CLASS,
-    label: '',
+    leading: 'inline-flex shrink-0 items-center justify-center',
+    label: 'truncate',
     trailing: '',
     content: 'text-sm outline-none w-full',
   },

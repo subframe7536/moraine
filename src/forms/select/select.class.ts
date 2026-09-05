@@ -1,48 +1,9 @@
-import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
+import { INPUT_VARIANT, POPPER_CONTENT_SIDE_VARIANT } from '../../shared/recipe-common.class.ts'
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-const SELECT_TEXT_SIZE = {
-  sm: 'text-xs',
-  md: 'text-sm',
-  lg: 'text-base',
-} as const
-
 const SELECT_CONTENT_CLASS =
   'text-popover-foreground p-0 outline-none rounded-md bg-popover flex flex-col min-w-36 origin-[var(--mo-popper-content-transform-origin)] z-floating motion-reduce:animate-none border border-border shadow-md data-closed:animate-mo-exit data-closed:exit-opacity-0 data-closed:exit-scale-95 data-expanded:animate-mo-enter data-expanded:enter-opacity-0 data-expanded:enter-scale-95'
-
-const SELECT_CONTENT_SIDE_CLASS = {
-  top: 'mb-[var(--mo-popper-content-overflow-padding)] enter-translate-y-1 exit-translate-y-1',
-  right: 'ml-[var(--mo-popper-content-overflow-padding)] -enter-translate-x-1 -exit-translate-x-1',
-  bottom: 'mt-[var(--mo-popper-content-overflow-padding)] -enter-translate-y-1 -exit-translate-y-1',
-  left: 'mr-[var(--mo-popper-content-overflow-padding)] enter-translate-x-1 exit-translate-x-1',
-} as const
-
-export const selectControlVariants = recipe({
-  base: 'text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] items-center data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 data-disabled:opacity-64 data-disabled:pointer-events-none data-invalid:ring-3 focus-visible:ring-3',
-  defaultVariants: {
-    variant: 'outline',
-    size: 'md',
-  },
-  variants: {
-    variant: INPUT_VARIANT,
-    size: SELECT_TEXT_SIZE,
-    mode: {
-      single: '',
-      multi: 'px-1.5',
-    },
-    search: {
-      true: 'cursor-text focus-within:outline-none focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 focus-within:data-invalid:border-destructive focus-within:data-invalid:ring-3 focus-within:data-invalid:ring-destructive/20 dark:focus-within:data-invalid:border-destructive/50 dark:focus-within:data-invalid:ring-destructive/40',
-      false:
-        'cursor-pointer focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:data-invalid:border-destructive focus-visible:data-invalid:ring-3 focus-visible:data-invalid:ring-destructive/20 dark:focus-visible:data-invalid:border-destructive/50 dark:focus-visible:data-invalid:ring-destructive/40',
-    },
-  },
-  compoundVariants: [
-    { variants: { size: 'sm', mode: 'single' }, class: 'pe-1.5 ps-2' },
-    { variants: { size: 'md', mode: 'single' }, class: 'pe-2 ps-2.5' },
-    { variants: { size: 'lg', mode: 'single' }, class: 'pe-2.5 ps-3' },
-  ],
-})
 
 export const SELECT_TRIGGER_ICON_CLASS =
   'text-muted-foreground outline-none opacity-80 shrink-0 pointer-events-none'
@@ -71,33 +32,11 @@ export const selectContentVariants = recipe({
     side: 'right',
   },
   variants: {
-    side: {
-      top: SELECT_CONTENT_SIDE_CLASS.top,
-      right: SELECT_CONTENT_SIDE_CLASS.right,
-      bottom: SELECT_CONTENT_SIDE_CLASS.bottom,
-      left: SELECT_CONTENT_SIDE_CLASS.left,
-    },
+    side: POPPER_CONTENT_SIDE_VARIANT,
   },
 })
 
 export const selectRecipe = recipe({
-  slots: [
-    'root',
-    'content',
-    'listbox',
-    'item',
-    'group',
-    'label',
-    'control',
-    'input',
-    'leading',
-    'trigger',
-    'clear',
-    'empty',
-    'itemLabel',
-    'itemDescription',
-    'itemTrailing',
-  ],
   base: {
     root: '',
     content: SELECT_CONTENT_CLASS,
@@ -168,10 +107,10 @@ export const selectRecipe = recipe({
       },
     },
     side: {
-      top: { content: SELECT_CONTENT_SIDE_CLASS.top },
-      right: { content: SELECT_CONTENT_SIDE_CLASS.right },
-      bottom: { content: SELECT_CONTENT_SIDE_CLASS.bottom },
-      left: { content: SELECT_CONTENT_SIDE_CLASS.left },
+      top: { content: POPPER_CONTENT_SIDE_VARIANT.top },
+      right: { content: POPPER_CONTENT_SIDE_VARIANT.right },
+      bottom: { content: POPPER_CONTENT_SIDE_VARIANT.bottom },
+      left: { content: POPPER_CONTENT_SIDE_VARIANT.left },
     },
   },
   compoundVariants: [
@@ -182,27 +121,6 @@ export const selectRecipe = recipe({
 })
 
 export const multiSelectRecipe = recipe({
-  slots: [
-    'root',
-    'content',
-    'listbox',
-    'item',
-    'group',
-    'label',
-    'control',
-    'input',
-    'leading',
-    'trigger',
-    'clear',
-    'tagsContainer',
-    'tag',
-    'tagRemove',
-    'tagOverflow',
-    'empty',
-    'itemLabel',
-    'itemDescription',
-    'itemTrailing',
-  ],
   base: {
     root: '',
     content: SELECT_CONTENT_CLASS,
@@ -273,12 +191,14 @@ export const multiSelectRecipe = recipe({
       },
     },
     side: {
-      top: { content: SELECT_CONTENT_SIDE_CLASS.top },
-      right: { content: SELECT_CONTENT_SIDE_CLASS.right },
-      bottom: { content: SELECT_CONTENT_SIDE_CLASS.bottom },
-      left: { content: SELECT_CONTENT_SIDE_CLASS.left },
+      top: { content: POPPER_CONTENT_SIDE_VARIANT.top },
+      right: { content: POPPER_CONTENT_SIDE_VARIANT.right },
+      bottom: { content: POPPER_CONTENT_SIDE_VARIANT.bottom },
+      left: { content: POPPER_CONTENT_SIDE_VARIANT.left },
     },
   },
 })
 
-export type SelectControlVariantProps = VariantProps<typeof selectControlVariants>
+export type SelectVariantProps = VariantProps<typeof selectRecipe>
+export type SelectControlVariantProps = SelectVariantProps
+export type MultiSelectVariantProps = VariantProps<typeof multiSelectRecipe>

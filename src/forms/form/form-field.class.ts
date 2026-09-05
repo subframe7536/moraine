@@ -1,35 +1,17 @@
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-export const FORM_FIELD_WRAPPER_CLASS = 'flex flex-col gap-1'
-export const FORM_FIELD_LABEL_WRAPPER_CLASS = 'flex gap-1.5 items-center'
-export const FORM_FIELD_HINT_CLASS = 'text-muted-foreground'
-export const FORM_FIELD_DESCRIPTION_CLASS = 'text-muted-foreground leading-normal'
-export const FORM_FIELD_HELP_CLASS = 'text-muted-foreground leading-normal'
-export const FORM_FIELD_ERROR_CLASS = 'text-destructive font-medium leading-normal'
-
 export const formFieldRecipe = recipe({
-  slots: [
-    'root',
-    'wrapper',
-    'labelWrapper',
-    'label',
-    'container',
-    'description',
-    'error',
-    'hint',
-    'help',
-  ],
   base: {
     root: '',
-    wrapper: FORM_FIELD_WRAPPER_CLASS,
-    labelWrapper: FORM_FIELD_LABEL_WRAPPER_CLASS,
+    wrapper: 'flex flex-col gap-1',
+    labelWrapper: 'flex gap-1.5 items-center',
     label: 'text-foreground font-medium block',
     container: 'flex flex-col gap-1.5 relative',
-    description: FORM_FIELD_DESCRIPTION_CLASS,
-    error: FORM_FIELD_ERROR_CLASS,
-    hint: FORM_FIELD_HINT_CLASS,
-    help: FORM_FIELD_HELP_CLASS,
+    description: 'text-muted-foreground leading-normal',
+    error: 'text-destructive font-medium leading-normal',
+    hint: 'text-muted-foreground',
+    help: 'text-muted-foreground leading-normal',
   },
   defaultVariants: {
     size: 'md',

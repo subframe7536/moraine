@@ -352,7 +352,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       .filter((tag) => !existingValues.some((existingValue) => Object.is(existingValue, tag.value)))
       .map((tag) => tag.raw)
 
-    return disableUnselectedOptionsWhenAtMax([...newTags, ...base], selected, atMax)
+    return disableUnselectedOptionsWhenAtMax(newTags.concat(base), selected, atMax)
   })
 
   function getSelectedOptions(
@@ -815,8 +815,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
             data-disabled={api.field.disabled() ? '' : undefined}
             data-invalid={api.field.invalid() ? '' : undefined}
             data-required={api.field.required() ? '' : undefined}
-            style={controlResolved.slotStyle('control')}
-            class={controlResolved.slotClass('control')}
+            {...controlResolved.slotClassAndStyle('control')}
             {...api.controlProps()}
           >
             <Show when={leadingIcon()}>
@@ -824,18 +823,16 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                 <Icon
                   name={icon()}
                   slotName="leading"
-                  style={controlResolved.slotStyle('leading')}
-                  class={controlResolved.slotClass('leading')}
+                  {...controlResolved.slotClassAndStyle('leading')}
                 />
               )}
             </Show>
 
             <div
               data-slot="tagsContainer"
-              style={controlResolved.slotStyle('tagsContainer')}
-              class={cn(
+              {...controlResolved.slotClassAndStyle(
+                'tagsContainer',
                 'text-sm py-1.5 bg-transparent flex flex-1 flex-wrap gap-1 max-w-full select-none',
-                controlResolved.slotClass('tagsContainer'),
               )}
             >
               <For each={visibleTagOptions()}>
@@ -852,8 +849,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                       <span
                         data-slot="tag"
                         title={option.key}
-                        style={controlResolved.slotStyle('tag')}
-                        class={controlResolved.slotClass('tag')}
+                        {...controlResolved.slotClassAndStyle('tag')}
                         onPointerDown={(event: PointerEvent) => {
                           event.preventDefault()
                           api.focusInput()
@@ -903,20 +899,15 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               </For>
 
               <Show when={hiddenTagCount() > 0}>
-                <span
-                  data-slot="tagOverflow"
-                  style={controlResolved.slotStyle('tagOverflow')}
-                  class={controlResolved.slotClass('tagOverflow')}
-                >
+                <span data-slot="tagOverflow" {...controlResolved.slotClassAndStyle('tagOverflow')}>
                   +{hiddenTagCount()}
                 </span>
               </Show>
 
               <input
                 data-slot="input"
-                style={controlResolved.slotStyle('input')}
-                class={cn(
-                  controlResolved.slotClass('input'),
+                {...controlResolved.slotClassAndStyle(
+                  'input',
                   !api.isSearchable() && 'cursor-pointer',
                 )}
                 {...api.inputProps()}

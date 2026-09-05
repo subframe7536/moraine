@@ -17,7 +17,7 @@ import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/i
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { cn, useId } from '../../shared/utils.ts'
+import { useId } from '../../shared/utils.ts'
 
 import { tabsRecipe } from './tabs.class.ts'
 import type { TabsVariantProps } from './tabs.class.ts'
@@ -424,8 +424,7 @@ export function Tabs(props: TabsProps): JSX.Element {
       id={rootId()}
       data-slot="root"
       data-orientation={merged.orientation}
-      style={resolved.rootStyle()}
-      class={resolved.rootClass()}
+      {...resolved.rootClassAndStyle()}
       {...rest}
     >
       <div
@@ -433,8 +432,7 @@ export function Tabs(props: TabsProps): JSX.Element {
         role="tablist"
         aria-orientation={merged.orientation ?? undefined}
         data-slot="list"
-        style={resolved.slotStyle('list')}
-        class={resolved.slotClass('list')}
+        {...resolved.slotClassAndStyle('list')}
       >
         <div
           aria-hidden="true"
@@ -478,8 +476,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 data-highlighted={highlighted() && !selected() ? '' : undefined}
                 disabled={Boolean(merged.disabled || item.disabled)}
                 data-slot="trigger"
-                style={resolved.slotStyle('trigger')}
-                class={resolved.slotClass('trigger')}
+                {...resolved.slotClassAndStyle('trigger')}
                 onClick={() => {
                   setHighlightedKey(item.instanceKey)
                   selectValue(item.value)
@@ -490,21 +487,13 @@ export function Tabs(props: TabsProps): JSX.Element {
                 }}
               >
                 <Show when={item.icon}>
-                  <span
-                    data-slot="leading"
-                    style={resolved.slotStyle('leading')}
-                    class={resolved.slotClass('leading')}
-                  >
+                  <span data-slot="leading" {...resolved.slotClassAndStyle('leading')}>
                     <Icon name={item.icon} />
                   </span>
                 </Show>
 
                 <Show when={typeof item.label === 'string'} fallback={item.label}>
-                  <span
-                    data-slot="label"
-                    style={resolved.slotStyle('label')}
-                    class={cn('truncate', resolved.slotClass('label'))}
-                  >
+                  <span data-slot="label" {...resolved.slotClassAndStyle('label')}>
                     {item.label}
                   </span>
                 </Show>
@@ -527,8 +516,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 aria-labelledby={getTriggerId(item.instanceKey)}
                 data-selected=""
                 data-slot="content"
-                style={resolved.slotStyle('content')}
-                class={resolved.slotClass('content')}
+                {...resolved.slotClassAndStyle('content')}
               >
                 {item.content}
               </div>

@@ -1,17 +1,15 @@
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-export const RESIZABLE_HANDLE_GRIP_CLASS =
-  'rounded-lg flex cursor-inherit items-center justify-center z-sticky focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 touch-none select-none'
-
 export const resizableRecipe = recipe({
-  slots: ['root', 'panel', 'divider', 'handle', 'crossTarget'],
   base: {
     root: 'flex h-full min-h-0 min-w-0 w-full',
-    panel: '',
+    panel:
+      'min-h-0 min-w-0 overflow-auto data-transitioning:transition-flex-grow motion-reduce:transition-none',
     divider:
       "bg-border flex shrink-0 select-none items-center justify-center relative overflow-visible touch-none focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-disabled:cursor-default data-cross:cursor-move after:content-[''] after:absolute",
-    handle: '',
+    handle:
+      'rounded-lg flex cursor-inherit items-center justify-center z-sticky focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 touch-none select-none',
     crossTarget: 'border-0 bg-transparent h-2 w-2 cursor-move pointer-events-auto absolute z-base',
   },
   defaultVariants: {

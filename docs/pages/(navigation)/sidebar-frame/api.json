@@ -16,6 +16,13 @@
       "ariaAttributes": []
     },
     {
+      "name": "desktopLayout",
+      "description": "Desktop layout wrapper around sidebar and main.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
       "name": "sidebar",
       "description": "Sidebar region rendered inline on desktop or inside a sheet on mobile.",
       "cssVariables": [],

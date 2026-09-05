@@ -13,7 +13,7 @@ import { KbdGroup } from '../../elements/kbd/index.ts'
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { cn, useId } from '../../shared/utils.ts'
+import { useId } from '../../shared/utils.ts'
 import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
 import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
@@ -424,11 +424,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         {...context.contentProps}
       >
         <Show when={typeof text() === 'string'} fallback={text()}>
-          <span
-            data-slot="text"
-            style={resolved.slotStyle('text')}
-            class={cn('leading-4 text-pretty', resolved.slotClass('text'))}
-          >
+          <span data-slot="text" {...resolved.slotClassAndStyle('text', 'leading-4 text-pretty')}>
             {text()}
           </span>
         </Show>
@@ -439,10 +435,9 @@ export function Tooltip(props: TooltipProps): JSX.Element {
               variant={merged.invert ? 'invert' : undefined}
               size="sm"
               items={value()}
-              style={resolved.slotStyle('kbds')}
-              class={cn(
+              {...resolved.slotClassAndStyle(
+                'kbds',
                 text() && 'rounded-sm relative z-floating isolate',
-                resolved.slotClass('kbds'),
               )}
               classes={{ item: resolved.slotClass('kbd') }}
               styles={{ item: resolved.slotStyle('kbd') }}

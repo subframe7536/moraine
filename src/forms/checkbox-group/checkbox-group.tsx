@@ -11,9 +11,8 @@ import {
 } from 'solid-js'
 
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { SlotFns } from '../../shared/style/recipe.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn, useId } from '../../shared/utils.ts'
+import { useId } from '../../shared/utils.ts'
 import type { CheckboxProps } from '../checkbox/checkbox.tsx'
 import { Checkbox } from '../checkbox/index.ts'
 import { useFormField } from '../form/form-context.ts'
@@ -27,7 +26,7 @@ import type {
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { CheckboxGroupVariantProps } from './checkbox-group.class.ts'
-import { checkboxGroupItemVariants, checkboxGroupRecipe } from './checkbox-group.class.ts'
+import { checkboxGroupRecipe } from './checkbox-group.class.ts'
 
 export namespace CheckboxGroupT {
   export interface Slot<T = unknown> {
@@ -257,7 +256,9 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
   const legend = createMemo(() => merged.legend)
   const items = createMemo(() => merged.items ?? [])
   const controlledValue = createMemo(() => merged.value)
-  const initialDefaultValue = untrack(() => [...(merged.defaultValue ?? [])])
+  const initialDefaultValue = untrack(() =>
+    Array.isArray(merged.defaultValue) ? merged.defaultValue.slice() : [],
+  )
 
   const groupId = useId(() => merged.id, 'checkbox-group')
   const field = useFormField(
@@ -281,12 +282,14 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       orientation: merged.orientation,
       size: field.size(),
       required: field.required(),
+      variant: merged.variant,
+      tableOrientation: merged.variant === 'table' ? merged.orientation : undefined,
     }),
   )
 
   const resolved = resolveComponentStyle({
     get slots() {
-      return slots() as SlotFns<Extract<keyof CheckboxGroupT.Slot, string>>
+      return slots()
     },
     get provider() {
       return provider()
@@ -341,7 +344,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     const value = controlledValue()
 
     if (value !== undefined) {
-      field.setFormValue([...value])
+      field.setFormValue(Array.isArray(value) ? value.slice() : [])
     }
   })
 
@@ -354,15 +357,15 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     }
 
     const nextValues = checked
-      ? [...currentValues, value]
+      ? currentValues.concat(value)
       : currentValues.filter((itemValue) => itemValue !== value)
 
     if (controlledValue() === undefined) {
       setUncontrolledValue(nextValues)
     }
 
-    field.setFormValue([...nextValues])
-    merged.onChange?.([...nextValues])
+    field.setFormValue(nextValues.slice())
+    merged.onChange?.(nextValues.slice())
     field.emit('change')
     field.emit('input')
   }
@@ -374,21 +377,15 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       const nextValue = value ?? initialDefaultValue
 
       if (value === undefined) {
-        setUncontrolledValue([...initialDefaultValue])
+        setUncontrolledValue(initialDefaultValue.slice())
       }
 
-      field.setFormValue([...nextValue])
+      field.setFormValue(Array.isArray(nextValue) ? nextValue.slice() : [])
     },
   )
 
   return (
-    <div
-      id={`${groupId()}-root`}
-      data-slot="root"
-      style={resolved.rootStyle()}
-      class={cn('relative', resolved.rootClass())}
-      {...rest}
-    >
+    <div id={`${groupId()}-root`} data-slot="root" {...rest} {...resolved.rootClassAndStyle()}>
       <fieldset
         ref={(element) => {
           fieldsetEl = element
@@ -396,21 +393,17 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         id={groupId()}
         data-slot="fieldset"
         disabled={field.disabled()}
-        style={resolved.slotStyle('fieldset')}
         aria-labelledby={
           (field.ariaAttrs()['aria-labelledby'] as string | undefined) ??
           (legend() ? legendId() : undefined)
         }
-        class={cn(resolved.slotClass('fieldset'), merged.variant !== 'table' && 'gap-2')}
+        {...resolved.slotClassAndStyle('fieldset', {
+          state: merged.variant !== 'table' && 'gap-2',
+        })}
         {...field.ariaAttrs()}
       >
         <Show when={legend()}>
-          <legend
-            id={legendId()}
-            data-slot="legend"
-            style={resolved.slotStyle('legend')}
-            class={resolved.slotClass('legend')}
-          >
+          <legend id={legendId()} data-slot="legend" {...resolved.slotClassAndStyle('legend')}>
             {legend()}
           </legend>
         </Show>
@@ -442,14 +435,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                 checkedIcon={item().checkedIcon ?? checkedIcon()}
                 indeterminateIcon={item().indeterminateIcon ?? indeterminateIcon()}
                 classes={{
-                  root: cn(
-                    checkboxGroupItemVariants({
-                      tableSize: merged.variant === 'table' ? field.size() : undefined,
-                      tableOrientation: merged.variant === 'table' ? merged.orientation : undefined,
-                    }),
-                    merged.variant === 'table' && 'border border-muted rounded-none relative',
-                    resolved.slotClass('item'),
-                  ),
+                  root: resolved.slotClass('item'),
                   container: resolved.slotClass('container'),
                   control: resolved.slotClass('control'),
                   indicator: resolved.slotClass('indicator'),

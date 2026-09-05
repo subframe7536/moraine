@@ -2,7 +2,6 @@ import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
 export const badgeRecipe = recipe({
-  slots: ['root', 'leading', 'label', 'trailing'],
   base: {
     root: 'leading-normal font-medium border inline-flex shrink-0 max-w-full select-none whitespace-nowrap items-center',
     leading: '',

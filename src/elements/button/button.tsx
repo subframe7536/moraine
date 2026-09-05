@@ -277,21 +277,18 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       data-disabled={local.disabled ? '' : undefined}
       {...interactionProps}
       component={tag()}
-      style={resolved.rootStyle()}
-      class={resolved.rootClass()}
+      {...resolved.rootClassAndStyle()}
     >
       <Show when={resolvedLeading()}>
         {(leading) => (
           <Icon
             name={leading()}
             slotName="leading"
-            style={resolved.slotStyle(
+            {...resolved.slotClassAndStyle(
               'leading',
-              isLeadingLoading() ? { state: resolved.slotStyle('loading') } : undefined,
-            )}
-            class={resolved.slotClass(
-              'leading',
-              isLeadingLoading() ? { state: resolved.slotClass('loading') } : undefined,
+              isLeadingLoading()
+                ? { state: resolved.slotClass('loading'), style: resolved.slotStyle('loading') }
+                : undefined,
             )}
             aria-hidden={isLeadingLoading() ? true : undefined}
           />
@@ -299,11 +296,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       </Show>
 
       <Show when={hasResolvedChildren()}>
-        <span
-          data-slot="label"
-          style={resolved.slotStyle('label')}
-          class={resolved.slotClass('label')}
-        >
+        <span data-slot="label" {...resolved.slotClassAndStyle('label')}>
           {resolvedChildren()}
         </span>
       </Show>
@@ -313,13 +306,11 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           <Icon
             name={trailing()}
             slotName="trailing"
-            style={resolved.slotStyle(
+            {...resolved.slotClassAndStyle(
               'trailing',
-              isTrailingLoading() ? { state: resolved.slotStyle('loading') } : undefined,
-            )}
-            class={resolved.slotClass(
-              'trailing',
-              isTrailingLoading() ? { state: resolved.slotClass('loading') } : undefined,
+              isTrailingLoading()
+                ? { state: resolved.slotClass('loading'), style: resolved.slotStyle('loading') }
+                : undefined,
             )}
             aria-hidden={isTrailingLoading() ? true : undefined}
           />

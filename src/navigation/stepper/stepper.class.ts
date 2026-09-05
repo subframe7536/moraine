@@ -41,20 +41,6 @@ export const stepperStyleVars = defineStyleVars({
 })
 
 export const stepperRecipe = recipe({
-  slots: [
-    'root',
-    'header',
-    'item',
-    'container',
-    'trigger',
-    'indicator',
-    'icon',
-    'separator',
-    'wrapper',
-    'title',
-    'description',
-    'content',
-  ],
   base: {
     root: 'flex gap-2',
     header: 'flex',
@@ -65,7 +51,7 @@ export const stepperRecipe = recipe({
     indicator: '',
     icon: '',
     separator:
-      'rounded-full bg-border bg-border transition-colors absolute data-[state=completed]:bg-primary data-disabled:opacity-75',
+      'rounded-full bg-border transition-colors absolute data-[state=completed]:bg-primary data-disabled:opacity-75',
     wrapper: 'min-w-0',
     title: 'text-foreground leading-snug font-medium',
     description: 'text-muted-foreground leading-normal text-wrap',

@@ -79,12 +79,8 @@ export function Badge(props: BadgeProps): JSX.Element {
     'trailing',
     'children',
   ])
-  const size = () =>
-    (local.size ?? provider()?.variants?.size ?? 'md') as NonNullable<BadgeVariantProps['size']>
-  const variant = () =>
-    (local.variant ?? provider()?.variants?.variant ?? 'default') as NonNullable<
-      BadgeVariantProps['variant']
-    >
+  const size = () => local.size ?? provider()?.variants?.size ?? 'md'
+  const variant = () => local.variant ?? provider()?.variants?.variant ?? 'default'
 
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
@@ -119,37 +115,22 @@ export function Badge(props: BadgeProps): JSX.Element {
       data-size={size()}
       data-variant={variant()}
       {...rest}
-      style={resolved.rootStyle()}
-      class={resolved.rootClass()}
+      {...resolved.rootClassAndStyle()}
     >
       <Show when={leading()}>
         {(leading) => (
-          <Icon
-            name={leading()}
-            slotName="leading"
-            style={resolved.slotStyle('leading')}
-            class={resolved.slotClass('leading')}
-          />
+          <Icon name={leading()} slotName="leading" {...resolved.slotClassAndStyle('leading')} />
         )}
       </Show>
 
       <Show when={hasChildren()}>
-        <span
-          data-slot="label"
-          style={resolved.slotStyle('label')}
-          class={resolved.slotClass('label')}
-        >
+        <span data-slot="label" {...resolved.slotClassAndStyle('label')}>
           {resolvedChildren()}
         </span>
       </Show>
 
       <Show when={trailing()}>
-        <Icon
-          name={trailing()}
-          slotName="trailing"
-          style={resolved.slotStyle('trailing')}
-          class={resolved.slotClass('trailing')}
-        />
+        <Icon name={trailing()} slotName="trailing" {...resolved.slotClassAndStyle('trailing')} />
       </Show>
     </span>
   )

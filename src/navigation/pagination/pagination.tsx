@@ -7,17 +7,8 @@ import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
 
-import {
-  PAGINATION_CONTROL_LABEL_CLASS,
-  PAGINATION_ELLIPSIS_CLASS,
-  PAGINATION_ITEM_CLASS,
-  PAGINATION_LIST_CLASS,
-  PAGINATION_NEXT_CLASS,
-  PAGINATION_PREV_CLASS,
-  PAGINATION_ROOT_CLASS,
-} from './pagination.class.ts'
+import { PAGINATION_CONTROL_LABEL_CLASS, paginationRecipe } from './pagination.class.ts'
 
 type PaginationVariant = ButtonProps['variant']
 
@@ -261,6 +252,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
   )
 
   const resolved = resolveComponentStyle({
+    slots: paginationRecipe(),
     get provider() {
       return providerPagination()
     },
@@ -379,28 +371,18 @@ export function Pagination(props: PaginationProps): JSX.Element {
       data-slot="root"
       aria-label={merged['aria-label']}
       role={merged.role}
-      style={resolved.rootStyle()}
-      class={cn(PAGINATION_ROOT_CLASS, resolved.rootClass())}
+      {...resolved.rootClassAndStyle()}
       {...rest}
     >
-      <ul
-        data-slot="list"
-        style={resolved.slotStyle('list')}
-        class={cn(PAGINATION_LIST_CLASS, resolved.slotClass('list'))}
-      >
+      <ul data-slot="list" {...resolved.slotClassAndStyle('list')}>
         <Show when={merged.showControls}>
-          <li
-            data-slot="item"
-            style={resolved.slotStyle('item')}
-            class={cn(PAGINATION_ITEM_CLASS, resolved.slotClass('item'))}
-          >
+          <li data-slot="item" {...resolved.slotClassAndStyle('item')}>
             <Button
               data-slot="prev"
-              style={resolved.slotStyle('prev')}
               variant={merged.controlVariant}
               size={getSize(merged.size, hasPrevText() ? merged.prevText : undefined)}
               aria-label={getPrevLabel()}
-              class={[hasPrevText() && PAGINATION_PREV_CLASS, resolved.slotClass('prev')]}
+              {...resolved.slotClassAndStyle('prev', hasPrevText() && 'ps-2!')}
               classes={{ label: hasPrevText() && PAGINATION_CONTROL_LABEL_CLASS }}
               onClick={(event) => selectPage(resolvedPage() - 1, event)}
               {...getControlProps(resolvedPage() - 1, resolvedPage() <= 1, 'prev')}
@@ -419,33 +401,27 @@ export function Pagination(props: PaginationProps): JSX.Element {
             return (
               <li
                 data-slot="item"
-                style={resolved.slotStyle('item')}
                 aria-hidden={item < 0 ? true : undefined}
-                class={cn(
-                  item < 0 ? PAGINATION_ELLIPSIS_CLASS : PAGINATION_ITEM_CLASS,
-                  resolved.slotClass('item'),
-                )}
+                {...resolved.slotClassAndStyle('item', item < 0 && 'size-9')}
               >
                 <Show
                   when={item >= 0}
                   fallback={
                     <Icon
                       slotName="ellipsis"
-                      style={resolved.slotStyle('ellipsis')}
                       name={merged.ellipsisIcon}
-                      class={resolved.slotClass('ellipsis')}
+                      {...resolved.slotClassAndStyle('ellipsis')}
                     />
                   }
                 >
                   <Button
                     data-slot="link"
-                    style={resolved.slotStyle('link')}
                     variant={isActive() ? merged.activeVariant : merged.variant}
                     size={getSize(merged.size)}
                     aria-current={isActive() ? 'page' : undefined}
                     aria-label={getPageLabel(item, isActive())}
                     data-current={isActive() ? '' : undefined}
-                    class={cn('outline-none', resolved.slotClass('link'))}
+                    {...resolved.slotClassAndStyle('link')}
                     onClick={(event) => selectPage(item, event)}
                     {...getControlProps(item, false)}
                   >
@@ -458,18 +434,13 @@ export function Pagination(props: PaginationProps): JSX.Element {
         </For>
 
         <Show when={merged.showControls}>
-          <li
-            data-slot="item"
-            style={resolved.slotStyle('item')}
-            class={cn(PAGINATION_ITEM_CLASS, resolved.slotClass('item'))}
-          >
+          <li data-slot="item" {...resolved.slotClassAndStyle('item')}>
             <Button
               data-slot="next"
-              style={resolved.slotStyle('next')}
               variant={merged.controlVariant}
               size={getSize(merged.size, hasNextText() ? merged.nextText : undefined)}
               aria-label={getNextLabel()}
-              class={[hasNextText() && PAGINATION_NEXT_CLASS, resolved.slotClass('next')]}
+              {...resolved.slotClassAndStyle('next', hasNextText() && 'pe-2!')}
               classes={{ label: hasNextText() && PAGINATION_CONTROL_LABEL_CLASS }}
               onClick={(event) => selectPage(resolvedPage() + 1, event)}
               {...getControlProps(resolvedPage() + 1, resolvedPage() >= pageCount(), 'next')}

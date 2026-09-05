@@ -240,15 +240,13 @@ export function Dialog(props: DialogProps): JSX.Element {
         <Show when={hasJsxContent(title()) || hasJsxContent(description())}>
           <div
             data-slot="wrapper"
-            style={resolved.slotStyle('wrapper')}
-            class={cn(DIALOG_WRAPPER_CLASS, merged.close && 'pe-8', resolved.slotClass('wrapper'))}
+            {...resolved.slotClassAndStyle('wrapper', DIALOG_WRAPPER_CLASS, merged.close && 'pe-8')}
           >
             <Show when={hasJsxContent(title())}>
               <h2
                 id={titleId()}
                 data-slot="title"
-                style={resolved.slotStyle('title')}
-                class={cn(DIALOG_TITLE_CLASS, resolved.slotClass('title'))}
+                {...resolved.slotClassAndStyle('title', DIALOG_TITLE_CLASS)}
               >
                 {title()}
               </h2>
@@ -258,8 +256,7 @@ export function Dialog(props: DialogProps): JSX.Element {
               <p
                 id={descriptionId()}
                 data-slot="description"
-                style={resolved.slotStyle('description')}
-                class={cn(DIALOG_DESCRIPTION_CLASS, resolved.slotClass('description'))}
+                {...resolved.slotClassAndStyle('description', DIALOG_DESCRIPTION_CLASS)}
               >
                 {description()}
               </p>
@@ -273,8 +270,7 @@ export function Dialog(props: DialogProps): JSX.Element {
             aria-label="Close"
             size="icon-sm"
             variant="ghost"
-            style={resolved.slotStyle('close')}
-            class={[DIALOG_CLOSE_CLASS, resolved.slotClass('close')]}
+            {...resolved.slotClassAndStyle('close', DIALOG_CLOSE_CLASS)}
             onClick={() => close()}
           >
             <Icon name={closeIcon()} />
@@ -326,8 +322,7 @@ export function Dialog(props: DialogProps): JSX.Element {
                 {(h) => (
                   <div
                     data-slot="header"
-                    style={resolved.slotStyle('header')}
-                    class={cn(DIALOG_HEADER_CLASS, resolved.slotClass('header'))}
+                    {...resolved.slotClassAndStyle('header', DIALOG_HEADER_CLASS)}
                   >
                     {h()}
                   </div>
@@ -338,13 +333,12 @@ export function Dialog(props: DialogProps): JSX.Element {
                 {(content) => (
                   <div
                     data-slot="body"
-                    style={resolved.slotStyle('body')}
-                    class={cn(
+                    {...resolved.slotClassAndStyle(
+                      'body',
                       DIALOG_BODY_CLASS,
                       !overlayScroll() && 'overflow-y-auto',
                       !hasHeader() && 'pt-6',
                       hasJsxContent(footer()) ? 'pb-2' : 'pb-6',
-                      resolved.slotClass('body'),
                     )}
                   >
                     {content()}
@@ -356,8 +350,7 @@ export function Dialog(props: DialogProps): JSX.Element {
                 {(f) => (
                   <div
                     data-slot="footer"
-                    style={resolved.slotStyle('footer')}
-                    class={cn(DIALOG_FOOTER_CLASS, resolved.slotClass('footer'))}
+                    {...resolved.slotClassAndStyle('footer', DIALOG_FOOTER_CLASS)}
                   >
                     {f()}
                   </div>

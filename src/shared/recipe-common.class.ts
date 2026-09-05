@@ -55,3 +55,10 @@ export const CARD_PADDING_SIZE_VARIANT = {
 } as const
 
 export const OVERLAY_POSITIONER_CLASS = 'left-0 top-0 absolute'
+
+export const POPPER_CONTENT_SIDE_VARIANT = {
+  top: 'mb-[var(--mo-popper-content-overflow-padding)] enter-translate-y-1 exit-translate-y-1',
+  right: 'ml-[var(--mo-popper-content-overflow-padding)] -enter-translate-x-1 -exit-translate-x-1',
+  bottom: 'mt-[var(--mo-popper-content-overflow-padding)] -enter-translate-y-1 -exit-translate-y-1',
+  left: 'mr-[var(--mo-popper-content-overflow-padding)] enter-translate-x-1 exit-translate-x-1',
+} as const

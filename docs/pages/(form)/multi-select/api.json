@@ -640,6 +640,11 @@
         "description": "Controlled search value."
       },
       {
+        "name": "side",
+        "required": false,
+        "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined"
+      },
+      {
         "name": "size",
         "required": false,
         "type": "\"sm\" | \"md\" | \"lg\" | undefined"

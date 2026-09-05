@@ -16,7 +16,7 @@ import type { IconT } from '../icon/index.ts'
 import { Icon } from '../icon/index.ts'
 
 import type { AvatarVariantProps } from './avatar.class.ts'
-import { AVATAR_IMAGE_CLASS, avatarRecipe } from './avatar.class.ts'
+import { AVATAR_FALLBACK_HIDDEN_CLASS, avatarRecipe } from './avatar.class.ts'
 
 export namespace AvatarT {
   export type Status = 'idle' | 'loading' | 'loaded' | 'error'
@@ -124,8 +124,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
   const config = useMoraineConfig()
   const provider = () => config().avatar
 
-  const size = () =>
-    (local.size ?? provider()?.variants?.size ?? 'md') as NonNullable<AvatarVariantProps['size']>
+  const size = () => local.size ?? provider()?.variants?.size ?? 'md'
   const badgePosition = () =>
     local.badgePosition ?? provider()?.variants?.badgePosition ?? 'bottom-right'
 
@@ -202,7 +201,6 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     avatarRecipe({
       size: size(),
       badgePosition: badgePosition(),
-      status: status(),
     }),
   )
 
@@ -221,6 +219,12 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         styles: local.styles,
       }
     },
+    get stateCls() {
+      return {
+        image: status() === 'loaded' ? 'opacity-100' : 'opacity-0 pointer-events-none',
+        fallback: status() === 'loaded' ? AVATAR_FALLBACK_HIDDEN_CLASS : 'opacity-100',
+      }
+    },
   })
 
   return (
@@ -229,20 +233,16 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
       data-status={status()}
       role={rootAriaLabel() !== undefined ? 'img' : undefined}
       {...rest}
-      style={local.rootSlot === 'item' ? local.style : resolved.rootStyle()}
-      class={cn(resolved.rootClass(), local.rootSlot === 'item' && local.class)}
+      {...(local.rootSlot === 'item'
+        ? { class: cn(resolved.rootClass(), local.class), style: local.style }
+        : resolved.rootClassAndStyle())}
     >
       <img
         data-slot="image"
-        style={resolved.slotStyle('image')}
         src={resolvedSrc()}
         alt={alt() ?? ''}
         aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
-        class={cn(
-          AVATAR_IMAGE_CLASS,
-          status() === 'loaded' ? 'opacity-100' : 'opacity-0 pointer-events-none',
-          resolved.slotClass('image'),
-        )}
+        {...resolved.slotClassAndStyle('image')}
       />
 
       <span
@@ -258,16 +258,14 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
             : undefined
         }
         aria-hidden={rootAriaLabel() !== undefined || status() === 'loaded' ? 'true' : undefined}
-        style={resolved.slotStyle('fallback')}
-        class={resolved.slotClass('fallback')}
+        {...resolved.slotClassAndStyle('fallback')}
       >
         <Show when={fallback()} fallback={fallbackText()}>
           {(fallbackIcon) => (
             <Icon
               name={fallbackIcon()}
               slotName="fallbackIcon"
-              style={resolved.slotStyle('fallbackIcon')}
-              class={resolved.slotClass('fallbackIcon')}
+              {...resolved.slotClassAndStyle('fallbackIcon')}
             />
           )}
         </Show>
@@ -275,11 +273,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
       <Show when={badge()}>
         {(badge) => (
-          <span
-            data-slot="badge"
-            style={resolved.slotStyle('badge')}
-            class={resolved.slotClass('badge')}
-          >
+          <span data-slot="badge" {...resolved.slotClassAndStyle('badge')}>
             <Icon name={badge()} class="text-[0.75em]" />
           </span>
         )}

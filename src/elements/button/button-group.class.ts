@@ -2,7 +2,6 @@ import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
 export const buttonGroupRecipe = recipe({
-  slots: ['root', 'separator'],
   base: {
     root: 'inline-flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-sticky',
     separator: 'bg-input shrink-0 self-stretch',

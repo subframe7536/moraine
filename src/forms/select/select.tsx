@@ -8,7 +8,6 @@ import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { cn } from '../../shared/utils.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
@@ -426,8 +425,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
             data-disabled={api.field.disabled() ? '' : undefined}
             data-invalid={api.field.invalid() ? '' : undefined}
             data-required={api.field.required() ? '' : undefined}
-            style={controlResolved.slotStyle('control')}
-            class={controlResolved.slotClass('control')}
+            {...controlResolved.slotClassAndStyle('control')}
             {...api.controlProps()}
           >
             <Show when={leadingIcon()}>
@@ -435,8 +433,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                 <Icon
                   name={icon()}
                   slotName="leading"
-                  style={controlResolved.slotStyle('leading')}
-                  class={controlResolved.slotClass('leading')}
+                  {...controlResolved.slotClassAndStyle('leading')}
                 />
               )}
             </Show>
@@ -446,9 +443,8 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
               fallback={
                 <span
                   data-slot="input"
-                  style={controlResolved.slotStyle('input')}
-                  class={cn(
-                    controlResolved.slotClass('input'),
+                  {...controlResolved.slotClassAndStyle(
+                    'input',
                     'text-start truncate',
                     getCurrentValue(api) === null && 'text-muted-foreground',
                   )}
@@ -459,8 +455,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
             >
               <input
                 data-slot="input"
-                style={controlResolved.slotStyle('input')}
-                class={controlResolved.slotClass('input')}
+                {...controlResolved.slotClassAndStyle('input')}
                 placeholder={merged.placeholder}
                 {...api.inputProps()}
                 onInput={(event) => {
@@ -481,11 +476,10 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                   }
                   slotName="trigger"
                   data-loading={isActionLoading() ? '' : undefined}
-                  class={cn(
-                    controlResolved.slotClass('trigger'),
+                  {...controlResolved.slotClassAndStyle(
+                    'trigger',
                     isActionLoading() && 'animate-spin',
                   )}
-                  style={controlResolved.slotStyle('trigger')}
                 />
               }
             >
@@ -494,11 +488,10 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                 data-slot="clear"
                 aria-label="Clear selection"
                 tabIndex={-1}
-                class={cn(
+                {...controlResolved.slotClassAndStyle(
+                  'clear',
                   'border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center',
-                  controlResolved.slotClass('clear'),
                 )}
-                style={controlResolved.slotStyle('clear')}
                 disabled={api.field.disabled()}
                 onPointerDown={(event) => {
                   event.preventDefault()

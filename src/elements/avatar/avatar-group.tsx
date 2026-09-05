@@ -2,7 +2,6 @@ import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { SlotFns } from '../../shared/style/recipe.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 import type { AvatarGroupVariantProps } from './avatar.class.ts'
@@ -91,10 +90,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     'style',
   ])
 
-  const size = () =>
-    (local.size ?? provider()?.variants?.size ?? 'md') as NonNullable<
-      AvatarGroupVariantProps['size']
-    >
+  const size = () => local.size ?? provider()?.variants?.size ?? 'md'
   const items = createMemo(() => local.items ?? [])
   const visibleItems = createMemo(() => {
     const allItems = items()
@@ -116,7 +112,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
 
   const resolved = resolveComponentStyle({
     get slots() {
-      return slots() as SlotFns<Extract<keyof AvatarGroupT.Slot, string>>
+      return slots()
     },
     get provider() {
       return provider()
@@ -133,13 +129,9 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
 
   return (
     <Show when={items().length > 0}>
-      <div data-slot="root" {...rest} style={resolved.rootStyle()} class={resolved.rootClass()}>
+      <div data-slot="root" {...rest} {...resolved.rootClassAndStyle()}>
         <Show when={hiddenCount() > 0}>
-          <span
-            data-slot="count"
-            style={resolved.slotStyle('count')}
-            class={resolved.slotClass('count')}
-          >
+          <span data-slot="count" {...resolved.slotClassAndStyle('count')}>
             +{hiddenCount()}
           </span>
         </Show>
@@ -150,8 +142,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
               {...item}
               size={size()}
               rootSlot="item"
-              style={resolved.slotStyle('item')}
-              class={resolved.slotClass('item')}
+              {...resolved.slotClassAndStyle('item')}
               classes={{
                 image: resolved.slotClass('image'),
                 fallback: resolved.slotClass('fallback'),

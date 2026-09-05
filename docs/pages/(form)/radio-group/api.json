@@ -217,7 +217,7 @@
       {
         "name": "indicator",
         "required": false,
-        "type": "RadioGroupItemIndicator | undefined"
+        "type": "\"hidden\" | \"end\" | \"start\" | undefined"
       },
       {
         "name": "items",
@@ -279,6 +279,11 @@
         "type": "RadioGroupT.Styles | undefined"
       },
       {
+        "name": "tableOrientation",
+        "required": false,
+        "type": "\"horizontal\" | \"vertical\" | undefined"
+      },
+      {
         "name": "value",
         "required": false,
         "type": "string | undefined",
@@ -287,7 +292,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "RadioGroupItemVariant | undefined"
+        "type": "\"list\" | \"table\" | \"card\" | undefined"
       }
     ],
     "inherited": []

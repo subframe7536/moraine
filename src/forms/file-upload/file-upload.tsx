@@ -686,8 +686,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         type="button"
         aria-label={`Remove ${props.file.name}`}
         data-slot="fileRemove"
-        style={resolved.slotStyle('fileRemove')}
-        class={resolved.slotClass('fileRemove')}
+        {...resolved.slotClassAndStyle('fileRemove')}
         disabled={field.disabled() || readOnly()}
         onClick={() => {
           removeFileAt(props.index)
@@ -759,25 +758,11 @@ export function FileUpload<T extends ValidComponent = 'div'>(
 
   function Content(): JSX.Element {
     return (
-      <div
-        data-slot="wrapper"
-        style={resolved.slotStyle('wrapper')}
-        class={resolved.slotClass('wrapper')}
-      >
-        <Icon
-          name={merged.icon}
-          slotName="icon"
-          style={resolved.slotStyle('icon')}
-          class={resolved.slotClass('icon')}
-        />
+      <div data-slot="wrapper" {...resolved.slotClassAndStyle('wrapper')}>
+        <Icon name={merged.icon} slotName="icon" {...resolved.slotClassAndStyle('icon')} />
 
         <Show when={label()}>
-          <span
-            id={labelId()}
-            data-slot="label"
-            style={resolved.slotStyle('label')}
-            class={resolved.slotClass('label')}
-          >
+          <span id={labelId()} data-slot="label" {...resolved.slotClassAndStyle('label')}>
             {label()}
           </span>
         </Show>
@@ -786,8 +771,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           <span
             id={descriptionId()}
             data-slot="description"
-            style={resolved.slotStyle('description')}
-            class={resolved.slotClass('description')}
+            {...resolved.slotClassAndStyle('description')}
           >
             {description()}
           </span>
@@ -874,8 +858,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       {...(rest as Record<string, unknown>)}
       id={`${field.id()}-root`}
       component={merged.as as any}
-      style={resolved.rootStyle()}
-      class={resolved.rootClass()}
+      {...resolved.rootClassAndStyle()}
     >
       <Show
         when={dropzone()}
@@ -883,9 +866,8 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           <button
             type="button"
             data-slot="control"
-            style={resolved.slotStyle('control')}
+            {...resolved.slotClassAndStyle('control')}
             data-invalid={field.invalid() ? '' : undefined}
-            class={resolved.slotClass('control')}
             disabled={field.disabled()}
             {...controlAriaAttrs()}
             onFocus={(event) => field.emit('focus', event)}
@@ -901,10 +883,9 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           tabIndex={field.disabled() ? undefined : 0}
           {...controlAriaAttrs()}
           data-slot="control"
-          style={resolved.slotStyle('control')}
+          {...resolved.slotClassAndStyle('control')}
           data-dragging={dragging() ? '' : undefined}
           data-invalid={field.invalid() ? '' : undefined}
-          class={resolved.slotClass('control')}
           onFocus={(event) => field.emit('focus', event)}
           onBlur={(event) => field.emit('blur', event)}
           onClick={onControlClick}
@@ -935,23 +916,11 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       />
 
       <Show when={preview() && selectedFiles().length > 0}>
-        <ul
-          data-slot="files"
-          style={resolved.slotStyle('files')}
-          class={resolved.slotClass('files')}
-        >
+        <ul data-slot="files" {...resolved.slotClassAndStyle('files')}>
           <For each={selectedFiles()}>
             {(file, index) => (
-              <li
-                data-slot="file"
-                style={resolved.slotStyle('file')}
-                class={resolved.slotClass('file')}
-              >
-                <span
-                  data-slot="filePreview"
-                  style={resolved.slotStyle('filePreview')}
-                  class={resolved.slotClass('filePreview')}
-                >
+              <li data-slot="file" {...resolved.slotClassAndStyle('file')}>
+                <span data-slot="filePreview" {...resolved.slotClassAndStyle('filePreview')}>
                   <Show
                     when={previewUrls().get(file)}
                     fallback={<Icon name={merged.fileIcon} class={resolved.slotClass('icon')} />}
@@ -960,23 +929,11 @@ export function FileUpload<T extends ValidComponent = 'div'>(
                   </Show>
                 </span>
 
-                <div
-                  data-slot="fileMeta"
-                  style={resolved.slotStyle('fileMeta')}
-                  class={resolved.slotClass('fileMeta')}
-                >
-                  <span
-                    data-slot="fileName"
-                    style={resolved.slotStyle('fileName')}
-                    class={resolved.slotClass('fileName')}
-                  >
+                <div data-slot="fileMeta" {...resolved.slotClassAndStyle('fileMeta')}>
+                  <span data-slot="fileName" {...resolved.slotClassAndStyle('fileName')}>
                     {file.name}
                   </span>
-                  <span
-                    data-slot="fileSize"
-                    style={resolved.slotStyle('fileSize')}
-                    class={resolved.slotClass('fileSize')}
-                  >
+                  <span data-slot="fileSize" {...resolved.slotClassAndStyle('fileSize')}>
                     {formatFileSize(file.size)}
                   </span>
                 </div>

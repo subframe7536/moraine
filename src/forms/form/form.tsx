@@ -81,11 +81,11 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
     }
   }
 
-  const slots = createMemo(() => formRecipe())
+  const baseClass = createMemo(() => formRecipe())
 
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    get baseClass() {
+      return baseClass()
     },
     get provider() {
       return provider()
@@ -104,8 +104,7 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
       of={local.of}
       onSubmit={local.onSubmit ?? (() => {})}
       onReset={onReset}
-      style={resolved.rootStyle()}
-      class={resolved.rootClass()}
+      {...resolved.rootClassAndStyle()}
       data-slot="root"
       data-submitting={local.of.isSubmitting ? '' : undefined}
     />

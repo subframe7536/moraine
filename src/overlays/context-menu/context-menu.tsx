@@ -627,23 +627,6 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     }
   })
 
-  const menuClasses = new Proxy(
-    {},
-    {
-      get(_, prop: string) {
-        return resolved.slotClass(prop)
-      },
-    },
-  )
-  const menuStyles = new Proxy(
-    {},
-    {
-      get(_, prop: string) {
-        return resolved.slotStyle(prop)
-      },
-    },
-  )
-
   return (
     <>
       <Show when={triggerRender()}>
@@ -664,8 +647,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
         autoFocusStrategy={autoFocusStrategy()}
         onContentPointerDown={onContentPointerDown}
         onContentContextMenu={onContentContextMenu}
-        classes={menuClasses}
-        styles={menuStyles}
+        slotClassAndStyle={resolved.slotClassAndStyle}
         size={merged.size ?? undefined}
         items={merged.items}
         checkedIcon={merged.checkedIcon}

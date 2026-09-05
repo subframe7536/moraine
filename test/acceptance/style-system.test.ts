@@ -389,18 +389,13 @@ describe('Plan 006 style-system acceptance audit', () => {
     expect(classFiles).toHaveLength(36)
     for (const path of classFiles) {
       const contents = readFileSync(path, 'utf8')
-      const hasRecipe = /\brecipe\s*\(/.test(contents)
-      const hasVariantSchema = /\b(?:variants|defaultVariants|compoundVariants)\s*:/.test(contents)
+      const hasRecipe = /\brecipe(?:\s*<[^>]+>)?\s*\(/.test(contents)
       const hasStaticClassConstant = /\bexport\s+const\s+[A-Z][A-Z0-9_]*_CLASS\b/.test(contents)
 
-      if (hasVariantSchema) {
-        expect(hasRecipe, `${projectRelative(path)} must use recipe()`).toBe(true)
-      } else {
-        expect(
-          hasStaticClassConstant,
-          `${projectRelative(path)} must expose static *_CLASS constants`,
-        ).toBe(true)
-      }
+      expect(
+        hasRecipe || hasStaticClassConstant,
+        `${projectRelative(path)} must use recipe() or expose static *_CLASS constants`,
+      ).toBe(true)
     }
   })
 

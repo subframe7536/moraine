@@ -5,10 +5,9 @@ import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import { TEXT_SIZE_VARIANT } from '../../shared/recipe-common.class.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callHandler, cn, useId } from '../../shared/utils.ts'
+import { callHandler, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
@@ -20,7 +19,7 @@ import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { CheckboxVariantProps } from './checkbox.class.ts'
-import { checkboxCardPaddingVariants, checkboxRecipe } from './checkbox.class.ts'
+import { checkboxRecipe } from './checkbox.class.ts'
 
 export namespace CheckboxT {
   export interface Slot<T = unknown> {
@@ -261,14 +260,6 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         styles: local.styles,
       }
     },
-    get stateCls() {
-      return {
-        root:
-          merged.variant === 'card'
-            ? cn(checkboxCardPaddingVariants({ size: field.size() }), 'cursor-pointer')
-            : undefined,
-      }
-    },
   })
 
   const defaultCheckedState = createMemo<boolean | 'indeterminate'>(() => {
@@ -484,18 +475,8 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   }
 
   return (
-    <div
-      data-slot="root"
-      {...rest}
-      style={resolved.rootStyle()}
-      class={resolved.rootClass()}
-      onClick={onRootClick}
-    >
-      <div
-        data-slot="container"
-        style={resolved.slotStyle('container')}
-        class={resolved.slotClass('container')}
-      >
+    <div data-slot="root" {...rest} {...resolved.rootClassAndStyle()} onClick={onRootClick}>
+      <div data-slot="container" {...resolved.slotClassAndStyle('container')}>
         <HiddenInput
           ref={(element) => {
             inputEl = element
@@ -535,12 +516,12 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           data-slot="control"
           data-invalid={field.invalid() ? '' : undefined}
           aria-checked={indeterminate() ? 'mixed' : Boolean(resolvedChecked())}
-          style={resolved.slotStyle('control')}
-          class={cn(
-            resolved.slotClass('control'),
-            merged.indicator === 'hidden' && 'sr-only',
-            field.disabled() && 'opacity-64 pointer-events-none',
-          )}
+          {...resolved.slotClassAndStyle('control', {
+            state: [
+              merged.indicator === 'hidden' && 'sr-only',
+              field.disabled() && 'opacity-64 pointer-events-none',
+            ],
+          })}
           onPointerDown={onPointerDown}
           onClick={onControlClick}
           onKeyDown={onControlKeyDown}
@@ -558,32 +539,21 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           <Show when={resolvedChecked() || indeterminate()}>
             <span
               data-slot="indicator"
-              style={resolved.slotStyle('indicator')}
-              class={cn(
-                'text-primary-foreground bg-primary flex size-full items-center justify-center',
-                resolved.slotClass('indicator'),
-              )}
+              {...resolved.slotClassAndStyle('indicator')}
               data-checked={resolvedChecked() ? '' : undefined}
               data-disabled={field.disabled() ? '' : undefined}
               data-indeterminate={indeterminate() ? '' : undefined}
               data-readonly={readOnly() ? '' : undefined}
               data-required={field.required() ? '' : undefined}
             >
-              <Icon
-                name={activeIcon()}
-                class={cn('shrink-0 size-full', resolved.slotClass('icon'))}
-              />
+              <Icon name={activeIcon()} {...resolved.slotClassAndStyle('icon')} />
             </span>
           </Show>
         </button>
       </div>
 
       <Show when={label() || description()}>
-        <div
-          data-slot="wrapper"
-          style={resolved.slotStyle('wrapper')}
-          class={resolved.slotClass('wrapper')}
-        >
+        <div data-slot="wrapper" {...resolved.slotClassAndStyle('wrapper')}>
           <Show when={label()}>
             <Show
               when={merged.variant === 'card'}
@@ -592,19 +562,13 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                   for={field.id()}
                   id={labelId()}
                   data-slot="label"
-                  style={resolved.slotStyle('label')}
-                  class={resolved.slotClass('label')}
+                  {...resolved.slotClassAndStyle('label')}
                 >
                   {label()}
                 </label>
               }
             >
-              <p
-                id={labelId()}
-                data-slot="label"
-                style={resolved.slotStyle('label')}
-                class={resolved.slotClass('label')}
-              >
+              <p id={labelId()} data-slot="label" {...resolved.slotClassAndStyle('label')}>
                 {label()}
               </p>
             </Show>
@@ -614,12 +578,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
             <p
               id={descriptionId()}
               data-slot="description"
-              style={resolved.slotStyle('description')}
-              class={cn(
-                TEXT_SIZE_VARIANT[field.size()],
-                'text-muted-foreground leading-normal',
-                resolved.slotClass('description'),
-              )}
+              {...resolved.slotClassAndStyle('description')}
             >
               {description()}
             </p>

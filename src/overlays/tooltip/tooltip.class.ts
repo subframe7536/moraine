@@ -1,3 +1,4 @@
+import { POPPER_CONTENT_SIDE_VARIANT } from '../../shared/recipe-common.class.ts'
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
@@ -8,14 +9,7 @@ export const tooltipContentVariants = recipe({
     invert: false,
   },
   variants: {
-    side: {
-      left: 'mr-[var(--mo-popper-content-overflow-padding)] enter-translate-x-1 exit-translate-x-1',
-      right:
-        'ml-[var(--mo-popper-content-overflow-padding)] -enter-translate-x-1 -exit-translate-x-1',
-      top: 'mb-[var(--mo-popper-content-overflow-padding)] enter-translate-y-1 exit-translate-y-1',
-      bottom:
-        'mt-[var(--mo-popper-content-overflow-padding)] -enter-translate-y-1 -exit-translate-y-1',
-    },
+    side: POPPER_CONTENT_SIDE_VARIANT,
     invert: {
       true: 'text-background bg-foreground',
       false: 'text-foreground border border-border bg-background shadow-sm',

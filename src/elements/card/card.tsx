@@ -3,7 +3,6 @@ import { Show, children as resolveChildren, createMemo, splitProps } from 'solid
 
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
 
 import type { CardVariantProps } from './card.class.ts'
 import {
@@ -148,38 +147,25 @@ export function Card(props: CardProps): JSX.Element {
   })
 
   return (
-    <div data-slot="root" {...rest} style={resolved.rootStyle()} class={resolved.rootClass()}>
+    <div data-slot="root" {...rest} {...resolved.rootClassAndStyle()}>
       <Show when={header() || title() || description()}>
         <div
           data-slot="header"
-          style={resolved.slotStyle('header')}
-          class={cn(resolved.slotClass('header'), action() && 'grid-cols-[1fr_auto]')}
+          {...resolved.slotClassAndStyle('header', { state: action() && 'grid-cols-[1fr_auto]' })}
         >
           <Show when={title() || description()} fallback={header()}>
             <Show when={title()}>
-              <div
-                data-slot="title"
-                style={resolved.slotStyle('title')}
-                class={resolved.slotClass('title')}
-              >
+              <div data-slot="title" {...resolved.slotClassAndStyle('title')}>
                 {title()}
               </div>
             </Show>
             <Show when={description()}>
-              <p
-                data-slot="description"
-                style={resolved.slotStyle('description')}
-                class={resolved.slotClass('description')}
-              >
+              <p data-slot="description" {...resolved.slotClassAndStyle('description')}>
                 {description()}
               </p>
             </Show>
             <Show when={action()}>
-              <div
-                data-slot="action"
-                style={resolved.slotStyle('action')}
-                class={resolved.slotClass('action')}
-              >
+              <div data-slot="action" {...resolved.slotClassAndStyle('action')}>
                 {action()}
               </div>
             </Show>
@@ -189,22 +175,14 @@ export function Card(props: CardProps): JSX.Element {
 
       <Show when={resolvedChildren()}>
         {(body) => (
-          <div
-            data-slot="body"
-            style={resolved.slotStyle('body')}
-            class={resolved.slotClass('body')}
-          >
+          <div data-slot="body" {...resolved.slotClassAndStyle('body')}>
             {body()}
           </div>
         )}
       </Show>
 
       <Show when={footer()}>
-        <div
-          data-slot="footer"
-          style={resolved.slotStyle('footer')}
-          class={resolved.slotClass('footer')}
-        >
+        <div data-slot="footer" {...resolved.slotClassAndStyle('footer')}>
           {footer()}
         </div>
       </Show>

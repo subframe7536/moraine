@@ -67,7 +67,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
     () => local.type ?? provider()?.variants?.type ?? 'solid',
   )
 
-  const slots = createMemo(() =>
+  const baseClass = createMemo(() =>
     separatorRecipe({
       orientation: orientation(),
       size: size(),
@@ -76,8 +76,8 @@ export function Separator(props: SeparatorProps): JSX.Element {
   )
 
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    get baseClass() {
+      return baseClass()
     },
     get provider() {
       return provider()
@@ -98,8 +98,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
       aria-orientation={orientation()}
       aria-hidden={local.decorative ? true : undefined}
       {...rest}
-      style={resolved.rootStyle()}
-      class={resolved.rootClass()}
+      {...resolved.rootClassAndStyle()}
     />
   )
 }

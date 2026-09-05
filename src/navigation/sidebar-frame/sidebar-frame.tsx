@@ -20,11 +20,7 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import { createMediaQuery } from '../../shared/use-media-query.ts'
 import { cn } from '../../shared/utils.ts'
 
-import {
-  SIDEBAR_FRAME_DESKTOP_SIDEBAR_CLASS,
-  sidebarFrameDesktopLayoutVariants,
-  sidebarFrameRecipe,
-} from './sidebar-frame.class.ts'
+import { SIDEBAR_FRAME_DESKTOP_SIDEBAR_CLASS, sidebarFrameRecipe } from './sidebar-frame.class.ts'
 import type { SidebarFrameVariantProps } from './sidebar-frame.class.ts'
 
 export namespace SidebarFrameT {
@@ -86,6 +82,9 @@ export namespace SidebarFrameT {
      * Frame container that coordinates sidebar and main content layout.
      */
     root?: T
+
+    /** Desktop layout wrapper around sidebar and main. */
+    desktopLayout?: T
 
     /** Sidebar region rendered inline on desktop or inside a sheet on mobile. */
     sidebar?: T
@@ -188,7 +187,11 @@ export function SidebarFrameSheetOnlyRender(ctx: SidebarFrameT.FrameContext): JS
       fallback={
         <div
           data-slot="layout"
-          class={sidebarFrameDesktopLayoutVariants({ variant: ctx.variant, side: ctx.side })}
+          class={sidebarFrameRecipe({
+            variant: ctx.variant,
+            side: ctx.side,
+            isMobile: false,
+          }).desktopLayout()}
         >
           <ctx.sidebar
             classes={[
@@ -373,7 +376,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   }
 
   return (
-    <div data-slot="root" style={resolved.rootStyle()} class={resolved.rootClass()} {...rest}>
+    <div data-slot="root" {...resolved.rootClassAndStyle()} {...rest}>
       {renderComponentOrElement(merged.frameRender, {
         isMobile: context.isMobile,
         scrolled: context.scrolled,
@@ -394,33 +397,23 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             data-side={context.side}
             aria-hidden={resolvedIsMobile() || !isOpen()}
             {...props}
-            style={resolved.slotStyle('sidebar', { group: props.styles })}
-            class={resolved.slotClass('sidebar', { group: props.classes })}
+            {...resolved.slotClassAndStyle('sidebar', {
+              group: props.classes,
+              groupStyle: props.styles,
+            })}
           >
             <Show when={merged.sidebarHeaderRender !== undefined}>
-              <div
-                data-slot="sidebarHeader"
-                style={resolved.slotStyle('sidebarHeader')}
-                class={resolved.slotClass('sidebarHeader')}
-              >
+              <div data-slot="sidebarHeader" {...resolved.slotClassAndStyle('sidebarHeader')}>
                 {renderComponentOrElement(merged.sidebarHeaderRender, context)}
               </div>
             </Show>
 
-            <div
-              data-slot="sidebarBody"
-              style={resolved.slotStyle('sidebarBody')}
-              class={resolved.slotClass('sidebarBody')}
-            >
+            <div data-slot="sidebarBody" {...resolved.slotClassAndStyle('sidebarBody')}>
               {renderComponentOrElement(merged.sidebarBodyRender, context)}
             </div>
 
             <Show when={merged.sidebarFooterRender !== undefined}>
-              <div
-                data-slot="sidebarFooter"
-                style={resolved.slotStyle('sidebarFooter')}
-                class={resolved.slotClass('sidebarFooter')}
-              >
+              <div data-slot="sidebarFooter" {...resolved.slotClassAndStyle('sidebarFooter')}>
                 {renderComponentOrElement(merged.sidebarFooterRender, context)}
               </div>
             </Show>
@@ -431,8 +424,10 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             ref={merged.mainRef}
             data-slot="main"
             {...props}
-            style={resolved.slotStyle('main', { group: props.styles })}
-            class={resolved.slotClass('main', { group: props.classes })}
+            {...resolved.slotClassAndStyle('main', {
+              group: props.classes,
+              groupStyle: props.styles,
+            })}
             onScroll={(event) => {
               setScrolled(event.currentTarget.scrollTop > (merged.scrollThreshold ?? 60))
             }}

@@ -1,3 +1,4 @@
+import { POPPER_CONTENT_SIDE_VARIANT } from '../../shared/recipe-common.class.ts'
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
@@ -7,14 +8,7 @@ export const popoverContentVariants = recipe({
     side: 'bottom',
   },
   variants: {
-    side: {
-      top: 'mb-[var(--mo-popper-content-overflow-padding)] enter-translate-y-1 exit-translate-y-1',
-      right:
-        'ml-[var(--mo-popper-content-overflow-padding)] -enter-translate-x-1 -exit-translate-x-1',
-      bottom:
-        'mt-[var(--mo-popper-content-overflow-padding)] -enter-translate-y-1 -exit-translate-y-1',
-      left: 'mr-[var(--mo-popper-content-overflow-padding)] enter-translate-x-1 exit-translate-x-1',
-    },
+    side: POPPER_CONTENT_SIDE_VARIANT,
   },
 })
 

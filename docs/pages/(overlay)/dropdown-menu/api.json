@@ -20,19 +20,19 @@
       "description": "Optional backdrop rendered behind modal menu content.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": []
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
     },
     {
       "name": "content",
       "description": "Positioned menu panel that contains groups, items, and submenus.",
-      "cssVariables": [
-        {
-          "name": "--mo-popper-content-transform-origin",
-          "required": false,
-          "type": "string",
-          "description": "CSS custom property exposed by this slot."
-        }
-      ],
+      "cssVariables": [],
       "dataAttributes": [
         {
           "name": "data-align",

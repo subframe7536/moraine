@@ -17,7 +17,6 @@ export const progressStyleVars = defineStyleVars({
 })
 
 export const progressRecipe = recipe({
-  slots: ['root', 'status', 'track', 'indicator', 'steps', 'step'],
   base: {
     root: 'gap-2 relative',
     status: 'text-sm text-muted-foreground font-medium flex transition-[width,height] tabular-nums',
@@ -152,18 +151,11 @@ export const progressRecipe = recipe({
   ],
 })
 
-export const progressStepVariants = recipe({
-  base: 'text-end col-start-1 row-start-1 truncate transition-opacity',
-  defaultVariants: { state: 'other', size: 'md' },
-  variants: {
-    state: {
-      active: 'opacity-100',
-      first: 'text-muted-foreground opacity-100',
-      other: 'opacity-0',
-      last: 'opacity-100',
-    },
-    size: { sm: 'text-xs', md: 'text-sm', lg: 'text-base' },
-  },
-})
+export const PROGRESS_STEP_STATE_CLASS = {
+  active: 'opacity-100',
+  first: 'text-muted-foreground opacity-100',
+  other: 'opacity-0',
+  last: 'opacity-100',
+} as const
 
 export type ProgressVariantProps = VariantProps<typeof progressRecipe>

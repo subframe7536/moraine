@@ -254,9 +254,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       data-invalid={field.invalid() ? '' : undefined}
       data-readonly={merged.readOnly ? '' : undefined}
       data-required={field.required() ? '' : undefined}
-      style={resolved.rootStyle()}
-      class={resolved.rootClass()}
       {...field.ariaAttrs()}
+      {...resolved.rootClassAndStyle()}
       {...rest}
     >
       <div
@@ -265,8 +264,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         }}
         data-slot="track"
         data-orientation={merged.orientation}
-        style={resolved.slotStyle('track')}
-        class={resolved.slotClass('track')}
+        {...resolved.slotClassAndStyle('track')}
         onPointerDown={slider.onTrackPointerDown}
         onPointerMove={slider.onTrackPointerMove}
         onPointerUp={slider.onTrackPointerUp}

@@ -83,12 +83,8 @@ export function Kbd(props: KbdProps): JSX.Element {
     'style',
   ])
 
-  const size = () =>
-    (local.size ?? provider()?.variants?.size ?? 'md') as NonNullable<KbdVariantProps['size']>
-  const variant = () =>
-    (local.variant ?? provider()?.variants?.variant ?? 'default') as NonNullable<
-      KbdVariantProps['variant']
-    >
+  const size = () => local.size ?? provider()?.variants?.size ?? 'md'
+  const variant = () => local.variant ?? provider()?.variants?.variant ?? 'default'
 
   const alias = createMemo(() =>
     local.symbol === false
@@ -97,11 +93,11 @@ export function Kbd(props: KbdProps): JSX.Element {
   )
   const text = createMemo(() => alias()?.text ?? local.value)
 
-  const slots = createMemo(() => kbdRecipe({ size: size(), variant: variant() }))
+  const baseClass = createMemo(() => kbdRecipe({ size: size(), variant: variant() }))
 
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    get baseClass() {
+      return baseClass()
     },
     get provider() {
       return provider()
@@ -120,8 +116,7 @@ export function Kbd(props: KbdProps): JSX.Element {
         data-slot={local.slotName ?? 'root'}
         aria-label={local.label ?? alias()?.label}
         {...rest}
-        class={resolved.rootClass()}
-        style={resolved.rootStyle()}
+        {...resolved.rootClassAndStyle()}
       >
         {text()}
       </kbd>

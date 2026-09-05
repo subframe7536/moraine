@@ -341,6 +341,11 @@
         "type": "CheckboxGroupT.Styles | undefined"
       },
       {
+        "name": "tableOrientation",
+        "required": false,
+        "type": "\"horizontal\" | \"vertical\" | undefined"
+      },
+      {
         "name": "value",
         "required": false,
         "type": "string[] | undefined",

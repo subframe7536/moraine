@@ -271,8 +271,7 @@ export function Sheet(props: SheetProps): JSX.Element {
             <Show when={hasCustomHeader() || hasDefaultHeader()}>
               <div
                 data-slot="header"
-                style={resolved.slotStyle('header')}
-                class={cn('p-4 flex gap-1.5 items-start', resolved.slotClass('header'))}
+                {...resolved.slotClassAndStyle('header', 'p-4 flex gap-1.5 items-start')}
               >
                 <Show
                   when={hasCustomHeader()}
@@ -280,15 +279,13 @@ export function Sheet(props: SheetProps): JSX.Element {
                     <>
                       <div
                         data-slot="wrapper"
-                        style={resolved.slotStyle('wrapper')}
-                        class={cn('flex-1 gap-0.5 grid min-w-0', resolved.slotClass('wrapper'))}
+                        {...resolved.slotClassAndStyle('wrapper', 'flex-1 gap-0.5 grid min-w-0')}
                       >
                         <Show when={hasJsxContent(title())}>
                           <h2
                             id={titleId()}
                             data-slot="title"
-                            style={resolved.slotStyle('title')}
-                            class={cn('text-foreground font-medium', resolved.slotClass('title'))}
+                            {...resolved.slotClassAndStyle('title', 'text-foreground font-medium')}
                           >
                             {title()}
                           </h2>
@@ -298,10 +295,9 @@ export function Sheet(props: SheetProps): JSX.Element {
                           <p
                             id={descriptionId()}
                             data-slot="description"
-                            style={resolved.slotStyle('description')}
-                            class={cn(
+                            {...resolved.slotClassAndStyle(
+                              'description',
                               'text-sm text-muted-foreground',
-                              resolved.slotClass('description'),
                             )}
                           >
                             {description()}
@@ -312,10 +308,9 @@ export function Sheet(props: SheetProps): JSX.Element {
                       <Show when={hasJsxContent(action())}>
                         <div
                           data-slot="actions"
-                          style={resolved.slotStyle('actions')}
-                          class={cn(
+                          {...resolved.slotClassAndStyle(
+                            'actions',
                             'ms-auto inline-flex shrink-0 gap-2 items-center',
-                            resolved.slotClass('actions'),
                           )}
                         >
                           {action()}
@@ -328,8 +323,7 @@ export function Sheet(props: SheetProps): JSX.Element {
                           aria-label="Close"
                           variant="ghost"
                           size="icon-sm"
-                          style={resolved.slotStyle('close')}
-                          class={['absolute top-4 right-4', resolved.slotClass('close')]}
+                          {...resolved.slotClassAndStyle('close', 'absolute top-4 right-4')}
                           onClick={() => props.close()}
                         >
                           <Show when={closeContent() === true} fallback={closeContent()}>
@@ -348,11 +342,10 @@ export function Sheet(props: SheetProps): JSX.Element {
             <Show when={hasJsxContent(body())}>
               <div
                 data-slot="body"
-                style={resolved.slotStyle('body')}
-                class={cn(
+                {...resolved.slotClassAndStyle(
+                  'body',
                   'flex-1 overflow-auto',
                   (hasCustomHeader() || hasDefaultHeader()) && 'px-4 pb-4 pt-0',
-                  resolved.slotClass('body'),
                 )}
               >
                 {body()}
@@ -362,8 +355,7 @@ export function Sheet(props: SheetProps): JSX.Element {
             <Show when={hasJsxContent(footer())}>
               <div
                 data-slot="footer"
-                style={resolved.slotStyle('footer')}
-                class={cn('mt-auto p-4 flex flex-col gap-2', resolved.slotClass('footer'))}
+                {...resolved.slotClassAndStyle('footer', 'mt-auto p-4 flex flex-col gap-2')}
               >
                 {footer()}
               </div>

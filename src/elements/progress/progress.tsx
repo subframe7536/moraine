@@ -5,10 +5,9 @@ import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/i
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
 
 import type { ProgressVariantProps } from './progress.class.ts'
-import { progressRecipe, progressStepVariants, progressStyleVars } from './progress.class.ts'
+import { PROGRESS_STEP_STATE_CLASS, progressRecipe, progressStyleVars } from './progress.class.ts'
 
 export namespace ProgressT {
   export interface StatusRenderProps {
@@ -304,11 +303,10 @@ export function Progress(props: ProgressProps): JSX.Element {
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
       data-slot="root"
-      style={resolved.rootStyle()}
       data-orientation={orientation()}
       {...dataAttrs()}
       {...rest}
-      class={resolved.rootClass()}
+      {...resolved.rootClassAndStyle()}
     >
       <Show when={!isIndeterminate()}>
         {(_determinate) => {
@@ -319,11 +317,7 @@ export function Progress(props: ProgressProps): JSX.Element {
             <Show when={shouldRenderStatus()}>
               <div
                 data-slot="status"
-                class={resolved.slotClass('status')}
-                style={{
-                  ...statusStyle(),
-                  ...resolved.slotStyle('status'),
-                }}
+                {...resolved.slotClassAndStyle('status', { style: statusStyle() })}
                 {...dataAttrs()}
               >
                 <Show when={statusRender() !== undefined} fallback={`${percent() ?? 0}%`}>
@@ -339,19 +333,10 @@ export function Progress(props: ProgressProps): JSX.Element {
         }}
       </Show>
 
-      <div
-        data-slot="track"
-        style={resolved.slotStyle('track')}
-        class={resolved.slotClass('track')}
-        {...dataAttrs()}
-      >
+      <div data-slot="track" {...resolved.slotClassAndStyle('track')} {...dataAttrs()}>
         <div
           data-slot="indicator"
-          class={resolved.slotClass('indicator')}
-          style={{
-            ...indicatorStyle(),
-            ...resolved.slotStyle('indicator'),
-          }}
+          {...resolved.slotClassAndStyle('indicator', { style: indicatorStyle() })}
           {...dataAttrs()}
         />
       </div>
@@ -361,24 +346,14 @@ export function Progress(props: ProgressProps): JSX.Element {
           const stepRender = createMemo(() => local.stepRender)
 
           return (
-            <div
-              data-slot="steps"
-              style={resolved.slotStyle('steps')}
-              class={resolved.slotClass('steps')}
-              {...dataAttrs()}
-            >
+            <div data-slot="steps" {...resolved.slotClassAndStyle('steps')} {...dataAttrs()}>
               <For each={steps()}>
                 {(step, index) => (
                   <div
                     data-slot="step"
-                    style={resolved.slotStyle('step')}
-                    class={cn(
-                      progressStepVariants({
-                        state: stepState(index()),
-                        size: size(),
-                      }),
-                      resolved.slotClass('step'),
-                    )}
+                    {...resolved.slotClassAndStyle('step', {
+                      state: PROGRESS_STEP_STATE_CLASS[stepState(index())],
+                    })}
                     {...dataAttrs()}
                   >
                     <Show when={stepRender() !== undefined} fallback={step}>

@@ -1,6 +1,18 @@
 import { describe, expect, test } from 'vitest'
 
+import type { SlotRecipeOptions } from './recipe.ts'
 import { recipe } from './recipe.ts'
+
+// @ts-expect-error Slot recipes require a base map.
+const missingSlotBase: SlotRecipeOptions<'root'> = {}
+const unknownVariantSlot: SlotRecipeOptions<'root'> = {
+  base: { root: 'root' },
+  // @ts-expect-error Variant slots must be declared by base.
+  variants: { state: { active: { leading: 'leading' } } },
+}
+
+void missingSlotBase
+void unknownVariantSlot
 
 describe('recipe', () => {
   describe('atomic recipe', () => {
@@ -38,6 +50,9 @@ describe('recipe', () => {
         rounded: false,
       },
     })
+    const atomicClass: string | undefined = button()
+
+    void atomicClass
 
     test('applies defaults when no options provided', () => {
       expect(button()).toBe(
@@ -92,12 +107,12 @@ describe('recipe', () => {
 
   describe('multi-slot recipe', () => {
     const card = recipe({
-      slots: ['root', 'header', 'content', 'footer'],
       base: {
         root: 'rounded-lg border border-border bg-card p-4',
         header: 'font-semibold text-card-foreground mb-2',
         content: 'text-card-foreground',
         footer: 'mt-4 flex items-center',
+        icon: '',
       },
       variants: {
         variant: {
@@ -147,7 +162,7 @@ describe('recipe', () => {
     })
 
     test('exposes slots array', () => {
-      expect(card.slots).toEqual(['root', 'header', 'content', 'footer'])
+      expect(card.slots).toEqual(['root', 'header', 'content', 'footer', 'icon'])
     })
 
     test('applies defaults to multi-slot structure and pre-resolves classes', () => {
@@ -156,6 +171,7 @@ describe('recipe', () => {
       expect(slots.classes.header).toBe('font-semibold text-card-foreground mb-2')
       expect(slots.classes.content).toBe('text-card-foreground')
       expect(slots.classes.footer).toBe('mt-4 flex items-center')
+      expect(slots.classes.icon).toBeUndefined()
 
       expect(slots.root()).toBe('rounded-lg border border-border p-4 bg-muted')
       expect(slots.header()).toBe('font-semibold text-card-foreground mb-2')
@@ -195,6 +211,23 @@ describe('recipe', () => {
       const run2 = card({ variant: 'ghost' })
       expect(run1).not.toBe(run2)
       expect(run1.classes).toEqual(run2.classes)
+    })
+
+    test('infers slots from base without runtime slots array', () => {
+      const inferred = recipe({
+        base: {
+          root: 'flex flex-col',
+          header: 'p-4 border-b',
+          body: 'p-4',
+        },
+      })
+
+      expect(inferred.slots).toEqual(['root', 'header', 'body'])
+      const res = inferred()
+      expect(res.classes.root).toBe('flex flex-col')
+      expect(res.classes.header).toBe('p-4 border-b')
+      expect(res.classes.body).toBe('p-4')
+      expect(res.root()).toBe('flex flex-col')
     })
   })
 })

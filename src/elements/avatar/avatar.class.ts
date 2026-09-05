@@ -1,14 +1,12 @@
 import type { VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-export const AVATAR_IMAGE_CLASS =
-  'rounded-full size-full transition-opacity inset-0 absolute object-cover'
+export const AVATAR_FALLBACK_HIDDEN_CLASS = 'opacity-0 pointer-events-none'
 
 export const avatarRecipe = recipe({
-  slots: ['root', 'image', 'fallback', 'fallbackIcon', 'badge'],
   base: {
     root: "text-muted-foreground rounded-full bg-muted inline-flex shrink-0 select-none items-center justify-center relative overflow-visible after:border after:border-border after:rounded-full after:pointer-events-none after:content-[''] after:inset-0 after:absolute dark:after:mix-blend-lighten",
-    image: AVATAR_IMAGE_CLASS,
+    image: 'rounded-full size-full transition-opacity inset-0 absolute object-cover',
     fallback:
       'text-muted-foreground font-medium rounded-full bg-muted flex uppercase transition-opacity items-center inset-0 justify-center absolute',
     fallbackIcon: 'shrink-0',
@@ -18,7 +16,6 @@ export const avatarRecipe = recipe({
   defaultVariants: {
     size: 'md',
     badgePosition: 'bottom-right',
-    status: 'idle',
   },
   variants: {
     size: {
@@ -47,22 +44,19 @@ export const avatarRecipe = recipe({
       'bottom-left': { badge: '-bottom-0.5 -left-0.5' },
       'bottom-right': { badge: '-bottom-0.5 -right-0.5' },
     },
-    status: {
-      idle: { fallback: 'opacity-100' },
-      loading: { fallback: 'opacity-100' },
-      loaded: { fallback: 'opacity-0 pointer-events-none' },
-      error: { fallback: 'opacity-100' },
-    },
   },
 })
 
 export const avatarGroupRecipe = recipe({
-  slots: ['root', 'item', 'count'],
   base: {
     root: 'inline-flex flex-row-reverse justify-end',
     item: 'rounded-full ring-background relative first:me-0',
     count:
       'text-muted-foreground font-medium rounded-full bg-muted inline-flex shrink-0 ring-background items-center justify-center first:me-0',
+    image: '',
+    fallback: '',
+    fallbackIcon: '',
+    badge: '',
   },
   defaultVariants: {
     size: 'md',
