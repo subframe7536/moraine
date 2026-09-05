@@ -7,10 +7,10 @@ import { getApiReferenceTocEntries } from '../api-doc/reference-sections'
 import { resolveDocsPageContext } from '../core/paths'
 import { createDocsRouteInfo } from '../routes'
 
-import { createMdxCodeTabsPlugin } from './code-tabs'
 import { validateFrontmatterData } from './frontmatter'
 import {
   createDocsCodePlugin,
+  createDocsCodeTabsPlugin,
   createDocsHastPlugin,
   DOCS_MDX_FEATURES,
   DOCS_ON_THIS_PAGE_DATA_KEY,
@@ -76,7 +76,7 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
     features: DOCS_MDX_FEATURES,
     mdastPlugins: [
       () => createMdxPreviewsPlugin(),
-      () => createMdxCodeTabsPlugin(),
+      () => createDocsCodeTabsPlugin(),
       () => createDocsCodePlugin(),
     ],
     hastPlugins: [() => createDocsHastPlugin()],

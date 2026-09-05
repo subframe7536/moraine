@@ -95,7 +95,11 @@ describe('llms.txt generation', () => {
       await writeProjectFile(
         projectRoot,
         'docs/pages/index.mdx',
-        pageSource('Introduction', 1, '<IntroComponents />\n\n<CodeTabs package="moraine" />'),
+        pageSource(
+          'Introduction',
+          1,
+          '<IntroComponents />\n\n<CodeTabs>\n  <CodeTabs.Item lang="shell" title="bun">\n    bun add moraine\n  </CodeTabs.Item>\n  <CodeTabs.Item lang="shell" title="pnpm">\n    pnpm add moraine\n  </CodeTabs.Item>\n  <CodeTabs.Item lang="shell" title="npm">\n    npm i moraine\n  </CodeTabs.Item>\n</CodeTabs>',
+        ),
       )
       await writeProjectFile(
         projectRoot,
@@ -160,9 +164,10 @@ describe('llms.txt generation', () => {
       const button = documents.find((document) => document.fileName === 'button.md')?.source
 
       expect(introduction).toContain('[Button](https://ui.subf.dev/button.md): A button.')
-      expect(introduction).toContain('bun add moraine')
-      expect(introduction).toContain('pnpm add moraine')
-      expect(introduction).toContain('npm i moraine')
+      expect(introduction).not.toContain('<CodeTabs')
+      expect(introduction).toContain('```shell bun\nbun add moraine\n```')
+      expect(introduction).toContain('```shell pnpm\npnpm add moraine\n```')
+      expect(introduction).toContain('```shell npm\nnpm i moraine\n```')
       expect(button).toContain('[`Button`](https://ui.subf.dev/button.md)')
       expect(button).toContain('function Basic()')
       expect(button).toContain('## API')
