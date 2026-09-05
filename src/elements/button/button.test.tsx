@@ -304,6 +304,29 @@ describe('Button', () => {
     expect(leading?.className).toContain('i-lucide-loader-circle')
   })
 
+  test('resolves provider loading styles for the active icon slot', () => {
+    const screen = render(() => (
+      <MoraineProvider
+        config={{
+          button: {
+            classes: { loading: 'provider-loading' },
+            styles: { loading: { width: '12px' } },
+          },
+        }}
+      >
+        <Button loading trailing="i-lucide:timer" classes={{ loading: 'instance-loading' }}>
+          Loading
+        </Button>
+      </MoraineProvider>
+    ))
+
+    const trailing = screen.getByRole('button').querySelector<HTMLElement>('[data-slot="trailing"]')
+    expect(trailing?.className).toContain('provider-loading')
+    expect(trailing?.className).toContain('instance-loading')
+    expect(trailing?.style.width).toBe('12px')
+    expect(trailing?.getAttribute('aria-hidden')).toBe('true')
+  })
+
   test('renders built-in loading icon by default when loading', () => {
     const screen = render(() => <Button loading>Saving</Button>)
 

@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { SlotFns } from '../../shared/style/recipe.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 import type { AvatarGroupVariantProps } from './avatar.class.ts'
@@ -115,7 +116,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
 
   const resolved = resolveComponentStyle({
     get slots() {
-      return slots()
+      return slots() as SlotFns<Extract<keyof AvatarGroupT.Slot, string>>
     },
     get provider() {
       return provider()
@@ -151,8 +152,18 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
               rootSlot="item"
               style={resolved.slotStyle('item')}
               class={resolved.slotClass('item')}
-              classes={local.classes}
-              styles={local.styles}
+              classes={{
+                image: resolved.slotClass('image'),
+                fallback: resolved.slotClass('fallback'),
+                fallbackIcon: resolved.slotClass('fallbackIcon'),
+                badge: resolved.slotClass('badge'),
+              }}
+              styles={{
+                image: resolved.slotStyle('image'),
+                fallback: resolved.slotStyle('fallback'),
+                fallbackIcon: resolved.slotStyle('fallbackIcon'),
+                badge: resolved.slotStyle('badge'),
+              }}
             />
           )}
         </For>

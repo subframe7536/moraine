@@ -9,6 +9,13 @@
   },
   "slots": [
     {
+      "name": "trigger",
+      "description": "Element that opens the dialog.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
       "name": "overlay",
       "description": "Backdrop layer rendered behind the dialog panel.",
       "cssVariables": [],

@@ -16,7 +16,7 @@ import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { callHandler, cn, useId } from '../../shared/utils.ts'
+import { callHandler, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form/form-context.ts'
 import type {
   FormDisableOption,
@@ -546,6 +546,9 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         styles: local.styles,
       }
     },
+    get stateCls() {
+      return { control: field.disabled() ? 'bg-muted/32' : undefined }
+    },
   })
 
   let hiddenInputEl: HTMLInputElement | undefined
@@ -882,7 +885,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
             data-slot="control"
             style={resolved.slotStyle('control')}
             data-invalid={field.invalid() ? '' : undefined}
-            class={cn(resolved.slotClass('control'), field.disabled() && 'bg-muted/32')}
+            class={resolved.slotClass('control')}
             disabled={field.disabled()}
             {...controlAriaAttrs()}
             onFocus={(event) => field.emit('focus', event)}
@@ -901,7 +904,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           style={resolved.slotStyle('control')}
           data-dragging={dragging() ? '' : undefined}
           data-invalid={field.invalid() ? '' : undefined}
-          class={cn(resolved.slotClass('control'), field.disabled() && 'bg-muted/32')}
+          class={resolved.slotClass('control')}
           onFocus={(event) => field.emit('focus', event)}
           onBlur={(event) => field.emit('blur', event)}
           onClick={onControlClick}

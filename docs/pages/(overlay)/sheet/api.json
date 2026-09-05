@@ -9,6 +9,13 @@
   },
   "slots": [
     {
+      "name": "trigger",
+      "description": "Element that opens the sheet.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
       "name": "overlay",
       "description": "Backdrop layer rendered behind the sheet panel.",
       "cssVariables": [],

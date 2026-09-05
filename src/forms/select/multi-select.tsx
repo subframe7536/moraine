@@ -126,6 +126,7 @@ export namespace MultiSelectT {
         | 'tabSelectionBehavior'
         | 'virtualRender'
         | 'scrollToItem'
+        | '_defaultSize'
       >,
       FormIdentityOptions,
       FormValueOptions<TItem[]>,
@@ -705,6 +706,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   return (
     <BaseSelect<Item>
       {...rest}
+      _defaultSize={merged.size ?? undefined}
       class={resolved.rootClass()}
       classes={resolvedClasses()}
       style={resolved.rootStyle()}

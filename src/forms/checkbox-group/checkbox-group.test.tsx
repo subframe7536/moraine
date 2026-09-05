@@ -404,7 +404,7 @@ describe('CheckboxGroup', () => {
         items={['A']}
         variant="table"
         styles={{
-          root: { width: '200px' },
+          item: { width: '200px' },
           control: { width: '200px' },
           label: { width: '200px' },
         }}

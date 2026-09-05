@@ -11,6 +11,7 @@ import {
 } from 'solid-js'
 
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import type { SlotFns } from '../../shared/style/recipe.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { cn, useId } from '../../shared/utils.ts'
 import type { CheckboxProps } from '../checkbox/checkbox.tsx'
@@ -285,7 +286,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
 
   const resolved = resolveComponentStyle({
     get slots() {
-      return slots()
+      return slots() as SlotFns<Extract<keyof CheckboxGroupT.Slot, string>>
     },
     get provider() {
       return provider()
@@ -449,9 +450,24 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                     merged.variant === 'table' && 'border border-muted rounded-none relative',
                     resolved.slotClass('item'),
                   ),
-                  ...merged.classes,
+                  container: resolved.slotClass('container'),
+                  control: resolved.slotClass('control'),
+                  indicator: resolved.slotClass('indicator'),
+                  icon: resolved.slotClass('icon'),
+                  wrapper: resolved.slotClass('wrapper'),
+                  label: resolved.slotClass('label'),
+                  description: resolved.slotClass('description'),
                 }}
-                styles={merged.styles}
+                styles={{
+                  root: resolved.slotStyle('item'),
+                  container: resolved.slotStyle('container'),
+                  control: resolved.slotStyle('control'),
+                  indicator: resolved.slotStyle('indicator'),
+                  icon: resolved.slotStyle('icon'),
+                  wrapper: resolved.slotStyle('wrapper'),
+                  label: resolved.slotStyle('label'),
+                  description: resolved.slotStyle('description'),
+                }}
                 onChange={(checked) => onItemCheckedChange(item().value, checked)}
               />
             )

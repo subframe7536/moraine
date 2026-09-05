@@ -1,7 +1,6 @@
 import { createSignal, onMount } from 'solid-js'
 
 export type ThemeMode = 'light' | 'dark'
-export const THEME_STORAGE_KEY = 'moraine-theme'
 
 function getSystemTheme(): ThemeMode {
   try {
@@ -36,9 +35,6 @@ export function useTheme() {
     const run = () => {
       setTheme(nextTheme)
       applyTheme(nextTheme)
-      try {
-        window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme)
-      } catch {}
     }
 
     if (typeof document !== 'undefined' && typeof document.startViewTransition === 'function') {

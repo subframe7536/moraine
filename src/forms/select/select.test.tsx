@@ -73,6 +73,16 @@ test('uses input sizing classes in single mode', () => {
   expect(singleInput?.className).toContain('text-xs')
 })
 
+test('uses the provider size as the field default', () => {
+  const screen = render(() => (
+    <MoraineProvider config={{ select: { variants: { size: 'lg' } } }}>
+      <Select options={FRUITS} placeholder="Provider size" />
+    </MoraineProvider>
+  ))
+
+  expect(screen.container.querySelector('[data-slot="control"]')?.className).toContain('text-base')
+})
+
 test('keeps control spacing on the control instead of its icons and input', () => {
   const screen = render(() => (
     <Select options={FRUITS} size="md" leadingIcon="icon-search" placeholder="Pick" />

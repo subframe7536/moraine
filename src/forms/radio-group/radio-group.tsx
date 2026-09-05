@@ -234,6 +234,9 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
         styles: local.styles,
       }
     },
+    get stateCls() {
+      return { root: variant() !== 'table' ? 'gap-2' : undefined }
+    },
   })
 
   const [uncontrolledValue, setUncontrolledValue] = createSignal(initialDefaultValue)
@@ -448,7 +451,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       aria-orientation={orientation()}
       data-slot="root"
       style={resolved.rootStyle()}
-      class={cn(resolved.rootClass(), variant() !== 'table' && 'gap-2')}
+      class={resolved.rootClass()}
       {...dataAttrs()}
       {...groupAriaAttrs()}
       {...rest}

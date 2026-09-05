@@ -2,6 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { setPopperTestPlacementAccessor } from '../base/popper'
 
 import { Tooltip } from './tooltip'
@@ -112,6 +113,25 @@ describe('Tooltip', () => {
 
     expect(trigger?.className).toContain('trigger-class')
     expect(trigger?.style.width).toBe('200px')
+  })
+
+  test('applies provider trigger classes and styles', () => {
+    render(() => (
+      <MoraineProvider
+        config={{
+          tooltip: {
+            classes: { trigger: 'provider-trigger' },
+            styles: { trigger: { width: '160px' } },
+          },
+        }}
+      >
+        <Tooltip content="Help">{(props) => <button {...props}>Trigger</button>}</Tooltip>
+      </MoraineProvider>
+    ))
+
+    const trigger = document.body.querySelector<HTMLElement>('[data-slot="trigger"]')
+    expect(trigger?.className).toContain('provider-trigger')
+    expect(trigger?.style.width).toBe('160px')
   })
 
   test('renders keyboard hints', () => {

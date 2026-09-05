@@ -138,6 +138,13 @@ export function Card(props: CardProps): JSX.Element {
         styles: local.styles,
       }
     },
+    get stateCls() {
+      return {
+        body:
+          !footer() &&
+          (compact() ? CARD_BODY_MARGIN_COMPACT_CLASS : CARD_BODY_MARGIN_DEFAULT_CLASS),
+      }
+    },
   })
 
   return (
@@ -185,11 +192,7 @@ export function Card(props: CardProps): JSX.Element {
           <div
             data-slot="body"
             style={resolved.slotStyle('body')}
-            class={cn(
-              resolved.slotClass('body'),
-              !footer() &&
-                (compact() ? CARD_BODY_MARGIN_COMPACT_CLASS : CARD_BODY_MARGIN_DEFAULT_CLASS),
-            )}
+            class={resolved.slotClass('body')}
           >
             {body()}
           </div>

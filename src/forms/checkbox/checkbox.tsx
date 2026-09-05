@@ -261,6 +261,14 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         styles: local.styles,
       }
     },
+    get stateCls() {
+      return {
+        root:
+          merged.variant === 'card'
+            ? cn(checkboxCardPaddingVariants({ size: field.size() }), 'cursor-pointer')
+            : undefined,
+      }
+    },
   })
 
   const defaultCheckedState = createMemo<boolean | 'indeterminate'>(() => {
@@ -480,15 +488,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       data-slot="root"
       {...rest}
       style={resolved.rootStyle()}
-      class={cn(
-        resolved.rootClass(),
-        merged.variant === 'card' && [
-          checkboxCardPaddingVariants({
-            size: field.size(),
-          }),
-          'cursor-pointer',
-        ],
-      )}
+      class={resolved.rootClass()}
       onClick={onRootClick}
     >
       <div

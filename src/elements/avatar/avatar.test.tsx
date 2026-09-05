@@ -540,6 +540,24 @@ describe('Avatar', () => {
     expect(count?.style.width).toBe('200px')
   })
 
+  test('keeps group root overrides off child avatars', () => {
+    const screen = render(() => (
+      <AvatarGroup
+        items={[{ text: 'A' }]}
+        classes={{ root: 'group-root', item: 'group-item', fallback: 'group-fallback' }}
+      />
+    ))
+
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
+    const item = screen.container.querySelector<HTMLElement>('[data-slot="item"]')
+    const fallback = screen.container.querySelector<HTMLElement>('[data-slot="fallback"]')
+
+    expect(root?.className).toContain('group-root')
+    expect(item?.className).toContain('group-item')
+    expect(item?.className).not.toContain('group-root')
+    expect(fallback?.className).toContain('group-fallback')
+  })
+
   describe('Provider Precedence', () => {
     test('Avatar and AvatarGroup inherit provider configuration with instance overrides', () => {
       const screen = render(() => (

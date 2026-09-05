@@ -8,13 +8,12 @@ import { renderComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
 import { useLoadingAutoClick } from '../../shared/use-loading-auto.ts'
-import { cn } from '../../shared/utils.ts'
 import { Icon } from '../icon/index.ts'
 import type { IconT } from '../icon/index.ts'
 
 import { ButtonGroupContext } from './button-group-context.ts'
 import type { ButtonVariantProps } from './button.class.ts'
-import { BUTTON_LOADING_SPINNER_CLASS, buttonRecipe } from './button.class.ts'
+import { buttonRecipe } from './button.class.ts'
 
 type IsUnion<T, U = T> = T extends unknown ? ([U] extends [T] ? false : true) : never
 
@@ -266,16 +265,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         styles: local.styles,
       }
     },
-    get stateCls() {
-      return {
-        leading: isLeadingLoading()
-          ? cn(BUTTON_LOADING_SPINNER_CLASS, local.classes?.loading)
-          : undefined,
-        trailing: isTrailingLoading()
-          ? cn(BUTTON_LOADING_SPINNER_CLASS, local.classes?.loading)
-          : undefined,
-      }
-    },
   })
 
   return (
@@ -296,8 +285,14 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           <Icon
             name={leading()}
             slotName="leading"
-            style={resolved.slotStyle('leading')}
-            class={resolved.slotClass('leading')}
+            style={resolved.slotStyle(
+              'leading',
+              isLeadingLoading() ? { state: resolved.slotStyle('loading') } : undefined,
+            )}
+            class={resolved.slotClass(
+              'leading',
+              isLeadingLoading() ? { state: resolved.slotClass('loading') } : undefined,
+            )}
             aria-hidden={isLeadingLoading() ? true : undefined}
           />
         )}
@@ -318,8 +313,15 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           <Icon
             name={trailing()}
             slotName="trailing"
-            style={resolved.slotStyle('trailing')}
-            class={resolved.slotClass('trailing')}
+            style={resolved.slotStyle(
+              'trailing',
+              isTrailingLoading() ? { state: resolved.slotStyle('loading') } : undefined,
+            )}
+            class={resolved.slotClass(
+              'trailing',
+              isTrailingLoading() ? { state: resolved.slotClass('loading') } : undefined,
+            )}
+            aria-hidden={isTrailingLoading() ? true : undefined}
           />
         )}
       </Show>

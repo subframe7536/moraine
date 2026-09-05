@@ -909,7 +909,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                   data-active={bindings.active() ? '' : undefined}
                   data-cross={bindings.crossHovered() ? '' : undefined}
                   data-dragging={bindings.dragging() ? '' : undefined}
-                  class={cn(resolved.slotClass('handle'), resolved.slotClass('divider'))}
+                  class={resolved.slotClass('divider')}
                   onMouseEnter={bindings.onMouseEnter}
                   onMouseLeave={bindings.onMouseLeave}
                   onFocus={bindings.onFocus}

@@ -23,6 +23,9 @@ import type { TooltipVariantProps } from './tooltip.class.ts'
 
 export namespace TooltipT {
   export interface Slot<T = unknown> {
+    /** Element that opens the tooltip. */
+    trigger?: T
+
     /** Tooltip bubble positioned next to its trigger. */
     content?: T
 
@@ -225,10 +228,10 @@ export function Tooltip(props: TooltipProps): JSX.Element {
 
   const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
     get class() {
-      return resolved.rootClass()
+      return resolved.slotClass('trigger')
     },
     get style() {
-      return resolved.rootStyle()
+      return resolved.slotStyle('trigger')
     },
   }) as Partial<OverlayTriggerProps>
   const tooltipId = useId(() => merged.id, 'tooltip')

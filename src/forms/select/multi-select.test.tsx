@@ -37,6 +37,18 @@ async function finishSelectExitMotion(): Promise<void> {
 }
 
 describe('MultiSelect', () => {
+  test('uses the provider size as the field default', () => {
+    const screen = render(() => (
+      <MoraineProvider config={{ multiSelect: { variants: { size: 'lg' } } }}>
+        <MultiSelect options={FRUITS} />
+      </MoraineProvider>
+    ))
+
+    expect(screen.container.querySelector('[data-slot="control"]')?.className).toContain(
+      'text-base',
+    )
+  })
+
   test('uses the normative root class and style precedence', () => {
     const screen = render(() => (
       <MoraineProvider

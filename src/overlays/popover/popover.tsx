@@ -15,6 +15,9 @@ type PopoverMode = 'click' | 'hover'
 
 export namespace PopoverT {
   export interface Slot<T = unknown> {
+    /** Element that opens the popover. */
+    trigger?: T
+
     /** Positioned popover panel anchored to the trigger. */
     content?: T
 
@@ -150,10 +153,10 @@ export function Popover(props: PopoverProps): JSX.Element {
 
   const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
     get class() {
-      return resolved.rootClass()
+      return resolved.slotClass('trigger')
     },
     get style() {
-      return resolved.rootStyle()
+      return resolved.slotStyle('trigger')
     },
   }) as Partial<OverlayTriggerProps>
 

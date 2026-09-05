@@ -401,4 +401,28 @@ describe('Precedence Contract & resolveComponentStyle', () => {
       '--i-lead': '3',
     })
   })
+
+  test('places dynamic group and state values before instance overrides', () => {
+    const resolved = resolveComponentStyle({
+      slots: testRecipe(),
+      instance: {
+        classes: { leading: 'text-instance' },
+        styles: { leading: { color: 'green' } },
+      },
+    })
+
+    expect(
+      resolved.slotClass('leading', {
+        group: 'text-group',
+        state: 'text-state',
+      }),
+    ).toContain('text-instance')
+    expect(resolved.slotClass('leading', { state: 'text-state' })).not.toContain('text-state')
+    expect(
+      resolved.slotStyle('leading', {
+        group: { color: 'blue', width: '1px' },
+        state: { color: 'red' },
+      }),
+    ).toEqual({ color: 'green', width: '1px' })
+  })
 })

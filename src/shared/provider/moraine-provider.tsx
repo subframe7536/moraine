@@ -219,8 +219,18 @@ export interface ComponentStyleInputs<
 export interface ResolvedComponentStyle<S extends string> {
   rootClass: () => string | undefined
   rootStyle: () => JSX.CSSProperties
-  slotClass: (slot: S) => string | undefined
-  slotStyle: (slot: S) => JSX.CSSProperties | undefined
+  slotClass: (slot: S, override?: SlotClassOverride) => string | undefined
+  slotStyle: (slot: S, override?: SlotStyleOverride) => JSX.CSSProperties | undefined
+}
+
+export interface SlotClassOverride {
+  group?: SlotClassValue
+  state?: SlotClassValue
+}
+
+export interface SlotStyleOverride {
+  group?: JSX.CSSProperties
+  state?: JSX.CSSProperties
 }
 
 /**
@@ -282,7 +292,7 @@ export function resolveComponentStyle<
         ...inputs.instance?.style,
       }
     },
-    slotClass: (slot) => {
+    slotClass: (slot, override) => {
       const providerClasses = inputs.provider?.classes as Record<string, SlotClassValue> | undefined
       const groupClasses = inputs.group?.classes as Record<string, SlotClassValue> | undefined
       const instanceClasses = inputs.instance?.classes as Record<string, SlotClassValue> | undefined
@@ -291,19 +301,19 @@ export function resolveComponentStyle<
       return (
         slotFn?.(
           providerClasses?.[slot],
-          groupClasses?.[slot],
-          inputs.stateCls?.[slot],
+          cn(groupClasses?.[slot], override?.group),
+          cn(inputs.stateCls?.[slot], override?.state),
           instanceClasses?.[slot],
         ) ??
         cn(
           providerClasses?.[slot],
-          groupClasses?.[slot],
-          inputs.stateCls?.[slot],
+          cn(groupClasses?.[slot], override?.group),
+          cn(inputs.stateCls?.[slot], override?.state),
           instanceClasses?.[slot],
         )
       )
     },
-    slotStyle: (slot) => {
+    slotStyle: (slot, override) => {
       const providerStyles = inputs.provider?.styles as
         | Record<string, JSX.CSSProperties>
         | undefined
@@ -315,6 +325,8 @@ export function resolveComponentStyle<
       return {
         ...providerStyles?.[slot],
         ...groupStyles?.[slot],
+        ...override?.group,
+        ...override?.state,
         ...instanceStyles?.[slot],
       }
     },

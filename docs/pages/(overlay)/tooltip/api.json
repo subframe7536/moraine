@@ -9,6 +9,13 @@
   },
   "slots": [
     {
+      "name": "trigger",
+      "description": "Element that opens the tooltip.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
       "name": "content",
       "description": "Tooltip bubble positioned next to its trigger.",
       "cssVariables": [],

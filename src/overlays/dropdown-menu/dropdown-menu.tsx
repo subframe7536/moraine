@@ -141,10 +141,10 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
   const triggerRender = createMemo(() => merged.children)
   const userTriggerProps = mergeProps(rest, {
     get class() {
-      return resolved.rootClass()
+      return resolved.slotClass('trigger')
     },
     get style() {
-      return resolved.rootStyle()
+      return resolved.slotStyle('trigger')
     },
   }) as Partial<OverlayTriggerProps>
   const triggerProps = mergeProps(

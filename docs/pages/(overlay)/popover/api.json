@@ -9,6 +9,13 @@
   },
   "slots": [
     {
+      "name": "trigger",
+      "description": "Element that opens the popover.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
       "name": "content",
       "description": "Positioned popover panel anchored to the trigger.",
       "cssVariables": [],

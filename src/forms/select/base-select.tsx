@@ -26,7 +26,7 @@ import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import { callHandler, cn, useId } from '../../shared/utils.ts'
-import type { UseFormFieldReturn } from '../form/form-context.ts'
+import type { UseFormFieldReturn, FormFieldSize } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
@@ -170,6 +170,8 @@ export namespace BaseSelectT {
 
   export interface Base<TItem extends Item>
     extends FormIdentityOptions, FormRequiredOption, FormDisableOption {
+    /** Internal provider fallback, used only when no field or instance size is set. */
+    _defaultSize?: FormFieldSize
     /** Available options. */
     options?: TItem[]
     /** Controlled open state. */
@@ -540,6 +542,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     'required',
     'disabled',
     'size',
+    '_defaultSize',
     'variant',
     'classes',
     'styles',
@@ -612,6 +615,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     id: merged.id,
     name: merged.name,
     size: merged.size ?? undefined,
+    defaultSize: local._defaultSize,
     disabled: merged.disabled,
     required: local.required,
     initialValue: merged.initialValue,

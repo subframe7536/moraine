@@ -30,6 +30,9 @@ import {
 
 export namespace DialogT {
   export interface Slot<T = unknown> {
+    /** Element that opens the dialog. */
+    trigger?: T
+
     /** Backdrop layer rendered behind the dialog panel. */
     overlay?: T
 
@@ -207,10 +210,10 @@ export function Dialog(props: DialogProps): JSX.Element {
   const triggerRender = createMemo(() => merged.children)
   const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
     get class() {
-      return resolved.rootClass()
+      return resolved.slotClass('trigger')
     },
     get style() {
-      return resolved.rootStyle()
+      return resolved.slotStyle('trigger')
     },
   }) as Partial<OverlayTriggerProps>
   const rootId = useId(() => merged.id, 'dialog')

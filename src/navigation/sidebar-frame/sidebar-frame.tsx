@@ -394,11 +394,8 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             data-side={context.side}
             aria-hidden={resolvedIsMobile() || !isOpen()}
             {...props}
-            style={{
-              ...props.styles,
-              ...resolved.slotStyle('sidebar'),
-            }}
-            class={cn(resolved.slotClass('sidebar'), props.classes)}
+            style={resolved.slotStyle('sidebar', { group: props.styles })}
+            class={resolved.slotClass('sidebar', { group: props.classes })}
           >
             <Show when={merged.sidebarHeaderRender !== undefined}>
               <div
@@ -434,11 +431,8 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             ref={merged.mainRef}
             data-slot="main"
             {...props}
-            style={{
-              ...props.styles,
-              ...resolved.slotStyle('main'),
-            }}
-            class={cn(resolved.slotClass('main'), props.classes)}
+            style={resolved.slotStyle('main', { group: props.styles })}
+            class={resolved.slotClass('main', { group: props.classes })}
             onScroll={(event) => {
               setScrolled(event.currentTarget.scrollTop > (merged.scrollThreshold ?? 60))
             }}

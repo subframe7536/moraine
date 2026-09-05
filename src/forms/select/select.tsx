@@ -104,6 +104,7 @@ export namespace SelectT {
         | 'tabSelectionBehavior'
         | 'virtualRender'
         | 'scrollToItem'
+        | '_defaultSize'
       >,
       FormIdentityOptions,
       FormValueOptions<TItem | null>,
@@ -340,6 +341,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
   return (
     <BaseSelect<Item>
       {...rest}
+      _defaultSize={merged.size ?? undefined}
       class={resolved.rootClass()}
       classes={resolvedClasses()}
       style={resolved.rootStyle()}

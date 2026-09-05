@@ -410,7 +410,9 @@ export function Stepper(props: StepperProps): JSX.Element {
                     disabled={disabled()}
                     aria-labelledby={entry.item.title ? titleId() : undefined}
                     aria-describedby={entry.item.description ? descriptionId() : undefined}
-                    class={cn(resolved.slotClass('trigger'), STEPPER_TRIGGER_STATE_CLASS[state()])}
+                    class={resolved.slotClass('trigger', {
+                      state: STEPPER_TRIGGER_STATE_CLASS[state()],
+                    })}
                     onClick={() => selectStep(entry.value)}
                     onKeyDown={(event) => {
                       onNavigationKeyDown(event, entry.value, merged.orientation ?? 'horizontal')
