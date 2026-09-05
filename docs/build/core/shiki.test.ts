@@ -4,12 +4,23 @@ import { describe, expect, test } from 'vitest'
 
 import {
   getDocsHighlighter,
+  parseCodeGroupId,
   parseCodeTitle,
   parseHighlightedLines,
   renderDocsCodeHtml,
 } from './shiki'
 
 describe('docs shiki code highlighter', () => {
+  test('parses code group id from meta', () => {
+    expect(parseCodeGroupId('title="bun" group-id="install"')).toBe('install')
+    expect(parseCodeGroupId("group-id='install'")).toBe('install')
+    expect(parseCodeGroupId('group-id=install')).toBe('install')
+    expect(parseCodeGroupId('groupId="pkg"')).toBe('pkg')
+    expect(parseCodeGroupId('group="pkg"')).toBe('pkg')
+    expect(parseCodeGroupId('title="foo.tsx"')).toBeUndefined()
+    expect(parseCodeGroupId('')).toBeUndefined()
+  })
+
   test('parses code title and filename from meta', () => {
     expect(parseCodeTitle('title="button.tsx"')).toBe('button.tsx')
     expect(parseCodeTitle("title='button.tsx'")).toBe('button.tsx')

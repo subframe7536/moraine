@@ -16,13 +16,29 @@
   color: var(--shiki-dark);
 }
 
+.shiki code {
+  display: grid;
+  min-width: 100%;
+}
+
+.shiki .line {
+  position: relative;
+}
+
 .shiki .line.highlighted {
+  position: relative;
+  isolation: isolate;
+}
+
+.shiki .line.highlighted::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline: -1rem;
   background-color: color-mix(in srgb, var(--primary) 12%, transparent);
-  display: inline-block;
-  min-width: calc(100% + 2rem);
-  margin-inline: -1rem;
-  padding-inline: 1rem;
   border-inline-start: 2px solid var(--primary);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .shiki.line-numbers code {

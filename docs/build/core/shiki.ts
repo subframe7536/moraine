@@ -130,6 +130,14 @@ export function parseCodeTitle(meta?: string): string | undefined {
   return undefined
 }
 
+export function parseCodeGroupId(meta?: string): string | undefined {
+  if (!meta) {
+    return undefined
+  }
+  const match = meta.match(/(?:group-id|groupId|group)=(?:"([^"]+)"|'([^']+)'|([^\s{}]+))/)
+  return match?.[1] ?? match?.[2] ?? match?.[3]
+}
+
 export interface DocsCodeRenderOptions {
   code: string
   language: string

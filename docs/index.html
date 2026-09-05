@@ -6,14 +6,12 @@
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
     <script>
-      ;(() => {
-        // Use the system preference before modules load to avoid a wrong-theme first frame.
-        try {
-          const theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-          document.documentElement.classList.toggle('dark', theme === 'dark')
-          document.documentElement.style.colorScheme = theme
-        } catch {}
-      })()
+      // Use the system preference before modules load to avoid a wrong-theme first frame.
+      try {
+        const theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.classList.toggle('dark', theme === 'dark')
+        document.documentElement.style.colorScheme = theme
+      } catch {}
     </script>
   </head>
   <body>

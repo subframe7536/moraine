@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { children, createMemo } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
+import { children, createMemo, createSignal } from 'solid-js'
 
 import { Tabs, cn } from '../../../../src/index'
 
@@ -27,11 +27,24 @@ export function CodeTabsItem(props: CodeTabsItemProps) {
 }
 
 export interface CodeTabsProps {
+  groupId?: string
   items?: CodeTabItem[]
   defaultValue?: string
   class?: string
   style?: JSX.CSSProperties
   children?: JSX.Element
+}
+
+const tabGroupSignals = new Map<string, [Accessor<string>, (val: string) => void]>()
+
+function getGroupSignal(groupId: string, initial: string) {
+  let entry = tabGroupSignals.get(groupId)
+  if (!entry) {
+    const [get, set] = createSignal(initial)
+    entry = [get, set]
+    tabGroupSignals.set(groupId, entry)
+  }
+  return entry
 }
 
 const DOCS_TABS_ROOT_CLASS =
@@ -86,12 +99,35 @@ export function CodeTabs(props: CodeTabsProps) {
     return list
   })
 
-  const defaultValue = () =>
+  const fallbackDefault = () =>
     props.defaultValue ?? items()[0]?.value ?? items()[0]?.title ?? items()[0]?.label
+
+  const groupSignal = () =>
+    props.groupId ? getGroupSignal(props.groupId, fallbackDefault() ?? '') : undefined
+
+  const activeValue = () => {
+    const gs = groupSignal()
+    if (gs) {
+      const current = gs[0]()
+      if (items().some((it) => (it.value ?? it.title ?? it.label) === current)) {
+        return current
+      }
+    }
+    return undefined
+  }
+
+  const handleValueChange = (val: string) => {
+    const gs = groupSignal()
+    if (gs) {
+      gs[1](val)
+    }
+  }
 
   return (
     <Tabs
-      defaultValue={defaultValue()}
+      value={activeValue()}
+      onChange={handleValueChange}
+      defaultValue={fallbackDefault()}
       size="sm"
       class={cn(DOCS_TABS_ROOT_CLASS, props.class)}
       style={props.style}

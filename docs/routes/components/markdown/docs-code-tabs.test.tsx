@@ -67,4 +67,33 @@ describe('CodeTabs', () => {
     expect(screen.getByRole('tab', { name: 'config' })).toBeTruthy()
     expect(screen.getByText(/export default defineConfig/)).toBeTruthy()
   })
+
+  test('synchronizes active tab across instances with the same groupId', () => {
+    const screen = render(() => (
+      <div>
+        <div data-testid="group-1">
+          <CodeTabs groupId="pkg" items={ITEMS} />
+        </div>
+        <div data-testid="group-2">
+          <CodeTabs groupId="pkg" items={ITEMS} />
+        </div>
+      </div>
+    ))
+
+    const group1 = screen.getByTestId('group-1')
+    const group2 = screen.getByTestId('group-2')
+
+    // Initial state: both show 'bun'
+    expect(group1.textContent).toContain('bun add moraine')
+    expect(group2.textContent).toContain('bun add moraine')
+
+    // Switch first group to 'pnpm'
+    const [pnpmTab1] = screen.getAllByRole('tab', { name: 'pnpm' })
+    expect(pnpmTab1).toBeDefined()
+    fireEvent.click(pnpmTab1!)
+
+    // Both groups now show 'pnpm'
+    expect(group1.textContent).toContain('pnpm add moraine')
+    expect(group2.textContent).toContain('pnpm add moraine')
+  })
 })

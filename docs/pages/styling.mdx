@@ -13,9 +13,8 @@ Moraine's styling system architecture uses atomic utility classes in the publish
 
 Use either the Wind4 or Wind3 preset with `presetMoraine()`, and include Moraine's published JavaScript in the content scan.
 
-<CodeTabs>
-  <CodeTabs.Item lang="ts" title="unocss.config.ts" highlightedLines={[5]}>
-{`import { defineConfig, presetWind4 } from '@subf/unocss'
+```ts title="unocss.config.ts (Wind4)" {1,5} group-id="unocss"
+import { defineConfig, presetWind4 } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
@@ -23,10 +22,11 @@ export default defineConfig({
   content: {
     filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
   },
-})`}
-  </CodeTabs.Item>
-  <CodeTabs.Item lang="ts" title="unocss.config.ts (Wind3)" highlightedLines={[5]}>
-{`import { defineConfig, presetWind3 } from '@subf/unocss'
+})
+```
+
+```ts title="unocss.config.ts (Wind3)" {1,5} group-id="unocss"
+import { defineConfig, presetWind3 } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
@@ -34,9 +34,8 @@ export default defineConfig({
   content: {
     filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
   },
-})`}
-  </CodeTabs.Item>
-</CodeTabs>
+})
+```
 
 The preset registers Moraine theme tokens, shared animations, semantic z-index values, and `data-*` / `aria-*` variants. `globalStyles` defaults to `true`.
 

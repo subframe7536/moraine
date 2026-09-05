@@ -1,7 +1,12 @@
 import { defineHastPlugin, defineMdastPlugin } from 'satteri'
 import type { HastNode, MdxJsxAttributeUnion } from 'satteri'
 
-import { parseCodeTitle, parseHighlightedLines, renderDocsCodeHtml } from '../core/shiki'
+import {
+  parseCodeGroupId,
+  parseCodeTitle,
+  parseHighlightedLines,
+  renderDocsCodeHtml,
+} from '../core/shiki'
 import { toKebabCase } from '../core/strings'
 
 import { asObjectRecord } from './mdx'
@@ -339,9 +344,97 @@ function extractExpressionCode(exprNode: unknown, fullSource?: string): string {
   return val
 }
 
+async function renderCodeTabItem(node: any) {
+  const meta = node.meta ?? undefined
+  const title = parseCodeTitle(meta) ?? node.lang ?? 'code'
+  const highlightedLines = [...parseHighlightedLines(meta)]
+  const html = await renderDocsCodeHtml({
+    code: node.value,
+    language: node.lang ?? '',
+    meta,
+    highlightedLines,
+  })
+  return {
+    label: title,
+    title,
+    value: title,
+    lang: node.lang ?? '',
+    code: node.value,
+    html,
+    highlightedLines,
+  }
+}
+
+async function groupCodeBlocks(node: unknown, ctx: any): Promise<void> {
+  if (!node || typeof node !== 'object') {
+    return
+  }
+
+  const record = node as Record<string, unknown>
+  if (Array.isArray(record.children)) {
+    let i = 0
+    while (i < record.children.length) {
+      const child = record.children[i]
+      if (child?.type === 'code') {
+        const groupId = parseCodeGroupId(child.meta)
+        if (groupId) {
+          const group = [child]
+          let j = i + 1
+          while (j < record.children.length) {
+            const next = record.children[j]
+            if (next?.type === 'code' && parseCodeGroupId(next.meta) === groupId) {
+              group.push(next)
+              j++
+            } else {
+              break
+            }
+          }
+
+          const items = await Promise.all(group.map(renderCodeTabItem))
+
+          const codeTabsNode = {
+            type: 'mdxJsxFlowElement',
+            name: 'CodeTabs',
+            attributes: [
+              {
+                type: 'mdxJsxAttribute',
+                name: 'groupId',
+                value: groupId,
+              },
+              {
+                type: 'mdxJsxAttribute',
+                name: 'items',
+                value: {
+                  type: 'mdxJsxAttributeValueExpression',
+                  value: JSON.stringify(items),
+                },
+              },
+            ],
+            children: [],
+          }
+
+          ctx.replaceNode(group[0], codeTabsNode)
+          for (let k = 1; k < group.length; k++) {
+            ctx.removeNode(group[k])
+          }
+
+          i = j
+          continue
+        }
+      }
+
+      await groupCodeBlocks(child, ctx)
+      i++
+    }
+  }
+}
+
 export function createDocsCodeTabsPlugin() {
   return defineMdastPlugin({
     name: 'moraine-docs-code-tabs',
+    async before(root, ctx) {
+      await groupCodeBlocks(root, ctx)
+    },
     async mdxJsxFlowElement(node, ctx) {
       const record = asObjectRecord(node)
       if (!record || record.name !== 'CodeTabs') {
@@ -360,24 +453,7 @@ export function createDocsCodeTabsPlugin() {
       const items = await Promise.all(
         itemElements.map(async (child: any) => {
           if (child.type === 'code') {
-            const meta = child.meta ?? undefined
-            const title = parseCodeTitle(meta) ?? child.lang ?? 'code'
-            const highlightedLines = [...parseHighlightedLines(meta)]
-            const html = await renderDocsCodeHtml({
-              code: child.value,
-              language: child.lang ?? '',
-              meta,
-              highlightedLines,
-            })
-            return {
-              label: title,
-              title,
-              value: title,
-              lang: child.lang ?? '',
-              code: child.value,
-              html,
-              highlightedLines,
-            }
+            return renderCodeTabItem(child)
           }
 
           const attrs = child.attributes
