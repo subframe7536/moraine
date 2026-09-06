@@ -1,15 +1,42 @@
 import { getInput, setInput } from '@formisch/solid'
-import { fireEvent, render } from '@solidjs/testing-library'
+import { fireEvent, render as baseRender } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { createForm } from '../form/index'
 
 import { Input } from './input'
 
+const officialDesign = createDesign()
+
+const render: typeof baseRender = (ui, options) =>
+  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
+
 describe('Input', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = baseRender(() => <Input />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.className).toBe('')
+  })
+
+  test('forwards root ref and inner inputRef', () => {
+    let rootEl: HTMLDivElement | undefined
+    let inputEl: HTMLInputElement | undefined
+
+    render(() => (
+      <Input ref={(el) => (rootEl = el)} inputRef={(el) => (inputEl = el)} placeholder="ref test" />
+    ))
+
+    expect(rootEl).toBeInstanceOf(HTMLDivElement)
+    expect(rootEl?.getAttribute('data-slot')).toBe('root')
+    expect(inputEl).toBeInstanceOf(HTMLInputElement)
+    expect(inputEl?.placeholder).toBe('ref test')
+  })
+
   test('renders base attributes', () => {
     const screen = render(() => (
       <Input
@@ -173,19 +200,19 @@ describe('Input', () => {
     ) as HTMLElement | null
 
     expect(firstLeading?.className).toContain('icon-loading')
-    expect(firstLeading?.className).toContain('animate-spin')
+    expect(firstLeading?.hasAttribute('data-loading')).toBe(true)
     expect(roots[0]?.querySelector('[data-slot="trailing"]')).toBeNull()
 
     expect(secondTrailing?.className).toContain('icon-loading')
-    expect(secondTrailing?.className).toContain('animate-spin')
+    expect(secondTrailing?.hasAttribute('data-loading')).toBe(true)
     expect(secondTrailing?.className).not.toContain('i-lucide-at-sign')
     expect(roots[1]?.querySelector('[data-slot="leading"]')).toBeNull()
 
     expect(thirdLeading?.className).toContain('icon-loading')
-    expect(thirdLeading?.className).toContain('animate-spin')
+    expect(thirdLeading?.hasAttribute('data-loading')).toBe(true)
     expect(thirdLeading?.className).not.toContain('i-lucide-user')
     expect(thirdTrailing?.className).toContain('i-lucide-mail')
-    expect(thirdTrailing?.className).not.toContain('animate-spin')
+    expect(thirdTrailing?.hasAttribute('data-loading')).toBe(false)
 
     expect(screen.container.querySelector('[data-slot="leadingIcon"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="trailingIcon"]')).toBeNull()

@@ -1,129 +1,28 @@
-import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, mergeProps, on, onCleanup, splitProps } from 'solid-js'
+import type { JSX, ValidComponent } from 'solid-js'
+import {
+  Show,
+  children as resolveChildren,
+  createComponent,
+  createEffect,
+  createMemo,
+  mergeProps,
+  on,
+  onCleanup,
+  splitProps,
+} from 'solid-js'
 
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { hasJsxContent } from '../../shared/jsx-content.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
-import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index.ts'
-import type { OverlayTriggerProps } from '../base/trigger.ts'
+import { mergePopperContentProps } from '../base/popper.tsx'
+import type { PopperContentContext } from '../base/popper.tsx'
 
-import { popoverContentVariants } from './popover.class.ts'
-import type { PopoverContentVariantProps } from './popover.class.ts'
+import type { PopoverProps, PopoverT } from './popover.types.ts'
 
-type PopoverMode = 'click' | 'hover'
-
-export namespace PopoverT {
-  export interface Slot<T = unknown> {
-    /** Element that opens the popover. */
-    trigger?: T
-
-    /** Positioned popover panel anchored to the trigger. */
-    content?: T
-
-    /** Content body rendered inside the popover panel. */
-    body?: T
-  }
-
-  export interface Variant extends PopoverContentVariantProps {
-    /**
-     * Visual side styles applied after the positioned placement is resolved.
-     * @default 'bottom'
-     */
-    side?: PopoverContentVariantProps['side']
-  }
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-  export interface Item {}
-
-  /**
-   * Base props for the Popover component.
-   */
-  export interface Base extends Pick<
-    PopperProps,
-    | 'id'
-    | 'open'
-    | 'defaultOpen'
-    | 'onOpenChange'
-    | 'disabled'
-    | 'placement'
-    | 'forceMount'
-    | 'modal'
-    | 'preventScroll'
-    | 'dismissible'
-    | 'onClosePrevent'
-  > {
-    /** Accessible name for the dialog content. */
-    ariaLabel?: string
-
-    /**
-     * Interaction mode for triggering the popover.
-     * @default 'click'
-     */
-    mode?: PopoverMode
-
-    /**
-     * Delay in milliseconds before opening in hover mode.
-     * @default 100
-     */
-    openDelay?: number
-
-    /**
-     * Delay in milliseconds before closing in hover mode.
-     * @default 100
-     */
-    closeDelay?: number
-
-    /**
-     * Content to render inside the popover body.
-     */
-    content?: JSX.Element
-
-    /** Render the popover trigger as a single HTMLElement root. */
-    children?: (props: OverlayTriggerProps) => JSX.Element
-  }
-
-  /**
-   * Props for the Popover component.
-   */
-  export type TriggerProps = OverlayTriggerProps
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the Popover component.
- */
-export interface PopoverProps extends PopoverT.Props {}
-
-type PopoverSide = OverlayMenuSide
+export type { PopoverProps, PopoverT } from './popover.types.ts'
 
 /** Click-triggered floating content panel anchored to a trigger element. */
 export function Popover(props: PopoverProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'id',
-    'open',
-    'defaultOpen',
-    'onOpenChange',
-    'disabled',
-    'placement',
-    'forceMount',
-    'modal',
-    'preventScroll',
-    'dismissible',
-    'onClosePrevent',
-    'ariaLabel',
-    'mode',
-    'openDelay',
-    'closeDelay',
-    'content',
-    'children',
-    'classes',
-    'styles',
-    'class',
-    'style',
-  ])
-  const moraine = useMoraineConfig()
-  const providerPopover = () => moraine().popover
-
   const merged = mergeProps(
     {
       mode: 'click' as const,
@@ -132,34 +31,8 @@ export function Popover(props: PopoverProps): JSX.Element {
       closeDelay: 100,
       dismissible: true,
     },
-    () => providerPopover()?.variants,
-    local,
+    props,
   )
-
-  const styleInputs = {
-    rootSlot: 'trigger' as const,
-    get provider() {
-      return providerPopover()
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  }
-  const resolved = resolveComponentStyle(styleInputs)
-
-  const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
-    get class() {
-      return resolved.slotClass('trigger')
-    },
-    get style() {
-      return resolved.slotStyle('trigger')
-    },
-  }) as Partial<OverlayTriggerProps>
 
   let openTimer: ReturnType<typeof setTimeout> | undefined
   let closeTimer: ReturnType<typeof setTimeout> | undefined
@@ -244,55 +117,6 @@ export function Popover(props: PopoverProps): JSX.Element {
     clearTimeout(resetTimeout)
     invalidateHoverTimers()
   })
-
-  function Content(context: PopperContentContext): JSX.Element {
-    const content = createMemo(() => merged.content)
-    const resolvedSide = createMemo<PopoverSide>(() => {
-      const runtimePlacement = context.currentPlacement()
-
-      if (runtimePlacement) {
-        return resolveOverlayMenuSide(runtimePlacement)
-      }
-
-      return resolveOverlayMenuSide(merged.placement)
-    })
-
-    const contentStyleInputs = mergeProps(styleInputs, {
-      base: {
-        get classes() {
-          return {
-            content: popoverContentVariants({ side: resolvedSide() }),
-            body: 'max-h-[var(--mo-popper-content-available-height)] overflow-auto',
-          }
-        },
-      },
-    })
-    const contentResolved = resolveComponentStyle(contentStyleInputs)
-
-    return (
-      <div
-        role={context.contentProps.role}
-        aria-label={merged.ariaLabel}
-        aria-modal={context.contentProps['aria-modal']}
-        aria-labelledby={context.contentProps['aria-labelledby']}
-        aria-describedby={context.contentProps['aria-describedby']}
-        data-slot="content"
-        style={contentResolved.slotStyle('content')}
-        class={contentResolved.slotClass('content')}
-        {...context.contentProps}
-      >
-        <Show when={content() !== undefined && content() !== null}>
-          <div
-            data-slot="body"
-            style={contentResolved.slotStyle('body')}
-            class={contentResolved.slotClass('body')}
-          >
-            {content()}
-          </div>
-        </Show>
-      </div>
-    )
-  }
 
   return (
     <Popper
@@ -409,13 +233,85 @@ export function Popover(props: PopoverProps): JSX.Element {
         merged.onClosePrevent?.()
       }}
     >
-      <Popper.Trigger
-        children={merged.children}
-        describeTrigger={false}
-        toggleOnClick
-        triggerProps={triggerProps}
-      />
-      <Popper.Content contentRender={Content} />
+      {merged.children}
     </Popper>
   )
 }
+
+function PopoverTrigger<T extends ValidComponent = 'button'>(
+  props: PopoverT.TriggerProps<T>,
+): JSX.Element {
+  const design = useMoraineDesign()
+  const resolved = resolveComponentStyle({
+    rootSlot: 'trigger',
+    design: {
+      get classes() {
+        return design().popover.recipe()
+      },
+    },
+    get instance() {
+      return props
+    },
+  })
+  const triggerProps = mergeProps(props, resolved.rootClassAndStyle()) as PopoverT.TriggerProps<T>
+  return createComponent(Popper.Anchor<T>, triggerProps)
+}
+
+function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'ariaLabel',
+    'content',
+    'children',
+    'side',
+    'class',
+    'style',
+    'classes',
+    'styles',
+    'ref',
+  ])
+  const design = useMoraineDesign()
+  function Content(context: PopperContentContext): JSX.Element {
+    const explicitContent = createMemo(() => local.content)
+    const content = createMemo(() => {
+      const value = explicitContent()
+      return value === undefined ? resolveChildren(() => local.children)() : value
+    })
+    const resolved = resolveComponentStyle({
+      rootSlot: 'content',
+      design: {
+        get classes() {
+          return design().popover.recipe({
+            side: resolveOverlayMenuSide(context.currentPlacement() || local.side || 'bottom'),
+          })
+        },
+      },
+      get instance() {
+        return local
+      },
+    })
+    const surfaceProps = mergeProps(rest, {
+      get ref() {
+        return local.ref
+      },
+    }) as JSX.HTMLAttributes<HTMLDivElement>
+    const contentProps = mergePopperContentProps(context.contentProps, surfaceProps)
+    return (
+      <div
+        {...contentProps}
+        data-slot="content"
+        aria-label={local.ariaLabel ?? (rest['aria-label'] as string | undefined)}
+        {...resolved.rootClassAndStyle()}
+      >
+        <Show when={hasJsxContent(content())}>
+          <div data-slot="body" {...resolved.slotClassAndStyle('body')}>
+            {content()}
+          </div>
+        </Show>
+      </div>
+    )
+  }
+  return <Popper.Content contentRender={Content} />
+}
+
+Popover.Trigger = PopoverTrigger
+Popover.Content = PopoverContent

@@ -1,24 +1,26 @@
-import type { VariantProps } from '../../shared/style/recipe.ts'
+import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-export const fileUploadRecipe = recipe({
+import type { FileUploadT } from './file-upload.types.ts'
+
+export const fileUploadRecipeOptions = {
   base: {
     root: 'flex flex-col relative data-disabled:opacity-64 data-disabled:pointer-events-none',
     control:
-      'text-center outline-none border border-input rounded-lg bg-background inline-flex w-full cursor-pointer shadow-xs transition-[colors,box-shadow] items-center justify-center relative focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 data-dragging:border-primary data-dragging:bg-input data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 dark:bg-input/30 hover:bg-input',
+      'text-center outline-none border border-input rounded-lg bg-background inline-flex w-full cursor-pointer shadow-xs transition-[colors,box-shadow] items-center justify-center relative focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 data-dragging:border-primary data-dragging:bg-input data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 dark:bg-input/30 hover:bg-input duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
     wrapper: 'text-center flex flex-col pointer-events-none items-center justify-center',
     icon: 'text-muted-foreground',
     label: 'text-foreground font-medium',
     description: 'text-muted-foreground',
     files: 'flex flex-col',
-    file: 'text-card-foreground border border-border rounded-xl bg-card flex transition-colors items-center relative',
+    file: 'text-card-foreground border border-border rounded-xl bg-card flex transition-colors items-center relative duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
     filePreview:
-      'text-muted-foreground rounded-lg bg-muted flex shrink-0 items-center justify-center relative overflow-hidden',
+      '[&>img]:size-full [&>img]:object-cover text-muted-foreground rounded-lg bg-muted flex shrink-0 items-center justify-center relative overflow-hidden',
     fileMeta: 'flex flex-1 flex-col min-w-0',
     fileName: 'text-foreground font-medium truncate',
     fileSize: 'text-muted-foreground mt-0.5 truncate',
     fileRemove:
-      'text-muted-foreground border border-transparent rounded-sm inline-flex transition-colors items-center justify-center hover:text-foreground hover:bg-muted-hover focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:bg-muted-active',
+      'text-muted-foreground border border-transparent rounded-sm inline-flex transition-colors items-center justify-center hover:text-foreground hover:bg-muted-hover focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:bg-muted-active duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
   },
   defaultVariants: {
     size: 'md',
@@ -77,6 +79,8 @@ export const fileUploadRecipe = recipe({
       false: { control: 'border-solid' },
     },
   },
-})
+} as const satisfies SlotRecipeOptions<keyof FileUploadT.Slot>
 
-export type FileUploadVariantProps = VariantProps<typeof fileUploadRecipe>
+export const fileUploadRecipe = recipe(fileUploadRecipeOptions)
+
+export type FileUploadVariantProps = FileUploadT.Variant

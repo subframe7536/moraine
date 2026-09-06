@@ -1,13 +1,16 @@
-import type { VariantProps } from '../../shared/style/recipe.ts'
+import type { SlotRecipeOptions, VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-export const tabsRecipe = recipe({
+import type { TabsT } from './tabs.types.ts'
+
+export const tabsRecipeOptions = {
   base: {
     root: 'flex gap-2',
     list: 'p-1 inline-flex items-center relative',
-    indicator: 'rounded-md transition-[transform,width,height] absolute',
+    indicator:
+      'rounded-md transition-[transform,width,height] absolute duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
     trigger:
-      'text-muted-foreground font-medium px-2 py-1.5 outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-64 disabled:pointer-events-none',
+      'text-muted-foreground font-medium px-2 py-1.5 outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-64 disabled:pointer-events-none duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
     leading: 'inline-flex shrink-0 items-center justify-center',
     label: 'truncate',
     trailing: '',
@@ -58,34 +61,32 @@ export const tabsRecipe = recipe({
   },
   compoundVariants: [
     {
-      orientation: 'horizontal',
-      variant: 'pill',
+      variants: { orientation: 'horizontal', variant: 'pill' },
       class: {
         indicator: 'inset-y-1',
       },
     },
     {
-      orientation: 'vertical',
-      variant: 'pill',
+      variants: { orientation: 'vertical', variant: 'pill' },
       class: {
         indicator: 'inset-x-1',
       },
     },
     {
-      orientation: 'horizontal',
-      variant: 'link',
+      variants: { orientation: 'horizontal', variant: 'link' },
       class: {
         indicator: 'bottom-0 h-px rounded-full',
       },
     },
     {
-      orientation: 'vertical',
-      variant: 'link',
+      variants: { orientation: 'vertical', variant: 'link' },
       class: {
         indicator: 'right-0 w-px rounded-full',
       },
     },
   ],
-})
+} as const satisfies SlotRecipeOptions<keyof TabsT.Slot>
+
+export const tabsRecipe = recipe(tabsRecipeOptions)
 
 export type TabsVariantProps = VariantProps<typeof tabsRecipe>

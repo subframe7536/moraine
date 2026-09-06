@@ -19,7 +19,14 @@
       "name": "header",
       "description": "Top region for title, description, custom header content, and actions.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-action",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -47,7 +54,14 @@
       "name": "body",
       "description": "Main content region for the card children.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-no-footer",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": []
     },
     {

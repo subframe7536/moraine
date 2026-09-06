@@ -1,17 +1,18 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import type { JSX } from 'solid-js'
+import type { JSX, ValidComponent } from 'solid-js'
 import { Show, createComponent, createMemo, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
 import { Button } from '../../elements/button/index'
 import { CommandPalette } from '../../navigation/command-palette/index'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderWithDesign } from '../../test-utils/design-render.tsx'
 import { finishExitMotion } from '../../test-utils/overlay-test'
 import type { OverlayTriggerProps } from '../base/trigger'
 import { Modal } from '../modal/index'
 import type { ModalT } from '../modal/modal'
-import { ModalTriggerRenderer } from '../modal/modal-trigger'
 
 import { Dialog } from './dialog'
 
@@ -30,7 +31,7 @@ function TestModal(props: TestModalProps): JSX.Element {
 
   return (
     <Modal open={props.open} defaultOpen={props.defaultOpen} onOpenChange={props.onOpenChange}>
-      <ModalTriggerRenderer children={trigger()} />
+      <Show when={trigger()}>{(render) => <Modal.Trigger as={render() as ValidComponent} />}</Show>
       <Show when={content()}>
         <Modal.Content overlay={props.overlay}>{content()}</Modal.Content>
       </Show>
@@ -77,19 +78,17 @@ describe('Modal', () => {
   })
 
   test('renders default shell with title, description, body, footer and close button', () => {
-    render(() => (
-      <Dialog
-        open
-        title="Confirm"
-        description="Please confirm"
-        body="Modal body"
-        footer="Modal footer"
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+    renderWithDesign(() => (
+      <Dialog open>
+        <Dialog.Trigger as="button" type="button">
+          Trigger
+        </Dialog.Trigger>
+        <Dialog.Content
+          title="Confirm"
+          description="Please confirm"
+          body="Modal body"
+          footer="Modal footer"
+        />
       </Dialog>
     ))
 
@@ -109,12 +108,11 @@ describe('Modal', () => {
 
   test('renders the dialog shell with native slot containers', () => {
     render(() => (
-      <Dialog open title="Composed" body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Dialog open>
+        <Dialog.Trigger as="button" type="button">
+          Trigger
+        </Dialog.Trigger>
+        <Dialog.Content title="Composed" body="Body" />
       </Dialog>
     ))
 
@@ -126,12 +124,11 @@ describe('Modal', () => {
 
   test('renders the trigger content as a native button root', () => {
     render(() => (
-      <Dialog open body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Dialog open>
+        <Dialog.Trigger as="button" type="button">
+          Trigger
+        </Dialog.Trigger>
+        <Dialog.Content body="Body" />
       </Dialog>
     ))
 
@@ -144,12 +141,11 @@ describe('Modal', () => {
 
   test('renders a polymorphic trigger root without nesting another button', () => {
     render(() => (
-      <Dialog body="Body">
-        {(props) => (
-          <a {...props} href="/details">
-            Open
-          </a>
-        )}
+      <Dialog>
+        <Dialog.Trigger as="a" href="/details">
+          Open
+        </Dialog.Trigger>
+        <Dialog.Content body="Body" />
       </Dialog>
     ))
 
@@ -160,13 +156,12 @@ describe('Modal', () => {
   })
 
   test('renders an existing polymorphic component as the trigger root', () => {
-    render(() => (
-      <Dialog body="Body">
-        {(props) => (
-          <Button {...props} variant="outline">
-            Open dialog
-          </Button>
-        )}
+    renderWithDesign(() => (
+      <Dialog>
+        <Dialog.Trigger as={Button} variant="outline">
+          Open dialog
+        </Dialog.Trigger>
+        <Dialog.Content body="Body" />
       </Dialog>
     ))
 
@@ -209,17 +204,15 @@ describe('Modal', () => {
 
   test('renders custom header slot and overrides default title/description section', () => {
     render(() => (
-      <Dialog
-        open
-        title="Default title"
-        description="Default description"
-        header={<div data-testid="custom-header">Custom Header</div>}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Dialog open>
+        <Dialog.Trigger as="button" type="button">
+          Trigger
+        </Dialog.Trigger>
+        <Dialog.Content
+          title="Default title"
+          description="Default description"
+          header={<div data-testid="custom-header">Custom Header</div>}
+        />
       </Dialog>
     ))
 
@@ -231,7 +224,11 @@ describe('Modal', () => {
   })
 
   test('only references mounted default title and description nodes', () => {
-    render(() => <Dialog open title="Dialog title" description="Dialog description" body="Body" />)
+    render(() => (
+      <Dialog open>
+        <Dialog.Content title="Dialog title" description="Dialog description" body="Body" />
+      </Dialog>
+    ))
 
     const content = document.body.querySelector('[data-slot="content"]')!
     expectAriaReferencesToResolve(content)
@@ -245,14 +242,15 @@ describe('Modal', () => {
 
   test('uses ariaLabel for a custom header without dangling generated IDs', () => {
     render(() => (
-      <Dialog
-        open
-        title="Suppressed title"
-        description="Suppressed description"
-        header={<div>Custom header</div>}
-        ariaLabel="Account settings"
-        body="Body"
-      />
+      <Dialog open>
+        <Dialog.Content
+          title="Suppressed title"
+          description="Suppressed description"
+          header={<div>Custom header</div>}
+          ariaLabel="Account settings"
+          body="Body"
+        />
+      </Dialog>
     ))
 
     const content = document.body.querySelector('[data-slot="content"]')!
@@ -263,7 +261,11 @@ describe('Modal', () => {
   })
 
   test('preserves numeric zero title and description content', () => {
-    render(() => <Dialog open title={0} description={0} body="Body" />)
+    render(() => (
+      <Dialog open>
+        <Dialog.Content title={0} description={0} body="Body" />
+      </Dialog>
+    ))
 
     const title = document.body.querySelector('[data-slot="title"]')
     const description = document.body.querySelector('[data-slot="description"]')
@@ -282,7 +284,14 @@ describe('Modal', () => {
     'keeps ARIA references valid for %s',
     (_case, title, description, ariaLabel, hasLabelledBy, hasDescribedBy) => {
       render(() => (
-        <Dialog open title={title} description={description} ariaLabel={ariaLabel} body="Body" />
+        <Dialog open>
+          <Dialog.Content
+            title={title}
+            description={description}
+            ariaLabel={ariaLabel}
+            body="Body"
+          />
+        </Dialog>
       ))
 
       const content = document.body.querySelector('[data-slot="content"]')!
@@ -294,12 +303,20 @@ describe('Modal', () => {
   )
 
   test('distinguishes empty content from false presence', () => {
-    const empty = render(() => <Dialog open title="" description="" close={false} body="Body" />)
+    const empty = render(() => (
+      <Dialog open>
+        <Dialog.Content title="" description="" close={false} body="Body" />
+      </Dialog>
+    ))
     expect(document.body.querySelector('[data-slot="title"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="description"]')).not.toBeNull()
     empty.unmount()
 
-    render(() => <Dialog open title={false} description={false} close={false} body="Body" />)
+    render(() => (
+      <Dialog open>
+        <Dialog.Content title={false} description={false} close={false} body="Body" />
+      </Dialog>
+    ))
     expect(document.body.querySelector('[data-slot="header"]')).toBeNull()
     expect(
       document.body.querySelector('[data-slot="content"]')?.getAttribute('aria-labelledby'),
@@ -320,44 +337,45 @@ describe('Modal', () => {
       title: 0,
     }
 
-    render(() =>
-      createComponent(Dialog, {
-        open: true,
-        ariaLabel: 'Getter dialog',
-        get title() {
-          reads.title += 1
-          return 'Title'
-        },
-        get description() {
-          reads.description += 1
-          return 'Description'
-        },
-        get header() {
-          reads.header += 1
-          return undefined
-        },
-        get body() {
-          reads.body += 1
-          return <div>Body</div>
-        },
-        get footer() {
-          reads.footer += 1
-          return <div>Footer</div>
-        },
-        get closeIcon() {
-          reads.closeIcon += 1
-          return <span>Close icon</span>
-        },
-        get children() {
-          reads.children += 1
-          return (props: OverlayTriggerProps) => <button {...props}>Trigger</button>
-        },
-      }),
-    )
+    render(() => (
+      <Dialog open>
+        {createComponent(Dialog.Content, {
+          ariaLabel: 'Getter dialog',
+          get title() {
+            reads.title += 1
+            return 'Title'
+          },
+          get description() {
+            reads.description += 1
+            return 'Description'
+          },
+          get header() {
+            reads.header += 1
+            return undefined
+          },
+          get body() {
+            reads.body += 1
+            return <div>Body</div>
+          },
+          get footer() {
+            reads.footer += 1
+            return <div>Footer</div>
+          },
+          get closeIcon() {
+            reads.closeIcon += 1
+            return <span>Close icon</span>
+          },
+          get children() {
+            reads.children += 1
+            return <span>Fallback children</span>
+          },
+        })}
+      </Dialog>
+    ))
 
     expect(reads).toEqual({
       body: 1,
-      children: 1,
+      children: 0,
       closeIcon: 1,
       description: 1,
       footer: 1,
@@ -368,12 +386,14 @@ describe('Modal', () => {
 
   test('renders body content and keeps shell sections', () => {
     render(() => (
-      <Dialog open title="Dialog title" body={<div data-testid="custom-body">Body Content</div>}>
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Dialog open>
+        <Dialog.Trigger as="button" type="button">
+          Trigger
+        </Dialog.Trigger>
+        <Dialog.Content
+          title="Dialog title"
+          body={<div data-testid="custom-body">Body Content</div>}
+        />
       </Dialog>
     ))
 
@@ -387,12 +407,11 @@ describe('Modal', () => {
     const onOpenChange = vi.fn()
 
     const screen = render(() => (
-      <Dialog onOpenChange={onOpenChange} title="Settings" body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Open modal
-          </button>
-        )}
+      <Dialog onOpenChange={onOpenChange}>
+        <Dialog.Trigger as="button" type="button">
+          Open modal
+        </Dialog.Trigger>
+        <Dialog.Content title="Settings" body="Body" />
       </Dialog>
     ))
 
@@ -430,20 +449,20 @@ describe('Modal', () => {
           setSearchTerm('')
           onExitComplete()
         }}
-        close={false}
-        body={
-          <CommandPalette
-            groups={[{ id: 'commands', items: [{ value: 'settings', label: 'Settings' }] }]}
-            searchTerm={searchTerm()}
-            onSearchTermChange={setSearchTerm}
-          />
-        }
       >
-        {(props) => (
-          <button {...props} type="button">
-            Open palette
-          </button>
-        )}
+        <Dialog.Trigger as="button" type="button">
+          Open palette
+        </Dialog.Trigger>
+        <Dialog.Content
+          close={false}
+          body={
+            <CommandPalette
+              groups={[{ id: 'commands', items: [{ value: 'settings', label: 'Settings' }] }]}
+              searchTerm={searchTerm()}
+              onSearchTermChange={setSearchTerm}
+            />
+          }
+        />
       </Dialog>
     ))
 
@@ -481,12 +500,11 @@ describe('Modal', () => {
 
   test('renders into portal by default', () => {
     const screen = render(() => (
-      <Dialog open title="Portal default" body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Dialog open>
+        <Dialog.Trigger as="button" type="button">
+          Trigger
+        </Dialog.Trigger>
+        <Dialog.Content title="Portal default" body="Body" />
       </Dialog>
     ))
 
@@ -496,12 +514,11 @@ describe('Modal', () => {
 
   test('supports overlay=false', () => {
     render(() => (
-      <Dialog open overlay={false} body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Dialog open>
+        <Dialog.Trigger as="button" type="button">
+          Trigger
+        </Dialog.Trigger>
+        <Dialog.Content overlay={false} body="Body" />
       </Dialog>
     ))
 
@@ -509,8 +526,10 @@ describe('Modal', () => {
   })
 
   test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
-    render(() => (
-      <Dialog open body="Body" classes={{ overlay: 'bg-red-500 custom-dialog-overlay' }} />
+    renderWithDesign(() => (
+      <Dialog open>
+        <Dialog.Content body="Body" classes={{ overlay: 'bg-red-500 custom-dialog-overlay' }} />
+      </Dialog>
     ))
 
     const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
@@ -526,13 +545,15 @@ describe('Modal', () => {
   })
 
   test('preserves Modal overlay behavior for provider slot overrides', () => {
-    render(() => (
+    renderWithDesign(() => (
       <MoraineProvider
-        config={{
-          dialog: { classes: { overlay: 'bg-blue-500 provider-dialog-overlay' } },
-        }}
+        design={createDesign({
+          dialog: { base: { overlay: 'bg-blue-500 provider-dialog-overlay' } },
+        })}
       >
-        <Dialog open body="Body" />
+        <Dialog open>
+          <Dialog.Content body="Body" />
+        </Dialog>
       </MoraineProvider>
     ))
 
@@ -549,18 +570,16 @@ describe('Modal', () => {
   })
 
   test('keeps long dialog content scrolling inside the body', () => {
-    render(() => (
-      <Dialog
-        open
-        title="Long content"
-        body={<div style={{ height: '2000px' }}>Long body</div>}
-        footer="Actions"
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+    renderWithDesign(() => (
+      <Dialog open>
+        <Dialog.Trigger as="button" type="button">
+          Trigger
+        </Dialog.Trigger>
+        <Dialog.Content
+          title="Long content"
+          body={<div style={{ height: '2000px' }}>Long body</div>}
+          footer="Actions"
+        />
       </Dialog>
     ))
 
@@ -584,8 +603,10 @@ describe('Modal', () => {
   })
 
   test('moves long dialog scrolling to the overlay when scrollable is true', () => {
-    render(() => (
-      <Dialog open scrollable title="Overlay scroll" body="Long body" footer="Actions" />
+    renderWithDesign(() => (
+      <Dialog open>
+        <Dialog.Content scrollable title="Overlay scroll" body="Long body" footer="Actions" />
+      </Dialog>
     ))
 
     const overlay = document.body.querySelector('[data-slot="overlay"]')
@@ -598,11 +619,15 @@ describe('Modal', () => {
     expect(overlay?.className).toContain('p-4')
     expect(content?.className).toContain('relative')
     expect(content?.className).not.toContain('fixed')
-    expect(body?.className).not.toContain('overflow-y-auto')
+    expect(body?.hasAttribute('data-scroll')).toBe(false)
   })
 
   test('uses a full viewport flex panel for fullscreen dialogs', () => {
-    render(() => <Dialog open fullscreen body="Fullscreen body" />)
+    renderWithDesign(() => (
+      <Dialog open>
+        <Dialog.Content fullscreen body="Fullscreen body" />
+      </Dialog>
+    ))
 
     const content = document.body.querySelector('[data-slot="content"]')
 
@@ -615,12 +640,11 @@ describe('Modal', () => {
 
   test('supports custom close content', () => {
     render(() => (
-      <Dialog open closeIcon={<span data-testid="custom-close">X</span>} body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Dialog open>
+        <Dialog.Trigger as="button" type="button">
+          Trigger
+        </Dialog.Trigger>
+        <Dialog.Content closeIcon={<span data-testid="custom-close">X</span>} body="Body" />
       </Dialog>
     ))
 
@@ -629,12 +653,11 @@ describe('Modal', () => {
 
   test('hides close button when close=false', () => {
     render(() => (
-      <Dialog open close={false} body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Dialog open>
+        <Dialog.Trigger as="button" type="button">
+          Trigger
+        </Dialog.Trigger>
+        <Dialog.Content close={false} body="Body" />
       </Dialog>
     ))
 
@@ -645,12 +668,11 @@ describe('Modal', () => {
     const onClosePrevent = vi.fn()
 
     render(() => (
-      <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent} body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent}>
+        <Dialog.Trigger as="button" type="button">
+          Trigger
+        </Dialog.Trigger>
+        <Dialog.Content body="Body" />
       </Dialog>
     ))
 
@@ -672,12 +694,11 @@ describe('Modal', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent} body="Body">
-          {(props) => (
-            <button {...props} type="button">
-              Trigger
-            </button>
-          )}
+        <Dialog defaultOpen dismissible={false} onClosePrevent={onClosePrevent}>
+          <Dialog.Trigger as="button" type="button">
+            Trigger
+          </Dialog.Trigger>
+          <Dialog.Content body="Body" />
         </Dialog>
       </>
     ))
@@ -699,12 +720,11 @@ describe('Modal', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Dialog onOpenChange={onOpenChange} defaultOpen title="Dialog title" body="Dialog body">
-          {(props) => (
-            <button {...props} type="button">
-              Trigger
-            </button>
-          )}
+        <Dialog onOpenChange={onOpenChange} defaultOpen>
+          <Dialog.Trigger as="button" type="button">
+            Trigger
+          </Dialog.Trigger>
+          <Dialog.Content title="Dialog title" body="Dialog body" />
         </Dialog>
       </>
     ))
@@ -731,18 +751,11 @@ describe('Modal', () => {
     const onOpenChange = vi.fn()
 
     render(() => (
-      <Dialog
-        defaultOpen
-        dismissible
-        onClosePrevent={onClosePrevent}
-        onOpenChange={onOpenChange}
-        body="Body"
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Dialog defaultOpen dismissible onClosePrevent={onClosePrevent} onOpenChange={onOpenChange}>
+        <Dialog.Trigger as="button" type="button">
+          Trigger
+        </Dialog.Trigger>
+        <Dialog.Content body="Body" />
       </Dialog>
     ))
 
@@ -761,12 +774,11 @@ describe('Modal', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Dialog open body="Body" styles={{ content: { width: '200px' } }}>
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Dialog open>
+        <Dialog.Trigger as="button" type="button">
+          Trigger
+        </Dialog.Trigger>
+        <Dialog.Content body="Body" styles={{ content: { width: '200px' } }} />
       </Dialog>
     ))
 
@@ -775,34 +787,35 @@ describe('Modal', () => {
   })
 
   test('forwards custom classes and styles to dialog slots', () => {
-    render(() => (
-      <Dialog
-        open
-        title="Custom Title"
-        description="Custom Description"
-        body="Custom Body"
-        footer="Custom Footer"
-        classes={{
-          content: 'custom-content-class',
-          header: 'custom-header-class',
-          wrapper: 'custom-wrapper-class',
-          title: 'custom-title-class',
-          description: 'custom-desc-class',
-          body: 'custom-body-class',
-          footer: 'custom-footer-class',
-          close: 'custom-close-class',
-        }}
-        styles={{
-          content: { 'border-width': '3px' },
-          header: { 'padding-top': '20px' },
-          wrapper: { opacity: '0.9' },
-          title: { 'letter-spacing': '1px' },
-          description: { 'line-height': '1.5' },
-          body: { 'font-size': '15px' },
-          footer: { 'margin-top': '10px' },
-          close: { opacity: '0.8' },
-        }}
-      />
+    renderWithDesign(() => (
+      <Dialog open>
+        <Dialog.Content
+          title="Custom Title"
+          description="Custom Description"
+          body="Custom Body"
+          footer="Custom Footer"
+          classes={{
+            content: 'custom-content-class',
+            header: 'custom-header-class',
+            wrapper: 'custom-wrapper-class',
+            title: 'custom-title-class',
+            description: 'custom-desc-class',
+            body: 'custom-body-class',
+            footer: 'custom-footer-class',
+            close: 'custom-close-class',
+          }}
+          styles={{
+            content: { 'border-width': '3px' },
+            header: { 'padding-top': '20px' },
+            wrapper: { opacity: '0.9' },
+            title: { 'letter-spacing': '1px' },
+            description: { 'line-height': '1.5' },
+            body: { 'font-size': '15px' },
+            footer: { 'margin-top': '10px' },
+            close: { opacity: '0.8' },
+          }}
+        />
+      </Dialog>
     ))
 
     const header = document.body.querySelector('[data-slot="header"]') as HTMLElement
@@ -835,26 +848,29 @@ describe('Modal', () => {
   })
 
   test('adjusts body padding when header or footer is absent', () => {
-    const { unmount } = render(() => (
-      <Dialog open title={false} description={false} close={false} body="No header body" />
+    const { unmount } = renderWithDesign(() => (
+      <Dialog open>
+        <Dialog.Content title={false} description={false} close={false} body="No header body" />
+      </Dialog>
     ))
 
     const bodyNoHeader = document.body.querySelector('[data-slot="body"]') as HTMLElement
-    expect(bodyNoHeader.className).toContain('pt-6')
+    expect(bodyNoHeader.hasAttribute('data-header')).toBe(false)
     expect(bodyNoHeader.className).toContain('pb-6')
     unmount()
 
-    render(() => (
-      <Dialog
-        open
-        title="Title"
-        body="With header and footer"
-        footer={<button type="button">Action</button>}
-      />
+    renderWithDesign(() => (
+      <Dialog open>
+        <Dialog.Content
+          title="Title"
+          body="With header and footer"
+          footer={<button type="button">Action</button>}
+        />
+      </Dialog>
     ))
 
     const bodyWithBoth = document.body.querySelector('[data-slot="body"]') as HTMLElement
-    expect(bodyWithBoth.className).not.toContain('pt-6')
+    expect(bodyWithBoth.hasAttribute('data-header')).toBe(true)
     expect(bodyWithBoth.className).toContain('pb-2')
   })
 

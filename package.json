@@ -39,7 +39,8 @@
     "./icon.css": "./dist/icon.css",
     "./unocss": "./dist/unocss.mjs",
     "./tailwind": "./dist/tailwind.mjs",
-    "./utils": "./dist/utils.mjs"
+    "./utils": "./dist/utils.mjs",
+    "./design": "./dist/design.mjs"
   },
   "publishConfig": {
     "access": "public",

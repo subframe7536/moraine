@@ -57,20 +57,27 @@ For Tailwind CSS v4, add the plugin and a source path relative to your styleshee
 
 Import `moraine/icon.css` only when you want the optional bundled icon masks. It does not replace the required preset/plugin configuration.
 
-3. Now you can import components directly from `moraine`.
+3. Create the official Design once and provide it at the application root. Components without a provider render unstyled.
 
 ```tsx
-import { Button, Input } from 'moraine'
+import { Button, Input, MoraineProvider } from 'moraine'
+import { createDesign } from 'moraine/design'
+
+const design = createDesign()
 
 function App() {
   return (
-    <div class="flex flex-col gap-3">
-      <Input placeholder="Enter text" />
-      <Button variant="outline">Save changes</Button>
-    </div>
+    <MoraineProvider design={design}>
+      <div class="flex flex-col gap-3">
+        <Input placeholder="Enter text" />
+        <Button variant="outline">Save changes</Button>
+      </div>
+    </MoraineProvider>
   )
 }
 ```
+
+`createDesign({ button: { defaultVariants: { size: 'sm' }, base: { root: 'rounded-xl' } } })` extends the official recipes. Use `preset: false` for an unstyled Design, or `extends: existingDesign` for explicit inheritance. Nested providers replace the Design without remounting components. UnoCSS and Tailwind integrations do not override global transition defaults.
 
 ## Development
 

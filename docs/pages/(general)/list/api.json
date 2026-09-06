@@ -24,11 +24,6 @@
         "description": "Class applied to the component root or trigger element."
       },
       {
-        "name": "classes",
-        "required": false,
-        "type": "ListT.Classes | undefined"
-      },
-      {
         "name": "itemRender",
         "required": true,
         "type": "ComponentOrElement<ListT.ItemRenderProps<TItem, TItemElement>>",
@@ -49,11 +44,6 @@
         "name": "style",
         "required": false,
         "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "ListT.Styles | undefined"
       },
       {
         "name": "virtualRender",

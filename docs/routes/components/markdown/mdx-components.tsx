@@ -1,6 +1,6 @@
 import type { MDXComponents } from 'solid-file-router/mdx'
 import type { Component, JSX } from 'solid-js'
-import { lazy, Show, untrack } from 'solid-js'
+import { lazy, Show, createSignal, onMount, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Kbd } from '../../../../src/index'
@@ -48,10 +48,15 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
 
       return {
         default() {
+          const [mounted, setMounted] = createSignal(false)
+          onMount(() => queueMicrotask(() => setMounted(true)))
           return (
             <section class={DOCS_DEMO_BLOCK_CLASS}>
-              <div class={DOCS_DEMO_BLOCK_PREVIEW_CLASS}>
-                <Show when={descriptor.component}>
+              <div
+                class={DOCS_DEMO_BLOCK_PREVIEW_CLASS}
+                data-preview-ready={mounted() ? '' : undefined}
+              >
+                <Show when={mounted() && descriptor.component}>
                   {(value) => <Dynamic component={value()} />}
                 </Show>
               </div>

@@ -28,6 +28,22 @@ function renderCollapsible(props?: {
 }
 
 describe('Collapsible', () => {
+  test('keeps structural transition classes independent of a Design provider', () => {
+    const screen = render(() => (
+      <Collapsible defaultOpen transition>
+        <Collapsible.Trigger>Toggle</Collapsible.Trigger>
+        <Collapsible.Content>Content</Collapsible.Content>
+      </Collapsible>
+    ))
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const trigger = screen.container.querySelector('[data-slot="trigger"]')
+    const wrapper = screen.container.querySelector('[data-slot="content-wrapper"]')
+
+    expect(root?.className).toBe('')
+    expect(trigger?.className).toBe('')
+    expect(wrapper?.className).toContain('animate-accordion-down')
+  })
+
   test('renders closed by default and toggles on trigger click', async () => {
     const screen = render(() => (
       <Collapsible defaultOpen={false}>
@@ -464,5 +480,29 @@ describe('Collapsible', () => {
     expect(screen.queryByTestId('lazy-composable-content')).toBeNull()
     fireEvent.click(trigger)
     expect(contentReads).toBe(2)
+  })
+
+  test('forwards direct root and compound-part classes and styles', () => {
+    const screen = render(() => (
+      <Collapsible open class="custom-root-class" style={{ padding: '10px' }}>
+        <Collapsible.Trigger class="custom-trigger-class" style={{ padding: '20px' }}>
+          Trigger
+        </Collapsible.Trigger>
+        <Collapsible.Content wrapperClass="custom-content-class" wrapperStyle={{ padding: '30px' }}>
+          Content
+        </Collapsible.Content>
+      </Collapsible>
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
+    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
+    const wrapper = screen.container.querySelector('[data-slot="content-wrapper"]') as HTMLElement
+
+    expect(root.className).toContain('custom-root-class')
+    expect(root.style.padding).toBe('10px')
+    expect(trigger.className).toContain('custom-trigger-class')
+    expect(trigger.style.padding).toBe('20px')
+    expect(wrapper.className).toContain('custom-content-class')
+    expect(wrapper.style.padding).toBe('30px')
   })
 })

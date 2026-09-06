@@ -1,16 +1,36 @@
 import { getInput, setInput } from '@formisch/solid'
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { FormField } from '../form/form-field'
 import { createForm } from '../form/index'
 
 import { RadioGroup } from './radio-group'
 
+const officialDesign = createDesign()
+
+const render: typeof baseRender = (ui, options) =>
+  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
+
 describe('RadioGroup', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = baseRender(() => <RadioGroup items={['A', 'B']} />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.className).toBe('')
+  })
+
+  test('forwards root ref', () => {
+    let rootEl: HTMLDivElement | undefined
+    render(() => <RadioGroup ref={(el) => (rootEl = el)} items={['A', 'B']} />)
+    expect(rootEl).toBeInstanceOf(HTMLDivElement)
+    expect(rootEl?.getAttribute('data-slot')).toBe('root')
+  })
+
   test('renders radio options with form-field label and no legacy wrappers', () => {
     const screen = render(() => (
       <FormField label="Plan" description="Select one plan">

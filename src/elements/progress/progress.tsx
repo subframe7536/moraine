@@ -1,109 +1,12 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
-import type { ProgressVariantProps } from './progress.class.ts'
-import { PROGRESS_STEP_STATE_CLASS, progressRecipe, progressStyleVars } from './progress.class.ts'
+import type { ProgressProps, ProgressT } from './progress.types.ts'
 
-export namespace ProgressT {
-  export interface StatusRenderProps {
-    /**
-     * Current progress percentage (0-100).
-     */
-    percent?: number
-  }
-
-  export interface StepRenderProps {
-    /**
-     * The label of the current step.
-     */
-    step: string
-    /**
-     * The index of the current step.
-     */
-    index: number
-    /**
-     * The state of the step relative to the active step.
-     */
-    state: 'active' | 'first' | 'last' | 'other'
-  }
-
-  export interface Slot<T = unknown> {
-    /**
-     * Progress container that owns track, indicator, labels, and step markers.
-     */
-    root?: T
-
-    /** Text region that displays the current progress status. */
-    status?: T
-
-    /** Background rail that represents the full progress range. */
-    track?: T
-
-    /** Filled bar that represents the current progress value. */
-    indicator?: T
-
-    /** Wrapper for step labels when progress is driven by named steps. */
-    steps?: T
-
-    /** Individual step label or marker rendered along the progress scale. */
-    step?: T
-  }
-
-  export type Variant = ProgressVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-  /**
-   * Base props for the Progress component.
-   */
-  export interface Base {
-    /**
-     * The current value of the progress bar. If null/undefined, it is indeterminate.
-     * @default null
-     */
-    value?: number | null
-
-    /**
-     * The maximum value of the progress bar, or an array of step labels.
-     * @default 100
-     */
-    max?: number | string[]
-
-    /**
-     * Whether to show the status label.
-     * @default false
-     */
-    status?: boolean
-
-    /**
-     * Callback to get a localized label for the current value.
-     */
-    getValueLabel?: (params: { value: number; min: number; max: number }) => string
-
-    /**
-     * Custom render function for the status label.
-     */
-    statusRender?: ComponentOrElement<StatusRenderProps>
-
-    /**
-     * Custom render function for each step when `max` is an array.
-     */
-    stepRender?: ComponentOrElement<StepRenderProps>
-  }
-
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the Progress component.
- */
-export interface ProgressProps extends ProgressT.Props {}
+export * from './progress.types.ts'
 
 function resolveMaxValue(max: ProgressProps['max']): number {
   if (Array.isArray(max)) {
@@ -123,8 +26,8 @@ function clamp(value: number, min: number, max: number): number {
 
 /** Determinate or indeterminate progress indicator with optional step labels. */
 export function Progress(props: ProgressProps): JSX.Element {
-  const config = useMoraineConfig()
-  const provider = () => config().progress
+  const design = useMoraineDesign()
+  const progressDesign = () => design().progress
 
   const [local, rest] = splitProps(props, [
     'value',
@@ -142,31 +45,25 @@ export function Progress(props: ProgressProps): JSX.Element {
     'style',
   ])
 
-  const orientation = createMemo<NonNullable<ProgressVariantProps['orientation']>>(
-    () => local.orientation ?? provider()?.variants?.orientation ?? 'horizontal',
+  const orientation = createMemo<NonNullable<ProgressT.Variant['orientation']>>(
+    () => local.orientation ?? progressDesign()?.defaultVariants?.orientation ?? 'horizontal',
   )
-  const size = createMemo<NonNullable<ProgressVariantProps['size']>>(
-    () => local.size ?? provider()?.variants?.size ?? 'md',
+  const size = createMemo<NonNullable<ProgressT.Variant['size']>>(
+    () => local.size ?? progressDesign()?.defaultVariants?.size ?? 'md',
   )
-  const animation = createMemo<NonNullable<ProgressVariantProps['animation']>>(
-    () => local.animation ?? provider()?.variants?.animation ?? 'carousel',
+  const animation = createMemo<NonNullable<ProgressT.Variant['animation']>>(
+    () => local.animation ?? progressDesign()?.defaultVariants?.animation ?? 'carousel',
   )
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return progressRecipe({
+        return progressDesign()?.recipe({
           orientation: orientation(),
           size: size(),
           animation: animation(),
         })
       },
-      get styles() {
-        return { root: progressStyleVars({ size: size() }) }
-      },
-    },
-    get provider() {
-      return provider()
     },
     get instance() {
       return {
@@ -355,11 +252,8 @@ export function Progress(props: ProgressProps): JSX.Element {
                 {(step, index) => (
                   <div
                     data-slot="step"
-                    {...resolved.slotClassAndStyle('step', {
-                      get state() {
-                        return { class: PROGRESS_STEP_STATE_CLASS[stepState(index())] }
-                      },
-                    })}
+                    data-state={stepState(index())}
+                    {...resolved.slotClassAndStyle('step')}
                     {...dataAttrs()}
                   >
                     <Show when={stepRender() !== undefined} fallback={step}>

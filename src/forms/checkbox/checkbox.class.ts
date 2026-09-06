@@ -1,11 +1,13 @@
-import type { VariantProps } from '../../shared/style/recipe.ts'
+import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-export const checkboxRecipe = recipe({
+import type { CheckboxT } from './checkbox.types.ts'
+
+export const checkboxRecipeOptions = {
   base: {
     root: 'flex items-start relative',
     control:
-      'outline-none border border-input rounded-xs bg-background inline-flex shrink-0 cursor-pointer shadow-xs transition-shadow items-center justify-center overflow-hidden bg-clip-padding focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 data-checked:border-primary data-checked:bg-primary data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 dark:bg-input/30',
+      'disabled:opacity-64 disabled:pointer-events-none outline-none border border-input rounded-xs bg-background inline-flex shrink-0 cursor-pointer shadow-xs transition-shadow items-center justify-center overflow-hidden bg-clip-padding focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 data-checked:border-primary data-checked:bg-primary data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 dark:bg-input/30 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
     indicator: 'text-primary-foreground bg-primary flex size-full items-center justify-center',
     icon: 'shrink-0 size-full',
     wrapper: 'flex flex-col gap-0.5 w-full',
@@ -67,6 +69,8 @@ export const checkboxRecipe = recipe({
       class: { root: 'p-4' },
     },
   ],
-})
+} as const satisfies SlotRecipeOptions<keyof CheckboxT.Slot>
 
-export type CheckboxVariantProps = VariantProps<typeof checkboxRecipe>
+export const checkboxRecipe = recipe(checkboxRecipeOptions)
+
+export type CheckboxVariantProps = CheckboxT.Variant

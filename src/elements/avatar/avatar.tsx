@@ -9,72 +9,13 @@ import {
   untrack,
 } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import type { IconT } from '../icon/index.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import type { SlotClassValue } from '../../shared/types.ts'
 import { Icon } from '../icon/index.ts'
 
-import type { AvatarVariantProps } from './avatar.class.ts'
-import { AVATAR_FALLBACK_HIDDEN_CLASS, avatarRecipe } from './avatar.class.ts'
+import type { AvatarProps, AvatarT } from './avatar.types.ts'
 
-export namespace AvatarT {
-  export type Status = 'idle' | 'loading' | 'loaded' | 'error'
-
-  export interface Slot<T = unknown> {
-    /** Avatar frame that controls size, shape, image, fallback, and badge placement. */
-    root?: T
-
-    /** Loaded avatar image rendered inside the frame. */
-    image?: T
-
-    /** Text fallback shown while the image is unavailable or failed. */
-    fallback?: T
-
-    /** Icon fallback shown when no image or text fallback is available. */
-    fallbackIcon?: T
-
-    /** Status or indicator badge anchored to the avatar frame. */
-    badge?: T
-  }
-  export type Variant = AvatarVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  /** Base props for the Avatar component. */
-  export interface Base {
-    /** Source URL for the avatar image. */
-    src?: string
-
-    /** Accessible alt text for the avatar. */
-    alt?: string
-
-    /** Icon name for the badge. */
-    badge?: IconT.Name
-
-    /**
-     * Position of the badge.
-     * @default 'bottom-right'
-     */
-    badgePosition?: NonNullable<AvatarVariantProps['badgePosition']>
-
-    /** Initial text to show if image fails or is missing. */
-    text?: string
-
-    /** Icon name to show as fallback. */
-    fallback?: IconT.Name
-
-    /** Callback when the loading status of the avatar changes. */
-    onStatusChange?: (status: AvatarT.Status) => void
-  }
-
-  /** Props for the Avatar component. */
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
-}
-
-/** Props for the Avatar component. */
-export interface AvatarProps extends AvatarT.Props {}
+export * from './avatar.types.ts'
 
 export function resolveFallbackText(text: string | undefined, alt: string | undefined): string {
   const preferredText = text?.trim()
@@ -120,12 +61,12 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     'rootSlot',
   ])
 
-  const config = useMoraineConfig()
-  const provider = () => config().avatar
+  const design = useMoraineDesign()
+  const avatarDesign = () => design().avatar
 
-  const size = () => local.size ?? provider()?.variants?.size ?? 'md'
+  const size = () => local.size ?? avatarDesign()?.defaultVariants?.size ?? 'md'
   const badgePosition = () =>
-    local.badgePosition ?? provider()?.variants?.badgePosition ?? 'bottom-right'
+    local.badgePosition ?? avatarDesign()?.defaultVariants?.badgePosition ?? 'bottom-right'
 
   const source = createMemo(() => local.src?.trim() || undefined)
   const alt = createMemo(() => local.alt)
@@ -197,16 +138,13 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
   })
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return avatarRecipe({
+        return avatarDesign()?.recipe({
           size: size(),
           badgePosition: badgePosition(),
         })
       },
-    },
-    get provider() {
-      return provider()
     },
     get instance() {
       return {
@@ -215,14 +153,6 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         style: local.style,
         styles: local.styles,
       }
-    },
-    state: {
-      get classes() {
-        return {
-          image: status() === 'loaded' ? 'opacity-100' : 'opacity-0 pointer-events-none',
-          fallback: status() === 'loaded' ? AVATAR_FALLBACK_HIDDEN_CLASS : 'opacity-100',
-        }
-      },
     },
   })
 
@@ -236,6 +166,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     >
       <img
         data-slot="image"
+        data-status={status()}
         src={resolvedSrc()}
         alt={alt() ?? ''}
         aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
@@ -244,6 +175,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
       <span
         data-slot="fallback"
+        data-status={status()}
         role={
           status() !== 'loaded' && rootAriaLabel() === undefined && fallbackAccessibleLabel()
             ? 'img'
@@ -271,7 +203,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
       <Show when={badge()}>
         {(badge) => (
           <span data-slot="badge" {...resolved.slotClassAndStyle('badge')}>
-            <Icon name={badge()} class="text-[0.75em]" />
+            <Icon name={badge()} />
           </span>
         )}
       </Show>

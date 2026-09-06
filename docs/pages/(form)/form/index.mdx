@@ -303,6 +303,8 @@ form.Form (<form> root managed by Formisch)
 
 `<form.Form>` does not automatically disable child controls during submission. Use `form.isSubmitting` when your application needs that behavior.
 
+`<form.Form>` owns only its native form root. Use direct `class` and `style` props for an individual form, or configure `form.base.root` in your Design. Slot maps remain available on `form.Field`, but the bound Form component does not accept `classes` or `styles`.
+
 ## Usage
 
 ### Basic form and submission

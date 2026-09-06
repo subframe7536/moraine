@@ -2,15 +2,17 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { callRef, cn } from '../../shared/utils'
+import { callRef, cn } from '../../shared/utils.ts'
 
-import type { CollapsibleT } from './collapsible'
-import { useCollapsibleContext } from './collapsible-context'
-import { COLLAPSIBLE_CONTENT_ANIMATION_CLASS, COLLAPSIBLE_CONTENT_CLASS } from './collapsible.class'
+import { useCollapsibleContext } from './collapsible-context.ts'
+import type { CollapsibleT } from './collapsible.types.ts'
 
 type CollapsibleContentElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[T]
   : HTMLElement
+
+const COLLAPSIBLE_TRANSITION_CLASS =
+  'h-[var(--mo-collapsible-content-height)] overflow-hidden data-expanded:animate-accordion-down data-closed:h-0 data-closed:animate-accordion-up motion-reduce:animate-none'
 
 /** Panel containing the expandable collapsible content. */
 export function CollapsibleContent<T extends ValidComponent = 'div'>(
@@ -84,11 +86,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
               '--mo-collapsible-content-height': `${context.contentHeight()}px`,
               ...local.wrapperStyle,
             }}
-            class={cn(
-              COLLAPSIBLE_CONTENT_CLASS,
-              transition() && COLLAPSIBLE_CONTENT_ANIMATION_CLASS,
-              local.wrapperClass,
-            )}
+            class={cn(transition() && COLLAPSIBLE_TRANSITION_CLASS, local.wrapperClass)}
             {...context.dataAttrs()}
           >
             <Show

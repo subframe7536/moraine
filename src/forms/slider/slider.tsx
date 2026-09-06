@@ -1,124 +1,27 @@
-import type { JSX } from 'solid-js'
+import type { JSX, Ref } from 'solid-js'
 import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
 import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useId } from '../../shared/utils.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { callRef, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form/form-context.ts'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form-options.ts'
 
 import { useSlider } from './hook/index.ts'
-import type { SliderVariantProps } from './slider.class.ts'
-import { sliderRecipe, sliderStyleVars } from './slider.class.ts'
+import type { SliderProps, SliderT } from './slider.types.ts'
 
-export namespace SliderT {
-  export type Value = number | number[]
+export * from './slider.types.ts'
 
-  export interface Slot<T = unknown> {
-    /**
-     * Slider container that owns track, range, thumbs, and labels.
-     */
-    root?: T
-
-    /** Background rail representing the full slider range. */
-    track?: T
-
-    /** Filled segment between the start of the range and active thumb values. */
-    range?: T
-
-    /** Visual marker for one slider step. */
-    divider?: T
-
-    /** Draggable handle for one slider value. */
-    thumb?: T
-  }
-
-  export type Variant = SliderVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  /**
-   * Base props for the Slider component.
-   */
-  export interface Base<TValue = Value>
-    extends
-      FormIdentityOptions,
-      FormValueOptions<TValue>,
-      FormRequiredOption,
-      FormDisableOption,
-      FormReadOnlyOption {
-    /**
-     * Minimum value of the slider.
-     * @default 0
-     */
-    min?: number
-
-    /**
-     * Maximum value of the slider.
-     * @default 100
-     */
-    max?: number
-
-    /**
-     * Step increment between values.
-     * When omitted, pointer movement is continuous.
-     */
-    step?: number
-
-    /**
-     * Minimum steps required between thumbs in a multi-thumb slider.
-     * @default 0
-     */
-    minStepsBetweenThumbs?: number
-
-    /**
-     * Whether to show visual step dividers on the track, only applicable when `step` is defined and greater than 0.
-     * @default false
-     */
-    divider?: boolean
-
-    /**
-     * Whether dragging can continue across another thumb when there is no minimum gap.
-     * @default true
-     */
-    allowThumbCrossing?: boolean
-
-    /**
-     * Callback when the slider selection changes during interaction.
-     */
-    onValueChange?: (value: TValue) => void
-
-    /**
-     * Callback when the slider selection change is committed.
-     */
-    onChange?: (value: TValue) => void
-  }
-
-  /**
-   * Props for the Slider component.
-   */
-  export type Props<TValue = Value> = BaseProps<'div', Base<TValue>, Variant, Classes, Styles>
+type RootProps<TValue = SliderT.Value> = SliderProps<TValue> & {
+  ref?: Ref<HTMLDivElement>
 }
-
-/**
- * Props for the Slider component.
- */
-export interface SliderProps<TValue = SliderT.Value> extends SliderT.Props<TValue> {}
 
 /** Range slider component with single or multi-thumb support and step markers. */
 export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   props: SliderProps<TValue>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const [local, rest] = splitProps(props as RootProps<TValue>, [
+    'ref',
+    'inputRef',
     'id',
     'name',
     'value',
@@ -144,8 +47,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'style',
   ])
 
-  const config = useMoraineConfig()
-  const provider = () => config().slider
+  const design = useMoraineDesign()
+  const sliderDesign = () => design().slider
 
   const merged = mergeProps(
     {
@@ -157,7 +60,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       inverted: false,
       variant: 'default' as const,
     },
-    () => provider()?.variants,
+    () => sliderDesign()?.defaultVariants,
     local,
   )
 
@@ -166,14 +69,14 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size ?? undefined,
+      size: local.size,
       disabled: merged.disabled,
       required: local.required,
       readOnly: Boolean(merged.readOnly),
     }),
     () => ({
       defaultId: generatedId(),
-      defaultSize: 'md',
+      defaultSize: sliderDesign()?.defaultVariants?.size ?? 'md',
     }),
   )
 
@@ -201,9 +104,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   })
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return sliderRecipe({
+        return sliderDesign()?.recipe({
           orientation: merged.orientation,
           size: field.size(),
           variant: merged.variant,
@@ -211,17 +114,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           multiple: slider.currentValues().length > 1,
         })
       },
-      get styles() {
-        return {
-          root: sliderStyleVars({
-            size: field.size(),
-            variant: merged.variant,
-          }),
-        }
-      },
-    },
-    get provider() {
-      return provider()
     },
     get instance() {
       return {
@@ -241,6 +133,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
 
   return (
     <div
+      ref={(element) => callRef(local.ref, element)}
       id={`${field.id()}-root`}
       role="group"
       data-slot="root"
@@ -355,6 +248,11 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             onBlur={slider.onThumbBlur}
           >
             <HiddenInput
+              ref={(element) => {
+                if (thumbIndex === 0) {
+                  callRef(local.inputRef, element)
+                }
+              }}
               type="range"
               id={field.id() + (thumbIndex === 0 ? '' : `-${thumbIndex + 1}`)}
               name={field.name()}

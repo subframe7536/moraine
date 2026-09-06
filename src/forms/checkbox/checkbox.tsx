@@ -1,159 +1,18 @@
 import type { JSX } from 'solid-js'
 import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callHandler, useId } from '../../shared/utils.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form/form-context.ts'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-} from '../shared/form-options.ts'
 import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
-import type { CheckboxVariantProps } from './checkbox.class.ts'
-import { checkboxRecipe } from './checkbox.class.ts'
+import type { CheckboxProps } from './checkbox.types.ts'
 
-export namespace CheckboxT {
-  export interface Slot<T = unknown> {
-    /**
-     * Labelable checkbox wrapper that coordinates input, indicator, and text content.
-     */
-    root?: T
-
-    /** Visible checkbox control users recognize as the toggle target. */
-    control?: T
-
-    /** Visual checked or indeterminate state layer inside the control. */
-    indicator?: T
-
-    /** Check or indeterminate icon rendered for the current state. */
-    icon?: T
-
-    /** Inner layout wrapper used by card and list checkbox variants. */
-    wrapper?: T
-
-    /** Vertical alignment wrapper for the checkbox control. */
-    container?: T
-
-    /** Primary checkbox label text. */
-    label?: T
-
-    /** Supporting text associated with the checkbox. */
-    description?: T
-  }
-
-  export type Variant = CheckboxVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  /**
-   * Base props for the Checkbox component.
-   */
-  export interface Base<TTrue = boolean, TFalse = boolean>
-    extends FormIdentityOptions, FormDisableOption, FormRequiredOption, FormReadOnlyOption {
-    /**
-     * Pointer down handler for the checkbox control.
-     */
-    onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
-
-    /**
-     * Native value submitted when the checkbox is checked.
-     * @default 'on'
-     */
-    value?: string
-
-    /**
-     * Whether the checkbox is checked (controlled).
-     */
-    checked?: TTrue | TFalse | 'indeterminate'
-
-    /**
-     * Whether the checkbox is checked by default (uncontrolled).
-     * @default false
-     */
-    defaultChecked?: boolean | 'indeterminate'
-
-    /**
-     * Value to use when the checkbox is checked.
-     * @default true
-     */
-    trueValue?: TTrue
-
-    /**
-     * Value to use when the checkbox is unchecked.
-     * @default false
-     */
-    falseValue?: TFalse
-
-    /**
-     * Label for the checkbox.
-     */
-    label?: JSX.Element
-
-    /**
-     * Description text for the checkbox.
-     */
-    description?: JSX.Element
-
-    /**
-     * Whether to bind the checkbox value to the parent FormField.
-     * @default true
-     */
-    formFieldBind?: boolean
-
-    /**
-     * Callback when the checked state changes.
-     */
-    onChange?: (value: TTrue | TFalse) => void
-
-    /**
-     * Whether the checkbox is in an indeterminate state.
-     * @default false
-     */
-    indeterminate?: boolean
-
-    /**
-     * Icon to show when checked.
-     * @default 'icon-check'
-     */
-    checkedIcon?: IconT.Name
-
-    /**
-     * Icon to show when indeterminate.
-     * @default 'icon-minus'
-     */
-    indeterminateIcon?: IconT.Name
-  }
-
-  /**
-   * Props for the Checkbox component.
-   */
-  export type Props<TTrue = boolean, TFalse = boolean> = BaseProps<
-    'div',
-    Base<TTrue, TFalse>,
-    Variant,
-    Classes,
-    Styles
-  >
-}
-
-/**
- * Props for the Checkbox component.
- */
-export interface CheckboxProps<TTrue = boolean, TFalse = boolean> extends CheckboxT.Props<
-  TTrue,
-  TFalse
-> {}
+export * from './checkbox.types.ts'
 
 /** Single checkbox control with card and list variants and custom true/false values. */
 export function Checkbox<TTrue = boolean, TFalse = boolean>(
@@ -181,6 +40,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     'checkedIcon',
     'indeterminateIcon',
     'onPointerDown',
+    'inputRef',
     'size',
     'variant',
     'indicator',
@@ -191,8 +51,8 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     'onClick',
   ])
 
-  const config = useMoraineConfig()
-  const provider = () => config().checkbox
+  const design = useMoraineDesign()
+  const checkboxDesign = () => design().checkbox
 
   const merged = mergeProps(
     {
@@ -205,7 +65,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       falseValue: false,
       value: 'on',
     },
-    () => provider()?.variants,
+    () => checkboxDesign()?.defaultVariants,
     local,
   )
   const label = createMemo(() => merged.label)
@@ -218,7 +78,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size,
+      size: local.size,
       disabled: merged.disabled,
       required: local.required,
       readOnly: readOnly(),
@@ -226,7 +86,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     () => ({
       bind: merged.formFieldBind,
       defaultId: generatedId(),
-      defaultSize: 'md',
+      defaultSize: checkboxDesign()?.defaultVariants?.size ?? 'md',
       initialValue:
         merged.formFieldBind === false
           ? undefined
@@ -237,18 +97,15 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   )
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return checkboxRecipe({
+        return checkboxDesign()?.recipe({
           variant: merged.variant,
           indicator: merged.indicator,
           size: field.size(),
           required: field.required(),
         })
       },
-    },
-    get provider() {
-      return provider()
     },
     get instance() {
       return {
@@ -478,6 +335,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         <HiddenInput
           ref={(element) => {
             inputEl = element
+            callRef(local.inputRef, element)
           }}
           id={`${field.id()}-input`}
           type="checkbox"
@@ -517,10 +375,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           {...resolved.slotClassAndStyle('control', {
             get state() {
               return {
-                class: [
-                  merged.indicator === 'hidden' && 'sr-only',
-                  field.disabled() && 'opacity-64 pointer-events-none',
-                ],
+                class: [merged.indicator === 'hidden' && 'sr-only'],
               }
             },
           })}

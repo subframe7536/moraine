@@ -1,24 +1,27 @@
 import type { Placement } from '@floating-ui/dom'
-import type { Accessor, JSX } from 'solid-js'
+import type { Accessor, JSX, ValidComponent } from 'solid-js'
 import {
   Show,
+  children as resolveChildren,
   createEffect,
   createMemo,
   createSignal,
   mergeProps,
+  splitProps,
   onMount,
   onCleanup,
   untrack,
 } from 'solid-js'
-import { Portal } from 'solid-js/web'
+import { Dynamic, Portal } from 'solid-js/web'
 
 import { createContextProvider } from '../../shared/create-context-provider'
-import { OVERLAY_POSITIONER_CLASS } from '../../shared/recipe-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
+import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
 import { callHandler, callRef, cn, useId } from '../../shared/utils'
+import type { ModalT } from '../modal/modal.types.ts'
 
 import { useFloatingPosition } from './floating'
 import { useOverlayInteraction } from './interaction'
@@ -287,6 +290,40 @@ export interface PopperContentContext {
 
   /** Current placement after collision handling. */
   currentPlacement: Accessor<string>
+}
+
+/** Preserve floating behavior while forwarding the surface's native ref and events. */
+export function mergePopperContentProps(
+  internal: PopperContentContext['contentProps'],
+  user: JSX.HTMLAttributes<HTMLDivElement>,
+): JSX.HTMLAttributes<HTMLDivElement> {
+  const handlers: JSX.HTMLAttributes<HTMLDivElement> = {}
+  for (const key of [
+    'onBlur',
+    'onFocus',
+    'onKeyDown',
+    'onPointerEnter',
+    'onPointerLeave',
+  ] as const) {
+    handlers[key] = (event: Event) => {
+      callHandler(event, user[key])
+      if (!event.defaultPrevented) {
+        callHandler(event, internal[key])
+      }
+    }
+  }
+  const contentProps = mergeProps(internal, user, handlers, {
+    ref: (element: HTMLDivElement) => {
+      internal.ref(element)
+      callRef(user.ref, element)
+      onCleanup(() => {
+        if (typeof user.ref === 'function') {
+          ;(user.ref as (element: HTMLDivElement | undefined) => void)(undefined)
+        }
+      })
+    },
+  })
+  return contentProps
 }
 
 interface PopperContext {
@@ -655,6 +692,36 @@ function PopperTrigger(props: PopperTriggerProps): JSX.Element {
   )
 }
 
+/** DOM-owning anchor for public floating components. */
+function PopperAnchor<T extends ValidComponent = 'button'>(
+  props: ModalT.TriggerProps<T>,
+): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'type', 'disabled', 'children', 'class', 'style'])
+  const context = usePopperContext()
+  const tag = () => (local.as as ValidComponent) ?? 'button'
+  const disabled = () => Boolean(local.disabled || context.options.disabled)
+  const interaction = useButtonInteraction(
+    {
+      disabled,
+      disabledForComponent: true,
+      tag,
+      type: () => local.type,
+      typeForComponent: true,
+    },
+    rest,
+  )
+  const children = resolveChildren(() => local.children)
+  return (
+    <PopperTrigger triggerProps={interaction as Partial<OverlayTriggerProps>}>
+      {(binding) => (
+        <Dynamic {...binding} component={tag()} class={cn(local.class)} style={local.style}>
+          {children()}
+        </Dynamic>
+      )}
+    </PopperTrigger>
+  )
+}
+
 function PopperContent(props: PopperContentComponentProps): JSX.Element {
   const context = usePopperContext()
   const options = context.options
@@ -711,7 +778,7 @@ function PopperContent(props: PopperContentComponentProps): JSX.Element {
           data-slot="positioner"
           data-positioned={context.positionerPositioned() ? '' : undefined}
           style={{ visibility: 'hidden', ...props.positionerStyle }}
-          class={cn(OVERLAY_POSITIONER_CLASS, 'z-floating', props.positionerClass)}
+          class={cn('left-0 top-0 absolute', props.positionerClass)}
         >
           {renderComponentOrElement(contentRender(), {
             close: () => context.setOpen(false),
@@ -726,3 +793,4 @@ function PopperContent(props: PopperContentComponentProps): JSX.Element {
 
 Popper.Content = PopperContent
 Popper.Trigger = PopperTrigger
+Popper.Anchor = PopperAnchor

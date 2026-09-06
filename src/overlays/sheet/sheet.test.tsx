@@ -2,9 +2,10 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
+import { renderWithDesign } from '../../test-utils/design-render.tsx'
 import { finishExitMotion } from '../../test-utils/overlay-test'
-import type { OverlayTriggerProps } from '../base/trigger'
 
 import { Sheet } from './sheet'
 
@@ -25,13 +26,12 @@ describe('Sheet', () => {
     ['top', 'top-0', '-enter-translate-y-10'],
     ['bottom', 'bottom-0', 'enter-translate-y-10'],
   ] as const)('applies side variant %s to content', (side, expectedClass, sideClass) => {
-    render(() => (
-      <Sheet open side={side} body="Sheet body">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+    renderWithDesign(() => (
+      <Sheet open>
+        <Sheet.Trigger as="button" type="button">
+          Trigger
+        </Sheet.Trigger>
+        <Sheet.Content side={side} body="Sheet body" />
       </Sheet>
     ))
 
@@ -45,49 +45,43 @@ describe('Sheet', () => {
   })
 
   test('applies inset + transition=false classes', () => {
-    render(() => (
-      <Sheet
-        open
-        side="right"
-        inset
-        transition={false}
-        classes={{
-          content: 'content-class',
-        }}
-        body="Body"
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+    renderWithDesign(() => (
+      <Sheet open>
+        <Sheet.Trigger as="button" type="button">
+          Trigger
+        </Sheet.Trigger>
+        <Sheet.Content
+          side="right"
+          inset
+          transition={false}
+          classes={{
+            content: 'content-class',
+          }}
+          body="Body"
+        />
       </Sheet>
     ))
 
     const content = document.body.querySelector('[data-slot="content"]')
 
     expect(content?.className).toContain('sm:m-4 sm:border sm:border-border sm:rounded-2xl')
-    expect(content?.className).toContain(
-      'transition-none data-expanded:animate-none data-closed:animate-none',
-    )
+    expect(content?.getAttribute('data-transition')).toBe('false')
     expect(content?.className).toContain('content-class')
   })
 
   test('renders default shell with title, description, actions, body, footer and close button', () => {
     render(() => (
-      <Sheet
-        open
-        title="Panel"
-        description="Panel description"
-        action={<button type="button">Action</button>}
-        body="Sheet body"
-        footer="Sheet footer"
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Sheet open>
+        <Sheet.Trigger as="button" type="button">
+          Trigger
+        </Sheet.Trigger>
+        <Sheet.Content
+          title="Panel"
+          description="Panel description"
+          action={<button type="button">Action</button>}
+          body="Sheet body"
+          footer="Sheet footer"
+        />
       </Sheet>
     ))
 
@@ -100,7 +94,11 @@ describe('Sheet', () => {
   })
 
   test('only references mounted default title and description nodes', () => {
-    render(() => <Sheet open title="Sheet title" description="Sheet description" body="Body" />)
+    render(() => (
+      <Sheet open>
+        <Sheet.Content title="Sheet title" description="Sheet description" body="Body" />
+      </Sheet>
+    ))
 
     const content = document.body.querySelector('[data-slot="content"]')!
     expectAriaReferencesToResolve(content)
@@ -114,14 +112,15 @@ describe('Sheet', () => {
 
   test('uses ariaLabel for a custom header without dangling generated IDs', () => {
     render(() => (
-      <Sheet
-        open
-        title="Suppressed title"
-        description="Suppressed description"
-        header={<div>Custom header</div>}
-        ariaLabel="Account panel"
-        body="Body"
-      />
+      <Sheet open>
+        <Sheet.Content
+          title="Suppressed title"
+          description="Suppressed description"
+          header={<div>Custom header</div>}
+          ariaLabel="Account panel"
+          body="Body"
+        />
+      </Sheet>
     ))
 
     const content = document.body.querySelector('[data-slot="content"]')!
@@ -132,7 +131,11 @@ describe('Sheet', () => {
   })
 
   test('preserves numeric zero in every shell content slot', () => {
-    render(() => <Sheet open title={0} description={0} action={0} body={0} footer={0} />)
+    render(() => (
+      <Sheet open>
+        <Sheet.Content title={0} description={0} action={0} body={0} footer={0} />
+      </Sheet>
+    ))
 
     expect(document.body.querySelector('[data-slot="title"]')?.textContent).toBe('0')
     expect(document.body.querySelector('[data-slot="description"]')?.textContent).toBe('0')
@@ -150,7 +153,14 @@ describe('Sheet', () => {
     'keeps ARIA references valid for %s',
     (_case, title, description, ariaLabel, hasLabelledBy, hasDescribedBy) => {
       render(() => (
-        <Sheet open title={title} description={description} ariaLabel={ariaLabel} body="Body" />
+        <Sheet open>
+          <Sheet.Content
+            title={title}
+            description={description}
+            ariaLabel={ariaLabel}
+            body="Body"
+          />
+        </Sheet>
       ))
 
       const content = document.body.querySelector('[data-slot="content"]')!
@@ -163,7 +173,9 @@ describe('Sheet', () => {
 
   test('distinguishes empty shell content from false presence', () => {
     const empty = render(() => (
-      <Sheet open title="" description="" action="" body="" footer="" close={false} />
+      <Sheet open>
+        <Sheet.Content title="" description="" action="" body="" footer="" close={false} />
+      </Sheet>
     ))
     expect(document.body.querySelector('[data-slot="title"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="description"]')).not.toBeNull()
@@ -173,15 +185,16 @@ describe('Sheet', () => {
     empty.unmount()
 
     render(() => (
-      <Sheet
-        open
-        title={false}
-        description={false}
-        action={false}
-        body={false}
-        footer={false}
-        close={false}
-      />
+      <Sheet open>
+        <Sheet.Content
+          title={false}
+          description={false}
+          action={false}
+          body={false}
+          footer={false}
+          close={false}
+        />
+      </Sheet>
     ))
     expect(document.body.querySelector('[data-slot="header"]')).toBeNull()
     expect(document.body.querySelector('[data-slot="body"]')).toBeNull()
@@ -200,49 +213,50 @@ describe('Sheet', () => {
       title: 0,
     }
 
-    render(() =>
-      createComponent(Sheet, {
-        open: true,
-        ariaLabel: 'Getter sheet',
-        get title() {
-          reads.title += 1
-          return 'Title'
-        },
-        get description() {
-          reads.description += 1
-          return 'Description'
-        },
-        get header() {
-          reads.header += 1
-          return undefined
-        },
-        get action() {
-          reads.action += 1
-          return <div>Action</div>
-        },
-        get body() {
-          reads.body += 1
-          return <div>Body</div>
-        },
-        get footer() {
-          reads.footer += 1
-          return <div>Footer</div>
-        },
-        get close() {
-          reads.close += 1
-          return <span>Close icon</span>
-        },
-        get children() {
-          reads.children += 1
-          return (props: OverlayTriggerProps) => <button {...props}>Trigger</button>
-        },
-      }),
-    )
+    render(() => (
+      <Sheet open>
+        {createComponent(Sheet.Content, {
+          ariaLabel: 'Getter sheet',
+          get title() {
+            reads.title += 1
+            return 'Title'
+          },
+          get description() {
+            reads.description += 1
+            return 'Description'
+          },
+          get header() {
+            reads.header += 1
+            return undefined
+          },
+          get action() {
+            reads.action += 1
+            return <div>Action</div>
+          },
+          get body() {
+            reads.body += 1
+            return <div>Body</div>
+          },
+          get footer() {
+            reads.footer += 1
+            return <div>Footer</div>
+          },
+          get close() {
+            reads.close += 1
+            return <span>Close icon</span>
+          },
+          get children() {
+            reads.children += 1
+            return <span>Fallback children</span>
+          },
+        })}
+      </Sheet>
+    ))
 
     expect(reads).toEqual({
       action: 1,
       body: 1,
-      children: 1,
+      children: 0,
       close: 1,
       description: 1,
       footer: 1,
@@ -256,22 +270,23 @@ describe('Sheet', () => {
     const [inset, setInset] = createSignal(false)
     const [transition, setTransition] = createSignal(true)
 
-    render(() => (
-      <Sheet
-        open
-        side={side()}
-        inset={inset()}
-        transition={transition()}
-        ariaLabel="Reactive sheet"
-        body="Body"
-      />
+    renderWithDesign(() => (
+      <Sheet open>
+        <Sheet.Content
+          side={side()}
+          inset={inset()}
+          transition={transition()}
+          ariaLabel="Reactive sheet"
+          body="Body"
+        />
+      </Sheet>
     ))
 
     const content = document.body.querySelector('[data-slot="content"]')!
     expect(content.getAttribute('data-side')).toBe('left')
     expect(content.className).toContain('left-0')
     expect(content.className).toContain('rounded-none')
-    expect(content.className).not.toContain('transition-none')
+    expect(content.hasAttribute('data-transition')).toBe(false)
 
     setSide('right')
     setInset(true)
@@ -282,13 +297,15 @@ describe('Sheet', () => {
     expect(content.className).toContain('right-0')
     expect(content.className).not.toContain('left-0')
     expect(content.className).toContain('sm:m-4 sm:border sm:border-border sm:rounded-2xl')
-    expect(content.className).toContain(
-      'transition-none data-expanded:animate-none data-closed:animate-none',
-    )
+    expect(content?.getAttribute('data-transition')).toBe('false')
   })
 
   test('releases content and scroll lock when unmounted during exit', async () => {
-    const screen = render(() => <Sheet defaultOpen ariaLabel="Unmounting sheet" body="Body" />)
+    const screen = render(() => (
+      <Sheet defaultOpen>
+        <Sheet.Content ariaLabel="Unmounting sheet" body="Body" />
+      </Sheet>
+    ))
 
     await waitFor(() => {
       expect(document.body.style.overflow).toBe('hidden')
@@ -304,12 +321,11 @@ describe('Sheet', () => {
 
   test('renders the trigger content as a native button root', () => {
     render(() => (
-      <Sheet open body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Sheet open>
+        <Sheet.Trigger as="button" type="button">
+          Trigger
+        </Sheet.Trigger>
+        <Sheet.Content body="Body" />
       </Sheet>
     ))
 
@@ -320,19 +336,23 @@ describe('Sheet', () => {
   })
 
   test('renders a span trigger root', () => {
-    render(() => <Sheet body="Body">{(props) => <span {...props}>Open</span>}</Sheet>)
+    render(() => (
+      <Sheet>
+        <Sheet.Trigger as="span">Open</Sheet.Trigger>
+        <Sheet.Content body="Body" />
+      </Sheet>
+    ))
 
     expect(document.body.querySelector('[data-slot="trigger"]')?.tagName).toBe('SPAN')
   })
 
   test('supports custom close content', () => {
     render(() => (
-      <Sheet open close={<span data-testid="custom-close">X</span>} body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Sheet open>
+        <Sheet.Trigger as="button" type="button">
+          Trigger
+        </Sheet.Trigger>
+        <Sheet.Content close={<span data-testid="custom-close">X</span>} body="Body" />
       </Sheet>
     ))
 
@@ -341,12 +361,11 @@ describe('Sheet', () => {
 
   test('hides close button when close=false', () => {
     render(() => (
-      <Sheet open close={false} body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Sheet open>
+        <Sheet.Trigger as="button" type="button">
+          Trigger
+        </Sheet.Trigger>
+        <Sheet.Content close={false} body="Body" />
       </Sheet>
     ))
 
@@ -355,12 +374,14 @@ describe('Sheet', () => {
 
   test('renders body content and keeps shell sections', () => {
     render(() => (
-      <Sheet open title="Sheet title" body={<div data-testid="custom-body">Body Content</div>}>
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Sheet open>
+        <Sheet.Trigger as="button" type="button">
+          Trigger
+        </Sheet.Trigger>
+        <Sheet.Content
+          title="Sheet title"
+          body={<div data-testid="custom-body">Body Content</div>}
+        />
       </Sheet>
     ))
 
@@ -374,12 +395,11 @@ describe('Sheet', () => {
     const onOpenChange = vi.fn()
 
     const screen = render(() => (
-      <Sheet onOpenChange={onOpenChange} title="Sheet" body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Open sheet
-          </button>
-        )}
+      <Sheet onOpenChange={onOpenChange}>
+        <Sheet.Trigger as="button" type="button">
+          Open sheet
+        </Sheet.Trigger>
+        <Sheet.Content title="Sheet" body="Body" />
       </Sheet>
     ))
 
@@ -406,12 +426,11 @@ describe('Sheet', () => {
 
   test('renders into portal by default', () => {
     const screen = render(() => (
-      <Sheet open title="Portal default" body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Sheet open>
+        <Sheet.Trigger as="button" type="button">
+          Trigger
+        </Sheet.Trigger>
+        <Sheet.Content title="Portal default" body="Body" />
       </Sheet>
     ))
 
@@ -421,12 +440,11 @@ describe('Sheet', () => {
 
   test('supports overlay=false', () => {
     render(() => (
-      <Sheet open overlay={false} body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Sheet open>
+        <Sheet.Trigger as="button" type="button">
+          Trigger
+        </Sheet.Trigger>
+        <Sheet.Content overlay={false} body="Body" />
       </Sheet>
     ))
 
@@ -434,8 +452,10 @@ describe('Sheet', () => {
   })
 
   test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
-    render(() => (
-      <Sheet open body="Body" classes={{ overlay: 'bg-red-500 custom-sheet-overlay' }} />
+    renderWithDesign(() => (
+      <Sheet open>
+        <Sheet.Content body="Body" classes={{ overlay: 'bg-red-500 custom-sheet-overlay' }} />
+      </Sheet>
     ))
 
     const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
@@ -451,13 +471,15 @@ describe('Sheet', () => {
   })
 
   test('preserves Modal overlay behavior for provider slot overrides', () => {
-    render(() => (
+    renderWithDesign(() => (
       <MoraineProvider
-        config={{
-          sheet: { classes: { overlay: 'bg-blue-500 provider-sheet-overlay' } },
-        }}
+        design={createDesign({
+          sheet: { base: { overlay: 'bg-blue-500 provider-sheet-overlay' } },
+        })}
       >
-        <Sheet open body="Body" />
+        <Sheet open>
+          <Sheet.Content body="Body" />
+        </Sheet>
       </MoraineProvider>
     ))
 
@@ -477,12 +499,11 @@ describe('Sheet', () => {
     const onClosePrevent = vi.fn()
 
     render(() => (
-      <Sheet defaultOpen dismissible={false} onClosePrevent={onClosePrevent} body="Body">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Sheet defaultOpen dismissible={false} onClosePrevent={onClosePrevent}>
+        <Sheet.Trigger as="button" type="button">
+          Trigger
+        </Sheet.Trigger>
+        <Sheet.Content body="Body" />
       </Sheet>
     ))
 
@@ -504,12 +525,11 @@ describe('Sheet', () => {
         <button type="button" data-testid="outside">
           Outside target
         </button>
-        <Sheet defaultOpen dismissible={false} onClosePrevent={onClosePrevent} body="Body">
-          {(props) => (
-            <button {...props} type="button">
-              Trigger
-            </button>
-          )}
+        <Sheet defaultOpen dismissible={false} onClosePrevent={onClosePrevent}>
+          <Sheet.Trigger as="button" type="button">
+            Trigger
+          </Sheet.Trigger>
+          <Sheet.Content body="Body" />
         </Sheet>
       </>
     ))
@@ -528,18 +548,11 @@ describe('Sheet', () => {
     const onOpenChange = vi.fn()
 
     render(() => (
-      <Sheet
-        defaultOpen
-        dismissible
-        onClosePrevent={onClosePrevent}
-        onOpenChange={onOpenChange}
-        body="Body"
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Sheet defaultOpen dismissible onClosePrevent={onClosePrevent} onOpenChange={onOpenChange}>
+        <Sheet.Trigger as="button" type="button">
+          Trigger
+        </Sheet.Trigger>
+        <Sheet.Content body="Body" />
       </Sheet>
     ))
 
@@ -557,7 +570,11 @@ describe('Sheet', () => {
   })
 
   test('renders controlled overlay without a trigger', async () => {
-    render(() => <Sheet open body="Body" />)
+    render(() => (
+      <Sheet open>
+        <Sheet.Content body="Body" />
+      </Sheet>
+    ))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')?.textContent).toContain('Body')
@@ -566,12 +583,11 @@ describe('Sheet', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Sheet open body="Body" styles={{ content: { width: '200px' } }}>
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Sheet open>
+        <Sheet.Trigger as="button" type="button">
+          Trigger
+        </Sheet.Trigger>
+        <Sheet.Content body="Body" styles={{ content: { width: '200px' } }} />
       </Sheet>
     ))
 

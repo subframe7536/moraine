@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX, Ref } from 'solid-js'
 import {
   createEffect,
   createMemo,
@@ -11,26 +11,19 @@ import {
   untrack,
 } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { Icon } from '../../elements/icon/index.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callHandler, useId } from '../../shared/utils.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form/form-context.ts'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-} from '../shared/form-options.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
-import type { InputNumberOrientation, InputNumberVariantProps } from './input-number.class.ts'
-import { inputNumberRecipe, resolveInputNumberAlign } from './input-number.class.ts'
+import type { InputNumberProps, InputNumberT } from './input-number.types.ts'
+
+export * from './input-number.types.ts'
 
 type ControlKind = 'increment' | 'decrement'
-type PointerType = 'mouse' | 'touch' | 'pen'
 type InputNumberControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
   [key: `data-${string}`]: string | undefined
 }
@@ -170,212 +163,15 @@ function addDecimal(value: number, amount: number): number {
   return (multipliedValue + multipliedAmount) / multiplier
 }
 
-export namespace InputNumberT {
-  export interface Slot<T = unknown> {
-    /**
-     * Number input wrapper that owns the input and step controls.
-     */
-    root?: T
-
-    /** Native number input element. */
-    input?: T
-
-    /** Button that increases the current numeric value. */
-    increment?: T
-
-    /** Button that decreases the current numeric value. */
-    decrement?: T
-
-    /** Column container for vertical increment/decrement controls. */
-    controls?: T
-  }
-
-  export type Variant = InputNumberVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  /**
-   * Base props for the InputNumber component.
-   */
-  export interface Base
-    extends FormIdentityOptions, FormDisableOption, FormRequiredOption, FormReadOnlyOption {
-    /**
-     * Controlled displayed value.
-     */
-    value?: string | number
-
-    /**
-     * Default displayed value for uncontrolled usage.
-     */
-    defaultValue?: string | number
-
-    /**
-     * Controlled numeric value. Takes precedence over `value`.
-     */
-    rawValue?: number
-
-    /**
-     * Minimum allowed numeric value.
-     */
-    minValue?: number
-
-    /**
-     * Maximum allowed numeric value.
-     */
-    maxValue?: number
-
-    /**
-     * The increment/decrement step size.
-     * @default 1
-     */
-    step?: number
-
-    /**
-     * The step size used for PageUp/PageDown.
-     * @default step * 10
-     */
-    largeStep?: number
-
-    /**
-     * Locale for number formatting and parsing.
-     * Uses browser default if not specified.
-     */
-    locale?: string
-
-    /**
-     * Callback when the formatted string value changes.
-     */
-    onChange?: (value: string) => void
-
-    /**
-     * Callback when the numeric value changes.
-     */
-    onRawValueChange?: (value: number) => void
-
-    /**
-     * Placeholder text for the input.
-     */
-    placeholder?: string
-
-    /**
-     * Whether to show the increment button.
-     * @default true
-     */
-    increment?: boolean
-
-    /**
-     * Icon for the increment button.
-     * @default orientation === 'vertical' ? 'icon-chevron-up' : 'icon-plus'
-     */
-    incrementIcon?: IconT.Name
-
-    /**
-     * Whether the increment button is disabled.
-     */
-    incrementDisabled?: boolean
-
-    /**
-     * Whether to show the decrement button.
-     * @default true
-     */
-    decrement?: boolean
-
-    /**
-     * Icon for the decrement button.
-     * @default orientation === 'vertical' ? 'icon-chevron-down' : 'icon-minus'
-     */
-    decrementIcon?: IconT.Name
-
-    /**
-     * Whether the decrement button is disabled.
-     */
-    decrementDisabled?: boolean
-
-    /**
-     * Whether to automatically focus the input on mount.
-     * @default false
-     */
-    autofocus?: boolean
-
-    /**
-     * Whether mouse wheel changes the value while the input is focused.
-     * @default false
-     */
-    wheel?: boolean
-
-    /**
-     * Delay in milliseconds before focusing the input.
-     * @default 0
-     */
-    autofocusDelay?: number
-
-    /**
-     * Callback when the input loses focus.
-     */
-    onBlur?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
-
-    /**
-     * Callback when the input gains focus.
-     */
-    onFocus?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
-
-    /**
-     * Callback when the increment button is clicked.
-     */
-    onIncrementClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
-
-    /**
-     * Callback when the decrement button is clicked.
-     */
-    onDecrementClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
-
-    /**
-     * Whether press-and-hold should trigger repeated value changes.
-     * @default true
-     */
-    holdRepeat?: boolean
-
-    /**
-     * Delay in milliseconds before repeated value changes start.
-     * @default 500
-     */
-    repeatDelayMs?: number
-
-    /**
-     * Interval in milliseconds between repeated value changes.
-     * @default 80
-     */
-    repeatIntervalMs?: number
-
-    /**
-     * Minimum elapsed time in milliseconds between repeat triggers.
-     * @default 0
-     */
-    repeatThrottleMs?: number
-
-    /**
-     * Pointer types that can trigger press-and-hold repeat.
-     * @default 'all'
-     */
-    repeatPointerTypes?: 'all' | PointerType
-  }
-
-  /**
-   * Props for the InputNumber component.
-   */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+type RootProps = InputNumberProps & {
+  ref?: Ref<HTMLDivElement>
 }
-
-/**
- * Props for the InputNumber component.
- */
-export interface InputNumberProps extends InputNumberT.Props {}
 
 /** Numeric input with increment/decrement controls, step, and min/max constraints. */
 export function InputNumber(props: InputNumberProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const [local, rest] = splitProps(props as RootProps, [
+    'ref',
+    'inputRef',
     'id',
     'name',
     'value',
@@ -419,8 +215,8 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'style',
   ])
 
-  const config = useMoraineConfig()
-  const provider = () => config().inputNumber
+  const design = useMoraineDesign()
+  const inputNumberDesign = () => design().inputNumber
 
   const merged = mergeProps(
     {
@@ -435,7 +231,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       repeatThrottleMs: 0,
       repeatPointerTypes: 'all' as const,
     },
-    () => provider()?.variants,
+    () => inputNumberDesign()?.defaultVariants,
     local,
   )
 
@@ -458,14 +254,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size,
+      size: local.size,
       disabled: merged.disabled,
       required: local.required,
       readOnly: readOnly(),
     }),
     () => ({
       defaultId: generatedId(),
-      defaultSize: 'md',
+      defaultSize: inputNumberDesign()?.defaultVariants?.size ?? 'md',
       initialValue,
     }),
   )
@@ -557,7 +353,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     })
   })
 
-  const resolvedOrientation = createMemo<InputNumberOrientation>(
+  const resolvedOrientation = createMemo<InputNumberT.Orientation>(
     () => merged.orientation ?? 'horizontal',
   )
 
@@ -582,18 +378,15 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   const showDecrement = createMemo(() => merged.decrement !== false)
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return inputNumberRecipe({
+        return inputNumberDesign()?.recipe({
           size: field.size(),
           variant: merged.variant,
-          align: resolveInputNumberAlign(resolvedOrientation(), showDecrement()),
+          align: resolvedOrientation() === 'horizontal' && !showDecrement() ? 'start' : 'center',
           orientation: resolvedOrientation(),
         })
       },
-    },
-    get provider() {
-      return provider()
     },
     get instance() {
       return {
@@ -1082,6 +875,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
   return (
     <div
+      ref={(element) => callRef(local.ref, element)}
       id={`${field.id()}-root`}
       role="group"
       data-slot="root"
@@ -1100,7 +894,10 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         inputMode="decimal"
         role="spinbutton"
         id={field.id()}
-        ref={(e) => (inputEl = e)}
+        ref={(e) => {
+          inputEl = e
+          callRef(local.inputRef, e)
+        }}
         name={field.name()}
         value={inputText()}
         required={field.required()}

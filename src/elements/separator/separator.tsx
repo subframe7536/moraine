@@ -1,86 +1,42 @@
 import type { JSX } from 'solid-js'
 import { createMemo, splitProps } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { BaseProps } from '../../shared/types.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 
-import type { SeparatorVariantProps } from './separator.class.ts'
-import { separatorRecipe } from './separator.class.ts'
+import type { SeparatorProps } from './separator.types.ts'
 
-export namespace SeparatorT {
-  export interface Slot<_T = unknown> {}
-  export type Variant = SeparatorVariantProps
-  export type Classes = never
-  export type Styles = never
-
-  export interface Item {}
-  /**
-   * Base props for the Separator component.
-   */
-  export interface Base {
-    /**
-     * Whether the separator is decorative (hidden from assistive technologies).
-     * @default false
-     */
-    decorative?: boolean
-
-    /**
-     * The orientation of the separator.
-     * @default 'horizontal'
-     */
-    orientation?: 'horizontal' | 'vertical'
-  }
-
-  /**
-   * Props for the Separator component.
-   */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the Separator component.
- */
-export interface SeparatorProps extends SeparatorT.Props {}
+export * from './separator.types.ts'
 
 /** Visual divider with configurable orientation, style, and border type. */
 export function Separator(props: SeparatorProps): JSX.Element {
-  const config = useMoraineConfig()
-  const provider = () => config().separator
+  const design = useMoraineDesign()
+  const separatorDesign = () => design().separator
 
-  const [local, rest] = splitProps(props, [
-    'decorative',
-    'orientation',
-    'size',
-    'type',
-    'class',
-    'style',
-    'children',
-  ])
+  const [local, , rest] = splitProps(
+    props,
+    ['decorative', 'orientation', 'size', 'type', 'class', 'style'],
+    ['classes', 'styles'],
+  )
 
-  const orientation = createMemo<NonNullable<SeparatorVariantProps['orientation']>>(
-    () => local.orientation ?? provider()?.variants?.orientation ?? 'horizontal',
+  const orientation = createMemo<NonNullable<SeparatorProps['orientation']>>(
+    () => local.orientation ?? separatorDesign()?.defaultVariants?.orientation ?? 'horizontal',
   )
-  const size = createMemo<NonNullable<SeparatorVariantProps['size']>>(
-    () => local.size ?? provider()?.variants?.size ?? 'sm',
+  const size = createMemo<NonNullable<SeparatorProps['size']>>(
+    () => local.size ?? separatorDesign()?.defaultVariants?.size ?? 'sm',
   )
-  const type = createMemo<NonNullable<SeparatorVariantProps['type']>>(
-    () => local.type ?? provider()?.variants?.type ?? 'solid',
+  const type = createMemo<NonNullable<SeparatorProps['type']>>(
+    () => local.type ?? separatorDesign()?.defaultVariants?.type ?? 'solid',
   )
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return {
-          root: separatorRecipe({
-            orientation: orientation(),
-            size: size(),
-            type: type(),
-          }),
-        }
+        return separatorDesign()?.recipe({
+          orientation: orientation(),
+          size: size(),
+          type: type(),
+        })
       },
-    },
-    get provider() {
-      return provider()
     },
     get instance() {
       return {

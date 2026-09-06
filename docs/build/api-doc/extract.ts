@@ -592,6 +592,7 @@ class DeclarationAnalyzer {
     if (specifier.startsWith('.')) {
       const base = path.resolve(path.dirname(unit.fileName), specifier)
       return [
+        base.replace(/(?<!\.d)\.mjs$/, '.d.mts').replace(/(?<!\.d)\.js$/, '.d.ts'),
         base,
         `${base}.d.ts`,
         `${base}.d.mts`,
@@ -1457,7 +1458,7 @@ async function processComponentNode(
     return null
   }
 
-  const componentName = node.id.name
+  const componentName = node.id.name.replace(/\$\d+$/, '')
   const componentKey = toKebabCase(componentName)
   const jsDoc = getJsDoc(analyzer.mainUnit.source, node)
   const line = lineAtOffset(analyzer.mainUnit.source.text, node.start)
@@ -1501,29 +1502,69 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
     return null
   }
 
-  const dtsContent = readFileSync(dtsPath, 'utf8')
-  const processedContent = await preprocessGenericTypeAliases(dtsContent, dtsPath)
-  const analyzer = await DeclarationAnalyzer.create(projectRoot, dtsPath, processedContent)
   const sourceSlotAnalyzer = new SourceSlotAnalyzer(projectRoot)
-  const regionByLine = buildRegionByLine(processedContent)
-  const metadata = await collectNamespaceMetadata(analyzer)
   const componentDocs = new Map<string, ComponentDoc>()
+  const pending = [dtsPath]
+  const visited = new Set<string>()
 
-  for (const statement of analyzer.mainUnit.source.program.body) {
-    const declaration = declarationFromStatement(statement)
-    if (declaration?.type !== 'TSDeclareFunction') {
+  while (pending.length > 0) {
+    const fileName = pending.pop()!
+    if (visited.has(fileName)) {
       continue
     }
-    const component = await processComponentNode(
-      declaration,
-      analyzer,
-      sourceSlotAnalyzer,
-      regionByLine,
-      metadata,
-    )
-    if (component) {
-      componentDocs.set(component.key, component.doc)
+    visited.add(fileName)
+    const content = readFileSync(fileName, 'utf8')
+    const processedContent = await preprocessGenericTypeAliases(content, fileName)
+    const analyzer = await DeclarationAnalyzer.create(projectRoot, fileName, processedContent)
+    const regionByLine = buildRegionByLine(processedContent)
+    const metadata = await collectNamespaceMetadata(analyzer)
+
+    for (const statement of analyzer.mainUnit.source.program.body) {
+      if (
+        (statement.type === 'ImportDeclaration' ||
+          statement.type === 'ExportNamedDeclaration' ||
+          statement.type === 'ExportAllDeclaration') &&
+        typeof statement.source?.value === 'string' &&
+        statement.source.value.startsWith('.')
+      ) {
+        const dependency = path
+          .resolve(path.dirname(fileName), statement.source.value)
+          .replace(/(?<!\.d)\.mjs$/, '.d.mts')
+          .replace(/(?<!\.d)\.js$/, '.d.ts')
+        if (existsSync(dependency)) {
+          pending.push(dependency)
+        }
+      }
+      const declaration = declarationFromStatement(statement)
+      if (declaration?.type !== 'TSDeclareFunction') {
+        continue
+      }
+      const component = await processComponentNode(
+        declaration,
+        analyzer,
+        sourceSlotAnalyzer,
+        regionByLine,
+        metadata,
+      )
+      if (component) {
+        componentDocs.set(component.key, component.doc)
+      }
     }
+  }
+
+  for (const [key, doc] of componentDocs) {
+    const match =
+      /^(dialog|sheet|modal|popover|tooltip|dropdown-menu|context-menu)-(trigger|content|close)$/.exec(
+        key,
+      )
+    const root = match && componentDocs.get(match[1]!)
+    if (!root || !match) {
+      continue
+    }
+    const primitive = match[2]!
+    doc.component.name = `${root.component.name}.${primitive[0]!.toUpperCase()}${primitive.slice(1)}`
+    ;(root.primitives ??= []).push(doc)
+    componentDocs.delete(key)
   }
 
   return {

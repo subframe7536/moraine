@@ -12,7 +12,11 @@ export type ClassValue =
 
 type AtomicBaseClassValue = Exclude<ClassValue, Record<string, unknown>>
 
-export type VariantValue<T> = T extends 'true' | 'false' ? boolean | 'true' | 'false' : T
+export type VariantValue<T> = string extends T
+  ? string | boolean
+  : T extends 'true' | 'false'
+    ? boolean | 'true' | 'false'
+    : T
 export type VariantMatcher<T> = VariantValue<T> | readonly VariantValue<T>[]
 export type VariantSchema = Record<string, Record<string, unknown>>
 
@@ -54,6 +58,7 @@ export type ResolvedSlotClasses<S extends string> = Record<S, string | undefined
 export interface SlotRecipeFn<S extends string, V extends VariantSchema> {
   (variants?: VariantSelection<V>): ResolvedSlotClasses<S>
   slots: readonly S[]
+  options?: SlotRecipeOptions<S, any>
 }
 
 export type AtomicCompoundVariant<V extends VariantSchema> = CompoundVariant<V, ClassValue>
@@ -69,6 +74,7 @@ export interface AtomicRecipeOptions<
 
 export interface AtomicRecipeFn<V extends VariantSchema> {
   (variants?: VariantSelection<V>, ...extraClasses: ClassValue[]): string | undefined
+  options?: AtomicRecipeOptions<any>
 }
 
 export type VariantProps<T> =
@@ -192,13 +198,17 @@ export function createSlotRecipe<S extends string, V extends SlotVariantSchema<S
   }) as SlotRecipeFn<S, V>
 
   recipeFn.slots = slots
+  recipeFn.options = options
   return recipeFn
 }
 
 export function createAtomicRecipe<V extends Record<string, Record<string, ClassValue>>>(
   options: AtomicRecipeOptions<V>,
 ): AtomicRecipeFn<V> {
-  return (variants?: VariantSelection<V>, ...extraClasses: ClassValue[]) => {
+  const recipeFn: AtomicRecipeFn<V> = (
+    variants?: VariantSelection<V>,
+    ...extraClasses: ClassValue[]
+  ) => {
     const activeVariants = getActiveVariants(options, variants)
     const classes: ClassValue[] = [options.base]
 
@@ -209,13 +219,16 @@ export function createAtomicRecipe<V extends Record<string, Record<string, Class
     }
 
     for (const compoundVariant of options.compoundVariants ?? []) {
-      if (matchesVariants(activeVariants, getCompoundVariantMatch(compoundVariant))) {
-        classes.push(compoundVariant.class)
+      if (!matchesVariants(activeVariants, getCompoundVariantMatch(compoundVariant))) {
+        continue
       }
+      classes.push(compoundVariant.class)
     }
 
     return cn(classes, ...extraClasses)
   }
+  recipeFn.options = options
+  return recipeFn
 }
 
 export function recipe<

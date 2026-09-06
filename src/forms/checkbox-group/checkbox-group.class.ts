@@ -1,10 +1,12 @@
-import type { VariantProps } from '../../shared/style/recipe.ts'
+import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-export const checkboxGroupRecipe = recipe({
+import type { CheckboxGroupT } from './checkbox-group.types.ts'
+
+export const checkboxGroupRecipeOptions = {
   base: {
     root: 'relative',
-    fieldset: 'flex',
+    fieldset: 'data-[variant=list]:gap-2 data-[variant=card]:gap-2 flex',
     legend: 'text-foreground font-medium mb-1.5 block',
     item: '',
     container: '',
@@ -64,6 +66,8 @@ export const checkboxGroupRecipe = recipe({
       class: { item: 'p-4' },
     },
   ],
-})
+} as const satisfies SlotRecipeOptions<keyof CheckboxGroupT.Slot>
 
-export type CheckboxGroupVariantProps = VariantProps<typeof checkboxGroupRecipe>
+export const checkboxGroupRecipe = recipe(checkboxGroupRecipeOptions)
+
+export type CheckboxGroupVariantProps = CheckboxGroupT.Variant

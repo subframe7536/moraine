@@ -1,14 +1,19 @@
 import { getInput } from '@formisch/solid'
 import { fireEvent, waitFor } from '@solidjs/testing-library'
+import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
 import { Button } from '../../elements/button/index'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { Input } from '../input/index'
 import { Switch } from '../switch/index'
 
 import { createForm } from './index'
+
+const officialDesign = createDesign()
 
 const Schema = v.object({
   email: v.pipe(v.string(), v.email('Enter a valid email.')),
@@ -16,6 +21,14 @@ const Schema = v.object({
 })
 
 describe('Form', () => {
+  test('renders unstyled when provider is absent', () => {
+    const { screen } = renderWithOwner(
+      () => createForm({ schema: Schema }),
+      (form) => <form.Form />,
+    )
+    const formElement = screen.container.querySelector('form')
+    expect(formElement?.className).toBe('')
+  })
   test('submits Formisch output through the high-level adapters', async () => {
     const onSubmit = vi.fn()
     const { screen } = renderWithOwner(
@@ -72,6 +85,52 @@ describe('Form', () => {
     const element = screen.getByRole('form')
     expect(element.className).toContain('root-override')
     expect(element.style.width).toBe('200px')
+  })
+
+  test('keeps direct root styling while ignoring legacy slot maps', () => {
+    const { screen } = renderWithOwner(
+      () => createForm({ schema: Schema }),
+      (form) => (
+        <form.Form
+          class="custom-root"
+          style={{ width: '200px' }}
+          classes={{ root: 'ignored-root' }}
+          styles={{ root: { width: '100px' } }}
+        />
+      ),
+    )
+    const element = screen.container.querySelector<HTMLFormElement>('form')
+
+    expect(element?.className).toContain('custom-root')
+    expect(element?.className).not.toContain('ignored-root')
+    expect(element?.style.width).toBe('200px')
+    expect(element?.hasAttribute('classes')).toBe(false)
+    expect(element?.hasAttribute('styles')).toBe(false)
+  })
+
+  test('replaces Design root styling without remounting the bound form', () => {
+    const { screen, value } = renderWithOwner(
+      () => {
+        const [design, setDesign] = createSignal(
+          createDesign({ preset: false, form: { base: { root: 'p-2' } } }),
+        )
+        return { form: createForm({ schema: Schema }), design, setDesign }
+      },
+      (props) => (
+        <MoraineProvider design={props.design()}>
+          <props.form.Form />
+        </MoraineProvider>
+      ),
+    )
+    const element = screen.container.querySelector<HTMLFormElement>('form')!
+
+    expect(element.className).toContain('p-2')
+
+    value.setDesign(createDesign({ preset: false, form: { base: { root: 'p-4' } } }))
+
+    expect(screen.container.querySelector('form')).toBe(element)
+    expect(element.className).toContain('p-4')
+    expect(element.className).not.toContain('p-2')
   })
 
   test('uses a control initialValue only when Formisch has no field input', async () => {
@@ -308,11 +367,13 @@ describe('Form', () => {
           initialInput: { value: '' },
         }),
       (form) => (
-        <form.Form>
-          <form.Field name="value" label="Value">
-            <Input />
-          </form.Field>
-        </form.Form>
+        <MoraineProvider design={officialDesign}>
+          <form.Form>
+            <form.Field name="value" label="Value">
+              <Input />
+            </form.Field>
+          </form.Form>
+        </MoraineProvider>
       ),
     )
 

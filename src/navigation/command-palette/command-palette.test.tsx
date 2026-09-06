@@ -3,11 +3,19 @@ import { For, createSignal } from 'solid-js'
 import type { JSX } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
 import { Dialog } from '../../overlays/dialog/index'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { finishExitMotion } from '../../test-utils/overlay-test'
 
-import { CommandPalette } from './command-palette'
-import type { CommandPaletteT } from './command-palette'
+import { CommandPalette } from './command-palette.tsx'
+import type { CommandPaletteT } from './command-palette.types.ts'
+
+const officialDesign = createDesign()
+
+function renderWithDesign(ui: () => JSX.Element) {
+  return render(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>)
+}
 
 const body = () => within(document.body)
 
@@ -41,8 +49,33 @@ const GROUPS: CommandPaletteT.Group[] = [
 ]
 
 describe('CommandPalette', () => {
-  test('focuses the standalone input without a native autofocus attribute', async () => {
+  test('renders unstyled when provider is absent', async () => {
     render(() => <CommandPalette groups={GROUPS} />)
+    await waitFor(() => {
+      const root = document.body.querySelector('[data-slot="root"]')
+      expect(root?.className).toBe('')
+      const listbox = document.body.querySelector('[data-slot="listbox"]')
+      expect(listbox?.className).toBe('')
+    })
+  })
+
+  test('forwards ref to root div and inputRef to input element', async () => {
+    let rootRef: HTMLDivElement | undefined
+    let inputRef: HTMLInputElement | undefined
+    render(() => (
+      <CommandPalette
+        ref={(el) => (rootRef = el)}
+        inputRef={(el) => (inputRef = el)}
+        groups={GROUPS}
+      />
+    ))
+    await waitFor(() => {
+      expect(rootRef).toBeInstanceOf(HTMLDivElement)
+      expect(inputRef).toBeInstanceOf(HTMLInputElement)
+    })
+  })
+  test('focuses the standalone input without a native autofocus attribute', async () => {
+    renderWithDesign(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       const input = document.body.querySelector('[data-slot="input"]') as HTMLInputElement
@@ -54,7 +87,7 @@ describe('CommandPalette', () => {
   })
 
   test('applies fixed listbox max height', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="listbox"]')?.className).toContain('max-h-72')
@@ -62,21 +95,21 @@ describe('CommandPalette', () => {
   })
 
   test('adjusts item trailing spacing via classes.itemTrailing', async () => {
-    render(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-1' }} />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-1' }} />)
 
     await waitFor(() => {
       const trailing = Array.from(document.body.querySelectorAll('[data-slot="itemTrailing"]'))
       expect(trailing.some((el) => el.classList.contains('gap-1'))).toBe(true)
     })
 
-    render(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-1.5' }} />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-1.5' }} />)
 
     await waitFor(() => {
       const trailing = Array.from(document.body.querySelectorAll('[data-slot="itemTrailing"]'))
       expect(trailing.some((el) => el.classList.contains('gap-1.5'))).toBe(true)
     })
 
-    render(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-2' }} />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-2' }} />)
 
     await waitFor(() => {
       const trailing = Array.from(document.body.querySelectorAll('[data-slot="itemTrailing"]'))
@@ -85,7 +118,7 @@ describe('CommandPalette', () => {
   })
 
   test('keeps item gap classes for icon and non-icon entries', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       const withIcon = body().getByText('New File').closest('[data-slot="item"]')
@@ -98,7 +131,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders input and item labels', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       expect(body().getByPlaceholderText('Search...')).toBeTruthy()
@@ -108,7 +141,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders group labels', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       expect(body().getByText('Actions')).toBeTruthy()
@@ -117,7 +150,7 @@ describe('CommandPalette', () => {
   })
 
   test('shows empty state when no groups', async () => {
-    render(() => <CommandPalette groups={[]} />)
+    renderWithDesign(() => <CommandPalette groups={[]} />)
 
     await waitFor(() => {
       expect(body().getByText('No results.')).toBeTruthy()
@@ -125,7 +158,7 @@ describe('CommandPalette', () => {
   })
 
   test('custom trailing content renders in item', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       expect(body().getByText('⌘N')).toBeTruthy()
@@ -139,7 +172,7 @@ describe('CommandPalette', () => {
     const onClose = vi.fn()
     const selectedItem = { value: 'action', label: 'Action', onSelect: onItemSelect }
 
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         groups={[{ id: 'g', items: [selectedItem] }]}
         onSelect={onSelect}
@@ -159,7 +192,7 @@ describe('CommandPalette', () => {
 
   test('prevents mouse pointerdown but preserves touch and pen tap synthesis', async () => {
     const onSelect = vi.fn()
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
         closeOnSelect={false}
@@ -195,7 +228,7 @@ describe('CommandPalette', () => {
   })
 
   test('preserves caller pointerdown cancellation', () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
         itemProps={() => ({ onPointerDown: (event) => event.preventDefault() })}
@@ -217,7 +250,7 @@ describe('CommandPalette', () => {
     const onSelect = vi.fn()
     const onClose = vi.fn()
 
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
         closeOnSelect={false}
@@ -237,7 +270,7 @@ describe('CommandPalette', () => {
   test('activates the highlighted item on Enter', async () => {
     const onSelect = vi.fn()
 
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         groups={[
           {
@@ -260,7 +293,7 @@ describe('CommandPalette', () => {
   })
 
   test('supports overriding built-in icons', async () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         showClose
         leadingIcon="icon-hash"
@@ -283,7 +316,7 @@ describe('CommandPalette', () => {
 
   test('close button renders and calls onClose', async () => {
     const onClose = vi.fn()
-    render(() => <CommandPalette groups={GROUPS} showClose onClose={onClose} />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} showClose onClose={onClose} />)
 
     await waitFor(() => {
       const closeBtn = document.body.querySelector('[data-slot="close"]') as HTMLElement
@@ -297,18 +330,15 @@ describe('CommandPalette', () => {
   test('composes with Dialog for trigger and controlled close behavior', async () => {
     const [open, setOpen] = createSignal(false)
 
-    render(() => (
-      <Dialog
-        open={open()}
-        onOpenChange={setOpen}
-        close={false}
-        body={<CommandPalette groups={GROUPS} showClose onClose={() => setOpen(false)} />}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Open palette
-          </button>
-        )}
+    renderWithDesign(() => (
+      <Dialog open={open()} onOpenChange={setOpen}>
+        <Dialog.Trigger as="button" type="button">
+          Open palette
+        </Dialog.Trigger>
+        <Dialog.Content
+          close={false}
+          body={<CommandPalette groups={GROUPS} showClose onClose={() => setOpen(false)} />}
+        />
       </Dialog>
     ))
 
@@ -329,7 +359,7 @@ describe('CommandPalette', () => {
   })
 
   test('disabled item has data-disabled attribute', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       const items = document.body.querySelectorAll('[data-slot="item"]')
@@ -339,7 +369,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders custom placeholder', async () => {
-    render(() => <CommandPalette groups={GROUPS} placeholder="Type a command..." />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} placeholder="Type a command..." />)
 
     await waitFor(() => {
       expect(body().getByPlaceholderText('Type a command...')).toBeTruthy()
@@ -347,7 +377,7 @@ describe('CommandPalette', () => {
   })
 
   test('applies classes overrides to root and slots', async () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         showClose
         groups={GROUPS}
@@ -402,7 +432,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders footer content when footer is provided', async () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette groups={GROUPS} footerRender={() => <span>Palette Footer</span>} />
     ))
 
@@ -413,7 +443,7 @@ describe('CommandPalette', () => {
   })
 
   test('applies classes.empty override', async () => {
-    render(() => <CommandPalette groups={[]} classes={{ empty: 'empty-override' }} />)
+    renderWithDesign(() => <CommandPalette groups={[]} classes={{ empty: 'empty-override' }} />)
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="empty"]')?.className).toContain(
@@ -423,7 +453,7 @@ describe('CommandPalette', () => {
   })
 
   test('applies styles.empty override', async () => {
-    render(() => <CommandPalette groups={[]} styles={{ empty: { width: '200px' } }} />)
+    renderWithDesign(() => <CommandPalette groups={[]} styles={{ empty: { width: '200px' } }} />)
 
     await waitFor(() => {
       expect(document.body.querySelector<HTMLElement>('[data-slot="empty"]')?.style.width).toBe(
@@ -433,7 +463,7 @@ describe('CommandPalette', () => {
   })
 
   test('filters by controlled searchTerm', async () => {
-    render(() => <CommandPalette groups={GROUPS} searchTerm="Settings" />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} searchTerm="Settings" />)
 
     await waitFor(() => {
       expect(body().getByText('Go to Settings')).toBeTruthy()
@@ -444,7 +474,7 @@ describe('CommandPalette', () => {
   test('warns for duplicate item values while keeping items renderable', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         groups={[
           {
@@ -469,7 +499,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders footerRender and emptyRender with current state', async () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         groups={[]}
         searchTerm="missing"
@@ -485,7 +515,7 @@ describe('CommandPalette', () => {
   })
 
   test('keeps the list unchanged on Backspace with an empty input', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} />)
 
     const input = body().getByPlaceholderText('Search...')
     fireEvent.keyDown(input, { key: 'Backspace' })
@@ -497,7 +527,7 @@ describe('CommandPalette', () => {
   })
 
   test('passes filtered visibleGroups to footerRender', async () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         groups={GROUPS}
         searchTerm="Settings"
@@ -513,7 +543,7 @@ describe('CommandPalette', () => {
   })
 
   test('passes filtered visibleGroups to emptyRender', async () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         groups={GROUPS}
         searchTerm="missing"
@@ -531,7 +561,7 @@ describe('CommandPalette', () => {
   })
 
   test('supports custom itemRender with runtime item context', async () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         groups={[{ id: 'g', items: [{ value: 'action', label: 'Action', description: 'Run it' }] }]}
         itemRender={(ctx) => (
@@ -548,7 +578,7 @@ describe('CommandPalette', () => {
   })
 
   test('passes filtered visibleGroups to itemRender', async () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         groups={GROUPS}
         searchTerm="Settings"
@@ -570,7 +600,7 @@ describe('CommandPalette', () => {
       route: string
     }
 
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette<CustomItem>
         groups={[
           {
@@ -592,7 +622,7 @@ describe('CommandPalette', () => {
   })
 
   test('supports root and item-level search and description position options', async () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         searchTerm="zzz"
         descriptionPosition="trailing"
@@ -628,7 +658,7 @@ describe('CommandPalette', () => {
   })
 
   test('passes runtime state to leadingRender and trailingRender', async () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         searchTerm="run"
         groups={[
@@ -663,7 +693,7 @@ describe('CommandPalette', () => {
   })
 
   test('applies combobox and active descendant accessibility attributes', async () => {
-    render(() => <CommandPalette groups={GROUPS} />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
       const input = body().getByPlaceholderText('Search...')
@@ -682,7 +712,7 @@ describe('CommandPalette', () => {
   test('renders a virtual window while the input keeps active-descendant focus', async () => {
     const [entryIndex, setEntryIndex] = createSignal(1)
     const scrollToItem = vi.fn()
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         groups={GROUPS}
         scrollToItem={(item, index) => {
@@ -719,7 +749,7 @@ describe('CommandPalette', () => {
   })
 
   test('renders virtual group labels with virtual row props', async () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         groups={GROUPS}
         virtualRender={(context) => {
@@ -743,7 +773,7 @@ describe('CommandPalette', () => {
   })
 
   test('keeps command row metrics stable when a native size attribute is supplied', async () => {
-    render(() => <CommandPalette groups={GROUPS} size="lg" />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} size="lg" />)
 
     await waitFor(() => {
       const option = document.body.querySelector('[role="option"]')
@@ -753,7 +783,7 @@ describe('CommandPalette', () => {
   })
 
   test('includes description and keywords in built-in search', async () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         searchTerm="alias"
         groups={[
@@ -773,7 +803,7 @@ describe('CommandPalette', () => {
       expect(body().queryByText('Run')).toBeNull()
     })
 
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         searchTerm="description"
         groups={[
@@ -791,7 +821,7 @@ describe('CommandPalette', () => {
   })
 
   test('supports getItemSearchText override', async () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         searchTerm="custom-hit"
         getItemSearchText={(item) => (item.value === 'second' ? 'custom-hit' : item.value)}
@@ -814,7 +844,7 @@ describe('CommandPalette', () => {
   })
 
   test('supports filterItems override and keeps visibleGroups in sync', async () => {
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         searchTerm="ignored"
         groups={GROUPS}
@@ -831,7 +861,7 @@ describe('CommandPalette', () => {
   })
 
   test('skips built-in filtering when disableFilter is enabled', async () => {
-    render(() => <CommandPalette groups={GROUPS} searchTerm="missing" disableFilter />)
+    renderWithDesign(() => <CommandPalette groups={GROUPS} searchTerm="missing" disableFilter />)
 
     await waitFor(() => {
       expect(body().getByText('New File')).toBeTruthy()
@@ -842,7 +872,7 @@ describe('CommandPalette', () => {
   test('forwards input, listbox, and item props', async () => {
     const listboxRef = vi.fn()
     const itemRef = vi.fn()
-    render(() => (
+    renderWithDesign(() => (
       <CommandPalette
         groups={GROUPS}
         inputProps={

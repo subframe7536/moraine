@@ -1,7 +1,9 @@
-import type { VariantProps } from '../../shared/style/recipe.ts'
+import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-export const badgeRecipe = recipe({
+import type { BadgeT } from './badge.types.ts'
+
+export const badgeRecipeOptions = {
   base: {
     root: 'leading-normal font-medium border inline-flex shrink-0 max-w-full select-none whitespace-nowrap items-center',
     leading: '',
@@ -36,6 +38,8 @@ export const badgeRecipe = recipe({
       },
     },
   },
-})
+} as const satisfies SlotRecipeOptions<keyof BadgeT.Slot>
 
-export type BadgeVariantProps = VariantProps<typeof badgeRecipe>
+export const badgeRecipe = recipe(badgeRecipeOptions)
+
+export type BadgeVariantProps = BadgeT.Variant

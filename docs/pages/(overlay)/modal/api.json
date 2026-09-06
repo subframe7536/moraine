@@ -7,7 +7,20 @@
     "description": "Low-level modal primitives for composing custom dialog surfaces.",
     "sourcePath": "src/overlays/modal/modal.tsx"
   },
-  "slots": [],
+  "slots": [
+    {
+      "name": "overlay",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "content",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    }
+  ],
   "props": {
     "own": [
       {
@@ -69,5 +82,305 @@
       }
     ],
     "inherited": []
-  }
+  },
+  "primitives": [
+    {
+      "component": {
+        "key": "modal-close",
+        "name": "Modal.Close",
+        "category": "overlays",
+        "polymorphic": true,
+        "description": "Closes the current modal without registering another trigger or focus target.",
+        "sourcePath": "src/overlays/modal/modal-close.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "as",
+            "required": false,
+            "type": "T | undefined",
+            "description": "Element or component to render as.",
+            "defaultValue": "button"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Trigger label and visual content."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "disabled",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether this trigger is disabled."
+          },
+          {
+            "name": "onBlur",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, FocusEvent> | undefined"
+          },
+          {
+            "name": "onClick",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onContextMenu",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onKeyDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onKeyUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onPointerCancel",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerMove",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[T] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "type",
+            "required": false,
+            "type": "T extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : T extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : T extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "modal-content",
+        "name": "Modal.Content",
+        "category": "overlays",
+        "polymorphic": false,
+        "description": "Standalone Modal presentation; composed overlays use the same unstyled surface.",
+        "sourcePath": "src/overlays/modal/modal-content.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "ariaDescribedBy",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Id of the element that describes the modal content."
+          },
+          {
+            "name": "ariaLabel",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Accessible name used when no visible label is available."
+          },
+          {
+            "name": "ariaLabelledBy",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Id of the element that labels the modal content."
+          },
+          {
+            "name": "children",
+            "required": true,
+            "type": "ComponentOrElement<ModalT.ContentContext>",
+            "description": "Component or element rendered inside the modal content surface."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "classes",
+            "required": false,
+            "type": "ModalT.Classes | undefined"
+          },
+          {
+            "name": "overlay",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether to render the modal overlay element."
+          },
+          {
+            "name": "overlayClass",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Class applied to the modal overlay element."
+          },
+          {
+            "name": "overlayRef",
+            "required": false,
+            "type": "((element: HTMLDivElement | undefined) => void) | undefined",
+            "description": "Receives the mounted overlay element and `undefined` when it unmounts."
+          },
+          {
+            "name": "overlayScroll",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether the overlay should contain and scroll the modal content."
+          },
+          {
+            "name": "overlayStyle",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined",
+            "description": "Style applied to the modal overlay element."
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "styles",
+            "required": false,
+            "type": "ModalT.Styles | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "modal-trigger",
+        "name": "Modal.Trigger",
+        "category": "overlays",
+        "polymorphic": true,
+        "description": "Interactive modal trigger with Button-compatible polymorphic behavior.",
+        "sourcePath": "src/overlays/modal/modal-trigger.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "as",
+            "required": false,
+            "type": "T | undefined",
+            "description": "Element or component to render as.",
+            "defaultValue": "button"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Trigger label and visual content."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "disabled",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether this trigger is disabled."
+          },
+          {
+            "name": "onBlur",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, FocusEvent> | undefined"
+          },
+          {
+            "name": "onClick",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onContextMenu",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onKeyDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onKeyUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onPointerCancel",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerMove",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[T] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "type",
+            "required": false,
+            "type": "T extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : T extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : T extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    }
+  ]
 }

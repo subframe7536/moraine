@@ -1,4 +1,4 @@
-import type { Accessor, Component, JSX } from 'solid-js'
+import type { Accessor, Component, JSX, Ref } from 'solid-js'
 import {
   For,
   Show,
@@ -19,7 +19,6 @@ import { useFloatingPosition } from '../../overlays/base/floating.ts'
 import { useOverlayInteraction } from '../../overlays/base/interaction.ts'
 import { resolveComponentStyle } from '../../shared/provider/moraine-provider.tsx'
 import type { ComponentStyleInputs } from '../../shared/provider/moraine-provider.tsx'
-import { OVERLAY_POSITIONER_CLASS } from '../../shared/recipe-common.class.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { createTypeahead } from '../../shared/typeahead.ts'
@@ -27,7 +26,7 @@ import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '..
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { callHandler, cn, useId } from '../../shared/utils.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import type { UseFormFieldReturn, FormFieldSize } from '../form/form-context.ts'
 import type {
   FormDisableOption,
@@ -36,8 +35,7 @@ import type {
 } from '../shared/form-options.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
-import type { SelectControlVariantProps } from './select.class.ts'
-import { selectContentVariants, selectItemVariants } from './select.class.ts'
+import type { SelectT } from './select.types.ts'
 import {
   flattenOptions,
   normalizeOptions,
@@ -106,6 +104,7 @@ export namespace BaseSelectT {
     onInput: (event: InputEvent) => void
     onKeyDown: (event: KeyboardEvent) => void
     toggle: () => void
+    resolved: ReturnType<typeof resolveComponentStyle<any>>
   }
 
   export interface OptionSelectContext<TItem extends Item> {
@@ -166,7 +165,7 @@ export namespace BaseSelectT {
     label?: T
   }
 
-  export type Variant = SelectControlVariantProps
+  export type Variant = SelectT.Variant
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -277,10 +276,13 @@ export namespace BaseSelectT {
 }
 
 export interface BaseSelectProps<TItem extends BaseSelectT.Item> extends BaseSelectT.Props<TItem> {
-  _styleInputs: Pick<
-    ComponentStyleInputs<keyof BaseSelectT.Slot>,
-    'provider' | 'group' | 'instance'
-  >
+  ref?: Ref<HTMLDivElement>
+  _styleInputs?: Pick<ComponentStyleInputs<keyof BaseSelectT.Slot>, 'group' | 'instance'>
+  _designRecipe?: (args: {
+    size: FormFieldSize
+    side: 'top' | 'right' | 'bottom' | 'left'
+    search: boolean
+  }) => Record<string, string | undefined> | undefined
 }
 
 const SELECT_FILTER_STRATEGIES: Record<SelectFilterMode, (text: string, input: string) => boolean> =
@@ -375,15 +377,6 @@ function toStyleObject(
   style: string | JSX.CSSProperties | undefined,
 ): JSX.CSSProperties | undefined {
   return typeof style === 'object' ? style : undefined
-}
-
-function callRef<T extends HTMLElement>(
-  ref: T | ((element: T) => void) | undefined,
-  element: T,
-): void {
-  if (typeof ref === 'function') {
-    ref(element)
-  }
 }
 
 function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
@@ -544,6 +537,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   props: BaseSelectProps<TItem>,
 ): JSX.Element {
   const [local, rest] = splitProps(props as BaseSelectProps<TItem> & Record<string, unknown>, [
+    'ref',
     'id',
     'name',
     'required',
@@ -551,6 +545,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     'size',
     '_defaultSize',
     '_styleInputs',
+    '_designRecipe',
     'variant',
     'classes',
     'styles',
@@ -722,30 +717,27 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   const [highlightedKey, setHighlightedKey] = createSignal<string | undefined>()
   const [contentSide, setContentSide] = createSignal<'top' | 'right' | 'bottom' | 'left'>('bottom')
   const resolved = resolveComponentStyle({
-    get provider() {
-      return merged._styleInputs.provider
+    design: {
+      get classes() {
+        return local._designRecipe?.({
+          size: field.size(),
+          side: contentSide(),
+          search: isSearchable(),
+        })
+      },
     },
     get group() {
-      return merged._styleInputs.group
+      return local._styleInputs?.group
     },
     get instance() {
-      return merged._styleInputs.instance
-    },
-    base: {
-      get classes() {
-        return {
-          root: 'inline-flex h-fit w-full relative',
-          item: selectItemVariants({ size: field.size() }),
-          content: cn(
-            selectContentVariants({ side: contentSide() }),
-            'max-w-[var(--mo-popper-content-available-width)] min-w-[var(--mo-popper-anchor-width)] w-[var(--mo-popper-anchor-width)]',
-          ),
-          group: '[&:not(:first-child)]:mt-1.5',
-          label: 'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
-          listbox:
-            'm-0 p-1 outline-none max-h-[var(--mo-popper-content-available-height)] overflow-y-auto',
+      return (
+        local._styleInputs?.instance ?? {
+          class: local.class,
+          classes: local.classes,
+          style: local.style,
+          styles: local.styles,
         }
-      },
+      )
     },
     state: {
       get styles() {
@@ -1400,6 +1392,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
 
   return (
     <div
+      ref={(element) => callRef(local.ref, element)}
       data-slot="root"
       data-disabled={field.disabled() ? '' : undefined}
       data-invalid={field.invalid() ? '' : undefined}
@@ -1470,6 +1463,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         onInput: handleInput,
         onKeyDown: handleKeyDown,
         toggle: menuControl.toggleMenu,
+        resolved,
       })}
 
       <Show when={contentPresence.present()}>
@@ -1483,7 +1477,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
               }
             }}
             data-slot="positioner"
-            class={OVERLAY_POSITIONER_CLASS}
+            class={'left-0 top-0 absolute'}
           >
             <div
               {...contentPresence.dataAttrs()}

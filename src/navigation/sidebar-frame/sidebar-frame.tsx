@@ -1,4 +1,4 @@
-import type { JSX, Component, Accessor } from 'solid-js'
+import type { JSX } from 'solid-js'
 import {
   Show,
   createEffect,
@@ -13,166 +13,23 @@ import {
 import { Resizable } from '../../elements/resizable/index.ts'
 import type { ResizableT } from '../../elements/resizable/index.ts'
 import { Sheet } from '../../overlays/sheet/index.ts'
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { createMediaQuery } from '../../shared/use-media-query.ts'
 import { cn } from '../../shared/utils.ts'
 
-import { SIDEBAR_FRAME_DESKTOP_SIDEBAR_CLASS, sidebarFrameRecipe } from './sidebar-frame.class.ts'
-import type { SidebarFrameVariantProps } from './sidebar-frame.class.ts'
+import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types.ts'
 
-export namespace SidebarFrameT {
-  /**
-   * Render context exposed to sidebar/main render functions.
-   */
-  export interface BaseContext extends Omit<Variant, 'isMobile'> {
-    /**
-     * Whether current viewport is treated as mobile.
-     */
-    isMobile: Accessor<boolean>
-    /**
-     * Whether the main scroll container has crossed `scrollThreshold`.
-     */
-    scrolled: Accessor<boolean>
-    /**
-     * Current sidebar open state (mainly for mobile sheet).
-     */
-    isOpen: Accessor<boolean>
-    /**
-     * Set sidebar open state.
-     */
-    setOpen: (open: boolean) => void
-    /**
-     * Toggle sidebar open state.
-     */
-    toggle: () => void
-  }
+export type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types.ts'
 
-  /**
-   * Extended render context for frame composition.
-   */
-  export interface FrameContext extends BaseContext {
-    /**
-     * Processed sidebar block component.
-     */
-    sidebar: Component<{
-      classes?: SlotClassValue
-      styles?: JSX.CSSProperties
-      [x: string]: unknown
-    }>
-    /**
-     * Processed main block component.
-     */
-    main: Component<{ classes?: SlotClassValue; styles?: JSX.CSSProperties; [x: string]: unknown }>
-  }
-
-  export type SidebarHeaderRenderProps = BaseContext
-  export type SidebarBodyRenderProps = BaseContext
-  export type SidebarFooterRenderProps = BaseContext
-  export type MainRenderProps = BaseContext
-  export type FrameRenderProps = FrameContext
-
-  /**
-   * Slot keys for classes/styles overrides.
-   */
-  export interface Slot<T = unknown> {
-    /**
-     * Frame container that coordinates sidebar and main content layout.
-     */
-    root?: T
-
-    /** Desktop layout wrapper around sidebar and main. */
-    desktopLayout?: T
-
-    /** Sidebar region rendered inline on desktop or inside a sheet on mobile. */
-    sidebar?: T
-
-    /** Optional header region at the top of the sidebar. */
-    sidebarHeader?: T
-
-    /** Main sidebar content region. */
-    sidebarBody?: T
-
-    /** Optional footer region at the bottom of the sidebar. */
-    sidebarFooter?: T
-
-    /** Primary content region beside or beneath the sidebar. */
-    main?: T
-  }
-
-  export type Variant = SidebarFrameVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  export interface Base {
-    /**
-     * Controlled mobile mode state.
-     * When omitted, mobile state is resolved from `matchMedia`.
-     */
-    isMobile?: boolean
-    /**
-     * Scroll threshold for `scrolled` state.
-     * @default 60
-     */
-    scrollThreshold?: number
-    /**
-     * Callback ref for the main scroll container element (`data-slot="main"`).
-     * Useful for programmatic scrolling, e.g. scrolling to top on route change.
-     */
-    mainRef?: (el: HTMLDivElement) => void
-    /**
-     * Callback ref for the sidebar container element (`data-slot="sidebar"`).
-     */
-    sidebarRef?: (el: HTMLDivElement) => void
-    /**
-     * Optional render function for sidebar header section.
-     */
-    sidebarHeaderRender?: ComponentOrElement<SidebarHeaderRenderProps>
-    /**
-     * Render function for sidebar body section.
-     */
-    sidebarBodyRender: ComponentOrElement<SidebarBodyRenderProps>
-    /**
-     * Optional render function for sidebar footer section.
-     */
-    sidebarFooterRender?: ComponentOrElement<SidebarFooterRenderProps>
-    /**
-     * Render function for main content section.
-     */
-    mainRender: ComponentOrElement<MainRenderProps>
-    /**
-     * Optional frame renderer used to compose sidebar/main layout.
-     * @default SidebarFrameSheetOnlyRender
-     */
-    frameRender?: ComponentOrElement<FrameRenderProps>
-  }
-
-  /**
-   * Props for the SidebarFrame component.
-   */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the SidebarFrame component.
- */
-export interface SidebarFrameProps extends SidebarFrameT.Props {}
-
-function renderMobileSheet(ctx: SidebarFrameT.FrameContext): JSX.Element {
+function renderMobileSheet(ctx: SidebarFrameT.FrameContext, main: JSX.Element): JSX.Element {
   return (
     <>
-      <Sheet
-        side={ctx.side}
-        open={ctx.isOpen()}
-        onOpenChange={ctx.setOpen}
-        close={false}
-        body={<ctx.sidebar />}
-      />
-      <ctx.main />
+      <Sheet open={ctx.isOpen()} onOpenChange={ctx.setOpen}>
+        <Sheet.Content side={ctx.side} close={false} body={<ctx.sidebar />} />
+      </Sheet>
+      {main}
     </>
   )
 }
@@ -181,6 +38,8 @@ function renderMobileSheet(ctx: SidebarFrameT.FrameContext): JSX.Element {
  * Default frame renderer: mobile uses `Sheet`, desktop uses animated split layout.
  */
 export function SidebarFrameSheetOnlyRender(ctx: SidebarFrameT.FrameContext): JSX.Element {
+  const design = useMoraineDesign()
+  const main = createLazyMemo(() => <ctx.main />)
   return (
     <Show
       when={ctx.isMobile()}
@@ -188,7 +47,7 @@ export function SidebarFrameSheetOnlyRender(ctx: SidebarFrameT.FrameContext): JS
         <div
           data-slot="layout"
           class={
-            sidebarFrameRecipe({
+            design().sidebarFrame.recipe({
               variant: ctx.variant,
               side: ctx.side,
               isMobile: false,
@@ -196,21 +55,14 @@ export function SidebarFrameSheetOnlyRender(ctx: SidebarFrameT.FrameContext): JS
           }
         >
           <ctx.sidebar
-            classes={[
-              SIDEBAR_FRAME_DESKTOP_SIDEBAR_CLASS,
-              ctx.isOpen()
-                ? 'opacity-100 translate-x-0'
-                : [
-                    'opacity-0 w-0 pointer-events-none',
-                    ctx.side === 'left' ? '-translate-x-2' : 'translate-x-2',
-                  ],
-            ]}
+            data-closed={ctx.isOpen() ? undefined : ''}
+            classes={ctx.isOpen() ? undefined : 'w-0 pointer-events-none'}
           />
-          <ctx.main />
+          {main()}
         </div>
       }
     >
-      {renderMobileSheet(ctx)}
+      {renderMobileSheet(ctx, main())}
     </Show>
   )
 }
@@ -233,38 +85,34 @@ export function SidebarFrameSheetResizableRender(
     resizablePanelOptions?: Omit<ResizableT.Item, 'content'>
   },
 ): JSX.Element {
+  const main = createLazyMemo(() => <ctx.main />)
   return (
     <Show
       when={ctx.isMobile()}
       fallback={
         <Resizable
           orientation="horizontal"
+          data-frame-resizable=""
           panels={
             ctx.side === 'left'
               ? [
                   {
                     content: <ctx.sidebar />,
                     ...ctx.resizablePanelOptions,
-                    class: cn(
-                      '[&>[data-slot=sidebar]]:border-0!',
-                      ctx.resizablePanelOptions?.class,
-                    ),
+                    class: cn(ctx.resizablePanelOptions?.class),
                   },
                   {
-                    content: <ctx.main />,
+                    content: main(),
                   },
                 ]
               : [
                   {
-                    content: <ctx.main />,
+                    content: main(),
                   },
                   {
                     content: <ctx.sidebar />,
                     ...ctx.resizablePanelOptions,
-                    class: cn(
-                      '[&>[data-slot=sidebar]]:border-0!',
-                      ctx.resizablePanelOptions?.class,
-                    ),
+                    class: cn(ctx.resizablePanelOptions?.class),
                   },
                 ]
           }
@@ -277,7 +125,7 @@ export function SidebarFrameSheetResizableRender(
         />
       }
     >
-      {renderMobileSheet(ctx)}
+      {renderMobileSheet(ctx, main())}
     </Show>
   )
 }
@@ -301,8 +149,8 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     'class',
     'style',
   ])
-  const config = useMoraineConfig()
-  const providerSidebarFrame = () => config().sidebarFrame
+  const design = useMoraineDesign()
+  const sidebarFrameDesign = () => design().sidebarFrame
 
   const merged = mergeProps(
     {
@@ -311,19 +159,22 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
       scrollThreshold: 60,
       frameRender: SidebarFrameSheetOnlyRender,
     },
-    () => providerSidebarFrame()?.variants,
+    () => sidebarFrameDesign().defaultVariants,
     local,
   )
 
+  const sidebarHeaderRender = createMemo(() => merged.sidebarHeaderRender)
+  const sidebarFooterRender = createMemo(() => merged.sidebarFooterRender)
+
   const [internalIsMobile, setInternalIsMobile] = createSignal(false)
-  const [isOpen, setOpen] = createSignal(untrack(() => merged.isMobile !== true))
+  const [isOpen, setOpen] = createSignal(untrack(() => local.isMobile !== true))
   const [scrolled, setScrolled] = createSignal(false)
   const isMobile = createMediaQuery('(max-width: 768px)', false)
   createEffect(
     on(
       () => isMobile(),
       (is) => {
-        if (merged.isMobile !== undefined) {
+        if (local.isMobile !== undefined) {
           return
         }
         setInternalIsMobile(is)
@@ -331,7 +182,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     ),
   )
 
-  const resolvedIsMobile = createMemo<boolean>(() => Boolean(merged.isMobile ?? internalIsMobile()))
+  const resolvedIsMobile = createMemo(() => local.isMobile ?? internalIsMobile())
 
   createEffect(() => {
     const isMobile = resolvedIsMobile()
@@ -339,17 +190,14 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   })
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return sidebarFrameRecipe({
+        return sidebarFrameDesign().recipe({
           isMobile: resolvedIsMobile(),
           side: merged.side,
           variant: merged.variant,
         })
       },
-    },
-    get provider() {
-      return providerSidebarFrame()
     },
     get instance() {
       return {
@@ -395,7 +243,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             data-slot="sidebar"
             data-mobile={context.isMobile() ? '' : undefined}
             data-side={context.side}
-            aria-hidden={resolvedIsMobile() || !isOpen()}
+            aria-hidden={!isOpen()}
             {...props}
             {...resolved.slotClassAndStyle('sidebar', {
               get group() {
@@ -403,9 +251,9 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
               },
             })}
           >
-            <Show when={merged.sidebarHeaderRender !== undefined}>
+            <Show when={sidebarHeaderRender() !== undefined}>
               <div data-slot="sidebarHeader" {...resolved.slotClassAndStyle('sidebarHeader')}>
-                {renderComponentOrElement(merged.sidebarHeaderRender, context)}
+                {renderComponentOrElement(sidebarHeaderRender(), context)}
               </div>
             </Show>
 
@@ -413,9 +261,9 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
               {renderComponentOrElement(merged.sidebarBodyRender, context)}
             </div>
 
-            <Show when={merged.sidebarFooterRender !== undefined}>
+            <Show when={sidebarFooterRender() !== undefined}>
               <div data-slot="sidebarFooter" {...resolved.slotClassAndStyle('sidebarFooter')}>
-                {renderComponentOrElement(merged.sidebarFooterRender, context)}
+                {renderComponentOrElement(sidebarFooterRender(), context)}
               </div>
             </Show>
           </div>

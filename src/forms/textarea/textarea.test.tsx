@@ -1,13 +1,20 @@
 import { getInput, setInput } from '@formisch/solid'
-import { fireEvent, render } from '@solidjs/testing-library'
+import { fireEvent, render as baseRender } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { createForm } from '../form/index'
 
-import { Textarea } from './textarea'
+import { Textarea } from './textarea.tsx'
+
+const officialDesign = createDesign()
+
+const render: typeof baseRender = (ui, options) =>
+  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
 
 afterEach(() => {
   vi.useRealTimers()
@@ -15,6 +22,31 @@ afterEach(() => {
 })
 
 describe('Textarea', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = baseRender(() => <Textarea />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const input = screen.container.querySelector('[data-slot="input"]')
+    expect(root?.className).toBe('')
+    expect(input?.className).toBe('')
+  })
+
+  test('forwards root ref and inner textareaRef', () => {
+    let rootEl: HTMLDivElement | undefined
+    let textareaEl: HTMLTextAreaElement | undefined
+
+    render(() => (
+      <Textarea
+        ref={(el) => (rootEl = el)}
+        textareaRef={(el) => (textareaEl = el)}
+        placeholder="ref test"
+      />
+    ))
+
+    expect(rootEl).toBeInstanceOf(HTMLDivElement)
+    expect(textareaEl).toBeInstanceOf(HTMLTextAreaElement)
+    expect(textareaEl?.placeholder).toBe('ref test')
+  })
+
   test('renders base attributes', () => {
     const screen = render(() => (
       <Textarea id="bio" name="bio" rows={4} placeholder="Write bio" required disabled />

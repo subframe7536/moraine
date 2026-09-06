@@ -2,11 +2,36 @@ import { render } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { Card } from './card'
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
+import { Card } from './card.tsx'
+
+const officialDesign = createDesign()
 
 describe('Card', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = render(() => (
+      <Card header="Header" footer="Footer">
+        Body
+      </Card>
+    ))
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.className).toBe('')
+    const header = screen.container.querySelector('[data-slot="header"]')
+    expect(header?.className).toBe('')
+    const body = screen.container.querySelector('[data-slot="body"]')
+    expect(body?.className).toBe('')
+    const footer = screen.container.querySelector('[data-slot="footer"]')
+    expect(footer?.className).toBe('')
+  })
+
   test('renders root with the default outline appearance', () => {
-    const screen = render(() => <Card />)
+    const screen = render(() => (
+      <MoraineProvider design={officialDesign}>
+        <Card />
+      </MoraineProvider>
+    ))
     const root = screen.container.querySelector('[data-slot="root"]')
 
     expect(root?.className).toMatchInlineSnapshot(

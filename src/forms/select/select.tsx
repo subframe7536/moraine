@@ -1,24 +1,15 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
-import type { IconT } from '../../elements/icon/index.ts'
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form-options.ts'
+import { callRef } from '../../shared/utils.ts'
 
 import { BaseSelect } from './base-select.tsx'
 import type { BaseSelectT } from './base-select.tsx'
-import type { SelectControlVariantProps } from './select.class.ts'
-import { selectRecipe } from './select.class.ts'
+import type { SelectProps, SelectT } from './select.types.ts'
 import {
   createEmptyRenderer,
   findNormalizedOptionByValue,
@@ -27,139 +18,7 @@ import {
 } from './shared/index.ts'
 import type { NormalizedOption } from './shared/index.ts'
 
-export namespace SelectT {
-  export type Value = string | number
-
-  export type OptionRenderState = BaseSelectT.OptionRenderState
-  export type VirtualEntry<TItem extends Value = Value> = BaseSelectT.VirtualEntry<Item<TItem>>
-  export type VirtualRenderProps<TItem extends Value = Value> = BaseSelectT.VirtualRenderProps<
-    Item<TItem>
-  >
-  export interface ControlSlot<T = unknown> {
-    /** Closed select control that displays the current value and opens the popup. */
-    control?: T
-    /** Search input or value text field inside the control. */
-    input?: T
-    /** Icon shown before the select input or value. */
-    leading?: T
-    /** Button region that toggles the select popup. */
-    trigger?: T
-    /** Button used to clear the selected value. */
-    clear?: T
-  }
-  export interface OptionSlot<T = unknown> {
-    /** Message shown when filtering leaves no selectable options. */
-    empty?: T
-    /** Primary label text inside an option row. */
-    itemLabel?: T
-    /** Supporting description text inside an option row. */
-    itemDescription?: T
-    /** Trailing region inside an option row, usually for selection state or custom content. */
-    itemTrailing?: T
-  }
-
-  export interface OptionRenderProps<TItem extends Value = Value> {
-    /** Option and interaction state, or null when no option matches. */
-    option: (Item<TItem> & OptionRenderState) | null
-  }
-
-  export interface LabelRenderProps<TItem extends Value = Value> {
-    /** Option whose label is being rendered. */
-    option: Item<TItem>
-  }
-
-  export interface EmptyRenderProps<TItem extends Value = Value> {
-    /** Current input/search text. */
-    inputValue: string
-    /** Whether the current filter has any matches. */
-    hasMatches: boolean
-    /** Currently selected value. */
-    selectedValue: TItem | null
-    /** Close the dropdown menu. */
-    close: () => void
-  }
-
-  export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, OptionSlot<T> {}
-  export type Variant = SelectControlVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-  export interface Item<Val extends Value = Value> extends BaseSelectT.Item<Val> {}
-
-  export interface Base<TItem extends Value = Value>
-    extends
-      Omit<
-        BaseSelectT.Base<Item<TItem>>,
-        | 'children'
-        | 'closeOnSelect'
-        | 'emptyRender'
-        | 'initialValue'
-        | 'onInputKeyDown'
-        | '_onFormReset'
-        | '_isValueControlled'
-        | 'onOptionSelect'
-        | 'optionRender'
-        | 'selectedValues'
-        | 'multiple'
-        | 'tabSelectionBehavior'
-        | 'virtualRender'
-        | 'scrollToItem'
-        | '_defaultSize'
-      >,
-      FormIdentityOptions,
-      FormValueOptions<TItem | null>,
-      FormRequiredOption,
-      FormDisableOption {
-    /** Called when the selection changes. */
-    onChange?: (value: NoInfer<TItem | null>) => void
-    /** Renders flattened group labels and options through a virtualization layer. */
-    virtualRender?: Component<VirtualRenderProps<TItem>>
-    /** Scrolls a highlighted option into view using its flattened entry index. */
-    scrollToItem?: (item: Item<TItem>, entryIndex: number) => void
-    /** Custom renderer for each option in the dropdown. Passes `null` for empty state. */
-    optionRender?: ComponentOrElement<OptionRenderProps<TItem>>
-    /** Custom renderer for the option label text. */
-    labelRender?: ComponentOrElement<LabelRenderProps<TItem>>
-    /** Custom renderer for the empty state when current filtered result has no matches. */
-    emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
-    /**
-     * Placeholder text shown when no value is selected.
-     * @default ''
-     */
-    placeholder?: string
-    /** Whether the select is in a loading state. */
-    loading?: boolean
-    /** Show a clear button when a value is selected. */
-    allowClear?: boolean
-    /** Called when clear is triggered. */
-    onClear?: () => void
-    /**
-     * Icon shown during loading state.
-     * @default 'icon-loading'
-     */
-    loadingIcon?: IconT.Name
-    /** Icon shown before the input/value area. */
-    leadingIcon?: IconT.Name
-    /**
-     * Icon for the dropdown trigger.
-     * @default 'icon-chevron-down'
-     */
-    trailingIcon?: IconT.Name
-    /** Icon used when the action button clears the selection. */
-    closeIcon?: IconT.Name
-  }
-
-  export type Props<TItem extends Value = Value> = BaseProps<
-    'div',
-    Base<TItem>,
-    Variant,
-    Classes,
-    Styles
-  >
-}
-
-export interface SelectProps<
-  TItem extends SelectT.Value = SelectT.Value,
-> extends SelectT.Props<TItem> {}
+export * from './select.types.ts'
 
 /** Dropdown select component with search and custom item rendering. */
 export function Select<TItem extends SelectT.Value = SelectT.Value>(
@@ -167,10 +26,12 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
 ): JSX.Element {
   type Item = SelectT.Item<TItem>
 
-  const config = useMoraineConfig()
-  const provider = () => config().select
+  const design = useMoraineDesign()
+  const selectDesign = () => design().select
 
   const [local, rest] = splitProps(props, [
+    'ref',
+    'inputRef',
     'classes',
     'styles',
     'class',
@@ -196,7 +57,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     {
       variant: 'outline' as const,
     },
-    () => provider()?.variants,
+    () => selectDesign()?.defaultVariants,
     local,
   )
 
@@ -252,31 +113,36 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
 
   function updateSelection(
     option: NormalizedOption<Item> | null,
-    api: BaseSelectT.OptionSelectContext<Item>,
+    api: Pick<BaseSelectT.StateApi<Item>, 'field'>,
   ): void {
-    const nextValue = option ? (mapNormalizedToRawValue(option) as TItem) : null
-    const currentValue = getCurrentValue(api)
-    if (Object.is(nextValue, currentValue)) {
+    const value = option ? (mapNormalizedToRawValue(option) as TItem) : null
+    const current = getCurrentValue({ allFlatOptions: () => [], field: api.field })
+
+    if (current === value) {
       return
     }
 
-    const isControlled = merged.value !== undefined
-    if (!isControlled) {
-      setSelectedValue(nextValue)
-      api.field.setFormValue(nextValue ?? '')
+    if (merged.value === undefined) {
+      setSelectedValue(value)
     }
-    api.setInputValue(option?.key ?? '')
-    merged.onChange?.(nextValue)
-    if (isControlled) {
-      api.field.setFormValue(merged.value ?? '')
-    }
-    api.field.emit('change')
-    api.field.emit('input')
+
+    api.field.setFormValue(value ?? '')
+    merged.onChange?.(value)
   }
 
-  function displayValue(api: BaseSelectT.StateApi<Item>): string | JSX.Element {
+  function displayValue(
+    api: Pick<BaseSelectT.StateApi<Item>, 'allFlatOptions' | 'field'>,
+  ): JSX.Element {
     const selected = findSelectedOption(api)
     if (selected) {
+      if (labelRender()) {
+        return renderComponentOrElement(labelRender(), {
+          get option() {
+            return selected.raw
+          },
+        })
+      }
+
       return selected.label ?? selected.key
     }
 
@@ -284,9 +150,14 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     return value === null || value === undefined ? merged.placeholder : String(value)
   }
 
-  const styleInputs = {
-    get provider() {
-      return provider()
+  const resolved = resolveComponentStyle({
+    design: {
+      get classes() {
+        return selectDesign()?.recipe({
+          variant: merged.variant,
+          mode: 'single',
+        })
+      },
     },
     get instance() {
       return {
@@ -296,8 +167,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
         styles: local.styles,
       }
     },
-  }
-  const resolved = resolveComponentStyle(styleInputs)
+  })
 
   const resolvedClasses = () => ({
     content: resolved.slotClass('content'),
@@ -341,8 +211,25 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
   return (
     <BaseSelect<Item>
       {...rest}
+      ref={local.ref}
       _defaultSize={merged.size ?? undefined}
-      _styleInputs={styleInputs}
+      _designRecipe={(args) =>
+        selectDesign()?.recipe({
+          variant: merged.variant,
+          mode: 'single',
+          ...args,
+        })
+      }
+      _styleInputs={{
+        get instance() {
+          return {
+            class: local.class,
+            classes: local.classes,
+            style: local.style,
+            styles: local.styles,
+          }
+        },
+      }}
       initialValue={getInitialValue()}
       _isValueControlled={merged.value !== undefined}
       multiple={false}
@@ -391,29 +278,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
           Boolean(!isActionLoading() && merged.allowClear && getCurrentValue(api) !== null),
         )
 
-        const controlResolved = resolveComponentStyle({
-          base: {
-            get classes() {
-              return selectRecipe({
-                variant: merged.variant,
-                size: api.field.size(),
-                mode: 'single',
-                search: api.isSearchable(),
-              })
-            },
-          },
-          get provider() {
-            return provider()
-          },
-          get instance() {
-            return {
-              class: local.class,
-              classes: local.classes,
-              style: local.style,
-              styles: local.styles,
-            }
-          },
-        })
+        const controlResolved = api.resolved
 
         return (
           <div
@@ -439,22 +304,18 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
               fallback={
                 <span
                   data-slot="input"
-                  {...controlResolved.slotClassAndStyle('input', {
-                    get state() {
-                      return {
-                        class: [
-                          'text-start truncate',
-                          getCurrentValue(api) === null && 'text-muted-foreground',
-                        ],
-                      }
-                    },
-                  })}
+                  data-placeholder={getCurrentValue(api) === null ? '' : undefined}
+                  {...controlResolved.slotClassAndStyle('input')}
                 >
                   {displayValue(api)}
                 </span>
               }
             >
               <input
+                ref={(element) => {
+                  callRef(api.inputProps().ref, element)
+                  callRef(local.inputRef, element)
+                }}
                 data-slot="input"
                 {...controlResolved.slotClassAndStyle('input')}
                 placeholder={merged.placeholder}
@@ -477,11 +338,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                   }
                   slotName="trigger"
                   data-loading={isActionLoading() ? '' : undefined}
-                  {...controlResolved.slotClassAndStyle('trigger', {
-                    get state() {
-                      return { class: isActionLoading() && 'animate-spin' }
-                    },
-                  })}
+                  {...controlResolved.slotClassAndStyle('trigger')}
                 />
               }
             >
@@ -490,12 +347,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                 data-slot="clear"
                 aria-label="Clear selection"
                 tabIndex={-1}
-                {...controlResolved.slotClassAndStyle('clear', {
-                  state: {
-                    class:
-                      'border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center',
-                  },
-                })}
+                {...controlResolved.slotClassAndStyle('clear')}
                 disabled={api.field.disabled()}
                 onPointerDown={(event) => {
                   event.preventDefault()
@@ -510,7 +362,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                   clearSelection(api)
                 }}
               >
-                <Icon name={closeIcon() ?? 'icon-close'} class="text-muted-foreground opacity-80" />
+                <Icon name={closeIcon() ?? 'icon-close'} />
               </button>
             </Show>
           </div>

@@ -1,7 +1,9 @@
-import type { VariantProps } from '../../shared/style/recipe.ts'
+import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-export const buttonGroupRecipe = recipe({
+import type { ButtonGroupT } from './button-group.types.ts'
+
+export const buttonGroupRecipeOptions = {
   base: {
     root: 'inline-flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-sticky',
     separator: 'bg-input shrink-0 self-stretch',
@@ -21,6 +23,10 @@ export const buttonGroupRecipe = recipe({
       },
     },
   },
-})
+} as const satisfies SlotRecipeOptions<keyof ButtonGroupT.Slot>
 
-export type ButtonGroupLayoutVariantProps = VariantProps<typeof buttonGroupRecipe>
+export const buttonGroupRecipe = recipe(buttonGroupRecipeOptions)
+
+export type ButtonGroupLayoutVariantProps = {
+  orientation?: 'horizontal' | 'vertical'
+}

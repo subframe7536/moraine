@@ -1,7 +1,9 @@
-import type { VariantProps } from '../../shared/style/recipe.ts'
+import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-export const formFieldRecipe = recipe({
+import type { FormFieldT } from './form-field.types.ts'
+
+export const formFieldRecipeOptions = {
   base: {
     root: '',
     wrapper: 'flex flex-col gap-1',
@@ -83,6 +85,8 @@ export const formFieldRecipe = recipe({
       },
     },
   ],
-})
+} as const satisfies SlotRecipeOptions<keyof FormFieldT.Slot>
 
-export type FormFieldVariantProps = VariantProps<typeof formFieldRecipe>
+export const formFieldRecipe = recipe(formFieldRecipeOptions)
+
+export type FormFieldVariantProps = FormFieldT.Variant

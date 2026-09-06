@@ -49,18 +49,11 @@ Tooltips should contain supplemental, non-interactive information. Do not rely o
 >
   {(props) => (
     <div class="p-6 flex items-center justify-center">
-      <Tooltip
-        text={props.text}
-        kbds={['⌘', 'N']}
-        placement={props.placement}
-        disabled={props.disabled}
-        invert={props.invert}
-      >
-        {(triggerProps) => (
-          <Button {...triggerProps} variant="outline" leading="i-lucide:file-plus">
-            Hover me
-          </Button>
-        )}
+      <Tooltip placement={props.placement} disabled={props.disabled}>
+        <Tooltip.Trigger as={Button} variant="outline" leading="i-lucide:file-plus">
+          Hover me
+        </Tooltip.Trigger>
+        <Tooltip.Content text={props.text} kbds={['⌘', 'N']} invert={props.invert} />
       </Tooltip>
     </div>
   )}
@@ -68,8 +61,11 @@ Tooltips should contain supplemental, non-interactive information. Do not rely o
 
 ## Anatomy
 
+`Tooltip` owns state and context without adding a DOM element. `Tooltip.Trigger` owns its attributes, events, ref, and styling; `Tooltip.Content` owns the floating surface and presentation props. Put native surface attributes directly on Content.
+
 ```text
-trigger
+Root (context only)
+├── Trigger
 └── content (portal, role="tooltip")
     ├── text (optional)
     └── kbds (optional)

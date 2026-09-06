@@ -2,12 +2,11 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callRef, cn } from '../../shared/utils'
+import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
+import { callRef } from '../../shared/utils.ts'
 
-import type { CollapsibleT } from './collapsible'
-import { useCollapsibleContext } from './collapsible-context'
-import { COLLAPSIBLE_TRIGGER_CLASS } from './collapsible.class'
+import { useCollapsibleContext } from './collapsible-context.ts'
+import type { CollapsibleT } from './collapsible.types.ts'
 
 type CollapsibleTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[T]
@@ -73,7 +72,7 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
           data-slot="trigger"
           {...(interactionProps as JSX.ButtonHTMLAttributes<HTMLButtonElement>)}
           style={local.style}
-          class={cn(COLLAPSIBLE_TRIGGER_CLASS, local.class)}
+          class={local.class}
           aria-controls={context.open() ? context.contentId() : undefined}
           aria-expanded={context.open()}
           {...context.dataAttrs()}
@@ -91,7 +90,7 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
           {...(interactionProps as Record<string, unknown>)}
           component={as() as ValidComponent}
           style={local.style}
-          class={cn(COLLAPSIBLE_TRIGGER_CLASS, local.class)}
+          class={local.class}
           aria-controls={context.open() ? context.contentId() : undefined}
           aria-expanded={context.open()}
           {...context.dataAttrs()}

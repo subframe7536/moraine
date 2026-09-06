@@ -1,11 +1,4 @@
-import type {
-  FormConfig,
-  FormProps as FormischFormProps,
-  FormSchema,
-  FormStore,
-  SubmitEventHandler,
-  ValidationMode as FormischValidationMode,
-} from '@formisch/solid'
+import type { FormConfig, FormSchema, FormStore } from '@formisch/solid'
 import {
   createForm as createFormischForm,
   Form as FormischForm,
@@ -14,61 +7,27 @@ import {
 import type { JSX, ValidComponent } from 'solid-js'
 import { createComponent, mergeProps, splitProps } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { BaseProps } from '../../shared/types.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 import { callHandler } from '../../shared/utils.ts'
 
-import type { FormFieldProps } from './form-field.tsx'
 import { FormField } from './form-field.tsx'
-import { formRecipe } from './form.class.ts'
+import type { FormProps, FormT } from './form.types.ts'
 
-export namespace FormT {
-  export interface Instance<TSchema extends FormSchema = FormSchema> extends FormStore<TSchema> {
-    Form: (props: Props<TSchema>) => JSX.Element
-    Field: <T extends ValidComponent = 'div'>(props: FieldProps<TSchema, T>) => JSX.Element
-  }
+export * from './form.types.ts'
 
-  export type ValidationMode = FormischValidationMode
-
-  export interface Slot<_T = unknown> {}
-  export type Variant = never
-  export type Classes = never
-  export type Styles = never
-  export interface Item {}
-
-  export interface Base<TSchema extends FormSchema = FormSchema> extends Omit<
-    FormischFormProps<TSchema>,
-    'class' | 'onSubmit' | 'style' | 'of'
-  > {
-    /** Called with validated schema output and the native submit event. */
-    onSubmit?: SubmitEventHandler<TSchema>
-  }
-
-  export type Props<TSchema extends FormSchema = FormSchema> = BaseProps<
-    'form',
-    Base<TSchema>,
-    Variant,
-    Classes,
-    Styles
-  >
-
-  export type FieldProps<
-    TSchema extends FormSchema = FormSchema,
-    T extends ValidComponent = 'div',
-  > = FormFieldProps<TSchema, T>
-}
-
-export type FormProps<TSchema extends FormSchema = FormSchema> = FormT.Props<TSchema>
-
-interface InternalFormProps<TSchema extends FormSchema> extends FormT.Props<TSchema> {
+interface InternalFormProps<TSchema extends FormSchema> extends FormProps<TSchema> {
   of: FormStore<TSchema>
 }
 
 function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>): JSX.Element {
-  const config = useMoraineConfig()
-  const provider = () => config().form
+  const design = useMoraineDesign()
+  const formDesign = () => design().form
 
-  const [local, formProps] = splitProps(props, ['class', 'style', 'of', 'onSubmit', 'onReset'])
+  const [local, , formProps] = splitProps(
+    props,
+    ['class', 'style', 'of', 'onSubmit', 'onReset', 'children'],
+    ['classes', 'styles'],
+  )
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
     const { defaultPrevented } = callHandler(event, local.onReset)
@@ -82,11 +41,10 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
   }
 
   const resolved = resolveComponentStyle({
-    base: {
-      classes: { root: formRecipe() },
-    },
-    get provider() {
-      return provider()
+    design: {
+      get classes() {
+        return formDesign()?.recipe()
+      },
     },
     get instance() {
       return {
@@ -105,7 +63,9 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
       {...resolved.rootClassAndStyle()}
       data-slot="root"
       data-submitting={local.of.isSubmitting ? '' : undefined}
-    />
+    >
+      {local.children}
+    </FormischForm>
   )
 }
 

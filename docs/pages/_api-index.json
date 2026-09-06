@@ -1,6 +1,38 @@
 {
   "components": [
     {
+      "key": "collapsible",
+      "name": "Collapsible",
+      "category": "elements",
+      "polymorphic": false,
+      "description": "Expandable content section with optional height transitions.",
+      "sourcePath": "src/elements/collapsible/collapsible.tsx"
+    },
+    {
+      "key": "sidebar-frame",
+      "name": "SidebarFrame",
+      "category": "navigation",
+      "polymorphic": false,
+      "description": "Sidebar + main frame with mobile Sheet support and desktop layout wrappers.",
+      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
+    },
+    {
+      "key": "stepper",
+      "name": "Stepper",
+      "category": "navigation",
+      "polymorphic": false,
+      "description": "Tab-structured step navigation with configurable orientation and separator layout.",
+      "sourcePath": "src/navigation/stepper/stepper.tsx"
+    },
+    {
+      "key": "tabs",
+      "name": "Tabs",
+      "category": "navigation",
+      "polymorphic": false,
+      "description": "Tabbed navigation component with configurable orientation and variant styles.",
+      "sourcePath": "src/navigation/tabs/tabs.tsx"
+    },
+    {
       "key": "icon",
       "name": "Icon",
       "category": "elements",
@@ -41,36 +73,12 @@
       "sourcePath": "src/elements/badge/badge.tsx"
     },
     {
-      "key": "button",
-      "name": "Button",
-      "category": "elements",
-      "polymorphic": true,
-      "description": "Button component with polymorphic `as` support and loading state.",
-      "sourcePath": "src/elements/button/button.tsx"
-    },
-    {
-      "key": "button-group",
-      "name": "ButtonGroup",
-      "category": "elements",
-      "polymorphic": false,
-      "description": "Joins related buttons and provides shared size and visual variant defaults.",
-      "sourcePath": "src/elements/button/button-group.tsx"
-    },
-    {
       "key": "card",
       "name": "Card",
       "category": "elements",
       "polymorphic": false,
       "description": "Structured content container with optional header, body, footer, and action slots.",
       "sourcePath": "src/elements/card/card.tsx"
-    },
-    {
-      "key": "collapsible",
-      "name": "Collapsible",
-      "category": "elements",
-      "polymorphic": false,
-      "description": "Expandable content section with optional height transitions.",
-      "sourcePath": "src/elements/collapsible/collapsible.tsx"
     },
     {
       "key": "kbd",
@@ -87,14 +95,6 @@
       "polymorphic": false,
       "description": "Group of keyboard shortcut keys with support for simultaneous chords and ordered sequences.",
       "sourcePath": "src/elements/kbd/kbd-group.tsx"
-    },
-    {
-      "key": "list",
-      "name": "List",
-      "category": "elements",
-      "polymorphic": true,
-      "description": "Headless polymorphic list with optional caller-controlled virtualization.",
-      "sourcePath": "src/elements/list/list.tsx"
     },
     {
       "key": "progress",
@@ -145,14 +145,6 @@
       "sourcePath": "src/forms/file-upload/file-upload.tsx"
     },
     {
-      "key": "input",
-      "name": "Input",
-      "category": "forms",
-      "polymorphic": false,
-      "description": "Text input component with leading/trailing icon slots, loading state, and form field integration.",
-      "sourcePath": "src/forms/input/input.tsx"
-    },
-    {
       "key": "input-number",
       "name": "InputNumber",
       "category": "forms",
@@ -161,12 +153,44 @@
       "sourcePath": "src/forms/input-number/input-number.tsx"
     },
     {
+      "key": "input",
+      "name": "Input",
+      "category": "forms",
+      "polymorphic": false,
+      "description": "Text input component with leading/trailing icon slots, loading state, and form field integration.",
+      "sourcePath": "src/forms/input/input.tsx"
+    },
+    {
       "key": "radio-group",
       "name": "RadioGroup",
       "category": "forms",
       "polymorphic": false,
       "description": "Single-select radio group with card, list, and table layout variants.",
       "sourcePath": "src/forms/radio-group/radio-group.tsx"
+    },
+    {
+      "key": "list",
+      "name": "List",
+      "category": "elements",
+      "polymorphic": true,
+      "description": "Headless polymorphic list with optional caller-controlled virtualization.",
+      "sourcePath": "src/elements/list/list.tsx"
+    },
+    {
+      "key": "select",
+      "name": "Select",
+      "category": "forms",
+      "polymorphic": false,
+      "description": "Dropdown select component with search and custom item rendering.",
+      "sourcePath": "src/forms/select/select.tsx"
+    },
+    {
+      "key": "multi-select",
+      "name": "MultiSelect",
+      "category": "forms",
+      "polymorphic": false,
+      "description": "Dropdown select component with search, multi-select, and custom item rendering.",
+      "sourcePath": "src/forms/select/multi-select.tsx"
     },
     {
       "key": "slider",
@@ -209,6 +233,22 @@
       "sourcePath": "src/navigation/command-palette/command-palette.tsx"
     },
     {
+      "key": "button",
+      "name": "Button",
+      "category": "elements",
+      "polymorphic": true,
+      "description": "Button component with polymorphic `as` support and loading state.",
+      "sourcePath": "src/elements/button/button.tsx"
+    },
+    {
+      "key": "button-group",
+      "name": "ButtonGroup",
+      "category": "elements",
+      "polymorphic": false,
+      "description": "Joins related buttons and provides shared size and visual variant defaults.",
+      "sourcePath": "src/elements/button/button-group.tsx"
+    },
+    {
       "key": "pagination",
       "name": "Pagination",
       "category": "navigation",
@@ -217,36 +257,28 @@
       "sourcePath": "src/navigation/pagination/pagination.tsx"
     },
     {
-      "key": "sidebar-frame",
-      "name": "SidebarFrame",
-      "category": "navigation",
-      "polymorphic": false,
-      "description": "Sidebar + main frame with mobile Sheet support and desktop layout wrappers.",
-      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
-    },
-    {
-      "key": "stepper",
-      "name": "Stepper",
-      "category": "navigation",
-      "polymorphic": false,
-      "description": "Tab-structured step navigation with configurable orientation and separator layout.",
-      "sourcePath": "src/navigation/stepper/stepper.tsx"
-    },
-    {
-      "key": "tabs",
-      "name": "Tabs",
-      "category": "navigation",
-      "polymorphic": false,
-      "description": "Tabbed navigation component with configurable orientation and variant styles.",
-      "sourcePath": "src/navigation/tabs/tabs.tsx"
-    },
-    {
       "key": "context-menu",
       "name": "ContextMenu",
       "category": "overlays",
       "polymorphic": false,
-      "description": "Menu triggered by right-click or long press on its child content.",
+      "description": "Menu state and interaction context, without a DOM root.",
       "sourcePath": "src/overlays/context-menu/context-menu.tsx"
+    },
+    {
+      "key": "dialog",
+      "name": "Dialog",
+      "category": "overlays",
+      "polymorphic": false,
+      "description": "Dialog state and context. Trigger, Content, and Close own their respective DOM.",
+      "sourcePath": "src/overlays/dialog/dialog.tsx"
+    },
+    {
+      "key": "dropdown-menu",
+      "name": "DropdownMenu",
+      "category": "overlays",
+      "polymorphic": false,
+      "description": "Menu state and interaction context, without a DOM root.",
+      "sourcePath": "src/overlays/dropdown-menu/dropdown-menu.tsx"
     },
     {
       "key": "modal",
@@ -255,22 +287,6 @@
       "polymorphic": false,
       "description": "Low-level modal primitives for composing custom dialog surfaces.",
       "sourcePath": "src/overlays/modal/modal.tsx"
-    },
-    {
-      "key": "dialog",
-      "name": "Dialog",
-      "category": "overlays",
-      "polymorphic": false,
-      "description": "Modal dialog with header, body, and footer slots, backdrop overlay, and dismissal control.",
-      "sourcePath": "src/overlays/dialog/dialog.tsx"
-    },
-    {
-      "key": "dropdown-menu",
-      "name": "DropdownMenu",
-      "category": "overlays",
-      "polymorphic": false,
-      "description": "Triggered action menu anchored to its child content.",
-      "sourcePath": "src/overlays/dropdown-menu/dropdown-menu.tsx"
     },
     {
       "key": "popover",
@@ -285,7 +301,7 @@
       "name": "Sheet",
       "category": "overlays",
       "polymorphic": false,
-      "description": "Slide-in panel overlay from any screen edge with header, body, and footer slots.",
+      "description": "Sheet state and context. Trigger, Content, and Close own their respective DOM.",
       "sourcePath": "src/overlays/sheet/sheet.tsx"
     },
     {
@@ -295,22 +311,6 @@
       "polymorphic": false,
       "description": "Hover-triggered informational overlay anchored to a trigger element.",
       "sourcePath": "src/overlays/tooltip/tooltip.tsx"
-    },
-    {
-      "key": "select",
-      "name": "Select",
-      "category": "forms",
-      "polymorphic": false,
-      "description": "Dropdown select component with search and custom item rendering.",
-      "sourcePath": "src/forms/select/select.tsx"
-    },
-    {
-      "key": "multi-select",
-      "name": "MultiSelect",
-      "category": "forms",
-      "polymorphic": false,
-      "description": "Dropdown select component with search, multi-select, and custom item rendering.",
-      "sourcePath": "src/forms/select/multi-select.tsx"
     }
   ]
 }

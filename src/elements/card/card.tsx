@@ -1,102 +1,16 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 
-import type { CardVariantProps } from './card.class.ts'
-import {
-  CARD_BODY_MARGIN_COMPACT_CLASS,
-  CARD_BODY_MARGIN_DEFAULT_CLASS,
-  cardRecipe,
-} from './card.class.ts'
+import type { CardProps } from './card.types.ts'
 
-export namespace CardT {
-  export interface Slot<T = unknown> {
-    /**
-     * Card container that frames the header, body, and footer regions.
-     */
-    root?: T
-
-    /** Top region for title, description, custom header content, and actions. */
-    header?: T
-
-    /** Primary heading rendered in the card header. */
-    title?: T
-
-    /** Supporting text rendered below the card title. */
-    description?: T
-
-    /** Header action region, typically used for buttons or menus. */
-    action?: T
-
-    /** Main content region for the card children. */
-    body?: T
-
-    /** Bottom region for secondary actions or summary content. */
-    footer?: T
-  }
-  export type Variant = CardVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-  /**
-   * Base props for the Card component.
-   */
-  export interface Base {
-    /**
-     * Whether to use a compact layout.
-     * @default false
-     */
-    compact?: boolean
-
-    /**
-     * Title of the card.
-     */
-    title?: JSX.Element
-
-    /**
-     * Description of the card.
-     */
-    description?: JSX.Element
-
-    /**
-     * Actions of the card.
-     */
-    action?: JSX.Element
-
-    /**
-     * Header of the card.
-     */
-    header?: JSX.Element
-
-    /**
-     * Footer of the card.
-     */
-    footer?: JSX.Element
-
-    /**
-     * Children of the card.
-     */
-    children?: JSX.Element
-  }
-
-  /**
-   * Props for the Card component.
-   */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the Card component.
- */
-export interface CardProps extends CardT.Props {}
+export * from './card.types.ts'
 
 /** Structured content container with optional header, body, footer, and action slots. */
 export function Card(props: CardProps): JSX.Element {
-  const config = useMoraineConfig()
-  const provider = () => config().card
+  const design = useMoraineDesign()
+  const cardDesign = () => design().card
 
   const [local, rest] = splitProps(props, [
     'header',
@@ -111,7 +25,7 @@ export function Card(props: CardProps): JSX.Element {
     'class',
     'style',
   ])
-  const compact = () => local.compact ?? provider()?.variants?.compact ?? false
+  const compact = () => local.compact ?? cardDesign()?.defaultVariants?.compact ?? false
 
   const header = createMemo(() => local.header)
   const title = createMemo(() => local.title)
@@ -121,13 +35,10 @@ export function Card(props: CardProps): JSX.Element {
   const resolvedChildren = resolveChildren(() => local.children)
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return cardRecipe({ compact: compact() })
+        return cardDesign()?.recipe({ compact: compact() })
       },
-    },
-    get provider() {
-      return provider()
     },
     get instance() {
       return {
@@ -137,15 +48,6 @@ export function Card(props: CardProps): JSX.Element {
         styles: local.styles,
       }
     },
-    state: {
-      get classes() {
-        return {
-          body:
-            !footer() &&
-            (compact() ? CARD_BODY_MARGIN_COMPACT_CLASS : CARD_BODY_MARGIN_DEFAULT_CLASS),
-        }
-      },
-    },
   })
 
   return (
@@ -153,11 +55,8 @@ export function Card(props: CardProps): JSX.Element {
       <Show when={header() || title() || description()}>
         <div
           data-slot="header"
-          {...resolved.slotClassAndStyle('header', {
-            get state() {
-              return { class: action() && 'grid-cols-[1fr_auto]' }
-            },
-          })}
+          data-action={action() ? '' : undefined}
+          {...resolved.slotClassAndStyle('header')}
         >
           <Show when={title() || description()} fallback={header()}>
             <Show when={title()}>
@@ -181,7 +80,11 @@ export function Card(props: CardProps): JSX.Element {
 
       <Show when={resolvedChildren()}>
         {(body) => (
-          <div data-slot="body" {...resolved.slotClassAndStyle('body')}>
+          <div
+            data-slot="body"
+            data-no-footer={!footer() ? '' : undefined}
+            {...resolved.slotClassAndStyle('body')}
+          >
             {body()}
           </div>
         )}

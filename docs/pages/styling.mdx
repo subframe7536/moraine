@@ -7,7 +7,7 @@ search:
   tags: [UnoCSS, Tailwind CSS, theme, tokens]
 ---
 
-Moraine's styling system architecture uses atomic utility classes in the published component code. Your application's CSS engine must scan those classes and load Moraine's theme integration. Moraine does not ship precompiled component CSS.
+Moraine's styling system architecture uses atomic utility classes in the published Design recipes. Your application's CSS engine must scan those classes and load Moraine's theme integration. Moraine does not ship precompiled component CSS.
 
 ## UnoCSS
 
@@ -130,14 +130,11 @@ Interactive surfaces use semantic `hover` and `active` colors. Each hover token 
 
 ## Override component styles
 
-Moraine resolves styles in this order:
+Moraine resolves presentation from the active Design, composition-group overrides, component state, and component-instance overrides, in that order. Instance `class` and `style` win for the DOM element that owns them; `classes` and `styles` target named slots on multi-slot components.
 
-1. Component defaults.
-2. Provider defaults.
-3. Composition-group overrides.
-4. Component-instance overrides.
+Root-only components (`Icon`, `Kbd`, `Separator`, and the bound `form.Form`) accept direct `class` and `style` only. Their shared defaults remain configurable through the corresponding Design root entry, such as `icon.base.root` or `form.base.root`.
 
-Later values win when utility classes conflict. For a component root, the `class` and `style` props are applied after inherited root values. For named slots, `classes` and `styles` are applied after inherited values for the same slot. Overlay components apply top-level `class` and `style` to their trigger; use named `content` or `overlay` slots for floating elements.
+Overlay roots own behavior and children, not DOM attributes. Put trigger attributes on `Dialog.Trigger`, and content attributes and shell slots on `Dialog.Content` (likewise for the other overlay families).
 
 ```tsx
 <Button class="bg-red-500" style={{ borderColor: 'red' }} classes={{ label: 'text-white' }}>
@@ -147,39 +144,39 @@ Later values win when utility classes conflict. For a component root, the `class
 
 Pass CSS property objects to `style` and `styles` props.
 
-## MoraineProvider
+## Design and MoraineProvider
 
-Use `MoraineProvider` to establish library-wide default variants, slot classes, and inline styles across any component family. It implements layer 2 ("Provider defaults") in the resolution order:
+Create a Design once at your application boundary. `createDesign()` includes the official recipes; passing overrides extends them. The provider requires a Design and does not load the official preset itself.
 
 ```tsx
+import type { ParentProps } from 'solid-js'
 import { MoraineProvider } from 'moraine'
+import { createDesign } from 'moraine/design'
 
-export function App(props) {
-  return (
-    <MoraineProvider
-      config={{
-        button: {
-          variants: { size: 'sm' },
-          classes: { root: 'rounded-xl shadow-xs' },
-        },
-        badge: {
-          variants: { variant: 'outline' },
-        },
-      }}
-    >
-      {props.children}
-    </MoraineProvider>
-  )
+const design = createDesign({
+  button: {
+    defaultVariants: { size: 'sm' },
+    base: { root: 'rounded-xl shadow-xs' },
+  },
+  badge: { defaultVariants: { variant: 'outline' } },
+})
+
+export function App(props: ParentProps) {
+  return <MoraineProvider design={design}>{props.children}</MoraineProvider>
 }
 ```
 
-Nested providers inherit and deep-merge configuration from parent providers:
+Each component accepts `base`, `variants`, `compoundVariants`, and `defaultVariants`. Base and variant values map named slots to utility classes. Inline styles remain instance props.
 
-- `variants` are shallow-merged (inner values override outer values).
-- `classes` are combined per slot using `cn()`.
-- `styles` are merged per slot with CSS property inheritance.
+Use `createDesign({ preset: false })` for a complete unstyled slot skeleton, or `createDesign({ extends: parentDesign, button: { ... } })` for explicit inheritance. A nested provider replaces the parent Design; it does not merge automatically. Changing its `design` signal updates existing DOM without remounting components.
 
-Changes to `config` signals update descendant styling reactively without remounting DOM elements.
+Without a provider, components retain behavior and accessibility but render unstyled. Development builds warn once per owner tree. The CSS integrations supply tokens and motion utilities without changing the host application's default transition duration or easing.
+
+### Reactive replacement and native refs
+
+Named callback refs such as `inputRef` and `textareaRef` target the editable native element; the ordinary `ref` continues to target the component root. Use callbacks for named refs rather than relying on JSX variable-assignment shorthand. Design replacement preserves those nodes and their state.
+
+<Preview path="./styling/design-replacement" />
 
 ## `cn`
 

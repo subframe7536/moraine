@@ -1,16 +1,46 @@
 import { getInput, setInput } from '@formisch/solid'
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, expectTypeOf, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { createForm } from '../form/index'
 
 import { InputNumber } from './input-number'
 import type { InputNumberT } from './input-number'
 
+const officialDesign = createDesign()
+
+const render: typeof baseRender = (ui, options) =>
+  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
+
 describe('InputNumber', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = baseRender(() => <InputNumber />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.className).toBe('')
+  })
+
+  test('forwards root ref and inner inputRef', () => {
+    let rootEl: HTMLDivElement | undefined
+    let inputEl: HTMLInputElement | undefined
+
+    render(() => (
+      <InputNumber
+        ref={(el) => (rootEl = el)}
+        inputRef={(el) => (inputEl = el)}
+        placeholder="ref test"
+      />
+    ))
+
+    expect(rootEl).toBeInstanceOf(HTMLDivElement)
+    expect(rootEl?.getAttribute('data-slot')).toBe('root')
+    expect(inputEl).toBeInstanceOf(HTMLInputElement)
+    expect(inputEl?.placeholder).toBe('ref test')
+  })
   test('renders number input with spinbutton semantics and increment/decrement controls', async () => {
     const onIncrementClick = vi.fn()
     const screen = render(() => (

@@ -1,16 +1,18 @@
 import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
-import type { VariantProps } from '../../shared/style/recipe.ts'
+import type { SlotRecipeOptions, VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-export const inputNumberRecipe = recipe({
+import type { InputNumberT } from './input-number.types.ts'
+
+export const inputNumberRecipeOptions = {
   base: {
-    root: 'inline-flex w-full cursor-text transition-[colors,box-shadow] items-stretch overflow-hidden focus-within:outline-none focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 data-disabled:opacity-64 data-disabled:pointer-events-none focus-within:data-invalid:border-destructive focus-within:data-invalid:ring-3 focus-within:data-invalid:ring-destructive/20 dark:focus-within:data-invalid:border-destructive/50 dark:focus-within:data-invalid:ring-destructive/40',
+    root: 'inline-flex w-full cursor-text transition-[colors,box-shadow] items-stretch overflow-hidden focus-within:outline-none focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 data-disabled:opacity-64 data-disabled:pointer-events-none focus-within:data-invalid:border-destructive focus-within:data-invalid:ring-3 focus-within:data-invalid:ring-destructive/20 dark:focus-within:data-invalid:border-destructive/50 dark:focus-within:data-invalid:ring-destructive/40 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
     input:
       'placeholder:text-muted-foreground text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none outline-none border-0 rounded-none bg-transparent flex-1 min-w-0 ring-0 shadow-none disabled:bg-transparent aria-invalid:ring-0 focus-visible:ring-0',
     increment:
-      'text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none touch-none whitespace-nowrap transition-colors items-center justify-center focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-64 disabled:pointer-events-none hover:text-primary/75 active:text-primary/75 data-active:text-primary/75',
+      'text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none touch-none whitespace-nowrap transition-colors items-center justify-center focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-64 disabled:pointer-events-none hover:text-primary/75 active:text-primary/75 data-active:text-primary/75 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
     decrement:
-      'text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none touch-none whitespace-nowrap transition-colors items-center justify-center focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-64 disabled:pointer-events-none hover:text-primary/75 active:text-primary/75 data-active:text-primary/75',
+      'text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none touch-none whitespace-nowrap transition-colors items-center justify-center focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-64 disabled:pointer-events-none hover:text-primary/75 active:text-primary/75 data-active:text-primary/75 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
     controls: 'pe-1 flex shrink-0 flex-col h-full',
   },
   defaultVariants: {
@@ -78,7 +80,9 @@ export const inputNumberRecipe = recipe({
       class: { increment: 'w-9', decrement: 'w-9' },
     },
   ],
-})
+} as const satisfies SlotRecipeOptions<keyof InputNumberT.Slot>
+
+export const inputNumberRecipe = recipe(inputNumberRecipeOptions)
 
 export type InputNumberOrientation = 'horizontal' | 'vertical'
 

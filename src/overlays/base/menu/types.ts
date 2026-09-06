@@ -4,7 +4,10 @@ import type { IconT } from '../../../elements/icon/index'
 import type { ResolvedComponentStyle } from '../../../shared/provider/moraine-provider.tsx'
 import type { SlotClassValue, SlotStyleValue } from '../../../shared/types.ts'
 
-import type { OverlayMenuItemVariantProps } from './menu.class'
+export interface OverlayMenuItemVariantProps {
+  color?: 'default' | 'destructive' | null
+  size?: 'sm' | 'md' | 'lg' | null
+}
 
 export type OverlayMenuSide = 'top' | 'right' | 'bottom' | 'left'
 

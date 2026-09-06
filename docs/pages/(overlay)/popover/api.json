@@ -20,50 +20,12 @@
       "description": "Positioned popover panel anchored to the trigger.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-describedby",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References descriptive text associated with the control."
-        },
-        {
-          "name": "aria-label",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
-        },
-        {
-          "name": "aria-labelledby",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References the element that labels the control or region."
-        },
-        {
-          "name": "aria-modal",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Identifies modal content that traps interaction outside the dialog."
-        },
-        {
-          "name": "role",
-          "required": false,
-          "type": "string",
-          "description": "Defines the semantic role exposed to assistive technology."
-        }
-      ]
+      "ariaAttributes": []
     },
     {
       "name": "body",
       "description": "Content body rendered inside the popover panel.",
-      "cssVariables": [
-        {
-          "name": "--mo-popper-content-available-height",
-          "required": false,
-          "type": "string",
-          "description": "CSS custom property exposed by this slot."
-        }
-      ],
+      "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
     }
@@ -71,27 +33,10 @@
   "props": {
     "own": [
       {
-        "name": "ariaLabel",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Accessible name for the dialog content."
-      },
-      {
         "name": "children",
         "required": false,
-        "type": "((props: OverlayTriggerProps) => JSX.Element) | undefined",
-        "description": "Render the popover trigger as a single HTMLElement root."
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "PopoverT.Classes | undefined"
+        "type": "JSX.Element",
+        "description": "Composed trigger and content primitives."
       },
       {
         "name": "closeDelay",
@@ -99,12 +44,6 @@
         "type": "number | undefined",
         "description": "Delay in milliseconds before closing in hover mode.",
         "defaultValue": "100"
-      },
-      {
-        "name": "content",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Content to render inside the popover body."
       },
       {
         "name": "defaultOpen",
@@ -150,7 +89,7 @@
       {
         "name": "mode",
         "required": false,
-        "type": "PopoverMode | undefined",
+        "type": "PopoverT.Mode | undefined",
         "description": "Interaction mode for triggering the popover.",
         "defaultValue": "click"
       },
@@ -192,30 +131,172 @@
         "type": "boolean | undefined",
         "description": "Whether body scroll should be locked while the content is present.",
         "defaultValue": "false"
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "side",
-        "required": false,
-        "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined",
-        "description": "Visual side styles applied after the positioned placement is resolved.",
-        "defaultValue": "bottom"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "PopoverT.Styles | undefined"
       }
     ],
     "inherited": []
-  }
+  },
+  "primitives": [
+    {
+      "component": {
+        "key": "popover-trigger",
+        "name": "Popover.Trigger",
+        "category": "overlays",
+        "polymorphic": true,
+        "sourcePath": "src/overlays/popover/popover.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "as",
+            "required": false,
+            "type": "T | undefined",
+            "description": "Element or component to render as.",
+            "defaultValue": "button"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Trigger label and visual content."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "disabled",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether this trigger is disabled."
+          },
+          {
+            "name": "onBlur",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, FocusEvent> | undefined"
+          },
+          {
+            "name": "onClick",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onContextMenu",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onKeyDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onKeyUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onPointerCancel",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerMove",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[T] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "type",
+            "required": false,
+            "type": "T extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : T extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : T extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "popover-content",
+        "name": "Popover.Content",
+        "category": "overlays",
+        "polymorphic": false,
+        "sourcePath": "src/overlays/popover/popover.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "ariaLabel",
+            "required": false,
+            "type": "string | undefined"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element"
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "classes",
+            "required": false,
+            "type": "PopoverT.Classes | undefined"
+          },
+          {
+            "name": "content",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Body content; an explicit null or false value suppresses children."
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "side",
+            "required": false,
+            "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | null | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "styles",
+            "required": false,
+            "type": "PopoverT.Styles | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    }
+  ]
 }

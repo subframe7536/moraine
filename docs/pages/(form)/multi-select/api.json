@@ -39,18 +39,6 @@
       "description": "Popup panel that contains search input, options, groups, and empty state.",
       "cssVariables": [
         {
-          "name": "--mo-popper-anchor-width",
-          "required": false,
-          "type": "string",
-          "description": "CSS custom property exposed by this slot."
-        },
-        {
-          "name": "--mo-popper-content-available-width",
-          "required": false,
-          "type": "string",
-          "description": "CSS custom property exposed by this slot."
-        },
-        {
           "name": "--mo-popper-content-transform-origin",
           "required": false,
           "type": "string",
@@ -63,14 +51,7 @@
     {
       "name": "listbox",
       "description": "ARIA listbox that contains selectable options.",
-      "cssVariables": [
-        {
-          "name": "--mo-popper-content-available-height",
-          "required": false,
-          "type": "string",
-          "description": "CSS custom property exposed by this slot."
-        }
-      ],
+      "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": [
         {
@@ -207,7 +188,14 @@
       "name": "input",
       "description": "Search input used to filter or add selections.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-searchable",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -474,6 +462,11 @@
         "description": "The ID of the input element."
       },
       {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined"
+      },
+      {
         "name": "itemProps",
         "required": false,
         "type": "((option: MultiSelectT.Item<TItem> & BaseSelectT.OptionRenderState) => ElementProps<HTMLDivElement> | undefined) | undefined",
@@ -521,11 +514,6 @@
         "required": false,
         "type": "number | undefined",
         "description": "Maximum visible tags before showing +N (visual only)."
-      },
-      {
-        "name": "mode",
-        "required": false,
-        "type": "\"single\" | \"multi\" | undefined"
       },
       {
         "name": "name",
@@ -598,7 +586,7 @@
       {
         "name": "ref",
         "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+        "type": "Ref<HTMLDivElement> | undefined"
       },
       {
         "name": "required",
@@ -623,7 +611,7 @@
       {
         "name": "search",
         "required": false,
-        "type": "boolean | undefined",
+        "type": "boolean & boolean | \"true\" | \"false\" | null | undefined",
         "description": "Enable search input.",
         "defaultValue": "false"
       },
@@ -642,12 +630,12 @@
       {
         "name": "side",
         "required": false,
-        "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined"
+        "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | null | undefined"
       },
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined"
       },
       {
         "name": "style",
@@ -687,7 +675,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined"
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | null | undefined"
       },
       {
         "name": "virtualRender",

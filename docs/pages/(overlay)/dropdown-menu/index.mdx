@@ -43,38 +43,39 @@ import type { DropdownMenuT } from 'moraine'
   ]}
 >
   {(props) => (
-    <DropdownMenu
-      items={[
-        {
-          type: 'group',
-          label: 'Account',
-          children: [
-            { label: 'Profile', icon: 'i-lucide:user' },
-            { label: 'Billing', icon: 'i-lucide:credit-card' },
-            { label: 'Settings', icon: 'i-lucide:settings', kbds: ['⌘', 'S'] },
-          ],
-        },
-        {
-          type: 'group',
-          children: [{ label: 'Sign out', icon: 'i-lucide:log-out', color: 'destructive' }],
-        },
-      ]}
-      size={props.size}
-      disabled={props.disabled}
-    >
-      {(triggerProps) => (
-        <Button {...triggerProps} variant="outline" trailing="i-lucide:chevron-down">
-          Account Actions
-        </Button>
-      )}
+    <DropdownMenu disabled={props.disabled}>
+      <DropdownMenu.Trigger as={Button} variant="outline" trailing="i-lucide:chevron-down">
+        Account Actions
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content
+        items={[
+          {
+            type: 'group',
+            label: 'Account',
+            children: [
+              { label: 'Profile', icon: 'i-lucide:user' },
+              { label: 'Billing', icon: 'i-lucide:credit-card' },
+              { label: 'Settings', icon: 'i-lucide:settings', kbds: ['⌘', 'S'] },
+            ],
+          },
+          {
+            type: 'group',
+            children: [{ label: 'Sign out', icon: 'i-lucide:log-out', color: 'destructive' }],
+          },
+        ]}
+        size={props.size}
+      />
     </DropdownMenu>
   )}
 </Playground>
 
 ## Anatomy
 
+`DropdownMenu` owns state and context without adding a DOM element. `DropdownMenu.Trigger` owns its attributes, events, ref, and styling; `DropdownMenu.Content` owns the floating surface and presentation props. Put native surface attributes directly on Content.
+
 ```text
-trigger
+Root (context only)
+├── Trigger
 └── content (floating portal)
     └── group (×n)
         ├── label (optional)
@@ -91,7 +92,7 @@ trigger
 
 ### Trigger and items
 
-Render the trigger with the provided props so the menu can provide its click, keyboard, and ARIA behavior. Describe each action in the item model; groups and separators organize that model without adding application state.
+Use `DropdownMenu.Trigger` to compose the click, keyboard, and ARIA behavior with your native attributes. Describe each action in the item model; groups and separators organize that model without adding application state.
 
 <Preview path="./trigger-items" />
 

@@ -1,8 +1,6 @@
 import plugin from 'tailwindcss/plugin'
 
 import {
-  MORAINE_ANIM_DUR_VAR_ENTER,
-  MORAINE_EASE_OUT,
   MORAINE_KEYFRAMES,
   buildTailwindAnimations,
   getMoraineAnimCounts,
@@ -41,13 +39,6 @@ type TailwindPlugin = (options?: MorainePluginOptions) => ReturnType<typeof plug
 export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = {}) =>
   plugin(
     ({ addBase, addUtilities, matchUtilities, matchVariant, theme }) => {
-      addBase({
-        ':root, :host': {
-          '--default-transition-duration': MORAINE_ANIM_DUR_VAR_ENTER,
-          '--default-transition-timing-function': MORAINE_EASE_OUT,
-        },
-      })
-
       if (options.icons !== false) {
         addUtilities(buildIconShortcutUtilities())
       }
@@ -152,11 +143,9 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
           keyframes: MORAINE_KEYFRAMES,
           animation: buildTailwindAnimations(),
           transitionDuration: {
-            DEFAULT: MORAINE_ANIM_DUR_VAR_ENTER,
             ...getMoraineAnimDurations(),
           },
           transitionTimingFunction: {
-            DEFAULT: MORAINE_EASE_OUT,
             ...getMoraineAnimTimingFns(),
           },
           animationIterationCount: getMoraineAnimCounts(),

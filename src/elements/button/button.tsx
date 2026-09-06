@@ -2,147 +2,17 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps, useContext } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
 import { useLoadingAutoClick } from '../../shared/use-loading-auto.ts'
 import { Icon } from '../icon/index.ts'
 import type { IconT } from '../icon/index.ts'
 
 import { ButtonGroupContext } from './button-group-context.ts'
-import type { ButtonVariantProps } from './button.class.ts'
-import { buttonRecipe } from './button.class.ts'
+import type { ButtonProps, ButtonT } from './button.types.ts'
 
-type IsUnion<T, U = T> = T extends unknown ? ([U] extends [T] ? false : true) : never
-
-type ElementFor<T extends ValidComponent> =
-  IsUnion<T> extends true
-    ? HTMLElement
-    : T extends keyof HTMLElementTagNameMap
-      ? HTMLElementTagNameMap[T]
-      : HTMLElement
-
-export namespace ButtonT {
-  export interface Slot<T = unknown> {
-    /**
-     * Interactive button element, or the polymorphic element provided through `as`.
-     */
-    root?: T
-
-    /** Loading icon shown while the button is busy. */
-    loading?: T
-
-    /** Icon region before the button label. */
-    leading?: T
-
-    /** Button content region after render-prop resolution. */
-    label?: T
-
-    /** Icon region after the button label. */
-    trailing?: T
-  }
-  export type Variant = ButtonVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-  /**
-   * Base props for the Button component.
-   */
-  export type Base<T extends ValidComponent = 'button'> = {
-    /**
-     * Element or component to render as.
-     * @default 'button'
-     */
-    as?: T
-
-    /** Native type attribute for supported native roots. */
-    type?: T extends 'a'
-      ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>['type']
-      : T extends 'button'
-        ? JSX.ButtonHTMLAttributes<HTMLButtonElement>['type']
-        : T extends 'input'
-          ? JSX.InputHTMLAttributes<HTMLInputElement>['type']
-          : never
-
-    /**
-     * Disabled state, including for non-button polymorphic roots.
-     */
-    disabled?: boolean
-
-    onClick?: JSX.EventHandlerUnion<ElementFor<T>, MouseEvent>
-    onKeyDown?: JSX.EventHandlerUnion<ElementFor<T>, KeyboardEvent>
-    onKeyUp?: JSX.EventHandlerUnion<ElementFor<T>, KeyboardEvent>
-    onBlur?: JSX.EventHandlerUnion<ElementFor<T>, FocusEvent>
-    onPointerDown?: JSX.EventHandlerUnion<ElementFor<T>, PointerEvent>
-    onPointerUp?: JSX.EventHandlerUnion<ElementFor<T>, PointerEvent>
-    onPointerCancel?: JSX.EventHandlerUnion<ElementFor<T>, PointerEvent>
-    onPointerLeave?: JSX.EventHandlerUnion<ElementFor<T>, PointerEvent>
-    onContextMenu?: JSX.EventHandlerUnion<ElementFor<T>, MouseEvent>
-
-    /**
-     * Root `data-slot` name
-     */
-    slotName?: string
-    /**
-     * Controlled loading state.
-     * @default false
-     */
-    loading?: boolean
-
-    /**
-     * Auto toggles loading while async click handlers are pending.
-     * @default false
-     */
-    loadingAuto?: boolean
-
-    /**
-     * Optional icon shown when `loading` is active.
-     * @default 'icon-loading'
-     */
-    loadingIcon?: IconT.Name
-
-    /**
-     * Leading visual content, usually an icon.
-     */
-    leading?: IconT.Name
-
-    /**
-     * Trailing visual content, usually an icon.
-     */
-    trailing?: IconT.Name
-
-    /**
-     * Children of the button. Supports render function form.
-     */
-    children?: ComponentOrElement<{
-      /**
-       * Whether the button is currently in loading state.
-       */
-      loading: boolean
-    }>
-  } & (T extends 'a'
-    ? Pick<JSX.AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'target' | 'rel'>
-    : {})
-
-  /**
-   * Props for the Button component.
-   */
-  export type Props<T extends ValidComponent = 'button'> = BaseProps<
-    T,
-    Base<T>,
-    Variant,
-    Classes,
-    Styles
-  >
-}
-
-/**
- * Props for the Button component.
- */
-export type ButtonProps<T extends ValidComponent = 'button'> = ButtonT.Props<T>
+export * from './button.types.ts'
 
 /**
  * Button component with polymorphic `as` support and loading state.
@@ -168,28 +38,28 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'children',
   ])
 
-  const { isLoading, onClick } = useLoadingAutoClick<ElementFor<T>>({
+  const { isLoading, onClick } = useLoadingAutoClick<ButtonT.ElementFor<T>>({
     loading: () => local.loading,
     loadingAuto: () => local.loadingAuto,
     get onClick() {
-      return rest.onClick as JSX.EventHandlerUnion<ElementFor<T>, MouseEvent> | undefined
+      return rest.onClick as JSX.EventHandlerUnion<ButtonT.ElementFor<T>, MouseEvent> | undefined
     },
   })
 
   const tag = createMemo(() => (local.as as ValidComponent) ?? 'button')
-  const config = useMoraineConfig()
-  const providerButton = () => config().button
+  const design = useMoraineDesign()
+  const buttonDesign = () => design().button
 
   const isDisabledOrLoading = () => isLoading() || Boolean(local.disabled)
   const size = () =>
-    (local.size ?? group?.size ?? providerButton()?.variants?.size ?? 'md') as NonNullable<
-      ButtonVariantProps['size']
+    (local.size ?? group?.size ?? buttonDesign()?.defaultVariants?.size ?? 'md') as NonNullable<
+      ButtonT.Variant['size']
     >
   const variant = () =>
     (local.variant ??
       group?.variant ??
-      providerButton()?.variants?.variant ??
-      'default') as NonNullable<ButtonVariantProps['variant']>
+      buttonDesign()?.defaultVariants?.variant ??
+      'default') as NonNullable<ButtonT.Variant['variant']>
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
 
@@ -222,7 +92,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     return trailing()
   })
 
-  const interactionProps = useButtonInteraction<ElementFor<T>>(
+  const interactionProps = useButtonInteraction<ButtonT.ElementFor<T>>(
     {
       disabled: isDisabledOrLoading,
       onClick: () => onClick,
@@ -246,13 +116,10 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   })
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return buttonRecipe({ variant: variant(), size: size() })
+        return buttonDesign()?.recipe({ variant: variant(), size: size() })
       },
-    },
-    get provider() {
-      return providerButton()
     },
     get group() {
       return group

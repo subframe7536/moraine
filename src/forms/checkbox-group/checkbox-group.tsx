@@ -10,157 +10,16 @@ import {
   untrack,
 } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 import { useId } from '../../shared/utils.ts'
-import type { CheckboxProps } from '../checkbox/checkbox.tsx'
+import type { CheckboxProps } from '../checkbox/checkbox.types.ts'
 import { Checkbox } from '../checkbox/index.ts'
 import { useFormField } from '../form/form-context.ts'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form-options.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
-import type { CheckboxGroupVariantProps } from './checkbox-group.class.ts'
-import { checkboxGroupRecipe } from './checkbox-group.class.ts'
+import type { CheckboxGroupProps, CheckboxGroupT } from './checkbox-group.types.ts'
 
-export namespace CheckboxGroupT {
-  export interface Slot<T = unknown> {
-    /**
-     * Group container that owns checkbox collection state and layout.
-     */
-    root?: T
-
-    /** Fieldset element that groups checkbox options for accessibility. */
-    fieldset?: T
-
-    /** Legend text that labels the checkbox group. */
-    legend?: T
-
-    /** Wrapper for one checkbox option in the group. */
-    item?: T
-
-    /** Text column for an option label and description. */
-    container?: T
-
-    /** Visible checkbox control for an individual option. */
-    control?: T
-
-    /** Visual checked or indeterminate state layer for an option. */
-    indicator?: T
-
-    /** Check or indeterminate icon rendered for an option state. */
-    icon?: T
-
-    /** Inner layout wrapper used by grouped checkbox variants. */
-    wrapper?: T
-
-    /** Primary label text for an option. */
-    label?: T
-
-    /** Supporting description for an option. */
-    description?: T
-  }
-
-  export type Variant = CheckboxGroupVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item<TTrue = boolean, TFalse = boolean> {
-    /**
-     * Value of the group item.
-     */
-    value?: string
-    /**
-     * Label for the group item.
-     */
-    label?: JSX.Element
-    /**
-     * Description for the group item.
-     */
-    description?: JSX.Element
-    /**
-     * Whether the item is disabled.
-     */
-    disabled?: boolean
-    /**
-     * Whether the item is indeterminate.
-     */
-    indeterminate?: CheckboxProps<TTrue, TFalse>['indeterminate']
-    /**
-     * Custom checked icon for this item.
-     */
-    checkedIcon?: CheckboxProps<TTrue, TFalse>['checkedIcon']
-    /**
-     * Custom indeterminate icon for this item.
-     */
-    indeterminateIcon?: CheckboxProps<TTrue, TFalse>['indeterminateIcon']
-  }
-
-  /**
-   * Base props for the CheckboxGroup component.
-   */
-  export interface Base<TTrue = boolean, TFalse = boolean>
-    extends
-      FormIdentityOptions,
-      FormValueOptions<string[]>,
-      FormRequiredOption,
-      FormDisableOption,
-      FormReadOnlyOption {
-    /**
-     * Legend for the checkbox group.
-     */
-    legend?: JSX.Element
-
-    /**
-     * Array of items to render in the group.
-     */
-    items?: (string | Item<TTrue, TFalse>)[]
-
-    /**
-     * Default indicator position for all items.
-     */
-    indicator?: CheckboxProps<TTrue, TFalse>['indicator']
-
-    /**
-     * Default checked icon for all items.
-     */
-    checkedIcon?: CheckboxProps<TTrue, TFalse>['checkedIcon']
-
-    /**
-     * Default indeterminate icon for all items.
-     */
-    indeterminateIcon?: CheckboxProps<TTrue, TFalse>['indeterminateIcon']
-
-    /**
-     * Callback when the selected values change.
-     */
-    onChange?: (value: string[]) => void
-  }
-
-  /**
-   * Props for the CheckboxGroup component.
-   */
-  export type Props<TTrue = boolean, TFalse = boolean> = BaseProps<
-    'div',
-    Base<TTrue, TFalse>,
-    Variant,
-    Classes,
-    Styles
-  >
-}
-
-/**
- * Props for the CheckboxGroup component.
- */
-export interface CheckboxGroupProps<TTrue = boolean, TFalse = boolean> extends CheckboxGroupT.Props<
-  TTrue,
-  TFalse
-> {}
+export * from './checkbox-group.types.ts'
 
 interface NormalizedCheckboxGroupItem<TTrue = boolean, TFalse = boolean> {
   value: string
@@ -241,8 +100,8 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     'style',
   ])
 
-  const config = useMoraineConfig()
-  const provider = () => config().checkboxGroup
+  const design = useMoraineDesign()
+  const checkboxGroupDesign = () => design().checkboxGroup
 
   const merged = mergeProps(
     {
@@ -250,7 +109,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       variant: 'list' as const,
       defaultValue: [] as string[],
     },
-    () => provider()?.variants,
+    () => checkboxGroupDesign()?.defaultVariants,
     local,
   )
   const legend = createMemo(() => merged.legend)
@@ -278,9 +137,9 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
   )
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return checkboxGroupRecipe({
+        return checkboxGroupDesign()?.recipe({
           orientation: merged.orientation,
           size: field.size(),
           required: field.required(),
@@ -288,9 +147,6 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
           tableOrientation: merged.variant === 'table' ? merged.orientation : undefined,
         })
       },
-    },
-    get provider() {
-      return provider()
     },
     get instance() {
       return {
@@ -395,11 +251,8 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
           (field.ariaAttrs()['aria-labelledby'] as string | undefined) ??
           (legend() ? legendId() : undefined)
         }
-        {...resolved.slotClassAndStyle('fieldset', {
-          get state() {
-            return { class: merged.variant !== 'table' && 'gap-2' }
-          },
-        })}
+        data-variant={merged.variant}
+        {...resolved.slotClassAndStyle('fieldset')}
         {...field.ariaAttrs()}
       >
         <Show when={legend()}>

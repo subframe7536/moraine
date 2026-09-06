@@ -7,7 +7,21 @@
     "description": "Keyboard keycap component with configurable size, variant, and accessible label.",
     "sourcePath": "src/elements/kbd/kbd.tsx"
   },
-  "slots": [],
+  "slots": [
+    {
+      "name": "root",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        }
+      ]
+    }
+  ],
   "props": {
     "own": [
       {
@@ -15,11 +29,6 @@
         "required": false,
         "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "KbdT.Classes | undefined"
       },
       {
         "name": "label",
@@ -47,11 +56,6 @@
         "name": "style",
         "required": false,
         "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "KbdT.Styles | undefined"
       },
       {
         "name": "symbol",

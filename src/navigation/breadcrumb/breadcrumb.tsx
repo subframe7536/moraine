@@ -4,166 +4,19 @@ import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../elements/icon/index.ts'
 import type { IconT } from '../../elements/icon/index.ts'
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { callRef } from '../../shared/utils.ts'
 
-import {
-  BREADCRUMB_DISABLED_CLASS,
-  BREADCRUMB_LINK_CLASS,
-  BREADCRUMB_PAGE_CLASS,
-  BREADCRUMB_TRUNCATE_CLASS,
-  breadcrumbRecipe,
-} from './breadcrumb.class.ts'
-import type { BreadcrumbVariantProps } from './breadcrumb.class.ts'
+import type { BreadcrumbProps, BreadcrumbT } from './breadcrumb.types.ts'
 
-export namespace BreadcrumbT {
-  /**
-   * Context provided to the item secondary renderer.
-   */
-  export interface ItemRenderProps {
-    /**
-     * The original item object.
-     */
-    item: Item
-
-    /**
-     * Index of the item in the list.
-     */
-    index: number
-
-    /**
-     * Whether the item is the current page.
-     */
-    current: boolean
-
-    /**
-     * Whether the item is disabled.
-     */
-    disabled: boolean
-  }
-
-  export interface Slot<T = unknown> {
-    /**
-     * Navigation container for the breadcrumb trail.
-     */
-    root?: T
-
-    /** Ordered list that contains breadcrumb items and separators. */
-    list?: T
-
-    /** Wrapper for one breadcrumb entry. */
-    item?: T
-
-    /** Clickable breadcrumb target for navigable entries. */
-    link?: T
-
-    /** Optional icon rendered before a breadcrumb label. */
-    leading?: T
-
-    /** Breadcrumb item label text. */
-    label?: T
-
-    /** Visual divider between breadcrumb entries. */
-    separator?: T
-  }
-
-  export type Variant = BreadcrumbVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  /**
-   * An individual item in the breadcrumb trail.
-   */
-  export interface Item {
-    /**
-     * Label to display for the breadcrumb item.
-     */
-    label?: JSX.Element
-
-    /**
-     * Icon to display next to the label.
-     */
-    icon?: IconT.Name
-
-    /**
-     * The destination URL for this item.
-     */
-    to?: string
-
-    /**
-     * The destination URL for this item.
-     */
-    href?: string
-
-    /**
-     * Where to display the linked URL.
-     */
-    target?: string
-
-    /**
-     * Relationship of the linked URL to the current document.
-     */
-    rel?: string
-
-    /**
-     * Whether the item is the current active page.
-     */
-    active?: boolean
-
-    /**
-     * Whether the item is disabled.
-     */
-    disabled?: boolean
-
-    /**
-     * Callback when the item is clicked.
-     */
-    onClick?: JSX.EventHandlerUnion<HTMLAnchorElement, MouseEvent>
-  }
-
-  /**
-   * Base props for the Breadcrumb component.
-   */
-  export interface Base {
-    /**
-     * Array of breadcrumb items to display.
-     */
-    items?: Item[]
-
-    /**
-     * Icon name for the separator between items.
-     * @default 'icon-chevron-right'
-     */
-    separator?: IconT.Name
-
-    /**
-     * Size of the breadcrumb items and icons.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-
-    /**
-     * Custom renderer for individual breadcrumb items.
-     */
-    itemRender?: ComponentOrElement<ItemRenderProps>
-  }
-
-  /**
-   * Props for the Breadcrumb component.
-   */
-  export type Props = BaseProps<'nav', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the Breadcrumb component.
- */
-export interface BreadcrumbProps extends BreadcrumbT.Props {}
+export * from './breadcrumb.types.ts'
 
 /** Breadcrumb navigation trail with separator icons and optional wrapping. */
 export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
   const [local, rest] = splitProps(props, [
+    'ref',
     'items',
     'separator',
     'size',
@@ -174,15 +27,15 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
     'class',
     'style',
   ])
-  const config = useMoraineConfig()
-  const providerBreadcrumb = () => config().breadcrumb
+  const design = useMoraineDesign()
+  const breadcrumbDesign = () => design().breadcrumb
 
   type BreadcrumbSize = NonNullable<BreadcrumbT.Base['size']>
   const size = createMemo<BreadcrumbSize>(
-    () => local.size ?? providerBreadcrumb()?.variants?.size ?? 'md',
+    () => local.size ?? breadcrumbDesign()?.defaultVariants?.size ?? 'md',
   )
   const wrap = createMemo<boolean>(() =>
-    Boolean(local.wrap ?? providerBreadcrumb()?.variants?.wrap ?? true),
+    Boolean(local.wrap ?? breadcrumbDesign()?.defaultVariants?.wrap ?? true),
   )
   const separator = createMemo<IconT.Name>(() => local.separator ?? 'icon-chevron-right')
 
@@ -196,13 +49,10 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
   })
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return breadcrumbRecipe({ size: size(), wrap: wrap() })
+        return breadcrumbDesign()?.recipe({ size: size(), wrap: wrap() })
       },
-    },
-    get provider() {
-      return providerBreadcrumb()
     },
     get instance() {
       return {
@@ -216,6 +66,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
 
   return (
     <nav
+      ref={(el) => callRef(local.ref, el)}
       data-slot="root"
       aria-label={(rest['aria-label'] as string | undefined) ?? 'breadcrumb'}
       {...resolved.rootClassAndStyle()}
@@ -242,25 +93,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                       <Dynamic
                         component={isDisabled() ? 'span' : 'a'}
                         data-slot={isCurrent() ? 'page' : 'link'}
-                        {...resolved.slotClassAndStyle('link', {
-                          get state() {
-                            return isCurrent()
-                              ? {
-                                  class: [
-                                    BREADCRUMB_PAGE_CLASS,
-                                    !wrap() && BREADCRUMB_TRUNCATE_CLASS,
-                                    !isCurrent() && isDisabled() && BREADCRUMB_DISABLED_CLASS,
-                                  ],
-                                }
-                              : {
-                                  class: [
-                                    BREADCRUMB_LINK_CLASS,
-                                    !wrap() && BREADCRUMB_TRUNCATE_CLASS,
-                                    !isCurrent() && isDisabled() && BREADCRUMB_DISABLED_CLASS,
-                                  ],
-                                }
-                          },
-                        })}
+                        {...resolved.slotClassAndStyle(isCurrent() ? 'page' : 'link')}
                         role={isDisabled() ? 'link' : undefined}
                         aria-disabled={isDisabled() ? 'true' : undefined}
                         aria-current={isCurrent() ? 'page' : undefined}
@@ -281,14 +114,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                           )}
                         </Show>
                         <Show when={hasLabel()}>
-                          <span
-                            data-slot="label"
-                            {...resolved.slotClassAndStyle('label', {
-                              get state() {
-                                return { class: !wrap() && BREADCRUMB_TRUNCATE_CLASS }
-                              },
-                            })}
-                          >
+                          <span data-slot="label" {...resolved.slotClassAndStyle('label')}>
                             {label()}
                           </span>
                         </Show>

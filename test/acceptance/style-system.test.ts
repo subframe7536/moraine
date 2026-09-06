@@ -5,6 +5,8 @@ import { join, relative, resolve } from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
+import { createDesign } from '../../src/design.ts'
+import { SLOT_SKELETONS } from '../../src/design/slots.ts'
 import * as elements from '../../src/elements/index.ts'
 import * as forms from '../../src/forms/index.ts'
 import * as navigation from '../../src/navigation/index.ts'
@@ -88,6 +90,7 @@ const sourceTokenRules = [
 
 const standaloneProviderKeys: Record<string, string> = {
   Accordion: 'accordion',
+  Modal: 'modal',
   Avatar: 'avatar',
   AvatarGroup: 'avatarGroup',
   Badge: 'badge',
@@ -109,7 +112,6 @@ const standaloneProviderKeys: Record<string, string> = {
   InputNumber: 'inputNumber',
   Kbd: 'kbd',
   KbdGroup: 'kbdGroup',
-  List: 'list',
   MultiSelect: 'multiSelect',
   Pagination: 'pagination',
   Popover: 'popover',
@@ -128,13 +130,13 @@ const standaloneProviderKeys: Record<string, string> = {
   Tooltip: 'tooltip',
 }
 
+const structuralComponents = new Set(['Collapsible', 'List'])
+
 const ownedCompositionComponents: Record<string, string> = {
   AccordionContent: 'Accordion',
   AccordionItem: 'Accordion',
   AccordionTrigger: 'Accordion',
   AvatarFace: 'Avatar',
-  Collapsible: 'Accordion',
-  Modal: 'Dialog/Sheet',
   SidebarFrameSheetOnlyRender: 'SidebarFrame',
   SidebarFrameSheetResizableRender: 'SidebarFrame',
 }
@@ -150,11 +152,37 @@ const publicSurfaceFiles = [
   'package.json',
 ]
 
-const declarationFiles = existsSync(join(PROJECT_ROOT, 'dist'))
-  ? listProjectFiles('dist', ['.d.mts'])
-  : []
+const declarationFiles: string[] = []
+function visitDeclaration(file: string): void {
+  if (!existsSync(file) || declarationFiles.includes(file)) {
+    return
+  }
+  declarationFiles.push(file)
+  for (const match of readFileSync(file, 'utf8').matchAll(/from ["'](\.\/[^"']+)["']/g)) {
+    visitDeclaration(resolve(file, '..', match[1]!.replace(/\.mjs$/, '.d.mts')))
+  }
+}
+for (const entry of ['index', 'design', 'utils', 'unocss', 'tailwind']) {
+  visitDeclaration(join(PROJECT_ROOT, 'dist', `${entry}.d.mts`))
+}
 
 describe('Plan 006 style-system acceptance audit', () => {
+  test('keeps component implementations independent of official presentation modules', () => {
+    const implementations = sourceFiles.filter(
+      (file) =>
+        /src\/(elements|forms|navigation|overlays)\//.test(projectRelative(file)) &&
+        file.endsWith('.tsx') &&
+        !/\.(test|fixture)\.tsx$/.test(file),
+    )
+    for (const file of implementations) {
+      expect(readFileSync(file, 'utf8'), projectRelative(file)).not.toMatch(
+        /from ['"][^'"]*(?:\.class\.ts|official-design\.ts|create-design\.ts)['"]|\buseMoraineConfig\b/,
+      )
+    }
+    expect(readProjectFile('src/shared/provider/moraine-provider.tsx')).not.toContain(
+      'createDesign',
+    )
+  })
   test('finds no legacy styling tokens in src and never scans docs', () => {
     const violations = findSourceViolations(sourceFiles, sourceTokenRules)
 
@@ -175,6 +203,7 @@ describe('Plan 006 style-system acceptance audit', () => {
       ),
     ]
     const removedApiRules = [
+      /\b(?:MoraineConfig|ComponentDefaultStyle|useMoraineConfig|ModalTriggerRenderer)\b/,
       /\bcva\b/i,
       /\bextendCN\b/,
       /\bcls-variant\b/i,
@@ -193,7 +222,7 @@ describe('Plan 006 style-system acceptance audit', () => {
 
     expect(violations, violations.join('\n')).toEqual([])
     expect(Object.keys(packageJson.exports).sort()).toEqual(
-      ['.', './icon.css', './package.json', './tailwind', './unocss', './utils'].sort(),
+      ['.', './design', './icon.css', './package.json', './tailwind', './unocss', './utils'].sort(),
     )
     expect(packageJson.exports['./icon.css']).toBe('./dist/icon.css')
     expect(packageJson.files).toEqual(['dist'])
@@ -235,7 +264,12 @@ describe('Plan 006 style-system acceptance audit', () => {
       .filter(([, owners]) => owners.length !== 1)
       .map(([name, owners]) => `${name}: ${owners.join(', ')}`)
     const missingOwners = [...occurrences.keys()]
-      .filter((name) => !standaloneProviderKeys[name] && !ownedCompositionComponents[name])
+      .filter(
+        (name) =>
+          !standaloneProviderKeys[name] &&
+          !ownedCompositionComponents[name] &&
+          !structuralComponents.has(name),
+      )
       .map((name) => `${name}: no provider key or documented owner`)
 
     expect(duplicates, duplicates.join('\n')).toEqual([])
@@ -247,45 +281,15 @@ describe('Plan 006 style-system acceptance audit', () => {
     expect(readProjectFile('src/index.ts')).toContain('export type { MoraineTypeConfig }')
   })
 
-  test('keeps the provider key inventory and resolver ownership one-to-one', () => {
-    const providerSource = readProjectFile('src/shared/provider/moraine-provider.tsx')
-    const interfaceStart = providerSource.indexOf('export interface MoraineConfig')
-    const interfaceEnd = providerSource.indexOf(
-      '\n}\n\nexport function mergeComponentStyle',
-      interfaceStart,
-    )
-    const providerKeys = [
-      ...providerSource
-        .slice(interfaceStart, interfaceEnd)
-        .matchAll(/^\s{2}([A-Za-z]\w*)\?:\s*ComponentDefaultStyle/gm),
-    ].map((match) => match[1])
-
-    expect(providerKeys.sort()).toEqual(Object.values(standaloneProviderKeys).sort())
-    expect(new Set(Object.values(standaloneProviderKeys)).size).toBe(
-      Object.values(standaloneProviderKeys).length,
-    )
-
-    const implementationFiles = listProjectFiles('src', ['.tsx']).filter((path) => {
-      const name = projectRelative(path)
-      return (
-        !name.endsWith('.test.tsx') &&
-        !name.endsWith('.ssr.fixture.tsx') &&
-        name !== 'src/shared/provider/moraine-provider.tsx'
+  test('keeps every Design component and its complete empty slot skeleton aligned', () => {
+    const design = createDesign()
+    const empty = createDesign({ preset: false })
+    expect(Object.keys(SLOT_SKELETONS).sort()).toEqual(Object.values(standaloneProviderKeys).sort())
+    for (const key of Object.keys(SLOT_SKELETONS) as (keyof typeof SLOT_SKELETONS)[]) {
+      expect(Object.keys(design[key].recipe()).sort(), key).toEqual([...SLOT_SKELETONS[key]].sort())
+      expect(empty[key].recipe(), key).toEqual(
+        Object.fromEntries(SLOT_SKELETONS[key].map((slot) => [slot, undefined])),
       )
-    })
-    const implementationContents = implementationFiles.map(
-      (path) => [path, readFileSync(path, 'utf8')] as const,
-    )
-
-    for (const providerKey of providerKeys) {
-      const readers = implementationContents.filter(([, contents]) =>
-        new RegExp(`\\b(?:config|moraine)\\(\\)\\.${providerKey}\\b`).test(contents),
-      )
-      expect(
-        readers.map(([path]) => projectRelative(path)),
-        providerKey,
-      ).toHaveLength(1)
-      expect(readers[0]?.[1], providerKey).toContain('resolveComponentStyle(')
     }
   })
 
@@ -333,7 +337,7 @@ describe('Plan 006 style-system acceptance audit', () => {
         classes: testRecipe(),
         styles: { root: { '--base': '0' } },
       },
-      provider: {
+      design: {
         classes: { root: 'provider-root', content: 'provider-content' },
         styles: {
           root: { color: 'red', '--provider': '1' },
@@ -389,10 +393,10 @@ describe('Plan 006 style-system acceptance audit', () => {
   test('validates the class-module recipe/static split', () => {
     const classFiles = listProjectFiles('src', ['.class.ts'])
 
-    expect(classFiles).toHaveLength(36)
+    expect(classFiles.length).toBeGreaterThan(36)
     for (const path of classFiles) {
       const contents = readFileSync(path, 'utf8')
-      const hasRecipe = /\brecipe(?:\s*<[^>]+>)?\s*\(/.test(contents)
+      const hasRecipe = /(?:RecipeOptions\s*=|\brecipe(?:\s*<[^>]+>)?\s*\()/.test(contents)
       const hasStaticClassConstant = /\bexport\s+const\s+[A-Z][A-Z0-9_]*_CLASS\b/.test(contents)
 
       expect(

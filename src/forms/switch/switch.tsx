@@ -1,153 +1,19 @@
-import type { JSX } from 'solid-js'
+import type { JSX, Ref } from 'solid-js'
 import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
 
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callHandler, useId } from '../../shared/utils.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form/form-context.ts'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-} from '../shared/form-options.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
-import type { SwitchVariantProps } from './switch.class.ts'
-import { switchRecipe } from './switch.class.ts'
+import type { SwitchProps } from './switch.types.ts'
 
-export namespace SwitchT {
-  export interface Slot<T = unknown> {
-    /**
-     * Switch wrapper that coordinates input, track, thumb, and text content.
-     */
-    root?: T
-
-    /** Visible switch track that shows checked and unchecked state. */
-    track?: T
-
-    /** Movable knob inside the switch track. */
-    thumb?: T
-
-    /** Checked, unchecked, or loading icon rendered inside the thumb. */
-    icon?: T
-
-    /** Inner layout wrapper used by switch list and card variants. */
-    wrapper?: T
-
-    /** Primary switch label text. */
-    label?: T
-
-    /** Supporting text associated with the switch. */
-    description?: T
-  }
-
-  export type Variant = SwitchVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  /**
-   * Base props for the Switch component.
-   */
-  export interface Base<TTrue = boolean, TFalse = boolean>
-    extends FormIdentityOptions, FormDisableOption, FormRequiredOption, FormReadOnlyOption {
-    /**
-     * Pointer down handler for the switch root container.
-     */
-    onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
-
-    /**
-     * Native value submitted when the switch is checked.
-     * @default 'on'
-     */
-    value?: string
-
-    /**
-     * Whether the switch is checked.
-     */
-    checked?: TTrue | TFalse
-
-    /**
-     * Whether the switch is checked by default.
-     */
-    defaultChecked?: boolean
-
-    /**
-     * Value to use when the switch is checked.
-     * @default true
-     */
-    trueValue?: TTrue
-
-    /**
-     * Value to use when the switch is unchecked.
-     * @default false
-     */
-    falseValue?: TFalse
-
-    /**
-     * Whether the switch is in a loading state.
-     * @default false
-     */
-    loading?: boolean
-
-    /**
-     * Icon shown during loading state.
-     * @default 'icon-loading'
-     */
-    loadingIcon?: IconT.Name
-
-    /**
-     * Icon shown when the switch is checked.
-     */
-    checkedIcon?: IconT.Name
-
-    /**
-     * Icon shown when the switch is unchecked.
-     */
-    uncheckedIcon?: IconT.Name
-
-    /**
-     * Label for the switch.
-     */
-    label?: JSX.Element
-
-    /**
-     * Description for the switch.
-     */
-    description?: JSX.Element
-
-    /**
-     * Callback when the switch state changes.
-     */
-    onChange?: (value: TTrue | TFalse) => void
-  }
-
-  /**
-   * Props for the Switch component.
-   */
-  export type Props<TTrue = boolean, TFalse = boolean> = BaseProps<
-    'div',
-    Base<TTrue, TFalse>,
-    Variant,
-    Classes,
-    Styles
-  >
-}
-
-/**
- * Props for the Switch component.
- */
-export interface SwitchProps<TTrue = boolean, TFalse = boolean> extends SwitchT.Props<
-  TTrue,
-  TFalse
-> {}
+export * from './switch.types.ts'
 
 /** Toggle switch control with icon slots and loading state. */
 export function Switch<TTrue = boolean, TFalse = boolean>(
@@ -155,8 +21,11 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 ): JSX.Element {
   type RootProps = SwitchProps<TTrue, TFalse> & {
     onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
+    ref?: Ref<HTMLDivElement>
   }
   const [local, rest] = splitProps(props as RootProps, [
+    'ref',
+    'inputRef',
     'id',
     'name',
     'disabled',
@@ -183,8 +52,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'onClick',
   ])
 
-  const config = useMoraineConfig()
-  const provider = () => config().switch
+  const design = useMoraineDesign()
+  const switchDesign = () => design().switch
 
   const merged = mergeProps(
     {
@@ -194,7 +63,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       falseValue: false,
       value: 'on',
     },
-    () => provider()?.variants,
+    () => switchDesign()?.defaultVariants,
     local,
   )
   const label = createMemo(() => merged.label)
@@ -211,14 +80,14 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size ?? undefined,
+      size: local.size,
       disabled: merged.disabled || merged.loading,
       required: local.required,
       readOnly: readOnly(),
     }),
     () => ({
       defaultId: generatedId(),
-      defaultSize: 'md',
+      defaultSize: switchDesign()?.defaultVariants?.size ?? 'md',
       initialValue:
         normalizeFieldValue(
           merged.checked !== undefined ? merged.checked : merged.defaultChecked,
@@ -227,13 +96,10 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   )
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return switchRecipe({ size: field.size() })
+        return switchDesign()?.recipe({ size: field.size() })
       },
-    },
-    get provider() {
-      return provider()
     },
     get instance() {
       return {
@@ -396,10 +262,17 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   }
 
   return (
-    <div data-slot="root" {...rest} {...resolved.rootClassAndStyle()} onClick={onRootClick}>
+    <div
+      ref={(element) => callRef(local.ref, element)}
+      data-slot="root"
+      {...rest}
+      {...resolved.rootClassAndStyle()}
+      onClick={onRootClick}
+    >
       <HiddenInput
         ref={(element) => {
           inputEl = element
+          callRef(local.inputRef, element)
         }}
         id={`${field.id()}-input`}
         type="checkbox"
@@ -435,11 +308,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         data-invalid={field.invalid() ? '' : undefined}
         aria-checked={Boolean(checked())}
         {...switchAriaAttrs()}
-        {...resolved.slotClassAndStyle('track', {
-          get state() {
-            return { class: field.disabled() && 'opacity-64 pointer-events-none' }
-          },
-        })}
+        {...resolved.slotClassAndStyle('track')}
         onPointerDown={onPointerDown}
         data-checked={checked() ? '' : undefined}
         data-unchecked={!checked() ? '' : undefined}
@@ -474,14 +343,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
               for={field.id()}
               id={labelId()}
               data-slot="label"
-              {...resolved.slotClassAndStyle('label', {
-                get state() {
-                  return {
-                    class:
-                      field.required() && "after:text-destructive after:ms-0.5 after:content-['*']",
-                  }
-                },
-              })}
+              data-required={field.required() ? '' : undefined}
+              {...resolved.slotClassAndStyle('label')}
             >
               {label()}
             </label>

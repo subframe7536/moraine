@@ -14,118 +14,15 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { callRef, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form/form-context.ts'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form-options.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
-import type { RadioGroupVariantProps } from './radio-group.class.ts'
-import { radioGroupRecipe } from './radio-group.class.ts'
+import type { RadioGroupProps } from './radio-group.types.ts'
 
-export namespace RadioGroupT {
-  export interface Slot<T = unknown> {
-    /**
-     * Radio group container that owns selection state and layout.
-     */
-    root?: T
-
-    /** Wrapper for one radio option. */
-    item?: T
-
-    /** Visible radio control for an individual option. */
-    control?: T
-
-    /** Vertical alignment wrapper for the radio control. */
-    container?: T
-
-    /** Selected-state layer inside an option control. */
-    indicator?: T
-
-    /** Inner layout wrapper used by grouped radio variants. */
-    wrapper?: T
-
-    /** Primary label text for an option. */
-    label?: T
-
-    /** Supporting description for an option. */
-    description?: T
-  }
-
-  export type Variant = RadioGroupVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  /**
-   * A radio item object.
-   */
-  export interface Item {
-    /**
-     * Value of the radio item.
-     */
-    value?: string
-
-    /**
-     * Label for the radio item.
-     */
-    label?: JSX.Element
-
-    /**
-     * Description for the radio item.
-     */
-    description?: JSX.Element
-
-    /**
-     * Whether the item is disabled.
-     */
-    disabled?: boolean
-  }
-
-  /**
-   * Base props for the RadioGroup component.
-   */
-  export interface Base
-    extends
-      FormIdentityOptions,
-      FormValueOptions<string>,
-      FormRequiredOption,
-      FormDisableOption,
-      FormReadOnlyOption {
-    /**
-     * The orientation of the radio group.
-     * @default 'vertical'
-     */
-    orientation?: 'horizontal' | 'vertical'
-
-    /**
-     * Array of items to render in the group.
-     */
-    items?: (string | Item)[]
-
-    /**
-     * Callback when the selected value changes.
-     */
-    onChange?: (value: string) => void
-  }
-
-  /**
-   * Props for the RadioGroup component.
-   */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the RadioGroup component.
- */
-export interface RadioGroupProps extends RadioGroupT.Props {}
+export * from './radio-group.types.ts'
 
 interface NormalizedRadioGroupItem {
   id: string
@@ -161,8 +58,8 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     'ref',
   ])
 
-  const config = useMoraineConfig()
-  const provider = () => config().radioGroup
+  const design = useMoraineDesign()
+  const radioGroupDesign = () => design().radioGroup
 
   const merged = mergeProps(
     {
@@ -170,7 +67,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       variant: 'list' as const,
       indicator: 'start' as const,
     },
-    () => provider()?.variants,
+    () => radioGroupDesign()?.defaultVariants,
     local,
   )
 
@@ -195,7 +92,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size ?? undefined,
+      size: local.size,
       disabled: merged.disabled,
       required: local.required,
       readOnly: readOnly(),
@@ -203,15 +100,15 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     () => ({
       bind: false,
       defaultId: groupId(),
-      defaultSize: 'md',
+      defaultSize: radioGroupDesign()?.defaultVariants?.size ?? 'md',
       initialValue: initialDefaultValue,
     }),
   )
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return radioGroupRecipe({
+        return radioGroupDesign()?.recipe({
           orientation: orientation(),
           size: field.size(),
           variant: itemVariant(),
@@ -220,9 +117,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
         })
       },
     },
-    get provider() {
-      return provider()
-    },
     get instance() {
       return {
         class: local.class,
@@ -230,11 +124,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
         style: local.style,
         styles: local.styles,
       }
-    },
-    state: {
-      get classes() {
-        return { root: variant() !== 'table' ? 'gap-2' : undefined }
-      },
     },
   })
 

@@ -51,6 +51,7 @@ export interface SlotDefinitionDoc {
 }
 
 export interface ComponentDoc {
+  primitives?: ComponentDoc[]
   component: ComponentIndexEntry
   slots: SlotDoc[]
   props: {

@@ -143,15 +143,17 @@ export function CodeTabs(props: CodeTabsProps) {
         return {
           label,
           value: val,
-          content: (
-            <CodeBlock
-              variant="tabs"
-              lang={item.lang}
-              code={item.code}
-              html={item.html}
-              highlightedLines={item.highlightedLines}
-            />
-          ),
+          get content() {
+            return (
+              <CodeBlock
+                variant="tabs"
+                lang={item.lang}
+                code={item.code}
+                html={item.html}
+                highlightedLines={item.highlightedLines}
+              />
+            )
+          },
         }
       })}
     />

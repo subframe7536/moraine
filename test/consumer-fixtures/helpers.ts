@@ -72,22 +72,7 @@ export function createIsolatedConsumer(): IsolatedConsumer {
   cpSync(join(PROJECT_ROOT, 'dist'), join(packageDir, 'dist'), { recursive: true })
   writeFileSync(
     join(packageDir, 'package.json'),
-    JSON.stringify({
-      name: 'moraine',
-      type: 'module',
-      exports: {
-        '.': {
-          solid: './dist/index.jsx',
-          default: './dist/index.mjs',
-          type: './dist/index.d.mts',
-        },
-        './package.json': './package.json',
-        './icon.css': './dist/icon.css',
-        './tailwind': './dist/tailwind.mjs',
-        './unocss': './dist/unocss.mjs',
-        './utils': './dist/utils.mjs',
-      },
-    }),
+    readFileSync(join(PROJECT_ROOT, 'package.json'), 'utf8'),
   )
 
   return { packageDir, root }
@@ -127,7 +112,12 @@ const specifiers = [
   'moraine/tailwind',
   'moraine/unocss',
   'moraine/utils',
+  'moraine/design',
 ]
+
+const { createDesign } = await import('moraine/design')
+if (!createDesign().button.recipe().root) throw new Error('Official Design is missing')
+if (createDesign({ preset: false }).button.recipe().root) throw new Error('Unstyled Design is styled')
 
 for (const specifier of specifiers) {
   import.meta.resolve(specifier)

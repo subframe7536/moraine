@@ -8,15 +8,20 @@ import {
   Dialog,
   DropdownMenu,
   Icon,
+  Kbd,
   Modal,
   MoraineProvider,
   Popover,
   Sheet,
+  Separator,
   Tooltip,
+  createForm,
   useId,
 } from 'moraine'
 import type { ModalT } from 'moraine'
+import { createDesign } from 'moraine/design'
 import type { Component, JSX } from 'solid-js'
+import * as v from 'valibot'
 
 declare module 'moraine' {
   interface MoraineTypeConfig {
@@ -49,6 +54,9 @@ modalContentContext.close()
 ;<Avatar text="MR" />
 ;<Card id="card" title="details" onClick={() => undefined} />
 ;<Icon name="i-lucide-search" aria-label="Search" hidden onClick={() => undefined} />
+;<Icon name="i-lucide-search" class="size-4" style={{ color: 'red' }} />
+;<Kbd value="K" class="px-2" style={{ color: 'red' }} />
+;<Separator class="my-2" style={{ color: 'red' }} />
 ;<Button
   as="a"
   href="/docs"
@@ -64,36 +72,61 @@ modalContentContext.close()
     Modal content
   </Modal.Content>
 </Modal>
-;<Dialog data-testid="dialog-trigger" hidden>
-  {(props) => (
-    <a {...props} href="/dialog">
-      Open dialog
-    </a>
-  )}
+;<Dialog>
+  <Dialog.Trigger as="a" data-testid="dialog-trigger" hidden href="/dialog">
+    Open dialog
+  </Dialog.Trigger>
+  <Dialog.Content />
 </Dialog>
-;<Popover data-testid="popover-trigger" hidden>
-  {(props) => <span {...props}>Open popover</span>}
+;<Popover>
+  <Popover.Trigger as="span" data-testid="popover-trigger" hidden>
+    Open popover
+  </Popover.Trigger>
+  <Popover.Content />
 </Popover>
-;<Tooltip data-testid="tooltip-trigger" hidden>
-  {(props) => (
-    <button {...props} type="button">
-      Hover target
-    </button>
-  )}
+;<Tooltip>
+  <Tooltip.Trigger as="button" data-testid="tooltip-trigger" hidden type="button">
+    Hover target
+  </Tooltip.Trigger>
+  <Tooltip.Content />
 </Tooltip>
-;<DropdownMenu items={[]} data-testid="dropdown-trigger" hidden>
-  {(props) => (
-    <button {...props} type="button">
-      Open menu
-    </button>
-  )}
+;<DropdownMenu>
+  <DropdownMenu.Trigger as="button" data-testid="dropdown-trigger" hidden type="button">
+    Open menu
+  </DropdownMenu.Trigger>
+  <DropdownMenu.Content items={[]} />
 </DropdownMenu>
-;<ContextMenu items={[]} data-testid="context-trigger" hidden>
-  {(props) => <div {...props}>Open menu</div>}
+;<ContextMenu>
+  <ContextMenu.Trigger as="div" data-testid="context-trigger" hidden>
+    Open menu
+  </ContextMenu.Trigger>
+  <ContextMenu.Content items={[]} />
 </ContextMenu>
-;<Sheet data-testid="sheet-trigger" hidden>
-  {(props) => <span {...props}>Open sheet</span>}
+;<Sheet>
+  <Sheet.Trigger as="span" data-testid="sheet-trigger" hidden>
+    Open sheet
+  </Sheet.Trigger>
+  <Sheet.Content />
 </Sheet>
+
+const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
+;<rootOnlyForm.Form class="space-y-2" style={{ color: 'red' }} />
+
+// @ts-expect-error Root-only components do not accept instance slot class maps.
+;<Icon name="i-lucide-search" classes={{ root: 'size-4' }} />
+// @ts-expect-error Root-only components do not accept instance slot style maps.
+;<Kbd value="K" styles={{ root: { color: 'red' } }} />
+// @ts-expect-error Root-only components do not accept instance slot class maps.
+;<Separator classes={{ root: 'my-2' }} />
+// @ts-expect-error The bound Form component does not accept instance slot style maps.
+;<rootOnlyForm.Form styles={{ root: { color: 'red' } }} />
+
+createDesign({
+  form: { base: { root: 'space-y-2' } },
+  icon: { base: { root: 'size-4' } },
+  kbd: { base: { root: 'px-1' } },
+  separator: { base: { root: 'border-t' } },
+})
 
 // @ts-expect-error Button<'a'> exposes anchor props and rejects button-only props.
 ;<Button as="a" formAction="/submit" />
@@ -107,8 +140,8 @@ modalContentContext.close()
 ;<Card use:foo={foo} />
 // @ts-expect-error Required custom component props remain required through `as`.
 ;<Button as={CustomRoot} />
-// @ts-expect-error Required custom component props must be supplied in the callback.
-;<Dialog>{(props) => <CustomRoot {...props} />}</Dialog>
+// @ts-expect-error Required custom component props must be supplied to the trigger.
+;<Dialog.Trigger as={CustomRoot} />
 
 // @ts-expect-error String root style is rejected
 ;<Button style="color: red" />
@@ -119,8 +152,8 @@ modalContentContext.close()
 // @ts-expect-error Modal root no longer owns named slots.
 ;<Modal classes={{ trigger: 'trigger' }} />
 
-// @ts-expect-error Collapsible root no longer owns named slots.
-;<Collapsible classes={{ trigger: 'trigger' }} />
+// @ts-expect-error Collapsible rejects unknown named slots.
+;<Collapsible classes={{ unknownSlot: 'trigger' }} />
 
 // @ts-expect-error Provider variant defaults use variants, not defaultProps.
 ;<MoraineProvider config={{ button: { defaultProps: { size: 'sm' } } }} />

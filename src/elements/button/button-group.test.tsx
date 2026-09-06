@@ -2,19 +2,40 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
+import { createDesign } from '../../design.ts'
 import { DropdownMenu } from '../../overlays/dropdown-menu/index'
 import { Popover } from '../../overlays/popover/index'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 
 import { Button } from './button'
 import { ButtonGroup } from './button-group'
 
+const officialDesign = createDesign()
+
 describe('ButtonGroup', () => {
-  test('renders related buttons with group semantics and joined horizontal edges', () => {
+  test('renders unstyled when provider is absent', () => {
     const screen = render(() => (
       <ButtonGroup aria-label="History controls">
         <Button>Back</Button>
         <Button>Forward</Button>
       </ButtonGroup>
+    ))
+
+    const group = screen.getByRole('group', { name: 'History controls' })
+    expect(group.className).toBe('')
+    const buttons = screen.getAllByRole('button')
+    expect(buttons[0]?.className).toBe('')
+    expect(buttons[1]?.className).toBe('')
+  })
+
+  test('renders related buttons with group semantics and joined horizontal edges', () => {
+    const screen = render(() => (
+      <MoraineProvider design={officialDesign}>
+        <ButtonGroup aria-label="History controls">
+          <Button>Back</Button>
+          <Button>Forward</Button>
+        </ButtonGroup>
+      </MoraineProvider>
     ))
 
     const group = screen.getByRole('group', { name: 'History controls' })
@@ -44,11 +65,13 @@ describe('ButtonGroup', () => {
 
   test('renders decorative separators between horizontal children', () => {
     const screen = render(() => (
-      <ButtonGroup separator>
-        <Button>Back</Button>
-        <Button>Forward</Button>
-        <Button>Reset</Button>
-      </ButtonGroup>
+      <MoraineProvider design={officialDesign}>
+        <ButtonGroup separator>
+          <Button>Back</Button>
+          <Button>Forward</Button>
+          <Button>Reset</Button>
+        </ButtonGroup>
+      </MoraineProvider>
     ))
 
     const separators = screen.container.querySelectorAll('[data-slot="separator"]')
@@ -91,12 +114,11 @@ describe('ButtonGroup', () => {
     const screen = render(() => (
       <ButtonGroup separator>
         <Button>Export</Button>
-        <DropdownMenu items={[{ label: 'Open options' }]}>
-          {(props) => (
-            <button {...props} type="button">
-              Open export options
-            </button>
-          )}
+        <DropdownMenu>
+          <DropdownMenu.Trigger as="button" type="button">
+            Open export options
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Open options' }]} />
         </DropdownMenu>
       </ButtonGroup>
     ))
@@ -109,12 +131,11 @@ describe('ButtonGroup', () => {
     const screen = render(() => (
       <ButtonGroup separator>
         <Button>Export</Button>
-        <DropdownMenu items={[{ label: 'Open options' }]}>
-          {(props) => (
-            <button {...props} type="button">
-              Open export options
-            </button>
-          )}
+        <DropdownMenu>
+          <DropdownMenu.Trigger as="button" type="button">
+            Open export options
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Open options' }]} />
         </DropdownMenu>
       </ButtonGroup>
     ))
@@ -128,12 +149,11 @@ describe('ButtonGroup', () => {
     const screen = render(() => (
       <ButtonGroup separator>
         <Button>Export</Button>
-        <DropdownMenu items={[{ label: 'Open options' }]}>
-          {(props) => (
-            <button {...props} type="button">
-              Open export options
-            </button>
-          )}
+        <DropdownMenu>
+          <DropdownMenu.Trigger as="button" type="button">
+            Open export options
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Open options' }]} />
         </DropdownMenu>
       </ButtonGroup>
     ))
@@ -151,16 +171,17 @@ describe('ButtonGroup', () => {
 
   test('joins overlay trigger roots as direct children', () => {
     const screen = render(() => (
-      <ButtonGroup>
-        <Button>Export</Button>
-        <DropdownMenu items={[{ label: 'Open options' }]}>
-          {(props) => (
-            <button {...props} type="button">
+      <MoraineProvider design={officialDesign}>
+        <ButtonGroup>
+          <Button>Export</Button>
+          <DropdownMenu>
+            <DropdownMenu.Trigger as="button" type="button">
               Open export options
-            </button>
-          )}
-        </DropdownMenu>
-      </ButtonGroup>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content items={[{ label: 'Open options' }]} />
+          </DropdownMenu>
+        </ButtonGroup>
+      </MoraineProvider>
     ))
 
     const group = screen.getByRole('group')
@@ -175,12 +196,11 @@ describe('ButtonGroup', () => {
     const screen = render(() => (
       <ButtonGroup>
         <Button>Save</Button>
-        <Popover content={<div>Save options</div>}>
-          {(props) => (
-            <Button {...props} size="icon-md" aria-label="Open save options">
-              Options
-            </Button>
-          )}
+        <Popover>
+          <Popover.Trigger as={Button} size="icon-md" aria-label="Open save options">
+            Options
+          </Popover.Trigger>
+          <Popover.Content content={<div>Save options</div>} />
         </Popover>
       </ButtonGroup>
     ))
@@ -199,9 +219,11 @@ describe('ButtonGroup', () => {
     ['lg', 'h-9'],
   ] as const)('provides the %s size to nested buttons', (size, expectedClass) => {
     const screen = render(() => (
-      <ButtonGroup size={size}>
-        <Button>{size}</Button>
-      </ButtonGroup>
+      <MoraineProvider design={officialDesign}>
+        <ButtonGroup size={size}>
+          <Button>{size}</Button>
+        </ButtonGroup>
+      </MoraineProvider>
     ))
 
     const group = screen.getByRole('group')
@@ -219,9 +241,11 @@ describe('ButtonGroup', () => {
     ['destructive', 'bg-destructive'],
   ] as const)('provides the %s variant to nested buttons', (variant, expectedClass) => {
     const screen = render(() => (
-      <ButtonGroup variant={variant}>
-        <Button>{variant}</Button>
-      </ButtonGroup>
+      <MoraineProvider design={officialDesign}>
+        <ButtonGroup variant={variant}>
+          <Button>{variant}</Button>
+        </ButtonGroup>
+      </MoraineProvider>
     ))
 
     const group = screen.getByRole('group')
@@ -232,11 +256,13 @@ describe('ButtonGroup', () => {
 
   test('allows a nested button to override group size and variant defaults', () => {
     const screen = render(() => (
-      <ButtonGroup size="lg" variant="secondary">
-        <Button size="sm" variant="destructive">
-          Remove
-        </Button>
-      </ButtonGroup>
+      <MoraineProvider design={officialDesign}>
+        <ButtonGroup size="lg" variant="secondary">
+          <Button size="sm" variant="destructive">
+            Remove
+          </Button>
+        </ButtonGroup>
+      </MoraineProvider>
     ))
 
     const button = screen.getByRole('button', { name: 'Remove' })
@@ -246,10 +272,12 @@ describe('ButtonGroup', () => {
 
   test('supports a cohesive vertical orientation', () => {
     const screen = render(() => (
-      <ButtonGroup orientation="vertical">
-        <Button>Up</Button>
-        <Button>Down</Button>
-      </ButtonGroup>
+      <MoraineProvider design={officialDesign}>
+        <ButtonGroup orientation="vertical">
+          <Button>Up</Button>
+          <Button>Down</Button>
+        </ButtonGroup>
+      </MoraineProvider>
     ))
 
     const group = screen.getByRole('group')
@@ -275,16 +303,17 @@ describe('ButtonGroup', () => {
 
   test('joins overlay trigger roots as direct children vertically', () => {
     const screen = render(() => (
-      <ButtonGroup orientation="vertical">
-        <Button>Export</Button>
-        <DropdownMenu items={[{ label: 'Open options' }]}>
-          {(props) => (
-            <button {...props} type="button">
+      <MoraineProvider design={officialDesign}>
+        <ButtonGroup orientation="vertical">
+          <Button>Export</Button>
+          <DropdownMenu>
+            <DropdownMenu.Trigger as="button" type="button">
               Open export options
-            </button>
-          )}
-        </DropdownMenu>
-      </ButtonGroup>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content items={[{ label: 'Open options' }]} />
+          </DropdownMenu>
+        </ButtonGroup>
+      </MoraineProvider>
     ))
 
     const group = screen.getByRole('group')
@@ -299,9 +328,11 @@ describe('ButtonGroup', () => {
     const [size, setSize] = createSignal<'sm' | 'lg'>('sm')
     const [variant, setVariant] = createSignal<'outline' | 'secondary'>('outline')
     const screen = render(() => (
-      <ButtonGroup size={size()} variant={variant()}>
-        <Button>Action</Button>
-      </ButtonGroup>
+      <MoraineProvider design={officialDesign}>
+        <ButtonGroup size={size()} variant={variant()}>
+          <Button>Action</Button>
+        </ButtonGroup>
+      </MoraineProvider>
     ))
     const button = screen.getByRole('button', { name: 'Action' })
 

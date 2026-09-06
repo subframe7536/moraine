@@ -1,9 +1,17 @@
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
 import { useSlider } from './hook/index'
 import { Slider } from './slider'
+
+const officialDesign = createDesign()
+
+const render: typeof baseRender = (ui, options) =>
+  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
 
 function getThumbs(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll('[data-slot="thumb"]')) as HTMLElement[]
@@ -59,6 +67,22 @@ function mockTrackRect(target: HTMLElement): void {
 }
 
 describe('Slider', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = baseRender(() => <Slider />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.className).toBe('')
+  })
+
+  test('forwards root ref and inner inputRef', () => {
+    let rootEl: HTMLDivElement | undefined
+    let inputEl: HTMLInputElement | undefined
+
+    render(() => <Slider ref={(el) => (rootEl = el)} inputRef={(el) => (inputEl = el)} />)
+
+    expect(rootEl).toBeInstanceOf(HTMLDivElement)
+    expect(rootEl?.getAttribute('data-slot')).toBe('root')
+    expect(inputEl).toBeInstanceOf(HTMLInputElement)
+  })
   test('uses the compact track thickness scale', () => {
     const horizontal = render(() => <Slider orientation="horizontal" size="sm" />)
     const vertical = render(() => <Slider orientation="vertical" size="lg" />)
@@ -68,16 +92,12 @@ describe('Slider', () => {
 
     expect(horizontalTrack?.className).toContain('h-[var(--s-size)]')
     expect(
-      (
-        horizontal.container.querySelector('[data-slot="root"]') as HTMLElement
-      ).style.getPropertyValue('--s-size'),
-    ).toBe('4px')
+      (horizontal.container.querySelector('[data-slot="root"]') as HTMLElement).className,
+    ).toContain('[--s-size:4px]')
     expect(verticalTrack?.className).toContain('w-[var(--s-size)]')
     expect(
-      (
-        vertical.container.querySelector('[data-slot="root"]') as HTMLElement
-      ).style.getPropertyValue('--s-size'),
-    ).toBe('6px')
+      (vertical.container.querySelector('[data-slot="root"]') as HTMLElement).className,
+    ).toContain('[--s-size:6px]')
   })
 
   test('renders base attributes and orientation without tooltip', () => {
@@ -726,20 +746,14 @@ describe('Slider', () => {
 
     expect(track?.className).toContain('h-[var(--s-size)]')
     expect(
-      (screen.container.querySelector('[data-slot="root"]') as HTMLElement).style.getPropertyValue(
-        '--s-size',
-      ),
-    ).toBe('24px')
+      (screen.container.querySelector('[data-slot="root"]') as HTMLElement).className,
+    ).toContain('[--s-size:24px]')
     expect(
-      (screen.container.querySelector('[data-slot="root"]') as HTMLElement).style.getPropertyValue(
-        '--s-len',
-      ),
-    ).toBe('16px')
+      (screen.container.querySelector('[data-slot="root"]') as HTMLElement).className,
+    ).toContain('[--s-len:16px]')
     expect(
-      (screen.container.querySelector('[data-slot="root"]') as HTMLElement).style.getPropertyValue(
-        '--s-offset',
-      ),
-    ).toBe('4px')
+      (screen.container.querySelector('[data-slot="root"]') as HTMLElement).className,
+    ).toContain('[--s-offset:4px]')
     expect(track?.className).toContain('rounded-sm')
     expect(track?.className).toContain('bg-input')
     expect(range?.className).toContain('rounded-[inherit]')
@@ -764,25 +778,19 @@ describe('Slider', () => {
     const mdTrack = md.container.querySelector('[data-slot="track"]')
     const lgTrack = lg.container.querySelector('[data-slot="track"]')
 
-    expect(
-      (sm.container.querySelector('[data-slot="root"]') as HTMLElement).style.getPropertyValue(
-        '--s-size',
-      ),
-    ).toBe('20px')
+    expect((sm.container.querySelector('[data-slot="root"]') as HTMLElement).className).toContain(
+      '[--s-size:20px]',
+    )
     expect(smTrack?.className).toContain('rounded-xs')
 
-    expect(
-      (md.container.querySelector('[data-slot="root"]') as HTMLElement).style.getPropertyValue(
-        '--s-size',
-      ),
-    ).toBe('24px')
+    expect((md.container.querySelector('[data-slot="root"]') as HTMLElement).className).toContain(
+      '[--s-size:24px]',
+    )
     expect(mdTrack?.className).toContain('rounded-sm')
 
-    expect(
-      (lg.container.querySelector('[data-slot="root"]') as HTMLElement).style.getPropertyValue(
-        '--s-size',
-      ),
-    ).toBe('28px')
+    expect((lg.container.querySelector('[data-slot="root"]') as HTMLElement).className).toContain(
+      '[--s-size:28px]',
+    )
     expect(lgTrack?.className).toContain('rounded-md')
   })
 

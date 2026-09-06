@@ -1,7 +1,8 @@
 import type { Accessor } from 'solid-js'
-import { createSignal, onCleanup } from 'solid-js'
+import { createSignal, mergeProps, onCleanup } from 'solid-js'
 
 import type { ElementProps, SlotStyleValue } from '../../shared/types'
+import { callHandler, callRef } from '../../shared/utils.ts'
 
 /** Props that an overlay render prop must forward to its trigger root. */
 export type OverlayTriggerProps = Omit<
@@ -26,6 +27,41 @@ export type OverlayTriggerProps = Omit<
 
 function isNativeButtonTrigger(element: HTMLElement | undefined): element is HTMLButtonElement {
   return typeof HTMLButtonElement !== 'undefined' && element instanceof HTMLButtonElement
+}
+
+/** Compose consumer events before menu behavior, retaining canceled pointer-up cleanup. */
+export function mergeMenuTriggerProps(
+  user: Partial<OverlayTriggerProps>,
+  internal: OverlayTriggerProps,
+): OverlayTriggerProps {
+  const handlers: Record<string, unknown> = {}
+  for (const key of [
+    'onClick',
+    'onKeyDown',
+    'onContextMenu',
+    'onPointerDown',
+    'onPointerMove',
+    'onPointerUp',
+    'onPointerCancel',
+  ] as const) {
+    handlers[key] = (event: Event) => {
+      callHandler(event, user[key])
+      if (user.disabled) {
+        event.preventDefault()
+      }
+      callHandler(event, internal[key])
+    }
+  }
+  const triggerProps = mergeProps(internal, user, handlers, {
+    ref: (element: HTMLElement | undefined) => {
+      internal.ref(element)
+      callRef(user.ref, element)
+      if (element) {
+        onCleanup(() => callRef(user.ref, undefined))
+      }
+    },
+  }) as OverlayTriggerProps
+  return triggerProps
 }
 
 export function createOverlayTriggerRef(): {

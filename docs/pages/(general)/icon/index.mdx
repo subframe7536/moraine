@@ -54,9 +54,9 @@ Pass a supported icon name, JSX element, or component source. Use an icon as dec
 
 <Preview path="./sources" />
 
-### Slots
+### Root styling
 
-The icon's slot name supports targeted class and style customization without introducing a separate wrapper.
+`Icon` has one rendered root. Use `class` and `style` for an individual icon, or configure `icon.base.root` in your Design for shared defaults. `classes` and `styles` are not instance props because there are no child slots to target. `slotName` only changes the emitted `data-slot` value.
 
 <Preview path="./slots" />
 

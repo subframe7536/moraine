@@ -1,15 +1,21 @@
 import { getInput, setInput } from '@formisch/solid'
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
 import { For, createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { createForm } from '../form/index'
 
-import { MultiSelect } from './multi-select'
-import type { MultiSelectProps, MultiSelectT } from './multi-select'
+import { MultiSelect } from './multi-select.tsx'
+import type { MultiSelectProps, MultiSelectT } from './multi-select.tsx'
+
+const officialDesign = createDesign()
+
+const render: typeof baseRender = (ui, options) =>
+  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
 
 const FRUITS: MultiSelectT.Item[] = [
   { label: 'Apple', value: 'apple' },
@@ -37,9 +43,34 @@ async function finishSelectExitMotion(): Promise<void> {
 }
 
 describe('MultiSelect', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = baseRender(() => <MultiSelect options={FRUITS} placeholder="Unstyled" />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const control = screen.container.querySelector('[data-slot="control"]')
+    expect(root?.className).toBe('')
+    expect(control?.className).toBe('')
+  })
+
+  test('forwards root ref and inner inputRef', () => {
+    let rootEl: HTMLDivElement | undefined
+    let inputEl: HTMLInputElement | undefined
+
+    render(() => (
+      <MultiSelect
+        ref={(el) => (rootEl = el)}
+        inputRef={(el) => (inputEl = el)}
+        options={FRUITS}
+        placeholder="Ref test"
+      />
+    ))
+
+    expect(rootEl).toBeInstanceOf(HTMLDivElement)
+    expect(inputEl).toBeInstanceOf(HTMLInputElement)
+    expect(inputEl?.placeholder).toBe('Ref test')
+  })
   test('uses the provider size as the field default', () => {
     const screen = render(() => (
-      <MoraineProvider config={{ multiSelect: { variants: { size: 'lg' } } }}>
+      <MoraineProvider design={createDesign({ multiSelect: { defaultVariants: { size: 'lg' } } })}>
         <MultiSelect options={FRUITS} />
       </MoraineProvider>
     ))
@@ -52,12 +83,11 @@ describe('MultiSelect', () => {
   test('uses the normative root class and style precedence', () => {
     const screen = render(() => (
       <MoraineProvider
-        config={{
+        design={createDesign({
           multiSelect: {
-            classes: { root: 'w-24 px-1 provider-root' },
-            styles: { root: { width: '100px', height: '10px', color: 'red' } },
+            base: { root: 'w-24 px-1 h-[10px] text-red-500 provider-root' },
           },
-        }}
+        })}
       >
         <MultiSelect
           data-testid="multi-select-root"
@@ -82,19 +112,18 @@ describe('MultiSelect', () => {
 
     expect(root.style.width).toBe('300px')
     expect(root.style.color).toBe('green')
-    expect(root.style.height).toBe('10px')
+    expect(root.className).toContain('h-[10px]')
     expect(root.style.background).toBe('blue')
   })
 
   test('merges named slot classes and styles through the resolver', () => {
     render(() => (
       <MoraineProvider
-        config={{
+        design={createDesign({
           multiSelect: {
-            classes: { content: 'p-1 w-24 provider-content' },
-            styles: { content: { color: 'red', background: 'black' } },
+            base: { content: 'p-1 w-24 text-red-500 bg-black provider-content' },
           },
-        }}
+        })}
       >
         <MultiSelect
           options={FRUITS}
@@ -113,21 +142,20 @@ describe('MultiSelect', () => {
     expect(content.className).toContain('provider-content')
     expect(content.className).toContain('instance-content')
     expect(content.style.color).toBe('blue')
-    expect(content.style.background).toBe('black')
+    expect(content.className).toContain('bg-black')
   })
 
   test('reacts to replaced provider and instance style objects without remounting', () => {
     const [providerConfig, setProviderConfig] = createSignal({
       multiSelect: {
-        classes: { root: 'provider-root-initial' },
-        styles: { root: { color: 'red' } },
+        base: { root: 'provider-root-initial text-red-500' },
       },
     })
     const [instanceClasses, setInstanceClasses] = createSignal({ root: 'instance-root-initial' })
     const [instanceStyles, setInstanceStyles] = createSignal({ root: { border: '1px solid red' } })
 
     const screen = render(() => (
-      <MoraineProvider config={providerConfig()}>
+      <MoraineProvider design={createDesign(providerConfig())}>
         <MultiSelect
           data-testid="reactive-multi-select"
           options={FRUITS}
@@ -140,20 +168,19 @@ describe('MultiSelect', () => {
     const root = screen.getByTestId('reactive-multi-select')
     expect(root.className).toContain('provider-root-initial')
     expect(root.className).toContain('instance-root-initial')
-    expect(root.style.color).toBe('red')
+    expect(root.className).toContain('text-red-500')
     expect(root.style.border).toBe('1px solid red')
 
     setProviderConfig({
       multiSelect: {
-        classes: { root: 'provider-root-updated' },
-        styles: { root: { color: 'blue' } },
+        base: { root: 'provider-root-updated text-blue-500' },
       },
     })
 
     expect(screen.getByTestId('reactive-multi-select')).toBe(root)
     expect(root.className).toContain('provider-root-updated')
     expect(root.className).not.toContain('provider-root-initial')
-    expect(root.style.color).toBe('blue')
+    expect(root.className).toContain('text-blue-500')
 
     setInstanceClasses({ root: 'instance-root-updated' })
     setInstanceStyles({ root: { border: '1px solid blue' } })
@@ -1138,7 +1165,8 @@ describe('MultiSelect', () => {
     expect(trigger?.getAttribute('aria-busy')).toBe('true')
     expect(trigger?.hasAttribute('data-loading')).toBe(true)
     expect(trigger?.querySelector('[data-slot="icon"]')?.className).toContain('icon-loading')
-    expect(trigger?.querySelector('[data-slot="icon"]')?.className).toContain('animate-spin')
+    expect(trigger?.querySelector('[data-slot="icon"]')?.hasAttribute('data-loading')).toBe(true)
+    expect(trigger?.className).toContain('[&>[data-loading]]:animate-spin')
     expect(screen.container.querySelector('[data-slot="clear"]')).toBeNull()
   })
 

@@ -117,7 +117,14 @@
       "name": "label",
       "description": "Primary switch label text.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field input is required."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -186,6 +193,12 @@
         "description": "The ID of the input element."
       },
       {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined",
+        "description": "Optional inner input element ref."
+      },
+      {
         "name": "label",
         "required": false,
         "type": "JSX.Element",
@@ -245,7 +258,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined"
       },
       {
         "name": "style",

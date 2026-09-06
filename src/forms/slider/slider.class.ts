@@ -1,56 +1,9 @@
-import { defineStyleVars } from '../../shared/style/css-vars.ts'
-import type { VariantProps } from '../../shared/style/recipe.ts'
+import type { SlotRecipeOptions, VariantProps } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-export const sliderStyleVars = defineStyleVars({
-  prefix: 's',
-  defaultVariants: {
-    size: 'md',
-    variant: 'default',
-  },
-  variants: {
-    size: {
-      sm: { size: '4px' },
-      md: { size: '5px' },
-      lg: { size: '6px' },
-    },
-    variant: {
-      default: {},
-      bold: {},
-    },
-  },
-  compoundVariants: [
-    {
-      variants: { size: 'sm', variant: 'bold' },
-      vars: {
-        size: '20px',
-        len: '14px',
-        offset: '3px',
-        pos: 'max(3px, calc(100% - 6px))',
-      },
-    },
-    {
-      variants: { size: 'md', variant: 'bold' },
-      vars: {
-        size: '24px',
-        len: '16px',
-        offset: '4px',
-        pos: 'max(4px, calc(100% - 8px))',
-      },
-    },
-    {
-      variants: { size: 'lg', variant: 'bold' },
-      vars: {
-        size: '28px',
-        len: '18px',
-        offset: '5px',
-        pos: 'max(5px, calc(100% - 10px))',
-      },
-    },
-  ],
-})
+import type { SliderT } from './slider.types.ts'
 
-export const sliderRecipe = recipe({
+export const sliderRecipeOptions = {
   base: {
     root: 'group flex select-none items-center relative touch-none data-disabled:opacity-64 data-disabled:pointer-events-none',
     track: 'bg-input select-none translate-z-0 relative overflow-hidden',
@@ -81,9 +34,9 @@ export const sliderRecipe = recipe({
       },
     },
     size: {
-      sm: {},
-      md: {},
-      lg: {},
+      sm: { root: '[--s-size:4px]' },
+      md: { root: '[--s-size:5px]' },
+      lg: { root: '[--s-size:6px]' },
     },
     variant: {
       default: {
@@ -91,12 +44,12 @@ export const sliderRecipe = recipe({
         range: 'rounded-full',
         divider: 'bg-background',
         thumb:
-          'outline-none border border-border rounded-full bg-background cursor-pointer shadow-xs/5 transition-[box-shadow,transform] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 hover:ring-3 hover:ring-ring/50 dark:bg-foreground data-dragging:scale-120 [html:not(.dark)_&]:bg-clip-padding',
+          'outline-none border border-border rounded-full bg-background cursor-pointer shadow-xs/5 transition-[box-shadow,transform] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 hover:ring-3 hover:ring-ring/50 dark:bg-foreground data-dragging:scale-120 [html:not(.dark)_&]:bg-clip-padding duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
       },
       bold: {
         track: 'cursor-pointer',
         range:
-          "rounded-[inherit] transition-[width,height,left,right,top,bottom] after:rounded-full after:bg-primary-foreground/90 after:opacity-0 after:content-[''] after:transition-opacity after:absolute group-focus-within:after:opacity-100 group-hover:after:opacity-100 data-dragging:transition-none",
+          "rounded-[inherit] transition-[width,height,left,right,top,bottom] after:rounded-full after:bg-primary-foreground/90 after:opacity-0 after:content-[''] after:transition-opacity after:absolute group-focus-within:after:opacity-100 group-hover:after:opacity-100 data-dragging:transition-none duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]",
         divider: 'bg-muted-foreground/30',
         thumb: 'outline-none opacity-0 cursor-grab data-dragging:cursor-grabbing',
       },
@@ -113,15 +66,24 @@ export const sliderRecipe = recipe({
   compoundVariants: [
     {
       variants: { size: 'sm', variant: 'bold' },
-      class: { track: 'rounded-xs' },
+      class: {
+        root: '[--s-size:20px] [--s-len:14px] [--s-offset:3px] [--s-pos:max(3px,calc(100%_-_6px))]',
+        track: 'rounded-xs',
+      },
     },
     {
       variants: { size: 'md', variant: 'bold' },
-      class: { track: 'rounded-sm' },
+      class: {
+        root: '[--s-size:24px] [--s-len:16px] [--s-offset:4px] [--s-pos:max(4px,calc(100%_-_8px))]',
+        track: 'rounded-sm',
+      },
     },
     {
       variants: { size: 'lg', variant: 'bold' },
-      class: { track: 'rounded-md' },
+      class: {
+        root: '[--s-size:28px] [--s-len:18px] [--s-offset:5px] [--s-pos:max(5px,calc(100%_-_10px))]',
+        track: 'rounded-md',
+      },
     },
     {
       variants: { orientation: 'horizontal', inverted: false, variant: 'bold' },
@@ -155,28 +117,28 @@ export const sliderRecipe = recipe({
       variants: { orientation: 'horizontal', inverted: false, variant: 'bold', multiple: true },
       class: {
         range:
-          "before:rounded-full before:bg-primary-foreground/90 before:opacity-0 before:content-[''] before:transition-opacity before:absolute group-focus-within:before:opacity-100 group-hover:before:opacity-100 before:h-[var(--s-len)] before:w-[var(--s-offset)] before:top-1/2 before:-translate-y-1/2 before:left-[var(--s-offset)]",
+          "before:rounded-full before:bg-primary-foreground/90 before:opacity-0 before:content-[''] before:transition-opacity before:absolute group-focus-within:before:opacity-100 group-hover:before:opacity-100 before:h-[var(--s-len)] before:w-[var(--s-offset)] before:top-1/2 before:-translate-y-1/2 before:left-[var(--s-offset)] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]",
       },
     },
     {
       variants: { orientation: 'horizontal', inverted: true, variant: 'bold', multiple: true },
       class: {
         range:
-          "before:rounded-full before:bg-primary-foreground/90 before:opacity-0 before:content-[''] before:transition-opacity before:absolute group-focus-within:before:opacity-100 group-hover:before:opacity-100 before:h-[var(--s-len)] before:w-[var(--s-offset)] before:top-1/2 before:-translate-y-1/2 before:right-[var(--s-offset)]",
+          "before:rounded-full before:bg-primary-foreground/90 before:opacity-0 before:content-[''] before:transition-opacity before:absolute group-focus-within:before:opacity-100 group-hover:before:opacity-100 before:h-[var(--s-len)] before:w-[var(--s-offset)] before:top-1/2 before:-translate-y-1/2 before:right-[var(--s-offset)] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]",
       },
     },
     {
       variants: { orientation: 'vertical', inverted: false, variant: 'bold', multiple: true },
       class: {
         range:
-          "before:rounded-full before:bg-primary-foreground/90 before:opacity-0 before:content-[''] before:transition-opacity before:absolute group-focus-within:before:opacity-100 group-hover:before:opacity-100 before:w-[var(--s-len)] before:h-[var(--s-offset)] before:left-1/2 before:-translate-x-1/2 before:bottom-[var(--s-offset)]",
+          "before:rounded-full before:bg-primary-foreground/90 before:opacity-0 before:content-[''] before:transition-opacity before:absolute group-focus-within:before:opacity-100 group-hover:before:opacity-100 before:w-[var(--s-len)] before:h-[var(--s-offset)] before:left-1/2 before:-translate-x-1/2 before:bottom-[var(--s-offset)] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]",
       },
     },
     {
       variants: { orientation: 'vertical', inverted: true, variant: 'bold', multiple: true },
       class: {
         range:
-          "before:rounded-full before:bg-primary-foreground/90 before:opacity-0 before:content-[''] before:transition-opacity before:absolute group-focus-within:before:opacity-100 group-hover:before:opacity-100 before:w-[var(--s-len)] before:h-[var(--s-offset)] before:left-1/2 before:-translate-x-1/2 before:top-[var(--s-offset)]",
+          "before:rounded-full before:bg-primary-foreground/90 before:opacity-0 before:content-[''] before:transition-opacity before:absolute group-focus-within:before:opacity-100 group-hover:before:opacity-100 before:w-[var(--s-len)] before:h-[var(--s-offset)] before:left-1/2 before:-translate-x-1/2 before:top-[var(--s-offset)] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]",
       },
     },
     {
@@ -240,6 +202,8 @@ export const sliderRecipe = recipe({
       class: { thumb: 'w-full left-0 -translate-y-1/2 h-[var(--s-size)]' },
     },
   ],
-})
+} as const satisfies SlotRecipeOptions<keyof SliderT.Slot>
+
+export const sliderRecipe = recipe(sliderRecipeOptions)
 
 export type SliderVariantProps = VariantProps<typeof sliderRecipe>

@@ -12,145 +12,15 @@ import {
 } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
-import type { IconT } from '../../elements/icon/index.ts'
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { useId } from '../../shared/utils.ts'
 
-import { tabsRecipe } from './tabs.class.ts'
-import type { TabsVariantProps } from './tabs.class.ts'
+import type { TabsProps, TabsT } from './tabs.types.ts'
 
-export namespace TabsT {
-  export interface Slot<T = unknown> {
-    /**
-     * Tabs container that owns tab selection and panel rendering.
-     */
-    root?: T
-
-    /** Tablist that contains all tab triggers and the selection indicator. */
-    list?: T
-
-    /** Moving indicator aligned with the active tab trigger. */
-    indicator?: T
-
-    /** Tab button users activate to select a panel. */
-    trigger?: T
-
-    /** Optional icon rendered before a tab label. */
-    leading?: T
-
-    /** Text or custom label rendered inside a tab trigger. */
-    label?: T
-
-    /** Optional trailing content rendered after a tab label. */
-    trailing?: T
-
-    /** Tab panel rendered for the selected item. */
-    content?: T
-  }
-
-  export type Variant = TabsVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  /**
-   * An individual tab in the tabs component.
-   */
-  export interface Item {
-    /**
-     * Label to display on the tab trigger.
-     */
-    label?: JSX.Element
-
-    /**
-     * Icon to display next to the label.
-     */
-    icon?: IconT.Name
-
-    /**
-     * Unique value for the tab.
-     * @default index of the item
-     */
-    value?: string
-
-    /**
-     * Content to display when the tab is active.
-     */
-    content?: JSX.Element
-
-    /**
-     * Whether the tab is disabled.
-     * @default false
-     */
-    disabled?: boolean
-  }
-
-  /**
-   * Base props for the Tabs component.
-   */
-  export interface Base {
-    /**
-     * Unique identifier for the tabs root element.
-     */
-    id?: string
-
-    /**
-     * Controlled active tab value.
-     */
-    value?: string
-
-    /**
-     * Default active tab value for uncontrolled usage.
-     */
-    defaultValue?: string
-
-    /**
-     * The orientation of the tab list.
-     * @default 'horizontal'
-     */
-    orientation?: 'horizontal' | 'vertical'
-
-    /**
-     * Whether keyboard navigation activates the tab immediately or waits for confirmation.
-     * @default 'automatic'
-     */
-    activationMode?: 'automatic' | 'manual'
-
-    /**
-     * Whether the tab list is disabled.
-     * @default false
-     */
-    disabled?: boolean
-
-    /**
-     * Whether arrow-key navigation wraps from the ends.
-     * @default true
-     */
-    keyboardLoop?: boolean
-
-    /**
-     * Callback when the active tab changes.
-     */
-    onChange?: (value: string) => void
-
-    /**
-     * Array of tabs to display.
-     */
-    items?: Item[]
-  }
-
-  /**
-   * Props for the Tabs component.
-   */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the Tabs component.
- */
-export interface TabsProps extends TabsT.Props {}
+export type { TabsProps, TabsT } from './tabs.types.ts'
 
 interface NormalizedTabItem extends TabsT.Item {
   instanceKey: string
@@ -186,8 +56,8 @@ export function Tabs(props: TabsProps): JSX.Element {
     'class',
     'style',
   ])
-  const config = useMoraineConfig()
-  const providerTabs = () => config().tabs
+  const design = useMoraineDesign()
+  const tabsDesign = () => design().tabs
 
   const merged = mergeProps(
     {
@@ -195,22 +65,19 @@ export function Tabs(props: TabsProps): JSX.Element {
       variant: 'pill' as const,
       size: 'md' as const,
     },
-    () => providerTabs()?.variants,
+    () => tabsDesign().defaultVariants,
     local,
   )
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return tabsRecipe({
+        return tabsDesign().recipe({
           orientation: merged.orientation,
           variant: merged.variant,
           size: merged.size,
         })
       },
-    },
-    get provider() {
-      return providerTabs()
     },
     get instance() {
       return {
@@ -234,9 +101,12 @@ export function Tabs(props: TabsProps): JSX.Element {
       const value = normalizeItemValue(item.value, index)
       const occurrence = occurrences.get(value) ?? 0
       occurrences.set(value, occurrence + 1)
+      const content = createLazyMemo(() => item.content)
 
       return {
-        content: item.content,
+        get content() {
+          return content()
+        },
         disabled: item.disabled,
         icon: item.icon,
         instanceKey: `${encodeURIComponent(value)}-${occurrence}`,

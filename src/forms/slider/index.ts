@@ -1,2 +1,2 @@
-export * from './slider'
-export * from './hook/index'
+export * from './slider.tsx'
+export * from './hook/index.ts'

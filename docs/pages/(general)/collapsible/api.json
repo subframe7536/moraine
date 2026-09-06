@@ -9,76 +9,7 @@
   },
   "slots": [],
   "props": {
-    "own": [
-      {
-        "name": "children",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Content to render inside the collapsible."
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "defaultOpen",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the collapsible is open by default (uncontrolled).",
-        "defaultValue": "false"
-      },
-      {
-        "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the collapsible is disabled.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "id",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Unique identifier for the collapsible root element."
-      },
-      {
-        "name": "onOpenChange",
-        "required": false,
-        "type": "((open: boolean) => void) | undefined",
-        "description": "Callback when the open state changes."
-      },
-      {
-        "name": "open",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the collapsible is open (controlled)."
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "transition",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to keep content mounted until its height transition completes.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "unmountOnHide",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to unmount collapsible content when closed.",
-        "defaultValue": "true"
-      }
-    ],
+    "own": [],
     "inherited": []
   }
 }

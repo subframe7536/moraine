@@ -1,1 +1,2 @@
-export * from './file-upload'
+export * from './file-upload.types.ts'
+export * from './file-upload.tsx'

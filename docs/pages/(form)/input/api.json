@@ -97,6 +97,12 @@
         "description": "The ID of the input element."
       },
       {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined",
+        "description": "Optional inner input element ref."
+      },
+      {
         "name": "leading",
         "required": false,
         "type": "IconT.Name",
@@ -192,7 +198,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined"
       },
       {
         "name": "style",
@@ -226,7 +232,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined"
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | null | undefined"
       }
     ],
     "inherited": []

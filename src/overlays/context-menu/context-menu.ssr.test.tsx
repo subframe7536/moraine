@@ -6,7 +6,6 @@ import { finishMenuExitMotion } from '../../test-utils/overlay-test'
 import { hydrateFixture } from '../../test-utils/ssr-test'
 
 import { ContextMenu } from './context-menu'
-import type { ContextMenuT } from './context-menu'
 
 describe('ContextMenu SSR Hydration', () => {
   test('hydrates the trigger once and opens from keyboard and long press', async () => {
@@ -15,15 +14,19 @@ describe('ContextMenu SSR Hydration', () => {
     const { container } = hydrateFixture(
       '/src/overlays/context-menu/context-menu.ssr.fixture.tsx',
       'renderContextMenuFixture',
-      () =>
-        createComponent(ContextMenu, {
-          id: 'ssr-context',
-          items: [{ label: 'Archive' }, { label: 'Delete' }],
-          get children() {
-            triggerReads += 1
-            return (props: ContextMenuT.TriggerProps) => <div {...props}>Row Item</div>
-          },
-        }),
+      () => (
+        <ContextMenu id="ssr-context">
+          {createComponent(ContextMenu.Trigger, {
+            as: 'div',
+
+            get children() {
+              triggerReads += 1
+              return 'Row Item'
+            },
+          })}
+          <ContextMenu.Content items={[{ label: 'Archive' }, { label: 'Delete' }]} />
+        </ContextMenu>
+      ),
     )
 
     const serverTrigger = container.querySelector<HTMLElement>('[data-slot="trigger"]')!

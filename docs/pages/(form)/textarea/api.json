@@ -63,7 +63,7 @@
       {
         "name": "autoresize",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | \"true\" | \"false\" | null | undefined"
       },
       {
         "name": "autoResize",
@@ -217,7 +217,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined"
       },
       {
         "name": "style",
@@ -230,6 +230,12 @@
         "type": "TextareaT.Styles | undefined"
       },
       {
+        "name": "textareaRef",
+        "required": false,
+        "type": "Ref<HTMLTextAreaElement> | undefined",
+        "description": "Optional inner textarea element ref."
+      },
+      {
         "name": "value",
         "required": false,
         "type": "TextareaT.Value",
@@ -238,7 +244,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined"
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | null | undefined"
       }
     ],
     "inherited": []

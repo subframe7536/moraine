@@ -2,6 +2,9 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
 import { Tabs } from './tabs'
 
 if (!(globalThis as Record<string, unknown>).ResizeObserver) {
@@ -16,6 +19,30 @@ if (!(globalThis as Record<string, unknown>).ResizeObserver) {
 }
 
 describe('Tabs', () => {
+  test('defers unselected panel JSX and reads it once when selected', () => {
+    let reads = 0
+    const [value, setValue] = createSignal('first')
+    const screen = render(() => (
+      <Tabs
+        value={value()}
+        items={[
+          { value: 'first', label: 'First', content: 'First panel' },
+          {
+            value: 'second',
+            label: 'Second',
+            get content() {
+              reads++
+              return <span>Second panel</span>
+            },
+          },
+        ]}
+      />
+    ))
+    expect(reads).toBe(0)
+    setValue('second')
+    expect(screen.getByRole('tabpanel').textContent).toBe('Second panel')
+    expect(reads).toBe(1)
+  })
   const ITEMS = [
     { label: 'Overview', value: 'overview', content: 'Overview content' },
     { label: 'Settings', value: 'settings', content: 'Settings content' },
@@ -243,16 +270,18 @@ describe('Tabs', () => {
 
   test('applies orientation/variant classes and class overrides', () => {
     const screen = render(() => (
-      <Tabs
-        orientation="vertical"
-        variant="link"
-        items={ITEMS}
-        classes={{
-          root: 'root-override',
-          trigger: 'trigger-override',
-          content: 'content-override',
-        }}
-      />
+      <MoraineProvider design={createDesign()}>
+        <Tabs
+          orientation="vertical"
+          variant="link"
+          items={ITEMS}
+          classes={{
+            root: 'root-override',
+            trigger: 'trigger-override',
+            content: 'content-override',
+          }}
+        />
+      </MoraineProvider>
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]')
@@ -268,11 +297,41 @@ describe('Tabs', () => {
   })
 
   test('applies vertical pill indicator inset class', () => {
-    const screen = render(() => <Tabs orientation="vertical" items={ITEMS} />)
+    const screen = render(() => (
+      <MoraineProvider design={createDesign()}>
+        <Tabs orientation="vertical" items={ITEMS} />
+      </MoraineProvider>
+    ))
 
     const indicator = screen.container.querySelector('[data-slot="indicator"]')
 
     expect(indicator?.className).toContain('inset-x-1')
+  })
+
+  test('renders unstyled while retaining selection behavior without a provider', () => {
+    const screen = render(() => <Tabs items={ITEMS} />)
+    for (const element of screen.container.querySelectorAll('[data-slot]')) {
+      expect(element.className).toBe('')
+    }
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }))
+    expect(screen.getByRole('tabpanel').textContent).toBe('Settings content')
+  })
+
+  test('replaces Design without remounting the selected tab or panel', () => {
+    const [design, setDesign] = createSignal(createDesign())
+    const screen = render(() => (
+      <MoraineProvider design={design()}>
+        <Tabs items={ITEMS} defaultValue="settings" />
+      </MoraineProvider>
+    ))
+    const tab = screen.getByRole('tab', { name: 'Settings' })
+    const panel = screen.getByRole('tabpanel')
+    tab.focus()
+    setDesign(createDesign({ preset: false, tabs: { base: { trigger: 'custom-tab' } } }))
+    expect(screen.getByRole('tab', { name: 'Settings' })).toBe(tab)
+    expect(screen.getByRole('tabpanel')).toBe(panel)
+    expect(document.activeElement).toBe(tab)
+    expect(tab.className).toBe('custom-tab')
   })
 
   test('renders icon leading', () => {

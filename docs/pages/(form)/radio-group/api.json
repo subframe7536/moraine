@@ -217,7 +217,7 @@
       {
         "name": "indicator",
         "required": false,
-        "type": "\"hidden\" | \"end\" | \"start\" | undefined"
+        "type": "\"hidden\" | \"end\" | \"start\" | null | undefined"
       },
       {
         "name": "items",
@@ -240,7 +240,7 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined",
+        "type": "\"horizontal\" | \"vertical\" & \"horizontal\" | \"vertical\" | null | undefined",
         "description": "The orientation of the radio group.",
         "defaultValue": "vertical"
       },
@@ -266,7 +266,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined"
       },
       {
         "name": "style",
@@ -281,7 +281,7 @@
       {
         "name": "tableOrientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined"
+        "type": "\"horizontal\" | \"vertical\" | null | undefined"
       },
       {
         "name": "value",
@@ -292,7 +292,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"list\" | \"table\" | \"card\" | undefined"
+        "type": "\"list\" | \"table\" | \"card\" | null | undefined"
       }
     ],
     "inherited": []

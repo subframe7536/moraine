@@ -2,8 +2,13 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
 import { Accordion } from './accordion'
 import type { AccordionT } from './accordion'
+
+const officialDesign = createDesign()
 
 const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
   {
@@ -25,6 +30,16 @@ const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
 ]
 
 describe('Accordion', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = render(() => <Accordion items={BASE_ITEMS} defaultValue={['one']} />)
+    const root = screen.container.firstElementChild
+    expect(root?.className).toBe('')
+    const trigger = screen.getByRole('button', { name: 'One' })
+    expect(trigger.className).toBe('')
+    const content = screen.getByRole('region', { name: 'One' })
+    expect(content.className).toBe('')
+  })
+
   test('renders default expanded item in single mode', () => {
     const screen = render(() => <Accordion items={BASE_ITEMS} defaultValue={['one']} />)
 
@@ -558,7 +573,11 @@ describe('Accordion', () => {
         )
       }
 
-      const screen = render(() => <ControlledAccordion />)
+      const screen = render(() => (
+        <MoraineProvider design={officialDesign}>
+          <ControlledAccordion />
+        </MoraineProvider>
+      ))
       const triggerOne = screen.getByRole('button', { name: 'One' })
 
       expect(screen.getByTestId('open-value').textContent).toBe('none')

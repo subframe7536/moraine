@@ -217,7 +217,7 @@ export function CodeBlock(props: CodeBlockProps) {
         <div
           ref={(el) => {
             contentRef = el
-            updateExpandable()
+            queueMicrotask(updateExpandable)
           }}
           class={cn(
             'scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent overscroll-x-contain h-full overflow-x-auto',

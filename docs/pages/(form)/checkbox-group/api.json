@@ -19,7 +19,14 @@
       "name": "fieldset",
       "description": "Fieldset element that groups checkbox options for accessibility.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-variant",
+          "required": false,
+          "type": "string",
+          "description": "Stores the resolved visual variant."
+        }
+      ],
       "ariaAttributes": [
         {
           "name": "aria-labelledby",

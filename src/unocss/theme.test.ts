@@ -151,23 +151,11 @@ describe('presetMoraine', () => {
   test.each([
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
-  ])('uses the shared enter transition defaults with %s', async (_name, wind) => {
+  ])('preserves the host transition defaults with %s', async (_name, wind) => {
     const css = await generate(['transition', 'transition-colors'], true, wind)
-
-    if (wind === presetWind3) {
-      expect(css).toContain(
-        'transition-duration:var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))',
-      )
-      expect(css).toContain('transition-timing-function:cubic-bezier(0.16, 1, 0.3, 1)')
-    } else {
-      expect(css).toContain(
-        '--default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))',
-      )
-      expect(css).toContain('--default-transition-timingFunction: cubic-bezier(0.16, 1, 0.3, 1)')
-      expect(css).toContain(
-        'transition-duration:var(--un-duration, var(--default-transition-duration))',
-      )
-    }
+    expect(css).not.toContain('transition-duration:var(--mo-anim-duration')
+    expect(css).not.toContain('--default-transition-duration: var(--mo-anim-duration')
+    expect(css).not.toContain('--default-transition-timingFunction: cubic-bezier(0.16, 1, 0.3, 1)')
   })
 
   test('does not emit color variables without configuration', async () => {

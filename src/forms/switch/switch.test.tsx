@@ -1,14 +1,41 @@
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
 import { Switch } from './switch'
+
+const officialDesign = createDesign()
+
+const render: typeof baseRender = (ui, options) =>
+  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
 
 function expectSwitchChecked(element: Element, checked: boolean): void {
   expect(element.getAttribute('aria-checked')).toBe(String(checked))
 }
 
 describe('Switch', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = baseRender(() => <Switch label="Test" />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.className).toBe('')
+  })
+
+  test('forwards root ref and inner inputRef', () => {
+    let rootEl: HTMLDivElement | undefined
+    let inputEl: HTMLInputElement | undefined
+
+    render(() => (
+      <Switch ref={(el) => (rootEl = el)} inputRef={(el) => (inputEl = el)} label="Ref test" />
+    ))
+
+    expect(rootEl).toBeInstanceOf(HTMLDivElement)
+    expect(rootEl?.getAttribute('data-slot')).toBe('root')
+    expect(inputEl).toBeInstanceOf(HTMLInputElement)
+  })
+
   test('renders label and description with accessible switch input', () => {
     const screen = render(() => <Switch label="Email alerts" description="Receive updates" />)
 

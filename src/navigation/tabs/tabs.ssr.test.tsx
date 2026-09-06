@@ -1,5 +1,6 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-utils/ssr-test'
@@ -7,6 +8,44 @@ import { hydrateFixture, renderSsrFixture } from '../../test-utils/ssr-test'
 import { Tabs } from './tabs'
 
 describe('Tabs SSR Hydration', () => {
+  test('keeps dynamic inactive panel content lazy through hydration and keyboard selection', () => {
+    let firstReads = 0
+    let secondReads = 0
+    const { container } = hydrateFixture(
+      '/src/navigation/tabs/tabs.ssr.fixture.tsx',
+      'renderLazyTabsFixture',
+      () => (
+        <Tabs
+          id="lazy-tabs"
+          items={[
+            {
+              label: 'First',
+              value: 'first',
+              get content() {
+                firstReads += 1
+                return <Dynamic component="p">First lazy panel</Dynamic>
+              },
+            },
+            {
+              label: 'Second',
+              value: 'second',
+              get content() {
+                secondReads += 1
+                return <Dynamic component="p">Second lazy panel</Dynamic>
+              },
+            },
+          ]}
+        />
+      ),
+    )
+    expect(firstReads).toBe(1)
+    expect(secondReads).toBe(0)
+    expect(container.querySelector('[role="tabpanel"] p')?.textContent).toBe('First lazy panel')
+    fireEvent.keyDown(container.querySelector('[role="tab"]')!, { key: 'ArrowRight' })
+    expect(firstReads).toBe(1)
+    expect(secondReads).toBe(1)
+    expect(container.querySelector('[role="tabpanel"] p')?.textContent).toBe('Second lazy panel')
+  })
   test('renders deterministic vertical SSR relationships and selected panel', () => {
     const markup = renderSsrFixture(
       '/src/navigation/tabs/tabs.ssr.fixture.tsx',

@@ -1,30 +1,18 @@
-import { defineStyleVars } from '../../shared/style/css-vars.ts'
-import type { VariantProps } from '../../shared/style/recipe.ts'
+import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { recipe } from '../../shared/style/recipe.ts'
 
-export const progressStyleVars = defineStyleVars({
-  prefix: 'p',
-  variants: {
-    size: {
-      sm: { size: '0.25rem' },
-      md: { size: '0.5rem' },
-      lg: { size: '0.75rem' },
-    },
-  },
-  defaultVariants: {
-    size: 'md',
-  },
-})
+import type { ProgressT } from './progress.types.ts'
 
-export const progressRecipe = recipe({
+export const progressRecipeOptions = {
   base: {
     root: 'gap-2 relative',
-    status: 'text-sm text-muted-foreground font-medium flex transition-[width,height] tabular-nums',
+    status:
+      'text-sm text-muted-foreground font-medium flex transition-[width,height] tabular-nums duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
     track: 'rounded-full bg-muted translate-z-0 relative overflow-hidden',
     indicator:
-      'will-change-transform bg-primary size-full transition-transform inset-0 absolute data-indeterminate:opacity-100',
+      'will-change-transform bg-primary size-full transition-transform inset-0 absolute data-indeterminate:opacity-100 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
     steps: 'grid items-end',
-    step: 'text-end col-start-1 row-start-1 truncate transition-opacity',
+    step: 'text-end col-start-1 row-start-1 truncate transition-opacity data-[state=active]:opacity-100 data-[state=first]:text-muted-foreground data-[state=first]:opacity-100 data-[state=other]:opacity-0 data-[state=last]:opacity-100 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
   },
   defaultVariants: {
     orientation: 'horizontal',
@@ -50,16 +38,19 @@ export const progressRecipe = recipe({
     },
     size: {
       sm: {
+        root: '[--p-size:0.25rem]',
         status: 'text-xs',
         steps: 'text-xs',
         step: 'text-xs',
       },
       md: {
+        root: '[--p-size:0.5rem]',
         status: 'text-sm',
         steps: 'text-sm',
         step: 'text-sm',
       },
       lg: {
+        root: '[--p-size:0.75rem]',
         status: 'text-base',
         steps: 'text-base',
         step: 'text-base',
@@ -149,13 +140,8 @@ export const progressRecipe = recipe({
       },
     },
   ],
-})
+} as const satisfies SlotRecipeOptions<keyof ProgressT.Slot>
 
-export const PROGRESS_STEP_STATE_CLASS = {
-  active: 'opacity-100',
-  first: 'text-muted-foreground opacity-100',
-  other: 'opacity-0',
-  last: 'opacity-100',
-} as const
+export const progressRecipe = recipe(progressRecipeOptions)
 
-export type ProgressVariantProps = VariantProps<typeof progressRecipe>
+export type ProgressVariantProps = ProgressT.Variant

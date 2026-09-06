@@ -6,6 +6,8 @@
 
 ## Status
 
+- Execution: DONE, 2026-09-07
+
 - Priority: P1
 - Effort: L, multiple implementation sessions
 - Risk: HIGH; shared styling, public overlay APIs, and hydration all change
@@ -305,14 +307,56 @@ Use existing `src/shared/style/recipe.test.ts`, `src/shared/provider/moraine-pro
 
 ## Done criteria
 
-- [ ] All step verification commands pass, including `nub run qa`, `nub run test`, `nub run test:types`, `nub run docs:build`, and `git diff --check`.
-- [ ] All component public namespaces (`<Component>T`) and top-level prop types are moved into colocated `*.types.ts` files and re-exported from component barrels and package root.
-- [ ] Architecture acceptance tests prove every styled family is covered and runtime components cannot reach official visual definitions directly.
-- [ ] Searches in step 7 show no active legacy config or callback-adapter implementation; old API names occur only in intentional negative tests/search checks.
-- [ ] Published consumer tests import `moraine/design` using real exports and validate both type fixture modes and all CSS engines.
-- [ ] Browser evidence covers the production route/viewport matrix, no hydration errors, and preserved critical DOM after hydration.
-- [ ] `git diff --name-only` and `git status --short` show only in-scope task changes after accounting for preserved pre-existing work; dependencies/lockfile unchanged.
-- [ ] `plans/README.md` is updated with completion or a specific blocker; no migration phase is left on the old runtime path.
+- [x] All step verification commands pass, including `nub run qa`, `nub run test`, `nub run test:types`, `nub run docs:build`, and `git diff --check`.
+- [x] All component public namespaces (`<Component>T`) and top-level prop types are moved into colocated `*.types.ts` files and re-exported from component barrels and package root.
+- [x] Architecture acceptance tests prove every styled family is covered and runtime components cannot reach official visual definitions directly.
+- [x] Searches in step 7 show no active legacy config or callback-adapter implementation; old API names occur only in intentional negative tests/search checks.
+- [x] Published consumer tests import `moraine/design` using real exports and validate both type fixture modes and all CSS engines.
+- [x] Browser evidence covers the production route/viewport matrix, no hydration errors, and preserved critical DOM after hydration.
+- [x] `git diff --name-only` and `git status --short` show only in-scope task changes after accounting for preserved pre-existing work; dependencies/lockfile unchanged.
+- [x] `plans/README.md` is updated with completion or a specific blocker; no migration phase is left on the old runtime path.
+
+## Execution evidence — 2026-09-07
+
+Status: DONE. The migration preserves the existing work on `style-refactor`; no commit, push, dependency upgrade, lockfile change, or CI/release-flow change was made. The package/build configuration changes only register the public `moraine/design` entry.
+
+### Implementation
+
+All public component namespaces now live in colocated `*.types.ts` files. Styled elements, forms, navigation, and all seven overlay families read default presentation from Design. List is intentionally headless, and Collapsible retains only its height-transition structure, so neither exposes Design slots or accepts a Design entry. The required Provider accepts a complete Design, nested Providers replace it reactively, and no-Provider rendering stays unstyled. The official preset is loaded only through the Design entry. Architecture tests cover the complete Design slot inventory and prevent component-runtime imports of official recipe modules.
+
+Dialog, Sheet, Modal, Popover, Tooltip, DropdownMenu, and ContextMenu use DOM-owning Trigger/Content/Close parts where applicable. Shared focus, presence, positioning, and menu behavior remains in the existing primitives. Legacy config/context/bridge APIs and ModalTriggerRenderer have been removed. Negative type tests intentionally retain references to rejected APIs.
+
+Official recipes now own visual states, including loading, disabled, required labels, file inputs, multi-select actions, and explicit motion. UnoCSS Wind3/Wind4 and Tailwind consumer tests use actual package exports and published chunks; generic transition defaults remain engine-owned.
+
+Docs use one stable official Design at the root. API extraction follows generated declaration chunks and displays compound-part props. Client-only previews mount after hydration; measured CodeBlock controls defer their first update. Tabs/Stepper panel getters avoid constructing inactive MDX content, and SidebarFrame retains one main subtree across responsive layout changes.
+
+### Automated gates
+
+| Gate                                 | Result                                                             |
+| ------------------------------------ | ------------------------------------------------------------------ |
+| `nub run typecheck` (also inside QA) | PASS, zero TypeScript errors                                       |
+| `nub run qa`                         | PASS: formatting, lint, typecheck, build, and both type fixtures   |
+| `nub run test`                       | PASS: 119 files, 1786 tests                                        |
+| `nub run test:types`                 | PASS: default and autocomplete consumers of real exports           |
+| `nub run docs:build`                 | PASS: production SSG, 45 routes, generated component/part API docs |
+| `git diff --check`                   | PASS                                                               |
+
+The full test result includes component-family, Design/cascade, unstyled-state, native-ref, overlay, SSR, architecture, docs-preview, API extraction, and real CSS-consumer coverage. Existing non-fatal toolchain/lint warnings are not reported as zero warnings.
+
+### Production browser evidence
+
+Served the production `docs/dist/client` output with `nubx vite preview docs --outDir dist/client --host 127.0.0.1 --port 4173` after the successful docs build (the same preview command used by `docs:preview`). Browser validation used full navigations and waited for client preview mounting, not just visible SSR markup.
+
+| Routes                                                                                                                                                   | Widths                           | Result                                                                                                                                                                                                              |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`, `/button`, `/dialog`, `/form`, `/modal`, `/sheet`, `/popover`, `/tooltip`, `/dropdown-menu`, `/context-menu`, `/tabs`, `/stepper`, `/sidebar-frame` | 375, 768, 1440 px; 900 px height | All 39 combinations passed: one main and h1, no horizontal page overflow, expected client previews mounted, no error-level console messages or uncaught hydration exceptions.                                       |
+| Dialog, Sheet, Modal                                                                                                                                     | All three widths                 | Open, Tab inside the modal, Escape, content removal after exit, and focus return to the original trigger passed. Surfaces are not nested in trigger buttons, have non-zero bounds, and retain official backgrounds. |
+| Popover, Tooltip                                                                                                                                         | All three widths                 | Click/focus opening, expected content, viewport-contained popover, Escape dismissal passed. The intentionally controlled always-open tooltip example was excluded from the uncontrolled tooltip's close assertion.  |
+| DropdownMenu, ContextMenu                                                                                                                                | All three widths                 | Arrow-key opening/navigation, nested Theme submenu, two-step Escape, right-click opening, and closing passed.                                                                                                       |
+| Nested Dialog and Popover                                                                                                                                | All three widths                 | Escape closes only the active child. Focus returns to View settings help, Confirm workspace changes, and finally Open nested overlays in order.                                                                     |
+| `/styling`                                                                                                                                               | 375 px                           | Switching Design changes the button from rounded to square; typed input value survives, and the callback inputRef still focuses the native INPUT.                                                                   |
+
+Additional checks: the homepage Review in dialog action works after hydration; Tabs selects the Deployments panel using the keyboard. Desktop and mobile screenshots confirmed readable dialog title/body/footer/close controls. At 375 px the dialog is 343 px wide at x=16; at 1440 px it is 512 px wide at x=464. The mobile Sheet is 281.25 px wide and 900 px tall at the right edge. Critical headings, icons, controls, and portaled surfaces remain under their intended parents.
 
 ## STOP conditions
 

@@ -92,20 +92,19 @@ function IntroSpecimen() {
             <Button type="submit" size="sm">
               Save specimen
             </Button>
-            <Dialog
-              title="Review the specimen"
-              description="The dialog is an overlay component with its own focus and dismissal behavior."
-              body={
-                <p class="text-sm text-muted-foreground leading-relaxed">
-                  The current message is kept in this local example and is never sent anywhere.
-                </p>
-              }
-            >
-              {(triggerProps) => (
-                <Button {...triggerProps} type="button" variant="outline" size="sm">
-                  Review in dialog
-                </Button>
-              )}
+            <Dialog>
+              <Dialog.Trigger as={Button} type="button" variant="outline" size="sm">
+                Review in dialog
+              </Dialog.Trigger>
+              <Dialog.Content
+                title="Review the specimen"
+                description="The dialog is an overlay component with its own focus and dismissal behavior."
+                body={
+                  <p class="text-sm text-muted-foreground leading-relaxed">
+                    The current message is kept in this local example and is never sent anywhere.
+                  </p>
+                }
+              />
             </Dialog>
             <output aria-live="polite" class="text-xs text-muted-foreground">
               {savedMessage() ? `Saved: ${savedMessage()}` : 'Not saved'}

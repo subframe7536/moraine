@@ -1,315 +1,108 @@
 import { render, waitFor } from '@solidjs/testing-library'
-import { createSignal, onMount } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { createComponent, createSignal, onMount } from 'solid-js'
+import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
 import { ButtonGroup } from '../../elements/button/button-group.tsx'
 import { Button } from '../../elements/button/index.ts'
-import * as elements from '../../elements/index.ts'
-import * as forms from '../../forms/index.ts'
+import { Checkbox } from '../../forms/checkbox/checkbox.tsx'
 import { Input } from '../../forms/input/input.tsx'
 import { MultiSelect } from '../../forms/select/multi-select.tsx'
 import { Select } from '../../forms/select/select.tsx'
-import * as navigation from '../../navigation/index.ts'
-import * as overlays from '../../overlays/index.ts'
+import { Switch } from '../../forms/switch/switch.tsx'
 import { Tooltip } from '../../overlays/tooltip/tooltip.tsx'
 import { recipe } from '../style/recipe.ts'
 
-import {
-  MoraineProvider,
-  mergeComponentStyle,
-  mergeMoraineConfig,
-  resolveComponentStyle,
-  useMoraineConfig,
-} from './moraine-provider.tsx'
-import type { ComponentDefaultStyle, MoraineConfig } from './moraine-provider.tsx'
+import { MoraineProvider, resolveComponentStyle } from './moraine-provider.tsx'
 
-describe('Component Ownership Inventory', () => {
-  const STANDALONE_MAP: Record<string, keyof MoraineConfig> = {
-    Accordion: 'accordion',
-    Avatar: 'avatar',
-    AvatarGroup: 'avatarGroup',
-    Badge: 'badge',
-    Breadcrumb: 'breadcrumb',
-    Button: 'button',
-    ButtonGroup: 'buttonGroup',
-    Card: 'card',
-    Checkbox: 'checkbox',
-    CheckboxGroup: 'checkboxGroup',
-    CommandPalette: 'commandPalette',
-    ContextMenu: 'contextMenu',
-    Dialog: 'dialog',
-    DropdownMenu: 'dropdownMenu',
-    FileUpload: 'fileUpload',
-    Form: 'form',
-    FormField: 'formField',
-    Icon: 'icon',
-    Input: 'input',
-    InputNumber: 'inputNumber',
-    Kbd: 'kbd',
-    KbdGroup: 'kbdGroup',
-    List: 'list',
-    MultiSelect: 'multiSelect',
-    Pagination: 'pagination',
-    Popover: 'popover',
-    Progress: 'progress',
-    RadioGroup: 'radioGroup',
-    Resizable: 'resizable',
-    Select: 'select',
-    Separator: 'separator',
-    Sheet: 'sheet',
-    SidebarFrame: 'sidebarFrame',
-    Slider: 'slider',
-    Stepper: 'stepper',
-    Switch: 'switch',
-    Tabs: 'tabs',
-    Textarea: 'textarea',
-    Tooltip: 'tooltip',
-  }
-
-  const OWNER_MAP: Record<string, keyof MoraineConfig> = {
-    AccordionItem: 'accordion',
-    AccordionTrigger: 'accordion',
-    AccordionContent: 'accordion',
-    AvatarFace: 'avatar',
-    SidebarFrameSheetOnlyRender: 'sidebarFrame',
-    SidebarFrameSheetResizableRender: 'sidebarFrame',
-  }
-
-  test('derives every package-root component and maps it to exactly one provider key', () => {
-    const allBarrels = { ...elements, ...forms, ...navigation, ...overlays }
-    const componentNames = Object.keys(allBarrels).filter((name) => {
-      // Components are PascalCase and functions
-      if (!/^[A-Z]/.test(name)) {
-        return false
-      }
-      const exp = (allBarrels as Record<string, unknown>)[name]
-      return typeof exp === 'function'
-    })
-
-    const assigned = new Map<string, string>()
-
-    for (const name of componentNames) {
-      if (assigned.has(name)) {
-        throw new Error(`Duplicate public component export: ${name}`)
-      }
-      const ownerKey = STANDALONE_MAP[name] ?? OWNER_MAP[name]
-      if (!ownerKey && name !== 'Collapsible' && name !== 'Modal') {
-        throw new Error(
-          `Unassigned public component: ${name}. Must be added to standalone or owner map.`,
-        )
-      }
-      if (ownerKey) {
-        assigned.set(name, ownerKey)
-      }
-    }
-
-    // Account for createForm() bound Form component mapped to 'form'
-    assigned.set('createForm.Form', 'form')
-
-    // Verify all standalone keys are represented
-    const coveredKeys = new Set(assigned.values())
-    const missingKeys = Object.values(STANDALONE_MAP).filter((key) => !coveredKeys.has(key))
-    expect(missingKeys, `Missing standalone keys: ${missingKeys.join(', ')}`).toEqual([])
-  })
-})
-
-describe('Deep Merge & Provider Inheritance', () => {
-  test('mergeComponentStyle shallow-merges variants, merges classes with cn, and deep-merges styles', () => {
-    const parent: ComponentDefaultStyle<any, any, any> = {
-      variants: { size: 'sm', variant: 'primary' },
-      classes: { root: 'p-root', header: 'p-header' },
-      styles: {
-        root: { color: 'red', '--p': '1' },
-      },
-    }
-    const child: ComponentDefaultStyle<any, any, any> = {
-      variants: { size: 'lg' },
-      classes: { root: 'c-root' },
-      styles: {
-        root: { color: 'blue', '--c': '2' },
-      },
-    }
-
-    const merged = mergeComponentStyle(parent, child)
-    expect(merged?.variants).toEqual({ size: 'lg', variant: 'primary' })
-    expect(merged?.classes?.root).toBe('p-root c-root')
-    expect((merged?.classes as any)?.header).toBe('p-header')
-    expect(merged?.styles?.root).toEqual({ color: 'blue', '--p': '1', '--c': '2' })
-  })
-
-  test('guards against null in styles', () => {
-    const parent: ComponentDefaultStyle<any, any, any> = {
-      styles: { root: { color: 'red' } },
-    }
-    const child: ComponentDefaultStyle<any, any, any> = {
-      styles: { root: null as any },
-    }
-
-    const merged = mergeComponentStyle(parent, child)
-    expect(merged?.styles?.root).toEqual({ color: 'red' })
-  })
-
-  test('mergeMoraineConfig merges nested configs across components', () => {
-    const parent: MoraineConfig = {
-      button: { variants: { size: 'sm' } },
-      badge: { variants: { variant: 'outline' } },
-    }
-    const child: MoraineConfig = {
-      button: { variants: { variant: 'outline' } },
-    }
-
-    const merged = mergeMoraineConfig(parent, child)
-    expect(merged.button?.variants).toEqual({ size: 'sm', variant: 'outline' })
-    expect(merged.badge?.variants).toEqual({ variant: 'outline' })
-  })
-})
-
-describe('MoraineProvider Solid Integration', () => {
-  test('provides reactive config changes without remounting descendants', () => {
-    const [config, setConfig] = createSignal<MoraineConfig>({
-      button: { classes: { root: 'initial-btn' } },
-    })
-
-    let mountCount = 0
-
-    function Consumer() {
-      onMount(() => {
-        mountCount++
-      })
-      const cfg = useMoraineConfig()
-      const className = () => {
-        const value = cfg().button?.classes?.root
-        return typeof value === 'string' ? value : ''
-      }
-      return <div data-testid="consumer">{className()}</div>
-    }
-
-    const { getByTestId } = render(() => (
-      <MoraineProvider config={config()}>
-        <Consumer />
-      </MoraineProvider>
-    ))
-
-    expect(getByTestId('consumer').textContent).toBe('initial-btn')
-    expect(mountCount).toBe(1)
-
-    // Update signal
-    setConfig({ button: { classes: { root: 'updated-btn' } } })
-    expect(getByTestId('consumer').textContent).toBe('updated-btn')
-    expect(mountCount).toBe(1) // must NOT remount!
-  })
-
-  test('updates provider and instance classes/styles without remounting the component', () => {
-    const [config, setConfig] = createSignal<MoraineConfig>({
-      button: {
-        classes: {
-          root: 'provider-slot-root-initial',
-          leading: 'provider-leading-initial',
-        },
-        styles: {
-          root: { color: 'red', background: 'red' },
-          leading: { color: 'red' },
-        },
-      },
-    })
-    const [instanceClasses, setInstanceClasses] = createSignal({
-      root: 'instance-root-initial',
-      leading: 'instance-leading-initial',
-    })
-    const [instanceStyles, setInstanceStyles] = createSignal({
-      root: { border: '1px solid red' },
-      leading: { background: 'red' },
-    })
-
+describe('MoraineProvider Design context', () => {
+  test('keeps form visual states unstyled without the official preset', () => {
     const screen = render(() => (
-      <MoraineProvider config={config()}>
-        <Button
-          data-testid="button"
-          leading="icon-star"
-          classes={instanceClasses()}
-          styles={instanceStyles()}
-        >
-          Reactive button
-        </Button>
+      <MoraineProvider design={createDesign({ preset: false })}>
+        <Input type="file" loading />
+        <Checkbox disabled label="Disabled checkbox" />
+        <Switch required label="Required switch" />
+        <Select options={[{ label: 'One', value: 'One' }]} placeholder="Choose" search={false} />
+        <MultiSelect options={[{ label: 'One', value: 'One' }]} defaultValue={['One']} loading />
       </MoraineProvider>
     ))
-
-    const button = screen.getByTestId('button')
-    const leading = button.querySelector('[data-slot="leading"]')!
-
-    expect(button.className).toContain('provider-slot-root-initial')
-    expect(button.className).toContain('instance-root-initial')
-    expect(leading.className).toContain('provider-leading-initial')
-    expect(leading.className).toContain('instance-leading-initial')
-    expect(button.style.color).toBe('red')
-    expect(button.style.background).toBe('red')
-    expect(button.style.border).toBe('1px solid red')
-    expect(leading.getAttribute('style')).toContain('color: red')
-    expect(leading.getAttribute('style')).toContain('background: red')
-
-    setConfig({
-      button: {
-        classes: {
-          root: 'provider-slot-root-updated',
-          leading: 'provider-leading-updated',
-        },
-        styles: {
-          root: { color: 'blue', background: 'blue' },
-          leading: { color: 'blue' },
-        },
-      },
-    })
-
-    expect(screen.getByTestId('button')).toBe(button)
-    expect(button.className).toContain('provider-slot-root-updated')
-    expect(leading.className).toContain('provider-leading-updated')
-    expect(leading.className).not.toContain('provider-leading-initial')
-    expect(button.style.color).toBe('blue')
-    expect(button.style.background).toBe('blue')
-    expect(leading.getAttribute('style')).toContain('color: blue')
-
-    setInstanceClasses({
-      root: 'instance-root-updated',
-      leading: 'instance-leading-updated',
-    })
-    setInstanceStyles({
-      root: { border: '1px solid blue' },
-      leading: { background: 'blue' },
-    })
-
-    expect(button.className).toContain('instance-root-updated')
-    expect(button.className).not.toContain('instance-root-initial')
-    expect(leading.className).toContain('instance-leading-updated')
-    expect(leading.className).not.toContain('instance-leading-initial')
-    expect(button.style.border).toBe('1px solid blue')
-    expect(leading.getAttribute('style')).toContain('background: blue')
+    for (const element of screen.container.querySelectorAll('[class]')) {
+      const classes = element.getAttribute('class') ?? ''
+      expect(classes).not.toMatch(/opacity-|cursor-|animate-|text-muted-|after:|file:|truncate/)
+    }
+  })
+  test('warns once per missing-provider owner tree and keeps components unstyled', () => {
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const first = render(() => (
+        <div>
+          <Button>First</Button>
+          <Button>Second</Button>
+        </div>
+      ))
+      expect(warning).toHaveBeenCalledTimes(1)
+      expect(first.getByRole('button', { name: 'First' }).className).toBe('')
+      const second = render(() => <Button>Third</Button>)
+      expect(warning).toHaveBeenCalledTimes(2)
+      first.unmount()
+      second.unmount()
+    } finally {
+      warning.mockRestore()
+    }
   })
 
-  test('nested MoraineProvider deep-merges with parent provider', () => {
-    const outer: MoraineConfig = {
-      button: { variants: { size: 'sm', variant: 'default' } },
+  test('replaces a nested Design without inheriting its parent or remounting descendants', () => {
+    const parent = createDesign({
+      button: { base: { root: 'parent-only' }, defaultVariants: { size: 'lg' } },
+    })
+    const [child, setChild] = createSignal(
+      createDesign({ preset: false, button: { base: { root: 'first-child' } } }),
+    )
+    let mounts = 0
+    function Probe() {
+      onMount(() => {
+        mounts += 1
+      })
+      return <Button>Child</Button>
     }
-    const inner: MoraineConfig = {
-      button: { variants: { variant: 'outline' } },
-    }
-
-    let resolvedButtonConfig: any
-
-    function Consumer() {
-      const cfg = useMoraineConfig()
-      resolvedButtonConfig = cfg().button
-      return <div>Test</div>
-    }
-
-    render(() => (
-      <MoraineProvider config={outer}>
-        <MoraineProvider config={inner}>
-          <Consumer />
+    const screen = render(() => (
+      <MoraineProvider design={parent}>
+        <Button>Parent</Button>
+        <MoraineProvider design={child()}>
+          <Probe />
         </MoraineProvider>
       </MoraineProvider>
     ))
+    const button = screen.getByRole('button', { name: 'Child' })
+    button.focus()
+    expect(button.className).toBe('first-child')
+    expect(button.getAttribute('data-size')).toBe('md')
+    setChild(
+      createDesign({
+        preset: false,
+        button: { base: { root: 'next-child' }, defaultVariants: { size: 'sm' } },
+      }),
+    )
+    expect(screen.getByRole('button', { name: 'Child' })).toBe(button)
+    expect(button.className).toBe('next-child')
+    expect(button.getAttribute('data-size')).toBe('sm')
+    expect(document.activeElement).toBe(button)
+    expect(mounts).toBe(1)
+    expect(screen.getByRole('button', { name: 'Parent' }).className).toContain('parent-only')
+  })
 
-    expect(resolvedButtonConfig.variants).toEqual({ size: 'sm', variant: 'outline' })
+  test('reads its JSX children once', () => {
+    let reads = 0
+    render(() =>
+      createComponent(MoraineProvider, {
+        design: createDesign(),
+        get children() {
+          reads += 1
+          return <Button>Child</Button>
+        },
+      }),
+    )
+    expect(reads).toBe(1)
   })
 })
 
@@ -334,7 +127,7 @@ describe('Precedence Contract & resolveComponentStyle', () => {
   test('matches the normative precedence table (§3.5.4)', () => {
     const slots = testRecipe()
 
-    const provider = {
+    const design = {
       classes: { root: 'p-slot-root', leading: 'p-slot-leading' },
       styles: {
         root: { color: 'orange', '--p': '1' },
@@ -373,7 +166,7 @@ describe('Precedence Contract & resolveComponentStyle', () => {
         classes: slots,
         styles: { root: baseStyle },
       },
-      provider,
+      design,
       group,
       instance,
       state: {
@@ -382,13 +175,13 @@ describe('Precedence Contract & resolveComponentStyle', () => {
     })
 
     // Root class order:
-    // recipe slots -> provider.classes.root -> group.classes.root -> stateCls.root -> instance.classes.root -> instance.class
+    // recipe slots -> design.classes.root -> group.classes.root -> stateCls.root -> instance.classes.root -> instance.class
     expect(resolved.rootClass()).toBe(
       'recipe-root text-sm h-8 px-2 p-slot-root g-slot-root i-slot-root i-class',
     )
 
     // Leading slot class order:
-    // recipe slots -> provider.classes.slot -> group.classes.slot -> stateCls.slot -> instance.classes.slot
+    // recipe slots -> design.classes.slot -> group.classes.slot -> stateCls.slot -> instance.classes.slot
     expect(resolved.slotClass('leading')).toBe(
       'recipe-leading size-3.5 p-slot-leading g-slot-leading s-leading i-slot-leading',
     )
@@ -410,16 +203,16 @@ describe('Precedence Contract & resolveComponentStyle', () => {
     })
   })
 
-  test('merges an atomic base class before provider and instance root overrides', () => {
+  test('merges an atomic base class before design and instance root overrides', () => {
     const resolved = resolveComponentStyle({
       base: {
         classes: { root: 'recipe-root px-2' },
       },
-      provider: { classes: { root: 'provider-root px-3' } },
+      design: { classes: { root: 'design-root px-3' } },
       instance: { class: 'instance-root px-4' },
     })
 
-    expect(resolved.rootClass()).toBe('recipe-root provider-root instance-root px-4')
+    expect(resolved.rootClass()).toBe('recipe-root design-root instance-root px-4')
   })
 
   test('places group and state values before instance overrides', () => {
@@ -486,7 +279,7 @@ describe('Unified style layers', () => {
     const inputs = {
       rootSlot: 'surface' as const,
       base: layer(1),
-      provider: layer(2),
+      design: layer(2),
       group: layer(3),
       state: layer(5),
       instance: { ...layer(7), class: 'p-8', style: { '--level': '8' } },
@@ -510,7 +303,7 @@ describe('Unified style layers', () => {
     // Remove each level to expose the preceding one, in both channels.
     const cascade = resolveComponentStyle<'surface'>({
       base: inputs.base,
-      provider: inputs.provider,
+      design: inputs.design,
       group: inputs.group,
       state: inputs.state,
     })
@@ -520,7 +313,7 @@ describe('Unified style layers', () => {
     expect(cascade.slotStyle('surface', { group: override.group })['--level']).toBe('5')
     const group = resolveComponentStyle<'surface'>({
       base: inputs.base,
-      provider: inputs.provider,
+      design: inputs.design,
       group: inputs.group,
     })
     expect(group.slotClass('surface', { group: override.group })).toBe('p-4')
@@ -532,7 +325,7 @@ describe('Unified style layers', () => {
     const resolved = resolveComponentStyle<'surface' | 'label'>({
       rootSlot: 'surface',
       base: { classes: { surface: 'p-1' }, styles: { surface: { color: 'red' } } },
-      get provider() {
+      get design() {
         return enabled()
           ? {
               classes: { surface: 'p-2' },
@@ -582,16 +375,16 @@ describe('Unified style layers', () => {
 })
 
 describe('Component style reactivity', () => {
-  test('updates grouped button variants and restores provider styles after instance removal', () => {
+  test('updates grouped button variants and restores Design classes after instance removal', () => {
     const [active, setActive] = createSignal(true)
     const screen = render(() => (
       <MoraineProvider
-        config={{
+        design={createDesign({
+          preset: false,
           button: {
-            classes: { root: active() ? 'p-2' : 'p-3' },
-            styles: { root: { color: active() ? 'blue' : 'red' } },
+            base: { root: active() ? 'p-2 text-blue-500' : 'p-3 text-red-500' },
           },
-        }}
+        })}
       >
         <ButtonGroup size={active() ? 'sm' : 'lg'}>
           <Button
@@ -612,16 +405,16 @@ describe('Component style reactivity', () => {
     expect(button.getAttribute('data-size')).toBe('lg')
     expect(button.classList.contains('p-3')).toBe(true)
     expect(button.classList.contains('p-8')).toBe(false)
-    expect(button.style.color).toBe('red')
+    expect(button.style.color).toBe('')
+    expect(button.classList.contains('text-red-500')).toBe(true)
     expect(button.style.width).toBe('')
     screen.unmount()
   })
 
   test('keeps input and select slots reactive through nested control resolvers', () => {
     const [active, setActive] = createSignal(true)
-    const provider = () => ({
-      classes: { input: active() ? 'p-2' : 'p-3' },
-      styles: { input: { color: active() ? 'blue' : 'red' } },
+    const designEntry = () => ({
+      base: { input: active() ? 'p-2 text-blue-500' : 'p-3 text-red-500' },
     })
     const props = {
       get size() {
@@ -635,7 +428,14 @@ describe('Component style reactivity', () => {
       },
     }
     const screen = render(() => (
-      <MoraineProvider config={{ input: provider(), select: provider(), multiSelect: provider() }}>
+      <MoraineProvider
+        design={createDesign({
+          preset: false,
+          input: designEntry(),
+          select: designEntry(),
+          multiSelect: designEntry(),
+        })}
+      >
         <Input {...props} />
         <Select
           {...props}
@@ -666,7 +466,8 @@ describe('Component style reactivity', () => {
     for (const input of inputs) {
       expect(input.classList.contains('p-3')).toBe(true)
       expect(input.classList.contains('p-8')).toBe(false)
-      expect(input.style.color).toBe('red')
+      expect(input.style.color).toBe('')
+      expect(input.classList.contains('text-red-500')).toBe(true)
       expect(input.style.width).toBe('')
     }
     screen.unmount()
@@ -677,22 +478,26 @@ test('updates overlay content overrides and maps root props to the trigger slot'
   const [active, setActive] = createSignal(true)
   const screen = render(() => (
     <MoraineProvider
-      config={{
+      design={createDesign({
+        preset: false,
         tooltip: {
-          classes: { trigger: 'p-2', content: 'p-3' },
-          styles: { trigger: { color: 'blue' }, content: { color: 'red' } },
+          base: { trigger: 'p-2 text-blue-500', content: 'p-3 text-red-500' },
         },
-      }}
+      })}
     >
-      <Tooltip
-        open
-        text="Details"
-        class={active() ? 'p-8' : undefined}
-        style={active() ? { color: 'green' } : undefined}
-        classes={{ content: active() ? 'p-9' : undefined }}
-        styles={{ content: active() ? { color: 'purple', width: '80px' } : undefined }}
-      >
-        {(props) => <button {...props}>Open details</button>}
+      <Tooltip open>
+        <Tooltip.Trigger
+          as="button"
+          class={active() ? 'p-8' : undefined}
+          style={active() ? { color: 'green' } : undefined}
+        >
+          Open details
+        </Tooltip.Trigger>
+        <Tooltip.Content
+          text="Details"
+          classes={{ content: active() ? 'p-9' : undefined }}
+          styles={{ content: active() ? { color: 'purple', width: '80px' } : undefined }}
+        />
       </Tooltip>
     </MoraineProvider>
   ))
@@ -710,10 +515,12 @@ test('updates overlay content overrides and maps root props to the trigger slot'
   await waitFor(() => {
     expect(trigger.classList.contains('p-2')).toBe(true)
     expect(trigger.classList.contains('p-8')).toBe(false)
-    expect(trigger.style.color).toBe('blue')
+    expect(trigger.style.color).toBe('')
+    expect(trigger.classList.contains('text-blue-500')).toBe(true)
     expect(content.classList.contains('p-3')).toBe(true)
     expect(content.classList.contains('p-9')).toBe(false)
-    expect(content.style.color).toBe('red')
+    expect(content.style.color).toBe('')
+    expect(content.classList.contains('text-red-500')).toBe(true)
     expect(content.style.width).toBe('')
   })
   screen.unmount()
@@ -724,9 +531,11 @@ test.each([
   { name: 'MultiSelect', Control: MultiSelect },
 ])('$name keeps popup state styles below instance overrides', async ({ Control }) => {
   const [override, setOverride] = createSignal(true)
-  const provider = { classes: { item: 'p-2' }, styles: { item: { color: 'blue' } } }
+  const designEntry = { base: { item: 'p-2 text-blue-500' } }
   const screen = render(() => (
-    <MoraineProvider config={{ select: provider, multiSelect: provider }}>
+    <MoraineProvider
+      design={createDesign({ preset: false, select: designEntry, multiSelect: designEntry })}
+    >
       <Control
         open
         options={[{ label: 'Apple', value: 'apple' }]}

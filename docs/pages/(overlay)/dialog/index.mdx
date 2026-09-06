@@ -35,33 +35,33 @@ import type { DialogT } from 'moraine'
 >
   {(props) => {
     return (
-      <Dialog
-        title={props.title}
-        description="This action is permanent and will stop all running containers."
-        body={
-          <p class="text-xs text-muted-foreground leading-relaxed">
-            Are you sure you want to delete <code class="docs-inline-code">prod-cluster-east</code>?
-            All active traffic will immediately failover to standby.
-          </p>
-        }
-        footer={
-          <div class="flex gap-2 w-full justify-end">
-            <Button variant="ghost" size="sm">
-              Cancel
-            </Button>
-            <Button variant="destructive" size="sm">
-              Delete permanently
-            </Button>
-          </div>
-        }
-        fullscreen={props.fullscreen}
-        overlay={props.overlay}
-      >
-        {(triggerProps) => (
-          <Button {...triggerProps} variant="outline">
-            Open Dialog
-          </Button>
-        )}
+      <Dialog>
+        <Dialog.Trigger as={Button} variant="outline">
+          Open Dialog
+        </Dialog.Trigger>
+        <Dialog.Content
+          title={props.title}
+          description="This action is permanent and will stop all running containers."
+          body={
+            <p class="text-xs text-muted-foreground leading-relaxed">
+              Are you sure you want to delete{' '}
+              <code class="docs-inline-code">prod-cluster-east</code>? All active traffic will
+              immediately failover to standby.
+            </p>
+          }
+          footer={
+            <div class="flex gap-2 w-full justify-end">
+              <Button variant="ghost" size="sm">
+                Cancel
+              </Button>
+              <Button variant="destructive" size="sm">
+                Delete permanently
+              </Button>
+            </div>
+          }
+          fullscreen={props.fullscreen}
+          overlay={props.overlay}
+        />
       </Dialog>
     )
   }}
@@ -69,8 +69,11 @@ import type { DialogT } from 'moraine'
 
 ## Anatomy
 
+`Dialog` owns state and context without adding a DOM element. `Dialog.Trigger` owns its attributes, events, ref, and styling; `Dialog.Content` owns the floating surface and presentation props. `Dialog.Close` closes the nearest root, and Content children fill the body unless an explicit `body` prop is provided.
+
 ```text
-trigger
+Root (context only)
+├── Trigger
 ├── overlay
 └── content
     ├── header
@@ -88,6 +91,12 @@ trigger
 - `header` / `body` / `footer`: Structured content regions.
 
 ## Usage
+
+### Nested overlays
+
+Nested roots keep dismissal and focus restoration local to the active layer. Escape closes the topmost dialog or popover, then returns focus to its trigger inside the parent dialog.
+
+<Preview path="./nested-overlays" />
 
 ### State and dismissal
 

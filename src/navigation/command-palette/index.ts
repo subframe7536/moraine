@@ -1,2 +1,2 @@
-export * from './command-palette'
-export * from './command-palette.class.ts'
+export * from './command-palette.types.ts'
+export * from './command-palette.tsx'

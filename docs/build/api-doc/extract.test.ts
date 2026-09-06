@@ -36,6 +36,35 @@ afterEach(() => {
 })
 
 describe('generateApiDoc', () => {
+  test('follows split declaration chunks even when runtime chunks exist', async () => {
+    const projectRoot = await createTempProject()
+    try {
+      await writeProjectDts(projectRoot, `export { Demo } from './demo.mjs'`)
+      await writeFile(path.join(projectRoot, 'dist/demo.mjs'), 'export function Demo() {}')
+      await writeFile(
+        path.join(projectRoot, 'dist/demo.d.mts'),
+        `
+import type { DemoProps } from './props.mjs'
+declare function Demo(props: DemoProps): JSX.Element
+export { Demo }
+`,
+      )
+      await writeFile(path.join(projectRoot, 'dist/props.mjs'), 'export {}')
+      await writeFile(
+        path.join(projectRoot, 'dist/props.d.mts'),
+        `
+export interface DemoProps { title: string }
+`,
+      )
+
+      const result = await generateApiDoc(projectRoot)
+      expect(result?.componentDocs.has('demo')).toBe(true)
+      expect(resultProps(result, 'demo').map((prop) => prop.name)).toContain('title')
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
+
   test('extracts components from the bundled public declaration entry', async () => {
     const projectRoot = path.resolve(import.meta.dirname, '../../..')
     const result = await generateApiDoc(projectRoot)

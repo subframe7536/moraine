@@ -76,6 +76,45 @@
       ]
     },
     {
+      "name": "page",
+      "description": "Current page entry.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-current",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item represents the current location or step."
+        },
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component, slot, or item is disabled."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-current",
+          "required": false,
+          "type": "string",
+          "description": "Marks the current item in a set or navigation trail."
+        },
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    },
+    {
       "name": "leading",
       "description": "Optional icon rendered before a breadcrumb label.",
       "cssVariables": [],
@@ -204,7 +243,8 @@
       {
         "name": "ref",
         "required": false,
-        "type": "JSX.HTMLElementTags[\"nav\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+        "type": "(Ref<HTMLElement> & JSX.HTMLElementTags[\"nav\"] extends { ref?: infer Ref; } ? Ref : never) | undefined",
+        "description": "Ref forwarded to the root `<nav>` element."
       },
       {
         "name": "separator",
@@ -216,7 +256,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "type": "\"sm\" | \"md\" | \"lg\" & \"sm\" | \"md\" | \"lg\" | null | undefined",
         "description": "Size of the breadcrumb items and icons.",
         "defaultValue": "md"
       },
@@ -233,7 +273,7 @@
       {
         "name": "wrap",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | \"true\" | \"false\" | null | undefined"
       }
     ],
     "inherited": []

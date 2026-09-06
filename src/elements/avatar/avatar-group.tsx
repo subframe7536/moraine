@@ -1,61 +1,12 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 
-import type { AvatarGroupVariantProps } from './avatar.class.ts'
-import { avatarGroupRecipe } from './avatar.class.ts'
+import type { AvatarGroupProps } from './avatar-group.types.ts'
 import { AvatarFace } from './avatar.tsx'
-import type { AvatarT } from './avatar.tsx'
 
-export namespace AvatarGroupT {
-  export interface Slot<T = unknown> {
-    /** Container of grouped avatars. */
-    root?: T
-
-    /** Individual avatar wrapper used when rendering grouped avatars. */
-    item?: T
-
-    /** Count indicator shown when a group has more avatars than the visible limit. */
-    count?: T
-
-    /** Loaded avatar image rendered inside each frame. */
-    image?: T
-
-    /** Text fallback shown while an image is unavailable or failed. */
-    fallback?: T
-
-    /** Icon fallback shown when no image or text fallback is available. */
-    fallbackIcon?: T
-
-    /** Status or indicator badge anchored to an avatar frame. */
-    badge?: T
-  }
-  export type Variant = AvatarGroupVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export type Item = AvatarT.Base
-
-  /** Base props for the AvatarGroup component. */
-  export interface Base {
-    /**
-     * Array of avatars to render in the group.
-     * @default []
-     */
-    items?: Item[]
-
-    /** Maximum number of avatars to show. */
-    max?: number | string
-  }
-
-  /** Props for the AvatarGroup component. */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
-}
-
-/** Props for the AvatarGroup component. */
-export interface AvatarGroupProps extends AvatarGroupT.Props {}
+export * from './avatar-group.types.ts'
 
 function resolveMax(max: AvatarGroupProps['max']): number | undefined {
   if (typeof max === 'string') {
@@ -77,8 +28,8 @@ function resolveMax(max: AvatarGroupProps['max']): number | undefined {
 
 /** Group of overlapping avatars with optional overflow count. */
 export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
-  const config = useMoraineConfig()
-  const provider = () => config().avatarGroup
+  const design = useMoraineDesign()
+  const avatarGroupDesign = () => design().avatarGroup
 
   const [local, rest] = splitProps(props, [
     'items',
@@ -90,7 +41,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     'style',
   ])
 
-  const size = () => local.size ?? provider()?.variants?.size ?? 'md'
+  const size = () => local.size ?? avatarGroupDesign()?.defaultVariants?.size ?? 'md'
   const items = createMemo(() => local.items ?? [])
   const visibleItems = createMemo(() => {
     const allItems = items()
@@ -109,13 +60,10 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
   const hiddenCount = createMemo(() => items().length - visibleItems().length)
 
   const resolved = resolveComponentStyle({
-    base: {
+    design: {
       get classes() {
-        return avatarGroupRecipe({ size: size() })
+        return avatarGroupDesign()?.recipe({ size: size() })
       },
-    },
-    get provider() {
-      return provider()
     },
     get instance() {
       return {
