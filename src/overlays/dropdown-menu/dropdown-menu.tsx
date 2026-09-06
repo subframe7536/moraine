@@ -114,6 +114,8 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
   )
 
   const resolved = resolveComponentStyle({
+    rootSlot: 'trigger' as const,
+    base: { classes: { content: 'min-w-32' } },
     get provider() {
       return providerDropdownMenu()
     },
@@ -296,12 +298,7 @@ export function DropdownMenu(props: DropdownMenuProps): JSX.Element {
         onAutoFocusHandled={() => {
           setAutoFocusStrategy('none')
         }}
-        slotClassAndStyle={(slot, override, ...extra) => {
-          if (slot === 'content') {
-            return resolved.slotClassAndStyle('content', override, 'min-w-32', ...extra)
-          }
-          return resolved.slotClassAndStyle(slot, override, ...extra)
-        }}
+        slotClassAndStyle={resolved.slotClassAndStyle}
         size={merged.size ?? undefined}
         items={merged.items}
         checkedIcon={merged.checkedIcon}

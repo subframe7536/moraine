@@ -187,11 +187,13 @@ export function SidebarFrameSheetOnlyRender(ctx: SidebarFrameT.FrameContext): JS
       fallback={
         <div
           data-slot="layout"
-          class={sidebarFrameRecipe({
-            variant: ctx.variant,
-            side: ctx.side,
-            isMobile: false,
-          }).desktopLayout()}
+          class={
+            sidebarFrameRecipe({
+              variant: ctx.variant,
+              side: ctx.side,
+              isMobile: false,
+            }).desktopLayout
+          }
         >
           <ctx.sidebar
             classes={[
@@ -336,17 +338,15 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     untrack(() => setOpen(!isMobile))
   })
 
-  const slots = createMemo(() =>
-    sidebarFrameRecipe({
-      isMobile: resolvedIsMobile(),
-      side: merged.side,
-      variant: merged.variant,
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return sidebarFrameRecipe({
+          isMobile: resolvedIsMobile(),
+          side: merged.side,
+          variant: merged.variant,
+        })
+      },
     },
     get provider() {
       return providerSidebarFrame()
@@ -398,8 +398,9 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             aria-hidden={resolvedIsMobile() || !isOpen()}
             {...props}
             {...resolved.slotClassAndStyle('sidebar', {
-              group: props.classes,
-              groupStyle: props.styles,
+              get group() {
+                return { class: props.classes, style: props.styles }
+              },
             })}
           >
             <Show when={merged.sidebarHeaderRender !== undefined}>
@@ -425,8 +426,9 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             data-slot="main"
             {...props}
             {...resolved.slotClassAndStyle('main', {
-              group: props.classes,
-              groupStyle: props.styles,
+              get group() {
+                return { class: props.classes, style: props.styles }
+              },
             })}
             onScroll={(event) => {
               setScrolled(event.currentTarget.scrollTop > (merged.scrollThreshold ?? 60))

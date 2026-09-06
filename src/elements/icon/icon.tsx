@@ -4,7 +4,6 @@ import { Dynamic } from 'solid-js/web'
 
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import type { BaseProps } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
 
 export namespace IconT {
   export type Name = string | JSX.Element | Component<Omit<IconProps, 'name'>>
@@ -59,6 +58,19 @@ export function Icon(props: IconProps): JSX.Element {
   const name = createMemo(() => local.name)
 
   const resolved = resolveComponentStyle({
+    base: {
+      get classes() {
+        const value = name()
+        return { root: typeof value === 'string' ? value : undefined }
+      },
+      get styles() {
+        return {
+          root: {
+            'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,
+          },
+        }
+      },
+    },
     get provider() {
       return provider()
     },
@@ -70,20 +82,17 @@ export function Icon(props: IconProps): JSX.Element {
     },
   })
 
-  const componentProps = createMemo<{ component: ValidComponent; class: string | undefined }>(
-    () => {
-      const value = name()
+  const componentProps = createMemo<{ component: ValidComponent }>(() => {
+    const value = name()
 
-      if (typeof value === 'string') {
-        return { component: 'div', class: cn(value, resolved.rootClass()) }
-      }
+    if (typeof value === 'string') {
+      return { component: 'div' }
+    }
 
-      return {
-        component: typeof value === 'function' ? value : () => value,
-        class: resolved.rootClass(),
-      }
-    },
-  )
+    return {
+      component: typeof value === 'function' ? value : () => value,
+    }
+  })
 
   return (
     <Dynamic
@@ -91,10 +100,7 @@ export function Icon(props: IconProps): JSX.Element {
       aria-hidden={rest['aria-label'] ? undefined : true}
       {...rest}
       {...componentProps()}
-      style={{
-        'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,
-        ...resolved.rootStyle(),
-      }}
+      {...resolved.rootClassAndStyle()}
     />
   )
 }

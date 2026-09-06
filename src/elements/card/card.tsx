@@ -120,11 +120,11 @@ export function Card(props: CardProps): JSX.Element {
   const footer = createMemo(() => local.footer)
   const resolvedChildren = resolveChildren(() => local.children)
 
-  const slots = createMemo(() => cardRecipe({ compact: compact() }))
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return cardRecipe({ compact: compact() })
+      },
     },
     get provider() {
       return provider()
@@ -137,12 +137,14 @@ export function Card(props: CardProps): JSX.Element {
         styles: local.styles,
       }
     },
-    get stateCls() {
-      return {
-        body:
-          !footer() &&
-          (compact() ? CARD_BODY_MARGIN_COMPACT_CLASS : CARD_BODY_MARGIN_DEFAULT_CLASS),
-      }
+    state: {
+      get classes() {
+        return {
+          body:
+            !footer() &&
+            (compact() ? CARD_BODY_MARGIN_COMPACT_CLASS : CARD_BODY_MARGIN_DEFAULT_CLASS),
+        }
+      },
     },
   })
 
@@ -151,7 +153,11 @@ export function Card(props: CardProps): JSX.Element {
       <Show when={header() || title() || description()}>
         <div
           data-slot="header"
-          {...resolved.slotClassAndStyle('header', { state: action() && 'grid-cols-[1fr_auto]' })}
+          {...resolved.slotClassAndStyle('header', {
+            get state() {
+              return { class: action() && 'grid-cols-[1fr_auto]' }
+            },
+          })}
         >
           <Show when={title() || description()} fallback={header()}>
             <Show when={title()}>

@@ -247,16 +247,14 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     }),
   )
 
-  const slots = createMemo(() =>
-    inputRecipe({
-      size: field.size(),
-      variant: merged.variant,
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return inputRecipe({
+          size: field.size(),
+          variant: merged.variant,
+        })
+      },
     },
     get provider() {
       return provider()
@@ -459,9 +457,13 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         maxLength={merged.maxLength}
         data-slot="input"
         {...resolved.slotClassAndStyle('input', {
-          state:
-            merged.type === 'file' &&
-            'text-muted-foreground file:font-medium file:me-1.5 file:outline-none',
+          get state() {
+            return {
+              class:
+                merged.type === 'file' &&
+                'text-muted-foreground file:font-medium file:me-1.5 file:outline-none',
+            }
+          },
         })}
         onInput={onInput}
         onChange={onChange}

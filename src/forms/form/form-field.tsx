@@ -373,18 +373,16 @@ export function FormField<
     registerControl,
   }
 
-  const slots = createMemo(() =>
-    formFieldRecipe({
-      size: merged.size,
-      orientation: merged.orientation,
-      required: Boolean(merged.required),
-      hasText: showLabel() || showDescription(),
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return formFieldRecipe({
+          size: merged.size,
+          orientation: merged.orientation,
+          required: Boolean(merged.required),
+          hasText: showLabel() || showDescription(),
+        })
+      },
     },
     get provider() {
       return provider()

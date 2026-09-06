@@ -226,11 +226,11 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     }),
   )
 
-  const slots = createMemo(() => switchRecipe({ size: field.size() }))
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return switchRecipe({ size: field.size() })
+      },
     },
     get provider() {
       return provider()
@@ -435,10 +435,11 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         data-invalid={field.invalid() ? '' : undefined}
         aria-checked={Boolean(checked())}
         {...switchAriaAttrs()}
-        {...resolved.slotClassAndStyle(
-          'track',
-          field.disabled() && 'opacity-64 pointer-events-none',
-        )}
+        {...resolved.slotClassAndStyle('track', {
+          get state() {
+            return { class: field.disabled() && 'opacity-64 pointer-events-none' }
+          },
+        })}
         onPointerDown={onPointerDown}
         data-checked={checked() ? '' : undefined}
         data-unchecked={!checked() ? '' : undefined}
@@ -473,10 +474,14 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
               for={field.id()}
               id={labelId()}
               data-slot="label"
-              {...resolved.slotClassAndStyle(
-                'label',
-                field.required() && "after:text-destructive after:ms-0.5 after:content-['*']",
-              )}
+              {...resolved.slotClassAndStyle('label', {
+                get state() {
+                  return {
+                    class:
+                      field.required() && "after:text-destructive after:ms-0.5 after:content-['*']",
+                  }
+                },
+              })}
             >
               {label()}
             </label>

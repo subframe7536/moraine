@@ -169,22 +169,6 @@
       "sourcePath": "src/forms/radio-group/radio-group.tsx"
     },
     {
-      "key": "select",
-      "name": "Select",
-      "category": "forms",
-      "polymorphic": false,
-      "description": "Dropdown select component with search and custom item rendering.",
-      "sourcePath": "src/forms/select/select.tsx"
-    },
-    {
-      "key": "multi-select",
-      "name": "MultiSelect",
-      "category": "forms",
-      "polymorphic": false,
-      "description": "Dropdown select component with search, multi-select, and custom item rendering.",
-      "sourcePath": "src/forms/select/multi-select.tsx"
-    },
-    {
       "key": "slider",
       "name": "Slider",
       "category": "forms",
@@ -225,20 +209,20 @@
       "sourcePath": "src/navigation/command-palette/command-palette.tsx"
     },
     {
-      "key": "sidebar-frame",
-      "name": "SidebarFrame",
-      "category": "navigation",
-      "polymorphic": false,
-      "description": "Sidebar + main frame with mobile Sheet support and desktop layout wrappers.",
-      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
-    },
-    {
       "key": "pagination",
       "name": "Pagination",
       "category": "navigation",
       "polymorphic": false,
       "description": "Page navigation component with configurable sibling count and edge display.",
       "sourcePath": "src/navigation/pagination/pagination.tsx"
+    },
+    {
+      "key": "sidebar-frame",
+      "name": "SidebarFrame",
+      "category": "navigation",
+      "polymorphic": false,
+      "description": "Sidebar + main frame with mobile Sheet support and desktop layout wrappers.",
+      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
     },
     {
       "key": "stepper",
@@ -257,20 +241,20 @@
       "sourcePath": "src/navigation/tabs/tabs.tsx"
     },
     {
-      "key": "modal",
-      "name": "Modal",
-      "category": "overlays",
-      "polymorphic": false,
-      "description": "Low-level modal primitives for composing custom dialog surfaces.",
-      "sourcePath": "src/overlays/modal/modal.tsx"
-    },
-    {
       "key": "context-menu",
       "name": "ContextMenu",
       "category": "overlays",
       "polymorphic": false,
       "description": "Menu triggered by right-click or long press on its child content.",
       "sourcePath": "src/overlays/context-menu/context-menu.tsx"
+    },
+    {
+      "key": "modal",
+      "name": "Modal",
+      "category": "overlays",
+      "polymorphic": false,
+      "description": "Low-level modal primitives for composing custom dialog surfaces.",
+      "sourcePath": "src/overlays/modal/modal.tsx"
     },
     {
       "key": "dialog",
@@ -311,6 +295,22 @@
       "polymorphic": false,
       "description": "Hover-triggered informational overlay anchored to a trigger element.",
       "sourcePath": "src/overlays/tooltip/tooltip.tsx"
+    },
+    {
+      "key": "select",
+      "name": "Select",
+      "category": "forms",
+      "polymorphic": false,
+      "description": "Dropdown select component with search and custom item rendering.",
+      "sourcePath": "src/forms/select/select.tsx"
+    },
+    {
+      "key": "multi-select",
+      "name": "MultiSelect",
+      "category": "forms",
+      "polymorphic": false,
+      "description": "Dropdown select component with search, multi-select, and custom item rendering.",
+      "sourcePath": "src/forms/select/multi-select.tsx"
     }
   ]
 }

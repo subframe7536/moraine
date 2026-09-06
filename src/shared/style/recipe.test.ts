@@ -1,3 +1,4 @@
+import { createMemo, createRoot, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import type { SlotRecipeOptions } from './recipe.ts'
@@ -91,6 +92,40 @@ describe('recipe', () => {
       )
     })
 
+    test('supports flat compound variants and numeric variant values', () => {
+      const spacing = recipe({
+        base: 'block',
+        variants: {
+          columns: {
+            1: 'grid-cols-1',
+            2: 'grid-cols-2',
+          },
+        },
+        compoundVariants: [{ columns: 2, class: 'gap-4' }],
+      })
+
+      expect(spacing({ columns: 2 })).toBe('block grid-cols-2 gap-4')
+    })
+
+    test('matches boolean variants against string compound matchers', () => {
+      const toggle = recipe({
+        base: 'inline-flex',
+        variants: {
+          active: {
+            true: 'opacity-100',
+            false: 'opacity-50',
+          },
+        },
+        compoundVariants: [{ variants: { active: 'true' }, class: 'font-bold' }],
+      })
+
+      expect(toggle({ active: true })).toBe('inline-flex opacity-100 font-bold')
+    })
+
+    test('returns undefined when no classes are selected', () => {
+      expect(recipe({ base: '' })()).toBeUndefined()
+    })
+
     test('applies extra classes with cn conflict resolution and ordering', () => {
       // Extra class px-8 should override px-4
       expect(button({ size: 'md' }, 'px-8', 'font-bold')).toBe(
@@ -165,52 +200,37 @@ describe('recipe', () => {
       expect(card.slots).toEqual(['root', 'header', 'content', 'footer', 'icon'])
     })
 
-    test('applies defaults to multi-slot structure and pre-resolves classes', () => {
+    test('applies defaults to multi-slot structure and resolves class strings', () => {
       const slots = card()
-      expect(slots.classes.root).toBe('rounded-lg border border-border p-4 bg-muted')
-      expect(slots.classes.header).toBe('font-semibold text-card-foreground mb-2')
-      expect(slots.classes.content).toBe('text-card-foreground')
-      expect(slots.classes.footer).toBe('mt-4 flex items-center')
-      expect(slots.classes.icon).toBeUndefined()
-
-      expect(slots.root()).toBe('rounded-lg border border-border p-4 bg-muted')
-      expect(slots.header()).toBe('font-semibold text-card-foreground mb-2')
+      expect(slots.root).toBe('rounded-lg border border-border p-4 bg-muted')
+      expect(slots.header).toBe('font-semibold text-card-foreground mb-2')
+      expect(slots.content).toBe('text-card-foreground')
+      expect(slots.footer).toBe('mt-4 flex items-center')
+      expect(slots.icon).toBeUndefined()
     })
 
     test('preserves defaultVariants when { variant: undefined } or null is passed', () => {
       const slots = card({ variant: undefined })
-      expect(slots.classes.root).toBe('rounded-lg border border-border p-4 bg-muted')
+      expect(slots.root).toBe('rounded-lg border border-border p-4 bg-muted')
 
       const slotsNull = card({ variant: null })
-      expect(slotsNull.classes.root).toBe('rounded-lg border border-border p-4 bg-muted')
+      expect(slotsNull.root).toBe('rounded-lg border border-border p-4 bg-muted')
     })
 
     test('applies cross-slot compound variants and array matchers', () => {
       const slots = card({ variant: 'ghost', bordered: true, size: 'lg' })
       // ghost + bordered: true -> root gets border-2 and border-border, content gets italic
       // ghost + size: lg -> footer gets justify-end
-      expect(slots.classes.root).toBe(
-        'rounded-lg bg-card shadow-none p-6 text-base border-2 border-border',
-      )
-      expect(slots.classes.content).toBe('text-card-foreground italic')
-      expect(slots.classes.footer).toBe('mt-4 flex items-center justify-end')
-    })
-
-    test('slot functions accept extra classes with cn conflict resolution', () => {
-      const slots = card()
-      // override p-4 with p-8 on root
-      expect(slots.root('p-8', 'opacity-50')).toBe(
-        'rounded-lg border border-border bg-muted p-8 opacity-50',
-      )
-      // extra classes without arguments return pre-resolved
-      expect(slots.root()).toBe(slots.classes.root)
+      expect(slots.root).toBe('rounded-lg bg-card shadow-none p-6 text-base border-2 border-border')
+      expect(slots.content).toBe('text-card-foreground italic')
+      expect(slots.footer).toBe('mt-4 flex items-center justify-end')
     })
 
     test('returns new instance on each call without caching', () => {
       const run1 = card({ variant: 'ghost' })
       const run2 = card({ variant: 'ghost' })
       expect(run1).not.toBe(run2)
-      expect(run1.classes).toEqual(run2.classes)
+      expect(run1).toEqual(run2)
     })
 
     test('infers slots from base without runtime slots array', () => {
@@ -224,10 +244,54 @@ describe('recipe', () => {
 
       expect(inferred.slots).toEqual(['root', 'header', 'body'])
       const res = inferred()
-      expect(res.classes.root).toBe('flex flex-col')
-      expect(res.classes.header).toBe('p-4 border-b')
-      expect(res.classes.body).toBe('p-4')
-      expect(res.root()).toBe('flex flex-col')
+      expect(res.root).toBe('flex flex-col')
+      expect(res.header).toBe('p-4 border-b')
+      expect(res.body).toBe('p-4')
+    })
+
+    test('derives classes from reactive getter variants in caller memos', () => {
+      createRoot((dispose) => {
+        const [atomicVariant, setAtomicVariant] = createSignal<'primary' | 'secondary'>('primary')
+        const [slotVariant, setSlotVariant] = createSignal<'solid' | 'ghost'>('solid')
+        const reactiveButton = recipe({
+          base: 'inline-flex',
+          variants: {
+            variant: {
+              primary: 'bg-primary',
+              secondary: 'bg-secondary',
+            },
+          },
+        })
+        const atomicClass = createMemo(() =>
+          reactiveButton({
+            get variant() {
+              return atomicVariant()
+            },
+          }),
+        )
+        const slotClass = createMemo(
+          () =>
+            card({
+              get variant() {
+                return slotVariant()
+              },
+            }).root,
+        )
+
+        // oxlint-disable-next-line subf/solid-reactivity
+        expect(atomicClass()).toContain('bg-primary')
+        // oxlint-disable-next-line subf/solid-reactivity
+        expect(slotClass()).toContain('bg-muted')
+
+        setAtomicVariant('secondary')
+        setSlotVariant('ghost')
+
+        // oxlint-disable-next-line subf/solid-reactivity
+        expect(atomicClass()).toContain('bg-secondary')
+        // oxlint-disable-next-line subf/solid-reactivity
+        expect(slotClass()).toContain('border-transparent')
+        dispose()
+      })
     })
   })
 })

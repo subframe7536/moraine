@@ -7,7 +7,7 @@ import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import { hasJsxContent } from '../../shared/jsx-content.ts'
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn, useId } from '../../shared/utils.ts'
+import { useId } from '../../shared/utils.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 import { ModalTriggerRenderer } from '../modal/modal-trigger.tsx'
 import { MODAL_OVERLAY_CLASS } from '../modal/modal.class.ts'
@@ -192,6 +192,24 @@ export function Sheet(props: SheetProps): JSX.Element {
   )
 
   const resolved = resolveComponentStyle({
+    rootSlot: 'trigger' as const,
+    base: {
+      get classes() {
+        return {
+          content: sheetContentVariants({ side: merged.side, inset: merged.inset }),
+          overlay: MODAL_OVERLAY_CLASS,
+        }
+      },
+    },
+    state: {
+      get classes() {
+        return {
+          content:
+            !merged.transition &&
+            'transition-none data-expanded:animate-none data-closed:animate-none',
+        }
+      },
+    },
     get provider() {
       return providerSheet()
     },
@@ -249,21 +267,13 @@ export function Sheet(props: SheetProps): JSX.Element {
       <ModalTriggerRenderer {...triggerProps}>{triggerRender()}</ModalTriggerRenderer>
       <Modal.Content
         overlay={merged.overlay}
-        overlayClass={cn(MODAL_OVERLAY_CLASS, resolved.slotClass('overlay'))}
+        overlayClass={resolved.slotClass('overlay')}
         overlayStyle={resolved.slotStyle('overlay')}
         data-side={merged.side}
         ariaLabel={merged.ariaLabel}
         ariaLabelledBy={titleId()}
         ariaDescribedBy={descriptionId()}
-        class={sheetContentVariants(
-          {
-            side: merged.side,
-            inset: merged.inset,
-          },
-          !merged.transition &&
-            'transition-none data-expanded:animate-none data-closed:animate-none',
-          resolved.slotClass('content'),
-        )}
+        class={resolved.slotClass('content')}
         style={resolved.slotStyle('content')}
       >
         {(props: ModalT.ContentContext): JSX.Element => (
@@ -271,7 +281,9 @@ export function Sheet(props: SheetProps): JSX.Element {
             <Show when={hasCustomHeader() || hasDefaultHeader()}>
               <div
                 data-slot="header"
-                {...resolved.slotClassAndStyle('header', 'p-4 flex gap-1.5 items-start')}
+                {...resolved.slotClassAndStyle('header', {
+                  state: { class: 'p-4 flex gap-1.5 items-start' },
+                })}
               >
                 <Show
                   when={hasCustomHeader()}
@@ -279,13 +291,17 @@ export function Sheet(props: SheetProps): JSX.Element {
                     <>
                       <div
                         data-slot="wrapper"
-                        {...resolved.slotClassAndStyle('wrapper', 'flex-1 gap-0.5 grid min-w-0')}
+                        {...resolved.slotClassAndStyle('wrapper', {
+                          state: { class: 'flex-1 gap-0.5 grid min-w-0' },
+                        })}
                       >
                         <Show when={hasJsxContent(title())}>
                           <h2
                             id={titleId()}
                             data-slot="title"
-                            {...resolved.slotClassAndStyle('title', 'text-foreground font-medium')}
+                            {...resolved.slotClassAndStyle('title', {
+                              state: { class: 'text-foreground font-medium' },
+                            })}
                           >
                             {title()}
                           </h2>
@@ -295,10 +311,9 @@ export function Sheet(props: SheetProps): JSX.Element {
                           <p
                             id={descriptionId()}
                             data-slot="description"
-                            {...resolved.slotClassAndStyle(
-                              'description',
-                              'text-sm text-muted-foreground',
-                            )}
+                            {...resolved.slotClassAndStyle('description', {
+                              state: { class: 'text-sm text-muted-foreground' },
+                            })}
                           >
                             {description()}
                           </p>
@@ -308,10 +323,9 @@ export function Sheet(props: SheetProps): JSX.Element {
                       <Show when={hasJsxContent(action())}>
                         <div
                           data-slot="actions"
-                          {...resolved.slotClassAndStyle(
-                            'actions',
-                            'ms-auto inline-flex shrink-0 gap-2 items-center',
-                          )}
+                          {...resolved.slotClassAndStyle('actions', {
+                            state: { class: 'ms-auto inline-flex shrink-0 gap-2 items-center' },
+                          })}
                         >
                           {action()}
                         </div>
@@ -323,7 +337,9 @@ export function Sheet(props: SheetProps): JSX.Element {
                           aria-label="Close"
                           variant="ghost"
                           size="icon-sm"
-                          {...resolved.slotClassAndStyle('close', 'absolute top-4 right-4')}
+                          {...resolved.slotClassAndStyle('close', {
+                            state: { class: 'absolute top-4 right-4' },
+                          })}
                           onClick={() => props.close()}
                         >
                           <Show when={closeContent() === true} fallback={closeContent()}>
@@ -342,11 +358,16 @@ export function Sheet(props: SheetProps): JSX.Element {
             <Show when={hasJsxContent(body())}>
               <div
                 data-slot="body"
-                {...resolved.slotClassAndStyle(
-                  'body',
-                  'flex-1 overflow-auto',
-                  (hasCustomHeader() || hasDefaultHeader()) && 'px-4 pb-4 pt-0',
-                )}
+                {...resolved.slotClassAndStyle('body', {
+                  get state() {
+                    return {
+                      class: [
+                        'flex-1 overflow-auto',
+                        (hasCustomHeader() || hasDefaultHeader()) && 'px-4 pb-4 pt-0',
+                      ],
+                    }
+                  },
+                })}
               >
                 {body()}
               </div>
@@ -355,7 +376,9 @@ export function Sheet(props: SheetProps): JSX.Element {
             <Show when={hasJsxContent(footer())}>
               <div
                 data-slot="footer"
-                {...resolved.slotClassAndStyle('footer', 'mt-auto p-4 flex flex-col gap-2')}
+                {...resolved.slotClassAndStyle('footer', {
+                  state: { class: 'mt-auto p-4 flex flex-col gap-2' },
+                })}
               >
                 {footer()}
               </div>

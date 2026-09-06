@@ -195,11 +195,11 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
     return explicitIndex >= 0 ? explicitIndex : resolvedItems.length - 1
   })
 
-  const slots = createMemo(() => breadcrumbRecipe({ size: size(), wrap: wrap() }))
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return breadcrumbRecipe({ size: size(), wrap: wrap() })
+      },
     },
     get provider() {
       return providerBreadcrumb()
@@ -242,12 +242,25 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                       <Dynamic
                         component={isDisabled() ? 'span' : 'a'}
                         data-slot={isCurrent() ? 'page' : 'link'}
-                        {...resolved.slotClassAndStyle(
-                          'link',
-                          isCurrent() ? BREADCRUMB_PAGE_CLASS : BREADCRUMB_LINK_CLASS,
-                          !wrap() && BREADCRUMB_TRUNCATE_CLASS,
-                          !isCurrent() && isDisabled() && BREADCRUMB_DISABLED_CLASS,
-                        )}
+                        {...resolved.slotClassAndStyle('link', {
+                          get state() {
+                            return isCurrent()
+                              ? {
+                                  class: [
+                                    BREADCRUMB_PAGE_CLASS,
+                                    !wrap() && BREADCRUMB_TRUNCATE_CLASS,
+                                    !isCurrent() && isDisabled() && BREADCRUMB_DISABLED_CLASS,
+                                  ],
+                                }
+                              : {
+                                  class: [
+                                    BREADCRUMB_LINK_CLASS,
+                                    !wrap() && BREADCRUMB_TRUNCATE_CLASS,
+                                    !isCurrent() && isDisabled() && BREADCRUMB_DISABLED_CLASS,
+                                  ],
+                                }
+                          },
+                        })}
                         role={isDisabled() ? 'link' : undefined}
                         aria-disabled={isDisabled() ? 'true' : undefined}
                         aria-current={isCurrent() ? 'page' : undefined}
@@ -270,10 +283,11 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                         <Show when={hasLabel()}>
                           <span
                             data-slot="label"
-                            {...resolved.slotClassAndStyle(
-                              'label',
-                              !wrap() && BREADCRUMB_TRUNCATE_CLASS,
-                            )}
+                            {...resolved.slotClassAndStyle('label', {
+                              get state() {
+                                return { class: !wrap() && BREADCRUMB_TRUNCATE_CLASS }
+                              },
+                            })}
                           >
                             {label()}
                           </span>

@@ -108,11 +108,11 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
 
   const hiddenCount = createMemo(() => items().length - visibleItems().length)
 
-  const slots = createMemo(() => avatarGroupRecipe({ size: size() }))
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return avatarGroupRecipe({ size: size() })
+      },
     },
     get provider() {
       return provider()

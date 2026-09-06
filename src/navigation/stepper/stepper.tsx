@@ -216,22 +216,21 @@ export function Stepper(props: StepperProps): JSX.Element {
     local,
   )
 
-  const styleVars = createMemo(() =>
-    stepperStyleVars({
-      size: merged.size,
-    }),
-  )
-
-  const slots = createMemo(() =>
-    stepperRecipe({
-      orientation: merged.orientation,
-      size: merged.size,
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return stepperRecipe({
+          orientation: merged.orientation,
+          size: merged.size,
+        })
+      },
+      get styles() {
+        return {
+          root: stepperStyleVars({
+            size: merged.size,
+          }),
+        }
+      },
     },
     get provider() {
       return providerStepper()
@@ -243,9 +242,6 @@ export function Stepper(props: StepperProps): JSX.Element {
         style: local.style,
         styles: local.styles,
       }
-    },
-    get baseStyle() {
-      return styleVars()
     },
   })
 
@@ -377,7 +373,11 @@ export function Stepper(props: StepperProps): JSX.Element {
                 data-slot="item"
                 data-state={state()}
                 data-disabled={disabled() ? '' : undefined}
-                {...resolved.slotClassAndStyle('item', entry.item.class)}
+                {...resolved.slotClassAndStyle('item', {
+                  get state() {
+                    return { class: entry.item.class }
+                  },
+                })}
               >
                 <div data-slot="container" {...resolved.slotClassAndStyle('container')}>
                   <button
@@ -398,7 +398,9 @@ export function Stepper(props: StepperProps): JSX.Element {
                     aria-labelledby={entry.item.title ? titleId() : undefined}
                     aria-describedby={entry.item.description ? descriptionId() : undefined}
                     {...resolved.slotClassAndStyle('trigger', {
-                      state: STEPPER_TRIGGER_STATE_CLASS[state()],
+                      get state() {
+                        return { class: STEPPER_TRIGGER_STATE_CLASS[state()] }
+                      },
                     })}
                     onClick={() => selectStep(entry.value)}
                     onKeyDown={(event) => {
@@ -451,7 +453,11 @@ export function Stepper(props: StepperProps): JSX.Element {
               aria-labelledby={getTriggerId(entry.value)}
               data-selected=""
               data-slot="content"
-              {...resolved.slotClassAndStyle('content', 'w-full', entry.item.class)}
+              {...resolved.slotClassAndStyle('content', {
+                get state() {
+                  return { class: ['w-full', entry.item.class] }
+                },
+              })}
             >
               {entry.item.content}
             </div>

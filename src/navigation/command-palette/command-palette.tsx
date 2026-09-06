@@ -419,7 +419,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   )
 
   const resolved = resolveComponentStyle({
-    slots: commandPaletteRecipe(),
+    base: {
+      classes: commandPaletteRecipe(),
+    },
     get provider() {
       return providerCommandPalette()
     },
@@ -719,17 +721,21 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
             <span
               data-slot="itemWrapper"
-              {...resolved.slotClassAndStyle(
-                'itemWrapper',
-                descriptionPosition() === 'trailing' && 'flex-row gap-2 items-baseline',
-              )}
+              {...resolved.slotClassAndStyle('itemWrapper', {
+                get state() {
+                  return {
+                    class: descriptionPosition() === 'trailing' && 'flex-row gap-2 items-baseline',
+                  }
+                },
+              })}
             >
               <span
                 data-slot="itemLabel"
-                {...resolved.slotClassAndStyle(
-                  'itemLabel',
-                  descriptionPosition() === 'trailing' && 'flex flex-1 gap-2',
-                )}
+                {...resolved.slotClassAndStyle('itemLabel', {
+                  get state() {
+                    return { class: descriptionPosition() === 'trailing' && 'flex flex-1 gap-2' }
+                  },
+                })}
               >
                 <span class="truncate">{item.item.label ?? item.label}</span>
                 <Show when={descriptionPosition() === 'trailing'}>
@@ -777,12 +783,21 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           callRef(itemAttributes()?.ref, element)
           virtualProps?.ref?.(element)
         }}
-        style={{
-          ...resolved.slotStyle('item'),
-          ...toStyleObject(itemAttributes()?.style),
-          ...toStyleObject(virtualProps?.style),
-        }}
-        class={resolved.slotClass('item', itemAttributes()?.class, virtualProps?.class)}
+        style={resolved.slotStyle('item', {
+          get state() {
+            return {
+              style: {
+                ...toStyleObject(itemAttributes()?.style),
+                ...toStyleObject(virtualProps?.style),
+              },
+            }
+          },
+        })}
+        class={resolved.slotClass('item', {
+          get state() {
+            return { class: [itemAttributes()?.class, virtualProps?.class] }
+          },
+        })}
         onPointerMove={(event) => {
           callHandler(event, itemAttributes()?.onPointerMove)
           callHandler(event, virtualProps?.onPointerMove)
@@ -927,11 +942,16 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                   role="presentation"
                   data-slot="group"
                   {...context.props}
-                  style={{
-                    ...resolved.slotStyle('group'),
-                    ...toStyleObject(context.props?.style),
-                  }}
-                  class={resolved.slotClass('group', 'mt-2', context.props?.class)}
+                  style={resolved.slotStyle('group', {
+                    get state() {
+                      return { style: { ...toStyleObject(context.props?.style) } }
+                    },
+                  })}
+                  class={resolved.slotClass('group', {
+                    get state() {
+                      return { class: ['mt-2', context.props?.class] }
+                    },
+                  })}
                 >
                   <span data-slot="label" {...resolved.slotClassAndStyle('label')}>
                     {(context.item as CommandPaletteT.VirtualLabelEntry<TItem>).label}
@@ -953,11 +973,16 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             listboxElement = element
             callRef(merged.listboxProps?.ref, element)
           }}
-          style={{
-            ...resolved.slotStyle('listbox'),
-            ...toStyleObject(merged.listboxProps?.style),
-          }}
-          class={resolved.slotClass('listbox', merged.listboxProps?.class)}
+          style={resolved.slotStyle('listbox', {
+            get state() {
+              return { style: { ...toStyleObject(merged.listboxProps?.style) } }
+            },
+          })}
+          class={resolved.slotClass('listbox', {
+            get state() {
+              return { class: merged.listboxProps?.class }
+            },
+          })}
         />
       </Show>
 

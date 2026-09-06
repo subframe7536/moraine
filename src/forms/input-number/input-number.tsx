@@ -581,18 +581,16 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   const showIncrement = createMemo(() => merged.increment !== false)
   const showDecrement = createMemo(() => merged.decrement !== false)
 
-  const slots = createMemo(() =>
-    inputNumberRecipe({
-      size: field.size(),
-      variant: merged.variant,
-      align: resolveInputNumberAlign(resolvedOrientation(), showDecrement()),
-      orientation: resolvedOrientation(),
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return inputNumberRecipe({
+          size: field.size(),
+          variant: merged.variant,
+          align: resolveInputNumberAlign(resolvedOrientation(), showDecrement()),
+          orientation: resolvedOrientation(),
+        })
+      },
     },
     get provider() {
       return provider()

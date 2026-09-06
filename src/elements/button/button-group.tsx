@@ -62,11 +62,11 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
   const size = () => local.size ?? provider()?.variants?.size ?? 'md'
   const variant = () => local.variant ?? provider()?.variants?.variant ?? 'default'
 
-  const slots = createMemo(() => buttonGroupRecipe({ orientation: orientation() }))
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return buttonGroupRecipe({ orientation: orientation() })
+      },
     },
     get provider() {
       return provider()

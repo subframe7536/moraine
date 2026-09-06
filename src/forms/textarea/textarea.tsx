@@ -272,17 +272,15 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     }),
   )
 
-  const slots = createMemo(() =>
-    textareaRecipe({
-      size: field.size(),
-      variant: merged.variant,
-      autoresize: merged.autoResize,
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return textareaRecipe({
+          size: field.size(),
+          variant: merged.variant,
+          autoresize: merged.autoResize,
+        })
+      },
     },
     get provider() {
       return provider()

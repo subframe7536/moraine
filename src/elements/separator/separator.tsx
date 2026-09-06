@@ -67,17 +67,17 @@ export function Separator(props: SeparatorProps): JSX.Element {
     () => local.type ?? provider()?.variants?.type ?? 'solid',
   )
 
-  const baseClass = createMemo(() =>
-    separatorRecipe({
-      orientation: orientation(),
-      size: size(),
-      type: type(),
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get baseClass() {
-      return baseClass()
+    base: {
+      get classes() {
+        return {
+          root: separatorRecipe({
+            orientation: orientation(),
+            size: size(),
+            type: type(),
+          }),
+        }
+      },
     },
     get provider() {
       return provider()

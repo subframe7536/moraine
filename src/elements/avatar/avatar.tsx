@@ -11,7 +11,6 @@ import {
 
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
 import type { IconT } from '../icon/index.ts'
 import { Icon } from '../icon/index.ts'
 
@@ -197,33 +196,33 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     }
   })
 
-  const slots = createMemo(() =>
-    avatarRecipe({
-      size: size(),
-      badgePosition: badgePosition(),
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return avatarRecipe({
+          size: size(),
+          badgePosition: badgePosition(),
+        })
+      },
     },
     get provider() {
       return provider()
     },
     get instance() {
       return {
-        class: local.rootSlot === 'item' ? undefined : local.class,
+        class: local.class,
         classes: local.classes,
-        style: local.rootSlot === 'item' ? undefined : local.style,
+        style: local.style,
         styles: local.styles,
       }
     },
-    get stateCls() {
-      return {
-        image: status() === 'loaded' ? 'opacity-100' : 'opacity-0 pointer-events-none',
-        fallback: status() === 'loaded' ? AVATAR_FALLBACK_HIDDEN_CLASS : 'opacity-100',
-      }
+    state: {
+      get classes() {
+        return {
+          image: status() === 'loaded' ? 'opacity-100' : 'opacity-0 pointer-events-none',
+          fallback: status() === 'loaded' ? AVATAR_FALLBACK_HIDDEN_CLASS : 'opacity-100',
+        }
+      },
     },
   })
 
@@ -233,9 +232,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
       data-status={status()}
       role={rootAriaLabel() !== undefined ? 'img' : undefined}
       {...rest}
-      {...(local.rootSlot === 'item'
-        ? { class: cn(resolved.rootClass(), local.class), style: local.style }
-        : resolved.rootClassAndStyle())}
+      {...resolved.rootClassAndStyle()}
     >
       <img
         data-slot="image"

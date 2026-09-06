@@ -208,19 +208,17 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     }),
   )
 
-  const slots = createMemo(() =>
-    radioGroupRecipe({
-      orientation: orientation(),
-      size: field.size(),
-      variant: itemVariant(),
-      indicator: visibleIndicator(),
-      tableOrientation: variant() === 'table' ? orientation() : undefined,
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return radioGroupRecipe({
+          orientation: orientation(),
+          size: field.size(),
+          variant: itemVariant(),
+          indicator: visibleIndicator(),
+          tableOrientation: variant() === 'table' ? orientation() : undefined,
+        })
+      },
     },
     get provider() {
       return provider()
@@ -233,8 +231,10 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
         styles: local.styles,
       }
     },
-    get stateCls() {
-      return { root: variant() !== 'table' ? 'gap-2' : undefined }
+    state: {
+      get classes() {
+        return { root: variant() !== 'table' ? 'gap-2' : undefined }
+      },
     },
   })
 
@@ -526,7 +526,9 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                 <div
                   data-slot="control"
                   {...resolved.slotClassAndStyle('control', {
-                    state: indicator() === 'hidden' && 'sr-only',
+                    get state() {
+                      return { class: indicator() === 'hidden' && 'sr-only' }
+                    },
                   })}
                   data-checked={selected() ? '' : undefined}
                   data-invalid={field.invalid() ? '' : undefined}

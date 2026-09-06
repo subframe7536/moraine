@@ -212,7 +212,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     local,
   )
 
-  const resolved = resolveComponentStyle({
+  const styleInputs = {
+    rootSlot: 'trigger' as const,
     get provider() {
       return providerTooltip()
     },
@@ -224,7 +225,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         styles: local.styles,
       }
     },
-  })
+  }
+  const resolved = resolveComponentStyle(styleInputs)
 
   const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
     get class() {
@@ -410,21 +412,39 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       return resolveOverlayMenuSide(merged.placement)
     })
 
+    const contentStyleInputs = mergeProps(styleInputs, {
+      base: {
+        get classes() {
+          return {
+            content: tooltipContentVariants({ side: resolvedSide(), invert: merged.invert }),
+          }
+        },
+      },
+      state: {
+        get classes() {
+          return {
+            content:
+              shouldUseInstantMotion() && 'data-expanded:animate-none data-closed:animate-none',
+          }
+        },
+      },
+    })
+    const contentResolved = resolveComponentStyle(contentStyleInputs)
+
     return (
       <div
         data-slot="content"
-        style={resolved.slotStyle('content')}
-        class={tooltipContentVariants(
-          { side: resolvedSide(), invert: merged.invert },
-          shouldUseInstantMotion()
-            ? 'data-expanded:animate-none data-closed:animate-none'
-            : undefined,
-          resolved.slotClass('content'),
-        )}
+        style={contentResolved.slotStyle('content')}
+        class={contentResolved.slotClass('content')}
         {...context.contentProps}
       >
         <Show when={typeof text() === 'string'} fallback={text()}>
-          <span data-slot="text" {...resolved.slotClassAndStyle('text', 'leading-4 text-pretty')}>
+          <span
+            data-slot="text"
+            {...resolved.slotClassAndStyle('text', {
+              state: { class: 'leading-4 text-pretty' },
+            })}
+          >
             {text()}
           </span>
         </Show>
@@ -435,10 +455,11 @@ export function Tooltip(props: TooltipProps): JSX.Element {
               variant={merged.invert ? 'invert' : undefined}
               size="sm"
               items={value()}
-              {...resolved.slotClassAndStyle(
-                'kbds',
-                text() && 'rounded-sm relative z-floating isolate',
-              )}
+              {...resolved.slotClassAndStyle('kbds', {
+                get state() {
+                  return { class: text() && 'rounded-sm relative z-floating isolate' }
+                },
+              })}
               classes={{ item: resolved.slotClass('kbd') }}
               styles={{ item: resolved.slotStyle('kbd') }}
             />

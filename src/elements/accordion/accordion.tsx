@@ -201,11 +201,9 @@ export function Accordion(props: AccordionProps): JSX.Element {
   const config = useMoraineConfig()
   const provider = () => config().accordion
 
-  const slots = createMemo(() => accordionRecipe())
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      classes: accordionRecipe(),
     },
     get provider() {
       return provider()
@@ -386,7 +384,9 @@ export function Accordion(props: AccordionProps): JSX.Element {
       data-disabled={merged.disabled ? '' : undefined}
       {...rest}
       {...resolved.rootClassAndStyle({
-        state: merged.disabled && 'opacity-64 pointer-events-none',
+        get state() {
+          return { class: merged.disabled && 'opacity-64 pointer-events-none' }
+        },
       })}
     >
       <For each={items()}>
@@ -514,7 +514,11 @@ export function Accordion(props: AccordionProps): JSX.Element {
           return (
             <div
               data-slot="item"
-              {...resolved.slotClassAndStyle('item', { class: item.class })}
+              {...resolved.slotClassAndStyle('item', {
+                get state() {
+                  return { class: item.class }
+                },
+              })}
               {...itemDataAttrs()}
             >
               <h3 data-slot="header" {...resolved.slotClassAndStyle('header')} {...itemDataAttrs()}>
@@ -582,8 +586,12 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   aria-labelledby={triggerId()}
                   data-slot="content"
                   {...resolved.slotClassAndStyle('content', {
-                    style: {
-                      '--mo-collapsible-content-height': `${contentHeight()}px`,
+                    get state() {
+                      return {
+                        style: {
+                          '--mo-collapsible-content-height': `${contentHeight()}px`,
+                        },
+                      }
                     },
                   })}
                   {...contentDataAttrs()}

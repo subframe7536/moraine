@@ -277,19 +277,17 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     }),
   )
 
-  const slots = createMemo(() =>
-    checkboxGroupRecipe({
-      orientation: merged.orientation,
-      size: field.size(),
-      required: field.required(),
-      variant: merged.variant,
-      tableOrientation: merged.variant === 'table' ? merged.orientation : undefined,
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return checkboxGroupRecipe({
+          orientation: merged.orientation,
+          size: field.size(),
+          required: field.required(),
+          variant: merged.variant,
+          tableOrientation: merged.variant === 'table' ? merged.orientation : undefined,
+        })
+      },
     },
     get provider() {
       return provider()
@@ -398,7 +396,9 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
           (legend() ? legendId() : undefined)
         }
         {...resolved.slotClassAndStyle('fieldset', {
-          state: merged.variant !== 'table' && 'gap-2',
+          get state() {
+            return { class: merged.variant !== 'table' && 'gap-2' }
+          },
         })}
         {...field.ariaAttrs()}
       >

@@ -284,7 +284,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     return value === null || value === undefined ? merged.placeholder : String(value)
   }
 
-  const resolved = resolveComponentStyle({
+  const styleInputs = {
     get provider() {
       return provider()
     },
@@ -296,7 +296,8 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
         styles: local.styles,
       }
     },
-  })
+  }
+  const resolved = resolveComponentStyle(styleInputs)
 
   const resolvedClasses = () => ({
     content: resolved.slotClass('content'),
@@ -341,10 +342,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     <BaseSelect<Item>
       {...rest}
       _defaultSize={merged.size ?? undefined}
-      class={resolved.rootClass()}
-      classes={resolvedClasses()}
-      style={resolved.rootStyle()}
-      styles={resolvedStyles()}
+      _styleInputs={styleInputs}
       initialValue={getInitialValue()}
       _isValueControlled={merged.value !== undefined}
       multiple={false}
@@ -393,18 +391,16 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
           Boolean(!isActionLoading() && merged.allowClear && getCurrentValue(api) !== null),
         )
 
-        const controlSlots = createMemo(() =>
-          selectRecipe({
-            variant: merged.variant,
-            size: api.field.size(),
-            mode: 'single',
-            search: api.isSearchable(),
-          }),
-        )
-
         const controlResolved = resolveComponentStyle({
-          get slots() {
-            return controlSlots()
+          base: {
+            get classes() {
+              return selectRecipe({
+                variant: merged.variant,
+                size: api.field.size(),
+                mode: 'single',
+                search: api.isSearchable(),
+              })
+            },
           },
           get provider() {
             return provider()
@@ -443,11 +439,16 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
               fallback={
                 <span
                   data-slot="input"
-                  {...controlResolved.slotClassAndStyle(
-                    'input',
-                    'text-start truncate',
-                    getCurrentValue(api) === null && 'text-muted-foreground',
-                  )}
+                  {...controlResolved.slotClassAndStyle('input', {
+                    get state() {
+                      return {
+                        class: [
+                          'text-start truncate',
+                          getCurrentValue(api) === null && 'text-muted-foreground',
+                        ],
+                      }
+                    },
+                  })}
                 >
                   {displayValue(api)}
                 </span>
@@ -476,10 +477,11 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                   }
                   slotName="trigger"
                   data-loading={isActionLoading() ? '' : undefined}
-                  {...controlResolved.slotClassAndStyle(
-                    'trigger',
-                    isActionLoading() && 'animate-spin',
-                  )}
+                  {...controlResolved.slotClassAndStyle('trigger', {
+                    get state() {
+                      return { class: isActionLoading() && 'animate-spin' }
+                    },
+                  })}
                 />
               }
             >
@@ -488,10 +490,12 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                 data-slot="clear"
                 aria-label="Clear selection"
                 tabIndex={-1}
-                {...controlResolved.slotClassAndStyle(
-                  'clear',
-                  'border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center',
-                )}
+                {...controlResolved.slotClassAndStyle('clear', {
+                  state: {
+                    class:
+                      'border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center',
+                  },
+                })}
                 disabled={api.field.disabled()}
                 onPointerDown={(event) => {
                   event.preventDefault()

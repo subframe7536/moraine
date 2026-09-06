@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createMemo, For, mergeProps, onMount, Show, splitProps } from 'solid-js'
+import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
@@ -177,13 +177,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     }),
   )
 
-  const styleVars = createMemo(() =>
-    sliderStyleVars({
-      size: field.size(),
-      variant: merged.variant,
-    }),
-  )
-
   const slider = useSlider<TValue>(merged as any, {
     disabled: field.disabled,
     onValueInput(value) {
@@ -207,25 +200,28 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     },
   })
 
-  const slots = createMemo(() =>
-    sliderRecipe({
-      orientation: merged.orientation,
-      size: field.size(),
-      variant: merged.variant,
-      inverted: merged.inverted,
-      multiple: slider.currentValues().length > 1,
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return sliderRecipe({
+          orientation: merged.orientation,
+          size: field.size(),
+          variant: merged.variant,
+          inverted: merged.inverted,
+          multiple: slider.currentValues().length > 1,
+        })
+      },
+      get styles() {
+        return {
+          root: sliderStyleVars({
+            size: field.size(),
+            variant: merged.variant,
+          }),
+        }
+      },
     },
     get provider() {
       return provider()
-    },
-    get baseStyle() {
-      return styleVars()
     },
     get instance() {
       return {
@@ -275,10 +271,11 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           data-slot="range"
           data-orientation={merged.orientation}
           data-dragging={slider.dragging() ? '' : undefined}
-          style={{
-            ...slider.rangeStyle(),
-            ...resolved.slotStyle('range'),
-          }}
+          style={resolved.slotStyle('range', {
+            get state() {
+              return { style: slider.rangeStyle() }
+            },
+          })}
           class={resolved.slotClass('range')}
         />
 
@@ -288,10 +285,11 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               <div
                 data-slot="divider"
                 data-orientation={merged.orientation}
-                style={{
-                  ...slider.getDividerStyle(dividerIndex),
-                  ...resolved.slotStyle('divider'),
-                }}
+                style={resolved.slotStyle('divider', {
+                  get state() {
+                    return { style: slider.getDividerStyle(dividerIndex) }
+                  },
+                })}
                 class={resolved.slotClass('divider')}
               />
             )}
@@ -319,10 +317,11 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             data-required={field.required() ? '' : undefined}
             role="slider"
             tabIndex={field.disabled() ? undefined : 0}
-            style={{
-              ...slider.thumbStyles()[thumbIndex],
-              ...resolved.slotStyle('thumb'),
-            }}
+            style={resolved.slotStyle('thumb', {
+              get state() {
+                return { style: slider.thumbStyles()[thumbIndex] }
+              },
+            })}
             class={resolved.slotClass('thumb')}
             aria-valuemin={slider.getThumbMinValue(thumbIndex)}
             aria-valuenow={slider.currentValues()[thumbIndex] ?? merged.min}

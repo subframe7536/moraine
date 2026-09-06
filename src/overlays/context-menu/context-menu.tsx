@@ -143,6 +143,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
   )
 
   const resolved = resolveComponentStyle({
+    rootSlot: 'trigger' as const,
     get provider() {
       return providerContextMenu()
     },

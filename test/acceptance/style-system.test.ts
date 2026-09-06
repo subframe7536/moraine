@@ -326,11 +326,13 @@ describe('Plan 006 style-system acceptance audit', () => {
 
   test('executes the shared resolver contract and keeps its normative test in coverage', () => {
     const testRecipe = recipe({
-      slots: ['root', 'content'],
       base: { root: 'recipe-root', content: 'recipe-content' },
     })
     const resolved = resolveComponentStyle({
-      slots: testRecipe(),
+      base: {
+        classes: testRecipe(),
+        styles: { root: { '--base': '0' } },
+      },
       provider: {
         classes: { root: 'provider-root', content: 'provider-content' },
         styles: {
@@ -345,7 +347,6 @@ describe('Plan 006 style-system acceptance audit', () => {
           content: { color: 'purple', '--group-content': '2' },
         },
       },
-      stateCls: { root: 'state-root', content: 'state-content' },
       instance: {
         class: 'instance-class',
         classes: { root: 'instance-root', content: 'instance-content' },
@@ -355,7 +356,9 @@ describe('Plan 006 style-system acceptance audit', () => {
           content: { color: 'yellow', '--instance-content': '3' },
         },
       },
-      baseStyle: { '--base': '0' },
+      state: {
+        classes: { root: 'state-root', content: 'state-content' },
+      },
     })
 
     expect(resolved.rootClass()).toBe(

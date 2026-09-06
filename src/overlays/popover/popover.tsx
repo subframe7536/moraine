@@ -3,7 +3,6 @@ import { Show, createEffect, createMemo, mergeProps, on, onCleanup, splitProps }
 
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn } from '../../shared/utils.ts'
 import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
 import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
@@ -137,7 +136,8 @@ export function Popover(props: PopoverProps): JSX.Element {
     local,
   )
 
-  const resolved = resolveComponentStyle({
+  const styleInputs = {
+    rootSlot: 'trigger' as const,
     get provider() {
       return providerPopover()
     },
@@ -149,7 +149,8 @@ export function Popover(props: PopoverProps): JSX.Element {
         styles: local.styles,
       }
     },
-  })
+  }
+  const resolved = resolveComponentStyle(styleInputs)
 
   const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
     get class() {
@@ -256,6 +257,18 @@ export function Popover(props: PopoverProps): JSX.Element {
       return resolveOverlayMenuSide(merged.placement)
     })
 
+    const contentStyleInputs = mergeProps(styleInputs, {
+      base: {
+        get classes() {
+          return {
+            content: popoverContentVariants({ side: resolvedSide() }),
+            body: 'max-h-[var(--mo-popper-content-available-height)] overflow-auto',
+          }
+        },
+      },
+    })
+    const contentResolved = resolveComponentStyle(contentStyleInputs)
+
     return (
       <div
         role={context.contentProps.role}
@@ -264,18 +277,15 @@ export function Popover(props: PopoverProps): JSX.Element {
         aria-labelledby={context.contentProps['aria-labelledby']}
         aria-describedby={context.contentProps['aria-describedby']}
         data-slot="content"
-        style={resolved.slotStyle('content')}
-        class={popoverContentVariants({ side: resolvedSide() }, resolved.slotClass('content'))}
+        style={contentResolved.slotStyle('content')}
+        class={contentResolved.slotClass('content')}
         {...context.contentProps}
       >
         <Show when={content() !== undefined && content() !== null}>
           <div
             data-slot="body"
-            style={resolved.slotStyle('body')}
-            class={cn(
-              'max-h-[var(--mo-popper-content-available-height)] overflow-auto',
-              resolved.slotClass('body'),
-            )}
+            style={contentResolved.slotStyle('body')}
+            class={contentResolved.slotClass('body')}
           >
             {content()}
           </div>

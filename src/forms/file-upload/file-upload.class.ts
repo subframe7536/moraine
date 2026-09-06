@@ -5,7 +5,7 @@ export const fileUploadRecipe = recipe({
   base: {
     root: 'flex flex-col relative data-disabled:opacity-64 data-disabled:pointer-events-none',
     control:
-      'text-center outline-none border border-input rounded-lg bg-background inline-flex w-full cursor-pointer shadow-xs transition-[colors,box-shadow] items-center justify-center relative focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 data-dragging:border-primary data-dragging:bg-primary/8 data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 dark:bg-input/30',
+      'text-center outline-none border border-input rounded-lg bg-background inline-flex w-full cursor-pointer shadow-xs transition-[colors,box-shadow] items-center justify-center relative focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 data-dragging:border-primary data-dragging:bg-input data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 dark:bg-input/30 hover:bg-input',
     wrapper: 'text-center flex flex-col pointer-events-none items-center justify-center',
     icon: 'text-muted-foreground',
     label: 'text-foreground font-medium',
@@ -28,7 +28,7 @@ export const fileUploadRecipe = recipe({
     size: {
       sm: {
         root: 'gap-2',
-        control: 'text-xs px-3 py-2.5 gap-2 min-h-24',
+        control: 'text-xs px-4 gap-2 min-h-24',
         wrapper: 'gap-0.5',
         icon: 'text-lg',
         label: 'text-xs',
@@ -43,7 +43,7 @@ export const fileUploadRecipe = recipe({
       },
       md: {
         root: 'gap-2.5',
-        control: 'text-sm px-4 py-3 gap-2 min-h-28',
+        control: 'text-sm px-5 gap-2 min-h-28',
         wrapper: 'gap-1',
         icon: 'text-xl',
         label: 'text-sm',
@@ -58,7 +58,7 @@ export const fileUploadRecipe = recipe({
       },
       lg: {
         root: 'gap-3',
-        control: 'text-sm px-4.5 py-3.5 gap-2.5 min-h-32',
+        control: 'text-sm px-6 gap-2.5 min-h-32',
         wrapper: 'gap-1',
         icon: 'text-2xl',
         label: 'text-base',

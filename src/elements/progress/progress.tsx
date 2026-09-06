@@ -152,25 +152,21 @@ export function Progress(props: ProgressProps): JSX.Element {
     () => local.animation ?? provider()?.variants?.animation ?? 'carousel',
   )
 
-  const styleVars = createMemo(() => progressStyleVars({ size: size() }))
-
-  const slots = createMemo(() =>
-    progressRecipe({
-      orientation: orientation(),
-      size: size(),
-      animation: animation(),
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return progressRecipe({
+          orientation: orientation(),
+          size: size(),
+          animation: animation(),
+        })
+      },
+      get styles() {
+        return { root: progressStyleVars({ size: size() }) }
+      },
     },
     get provider() {
       return provider()
-    },
-    get baseStyle() {
-      return styleVars()
     },
     get instance() {
       return {
@@ -317,7 +313,11 @@ export function Progress(props: ProgressProps): JSX.Element {
             <Show when={shouldRenderStatus()}>
               <div
                 data-slot="status"
-                {...resolved.slotClassAndStyle('status', { style: statusStyle() })}
+                {...resolved.slotClassAndStyle('status', {
+                  get state() {
+                    return { style: statusStyle() }
+                  },
+                })}
                 {...dataAttrs()}
               >
                 <Show when={statusRender() !== undefined} fallback={`${percent() ?? 0}%`}>
@@ -336,7 +336,11 @@ export function Progress(props: ProgressProps): JSX.Element {
       <div data-slot="track" {...resolved.slotClassAndStyle('track')} {...dataAttrs()}>
         <div
           data-slot="indicator"
-          {...resolved.slotClassAndStyle('indicator', { style: indicatorStyle() })}
+          {...resolved.slotClassAndStyle('indicator', {
+            get state() {
+              return { style: indicatorStyle() }
+            },
+          })}
           {...dataAttrs()}
         />
       </div>
@@ -352,7 +356,9 @@ export function Progress(props: ProgressProps): JSX.Element {
                   <div
                     data-slot="step"
                     {...resolved.slotClassAndStyle('step', {
-                      state: PROGRESS_STEP_STATE_CLASS[stepState(index())],
+                      get state() {
+                        return { class: PROGRESS_STEP_STATE_CLASS[stepState(index())] }
+                      },
                     })}
                     {...dataAttrs()}
                   >

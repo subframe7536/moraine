@@ -126,3 +126,47 @@ export function Dialog() { return <Modal><Modal.Content /></Modal> }
     await rm(projectRoot, { recursive: true, force: true })
   })
 })
+
+test('collects CSS variables from class and style layers by slot', async () => {
+  const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-api-style-layers-'))
+  try {
+    await mkdir(path.join(projectRoot, 'src'))
+    await writeFile(
+      path.join(projectRoot, 'src/demo.tsx'),
+      `
+function Icon() {
+  const resolved = resolveComponentStyle({ base: { classes: { root: 'block' } } })
+  return <span data-slot="icon" aria-hidden />
+}
+export function Demo() {
+  const resolved = resolveComponentStyle({
+    base: {
+      get classes() { return { content: 'w-[var(--panel-width)]', label: 'text-sm' } },
+      styles: { content: { '--panel-color': 'red' } },
+    },
+    state: {
+      get styles() { return { label: { '--label-color': 'blue' } } },
+    },
+  })
+  return <div data-slot="content" {...resolved.slotClassAndStyle('content')}>
+    <span data-slot="label" {...resolved.slotClassAndStyle('label')} />
+    <Icon slotName="leading" />
+  </div>
+}
+`,
+    )
+    const result = await new SourceSlotAnalyzer(projectRoot).enrichSlots('Demo', 'src/demo.tsx', [
+      { name: 'content', runtimeSlots: ['content'] },
+      { name: 'label', runtimeSlots: ['label'] },
+      { name: 'leading', runtimeSlots: ['leading'] },
+    ])
+    expect(result.map((slot) => slot.cssVariables.map((variable) => variable.name))).toEqual([
+      ['--panel-color', '--panel-width'],
+      ['--label-color'],
+      [],
+    ])
+    expect(result[2]?.ariaAttributes.map((attribute) => attribute.name)).toEqual(['aria-hidden'])
+  } finally {
+    await rm(projectRoot, { recursive: true, force: true })
+  }
+})

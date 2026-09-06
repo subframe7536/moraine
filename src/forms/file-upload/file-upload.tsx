@@ -524,16 +524,14 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     }),
   )
 
-  const slots = createMemo(() =>
-    fileUploadRecipe({
-      size: field.size(),
-      dropzone: dropzone(),
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return fileUploadRecipe({
+          size: field.size(),
+          dropzone: dropzone(),
+        })
+      },
     },
     get provider() {
       return provider()
@@ -546,8 +544,10 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         styles: local.styles,
       }
     },
-    get stateCls() {
-      return { control: field.disabled() ? 'bg-muted/32' : undefined }
+    state: {
+      get classes() {
+        return { control: field.disabled() ? 'bg-muted/32' : undefined }
+      },
     },
   })
 

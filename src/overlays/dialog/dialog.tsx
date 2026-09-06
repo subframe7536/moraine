@@ -8,7 +8,7 @@ import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import { hasJsxContent } from '../../shared/jsx-content.ts'
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { cn, useId } from '../../shared/utils.ts'
+import { useId } from '../../shared/utils.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 import { ModalTriggerRenderer } from '../modal/modal-trigger.tsx'
 import { MODAL_OVERLAY_CLASS } from '../modal/modal.class.ts'
@@ -187,7 +187,22 @@ export function Dialog(props: DialogProps): JSX.Element {
     local,
   )
 
+  const overlayScroll = () => Boolean(merged.scrollable && merged.overlay && !merged.fullscreen)
+
   const resolved = resolveComponentStyle({
+    rootSlot: 'trigger' as const,
+    base: {
+      get classes() {
+        return {
+          overlay: MODAL_OVERLAY_CLASS,
+          content: merged.fullscreen
+            ? DIALOG_CONTENT_FULLSCREEN_CLASS
+            : overlayScroll()
+              ? DIALOG_CONTENT_SCROLLABLE_CLASS
+              : DIALOG_CONTENT_CLASS,
+        }
+      },
+    },
     get provider() {
       return providerDialog()
     },
@@ -224,8 +239,6 @@ export function Dialog(props: DialogProps): JSX.Element {
   const descriptionId = createLazyMemo(() =>
     !hasCustomHeader() && hasJsxContent(description()) ? `${rootId()}-description` : undefined,
   )
-  const overlayScroll = () => Boolean(merged.scrollable && merged.overlay && !merged.fullscreen)
-
   const headerContent = (close: () => void) => {
     if (hasCustomHeader()) {
       return header()
@@ -240,13 +253,19 @@ export function Dialog(props: DialogProps): JSX.Element {
         <Show when={hasJsxContent(title()) || hasJsxContent(description())}>
           <div
             data-slot="wrapper"
-            {...resolved.slotClassAndStyle('wrapper', DIALOG_WRAPPER_CLASS, merged.close && 'pe-8')}
+            {...resolved.slotClassAndStyle('wrapper', {
+              get state() {
+                return { class: [DIALOG_WRAPPER_CLASS, merged.close && 'pe-8'] }
+              },
+            })}
           >
             <Show when={hasJsxContent(title())}>
               <h2
                 id={titleId()}
                 data-slot="title"
-                {...resolved.slotClassAndStyle('title', DIALOG_TITLE_CLASS)}
+                {...resolved.slotClassAndStyle('title', {
+                  state: { class: DIALOG_TITLE_CLASS },
+                })}
               >
                 {title()}
               </h2>
@@ -256,7 +275,9 @@ export function Dialog(props: DialogProps): JSX.Element {
               <p
                 id={descriptionId()}
                 data-slot="description"
-                {...resolved.slotClassAndStyle('description', DIALOG_DESCRIPTION_CLASS)}
+                {...resolved.slotClassAndStyle('description', {
+                  state: { class: DIALOG_DESCRIPTION_CLASS },
+                })}
               >
                 {description()}
               </p>
@@ -270,7 +291,9 @@ export function Dialog(props: DialogProps): JSX.Element {
             aria-label="Close"
             size="icon-sm"
             variant="ghost"
-            {...resolved.slotClassAndStyle('close', DIALOG_CLOSE_CLASS)}
+            {...resolved.slotClassAndStyle('close', {
+              state: { class: DIALOG_CLOSE_CLASS },
+            })}
             onClick={() => close()}
           >
             <Icon name={closeIcon()} />
@@ -294,16 +317,9 @@ export function Dialog(props: DialogProps): JSX.Element {
       <Modal.Content
         overlay={merged.overlay}
         overlayScroll={overlayScroll()}
-        overlayClass={cn(MODAL_OVERLAY_CLASS, resolved.slotClass('overlay'))}
+        overlayClass={resolved.slotClass('overlay')}
         overlayStyle={resolved.slotStyle('overlay')}
-        class={cn(
-          merged.fullscreen
-            ? DIALOG_CONTENT_FULLSCREEN_CLASS
-            : overlayScroll()
-              ? DIALOG_CONTENT_SCROLLABLE_CLASS
-              : DIALOG_CONTENT_CLASS,
-          resolved.slotClass('content'),
-        )}
+        class={resolved.slotClass('content')}
         style={resolved.slotStyle('content')}
         ariaLabel={merged.ariaLabel}
         ariaLabelledBy={titleId()}
@@ -322,7 +338,9 @@ export function Dialog(props: DialogProps): JSX.Element {
                 {(h) => (
                   <div
                     data-slot="header"
-                    {...resolved.slotClassAndStyle('header', DIALOG_HEADER_CLASS)}
+                    {...resolved.slotClassAndStyle('header', {
+                      state: { class: DIALOG_HEADER_CLASS },
+                    })}
                   >
                     {h()}
                   </div>
@@ -333,13 +351,18 @@ export function Dialog(props: DialogProps): JSX.Element {
                 {(content) => (
                   <div
                     data-slot="body"
-                    {...resolved.slotClassAndStyle(
-                      'body',
-                      DIALOG_BODY_CLASS,
-                      !overlayScroll() && 'overflow-y-auto',
-                      !hasHeader() && 'pt-6',
-                      hasJsxContent(footer()) ? 'pb-2' : 'pb-6',
-                    )}
+                    {...resolved.slotClassAndStyle('body', {
+                      get state() {
+                        return {
+                          class: [
+                            DIALOG_BODY_CLASS,
+                            !overlayScroll() && 'overflow-y-auto',
+                            !hasHeader() && 'pt-6',
+                            hasJsxContent(footer()) ? 'pb-2' : 'pb-6',
+                          ],
+                        }
+                      },
+                    })}
                   >
                     {content()}
                   </div>
@@ -350,7 +373,9 @@ export function Dialog(props: DialogProps): JSX.Element {
                 {(f) => (
                   <div
                     data-slot="footer"
-                    {...resolved.slotClassAndStyle('footer', DIALOG_FOOTER_CLASS)}
+                    {...resolved.slotClassAndStyle('footer', {
+                      state: { class: DIALOG_FOOTER_CLASS },
+                    })}
                   >
                     {f()}
                   </div>

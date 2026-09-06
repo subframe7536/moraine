@@ -586,6 +586,46 @@ export class SourceSlotAnalyzer {
     const functionReferences: string[] = []
 
     walkAst(declaration, (node) => {
+      if (
+        node.type === 'Property' &&
+        ['classes', 'styles'].includes(getIdentifierName(node.key) ?? '')
+      ) {
+        const maps: ESTree.ObjectExpression[] = []
+        if (node.value.type === 'ObjectExpression') {
+          maps.push(node.value)
+        } else if (node.kind === 'get' && node.value.type === 'FunctionExpression') {
+          for (const statement of node.value.body?.body ?? []) {
+            if (
+              statement.type === 'ReturnStatement' &&
+              statement.argument?.type === 'ObjectExpression'
+            ) {
+              maps.push(statement.argument)
+            }
+          }
+        }
+        for (const map of maps) {
+          for (const entry of map.properties) {
+            if (entry.type !== 'Property') {
+              continue
+            }
+            const slotName = getIdentifierName(entry.key)
+            if (!slotName) {
+              continue
+            }
+            const variables = [
+              ...nodeText(resolvedModule.source, entry.value).matchAll(/--[A-Za-z_][\w-]*/g),
+            ]
+            if (variables.length === 0) {
+              continue
+            }
+            const metadata = slots.get(slotName) ?? createSlotMetadata()
+            for (const match of variables) {
+              metadata.cssVariables.add(match[0])
+            }
+            slots.set(slotName, metadata)
+          }
+        }
+      }
       if (node.type === 'JSXOpeningElement') {
         const candidates = getSlotCandidates(node)
         const attributes = getJsxAttributes(node)

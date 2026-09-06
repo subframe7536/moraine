@@ -90,11 +90,11 @@ export function Badge(props: BadgeProps): JSX.Element {
     return value === 0 || Boolean(value)
   })
 
-  const slots = createMemo(() => badgeRecipe({ size: size(), variant: variant() }))
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return badgeRecipe({ size: size(), variant: variant() })
+      },
     },
     get provider() {
       return provider()

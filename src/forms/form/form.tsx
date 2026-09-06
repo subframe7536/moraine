@@ -12,7 +12,7 @@ import {
   reset as resetForm,
 } from '@formisch/solid'
 import type { JSX, ValidComponent } from 'solid-js'
-import { createComponent, createMemo, mergeProps, splitProps } from 'solid-js'
+import { createComponent, mergeProps, splitProps } from 'solid-js'
 
 import { resolveComponentStyle, useMoraineConfig } from '../../shared/provider/index.ts'
 import type { BaseProps } from '../../shared/types.ts'
@@ -81,11 +81,9 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
     }
   }
 
-  const baseClass = createMemo(() => formRecipe())
-
   const resolved = resolveComponentStyle({
-    get baseClass() {
-      return baseClass()
+    base: {
+      classes: { root: formRecipe() },
     },
     get provider() {
       return provider()

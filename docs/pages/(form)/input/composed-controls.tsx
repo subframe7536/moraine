@@ -1,4 +1,4 @@
-import { Button, Input } from '@src'
+import { Button, Icon, Input } from '@src'
 import { createSignal } from 'solid-js'
 
 export function ComposedControls() {
@@ -13,11 +13,11 @@ export function ComposedControls() {
         trailing={
           <Button
             variant="ghost"
-            size="xs"
+            size="icon-xs"
             onClick={() => setShowPassword((prev) => !prev)}
             aria-label={showPassword() ? 'Hide token' : 'Show token'}
           >
-            <span class={showPassword() ? 'i-lucide:eye-off' : 'i-lucide:eye'} />
+            <Icon name={showPassword() ? 'i-lucide:eye-off' : 'i-lucide:eye'} />
           </Button>
         }
       />

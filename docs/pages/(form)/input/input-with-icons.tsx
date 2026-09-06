@@ -14,12 +14,11 @@ export function InputWithIcons() {
         trailing={
           <Button
             variant="ghost"
-            size="sm"
-            class="p-0 h-6 w-6 hover:bg-transparent"
+            size="icon-sm"
             onClick={() => setShowPassword((prev) => !prev)}
             aria-label={showPassword() ? 'Hide password' : 'Show password'}
           >
-            <Icon name={showPassword() ? 'i-lucide:eye-off' : 'i-lucide:eye'} class="size-3.5" />
+            <Icon name={showPassword() ? 'i-lucide:eye-off' : 'i-lucide:eye'} />
           </Button>
         }
         placeholder="Enter password"
@@ -33,12 +32,11 @@ export function InputWithIcons() {
           query() ? (
             <Button
               variant="ghost"
-              size="sm"
-              class="p-0 h-6 w-6 hover:bg-transparent"
+              size="icon-sm"
               onClick={() => setQuery('')}
               aria-label="Clear search"
             >
-              <Icon name="i-lucide:x" class="size-3.5" />
+              <Icon name="i-lucide:x" />
             </Button>
           ) : undefined
         }
@@ -53,6 +51,9 @@ export function InputWithIcons() {
           </div>
         }
         trailing={<span class="text-xs text-muted-foreground font-mono">.moraine.dev</span>}
+        classes={{
+          input: 'ps-0',
+        }}
         placeholder="project-slug"
       />
 

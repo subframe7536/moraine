@@ -199,17 +199,15 @@ export function Tabs(props: TabsProps): JSX.Element {
     local,
   )
 
-  const slots = createMemo(() =>
-    tabsRecipe({
-      orientation: merged.orientation,
-      variant: merged.variant,
-      size: merged.size,
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return tabsRecipe({
+          orientation: merged.orientation,
+          variant: merged.variant,
+          size: merged.size,
+        })
+      },
     },
     get provider() {
       return providerTabs()
@@ -437,7 +435,11 @@ export function Tabs(props: TabsProps): JSX.Element {
         <div
           aria-hidden="true"
           data-slot="indicator"
-          style={{ ...indicatorStyle(), ...resolved.slotStyle('indicator') }}
+          style={resolved.slotStyle('indicator', {
+            get state() {
+              return { style: indicatorStyle() }
+            },
+          })}
           class={resolved.slotClass('indicator')}
         />
 

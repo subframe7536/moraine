@@ -245,11 +245,11 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     return value === 0 || Boolean(value)
   })
 
-  const slots = createMemo(() => buttonRecipe({ variant: variant(), size: size() }))
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return buttonRecipe({ variant: variant(), size: size() })
+      },
     },
     get provider() {
       return providerButton()
@@ -284,12 +284,16 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           <Icon
             name={leading()}
             slotName="leading"
-            {...resolved.slotClassAndStyle(
-              'leading',
-              isLeadingLoading()
-                ? { state: resolved.slotClass('loading'), style: resolved.slotStyle('loading') }
-                : undefined,
-            )}
+            {...resolved.slotClassAndStyle('leading', {
+              get state() {
+                return isLeadingLoading()
+                  ? {
+                      class: resolved.slotClass('loading'),
+                      style: resolved.slotStyle('loading'),
+                    }
+                  : undefined
+              },
+            })}
             aria-hidden={isLeadingLoading() ? true : undefined}
           />
         )}
@@ -306,12 +310,16 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           <Icon
             name={trailing()}
             slotName="trailing"
-            {...resolved.slotClassAndStyle(
-              'trailing',
-              isTrailingLoading()
-                ? { state: resolved.slotClass('loading'), style: resolved.slotStyle('loading') }
-                : undefined,
-            )}
+            {...resolved.slotClassAndStyle('trailing', {
+              get state() {
+                return isTrailingLoading()
+                  ? {
+                      class: resolved.slotClass('loading'),
+                      style: resolved.slotStyle('loading'),
+                    }
+                  : undefined
+              },
+            })}
             aria-hidden={isTrailingLoading() ? true : undefined}
           />
         )}

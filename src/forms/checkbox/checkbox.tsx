@@ -236,18 +236,16 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     }),
   )
 
-  const slots = createMemo(() =>
-    checkboxRecipe({
-      variant: merged.variant,
-      indicator: merged.indicator,
-      size: field.size(),
-      required: field.required(),
-    }),
-  )
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return checkboxRecipe({
+          variant: merged.variant,
+          indicator: merged.indicator,
+          size: field.size(),
+          required: field.required(),
+        })
+      },
     },
     get provider() {
       return provider()
@@ -517,10 +515,14 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           data-invalid={field.invalid() ? '' : undefined}
           aria-checked={indeterminate() ? 'mixed' : Boolean(resolvedChecked())}
           {...resolved.slotClassAndStyle('control', {
-            state: [
-              merged.indicator === 'hidden' && 'sr-only',
-              field.disabled() && 'opacity-64 pointer-events-none',
-            ],
+            get state() {
+              return {
+                class: [
+                  merged.indicator === 'hidden' && 'sr-only',
+                  field.disabled() && 'opacity-64 pointer-events-none',
+                ],
+              }
+            },
           })}
           onPointerDown={onPointerDown}
           onClick={onControlClick}

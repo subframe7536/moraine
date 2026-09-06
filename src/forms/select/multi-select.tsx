@@ -654,7 +654,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
     handleMultipleChange(current.slice(0, -1), api)
   }
 
-  const resolved = resolveComponentStyle({
+  const styleInputs = {
     get provider() {
       return provider()
     },
@@ -666,7 +666,8 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
         styles: local.styles,
       }
     },
-  })
+  }
+  const resolved = resolveComponentStyle(styleInputs)
 
   const resolvedClasses = () => ({
     content: resolved.slotClass('content'),
@@ -707,10 +708,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
     <BaseSelect<Item>
       {...rest}
       _defaultSize={merged.size ?? undefined}
-      class={resolved.rootClass()}
-      classes={resolvedClasses()}
-      style={resolved.rootStyle()}
-      styles={resolvedStyles()}
+      _styleInputs={styleInputs}
       options={options()}
       initialValue={initialDefaultValues}
       _isValueControlled={merged.value !== undefined}
@@ -784,17 +782,15 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
           Boolean(!isActionLoading() && merged.allowClear && selectedOptions().length > 0),
         )
 
-        const controlSlots = createMemo(() =>
-          multiSelectRecipe({
-            variant: merged.variant,
-            size: api.field.size(),
-            search: api.isSearchable(),
-          }),
-        )
-
         const controlResolved = resolveComponentStyle({
-          get slots() {
-            return controlSlots()
+          base: {
+            get classes() {
+              return multiSelectRecipe({
+                variant: merged.variant,
+                size: api.field.size(),
+                search: api.isSearchable(),
+              })
+            },
           },
           get provider() {
             return provider()
@@ -830,10 +826,12 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
 
             <div
               data-slot="tagsContainer"
-              {...controlResolved.slotClassAndStyle(
-                'tagsContainer',
-                'text-sm py-1.5 bg-transparent flex flex-1 flex-wrap gap-1 max-w-full select-none',
-              )}
+              {...controlResolved.slotClassAndStyle('tagsContainer', {
+                state: {
+                  class:
+                    'text-sm py-1.5 bg-transparent flex flex-1 flex-wrap gap-1 max-w-full select-none',
+                },
+              })}
             >
               <For each={visibleTagOptions()}>
                 {(option) => {
@@ -866,11 +864,16 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                           style={controlResolved.slotStyle('tagRemove')}
                           disabled={api.field.disabled()}
                           tabIndex={-1}
-                          class={cn(
-                            'p-0.5 appearance-none flex shrink-0 items-center justify-center -ms-1',
-                            api.field.disabled() ? 'pointer-events-none' : 'cursor-pointer',
-                            controlResolved.slotClass('tagRemove'),
-                          )}
+                          class={controlResolved.slotClass('tagRemove', {
+                            get state() {
+                              return {
+                                class: [
+                                  'p-0.5 appearance-none flex shrink-0 items-center justify-center -ms-1',
+                                  api.field.disabled() ? 'pointer-events-none' : 'cursor-pointer',
+                                ],
+                              }
+                            },
+                          })}
                           onPointerDown={(event) => {
                             if (api.field.disabled()) {
                               return
@@ -906,10 +909,11 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
 
               <input
                 data-slot="input"
-                {...controlResolved.slotClassAndStyle(
-                  'input',
-                  !api.isSearchable() && 'cursor-pointer',
-                )}
+                {...controlResolved.slotClassAndStyle('input', {
+                  get state() {
+                    return { class: !api.isSearchable() && 'cursor-pointer' }
+                  },
+                })}
                 {...api.inputProps()}
                 placeholder={selectedOptions().length > 0 ? '' : merged.placeholder}
                 readOnly={!api.isSearchable() ? true : undefined}
@@ -955,17 +959,21 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               aria-busy={isActionLoading() || undefined}
               data-loading={isActionLoading() ? '' : undefined}
               tabIndex={-1}
-              class={cn(
-                'border border-transparent rounded-md inline-flex shrink-0 select-none items-center justify-center',
-                isClearAction() ? SELECT_CLEAR_ACTION_CLASS : undefined,
-                isActionLoading()
-                  ? 'cursor-wait pointer-events-none'
-                  : api.field.disabled()
-                    ? 'pointer-events-none'
-                    : 'cursor-pointer',
-                controlResolved.slotClass('trigger'),
-                isClearAction() && controlResolved.slotClass('clear'),
-              )}
+              class={controlResolved.slotClass(isClearAction() ? 'clear' : 'trigger', {
+                get state() {
+                  return {
+                    class: [
+                      'border border-transparent rounded-md inline-flex shrink-0 select-none items-center justify-center',
+                      isClearAction() ? SELECT_CLEAR_ACTION_CLASS : undefined,
+                      isActionLoading()
+                        ? 'cursor-wait pointer-events-none'
+                        : api.field.disabled()
+                          ? 'pointer-events-none'
+                          : 'cursor-pointer',
+                    ],
+                  }
+                },
+              })}
               style={
                 isClearAction()
                   ? controlResolved.slotStyle('clear')

@@ -252,7 +252,9 @@ export function Pagination(props: PaginationProps): JSX.Element {
   )
 
   const resolved = resolveComponentStyle({
-    slots: paginationRecipe(),
+    base: {
+      classes: paginationRecipe(),
+    },
     get provider() {
       return providerPagination()
     },
@@ -382,7 +384,11 @@ export function Pagination(props: PaginationProps): JSX.Element {
               variant={merged.controlVariant}
               size={getSize(merged.size, hasPrevText() ? merged.prevText : undefined)}
               aria-label={getPrevLabel()}
-              {...resolved.slotClassAndStyle('prev', hasPrevText() && 'ps-2!')}
+              {...resolved.slotClassAndStyle('prev', {
+                get state() {
+                  return { class: hasPrevText() && 'ps-2!' }
+                },
+              })}
               classes={{ label: hasPrevText() && PAGINATION_CONTROL_LABEL_CLASS }}
               onClick={(event) => selectPage(resolvedPage() - 1, event)}
               {...getControlProps(resolvedPage() - 1, resolvedPage() <= 1, 'prev')}
@@ -402,7 +408,11 @@ export function Pagination(props: PaginationProps): JSX.Element {
               <li
                 data-slot="item"
                 aria-hidden={item < 0 ? true : undefined}
-                {...resolved.slotClassAndStyle('item', item < 0 && 'size-9')}
+                {...resolved.slotClassAndStyle('item', {
+                  get state() {
+                    return { class: item < 0 && 'size-9' }
+                  },
+                })}
               >
                 <Show
                   when={item >= 0}
@@ -440,7 +450,11 @@ export function Pagination(props: PaginationProps): JSX.Element {
               variant={merged.controlVariant}
               size={getSize(merged.size, hasNextText() ? merged.nextText : undefined)}
               aria-label={getNextLabel()}
-              {...resolved.slotClassAndStyle('next', hasNextText() && 'pe-2!')}
+              {...resolved.slotClassAndStyle('next', {
+                get state() {
+                  return { class: hasNextText() && 'pe-2!' }
+                },
+              })}
               classes={{ label: hasNextText() && PAGINATION_CONTROL_LABEL_CLASS }}
               onClick={(event) => selectPage(resolvedPage() + 1, event)}
               {...getControlProps(resolvedPage() + 1, resolvedPage() >= pageCount(), 'next')}

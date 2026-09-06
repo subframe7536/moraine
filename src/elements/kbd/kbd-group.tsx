@@ -103,11 +103,11 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
     (local.sequence ?? (local.items ? [local.items] : [])).filter((items) => items.length > 0),
   )
 
-  const slots = createMemo(() => kbdGroupRecipe({ size: size() }))
-
   const resolved = resolveComponentStyle({
-    get slots() {
-      return slots()
+    base: {
+      get classes() {
+        return kbdGroupRecipe({ size: size() })
+      },
     },
     get provider() {
       return provider()

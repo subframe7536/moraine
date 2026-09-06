@@ -93,11 +93,11 @@ export function Kbd(props: KbdProps): JSX.Element {
   )
   const text = createMemo(() => alias()?.text ?? local.value)
 
-  const baseClass = createMemo(() => kbdRecipe({ size: size(), variant: variant() }))
-
   const resolved = resolveComponentStyle({
-    get baseClass() {
-      return baseClass()
+    base: {
+      get classes() {
+        return { root: kbdRecipe({ size: size(), variant: variant() }) }
+      },
     },
     get provider() {
       return provider()
