@@ -10,160 +10,16 @@ import {
   untrack,
 } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn, useId } from '../../shared/utils'
-import type { CheckboxProps } from '../checkbox/checkbox'
-import { Checkbox } from '../checkbox/index'
-import { useFormField } from '../form/form-context'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form-options'
-import { useFormReset } from '../shared/use-form-reset'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { useId } from '../../shared/utils.ts'
+import type { CheckboxProps } from '../checkbox/checkbox.types.ts'
+import { Checkbox } from '../checkbox/index.ts'
+import { useFormField } from '../form/form-context.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
-import type { CheckboxGroupVariantProps } from './checkbox-group.class'
-import {
-  checkboxGroupFieldsetVariants,
-  checkboxGroupItemVariants,
-  checkboxGroupLegendVariants,
-} from './checkbox-group.class'
+import type { CheckboxGroupProps, CheckboxGroupT } from './checkbox-group.types.ts'
 
-export namespace CheckboxGroupT {
-  export interface Slot<T = unknown> {
-    /**
-     * Group container that owns checkbox collection state and layout.
-     */
-    root?: T
-
-    /** Fieldset element that groups checkbox options for accessibility. */
-    fieldset?: T
-
-    /** Legend text that labels the checkbox group. */
-    legend?: T
-
-    /** Wrapper for one checkbox option in the group. */
-    item?: T
-
-    /** Text column for an option label and description. */
-    container?: T
-
-    /** Visible checkbox control for an individual option. */
-    control?: T
-
-    /** Visual checked or indeterminate state layer for an option. */
-    indicator?: T
-
-    /** Check or indeterminate icon rendered for an option state. */
-    icon?: T
-
-    /** Inner layout wrapper used by grouped checkbox variants. */
-    wrapper?: T
-
-    /** Primary label text for an option. */
-    label?: T
-
-    /** Supporting description for an option. */
-    description?: T
-  }
-
-  export type Variant = CheckboxGroupVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item<TTrue = boolean, TFalse = boolean> {
-    /**
-     * Value of the group item.
-     */
-    value?: string
-    /**
-     * Label for the group item.
-     */
-    label?: JSX.Element
-    /**
-     * Description for the group item.
-     */
-    description?: JSX.Element
-    /**
-     * Whether the item is disabled.
-     */
-    disabled?: boolean
-    /**
-     * Whether the item is indeterminate.
-     */
-    indeterminate?: CheckboxProps<TTrue, TFalse>['indeterminate']
-    /**
-     * Custom checked icon for this item.
-     */
-    checkedIcon?: CheckboxProps<TTrue, TFalse>['checkedIcon']
-    /**
-     * Custom indeterminate icon for this item.
-     */
-    indeterminateIcon?: CheckboxProps<TTrue, TFalse>['indeterminateIcon']
-  }
-
-  /**
-   * Base props for the CheckboxGroup component.
-   */
-  export interface Base<TTrue = boolean, TFalse = boolean>
-    extends
-      FormIdentityOptions,
-      FormValueOptions<string[]>,
-      FormRequiredOption,
-      FormDisableOption,
-      FormReadOnlyOption {
-    /**
-     * Legend for the checkbox group.
-     */
-    legend?: JSX.Element
-
-    /**
-     * Array of items to render in the group.
-     */
-    items?: (string | Item<TTrue, TFalse>)[]
-
-    /**
-     * Default indicator position for all items.
-     */
-    indicator?: CheckboxProps<TTrue, TFalse>['indicator']
-
-    /**
-     * Default checked icon for all items.
-     */
-    checkedIcon?: CheckboxProps<TTrue, TFalse>['checkedIcon']
-
-    /**
-     * Default indeterminate icon for all items.
-     */
-    indeterminateIcon?: CheckboxProps<TTrue, TFalse>['indeterminateIcon']
-
-    /**
-     * Callback when the selected values change.
-     */
-    onChange?: (value: string[]) => void
-  }
-
-  /**
-   * Props for the CheckboxGroup component.
-   */
-  export type Props<TTrue = boolean, TFalse = boolean> = BaseProps<
-    'div',
-    Base<TTrue, TFalse>,
-    Variant,
-    Classes,
-    Styles
-  >
-}
-
-/**
- * Props for the CheckboxGroup component.
- */
-export interface CheckboxGroupProps<TTrue = boolean, TFalse = boolean> extends CheckboxGroupT.Props<
-  TTrue,
-  TFalse
-> {}
+export * from './checkbox-group.types.ts'
 
 interface NormalizedCheckboxGroupItem<TTrue = boolean, TFalse = boolean> {
   value: string
@@ -243,18 +99,25 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     'class',
     'style',
   ])
+
+  const design = useMoraineDesign()
+  const checkboxGroupDesign = () => design().checkboxGroup
+
   const merged = mergeProps(
     {
       orientation: 'vertical' as const,
       variant: 'list' as const,
       defaultValue: [] as string[],
     },
+    () => checkboxGroupDesign()?.defaultVariants,
     local,
   )
   const legend = createMemo(() => merged.legend)
   const items = createMemo(() => merged.items ?? [])
   const controlledValue = createMemo(() => merged.value)
-  const initialDefaultValue = untrack(() => [...(merged.defaultValue ?? [])])
+  const initialDefaultValue = untrack(() =>
+    Array.isArray(merged.defaultValue) ? merged.defaultValue.slice() : [],
+  )
 
   const groupId = useId(() => merged.id, 'checkbox-group')
   const field = useFormField(
@@ -272,6 +135,28 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       initialValue: initialDefaultValue,
     }),
   )
+
+  const resolved = resolveComponentStyle({
+    design: {
+      get classes() {
+        return checkboxGroupDesign()?.recipe({
+          orientation: merged.orientation,
+          size: field.size(),
+          required: field.required(),
+          variant: merged.variant,
+          tableOrientation: merged.variant === 'table' ? merged.orientation : undefined,
+        })
+      },
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
 
   const [uncontrolledValue, setUncontrolledValue] = createSignal<string[]>(initialDefaultValue)
   let fieldsetEl: HTMLFieldSetElement | undefined
@@ -313,7 +198,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     const value = controlledValue()
 
     if (value !== undefined) {
-      field.setFormValue([...value])
+      field.setFormValue(Array.isArray(value) ? value.slice() : [])
     }
   })
 
@@ -326,15 +211,15 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     }
 
     const nextValues = checked
-      ? [...currentValues, value]
+      ? currentValues.concat(value)
       : currentValues.filter((itemValue) => itemValue !== value)
 
     if (controlledValue() === undefined) {
       setUncontrolledValue(nextValues)
     }
 
-    field.setFormValue([...nextValues])
-    merged.onChange?.([...nextValues])
+    field.setFormValue(nextValues.slice())
+    merged.onChange?.(nextValues.slice())
     field.emit('change')
     field.emit('input')
   }
@@ -346,21 +231,15 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       const nextValue = value ?? initialDefaultValue
 
       if (value === undefined) {
-        setUncontrolledValue([...initialDefaultValue])
+        setUncontrolledValue(initialDefaultValue.slice())
       }
 
-      field.setFormValue([...nextValue])
+      field.setFormValue(Array.isArray(nextValue) ? nextValue.slice() : [])
     },
   )
 
   return (
-    <div
-      id={`${groupId()}-root`}
-      data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn('relative', merged.classes?.root, merged.class)}
-      {...rest}
-    >
+    <div id={`${groupId()}-root`} data-slot="root" {...rest} {...resolved.rootClassAndStyle()}>
       <fieldset
         ref={(element) => {
           fieldsetEl = element
@@ -368,33 +247,16 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         id={groupId()}
         data-slot="fieldset"
         disabled={field.disabled()}
-        style={merged.styles?.fieldset}
         aria-labelledby={
           (field.ariaAttrs()['aria-labelledby'] as string | undefined) ??
           (legend() ? legendId() : undefined)
         }
-        class={checkboxGroupFieldsetVariants(
-          {
-            orientation: merged.orientation,
-          },
-          merged.variant !== 'table' && 'gap-2',
-          merged.classes?.fieldset,
-        )}
+        data-variant={merged.variant}
+        {...resolved.slotClassAndStyle('fieldset')}
         {...field.ariaAttrs()}
       >
         <Show when={legend()}>
-          <legend
-            id={legendId()}
-            data-slot="legend"
-            style={merged.styles?.legend}
-            class={checkboxGroupLegendVariants(
-              {
-                size: field.size(),
-                required: field.required(),
-              },
-              merged.classes?.legend,
-            )}
-          >
+          <legend id={legendId()} data-slot="legend" {...resolved.slotClassAndStyle('legend')}>
             {legend()}
           </legend>
         </Show>
@@ -426,17 +288,25 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                 checkedIcon={item().checkedIcon ?? checkedIcon()}
                 indeterminateIcon={item().indeterminateIcon ?? indeterminateIcon()}
                 classes={{
-                  root: checkboxGroupItemVariants(
-                    {
-                      tableSize: merged.variant === 'table' ? field.size() : undefined,
-                      tableOrientation: merged.variant === 'table' ? merged.orientation : undefined,
-                    },
-                    merged.variant === 'table' && 'relative rounded-none border border-muted',
-                    merged.classes?.item,
-                  ),
-                  ...merged.classes,
+                  root: resolved.slotClass('item'),
+                  container: resolved.slotClass('container'),
+                  control: resolved.slotClass('control'),
+                  indicator: resolved.slotClass('indicator'),
+                  icon: resolved.slotClass('icon'),
+                  wrapper: resolved.slotClass('wrapper'),
+                  label: resolved.slotClass('label'),
+                  description: resolved.slotClass('description'),
                 }}
-                styles={merged.styles}
+                styles={{
+                  root: resolved.slotStyle('item'),
+                  container: resolved.slotStyle('container'),
+                  control: resolved.slotStyle('control'),
+                  indicator: resolved.slotStyle('indicator'),
+                  icon: resolved.slotStyle('icon'),
+                  wrapper: resolved.slotStyle('wrapper'),
+                  label: resolved.slotStyle('label'),
+                  description: resolved.slotStyle('description'),
+                }}
                 onChange={(checked) => onItemCheckedChange(item().value, checked)}
               />
             )

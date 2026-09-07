@@ -2,6 +2,9 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
 import { Collapsible } from './collapsible'
 
 function renderCollapsible(props?: {
@@ -10,16 +13,6 @@ function renderCollapsible(props?: {
   disabled?: boolean
   transition?: boolean
   onOpenChange?: (open: boolean) => void
-  classes?: {
-    root?: string
-    trigger?: string
-    content?: string
-  }
-  styles?: {
-    root?: any
-    trigger?: any
-    content?: any
-  }
 }) {
   return render(() => (
     <Collapsible
@@ -28,8 +21,6 @@ function renderCollapsible(props?: {
       disabled={props?.disabled}
       transition={props?.transition}
       onOpenChange={props?.onOpenChange}
-      classes={props?.classes}
-      styles={props?.styles}
     >
       <Collapsible.Trigger data-testid="trigger-control">Toggle</Collapsible.Trigger>
       <Collapsible.Content>
@@ -40,6 +31,22 @@ function renderCollapsible(props?: {
 }
 
 describe('Collapsible', () => {
+  test('keeps structural transition classes independent of a Design provider', () => {
+    const screen = render(() => (
+      <Collapsible defaultOpen transition>
+        <Collapsible.Trigger>Toggle</Collapsible.Trigger>
+        <Collapsible.Content>Content</Collapsible.Content>
+      </Collapsible>
+    ))
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const trigger = screen.container.querySelector('[data-slot="trigger"]')
+    const wrapper = screen.container.querySelector('[data-slot="content-wrapper"]')
+
+    expect(root?.className).toBe('')
+    expect(trigger?.className).toBe('')
+    expect(wrapper?.className).toContain('animate-accordion-down')
+  })
+
   test('renders closed by default and toggles on trigger click', async () => {
     const screen = render(() => (
       <Collapsible defaultOpen={false}>
@@ -308,42 +315,32 @@ describe('Collapsible', () => {
     expect(screen.queryByTestId('content')).toBeNull()
   })
 
-  test('applies classes.root/classes.trigger/classes.content overrides', () => {
-    const screen = renderCollapsible({
-      open: true,
-      classes: {
-        root: 'root-override',
-        trigger: 'trigger-override',
-        content: 'content-override',
-      },
-    })
+  test('applies direct root, trigger, and content styles independently', () => {
+    const screen = render(() => (
+      <Collapsible open class="root-override" style={{ width: '100px' }}>
+        <Collapsible.Trigger
+          data-testid="direct-trigger"
+          class="trigger-override"
+          style={{ width: '200px' }}
+        >
+          Trigger
+        </Collapsible.Trigger>
+        <Collapsible.Content class="content-override" style={{ width: '300px' }}>
+          <span data-testid="direct-content">Content</span>
+        </Collapsible.Content>
+      </Collapsible>
+    ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const trigger = screen.container.querySelector('[data-slot="trigger"]')
-    const content = screen.container.querySelector('[data-slot="content"]')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
+    const trigger = screen.getByTestId('direct-trigger')
+    const content = screen.getByTestId('direct-content').parentElement!
 
-    expect(root?.className).toContain('root-override')
-    expect(trigger?.className).toContain('trigger-override')
-    expect(content?.className).toContain('content-override')
-  })
-
-  test('applies styles.root/styles.trigger/styles.content overrides', () => {
-    const screen = renderCollapsible({
-      open: true,
-      styles: {
-        root: { width: '200px' },
-        trigger: { width: '200px' },
-        content: { width: '200px' },
-      },
-    })
-
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
-    const trigger = screen.container.querySelector<HTMLElement>('[data-slot="trigger"]')
-    const content = screen.container.querySelector<HTMLElement>('[data-slot="content"]')
-
-    expect(root?.style.width).toBe('200px')
-    expect(trigger?.style.width).toBe('200px')
-    expect(content?.style.width).toBe('200px')
+    expect(root.className).toContain('root-override')
+    expect(root.style.width).toBe('100px')
+    expect(trigger.className).toContain('trigger-override')
+    expect(trigger.style.width).toBe('200px')
+    expect(content.className).toContain('content-override')
+    expect(content.style.width).toBe('300px')
   })
 
   test('forwards id to root', async () => {
@@ -487,4 +484,108 @@ describe('Collapsible', () => {
     fireEvent.click(trigger)
     expect(contentReads).toBe(2)
   })
+
+  test('forwards direct root and compound-part classes and styles', () => {
+    const screen = render(() => (
+      <Collapsible open class="custom-root-class" style={{ padding: '10px' }}>
+        <Collapsible.Trigger class="custom-trigger-class" style={{ padding: '20px' }}>
+          Trigger
+        </Collapsible.Trigger>
+        <Collapsible.Content wrapperClass="custom-content-class" wrapperStyle={{ padding: '30px' }}>
+          Content
+        </Collapsible.Content>
+      </Collapsible>
+    ))
+
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
+    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
+    const wrapper = screen.container.querySelector('[data-slot="content-wrapper"]') as HTMLElement
+
+    expect(root.className).toContain('custom-root-class')
+    expect(root.style.padding).toBe('10px')
+    expect(trigger.className).toContain('custom-trigger-class')
+    expect(trigger.style.padding).toBe('20px')
+    expect(wrapper.className).toContain('custom-content-class')
+    expect(wrapper.style.padding).toBe('30px')
+  })
+})
+
+test('inherits Design slots and applies reactive root and child overrides in order', () => {
+  const parent = createDesign({
+    collapsible: {
+      base: { root: 'p-1', trigger: 'p-1 text-blue-500', contentWrapper: 'p-1', content: 'p-1' },
+    },
+  })
+  const design = createDesign({
+    extends: parent,
+    collapsible: { base: { trigger: 'text-red-500' } },
+  })
+  const [padding, setPadding] = createSignal('p-3')
+  const screen = render(() => (
+    <MoraineProvider design={design}>
+      <Collapsible
+        defaultOpen
+        class="p-4"
+        classes={{ root: 'p-2', trigger: 'p-2', contentWrapper: 'p-2', content: 'p-2' }}
+        styles={{
+          root: { color: 'red' },
+          trigger: { color: 'red' },
+          contentWrapper: { color: 'red' },
+          content: { color: 'red' },
+        }}
+        style={{ color: 'blue' }}
+      >
+        <Collapsible.Trigger class={padding()} style={{ color: 'blue' }}>
+          Toggle styled
+        </Collapsible.Trigger>
+        <Collapsible.Content
+          class={padding()}
+          style={{ color: 'blue' }}
+          wrapperClass={padding()}
+          wrapperStyle={{ color: 'blue' }}
+        >
+          Styled content
+        </Collapsible.Content>
+      </Collapsible>
+    </MoraineProvider>
+  ))
+  const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
+  const trigger = screen.getByRole('button')
+  const wrapper = screen.container.querySelector<HTMLElement>('[data-slot="content-wrapper"]')!
+  const content = screen.getByText('Styled content')
+  expect(root.className).toBe('p-4')
+  expect(trigger.className).toContain('text-red-500')
+  expect(trigger.className).not.toContain('text-blue-500')
+  for (const element of [root, trigger, wrapper, content]) {
+    expect(element.style.color).toBe('blue')
+    expect(element.hasAttribute('classes')).toBe(false)
+    expect(element.hasAttribute('styles')).toBe(false)
+  }
+  for (const element of [trigger, wrapper, content]) {
+    expect(element.className).toContain('p-3')
+    expect(element.className).not.toContain('p-2')
+  }
+  setPadding('p-5')
+  for (const element of [trigger, wrapper, content]) {
+    expect(element.className).toContain('p-5')
+  }
+})
+
+test('keeps empty preset slots unstyled while preserving disclosure transitions', () => {
+  const design = createDesign({ preset: false })
+  expect(design.collapsible.recipe.slots).toEqual(['root', 'trigger', 'contentWrapper', 'content'])
+  expect(Object.values(design.collapsible.recipe()).every((value) => !value)).toBe(true)
+  const screen = render(() => (
+    <MoraineProvider design={design}>
+      <Collapsible defaultOpen transition>
+        <Collapsible.Trigger>Toggle empty</Collapsible.Trigger>
+        <Collapsible.Content>Empty preset content</Collapsible.Content>
+      </Collapsible>
+    </MoraineProvider>
+  ))
+  expect(screen.getByRole('button').className).toBe('')
+  expect(screen.getByText('Empty preset content').className).toBe('')
+  expect(screen.container.querySelector('[data-slot="content-wrapper"]')?.className).toContain(
+    'animate-accordion-down',
+  )
 })

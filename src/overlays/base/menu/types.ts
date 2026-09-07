@@ -1,9 +1,13 @@
 import type { JSX } from 'solid-js'
 
 import type { IconT } from '../../../elements/icon/index'
-import type { SlotClassValue, SlotStyleValue } from '../../../shared/types'
+import type { ResolvedComponentStyle } from '../../../shared/provider/moraine-provider.tsx'
+import type { SlotClassValue, SlotStyleValue } from '../../../shared/types.ts'
 
-import type { OverlayMenuItemVariantProps } from './menu.class'
+export interface OverlayMenuItemVariantProps {
+  color?: 'default' | 'destructive' | null
+  size?: 'sm' | 'md' | 'lg' | null
+}
 
 export type OverlayMenuSide = 'top' | 'right' | 'bottom' | 'left'
 
@@ -118,6 +122,8 @@ export interface OverlayMenuSharedItem<TItem> {
 }
 
 export interface OverlayMenuSharedSlots<T = unknown> {
+  /** Element that opens the menu. */
+  trigger?: T
   /** Optional backdrop rendered behind modal menu content. */
   overlay?: T
   /** Positioned menu panel that contains groups, items, and submenus. */
@@ -151,6 +157,10 @@ export interface OverlayMenuSharedSlots<T = unknown> {
 export type OverlayMenuSharedClasses = OverlayMenuSharedSlots<SlotClassValue>
 
 export type OverlayMenuSharedStyles = OverlayMenuSharedSlots<SlotStyleValue>
+
+export type OverlayMenuSlotClassAndStyle = ResolvedComponentStyle<
+  keyof OverlayMenuSharedSlots
+>['slotClassAndStyle']
 
 /**
  * Props provided to custom menu item render components.

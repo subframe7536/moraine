@@ -63,11 +63,7 @@ function convertSrcImport(specifier: string): string {
   if (specifier === '@src/tailwind' || specifier === '@src/tailwind.ts') {
     return 'moraine/tailwind'
   }
-  if (
-    specifier === '@src/tw4.css' ||
-    specifier === '@src/tw3.css' ||
-    specifier === '@src/icon.css'
-  ) {
+  if (specifier === '@src/icon.css') {
     return `moraine/${specifier.slice('@src/'.length)}`
   }
   if (

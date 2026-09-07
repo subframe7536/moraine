@@ -1,10 +1,22 @@
 import { render, screen } from '@solidjs/testing-library'
+import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
+
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 
 import { Kbd } from './kbd'
 import { KbdGroup } from './kbd-group'
 
+const officialDesign = createDesign()
+
 describe('Kbd', () => {
+  test('renders unstyled when provider is absent', () => {
+    const view = render(() => <Kbd value="K" />)
+    const root = view.container.querySelector('[data-slot="root"]')
+    expect(root?.className).toBe('')
+  })
+
   test('renders a keycap in the root slot', () => {
     const view = render(() => <Kbd value="K" />)
     const root = view.container.querySelector('[data-slot="root"]')
@@ -76,9 +88,32 @@ describe('Kbd', () => {
     ] as const
 
     for (const [size, expectedClass] of sizes) {
-      const view = render(() => <Kbd size={size} value={size} />)
+      const view = render(() => (
+        <MoraineProvider design={officialDesign}>
+          <Kbd size={size} value={size} />
+        </MoraineProvider>
+      ))
       expect(view.container.querySelector('[data-slot="root"]')?.className).toContain(expectedClass)
     }
+  })
+
+  test('keeps direct root styling while ignoring legacy slot maps', () => {
+    const view = render(() => (
+      <Kbd
+        value="K"
+        class="custom-kbd-root"
+        style={{ padding: '8px' }}
+        classes={{ root: 'ignored-kbd-root' }}
+        styles={{ root: { padding: '12px' } }}
+      />
+    ))
+    const root = view.container.querySelector<HTMLElement>('[data-slot="root"]')
+
+    expect(root?.className).toContain('custom-kbd-root')
+    expect(root?.className).not.toContain('ignored-kbd-root')
+    expect(root?.style.padding).toBe('8px')
+    expect(root?.hasAttribute('classes')).toBe(false)
+    expect(root?.hasAttribute('styles')).toBe(false)
   })
 
   test('supports a custom slot, class, and style overrides', () => {
@@ -90,9 +125,37 @@ describe('Kbd', () => {
     expect(root?.className).toContain('shortcut-class')
     expect(root?.style.width).toBe('200px')
   })
+
+  test('replaces Design root styling without remounting the keycap', () => {
+    const [design, setDesign] = createSignal(
+      createDesign({ preset: false, kbd: { base: { root: 'p-2' } } }),
+    )
+    const view = render(() => (
+      <MoraineProvider design={design()}>
+        <Kbd value="K" />
+      </MoraineProvider>
+    ))
+    const root = view.container.querySelector<HTMLElement>('[data-slot="root"]')!
+
+    expect(root.className).toContain('p-2')
+
+    setDesign(createDesign({ preset: false, kbd: { base: { root: 'p-4' } } }))
+
+    expect(view.container.querySelector('[data-slot="root"]')).toBe(root)
+    expect(root.className).toContain('p-4')
+    expect(root.className).not.toContain('p-2')
+  })
 })
 
 describe('KbdGroup', () => {
+  test('renders unstyled when provider is absent', () => {
+    const view = render(() => <KbdGroup items={['Ctrl', 'K']} />)
+    const root = view.container.querySelector('[data-slot="root"]')
+    expect(root?.className).toBe('')
+    const chord = view.container.querySelector('[data-slot="chord"]')
+    expect(chord?.className).toBe('')
+  })
+
   test('accepts static JSX for divider renderers', () => {
     const view = render(() => (
       <KbdGroup items={['Ctrl', 'K']} dividerRender={<span data-testid="divider">and</span>} />

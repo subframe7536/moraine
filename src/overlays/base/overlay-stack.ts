@@ -1,5 +1,4 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, onCleanup } from 'solid-js'
 
 /**
  * Lightweight registry of currently open dismissible overlays. The stack
@@ -85,34 +84,4 @@ export function containsOverlayContentAbove(target: Node, branch: Element): bool
   }
 
   return false
-}
-
-/**
- * Registers an overlay layer for the duration of an open state. The entry is
- * pushed onto the stack while `open` is true and removed on cleanup.
- */
-export function useOverlayLayer(options: {
-  contentElement: Accessor<HTMLElement | undefined>
-  triggerElement: Accessor<HTMLElement | undefined>
-  open: Accessor<boolean>
-}): { entry: OverlayStackEntry; isTop: Accessor<boolean> } {
-  const entry: OverlayStackEntry = {
-    contentElement: options.contentElement,
-    triggerElement: options.triggerElement,
-  }
-
-  createEffect(() => {
-    if (!options.open()) {
-      return
-    }
-
-    const release = pushOverlayLayer(entry)
-
-    onCleanup(release)
-  })
-
-  return {
-    entry,
-    isTop: () => isTopOverlay(entry),
-  }
 }

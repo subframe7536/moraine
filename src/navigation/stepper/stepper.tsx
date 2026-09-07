@@ -1,188 +1,18 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index'
-import type { IconT } from '../../elements/icon/index'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { cn, useId } from '../../shared/utils'
+import { Icon } from '../../elements/icon/index.ts'
+import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
+import { useId } from '../../shared/utils.ts'
 
-import type { StepperVariantProps } from './stepper.class'
-import {
-  stepperContainerVariants,
-  stepperDescriptionVariants,
-  stepperHeaderVariants,
-  stepperItemVariants,
-  stepperRootVariants,
-  stepperSeparatorVariants,
-  stepperTitleVariants,
-  stepperTriggerVariants,
-  stepperWrapperVariants,
-} from './stepper.class'
+import type { StepperProps, StepperT } from './stepper.types.ts'
 
 type StepperState = 'inactive' | 'active' | 'completed'
 
-export namespace StepperT {
-  export type Value = string
-
-  export interface Slot<T = unknown> {
-    /**
-     * Stepper container that owns orientation, step state, and panel rendering.
-     */
-    root?: T
-
-    /** Step navigation header that contains all step triggers. */
-    header?: T
-
-    /** Wrapper for one step trigger. */
-    item?: T
-
-    /** Text column inside a step trigger. */
-    container?: T
-
-    /** Interactive step control users activate to select a step. */
-    trigger?: T
-
-    /** Step marker that communicates index, active state, or completion. */
-    indicator?: T
-
-    /** Icon rendered inside a completed or custom step indicator. */
-    icon?: T
-
-    /** Connector line between adjacent steps. */
-    separator?: T
-
-    /** Inner layout wrapper for a single step trigger. */
-    wrapper?: T
-
-    /** Primary title text for a step. */
-    title?: T
-
-    /** Supporting description for a step. */
-    description?: T
-
-    /** Panel rendered for the active step content. */
-    content?: T
-  }
-
-  export type Variant = StepperVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  /**
-   * An individual step in the stepper.
-   */
-  export interface Item {
-    /**
-     * Unique value for the step.
-     * @default index of the item
-     */
-    value?: Value
-
-    /**
-     * Title of the step.
-     */
-    title?: JSX.Element
-
-    /**
-     * Secondary description of the step.
-     */
-    description?: JSX.Element
-
-    /**
-     * Icon to display in the step indicator.
-     * @default index + 1
-     */
-    icon?: IconT.Name
-
-    /**
-     * Content to display when the step is active.
-     */
-    content?: JSX.Element
-
-    /**
-     * Whether the step is disabled.
-     * @default false
-     */
-    disabled?: boolean
-
-    /**
-     * Additional class name for the step item.
-     */
-    class?: string
-  }
-
-  /**
-   * Base props for the Stepper component.
-   */
-  export interface Base {
-    /**
-     * Unique identifier for the stepper root element.
-     */
-    id?: string
-
-    /**
-     * Controlled active step value.
-     */
-    value?: Value
-
-    /**
-     * Default active step value for uncontrolled usage.
-     */
-    defaultValue?: Value
-
-    /**
-     * Callback when the active step changes.
-     */
-    onChange?: (value: Value) => void
-
-    /**
-     * The orientation of the stepper.
-     * @default 'horizontal'
-     */
-    orientation?: 'horizontal' | 'vertical'
-
-    /**
-     * Whether keyboard activation happens immediately or only after confirmation.
-     * @default 'automatic'
-     */
-    activationMode?: 'automatic' | 'manual'
-
-    /**
-     * Array of steps to display.
-     */
-    items?: Item[]
-
-    /**
-     * Whether to enforce linear navigation (must complete steps in order).
-     * @default true
-     */
-    linear?: boolean
-
-    /**
-     * Whether the entire stepper is disabled.
-     * @default false
-     */
-    disabled?: boolean
-
-    /**
-     * Whether steps are clickable for navigation.
-     * @default false
-     */
-    clickable?: boolean
-  }
-
-  /**
-   * Props for the Stepper component.
-   */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the Stepper component.
- */
-export interface StepperProps extends StepperT.Props {}
+export type { StepperProps, StepperT } from './stepper.types.ts'
 
 interface NormalizedStepperItem {
   item: StepperT.Item
@@ -211,6 +41,9 @@ export function Stepper(props: StepperProps): JSX.Element {
     'class',
     'style',
   ])
+  const design = useMoraineDesign()
+  const stepperDesign = () => design().stepper
+
   const merged = mergeProps(
     {
       orientation: 'horizontal' as const,
@@ -218,8 +51,28 @@ export function Stepper(props: StepperProps): JSX.Element {
       linear: true,
       clickable: false,
     },
+    () => stepperDesign().defaultVariants,
     local,
   )
+
+  const resolved = resolveComponentStyle({
+    design: {
+      get classes() {
+        return stepperDesign().recipe({
+          orientation: merged.orientation,
+          size: merged.size,
+        })
+      },
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
 
   const id = useId(() => merged.id, 'stepper')
   const [requestedValue, setRequestedValue] = useControllableValue<StepperT.Value>({
@@ -229,11 +82,31 @@ export function Stepper(props: StepperProps): JSX.Element {
   const triggerRefs = new Map<StepperT.Value, HTMLButtonElement>()
 
   const normalizedItems = createMemo<NormalizedStepperItem[]>(() =>
-    (merged.items ?? []).map((item, index) => ({
-      item,
-      index,
-      value: item.value ?? String(index),
-    })),
+    (merged.items ?? []).map((item, index) => {
+      const title = createLazyMemo(() => item.title)
+      const description = createLazyMemo(() => item.description)
+      const icon = createLazyMemo(() => item.icon)
+      const content = createLazyMemo(() => item.content)
+      const mergedItem = mergeProps(item, {
+        get title() {
+          return title()
+        },
+        get description() {
+          return description()
+        },
+        get icon() {
+          return icon()
+        },
+        get content() {
+          return content()
+        },
+      })
+      return {
+        item: mergedItem,
+        index,
+        value: item.value ?? String(index),
+      }
+    }),
   )
 
   const resolvedValue = createMemo(() => {
@@ -327,23 +200,12 @@ export function Stepper(props: StepperProps): JSX.Element {
   }
 
   return (
-    <div
-      id={id()}
-      data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={stepperRootVariants(
-        { orientation: merged.orientation },
-        merged.classes?.root,
-        merged.class,
-      )}
-      {...rest}
-    >
+    <div id={id()} data-slot="root" {...resolved.rootClassAndStyle()} {...rest}>
       <div
         role="tablist"
-        aria-orientation={merged.orientation}
+        aria-orientation={merged.orientation ?? undefined}
         data-slot="header"
-        style={merged.styles?.header}
-        class={stepperHeaderVariants({ orientation: merged.orientation }, merged.classes?.header)}
+        {...resolved.slotClassAndStyle('header')}
       >
         <For each={normalizedItems()}>
           {(entry) => {
@@ -358,26 +220,15 @@ export function Stepper(props: StepperProps): JSX.Element {
             return (
               <div
                 data-slot="item"
-                style={merged.styles?.item}
                 data-state={state()}
                 data-disabled={disabled() ? '' : undefined}
-                class={stepperItemVariants(
-                  {
-                    orientation: merged.orientation,
-                    size: merged.size,
+                {...resolved.slotClassAndStyle('item', {
+                  get state() {
+                    return { class: entry.item.class }
                   },
-                  merged.classes?.item,
-                  entry.item.class,
-                )}
+                })}
               >
-                <div
-                  data-slot="container"
-                  style={merged.styles?.container}
-                  class={stepperContainerVariants(
-                    { orientation: merged.orientation },
-                    merged.classes?.container,
-                  )}
-                >
+                <div data-slot="container" {...resolved.slotClassAndStyle('container')}>
                   <button
                     id={triggerId()}
                     ref={(element) => {
@@ -390,22 +241,15 @@ export function Stepper(props: StepperProps): JSX.Element {
                     aria-selected={selected()}
                     data-selected={selected() ? '' : undefined}
                     data-slot="trigger"
-                    style={merged.styles?.trigger}
                     data-state={state()}
                     data-clickable={merged.clickable ? '' : undefined}
                     disabled={disabled()}
                     aria-labelledby={entry.item.title ? titleId() : undefined}
                     aria-describedby={entry.item.description ? descriptionId() : undefined}
-                    class={stepperTriggerVariants(
-                      {
-                        size: merged.size,
-                        state: state(),
-                      },
-                      merged.classes?.trigger,
-                    )}
+                    {...resolved.slotClassAndStyle('trigger')}
                     onClick={() => selectStep(entry.value)}
                     onKeyDown={(event) => {
-                      onNavigationKeyDown(event, entry.value, merged.orientation)
+                      onNavigationKeyDown(event, entry.value, merged.orientation ?? 'horizontal')
                     }}
                   >
                     <Icon name={entry.item.icon || (() => entry.index + 1)} />
@@ -414,34 +258,16 @@ export function Stepper(props: StepperProps): JSX.Element {
                   <Show when={entry.index < normalizedItems().length - 1}>
                     <div
                       data-slot="separator"
-                      style={merged.styles?.separator}
                       data-state={state()}
                       data-disabled={disabled() ? '' : undefined}
-                      class={stepperSeparatorVariants(
-                        {
-                          orientation: merged.orientation,
-                        },
-                        merged.classes?.separator,
-                      )}
+                      {...resolved.slotClassAndStyle('separator')}
                     />
                   </Show>
                 </div>
 
-                <div
-                  data-slot="wrapper"
-                  style={merged.styles?.wrapper}
-                  class={stepperWrapperVariants(
-                    { orientation: merged.orientation },
-                    merged.classes?.wrapper,
-                  )}
-                >
+                <div data-slot="wrapper" {...resolved.slotClassAndStyle('wrapper')}>
                   <Show when={entry.item.title}>
-                    <div
-                      data-slot="title"
-                      style={merged.styles?.title}
-                      id={titleId()}
-                      class={stepperTitleVariants({ size: merged.size }, merged.classes?.title)}
-                    >
+                    <div data-slot="title" id={titleId()} {...resolved.slotClassAndStyle('title')}>
                       {entry.item.title}
                     </div>
                   </Show>
@@ -449,12 +275,8 @@ export function Stepper(props: StepperProps): JSX.Element {
                   <Show when={entry.item.description}>
                     <div
                       data-slot="description"
-                      style={merged.styles?.description}
                       id={descriptionId()}
-                      class={stepperDescriptionVariants(
-                        { size: merged.size },
-                        merged.classes?.description,
-                      )}
+                      {...resolved.slotClassAndStyle('description')}
                     >
                       {entry.item.description}
                     </div>
@@ -468,7 +290,7 @@ export function Stepper(props: StepperProps): JSX.Element {
 
       <For each={normalizedItems()}>
         {(entry) => (
-          <Show when={entry.item.content && resolvedValue() === entry.value}>
+          <Show when={resolvedValue() === entry.value && entry.item.content}>
             <div
               id={getContentId(entry.value)}
               role="tabpanel"
@@ -476,8 +298,11 @@ export function Stepper(props: StepperProps): JSX.Element {
               aria-labelledby={getTriggerId(entry.value)}
               data-selected=""
               data-slot="content"
-              style={merged.styles?.content}
-              class={cn('w-full', entry.item.class, merged.classes?.content)}
+              {...resolved.slotClassAndStyle('content', {
+                get state() {
+                  return { class: entry.item.class }
+                },
+              })}
             >
               {entry.item.content}
             </div>

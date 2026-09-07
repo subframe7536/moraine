@@ -11,10 +11,9 @@ import {
   onMount,
 } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { callRef, cn, useId } from '../../shared/utils'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import { callRef, useId } from '../../shared/utils.ts'
 
 import {
   collapsePanel,
@@ -35,135 +34,11 @@ import {
   resizePanelToSize,
   toggleHandleNearestPanel,
   useResizableHandle,
-} from './hook/index'
-import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook/index'
-import {
-  resizableCrossTargetVariants,
-  resizableHandleVariants,
-  resizableRootVariants,
-  RESIZABLE_HANDLE_GRIP_CLASS,
-} from './resizable.class'
-import type { ResizableVariantProps } from './resizable.class'
+} from './hook/index.ts'
+import type { ResizablePanelItem, ResizableSize } from './hook/index.ts'
+import type { ResizableProps, ResizableT } from './resizable.types.ts'
 
-export namespace ResizableT {
-  export interface HandleRenderProps {
-    orientation: ResizableOrientation
-    disabled: boolean
-    action: 'resize' | 'collapse'
-    active: boolean
-    dragging: boolean
-    canCollapse: boolean
-    collapsed: boolean
-  }
-
-  export interface Slot<T = unknown> {
-    /**
-     * Layout container that owns resizable panels and handles.
-     */
-    root?: T
-
-    /** Content pane whose size is controlled by adjacent resize handles. */
-    panel?: T
-
-    /** Visual separator between adjacent panels. */
-    divider?: T
-
-    /** Interactive target users drag or focus to resize panels. */
-    handle?: T
-
-    /** Extra hit target used when nested handles meet across axes. */
-    crossTarget?: T
-  }
-
-  export type Variant = ResizableVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item extends ResizablePanelItem {}
-  /**
-   * Base props for the Resizable component.
-   */
-  export interface Base {
-    /**
-     * Unique identifier for the resizable root.
-     */
-    id?: string
-
-    /**
-     * Array of panels to render.
-     */
-    panels?: Item[]
-
-    /**
-     * Callback when any panel is resized.
-     */
-    onResize?: (sizes: number[]) => void
-
-    /**
-     * Callback when a resize operation starts.
-     */
-    onResizeStart?: (sizes: number[]) => void
-
-    /**
-     * Callback when a resize operation ends.
-     */
-    onResizeEnd?: (sizes: number[]) => void
-
-    /**
-     * Callback when a key is pressed on a handle.
-     */
-    onHandleKeyDown?: (context: {
-      event: KeyboardEvent
-      handleIndex: number
-      sizes: number[]
-    }) => void
-
-    /**
-     * Whether the resizable component is disabled.
-     * @default false
-     */
-    disable?: boolean
-
-    /**
-     * Whether to render handles between panels.
-     * @default true
-     */
-    handle?: boolean
-
-    /** Custom component rendered inside each handle. */
-    handleRender?: ComponentOrElement<HandleRenderProps>
-
-    /**
-     * Handle interaction behavior.
-     * - `resize`: handle area follows divider resize interactions.
-     * - `collapse`: handle click toggles the nearest collapsible panel.
-     * @default 'resize'
-     */
-    handleAction?: 'resize' | 'collapse'
-
-    /**
-     * Whether to use intersection-based handle sizing.
-     * @default false
-     */
-    intersection?: boolean
-
-    /**
-     * The amount to resize when using keyboard shortcuts.
-     * @default '10%'
-     */
-    keyboardDelta?: ResizableSize
-  }
-
-  /**
-   * Props for the Resizable component.
-   */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the Resizable component.
- */
-export interface ResizableProps extends ResizableT.Props {}
+export * from './resizable.types.ts'
 
 interface DragState {
   initialSizes: number[]
@@ -197,9 +72,12 @@ export function Resizable(props: ResizableProps): JSX.Element {
     'style',
     'ref',
   ])
+
+  const design = useMoraineDesign()
+  const resizableDesign = () => design().resizable
+
   const local = mergeProps(
     {
-      orientation: 'horizontal' as const,
       keyboardDelta: '10%' as const,
       handle: true,
       handleAction: 'resize' as const,
@@ -208,7 +86,24 @@ export function Resizable(props: ResizableProps): JSX.Element {
   )
 
   const panelIdPrefix = useId(() => local.id, 'resizable')
-  const orientation = () => local.orientation
+  const orientation = () =>
+    localProps.orientation ?? resizableDesign()?.defaultVariants?.orientation ?? 'horizontal'
+
+  const resolved = resolveComponentStyle({
+    design: {
+      get classes() {
+        return resizableDesign()?.recipe({ orientation: orientation() })
+      },
+    },
+    get instance() {
+      return {
+        class: localProps.class,
+        classes: localProps.classes,
+        style: localProps.style,
+        styles: localProps.styles,
+      }
+    },
+  })
 
   let rootRef: HTMLDivElement | undefined = undefined
   const [rootSize, setRootSize] = createSignal(0)
@@ -764,12 +659,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
       data-resizable-root
       data-orientation={orientation()}
       {...rest}
-      style={{ ...local.styles?.root, ...local.style }}
-      class={resizableRootVariants(
-        { orientation: orientation() },
-        local.classes?.root,
-        local.class,
-      )}
+      {...resolved.rootClassAndStyle()}
     >
       <Index each={resolvedPanels()}>
         {(panel, index) => {
@@ -854,18 +744,19 @@ export function Resizable(props: ResizableProps): JSX.Element {
                 data-expanded={panelItem().collapsible && !collapsed() ? '' : undefined}
                 data-resizing={interactionResizing() ? '' : undefined}
                 data-transitioning={isTransitioning() ? '' : undefined}
-                class={cn(
-                  'min-h-0 min-w-0 overflow-auto data-transitioning:transition-flex-grow motion-reduce:transition-none',
-                  local.classes?.panel,
-                  panelItem().class,
-                )}
-                style={{
-                  'flex-grow': size(),
-                  'flex-shrink': 1,
-                  'flex-basis': 0,
-                  ...local.styles?.panel,
-                  ...panelItem().style,
-                }}
+                {...resolved.slotClassAndStyle('panel', {
+                  get state() {
+                    return {
+                      class: panelItem().class,
+                      style: {
+                        'flex-grow': size(),
+                        'flex-shrink': 1,
+                        'flex-basis': '0px',
+                        ...(panelItem().style as JSX.CSSProperties),
+                      },
+                    }
+                  },
+                })}
                 onTransitionEnd={(event) => onPanelTransitionFinish(index, event)}
                 onTransitionCancel={(event) => onPanelTransitionFinish(index, event)}
               >
@@ -884,15 +775,11 @@ export function Resizable(props: ResizableProps): JSX.Element {
                   aria-disabled={handleDisabled() ? 'true' : undefined}
                   tabIndex={handleDisabled() ? -1 : 0}
                   data-slot="divider"
-                  style={local.styles?.divider}
                   data-orientation={orientation()}
                   data-active={bindings.active() ? '' : undefined}
                   data-cross={bindings.crossHovered() ? '' : undefined}
                   data-dragging={bindings.dragging() ? '' : undefined}
-                  class={resizableHandleVariants(
-                    { orientation: orientation() },
-                    local.classes?.divider,
-                  )}
+                  {...resolved.slotClassAndStyle('divider')}
                   onMouseEnter={bindings.onMouseEnter}
                   onMouseLeave={bindings.onMouseLeave}
                   onFocus={bindings.onFocus}
@@ -904,10 +791,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                     <div
                       data-slot="crossTarget"
                       data-resizable-handle-start-target
-                      class={resizableCrossTargetVariants(
-                        { orientation: orientation(), target: 'start' },
-                        local.classes?.crossTarget,
-                      )}
+                      {...resolved.slotClassAndStyle('crossTarget')}
                       onMouseEnter={() =>
                         bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_START)
                       }
@@ -920,18 +804,10 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       type="button"
                       data-slot="handle"
                       tabIndex={local.handleAction === 'collapse' ? undefined : -1}
-                      style={local.styles?.handle}
                       onPointerDown={onHandlePointerDown}
                       onClick={onHandleClick}
-                      class={cn(
-                        RESIZABLE_HANDLE_GRIP_CLASS,
-                        handleCollapseAction() && 'active:cursor-pointer hover:cursor-pointer',
-                        !local.handleRender && [
-                          'bg-border flex shrink-0',
-                          orientation() === 'vertical' ? 'h-1 w-6' : 'h-6 w-1',
-                        ],
-                        local.classes?.handle,
-                      )}
+                      data-collapse={handleCollapseAction() ? '' : undefined}
+                      {...resolved.slotClassAndStyle('handle')}
                     >
                       <Show when={local.handleRender !== undefined}>
                         {renderComponentOrElement(local.handleRender, handleRenderProps)}
@@ -943,10 +819,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                     <div
                       data-slot="crossTarget"
                       data-resizable-handle-end-target
-                      class={resizableCrossTargetVariants(
-                        { orientation: orientation(), target: 'end' },
-                        local.classes?.crossTarget,
-                      )}
+                      {...resolved.slotClassAndStyle('crossTarget')}
                       onMouseEnter={() =>
                         bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_END)
                       }

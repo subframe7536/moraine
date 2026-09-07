@@ -2,32 +2,110 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from '../../elements/button/index'
+import { createDesign } from '../../design.ts'
+import { Button } from '../../elements/button/index.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+import { renderWithDesign } from '../../test-utils/design-render.tsx'
 import { pushOverlayLayer } from '../base/overlay-stack'
 import { getFocusableElements } from '../base/utils'
+import { Dialog } from '../dialog/dialog.tsx'
+import { Sheet } from '../sheet/sheet.tsx'
 
 import { Modal } from './modal'
-import { ModalTriggerRenderer } from './modal-trigger'
 
 describe('Modal primitives', () => {
-  test('forwards flat callback trigger props and honors canceled clicks', async () => {
+  test('keeps closed content lazy and resolves its JSX once when opened', () => {
+    let reads = 0
+    const screen = render(() => (
+      <Modal>
+        <Modal.Trigger>Open lazy content</Modal.Trigger>
+        {createComponent(Modal.Content, {
+          get children() {
+            reads += 1
+            return <span>Lazy content</span>
+          },
+        })}
+      </Modal>
+    ))
+    expect(reads).toBe(0)
+    fireEvent.click(screen.getByRole('button', { name: 'Open lazy content' }))
+    expect(reads).toBe(1)
+    expect(document.body.querySelector('[role="dialog"]')?.textContent).toBe('Lazy content')
+  })
+
+  test('leaves modal surfaces unstyled without a provider', () => {
+    render(() => (
+      <Modal defaultOpen>
+        <Modal.Content overlay>Unstyled</Modal.Content>
+      </Modal>
+    ))
+    expect(document.querySelector('[data-slot="overlay"]')?.className).toBe('')
+    expect(document.querySelector('[data-slot="content"]')?.className).toBe('')
+  })
+
+  test('replaces modal Design without replacing the focused surface', () => {
+    const [design, setDesign] = createSignal(
+      createDesign({
+        preset: false,
+        modal: { base: { content: 'first-surface', overlay: 'first-overlay' } },
+      }),
+    )
+    render(() => (
+      <MoraineProvider design={design()}>
+        <Modal defaultOpen>
+          <Modal.Content overlay>Content</Modal.Content>
+        </Modal>
+      </MoraineProvider>
+    ))
+    const surface = document.querySelector<HTMLElement>('[data-slot="content"]')!
+    surface.focus()
+    setDesign(
+      createDesign({
+        preset: false,
+        modal: { base: { content: 'second-surface', overlay: 'second-overlay' } },
+      }),
+    )
+    expect(document.querySelector('[data-slot="content"]')).toBe(surface)
+    expect(document.activeElement).toBe(surface)
+    expect(surface.className).toBe('second-surface')
+    expect(document.querySelector('[data-slot="overlay"]')?.className).toBe('second-overlay')
+  })
+
+  test('Close honors cancellation and keyboard activation', () => {
+    const onOpenChange = vi.fn()
+    const [canceled, setCanceled] = createSignal(true)
+    render(() => (
+      <Modal defaultOpen onOpenChange={onOpenChange}>
+        <Modal.Content>
+          <Modal.Close as="span" onClick={(event) => canceled() && event.preventDefault()}>
+            Close modal
+          </Modal.Close>
+        </Modal.Content>
+      </Modal>
+    ))
+    const close = document.body.querySelector<HTMLElement>('[data-slot="close"]')!
+    expect(close.getAttribute('role')).toBe('button')
+    fireEvent.click(close)
+    expect(onOpenChange).not.toHaveBeenCalled()
+    setCanceled(false)
+    fireEvent.keyDown(close, { key: 'Enter' })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('forwards trigger props and honors canceled clicks', async () => {
     const onOpenChange = vi.fn()
     const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
     let triggerElement: HTMLElement | undefined
     const screen = render(() => (
       <Modal onOpenChange={onOpenChange}>
-        <ModalTriggerRenderer
+        <Modal.Trigger
           class="flat-trigger"
           style={{ color: 'red' }}
           ref={(element) => (triggerElement = element)}
           onClick={onClick}
         >
-          {(props) => (
-            <button {...props} type="button">
-              Open modal
-            </button>
-          )}
-        </ModalTriggerRenderer>
+          Open modal
+        </Modal.Trigger>
         <Modal.Content>
           <span>Content</span>
         </Modal.Content>
@@ -75,6 +153,69 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
+  test('applies direct trigger class and style', () => {
+    const screen = render(() => (
+      <Modal>
+        <Modal.Trigger
+          data-testid="direct-trigger"
+          class="modal-instance-class"
+          style={{ color: 'green', border: '1px solid green' }}
+        >
+          Open modal
+        </Modal.Trigger>
+        <Modal.Content>
+          <span>Content</span>
+        </Modal.Content>
+      </Modal>
+    ))
+
+    const trigger = screen.getByTestId('direct-trigger')
+    expect(trigger.className).toContain('modal-instance-class')
+    expect(trigger.style.color).toBe('green')
+    expect(trigger.style.border).toBe('1px solid green')
+    screen.unmount()
+  })
+
+  test('composed overlays use their own Design without inheriting Modal presentation', () => {
+    const screen = render(() => (
+      <MoraineProvider
+        design={createDesign({
+          modal: { base: { content: 'modal-provider-class' } },
+          dialog: { base: { content: 'dialog-design-surface' } },
+          sheet: { base: { content: 'sheet-design-surface' } },
+        })}
+      >
+        <Dialog open>
+          <Dialog.Trigger as="button" type="button">
+            Dialog trigger
+          </Dialog.Trigger>
+          <Dialog.Content body="Dialog body" />
+        </Dialog>
+        <Sheet open>
+          <Sheet.Trigger as="button" type="button">
+            Sheet trigger
+          </Sheet.Trigger>
+          <Sheet.Content body="Sheet body" />
+        </Sheet>
+      </MoraineProvider>
+    ))
+
+    const triggers = screen.container.querySelectorAll('[data-slot="trigger"]')
+    expect(triggers).toHaveLength(2)
+    expect(triggers[0]?.className).not.toContain('modal-provider')
+    expect(triggers[1]?.className).not.toContain('modal-provider')
+
+    const contents = document.body.querySelectorAll('[data-slot="content"]')
+    expect(contents).toHaveLength(2)
+    expect((contents[0] as HTMLElement).className).not.toContain('modal-provider-class')
+    expect((contents[0] as HTMLElement).className).not.toContain('modal-provider-trigger')
+    expect((contents[0] as HTMLElement).className).toContain('dialog-design-surface')
+    expect((contents[1] as HTMLElement).className).not.toContain('modal-provider-class')
+    expect((contents[1] as HTMLElement).className).not.toContain('modal-provider-trigger')
+    expect((contents[1] as HTMLElement).className).toContain('sheet-design-surface')
+    screen.unmount()
+  })
+
   test('respects disabled and canceled trigger activation', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
@@ -108,7 +249,7 @@ describe('Modal primitives', () => {
 
   test('supports non-native and Button trigger roots', async () => {
     let triggerElement: HTMLElement | undefined
-    const screen = render(() => (
+    const screen = renderWithDesign(() => (
       <>
         <Modal>
           <Modal.Trigger
@@ -196,7 +337,7 @@ describe('Modal primitives', () => {
   })
 
   test('applies the shared dialog overlay classes by default', () => {
-    render(() => (
+    renderWithDesign(() => (
       <Modal defaultOpen>
         <Modal.Content overlay>
           <span>Content</span>
@@ -213,12 +354,12 @@ describe('Modal primitives', () => {
     expect(overlay?.className).toContain('supports-[backdrop-filter]:backdrop-blur-xs')
     expect(overlay?.className).not.toContain('supports-backdrop-filter:backdrop-blur-xs')
     expect(overlay?.className).toContain('backdrop-blur-xs')
-    expect(overlay?.className).toContain('data-closed:animate-overlay-out')
-    expect(overlay?.className).toContain('data-expanded:animate-overlay-in')
+    expect(overlay?.className).toContain('data-closed:animate-mo-exit')
+    expect(overlay?.className).toContain('data-expanded:animate-mo-enter')
   })
 
   test('applies the default popup transition classes to custom modal content', () => {
-    render(() => (
+    renderWithDesign(() => (
       <Modal defaultOpen>
         <Modal.Content>
           <span>Content</span>
@@ -230,8 +371,8 @@ describe('Modal primitives', () => {
     expect(content?.className).toContain('outline-none')
     expect(content?.className).toContain('w-full')
     expect(content?.className).toContain('z-floating')
-    expect(content?.className).toContain('data-closed:animate-popup-out')
-    expect(content?.className).toContain('data-expanded:animate-popup-in')
+    expect(content?.className).toContain('data-closed:animate-mo-exit')
+    expect(content?.className).toContain('data-expanded:animate-mo-enter')
   })
 
   test('replaces the default content classes when a custom class is provided', () => {
@@ -339,7 +480,8 @@ describe('Modal primitives', () => {
     expect(content).not.toBeNull()
     expect(overlay?.parentElement).toBe(content?.parentElement)
     expect(overlay?.nextElementSibling).toBe(content)
-    expect(overlay?.className).toContain('custom-overlay')
+    expect(overlay?.className).toBe('custom-overlay')
+    expect(overlay?.className).not.toContain('fixed')
     expect(overlay?.getAttribute('style')).toContain('opacity: 0.4')
     expect(overlayRef).toHaveBeenCalledWith(overlay)
     expect(contentRef).toHaveBeenCalledWith(content)
@@ -350,7 +492,7 @@ describe('Modal primitives', () => {
   })
 
   test('can contain the content inside a scrolling overlay', () => {
-    render(() => (
+    renderWithDesign(() => (
       <Modal defaultOpen>
         <Modal.Content overlay overlayScroll>
           <span>Content</span>
@@ -362,7 +504,7 @@ describe('Modal primitives', () => {
     const content = document.body.querySelector('[data-slot="content"]')
 
     expect(overlay?.contains(content ?? null)).toBe(true)
-    expect(overlay?.className).toContain('overflow-y-auto')
+    expect(overlay?.className).toContain('data-overlay-scroll:overflow-y-auto')
     expect(overlay?.className).toContain('p-4')
   })
 

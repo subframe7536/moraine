@@ -4,10 +4,17 @@
     "name": "Sheet",
     "category": "overlays",
     "polymorphic": false,
-    "description": "Slide-in panel overlay from any screen edge with header, body, and footer slots.",
+    "description": "Sheet state and context. Trigger, Content, and Close own their respective DOM.",
     "sourcePath": "src/overlays/sheet/sheet.tsx"
   },
   "slots": [
+    {
+      "name": "trigger",
+      "description": "Element that opens the sheet.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
     {
       "name": "overlay",
       "description": "Backdrop layer rendered behind the sheet panel.",
@@ -20,38 +27,7 @@
       "description": "Slide-in panel containing header, body, footer, and close control.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-describedby",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References descriptive text associated with the control."
-        },
-        {
-          "name": "aria-label",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
-        },
-        {
-          "name": "aria-labelledby",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References the element that labels the control or region."
-        },
-        {
-          "name": "aria-modal",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Identifies modal content that traps interaction outside the dialog."
-        },
-        {
-          "name": "role",
-          "required": false,
-          "type": "string",
-          "description": "Defines the semantic role exposed to assistive technology."
-        }
-      ]
+      "ariaAttributes": []
     },
     {
       "name": "header",
@@ -92,46 +68,8 @@
       "name": "close",
       "description": "Button that dismisses the sheet.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-disabled",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component, slot, or item is disabled."
-        },
-        {
-          "name": "data-loading",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component or async operation is loading."
-        },
-        {
-          "name": "data-size",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved size variant."
-        },
-        {
-          "name": "data-variant",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved visual variant."
-        }
-      ],
-      "ariaAttributes": [
-        {
-          "name": "aria-busy",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Accessibility attribute forwarded by the rendered component."
-        },
-        {
-          "name": "aria-label",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
-        }
-      ]
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "body",
@@ -151,46 +89,10 @@
   "props": {
     "own": [
       {
-        "name": "action",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Additional action elements to render in the header."
-      },
-      {
-        "name": "ariaLabel",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Accessible name used when the sheet has no rendered title."
-      },
-      {
-        "name": "body",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Custom element to render in the scrollable body slot."
-      },
-      {
         "name": "children",
         "required": false,
-        "type": "((props: OverlayTriggerProps) => JSX.Element) | undefined",
-        "description": "Render the sheet trigger as a single HTMLElement root."
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "SheetT.Classes | undefined"
-      },
-      {
-        "name": "close",
-        "required": false,
         "type": "JSX.Element",
-        "description": "Whether to show a close button, or a custom element to use as one.",
-        "defaultValue": "true"
+        "description": "Composed trigger and content primitives."
       },
       {
         "name": "defaultOpen",
@@ -200,12 +102,6 @@
         "defaultValue": "false"
       },
       {
-        "name": "description",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Secondary description displayed below the title."
-      },
-      {
         "name": "dismissible",
         "required": false,
         "type": "boolean | undefined",
@@ -213,29 +109,10 @@
         "defaultValue": "true"
       },
       {
-        "name": "footer",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Custom element to render in the footer slot."
-      },
-      {
-        "name": "header",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Custom element to render in the header slot."
-      },
-      {
         "name": "id",
         "required": false,
         "type": "string | undefined",
         "description": "Unique identifier used to derive the content id."
-      },
-      {
-        "name": "inset",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to inset the sheet from the viewport on larger screens.",
-        "defaultValue": "false"
       },
       {
         "name": "onClosePrevent",
@@ -262,47 +139,334 @@
         "description": "Controlled open state."
       },
       {
-        "name": "overlay",
+        "name": "preventScroll",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Whether to render the overlay element."
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "side",
-        "required": false,
-        "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined",
-        "description": "Edge of the viewport from which the sheet enters.",
-        "defaultValue": "right"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "SheetT.Styles | undefined"
-      },
-      {
-        "name": "title",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Primary title displayed in the sheet header."
-      },
-      {
-        "name": "transition",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to enable transition animations.",
+        "description": "Whether body scroll should be locked while the shell is present.",
         "defaultValue": "true"
       }
     ],
     "inherited": []
-  }
+  },
+  "primitives": [
+    {
+      "component": {
+        "key": "sheet-trigger",
+        "name": "Sheet.Trigger",
+        "category": "overlays",
+        "polymorphic": true,
+        "sourcePath": "src/overlays/sheet/sheet.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "as",
+            "required": false,
+            "type": "T | undefined",
+            "description": "Element or component to render as.",
+            "defaultValue": "button"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Trigger label and visual content."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "disabled",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether this trigger is disabled."
+          },
+          {
+            "name": "onBlur",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, FocusEvent> | undefined"
+          },
+          {
+            "name": "onClick",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onContextMenu",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onKeyDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onKeyUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onPointerCancel",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerMove",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[T] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "type",
+            "required": false,
+            "type": "T extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : T extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : T extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "sheet-close",
+        "name": "Sheet.Close",
+        "category": "overlays",
+        "polymorphic": true,
+        "sourcePath": "src/overlays/sheet/sheet.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "as",
+            "required": false,
+            "type": "T | undefined",
+            "description": "Element or component to render as.",
+            "defaultValue": "button"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Trigger label and visual content."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "disabled",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether this trigger is disabled."
+          },
+          {
+            "name": "onBlur",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, FocusEvent> | undefined"
+          },
+          {
+            "name": "onClick",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onContextMenu",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onKeyDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onKeyUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onPointerCancel",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerMove",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[T] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "type",
+            "required": false,
+            "type": "T extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : T extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : T extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "sheet-content",
+        "name": "Sheet.Content",
+        "category": "overlays",
+        "polymorphic": false,
+        "sourcePath": "src/overlays/sheet/sheet.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "action",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Additional action elements to render in the header."
+          },
+          {
+            "name": "ariaLabel",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Accessible name used when the sheet has no rendered title."
+          },
+          {
+            "name": "body",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Custom element to render in the scrollable body slot."
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Main content when body is undefined."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "classes",
+            "required": false,
+            "type": "SheetT.Classes | undefined"
+          },
+          {
+            "name": "close",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Whether to show a close button, or a custom element to use as one.",
+            "defaultValue": "true"
+          },
+          {
+            "name": "description",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Secondary description displayed below the title."
+          },
+          {
+            "name": "footer",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Custom element to render in the footer slot."
+          },
+          {
+            "name": "header",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Custom element to render in the header slot."
+          },
+          {
+            "name": "inset",
+            "required": false,
+            "type": "boolean | \"true\" | \"false\" | null | undefined"
+          },
+          {
+            "name": "overlay",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether to render the overlay element."
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "side",
+            "required": false,
+            "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | null | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "styles",
+            "required": false,
+            "type": "SheetT.Styles | undefined"
+          },
+          {
+            "name": "title",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Primary title displayed in the sheet header."
+          },
+          {
+            "name": "transition",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether to enable transition animations.",
+            "defaultValue": "true"
+          }
+        ],
+        "inherited": []
+      }
+    }
+  ]
 }

@@ -2,19 +2,24 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { renderWithDesign } from '../../test-utils/design-render.tsx'
 import { finishMenuExitMotion } from '../../test-utils/overlay-test'
 
 import { DropdownMenu } from './dropdown-menu'
 
 describe('DropdownMenu', () => {
   test('applies top-level class and style to trigger', () => {
-    render(() => (
-      <DropdownMenu items={[{ label: 'Archive' }]}>
-        {(props) => (
-          <button {...props} class="trigger-class" style={{ width: '200px' }} type="button">
-            Actions
-          </button>
-        )}
+    renderWithDesign(() => (
+      <DropdownMenu>
+        <DropdownMenu.Trigger
+          as="button"
+          class="trigger-class"
+          style={{ width: '200px' }}
+          type="button"
+        >
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Archive' }]} />
       </DropdownMenu>
     ))
 
@@ -28,12 +33,11 @@ describe('DropdownMenu', () => {
     const onSelect = vi.fn()
 
     const screen = render(() => (
-      <DropdownMenu items={[{ label: 'Open file', onSelect }, { label: 'Close file' }]}>
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open file', onSelect }, { label: 'Close file' }]} />
       </DropdownMenu>
     ))
 
@@ -52,12 +56,11 @@ describe('DropdownMenu', () => {
 
   test('closes from trigger keyboard escape while open', async () => {
     const screen = render(() => (
-      <DropdownMenu items={[{ label: 'Open file' }]}>
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open file' }]} />
       </DropdownMenu>
     ))
 
@@ -79,19 +82,19 @@ describe('DropdownMenu', () => {
   test('focuses content on click open, supports typeahead, and restores trigger focus on escape', async () => {
     const triggerRef = vi.fn()
     const screen = render(() => (
-      <DropdownMenu items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}>
-        {(props) => (
-          <button
-            {...props}
-            ref={(element) => {
-              props.ref(element)
-              triggerRef(element)
-            }}
-            type="button"
-          >
-            Actions
-          </button>
-        )}
+      <DropdownMenu>
+        <DropdownMenu.Trigger
+          as="button"
+          ref={(element) => {
+            triggerRef(element)
+          }}
+          type="button"
+        >
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[{ label: 'Archive' }, { label: 'Duplicate' }, { label: 'Delete' }]}
+        />
       </DropdownMenu>
     ))
 
@@ -131,12 +134,11 @@ describe('DropdownMenu', () => {
 
     try {
       const screen = render(() => (
-        <DropdownMenu items={[{ label: 'Open file' }, { label: 'Close file' }]}>
-          {(props) => (
-            <button {...props} type="button">
-              Actions
-            </button>
-          )}
+        <DropdownMenu>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Open file' }, { label: 'Close file' }]} />
         </DropdownMenu>
       ))
 
@@ -152,20 +154,18 @@ describe('DropdownMenu', () => {
 
   test('opens and closes submenus with arrow keys', async () => {
     render(() => (
-      <DropdownMenu
-        defaultOpen
-        items={[
-          {
-            label: 'More',
-            children: [{ label: 'Nested action' }],
-          },
-        ]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              children: [{ label: 'Nested action' }],
+            },
+          ]}
+        />
       </DropdownMenu>
     ))
 
@@ -231,28 +231,25 @@ describe('DropdownMenu', () => {
 
     try {
       render(() => (
-        <DropdownMenu
-          id="dismiss-order"
-          defaultOpen
-          items={[
-            {
-              label: 'More',
-              defaultOpen: true,
-              children: [
-                {
-                  label: 'Deep',
-                  defaultOpen: true,
-                  children: [{ label: 'Leaf action' }],
-                },
-              ],
-            },
-          ]}
-        >
-          {(props) => (
-            <button {...props} type="button">
-              Actions
-            </button>
-          )}
+        <DropdownMenu id="dismiss-order" defaultOpen>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[
+              {
+                label: 'More',
+                defaultOpen: true,
+                children: [
+                  {
+                    label: 'Deep',
+                    defaultOpen: true,
+                    children: [{ label: 'Leaf action' }],
+                  },
+                ],
+              },
+            ]}
+          />
         </DropdownMenu>
       ))
 
@@ -281,20 +278,18 @@ describe('DropdownMenu', () => {
 
   test('moves focus into submenu when submenu opens by click', async () => {
     render(() => (
-      <DropdownMenu
-        defaultOpen
-        items={[
-          {
-            label: 'More',
-            children: [{ label: 'Nested action' }],
-          },
-        ]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              children: [{ label: 'Nested action' }],
+            },
+          ]}
+        />
       </DropdownMenu>
     ))
 
@@ -325,12 +320,11 @@ describe('DropdownMenu', () => {
     const onOpenChange = vi.fn()
 
     render(() => (
-      <DropdownMenu open onOpenChange={onOpenChange} items={[{ label: 'Controlled item' }]}>
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu open onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Controlled item' }]} />
       </DropdownMenu>
     ))
 
@@ -349,13 +343,12 @@ describe('DropdownMenu', () => {
   })
 
   test('keeps content mounted with closed data attrs until exit motion finishes', async () => {
-    render(() => (
-      <DropdownMenu defaultOpen items={[{ label: 'Open file' }]}>
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+    renderWithDesign(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open file' }]} />
       </DropdownMenu>
     ))
 
@@ -371,7 +364,7 @@ describe('DropdownMenu', () => {
       expect(exitingContent).not.toBeNull()
       expect(exitingContent.getAttribute('data-closed')).toBe('')
       expect(exitingContent.hasAttribute('data-expanded')).toBe(false)
-      expect(exitingContent.className).toContain('data-closed:animate-menu-out')
+      expect(exitingContent.className).toContain('data-closed:animate-mo-exit')
     })
 
     const positioner = content.closest('[data-slot="positioner"]') as HTMLElement
@@ -386,13 +379,12 @@ describe('DropdownMenu', () => {
   })
 
   test('uses shared bottom-side transition classes for default placement', async () => {
-    render(() => (
-      <DropdownMenu defaultOpen items={[{ label: 'Default animation item' }]}>
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+    renderWithDesign(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Default animation item' }]} />
       </DropdownMenu>
     ))
 
@@ -402,15 +394,15 @@ describe('DropdownMenu', () => {
 
     const rootContent = document.body.querySelector('[data-slot="content"]') as HTMLElement
 
-    expect(rootContent.className).toContain('mt-$mo-popper-content-overflow-padding')
-    expect(rootContent.className).toContain('data-expanded:animate-menu-in')
-    expect(rootContent.className).toContain('data-closed:animate-menu-out')
+    expect(rootContent.className).toContain('mt-[var(--mo-popper-content-overflow-padding)]')
+    expect(rootContent.className).toContain('data-expanded:animate-mo-enter')
+    expect(rootContent.className).toContain('data-closed:animate-mo-exit')
     expect(rootContent.getAttribute('data-side')).toBe('bottom')
     expect(rootContent.getAttribute('data-align')).toBe('start')
     expect(rootContent.getAttribute('data-placement')).toBeNull()
     expect(rootContent.getAttribute('data-motion')).toBeNull()
-    expect(rootContent.className).toContain('animate-menu-side-bottom')
-    expect(rootContent.className).toContain('origin-$mo-popper-content-transform-origin')
+    expect(rootContent.className).toContain('-enter-translate-y-1')
+    expect(rootContent.className).toContain('origin-[var(--mo-popper-content-transform-origin)]')
   })
 
   test('renders item matrix, nested submenu, and content slots', async () => {
@@ -425,50 +417,47 @@ describe('DropdownMenu', () => {
       </div>
     ))
 
-    render(() => (
-      <DropdownMenu
-        defaultOpen
-        placement="left-start"
-        classes={{
-          content: 'content-class',
-        }}
-        contentTop={contentTop}
-        contentBottom={contentBottom}
-        items={[
-          {
-            type: 'group',
-            label: 'Account',
-            children: [
-              { type: 'separator' },
-              {
-                label: 'Profile',
-                description: 'View profile',
-                icon: 'icon-user',
-                kbds: ['meta', 'p'],
-              },
-              {
-                label: 'Avatar row',
-                icon: <span data-testid="avatar-node">A</span>,
-              },
-              {
-                type: 'checkbox',
-                label: 'Pinned',
-                checked: true,
-              },
-              {
-                label: 'More',
-                defaultOpen: true,
-                children: [{ label: 'Nested action' }],
-              },
-            ],
-          },
-        ]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+    renderWithDesign(() => (
+      <DropdownMenu defaultOpen placement="left-start">
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          classes={{
+            content: 'content-class',
+          }}
+          contentTop={contentTop}
+          contentBottom={contentBottom}
+          items={[
+            {
+              type: 'group',
+              label: 'Account',
+              children: [
+                { type: 'separator' },
+                {
+                  label: 'Profile',
+                  description: 'View profile',
+                  icon: 'icon-user',
+                  kbds: ['meta', 'p'],
+                },
+                {
+                  label: 'Avatar row',
+                  icon: <span data-testid="avatar-node">A</span>,
+                },
+                {
+                  type: 'checkbox',
+                  label: 'Pinned',
+                  checked: true,
+                },
+                {
+                  label: 'More',
+                  defaultOpen: true,
+                  children: [{ label: 'Nested action' }],
+                },
+              ],
+            },
+          ]}
+        />
       </DropdownMenu>
     ))
 
@@ -485,16 +474,17 @@ describe('DropdownMenu', () => {
     expect(document.body.querySelector('[data-testid="avatar-node"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="itemIndicator"]')).not.toBeNull()
 
-    expect(rootContent?.className).toContain('mr-$mo-popper-content-overflow-padding')
-    expect(rootContent?.className).toContain('surface-overlay')
-    expect(rootContent?.className).toContain('data-expanded:animate-menu-in')
-    expect(rootContent?.className).toContain('data-closed:animate-menu-out')
+    expect(rootContent?.className).toContain('mr-[var(--mo-popper-content-overflow-padding)]')
+    expect(rootContent?.className).toContain('border-border')
+    expect(rootContent?.className).toContain('shadow-md')
+    expect(rootContent?.className).toContain('data-expanded:animate-mo-enter')
+    expect(rootContent?.className).toContain('data-closed:animate-mo-exit')
     expect(rootContent?.getAttribute('data-side')).toBe('left')
     expect(rootContent?.getAttribute('data-align')).toBe('start')
     expect(rootContent?.getAttribute('data-placement')).toBeNull()
     expect(rootContent?.getAttribute('data-motion')).toBeNull()
-    expect(rootContent?.className).toContain('animate-menu-side-left')
-    expect(rootContent?.className).toContain('origin-$mo-popper-content-transform-origin')
+    expect(rootContent?.className).toContain('enter-translate-x-1')
+    expect(rootContent?.className).toContain('origin-[var(--mo-popper-content-transform-origin)]')
     expect(rootContent?.className).toContain('content-class')
 
     expect(document.body.querySelector('[data-testid="content-top-root"]')).not.toBeNull()
@@ -517,26 +507,24 @@ describe('DropdownMenu', () => {
     ))
 
     render(() => (
-      <DropdownMenu
-        defaultOpen
-        itemRender={itemRender}
-        items={[
-          {
-            label: 'Parent',
-            defaultOpen: true,
-            children: [{ label: 'Child' }],
-          },
-          {
-            type: 'checkbox',
-            label: 'Checkbox',
-          },
-        ]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          itemRender={itemRender}
+          items={[
+            {
+              label: 'Parent',
+              defaultOpen: true,
+              children: [{ label: 'Child' }],
+            },
+            {
+              type: 'checkbox',
+              label: 'Checkbox',
+            },
+          ]}
+        />
       </DropdownMenu>
     ))
 
@@ -559,12 +547,11 @@ describe('DropdownMenu', () => {
 
   test('renders into portal by default', () => {
     const screen = render(() => (
-      <DropdownMenu defaultOpen items={[{ label: 'Default portal' }]}>
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Default portal' }]} />
       </DropdownMenu>
     ))
 
@@ -574,12 +561,11 @@ describe('DropdownMenu', () => {
 
   test('renders the trigger content as a native button root', () => {
     render(() => (
-      <DropdownMenu items={[{ label: 'Open item' }]}>
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open item' }]} />
       </DropdownMenu>
     ))
 
@@ -591,12 +577,11 @@ describe('DropdownMenu', () => {
 
   test('renders an anchor trigger root', () => {
     render(() => (
-      <DropdownMenu items={[{ label: 'Open item' }]}>
-        {(props) => (
-          <a {...props} href="#menu">
-            Actions
-          </a>
-        )}
+      <DropdownMenu>
+        <DropdownMenu.Trigger as="a" href="#menu">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open item' }]} />
       </DropdownMenu>
     ))
 
@@ -608,22 +593,21 @@ describe('DropdownMenu', () => {
   test('uses native and non-native disabled trigger semantics', () => {
     render(() => (
       <>
-        <DropdownMenu disabled items={[]}>
-          {(props) => (
-            <button {...props} type="button">
-              Button trigger
-            </button>
-          )}
+        <DropdownMenu disabled>
+          <DropdownMenu.Trigger as="button" type="button">
+            Button trigger
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[]} />
         </DropdownMenu>
-        <DropdownMenu disabled items={[]}>
-          {(props) => (
-            <a {...props} href="#menu">
-              Anchor trigger
-            </a>
-          )}
+        <DropdownMenu disabled>
+          <DropdownMenu.Trigger as="a" href="#menu">
+            Anchor trigger
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[]} />
         </DropdownMenu>
-        <DropdownMenu disabled items={[]}>
-          {(props) => <span {...props}>Span trigger</span>}
+        <DropdownMenu disabled>
+          <DropdownMenu.Trigger as="span">Span trigger</DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[]} />
         </DropdownMenu>
       </>
     ))
@@ -646,20 +630,21 @@ describe('DropdownMenu', () => {
   test('keeps non-native triggers tabbable when enabled and allows caller overrides', () => {
     render(() => (
       <>
-        <DropdownMenu items={[]}>{(props) => <span {...props}>Enabled span</span>}</DropdownMenu>
-        <DropdownMenu disabled items={[]}>
-          {(props) => (
-            <button {...props} disabled={false} type="button">
-              Overridden button
-            </button>
-          )}
+        <DropdownMenu>
+          <DropdownMenu.Trigger as="span">Enabled span</DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[]} />
         </DropdownMenu>
-        <DropdownMenu disabled items={[]}>
-          {(props) => (
-            <a {...props} aria-disabled="false" href="#override" tabIndex={3}>
-              Overridden anchor
-            </a>
-          )}
+        <DropdownMenu disabled>
+          <DropdownMenu.Trigger as="button" disabled={false} type="button">
+            Overridden button
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[]} />
+        </DropdownMenu>
+        <DropdownMenu disabled>
+          <DropdownMenu.Trigger as="a" aria-disabled="false" href="#override" tabIndex={3}>
+            Overridden anchor
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[]} />
         </DropdownMenu>
       </>
     ))
@@ -672,7 +657,11 @@ describe('DropdownMenu', () => {
   })
 
   test('renders controlled overlay without a trigger', async () => {
-    render(() => <DropdownMenu defaultOpen items={[{ label: 'Open item' }]} />)
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Content items={[{ label: 'Open item' }]} />
+      </DropdownMenu>
+    ))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')?.textContent).toContain(
@@ -683,12 +672,11 @@ describe('DropdownMenu', () => {
 
   test('does not open when menu trigger is disabled', async () => {
     const screen = render(() => (
-      <DropdownMenu disabled items={[{ label: 'Disabled entry' }]}>
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu disabled>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Disabled entry' }]} />
       </DropdownMenu>
     ))
 
@@ -704,17 +692,11 @@ describe('DropdownMenu', () => {
     const [disabled, setDisabled] = createSignal(false)
     const onOpenChange = vi.fn()
     render(() => (
-      <DropdownMenu
-        defaultOpen
-        disabled={disabled()}
-        items={[{ label: 'Open item' }]}
-        onOpenChange={onOpenChange}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen disabled={disabled()} onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open item' }]} />
       </DropdownMenu>
     ))
 
@@ -732,17 +714,11 @@ describe('DropdownMenu', () => {
     const [disabled, setDisabled] = createSignal(false)
     const onOpenChange = vi.fn()
     render(() => (
-      <DropdownMenu
-        open
-        disabled={disabled()}
-        items={[{ label: 'Open item' }]}
-        onOpenChange={onOpenChange}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu open disabled={disabled()} onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Open item' }]} />
       </DropdownMenu>
     ))
 
@@ -763,21 +739,16 @@ describe('DropdownMenu', () => {
   test('clears a removed trigger and restores focus to its replacement', async () => {
     const [triggerKind, setTriggerKind] = createSignal<'button' | 'anchor' | undefined>('button')
     const screen = render(() => (
-      <DropdownMenu items={[{ label: 'Open item' }]}>
-        {(props) => (
-          <>
-            <Show when={triggerKind() === 'button'}>
-              <button {...props} type="button">
-                Button trigger
-              </button>
-            </Show>
-            <Show when={triggerKind() === 'anchor'}>
-              <a {...props} href="#replacement">
-                Anchor trigger
-              </a>
-            </Show>
-          </>
-        )}
+      <DropdownMenu>
+        <Show when={triggerKind() === 'button'}>
+          <DropdownMenu.Trigger>Button trigger</DropdownMenu.Trigger>
+        </Show>
+        <Show when={triggerKind() === 'anchor'}>
+          <DropdownMenu.Trigger as="a" href="#replacement">
+            Anchor trigger
+          </DropdownMenu.Trigger>
+        </Show>
+        <DropdownMenu.Content items={[{ label: 'Open item' }]} />
       </DropdownMenu>
     ))
 
@@ -823,14 +794,11 @@ describe('DropdownMenu', () => {
   test('does not restore focus to a trigger removed while open', async () => {
     const [showTrigger, setShowTrigger] = createSignal(true)
     const screen = render(() => (
-      <DropdownMenu items={[{ label: 'Open item' }]}>
-        {(props) => (
-          <Show when={showTrigger()}>
-            <button {...props} type="button">
-              Removable trigger
-            </button>
-          </Show>
-        )}
+      <DropdownMenu>
+        <Show when={showTrigger()}>
+          <DropdownMenu.Trigger>Removable trigger</DropdownMenu.Trigger>
+        </Show>
+        <DropdownMenu.Content items={[{ label: 'Open item' }]} />
       </DropdownMenu>
     ))
 
@@ -857,26 +825,24 @@ describe('DropdownMenu', () => {
     const onDisabledSelect = vi.fn()
 
     render(() => (
-      <DropdownMenu
-        defaultOpen
-        items={[
-          {
-            type: 'checkbox',
-            label: 'Show hidden files',
-            onCheckedChange,
-          },
-          {
-            label: 'Disabled action',
-            disabled: true,
-            onSelect: onDisabledSelect,
-          },
-        ]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              type: 'checkbox',
+              label: 'Show hidden files',
+              onCheckedChange,
+            },
+            {
+              label: 'Disabled action',
+              disabled: true,
+              onSelect: onDisabledSelect,
+            },
+          ]}
+        />
       </DropdownMenu>
     ))
 
@@ -902,39 +868,37 @@ describe('DropdownMenu', () => {
     const onDisabledSelect = vi.fn()
 
     render(() => (
-      <DropdownMenu
-        defaultOpen
-        items={[
-          {
-            type: 'radio',
-            group: 'density',
-            value: 'compact',
-            label: 'Compact',
-            checked: true,
-            onSelect: onCompactSelect,
-          },
-          {
-            type: 'radio',
-            group: 'density',
-            value: 'comfortable',
-            label: 'Comfortable',
-            onValueChange: onComfortableValueChange,
-          },
-          {
-            type: 'radio',
-            group: 'density',
-            value: 'spacious',
-            label: 'Spacious',
-            disabled: true,
-            onSelect: onDisabledSelect,
-          },
-        ]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              type: 'radio',
+              group: 'density',
+              value: 'compact',
+              label: 'Compact',
+              checked: true,
+              onSelect: onCompactSelect,
+            },
+            {
+              type: 'radio',
+              group: 'density',
+              value: 'comfortable',
+              label: 'Comfortable',
+              onValueChange: onComfortableValueChange,
+            },
+            {
+              type: 'radio',
+              group: 'density',
+              value: 'spacious',
+              label: 'Spacious',
+              disabled: true,
+              onSelect: onDisabledSelect,
+            },
+          ]}
+        />
       </DropdownMenu>
     ))
 
@@ -968,16 +932,14 @@ describe('DropdownMenu', () => {
   })
 
   test('destructive item icon does not force muted color class', async () => {
-    render(() => (
-      <DropdownMenu
-        defaultOpen
-        items={[{ label: 'Delete', color: 'destructive', icon: 'icon-trash-2' }]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+    renderWithDesign(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[{ label: 'Delete', color: 'destructive', icon: 'icon-trash-2' }]}
+        />
       </DropdownMenu>
     ))
 
@@ -991,21 +953,19 @@ describe('DropdownMenu', () => {
 
   test('renders submenu content through portal instead of nesting inside root content', async () => {
     render(() => (
-      <DropdownMenu
-        defaultOpen
-        items={[
-          {
-            label: 'More',
-            defaultOpen: true,
-            children: [{ label: 'Nested action' }],
-          },
-        ]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              defaultOpen: true,
+              children: [{ label: 'Nested action' }],
+            },
+          ]}
+        />
       </DropdownMenu>
     ))
 
@@ -1024,22 +984,20 @@ describe('DropdownMenu', () => {
 
   test('keeps submenu open while pointer moves through the submenu grace area', async () => {
     render(() => (
-      <DropdownMenu
-        defaultOpen
-        items={[
-          {
-            label: 'More',
-            defaultOpen: true,
-            children: [{ label: 'Nested action' }],
-          },
-          { label: 'Sibling action' },
-        ]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              defaultOpen: true,
+              children: [{ label: 'Nested action' }],
+            },
+            { label: 'Sibling action' },
+          ]}
+        />
       </DropdownMenu>
     ))
 
@@ -1083,25 +1041,23 @@ describe('DropdownMenu', () => {
 
     try {
       render(() => (
-        <DropdownMenu
-          defaultOpen
-          items={[
-            {
-              label: 'More',
-              defaultOpen: true,
-              children: [{ label: 'Nested action' }],
-            },
-            {
-              label: 'More tools',
-              children: [{ label: 'Second nested action' }],
-            },
-          ]}
-        >
-          {(props) => (
-            <button {...props} type="button">
-              Actions
-            </button>
-          )}
+        <DropdownMenu defaultOpen>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[
+              {
+                label: 'More',
+                defaultOpen: true,
+                children: [{ label: 'Nested action' }],
+              },
+              {
+                label: 'More tools',
+                children: [{ label: 'Second nested action' }],
+              },
+            ]}
+          />
         </DropdownMenu>
       ))
 
@@ -1155,16 +1111,14 @@ describe('DropdownMenu', () => {
 
   test('applies styles override to content', async () => {
     render(() => (
-      <DropdownMenu
-        defaultOpen
-        styles={{ content: { width: '200px' } }}
-        items={[{ label: 'Open file' }]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          styles={{ content: { width: '200px' } }}
+          items={[{ label: 'Open file' }]}
+        />
       </DropdownMenu>
     ))
 
@@ -1180,29 +1134,25 @@ describe('DropdownMenu', () => {
     const contentRef = vi.fn()
     const itemRef = vi.fn()
     const onSelect = vi.fn()
-    render(() => (
-      <DropdownMenu
-        defaultOpen
-        items={[{ label: 'Archive', onSelect }]}
-        contentProps={{
-          ref: contentRef,
-          'data-track': 'actions-menu',
-          class: 'content-prop',
-          style: { width: '240px' },
-        }}
-        itemProps={(context) => ({
-          ref: itemRef,
-          'data-label': context.item.label as string,
-          class: 'item-prop',
-          style: { height: '40px' },
-          onClick: (event) => event.preventDefault(),
-        })}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+    renderWithDesign(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[{ label: 'Archive', onSelect }]}
+          ref={contentRef}
+          data-track="actions-menu"
+          class="content-prop"
+          style={{ width: '240px' }}
+          itemProps={(context) => ({
+            ref: itemRef,
+            'data-label': context.item.label as string,
+            class: 'item-prop',
+            style: { height: '40px' },
+            onClick: (event) => event.preventDefault(),
+          })}
+        />
       </DropdownMenu>
     ))
 
@@ -1229,13 +1179,12 @@ describe('DropdownMenu', () => {
   })
 
   test('locks body scroll and renders an overlay layer while open', async () => {
-    render(() => (
-      <DropdownMenu defaultOpen items={[{ label: 'Archive' }]}>
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+    renderWithDesign(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Archive' }]} />
       </DropdownMenu>
     ))
 
@@ -1260,21 +1209,18 @@ describe('DropdownMenu', () => {
   test('cycles typeahead matches, skips disabled items, and keeps Space in an active search', async () => {
     const onOpenSelect = vi.fn()
     render(() => (
-      <DropdownMenu
-        defaultOpen
-        preventScroll={false}
-        items={[
-          { label: 'Banana' },
-          { label: 'Blueberry', disabled: true },
-          { label: 'Bravo' },
-          { label: 'Open file', onSelect: onOpenSelect },
-        ]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            { label: 'Banana' },
+            { label: 'Blueberry', disabled: true },
+            { label: 'Bravo' },
+            { label: 'Open file', onSelect: onOpenSelect },
+          ]}
+        />
       </DropdownMenu>
     ))
 
@@ -1305,19 +1251,16 @@ describe('DropdownMenu', () => {
   test('does not activate checkbox or submenu items when Space continues typeahead', async () => {
     const onCheckedChange = vi.fn()
     render(() => (
-      <DropdownMenu
-        defaultOpen
-        preventScroll={false}
-        items={[
-          { label: 'Show hidden', type: 'checkbox', checked: false, onCheckedChange },
-          { label: 'Open options', children: [{ label: 'Nested action' }] },
-        ]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            { label: 'Show hidden', type: 'checkbox', checked: false, onCheckedChange },
+            { label: 'Open options', children: [{ label: 'Nested action' }] },
+          ]}
+        />
       </DropdownMenu>
     ))
 
@@ -1336,16 +1279,13 @@ describe('DropdownMenu', () => {
 
   test('uses rendered label text before a string description for typeahead', async () => {
     render(() => (
-      <DropdownMenu
-        defaultOpen
-        preventScroll={false}
-        items={[{ label: <span>Archive</span>, description: 'Stored item' }]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[{ label: <span>Archive</span>, description: 'Stored item' }]}
+        />
       </DropdownMenu>
     ))
 
@@ -1361,12 +1301,11 @@ describe('DropdownMenu', () => {
     'does not highlight items from %s pointer movement',
     async (pointerType) => {
       render(() => (
-        <DropdownMenu defaultOpen preventScroll={false} items={[{ label: 'Archive' }]}>
-          {(props) => (
-            <button {...props} type="button">
-              Actions
-            </button>
-          )}
+        <DropdownMenu defaultOpen preventScroll={false}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Archive' }]} />
         </DropdownMenu>
       ))
 
@@ -1391,17 +1330,11 @@ describe('DropdownMenu', () => {
         >
           Outside
         </button>
-        <DropdownMenu
-          defaultOpen
-          preventScroll={false}
-          onOpenChange={onOpenChange}
-          items={[{ label: 'Archive' }]}
-        >
-          {(props) => (
-            <button {...props} type="button">
-              Actions
-            </button>
-          )}
+        <DropdownMenu defaultOpen preventScroll={false} onOpenChange={onOpenChange}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Archive' }]} />
         </DropdownMenu>
       </>
     ))
@@ -1420,12 +1353,11 @@ describe('DropdownMenu', () => {
         <button type="button" data-testid="before">
           Before
         </button>
-        <DropdownMenu defaultOpen preventScroll={false} items={[{ label: 'Archive' }]}>
-          {(props) => (
-            <button {...props} type="button">
-              Actions
-            </button>
-          )}
+        <DropdownMenu defaultOpen preventScroll={false}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Archive' }]} />
         </DropdownMenu>
         <button type="button" data-testid="after">
           After
@@ -1445,12 +1377,11 @@ describe('DropdownMenu', () => {
 
   test('closes on Shift+Tab and restores the trigger', async () => {
     const screen = render(() => (
-      <DropdownMenu defaultOpen preventScroll={false} items={[{ label: 'Archive' }]}>
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Archive' }]} />
       </DropdownMenu>
     ))
 
@@ -1470,16 +1401,13 @@ describe('DropdownMenu', () => {
 
     try {
       render(() => (
-        <DropdownMenu
-          defaultOpen
-          preventScroll={false}
-          items={[{ label: 'More', children: [{ label: 'Nested action' }] }]}
-        >
-          {(props) => (
-            <button {...props} type="button">
-              Actions
-            </button>
-          )}
+        <DropdownMenu defaultOpen preventScroll={false}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[{ label: 'More', children: [{ label: 'Nested action' }] }]}
+          />
         </DropdownMenu>
       ))
 
@@ -1501,31 +1429,28 @@ describe('DropdownMenu', () => {
   test('clears a controlled radio group when every item becomes unchecked', async () => {
     const [value, setValue] = createSignal<'compact' | 'comfortable' | undefined>('compact')
     render(() => (
-      <DropdownMenu
-        defaultOpen
-        preventScroll={false}
-        items={[
-          {
-            type: 'radio',
-            group: 'density',
-            value: 'compact',
-            label: 'Compact',
-            checked: value() === 'compact',
-          },
-          {
-            type: 'radio',
-            group: 'density',
-            value: 'comfortable',
-            label: 'Comfortable',
-            checked: value() === 'comfortable',
-          },
-        ]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              type: 'radio',
+              group: 'density',
+              value: 'compact',
+              label: 'Compact',
+              checked: value() === 'compact',
+            },
+            {
+              type: 'radio',
+              group: 'density',
+              value: 'comfortable',
+              label: 'Comfortable',
+              checked: value() === 'comfortable',
+            },
+          ]}
+        />
       </DropdownMenu>
     ))
 
@@ -1541,22 +1466,19 @@ describe('DropdownMenu', () => {
 
   test('links menu groups to their labels and gives interactive items stable ids', async () => {
     render(() => (
-      <DropdownMenu
-        defaultOpen
-        preventScroll={false}
-        items={[
-          {
-            type: 'group',
-            label: 'File actions',
-            children: [{ label: 'Archive' }],
-          },
-        ]}
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              type: 'group',
+              label: 'File actions',
+              children: [{ label: 'Archive' }],
+            },
+          ]}
+        />
       </DropdownMenu>
     ))
 
@@ -1581,12 +1503,11 @@ describe('DropdownMenu', () => {
     }
 
     render(() => (
-      <DropdownMenu defaultOpen preventScroll={false} items={[group]}>
-        {(props) => (
-          <button {...props} type="button">
-            Actions
-          </button>
-        )}
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[group]} />
       </DropdownMenu>
     ))
 
@@ -1599,16 +1520,13 @@ describe('DropdownMenu', () => {
 
     try {
       render(() => (
-        <DropdownMenu
-          defaultOpen
-          preventScroll={false}
-          items={[{ label: 'More', children: [{ label: 'Nested action' }] }]}
-        >
-          {(props) => (
-            <button {...props} type="button">
-              Actions
-            </button>
-          )}
+        <DropdownMenu defaultOpen preventScroll={false}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[{ label: 'More', children: [{ label: 'Nested action' }] }]}
+          />
         </DropdownMenu>
       ))
 
@@ -1630,22 +1548,19 @@ describe('DropdownMenu', () => {
 
     try {
       render(() => (
-        <DropdownMenu
-          defaultOpen
-          preventScroll={false}
-          items={[
-            {
-              label: 'More',
-              disabled: disabled(),
-              children: [{ label: 'Nested action' }],
-            },
-          ]}
-        >
-          {(props) => (
-            <button {...props} type="button">
-              Actions
-            </button>
-          )}
+        <DropdownMenu defaultOpen preventScroll={false}>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[
+              {
+                label: 'More',
+                disabled: disabled(),
+                children: [{ label: 'Nested action' }],
+              },
+            ]}
+          />
         </DropdownMenu>
       ))
 

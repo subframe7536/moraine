@@ -1,177 +1,20 @@
-import type { JSX } from 'solid-js'
+import type { JSX, Ref } from 'solid-js'
 import { Show, createMemo, mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index'
-import { Icon } from '../../elements/icon/index'
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { callHandler, useId } from '../../shared/utils'
-import { useFormField } from '../form/form-context'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form-options'
-import { isInteractiveTarget } from '../shared/is-interactive-target'
-import { useFormReset } from '../shared/use-form-reset'
-import { useTextControlValue } from '../shared/use-text-control-value'
+import type { IconT } from '../../elements/icon/index.ts'
+import { Icon } from '../../elements/icon/index.ts'
+import type { ModelModifiers } from '../../shared/input-modifiers.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
+import { useFormField } from '../form/form-context.ts'
+import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
+import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
-import type { InputVariantProps } from './input.class'
-import {
-  inputInputVariants,
-  inputLeadingVariants,
-  inputRootVariants,
-  inputTrailingVariants,
-} from './input.class'
+import type { InputProps, InputT } from './input.types.ts'
 
-export namespace InputT {
-  export type Value = string | number | undefined
-
-  export interface Slot<T = unknown> {
-    /**
-     * Input wrapper that positions icons, loading state, and the native input.
-     */
-    root?: T
-
-    /** Native text input element. */
-    input?: T
-
-    /** Icon or loading indicator rendered before the input value. */
-    leading?: T
-
-    /** Icon or loading indicator rendered after the input value. */
-    trailing?: T
-  }
-
-  export type Variant = InputVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  /**
-   * Base props for the Input component.
-   */
-  export interface Base<M extends ModelModifiers | undefined = ModelModifiers | undefined>
-    extends
-      FormIdentityOptions,
-      FormValueOptions<Value>,
-      FormRequiredOption,
-      FormReadOnlyOption,
-      FormDisableOption {
-    /**
-     * The type of the input element.
-     * @default 'text'
-     */
-    type?: JSX.InputHTMLAttributes<HTMLInputElement>['type']
-
-    /**
-     * The placeholder text for the input.
-     */
-    placeholder?: string
-
-    /**
-     * The autocomplete attribute for the input.
-     * @default 'off'
-     */
-    autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
-
-    /**
-     * Whether the input should automatically receive focus on mount.
-     * @default false
-     */
-    autofocus?: boolean
-
-    /**
-     * The delay in milliseconds before automatically focusing the input.
-     * @default 0
-     */
-    autofocusDelay?: number
-
-    /**
-     * The maximum number of characters allowed in the input.
-     */
-    maxLength?: number | string
-
-    /**
-     * Leading icon name or custom content.
-     */
-    leading?: IconT.Name
-
-    /**
-     * Trailing icon name or custom content.
-     */
-    trailing?: IconT.Name
-
-    /**
-     * Whether the input is in a loading state.
-     * @default false
-     */
-    loading?: boolean
-
-    /**
-     * The icon to show when the input is in a loading state.
-     * @default 'icon-loading'
-     */
-    loadingIcon?: IconT.Name
-
-    /**
-     * Modifiers for the input value (e.g., trim, lazy, number).
-     */
-    modelModifiers?: M
-
-    /**
-     * Callback when the input value changes during input.
-     */
-    onValueChange?: (value: ModifierValue<M>) => void
-
-    /**
-     * Callback when the input value change is committed.
-     */
-    onChange?: (value: ModifierValue<M>) => void
-
-    /**
-     * Event handler for the input event.
-     */
-    onInput?: JSX.InputEventHandlerUnion<HTMLInputElement, InputEvent>
-
-    /**
-     * Event handler for the blur event.
-     */
-    onBlur?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
-
-    /**
-     * Event handler for the focus event.
-     */
-    onFocus?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
-
-    /**
-     * Additional content to render inside the input container.
-     */
-    children?: JSX.Element
-  }
-
-  /**
-   * Props for the Input component.
-   */
-  export type Props<M extends ModelModifiers | undefined = ModelModifiers | undefined> = BaseProps<
-    'div',
-    Base<M>,
-    Variant,
-    Classes,
-    Styles
-  >
-}
-
-/**
- * Props for the Input component.
- */
-export interface InputProps<
-  M extends ModelModifiers | undefined = ModelModifiers | undefined,
-> extends InputT.Props<M> {}
+export * from './input.types.ts'
 
 /** Text input component with leading/trailing icon slots, loading state, and form field integration. */
 export function Input<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
@@ -179,8 +22,11 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
 ): JSX.Element {
   type RootProps = InputProps<M> & {
     onPointerDown?: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent>
+    ref?: Ref<HTMLDivElement>
   }
   const [local, rest] = splitProps(props as RootProps, [
+    'ref',
+    'inputRef',
     'id',
     'name',
     'value',
@@ -213,14 +59,19 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     'style',
     'onPointerDown',
   ])
+
+  const design = useMoraineDesign()
+  const inputDesign = () => design().input
+
   const merged = mergeProps(
     {
       type: 'text',
       autocomplete: 'off',
       autofocusDelay: 0,
-      variant: 'outlined' as InputVariantProps['variant'],
+      variant: 'outline' as const,
       loadingIcon: 'icon-loading' as const,
     },
+    () => inputDesign()?.defaultVariants,
     local,
   )
   const leading = createMemo(() => merged.leading)
@@ -234,17 +85,36 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size,
+      size: local.size,
       disabled: merged.disabled,
       required: local.required,
       readOnly: readOnly(),
     }),
     () => ({
       defaultId: generatedId(),
-      defaultSize: 'md',
+      defaultSize: inputDesign()?.defaultVariants?.size ?? 'md',
       initialValue: merged.defaultValue ?? '',
     }),
   )
+
+  const resolved = resolveComponentStyle({
+    design: {
+      get classes() {
+        return inputDesign()?.recipe({
+          size: field.size(),
+          variant: merged.variant,
+        })
+      },
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
 
   let inputEl: HTMLInputElement | undefined
 
@@ -398,7 +268,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     return (
       <Show
         when={typeof props.value !== 'string'}
-        fallback={<Icon name={props.value} class={props.loading && 'effect-loading'} />}
+        fallback={<Icon name={props.value} data-loading={props.loading ? '' : undefined} />}
       >
         {renderComponentOrElement(props.value, {})}
       </Show>
@@ -407,32 +277,16 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
 
   return (
     <div
+      ref={(element) => callRef(local.ref, element)}
       data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={inputRootVariants(
-        {
-          size: field.size(),
-          variant: merged.variant,
-        },
-        merged.classes?.root,
-        merged.class,
-      )}
       onPointerDown={onRootPointerDown}
       {...dataAttrs()}
       {...rest}
+      {...resolved.rootClassAndStyle()}
     >
       <Show when={resolvedLeading()}>
         {(adornment) => (
-          <span
-            data-slot="leading"
-            style={merged.styles?.leading}
-            class={inputLeadingVariants(
-              {
-                size: field.size(),
-              },
-              merged.classes?.leading,
-            )}
-          >
+          <span data-slot="leading" {...resolved.slotClassAndStyle('leading')}>
             <RenderAdornment value={adornment()} loading={isLeadingLoading()} />
           </span>
         )}
@@ -440,7 +294,10 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
 
       <input
         id={field.id()}
-        ref={(element) => (inputEl = element)}
+        ref={(element) => {
+          inputEl = element
+          callRef(local.inputRef, element)
+        }}
         type={merged.type}
         name={field.name()}
         placeholder={merged.placeholder}
@@ -450,14 +307,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         autocomplete={merged.autocomplete}
         maxLength={merged.maxLength}
         data-slot="input"
-        style={merged.styles?.input}
-        class={inputInputVariants(
-          {
-            type: merged.type === 'file' ? 'file' : undefined,
-            size: field.size(),
-          },
-          merged.classes?.input,
-        )}
+        {...resolved.slotClassAndStyle('input')}
         onInput={onInput}
         onChange={onChange}
         onBlur={onBlur}
@@ -471,16 +321,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
 
       <Show when={resolvedTrailing()}>
         {(adornment) => (
-          <span
-            data-slot="trailing"
-            style={merged.styles?.trailing}
-            class={inputTrailingVariants(
-              {
-                size: field.size(),
-              },
-              merged.classes?.trailing,
-            )}
-          >
+          <span data-slot="trailing" {...resolved.slotClassAndStyle('trailing')}>
             <RenderAdornment value={adornment()} loading={isTrailingLoading()} />
           </span>
         )}

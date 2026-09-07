@@ -1,7 +1,43 @@
 import { fireEvent, render } from '@solidjs/testing-library'
+import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
 import { Stepper } from './stepper'
+
+test('reads JSX fields once and delays the inactive panel', () => {
+  const reads = { title: 0, description: 0, content: 0 }
+  const [value, setValue] = createSignal('first')
+  const view = render(() => (
+    <Stepper
+      value={value()}
+      items={[
+        { value: 'first', title: 'First' },
+        {
+          value: 'second',
+          get title() {
+            reads.title++
+            return <span>Second</span>
+          },
+          get description() {
+            reads.description++
+            return <span>Description</span>
+          },
+          get content() {
+            reads.content++
+            return <span>Panel</span>
+          },
+        },
+      ]}
+    />
+  ))
+  expect(reads).toEqual({ title: 1, description: 1, content: 0 })
+  setValue('second')
+  expect(view.getByRole('tabpanel').textContent).toBe('Panel')
+  expect(reads).toEqual({ title: 1, description: 1, content: 1 })
+})
 
 if (!(globalThis as Record<string, unknown>).ResizeObserver) {
   ;(globalThis as Record<string, unknown>).ResizeObserver = class {
@@ -176,15 +212,17 @@ describe('Stepper', () => {
 
   test('applies orientation classes and slot overrides', () => {
     const screen = render(() => (
-      <Stepper
-        items={ITEMS}
-        orientation="vertical"
-        classes={{
-          root: 'root-override',
-          trigger: 'trigger-override',
-          content: 'content-override',
-        }}
-      />
+      <MoraineProvider design={createDesign()}>
+        <Stepper
+          items={ITEMS}
+          orientation="vertical"
+          classes={{
+            root: 'root-override',
+            trigger: 'trigger-override',
+            content: 'content-override',
+          }}
+        />
+      </MoraineProvider>
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]')
@@ -197,18 +235,32 @@ describe('Stepper', () => {
     expect(container?.className).toContain('self-stretch')
     expect(root?.className).toContain('root-override')
     expect(trigger?.className).toContain('trigger-override')
-    expect(separator?.className).toContain('bottom--3')
+    expect(separator?.className).toContain('-bottom-3')
     expect(content?.className).toContain('content-override')
   })
 
   test('uses stepper css variable helper classes for size and separator layout', () => {
-    const screen = render(() => <Stepper items={ITEMS} size="lg" orientation="vertical" />)
+    const screen = render(() => (
+      <MoraineProvider design={createDesign()}>
+        <Stepper items={ITEMS} size="lg" orientation="vertical" />
+      </MoraineProvider>
+    ))
 
-    const item = screen.container.querySelector('[data-slot="item"]')
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
     const separator = screen.container.querySelector('[data-slot="separator"]')
 
-    expect(item?.className).toContain('var-stepper-10-8-3-1')
-    expect(separator?.className).toContain('bottom--3')
+    expect(root?.className).toContain('[--st-size:calc(var(--spacing)*10)]')
+    expect(separator?.className).toContain('-bottom-3')
+  })
+
+  test('omits default visual styles without a provider and preserves activation', () => {
+    const screen = render(() => <Stepper items={ITEMS} clickable linear={false} />)
+    for (const element of screen.container.querySelectorAll('[data-slot]')) {
+      expect(element.className).toBe('')
+    }
+    expect(screen.container.querySelector('[data-slot="root"]')?.getAttribute('style')).toBeNull()
+    fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
+    expect(screen.getByRole('tabpanel').textContent).toContain('Shipping content')
   })
 
   test('renders icon indicators', () => {

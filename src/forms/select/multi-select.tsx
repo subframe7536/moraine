@@ -1,31 +1,15 @@
-import type { Component, JSX } from 'solid-js'
-import { For, Show, createMemo, createSignal, splitProps, untrack } from 'solid-js'
+import type { JSX } from 'solid-js'
+import { For, Show, createMemo, createSignal, mergeProps, splitProps, untrack } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index'
-import type { IconT } from '../../elements/icon/index'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { cn } from '../../shared/utils'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form-options'
+import { Icon } from '../../elements/icon/index.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { callRef } from '../../shared/utils.ts'
 
-import { BaseSelect } from './base-select'
-import type { BaseSelectT } from './base-select'
-import type { SelectControlVariantProps } from './select.class'
-import {
-  selectControlVariants,
-  selectInputVariants,
-  multiSelectTagOverflowVariants,
-  multiSelectTagVariants,
-  SELECT_CLEAR_ACTION_CLASS,
-  SELECT_LEADING_ICON_CLASS,
-} from './select.class'
+import { BaseSelect } from './base-select.tsx'
+import type { BaseSelectT } from './base-select.tsx'
+import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
 import {
   createEmptyRenderer,
   emitSelectValueChange,
@@ -33,177 +17,10 @@ import {
   mapNormalizedListToRawValues,
   mapNormalizedToRawValue,
   renderDefaultSelectOption,
-} from './shared/index'
-import type { NormalizedOption } from './shared/index'
+} from './shared/index.ts'
+import type { NormalizedOption } from './shared/index.ts'
 
-export namespace MultiSelectT {
-  export type Value = string | number
-
-  export type OptionRenderState = BaseSelectT.OptionRenderState
-  export type VirtualEntry<TItem extends Value = Value> = BaseSelectT.VirtualEntry<Item<TItem>>
-  export type VirtualRenderProps<TItem extends Value = Value> = BaseSelectT.VirtualRenderProps<
-    Item<TItem>
-  >
-  export interface ControlSlot<T = unknown> {
-    /** Multi-select control that displays selected tags and opens the popup. */
-    control?: T
-    /** Search input used to filter or add selections. */
-    input?: T
-    /** Icon shown before the selected tags and search input. */
-    leading?: T
-    /** Button region that toggles the multi-select popup. */
-    trigger?: T
-    /** Button used to clear all selected values. */
-    clear?: T
-    /** Wrapper that lays out selected value tags inside the control. */
-    tagsContainer?: T
-    /** Selected value tag. */
-    tag?: T
-    /** Button used to remove one selected value. */
-    tagRemove?: T
-    /** Counter shown when selected tags exceed the visible limit. */
-    tagOverflow?: T
-  }
-  export interface OptionSlot<T = unknown> {
-    /** Message shown when filtering leaves no selectable options. */
-    empty?: T
-    /** Primary label text inside an option row. */
-    itemLabel?: T
-    /** Supporting description text inside an option row. */
-    itemDescription?: T
-    /** Trailing region inside an option row, usually for selection state or custom content. */
-    itemTrailing?: T
-  }
-
-  export interface OptionRenderProps<TItem extends Value = Value> {
-    /** Option and interaction state, or null when no option matches. */
-    option: (Item<TItem> & OptionRenderState) | null
-  }
-
-  export interface LabelRenderProps<TItem extends Value = Value> {
-    /** Option whose label is being rendered. */
-    option: Item<TItem>
-  }
-
-  export interface TagRenderProps<TItem extends Value = Value> {
-    /** Selected option represented by the tag. */
-    option: Item<TItem>
-    /** Removes this option from the selection. */
-    onClose: () => void
-  }
-
-  export interface EmptyRenderProps<TItem extends Value = Value> {
-    /** Current input/search text. */
-    inputValue: string
-    /** Whether the current filter has any matches. */
-    hasMatches: boolean
-    /** Currently selected values. */
-    selectedValues: TItem[]
-    /** Whether the maximum selection count has been reached. */
-    isAtMaxCount: boolean
-    /** Create a new tag (requires `allowCreate`). Returns true if successfully created. */
-    create: (value?: string) => boolean
-    /** Close the dropdown menu. */
-    close: () => void
-  }
-
-  export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, OptionSlot<T> {}
-
-  export type Variant = SelectControlVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-  export interface Item<Val extends Value = Value> extends BaseSelectT.Item<Val> {}
-
-  export interface Base<TItem extends Value = Value>
-    extends
-      Omit<
-        BaseSelectT.Base<Item<TItem>>,
-        | 'children'
-        | 'closeOnSelect'
-        | 'emptyRender'
-        | 'initialValue'
-        | 'onInputKeyDown'
-        | '_onFormReset'
-        | '_isValueControlled'
-        | 'onOptionSelect'
-        | 'optionRender'
-        | 'selectedValues'
-        | 'multiple'
-        | 'tabSelectionBehavior'
-        | 'virtualRender'
-        | 'scrollToItem'
-      >,
-      FormIdentityOptions,
-      FormValueOptions<TItem[]>,
-      FormRequiredOption,
-      FormDisableOption {
-    /** Called when the selection changes. */
-    onChange?: (value: NoInfer<TItem[]>) => void
-    /** Renders flattened group labels and options through a virtualization layer. */
-    virtualRender?: Component<VirtualRenderProps<TItem>>
-    /** Scrolls a highlighted option into view using its flattened entry index. */
-    scrollToItem?: (item: Item<TItem>, entryIndex: number) => void
-    /**
-     * Show a clear button when a value is selected.
-     * @default false
-     */
-    allowClear?: boolean
-    /** Called when clear is triggered. */
-    onClear?: () => void
-    /** Characters that split input into tokens and immediately select them. */
-    tokenSeparators?: string[]
-    /** Allow creating new tags on Enter when no match is found. */
-    allowCreate?: boolean
-    /** Maximum number of selected values (multiple/tags). */
-    maxCount?: number
-    /** Maximum visible tags before showing +N (visual only). */
-    maxTagCount?: number
-    /** Custom renderer for each option in the dropdown. Passes `null` for empty state. */
-    optionRender?: ComponentOrElement<OptionRenderProps<TItem>>
-    /** Custom renderer for each selected tag (multiple/tags). */
-    tagRender?: ComponentOrElement<TagRenderProps<TItem>>
-    /** Custom renderer for the option label text. */
-    labelRender?: ComponentOrElement<LabelRenderProps<TItem>>
-    /** Custom renderer for the empty state when current filtered result has no matches. */
-    emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
-    /**
-     * Placeholder text shown when no value is selected.
-     * @default ''
-     */
-    placeholder?: string
-    /** Whether the select is in a loading state. */
-    loading?: boolean
-    /**
-     * Icon shown during loading state.
-     * @default 'icon-loading'
-     */
-    loadingIcon?: IconT.Name
-    /** Icon shown before the input/value area. */
-    leadingIcon?: IconT.Name
-    /**
-     * Icon used when the action button opens the dropdown.
-     * @default 'icon-chevron-down'
-     */
-    trailingIcon?: IconT.Name
-    /**
-     * Icon used when the action button clears the selection.
-     * Tag remove buttons keep using this icon as well.
-     */
-    closeIcon?: IconT.Name
-  }
-
-  export type Props<TItem extends Value = Value> = BaseProps<
-    'div',
-    Base<TItem>,
-    Variant,
-    Classes,
-    Styles
-  >
-}
-
-export interface MultiSelectProps<
-  TItem extends MultiSelectT.Value = MultiSelectT.Value,
-> extends MultiSelectT.Props<TItem> {}
+export * from './multi-select.types.ts'
 
 function disableUnselectedOptionsWhenAtMax<
   TItem extends {
@@ -261,7 +78,25 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   props: MultiSelectProps<TItem>,
 ): JSX.Element {
   type Item = MultiSelectT.Item<TItem>
-  const [jsxProps, baseProps] = splitProps(props, [
+
+  const design = useMoraineDesign()
+  const multiSelectDesign = () => design().multiSelect
+
+  const [local, rest] = splitProps(props, [
+    'ref',
+    'inputRef',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'variant',
+    'placeholder',
+    'allowClear',
+    'loading',
+    'value',
+    'defaultValue',
+    'onChange',
+    'onClear',
     'optionRender',
     'tagRender',
     'labelRender',
@@ -270,19 +105,33 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
     'loadingIcon',
     'trailingIcon',
     'closeIcon',
+    'maxCount',
+    'maxTagCount',
+    'tokenSeparators',
+    'allowCreate',
+    'options',
   ])
-  const initialDefaultValues = untrack(() => normalizeSelectedValues(props.defaultValue))
-  const optionRender = createMemo(() => jsxProps.optionRender)
-  const tagRender = createMemo(() => jsxProps.tagRender)
-  const labelRender = createMemo(() => jsxProps.labelRender)
-  const emptyRender = createMemo(() => jsxProps.emptyRender)
-  const leadingIcon = createMemo(() => jsxProps.leadingIcon)
-  const loadingIcon = createMemo(() => jsxProps.loadingIcon)
-  const trailingIcon = createMemo(() => jsxProps.trailingIcon)
-  const closeIcon = createMemo(() => jsxProps.closeIcon || 'icon-close')
-  const rawOptions = createMemo(() => props.options ?? [])
+
+  const merged = mergeProps(
+    {
+      variant: 'outline' as const,
+    },
+    () => multiSelectDesign()?.defaultVariants,
+    local,
+  )
+
+  const initialDefaultValues = untrack(() => normalizeSelectedValues(merged.defaultValue))
+  const optionRender = createMemo(() => merged.optionRender)
+  const tagRender = createMemo(() => merged.tagRender)
+  const labelRender = createMemo(() => merged.labelRender)
+  const emptyRender = createMemo(() => merged.emptyRender)
+  const leadingIcon = createMemo(() => merged.leadingIcon)
+  const loadingIcon = createMemo(() => merged.loadingIcon)
+  const trailingIcon = createMemo(() => merged.trailingIcon)
+  const closeIcon = createMemo(() => merged.closeIcon || 'icon-close')
+  const rawOptions = createMemo(() => merged.options ?? [])
   const [rawSelectedValues, setSelectedValues] = useControllableValue<TItem[]>({
-    value: () => props.value,
+    value: () => merged.value,
     defaultValue: () => initialDefaultValues,
   })
   const [createdTags, setCreatedTags] = createSignal<NormalizedOption<Item>[]>([])
@@ -290,11 +139,11 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   const selectedValues = createMemo(() => normalizeSelectedValues(rawSelectedValues() ?? []))
 
   const isAtMaxCount = createMemo(() =>
-    props.maxCount === undefined ? false : selectedValues().length >= props.maxCount,
+    merged.maxCount === undefined ? false : selectedValues().length >= merged.maxCount,
   )
   const tokenSeparatorPattern = createMemo(() => {
     const separators = [
-      ...new Set(props.tokenSeparators?.filter((separator) => separator.length > 0) ?? []),
+      ...new Set(merged.tokenSeparators?.filter((separator) => separator.length > 0) ?? []),
     ].sort((left, right) => right.length - left.length)
     if (separators.length === 0) {
       return undefined
@@ -312,7 +161,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
     const selected = selectedValues()
     const atMax = isAtMaxCount()
 
-    if (!props.allowCreate && !props.tokenSeparators?.length) {
+    if (!merged.allowCreate && !merged.tokenSeparators?.length) {
       return disableUnselectedOptionsWhenAtMax(base, selected, atMax)
     }
 
@@ -328,7 +177,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       .filter((tag) => !existingValues.some((existingValue) => Object.is(existingValue, tag.value)))
       .map((tag) => tag.raw)
 
-    return disableUnselectedOptionsWhenAtMax([...newTags, ...base], selected, atMax)
+    return disableUnselectedOptionsWhenAtMax(newTags.concat(base), selected, atMax)
   })
 
   function getSelectedOptions(
@@ -336,7 +185,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   ): NormalizedOption<Item>[] {
     const fieldValue = api.field.value()
     const values =
-      props.value === undefined && Array.isArray(fieldValue)
+      merged.value === undefined && Array.isArray(fieldValue)
         ? normalizeSelectedValues(
             fieldValue.filter(
               (value): value is TItem => typeof value === 'string' || typeof value === 'number',
@@ -374,7 +223,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   ): void {
     const nextValue = normalizeSelectedValues(mapNormalizedListToRawValues(options) as TItem[])
     setSelectedValues(nextValue)
-    emitSelectValueChange(api.field, nextValue, props.onChange)
+    emitSelectValueChange(api.field, nextValue, merged.onChange)
   }
 
   function appendOptionIfAllowed(
@@ -389,7 +238,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       return { next: current, appended: false, blockedByMaxCount: false }
     }
 
-    if (props.maxCount !== undefined && current.length >= props.maxCount) {
+    if (merged.maxCount !== undefined && current.length >= merged.maxCount) {
       return { next: current, appended: false, blockedByMaxCount: true }
     }
 
@@ -438,7 +287,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       return { option: existing, blockedByMaxCount: false }
     }
 
-    if (props.maxCount !== undefined && current.length >= props.maxCount) {
+    if (merged.maxCount !== undefined && current.length >= merged.maxCount) {
       return { blockedByMaxCount: true }
     }
 
@@ -448,14 +297,14 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   function clearSelection(api: BaseSelectT.StateApi<Item>): void {
     const nextValue: TItem[] = []
     setSelectedValues(nextValue)
-    emitSelectValueChange(api.field, nextValue, props.onChange)
+    emitSelectValueChange(api.field, nextValue, merged.onChange)
     api.setInputValue('')
     api.close()
-    props.onClear?.()
+    merged.onClear?.()
   }
 
   function createTag(value: string | undefined, api: BaseSelectT.StateApi<Item>): boolean {
-    if (!props.allowCreate) {
+    if (!merged.allowCreate) {
       return false
     }
 
@@ -575,7 +424,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
         return
       }
 
-      if (props.allowCreate) {
+      if (merged.allowCreate) {
         createTag(text, api)
         event.preventDefault()
       }
@@ -630,23 +479,83 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
     handleMultipleChange(current.slice(0, -1), api)
   }
 
+  const resolved = resolveComponentStyle({
+    design: {
+      get classes() {
+        return multiSelectDesign()?.recipe({
+          variant: merged.variant,
+        })
+      },
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
+  const resolvedClasses = () => ({
+    content: resolved.slotClass('content'),
+    listbox: resolved.slotClass('listbox'),
+    item: resolved.slotClass('item'),
+    group: resolved.slotClass('group'),
+    label: resolved.slotClass('label'),
+    empty: resolved.slotClass('empty'),
+    itemLabel: resolved.slotClass('itemLabel'),
+    itemDescription: resolved.slotClass('itemDescription'),
+    itemTrailing: resolved.slotClass('itemTrailing'),
+  })
+
+  const resolvedStyles = () => ({
+    content: resolved.slotStyle('content'),
+    listbox: resolved.slotStyle('listbox'),
+    item: resolved.slotStyle('item'),
+    group: resolved.slotStyle('group'),
+    label: resolved.slotStyle('label'),
+    empty: resolved.slotStyle('empty'),
+    itemLabel: resolved.slotStyle('itemLabel'),
+    itemDescription: resolved.slotStyle('itemDescription'),
+    itemTrailing: resolved.slotStyle('itemTrailing'),
+  })
+
   function renderDefaultOption(
     option: (Item & MultiSelectT.OptionRenderState) | null,
   ): JSX.Element {
     return renderDefaultSelectOption({
       option,
-      classes: props.classes,
-      styles: props.styles,
+      classes: resolvedClasses(),
+      styles: resolvedStyles(),
       labelRender: labelRender(),
     })
   }
 
   return (
     <BaseSelect<Item>
-      {...baseProps}
+      {...rest}
+      ref={local.ref}
+      _defaultSize={merged.size ?? undefined}
+      _designRecipe={(args) =>
+        multiSelectDesign()?.recipe({
+          variant: merged.variant,
+          ...args,
+        })
+      }
+      _styleInputs={{
+        get instance() {
+          return {
+            class: local.class,
+            classes: local.classes,
+            style: local.style,
+            styles: local.styles,
+          }
+        },
+      }}
       options={options()}
       initialValue={initialDefaultValues}
-      _isValueControlled={props.value !== undefined}
+      _isValueControlled={merged.value !== undefined}
       multiple
       selectedValues={selectedValues()}
       closeOnSelect={false}
@@ -657,9 +566,9 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       }}
       _onFormReset={(api) => {
         const value =
-          props.value === undefined
+          merged.value === undefined
             ? [...initialDefaultValues]
-            : normalizeSelectedValues(props.value)
+            : normalizeSelectedValues(merged.value)
         setSelectedValues(value)
         setCreatedTags([])
         api.setInputValue('')
@@ -702,20 +611,22 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
         const selectedOptions = createMemo(() => getSelectedOptions(api))
         const visibleTagOptions = createMemo(() => {
           const currentSelectedOptions = selectedOptions()
-          if (props.maxTagCount === undefined) {
+          if (merged.maxTagCount === undefined) {
             return currentSelectedOptions
           }
-          return currentSelectedOptions.slice(0, props.maxTagCount)
+          return currentSelectedOptions.slice(0, merged.maxTagCount)
         })
         const hiddenTagCount = createMemo(() =>
-          props.maxTagCount === undefined
+          merged.maxTagCount === undefined
             ? 0
-            : Math.max(0, selectedOptions().length - props.maxTagCount),
+            : Math.max(0, selectedOptions().length - merged.maxTagCount),
         )
-        const isActionLoading = createMemo(() => Boolean(props.loading))
+        const isActionLoading = createMemo(() => Boolean(merged.loading))
         const isClearAction = createMemo(() =>
-          Boolean(!isActionLoading() && props.allowClear && selectedOptions().length > 0),
+          Boolean(!isActionLoading() && merged.allowClear && selectedOptions().length > 0),
         )
+
+        const controlResolved = api.resolved
 
         return (
           <div
@@ -723,16 +634,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
             data-disabled={api.field.disabled() ? '' : undefined}
             data-invalid={api.field.invalid() ? '' : undefined}
             data-required={api.field.required() ? '' : undefined}
-            style={props.styles?.control}
-            class={selectControlVariants(
-              {
-                variant: props.variant,
-                size: api.field.size(),
-                mode: 'multi',
-                search: api.isSearchable(),
-              },
-              props.classes?.control,
-            )}
+            {...controlResolved.slotClassAndStyle('control')}
             {...api.controlProps()}
           >
             <Show when={leadingIcon()}>
@@ -740,20 +642,12 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                 <Icon
                   name={icon()}
                   slotName="leading"
-                  style={props.styles?.leading}
-                  class={cn(SELECT_LEADING_ICON_CLASS, props.classes?.leading)}
+                  {...controlResolved.slotClassAndStyle('leading')}
                 />
               )}
             </Show>
 
-            <div
-              data-slot="tagsContainer"
-              style={props.styles?.tagsContainer}
-              class={cn(
-                'text-sm py-1.5 bg-transparent flex flex-1 flex-wrap gap-1 max-w-full select-none',
-                props.classes?.tagsContainer,
-              )}
-            >
+            <div data-slot="tagsContainer" {...controlResolved.slotClassAndStyle('tagsContainer')}>
               <For each={visibleTagOptions()}>
                 {(option) => {
                   const onClose = () => toggleOption(option, api)
@@ -768,32 +662,22 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                       <span
                         data-slot="tag"
                         title={option.key}
-                        style={props.styles?.tag}
-                        class={multiSelectTagVariants(
-                          { size: api.field.size() },
-                          props.classes?.tag,
-                        )}
+                        {...controlResolved.slotClassAndStyle('tag')}
                         onPointerDown={(event: PointerEvent) => {
                           event.preventDefault()
                           api.focusInput()
                         }}
                       >
-                        <span data-slot="label" class="min-w-0 truncate">
-                          {option.label}
-                        </span>
+                        <span data-slot="label">{option.label}</span>
 
                         <button
                           type="button"
                           data-slot="tagRemove"
                           aria-label={`Remove ${option.key}`}
-                          style={props.styles?.tagRemove}
+                          style={controlResolved.slotStyle('tagRemove')}
                           disabled={api.field.disabled()}
                           tabIndex={-1}
-                          class={cn(
-                            'p-0.5 appearance-none flex shrink-0 items-center justify-center -ms-1',
-                            api.field.disabled() ? 'pointer-events-none' : 'cursor-pointer',
-                            props.classes?.tagRemove,
-                          )}
+                          class={controlResolved.slotClass('tagRemove')}
                           onPointerDown={(event) => {
                             if (api.field.disabled()) {
                               return
@@ -810,10 +694,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                             onClose()
                           }}
                         >
-                          <Icon
-                            name={closeIcon()}
-                            class={cn('opacity-50', !api.field.disabled() && 'hover:opacity-100')}
-                          />
+                          <Icon name={closeIcon()} />
                         </button>
                       </span>
                     </Show>
@@ -822,31 +703,21 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               </For>
 
               <Show when={hiddenTagCount() > 0}>
-                <span
-                  data-slot="tagOverflow"
-                  style={props.styles?.tagOverflow}
-                  class={multiSelectTagOverflowVariants(
-                    { size: api.field.size() },
-                    props.classes?.tagOverflow,
-                  )}
-                >
+                <span data-slot="tagOverflow" {...controlResolved.slotClassAndStyle('tagOverflow')}>
                   +{hiddenTagCount()}
                 </span>
               </Show>
 
               <input
+                ref={(element) => {
+                  callRef(api.inputProps().ref, element)
+                  callRef(local.inputRef, element)
+                }}
                 data-slot="input"
-                style={props.styles?.input}
-                class={selectInputVariants(
-                  {
-                    mode: 'multi',
-                    size: api.field.size(),
-                  },
-                  !api.isSearchable() && 'cursor-pointer',
-                  props.classes?.input,
-                )}
+                data-searchable={api.isSearchable() ? '' : undefined}
+                {...controlResolved.slotClassAndStyle('input')}
                 {...api.inputProps()}
-                placeholder={selectedOptions().length > 0 ? '' : props.placeholder}
+                placeholder={selectedOptions().length > 0 ? '' : merged.placeholder}
                 readOnly={!api.isSearchable() ? true : undefined}
                 tabIndex={api.isSearchable() ? undefined : -1}
                 onInput={(event) => {
@@ -890,18 +761,12 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               aria-busy={isActionLoading() || undefined}
               data-loading={isActionLoading() ? '' : undefined}
               tabIndex={-1}
-              class={cn(
-                'border border-transparent rounded-md inline-flex shrink-0 select-none items-center justify-center',
-                isClearAction() ? SELECT_CLEAR_ACTION_CLASS : undefined,
-                isActionLoading()
-                  ? 'cursor-wait pointer-events-none'
-                  : api.field.disabled()
-                    ? 'pointer-events-none'
-                    : 'cursor-pointer',
-                props.classes?.trigger,
-                isClearAction() ? props.classes?.clear : undefined,
-              )}
-              style={isClearAction() ? props.styles?.clear : props.styles?.trigger}
+              class={controlResolved.slotClass(isClearAction() ? 'clear' : 'trigger')}
+              style={
+                isClearAction()
+                  ? controlResolved.slotStyle('clear')
+                  : controlResolved.slotStyle('trigger')
+              }
               disabled={api.field.disabled() || isActionLoading()}
               onPointerDown={(event) => {
                 if (api.field.disabled() || isActionLoading()) {
@@ -934,10 +799,6 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                       ? (closeIcon() ?? 'icon-close')
                       : (trailingIcon() ?? 'icon-chevron-down')
                 }
-                class={cn(
-                  'text-muted-foreground opacity-80',
-                  isActionLoading() && 'effect-loading',
-                )}
                 data-loading={isActionLoading() ? '' : undefined}
               />
             </button>

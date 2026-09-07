@@ -9,6 +9,20 @@
   },
   "slots": [
     {
+      "name": "positioner",
+      "description": "Positioning wrapper around the tooltip surface.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "trigger",
+      "description": "Element that opens the tooltip.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
       "name": "content",
       "description": "Tooltip bubble positioned next to its trigger.",
       "cssVariables": [],
@@ -42,19 +56,8 @@
       {
         "name": "children",
         "required": false,
-        "type": "((props: OverlayTriggerProps) => JSX.Element) | undefined",
-        "description": "Render the tooltip trigger as a single HTMLElement root."
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "TooltipT.Classes | undefined"
+        "type": "JSX.Element",
+        "description": "Composed trigger and content primitives."
       },
       {
         "name": "closeDelay",
@@ -98,19 +101,6 @@
         "defaultValue": "300"
       },
       {
-        "name": "invert",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to use the inverted foreground-on-background color treatment.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "kbds",
-        "required": false,
-        "type": "string[] | undefined",
-        "description": "Keyboard shortcuts to display next to the text."
-      },
-      {
         "name": "onOpenChange",
         "required": false,
         "type": "((open: boolean) => void) | undefined",
@@ -135,36 +125,179 @@
         "type": "Placement | undefined",
         "description": "Preferred content placement relative to the trigger.",
         "defaultValue": "top"
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "side",
-        "required": false,
-        "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined",
-        "description": "Visual side styles applied after the positioned placement is resolved.",
-        "defaultValue": "top"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "TooltipT.Styles | undefined"
-      },
-      {
-        "name": "text",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Primary text content or element to display."
       }
     ],
     "inherited": []
-  }
+  },
+  "primitives": [
+    {
+      "component": {
+        "key": "tooltip-trigger",
+        "name": "Tooltip.Trigger",
+        "category": "overlays",
+        "polymorphic": true,
+        "sourcePath": "src/overlays/tooltip/tooltip.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "as",
+            "required": false,
+            "type": "T | undefined",
+            "description": "Element or component to render as.",
+            "defaultValue": "button"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Trigger label and visual content."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "disabled",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether this trigger is disabled."
+          },
+          {
+            "name": "onBlur",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, FocusEvent> | undefined"
+          },
+          {
+            "name": "onClick",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onContextMenu",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onKeyDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onKeyUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onPointerCancel",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerMove",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[T] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "type",
+            "required": false,
+            "type": "T extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : T extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : T extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "tooltip-content",
+        "name": "Tooltip.Content",
+        "category": "overlays",
+        "polymorphic": false,
+        "sourcePath": "src/overlays/tooltip/tooltip.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Text content when text is undefined."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "classes",
+            "required": false,
+            "type": "TooltipT.Classes | undefined"
+          },
+          {
+            "name": "invert",
+            "required": false,
+            "type": "boolean | \"true\" | \"false\" | null | undefined"
+          },
+          {
+            "name": "kbds",
+            "required": false,
+            "type": "string[] | undefined",
+            "description": "Keyboard shortcuts to display next to the text."
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "side",
+            "required": false,
+            "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | null | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "styles",
+            "required": false,
+            "type": "TooltipT.Styles | undefined"
+          },
+          {
+            "name": "text",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Primary text content or element to display."
+          }
+        ],
+        "inherited": []
+      }
+    }
+  ]
 }

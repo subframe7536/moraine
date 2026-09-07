@@ -1,14 +1,12 @@
-import type { Preset, SourceCodeTransformer } from '@subf/unocss'
+import type { Preset } from '@subf/unocss'
 
 import {
-  MORAINE_ANIM_DUR_VAR_ENTER,
-  MORAINE_EASE_OUT,
   getMoraineAnimCounts,
   getMoraineAnimDurations,
   getMoraineAnimTimingFns,
   toUnocssKeyframes,
-} from '../shared/style/animations'
-import { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons'
+} from '../shared/style/animations.ts'
+import { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons.ts'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
@@ -16,48 +14,15 @@ import {
   MORAINE_SHADOW,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
-} from '../shared/style/theme'
-
-import { transformerInjectCompileClass } from './inject-compile-class'
-import { transformerInjectPrefix } from './inject-prefix'
-import type { TransformerInjectPrefixOption } from './inject-prefix'
+} from '../shared/style/theme.ts'
 
 export { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS }
 
-export type ComponentLayerStrategy = 'hash' | 'prefix'
-
-export interface ComponentLayerOptions extends Partial<
-  Omit<TransformerInjectPrefixOption, 'prefix'>
-> {
-  /**
-   * Controls how component-owned utilities are isolated from consumer utilities.
-   *
-   * - `prefix`: prefixes component utilities with `utilityPrefix` and keeps them in the
-   *   dedicated `mo-component` layer.
-   * - `hash`: compiles component utilities into internal hash classes in the
-   *   `mo-component` layer.
-   *
-   * `prefix` is the default because it keeps the generated output readable while still
-   * making component styles override-safe out of the box.
-   *
-   * @default 'prefix'
-   */
-  strategy?: ComponentLayerStrategy
-  /**
-   * Prefix used for component-owned utilities when `strategy` is `prefix`.
-   * @default 'mo-'
-   */
-  utilityPrefix?: `${string}-`
-}
-
-export interface PresetThemeOptions extends Pick<TransformerInjectPrefixOption, 'beforeTransform'> {
+export interface PresetThemeOptions {
   /**
    * Controls whether to inject default global styles for CSS variables and base styles.
    */
   globalStyles?: boolean
-  wind3?: boolean
-  icons?: Partial<Record<keyof typeof DEFAULT_ICONS, string>>
-  enableComponentLayer?: boolean | ComponentLayerOptions
   /**
    * Generates semantic color CSS variables from the grouped `MORAINE_COLORS` shape.
    * No color variables are emitted when this option is omitted.
@@ -109,105 +74,14 @@ export interface MoraineColorVariablesOptions {
   lightSelector?: string
 }
 
-const MORAINE_COMPONENT_LAYER = 'mo-component'
-const DEFAULT_COMPONENT_UTILITY_PREFIX = 'mo-'
-const MORAINE_HASH_TRIGGER = ':uno-mo:'
-const MORAINE_HASH_CLASS_PREFIX = 'moc-'
-const ANIMATION_SIDES = ['top', 'right', 'bottom', 'left'] as const
-type AnimationSide = (typeof ANIMATION_SIDES)[number]
-const MORAINE_ENTER_ANIMATION_NAME = 'mo-enter'
-const MORAINE_EXIT_ANIMATION_NAME = 'mo-exit'
 const RE_ATTR = /^(data|aria)-(\w+):/
-type SemanticAnimationTarget = 'overlay' | 'popup' | 'menu' | 'popover' | 'tooltip' | 'sheet'
-
-const ANIMATION_SIDE_AXES: Record<AnimationSide, 'x' | 'y'> = {
-  top: 'y',
-  right: 'x',
-  bottom: 'y',
-  left: 'x',
-}
-
-const ANIMATION_SIDE_SIGNS: Record<AnimationSide, '' | '-'> = {
-  top: '-',
-  right: '',
-  bottom: '',
-  left: '-',
-}
-
-const ANIMATION_SIDE_OPPOSITES: Record<AnimationSide, AnimationSide> = {
-  top: 'bottom',
-  right: 'left',
-  bottom: 'top',
-  left: 'right',
-}
-
-interface SemanticAnimationConfig {
-  offsetRem?: string
-  scale?: string
-  oppositeSide?: boolean
-  withSide?: boolean
-}
-
-const SEMANTIC_ANIMATION_CONFIGS: Record<SemanticAnimationTarget, SemanticAnimationConfig> = {
-  overlay: { withSide: false },
-  popup: { scale: '0.95', withSide: false },
-  menu: { offsetRem: '0.25', scale: '0.95', oppositeSide: true },
-  popover: { offsetRem: '0.5', scale: '0.95', oppositeSide: true },
-  tooltip: { offsetRem: '0.25', scale: '0.95', oppositeSide: true },
-  sheet: { offsetRem: '2.5' },
-}
-
-function createSemanticAnimationShortcuts(
-  name: SemanticAnimationTarget,
-  config: SemanticAnimationConfig,
-): Record<string, string> {
-  const inScale = config.scale ? ` [--mo-enter-scale:${config.scale}]` : ''
-  const outScale = config.scale ? ` [--mo-exit-scale:${config.scale}]` : ''
-  const sideShortcuts =
-    config.withSide === false || !config.offsetRem
-      ? {}
-      : Object.fromEntries(
-          ANIMATION_SIDES.map((side) => {
-            const motionSide = config.oppositeSide ? ANIMATION_SIDE_OPPOSITES[side] : side
-            const axis = ANIMATION_SIDE_AXES[motionSide]
-            const sign = ANIMATION_SIDE_SIGNS[motionSide]
-            const value = `${sign}${config.offsetRem}rem`
-            return [
-              `animate-${name}-side-${side}`,
-              `[--mo-enter-translate-${axis}:${value}] [--mo-exit-translate-${axis}:${value}]`,
-            ] as const
-          }),
-        )
-
-  return {
-    [`animate-${name}-in`]: `animate-${MORAINE_ENTER_ANIMATION_NAME} [--mo-enter-opacity:0]${inScale}`,
-    [`animate-${name}-out`]: `animate-${MORAINE_EXIT_ANIMATION_NAME} [--mo-exit-opacity:0]${outScale}`,
-    ...sideShortcuts,
-  }
-}
-
-const SEMANTIC_ANIMATION_SHORTCUTS: Record<string, string> = {
-  ...createSemanticAnimationShortcuts('overlay', SEMANTIC_ANIMATION_CONFIGS.overlay),
-  ...createSemanticAnimationShortcuts('popup', SEMANTIC_ANIMATION_CONFIGS.popup),
-  ...createSemanticAnimationShortcuts('menu', SEMANTIC_ANIMATION_CONFIGS.menu),
-  ...createSemanticAnimationShortcuts('popover', SEMANTIC_ANIMATION_CONFIGS.popover),
-  ...createSemanticAnimationShortcuts('tooltip', SEMANTIC_ANIMATION_CONFIGS.tooltip),
-  ...createSemanticAnimationShortcuts('sheet', SEMANTIC_ANIMATION_CONFIGS.sheet),
-}
 
 interface ResolvedPresetThemeOptions {
-  wind3: boolean
   globalStyles: boolean
   colorVariables?: MoraineColorVariablesOptions & {
     darkSelector: string
     lightSelector: string
   }
-  icons: Partial<Record<keyof typeof DEFAULT_ICONS, string>>
-  enableComponentLayer: boolean
-  strategy: ComponentLayerStrategy
-  utilityPrefix: `${string}-`
-  idFilter: (id: string) => boolean
-  beforeTransform?: TransformerInjectPrefixOption['beforeTransform']
 }
 
 function assertColorAdjustment(value: number, label: string): void {
@@ -395,83 +269,10 @@ function createColorVariablesCSS(options?: ResolvedPresetThemeOptions['colorVari
     .join('\n\n')
 }
 
-let compileClassTransformerPromise: Promise<SourceCodeTransformer> | undefined
-
-async function loadHashClassTransformer(): Promise<SourceCodeTransformer> {
-  if (compileClassTransformerPromise) {
-    return compileClassTransformerPromise
-  }
-
-  const tryLoad = async (): Promise<SourceCodeTransformer> => {
-    const transformerCompileClassOptions = {
-      trigger: MORAINE_HASH_TRIGGER,
-      classPrefix: MORAINE_HASH_CLASS_PREFIX,
-      layer: MORAINE_COMPONENT_LAYER,
-    }
-    // 1. Try @subf/unocss (named export)
-    try {
-      const { transformerCompileClass } = await import('@subf/unocss')
-      return transformerCompileClass(transformerCompileClassOptions)
-    } catch {}
-
-    // 2. Try unocss (named export)
-    try {
-      // @ts-expect-error - unocss will not installed in the repo
-      const { transformerCompileClass } = await import(/* @vite-ignore */ 'unocss')
-      return transformerCompileClass(transformerCompileClassOptions)
-    } catch {}
-
-    // 3. Try @unocss/transformer-compile-class (default export)
-    try {
-      const { default: transformerCompileClass } = await import(
-        // @ts-expect-error - @unocss/transformer-compile-class will not installed in the repo
-        /* @vite-ignore */ '@unocss/transformer-compile-class'
-      )
-      return transformerCompileClass(transformerCompileClassOptions)
-    } catch {}
-
-    throw new Error(
-      '[preset-moraine] `enableComponentLayer.strategy: "hash"` requires `@unocss/transformer-compile-class`. Install it or switch to `strategy: "prefix"`.',
-    )
-  }
-
-  compileClassTransformerPromise = tryLoad()
-  try {
-    return await compileClassTransformerPromise
-  } catch (error) {
-    compileClassTransformerPromise = undefined
-    throw error
-  }
-}
-
-function createHashClassTransformer(idFilter: (id: string) => boolean): SourceCodeTransformer {
-  return {
-    name: 'transformer-moraine-hash-class',
-    enforce: 'pre',
-    idFilter,
-    async transform(code, id, context) {
-      const transformer = await loadHashClassTransformer()
-
-      return transformer.transform?.(code, id, context)
-    },
-  }
-}
-
 export function resolvePresetThemeOptions(
   options?: PresetThemeOptions,
 ): ResolvedPresetThemeOptions {
-  const raw = options?.enableComponentLayer ?? false
-  const layerOpts: ComponentLayerOptions | undefined =
-    typeof raw === 'object' && raw !== null ? raw : raw ? {} : undefined
-
   return {
-    wind3: options?.wind3 ?? false,
-    icons: options?.icons ?? {},
-    enableComponentLayer: layerOpts !== undefined,
-    strategy: layerOpts?.strategy ?? 'prefix',
-    utilityPrefix: layerOpts?.utilityPrefix ?? DEFAULT_COMPONENT_UTILITY_PREFIX,
-    idFilter: layerOpts?.idFilter ?? ((id: string) => id.includes('node_modules/moraine/')),
-    beforeTransform: layerOpts?.beforeTransform ?? options?.beforeTransform,
     globalStyles: options?.globalStyles ?? true,
     colorVariables: options?.colorVariables
       ? {
@@ -483,32 +284,74 @@ export function resolvePresetThemeOptions(
   }
 }
 
+function resolveTranslateValue(value: string, theme: Record<string, any>): string | undefined {
+  if (value.startsWith('[') && value.endsWith(']')) {
+    return value.slice(1, -1)
+  }
+  if (value === 'full') {
+    return '100%'
+  }
+  if (value === 'px') {
+    return '1px'
+  }
+  if (value === '0') {
+    return '0px'
+  }
+  if (value.includes('/')) {
+    const [numerator, denominator] = value.split('/')
+    const n = Number(numerator)
+    const d = Number(denominator)
+    if (!Number.isNaN(n) && !Number.isNaN(d) && d !== 0) {
+      return `${(n / d) * 100}%`
+    }
+  }
+  const themeVal = theme.spacing?.[value] ?? theme.width?.[value]
+  if (themeVal) {
+    return themeVal
+  }
+  const num = Number(value)
+  if (!Number.isNaN(num)) {
+    return `${num * 0.25}rem`
+  }
+  return undefined
+}
+
+function resolveScaleValue(value: string): string | undefined {
+  if (value.startsWith('[') && value.endsWith(']')) {
+    return value.slice(1, -1)
+  }
+  const num = Number(value)
+  if (!Number.isNaN(num)) {
+    return `${num / 100}`
+  }
+  return undefined
+}
+
+function resolveOpacityValue(value: string): string | undefined {
+  if (value.startsWith('[') && value.endsWith(']')) {
+    return value.slice(1, -1)
+  }
+  const num = Number(value)
+  if (!Number.isNaN(num)) {
+    return num === 0 ? '0' : `${num / 100}`
+  }
+  return undefined
+}
+
+function resolveRotateValue(value: string): string | undefined {
+  if (value.startsWith('[') && value.endsWith(']')) {
+    return value.slice(1, -1)
+  }
+  const num = Number(value)
+  if (!Number.isNaN(num)) {
+    return `${num}deg`
+  }
+  return undefined
+}
+
 export function presetMoraine(options?: PresetThemeOptions): Preset {
   const normalized = resolvePresetThemeOptions(options)
   const colorVariablesCSS = createColorVariablesCSS(normalized.colorVariables)
-
-  const isHash = normalized.strategy === 'hash'
-  const transformers: Preset['transformers'] =
-    normalized.enableComponentLayer && isHash
-      ? [
-          transformerInjectCompileClass({
-            trigger: MORAINE_HASH_TRIGGER,
-            idFilter: normalized.idFilter,
-            beforeTransform: normalized.beforeTransform,
-          }),
-          createHashClassTransformer(normalized.idFilter),
-        ]
-      : normalized.enableComponentLayer
-        ? [
-            transformerInjectPrefix({
-              prefix: normalized.utilityPrefix,
-              idFilter: normalized.idFilter,
-              beforeTransform: normalized.beforeTransform,
-            }),
-          ]
-        : []
-
-  const usePrefixLayer = normalized.enableComponentLayer && normalized.strategy === 'prefix'
   const variants: Preset['variants'] = [
     (matcher) => {
       const match = matcher.match(RE_ATTR)
@@ -520,61 +363,78 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
         selector: (s) => `${s}[${match[1]}-${match[2]}]`,
       }
     },
-    ...(usePrefixLayer
-      ? [
-          (matcher: string) => {
-            if (!matcher.startsWith(normalized.utilityPrefix)) {
-              return matcher
-            }
-            return {
-              matcher: matcher.slice(normalized.utilityPrefix.length),
-              layer: MORAINE_COMPONENT_LAYER,
-            }
-          },
-        ]
-      : []),
   ]
-
-  function createLength(theme: { spacing?: any }, num: string | number) {
-    const base = normalized.wind3 ? (theme.spacing?.[0] ?? '0.25rem') : 'var(--spacing)'
-    return `calc(${base} * ${num})`
-  }
-
-  const themeSpacing = normalized.wind3
-    ? {
-        borderRadius: MORAINE_RADIUS,
-        boxShadow: MORAINE_SHADOW,
-        fontFamily: MORAINE_FONT,
-        width: MORAINE_WIDTH,
-        zIndex: MORAINE_Z_INDEX,
-      }
-    : {
-        radius: MORAINE_RADIUS,
-        shadow: MORAINE_SHADOW,
-        font: MORAINE_FONT,
-        spacing: MORAINE_WIDTH,
-        zIndex: MORAINE_Z_INDEX,
-      }
-
-  const themeTransition = normalized.wind3
-    ? {
-        duration: { DEFAULT: MORAINE_ANIM_DUR_VAR_ENTER },
-        easing: { DEFAULT: MORAINE_EASE_OUT },
-      }
-    : {
-        default: {
-          transition: {
-            duration: MORAINE_ANIM_DUR_VAR_ENTER,
-            timingFunction: MORAINE_EASE_OUT,
-          },
-        },
-      }
 
   return {
     name: 'preset-theme-moraine',
+    rules: [
+      [
+        /^(enter|exit)-opacity-(.+)$/,
+        ([, type, value]) => {
+          if (value === undefined) {
+            return
+          }
+          const resolved = resolveOpacityValue(value)
+          if (resolved !== undefined) {
+            return { [`--mo-${type}-opacity`]: resolved }
+          }
+        },
+        { autocomplete: ['(enter|exit)-opacity-<percent>'] },
+      ],
+      [
+        /^(enter|exit)-scale-(.+)$/,
+        ([, type, value]) => {
+          if (value === undefined) {
+            return
+          }
+          const resolved = resolveScaleValue(value)
+          if (resolved !== undefined) {
+            return { [`--mo-${type}-scale`]: resolved }
+          }
+        },
+        { autocomplete: ['(enter|exit)-scale-<percent>'] },
+      ],
+      [
+        /^(enter|exit)-translate-([xy])-(.+)$/,
+        ([, type, axis, value], { theme }) => {
+          if (value === undefined) {
+            return
+          }
+          const resolved = resolveTranslateValue(value, theme as Record<string, any>)
+          if (resolved !== undefined) {
+            return { [`--mo-${type}-translate-${axis}`]: resolved }
+          }
+        },
+        { autocomplete: ['(enter|exit)-translate-(x|y)-<num>'] },
+      ],
+      [
+        /^(enter|exit)-rotate-(.+)$/,
+        ([, type, value]) => {
+          if (value === undefined) {
+            return
+          }
+          const resolved = resolveRotateValue(value)
+          if (resolved !== undefined) {
+            return { [`--mo-${type}-rotate`]: resolved }
+          }
+        },
+        { autocomplete: ['(enter|exit)-rotate-<percent>'] },
+      ],
+    ],
     theme: {
-      ...themeSpacing,
-      ...themeTransition,
+      // Wind4 theme keys
+      radius: MORAINE_RADIUS,
+      shadow: MORAINE_SHADOW,
+      font: MORAINE_FONT,
+      spacing: MORAINE_WIDTH,
+
+      // Wind3 theme keys
+      borderRadius: MORAINE_RADIUS,
+      boxShadow: MORAINE_SHADOW,
+      fontFamily: MORAINE_FONT,
+      width: MORAINE_WIDTH,
+      zIndex: MORAINE_Z_INDEX,
+
       colors: MORAINE_COLORS,
       animation: {
         keyframes: toUnocssKeyframes(),
@@ -583,74 +443,12 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
         counts: getMoraineAnimCounts(),
       },
     },
-    layers: {
-      [MORAINE_COMPONENT_LAYER]: -1,
-      default: 1,
-    },
-    transformers,
     variants,
     shortcuts: [
-      ['effect-fv', 'outline-none ring-3px ring-ring/50'],
-      ['effect-fv-border', 'outline-none border-ring ring-3px ring-ring/50'],
-      ['effect-dis', 'opacity-64 pointer-events-none'],
-      ['effect-loading', 'cursor-wait opacity-80 animate-spin'],
-      [
-        'effect-invalid',
-        'border-destructive ring-3px ring-destructive/20 dark:(border-destructive/50 ring-destructive/40)',
-      ],
-      ['transition-bg', '[transition-property:background-color]'],
-      ['style-placeholder', 'placeholder:(text-muted-foreground select-none)'],
-      [
-        'style-input-number',
-        '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
-      ],
-      [
-        'style-accordion-content',
-        '[&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4',
-      ],
-      ['surface-overlay', 'border border-border shadow-md'],
-      ['hidden-hitless', 'opacity-0 pointer-events-none'],
-      ['rm-side-b', '[&>[data-slot=sidebar]]:border-0!'],
-      ...Object.entries(SEMANTIC_ANIMATION_SHORTCUTS).map(
-        ([name, value]) => [name, value] as [string, string],
-      ),
       ...Object.entries(MORAINE_Z_INDEX).map(
         ([name, value]) => [`z-${name}`, `z-${value}`] as [string, string],
       ),
       ...DEFAULT_ICON_SHORTCUTS,
-    ],
-    rules: [
-      [
-        /var-progress-([\d.]+)/,
-        ([, num], { theme }) => ({
-          '--p-size': createLength(theme, num!),
-        }),
-      ],
-      [
-        /var-stepper-([\d.]+)-([\d.]+)-([\d.]+)-([\d.]+)/,
-        ([, triggerSize, separatorOffset, gap, verticalPt], { theme }) => ({
-          '--st-size': createLength(theme, triggerSize!),
-          '--st-sep-x': createLength(theme, separatorOffset!),
-          '--st-sep-top': createLength(theme, Number(triggerSize) + 1),
-          '--st-gap': createLength(theme, gap!),
-          '--st-pt': createLength(theme, verticalPt!),
-        }),
-      ],
-      [
-        /var-slider-bold-([\d.]+)-([\d.]+)-([\d.]+)/,
-        ([, size, len, offset]) => ({
-          '--s-size': `${size}px`,
-          '--s-len': `${len}px`,
-          '--s-offset': `${offset}px`,
-          '--s-pos': `max(${offset}px, calc(100% - ${Number(offset) * 2}px))`,
-        }),
-      ],
-      [
-        /var-slider-([\d.]+)/,
-        ([, num]) => ({
-          '--s-size': `${num}px`,
-        }),
-      ],
     ],
     preflights: [
       {

@@ -1,5 +1,8 @@
-import type { ClassValue } from 'cls-variant'
 import type { Component, ComponentProps, JSX, ValidComponent } from 'solid-js'
+
+import type { ClassValue } from './style/recipe.ts'
+
+export type { ClassValue } from './style/recipe.ts'
 
 export type SlotClassValue = ClassValue
 
@@ -49,12 +52,14 @@ type ComponentBaseProps<Base, Variant, Classes, Styles> = Base &
     style?: SlotStyleValue
   } & ([Classes] extends [never]
     ? {}
-    : {
-        /** Classes applied to the component slots. */
-        classes?: Classes
-        /** Styles applied to the component slots. */
-        styles?: Styles
-      })
+    : [Styles] extends [never]
+      ? {}
+      : {
+          /** Classes applied to the component slots. */
+          classes?: Classes
+          /** Styles applied to the component slots. */
+          styles?: Styles
+        })
 
 type RootProps<T extends ValidComponent> = T extends Tags
   ? MoraineTypeConfig extends { enableRootAutocomplete: true }

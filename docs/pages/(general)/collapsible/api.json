@@ -10,21 +10,24 @@
   "slots": [
     {
       "name": "root",
-      "description": "Container that owns the trigger and expandable content state.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
     },
     {
       "name": "trigger",
-      "description": "Button users activate to toggle the content visibility.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "contentWrapper",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
     },
     {
       "name": "content",
-      "description": "Region that is mounted for the expanded collapsible content.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []

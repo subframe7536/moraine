@@ -2,8 +2,13 @@ import { render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { Avatar } from './avatar'
-import { AvatarGroup } from './avatar-group'
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
+import { AvatarGroup } from './avatar-group.tsx'
+import { Avatar } from './avatar.tsx'
+
+const officialDesign = createDesign()
 
 type MockImageOutcome = 'pending' | 'success' | 'error' | 'cached-success' | 'cached-error'
 
@@ -61,6 +66,22 @@ afterEach(() => {
 })
 
 describe('Avatar', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = render(() => (
+      <>
+        <Avatar size="sm" fallback="i-lucide-user" badge="i-lucide-check" />
+        <AvatarGroup size="sm" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
+      </>
+    ))
+
+    const avatarRoot = screen.container.querySelector('[data-slot="root"]')
+    expect(avatarRoot?.className).toBe('')
+    const badge = screen.container.querySelector('[data-slot="badge"]')
+    expect(badge?.className).toBe('')
+    const groupRoot = screen.container.querySelectorAll('[data-slot="root"]')[1]
+    expect(groupRoot?.className).toBe('')
+  })
+
   test('renders nothing when avatar group items is undefined or empty', () => {
     const screen = render(() => (
       <>
@@ -88,7 +109,7 @@ describe('Avatar', () => {
     const fallback = screen.container.querySelector('[data-slot="fallback"]')
 
     expect(root?.getAttribute('data-status')).toBe('loading')
-    expect(image?.className).toContain('hidden-hitless')
+    expect(image?.getAttribute('data-status')).toBe('loading')
     expect(image?.getAttribute('aria-hidden')).toBe('true')
     expect(fallback?.textContent).toBe('MR')
   })
@@ -106,8 +127,8 @@ describe('Avatar', () => {
     const image = screen.container.querySelector('[data-slot="image"]')
     const fallback = screen.container.querySelector('[data-slot="fallback"]')
     expect(image?.getAttribute('src')).toContain('/loaded.png')
-    expect(image?.className).toContain('opacity-100')
-    expect(fallback?.className).toContain('hidden-hitless')
+    expect(image?.getAttribute('data-status')).toBe('loaded')
+    expect(fallback?.getAttribute('data-status')).toBe('loaded')
     expect(fallback?.getAttribute('aria-hidden')).toBe('true')
   })
 
@@ -154,12 +175,12 @@ describe('Avatar', () => {
 
   test('renders badge and supports four corner positions', () => {
     const screen = render(() => (
-      <>
+      <MoraineProvider design={officialDesign}>
         <Avatar badge="i-lucide-check" badgePosition="top-left" />
         <Avatar badge="i-lucide-check" badgePosition="top-right" />
         <Avatar badge="i-lucide-check" badgePosition="bottom-left" />
         <Avatar badge="i-lucide-check" badgePosition="bottom-right" />
-      </>
+      </MoraineProvider>
     ))
 
     const badges = Array.from(screen.container.querySelectorAll('[data-slot="badge"]'))
@@ -175,7 +196,11 @@ describe('Avatar', () => {
   })
 
   test('keeps badge visible by not clipping avatar root overflow', () => {
-    const screen = render(() => <Avatar badge="i-lucide-check" />)
+    const screen = render(() => (
+      <MoraineProvider design={officialDesign}>
+        <Avatar badge="i-lucide-check" />
+      </MoraineProvider>
+    ))
     const root = screen.container.querySelector('[data-slot="root"]')
 
     expect(root?.className).toContain('overflow-visible')
@@ -184,10 +209,10 @@ describe('Avatar', () => {
 
   test('supports sm and lg size variants for single avatars', () => {
     const screen = render(() => (
-      <>
+      <MoraineProvider design={officialDesign}>
         <Avatar size="sm" fallback="i-lucide-user" badge="i-lucide-check" />
         <Avatar size="lg" fallback="i-lucide-user" badge="i-lucide-check" />
-      </>
+      </MoraineProvider>
     ))
 
     const roots = Array.from(screen.container.querySelectorAll('[data-slot="root"]'))
@@ -363,7 +388,11 @@ describe('Avatar', () => {
   })
 
   test('keeps badge icons passive and creates no internal tab stop', () => {
-    const screen = render(() => <Avatar badge="i-lucide-check" text="MR" />)
+    const screen = render(() => (
+      <MoraineProvider design={officialDesign}>
+        <Avatar badge="i-lucide-check" text="MR" />
+      </MoraineProvider>
+    ))
     const badge = screen.container.querySelector('[data-slot="badge"]')
 
     expect(badge?.className).toContain('pointer-events-none')
@@ -422,7 +451,9 @@ describe('Avatar', () => {
 
   test('renders avatar group with items + max', () => {
     const screen = render(() => (
-      <AvatarGroup max={2} items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }, { text: 'D' }]} />
+      <MoraineProvider design={officialDesign}>
+        <AvatarGroup max={2} items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }, { text: 'D' }]} />
+      </MoraineProvider>
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]')
@@ -460,10 +491,10 @@ describe('Avatar', () => {
 
   test('supports sm and lg size variants for avatar groups', () => {
     const screen = render(() => (
-      <>
+      <MoraineProvider design={officialDesign}>
         <AvatarGroup size="sm" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
         <AvatarGroup size="lg" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
-      </>
+      </MoraineProvider>
     ))
 
     const groupCounts = Array.from(screen.container.querySelectorAll('[data-slot="count"]'))
@@ -536,5 +567,69 @@ describe('Avatar', () => {
     expect(root?.style.width).toBe('200px')
     expect(item?.style.width).toBe('200px')
     expect(count?.style.width).toBe('200px')
+  })
+
+  test('keeps group root overrides off child avatars', () => {
+    const screen = render(() => (
+      <AvatarGroup
+        items={[{ text: 'A' }]}
+        classes={{ root: 'group-root', item: 'group-item', fallback: 'group-fallback' }}
+      />
+    ))
+
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
+    const item = screen.container.querySelector<HTMLElement>('[data-slot="item"]')
+    const fallback = screen.container.querySelector<HTMLElement>('[data-slot="fallback"]')
+
+    expect(root?.className).toContain('group-root')
+    expect(item?.className).toContain('group-item')
+    expect(item?.className).not.toContain('group-root')
+    expect(fallback?.className).toContain('group-fallback')
+  })
+
+  describe('Provider Precedence', () => {
+    test('Avatar and AvatarGroup inherit provider configuration with instance overrides', () => {
+      const screen = render(() => (
+        <MoraineProvider
+          design={createDesign({
+            avatar: {
+              defaultVariants: { size: 'lg' },
+              base: {
+                root: 'p-slot-root m-0.5 text-red-500',
+                fallback: 'p-fallback text-blue-500',
+              },
+            },
+            avatarGroup: {
+              defaultVariants: { size: 'sm' },
+              base: { root: 'p-group-root', count: 'p-count' },
+            },
+          })}
+        >
+          <Avatar data-testid="p-avatar" text="PA" />
+          <AvatarGroup items={[{ text: 'G1' }, { text: 'G2' }]} />
+          <Avatar
+            data-testid="i-avatar"
+            size="sm"
+            class="i-avatar-root"
+            style={{ color: 'green' }}
+            text="IA"
+          />
+        </MoraineProvider>
+      ))
+
+      const pAvatar = screen.getByTestId('p-avatar')
+      expect(pAvatar.className).toContain('size-10')
+      expect(pAvatar.className).toContain('p-slot-root')
+      expect(pAvatar.className).toContain('m-0.5')
+      expect(pAvatar.className).toContain('text-red-500')
+
+      const pGroup = screen.container.querySelector('[data-slot="root"].p-group-root')
+      expect(pGroup).not.toBeNull()
+
+      const iAvatar = screen.getByTestId('i-avatar')
+      expect(iAvatar.className).toContain('size-6')
+      expect(iAvatar.className).toContain('i-avatar-root')
+      expect(iAvatar.style.color).toBe('green')
+    })
   })
 })

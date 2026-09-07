@@ -1,23 +1,14 @@
 import type { JSX, ValidComponent } from 'solid-js'
-import {
-  children as resolveChildren,
-  Show,
-  createMemo,
-  mergeProps,
-  onCleanup,
-  onMount,
-  splitProps,
-} from 'solid-js'
+import { children as resolveChildren, createMemo, onCleanup, onMount, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { renderComponentOrElement } from '../../shared/render-prop'
-import { useButtonInteraction } from '../../shared/use-button-interaction'
-import { callHandler, callRef } from '../../shared/utils'
-import type { OverlayTriggerProps } from '../base/trigger'
-import { validateOverlayTrigger } from '../base/trigger'
+import type { SlotClassValue } from '../../shared/types.ts'
+import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
+import { callRef } from '../../shared/utils.ts'
+import { validateOverlayTrigger } from '../base/trigger.ts'
 
-import type { ModalT } from './modal'
-import { useModalContext } from './modal-context'
+import { useModalContext } from './modal-context.ts'
+import type { ModalT } from './modal.types.ts'
 
 type ModalTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[T]
@@ -47,62 +38,25 @@ function useModalTriggerBinding(
   }
 }
 
-/** Internal callback trigger adapter retained for Dialog and Sheet. */
-export function ModalTriggerRenderer(
-  props: Partial<OverlayTriggerProps> & {
-    children?: (props: OverlayTriggerProps) => JSX.Element
-  },
-): JSX.Element {
-  const [local, rest] = splitProps(props, ['children', 'onClick', 'ref'])
-  const triggerRender = createMemo(() => local.children)
-  const binding = useModalTriggerBinding(() => local.ref)
-  const triggerProps = mergeProps(
-    {
-      get 'aria-controls'() {
-        return binding.context.contentPresent() ? binding.context.contentId() : undefined
-      },
-      get 'aria-expanded'() {
-        return binding.context.contentPresent() ? 'true' : 'false'
-      },
-      'data-slot': 'trigger',
-    },
-    rest,
-    {
-      ref: binding.ref,
-      onClick: (event: MouseEvent) => {
-        callHandler<HTMLElement, MouseEvent>(event, local.onClick)
-        if (!event.defaultPrevented) {
-          binding.onPress()
-        }
-      },
-    },
-  ) as OverlayTriggerProps
-
-  onMount(() => {
-    if (triggerRender()) {
-      validateOverlayTrigger(binding.context.triggerElement(), 'Modal')
-    }
-  })
-
-  return (
-    <Show when={triggerRender()}>
-      {(render) => renderComponentOrElement(render(), triggerProps)}
-    </Show>
-  )
-}
-
 /** Interactive modal trigger with Button-compatible polymorphic behavior. */
 export function ModalTrigger<T extends ValidComponent = 'button'>(
   props: ModalT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(
-    props as ModalT.TriggerBase<T> & {
-      class?: string
-      style?: JSX.CSSProperties
-      ref?: (element: ModalTriggerElementFor<T> | undefined) => void
-    },
-    ['as', 'type', 'disabled', 'children', 'class', 'style', 'ref'],
-  )
+  type RuntimeProps = ModalT.TriggerBase<T> & {
+    class?: SlotClassValue
+    style?: JSX.CSSProperties
+    ref?: (element: ModalTriggerElementFor<T> | undefined) => void
+  } & Record<string, unknown>
+
+  const [local, rest] = splitProps(props as RuntimeProps, [
+    'as',
+    'type',
+    'disabled',
+    'children',
+    'class',
+    'style',
+    'ref',
+  ])
   const tag = createMemo(() => (local.as as ValidComponent) ?? 'button')
   const disabled = () => Boolean(local.disabled)
   const binding = useModalTriggerBinding(

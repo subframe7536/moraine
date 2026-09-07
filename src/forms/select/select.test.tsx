@@ -1,14 +1,21 @@
 import { getInput, setInput } from '@formisch/solid'
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
 import { For, createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { createForm } from '../form/index'
 
-import { Select } from './select'
-import type { SelectT } from './select'
+import { Select } from './select.tsx'
+import type { SelectT } from './select.tsx'
+
+const officialDesign = createDesign()
+
+const render: typeof baseRender = (ui, options) =>
+  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
 
 const FRUITS = [
   { label: 'Apple', value: 'apple' },
@@ -53,6 +60,33 @@ async function finishSelectExitMotion(): Promise<void> {
   )
 }
 
+test('renders unstyled when provider is absent', () => {
+  const screen = baseRender(() => <Select options={FRUITS} placeholder="Unstyled" />)
+  const root = screen.container.querySelector('[data-slot="root"]')
+  const control = screen.container.querySelector('[data-slot="control"]')
+  expect(root?.className).toBe('')
+  expect(control?.className).toBe('')
+})
+
+test('forwards root ref and inner inputRef when searchable', () => {
+  let rootEl: HTMLDivElement | undefined
+  let inputEl: HTMLInputElement | undefined
+
+  render(() => (
+    <Select
+      ref={(el) => (rootEl = el)}
+      inputRef={(el) => (inputEl = el)}
+      search
+      options={FRUITS}
+      placeholder="Ref test"
+    />
+  ))
+
+  expect(rootEl).toBeInstanceOf(HTMLDivElement)
+  expect(inputEl).toBeInstanceOf(HTMLInputElement)
+  expect(inputEl?.placeholder).toBe('Ref test')
+})
+
 test('single Select accepts arbitrary root props at type level', () => {
   const screen = render(() => (
     <>
@@ -70,6 +104,16 @@ test('uses input sizing classes in single mode', () => {
 
   expect(singleInput?.className).toContain('min-w-0')
   expect(singleInput?.className).toContain('text-xs')
+})
+
+test('uses the provider size as the field default', () => {
+  const screen = render(() => (
+    <MoraineProvider design={createDesign({ select: { defaultVariants: { size: 'lg' } } })}>
+      <Select options={FRUITS} placeholder="Provider size" />
+    </MoraineProvider>
+  ))
+
+  expect(screen.container.querySelector('[data-slot="control"]')?.className).toContain('text-base')
 })
 
 test('keeps control spacing on the control instead of its icons and input', () => {
@@ -137,6 +181,118 @@ describe('Select - single mode', () => {
     expect(root?.style.width).toBe('200px')
   })
 
+  test('uses the normative root class and style precedence', () => {
+    const screen = render(() => (
+      <MoraineProvider
+        design={createDesign({
+          select: {
+            base: { root: 'w-24 px-1 h-[10px] text-red-500 provider-root' },
+          },
+        })}
+      >
+        <Select
+          data-testid="select-root"
+          options={FRUITS}
+          placeholder="Pick a fruit"
+          classes={{ root: 'w-32 px-2 instance-root' }}
+          class="final-root w-48"
+          styles={{ root: { width: '200px', background: 'blue' } }}
+          style={{ width: '300px', color: 'green' }}
+        />
+      </MoraineProvider>
+    ))
+
+    const root = screen.getByTestId('select-root')
+    expect(root.className).toContain('w-48')
+    expect(root.className).not.toContain('w-24')
+    expect(root.className).not.toContain('w-32')
+    expect(root.className).toContain('px-2')
+    expect(root.className).not.toContain('px-1')
+    expect(root.className).toContain('provider-root')
+    expect(root.className).toContain('instance-root')
+    expect(root.className).toContain('final-root')
+
+    expect(root.style.width).toBe('300px')
+    expect(root.style.color).toBe('green')
+    expect(root.className).toContain('h-[10px]')
+    expect(root.style.background).toBe('blue')
+  })
+
+  test('merges named slot classes and styles through the resolver', () => {
+    render(() => (
+      <MoraineProvider
+        design={createDesign({
+          select: {
+            base: { content: 'p-1 w-24 text-red-500 bg-black provider-content' },
+          },
+        })}
+      >
+        <Select
+          options={FRUITS}
+          defaultOpen
+          classes={{ content: 'p-4 w-48 instance-content' }}
+          styles={{ content: { color: 'blue' } }}
+        />
+      </MoraineProvider>
+    ))
+
+    const content = queryBody('[data-slot="content"]') as HTMLElement
+    expect(content.className).toContain('p-4')
+    expect(content.className).not.toContain('p-1')
+    expect(content.className).toContain('w-48')
+    expect(content.className).not.toContain('w-24')
+    expect(content.className).toContain('provider-content')
+    expect(content.className).toContain('instance-content')
+    expect(content.style.color).toBe('blue')
+    expect(content.className).toContain('bg-black')
+  })
+
+  test('reacts to replaced provider and instance style objects without remounting', () => {
+    const [providerConfig, setProviderConfig] = createSignal({
+      select: {
+        base: { root: 'provider-root-initial text-red-500' },
+      },
+    })
+    const [instanceClasses, setInstanceClasses] = createSignal({ root: 'instance-root-initial' })
+    const [instanceStyles, setInstanceStyles] = createSignal({ root: { border: '1px solid red' } })
+
+    const screen = render(() => (
+      <MoraineProvider design={createDesign(providerConfig())}>
+        <Select
+          data-testid="reactive-select"
+          options={FRUITS}
+          classes={instanceClasses()}
+          styles={instanceStyles()}
+        />
+      </MoraineProvider>
+    ))
+
+    const root = screen.getByTestId('reactive-select')
+    expect(root.className).toContain('provider-root-initial')
+    expect(root.className).toContain('instance-root-initial')
+    expect(root.className).toContain('text-red-500')
+    expect(root.style.border).toBe('1px solid red')
+
+    setProviderConfig({
+      select: {
+        base: { root: 'provider-root-updated text-blue-500' },
+      },
+    })
+
+    expect(screen.getByTestId('reactive-select')).toBe(root)
+    expect(root.className).toContain('provider-root-updated')
+    expect(root.className).not.toContain('provider-root-initial')
+    expect(root.className).toContain('text-blue-500')
+
+    setInstanceClasses({ root: 'instance-root-updated' })
+    setInstanceStyles({ root: { border: '1px solid blue' } })
+
+    expect(screen.getByTestId('reactive-select')).toBe(root)
+    expect(root.className).toContain('instance-root-updated')
+    expect(root.className).not.toContain('instance-root-initial')
+    expect(root.style.border).toBe('1px solid blue')
+  })
+
   test('renders with placeholder', () => {
     const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
 
@@ -177,8 +333,8 @@ describe('Select - single mode', () => {
     fireEvent.pointerDown(control, { button: 0 })
     fireEvent.click(control)
 
-    expect(control.className).toContain('focus-visible:effect-fv-border')
-    expect(control.className).not.toContain('focus-within:effect-fv-border')
+    expect(control.className).toContain('focus-visible:ring-ring/50')
+    expect(control.className).not.toContain('focus-within:ring-ring/50')
   })
 
   test('prevents mouse pointerdown but preserves touch and pen defaults', () => {
@@ -204,15 +360,15 @@ describe('Select - single mode', () => {
     control.focus()
 
     expect(document.activeElement).toBe(control)
-    expect(control.className).toContain('focus-visible:effect-fv-border')
+    expect(control.className).toContain('focus-visible:ring-ring/50')
   })
 
   test('searchable control keeps focus-within ring styling', () => {
     const screen = render(() => <Select options={FRUITS} search placeholder="Pick a fruit" />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
-    expect(control.className).toContain('focus-within:effect-fv-border')
-    expect(control.className).not.toContain('focus:effect-fv-border')
+    expect(control.className).toContain('focus-within:ring-ring/50')
+    expect(control.className).not.toContain('focus:ring-ring/50')
   })
 
   test('opens dropdown and focuses combobox when control shell is clicked', async () => {
@@ -252,8 +408,8 @@ describe('Select - single mode', () => {
     await waitFor(() => {
       const content = queryBody('[data-slot="content"]')
       expect(content).not.toBeNull()
-      expect(content?.className).toContain('w-$mo-popper-anchor-width')
-      expect(content?.className).toContain('min-w-$mo-popper-anchor-width')
+      expect(content?.className).toContain('w-[var(--mo-popper-anchor-width)]')
+      expect(content?.className).toContain('min-w-[var(--mo-popper-anchor-width)]')
     })
   })
 
@@ -430,7 +586,7 @@ describe('Select - single mode', () => {
     expect(trigger).not.toBeNull()
     expect(trigger?.getAttribute('data-loading')).toBe('')
     expect(trigger?.className).toContain('icon-loading')
-    expect(trigger?.className).toContain('effect-loading')
+    expect(trigger?.className).toContain('animate-spin')
     expect(screen.container.querySelector('[data-slot="clear"]')).toBeNull()
   })
 
@@ -1608,7 +1764,7 @@ describe('Select - popup behavior', () => {
     })
   })
 
-  test('uses shared menu transition classes and configurable overflow padding', async () => {
+  test('uses primitive menu transition classes and configurable overflow padding', async () => {
     render(() => (
       <Select options={FRUITS} defaultOpen gutter={6} overflowPadding={12} placeholder="Pick" />
     ))
@@ -1618,9 +1774,10 @@ describe('Select - popup behavior', () => {
     })
 
     const content = queryBody('[data-slot="content"]') as HTMLElement
-    expect(content.className).toContain('data-expanded:animate-menu-in')
-    expect(content.className).toContain('data-closed:animate-menu-out')
-    expect(content.className).toContain('animate-menu-side-bottom')
+    expect(content.className).toContain('data-expanded:animate-mo-enter')
+    expect(content.className).toContain('data-closed:animate-mo-exit')
+    expect(content.className).toContain('-enter-translate-y-1')
+    expect(content.className).toContain('-exit-translate-y-1')
 
     await waitFor(() => {
       expect(content.style.getPropertyValue('--mo-popper-content-overflow-padding')).toBe('12px')

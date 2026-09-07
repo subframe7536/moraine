@@ -1,115 +1,12 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
+import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
 
-import type { ProgressVariantProps } from './progress.class'
-import {
-  progressBaseVariants,
-  progressIndicatorVariants,
-  progressRootVariants,
-  progressStatusVariants,
-  progressStepVariants,
-  progressStepsVariants,
-} from './progress.class'
+import type { ProgressProps, ProgressT } from './progress.types.ts'
 
-export namespace ProgressT {
-  export interface StatusRenderProps {
-    /**
-     * Current progress percentage (0-100).
-     */
-    percent?: number
-  }
-
-  export interface StepRenderProps {
-    /**
-     * The label of the current step.
-     */
-    step: string
-    /**
-     * The index of the current step.
-     */
-    index: number
-    /**
-     * The state of the step relative to the active step.
-     */
-    state: 'active' | 'first' | 'last' | 'other'
-  }
-
-  export interface Slot<T = unknown> {
-    /**
-     * Progress container that owns track, indicator, labels, and step markers.
-     */
-    root?: T
-
-    /** Text region that displays the current progress status. */
-    status?: T
-
-    /** Background rail that represents the full progress range. */
-    track?: T
-
-    /** Filled bar that represents the current progress value. */
-    indicator?: T
-
-    /** Wrapper for step labels when progress is driven by named steps. */
-    steps?: T
-
-    /** Individual step label or marker rendered along the progress scale. */
-    step?: T
-  }
-
-  export type Variant = ProgressVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-  /**
-   * Base props for the Progress component.
-   */
-  export interface Base {
-    /**
-     * The current value of the progress bar. If null/undefined, it is indeterminate.
-     * @default null
-     */
-    value?: number | null
-
-    /**
-     * The maximum value of the progress bar, or an array of step labels.
-     * @default 100
-     */
-    max?: number | string[]
-
-    /**
-     * Whether to show the status label.
-     * @default false
-     */
-    status?: boolean
-
-    /**
-     * Callback to get a localized label for the current value.
-     */
-    getValueLabel?: (params: { value: number; min: number; max: number }) => string
-
-    /**
-     * Custom render function for the status label.
-     */
-    statusRender?: ComponentOrElement<StatusRenderProps>
-
-    /**
-     * Custom render function for each step when `max` is an array.
-     */
-    stepRender?: ComponentOrElement<StepRenderProps>
-  }
-
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the Progress component.
- */
-export interface ProgressProps extends ProgressT.Props {}
+export * from './progress.types.ts'
 
 function resolveMaxValue(max: ProgressProps['max']): number {
   if (Array.isArray(max)) {
@@ -129,6 +26,9 @@ function clamp(value: number, min: number, max: number): number {
 
 /** Determinate or indeterminate progress indicator with optional step labels. */
 export function Progress(props: ProgressProps): JSX.Element {
+  const design = useMoraineDesign()
+  const progressDesign = () => design().progress
+
   const [local, rest] = splitProps(props, [
     'value',
     'max',
@@ -144,21 +44,40 @@ export function Progress(props: ProgressProps): JSX.Element {
     'class',
     'style',
   ])
-  const merged = mergeProps(
-    {
-      value: null,
-      max: 100,
-      status: false,
-      orientation: 'horizontal' as const,
-      animation: 'carousel' as const,
-      size: 'md' as const,
-    },
-    local,
+
+  const orientation = createMemo<NonNullable<ProgressT.Variant['orientation']>>(
+    () => local.orientation ?? progressDesign()?.defaultVariants?.orientation ?? 'horizontal',
+  )
+  const size = createMemo<NonNullable<ProgressT.Variant['size']>>(
+    () => local.size ?? progressDesign()?.defaultVariants?.size ?? 'md',
+  )
+  const animation = createMemo<NonNullable<ProgressT.Variant['animation']>>(
+    () => local.animation ?? progressDesign()?.defaultVariants?.animation ?? 'carousel',
   )
 
-  const rawValue = createMemo(() => merged.value)
-  const rawMax = createMemo(() => merged.max)
-  const getValueLabel = createMemo(() => merged.getValueLabel)
+  const resolved = resolveComponentStyle({
+    design: {
+      get classes() {
+        return progressDesign()?.recipe({
+          orientation: orientation(),
+          size: size(),
+          animation: animation(),
+        })
+      },
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
+  const rawValue = createMemo(() => local.value ?? null)
+  const rawMax = createMemo(() => local.max ?? 100)
+  const getValueLabel = createMemo(() => local.getValueLabel)
   const steps = createMemo<string[]>(() => {
     const max = rawMax()
     return Array.isArray(max) ? max : []
@@ -224,7 +143,7 @@ export function Progress(props: ProgressProps): JSX.Element {
 
   const statusStyle = createMemo<JSX.CSSProperties>(() => {
     const currentPercent = Math.max(percent() ?? 0, 0)
-    if (merged.orientation === 'vertical') {
+    if (orientation() === 'vertical') {
       return { height: `${100 - currentPercent}%` }
     }
 
@@ -238,7 +157,7 @@ export function Progress(props: ProgressProps): JSX.Element {
     }
 
     const distance = 100 - currentPercent
-    if (merged.orientation === 'vertical') {
+    if (orientation() === 'vertical') {
       return {
         transform: `translateY(${distance}%)`,
       }
@@ -277,38 +196,25 @@ export function Progress(props: ProgressProps): JSX.Element {
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
       data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      data-orientation={merged.orientation}
+      data-orientation={orientation()}
       {...dataAttrs()}
       {...rest}
-      class={progressRootVariants(
-        {
-          orientation: merged.orientation,
-        },
-        merged.classes?.root,
-        merged.class,
-      )}
+      {...resolved.rootClassAndStyle()}
     >
       <Show when={!isIndeterminate()}>
         {(_determinate) => {
-          const statusRender = createMemo(() => merged.statusRender)
-          const shouldRenderStatus = createMemo(() => merged.status || statusRender() !== undefined)
+          const statusRender = createMemo(() => local.statusRender)
+          const shouldRenderStatus = createMemo(() => local.status || statusRender() !== undefined)
 
           return (
             <Show when={shouldRenderStatus()}>
               <div
                 data-slot="status"
-                class={progressStatusVariants(
-                  {
-                    orientation: merged.orientation,
-                    size: merged.size,
+                {...resolved.slotClassAndStyle('status', {
+                  get state() {
+                    return { style: statusStyle() }
                   },
-                  merged.classes?.status,
-                )}
-                style={{
-                  ...statusStyle(),
-                  ...merged.styles?.status,
-                }}
+                })}
                 {...dataAttrs()}
               >
                 <Show when={statusRender() !== undefined} fallback={`${percent() ?? 0}%`}>
@@ -324,64 +230,30 @@ export function Progress(props: ProgressProps): JSX.Element {
         }}
       </Show>
 
-      <div
-        data-slot="track"
-        style={merged.styles?.track}
-        class={progressBaseVariants(
-          {
-            orientation: merged.orientation,
-            size: merged.size,
-          },
-          merged.classes?.track,
-        )}
-        {...dataAttrs()}
-      >
+      <div data-slot="track" {...resolved.slotClassAndStyle('track')} {...dataAttrs()}>
         <div
           data-slot="indicator"
-          class={progressIndicatorVariants(
-            {
-              orientation: merged.orientation,
-              animation: merged.animation,
+          {...resolved.slotClassAndStyle('indicator', {
+            get state() {
+              return { style: indicatorStyle() }
             },
-            merged.classes?.indicator,
-          )}
-          style={{
-            ...indicatorStyle(),
-            ...merged.styles?.indicator,
-          }}
+          })}
           {...dataAttrs()}
         />
       </div>
 
       <Show when={hasSteps()}>
         {(_hasSteps) => {
-          const stepRender = createMemo(() => merged.stepRender)
+          const stepRender = createMemo(() => local.stepRender)
 
           return (
-            <div
-              data-slot="steps"
-              style={merged.styles?.steps}
-              class={progressStepsVariants(
-                {
-                  orientation: merged.orientation,
-                  size: merged.size,
-                },
-                merged.classes?.steps,
-              )}
-              {...dataAttrs()}
-            >
+            <div data-slot="steps" {...resolved.slotClassAndStyle('steps')} {...dataAttrs()}>
               <For each={steps()}>
                 {(step, index) => (
                   <div
                     data-slot="step"
-                    style={merged.styles?.step}
-                    class={progressStepVariants(
-                      {
-                        state: stepState(index()),
-                        size: merged.size,
-                      },
-                      merged.classes?.step,
-                    )}
+                    data-state={stepState(index())}
+                    {...resolved.slotClassAndStyle('step')}
                     {...dataAttrs()}
                   >
                     <Show when={stepRender() !== undefined} fallback={step}>

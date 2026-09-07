@@ -43,9 +43,9 @@ import type { StepperT } from 'moraine'
 >
   {(props) => {
     const ONBOARDING_STEPS = [
-      { value: 'account', title: 'Account', description: 'Create credentials', icon: 'i-lucide:user', content: <p class="text-xs text-muted-foreground p-3">Step 1: Set up your profile and login credentials.</p> },
-      { value: 'workspace', title: 'Workspace', description: 'Team settings', icon: 'i-lucide:building-2', content: <p class="text-xs text-muted-foreground p-3">Step 2: Define your organization name and invite collaborators.</p> },
-      { value: 'confirm', title: 'Confirm', description: 'Launch project', icon: 'i-lucide:check-circle', content: <p class="text-xs text-muted-foreground p-3">Step 3: Review settings and provision your instance.</p> },
+      { value: 'account', title: 'Account', description: 'Create credentials', icon: 'i-lucide:user', get content() { return <p class="text-xs text-muted-foreground p-3">Step 1: Set up your profile and login credentials.</p> } },
+      { value: 'workspace', title: 'Workspace', description: 'Team settings', icon: 'i-lucide:building-2', get content() { return <p class="text-xs text-muted-foreground p-3">Step 2: Define your organization name and invite collaborators.</p> } },
+      { value: 'confirm', title: 'Confirm', description: 'Launch project', icon: 'i-lucide:check-circle', get content() { return <p class="text-xs text-muted-foreground p-3">Step 3: Review settings and provision your instance.</p> } },
     ]
 
     return (
@@ -65,6 +65,8 @@ import type { StepperT } from 'moraine'
 </Playground>
 
 ## Anatomy
+
+Use a `content` getter for JSX step panels so inactive panels remain uninstantiated during SSR and hydration.
 
 ```text
 root

@@ -73,10 +73,22 @@
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
+    },
+    {
+      "name": "controls",
+      "description": "Column container for vertical increment/decrement controls.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "props": {
     "own": [
+      {
+        "name": "align",
+        "required": false,
+        "type": "\"center\" | \"start\" | null | undefined"
+      },
       {
         "name": "autofocus",
         "required": false,
@@ -169,6 +181,12 @@
         "defaultValue": "orientation === 'vertical' ? 'icon-chevron-up' : 'icon-plus"
       },
       {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined",
+        "description": "Optional inner input element ref."
+      },
+      {
         "name": "largeStep",
         "required": false,
         "type": "number | undefined",
@@ -238,9 +256,7 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "InputNumberOrientation | undefined",
-        "description": "The orientation of the control buttons.",
-        "defaultValue": "horizontal"
+        "type": "\"horizontal\" | \"vertical\" | null | undefined"
       },
       {
         "name": "placeholder",
@@ -283,7 +299,7 @@
       {
         "name": "repeatPointerTypes",
         "required": false,
-        "type": "\"all\" | PointerType | undefined",
+        "type": "\"all\" | InputNumberT.PointerType | undefined",
         "description": "Pointer types that can trigger press-and-hold repeat.",
         "defaultValue": "all"
       },
@@ -304,7 +320,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined"
       },
       {
         "name": "step",
@@ -332,7 +348,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined"
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | null | undefined"
       },
       {
         "name": "wheel",

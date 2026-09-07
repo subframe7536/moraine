@@ -145,7 +145,14 @@
       "name": "handle",
       "description": "Interactive target users drag or focus to resize panels.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-collapse",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -349,7 +356,7 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined"
+        "type": "ResizableOrientation | undefined"
       },
       {
         "name": "panels",

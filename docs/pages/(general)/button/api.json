@@ -152,47 +152,47 @@
       {
         "name": "onBlur",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, FocusEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, FocusEvent> | undefined"
       },
       {
         "name": "onClick",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, MouseEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, MouseEvent> | undefined"
       },
       {
         "name": "onContextMenu",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, MouseEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, MouseEvent> | undefined"
       },
       {
         "name": "onKeyDown",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, KeyboardEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, KeyboardEvent> | undefined"
       },
       {
         "name": "onKeyUp",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, KeyboardEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, KeyboardEvent> | undefined"
       },
       {
         "name": "onPointerCancel",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, PointerEvent> | undefined"
       },
       {
         "name": "onPointerDown",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, PointerEvent> | undefined"
       },
       {
         "name": "onPointerLeave",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, PointerEvent> | undefined"
       },
       {
         "name": "onPointerUp",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, PointerEvent> | undefined"
       },
       {
         "name": "ref",

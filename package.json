@@ -24,7 +24,10 @@
     "dist"
   ],
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "*.css",
+    "./dist/*.css"
+  ],
   "types": "./dist/index.d.mts",
   "exports": {
     ".": {
@@ -33,12 +36,11 @@
       "type": "./dist/index.d.mts"
     },
     "./package.json": "./package.json",
-    "./tw4.css": "./dist/tw4.css",
-    "./tw3.css": "./dist/tw3.css",
     "./icon.css": "./dist/icon.css",
     "./unocss": "./dist/unocss.mjs",
     "./tailwind": "./dist/tailwind.mjs",
-    "./utils": "./dist/utils.mjs"
+    "./utils": "./dist/utils.mjs",
+    "./design": "./dist/design.mjs"
   },
   "publishConfig": {
     "access": "public",
@@ -47,9 +49,9 @@
   "scripts": {
     "build": "tsdown",
     "dev": "nub run build && vite serve docs --configLoader runner",
-    "docs:build": "nub run build && vite build docs",
+    "docs:build": "nub run build && vite build docs --configLoader runner",
     "docs:preview": "nub run docs:build && vite preview docs --outDir dist/client",
-    "test": "vitest --run",
+    "test": "nub run build && vitest --run",
     "test:types": "nub run build && tsc -p src/shared/type-test/default/tsconfig.json && tsc -p src/shared/type-test/autocomplete/tsconfig.json",
     "test:dev": "vitest",
     "lint": "oxlint --fix",
@@ -63,11 +65,10 @@
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",
     "@formisch/solid": "1.0.0",
-    "cls-variant": "^1.2.0"
+    "cn": "^0.2.5"
   },
   "devDependencies": {
-    "@expressive-code/plugin-line-numbers": "0.42.0",
-    "@iconify-json/lucide": "^1.2.127",
+    "@iconify-json/lucide": "^1.2.129",
     "@iconify/tailwind": "1.2.0",
     "@rolldown/pluginutils": "*",
     "@solidjs/router": "^1.0.0",
@@ -75,21 +76,20 @@
     "@subf/config": "^0.4.0",
     "@subf/unocss": "^0.3.1",
     "@tanstack/virtual-core": "^3.17.8",
-    "@testing-library/dom": "*",
-    "@types/node": "^24",
+    "@types/node": "^24.13.3",
     "bumpp": "^11.1.0",
     "jsdom": "^29.1.1",
     "magic-string": "^1.2.3",
-    "oxfmt": "^0.65.0",
-    "oxlint": "^1.80.0",
+    "oxfmt": "^0.66.0",
+    "oxlint": "^1.81.0",
     "oxlint-tsgolint": "^7.0.2001",
     "rolldown-plugin-unocss": "^0.1.0",
     "satteri": "^0.10.5",
-    "satteri-expressive-code": "^0.1.24",
+    "shiki": "^4.4.3",
     "solid-file-router": "^0.7.3",
     "solid-toaster": "^0.1.7",
-    "tailwindcss": "^4.3.2",
-    "tsdown": "^0.22.14",
+    "tailwindcss": "^4.3.3",
+    "tsdown": "^0.23.0",
     "typescript": "^7.0.2",
     "valibot": "^1.4.2",
     "vite": "^8.2.2",
@@ -102,7 +102,7 @@
     "@subf/unocss": "^0.3.0",
     "@tanstack/virtual-core": "^3.17.4",
     "solid-js": "^1.9.15",
-    "tailwindcss": ">=3.0.0"
+    "tailwindcss": "^4.0.0"
   },
   "peerDependenciesMeta": {
     "@iconify/tailwind": {
@@ -124,8 +124,5 @@
       "version": "^0.7.5",
       "onFail": "ignore"
     }
-  },
-  "inlinedDependencies": {
-    "valibot": "1.4.2"
   }
 }

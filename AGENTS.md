@@ -7,13 +7,14 @@ Current stage: pre-alpha. breaking change allowed.
 
 ## Essential Commands
 
-Use `nub` for package management and script execution. Prefer `nub` over `node`, `bun`, `npm`, `npx`, `pnpm`, and `yarn`.
+Use `nub` for package management and script execution. Prefer `nub` / `nubx` over `node`, `bun`, `npm`, `npx`, `pnpm`, and `yarn`.
+
+If not installed, follows the instructions at https://nubjs.com/start.md to install.
 
 ### Build & Development
 
 - `nub run build` - Build the library using tsdown (outputs to dist/).
-- `nub run dev` - Build in watch mode for development.
-- `nub run docs` - Start the dev Vite server on port 3000.
+- `nub run dev` - Build the library and start the documentation/development Vite server.
 - `nub run typecheck` - Run TypeScript type checking.
 
 ### Linting & Formatting
@@ -94,11 +95,11 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 
 - Create a `{component}.class.ts` file.
 - Reusable constant class should define as `*_CLASS` global variable
-- Use `cva` from `src/shared/utils` to define variants.
+- Use `recipe` from `src/shared/style/recipe.ts` to define variants.
 - Use `cn` from `src/shared/utils` to combine classes.
 - No need to create memo for classes, just write them inplace
-- State-based class should use pure class instead of adding a newn variant in cva
-- Use UnoCSS variant groups for cleaner code: `hover:(bg-red-500 text-white)` instead of `hover:bg-red-500 hover:text-white`.
+- State-based class should use a pure class instead of adding a new variant in `recipe`.
+- Always use standard flat Tailwind CSS utility syntax (e.g. `hover:bg-red-500 hover:text-white`). NEVER use UnoCSS parenthesized variant groups (`hover:(...)`) in component code so classes are compatible with both Tailwind v4 and UnoCSS, and can be parsed by the `cn` conflict resolution engine.
 
 ## Code Style & Conventions
 
@@ -134,14 +135,14 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 
 - **Utility First:** Use utility classes for 99% of styling.
 - **Class Prop:** Always use `class` (not `className`).
-- **Consistency:** Use the `cn` (classnames) utility or `cva` to merge classes.
+- **Consistency:** Use `cn` to merge classes and `recipe` to define variants.
 
 ### Error Handling
 
 - **Async:** Use `try/catch` block within async event handlers.
 - **Boundaries:** Use `<ErrorBoundary>` for component-level error containment.
 - **Types:** Avoid `any`. Use `unknown` if type is truly uncertain, then narrow it.
-- NEVER use `cva()` with static-only classes
+- Never use `recipe()` for static-only classes.
 
 ### Testing
 

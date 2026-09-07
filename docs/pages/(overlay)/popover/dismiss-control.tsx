@@ -10,20 +10,20 @@ export function DismissControl() {
         defaultOpen
         dismissible={false}
         onClosePrevent={() => setPreventedCloseCount((value) => value + 1)}
-        content={
-          <div class="p-3 space-y-1">
-            <p class="text-sm font-medium">Persistent popover</p>
-            <p class="text-xs text-muted-foreground">
-              Prevented close attempts: {preventedCloseCount()}
-            </p>
-          </div>
-        }
       >
-        {(props) => (
-          <Button {...props} variant="secondary">
-            Try close me
-          </Button>
-        )}
+        <Popover.Trigger as={Button} variant="secondary">
+          Try close me
+        </Popover.Trigger>
+        <Popover.Content
+          content={
+            <div class="p-3 space-y-1">
+              <p class="text-sm font-medium">Persistent popover</p>
+              <p class="text-xs text-muted-foreground">
+                Prevented close attempts: {preventedCloseCount()}
+              </p>
+            </div>
+          }
+        />
       </Popover>
     </div>
   )

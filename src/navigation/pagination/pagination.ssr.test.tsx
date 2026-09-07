@@ -4,7 +4,7 @@ import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture, renderSsrFixture } from '../../test-utils/ssr-test'
 
-import { Pagination } from './pagination'
+import { Pagination } from './pagination.tsx'
 
 describe('Pagination SSR Hydration', () => {
   test('renders deterministic single-page SSR markup', () => {

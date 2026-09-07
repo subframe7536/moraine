@@ -1,17 +1,37 @@
-export const CARD_ROOT_CLASS =
-  'text-card-foreground border border-border rounded-xl bg-card flex flex-col shadow-xs relative overflow-hidden not-dark:bg-clip-padding'
+import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
+import { recipe } from '../../shared/style/recipe.ts'
 
-export const CARD_HEADER_CLASS = 'grid auto-rows-min items-start'
-export const CARD_HEADER_DEFAULT_CLASS = 'p-6 gap-1'
-export const CARD_HEADER_COMPACT_CLASS = 'p-4 gap-1'
-export const CARD_TITLE_CLASS = 'text-base leading-normal font-medium'
-export const CARD_DESCRIPTION_CLASS = 'text-sm text-muted-foreground'
-export const CARD_ACTION_CLASS =
-  'inline-flex row-span-2 col-start-2 row-start-1 self-start justify-self-end'
-export const CARD_BODY_CLASS = 'flex-1'
-export const CARD_BODY_DEFAULT_CLASS = 'px-6'
-export const CARD_BODY_COMPACT_CLASS = 'px-4'
-export const CARD_BODY_MARGIN_DEFAULT_CLASS = 'mb-6'
-export const CARD_BODY_MARGIN_COMPACT_CLASS = 'mb-4'
-export const CARD_FOOTER_DEFAULT_CLASS = 'p-6'
-export const CARD_FOOTER_COMPACT_CLASS = 'p-4'
+import type { CardT } from './card.types.ts'
+
+export const cardRecipeOptions = {
+  base: {
+    root: 'text-card-foreground border border-border rounded-xl bg-card flex flex-col shadow-xs relative overflow-hidden [html:not(.dark)_&]:bg-clip-padding',
+    header: 'grid auto-rows-min items-start data-action:grid-cols-[1fr_auto]',
+    title: 'text-base leading-normal font-medium',
+    description: 'text-sm text-muted-foreground',
+    action: 'inline-flex row-span-2 col-start-2 row-start-1 self-start justify-self-end',
+    body: 'flex-1',
+    footer: '',
+  },
+  defaultVariants: {
+    compact: false,
+  },
+  variants: {
+    compact: {
+      false: {
+        header: 'p-6 gap-1',
+        body: 'px-6 data-no-footer:mb-6',
+        footer: 'p-6',
+      },
+      true: {
+        header: 'p-4 gap-1',
+        body: 'px-4 data-no-footer:mb-4',
+        footer: 'p-4',
+      },
+    },
+  },
+} as const satisfies SlotRecipeOptions<keyof CardT.Slot>
+
+export const cardRecipe = recipe(cardRecipeOptions)
+
+export type CardVariantProps = CardT.Variant

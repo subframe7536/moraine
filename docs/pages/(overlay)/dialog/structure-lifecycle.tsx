@@ -8,27 +8,30 @@ export function StructureLifecycle() {
   return (
     <div class="flex flex-wrap gap-4 items-center">
       <Dialog
-        title="Provision Production Database"
-        description="Configure clustering, replication nodes, and automated backup schedules."
         onExitComplete={() => {
           setExits((c) => c + 1)
           setStatus('Exit animation completed')
         }}
-        body={
-          <div class="text-xs text-muted-foreground leading-relaxed py-2 space-y-2">
-            <p>
-              Provisioning will allocate dedicated compute instances and initialize encryption keys.
-            </p>
-          </div>
-        }
-        footer={
-          <div class="flex gap-2 w-full justify-end">
-            <Button variant="outline">Cancel</Button>
-            <Button>Provision Cluster</Button>
-          </div>
-        }
       >
-        {(props) => <Button {...props}>Open Provisioning Dialog</Button>}
+        <Dialog.Trigger as={Button}>Open Provisioning Dialog</Dialog.Trigger>
+        <Dialog.Content
+          title="Provision Production Database"
+          description="Configure clustering, replication nodes, and automated backup schedules."
+          body={
+            <div class="text-xs text-muted-foreground leading-relaxed py-2 space-y-2">
+              <p>
+                Provisioning will allocate dedicated compute instances and initialize encryption
+                keys.
+              </p>
+            </div>
+          }
+          footer={
+            <div class="flex gap-2 w-full justify-end">
+              <Button variant="outline">Cancel</Button>
+              <Button>Provision Cluster</Button>
+            </div>
+          }
+        />
       </Dialog>
 
       <div class="text-xs text-muted-foreground flex gap-2 items-center">

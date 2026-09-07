@@ -1,104 +1,92 @@
-import type { VariantProps } from 'cls-variant'
+import type { SlotRecipeOptions, VariantProps } from '../../shared/style/recipe.ts'
+import { recipe } from '../../shared/style/recipe.ts'
 
-import { cva } from '../../shared/utils'
+import type { TabsT } from './tabs.types.ts'
 
-export const tabsRootVariants = cva('flex gap-2', {
-  variants: {
-    orientation: {
-      horizontal: 'flex-col w-full',
-      vertical: 'flex-row',
-    },
+export const tabsRecipeOptions = {
+  base: {
+    root: 'flex gap-2',
+    list: 'p-1 inline-flex items-center relative',
+    indicator:
+      'rounded-md transition-[transform,width,height] absolute duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+    trigger:
+      'text-muted-foreground font-medium px-2 py-1.5 outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-64 disabled:pointer-events-none duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+    leading: 'inline-flex shrink-0 items-center justify-center',
+    label: 'truncate',
+    trailing: '',
+    content: 'text-sm outline-none w-full',
   },
   defaultVariants: {
     orientation: 'horizontal',
-  },
-})
-
-export const tabsListVariants = cva('p-1 inline-flex items-center relative', {
-  variants: {
-    variant: {
-      pill: 'rounded-lg bg-muted',
-      link: 'rounded-none bg-transparent',
-    },
-    orientation: {
-      horizontal: 'w-full',
-      vertical: 'flex-col h-fit',
-    },
-  },
-  defaultVariants: {
     variant: 'pill',
-    orientation: 'horizontal',
+    size: 'md',
   },
-})
-
-export const tabsIndicatorVariants = cva(
-  'rounded-md transition-[transform,width,height] absolute',
-  {
-    variants: {
-      orientation: {
-        horizontal: 'left-0',
-        vertical: 'top-0',
+  variants: {
+    orientation: {
+      horizontal: {
+        root: 'flex-col w-full',
+        list: 'w-full',
+        indicator: 'left-0',
+        trigger: 'flex-1',
       },
-      variant: {
-        pill: 'border border-border bg-background shadow-xs',
-        link: 'bg-primary',
+      vertical: {
+        root: 'flex-row',
+        list: 'flex-col h-fit',
+        indicator: 'top-0',
+        trigger: 'w-full justify-start',
       },
     },
-    compoundVariants: [
-      {
-        orientation: 'horizontal',
-        variant: 'pill',
-        class: 'inset-y-1',
+    variant: {
+      pill: {
+        list: 'rounded-lg bg-muted',
+        indicator: 'border border-border bg-background shadow-xs',
       },
-      {
-        orientation: 'vertical',
-        variant: 'pill',
-        class: 'inset-x-1',
+      link: {
+        list: 'rounded-none bg-transparent',
+        indicator: 'bg-primary',
+        trigger: 'data-selected:text-primary hover:data-highlighted:not-disabled:text-foreground',
       },
-      {
-        orientation: 'horizontal',
-        variant: 'link',
-        class: 'bottom-0 h-px rounded-full',
+    },
+    size: {
+      sm: {
+        trigger: 'text-xs',
       },
-      {
-        orientation: 'vertical',
-        variant: 'link',
-        class: 'right-0 w-px rounded-full',
+      md: {
+        trigger: 'text-sm',
       },
-    ],
-    defaultVariants: {
-      orientation: 'horizontal',
-      variant: 'pill',
+      lg: {
+        trigger: 'text-base',
+      },
     },
   },
-)
-
-export const tabsTriggerVariants = cva(
-  'text-muted-foreground font-medium px-2 py-1.5 outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground focus-visible:effect-fv-border focus-visible:border-ring disabled:effect-dis focus-visible:ring-3 focus-visible:ring-ring/50',
-  {
-    variants: {
-      orientation: {
-        horizontal: 'flex-1',
-        vertical: 'w-full justify-start',
-      },
-      variant: {
-        pill: '',
-        link: 'data-selected:text-primary hover:data-highlighted:not-disabled:text-foreground',
-      },
-      size: {
-        sm: 'text-xs',
-        md: 'text-sm',
-        lg: 'text-base',
+  compoundVariants: [
+    {
+      variants: { orientation: 'horizontal', variant: 'pill' },
+      class: {
+        indicator: 'inset-y-1',
       },
     },
-    defaultVariants: {
-      orientation: 'horizontal',
-      variant: 'pill',
-      size: 'md',
+    {
+      variants: { orientation: 'vertical', variant: 'pill' },
+      class: {
+        indicator: 'inset-x-1',
+      },
     },
-  },
-)
+    {
+      variants: { orientation: 'horizontal', variant: 'link' },
+      class: {
+        indicator: 'bottom-0 h-px rounded-full',
+      },
+    },
+    {
+      variants: { orientation: 'vertical', variant: 'link' },
+      class: {
+        indicator: 'right-0 w-px rounded-full',
+      },
+    },
+  ],
+} as const satisfies SlotRecipeOptions<keyof TabsT.Slot>
 
-export const TABS_LEADING_CLASS = 'inline-flex shrink-0 items-center justify-center'
+export const tabsRecipe = recipe(tabsRecipeOptions)
 
-export type TabsVariantProps = VariantProps<typeof tabsTriggerVariants>
+export type TabsVariantProps = VariantProps<typeof tabsRecipe>

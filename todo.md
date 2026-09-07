@@ -1,7 +1,15 @@
 ## Fix
 
 - [x] unify form spacing: title, description, hint, label, control, help, error, and field gap
-- [ ] for boolean state of classes, do not setup new variant in cva(), use `? 'XXX' : 'XXX'` instead
+- [x] add `presetWind3` support back to `presetMoraine`
+- [x] add collapsible in design options.
+- [x] add preview in `### Root styling`
+- [x] codetabs 's button should not have active scale
+- [ ] cleanup useless `mergeProps` across all components
+- [ ] convert sidebar-frame and resizable into namespaced component, get rid of `frameRender` in sidebar-frame
+- [ ] add indicator type in `<component>T` to indicate if the component is a single or a composite/namespaced component
+- [ ] textarea inline padding optimize
+- [ ] metric adjust across all sizes
 - [ ] production barrel import optimize
 
 # V1

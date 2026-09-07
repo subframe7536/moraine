@@ -3,7 +3,12 @@ import { createSignal } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { beforeAll, afterAll, describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
 import { Resizable } from './resizable'
+
+const officialDesign = createDesign()
 
 type ResizeObserverCallback = (entries: ResizeObserverEntry[], observer: ResizeObserver) => void
 
@@ -114,6 +119,19 @@ afterAll(() => {
 })
 
 describe('Resizable', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = render(() => <Resizable panels={[{ content: 'Left' }, { content: 'Right' }]} />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const divider = screen.container.querySelector('[data-slot="divider"]')
+    const handle = screen.container.querySelector('[data-slot="handle"]')
+    const panel = screen.container.querySelector('[data-slot="panel"]')
+
+    expect(root?.className).toBe('')
+    expect(divider?.className).toBe('')
+    expect(handle?.className).toBe('')
+    expect(panel?.className).toBe('')
+  })
+
   test('composes the root ref with internal layout measurement', async () => {
     let root: HTMLDivElement | undefined
     const screen = render(() => (
@@ -178,7 +196,9 @@ describe('Resizable', () => {
 
   test('supports vertical orientation classes', () => {
     const screen = render(() => (
-      <Resizable orientation="vertical" panels={[{ content: 'Top' }, { content: 'Bottom' }]} />
+      <MoraineProvider design={officialDesign}>
+        <Resizable orientation="vertical" panels={[{ content: 'Top' }, { content: 'Bottom' }]} />
+      </MoraineProvider>
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]')
@@ -841,13 +861,15 @@ describe('Resizable', () => {
 
   test('uses pointer cursor for handle in collapse mode and keeps divider resize cursor', () => {
     const screen = render(() => (
-      <Resizable
-        handleAction="collapse"
-        panels={[
-          { content: 'Sidebar', defaultSize: '30%', collapsible: true, collapsibleMin: '10%' },
-          { content: 'Content', defaultSize: '70%' },
-        ]}
-      />
+      <MoraineProvider design={officialDesign}>
+        <Resizable
+          handleAction="collapse"
+          panels={[
+            { content: 'Sidebar', defaultSize: '30%', collapsible: true, collapsibleMin: '10%' },
+            { content: 'Content', defaultSize: '70%' },
+          ]}
+        />
+      </MoraineProvider>
     ))
 
     const divider = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
@@ -1065,19 +1087,21 @@ describe('Resizable', () => {
 
   test('enables transition when collapse or expand is triggered', async () => {
     const screen = render(() => (
-      <Resizable
-        handleAction="collapse"
-        panels={[
-          {
-            content: 'Sidebar',
-            defaultSize: '30%',
-            min: '20%',
-            collapsible: true,
-            collapsibleMin: '10%',
-          },
-          { content: 'Content', defaultSize: '70%', min: '20%' },
-        ]}
-      />
+      <MoraineProvider design={officialDesign}>
+        <Resizable
+          handleAction="collapse"
+          panels={[
+            {
+              content: 'Sidebar',
+              defaultSize: '30%',
+              min: '20%',
+              collapsible: true,
+              collapsibleMin: '10%',
+            },
+            { content: 'Content', defaultSize: '70%', min: '20%' },
+          ]}
+        />
+      </MoraineProvider>
     ))
 
     const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement

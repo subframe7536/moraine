@@ -36,12 +36,11 @@ export function DropdownAction() {
     <div class="flex flex-col gap-3 items-start">
       <ButtonGroup>
         <Button leading="i-lucide:download">Export report</Button>
-        <DropdownMenu items={exportItems}>
-          {(props) => (
-            <Button {...props} size="icon-md">
-              <Icon name="i-lucide:chevron-down" />
-            </Button>
-          )}
+        <DropdownMenu>
+          <DropdownMenu.Trigger as={Button} size="icon-md">
+            <Icon name="i-lucide:chevron-down" />
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content items={exportItems} />
         </DropdownMenu>
       </ButtonGroup>
 

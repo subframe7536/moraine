@@ -11,172 +11,17 @@ import {
   untrack,
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
-import type { InferInput } from 'valibot'
 
-import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn, useId } from '../../shared/utils'
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import { useId } from '../../shared/utils.ts'
 
-import type { FormFieldContextOptions } from './form-context'
-import { FormFieldProvider } from './form-context'
-import type { FormFieldVariantProps } from './form-field.class'
-import {
-  FORM_FIELD_DESCRIPTION_CLASS,
-  FORM_FIELD_ERROR_CLASS,
-  FORM_FIELD_HELP_CLASS,
-  FORM_FIELD_HINT_CLASS,
-  FORM_FIELD_LABEL_WRAPPER_CLASS,
-  FORM_FIELD_WRAPPER_CLASS,
-  formFieldContainerVariants,
-  formFieldLabelVariants,
-  formFieldSizeVariants,
-} from './form-field.class'
+import type { FormFieldContextOptions } from './form-context.ts'
+import { FormFieldProvider } from './form-context.ts'
+import type { FormFieldProps, FormFieldT } from './form-field.types.ts'
 
-export namespace FormFieldT {
-  type SchemaPath<TValue> = TValue extends readonly (infer TItem)[]
-    ? readonly [number] | readonly [number, ...SchemaPath<NonNullable<TItem>>]
-    : TValue extends Record<PropertyKey, unknown>
-      ? {
-          [TKey in Extract<keyof TValue, string | number>]:
-            | readonly [TKey]
-            | readonly [TKey, ...SchemaPath<NonNullable<TValue[TKey]>>]
-        }[Extract<keyof TValue, string | number>]
-      : never
-
-  export type Name<TSchema extends FormSchema | undefined = undefined> = TSchema extends FormSchema
-    ? Extract<keyof InferInput<TSchema>, string> | SchemaPath<InferInput<TSchema>>
-    : string | RequiredPath
-
-  /**
-   * Props passed to the children of FormField when provided as a render function.
-   */
-  export interface RenderContext {
-    /**
-     * The current error for the field.
-     */
-    error?: JSX.Element
-  }
-
-  export interface Slot<T = unknown> {
-    /**
-     * Field wrapper that links label, control, description, and messages.
-     */
-    root?: T
-
-    /** Inner wrapper that arranges label, control, helper text, and messages. */
-    wrapper?: T
-
-    /** Row that groups the field label and optional hint. */
-    labelWrapper?: T
-
-    /** Accessible field label associated with the control. */
-    label?: T
-
-    /** Region that contains the wrapped form control. */
-    container?: T
-
-    /** Helper text associated with the control. */
-    description?: T
-
-    /** Validation error message region for the field. */
-    error?: T
-
-    /** Short hint rendered beside the field label. */
-    hint?: T
-
-    /** Additional guidance rendered below the control. */
-    help?: T
-  }
-
-  export type Variant = FormFieldVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  /**
-   * Base props for the FormField component.
-   */
-  export interface Base<
-    TSchema extends FormSchema | undefined = undefined,
-    T extends ValidComponent = 'div',
-  > {
-    /**
-     * The HTML element or component to render as.
-     * @default 'div'
-     */
-    as?: T
-
-    /**
-     * Unique identifier for the form field.
-     */
-    id?: string
-
-    /**
-     * Form store to bind field state. Provided automatically by `<form.Field>`.
-     */
-    form?: FormStore<TSchema extends FormSchema ? TSchema : any>
-
-    /**
-     * The name of the field (key in form state).
-     */
-    name?: Name<TSchema>
-
-    /**
-     * Label for the field.
-     */
-    label?: JSX.Element
-
-    /**
-     * Description text shown below the label.
-     */
-    description?: JSX.Element
-
-    /**
-     * Help text shown below the control when no error is present.
-     */
-    help?: JSX.Element
-
-    /**
-     * Custom error message or force error state.
-     */
-    error?: JSX.Element
-
-    /**
-     * Hint text shown near the label.
-     */
-    hint?: JSX.Element
-
-    /**
-     * Whether the field is required.
-     * @default false
-     */
-    required?: boolean
-
-    /**
-     * Children of the field, can be a render function.
-     */
-    children?: ComponentOrElement<RenderContext>
-  }
-
-  /**
-   * Props for the FormField component.
-   */
-  export type Props<
-    TSchema extends FormSchema | undefined = undefined,
-    T extends ValidComponent = 'div',
-  > = BaseProps<T, Base<TSchema, T>, Variant, Classes, Styles>
-}
-
-/**
- * Props for the FormField component.
- */
-export type FormFieldProps<
-  TSchema extends FormSchema | undefined = undefined,
-  T extends ValidComponent = 'div',
-> = FormFieldT.Props<TSchema, T>
+export * from './form-field.types.ts'
 
 type LooseUseField = (form: FormStore, config: () => { path: RequiredPath }) => FieldStore
 
@@ -213,6 +58,9 @@ export function FormField<
       style?: JSX.CSSProperties
     }
 
+  const design = useMoraineDesign()
+  const formFieldDesign = () => design().formField
+
   const merged = mergeProps(
     {
       as: 'div' as T,
@@ -220,6 +68,7 @@ export function FormField<
       size: 'md' as const,
       required: false,
     },
+    () => formFieldDesign()?.defaultVariants,
     local,
   ) as MergedProps
 
@@ -378,6 +227,27 @@ export function FormField<
     registerControl,
   }
 
+  const resolved = resolveComponentStyle({
+    design: {
+      get classes() {
+        return formFieldDesign()?.recipe({
+          size: merged.size,
+          orientation: merged.orientation,
+          required: Boolean(merged.required),
+          hasText: showLabel() || showDescription(),
+        })
+      },
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   function renderFieldRoot(): JSX.Element {
     const body = resolveChildren(() => merged.children as JSX.Element)
     const fieldChildren = renderComponentOrElement<FormFieldT.RenderContext>(body(), {
@@ -392,45 +262,16 @@ export function FormField<
         data-orientation={merged.orientation}
         {...rest}
         component={merged.as as any}
-        style={{ ...merged.styles?.root, ...merged.style }}
-        class={formFieldSizeVariants(
-          { size: merged.size },
-          merged.orientation === 'horizontal' && 'gap-x-2 grid grid-cols-4 items-baseline',
-          merged.classes?.root,
-          merged.class,
-        )}
+        {...resolved.rootClassAndStyle()}
       >
-        <div
-          data-slot="wrapper"
-          style={merged.styles?.wrapper}
-          class={cn(
-            FORM_FIELD_WRAPPER_CLASS,
-            merged.orientation === 'horizontal' && 'text-end col-span-1 items-end',
-            merged.classes?.wrapper,
-          )}
-        >
+        <div data-slot="wrapper" {...resolved.slotClassAndStyle('wrapper')}>
           <Show when={showLabel()}>
-            <div
-              data-slot="labelWrapper"
-              style={merged.styles?.labelWrapper}
-              class={cn(
-                FORM_FIELD_LABEL_WRAPPER_CLASS,
-                merged.orientation === 'horizontal' ? 'justify-end' : 'justify-between',
-                merged.classes?.labelWrapper,
-              )}
-            >
+            <div data-slot="labelWrapper" {...resolved.slotClassAndStyle('labelWrapper')}>
               <label
                 id={`${ariaId()}-label`}
                 for={resolvedLabelTargetId()}
                 data-slot="label"
-                style={merged.styles?.label}
-                class={formFieldLabelVariants(
-                  {
-                    required: merged.required ? true : undefined,
-                    orientation: merged.orientation,
-                  },
-                  merged.classes?.label,
-                )}
+                {...resolved.slotClassAndStyle('label')}
               >
                 {label()}
               </label>
@@ -439,12 +280,7 @@ export function FormField<
                 <span
                   id={`${ariaId()}-hint`}
                   data-slot="hint"
-                  style={merged.styles?.hint}
-                  class={formFieldSizeVariants(
-                    { size: merged.size },
-                    FORM_FIELD_HINT_CLASS,
-                    merged.classes?.hint,
-                  )}
+                  {...resolved.slotClassAndStyle('hint')}
                 >
                   {hint()}
                 </span>
@@ -456,28 +292,14 @@ export function FormField<
             <p
               id={`${ariaId()}-description`}
               data-slot="description"
-              style={merged.styles?.description}
-              class={formFieldSizeVariants(
-                { size: merged.size },
-                FORM_FIELD_DESCRIPTION_CLASS,
-                merged.classes?.description,
-              )}
+              {...resolved.slotClassAndStyle('description')}
             >
               {description()}
             </p>
           </Show>
         </div>
 
-        <div
-          data-slot="container"
-          class={formFieldContainerVariants(
-            {
-              orientation: merged.orientation,
-              hasText: showLabel() || showDescription(),
-            },
-            merged.classes?.container,
-          )}
-        >
+        <div data-slot="container" {...resolved.slotClassAndStyle('container')}>
           {fieldChildren}
 
           <Show
@@ -487,12 +309,7 @@ export function FormField<
                 <div
                   id={`${ariaId()}-help`}
                   data-slot="help"
-                  style={merged.styles?.help}
-                  class={formFieldSizeVariants(
-                    { size: merged.size },
-                    FORM_FIELD_HELP_CLASS,
-                    merged.classes?.help,
-                  )}
+                  {...resolved.slotClassAndStyle('help')}
                 >
                   {help()}
                 </div>
@@ -502,12 +319,7 @@ export function FormField<
             <div
               id={`${ariaId()}-error`}
               data-slot="error"
-              style={merged.styles?.error}
-              class={formFieldSizeVariants(
-                { size: merged.size },
-                FORM_FIELD_ERROR_CLASS,
-                merged.classes?.error,
-              )}
+              {...resolved.slotClassAndStyle('error')}
             >
               {resolvedError()}
             </div>

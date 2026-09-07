@@ -1,261 +1,209 @@
-import type { VariantProps } from 'cls-variant'
+import type { SlotRecipeOptions, VariantProps } from '../../shared/style/recipe.ts'
+import { recipe } from '../../shared/style/recipe.ts'
 
-import { cva } from '../../shared/utils'
+import type { SliderT } from './slider.types.ts'
 
-export const sliderRootVariants = cva(
-  'group flex select-none items-center relative touch-none data-disabled:effect-dis',
-  {
-    defaultVariants: {
-      orientation: 'horizontal',
-    },
-    variants: {
-      orientation: {
-        horizontal: 'w-full',
-        vertical: 'flex-col h-full',
-      },
-    },
+export const sliderRecipeOptions = {
+  base: {
+    root: 'group flex select-none items-center relative touch-none data-disabled:opacity-64 data-disabled:pointer-events-none',
+    track: 'bg-input select-none translate-z-0 relative overflow-hidden',
+    range: 'bg-primary select-none absolute z-raised',
+    divider: 'pointer-events-none absolute',
+    thumb: 'shrink-0 block select-none absolute z-control touch-none',
   },
-)
-
-export const sliderTrackVariants = cva(
-  'bg-input select-none translate-z-0 relative overflow-hidden',
-  {
-    defaultVariants: {
-      size: 'md',
-      orientation: 'horizontal',
-      variant: 'default',
-    },
-    variants: {
-      size: {
-        sm: '',
-        md: '',
-        lg: '',
-      },
-      variant: {
-        default: 'rounded-full',
-        bold: 'cursor-pointer',
-      },
-      orientation: {
-        horizontal: 'h-$s-size w-full',
-        vertical: 'h-full w-$s-size',
-      },
-    },
-    compoundVariants: [
-      { size: 'sm', variant: 'default', class: 'var-slider-4' },
-      { size: 'md', variant: 'default', class: 'var-slider-5' },
-      { size: 'lg', variant: 'default', class: 'var-slider-6' },
-      { size: 'sm', variant: 'bold', class: 'var-slider-bold-20-14-3 rounded-xs' },
-      { size: 'md', variant: 'bold', class: 'var-slider-bold-24-16-4 rounded-sm' },
-      { size: 'lg', variant: 'bold', class: 'var-slider-bold-28-18-5 rounded-md' },
-    ],
-  },
-)
-
-export const sliderRangeVariants = cva('bg-primary select-none absolute z-raised', {
   defaultVariants: {
     orientation: 'horizontal',
+    size: 'md',
     variant: 'default',
     inverted: false,
     multiple: false,
   },
   variants: {
     orientation: {
-      horizontal: 'h-full',
-      vertical: 'w-full',
-    },
-    variant: {
-      default: 'rounded-full',
-      bold: 'rounded-[inherit] transition-[width,height,left,right,top,bottom] after:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100) data-dragging:transition-none',
-    },
-    inverted: {
-      true: '',
-      false: '',
-    },
-    multiple: {
-      true: '',
-      false: '',
-    },
-  },
-  compoundVariants: [
-    {
-      orientation: 'horizontal',
-      inverted: false,
-      variant: 'bold',
-      class: 'after:(h-$s-len w-$s-offset top-1/2 -translate-y-1/2 left-$s-pos)',
-    },
-    {
-      orientation: 'horizontal',
-      inverted: true,
-      variant: 'bold',
-      class: 'after:(h-$s-len w-$s-offset top-1/2 -translate-y-1/2 right-$s-pos)',
-    },
-    {
-      orientation: 'vertical',
-      inverted: false,
-      variant: 'bold',
-      class: 'after:(w-$s-len h-$s-offset left-1/2 -translate-x-1/2 bottom-$s-pos)',
-    },
-    {
-      orientation: 'vertical',
-      inverted: true,
-      variant: 'bold',
-      class: 'after:(w-$s-len h-$s-offset left-1/2 -translate-x-1/2 top-$s-pos)',
-    },
-    {
-      orientation: 'horizontal',
-      inverted: false,
-      variant: 'bold',
-      multiple: true,
-      class:
-        'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 h-$s-len w-$s-offset top-1/2 -translate-y-1/2 left-$s-offset)',
-    },
-    {
-      orientation: 'horizontal',
-      inverted: true,
-      variant: 'bold',
-      multiple: true,
-      class:
-        'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 h-$s-len w-$s-offset top-1/2 -translate-y-1/2 right-$s-offset)',
-    },
-    {
-      orientation: 'vertical',
-      inverted: false,
-      variant: 'bold',
-      multiple: true,
-      class:
-        'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 w-$s-len h-$s-offset left-1/2 -translate-x-1/2 bottom-$s-offset)',
-    },
-    {
-      orientation: 'vertical',
-      inverted: true,
-      variant: 'bold',
-      multiple: true,
-      class:
-        'before:(rounded-full bg-primary-foreground/90 opacity-0 content-empty transition-opacity absolute group-focus-within:opacity-100 group-hover:opacity-100 w-$s-len h-$s-offset left-1/2 -translate-x-1/2 top-$s-offset)',
-    },
-  ],
-})
-
-export const sliderDividerVariants = cva('pointer-events-none absolute', {
-  defaultVariants: {
-    orientation: 'horizontal',
-    variant: 'default',
-  },
-  variants: {
-    orientation: {
-      horizontal: 'top-1/2 -translate-x-1/2 -translate-y-1/2',
-      vertical: 'left-1/2 -translate-x-1/2 -translate-y-1/2',
-    },
-    variant: {
-      default: 'bg-background',
-      bold: 'bg-muted-foreground/30',
-    },
-  },
-  compoundVariants: [
-    {
-      orientation: 'horizontal',
-      variant: 'default',
-      class: 'h-full w-px',
-    },
-    {
-      orientation: 'vertical',
-      variant: 'default',
-      class: 'h-px w-full',
-    },
-    {
-      orientation: 'horizontal',
-      variant: 'bold',
-      class: 'h-1/3 w-px',
-    },
-    {
-      orientation: 'vertical',
-      variant: 'bold',
-      class: 'h-px w-1/3',
-    },
-  ],
-})
-
-export const sliderThumbVariants = cva('shrink-0 block select-none absolute z-control touch-none', {
-  defaultVariants: {
-    orientation: 'horizontal',
-    inverted: false,
-    size: 'md',
-    variant: 'default',
-  },
-  variants: {
-    orientation: {
-      horizontal: '',
-      vertical: '',
-    },
-    inverted: {
-      true: '',
-      false: '',
+      horizontal: {
+        root: 'w-full',
+        track: 'h-[var(--s-size)] w-full',
+        range: 'h-full',
+        divider: 'top-1/2 -translate-x-1/2 -translate-y-1/2',
+      },
+      vertical: {
+        root: 'flex-col h-full',
+        track: 'h-full w-[var(--s-size)]',
+        range: 'w-full',
+        divider: 'left-1/2 -translate-x-1/2 -translate-y-1/2',
+      },
     },
     size: {
-      sm: '',
-      md: '',
-      lg: '',
+      sm: { root: '[--s-size:4px]' },
+      md: { root: '[--s-size:5px]' },
+      lg: { root: '[--s-size:6px]' },
     },
     variant: {
-      default:
-        'outline-none border border-border rounded-full bg-background cursor-pointer shadow-xs/5 transition-[box-shadow,transform] focus-visible:effect-fv hover:effect-fv dark:bg-foreground data-dragging:scale-120 not-dark:bg-clip-padding',
-      bold: 'outline-none opacity-0 cursor-grab data-dragging:cursor-grabbing',
+      default: {
+        track: 'rounded-full',
+        range: 'rounded-full',
+        divider: 'bg-background',
+        thumb:
+          'outline-none border border-border rounded-full bg-background cursor-pointer shadow-xs/5 transition-[box-shadow,transform] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 hover:ring-3 hover:ring-ring/50 dark:bg-foreground data-dragging:scale-120 [html:not(.dark)_&]:bg-clip-padding duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+      },
+      bold: {
+        track: 'cursor-pointer',
+        range:
+          "rounded-[inherit] transition-[width,height,left,right,top,bottom] after:rounded-full after:bg-primary-foreground/90 after:opacity-0 after:content-[''] after:transition-opacity after:absolute group-focus-within:after:opacity-100 group-hover:after:opacity-100 data-dragging:transition-none duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]",
+        divider: 'bg-muted-foreground/30',
+        thumb: 'outline-none opacity-0 cursor-grab data-dragging:cursor-grabbing',
+      },
+    },
+    inverted: {
+      true: {},
+      false: {},
+    },
+    multiple: {
+      true: {},
+      false: {},
     },
   },
   compoundVariants: [
-    { size: 'sm', variant: 'default', class: 'size-3' },
-    { size: 'md', variant: 'default', class: 'size-3.5' },
-    { size: 'lg', variant: 'default', class: 'size-4' },
     {
-      orientation: 'horizontal',
-      inverted: false,
-      variant: 'default',
-      class: '-translate-x-1/2',
+      variants: { size: 'sm', variant: 'bold' },
+      class: {
+        root: '[--s-size:20px] [--s-len:14px] [--s-offset:3px] [--s-pos:max(3px,calc(100%_-_6px))]',
+        track: 'rounded-xs',
+      },
     },
     {
-      orientation: 'horizontal',
-      inverted: true,
-      variant: 'default',
-      class: 'translate-x-1/2',
+      variants: { size: 'md', variant: 'bold' },
+      class: {
+        root: '[--s-size:24px] [--s-len:16px] [--s-offset:4px] [--s-pos:max(4px,calc(100%_-_8px))]',
+        track: 'rounded-sm',
+      },
     },
     {
-      orientation: 'vertical',
-      inverted: false,
-      variant: 'default',
-      class: 'translate-y-1/2',
+      variants: { size: 'lg', variant: 'bold' },
+      class: {
+        root: '[--s-size:28px] [--s-len:18px] [--s-offset:5px] [--s-pos:max(5px,calc(100%_-_10px))]',
+        track: 'rounded-md',
+      },
     },
     {
-      orientation: 'vertical',
-      inverted: true,
-      variant: 'default',
-      class: '-translate-y-1/2',
-    },
-    // Bold directional hit targets
-    {
-      orientation: 'horizontal',
-      inverted: false,
-      variant: 'bold',
-      class: 'h-full top-0 -translate-x-1/2 w-$s-size',
+      variants: { orientation: 'horizontal', inverted: false, variant: 'bold' },
+      class: {
+        range:
+          'after:h-[var(--s-len)] after:w-[var(--s-offset)] after:top-1/2 after:-translate-y-1/2 after:left-[var(--s-pos)]',
+      },
     },
     {
-      orientation: 'horizontal',
-      inverted: true,
-      variant: 'bold',
-      class: 'h-full top-0 translate-x-1/2 w-$s-size',
+      variants: { orientation: 'horizontal', inverted: true, variant: 'bold' },
+      class: {
+        range:
+          'after:h-[var(--s-len)] after:w-[var(--s-offset)] after:top-1/2 after:-translate-y-1/2 after:right-[var(--s-pos)]',
+      },
     },
     {
-      orientation: 'vertical',
-      inverted: false,
-      variant: 'bold',
-      class: 'w-full left-0 translate-y-1/2 h-$s-size',
+      variants: { orientation: 'vertical', inverted: false, variant: 'bold' },
+      class: {
+        range:
+          'after:w-[var(--s-len)] after:h-[var(--s-offset)] after:left-1/2 after:-translate-x-1/2 after:bottom-[var(--s-pos)]',
+      },
     },
     {
-      orientation: 'vertical',
-      inverted: true,
-      variant: 'bold',
-      class: 'w-full left-0 -translate-y-1/2 h-$s-size',
+      variants: { orientation: 'vertical', inverted: true, variant: 'bold' },
+      class: {
+        range:
+          'after:w-[var(--s-len)] after:h-[var(--s-offset)] after:left-1/2 after:-translate-x-1/2 after:top-[var(--s-pos)]',
+      },
+    },
+    {
+      variants: { orientation: 'horizontal', inverted: false, variant: 'bold', multiple: true },
+      class: {
+        range:
+          "before:rounded-full before:bg-primary-foreground/90 before:opacity-0 before:content-[''] before:transition-opacity before:absolute group-focus-within:before:opacity-100 group-hover:before:opacity-100 before:h-[var(--s-len)] before:w-[var(--s-offset)] before:top-1/2 before:-translate-y-1/2 before:left-[var(--s-offset)] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]",
+      },
+    },
+    {
+      variants: { orientation: 'horizontal', inverted: true, variant: 'bold', multiple: true },
+      class: {
+        range:
+          "before:rounded-full before:bg-primary-foreground/90 before:opacity-0 before:content-[''] before:transition-opacity before:absolute group-focus-within:before:opacity-100 group-hover:before:opacity-100 before:h-[var(--s-len)] before:w-[var(--s-offset)] before:top-1/2 before:-translate-y-1/2 before:right-[var(--s-offset)] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]",
+      },
+    },
+    {
+      variants: { orientation: 'vertical', inverted: false, variant: 'bold', multiple: true },
+      class: {
+        range:
+          "before:rounded-full before:bg-primary-foreground/90 before:opacity-0 before:content-[''] before:transition-opacity before:absolute group-focus-within:before:opacity-100 group-hover:before:opacity-100 before:w-[var(--s-len)] before:h-[var(--s-offset)] before:left-1/2 before:-translate-x-1/2 before:bottom-[var(--s-offset)] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]",
+      },
+    },
+    {
+      variants: { orientation: 'vertical', inverted: true, variant: 'bold', multiple: true },
+      class: {
+        range:
+          "before:rounded-full before:bg-primary-foreground/90 before:opacity-0 before:content-[''] before:transition-opacity before:absolute group-focus-within:before:opacity-100 group-hover:before:opacity-100 before:w-[var(--s-len)] before:h-[var(--s-offset)] before:left-1/2 before:-translate-x-1/2 before:top-[var(--s-offset)] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]",
+      },
+    },
+    {
+      variants: { orientation: 'horizontal', variant: 'default' },
+      class: { divider: 'h-full w-px' },
+    },
+    {
+      variants: { orientation: 'vertical', variant: 'default' },
+      class: { divider: 'h-px w-full' },
+    },
+    {
+      variants: { orientation: 'horizontal', variant: 'bold' },
+      class: { divider: 'h-1/3 w-px' },
+    },
+    {
+      variants: { orientation: 'vertical', variant: 'bold' },
+      class: { divider: 'h-px w-1/3' },
+    },
+    {
+      variants: { size: 'sm', variant: 'default' },
+      class: { thumb: 'size-3' },
+    },
+    {
+      variants: { size: 'md', variant: 'default' },
+      class: { thumb: 'size-3.5' },
+    },
+    {
+      variants: { size: 'lg', variant: 'default' },
+      class: { thumb: 'size-4' },
+    },
+    {
+      variants: { orientation: 'horizontal', inverted: false, variant: 'default' },
+      class: { thumb: '-translate-x-1/2' },
+    },
+    {
+      variants: { orientation: 'horizontal', inverted: true, variant: 'default' },
+      class: { thumb: 'translate-x-1/2' },
+    },
+    {
+      variants: { orientation: 'vertical', inverted: false, variant: 'default' },
+      class: { thumb: 'translate-y-1/2' },
+    },
+    {
+      variants: { orientation: 'vertical', inverted: true, variant: 'default' },
+      class: { thumb: '-translate-y-1/2' },
+    },
+    {
+      variants: { orientation: 'horizontal', inverted: false, variant: 'bold' },
+      class: { thumb: 'h-full top-0 -translate-x-1/2 w-[var(--s-size)]' },
+    },
+    {
+      variants: { orientation: 'horizontal', inverted: true, variant: 'bold' },
+      class: { thumb: 'h-full top-0 translate-x-1/2 w-[var(--s-size)]' },
+    },
+    {
+      variants: { orientation: 'vertical', inverted: false, variant: 'bold' },
+      class: { thumb: 'w-full left-0 translate-y-1/2 h-[var(--s-size)]' },
+    },
+    {
+      variants: { orientation: 'vertical', inverted: true, variant: 'bold' },
+      class: { thumb: 'w-full left-0 -translate-y-1/2 h-[var(--s-size)]' },
     },
   ],
-})
+} as const satisfies SlotRecipeOptions<keyof SliderT.Slot>
 
-export type SliderVariantProps = VariantProps<typeof sliderThumbVariants>
+export const sliderRecipe = recipe(sliderRecipeOptions)
+
+export type SliderVariantProps = VariantProps<typeof sliderRecipe>

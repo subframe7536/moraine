@@ -1,274 +1,17 @@
 import type { Component, JSX } from 'solid-js'
 import { For, Show, createEffect, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index'
-import type { IconT } from '../../elements/icon/index'
-import { List } from '../../elements/list/index'
-import type { ListProps, ListT } from '../../elements/list/index'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { callHandler, cn, useId } from '../../shared/utils'
+import { Icon } from '../../elements/icon/index.ts'
+import { List } from '../../elements/list/index.ts'
+import type { ListProps, ListT } from '../../elements/list/index.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
 
-import {
-  COMMAND_PALETTE_EMPTY_CLASS,
-  COMMAND_PALETTE_GROUP_CLASS,
-  COMMAND_PALETTE_INPUT_CLASS,
-  COMMAND_PALETTE_INPUT_WRAPPER_CLASS,
-  COMMAND_PALETTE_LABEL_CLASS,
-  COMMAND_PALETTE_LIST_CLASS,
-  COMMAND_PALETTE_ROOT_CLASS,
-  COMMAND_PALETTE_TRAILING_CLASS,
-  COMMAND_PALETTE_ITEM_CLASS,
-} from './command-palette.class'
+import type { CommandPaletteProps, CommandPaletteT } from './command-palette.types.ts'
 
-export namespace CommandPaletteT {
-  export type DescriptionPosition = 'bottom' | 'trailing'
-
-  export interface Slot<T = unknown> {
-    /**
-     * Command palette container that owns search and option list.
-     */
-    root?: T
-
-    /** Search row that groups input, search icon, and dismiss controls. */
-    inputWrapper?: T
-
-    /** Search input used to filter commands. */
-    input?: T
-
-    /** Scrollable command list that owns option and active-descendant semantics. */
-    listbox?: T
-
-    /** Bottom region for keyboard hints or custom footer content. */
-    footer?: T
-
-    /** Section wrapper for a group of command items. */
-    group?: T
-
-    /** Group heading text. */
-    label?: T
-
-    /** Command row that can be highlighted, selected, or disabled. */
-    item?: T
-
-    /** Leading region for a command row. */
-    itemLeading?: T
-
-    /** Text column that groups command label and description. */
-    itemWrapper?: T
-
-    /** Primary text for a command item. */
-    itemLabel?: T
-
-    /** Supporting text for a command item. */
-    itemDescription?: T
-
-    /** Trailing region for shortcuts or custom item metadata. */
-    itemTrailing?: T
-
-    /** Search icon or loading indicator displayed in the input row. */
-    search?: T
-
-    /** Button that dismisses the command palette. */
-    close?: T
-
-    /** Message shown when no command items match the search. */
-    empty?: T
-  }
-
-  export type Variant = {}
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Group<TItem extends Item = Item> {
-    /** Unique identifier for the group. */
-    id: string
-    /** Display name for the group header. */
-    label?: string
-    /** Items belonging to this group. */
-    items?: TItem[]
-  }
-
-  export interface Item {
-    /** Unique value for the item. */
-    value: string
-    /** Primary label for the item. */
-    label?: string
-    /** Secondary description text shown for the item. */
-    description?: string
-    /** Additional keywords included in built-in search matching. */
-    keywords?: string[]
-    /** Where the item description is rendered. Overrides the root setting. */
-    descriptionPosition?: DescriptionPosition
-    /** Custom visual rendered at the start of the item. */
-    leadingRender?: ComponentOrElement<ItemRenderProps>
-    /** Custom visual rendered at the end of the item. */
-    trailingRender?: ComponentOrElement<ItemRenderProps>
-    /** Whether the item is disabled and cannot be selected. */
-    disabled?: boolean
-    /** Whether this item should be excluded from built-in search filtering. */
-    alwaysShow?: boolean
-    /** Callback triggered when the item is selected. */
-    onSelect?: () => void
-  }
-
-  export interface VirtualLabelEntry<TItem extends Item = Item> {
-    /** Structural entry rendered before a command group. */
-    type: 'label'
-    /** Stable key used by a virtualizer. */
-    key: string
-    /** Visible group label. */
-    label: string
-    /** Source group containing the command. */
-    group: Group<TItem>
-  }
-
-  export interface VirtualItemEntry<TItem extends Item = Item> {
-    /** Selectable command entry. */
-    type: 'item'
-    /** Stable normalized command key. */
-    key: string
-    /** Source command. */
-    item: TItem
-    /** Source group containing the command. */
-    group: Group<TItem>
-    /** Whether the command cannot be selected. */
-    disabled: boolean
-  }
-
-  export type VirtualEntry<TItem extends Item = Item> =
-    | VirtualLabelEntry<TItem>
-    | VirtualItemEntry<TItem>
-
-  export type VirtualRenderProps<TItem extends Item = Item> = ListT.VirtualRenderProps<
-    VirtualEntry<TItem>,
-    HTMLDivElement,
-    HTMLDivElement
-  >
-
-  export interface BaseContext<TItem extends Item = Item> {
-    searchTerm: string
-    loading: boolean
-    hasItems: boolean
-    groups: Group<TItem>[]
-    visibleGroups: Group<TItem>[]
-  }
-
-  export interface ItemRenderProps<TItem extends Item = Item> extends BaseContext<TItem> {
-    item: TItem
-    group: Group<TItem>
-    focused: boolean
-    active: boolean
-    /** Compatibility alias for the currently active item state. */
-    selected: boolean
-    disabled: boolean
-  }
-
-  export type EmptyRenderProps<TItem extends Item = Item> = BaseContext<TItem>
-  export type FooterRenderProps<TItem extends Item = Item> = BaseContext<TItem>
-
-  export interface Base<TItem extends Item = Item> {
-    /**
-     * Command groups to display initially.
-     * @default []
-     */
-    groups?: Group<TItem>[]
-    /**
-     * Placeholder text for the search input.
-     * @default 'Search...'
-     */
-    placeholder?: string
-    /** Controlled search term. */
-    searchTerm?: string
-    /** Callback triggered when the search term changes. */
-    onSearchTermChange?: (term: string) => void
-    /** Callback triggered when an enabled item is selected. */
-    onSelect?: (item: TItem) => void
-    /** Maximum allowed length for the search text. */
-    searchMaxLength?: number
-    /**
-     * Whether to focus the search input automatically on mount.
-     * @default true
-     */
-    autofocus?: boolean
-    /**
-     * Icon name of input's leading icon.
-     * @default 'icon-search'
-     */
-    leadingIcon?: IconT.Name
-    /**
-     * Icon name of input's leading icon for the loading state.
-     * @default 'icon-loading'
-     */
-    loadingIcon?: IconT.Name
-    /**
-     * Icon name for the palette close button.
-     * @default 'icon-close'
-     */
-    closeIcon?: IconT.Name
-    /**
-     * Whether to show a close button in the header.
-     * @default false
-     */
-    showClose?: boolean
-    /** Callback triggered when the close button is clicked or selection requests closing. */
-    onClose?: () => void
-    /**
-     * Whether to request closing the palette after an enabled item is selected.
-     * @default true
-     */
-    closeOnSelect?: boolean
-    /**
-     * Whether the palette is in a loading state.
-     * @default false
-     */
-    loading?: boolean
-    /**
-     * Disable built-in search filtering and render all provided items.
-     * @default false
-     */
-    disableFilter?: boolean
-    /** Custom search text builder for built-in filtering. */
-    getItemSearchText?: (item: TItem, group: Group<TItem>) => string
-    /** Custom filter function that fully controls which groups and items are visible. */
-    filterItems?: (args: { groups: Group<TItem>[]; searchTerm: string }) => Group<TItem>[]
-    /**
-     * Where descriptions render by default.
-     * @default 'bottom'
-     */
-    descriptionPosition?: DescriptionPosition
-    /** Custom empty state renderer. */
-    emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
-    /** Custom footer renderer. */
-    footerRender?: ComponentOrElement<FooterRenderProps<TItem>>
-    /** Custom command row content renderer. */
-    itemRender?: ComponentOrElement<ItemRenderProps<TItem>>
-    /** Renders flattened group labels and commands through a virtualization layer. */
-    virtualRender?: Component<VirtualRenderProps<TItem>>
-    /** Scrolls a highlighted command into view using its flattened entry index. */
-    scrollToItem?: (item: TItem, entryIndex: number) => void
-    /** Additional attributes for the command listbox. */
-    listboxProps?: ElementProps<HTMLDivElement>
-    /** Additional attributes for a command row. */
-    itemProps?: (context: ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined
-    /** Additional props of input */
-    inputProps?: JSX.HTMLAttributes<HTMLInputElement>
-  }
-
-  export type Props<TItem extends Item = Item> = BaseProps<
-    'div',
-    Base<TItem>,
-    Variant,
-    Classes,
-    Styles
-  >
-}
-
-export interface CommandPaletteProps<
-  TItem extends CommandPaletteT.Item = CommandPaletteT.Item,
-> extends CommandPaletteT.Props<TItem> {}
+export * from './command-palette.types.ts'
 
 interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
   key: string
@@ -290,15 +33,6 @@ function toStyleObject(
   style: string | JSX.CSSProperties | undefined,
 ): JSX.CSSProperties | undefined {
   return typeof style === 'object' ? style : undefined
-}
-
-function callRef<T extends HTMLElement>(
-  ref: T | ((element: T) => void) | undefined,
-  element: T,
-): void {
-  if (typeof ref === 'function') {
-    ref(element)
-  }
 }
 
 function buildItemLabel(item: CommandPaletteT.Item): string {
@@ -376,6 +110,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   props: CommandPaletteProps<TItem>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, [
+    'ref',
+    'inputRef',
     'groups',
     'placeholder',
     'searchTerm',
@@ -402,26 +138,44 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'listboxProps',
     'itemProps',
     'inputProps',
-    'size',
     'classes',
     'styles',
     'class',
     'style',
   ])
+  const design = useMoraineDesign()
+  const commandPaletteDesign = () => design().commandPalette
+
   const merged = mergeProps(
     {
       placeholder: 'Search...',
       autofocus: true,
       showClose: false,
       closeOnSelect: true,
-      size: 'md' as const,
       descriptionPosition: 'bottom' as const,
       leadingIcon: 'icon-search',
       loadingIcon: 'icon-loading',
       closeIcon: 'icon-close',
     },
+    () => commandPaletteDesign()?.defaultVariants,
     local,
   )
+
+  const resolved = resolveComponentStyle({
+    design: {
+      get classes() {
+        return commandPaletteDesign()?.recipe()
+      },
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
 
   const [internalSearch, setInternalSearch] = createSignal('')
   const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
@@ -683,11 +437,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   function renderItemDescription(item: NormalizedItem<TItem>): JSX.Element {
     return (
       <Show when={item.item.description}>
-        <span
-          data-slot="itemDescription"
-          style={merged.styles?.itemDescription}
-          class={cn('text-xs text-muted-foreground truncate', merged.classes?.itemDescription)}
-        >
+        <span data-slot="itemDescription" {...resolved.slotClassAndStyle('itemDescription')}>
           {item.item.description}
         </span>
       </Show>
@@ -706,37 +456,22 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         fallback={
           <>
             <Show when={item.item.leadingRender !== undefined}>
-              <span
-                data-slot="itemLeading"
-                style={merged.styles?.itemLeading}
-                class={cn(
-                  'text-muted-foreground shrink-0 [&_svg]:size-4',
-                  merged.classes?.itemLeading,
-                )}
-              >
+              <span data-slot="itemLeading" {...resolved.slotClassAndStyle('itemLeading')}>
                 {renderComponentOrElement(item.item.leadingRender, itemContext)}
               </span>
             </Show>
 
             <span
               data-slot="itemWrapper"
-              style={merged.styles?.itemWrapper}
-              class={cn(
-                'text-start flex flex-1 flex-col min-w-0',
-                descriptionPosition() === 'trailing' && 'flex-row gap-2 items-baseline',
-                merged.classes?.itemWrapper,
-              )}
+              data-description-position={descriptionPosition()}
+              {...resolved.slotClassAndStyle('itemWrapper')}
             >
               <span
                 data-slot="itemLabel"
-                style={merged.styles?.itemLabel}
-                class={cn(
-                  'min-w-0 truncate items-baseline',
-                  descriptionPosition() === 'trailing' && 'flex flex-1 gap-2',
-                  merged.classes?.itemLabel,
-                )}
+                data-description-position={descriptionPosition()}
+                {...resolved.slotClassAndStyle('itemLabel')}
               >
-                <span class="truncate">{item.item.label ?? item.label}</span>
+                <span>{item.item.label ?? item.label}</span>
                 <Show when={descriptionPosition() === 'trailing'}>
                   {renderItemDescription(item)}
                 </Show>
@@ -745,11 +480,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             </span>
 
             <Show when={item.item.trailingRender !== undefined}>
-              <span
-                data-slot="itemTrailing"
-                style={merged.styles?.itemTrailing}
-                class={cn(COMMAND_PALETTE_TRAILING_CLASS, merged.classes?.itemTrailing)}
-              >
+              <span data-slot="itemTrailing" {...resolved.slotClassAndStyle('itemTrailing')}>
                 {renderComponentOrElement(item.item.trailingRender, itemContext)}
               </span>
             </Show>
@@ -786,17 +517,21 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           callRef(itemAttributes()?.ref, element)
           virtualProps?.ref?.(element)
         }}
-        style={{
-          ...merged.styles?.item,
-          ...toStyleObject(itemAttributes()?.style),
-          ...toStyleObject(virtualProps?.style),
-        }}
-        class={cn(
-          COMMAND_PALETTE_ITEM_CLASS,
-          merged.classes?.item,
-          itemAttributes()?.class,
-          virtualProps?.class,
-        )}
+        style={resolved.slotStyle('item', {
+          get state() {
+            return {
+              style: {
+                ...toStyleObject(itemAttributes()?.style),
+                ...toStyleObject(virtualProps?.style),
+              },
+            }
+          },
+        })}
+        class={resolved.slotClass('item', {
+          get state() {
+            return { class: [itemAttributes()?.class, virtualProps?.class] }
+          },
+        })}
         onPointerMove={(event) => {
           callHandler(event, itemAttributes()?.onPointerMove)
           callHandler(event, virtualProps?.onPointerMove)
@@ -841,41 +576,29 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
 
   return (
     <div
+      ref={(el) => callRef(local.ref, el)}
       data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn(COMMAND_PALETTE_ROOT_CLASS, merged.classes?.root, merged.class)}
+      {...resolved.rootClassAndStyle()}
       {...rest}
     >
-      <div
-        data-slot="inputWrapper"
-        style={merged.styles?.inputWrapper}
-        class={cn(COMMAND_PALETTE_INPUT_WRAPPER_CLASS, merged.classes?.inputWrapper)}
-      >
+      <div data-slot="inputWrapper" {...resolved.slotClassAndStyle('inputWrapper')}>
         <Icon
           name={merged.loading ? merged.loadingIcon : merged.leadingIcon}
           slotName="search"
-          style={merged.styles?.search}
           aria-busy={merged.loading || undefined}
           data-loading={merged.loading ? '' : undefined}
-          class={cn(
-            'text-muted-foreground opacity-50 shrink-0 pointer-events-none data-loading:effect-loading',
-            merged.classes?.search,
-          )}
+          {...resolved.slotClassAndStyle('search')}
         />
 
         <input
           {...merged.inputProps}
           ref={(el) => {
             setInputElement(el)
+            callRef((merged.inputProps as any)?.ref, el)
+            callRef(local.inputRef, el)
           }}
           data-slot="input"
-          style={merged.styles?.input}
-          class={cn(
-            'outline-none bg-transparent flex-1 placeholder:text-muted-foreground disabled:effect-dis',
-            COMMAND_PALETTE_INPUT_CLASS,
-            merged.classes?.input,
-          )}
-
+          {...resolved.slotClassAndStyle('input')}
           role="combobox"
           aria-controls={listboxId()}
           aria-expanded="true"
@@ -903,11 +626,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           <button
             type="button"
             data-slot="close"
-            style={merged.styles?.close}
-            class={cn(
-              'text-muted-foreground outline-none border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center hover:text-foreground',
-              merged.classes?.close,
-            )}
+            {...resolved.slotClassAndStyle('close')}
             onClick={() => {
               merged.onClose?.()
             }}
@@ -921,11 +640,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       <Show
         when={hasItems()}
         fallback={
-          <div
-            data-slot="empty"
-            style={merged.styles?.empty}
-            class={cn(COMMAND_PALETTE_EMPTY_CLASS, merged.classes?.empty)}
-          >
+          <div data-slot="empty" {...resolved.slotClassAndStyle('empty')}>
             <Show when={merged.emptyRender !== undefined} fallback="No results.">
               {renderComponentOrElement(merged.emptyRender, getContext())}
             </Show>
@@ -939,17 +654,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             <Show
               when={merged.virtualRender}
               fallback={
-                <div
-                  data-slot="group"
-                  style={merged.styles?.group}
-                  class={cn(COMMAND_PALETTE_GROUP_CLASS, merged.classes?.group)}
-                >
+                <div data-slot="group" {...resolved.slotClassAndStyle('group')}>
                   <Show when={(context.item as NormalizedGroup<TItem>).label}>
-                    <span
-                      data-slot="label"
-                      style={merged.styles?.label}
-                      class={cn(COMMAND_PALETTE_LABEL_CLASS, merged.classes?.label)}
-                    >
+                    <span data-slot="label" {...resolved.slotClassAndStyle('label')}>
                       {(context.item as NormalizedGroup<TItem>).label}
                     </span>
                   </Show>
@@ -976,22 +683,18 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                   role="presentation"
                   data-slot="group"
                   {...context.props}
-                  style={{
-                    ...merged.styles?.group,
-                    ...toStyleObject(context.props?.style),
-                  }}
-                  class={cn(
-                    'mt-2',
-                    COMMAND_PALETTE_GROUP_CLASS,
-                    merged.classes?.group,
-                    context.props?.class,
-                  )}
+                  style={resolved.slotStyle('group', {
+                    get state() {
+                      return { style: { ...toStyleObject(context.props?.style) } }
+                    },
+                  })}
+                  class={resolved.slotClass('group', {
+                    get state() {
+                      return { class: context.props?.class }
+                    },
+                  })}
                 >
-                  <span
-                    data-slot="label"
-                    style={merged.styles?.label}
-                    class={cn(COMMAND_PALETTE_LABEL_CLASS, merged.classes?.label)}
-                  >
+                  <span data-slot="label" {...resolved.slotClassAndStyle('label')}>
                     {(context.item as CommandPaletteT.VirtualLabelEntry<TItem>).label}
                   </span>
                 </div>
@@ -1011,24 +714,21 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             listboxElement = element
             callRef(merged.listboxProps?.ref, element)
           }}
-          style={{
-            ...merged.styles?.listbox,
-            ...toStyleObject(merged.listboxProps?.style),
-          }}
-          class={cn(
-            COMMAND_PALETTE_LIST_CLASS,
-            merged.classes?.listbox,
-            merged.listboxProps?.class,
-          )}
+          style={resolved.slotStyle('listbox', {
+            get state() {
+              return { style: { ...toStyleObject(merged.listboxProps?.style) } }
+            },
+          })}
+          class={resolved.slotClass('listbox', {
+            get state() {
+              return { class: merged.listboxProps?.class }
+            },
+          })}
         />
       </Show>
 
       <Show when={merged.footerRender !== undefined}>
-        <div
-          data-slot="footer"
-          style={merged.styles?.footer}
-          class={cn('text-sm text-muted-foreground p-3', merged.classes?.footer)}
-        >
+        <div data-slot="footer" {...resolved.slotClassAndStyle('footer')}>
           {renderComponentOrElement(merged.footerRender, getContext())}
         </div>
       </Show>

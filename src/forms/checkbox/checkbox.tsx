@@ -1,166 +1,18 @@
 import type { JSX } from 'solid-js'
 import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index'
-import { Icon } from '../../elements/icon/index'
-import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class'
-import { HiddenInput } from '../../shared/hidden-input'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { callHandler, cn, useId } from '../../shared/utils'
-import { useFormField } from '../form/form-context'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-} from '../shared/form-options'
-import { isInteractiveTarget } from '../shared/is-interactive-target'
-import { useFormReset } from '../shared/use-form-reset'
+import { Icon } from '../../elements/icon/index.ts'
+import { HiddenInput } from '../../shared/hidden-input.tsx'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
+import { useFormField } from '../form/form-context.ts'
+import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
-import type { CheckboxVariantProps } from './checkbox.class'
-import {
-  checkboxBaseVariants,
-  checkboxCardPaddingVariants,
-  checkboxContainerVariants,
-  checkboxLabelVariants,
-  checkboxRootVariants,
-  checkboxWrapperVariants,
-} from './checkbox.class'
+import type { CheckboxProps } from './checkbox.types.ts'
 
-export namespace CheckboxT {
-  export interface Slot<T = unknown> {
-    /**
-     * Labelable checkbox wrapper that coordinates input, indicator, and text content.
-     */
-    root?: T
-
-    /** Visible checkbox control users recognize as the toggle target. */
-    control?: T
-
-    /** Visual checked or indeterminate state layer inside the control. */
-    indicator?: T
-
-    /** Check or indeterminate icon rendered for the current state. */
-    icon?: T
-
-    /** Inner layout wrapper used by card and list checkbox variants. */
-    wrapper?: T
-
-    /** Vertical alignment wrapper for the checkbox control. */
-    container?: T
-
-    /** Primary checkbox label text. */
-    label?: T
-
-    /** Supporting text associated with the checkbox. */
-    description?: T
-  }
-
-  export type Variant = CheckboxVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  /**
-   * Base props for the Checkbox component.
-   */
-  export interface Base<TTrue = boolean, TFalse = boolean>
-    extends FormIdentityOptions, FormDisableOption, FormRequiredOption, FormReadOnlyOption {
-    /**
-     * Pointer down handler for the checkbox control.
-     */
-    onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
-
-    /**
-     * Native value submitted when the checkbox is checked.
-     * @default 'on'
-     */
-    value?: string
-
-    /**
-     * Whether the checkbox is checked (controlled).
-     */
-    checked?: TTrue | TFalse | 'indeterminate'
-
-    /**
-     * Whether the checkbox is checked by default (uncontrolled).
-     * @default false
-     */
-    defaultChecked?: boolean | 'indeterminate'
-
-    /**
-     * Value to use when the checkbox is checked.
-     * @default true
-     */
-    trueValue?: TTrue
-
-    /**
-     * Value to use when the checkbox is unchecked.
-     * @default false
-     */
-    falseValue?: TFalse
-
-    /**
-     * Label for the checkbox.
-     */
-    label?: JSX.Element
-
-    /**
-     * Description text for the checkbox.
-     */
-    description?: JSX.Element
-
-    /**
-     * Whether to bind the checkbox value to the parent FormField.
-     * @default true
-     */
-    formFieldBind?: boolean
-
-    /**
-     * Callback when the checked state changes.
-     */
-    onChange?: (value: TTrue | TFalse) => void
-
-    /**
-     * Whether the checkbox is in an indeterminate state.
-     * @default false
-     */
-    indeterminate?: boolean
-
-    /**
-     * Icon to show when checked.
-     * @default 'icon-check'
-     */
-    checkedIcon?: IconT.Name
-
-    /**
-     * Icon to show when indeterminate.
-     * @default 'icon-minus'
-     */
-    indeterminateIcon?: IconT.Name
-  }
-
-  /**
-   * Props for the Checkbox component.
-   */
-  export type Props<TTrue = boolean, TFalse = boolean> = BaseProps<
-    'div',
-    Base<TTrue, TFalse>,
-    Variant,
-    Classes,
-    Styles
-  >
-}
-
-/**
- * Props for the Checkbox component.
- */
-export interface CheckboxProps<TTrue = boolean, TFalse = boolean> extends CheckboxT.Props<
-  TTrue,
-  TFalse
-> {}
+export * from './checkbox.types.ts'
 
 /** Single checkbox control with card and list variants and custom true/false values. */
 export function Checkbox<TTrue = boolean, TFalse = boolean>(
@@ -188,6 +40,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     'checkedIcon',
     'indeterminateIcon',
     'onPointerDown',
+    'inputRef',
     'size',
     'variant',
     'indicator',
@@ -197,6 +50,10 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     'style',
     'onClick',
   ])
+
+  const design = useMoraineDesign()
+  const checkboxDesign = () => design().checkbox
+
   const merged = mergeProps(
     {
       variant: 'list' as const,
@@ -208,6 +65,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       falseValue: false,
       value: 'on',
     },
+    () => checkboxDesign()?.defaultVariants,
     local,
   )
   const label = createMemo(() => merged.label)
@@ -220,7 +78,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size,
+      size: local.size,
       disabled: merged.disabled,
       required: local.required,
       readOnly: readOnly(),
@@ -228,7 +86,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     () => ({
       bind: merged.formFieldBind,
       defaultId: generatedId(),
-      defaultSize: 'md',
+      defaultSize: checkboxDesign()?.defaultVariants?.size ?? 'md',
       initialValue:
         merged.formFieldBind === false
           ? undefined
@@ -237,6 +95,27 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
             ) ?? merged.falseValue),
     }),
   )
+
+  const resolved = resolveComponentStyle({
+    design: {
+      get classes() {
+        return checkboxDesign()?.recipe({
+          variant: merged.variant,
+          indicator: merged.indicator,
+          size: field.size(),
+          required: field.required(),
+        })
+      },
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
 
   const defaultCheckedState = createMemo<boolean | 'indeterminate'>(() => {
     if (merged.defaultChecked === undefined) {
@@ -451,33 +330,12 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   }
 
   return (
-    <div
-      data-slot="root"
-      {...rest}
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={checkboxRootVariants(
-        {
-          variant: merged.variant,
-          indicator: merged.indicator === 'hidden' ? undefined : merged.indicator,
-        },
-        merged.variant === 'card' &&
-          checkboxCardPaddingVariants({
-            size: field.size(),
-          }),
-        merged.variant === 'card' && 'cursor-pointer',
-        merged.classes?.root,
-        merged.class,
-      )}
-      onClick={onRootClick}
-    >
-      <div
-        data-slot="container"
-        style={merged.styles?.container}
-        class={checkboxContainerVariants({ size: field.size() }, merged.classes?.container)}
-      >
+    <div data-slot="root" {...rest} {...resolved.rootClassAndStyle()} onClick={onRootClick}>
+      <div data-slot="container" {...resolved.slotClassAndStyle('container')}>
         <HiddenInput
           ref={(element) => {
             inputEl = element
+            callRef(local.inputRef, element)
           }}
           id={`${field.id()}-input`}
           type="checkbox"
@@ -514,13 +372,13 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           data-slot="control"
           data-invalid={field.invalid() ? '' : undefined}
           aria-checked={indeterminate() ? 'mixed' : Boolean(resolvedChecked())}
-          style={merged.styles?.control}
-          class={checkboxBaseVariants(
-            { size: field.size() },
-            merged.indicator === 'hidden' && 'sr-only',
-            merged.classes?.control,
-            field.disabled() && 'effect-dis',
-          )}
+          {...resolved.slotClassAndStyle('control', {
+            get state() {
+              return {
+                class: [merged.indicator === 'hidden' && 'sr-only'],
+              }
+            },
+          })}
           onPointerDown={onPointerDown}
           onClick={onControlClick}
           onKeyDown={onControlKeyDown}
@@ -538,35 +396,21 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           <Show when={resolvedChecked() || indeterminate()}>
             <span
               data-slot="indicator"
-              style={merged.styles?.indicator}
-              class={cn(
-                'text-primary-foreground bg-primary flex size-full items-center justify-center',
-                merged.classes?.indicator,
-              )}
+              {...resolved.slotClassAndStyle('indicator')}
               data-checked={resolvedChecked() ? '' : undefined}
               data-disabled={field.disabled() ? '' : undefined}
               data-indeterminate={indeterminate() ? '' : undefined}
               data-readonly={readOnly() ? '' : undefined}
               data-required={field.required() ? '' : undefined}
             >
-              <Icon name={activeIcon()} class={cn('shrink-0 size-full', merged.classes?.icon)} />
+              <Icon name={activeIcon()} {...resolved.slotClassAndStyle('icon')} />
             </span>
           </Show>
         </button>
       </div>
 
       <Show when={label() || description()}>
-        <div
-          data-slot="wrapper"
-          style={merged.styles?.wrapper}
-          class={checkboxWrapperVariants(
-            {
-              indicator: merged.indicator,
-              size: field.size(),
-            },
-            merged.classes?.wrapper,
-          )}
-        >
+        <div data-slot="wrapper" {...resolved.slotClassAndStyle('wrapper')}>
           <Show when={label()}>
             <Show
               when={merged.variant === 'card'}
@@ -575,22 +419,13 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                   for={field.id()}
                   id={labelId()}
                   data-slot="label"
-                  style={merged.styles?.label}
-                  class={checkboxLabelVariants(
-                    { required: field.required() },
-                    merged.classes?.label,
-                  )}
+                  {...resolved.slotClassAndStyle('label')}
                 >
                   {label()}
                 </label>
               }
             >
-              <p
-                id={labelId()}
-                data-slot="label"
-                style={merged.styles?.label}
-                class={checkboxLabelVariants({ required: field.required() }, merged.classes?.label)}
-              >
+              <p id={labelId()} data-slot="label" {...resolved.slotClassAndStyle('label')}>
                 {label()}
               </p>
             </Show>
@@ -600,12 +435,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
             <p
               id={descriptionId()}
               data-slot="description"
-              style={merged.styles?.description}
-              class={cn(
-                TEXT_SIZE_VARIANT[field.size()],
-                'text-muted-foreground leading-normal',
-                merged.classes?.description,
-              )}
+              {...resolved.slotClassAndStyle('description')}
             >
               {description()}
             </p>

@@ -1,21 +1,23 @@
-import { COLLAPSIBLE_CONTENT_ANIMATION_CLASS } from '../collapsible/collapsible.class'
+import { recipe } from '../../shared/style/recipe.ts'
+import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 
-export const ACCORDION_ROOT_CLASS = 'flex flex-col w-full'
+import type { AccordionT } from './accordion.types.ts'
 
-export const ACCORDION_ITEM_CLASS = 'not-last:border-(b b-border) data-disabled:effect-dis'
+export const accordionRecipeOptions = {
+  base: {
+    root: 'flex flex-col w-full data-disabled:opacity-64 data-disabled:pointer-events-none',
+    item: '[&:not(:last-child)]:border-b [&:not(:last-child)]:border-border data-disabled:opacity-64 data-disabled:pointer-events-none',
+    header: 'flex',
+    trigger:
+      'group text-sm font-medium py-3 text-left outline-none border border-transparent rounded-md flex flex-1 min-w-0 w-full items-center justify-between relative focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-64 disabled:pointer-events-none hover:underline cursor-pointer',
+    leading: 'shrink-0 mr-1.5',
+    label: 'text-start break-words',
+    trailing:
+      'text-muted-foreground ml-auto shrink-0 size-4 pointer-events-none transition-transform group-aria-expanded:rotate-180 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+    content:
+      'text-sm h-[var(--mo-collapsible-content-height)] overflow-hidden data-expanded:animate-accordion-down data-closed:h-0 data-closed:animate-accordion-up motion-reduce:animate-none',
+    contentInner: 'pt-0 pb-4',
+  },
+} as const satisfies SlotRecipeOptions<keyof AccordionT.Slot>
 
-export const ACCORDION_HEADER_CLASS = 'flex'
-
-export const ACCORDION_TRIGGER_CLASS =
-  'group text-sm font-medium py-3 text-left outline-none border border-transparent rounded-md flex flex-1 min-w-0 w-full items-center justify-between relative focus-visible:effect-fv-border disabled:effect-dis hover:underline cursor-pointer'
-
-export const ACCORDION_LEADING_CLASS = 'shrink-0 mr-1.5'
-
-export const ACCORDION_LABEL_CLASS = 'text-start break-words'
-
-export const ACCORDION_TRAILING_CLASS =
-  'text-muted-foreground ml-auto shrink-0 size-4 pointer-events-none transition-transform group-aria-expanded:rotate-180'
-
-export const ACCORDION_CONTENT_CLASS = `text-sm h-$mo-collapsible-content-height overflow-hidden data-closed:h-0 ${COLLAPSIBLE_CONTENT_ANIMATION_CLASS}`
-
-export const ACCORDION_CONTENT_INNER_CLASS = 'pt-0 pb-4'
+export const accordionRecipe = recipe(accordionRecipeOptions)

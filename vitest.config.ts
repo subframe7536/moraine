@@ -22,7 +22,11 @@ export default defineConfig({
   plugins: [solid({ hot: false, solid: { hydratable: true } })],
   test: {
     globalSetup: ['./src/test-utils/ssr-global-setup.ts'],
-    include: ['src/**/*.{test,spec}.?(c|m)[jt]s?(x)', 'docs/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
+    include: [
+      'src/**/*.{test,spec}.?(c|m)[jt]s?(x)',
+      'docs/**/*.{test,spec}.?(c|m)[jt]s?(x)',
+      'test/**/*.{test,spec}.?(c|m)[jt]s?(x)',
+    ],
     environment: 'jsdom',
     globals: true,
     server: {

@@ -234,6 +234,12 @@
         "description": "The ID of the input element."
       },
       {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined",
+        "description": "Native input element ref."
+      },
+      {
         "name": "label",
         "required": false,
         "type": "JSX.Element",

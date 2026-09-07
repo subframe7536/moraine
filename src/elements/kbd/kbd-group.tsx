@@ -1,64 +1,15 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
 
-import { Kbd } from './kbd'
-import type { KbdT } from './kbd'
-import type { KbdGroupVariantProps } from './kbd.class'
-import { kbdGroupVariants } from './kbd.class'
+import type { KbdGroupProps, KbdGroupT } from './kbd-group.types.ts'
+import { Kbd } from './kbd.tsx'
+import type { KbdT } from './kbd.types.ts'
 
-export namespace KbdGroupT {
-  export interface Slot<T = unknown> {
-    /** Container for one or more shortcut steps. */
-    root?: T
-
-    /** Wrapper around keys pressed at the same time. */
-    chord?: T
-
-    /** Individual key token. */
-    item?: T
-
-    /** Divider between keys pressed at the same time. */
-    divider?: T
-
-    /** Divider between shortcut steps pressed in sequence. */
-    sequenceDivider?: T
-  }
-  export type Variant = KbdGroupVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export type Item = KbdT.Key | KbdT.Base
-  export interface DividerRenderProps {
-    /** Zero-based divider index in the current collection. */
-    index: number
-  }
-
-  /** Base props for the KbdGroup component. */
-  export interface Base {
-    /** Keys pressed at the same time, such as Ctrl+K. */
-    items?: Item[]
-
-    /** Key groups pressed one after another, such as Ctrl+K then Ctrl+S. */
-    sequence?: Item[][]
-
-    /** Custom divider rendered between keys in the same group. */
-    dividerRender?: ComponentOrElement<DividerRenderProps>
-
-    /** Custom divider rendered between shortcut steps. */
-    sequenceDividerRender?: ComponentOrElement<DividerRenderProps>
-  }
-
-  /** Props for the KbdGroup component. */
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
-}
-
-/** Props for the KbdGroup component. */
-export interface KbdGroupProps extends KbdGroupT.Props {}
+export * from './kbd-group.types.ts'
 
 function resolveDivider(
   dividerRender: ComponentOrElement<KbdGroupT.DividerRenderProps>,
@@ -78,63 +29,72 @@ function toItemProps(item: KbdGroupT.Item): KbdT.Base {
 
 /** Group of keyboard shortcut keys with support for simultaneous chords and ordered sequences. */
 export function KbdGroup(props: KbdGroupProps): JSX.Element {
+  const design = useMoraineDesign()
+  const kbdGroupDesign = () => design().kbdGroup
+
   const [local, rest] = splitProps(props, [
     'items',
     'sequence',
     'dividerRender',
     'sequenceDividerRender',
     'size',
+    'variant',
     'classes',
     'styles',
     'class',
     'style',
   ])
+
+  const size = () => local.size ?? kbdGroupDesign()?.defaultVariants?.size ?? 'md'
+  const variant = () => local.variant ?? kbdGroupDesign()?.defaultVariants?.variant ?? 'default'
+
   const groups = createMemo(() =>
     (local.sequence ?? (local.items ? [local.items] : [])).filter((items) => items.length > 0),
   )
 
+  const resolved = resolveComponentStyle({
+    design: {
+      get classes() {
+        return kbdGroupDesign()?.recipe({ size: size() })
+      },
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   return (
     <Show when={groups().length > 0}>
-      <span
-        data-slot="root"
-        {...rest}
-        class={kbdGroupVariants({ size: local.size }, local.classes?.root, local.class)}
-        style={{ ...local.styles?.root, ...local.style }}
-      >
+      <span data-slot="root" {...rest} {...resolved.rootClassAndStyle()}>
         <For each={groups()}>
           {(items, groupIndex) => (
             <>
               <Show when={groupIndex() > 0}>
                 <span
                   data-slot="sequenceDivider"
-                  class={cn('text-muted-foreground', local.classes?.sequenceDivider)}
-                  style={local.styles?.sequenceDivider}
+                  {...resolved.slotClassAndStyle('sequenceDivider')}
                 >
                   {resolveDivider(local.sequenceDividerRender, { index: groupIndex() - 1 }, 'then')}
                 </span>
               </Show>
-              <span
-                data-slot="chord"
-                class={cn('inline-flex gap-1 items-center', props.classes?.chord)}
-                style={props.styles?.chord}
-              >
+              <span data-slot="chord" {...resolved.slotClassAndStyle('chord')}>
                 <For each={items}>
                   {(item, index) => (
                     <>
                       <Kbd
                         {...toItemProps(item)}
-                        size={props.size}
-                        variant={props.variant}
-                        class={props.classes?.item}
-                        style={props.styles?.item}
+                        size={size()}
+                        variant={variant()}
+                        {...resolved.slotClassAndStyle('item')}
                         slotName="item"
                       />
                       <Show when={index() < items.length - 1}>
-                        <span
-                          data-slot="divider"
-                          class={cn('text-muted-foreground', props.classes?.divider)}
-                          style={props.styles?.divider}
-                        >
+                        <span data-slot="divider" {...resolved.slotClassAndStyle('divider')}>
                           {resolveDivider(local.dividerRender, { index: index() }, '+')}
                         </span>
                       </Show>

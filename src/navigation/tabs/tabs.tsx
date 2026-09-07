@@ -11,151 +11,16 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index'
-import type { IconT } from '../../elements/icon/index'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { cn, useId } from '../../shared/utils'
+import { Icon } from '../../elements/icon/index.ts'
+import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
+import { useId } from '../../shared/utils.ts'
 
-import {
-  tabsIndicatorVariants,
-  TABS_LEADING_CLASS,
-  tabsListVariants,
-  tabsRootVariants,
-  tabsTriggerVariants,
-} from './tabs.class'
-import type { TabsVariantProps } from './tabs.class'
+import type { TabsProps, TabsT } from './tabs.types.ts'
 
-export namespace TabsT {
-  export interface Slot<T = unknown> {
-    /**
-     * Tabs container that owns tab selection and panel rendering.
-     */
-    root?: T
-
-    /** Tablist that contains all tab triggers and the selection indicator. */
-    list?: T
-
-    /** Moving indicator aligned with the active tab trigger. */
-    indicator?: T
-
-    /** Tab button users activate to select a panel. */
-    trigger?: T
-
-    /** Optional icon rendered before a tab label. */
-    leading?: T
-
-    /** Text or custom label rendered inside a tab trigger. */
-    label?: T
-
-    /** Optional trailing content rendered after a tab label. */
-    trailing?: T
-
-    /** Tab panel rendered for the selected item. */
-    content?: T
-  }
-
-  export type Variant = TabsVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  /**
-   * An individual tab in the tabs component.
-   */
-  export interface Item {
-    /**
-     * Label to display on the tab trigger.
-     */
-    label?: JSX.Element
-
-    /**
-     * Icon to display next to the label.
-     */
-    icon?: IconT.Name
-
-    /**
-     * Unique value for the tab.
-     * @default index of the item
-     */
-    value?: string
-
-    /**
-     * Content to display when the tab is active.
-     */
-    content?: JSX.Element
-
-    /**
-     * Whether the tab is disabled.
-     * @default false
-     */
-    disabled?: boolean
-  }
-
-  /**
-   * Base props for the Tabs component.
-   */
-  export interface Base {
-    /**
-     * Unique identifier for the tabs root element.
-     */
-    id?: string
-
-    /**
-     * Controlled active tab value.
-     */
-    value?: string
-
-    /**
-     * Default active tab value for uncontrolled usage.
-     */
-    defaultValue?: string
-
-    /**
-     * The orientation of the tab list.
-     * @default 'horizontal'
-     */
-    orientation?: 'horizontal' | 'vertical'
-
-    /**
-     * Whether keyboard navigation activates the tab immediately or waits for confirmation.
-     * @default 'automatic'
-     */
-    activationMode?: 'automatic' | 'manual'
-
-    /**
-     * Whether the tab list is disabled.
-     * @default false
-     */
-    disabled?: boolean
-
-    /**
-     * Whether arrow-key navigation wraps from the ends.
-     * @default true
-     */
-    keyboardLoop?: boolean
-
-    /**
-     * Callback when the active tab changes.
-     */
-    onChange?: (value: string) => void
-
-    /**
-     * Array of tabs to display.
-     */
-    items?: Item[]
-  }
-
-  /**
-   * Props for the Tabs component.
-   */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the Tabs component.
- */
-export interface TabsProps extends TabsT.Props {}
+export type { TabsProps, TabsT } from './tabs.types.ts'
 
 interface NormalizedTabItem extends TabsT.Item {
   instanceKey: string
@@ -191,14 +56,38 @@ export function Tabs(props: TabsProps): JSX.Element {
     'class',
     'style',
   ])
+  const design = useMoraineDesign()
+  const tabsDesign = () => design().tabs
+
   const merged = mergeProps(
     {
       orientation: 'horizontal' as const,
       variant: 'pill' as const,
       size: 'md' as const,
     },
+    () => tabsDesign().defaultVariants,
     local,
   )
+
+  const resolved = resolveComponentStyle({
+    design: {
+      get classes() {
+        return tabsDesign().recipe({
+          orientation: merged.orientation,
+          variant: merged.variant,
+          size: merged.size,
+        })
+      },
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
 
   const rootId = useId(() => merged.id, 'tabs')
   const [requestedValue, setRequestedValue] = useControllableValue<string>({
@@ -212,9 +101,12 @@ export function Tabs(props: TabsProps): JSX.Element {
       const value = normalizeItemValue(item.value, index)
       const occurrence = occurrences.get(value) ?? 0
       occurrences.set(value, occurrence + 1)
+      const content = createLazyMemo(() => item.content)
 
       return {
-        content: item.content,
+        get content() {
+          return content()
+        },
         disabled: item.disabled,
         icon: item.icon,
         instanceKey: `${encodeURIComponent(value)}-${occurrence}`,
@@ -400,39 +292,25 @@ export function Tabs(props: TabsProps): JSX.Element {
       id={rootId()}
       data-slot="root"
       data-orientation={merged.orientation}
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={tabsRootVariants(
-        { orientation: merged.orientation },
-        merged.classes?.root,
-        merged.class,
-      )}
+      {...resolved.rootClassAndStyle()}
       {...rest}
     >
       <div
         ref={(e) => (listRef = e)}
         role="tablist"
-        aria-orientation={merged.orientation}
+        aria-orientation={merged.orientation ?? undefined}
         data-slot="list"
-        style={merged.styles?.list}
-        class={tabsListVariants(
-          {
-            orientation: merged.orientation,
-            variant: merged.variant,
-          },
-          merged.classes?.list,
-        )}
+        {...resolved.slotClassAndStyle('list')}
       >
         <div
           aria-hidden="true"
           data-slot="indicator"
-          style={{ ...indicatorStyle(), ...merged.styles?.indicator }}
-          class={tabsIndicatorVariants(
-            {
-              orientation: merged.orientation,
-              variant: merged.variant,
+          style={resolved.slotStyle('indicator', {
+            get state() {
+              return { style: indicatorStyle() }
             },
-            merged.classes?.indicator,
-          )}
+          })}
+          class={resolved.slotClass('indicator')}
         />
 
         <For each={normalizedItems()}>
@@ -470,40 +348,24 @@ export function Tabs(props: TabsProps): JSX.Element {
                 data-highlighted={highlighted() && !selected() ? '' : undefined}
                 disabled={Boolean(merged.disabled || item.disabled)}
                 data-slot="trigger"
-                style={merged.styles?.trigger}
-                class={tabsTriggerVariants(
-                  {
-                    orientation: merged.orientation,
-                    variant: merged.variant,
-                    size: merged.size,
-                  },
-                  merged.classes?.trigger,
-                )}
+                {...resolved.slotClassAndStyle('trigger')}
                 onClick={() => {
                   setHighlightedKey(item.instanceKey)
                   selectValue(item.value)
                 }}
                 onFocus={() => setHighlightedKey(item.instanceKey)}
                 onKeyDown={(event) => {
-                  onNavigationKeyDown(event, item.instanceKey, merged.orientation)
+                  onNavigationKeyDown(event, item.instanceKey, merged.orientation ?? 'horizontal')
                 }}
               >
                 <Show when={item.icon}>
-                  <span
-                    data-slot="leading"
-                    style={merged.styles?.leading}
-                    class={cn(TABS_LEADING_CLASS, merged.classes?.leading)}
-                  >
+                  <span data-slot="leading" {...resolved.slotClassAndStyle('leading')}>
                     <Icon name={item.icon} />
                   </span>
                 </Show>
 
                 <Show when={typeof item.label === 'string'} fallback={item.label}>
-                  <span
-                    data-slot="label"
-                    style={merged.styles?.label}
-                    class={cn('truncate', merged.classes?.label)}
-                  >
+                  <span data-slot="label" {...resolved.slotClassAndStyle('label')}>
                     {item.label}
                   </span>
                 </Show>
@@ -526,8 +388,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 aria-labelledby={getTriggerId(item.instanceKey)}
                 data-selected=""
                 data-slot="content"
-                style={merged.styles?.content}
-                class={cn('text-sm outline-none w-full', merged.classes?.content)}
+                {...resolved.slotClassAndStyle('content')}
               >
                 {item.content}
               </div>

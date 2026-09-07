@@ -1,61 +1,12 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
+import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 
-import { AvatarFace } from './avatar'
-import type { AvatarT } from './avatar'
-import type { AvatarGroupVariantProps } from './avatar.class'
-import { avatarGroupCountVariants, avatarGroupItemVariants } from './avatar.class'
+import type { AvatarGroupProps } from './avatar-group.types.ts'
+import { AvatarFace } from './avatar.tsx'
 
-export namespace AvatarGroupT {
-  export interface Slot<T = unknown> {
-    /** Container of grouped avatars. */
-    root?: T
-
-    /** Individual avatar wrapper used when rendering grouped avatars. */
-    item?: T
-
-    /** Count indicator shown when a group has more avatars than the visible limit. */
-    count?: T
-
-    /** Loaded avatar image rendered inside each frame. */
-    image?: T
-
-    /** Text fallback shown while an image is unavailable or failed. */
-    fallback?: T
-
-    /** Icon fallback shown when no image or text fallback is available. */
-    fallbackIcon?: T
-
-    /** Status or indicator badge anchored to an avatar frame. */
-    badge?: T
-  }
-  export type Variant = AvatarGroupVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export type Item = AvatarT.Base
-
-  /** Base props for the AvatarGroup component. */
-  export interface Base {
-    /**
-     * Array of avatars to render in the group.
-     * @default []
-     */
-    items?: Item[]
-
-    /** Maximum number of avatars to show. */
-    max?: number | string
-  }
-
-  /** Props for the AvatarGroup component. */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
-}
-
-/** Props for the AvatarGroup component. */
-export interface AvatarGroupProps extends AvatarGroupT.Props {}
+export * from './avatar-group.types.ts'
 
 function resolveMax(max: AvatarGroupProps['max']): number | undefined {
   if (typeof max === 'string') {
@@ -77,6 +28,9 @@ function resolveMax(max: AvatarGroupProps['max']): number | undefined {
 
 /** Group of overlapping avatars with optional overflow count. */
 export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
+  const design = useMoraineDesign()
+  const avatarGroupDesign = () => design().avatarGroup
+
   const [local, rest] = splitProps(props, [
     'items',
     'max',
@@ -86,23 +40,16 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     'class',
     'style',
   ])
-  const merged = mergeProps(
-    {
-      size: 'md' as const,
-      items: [] as AvatarGroupT.Item[],
-      max: undefined as number | string | undefined,
-    },
-    local,
-  )
 
-  const items = createMemo(() => merged.items)
+  const size = () => local.size ?? avatarGroupDesign()?.defaultVariants?.size ?? 'md'
+  const items = createMemo(() => local.items ?? [])
   const visibleItems = createMemo(() => {
     const allItems = items()
     if (allItems.length === 0) {
       return []
     }
 
-    const max = resolveMax(merged.max)
+    const max = resolveMax(local.max)
     if (!max) {
       return [...allItems].reverse()
     }
@@ -112,20 +59,27 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
 
   const hiddenCount = createMemo(() => items().length - visibleItems().length)
 
+  const resolved = resolveComponentStyle({
+    design: {
+      get classes() {
+        return avatarGroupDesign()?.recipe({ size: size() })
+      },
+    },
+    get instance() {
+      return {
+        class: local.class,
+        classes: local.classes,
+        style: local.style,
+        styles: local.styles,
+      }
+    },
+  })
+
   return (
     <Show when={items().length > 0}>
-      <div
-        data-slot="root"
-        {...rest}
-        style={{ ...merged.styles?.root, ...merged.style }}
-        class={cn('inline-flex flex-row-reverse justify-end', merged.classes?.root, merged.class)}
-      >
+      <div data-slot="root" {...rest} {...resolved.rootClassAndStyle()}>
         <Show when={hiddenCount() > 0}>
-          <span
-            data-slot="count"
-            style={merged.styles?.count}
-            class={avatarGroupCountVariants({ size: merged.size }, merged.classes?.count)}
-          >
+          <span data-slot="count" {...resolved.slotClassAndStyle('count')}>
             +{hiddenCount()}
           </span>
         </Show>
@@ -134,12 +88,21 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
           {(item) => (
             <AvatarFace
               {...item}
-              size={merged.size}
+              size={size()}
               rootSlot="item"
-              style={merged.styles?.item}
-              class={avatarGroupItemVariants({ size: merged.size }, merged.classes?.item)}
-              classes={merged.classes}
-              styles={merged.styles}
+              {...resolved.slotClassAndStyle('item')}
+              classes={{
+                image: resolved.slotClass('image'),
+                fallback: resolved.slotClass('fallback'),
+                fallbackIcon: resolved.slotClass('fallbackIcon'),
+                badge: resolved.slotClass('badge'),
+              }}
+              styles={{
+                image: resolved.slotStyle('image'),
+                fallback: resolved.slotStyle('fallback'),
+                fallbackIcon: resolved.slotStyle('fallbackIcon'),
+                badge: resolved.slotStyle('badge'),
+              }}
             />
           )}
         </For>

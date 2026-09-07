@@ -32,5 +32,12 @@ export function getApiReferenceTocEntries(
     sections.push({ id: 'api-inherited', label: 'Inherited', level: 2 })
   }
 
+  for (const primitive of apiDoc.primitives ?? []) {
+    sections.push({
+      id: `api-${primitive.component.key}`,
+      label: primitive.component.name,
+      level: 2,
+    })
+  }
   return sections.length > 0 ? [{ id: 'api-reference', label: 'API', level: 1 }, ...sections] : []
 }

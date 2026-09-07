@@ -85,7 +85,14 @@
       "name": "step",
       "description": "Individual step label or marker rendered along the progress scale.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-state",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
+        }
+      ],
       "ariaAttributes": []
     }
   ],

@@ -170,14 +170,28 @@
       "name": "itemWrapper",
       "description": "Text column that groups command label and description.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-description-position",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": []
     },
     {
       "name": "itemLabel",
       "description": "Primary text for a command item.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-description-position",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -393,6 +407,12 @@
         "description": "Additional props of input"
       },
       {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined",
+        "description": "Ref forwarded to the inner search `<input>` element."
+      },
+      {
         "name": "itemProps",
         "required": false,
         "type": "((context: CommandPaletteT.ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined) | undefined",
@@ -459,7 +479,8 @@
       {
         "name": "ref",
         "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+        "type": "(Ref<HTMLDivElement> & JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never) | undefined",
+        "description": "Ref forwarded to the root `<div>` element."
       },
       {
         "name": "scrollToItem",

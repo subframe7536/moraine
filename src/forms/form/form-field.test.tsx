@@ -1,10 +1,12 @@
 import { getInput } from '@formisch/solid'
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
 import { For, createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { CheckboxGroup } from '../checkbox-group/index'
 import { Checkbox } from '../checkbox/index'
@@ -21,6 +23,11 @@ import { Textarea } from '../textarea/index'
 import { createForm } from './form'
 import type { FormFieldProps, FormFieldT } from './form-field'
 import { FormField } from './form-field'
+
+const officialDesign = createDesign()
+
+const render: typeof baseRender = (ui, options) =>
+  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
 
 const TypedFormSchema = v.object({
   email: v.string(),
@@ -120,7 +127,8 @@ const CONSUMER_CASES: ConsumerCase[] = [
     bound: true,
     createControl: (required) => <FileUpload required={required} />,
     requiredSelector: 'input[type="file"]',
-    labelledSelector: '[data-slot="control"]',
+    requiredAriaSelector: '[role="button"]',
+    labelledSelector: '[role="group"]',
   },
   {
     name: 'Select',
@@ -145,6 +153,16 @@ const CONSUMER_CASES: ConsumerCase[] = [
 ]
 
 describe('FormField', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = baseRender(() => (
+      <FormField label="Field" description="Desc">
+        <input />
+      </FormField>
+    ))
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.className).toBe('')
+  })
+
   test('renders accessible standalone field content', () => {
     const screen = render(() => (
       <FormField label="Email" hint="Required" description="Use a valid email" help="Never shared">

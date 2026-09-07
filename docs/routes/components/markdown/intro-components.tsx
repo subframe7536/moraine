@@ -78,7 +78,7 @@ function IntroSpecimen() {
               value={message()}
               placeholder="Write an update"
               onInput={(event) => setMessage(event.currentTarget.value)}
-              class="text-sm text-foreground px-3 border border-border/60 rounded-lg bg-background h-9 shadow-xs placeholder:text-muted-foreground focus-visible:effect-fv"
+              class="text-sm text-foreground px-3 border border-border/60 rounded-lg bg-background h-9 shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             />
           </div>
 
@@ -92,20 +92,19 @@ function IntroSpecimen() {
             <Button type="submit" size="sm">
               Save specimen
             </Button>
-            <Dialog
-              title="Review the specimen"
-              description="The dialog is an overlay component with its own focus and dismissal behavior."
-              body={
-                <p class="text-sm text-muted-foreground leading-relaxed">
-                  The current message is kept in this local example and is never sent anywhere.
-                </p>
-              }
-            >
-              {(triggerProps) => (
-                <Button {...triggerProps} type="button" variant="outline" size="sm">
-                  Review in dialog
-                </Button>
-              )}
+            <Dialog>
+              <Dialog.Trigger as={Button} type="button" variant="outline" size="sm">
+                Review in dialog
+              </Dialog.Trigger>
+              <Dialog.Content
+                title="Review the specimen"
+                description="The dialog is an overlay component with its own focus and dismissal behavior."
+                body={
+                  <p class="text-sm text-muted-foreground leading-relaxed">
+                    The current message is kept in this local example and is never sent anywhere.
+                  </p>
+                }
+              />
             </Dialog>
             <output aria-live="polite" class="text-xs text-muted-foreground">
               {savedMessage() ? `Saved: ${savedMessage()}` : 'Not saved'}

@@ -1,21 +1,61 @@
 import { A, Route, Router } from '@solidjs/router'
 import { fireEvent, render } from '@solidjs/testing-library'
+import type { JSX } from 'solid-js'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Breadcrumb } from './breadcrumb'
-import type { BreadcrumbT } from './breadcrumb'
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
+import { Breadcrumb } from './breadcrumb.tsx'
+import type { BreadcrumbT } from './breadcrumb.types.ts'
+
+const officialDesign = createDesign()
+
+function renderWithDesign(ui: () => JSX.Element) {
+  return render(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>)
+}
 
 describe('Breadcrumb', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = render(() => (
+      <Breadcrumb
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Current', href: '/current' },
+        ]}
+      />
+    ))
+    const root = screen.getByRole('navigation')
+    expect(root.className).toBe('')
+    const list = screen.container.querySelector('ol[data-slot="list"]')
+    expect(list?.className).toBe('')
+  })
+
+  test('forwards ref to root nav element', () => {
+    let navRef: HTMLElement | undefined
+    render(() => (
+      <Breadcrumb
+        ref={(el) => (navRef = el)}
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Current', href: '/current' },
+        ]}
+      />
+    ))
+    expect(navRef).toBeInstanceOf(HTMLElement)
+    expect(navRef?.tagName).toBe('NAV')
+  })
+
   test('uses default root aria-label', () => {
-    const screen = render(() => <Breadcrumb items={[{ label: 'Home', href: '/' }]} />)
+    const screen = renderWithDesign(() => <Breadcrumb items={[{ label: 'Home', href: '/' }]} />)
     const root = screen.getByRole('navigation')
 
     expect(root.getAttribute('aria-label')).toBe('breadcrumb')
   })
 
   test('allows explicit aria-label override', () => {
-    const explicit = render(() => (
+    const explicit = renderWithDesign(() => (
       <Breadcrumb
         aria-label="Custom label"
         items={[
@@ -30,7 +70,7 @@ describe('Breadcrumb', () => {
   })
 
   test('renders the shadcn breadcrumb structure', () => {
-    const screen = render(() => (
+    const screen = renderWithDesign(() => (
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
@@ -58,7 +98,7 @@ describe('Breadcrumb', () => {
   })
 
   test('renders default separator icon and keeps separators aria-hidden', () => {
-    const screen = render(() => (
+    const screen = renderWithDesign(() => (
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
@@ -88,7 +128,7 @@ describe('Breadcrumb', () => {
   })
 
   test('supports custom separator icon', () => {
-    const screen = render(() => (
+    const screen = renderWithDesign(() => (
       <Breadcrumb
         separator="icon-dot"
         items={[
@@ -107,7 +147,7 @@ describe('Breadcrumb', () => {
   })
 
   test('renders ordinary items as anchors without Button styles', () => {
-    const screen = render(() => (
+    const screen = renderWithDesign(() => (
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
@@ -133,7 +173,7 @@ describe('Breadcrumb', () => {
   })
 
   test('marks current item with page semantics', () => {
-    const screen = render(() => (
+    const screen = renderWithDesign(() => (
       <Breadcrumb
         items={[
           { label: 'Home', href: '/' },
@@ -159,7 +199,7 @@ describe('Breadcrumb', () => {
   })
 
   test('supports explicit active item', () => {
-    const screen = render(() => (
+    const screen = renderWithDesign(() => (
       <Breadcrumb
         items={[
           { label: 'Home', href: '/', active: true },
@@ -174,7 +214,7 @@ describe('Breadcrumb', () => {
   })
 
   test('renders icon and label slots without Button composition', () => {
-    const screen = render(() => (
+    const screen = renderWithDesign(() => (
       <Breadcrumb
         items={[
           { label: 'Home', href: '/', icon: 'i-lucide-house' },
@@ -194,7 +234,7 @@ describe('Breadcrumb', () => {
   })
 
   test('applies disabled state and classes overrides', () => {
-    const screen = render(() => (
+    const screen = renderWithDesign(() => (
       <Breadcrumb
         classes={{
           root: 'root-override',
@@ -221,12 +261,13 @@ describe('Breadcrumb', () => {
     expect(disabled?.className).toContain('link-override')
     expect(disabled?.getAttribute('aria-disabled')).toBe('true')
     expect(disabled?.getAttribute('href')).toBeNull()
-    expect(disabled?.className).toContain('aria-disabled:effect-dis')
+    expect(disabled?.className).toContain('aria-disabled:opacity-64')
+    expect(disabled?.className).toContain('aria-disabled:pointer-events-none')
     expect(separator?.className).toContain('separator-override')
   })
 
   test('applies styles overrides', () => {
-    const screen = render(() => (
+    const screen = renderWithDesign(() => (
       <Breadcrumb
         styles={{
           root: { width: '200px' },
@@ -253,7 +294,7 @@ describe('Breadcrumb', () => {
 
   test('does not activate a disabled non-current item', async () => {
     const onClick = vi.fn()
-    const screen = render(() => (
+    const screen = renderWithDesign(() => (
       <Breadcrumb
         items={[
           { label: 'Home', href: '/', onClick },
@@ -287,7 +328,7 @@ describe('Breadcrumb', () => {
     ['md', 'text-sm'],
     ['lg', 'text-base'],
   ] as const)('applies %s typography and inherited icon scale', (size, textClass) => {
-    const screen = render(() => (
+    const screen = renderWithDesign(() => (
       <Breadcrumb
         size={size}
         items={[{ label: 'Home', href: '/', icon: 'i-lucide-house' }, { label: 'Current' }]}
@@ -316,7 +357,7 @@ describe('Breadcrumb', () => {
       </A>
     ))
 
-    const screen = render(() => (
+    const screen = renderWithDesign(() => (
       <Router url="/">
         <Route
           path="/"
@@ -365,7 +406,7 @@ describe('Breadcrumb', () => {
       <span data-slot="custom-item">{context.item.label}</span>
     ))
 
-    const screen = render(() =>
+    const screen = renderWithDesign(() =>
       createComponent(Breadcrumb, {
         items: [
           { label: 'Home', href: '/' },
@@ -391,7 +432,7 @@ describe('Breadcrumb', () => {
       { label: 'Docs', href: '/docs', active: true },
       { label: 'API', href: '/api' },
     ])
-    const screen = render(() => <Breadcrumb items={items()} />)
+    const screen = renderWithDesign(() => <Breadcrumb items={items()} />)
     const currentLabel = () =>
       screen.container.querySelector('[aria-current="page"]')?.textContent?.trim()
 
@@ -436,7 +477,7 @@ describe('Breadcrumb', () => {
         },
       },
     ]
-    const screen = render(() => <Breadcrumb items={items} />)
+    const screen = renderWithDesign(() => <Breadcrumb items={items} />)
     const list = screen.container.querySelector('[data-slot="list"]')!
     const firstItem = list.children[0]!
     const separator = list.children[1]!
@@ -454,7 +495,7 @@ describe('Breadcrumb', () => {
   })
 
   test('renders numeric zero but omits empty and boolean label wrappers', () => {
-    const screen = render(() => (
+    const screen = renderWithDesign(() => (
       <Breadcrumb
         items={[
           { label: 0, href: '/zero' },
@@ -483,7 +524,7 @@ describe('Breadcrumb', () => {
       },
     } as BreadcrumbT.Item
 
-    const screen = render(() => <Breadcrumb items={[item, { label: 'Current' }]} />)
+    const screen = renderWithDesign(() => <Breadcrumb items={[item, { label: 'Current' }]} />)
 
     expect(iconReads).toBe(1)
     expect(labelReads).toBe(1)

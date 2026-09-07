@@ -236,9 +236,15 @@
         "description": "The ID of the input element."
       },
       {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined",
+        "description": "Optional inner input element ref."
+      },
+      {
         "name": "inverted",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | \"true\" | \"false\" | null | undefined"
       },
       {
         "name": "max",
@@ -262,6 +268,11 @@
         "defaultValue": "0"
       },
       {
+        "name": "multiple",
+        "required": false,
+        "type": "boolean | \"true\" | \"false\" | null | undefined"
+      },
+      {
         "name": "name",
         "required": false,
         "type": "string | undefined",
@@ -282,7 +293,7 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined"
+        "type": "\"horizontal\" | \"vertical\" | null | undefined"
       },
       {
         "name": "readOnly",
@@ -306,7 +317,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined"
       },
       {
         "name": "step",
@@ -333,7 +344,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"default\" | \"bold\" | undefined"
+        "type": "\"default\" | \"bold\" | null | undefined"
       }
     ],
     "inherited": []

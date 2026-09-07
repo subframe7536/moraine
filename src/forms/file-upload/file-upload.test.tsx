@@ -3,10 +3,14 @@ import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { createForm } from '../form/index'
 
 import { FileUpload } from './file-upload'
+
+const officialDesign = createDesign()
 
 function createFile(
   name: string,
@@ -68,6 +72,30 @@ async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
 }
 
 describe('FileUpload', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = render(() => <FileUpload />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const control = screen.container.querySelector('[data-slot="control"]')
+    expect(root?.className).toBe('')
+    expect(control?.className).toBe('')
+  })
+
+  test('renders official classes when provider is present', () => {
+    const screen = render(() => (
+      <MoraineProvider design={officialDesign}>
+        <FileUpload dropzone />
+      </MoraineProvider>
+    ))
+    const control = screen.container.querySelector('[data-slot="control"]')
+    expect(control?.className).toContain('border-dashed')
+  })
+
+  test('exposes native inputRef', () => {
+    let ref: HTMLInputElement | undefined
+    render(() => <FileUpload inputRef={(el) => (ref = el)} />)
+    expect(ref).toBeInstanceOf(HTMLInputElement)
+    expect(ref?.type).toBe('file')
+  })
   test('supports tuple click handlers on the upload control', async () => {
     const onClick = vi.fn((_data: string, _event: MouseEvent) => undefined)
     const screen = render(() => <FileUpload onClick={[onClick, 'payload']} />)

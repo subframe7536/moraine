@@ -140,7 +140,8 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"default\" | \"outline\" | \"invert\" | undefined"
+        "type": "\"default\" | \"outline\" | \"invert\" | undefined",
+        "description": "Visual style variant applied to rendered shortcut keys."
       }
     ],
     "inherited": []

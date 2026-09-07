@@ -2,9 +2,7 @@ import lucideIcons from '@iconify-json/lucide/icons.json' with { type: 'json' }
 import type { PresetWind4Theme } from '@subf/unocss'
 import { defineConfig, presetIcons, presetWind4, transformerVariantGroup } from '@subf/unocss'
 
-import { presetMoraine } from '../src/unocss/theme'
-
-const transformer = transformerVariantGroup()
+import { presetMoraine } from '../src/unocss/theme.ts'
 
 const markdownShortCuts = {
   'docs-h1': 'text-3xl sm:text-3xl text-foreground font-bold tracking-tight mb-3 mt-6 sm:mt-8',
@@ -23,7 +21,7 @@ const markdownShortCuts = {
   'docs-strong': 'text-foreground font-semibold',
   'docs-hr': 'border-t border-border/60 my-6',
   'docs-inline-code':
-    'mx-1 px-1.5 py-0.5 bg-muted border-2 border-border rounded-sm text-foreground text-sm font-mono font-medium [h2>&]:text-lg [h2>&]:lg:text-xl',
+    'px-1.5 py-0.5 bg-muted border border-border rounded-sm text-foreground text-sm font-mono font-medium [h2>&]:text-lg [h2>&]:lg:text-xl',
 }
 export default defineConfig<PresetWind4Theme>({
   shortcuts: markdownShortCuts,
@@ -146,23 +144,9 @@ export default defineConfig<PresetWind4Theme>({
         },
       },
       globalStyles: true,
-      enableComponentLayer: {
-        strategy: 'prefix',
-        idFilter(id: string) {
-          // Match both source files and built library (for CF Pages compatibility)
-          return (
-            (id.includes('/src/') ||
-              id.includes('/dist/') ||
-              id.includes('node_modules/moraine')) &&
-            (id.endsWith('.class.ts') || id.endsWith('.tsx') || id.endsWith('.jsx'))
-          )
-        },
-        beforeTransform(code, id, ctx) {
-          void transformer.transform(code, id, ctx)
-        },
-      },
     }),
   ],
+  transformers: [transformerVariantGroup()],
   theme: {
     font: {
       sans: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',

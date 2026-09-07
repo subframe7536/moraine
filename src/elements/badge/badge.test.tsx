@@ -2,9 +2,24 @@ import { render } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Badge } from './badge'
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
+import { Badge } from './badge.tsx'
+
+const officialDesign = createDesign()
 
 describe('Badge', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = render(() => (
+      <Badge variant="solid" size="lg">
+        Solid
+      </Badge>
+    ))
+    const badge = screen.container.querySelector('[data-slot="root"]')
+    expect(badge?.className).toBe('')
+  })
+
   test('renders default badge semantics and label', () => {
     const screen = render(() => <Badge>New</Badge>)
     const badge = screen.container.querySelector('[data-slot="root"]')
@@ -37,14 +52,18 @@ describe('Badge', () => {
 
   test('applies variant and size classes', () => {
     const solid = render(() => (
-      <Badge variant="solid" size="lg">
-        Solid
-      </Badge>
+      <MoraineProvider design={officialDesign}>
+        <Badge variant="solid" size="lg">
+          Solid
+        </Badge>
+      </MoraineProvider>
     ))
     const outline = render(() => (
-      <Badge variant="outline" size="sm">
-        Outline
-      </Badge>
+      <MoraineProvider design={officialDesign}>
+        <Badge variant="outline" size="sm">
+          Outline
+        </Badge>
+      </MoraineProvider>
     ))
 
     expect(solid.container.querySelector('[data-slot="root"]')?.className).toContain('bg-primary')

@@ -1,22 +1,23 @@
-import type { VariantProps } from 'cls-variant'
+import { POPPER_CONTENT_SIDE_VARIANT } from '../../shared/recipe-common.class.ts'
+import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 
-import { cva } from '../../shared/utils'
+import type { PopoverT } from './popover.types.ts'
 
-export const popoverContentVariants = cva(
-  'text-popover-foreground outline-none surface-overlay rounded-md bg-popover flex flex-col gap-4 max-w-90 w-72 origin-$mo-popper-content-transform-origin relative z-floating data-closed:animate-popover-out data-expanded:animate-popover-in motion-reduce:animate-none',
-  {
-    defaultVariants: {
-      side: 'bottom',
-    },
-    variants: {
-      side: {
-        top: 'mb-$mo-popper-content-overflow-padding animate-popover-side-top',
-        right: 'ml-$mo-popper-content-overflow-padding animate-popover-side-right',
-        bottom: 'mt-$mo-popper-content-overflow-padding animate-popover-side-bottom',
-        left: 'mr-$mo-popper-content-overflow-padding animate-popover-side-left',
-      },
+export const popoverRecipeOptions = {
+  base: {
+    content:
+      'text-popover-foreground outline-none border border-border shadow-md rounded-md bg-popover flex flex-col gap-4 max-w-90 w-72 origin-[var(--mo-popper-content-transform-origin)] relative z-floating data-closed:animate-mo-exit data-closed:exit-opacity-0 data-closed:exit-scale-95 data-expanded:animate-mo-enter data-expanded:enter-opacity-0 data-expanded:enter-scale-95 motion-reduce:animate-none',
+    body: 'max-h-[var(--mo-popper-content-available-height)] overflow-auto',
+  },
+  defaultVariants: {
+    side: 'bottom',
+  },
+  variants: {
+    side: {
+      top: { content: POPPER_CONTENT_SIDE_VARIANT.top },
+      right: { content: POPPER_CONTENT_SIDE_VARIANT.right },
+      bottom: { content: POPPER_CONTENT_SIDE_VARIANT.bottom },
+      left: { content: POPPER_CONTENT_SIDE_VARIANT.left },
     },
   },
-)
-
-export type PopoverContentVariantProps = VariantProps<typeof popoverContentVariants>
+} as const satisfies SlotRecipeOptions<keyof PopoverT.Slot>

@@ -1,55 +1,151 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js'
 
-import { Button, cn } from '../../../../src/index'
-
-const DOCS_CODE_BLOCK_ROOT_CLASS =
-  '[&_.expressive-code_.copy_button]:size-6! [&_.expressive-code_.copy_button]:border! [&_.expressive-code_.copy_button]:border-border! [&_.expressive-code_.copy_button]:rounded-md! [&_.expressive-code_.copy_button]:bg-background/85! [&_.expressive-code_.copy_button]:shadow-xs! [&_.expressive-code_.copy_button]:backdrop-blur-sm! [&_.expressive-code_.copy_button:hover]:bg-muted! [&_.expressive-code_.copy_button:hover]:text-foreground! [&_.expressive-code_.copy_button:active]:scale-95! [&_.expressive-code_.copy_button:focus-visible]:outline-none! [&_.expressive-code_.copy_button:focus-visible]:ring-2! [&_.expressive-code_.copy_button:focus-visible]:ring-ring! [&_.expressive-code_.copy_button:focus-visible]:ring-offset-2! [&_.expressive-code_.copy_button:focus-visible]:ring-offset-background! [&_.expressive-code_.copy_button::after]:m-1! [&_.expressive-code_.copy_button::before]:hidden! [&_.expressive-code:has(pre_code>:only-child)_.copy_button]:top-1/2! [&_.expressive-code:has(pre_code>:only-child)_.copy_button]:-translate-y-1/2!'
-const DOCS_CODE_BLOCK_SOURCE_CLASS =
-  'group relative my-0 overflow-hidden border-t border-border/70 bg-muted/25'
-const DOCS_CODE_BLOCK_INSTALL_CLASS =
-  '[&_.expressive-code]:my-0 [&_.expressive-code_.frame]:shadow-none [&_.expressive-code_pre]:border-0 [&_.expressive-code_pre]:rounded-none [&_.expressive-code_pre>code]:py-2!'
-const DOCS_CODE_BLOCK_VIEWPORT_CLASS =
-  'relative transition-[height] duration-300 ease-in-out overflow-hidden motion-reduce:transition-none'
-const DOCS_CODE_BLOCK_CONTENT_CLASS = '[&_.expressive-code]:my-2'
-const DOCS_CODE_BLOCK_SOURCE_CONTENT_CLASS =
-  'h-full overflow-x-auto overscroll-x-contain scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent [&_.expressive-code]:my-0 [&_.expressive-code_.frame]:shadow-none [&_.docs-code-copy-toolbar]:sticky! [&_.docs-code-copy-toolbar]:top-0 [&_.docs-code-copy-toolbar]:z-raised [&_.docs-code-copy-toolbar]:h-0 [&_.docs-code-copy-toolbar_.copy]:[inset-block-start:0.5rem]! [&_.docs-code-copy-toolbar_.copy]:[inset-inline-end:0.5rem]! [&_.expressive-code_pre]:border-0! [&_.expressive-code_pre]:rounded-none! [&_.expressive-code_pre]:font-mono'
+import { Button, cn, Icon } from '../../../../src/index'
+import type { IconT } from '../../../../src/index'
 
 const COLLAPSED_HEIGHT_PX = 150
 const EXPANDED_HEIGHT_PX = 400
 
-export namespace DocsCodeBlockT {
-  export type Variant = 'plain' | 'source' | 'install'
+export namespace CodeBlockT {
+  export type Variant = 'plain' | 'source' | 'tabs'
 
   export interface Props {
-    html: string
+    html?: string
+    code?: string
+    lang?: string
+    title?: string
+    highlightedLines?: number[] | string
     variant?: Variant
+    expandable?: boolean
     class?: string
     style?: JSX.CSSProperties
+    children?: JSX.Element
   }
 }
 
-export type DocsCodeBlockProps = DocsCodeBlockT.Props
+export type CodeBlockProps = CodeBlockT.Props
+export type DocsCodeBlockProps = CodeBlockProps
 
-export function DocsCodeBlock(props: DocsCodeBlockProps) {
-  const isSource = () => props.variant === 'source'
-  const isInstall = () => props.variant === 'install'
+function getLanguageIcon(lang?: string, title?: string): IconT.Name {
+  const name = (title ?? lang ?? '').toLowerCase()
+  if (
+    name.endsWith('.tsx') ||
+    name.endsWith('.ts') ||
+    name === 'tsx' ||
+    name === 'ts' ||
+    name === 'typescript'
+  ) {
+    return 'i-lucide:file-code'
+  }
+  if (
+    name.endsWith('.jsx') ||
+    name.endsWith('.js') ||
+    name === 'jsx' ||
+    name === 'js' ||
+    name === 'javascript'
+  ) {
+    return 'i-lucide:file-code'
+  }
+  if (name.endsWith('.json') || name === 'json') {
+    return 'i-lucide:file-json'
+  }
+  if (name.endsWith('.css') || name === 'css') {
+    return 'i-lucide:palette'
+  }
+  if (
+    name.endsWith('.sh') ||
+    name.endsWith('.bash') ||
+    name === 'bash' ||
+    name === 'sh' ||
+    name === 'shell' ||
+    name === 'zsh' ||
+    name === 'bun' ||
+    name === 'pnpm' ||
+    name === 'npm'
+  ) {
+    return 'i-lucide:terminal'
+  }
+  return 'i-lucide:file-text'
+}
+
+function extractCodeText(element?: HTMLElement): string {
+  if (!element) {
+    return ''
+  }
+  const codeEl = element.querySelector('code')
+  return codeEl?.textContent ?? element.textContent ?? ''
+}
+
+export function CopyButton(props: { code?: string; getTarget?: () => HTMLElement | undefined }) {
+  const [copied, setCopied] = createSignal(false)
+  let timer: ReturnType<typeof setTimeout> | undefined
+
+  onCleanup(() => {
+    if (timer) {
+      clearTimeout(timer)
+    }
+  })
+
+  const handleCopy = async () => {
+    const text = props.code ?? extractCodeText(props.getTarget?.())
+    if (!text) {
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      if (timer) {
+        clearTimeout(timer)
+      }
+      timer = setTimeout(() => setCopied(false), 2000)
+    } catch (e) {
+      console.error('Failed to copy code:', e)
+    }
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon-xs"
+      aria-label={copied() ? 'Copied to clipboard' : 'Copy code'}
+      title={copied() ? 'Copied' : 'Copy code'}
+      onClick={handleCopy}
+      class="text-muted-foreground rounded-md size-7 transition-colors hover:text-foreground hover:bg-muted/80"
+    >
+      <Icon
+        name={copied() ? 'i-lucide:check' : 'i-lucide:copy'}
+        class={cn('size-3.5', copied() && 'text-primary')}
+      />
+    </Button>
+  )
+}
+
+export function CodeBlock(props: CodeBlockProps) {
+  const variant = () => props.variant ?? 'plain'
+  const isSource = () => variant() === 'source'
+  const isTabs = () => variant() === 'tabs'
+  const isExpandableProp = () => props.expandable ?? isSource()
+
   const [isExpanded, setIsExpanded] = createSignal(false)
   const [isExpandable, setIsExpandable] = createSignal(false)
   const [hasMeasured, setHasMeasured] = createSignal(false)
   let contentRef: HTMLDivElement | undefined
 
   const updateExpandable = () => {
-    if (!isSource() || !contentRef) {
+    if (!isExpandableProp() || !contentRef) {
       setIsExpandable(false)
       return
     }
-
     setIsExpandable(contentRef.scrollHeight > COLLAPSED_HEIGHT_PX)
     setHasMeasured(true)
   }
 
   const viewportHeight = () => {
+    if (!isExpandableProp()) {
+      return undefined
+    }
     if (!hasMeasured()) {
       return `${COLLAPSED_HEIGHT_PX}px`
     }
@@ -60,10 +156,9 @@ export function DocsCodeBlock(props: DocsCodeBlockProps) {
   }
 
   createEffect(() => {
-    if (props.html.length === 0) {
-      return
+    if (props.html !== undefined || props.code !== undefined) {
+      queueMicrotask(updateExpandable)
     }
-    queueMicrotask(updateExpandable)
   })
 
   onMount(() => {
@@ -77,55 +172,110 @@ export function DocsCodeBlock(props: DocsCodeBlockProps) {
     onCleanup(() => observer.disconnect())
   })
 
-  return (
-    <Show
-      when={isSource()}
-      fallback={
-        <div
-          class={cn(
-            DOCS_CODE_BLOCK_CONTENT_CLASS,
-            DOCS_CODE_BLOCK_ROOT_CLASS,
-            isInstall() && DOCS_CODE_BLOCK_INSTALL_CLASS,
-            props.class,
-          )}
-          style={props.style}
-          // oxlint-disable-next-line subf/solid-no-innerhtml
-          innerHTML={props.html}
-        />
-      }
-    >
-      <div
-        class={cn(DOCS_CODE_BLOCK_ROOT_CLASS, DOCS_CODE_BLOCK_SOURCE_CLASS, props.class)}
-        style={props.style}
-      >
-        <div class={DOCS_CODE_BLOCK_VIEWPORT_CLASS} style={{ height: viewportHeight() }}>
-          <div
-            ref={(element) => {
-              contentRef = element
-            }}
-            class={cn(
-              DOCS_CODE_BLOCK_SOURCE_CONTENT_CLASS,
-              isExpandable() && !isExpanded() && 'pointer-events-none',
-            )}
-            inert={isExpandable() && !isExpanded() ? true : undefined}
-            // oxlint-disable-next-line subf/solid-no-innerhtml
-            innerHTML={props.html}
-          />
+  const hasHeader = () => Boolean(props.title && !isTabs())
 
-          <Show when={isExpandable() && !isExpanded()}>
-            <div class="pointer-events-none inset-0 top-2 absolute from-background/95 to-transparent via-background/45 bg-gradient-to-t" />
+  return (
+    <div
+      class={cn(
+        isTabs()
+          ? 'group my-0 relative overflow-hidden'
+          : isSource()
+            ? 'group relative my-0 overflow-hidden border-t border-border/70 bg-card/30'
+            : 'group relative my-4 overflow-hidden border border-border/70 rounded-xl bg-card/40 shadow-xs',
+        props.class,
+      )}
+      style={props.style}
+    >
+      <Show when={hasHeader()}>
+        <div class="px-3 py-1.5 border-b border-border/60 bg-muted/40 flex h-10 items-center justify-between">
+          <div class="text-xs text-muted-foreground font-mono flex gap-2 truncate items-center">
+            <Icon
+              name={getLanguageIcon(props.lang, props.title)}
+              class="text-muted-foreground shrink-0 size-4"
+            />
+            <span class="text-foreground/90 font-medium truncate">{props.title}</span>
+          </div>
+          <div class="opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+            <CopyButton code={props.code} getTarget={() => contentRef} />
+          </div>
+        </div>
+      </Show>
+
+      <Show when={!hasHeader()}>
+        <div class="opacity-0 transition-opacity right-2.5 top-2.5 absolute z-10 focus-within:opacity-100 group-hover:opacity-100">
+          <CopyButton code={props.code} getTarget={() => contentRef} />
+        </div>
+      </Show>
+
+      <div
+        class={cn(
+          isExpandableProp() &&
+            'transition-[height] duration-300 ease-in-out relative overflow-hidden motion-reduce:transition-none',
+        )}
+        style={{ height: viewportHeight() }}
+      >
+        <div
+          ref={(el) => {
+            contentRef = el
+            queueMicrotask(updateExpandable)
+          }}
+          class={cn(
+            'scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent overscroll-x-contain h-full overflow-x-auto',
+            isExpandable() && !isExpanded() && 'pointer-events-none',
+          )}
+          inert={isExpandable() && !isExpanded() ? true : undefined}
+        >
+          <Show
+            when={props.html}
+            fallback={
+              <pre class="scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent text-sm leading-relaxed font-mono m-0 p-4 overflow-x-auto">
+                <code class={props.lang ? `language-${props.lang}` : undefined}>
+                  {props.code ?? props.children}
+                </code>
+              </pre>
+            }
+          >
+            {(html) => (
+              <div
+                class="text-sm leading-relaxed font-mono p-4 overflow-x-auto [&_pre]:m-0 [&_pre]:p-0 [&_pre]:border-0! [&_pre]:rounded-none! [&_pre]:bg-transparent!"
+                // oxlint-disable-next-line subf/solid-no-innerhtml
+                innerHTML={html()}
+              />
+            )}
+          </Show>
+        </div>
+
+        <Show when={isExpandable() && !isExpanded()}>
+          <div class="h-16 pointer-events-none inset-x-0 bottom-0 absolute from-card to-transparent via-card/70 bg-gradient-to-t" />
+        </Show>
+
+        <Show when={isExpandable()}>
+          <Show when={!isExpanded()}>
             <Button
               variant="outline"
               size="sm"
               aria-label="Expand code"
               onClick={() => setIsExpanded(true)}
-              class="border-border/80 rounded-lg bg-background/95 shadow-xs bottom-3 left-1/2 absolute backdrop-blur-sm focus-visible:effect-fv !translate-x--1/2"
+              class="text-xs border-border/80 rounded-lg bg-background/95 shadow-xs bottom-3 left-1/2 absolute backdrop-blur-sm focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 -translate-x-1/2"
             >
               Expand code
             </Button>
           </Show>
-        </div>
+          <Show when={isExpanded()}>
+            <Button
+              variant="outline"
+              size="sm"
+              aria-label="Collapse code"
+              onClick={() => setIsExpanded(false)}
+              class="text-xs border-border/80 rounded-lg bg-background/95 shadow-xs bottom-3 left-1/2 absolute backdrop-blur-sm focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 -translate-x-1/2"
+            >
+              Collapse code
+            </Button>
+          </Show>
+        </Show>
       </div>
-    </Show>
+    </div>
   )
 }
+
+export const DocsCodeBlock = CodeBlock

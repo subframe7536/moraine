@@ -2,9 +2,29 @@ import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
 import { Icon } from './icon'
 
 describe('Icon', () => {
+  test('renders unstyled when provider is absent', () => {
+    const customDesign = createDesign({
+      icon: { base: { root: 'design-icon' } },
+    })
+    const unstyledScreen = render(() => <Icon name="i-lucide-search" />)
+    const unstyledIcon = unstyledScreen.container.querySelector('[data-slot="icon"]')
+    expect(unstyledIcon?.className).not.toContain('design-icon')
+
+    const styledScreen = render(() => (
+      <MoraineProvider design={customDesign}>
+        <Icon name="i-lucide-search" />
+      </MoraineProvider>
+    ))
+    const styledIcon = styledScreen.container.querySelector('[data-slot="icon"]')
+    expect(styledIcon?.className).toContain('design-icon')
+  })
+
   test('renders a css icon class for string names', () => {
     const screen = render(() => <Icon name="i-lucide-search" />)
     const icon = screen.container.querySelector('[data-slot="icon"]')
@@ -111,10 +131,49 @@ describe('Icon', () => {
     expect(icon?.getAttribute('aria-hidden')).toBe('false')
   })
 
-  test('applies classes.root override', () => {
+  test('applies direct root class overrides', () => {
     const screen = render(() => <Icon name="i-lucide-search" class="root-override" />)
     const icon = screen.container.querySelector('[data-slot="icon"]')
 
     expect(icon?.className).toContain('root-override')
+  })
+
+  test('keeps direct root styling while ignoring legacy slot maps', () => {
+    const screen = render(() => (
+      <Icon
+        name="i-lucide-search"
+        class="custom-root"
+        style={{ color: 'rgb(0, 0, 255)' }}
+        classes={{ root: 'ignored-root' }}
+        styles={{ root: { color: 'rgb(255, 0, 0)' } }}
+      />
+    ))
+    const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')
+
+    expect(icon?.className).toContain('custom-root')
+    expect(icon?.className).not.toContain('ignored-root')
+    expect(icon?.style.color).toBe('rgb(0, 0, 255)')
+    expect(icon?.hasAttribute('classes')).toBe(false)
+    expect(icon?.hasAttribute('styles')).toBe(false)
+  })
+
+  test('replaces Design root styling without remounting the icon', () => {
+    const [design, setDesign] = createSignal(
+      createDesign({ preset: false, icon: { base: { root: 'p-2' } } }),
+    )
+    const screen = render(() => (
+      <MoraineProvider design={design()}>
+        <Icon name="i-lucide-search" />
+      </MoraineProvider>
+    ))
+    const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')!
+
+    expect(icon.className).toContain('p-2')
+
+    setDesign(createDesign({ preset: false, icon: { base: { root: 'p-4' } } }))
+
+    expect(screen.container.querySelector('[data-slot="icon"]')).toBe(icon)
+    expect(icon.className).toContain('p-4')
+    expect(icon.className).not.toContain('p-2')
   })
 })

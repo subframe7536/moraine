@@ -4,10 +4,17 @@
     "name": "Dialog",
     "category": "overlays",
     "polymorphic": false,
-    "description": "Modal dialog with header, body, and footer slots, backdrop overlay, and dismissal control.",
+    "description": "Dialog state and context. Trigger, Content, and Close own their respective DOM.",
     "sourcePath": "src/overlays/dialog/dialog.tsx"
   },
   "slots": [
+    {
+      "name": "trigger",
+      "description": "Element that opens the dialog.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
     {
       "name": "overlay",
       "description": "Backdrop layer rendered behind the dialog panel.",
@@ -20,38 +27,7 @@
       "description": "Dialog panel containing header, body, footer, and close control.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-describedby",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References descriptive text associated with the control."
-        },
-        {
-          "name": "aria-label",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
-        },
-        {
-          "name": "aria-labelledby",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References the element that labels the control or region."
-        },
-        {
-          "name": "aria-modal",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Identifies modal content that traps interaction outside the dialog."
-        },
-        {
-          "name": "role",
-          "required": false,
-          "type": "string",
-          "description": "Defines the semantic role exposed to assistive technology."
-        }
-      ]
+      "ariaAttributes": []
     },
     {
       "name": "header",
@@ -85,46 +61,8 @@
       "name": "close",
       "description": "Button that dismisses the dialog.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-disabled",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component, slot, or item is disabled."
-        },
-        {
-          "name": "data-loading",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component or async operation is loading."
-        },
-        {
-          "name": "data-size",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved size variant."
-        },
-        {
-          "name": "data-variant",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved visual variant."
-        }
-      ],
-      "ariaAttributes": [
-        {
-          "name": "aria-busy",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Accessibility attribute forwarded by the rendered component."
-        },
-        {
-          "name": "aria-label",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
-        }
-      ]
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "body",
@@ -144,47 +82,10 @@
   "props": {
     "own": [
       {
-        "name": "ariaLabel",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Accessible name used when the dialog has no rendered title."
-      },
-      {
-        "name": "body",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Custom element to render in the body slot."
-      },
-      {
         "name": "children",
         "required": false,
-        "type": "((props: OverlayTriggerProps) => JSX.Element) | undefined",
-        "description": "Render the dialog trigger as a single HTMLElement root."
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "DialogT.Classes | undefined"
-      },
-      {
-        "name": "close",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to show a close button.",
-        "defaultValue": "true"
-      },
-      {
-        "name": "closeIcon",
-        "required": false,
-        "type": "IconT.Name | JSX.Element",
-        "description": "Icon name or custom content for the close button.",
-        "defaultValue": "icon-close"
+        "type": "JSX.Element",
+        "description": "Composed trigger and content primitives."
       },
       {
         "name": "defaultOpen",
@@ -194,36 +95,11 @@
         "defaultValue": "false"
       },
       {
-        "name": "description",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Secondary description displayed below the title."
-      },
-      {
         "name": "dismissible",
         "required": false,
         "type": "boolean | undefined",
         "description": "Whether outside interaction and Escape should dismiss the shell.",
         "defaultValue": "true"
-      },
-      {
-        "name": "footer",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Custom element to render in the footer slot."
-      },
-      {
-        "name": "fullscreen",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the dialog should take up the full viewport.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "header",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Custom element to render in the header slot."
       },
       {
         "name": "id",
@@ -256,39 +132,331 @@
         "description": "Controlled open state."
       },
       {
-        "name": "overlay",
+        "name": "preventScroll",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Whether to render the overlay element."
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "scrollable",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the overlay should scroll the complete dialog panel."
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "DialogT.Styles | undefined"
-      },
-      {
-        "name": "title",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Primary title displayed in the dialog header."
+        "description": "Whether body scroll should be locked while the shell is present.",
+        "defaultValue": "true"
       }
     ],
     "inherited": []
-  }
+  },
+  "primitives": [
+    {
+      "component": {
+        "key": "dialog-trigger",
+        "name": "Dialog.Trigger",
+        "category": "overlays",
+        "polymorphic": true,
+        "sourcePath": "src/overlays/dialog/dialog.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "as",
+            "required": false,
+            "type": "T | undefined",
+            "description": "Element or component to render as.",
+            "defaultValue": "button"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Trigger label and visual content."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "disabled",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether this trigger is disabled."
+          },
+          {
+            "name": "onBlur",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, FocusEvent> | undefined"
+          },
+          {
+            "name": "onClick",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onContextMenu",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onKeyDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onKeyUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onPointerCancel",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerMove",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[T] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "type",
+            "required": false,
+            "type": "T extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : T extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : T extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "dialog-close",
+        "name": "Dialog.Close",
+        "category": "overlays",
+        "polymorphic": true,
+        "sourcePath": "src/overlays/dialog/dialog.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "as",
+            "required": false,
+            "type": "T | undefined",
+            "description": "Element or component to render as.",
+            "defaultValue": "button"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Trigger label and visual content."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "disabled",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether this trigger is disabled."
+          },
+          {
+            "name": "onBlur",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, FocusEvent> | undefined"
+          },
+          {
+            "name": "onClick",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onContextMenu",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+          },
+          {
+            "name": "onKeyDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onKeyUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onPointerCancel",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerMove",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[T] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "type",
+            "required": false,
+            "type": "T extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : T extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : T extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "dialog-content",
+        "name": "Dialog.Content",
+        "category": "overlays",
+        "polymorphic": false,
+        "sourcePath": "src/overlays/dialog/dialog.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "ariaLabel",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Accessible name used when the dialog has no rendered title."
+          },
+          {
+            "name": "body",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Custom element to render in the body slot."
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Main content when body is undefined."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "classes",
+            "required": false,
+            "type": "DialogT.Classes | undefined"
+          },
+          {
+            "name": "close",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether to show a close button.",
+            "defaultValue": "true"
+          },
+          {
+            "name": "closeIcon",
+            "required": false,
+            "type": "IconT.Name | JSX.Element",
+            "description": "Icon name or custom content for the close button.",
+            "defaultValue": "icon-close"
+          },
+          {
+            "name": "description",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Secondary description displayed below the title."
+          },
+          {
+            "name": "footer",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Custom element to render in the footer slot."
+          },
+          {
+            "name": "fullscreen",
+            "required": false,
+            "type": "boolean & boolean | null | undefined",
+            "description": "Whether the dialog should take up the full viewport.",
+            "defaultValue": "false"
+          },
+          {
+            "name": "header",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Custom element to render in the header slot."
+          },
+          {
+            "name": "overlay",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether to render the overlay element."
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "scrollable",
+            "required": false,
+            "type": "boolean & boolean | null | undefined",
+            "description": "Whether the overlay should scroll the complete dialog panel."
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "styles",
+            "required": false,
+            "type": "DialogT.Styles | undefined"
+          },
+          {
+            "name": "title",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Primary title displayed in the dialog header."
+          }
+        ],
+        "inherited": []
+      }
+    }
+  ]
 }

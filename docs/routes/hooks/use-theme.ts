@@ -1,7 +1,6 @@
 import { createSignal, onMount } from 'solid-js'
 
 export type ThemeMode = 'light' | 'dark'
-export const THEME_STORAGE_KEY = 'moraine-theme'
 
 function getSystemTheme(): ThemeMode {
   try {
@@ -9,19 +8,6 @@ function getSystemTheme(): ThemeMode {
   } catch {
     return 'light'
   }
-}
-
-function getStoredTheme(): ThemeMode | undefined {
-  try {
-    const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY)
-    return storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : undefined
-  } catch {
-    return undefined
-  }
-}
-
-function getPreferredTheme(): ThemeMode {
-  return getStoredTheme() ?? getSystemTheme()
 }
 
 function applyTheme(theme: ThemeMode): void {
@@ -40,7 +26,7 @@ export function useTheme() {
   const [theme, setTheme] = createSignal<ThemeMode>('light')
 
   onMount(() => {
-    const preferredTheme = getPreferredTheme()
+    const preferredTheme = getSystemTheme()
     setTheme(preferredTheme)
     applyTheme(preferredTheme)
   })
@@ -49,9 +35,6 @@ export function useTheme() {
     const run = () => {
       setTheme(nextTheme)
       applyTheme(nextTheme)
-      try {
-        window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme)
-      } catch {}
     }
 
     if (typeof document !== 'undefined' && typeof document.startViewTransition === 'function') {

@@ -7,7 +7,14 @@
     "description": "Renders an icon from a UnoCSS icon class, JSX element, or render function.",
     "sourcePath": "src/elements/icon/icon.tsx"
   },
-  "slots": [],
+  "slots": [
+    {
+      "name": "root",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    }
+  ],
   "props": {
     "own": [
       {
@@ -15,11 +22,6 @@
         "required": false,
         "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "IconT.Classes | undefined"
       },
       {
         "name": "name",
@@ -49,11 +51,6 @@
         "name": "style",
         "required": false,
         "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "IconT.Styles | undefined"
       }
     ],
     "inherited": []

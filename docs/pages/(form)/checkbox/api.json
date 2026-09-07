@@ -239,6 +239,12 @@
         "type": "\"hidden\" | \"end\" | \"start\" | undefined"
       },
       {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined",
+        "description": "Native input element ref."
+      },
+      {
         "name": "label",
         "required": false,
         "type": "JSX.Element",
@@ -313,7 +319,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"list\" | \"card\" | undefined"
+        "type": "\"card\" | \"list\" | undefined"
       }
     ],
     "inherited": []

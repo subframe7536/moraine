@@ -1,29 +1,35 @@
-import type { VariantProps } from 'cls-variant'
+import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
+import { recipe } from '../../shared/style/recipe.ts'
 
-import { cva } from '../../shared/utils'
+import type { SeparatorT } from './separator.types.ts'
 
-export const separatorVariants = cva('border-current bg-border shrink-0', {
+export const separatorRecipeOptions = {
+  base: {
+    root: 'border-current bg-border shrink-0',
+  },
   defaultVariants: {
-    orientation: 'horizontal',
     size: 'sm',
+    orientation: 'horizontal',
     type: 'solid',
   },
   variants: {
-    orientation: {
-      horizontal: 'b-t h-px w-full',
-      vertical: 'b-s h-full w-px',
-    },
     size: {
-      sm: 'b-2',
-      md: 'b-3',
-      lg: 'b-4',
+      sm: { root: 'border-2' },
+      md: { root: 'border-3' },
+      lg: { root: 'border-4' },
+    },
+    orientation: {
+      horizontal: { root: 'border-t h-px w-full' },
+      vertical: { root: 'border-s h-full w-px' },
     },
     type: {
-      solid: 'border-solid',
-      dashed: 'border-dashed',
-      dotted: 'border-dotted',
+      solid: { root: 'border-solid' },
+      dashed: { root: 'border-dashed' },
+      dotted: { root: 'border-dotted' },
     },
   },
-})
+} as const satisfies SlotRecipeOptions<keyof SeparatorT.Slot>
 
-export type SeparatorVariantProps = VariantProps<typeof separatorVariants>
+export const separatorRecipe = recipe(separatorRecipeOptions)
+
+export type SeparatorVariantProps = SeparatorT.Variant

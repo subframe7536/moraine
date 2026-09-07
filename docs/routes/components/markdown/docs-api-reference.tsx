@@ -143,6 +143,18 @@ export function createDocsApiReferenceModel(
     })
   }
 
+  for (const primitive of apiDoc.primitives ?? []) {
+    sections.push({
+      id: `api-${primitive.component.key}`,
+      heading: primitive.component.name,
+      props: primitive.props.own,
+      groups: primitive.props.inherited.map((group) => ({
+        description: `From ${group.from}`,
+        props: group.props,
+      })),
+    })
+  }
+
   return { sections }
 }
 

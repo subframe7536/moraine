@@ -4,7 +4,13 @@ import type { JSX } from 'solid-js'
 import { Show, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from './button'
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
+import { ButtonGroup } from './button-group.tsx'
+import { Button } from './button.tsx'
+
+const officialDesign = createDesign()
 
 function createDeferred() {
   let resolve: (() => void) | undefined
@@ -117,11 +123,24 @@ describe('Button', () => {
     expect(link.hasAttribute('type')).toBe(false)
   })
 
-  test('applies variant and size classes', () => {
+  test('renders unstyled when provider is absent', () => {
     const screen = render(() => (
       <Button variant="destructive" size="sm">
         Delete
       </Button>
+    ))
+
+    const button = screen.getByRole('button', { name: 'Delete' })
+    expect(button.className).toBe('')
+  })
+
+  test('applies variant and size classes', () => {
+    const screen = render(() => (
+      <MoraineProvider design={officialDesign}>
+        <Button variant="destructive" size="sm">
+          Delete
+        </Button>
+      </MoraineProvider>
     ))
 
     const button = screen.getByRole('button', { name: 'Delete' })
@@ -130,7 +149,11 @@ describe('Button', () => {
   })
 
   test('applies press interaction classes', () => {
-    const screen = render(() => <Button>Press</Button>)
+    const screen = render(() => (
+      <MoraineProvider design={officialDesign}>
+        <Button>Press</Button>
+      </MoraineProvider>
+    ))
     const button = screen.getByRole('button', { name: 'Press' })
     expect(button.className).toContain('hover:bg-primary-hover')
     expect(button.className).toContain('active:bg-primary-active')
@@ -140,7 +163,11 @@ describe('Button', () => {
   test.each(['default', 'secondary', 'outline', 'ghost', 'link', 'destructive'] as const)(
     'does not apply a built-in shadow to the %s variant',
     (variant) => {
-      const screen = render(() => <Button variant={variant}>{variant}</Button>)
+      const screen = render(() => (
+        <MoraineProvider design={officialDesign}>
+          <Button variant={variant}>{variant}</Button>
+        </MoraineProvider>
+      ))
       const button = screen.getByRole('button', { name: variant })
 
       expect(
@@ -179,9 +206,11 @@ describe('Button', () => {
     ['icon-xl', 'text-lg', 'size-11'],
   ] as const)('applies %s size classes', (size, textClass, dimensionClass) => {
     const screen = render(() => (
-      <Button size={size} aria-label={`${size} button`}>
-        Label
-      </Button>
+      <MoraineProvider design={officialDesign}>
+        <Button size={size} aria-label={`${size} button`}>
+          Label
+        </Button>
+      </MoraineProvider>
     ))
 
     const button = screen.getByRole('button', { name: `${size} button` })
@@ -301,15 +330,41 @@ describe('Button', () => {
     expect(leading?.className).toContain('i-lucide-loader-circle')
   })
 
+  test('resolves provider loading styles for the active icon slot', () => {
+    const screen = render(() => (
+      <MoraineProvider
+        design={createDesign({
+          button: {
+            base: { loading: 'provider-loading w-3' },
+          },
+        })}
+      >
+        <Button loading trailing="i-lucide:timer" classes={{ loading: 'instance-loading' }}>
+          Loading
+        </Button>
+      </MoraineProvider>
+    ))
+
+    const trailing = screen.getByRole('button').querySelector<HTMLElement>('[data-slot="trailing"]')
+    expect(trailing?.className).toContain('provider-loading')
+    expect(trailing?.className).toContain('instance-loading')
+    expect(trailing?.className).toContain('w-3')
+    expect(trailing?.getAttribute('aria-hidden')).toBe('true')
+  })
+
   test('renders built-in loading icon by default when loading', () => {
-    const screen = render(() => <Button loading>Saving</Button>)
+    const screen = render(() => (
+      <MoraineProvider design={officialDesign}>
+        <Button loading>Saving</Button>
+      </MoraineProvider>
+    ))
 
     const button = screen.getByRole('button', { name: 'Saving' })
     const leading = button.querySelector('[data-slot="leading"]')
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('icon-loading')
-    expect(leading?.className).toContain('effect-loading')
+    expect(leading?.className).toContain('animate-spin')
   })
 
   test('supports component children with loading state', () => {
@@ -375,9 +430,11 @@ describe('Button', () => {
 
   test('renders loadingIcon when loading', () => {
     const screen = render(() => (
-      <Button loading loadingIcon="i-lucide-loader-circle">
-        Saving
-      </Button>
+      <MoraineProvider design={officialDesign}>
+        <Button loading loadingIcon="i-lucide-loader-circle">
+          Saving
+        </Button>
+      </MoraineProvider>
     ))
 
     const button = screen.getByRole('button', { name: 'Saving' })
@@ -385,14 +442,16 @@ describe('Button', () => {
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('i-lucide-loader-circle')
-    expect(leading?.className).toContain('effect-loading')
+    expect(leading?.className).toContain('animate-spin')
   })
 
   test('uses loading icon in trailing slot when only trailing is provided', () => {
     const screen = render(() => (
-      <Button loading trailing={<span data-testid="trailing-icon">T</span>}>
-        Saving
-      </Button>
+      <MoraineProvider design={officialDesign}>
+        <Button loading trailing={<span data-testid="trailing-icon">T</span>}>
+          Saving
+        </Button>
+      </MoraineProvider>
     ))
 
     const button = screen.getByRole('button')
@@ -406,18 +465,20 @@ describe('Button', () => {
     expect(leadingSlot).toBeNull()
     expect(trailingSlot).not.toBeNull()
     expect(trailingSlot?.className).toContain('icon-loading')
-    expect(trailingSlot?.className).toContain('effect-loading')
+    expect(trailingSlot?.className).toContain('animate-spin')
   })
 
   test('keeps trailing content when loading if leading and trailing are both provided', () => {
     const screen = render(() => (
-      <Button
-        loading
-        leading={<span data-testid="leading-icon">L</span>}
-        trailing={<span data-testid="trailing-icon">T</span>}
-      >
-        Saving
-      </Button>
+      <MoraineProvider design={officialDesign}>
+        <Button
+          loading
+          leading={<span data-testid="leading-icon">L</span>}
+          trailing={<span data-testid="trailing-icon">T</span>}
+        >
+          Saving
+        </Button>
+      </MoraineProvider>
     ))
 
     const button = screen.getByRole('button')
@@ -426,18 +487,20 @@ describe('Button', () => {
     expect(screen.queryByTestId('leading-icon')).toBeNull()
     expect(screen.queryByTestId('trailing-icon')).not.toBeNull()
     expect(leadingSlot?.className).toContain('icon-loading')
-    expect(leadingSlot?.className).toContain('effect-loading')
+    expect(leadingSlot?.className).toContain('animate-spin')
   })
 
   test('applies loading class override when trailing slot is replaced by loading icon', () => {
     const screen = render(() => (
-      <Button
-        loading
-        trailing="i-lucide:timer"
-        classes={{ loading: 'loading-override', trailing: 'trailing-override' }}
-      >
-        Saving
-      </Button>
+      <MoraineProvider design={officialDesign}>
+        <Button
+          loading
+          trailing="i-lucide:timer"
+          classes={{ loading: 'loading-override', trailing: 'trailing-override' }}
+        >
+          Saving
+        </Button>
+      </MoraineProvider>
     ))
 
     const button = screen.getByRole('button', { name: 'Saving' })
@@ -445,7 +508,7 @@ describe('Button', () => {
 
     expect(trailing).not.toBeNull()
     expect(trailing?.className).toContain('icon-loading')
-    expect(trailing?.className).toContain('effect-loading')
+    expect(trailing?.className).toContain('animate-spin')
     expect(trailing?.className).toContain('loading-override')
     expect(trailing?.className).toContain('trailing-override')
   })
@@ -942,6 +1005,62 @@ describe('Button', () => {
       fireEvent.click(anchor)
 
       expect(onclick).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('Provider Precedence', () => {
+    test('inherits provider defaults, classes, and styles, with group and instance overrides', () => {
+      const screen = render(() => (
+        <MoraineProvider
+          design={createDesign({
+            button: {
+              defaultVariants: { variant: 'outline', size: 'lg' },
+              base: { root: 'provider-slot-root text-blue-500 m-1', leading: 'provider-leading' },
+            },
+            buttonGroup: {
+              defaultVariants: { size: 'sm' },
+              base: { root: 'provider-group-root' },
+            },
+          })}
+        >
+          {/* Button alone reading provider */}
+          <Button data-testid="p-btn">Plain</Button>
+
+          {/* Button inside ButtonGroup */}
+          <ButtonGroup variant="secondary">
+            <Button data-testid="g-btn">Grouped</Button>
+          </ButtonGroup>
+
+          {/* Button with instance override */}
+          <Button
+            data-testid="i-btn"
+            variant="destructive"
+            class="instance-class"
+            style={{ color: 'green' }}
+          >
+            Instance
+          </Button>
+        </MoraineProvider>
+      ))
+
+      const pBtn = screen.getByTestId('p-btn')
+      expect(pBtn.getAttribute('data-variant')).toBe('outline')
+      expect(pBtn.getAttribute('data-size')).toBe('lg')
+      expect(pBtn.className).toContain('provider-slot-root')
+      expect(pBtn.className).toContain('m-1')
+      expect(pBtn.className).toContain('text-blue-500')
+
+      const gBtn = screen.getByTestId('g-btn')
+      // Group variant 'secondary' overrides provider 'outline'
+      expect(gBtn.getAttribute('data-variant')).toBe('secondary')
+      // Provider buttonGroup variants 'sm' overrides provider button 'lg'
+      expect(gBtn.getAttribute('data-size')).toBe('sm')
+
+      const iBtn = screen.getByTestId('i-btn')
+      // Instance variant overrides all
+      expect(iBtn.getAttribute('data-variant')).toBe('destructive')
+      expect(iBtn.className).toContain('instance-class')
+      expect(iBtn.style.color).toBe('green')
     })
   })
 })

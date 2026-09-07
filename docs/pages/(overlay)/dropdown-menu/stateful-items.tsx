@@ -46,12 +46,11 @@ export function StatefulItems() {
   ])
 
   return (
-    <DropdownMenu items={items()}>
-      {(props) => (
-        <Button {...props} variant="outline">
-          View preferences
-        </Button>
-      )}
+    <DropdownMenu>
+      <DropdownMenu.Trigger as={Button} variant="outline">
+        View preferences
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content items={items()} />
     </DropdownMenu>
   )
 }

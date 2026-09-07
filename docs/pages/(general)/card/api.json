@@ -19,7 +19,14 @@
       "name": "header",
       "description": "Top region for title, description, custom header content, and actions.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-action",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -47,7 +54,14 @@
       "name": "body",
       "description": "Main content region for the card children.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-no-footer",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -64,7 +78,7 @@
         "name": "action",
         "required": false,
         "type": "JSX.Element",
-        "description": "Content to render in the action slot (usually a button in the header)."
+        "description": "Actions of the card."
       },
       {
         "name": "children",
@@ -100,13 +114,13 @@
         "name": "footer",
         "required": false,
         "type": "JSX.Element",
-        "description": "Content to render in the footer slot."
+        "description": "Footer of the card."
       },
       {
         "name": "header",
         "required": false,
         "type": "JSX.Element",
-        "description": "Content to render in the header slot, overrides title/description."
+        "description": "Header of the card."
       },
       {
         "name": "ref",

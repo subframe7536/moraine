@@ -1,6 +1,6 @@
-import type { JSX } from 'solid-js'
+import type { JSX, ValidComponent } from 'solid-js'
 import {
-  Show,
+  children as resolveChildren,
   createMemo,
   createSignal,
   mergeProps,
@@ -9,64 +9,26 @@ import {
   splitProps,
   untrack,
 } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useEventListener } from '../../shared/use-event-listener'
-import { callHandler, callRef, cn, useId } from '../../shared/utils'
-import { OverlayMenu } from '../base/menu/index'
-import type {
-  OverlayMenuFocusStrategy,
-  OverlayMenuItemVariantProps,
-  OverlayMenuRootProps,
-  OverlayMenuSharedItem,
-  OverlayMenuSharedItemRenderProps,
-  OverlayMenuSharedSlots,
-} from '../base/menu/index'
-import type { OverlayTriggerProps } from '../base/trigger'
+import { createContextProvider } from '../../shared/create-context-provider.tsx'
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import type { ElementProps } from '../../shared/types.ts'
+import { useEventListener } from '../../shared/use-event-listener.ts'
+import { useId } from '../../shared/utils.ts'
+import { OverlayMenu } from '../base/menu/index.ts'
+import type { OverlayMenuFocusStrategy } from '../base/menu/index.ts'
+import type { OverlayTriggerProps } from '../base/trigger.ts'
 import {
   createOverlayTriggerRef,
   getOverlayTriggerAccessibility,
+  mergeMenuTriggerProps,
   validateOverlayTrigger,
-} from '../base/trigger'
+} from '../base/trigger.ts'
 
-export namespace ContextMenuT {
-  export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}
-  export type Variant = Pick<OverlayMenuItemVariantProps, 'size'>
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-  export interface Item extends OverlayMenuSharedItem<Item> {}
-  export type ItemRenderProps = OverlayMenuSharedItemRenderProps<Item>
+import type { ContextMenuProps, ContextMenuT } from './context-menu.types.ts'
 
-  /**
-   * Base props for the ContextMenu component.
-   */
-  export interface Base extends Omit<
-    OverlayMenuRootProps<Item>,
-    'classes' | 'itemProps' | 'itemRender' | 'styles'
-  > {
-    /** Custom renderer for individual items. */
-    itemRender?: ComponentOrElement<ItemRenderProps>
-    /** Additional attributes for an interactive menu item. */
-    itemProps?: (props: ItemRenderProps) => ElementProps<HTMLDivElement> | undefined
-    /**
-     * Target area that opens the context menu on right-click or long press.
-     */
-    children?: (props: OverlayTriggerProps) => JSX.Element
-  }
-
-  /**
-   * Props for the ContextMenu component.
-   */
-  export type TriggerProps = OverlayTriggerProps
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the ContextMenu component.
- */
-export interface ContextMenuProps extends ContextMenuT.Props {}
+export type { ContextMenuProps, ContextMenuT } from './context-menu.types.ts'
 
 const CONTEXT_MENU_LONG_PRESS_DELAY = 700
 const CONTEXT_MENU_LONG_PRESS_MOVE_TOLERANCE = 10
@@ -98,44 +60,15 @@ function isContextMenuKeyboardEvent(event: KeyboardEvent): boolean {
 /**
  * Menu triggered by right-click or long press on its child content.
  */
-export function ContextMenu(props: ContextMenuProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'id',
-    'open',
-    'defaultOpen',
-    'onOpenChange',
-    'disabled',
-    'items',
-    'itemRender',
-    'itemProps',
-    'contentProps',
-    'contentTop',
-    'contentBottom',
-    'placement',
-    'gutter',
-    'shift',
-    'preventScroll',
-    'overflowPadding',
-    'checkedIcon',
-    'submenuIcon',
-    'size',
-    'classes',
-    'styles',
-    'children',
-    'class',
-    'style',
-  ])
+function createContextMenu(props: ContextMenuProps) {
   const merged = mergeProps(
     {
-      size: 'md' as const,
-      checkedIcon: 'icon-check',
-      submenuIcon: 'icon-chevron-right',
       placement: 'right-start' as const,
-      gutter: 0,
       shift: 4,
     },
-    local,
+    props,
   )
+
   const [uncontrolledOpen, setUncontrolledOpen] = createSignal(
     untrack(() => Boolean(merged.defaultOpen)),
   )
@@ -501,147 +434,210 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element {
     return { x: 0, y: 0, width: 0, height: 0 }
   }
 
-  const triggerRender = createMemo(() => merged.children)
-  const userTriggerProps = mergeProps(rest, {
-    get class() {
-      return cn(props.class)
+  const triggerProps = {
+    id: resolvedId(),
+    get 'aria-controls'() {
+      return resolvedOpen() ? contentId() : undefined
     },
-    get style() {
-      return props.style
+    'aria-haspopup': 'menu',
+    get 'aria-expanded'() {
+      return resolvedOpen() ? 'true' : 'false'
     },
-  }) as Partial<OverlayTriggerProps>
-  const triggerProps = mergeProps(
-    {
-      id: resolvedId(),
-      get 'aria-controls'() {
-        return resolvedOpen() ? contentId() : undefined
+    get 'data-closed'() {
+      return resolvedOpen() ? undefined : ''
+    },
+    get 'data-disabled'() {
+      return merged.disabled ? '' : undefined
+    },
+    get 'data-expanded'() {
+      return resolvedOpen() ? '' : undefined
+    },
+    'data-slot': 'trigger',
+    get disabled() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).disabled
+    },
+    get 'aria-disabled'() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled))
+        .ariaDisabled
+    },
+    get tabIndex() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).tabIndex
+    },
+    ref: (element: HTMLElement | undefined) => {
+      trigger.ref(element)
+    },
+    onContextMenu: (event: MouseEvent) => {
+      if (event.defaultPrevented) {
+        clearLongPressTimeout()
+        return
+      }
+      onContextMenu(event)
+    },
+    onPointerDown: (event: PointerEvent) => {
+      if (!event.defaultPrevented) {
+        onPointerDown(event)
+      }
+    },
+    onPointerMove: (event: PointerEvent) => {
+      if (!event.defaultPrevented) {
+        onPointerMove(event)
+      }
+    },
+    onPointerCancel: (event: PointerEvent) => {
+      if (!event.defaultPrevented) {
+        onPointerCancel(event)
+      }
+    },
+    onPointerUp: (event: PointerEvent) => {
+      // Pointer-up cleanup must run even when a consumer prevents the native event.
+      onPointerUp(event)
+    },
+    onKeyDown: (event: KeyboardEvent) => {
+      if (event.defaultPrevented || merged.disabled || !isContextMenuKeyboardEvent(event)) {
+        return
+      }
+
+      event.preventDefault()
+      event.stopPropagation()
+
+      if (resolvedOpen()) {
+        commitOpen(false)
+        return
+      }
+
+      openFromTriggerCenter('first')
+    },
+  } as OverlayTriggerProps
+
+  return {
+    triggerProps,
+    triggerElement: trigger.element,
+    menuProps: {
+      get id() {
+        return resolvedId()
       },
-      'aria-haspopup': 'menu',
-      get 'aria-expanded'() {
-        return resolvedOpen() ? 'true' : 'false'
+      get open() {
+        return resolvedOpen()
       },
-      get 'data-closed'() {
-        return resolvedOpen() ? undefined : ''
+      onClose: () => commitOpen(false),
+      get triggerElement() {
+        return trigger.element()
       },
-      get 'data-disabled'() {
-        return merged.disabled ? '' : undefined
+      get placement() {
+        return merged.placement
       },
-      get 'data-expanded'() {
-        return resolvedOpen() ? '' : undefined
+      get gutter() {
+        return merged.gutter
       },
-      'data-slot': 'trigger',
-      get disabled() {
-        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).disabled
+      get shift() {
+        return merged.shift
       },
-      get 'aria-disabled'() {
-        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled))
-          .ariaDisabled
+      get autoFocusStrategy() {
+        return autoFocusStrategy()
       },
-      get tabIndex() {
-        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).tabIndex
+      get preventScroll() {
+        return merged.preventScroll
+      },
+      get overflowPadding() {
+        return merged.overflowPadding
+      },
+      getAnchorRect,
+      onContentPointerDown,
+      onContentContextMenu,
+    },
+  }
+}
+
+const [ContextMenuProvider, useContextMenuContext] =
+  createContextProvider<ReturnType<typeof createContextMenu>>('ContextMenu')
+
+/** Menu state and interaction context, without a DOM root. */
+export function ContextMenu(props: ContextMenuProps): JSX.Element {
+  const context = createContextMenu(props)
+  return <ContextMenuProvider value={context}>{props.children}</ContextMenuProvider>
+}
+
+function ContextMenuTrigger<T extends ValidComponent = 'div'>(
+  props: ContextMenuT.TriggerProps<T>,
+): JSX.Element {
+  const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style'])
+  const context = useContextMenuContext()
+  const design = useMoraineDesign()
+  const resolved = resolveComponentStyle({
+    rootSlot: 'trigger',
+    design: {
+      get classes() {
+        return design().contextMenu.recipe()
       },
     },
-    userTriggerProps,
-    {
-      ref: (element: HTMLElement | undefined) => {
-        trigger.ref(element)
-        callRef(userTriggerProps.ref, element)
-        if (element) {
-          onCleanup(() => {
-            callRef(userTriggerProps.ref, undefined)
-          })
-        }
-      },
-      onContextMenu: (event: MouseEvent) => {
-        callHandler<HTMLElement, MouseEvent>(event, userTriggerProps.onContextMenu)
-        if (event.defaultPrevented) {
-          clearLongPressTimeout()
-          return
-        }
-        onContextMenu(event)
-      },
-      onPointerDown: (event: PointerEvent) => {
-        callHandler<HTMLElement, PointerEvent>(event, userTriggerProps.onPointerDown)
-        if (!event.defaultPrevented) {
-          onPointerDown(event)
-        }
-      },
-      onPointerMove: (event: PointerEvent) => {
-        callHandler<HTMLElement, PointerEvent>(event, userTriggerProps.onPointerMove)
-        if (!event.defaultPrevented) {
-          onPointerMove(event)
-        }
-      },
-      onPointerCancel: (event: PointerEvent) => {
-        callHandler<HTMLElement, PointerEvent>(event, userTriggerProps.onPointerCancel)
-        if (!event.defaultPrevented) {
-          onPointerCancel(event)
-        }
-      },
-      onPointerUp: (event: PointerEvent) => {
-        callHandler<HTMLElement, PointerEvent>(event, userTriggerProps.onPointerUp)
-        // Pointer-up cleanup must run even when a consumer prevents the native event.
-        onPointerUp(event)
-      },
-      onKeyDown: (event: KeyboardEvent) => {
-        callHandler<HTMLElement, KeyboardEvent>(event, userTriggerProps.onKeyDown)
-        if (event.defaultPrevented || merged.disabled || !isContextMenuKeyboardEvent(event)) {
-          return
-        }
-
-        event.preventDefault()
-        event.stopPropagation()
-
-        if (resolvedOpen()) {
-          commitOpen(false)
-          return
-        }
-
-        openFromTriggerCenter('first')
-      },
+    get instance() {
+      return local
     },
-  ) as OverlayTriggerProps
-
-  onMount(() => {
-    if (triggerRender()) {
-      validateOverlayTrigger(trigger.element(), 'ContextMenu')
-    }
   })
-
+  const binding = mergeMenuTriggerProps(rest as Partial<OverlayTriggerProps>, context.triggerProps)
+  const children = resolveChildren(() => local.children)
+  onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
   return (
-    <>
-      <Show when={triggerRender()}>
-        {(render) => renderComponentOrElement(render(), triggerProps)}
-      </Show>
-
-      <OverlayMenu<ContextMenuT.Item>
-        id={resolvedId()}
-        open={resolvedOpen()}
-        onClose={() => {
-          commitOpen(false)
-        }}
-        triggerElement={trigger.element()}
-        getAnchorRect={getAnchorRect}
-        placement={merged.placement}
-        gutter={merged.gutter}
-        shift={merged.shift}
-        autoFocusStrategy={autoFocusStrategy()}
-        onContentPointerDown={onContentPointerDown}
-        onContentContextMenu={onContentContextMenu}
-        classes={merged.classes}
-        styles={merged.styles}
-        size={merged.size}
-        items={merged.items}
-        checkedIcon={merged.checkedIcon}
-        submenuIcon={merged.submenuIcon}
-        itemRender={merged.itemRender}
-        contentProps={merged.contentProps}
-        itemProps={merged.itemProps}
-        contentTop={merged.contentTop}
-        contentBottom={merged.contentBottom}
-        preventScroll={merged.preventScroll}
-        overflowPadding={merged.overflowPadding}
-      />
-    </>
+    <Dynamic
+      component={(local.as as ValidComponent) ?? 'div'}
+      type={undefined}
+      {...binding}
+      {...resolved.rootClassAndStyle()}
+    >
+      {children()}
+    </Dynamic>
   )
 }
+
+function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'items',
+    'itemRender',
+    'itemProps',
+    'contentTop',
+    'contentBottom',
+    'checkedIcon',
+    'submenuIcon',
+    'size',
+    'class',
+    'style',
+    'classes',
+    'styles',
+  ])
+  const context = useContextMenuContext()
+  const design = useMoraineDesign()
+  const merged = mergeProps(
+    { size: 'md' as const, checkedIcon: 'icon-check', submenuIcon: 'icon-chevron-right' },
+    () => design().contextMenu.defaultVariants,
+    local,
+  )
+  const resolved = resolveComponentStyle({
+    rootSlot: 'content',
+    design: {
+      get classes() {
+        return design().contextMenu.recipe({ size: merged.size })
+      },
+    },
+    get instance() {
+      return local
+    },
+  })
+  return (
+    <OverlayMenu<ContextMenuT.Item>
+      {...context.menuProps}
+      slotClassAndStyle={resolved.slotClassAndStyle}
+      size={merged.size ?? undefined}
+      items={merged.items}
+      checkedIcon={merged.checkedIcon}
+      submenuIcon={merged.submenuIcon}
+      itemRender={merged.itemRender}
+      contentProps={rest as ElementProps<HTMLDivElement>}
+      itemProps={merged.itemProps}
+      contentTop={merged.contentTop}
+      contentBottom={merged.contentBottom}
+    />
+  )
+}
+
+ContextMenu.Trigger = ContextMenuTrigger
+ContextMenu.Content = ContextMenuContent

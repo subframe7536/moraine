@@ -12,31 +12,31 @@ export function DismissControl() {
         onOpenChange={setOpen}
         dismissible={false}
         onClosePrevent={() => setPreventedCloseCount((value) => value + 1)}
-        title="Persistent sheet"
-        description="Outside click and Escape key dismissal are blocked."
-        body={
-          <div class="py-2 space-y-3">
-            <p class="text-sm text-muted-foreground">
-              This sheet cannot be dismissed by clicking the overlay or pressing Escape.
-            </p>
-            <p class="text-sm text-foreground">
-              Prevented close attempts: <span class="font-medium">{preventedCloseCount()}</span>
-            </p>
-          </div>
-        }
-        footer={
-          <div class="flex w-full justify-end">
-            <Button size="sm" onClick={() => setOpen(false)}>
-              Close sheet
-            </Button>
-          </div>
-        }
       >
-        {(props) => (
-          <Button {...props} variant="outline">
-            Open persistent sheet
-          </Button>
-        )}
+        <Sheet.Trigger as={Button} variant="outline">
+          Open persistent sheet
+        </Sheet.Trigger>
+        <Sheet.Content
+          title="Persistent sheet"
+          description="Outside click and Escape key dismissal are blocked."
+          body={
+            <div class="py-2 space-y-3">
+              <p class="text-sm text-muted-foreground">
+                This sheet cannot be dismissed by clicking the overlay or pressing Escape.
+              </p>
+              <p class="text-sm text-foreground">
+                Prevented close attempts: <span class="font-medium">{preventedCloseCount()}</span>
+              </p>
+            </div>
+          }
+          footer={
+            <div class="flex w-full justify-end">
+              <Button size="sm" onClick={() => setOpen(false)}>
+                Close sheet
+              </Button>
+            </div>
+          }
+        />
       </Sheet>
     </div>
   )
