@@ -61,15 +61,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   const design = useMoraineDesign()
   const radioGroupDesign = () => design().radioGroup
 
-  const merged = mergeProps(
-    {
-      orientation: 'vertical' as const,
-      variant: 'list' as const,
-      indicator: 'start' as const,
-    },
-    () => radioGroupDesign()?.defaultVariants,
-    local,
-  )
+  const merged = mergeProps(() => radioGroupDesign()?.defaultVariants, local)
 
   const items = createMemo(() => merged.items ?? [])
   const orientation = createMemo(() => merged.orientation ?? 'vertical')

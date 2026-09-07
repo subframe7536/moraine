@@ -600,9 +600,6 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   ])
   const merged = mergeProps(
     {
-      variant: 'outline',
-      filterOption: true,
-      overflowPadding: 4,
       closeOnSelect: true,
     },
     local as BaseSelectProps<TItem>,

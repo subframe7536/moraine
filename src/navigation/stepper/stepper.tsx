@@ -87,21 +87,22 @@ export function Stepper(props: StepperProps): JSX.Element {
       const description = createLazyMemo(() => item.description)
       const icon = createLazyMemo(() => item.icon)
       const content = createLazyMemo(() => item.content)
+      const mergedItem = mergeProps(item, {
+        get title() {
+          return title()
+        },
+        get description() {
+          return description()
+        },
+        get icon() {
+          return icon()
+        },
+        get content() {
+          return content()
+        },
+      })
       return {
-        item: mergeProps(item, {
-          get title() {
-            return title()
-          },
-          get description() {
-            return description()
-          },
-          get icon() {
-            return icon()
-          },
-          get content() {
-            return content()
-          },
-        }),
+        item: mergedItem,
         index,
         value: item.value ?? String(index),
       }

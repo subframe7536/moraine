@@ -63,7 +63,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       falseValue: false,
       value: 'on',
     },
-    () => switchDesign()?.defaultVariants,
     local,
   )
   const label = createMemo(() => merged.label)

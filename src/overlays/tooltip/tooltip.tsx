@@ -93,7 +93,6 @@ function shouldOpenImmediately(): boolean {
 export function Tooltip(props: TooltipProps): JSX.Element {
   const merged = mergeProps(
     {
-      placement: 'top' as const,
       openDelay: 600,
       closeDelay: 200,
       instantOpenDelay: 300,
@@ -339,7 +338,6 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
     'style',
     'classes',
     'styles',
-    'ref',
   ])
   const design = useMoraineDesign()
   const instantMotion = useContext(TooltipMotionContext)
@@ -375,15 +373,9 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
         return local
       },
     })
-    const surfaceProps = mergeProps(rest, {
-      get ref() {
-        return local.ref
-      },
-    }) as JSX.HTMLAttributes<HTMLDivElement>
-    const contentProps = mergePopperContentProps(context.contentProps, surfaceProps)
     return (
       <div
-        {...contentProps}
+        {...mergePopperContentProps(context.contentProps, rest)}
         data-slot="content"
         data-instant-motion={instantMotion() ? '' : undefined}
         {...resolved.rootClassAndStyle()}

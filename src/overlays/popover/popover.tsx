@@ -26,7 +26,6 @@ export function Popover(props: PopoverProps): JSX.Element {
   const merged = mergeProps(
     {
       mode: 'click' as const,
-      placement: 'bottom' as const,
       openDelay: 100,
       closeDelay: 100,
       dismissible: true,
@@ -267,7 +266,6 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
     'style',
     'classes',
     'styles',
-    'ref',
   ])
   const design = useMoraineDesign()
   function Content(context: PopperContentContext): JSX.Element {
@@ -289,15 +287,9 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
         return local
       },
     })
-    const surfaceProps = mergeProps(rest, {
-      get ref() {
-        return local.ref
-      },
-    }) as JSX.HTMLAttributes<HTMLDivElement>
-    const contentProps = mergePopperContentProps(context.contentProps, surfaceProps)
     return (
       <div
-        {...contentProps}
+        {...mergePopperContentProps(context.contentProps, rest)}
         data-slot="content"
         aria-label={local.ariaLabel ?? (rest['aria-label'] as string | undefined)}
         {...resolved.rootClassAndStyle()}

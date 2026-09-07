@@ -78,7 +78,6 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
   const local = mergeProps(
     {
-      orientation: 'horizontal' as const,
       keyboardDelta: '10%' as const,
       handle: true,
       handleAction: 'resize' as const,

@@ -221,14 +221,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   const merged = mergeProps(
     {
       variant: 'outline' as const,
-      orientation: 'horizontal' as const,
-      increment: true,
-      decrement: true,
-      autofocusDelay: 0,
       holdRepeat: true,
-      repeatDelayMs: 500,
-      repeatIntervalMs: 80,
-      repeatThrottleMs: 0,
       repeatPointerTypes: 'all' as const,
     },
     () => inputNumberDesign()?.defaultVariants,

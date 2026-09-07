@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, mergeProps, onCleanup, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js'
 
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
@@ -22,26 +22,18 @@ export type { ModalProps, ModalT } from './modal.types.ts'
 
 /** Low-level modal primitives for composing custom dialog surfaces. */
 export function Modal(props: ModalProps): JSX.Element {
-  const merged = mergeProps(
-    {
-      dismissible: true,
-      preventScroll: true,
-    },
-    props,
-  )
-
-  const rootId = useId(() => merged.id, 'modal')
+  const rootId = useId(() => props.id, 'modal')
   const contentId = createMemo(() => `${rootId()}-content`)
   const [open, setOpen] = useControllableValue<boolean>({
-    value: () => merged.open,
-    defaultValue: () => merged.defaultOpen ?? false,
+    value: () => props.open,
+    defaultValue: () => props.defaultOpen ?? false,
   })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const presence = useTransitionPresence({ open: () => Boolean(open()) })
   const [contentRegistrations, setContentRegistrations] = createSignal<Set<number>>(new Set())
   let nextContentRegistrationId = 0
-  const dismissible = createMemo(() => merged.dismissible ?? true)
+  const dismissible = createMemo(() => props.dismissible ?? true)
   const contentMounted = createMemo(() => contentRegistrations().size > 0)
   const isPresent = createMemo(() => contentMounted() && presence.present())
   const contentPresent = isPresent
@@ -57,7 +49,7 @@ export function Modal(props: ModalProps): JSX.Element {
     }
 
     setOpen(nextOpen)
-    merged.onOpenChange?.(nextOpen)
+    props.onOpenChange?.(nextOpen)
   }
 
   createEffect(() => {
@@ -76,7 +68,7 @@ export function Modal(props: ModalProps): JSX.Element {
     if (closeCycleActive && !presence.present()) {
       closeCycleActive = false
       hadOpenContent = false
-      merged.onExitComplete?.()
+      props.onExitComplete?.()
     }
   })
 
@@ -90,7 +82,7 @@ export function Modal(props: ModalProps): JSX.Element {
       focusContent(currentContent)
     })
 
-    const releaseScrollLock = merged.preventScroll === false ? undefined : acquireBodyScrollLock()
+    const releaseScrollLock = props.preventScroll === false ? undefined : acquireBodyScrollLock()
     onCleanup(() => {
       releaseScrollLock?.()
     })
@@ -194,7 +186,7 @@ export function Modal(props: ModalProps): JSX.Element {
       })
 
       if (!dismissible()) {
-        merged.onClosePrevent?.()
+        props.onClosePrevent?.()
       }
     },
     onEscape: (event) => {
@@ -209,7 +201,7 @@ export function Modal(props: ModalProps): JSX.Element {
       }
 
       event.preventDefault()
-      merged.onClosePrevent?.()
+      props.onClosePrevent?.()
     },
     onDeactivate: () => {
       const trigger = capturedTrigger
@@ -265,7 +257,7 @@ export function Modal(props: ModalProps): JSX.Element {
     isPresent,
   }
 
-  return <ModalProvider value={context}>{merged.children}</ModalProvider>
+  return <ModalProvider value={context}>{props.children}</ModalProvider>
 }
 
 Modal.Content = ModalContent

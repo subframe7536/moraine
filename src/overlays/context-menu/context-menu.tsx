@@ -64,7 +64,6 @@ function createContextMenu(props: ContextMenuProps) {
   const merged = mergeProps(
     {
       placement: 'right-start' as const,
-      gutter: 0,
       shift: 4,
     },
     props,
@@ -435,84 +434,80 @@ function createContextMenu(props: ContextMenuProps) {
     return { x: 0, y: 0, width: 0, height: 0 }
   }
 
-  const triggerProps = mergeProps(
-    {
-      id: resolvedId(),
-      get 'aria-controls'() {
-        return resolvedOpen() ? contentId() : undefined
-      },
-      'aria-haspopup': 'menu',
-      get 'aria-expanded'() {
-        return resolvedOpen() ? 'true' : 'false'
-      },
-      get 'data-closed'() {
-        return resolvedOpen() ? undefined : ''
-      },
-      get 'data-disabled'() {
-        return merged.disabled ? '' : undefined
-      },
-      get 'data-expanded'() {
-        return resolvedOpen() ? '' : undefined
-      },
-      'data-slot': 'trigger',
-      get disabled() {
-        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).disabled
-      },
-      get 'aria-disabled'() {
-        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled))
-          .ariaDisabled
-      },
-      get tabIndex() {
-        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).tabIndex
-      },
+  const triggerProps = {
+    id: resolvedId(),
+    get 'aria-controls'() {
+      return resolvedOpen() ? contentId() : undefined
     },
-    {
-      ref: (element: HTMLElement | undefined) => {
-        trigger.ref(element)
-      },
-      onContextMenu: (event: MouseEvent) => {
-        if (event.defaultPrevented) {
-          clearLongPressTimeout()
-          return
-        }
-        onContextMenu(event)
-      },
-      onPointerDown: (event: PointerEvent) => {
-        if (!event.defaultPrevented) {
-          onPointerDown(event)
-        }
-      },
-      onPointerMove: (event: PointerEvent) => {
-        if (!event.defaultPrevented) {
-          onPointerMove(event)
-        }
-      },
-      onPointerCancel: (event: PointerEvent) => {
-        if (!event.defaultPrevented) {
-          onPointerCancel(event)
-        }
-      },
-      onPointerUp: (event: PointerEvent) => {
-        // Pointer-up cleanup must run even when a consumer prevents the native event.
-        onPointerUp(event)
-      },
-      onKeyDown: (event: KeyboardEvent) => {
-        if (event.defaultPrevented || merged.disabled || !isContextMenuKeyboardEvent(event)) {
-          return
-        }
-
-        event.preventDefault()
-        event.stopPropagation()
-
-        if (resolvedOpen()) {
-          commitOpen(false)
-          return
-        }
-
-        openFromTriggerCenter('first')
-      },
+    'aria-haspopup': 'menu',
+    get 'aria-expanded'() {
+      return resolvedOpen() ? 'true' : 'false'
     },
-  ) as OverlayTriggerProps
+    get 'data-closed'() {
+      return resolvedOpen() ? undefined : ''
+    },
+    get 'data-disabled'() {
+      return merged.disabled ? '' : undefined
+    },
+    get 'data-expanded'() {
+      return resolvedOpen() ? '' : undefined
+    },
+    'data-slot': 'trigger',
+    get disabled() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).disabled
+    },
+    get 'aria-disabled'() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled))
+        .ariaDisabled
+    },
+    get tabIndex() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).tabIndex
+    },
+    ref: (element: HTMLElement | undefined) => {
+      trigger.ref(element)
+    },
+    onContextMenu: (event: MouseEvent) => {
+      if (event.defaultPrevented) {
+        clearLongPressTimeout()
+        return
+      }
+      onContextMenu(event)
+    },
+    onPointerDown: (event: PointerEvent) => {
+      if (!event.defaultPrevented) {
+        onPointerDown(event)
+      }
+    },
+    onPointerMove: (event: PointerEvent) => {
+      if (!event.defaultPrevented) {
+        onPointerMove(event)
+      }
+    },
+    onPointerCancel: (event: PointerEvent) => {
+      if (!event.defaultPrevented) {
+        onPointerCancel(event)
+      }
+    },
+    onPointerUp: (event: PointerEvent) => {
+      // Pointer-up cleanup must run even when a consumer prevents the native event.
+      onPointerUp(event)
+    },
+    onKeyDown: (event: KeyboardEvent) => {
+      if (event.defaultPrevented || merged.disabled || !isContextMenuKeyboardEvent(event)) {
+        return
+      }
+
+      event.preventDefault()
+      event.stopPropagation()
+
+      if (resolvedOpen()) {
+        commitOpen(false)
+        return
+      }
+
+      openFromTriggerCenter('first')
+    },
+  } as OverlayTriggerProps
 
   return {
     triggerProps,
@@ -579,14 +574,16 @@ function ContextMenuTrigger<T extends ValidComponent = 'div'>(
       return local
     },
   })
-  const binding = mergeMenuTriggerProps(
-    mergeProps(rest, resolved.rootClassAndStyle()) as Partial<OverlayTriggerProps>,
-    context.triggerProps,
-  )
+  const binding = mergeMenuTriggerProps(rest as Partial<OverlayTriggerProps>, context.triggerProps)
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
   return (
-    <Dynamic component={(local.as as ValidComponent) ?? 'div'} type={undefined} {...binding}>
+    <Dynamic
+      component={(local.as as ValidComponent) ?? 'div'}
+      type={undefined}
+      {...binding}
+      {...resolved.rootClassAndStyle()}
+    >
       {children()}
     </Dynamic>
   )

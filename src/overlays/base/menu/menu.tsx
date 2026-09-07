@@ -1383,9 +1383,6 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
 ): JSX.Element {
   const merged = mergeProps(
     {
-      gutter: 0,
-      overflowPadding: 4,
-      placement: 'bottom-start' as const,
       preventScroll: true,
     },
     props,

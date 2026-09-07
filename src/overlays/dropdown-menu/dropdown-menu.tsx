@@ -33,121 +33,108 @@ export type { DropdownMenuProps, DropdownMenuT } from './dropdown-menu.types.ts'
  * Triggered action menu anchored to its child content.
  */
 function createDropdownMenu(props: DropdownMenuProps) {
-  const merged = mergeProps(
-    {
-      placement: 'bottom-start' as const,
-      gutter: 0,
-    },
-    props,
-  )
-
-  const resolvedId = useId(() => merged.id, 'dropdownmenu')
+  const resolvedId = useId(() => props.id, 'dropdownmenu')
   const contentId = createMemo(() => `${resolvedId()}-content`)
   const [openState, setOpenState] = useControllableValue<boolean>({
-    value: () => merged.open,
-    defaultValue: () => merged.defaultOpen ?? false,
+    value: () => props.open,
+    defaultValue: () => props.defaultOpen ?? false,
   })
   const isOpen = createMemo(() => Boolean(openState()))
   const [autoFocusStrategy, setAutoFocusStrategy] =
     createSignal<OverlayMenuFocusStrategy>('content')
   const trigger = createOverlayTriggerRef()
 
-  const triggerProps = mergeProps(
-    {
-      id: resolvedId(),
-      get 'aria-controls'() {
-        return isOpen() ? contentId() : undefined
-      },
-      'aria-haspopup': 'menu',
-      get 'aria-expanded'() {
-        return isOpen() ? 'true' : 'false'
-      },
-      get 'data-closed'() {
-        return isOpen() ? undefined : ''
-      },
-      get 'data-disabled'() {
-        return merged.disabled ? '' : undefined
-      },
-      get 'data-expanded'() {
-        return isOpen() ? '' : undefined
-      },
-      'data-slot': 'trigger',
-      get disabled() {
-        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).disabled
-      },
-      get 'aria-disabled'() {
-        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled))
-          .ariaDisabled
-      },
-      get tabIndex() {
-        return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).tabIndex
-      },
+  const triggerProps = {
+    id: resolvedId(),
+    get 'aria-controls'() {
+      return isOpen() ? contentId() : undefined
     },
-    {
-      ref: (element: HTMLElement | undefined) => {
-        trigger.ref(element)
-      },
-      onClick: (event: MouseEvent) => {
-        if (event.defaultPrevented || merged.disabled) {
-          return
-        }
+    'aria-haspopup': 'menu',
+    get 'aria-expanded'() {
+      return isOpen() ? 'true' : 'false'
+    },
+    get 'data-closed'() {
+      return isOpen() ? undefined : ''
+    },
+    get 'data-disabled'() {
+      return props.disabled ? '' : undefined
+    },
+    get 'data-expanded'() {
+      return isOpen() ? '' : undefined
+    },
+    'data-slot': 'trigger',
+    get disabled() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(props.disabled)).disabled
+    },
+    get 'aria-disabled'() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(props.disabled)).ariaDisabled
+    },
+    get tabIndex() {
+      return getOverlayTriggerAccessibility(trigger.element(), Boolean(props.disabled)).tabIndex
+    },
+    ref: (element: HTMLElement | undefined) => {
+      trigger.ref(element)
+    },
+    onClick: (event: MouseEvent) => {
+      if (event.defaultPrevented || props.disabled) {
+        return
+      }
+
+      if (isOpen()) {
+        commitOpen(false)
+        return
+      }
+
+      openWithStrategy('content')
+    },
+    onKeyDown: (event: KeyboardEvent) => {
+      if (event.defaultPrevented || props.disabled) {
+        return
+      }
+
+      if (event.key === 'Escape' && isOpen()) {
+        event.preventDefault()
+        commitOpen(false)
+        return
+      }
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        openWithStrategy('first')
+        return
+      }
+
+      if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        openWithStrategy('last')
+        return
+      }
+
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
 
         if (isOpen()) {
           commitOpen(false)
           return
         }
 
-        openWithStrategy('content')
-      },
-      onKeyDown: (event: KeyboardEvent) => {
-        if (event.defaultPrevented || merged.disabled) {
-          return
-        }
-
-        if (event.key === 'Escape' && isOpen()) {
-          event.preventDefault()
-          commitOpen(false)
-          return
-        }
-
-        if (event.key === 'ArrowDown') {
-          event.preventDefault()
-          openWithStrategy('first')
-          return
-        }
-
-        if (event.key === 'ArrowUp') {
-          event.preventDefault()
-          openWithStrategy('last')
-          return
-        }
-
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault()
-
-          if (isOpen()) {
-            commitOpen(false)
-            return
-          }
-
-          openWithStrategy('first')
-        }
-      },
+        openWithStrategy('first')
+      }
     },
-  ) as OverlayTriggerProps
+  } as OverlayTriggerProps
 
   createEffect(() => {
-    if (merged.disabled && isOpen()) {
+    if (props.disabled && isOpen()) {
       commitOpen(false)
     }
   })
 
   function commitOpen(open: boolean): void {
-    if (open && merged.disabled) {
+    if (open && props.disabled) {
       return
     }
 
-    if (merged.open === undefined) {
+    if (props.open === undefined) {
       setOpenState(open)
     }
 
@@ -155,11 +142,11 @@ function createDropdownMenu(props: DropdownMenuProps) {
       setAutoFocusStrategy('none')
     }
 
-    merged.onOpenChange?.(open)
+    props.onOpenChange?.(open)
   }
 
   function openWithStrategy(strategy: OverlayMenuFocusStrategy): void {
-    if (merged.disabled) {
+    if (props.disabled) {
       return
     }
 
@@ -182,22 +169,22 @@ function createDropdownMenu(props: DropdownMenuProps) {
         return trigger.element()
       },
       get placement() {
-        return merged.placement
+        return props.placement
       },
       get gutter() {
-        return merged.gutter
+        return props.gutter
       },
       get shift() {
-        return merged.shift
+        return props.shift
       },
       get autoFocusStrategy() {
         return autoFocusStrategy()
       },
       get preventScroll() {
-        return merged.preventScroll
+        return props.preventScroll
       },
       get overflowPadding() {
-        return merged.overflowPadding
+        return props.overflowPadding
       },
       onAutoFocusHandled: () => setAutoFocusStrategy('none'),
     },
@@ -230,10 +217,7 @@ function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
       return local
     },
   })
-  const binding = mergeMenuTriggerProps(
-    mergeProps(rest, resolved.rootClassAndStyle()) as Partial<OverlayTriggerProps>,
-    context.triggerProps,
-  )
+  const binding = mergeMenuTriggerProps(rest as Partial<OverlayTriggerProps>, context.triggerProps)
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu'))
   return (
@@ -241,6 +225,7 @@ function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
       component={(local.as as ValidComponent) ?? 'button'}
       type={local.as === undefined || local.as === 'button' ? 'button' : undefined}
       {...binding}
+      {...resolved.rootClassAndStyle()}
     >
       {children()}
     </Dynamic>
