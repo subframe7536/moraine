@@ -5,7 +5,9 @@
 - [x] add collapsible in design options.
 - [x] add preview in `### Root styling`
 - [x] codetabs 's button should not have active scale
-- [ ] convert sidebar and resizable into namespaced component
+- [ ] cleanup useless `mergeProps` across all components
+- [ ] convert sidebar-frame and resizable into namespaced component, get rid of `frameRender` in sidebar-frame
+- [ ] add indicator type in `<component>T` to indicate if the component is a single or a composite/namespaced component
 - [ ] textarea inline padding optimize
 - [ ] metric adjust across all sizes
 - [ ] production barrel import optimize
