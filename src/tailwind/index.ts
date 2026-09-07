@@ -38,7 +38,7 @@ type TailwindPlugin = (options?: MorainePluginOptions) => ReturnType<typeof plug
 
 export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = {}) =>
   plugin(
-    ({ addBase, addUtilities, matchUtilities, matchVariant, theme }) => {
+    ({ addUtilities, matchUtilities, matchVariant, theme }) => {
       if (options.icons !== false) {
         addUtilities(buildIconShortcutUtilities())
       }

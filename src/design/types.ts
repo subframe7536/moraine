@@ -4,6 +4,7 @@ import type { BadgeT } from '../elements/badge/index.ts'
 import type { ButtonGroupT } from '../elements/button/button-group.types.ts'
 import type { ButtonT } from '../elements/button/button.types.ts'
 import type { CardT } from '../elements/card/index.ts'
+import type { CollapsibleT } from '../elements/collapsible/index.ts'
 import type { IconT } from '../elements/icon/index.ts'
 import type { KbdGroupT, KbdT } from '../elements/kbd/index.ts'
 import type { ProgressT } from '../elements/progress/index.ts'
@@ -90,6 +91,7 @@ export interface MoraineDesign {
   readonly card: CompiledComponentDesign<keyof CardT.Slot, CardT.Variant>
   readonly checkbox: CompiledComponentDesign<keyof CheckboxT.Slot, CheckboxT.Variant>
   readonly checkboxGroup: CompiledComponentDesign<keyof CheckboxGroupT.Slot, CheckboxGroupT.Variant>
+  readonly collapsible: CompiledComponentDesign<keyof CollapsibleT.Slot, CollapsibleT.Variant>
   readonly commandPalette: CompiledComponentDesign<
     keyof CommandPaletteT.Slot,
     CommandPaletteT.Variant
@@ -137,6 +139,7 @@ export interface CreateDesignOptions {
   card?: ComponentDesignInput<keyof CardT.Slot, CardT.Variant>
   checkbox?: ComponentDesignInput<keyof CheckboxT.Slot, CheckboxT.Variant>
   checkboxGroup?: ComponentDesignInput<keyof CheckboxGroupT.Slot, CheckboxGroupT.Variant>
+  collapsible?: ComponentDesignInput<keyof CollapsibleT.Slot, CollapsibleT.Variant>
   commandPalette?: ComponentDesignInput<keyof CommandPaletteT.Slot, CommandPaletteT.Variant>
   contextMenu?: ComponentDesignInput<keyof ContextMenuT.Slot, ContextMenuT.Variant>
   dialog?: ComponentDesignInput<keyof DialogT.Slot, DialogT.Variant>

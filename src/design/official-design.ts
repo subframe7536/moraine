@@ -49,6 +49,7 @@ export function getOfficialDesignOptions(): Record<string, ComponentDesignInput<
     card: cardRecipeOptions,
     checkbox: checkboxRecipeOptions,
     checkboxGroup: checkboxGroupRecipeOptions,
+    collapsible: { base: { root: '', trigger: '', contentWrapper: '', content: '' } },
     commandPalette: commandPaletteRecipeOptions,
     contextMenu: contextMenuRecipeOptions,
     dialog: dialogRecipeOptions,

@@ -90,6 +90,7 @@ const sourceTokenRules = [
 
 const standaloneProviderKeys: Record<string, string> = {
   Accordion: 'accordion',
+  Collapsible: 'collapsible',
   Modal: 'modal',
   Avatar: 'avatar',
   AvatarGroup: 'avatarGroup',

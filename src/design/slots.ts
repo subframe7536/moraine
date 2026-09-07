@@ -44,6 +44,7 @@ export const SLOT_SKELETONS = {
     'label',
     'description',
   ],
+  collapsible: ['root', 'trigger', 'contentWrapper', 'content'],
   commandPalette: [
     'root',
     'inputWrapper',

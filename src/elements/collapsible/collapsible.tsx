@@ -1,10 +1,11 @@
 import type { JSX } from 'solid-js'
 import { createMemo, createSignal, splitProps } from 'solid-js'
 
+import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useDisclosureState } from '../../shared/use-disclosure-state.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { cn, useId } from '../../shared/utils.ts'
+import { useId } from '../../shared/utils.ts'
 
 import { CollapsibleContent } from './collapsible-content.tsx'
 import type { CollapsibleContext } from './collapsible-context.ts'
@@ -25,9 +26,27 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     'transition',
     'unmountOnHide',
     'children',
+    'classes',
+    'styles',
     'class',
     'style',
   ])
+  const design = useMoraineDesign()
+  const resolved = resolveComponentStyle({
+    design: {
+      get classes() {
+        return design().collapsible.recipe()
+      },
+    },
+    get instance() {
+      return {
+        class: local.class,
+        style: local.style,
+        classes: local.classes,
+        styles: local.styles,
+      }
+    },
+  })
   const rootId = useId(() => local.id, 'collapsible')
   const contentId = createMemo(() => `${rootId()}-content`)
   const triggerId = createMemo(() => `${rootId()}-trigger`)
@@ -59,6 +78,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   }
 
   const context: CollapsibleContext = {
+    resolved,
     rootId,
     triggerId,
     contentId,
@@ -87,8 +107,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
         data-slot="root"
         {...dataAttrs()}
         {...rest}
-        class={cn(local.class)}
-        style={local.style}
+        {...resolved.rootClassAndStyle()}
       >
         {local.children}
       </div>

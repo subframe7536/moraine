@@ -1,9 +1,13 @@
 import type { Accessor } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider.tsx'
+import type { ResolvedComponentStyle } from '../../shared/provider/index.ts'
 import type { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 
+import type { CollapsibleT } from './collapsible.types.ts'
+
 export interface CollapsibleContext {
+  resolved: ResolvedComponentStyle<keyof CollapsibleT.Slot>
   rootId: Accessor<string>
   triggerId: Accessor<string>
   contentId: Accessor<string>

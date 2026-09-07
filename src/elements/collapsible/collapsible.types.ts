@@ -1,12 +1,22 @@
 import type { JSX, ValidComponent } from 'solid-js'
 
-import type { BaseProps } from '../../shared/types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 type CollapsibleTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[T]
   : HTMLElement
 
 export namespace CollapsibleT {
+  export interface Slot<T = unknown> {
+    root?: T
+    trigger?: T
+    contentWrapper?: T
+    content?: T
+  }
+
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
+
   export type TriggerBase<T extends ValidComponent = 'button'> = {
     /** Element or component to render as. @default 'button' */
     as?: T
@@ -116,7 +126,7 @@ export namespace CollapsibleT {
   /**
    * Props for the Collapsible component.
    */
-  export type Props = BaseProps<'div', Base, never, never, never>
+  export type Props = BaseProps<'div', Base, never, Classes, Styles>
 }
 
 /**

@@ -83,7 +83,6 @@ describe('colors', () => {
       .bg-primary {
         background-color: var(--primary);
       }
-      @layer base;
       "
     `)
   })
@@ -95,7 +94,6 @@ describe('colors', () => {
       .text-foreground {
         color: var(--foreground);
       }
-      @layer base;
       "
     `)
   })
@@ -107,7 +105,6 @@ describe('colors', () => {
       .bg-background {
         background-color: var(--background);
       }
-      @layer base;
       "
     `)
   })
@@ -119,7 +116,6 @@ describe('colors', () => {
       .text-primary-foreground {
         color: var(--primary-foreground);
       }
-      @layer base;
       "
     `)
   })
@@ -134,7 +130,6 @@ describe('colors', () => {
       .text-secondary-foreground {
         color: var(--secondary-foreground);
       }
-      @layer base;
       "
     `)
   })
@@ -149,7 +144,6 @@ describe('colors', () => {
       .text-card-foreground {
         color: var(--card-foreground);
       }
-      @layer base;
       "
     `)
   })
@@ -164,7 +158,6 @@ describe('colors', () => {
       .text-muted-foreground {
         color: var(--muted-foreground);
       }
-      @layer base;
       "
     `)
   })
@@ -179,7 +172,6 @@ describe('colors', () => {
       .text-accent-foreground {
         color: var(--accent-foreground);
       }
-      @layer base;
       "
     `)
   })
@@ -194,7 +186,6 @@ describe('colors', () => {
       .text-destructive-foreground {
         color: var(--destructive-foreground);
       }
-      @layer base;
       "
     `)
   })
@@ -237,7 +228,6 @@ describe('colors', () => {
       .bg-secondary-hover {
         background-color: var(--secondary-hover, var(--secondary));
       }
-      @layer base;
       "
     `)
     expect(css).not.toContain('-focus')
@@ -256,7 +246,6 @@ describe('colors', () => {
       .ring-ring {
         --tw-ring-color: var(--ring);
       }
-      @layer base;
       "
     `)
   })
@@ -272,7 +261,6 @@ describe('border radius', () => {
       .rounded-lg {
         border-radius: var(--radius);
       }
-      @layer base;
       "
     `)
   })
@@ -284,7 +272,6 @@ describe('border radius', () => {
       .rounded-xl {
         border-radius: calc(var(--radius) * 1.4);
       }
-      @layer base;
       "
     `)
   })
@@ -296,7 +283,6 @@ describe('border radius', () => {
       .rounded-sm {
         border-radius: calc(var(--radius) * 0.6);
       }
-      @layer base;
       "
     `)
   })
@@ -308,7 +294,6 @@ describe('border radius', () => {
       .rounded-xs {
         border-radius: calc(var(--radius) * 0.5);
       }
-      @layer base;
       "
     `)
   })
@@ -326,7 +311,6 @@ describe('border radius', () => {
       .rounded-4xl {
         border-radius: calc(var(--radius) * 2.6);
       }
-      @layer base;
       "
     `)
   })
@@ -344,7 +328,6 @@ describe('shadows', () => {
         --tw-shadow: var(--shadow);
         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
       }
-      @layer base;
       @property --tw-shadow {
         syntax: "*";
         inherits: false;
@@ -443,7 +426,6 @@ describe('shadows', () => {
         --tw-shadow: var(--shadow-sm);
         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
       }
-      @layer base;
       @property --tw-shadow {
         syntax: "*";
         inherits: false;
@@ -542,7 +524,6 @@ describe('shadows', () => {
         --tw-shadow: var(--shadow-lg);
         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
       }
-      @layer base;
       @property --tw-shadow {
         syntax: "*";
         inherits: false;
@@ -678,7 +659,6 @@ describe('shadows', () => {
         --tw-shadow: var(--shadow-xs);
         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
       }
-      @layer base;
       @property --tw-shadow {
         syntax: "*";
         inherits: false;
@@ -806,7 +786,6 @@ describe('z-index', () => {
       .z-sticky {
         z-index: 10;
       }
-      @layer base;
       "
     `)
   })
@@ -822,7 +801,6 @@ describe('animations', () => {
       .animate-mo-enter {
         animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) cubic-bezier(0.16, 1, 0.3, 1) 1;
       }
-      @layer base;
       @keyframes mo-enter {
         from {
           opacity: var(--mo-enter-opacity, 1);
@@ -840,7 +818,6 @@ describe('animations', () => {
       .animate-mo-exit {
         animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) cubic-bezier(0.7, 0, 0.84, 0) 1;
       }
-      @layer base;
       @keyframes mo-exit {
         to {
           opacity: var(--mo-exit-opacity, 1);
@@ -858,7 +835,6 @@ describe('animations', () => {
       .animate-mo-enter {
         animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) cubic-bezier(0.16, 1, 0.3, 1) 1;
       }
-      @layer base;
       @keyframes mo-enter {
         from {
           opacity: var(--mo-enter-opacity, 1);
@@ -876,7 +852,6 @@ describe('animations', () => {
       .animate-mo-exit {
         animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) cubic-bezier(0.7, 0, 0.84, 0) 1;
       }
-      @layer base;
       @keyframes mo-exit {
         to {
           opacity: var(--mo-exit-opacity, 1);
@@ -900,7 +875,6 @@ describe('animations', () => {
       .animate-swing {
         animation: swing var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite;
       }
-      @layer base;
       @keyframes carousel {
         0% {
           transform: translateX(-100%);
@@ -939,7 +913,6 @@ describe('animations', () => {
       .animate-spin {
         animation: spin var(--mo-anim-duration,var(--mo-anim-duration-spin,1s)) linear infinite;
       }
-      @layer base;
       @keyframes spin {
         to {
           transform: rotate(360deg);
@@ -995,7 +968,6 @@ describe('animations', () => {
         transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
         transition-duration: var(--tw-duration, var(--default-transition-duration));
       }
-      @layer base;
       "
     `)
     expect(css).not.toContain('.transition-mo-enter')
@@ -1153,7 +1125,6 @@ describe('font families', () => {
       .font-sans {
         font-family: var(--font-sans);
       }
-      @layer base;
       "
     `)
   })
@@ -1165,7 +1136,6 @@ describe('font families', () => {
       .font-mono {
         font-family: var(--font-mono);
       }
-      @layer base;
       "
     `)
   })
@@ -1177,7 +1147,6 @@ describe('font families', () => {
       .font-serif {
         font-family: var(--font-serif);
       }
-      @layer base;
       "
     `)
   })
@@ -1193,7 +1162,6 @@ describe('attribute variants', () => {
       .data-active\\:bg-primary[data-active] {
         background-color: var(--primary);
       }
-      @layer base;
       "
     `)
   })
@@ -1205,7 +1173,6 @@ describe('attribute variants', () => {
       .data-checked\\:text-foreground[data-checked] {
         color: var(--foreground);
       }
-      @layer base;
       "
     `)
   })
@@ -1217,7 +1184,6 @@ describe('attribute variants', () => {
       .data-disabled\\:opacity-50[data-disabled] {
         opacity: 50%;
       }
-      @layer base;
       "
     `)
   })
@@ -1229,7 +1195,6 @@ describe('attribute variants', () => {
       .aria-busy\\:opacity-80[aria-busy] {
         opacity: 80%;
       }
-      @layer base;
       "
     `)
   })
@@ -1241,7 +1206,6 @@ describe('attribute variants', () => {
       .aria-checked\\:bg-accent[aria-checked] {
         background-color: var(--accent);
       }
-      @layer base;
       "
     `)
   })
@@ -1253,7 +1217,6 @@ describe('attribute variants', () => {
       .aria-disabled\\:pointer-events-none[aria-disabled] {
         pointer-events: none;
       }
-      @layer base;
       "
     `)
   })
@@ -1280,7 +1243,6 @@ describe('attribute variants', () => {
         --tw-translate-y: 1px;
         translate: var(--tw-translate-x) var(--tw-translate-y);
       }
-      @layer base;
       @property --tw-translate-x {
         syntax: "*";
         inherits: false;
@@ -1318,7 +1280,6 @@ describe('attribute variants', () => {
           background-color: var(--primary);
         }
       }
-      @layer base;
       "
     `)
   })
@@ -1358,7 +1319,6 @@ describe('full compilation', () => {
         --tw-shadow: var(--shadow-md);
         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
       }
-      @layer base;
       @property --tw-shadow {
         syntax: "*";
         inherits: false;
@@ -1463,7 +1423,6 @@ describe('full compilation', () => {
           background-color: var(--primary);
         }
       }
-      @layer base;
       "
     `)
   })
@@ -1475,7 +1434,6 @@ describe('full compilation', () => {
       .focus\\:ring-ring:focus {
         --tw-ring-color: var(--ring);
       }
-      @layer base;
       "
     `)
   })
@@ -1489,7 +1447,6 @@ describe('full compilation', () => {
           background-color: var(--secondary);
         }
       }
-      @layer base;
       "
     `)
   })
@@ -1505,7 +1462,6 @@ describe('with @iconify/tailwind (docs config)', () => {
       .lucide--arrow-down {
         --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 5v14m7-7l-7 7l-7-7'/%3E%3C/svg%3E");
       }
-      @layer base;
       "
     `)
   })
@@ -1526,7 +1482,6 @@ describe('with @iconify/tailwind (docs config)', () => {
         -webkit-mask-size: 100% 100%;
         mask-size: 100% 100%;
       }
-      @layer base;
       "
     `)
   })
@@ -1538,7 +1493,6 @@ describe('with @iconify/tailwind (docs config)', () => {
       .lucide--check {
         --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M20 6L9 17l-5-5'/%3E%3C/svg%3E");
       }
-      @layer base;
       "
     `)
   })
@@ -1556,7 +1510,6 @@ describe('with @iconify/tailwind (docs config)', () => {
       .bg-primary {
         background-color: var(--primary);
       }
-      @layer base;
       @keyframes mo-enter {
         from {
           opacity: var(--mo-enter-opacity, 1);
@@ -1638,7 +1591,6 @@ describe('with @iconify/tailwind (docs config)', () => {
           --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 5v14m7-7l-7 7l-7-7'/%3E%3C/svg%3E");
         }
       }
-      @layer base;
       "
     `)
   })

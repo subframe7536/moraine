@@ -2,6 +2,9 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { createDesign } from '../../design.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+
 import { Collapsible } from './collapsible'
 
 function renderCollapsible(props?: {
@@ -505,4 +508,84 @@ describe('Collapsible', () => {
     expect(wrapper.className).toContain('custom-content-class')
     expect(wrapper.style.padding).toBe('30px')
   })
+})
+
+test('inherits Design slots and applies reactive root and child overrides in order', () => {
+  const parent = createDesign({
+    collapsible: {
+      base: { root: 'p-1', trigger: 'p-1 text-blue-500', contentWrapper: 'p-1', content: 'p-1' },
+    },
+  })
+  const design = createDesign({
+    extends: parent,
+    collapsible: { base: { trigger: 'text-red-500' } },
+  })
+  const [padding, setPadding] = createSignal('p-3')
+  const screen = render(() => (
+    <MoraineProvider design={design}>
+      <Collapsible
+        defaultOpen
+        class="p-4"
+        classes={{ root: 'p-2', trigger: 'p-2', contentWrapper: 'p-2', content: 'p-2' }}
+        styles={{
+          root: { color: 'red' },
+          trigger: { color: 'red' },
+          contentWrapper: { color: 'red' },
+          content: { color: 'red' },
+        }}
+        style={{ color: 'blue' }}
+      >
+        <Collapsible.Trigger class={padding()} style={{ color: 'blue' }}>
+          Toggle styled
+        </Collapsible.Trigger>
+        <Collapsible.Content
+          class={padding()}
+          style={{ color: 'blue' }}
+          wrapperClass={padding()}
+          wrapperStyle={{ color: 'blue' }}
+        >
+          Styled content
+        </Collapsible.Content>
+      </Collapsible>
+    </MoraineProvider>
+  ))
+  const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
+  const trigger = screen.getByRole('button')
+  const wrapper = screen.container.querySelector<HTMLElement>('[data-slot="content-wrapper"]')!
+  const content = screen.getByText('Styled content')
+  expect(root.className).toBe('p-4')
+  expect(trigger.className).toContain('text-red-500')
+  expect(trigger.className).not.toContain('text-blue-500')
+  for (const element of [root, trigger, wrapper, content]) {
+    expect(element.style.color).toBe('blue')
+    expect(element.hasAttribute('classes')).toBe(false)
+    expect(element.hasAttribute('styles')).toBe(false)
+  }
+  for (const element of [trigger, wrapper, content]) {
+    expect(element.className).toContain('p-3')
+    expect(element.className).not.toContain('p-2')
+  }
+  setPadding('p-5')
+  for (const element of [trigger, wrapper, content]) {
+    expect(element.className).toContain('p-5')
+  }
+})
+
+test('keeps empty preset slots unstyled while preserving disclosure transitions', () => {
+  const design = createDesign({ preset: false })
+  expect(design.collapsible.recipe.slots).toEqual(['root', 'trigger', 'contentWrapper', 'content'])
+  expect(Object.values(design.collapsible.recipe()).every((value) => !value)).toBe(true)
+  const screen = render(() => (
+    <MoraineProvider design={design}>
+      <Collapsible defaultOpen transition>
+        <Collapsible.Trigger>Toggle empty</Collapsible.Trigger>
+        <Collapsible.Content>Empty preset content</Collapsible.Content>
+      </Collapsible>
+    </MoraineProvider>
+  ))
+  expect(screen.getByRole('button').className).toBe('')
+  expect(screen.getByText('Empty preset content').className).toBe('')
+  expect(screen.container.querySelector('[data-slot="content-wrapper"]')?.className).toContain(
+    'animate-accordion-down',
+  )
 })

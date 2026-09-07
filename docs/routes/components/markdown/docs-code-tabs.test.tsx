@@ -1,6 +1,8 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
+import { renderWithDesign } from '../../../../src/test-utils/design-render.tsx'
+
 import { CodeTabs } from './docs-code-tabs'
 
 describe('CodeTabs', () => {
@@ -9,6 +11,20 @@ describe('CodeTabs', () => {
     { label: 'pnpm', value: 'pnpm', lang: 'bash', code: 'pnpm add moraine' },
     { label: 'npm', value: 'npm', lang: 'bash', code: 'npm i moraine' },
   ]
+
+  test('merges official trigger styles without scaling and keeps keyboard selection', () => {
+    const screen = renderWithDesign(() => <CodeTabs items={ITEMS} />)
+    const tabs = screen.getAllByRole('tab')
+    for (const tab of tabs) {
+      expect(tab.className).toContain('transition-colors')
+      expect(tab.className).not.toMatch(/scale-|transition-\[/)
+    }
+    tabs[0]!.focus()
+    fireEvent.keyDown(tabs[0]!, { key: 'ArrowRight' })
+    expect(tabs[1]!.getAttribute('aria-selected')).toBe('true')
+    expect(document.activeElement).toBe(tabs[1])
+    expect(screen.container.querySelector('[data-slot="indicator"]')).toBeTruthy()
+  })
 
   test('renders tab triggers for each item', () => {
     const screen = render(() => <CodeTabs items={ITEMS} />)

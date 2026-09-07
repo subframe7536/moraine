@@ -172,8 +172,9 @@ const design = createDesign({
 createDesign({ unknownComponent: {} })
 // @ts-expect-error List has no Design slots.
 createDesign({ list: { base: { root: 'p-4' } } })
-// @ts-expect-error Collapsible has no Design slots.
 createDesign({ collapsible: { base: { content: 'overflow-hidden' } } })
+// @ts-expect-error Collapsible has no visual variants.
+createDesign({ collapsible: { defaultVariants: { size: 'sm' } } })
 // @ts-expect-error Unknown slots are rejected.
 createDesign({ button: { base: { missing: 'p-4' } } })
 // @ts-expect-error Variant defaults are constrained to component variants.

@@ -68,13 +68,21 @@ import type { CollapsibleT } from 'moraine'
 ## Anatomy
 
 ```text
-Collapsible (state provider)
-├── Collapsible.Trigger
-└── Collapsible.Content
+Collapsible (root, state provider)
+├── Collapsible.Trigger (trigger)
+└── Collapsible.Content (contentWrapper)
     └── content
 ```
 
 ## Usage
+
+### Styling
+
+Configure `collapsible.base` in your Design with `root`, `trigger`, `contentWrapper`, and `content`. All four slots are unstyled by default; the optional height transition remains structural even with `preset: false`.
+
+Root `classes` and `styles` override Design slots. Root `class` and `style` take precedence on the root element. Child `class` and `style` override the trigger or inner content slot; Content's `wrapperClass` and `wrapperStyle` override `contentWrapper`. Use `CollapsibleT.Slot`, `CollapsibleT.Classes`, and `CollapsibleT.Styles` for typed slot configuration. No visual variants are provided.
+
+<Preview path="./design-styling" />
 
 ### State ownership
 
