@@ -8,6 +8,7 @@
 - [ ] cleanup useless `mergeProps` across all components
 - [ ] convert sidebar-frame and resizable into namespaced component, get rid of `frameRender` in sidebar-frame
 - [ ] add indicator type in `<component>T` to indicate if the component is a single or a composite/namespaced component
+- [ ] cleanup `data-[*`
 - [ ] textarea inline padding optimize
 - [ ] metric adjust across all sizes
 - [ ] production barrel import optimize
