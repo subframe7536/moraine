@@ -3,6 +3,8 @@ import type { Accessor, JSX } from 'solid-js'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 export namespace SidebarFrameT {
+  export type Kind = 'composite'
+
   export interface Context extends Variant {
     side: 'left' | 'right'
     isMobile: Accessor<boolean>

@@ -4,6 +4,8 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import type { ModalT } from '../modal/modal.types.ts'
 
 export namespace SheetT {
+  export type Kind = 'composite'
+
   export interface Slot<T = unknown> {
     /** Element that opens the sheet. */
     trigger?: T

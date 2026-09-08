@@ -5,7 +5,8 @@
     "category": "navigation",
     "polymorphic": false,
     "description": "Page navigation component with configurable sibling count and edge display.",
-    "sourcePath": "src/navigation/pagination/pagination.tsx"
+    "sourcePath": "src/navigation/pagination/pagination.tsx",
+    "kind": "single"
   },
   "slots": [
     {

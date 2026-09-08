@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Single checkbox control with card and list variants and custom true/false values.",
-    "sourcePath": "src/forms/checkbox/checkbox.tsx"
+    "sourcePath": "src/forms/checkbox/checkbox.tsx",
+    "kind": "single"
   },
   "slots": [
     {

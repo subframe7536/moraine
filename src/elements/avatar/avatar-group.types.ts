@@ -3,6 +3,8 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import type { AvatarT } from './avatar.types.ts'
 
 export namespace AvatarGroupT {
+  export type Kind = 'single'
+
   export interface Slot<T = unknown> {
     /** Container of grouped avatars. */
     root?: T

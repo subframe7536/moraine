@@ -10,6 +10,8 @@ import type {
 } from '../shared/form-options.ts'
 
 export namespace CheckboxT {
+  export type Kind = 'single'
+
   export interface Slot<T = unknown> {
     /** Labelable checkbox wrapper that coordinates input, indicator, and text content. */
     root?: T

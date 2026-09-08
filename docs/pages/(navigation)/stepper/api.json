@@ -5,7 +5,8 @@
     "category": "navigation",
     "polymorphic": false,
     "description": "Tab-structured step navigation with configurable orientation and separator layout.",
-    "sourcePath": "src/navigation/stepper/stepper.tsx"
+    "sourcePath": "src/navigation/stepper/stepper.tsx",
+    "kind": "single"
   },
   "slots": [],
   "props": {

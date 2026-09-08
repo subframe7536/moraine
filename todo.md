@@ -7,7 +7,7 @@
 - [x] codetabs 's button should not have active scale
 - [x] cleanup useless `mergeProps` across all components
 - [x] convert sidebar-frame and resizable into namespaced component, get rid of `frameRender` in sidebar-frame
-- [ ] add indicator type in `<component>T` to indicate if the component is a single or a composite/namespaced component
+- [x] add indicator type in `<component>T` to indicate if the component is a single or a composite/namespaced component
 - [ ] `cn` config should be customizable in MoraineProvider
 - [ ] cleanup `data-[*`
 - [ ] metric adjust across all sizes

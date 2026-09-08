@@ -5,7 +5,8 @@
     "category": "overlays",
     "polymorphic": false,
     "description": "Click-triggered floating content panel anchored to a trigger element.",
-    "sourcePath": "src/overlays/popover/popover.tsx"
+    "sourcePath": "src/overlays/popover/popover.tsx",
+    "kind": "composite"
   },
   "slots": [
     {

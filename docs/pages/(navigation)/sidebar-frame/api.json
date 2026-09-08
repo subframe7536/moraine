@@ -5,7 +5,8 @@
     "category": "navigation",
     "polymorphic": false,
     "description": "Responsive sidebar layout with a mobile Sheet fallback.",
-    "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
+    "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
+    "kind": "composite"
   },
   "slots": [],
   "props": {

@@ -4,6 +4,8 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import type { IconT } from '../icon/index.ts'
 
 export namespace BadgeT {
+  export type Kind = 'single'
+
   export interface Slot<T = unknown> {
     /**
      * Inline badge container that carries the variant, size, and interactive state.

@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Resizable panel layout with draggable dividers and keyboard support.",
-    "sourcePath": "src/elements/resizable/resizable.tsx"
+    "sourcePath": "src/elements/resizable/resizable.tsx",
+    "kind": "composite"
   },
   "slots": [
     {

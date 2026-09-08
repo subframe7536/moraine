@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Group of keyboard shortcut keys with support for simultaneous chords and ordered sequences.",
-    "sourcePath": "src/elements/kbd/kbd-group.tsx"
+    "sourcePath": "src/elements/kbd/kbd-group.tsx",
+    "kind": "single"
   },
   "slots": [
     {

@@ -5,6 +5,7 @@ export interface ComponentIndexEntry {
   description?: string
   sourcePath?: string
   polymorphic: boolean
+  kind?: 'single' | 'composite'
 }
 
 export interface IndexDoc {

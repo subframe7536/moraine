@@ -12,6 +12,8 @@ import type {
 } from '../shared/form-options.ts'
 
 export namespace InputT {
+  export type Kind = 'single'
+
   export type Value = string | number | undefined
 
   export interface Slot<T = unknown> {

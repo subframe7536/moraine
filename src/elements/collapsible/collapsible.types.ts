@@ -7,6 +7,8 @@ type CollapsibleTriggerElementFor<T extends ValidComponent> = T extends keyof HT
   : HTMLElement
 
 export namespace CollapsibleT {
+  export type Kind = 'composite'
+
   export interface Slot<T = unknown> {
     root?: T
     trigger?: T

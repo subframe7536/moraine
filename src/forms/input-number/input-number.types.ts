@@ -10,6 +10,8 @@ import type {
 } from '../shared/form-options.ts'
 
 export namespace InputNumberT {
+  export type Kind = 'single'
+
   export type Orientation = 'horizontal' | 'vertical'
   export type PointerType = 'mouse' | 'touch' | 'pen'
 

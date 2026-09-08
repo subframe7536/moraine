@@ -4,6 +4,8 @@ import type { IconT } from '../../elements/icon/icon.types.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 export namespace StepperT {
+  export type Kind = 'single'
+
   export type Value = string
 
   export interface Slot<T = unknown> {

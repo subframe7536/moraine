@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Multi-select checkbox group with card, list, and table layout variants.",
-    "sourcePath": "src/forms/checkbox-group/checkbox-group.tsx"
+    "sourcePath": "src/forms/checkbox-group/checkbox-group.tsx",
+    "kind": "single"
   },
   "slots": [
     {

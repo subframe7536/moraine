@@ -14,6 +14,8 @@ type ButtonElementFor<T extends ValidComponent> =
       : HTMLElement
 
 export namespace ButtonT {
+  export type Kind = 'single'
+
   export type ElementFor<T extends ValidComponent> = ButtonElementFor<T>
 
   export interface Slot<T = unknown> {

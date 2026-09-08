@@ -5,7 +5,8 @@
     "category": "overlays",
     "polymorphic": false,
     "description": "Dialog state and context. Trigger, Content, and Close own their respective DOM.",
-    "sourcePath": "src/overlays/dialog/dialog.tsx"
+    "sourcePath": "src/overlays/dialog/dialog.tsx",
+    "kind": "composite"
   },
   "slots": [
     {

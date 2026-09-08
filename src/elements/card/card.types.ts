@@ -3,6 +3,8 @@ import type { JSX } from 'solid-js'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 export namespace CardT {
+  export type Kind = 'single'
+
   export interface Slot<T = unknown> {
     /**
      * Card container that frames the header, body, and footer regions.

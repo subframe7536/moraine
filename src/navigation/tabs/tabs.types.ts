@@ -4,6 +4,8 @@ import type { IconT } from '../../elements/icon/icon.types.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 export namespace TabsT {
+  export type Kind = 'single'
+
   export interface Slot<T = unknown> {
     /**
      * Tabs container that owns tab selection and panel rendering.

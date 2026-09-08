@@ -12,6 +12,8 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import type { FormFieldProps } from './form-field.types.ts'
 
 export namespace FormT {
+  export type Kind = 'single'
+
   export interface Instance<TSchema extends FormSchema = FormSchema> extends FormStore<TSchema> {
     Form: (props: Props<TSchema>) => JSX.Element
     Field: <T extends ValidComponent = 'div'>(props: FieldProps<TSchema, T>) => JSX.Element

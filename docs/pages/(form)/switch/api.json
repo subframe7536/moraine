@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Toggle switch control with icon slots and loading state.",
-    "sourcePath": "src/forms/switch/switch.tsx"
+    "sourcePath": "src/forms/switch/switch.tsx",
+    "kind": "single"
   },
   "slots": [
     {

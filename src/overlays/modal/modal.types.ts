@@ -4,6 +4,8 @@ import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue } from '../../shared/types.ts'
 
 export namespace ModalT {
+  export type Kind = 'composite'
+
   export type TriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
     ? HTMLElementTagNameMap[T]
     : HTMLElement

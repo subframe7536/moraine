@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Determinate or indeterminate progress indicator with optional step labels.",
-    "sourcePath": "src/elements/progress/progress.tsx"
+    "sourcePath": "src/elements/progress/progress.tsx",
+    "kind": "single"
   },
   "slots": [
     {

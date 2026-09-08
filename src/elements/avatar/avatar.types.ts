@@ -2,6 +2,8 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import type { IconT } from '../icon/index.ts'
 
 export namespace AvatarT {
+  export type Kind = 'single'
+
   export type Status = 'idle' | 'loading' | 'loaded' | 'error'
 
   export interface Slot<T = unknown> {

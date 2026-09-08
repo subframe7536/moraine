@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Circular user or entity avatar with fallback initials and optional indicator.",
-    "sourcePath": "src/elements/avatar/avatar.tsx"
+    "sourcePath": "src/elements/avatar/avatar.tsx",
+    "kind": "single"
   },
   "slots": [
     {

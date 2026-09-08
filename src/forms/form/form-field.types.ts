@@ -6,6 +6,8 @@ import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 export namespace FormFieldT {
+  export type Kind = 'single'
+
   type SchemaPath<TValue> = TValue extends readonly (infer TItem)[]
     ? readonly [number] | readonly [number, ...SchemaPath<NonNullable<TItem>>]
     : TValue extends Record<PropertyKey, unknown>

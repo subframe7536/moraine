@@ -6,6 +6,8 @@ import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 export namespace CommandPaletteT {
+  export type Kind = 'single'
+
   export type DescriptionPosition = 'bottom' | 'trailing'
 
   export interface Slot<T = unknown> {

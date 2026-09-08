@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Dropdown select component with search and custom item rendering.",
-    "sourcePath": "src/forms/select/select.tsx"
+    "sourcePath": "src/forms/select/select.tsx",
+    "kind": "single"
   },
   "slots": [
     {

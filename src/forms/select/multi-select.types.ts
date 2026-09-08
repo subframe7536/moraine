@@ -13,6 +13,8 @@ import type {
 import type { BaseSelectT } from './base-select.tsx'
 
 export namespace MultiSelectT {
+  export type Kind = 'single'
+
   export type Value = string | number
 
   export type OptionRenderState = BaseSelectT.OptionRenderState

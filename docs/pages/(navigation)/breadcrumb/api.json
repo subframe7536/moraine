@@ -5,7 +5,8 @@
     "category": "navigation",
     "polymorphic": false,
     "description": "Breadcrumb navigation trail with separator icons and optional wrapping.",
-    "sourcePath": "src/navigation/breadcrumb/breadcrumb.tsx"
+    "sourcePath": "src/navigation/breadcrumb/breadcrumb.tsx",
+    "kind": "single"
   },
   "slots": [
     {

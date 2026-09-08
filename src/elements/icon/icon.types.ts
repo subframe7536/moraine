@@ -3,6 +3,8 @@ import type { Component, JSX } from 'solid-js'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 export namespace IconT {
+  export type Kind = 'single'
+
   export type Name = string | JSX.Element | Component<Omit<IconProps, 'name'>>
 
   export interface Slot<T = unknown> {

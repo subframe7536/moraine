@@ -26,6 +26,8 @@ export const KBD_KEY_ALIASES = {
 } as const
 
 export namespace KbdT {
+  export type Kind = 'single'
+
   export interface Slot<T = unknown> {
     root?: T
   }

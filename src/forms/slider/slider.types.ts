@@ -10,6 +10,8 @@ import type {
 } from '../shared/form-options.ts'
 
 export namespace SliderT {
+  export type Kind = 'single'
+
   export type Value = number | number[]
 
   export interface Slot<T = unknown> {

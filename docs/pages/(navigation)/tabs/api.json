@@ -5,7 +5,8 @@
     "category": "navigation",
     "polymorphic": false,
     "description": "Tabbed navigation component with configurable orientation and variant styles.",
-    "sourcePath": "src/navigation/tabs/tabs.tsx"
+    "sourcePath": "src/navigation/tabs/tabs.tsx",
+    "kind": "single"
   },
   "slots": [],
   "props": {

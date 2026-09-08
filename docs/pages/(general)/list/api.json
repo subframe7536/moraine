@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": true,
     "description": "Headless polymorphic list with optional caller-controlled virtualization.",
-    "sourcePath": "src/elements/list/list.tsx"
+    "sourcePath": "src/elements/list/list.tsx",
+    "kind": "single"
   },
   "slots": [],
   "props": {

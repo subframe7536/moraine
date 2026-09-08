@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Expandable content section with optional height transitions.",
-    "sourcePath": "src/elements/collapsible/collapsible.tsx"
+    "sourcePath": "src/elements/collapsible/collapsible.tsx",
+    "kind": "composite"
   },
   "slots": [
     {

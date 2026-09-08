@@ -1,10 +1,11 @@
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { generateApiDoc, normalizePathForComparison, shouldIncludeInheritedGroup } from './extract'
+import type { IndexDoc } from './types'
 
 async function createTempProject(): Promise<string> {
   return mkdtemp(path.join(tmpdir(), 'moraine-api-doc-'))
@@ -36,6 +37,59 @@ afterEach(() => {
 })
 
 describe('generateApiDoc', () => {
+  test('associates kinds across declaration chunks without classifying unmarked helpers', async () => {
+    const projectRoot = await createTempProject()
+    try {
+      await writeProjectDts(
+        projectRoot,
+        `
+export { CompositeT } from './kinds.mjs'
+declare function Composite(props: {}): JSX.Element
+declare function Helper(props: {}): JSX.Element
+declare namespace SingleT { type Kind = 'single' }
+declare function Single(props: {}): JSX.Element
+`,
+      )
+      await writeFile(
+        path.join(projectRoot, 'dist/kinds.d.mts'),
+        `
+export declare namespace CompositeT { type Kind = 'composite' }
+`,
+      )
+
+      const result = await generateApiDoc(projectRoot)
+      expect(result?.componentDocs.get('composite')?.component.kind).toBe('composite')
+      expect(result?.componentDocs.get('single')?.component.kind).toBe('single')
+      expect(result?.componentDocs.get('helper')?.component).not.toHaveProperty('kind')
+      expect(result?.indexDoc.components.find((entry) => entry.key === 'composite')?.kind).toBe(
+        'composite',
+      )
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
+
+  test.each(["'unknown'", "'single' | 'composite'", 'boolean', "{ value: 'single' }"])(
+    'rejects a non-literal component kind: %s',
+    async (kind) => {
+      const projectRoot = await createTempProject()
+      try {
+        await writeProjectDts(
+          projectRoot,
+          `
+declare namespace DemoT { type Kind = ${kind} }
+declare function Demo(props: {}): JSX.Element
+`,
+        )
+        await expect(generateApiDoc(projectRoot)).rejects.toThrow(
+          "DemoT.Kind must be the literal type 'single' or 'composite'",
+        )
+      } finally {
+        await rm(projectRoot, { recursive: true, force: true })
+      }
+    },
+  )
+
   test('follows split declaration chunks even when runtime chunks exist', async () => {
     const projectRoot = await createTempProject()
     try {
@@ -71,6 +125,26 @@ export interface DemoProps { title: string }
 
     expect(result?.componentDocs.size).toBeGreaterThan(0)
     expect(result?.componentDocs.has('button')).toBe(true)
+    const index = JSON.parse(
+      await readFile(path.join(projectRoot, 'docs/pages/_api-index.json'), 'utf8'),
+    ) as IndexDoc
+    const composites = new Set([
+      'collapsible',
+      'resizable',
+      'sidebar-frame',
+      'modal',
+      'dialog',
+      'sheet',
+      'popover',
+      'tooltip',
+      'dropdown-menu',
+      'context-menu',
+    ])
+    for (const entry of index.components) {
+      expect(result?.componentDocs.get(entry.key)?.component.kind, entry.key).toBe(
+        composites.has(entry.key) ? 'composite' : 'single',
+      )
+    }
     expect(
       result?.componentDocs.get('button')?.props.own.find((prop) => prop.name === 'ref'),
     ).toEqual({

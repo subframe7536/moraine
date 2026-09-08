@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Single-select radio group with card, list, and table layout variants.",
-    "sourcePath": "src/forms/radio-group/radio-group.tsx"
+    "sourcePath": "src/forms/radio-group/radio-group.tsx",
+    "kind": "single"
   },
   "slots": [
     {

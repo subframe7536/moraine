@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Range slider component with single or multi-thumb support and step markers.",
-    "sourcePath": "src/forms/slider/slider.tsx"
+    "sourcePath": "src/forms/slider/slider.tsx",
+    "kind": "single"
   },
   "slots": [
     {

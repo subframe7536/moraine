@@ -11,6 +11,8 @@ import type {
 import type { ModalT } from '../modal/modal.types.ts'
 
 export namespace DropdownMenuT {
+  export type Kind = 'composite'
+
   export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}
   export interface Variant {
     /** Visual size of the component.

@@ -22,6 +22,8 @@ interface FileRejection {
 }
 
 export namespace FileUploadT {
+  export type Kind = 'single'
+
   export type Value = File | File[] | null
   export type Error = FileError
   export type Rejection = FileRejection

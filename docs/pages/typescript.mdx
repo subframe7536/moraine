@@ -69,6 +69,20 @@ Explicit control identity and boolean state override FormField values, including
 
 The `XxxT` namespace groups all supporting types for a component under a single import. This keeps the top-level exports focused and avoids polluting the global type space.
 
+### Component kinds
+
+Every public component namespace declares `Kind` as a literal type. `'single'` describes a component configured through its own props; `'composite'` describes a component with attached parts, such as `Dialog.Trigger` and `Dialog.Content`, that you compose explicitly.
+
+```ts
+import type { ButtonT, DialogT, FormT } from 'moraine'
+
+type ButtonKind = ButtonT.Kind // 'single'
+type DialogKind = DialogT.Kind // 'composite'
+type BoundFormKind = FormT.Kind // 'single': describes form.Form
+```
+
+`Kind` is type-only metadata, not a prop or a runtime component property. Component documentation generates its header label from this declaration. Slot count, `children`, and a `Group` suffix do not determine the kind. See [Component kinds](/styling#component-kinds) for styling examples.
+
 ### Item models
 
 List-like components (e.g. `Select`, `MultiSelect`) expose an `Item` type for their option objects.
@@ -119,17 +133,18 @@ const overrides: CardT.Classes = {
 
 Each `XxxT` namespace may expose the following members depending on the component:
 
-| Member     | Description                                          |
-| ---------- | ---------------------------------------------------- |
-| `Slot`     | Generic documented map of presentation slots         |
-| `SlotName` | Union of named presentation slot keys                |
-| `Variant`  | Nullable visual options; `null` suppresses a default |
-| `Item`     | Data model for list items or option objects          |
-| `Value`    | Domain type of the component's controlled value      |
-| `Classes`  | Typed map from slot name to CSS class string         |
-| `Styles`   | Typed map from slot name to inline style object      |
-| `Base`     | Component-specific base/business props               |
-| `Props`    | Final public props shape (same as `XxxProps`)        |
+| Member     | Description                                              |
+| ---------- | -------------------------------------------------------- |
+| `Kind`     | Component composition model: `'single'` or `'composite'` |
+| `Slot`     | Generic documented map of presentation slots             |
+| `SlotName` | Union of named presentation slot keys                    |
+| `Variant`  | Nullable visual options; `null` suppresses a default     |
+| `Item`     | Data model for list items or option objects              |
+| `Value`    | Domain type of the component's controlled value          |
+| `Classes`  | Typed map from slot name to CSS class string             |
+| `Styles`   | Typed map from slot name to inline style object          |
+| `Base`     | Component-specific base/business props                   |
+| `Props`    | Final public props shape (same as `XxxProps`)            |
 
 ## Tips
 

@@ -5,6 +5,8 @@ import type { PopperProps } from '../base/popper.tsx'
 import type { ModalT } from '../modal/modal.types.ts'
 
 export namespace PopoverT {
+  export type Kind = 'composite'
+
   export interface Slot<T = unknown> {
     /** Element that opens the popover. */
     trigger?: T

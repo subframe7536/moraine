@@ -1518,6 +1518,7 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
 
   const sourceSlotAnalyzer = new SourceSlotAnalyzer(projectRoot)
   const componentDocs = new Map<string, ComponentDoc>()
+  const kinds = new Map<string, NonNullable<ComponentIndexEntry['kind']>>()
   const pending = [dtsPath]
   const visited = new Set<string>()
 
@@ -1532,6 +1533,24 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
     const analyzer = await DeclarationAnalyzer.create(projectRoot, fileName, processedContent)
     const regionByLine = buildRegionByLine(processedContent)
     const metadata = await collectNamespaceMetadata(analyzer)
+
+    for (const [name, declarations] of analyzer.mainUnit.declarations) {
+      if (!name.endsWith('T.Kind')) {
+        continue
+      }
+      for (const { node } of declarations) {
+        if (
+          node.type !== 'TSTypeAliasDeclaration' ||
+          node.typeAnnotation.type !== 'TSLiteralType' ||
+          node.typeAnnotation.literal.type !== 'Literal' ||
+          (node.typeAnnotation.literal.value !== 'single' &&
+            node.typeAnnotation.literal.value !== 'composite')
+        ) {
+          throw new Error(`${name} must be the literal type 'single' or 'composite'`)
+        }
+        kinds.set(name.slice(0, -'T.Kind'.length), node.typeAnnotation.literal.value)
+      }
+    }
 
     for (const statement of analyzer.mainUnit.source.program.body) {
       if (
@@ -1567,6 +1586,10 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
   }
 
   for (const [key, doc] of componentDocs) {
+    const kind = kinds.get(doc.component.name)
+    if (kind) {
+      doc.component.kind = kind
+    }
     const match =
       /^(dialog|sheet|modal|popover|tooltip|dropdown-menu|context-menu)-(trigger|content|close)$/.exec(
         key,

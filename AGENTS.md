@@ -116,6 +116,7 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 ### Public Type Exports
 
 - Component public types must be declared in the component namespace: `<Component>T`.
+- Each public component namespace must declare `Kind` as the literal type `'single'` or `'composite'`. Use `'composite'` when the component exposes attached child components for composition; slot count and group naming do not determine the kind. `FormT.Kind` describes the bound `form.Form`, so it is `'single'`. Documentation reads this type to generate `component.kind`.
 - Component namespaces should contain `Slot`, `Variant`, `Classes`, `Styles`, `Item`, `Base`, and `Props` as applicable.
 - Do not add an `Extend` namespace type. Inline inherited/extended prop sources into the namespace `Base` type and pass `never` as the extension argument to `BaseProps`.
 - Top-level type export is only allowed for the component props type: `XxxProps` (must match the component name).

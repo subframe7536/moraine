@@ -5,7 +5,8 @@
     "category": "overlays",
     "polymorphic": false,
     "description": "Low-level modal primitives for composing custom dialog surfaces.",
-    "sourcePath": "src/overlays/modal/modal.tsx"
+    "sourcePath": "src/overlays/modal/modal.tsx",
+    "kind": "composite"
   },
   "slots": [
     {

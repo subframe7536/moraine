@@ -1,6 +1,8 @@
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 export namespace SeparatorT {
+  export type Kind = 'single'
+
   export interface Slot<T = unknown> {
     root?: T
   }

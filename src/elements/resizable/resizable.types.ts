@@ -6,6 +6,8 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook/index.ts'
 
 export namespace ResizableT {
+  export type Kind = 'composite'
+
   export interface HandleContext {
     orientation: ResizableOrientation
     disabled: boolean

@@ -5,6 +5,8 @@ import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 export namespace BreadcrumbT {
+  export type Kind = 'single'
+
   /**
    * Context provided to the item secondary renderer.
    */

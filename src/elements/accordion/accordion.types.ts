@@ -4,6 +4,8 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import type { IconT } from '../icon/index.ts'
 
 export namespace AccordionT {
+  export type Kind = 'single'
+
   export interface Slot<T = unknown> {
     /**
      * Container that owns the accordion item collection and shared state attributes.

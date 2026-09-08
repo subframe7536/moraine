@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Numeric input with increment/decrement controls, step, and min/max constraints.",
-    "sourcePath": "src/forms/input-number/input-number.tsx"
+    "sourcePath": "src/forms/input-number/input-number.tsx",
+    "kind": "single"
   },
   "slots": [
     {

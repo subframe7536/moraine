@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Keyboard keycap component with configurable size, variant, and accessible label.",
-    "sourcePath": "src/elements/kbd/kbd.tsx"
+    "sourcePath": "src/elements/kbd/kbd.tsx",
+    "kind": "single"
   },
   "slots": [
     {

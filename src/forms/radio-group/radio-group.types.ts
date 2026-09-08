@@ -10,6 +10,8 @@ import type {
 } from '../shared/form-options.ts'
 
 export namespace RadioGroupT {
+  export type Kind = 'single'
+
   export interface Slot<T = unknown> {
     /**
      * Radio group container that owns selection state and layout.

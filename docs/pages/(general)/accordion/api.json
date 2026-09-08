@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Stacked disclosure component with single or multiple expanded sections.",
-    "sourcePath": "src/elements/accordion/accordion.tsx"
+    "sourcePath": "src/elements/accordion/accordion.tsx",
+    "kind": "single"
   },
   "slots": [
     {

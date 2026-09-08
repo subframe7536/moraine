@@ -5,6 +5,8 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import type { ButtonT } from './button.types.ts'
 
 export namespace ButtonGroupT {
+  export type Kind = 'single'
+
   export interface Slot<T = unknown> {
     /** Container that joins the edges of its direct button children. */
     root?: T

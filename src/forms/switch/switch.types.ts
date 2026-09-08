@@ -10,6 +10,8 @@ import type {
 } from '../shared/form-options.ts'
 
 export namespace SwitchT {
+  export type Kind = 'single'
+
   export interface Slot<T = unknown> {
     /**
      * Switch wrapper that coordinates input, track, thumb, and text content.

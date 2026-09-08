@@ -4,6 +4,8 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import type { KbdT } from './kbd.types.ts'
 
 export namespace KbdGroupT {
+  export type Kind = 'single'
+
   export interface Slot<T = unknown> {
     /** Container for one or more shortcut steps. */
     root?: T

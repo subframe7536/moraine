@@ -5,7 +5,8 @@
     "category": "overlays",
     "polymorphic": false,
     "description": "Menu state and interaction context, without a DOM root.",
-    "sourcePath": "src/overlays/dropdown-menu/dropdown-menu.tsx"
+    "sourcePath": "src/overlays/dropdown-menu/dropdown-menu.tsx",
+    "kind": "composite"
   },
   "slots": [
     {

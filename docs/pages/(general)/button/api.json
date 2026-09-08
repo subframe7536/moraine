@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": true,
     "description": "Button component with polymorphic `as` support and loading state.",
-    "sourcePath": "src/elements/button/button.tsx"
+    "sourcePath": "src/elements/button/button.tsx",
+    "kind": "single"
   },
   "slots": [
     {

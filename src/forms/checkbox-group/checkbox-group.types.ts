@@ -11,6 +11,8 @@ import type {
 } from '../shared/form-options.ts'
 
 export namespace CheckboxGroupT {
+  export type Kind = 'single'
+
   export interface Slot<T = unknown> {
     /** Group container that owns checkbox collection state and layout. */
     root?: T

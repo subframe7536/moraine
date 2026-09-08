@@ -8,6 +8,8 @@ import type {
 } from '../../shared/use-list-virtualizer.tsx'
 
 export namespace ListT {
+  export type Kind = 'single'
+
   export type Variant = never
   export type RowProps<TItemElement extends HTMLElement = HTMLElement> = BaseRowProps<TItemElement>
 

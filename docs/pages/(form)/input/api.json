@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Text input component with leading/trailing icon slots, loading state, and form field integration.",
-    "sourcePath": "src/forms/input/input.tsx"
+    "sourcePath": "src/forms/input/input.tsx",
+    "kind": "single"
   },
   "slots": [
     {

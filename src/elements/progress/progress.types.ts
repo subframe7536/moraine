@@ -2,6 +2,8 @@ import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 export namespace ProgressT {
+  export type Kind = 'single'
+
   export interface StatusRenderProps {
     /** Current progress percentage (0-100). */
     percent?: number

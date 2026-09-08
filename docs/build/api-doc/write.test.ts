@@ -32,6 +32,7 @@ describe('writeJsonFiles', () => {
             name: 'Demo',
             category: 'General',
             polymorphic: false,
+            kind: 'single',
           },
         ],
       },
@@ -44,6 +45,7 @@ describe('writeJsonFiles', () => {
               name: 'Demo',
               category: 'General',
               polymorphic: false,
+              kind: 'single',
               sourcePath: 'src/demo.tsx',
             },
             slots: [

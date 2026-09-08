@@ -5,6 +5,8 @@ import type { PopperProps } from '../base/popper.tsx'
 import type { ModalT } from '../modal/modal.types.ts'
 
 export namespace TooltipT {
+  export type Kind = 'composite'
+
   export interface Slot<T = unknown> {
     /** Positioning wrapper around the tooltip surface. */
     positioner?: T

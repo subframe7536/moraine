@@ -140,6 +140,42 @@ Theme classes merge in layer order, followed by composition-group overrides, ins
 
 Root-only components (`Icon`, `Kbd`, `Separator`, and the bound `form.Form`) expose direct `class` and `style`. Their Theme entries still have a `root` slot. Overlay roots own behavior and children; put DOM attributes and presentation on their Trigger and Content parts.
 
+## Component kinds
+
+The `Single` or `Composite` label in each component page header comes from its `XxxT.Kind` type. It describes how you compose the component, not how many DOM elements or presentation slots it renders.
+
+**Single** components expose their configuration through one component's props. `Card` is single even though it has header, body, and footer slots; `ButtonGroup` is single even though it groups children. Apply root styles with `class` and `style`, and use `classes` and `styles` for named slots when the component supports them.
+
+```tsx
+<Card title="Account" class="max-w-md" classes={{ body: 'space-y-4' }}>
+  Account settings
+</Card>
+```
+
+**Composite** components expose attached parts that you arrange explicitly. Styling belongs to the root or part that owns the corresponding DOM. `SidebarFrame` renders a layout root and accepts family slot overrides, while each part also accepts its own `class` and `style`.
+
+```tsx
+<SidebarFrame class="h-80" classes={{ sidebar: 'bg-muted' }}>
+  <SidebarFrame.Sidebar>
+    <SidebarFrame.SidebarBody class="p-4">Navigation</SidebarFrame.SidebarBody>
+  </SidebarFrame.Sidebar>
+  <SidebarFrame.Main class="p-6">Workspace</SidebarFrame.Main>
+</SidebarFrame>
+```
+
+`Dialog` also has a composite API, but its root only provides state and context. Put presentation on `Dialog.Trigger` and `Dialog.Content`; the root has no DOM element to style.
+
+```tsx
+<Dialog>
+  <Dialog.Trigger class="font-semibold">Edit profile</Dialog.Trigger>
+  <Dialog.Content title="Profile" class="max-w-lg" classes={{ body: 'space-y-4' }}>
+    Profile settings
+  </Dialog.Content>
+</Dialog>
+```
+
+The bound `form.Form` is single: `createForm()` returns separate `Form` and `Field` components, rather than attaching parts to `form.Form`. A kind label does not imply support for particular style props; each component's API lists the supported overrides.
+
 ## Theme layers and Providers
 
 Place `<MoraineProvider>` at the application root to enable the official presentation. It needs no Theme prop. `createTheme()` creates an empty sparse layer collection and imports no official recipes.

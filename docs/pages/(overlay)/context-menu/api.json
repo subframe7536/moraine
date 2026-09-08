@@ -5,7 +5,8 @@
     "category": "overlays",
     "polymorphic": false,
     "description": "Menu state and interaction context, without a DOM root.",
-    "sourcePath": "src/overlays/context-menu/context-menu.tsx"
+    "sourcePath": "src/overlays/context-menu/context-menu.tsx",
+    "kind": "composite"
   },
   "slots": [
     {

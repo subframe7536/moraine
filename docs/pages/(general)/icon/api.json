@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Renders an icon from a UnoCSS icon class, JSX element, or render function.",
-    "sourcePath": "src/elements/icon/icon.tsx"
+    "sourcePath": "src/elements/icon/icon.tsx",
+    "kind": "single"
   },
   "slots": [
     {

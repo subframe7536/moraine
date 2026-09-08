@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Multi-line text input with autoresize support and form field integration.",
-    "sourcePath": "src/forms/textarea/textarea.tsx"
+    "sourcePath": "src/forms/textarea/textarea.tsx",
+    "kind": "single"
   },
   "slots": [
     {

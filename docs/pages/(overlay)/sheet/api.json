@@ -5,7 +5,8 @@
     "category": "overlays",
     "polymorphic": false,
     "description": "Sheet state and context. Trigger, Content, and Close own their respective DOM.",
-    "sourcePath": "src/overlays/sheet/sheet.tsx"
+    "sourcePath": "src/overlays/sheet/sheet.tsx",
+    "kind": "composite"
   },
   "slots": [
     {

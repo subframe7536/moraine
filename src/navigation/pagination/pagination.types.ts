@@ -7,6 +7,8 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 type PaginationVariant = ButtonProps['variant']
 
 export namespace PaginationT {
+  export type Kind = 'single'
+
   export interface Slot<T = unknown> {
     /**
      * Navigation container for page controls.

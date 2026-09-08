@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Joins related buttons and provides shared size and visual variant defaults.",
-    "sourcePath": "src/elements/button/button-group.tsx"
+    "sourcePath": "src/elements/button/button-group.tsx",
+    "kind": "single"
   },
   "slots": [
     {

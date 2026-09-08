@@ -10,6 +10,7 @@ const BUTTON_API_DOC = {
     name: 'Button',
     category: 'General',
     polymorphic: false,
+    kind: 'single',
   },
   slots: [],
   props: {
@@ -91,6 +92,7 @@ describe('createDocsMdxOptions', () => {
     expect(extension?.mdxContent).toContain('<components.Markdown')
     expect(extension?.mdxContent).toContain('<MDXContent {...props} />')
     expect(extension?.mdxContent).toContain('metadata={')
+    expect(extension?.mdxContent).toContain('"kind":"single"')
   })
 
   test('adds generated API sections after MDX headings', async () => {

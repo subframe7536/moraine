@@ -24,11 +24,31 @@ import {
   createForm,
   useId,
 } from 'moraine'
-import type { AvatarGroupT, AvatarT, ModalT } from 'moraine'
+import type {
+  AvatarGroupT,
+  AvatarT,
+  ButtonT,
+  DialogT,
+  FormT,
+  ModalT,
+  SelectT,
+  SidebarFrameT,
+} from 'moraine'
 import { createTheme } from 'moraine/theme'
 import { createContextProvider, renderComponentOrElement } from 'moraine/utils'
 import type { Component, JSX } from 'solid-js'
 import * as v from 'valibot'
+
+type Assert<T extends true> = T
+export type ComponentKinds = [
+  Assert<ButtonT.Kind extends 'single' ? true : false>,
+  Assert<DialogT.Kind extends 'composite' ? true : false>,
+  Assert<SidebarFrameT.Kind extends 'composite' ? true : false>,
+  Assert<SelectT.Kind extends 'single' ? true : false>,
+  Assert<FormT.Kind extends 'single' ? true : false>,
+  Assert<'kind' extends keyof ButtonT.Props ? false : true>,
+  Assert<'kind' extends keyof DialogT.Props ? false : true>,
+]
 
 // @ts-expect-error Recipe entry is internal and not exported.
 type RecipeEntry = typeof import('moraine/recipe')
