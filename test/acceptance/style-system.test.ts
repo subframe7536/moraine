@@ -36,6 +36,19 @@ describe('Theme architecture', () => {
     expect(violations).toEqual([])
   })
 
+  test('leaves component transition timing to the host utility framework', () => {
+    const violations = []
+    for (const file of globSync('src/{elements,forms,navigation,overlays}/**/*.class.ts', {
+      cwd: root,
+    })) {
+      const text = readFileSync(resolve(root, file), 'utf8')
+      if (/\b(?:duration|ease)-/.test(text)) {
+        violations.push(file)
+      }
+    }
+    expect(violations).toEqual([])
+  })
+
   test('compiles a variant-only slot and matching compound without a base inventory', () => {
     const theme = createTheme({
       button: {

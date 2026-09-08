@@ -91,6 +91,7 @@ test('uses input sizing classes in single mode', () => {
 
   expect(singleInput?.className).toContain('min-w-0')
   expect(singleInput?.className).toContain('text-xs')
+  expect(singleInput?.hasAttribute('data-mode')).toBe(false)
 })
 
 test('uses the provider size as the field default', () => {
@@ -101,6 +102,20 @@ test('uses the provider size as the field default', () => {
   ))
 
   expect(screen.container.querySelector('[data-slot="control"]')?.className).toContain('text-base')
+})
+
+test('uses the provider search default for behavior and styles', () => {
+  const screen = render(() => (
+    <MoraineProvider theme={createTheme({ select: { defaults: { search: true } } })}>
+      <Select options={FRUITS} placeholder="Search fruit" />
+    </MoraineProvider>
+  ))
+
+  const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+  const input = screen.container.querySelector('input[data-slot="input"]')
+  expect(input).not.toBeNull()
+  expect(control.className).toContain('cursor-text')
+  expect(control.hasAttribute('data-search')).toBe(false)
 })
 
 test('keeps control spacing on the control instead of its icons and input', () => {
@@ -322,7 +337,8 @@ describe('Select - single mode', () => {
 
     expect(control.className).toContain('focus-visible:ring-ring/50')
     expect(control.hasAttribute('data-search')).toBe(false)
-    expect(control.className).toContain('data-search:focus-within:ring-ring/50')
+    expect(control.className).toContain('cursor-pointer')
+    expect(control.className).not.toContain('focus-within:ring-ring/50')
   })
 
   test('prevents mouse pointerdown but preserves touch and pen defaults', () => {
@@ -398,10 +414,14 @@ describe('Select - single mode', () => {
       expect(content).not.toBeNull()
       expect(content?.className).toContain('w-[var(--mo-popper-anchor-width)]')
       expect(content?.className).toContain('min-w-[var(--mo-popper-anchor-width)]')
+      expect(content?.className).toContain('data-[side=bottom]')
+      expect(content?.className).toContain('data-[side=top]')
+      expect(content?.className).not.toContain('data-[side=left]')
+      expect(content?.className).not.toContain('data-[side=right]')
     })
   })
 
-  test('popup animation origin defaults to the trigger center', async () => {
+  test('popup animation origin follows the resolved placement alignment', async () => {
     const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
     const input = screen.getByRole('combobox')
 
@@ -411,7 +431,7 @@ describe('Select - single mode', () => {
       const content = queryBody('[data-slot="content"]') as HTMLElement | null
       expect(content).not.toBeNull()
       expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
-        'top center',
+        'top left',
       )
     })
   })

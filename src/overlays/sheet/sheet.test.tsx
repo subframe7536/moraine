@@ -39,12 +39,12 @@ describe('Sheet', () => {
 
     expect(content?.hasAttribute('data-side')).toBe(false)
     expect(content?.className).toContain(expectedClass)
-    expect(content?.className).toContain('data-expanded:animate-mo-enter')
-    expect(content?.className).toContain('data-closed:animate-mo-exit')
+    expect(content?.className).toContain('data-transition:data-expanded:animate-mo-enter')
+    expect(content?.className).toContain('data-transition:data-closed:animate-mo-exit')
     expect(content?.className).toContain(sideClass)
   })
 
-  test('applies inset + transition=false classes', () => {
+  test('applies inset without transition state', () => {
     renderWithTheme(() => (
       <Sheet open>
         <Sheet.Trigger as="button" type="button">
@@ -65,7 +65,7 @@ describe('Sheet', () => {
     const content = document.body.querySelector('[data-slot="content"]')
 
     expect(content?.className).toContain('sm:m-4 sm:border sm:border-border sm:rounded-2xl')
-    expect(content?.getAttribute('data-transition')).toBe('false')
+    expect(content?.hasAttribute('data-transition')).toBe(false)
     expect(content?.className).toContain('content-class')
   })
 
@@ -286,7 +286,7 @@ describe('Sheet', () => {
     expect(content.hasAttribute('data-side')).toBe(false)
     expect(content.className).toContain('left-0')
     expect(content.className).toContain('rounded-none')
-    expect(content.hasAttribute('data-transition')).toBe(false)
+    expect(content.hasAttribute('data-transition')).toBe(true)
 
     setSide('right')
     setInset(true)
@@ -296,7 +296,7 @@ describe('Sheet', () => {
     expect(content.hasAttribute('data-side')).toBe(false)
     expect(content.className).toContain('right-0')
     expect(content.className).toContain('sm:m-4 sm:border sm:border-border sm:rounded-2xl')
-    expect(content?.getAttribute('data-transition')).toBe('false')
+    expect(content.hasAttribute('data-transition')).toBe(false)
   })
 
   test('releases content and scroll lock when unmounted during exit', async () => {

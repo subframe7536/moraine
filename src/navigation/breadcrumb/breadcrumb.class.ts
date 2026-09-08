@@ -1,7 +1,7 @@
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 export const BREADCRUMB_LINK_CLASS =
-  'transition-colors hover:text-foreground inline-flex items-center gap-1.5 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]'
+  'transition-colors hover:text-foreground inline-flex items-center gap-1.5'
 export const BREADCRUMB_PAGE_CLASS = 'text-foreground font-normal inline-flex items-center gap-1'
 export const BREADCRUMB_DISABLED_CLASS =
   'aria-disabled:opacity-64 aria-disabled:pointer-events-none'

@@ -73,6 +73,7 @@ describe('Sheet SSR Hydration', () => {
     })
     const content = document.body.querySelector('[data-slot="content"]')!
     expect(content.hasAttribute('data-side')).toBe(false)
+    expect(content.hasAttribute('data-transition')).toBe(false)
     expect(content.getAttribute('aria-label')).toBe('Server sheet')
     expect(content.getAttribute('aria-labelledby')).toBeNull()
     expect(content.getAttribute('aria-describedby')).toBeNull()
@@ -94,6 +95,7 @@ describe('Sheet SSR Hydration', () => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
     })
     const defaultContent = document.body.querySelector('[data-slot="content"]')!
+    expect(defaultContent.hasAttribute('data-transition')).toBe(true)
     expectAriaReferencesToResolve(defaultContent)
     expect(document.body.querySelector('[data-testid="default-action"]')).not.toBeNull()
     expect(document.body.querySelector('[data-testid="default-close-icon"]')).not.toBeNull()

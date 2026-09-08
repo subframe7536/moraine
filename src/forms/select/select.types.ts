@@ -78,6 +78,10 @@ export namespace SelectT {
      * @default 'md'
      */
     size?: 'sm' | 'md' | 'lg' | null
+    /** Whether the control accepts searchable input.
+     * @default false
+     */
+    search?: boolean | null
   }
   export type SlotName = keyof Slot
 

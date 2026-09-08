@@ -6,13 +6,12 @@ import type { ProgressT } from './progress.types.ts'
 export const progressRecipeOptions = {
   base: {
     root: 'gap-2 relative',
-    status:
-      'text-sm text-muted-foreground font-medium flex transition-[width,height] tabular-nums duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+    status: 'text-sm text-muted-foreground font-medium flex transition-[width,height] tabular-nums',
     track: 'rounded-full bg-muted translate-z-0 relative overflow-hidden',
     indicator:
-      'will-change-transform bg-primary size-full transition-transform inset-0 absolute data-indeterminate:opacity-100 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+      'will-change-transform bg-primary size-full transition-transform inset-0 absolute data-indeterminate:opacity-100',
     steps: 'grid items-end',
-    step: 'text-end col-start-1 row-start-1 truncate transition-opacity data-[state=active]:opacity-100 data-[state=first]:text-muted-foreground data-[state=first]:opacity-100 data-[state=other]:opacity-0 data-[state=last]:opacity-100 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+    step: 'text-end col-start-1 row-start-1 truncate transition-opacity data-[state=active]:opacity-100 data-[state=first]:text-muted-foreground data-[state=first]:opacity-100 data-[state=other]:opacity-0 data-[state=last]:opacity-100',
   },
   defaults: {
     orientation: 'horizontal',

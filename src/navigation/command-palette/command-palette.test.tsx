@@ -6,6 +6,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { Dialog } from '../../overlays/dialog/index.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { finishExitMotion } from '../../test-utils/overlay-test.ts'
+import { createTheme } from '../../theme.ts'
 
 import { CommandPalette } from './command-palette.tsx'
 import type { CommandPaletteT } from './command-palette.types.ts'
@@ -618,40 +619,48 @@ describe('CommandPalette', () => {
     })
   })
 
-  test('supports root and item-level search and description position options', async () => {
-    renderWithTheme(() => (
-      <CommandPalette
-        searchTerm="zzz"
-        descriptionPosition="trailing"
-        groups={[
-          {
-            id: 'g',
-            items: [
-              { value: 'always', label: 'Always', description: 'Visible', alwaysShow: true },
-              {
-                value: 'bottom',
-                label: 'Bottom',
-                description: 'Below',
-                descriptionPosition: 'bottom',
-                alwaysShow: true,
-              },
-            ],
-          },
-        ]}
-      />
+  test('uses the resolved description position for classes and item structure', async () => {
+    const [descriptionPosition, setDescriptionPosition] = createSignal<
+      'bottom' | 'trailing' | undefined
+    >()
+    render(() => (
+      <MoraineProvider
+        theme={createTheme({
+          commandPalette: { defaults: { descriptionPosition: 'trailing' } },
+        })}
+      >
+        <CommandPalette
+          descriptionPosition={descriptionPosition()}
+          groups={[
+            {
+              id: 'g',
+              items: [{ value: 'item', label: 'Item', description: 'Description' }],
+            },
+          ]}
+        />
+      </MoraineProvider>
     ))
 
     await waitFor(() => {
-      const always = body().getByText('Always').closest('[data-slot="item"]')
-      const bottom = body().getByText('Bottom').closest('[data-slot="item"]')
-
-      expect(
-        always?.querySelector('[data-slot="itemLabel"] [data-slot="itemDescription"]'),
-      ).not.toBeNull()
-      expect(
-        bottom?.querySelector('[data-slot="itemWrapper"] [data-slot="itemDescription"]'),
-      ).not.toBeNull()
+      expect(body().getByText('Item')).not.toBeNull()
     })
+
+    const item = body().getByText('Item').closest('[data-slot="item"]')!
+    const wrapper = item.querySelector('[data-slot="itemWrapper"]')!
+    const label = item.querySelector('[data-slot="itemLabel"]')!
+    const description = item.querySelector('[data-slot="itemDescription"]')!
+
+    expect(description.parentElement).toBe(label)
+    expect(wrapper.className).toContain('flex-row')
+    expect(label.className).toContain('flex-1')
+    expect(wrapper.hasAttribute('data-description-position')).toBe(false)
+    expect(label.hasAttribute('data-description-position')).toBe(false)
+
+    setDescriptionPosition('bottom')
+
+    expect(item.querySelector('[data-slot="itemDescription"]')?.parentElement).toBe(wrapper)
+    expect(wrapper.className).not.toContain('flex-row')
+    expect(label.className).not.toContain('flex-1')
   })
 
   test('passes runtime state to leadingRender and trailingRender', async () => {

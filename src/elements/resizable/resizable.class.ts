@@ -7,7 +7,7 @@ export const resizableRecipeOptions = {
   base: {
     root: 'flex h-full min-h-0 min-w-0 w-full',
     panel:
-      'min-h-0 min-w-0 overflow-auto data-transitioning:transition-flex-grow motion-reduce:transition-none duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+      'min-h-0 min-w-0 overflow-auto data-transitioning:transition-flex-grow motion-reduce:transition-none',
     divider:
       "bg-border flex shrink-0 select-none items-center justify-center relative overflow-visible touch-none focus-visible:(outline-none ring-3 ring-ring/50) aria-disabled:cursor-default data-cross:cursor-move after:(content-[''] absolute)",
     handle:

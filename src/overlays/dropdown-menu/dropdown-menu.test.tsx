@@ -951,6 +951,46 @@ describe('DropdownMenu', () => {
     expect(leading.className).not.toContain('text-muted-foreground')
   })
 
+  test('exposes destructive state without annotating default items', async () => {
+    renderWithTheme(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Actions
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            { label: 'Default' },
+            { label: 'Leaf', color: 'destructive' },
+            { label: 'Checkbox', type: 'checkbox', color: 'destructive' },
+            {
+              label: 'Radio',
+              type: 'radio',
+              group: 'choice',
+              value: 'radio',
+              color: 'destructive',
+            },
+            {
+              label: 'Submenu',
+              color: 'destructive',
+              children: [{ label: 'Nested action' }],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelectorAll('[data-slot="item"]')).toHaveLength(5)
+    })
+
+    const items = Array.from(document.body.querySelectorAll('[data-slot="item"]'))
+    expect(items[0]?.hasAttribute('data-destructive')).toBe(false)
+    for (const item of items.slice(1)) {
+      expect(item.getAttribute('data-destructive')).toBe('')
+      expect(item.hasAttribute('data-color')).toBe(false)
+    }
+  })
+
   test('renders submenu content through portal instead of nesting inside root content', async () => {
     render(() => (
       <DropdownMenu defaultOpen>

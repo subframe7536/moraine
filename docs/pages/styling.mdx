@@ -92,7 +92,7 @@ Register the plugin and scan the published distribution. The `@source` path is r
 
 You may instead configure an engine icon integration such as `@iconify/tailwind`. In either case, keep the Moraine plugin or preset and the published-distribution scan.
 
-## Motion duration variables
+## Animation duration variables
 
 ```css
 :root {
@@ -104,7 +104,7 @@ You may instead configure an engine icon integration such as `@iconify/tailwind`
 }
 ```
 
-The general variable overrides every Moraine motion effect. The semantic variables target entry, exit, looping, and spinner animations separately.
+The general variable overrides every Moraine CSS animation. The semantic variables target entry, exit, looping, and spinner animations separately. CSS transitions retain the duration and timing function configured by the host Tailwind CSS or UnoCSS setup.
 
 ## Interactive color tokens
 
@@ -230,11 +230,12 @@ For standalone recipe authoring, `slotRecipe` produces slot-class maps and `atom
 
 ### State selectors
 
-Visual Variants describe presentation. Disabled, required, selected, open/closed, loading, orientation, and placement state use the component's documented data/ARIA attributes. Keep selectors flat so both CSS engines can scan them:
+Recipe Variants describe stable component options that select class branches, including visual treatments and configured layout or interaction modes. Transient disabled, required, selected, open/closed, loading, orientation, and placement state use the component's documented data/ARIA attributes. Keep state selectors flat so both CSS engines can scan them:
 
 ```ts
 const theme = createTheme({
   button: { base: { root: 'data-disabled:opacity-50 data-loading:cursor-wait' } },
+  select: { variants: { search: { true: { control: 'focus-within:ring-2' } } } },
   popover: { base: { content: 'data-[side=bottom]:mt-2' } },
 })
 ```

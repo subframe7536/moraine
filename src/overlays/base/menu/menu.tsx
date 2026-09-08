@@ -717,7 +717,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       <div
         id={itemId()}
         data-slot="item"
-        data-color={itemProps.item.color ?? 'default'}
+        data-destructive={itemProps.item.color === 'destructive' ? '' : undefined}
         role="menuitem"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
@@ -792,7 +792,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       <div
         id={itemId()}
         data-slot="item"
-        data-color={itemProps.item.color ?? 'default'}
+        data-destructive={itemProps.item.color === 'destructive' ? '' : undefined}
         role="menuitemcheckbox"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
@@ -886,7 +886,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       <div
         id={itemId()}
         data-slot="item"
-        data-color={itemProps.item.color ?? 'default'}
+        data-destructive={itemProps.item.color === 'destructive' ? '' : undefined}
         role="menuitemradio"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
@@ -1013,7 +1013,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         <div
           id={submenuId()}
           data-slot="item"
-          data-color={itemProps.item.color ?? 'default'}
+          data-destructive={itemProps.item.color === 'destructive' ? '' : undefined}
           role="menuitem"
           tabIndex={layer.highlightedItemId() === submenuId() ? 0 : -1}
           aria-haspopup="menu"

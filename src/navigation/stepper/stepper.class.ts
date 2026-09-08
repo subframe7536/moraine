@@ -10,11 +10,11 @@ export const stepperRecipeOptions = {
     item: 'min-w-0 relative data-disabled:(opacity-64 pointer-events-none)',
     container: 'flex items-center relative',
     trigger:
-      'rounded-full inline-flex size-[var(--st-size)] transition-colors items-center justify-center focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 data-clickable:cursor-pointer data-[state=inactive]:text-muted-foreground data-[state=inactive]:border-input data-[state=inactive]:bg-background data-[state=inactive]:shadow-xs data-[state=active]:text-primary-foreground data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=completed]:text-primary-foreground data-[state=completed]:border-primary data-[state=completed]:bg-primary duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+      'rounded-full inline-flex size-[var(--st-size)] transition-colors items-center justify-center focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 data-clickable:cursor-pointer data-[state=inactive]:text-muted-foreground data-[state=inactive]:border-input data-[state=inactive]:bg-background data-[state=inactive]:shadow-xs data-[state=active]:text-primary-foreground data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=completed]:text-primary-foreground data-[state=completed]:border-primary data-[state=completed]:bg-primary',
     indicator: '',
     icon: '',
     separator:
-      'rounded-full bg-border transition-colors duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)] absolute data-[state=completed]:bg-primary data-disabled:opacity-75',
+      'rounded-full bg-border transition-colors absolute data-[state=completed]:bg-primary data-disabled:opacity-75',
     wrapper: 'min-w-0',
     title: 'text-foreground leading-snug font-medium',
     description: 'text-muted-foreground leading-normal text-wrap',

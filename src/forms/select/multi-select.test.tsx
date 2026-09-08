@@ -78,6 +78,20 @@ describe('MultiSelect', () => {
     )
   })
 
+  test('uses the provider search default for behavior and styles', () => {
+    const screen = render(() => (
+      <MoraineProvider theme={createTheme({ multiSelect: { defaults: { search: true } } })}>
+        <MultiSelect options={FRUITS} placeholder="Search fruits" />
+      </MoraineProvider>
+    ))
+
+    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const input = screen.container.querySelector('[data-slot="input"]') as HTMLInputElement
+    expect(input.readOnly).toBe(false)
+    expect(control.className).toContain('cursor-text')
+    expect(control.hasAttribute('data-search')).toBe(false)
+  })
+
   test('uses the normative root class and style precedence', () => {
     const screen = render(() => (
       <MoraineProvider
@@ -796,7 +810,8 @@ describe('MultiSelect', () => {
 
     expect(control.className).toContain('focus-visible:ring-ring/50')
     expect(control.hasAttribute('data-search')).toBe(false)
-    expect(control.className).toContain('data-search:focus-within:ring-ring/50')
+    expect(control.className).toContain('cursor-pointer')
+    expect(control.className).not.toContain('focus-within:ring-ring/50')
   })
 
   test('non-search control uses focus-visible ring styling for keyboard focus', () => {

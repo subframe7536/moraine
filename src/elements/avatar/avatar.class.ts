@@ -8,9 +8,9 @@ export const avatarRecipeOptions = {
   base: {
     root: "text-muted-foreground rounded-full bg-muted inline-flex shrink-0 select-none items-center justify-center relative overflow-visible after:border after:border-border after:rounded-full after:pointer-events-none after:content-[''] after:inset-0 after:absolute dark:after:mix-blend-lighten",
     image:
-      'opacity-0 pointer-events-none data-[status=loaded]:opacity-100 data-[status=loaded]:pointer-events-auto rounded-full size-full transition-opacity inset-0 absolute object-cover duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+      'opacity-0 pointer-events-none data-[status=loaded]:opacity-100 data-[status=loaded]:pointer-events-auto rounded-full size-full transition-opacity inset-0 absolute object-cover',
     fallback:
-      'opacity-100 data-[status=loaded]:opacity-0 data-[status=loaded]:pointer-events-none text-muted-foreground font-medium rounded-full bg-muted flex uppercase transition-opacity items-center inset-0 justify-center absolute duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+      'opacity-100 data-[status=loaded]:opacity-0 data-[status=loaded]:pointer-events-none text-muted-foreground font-medium rounded-full bg-muted flex uppercase transition-opacity items-center inset-0 justify-center absolute',
     fallbackIcon: 'shrink-0',
     badge:
       '[&>[data-slot=root]]:text-[0.75em] text-foreground rounded-full bg-background inline-flex pointer-events-none ring-2 ring-background items-center justify-center absolute z-sticky',

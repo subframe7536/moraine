@@ -7,20 +7,20 @@ export const fileUploadRecipeOptions = {
   base: {
     root: 'flex flex-col relative data-disabled:opacity-64 data-disabled:pointer-events-none',
     control:
-      'text-center outline-none border border-input rounded-lg bg-background inline-flex w-full cursor-pointer shadow-xs transition-[colors,box-shadow] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)] items-center justify-center relative focus-visible:(outline-none border-ring ring-3 ring-ring/50) data-dragging:(border-primary bg-input) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:(bg-input/30 data-invalid:border-destructive/50 data-invalid:ring-destructive/40) hover:bg-input [&:not([data-dropzone])]:border-solid data-dropzone:border-dashed',
+      'text-center outline-none border border-input rounded-lg bg-background inline-flex w-full cursor-pointer shadow-xs transition-[colors,box-shadow] items-center justify-center relative focus-visible:(outline-none border-ring ring-3 ring-ring/50) data-dragging:(border-primary bg-input) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:(bg-input/30 data-invalid:border-destructive/50 data-invalid:ring-destructive/40) hover:bg-input [&:not([data-dropzone])]:border-solid data-dropzone:border-dashed',
     wrapper: 'text-center flex flex-col pointer-events-none items-center justify-center',
     icon: 'text-muted-foreground',
     label: 'text-foreground font-medium',
     description: 'text-muted-foreground',
     files: 'flex flex-col',
-    file: 'text-card-foreground border border-border rounded-xl bg-card flex transition-colors items-center relative duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+    file: 'text-card-foreground border border-border rounded-xl bg-card flex transition-colors items-center relative',
     filePreview:
       '[&>img]:size-full [&>img]:object-cover text-muted-foreground rounded-lg bg-muted flex shrink-0 items-center justify-center relative overflow-hidden',
     fileMeta: 'flex flex-1 flex-col min-w-0',
     fileName: 'text-foreground font-medium truncate',
     fileSize: 'text-muted-foreground mt-0.5 truncate',
     fileRemove:
-      'text-muted-foreground border border-transparent rounded-sm inline-flex transition-colors items-center justify-center hover:text-foreground hover:bg-muted-hover focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:bg-muted-active duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+      'text-muted-foreground border border-transparent rounded-sm inline-flex transition-colors items-center justify-center hover:text-foreground hover:bg-muted-hover focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:bg-muted-active',
   },
   defaults: {
     size: 'md',

@@ -171,28 +171,14 @@
       "name": "itemWrapper",
       "description": "Text column that groups command label and description.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-description-position",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": []
     },
     {
       "name": "itemLabel",
       "description": "Primary text for a command item.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-description-position",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": []
     },
     {
@@ -271,12 +257,6 @@
         "required": false,
         "type": "string | undefined",
         "description": "Secondary description text shown for the item."
-      },
-      {
-        "name": "descriptionPosition",
-        "required": false,
-        "type": "CommandPaletteT.DescriptionPosition | undefined",
-        "description": "Where the item description is rendered. Overrides the root setting."
       },
       {
         "name": "disabled",
@@ -359,8 +339,8 @@
       {
         "name": "descriptionPosition",
         "required": false,
-        "type": "CommandPaletteT.DescriptionPosition | undefined",
-        "description": "Where descriptions render by default.",
+        "type": "CommandPaletteT.DescriptionPosition | null | undefined",
+        "description": "Where descriptions render in each command item.",
         "defaultValue": "bottom"
       },
       {

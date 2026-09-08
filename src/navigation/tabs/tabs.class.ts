@@ -7,10 +7,9 @@ export const tabsRecipeOptions = {
   base: {
     root: 'flex gap-2',
     list: 'p-1 inline-flex items-center relative',
-    indicator:
-      'rounded-md transition-[transform,width,height] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)] absolute',
+    indicator: 'rounded-md transition-[transform,width,height] absolute',
     trigger:
-      'text-muted-foreground font-medium px-2 py-1.5 outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)] items-center justify-center relative hover:text-foreground focus-visible:(outline-none border-ring ring-3 ring-ring/50) disabled:(opacity-64 pointer-events-none)',
+      'text-muted-foreground font-medium px-2 py-1.5 outline-none inline-flex gap-1.5 min-w-0 cursor-pointer transition-colors items-center justify-center relative hover:text-foreground focus-visible:(outline-none border-ring ring-3 ring-ring/50) disabled:(opacity-64 pointer-events-none)',
     leading: 'inline-flex shrink-0 items-center justify-center',
     label: 'truncate',
     trailing: '',

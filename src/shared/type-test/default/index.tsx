@@ -28,9 +28,11 @@ import type {
   AvatarGroupT,
   AvatarT,
   ButtonT,
+  CommandPaletteT,
   DialogT,
   FormT,
   ModalT,
+  MultiSelectT,
   SelectT,
   SidebarFrameT,
 } from 'moraine'
@@ -48,6 +50,13 @@ export type ComponentKinds = [
   Assert<FormT.Kind extends 'single' ? true : false>,
   Assert<'kind' extends keyof ButtonT.Props ? false : true>,
   Assert<'kind' extends keyof DialogT.Props ? false : true>,
+]
+
+export type RecipeVariants = [
+  Assert<'descriptionPosition' extends keyof CommandPaletteT.Variant ? true : false>,
+  Assert<'descriptionPosition' extends keyof CommandPaletteT.Item ? false : true>,
+  Assert<'search' extends keyof SelectT.Variant ? true : false>,
+  Assert<'search' extends keyof MultiSelectT.Variant ? true : false>,
 ]
 
 // @ts-expect-error Recipe entry is internal and not exported.
@@ -204,10 +213,13 @@ defineStyleVars({ base: { size: '1px' } })({}, 'color: red')
 
 const theme = createTheme({
   button: { base: { root: 'rounded-lg' }, defaults: { size: 'sm' } },
+  commandPalette: { defaults: { descriptionPosition: 'trailing' } },
   form: { base: { root: 'space-y-2' } },
   icon: { base: { root: 'size-4' } },
   kbd: { base: { root: 'px-1' } },
   modal: { base: { content: 'p-4' } },
+  multiSelect: { defaults: { search: true } },
+  select: { defaults: { search: true } },
   separator: {
     base: { root: 'border-t' },
     variants: { orientation: { vertical: { root: 'h-full' } } },

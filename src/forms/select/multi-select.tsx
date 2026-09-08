@@ -88,6 +88,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
     'class',
     'style',
     'variant',
+    'search',
     'placeholder',
     'allowClear',
     'loading',
@@ -498,6 +499,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
     <BaseSelect<Item>
       {...rest}
       ref={local.ref}
+      search={resolved.variants.search ?? false}
 
       _styles={resolved}
 
@@ -579,7 +581,6 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
         return (
           <div
             data-slot="control"
-            data-search={api.isSearchable() ? '' : undefined}
             data-disabled={api.field.disabled() ? '' : undefined}
             data-invalid={api.field.invalid() ? '' : undefined}
             data-required={api.field.required() ? '' : undefined}

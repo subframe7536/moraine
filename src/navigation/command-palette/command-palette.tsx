@@ -151,7 +151,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       autofocus: true,
       showClose: false,
       closeOnSelect: true,
-      descriptionPosition: 'bottom' as const,
       leadingIcon: 'icon-search',
       loadingIcon: 'icon-loading',
       closeIcon: 'icon-close',
@@ -165,6 +164,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   const [inputElement, setInputElement] = createSignal<HTMLInputElement | undefined>()
   let listboxElement: HTMLDivElement | undefined
   const listboxId = useId(undefined, 'command-palette-listbox')
+  const descriptionPosition = () => resolved.variants.descriptionPosition ?? 'bottom'
   const currentSearchTerm = createMemo(() => merged.searchTerm ?? internalSearch())
   const activeDescendantId = createMemo(() =>
     activeKey() ? `${listboxId()}-${encodeURIComponent(String(activeKey()))}` : undefined,
@@ -431,8 +431,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     item: NormalizedItem<TItem>,
     itemContext = getItemContext(item),
   ): JSX.Element {
-    const descriptionPosition = () => item.item.descriptionPosition ?? merged.descriptionPosition
-
     return (
       <Show
         when={merged.itemRender !== undefined}
@@ -444,16 +442,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
               </span>
             </Show>
 
-            <span
-              data-slot="itemWrapper"
-              data-description-position={descriptionPosition()}
-              {...resolved.slot('itemWrapper')}
-            >
-              <span
-                data-slot="itemLabel"
-                data-description-position={descriptionPosition()}
-                {...resolved.slot('itemLabel')}
-              >
+            <span data-slot="itemWrapper" {...resolved.slot('itemWrapper')}>
+              <span data-slot="itemLabel" {...resolved.slot('itemLabel')}>
                 <span>{item.item.label ?? item.label}</span>
                 <Show when={descriptionPosition() === 'trailing'}>
                   {renderItemDescription(item)}

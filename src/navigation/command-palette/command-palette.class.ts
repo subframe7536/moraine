@@ -12,10 +12,8 @@ export const commandPaletteRecipeOptions = {
     label: 'text-muted-foreground px-2 py-1.5 text-xs font-medium',
     item: 'text-sm px-2 py-1 min-h-8 text-foreground outline-none rounded-sm flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:bg-muted data-disabled:opacity-50 data-disabled:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4',
     itemLeading: 'text-muted-foreground shrink-0 [&_svg]:size-4',
-    itemWrapper:
-      'text-start flex flex-1 flex-col min-w-0 data-[description-position=trailing]:flex-row data-[description-position=trailing]:gap-2 data-[description-position=trailing]:items-baseline',
-    itemLabel:
-      'min-w-0 truncate items-baseline data-[description-position=trailing]:flex data-[description-position=trailing]:flex-1 data-[description-position=trailing]:gap-2',
+    itemWrapper: 'text-start flex flex-1 flex-col min-w-0',
+    itemLabel: 'min-w-0 truncate items-baseline',
     itemDescription: 'text-xs text-muted-foreground truncate',
     itemTrailing:
       'text-muted-foreground ml-auto flex shrink-0 gap-2 items-center text-xs tracking-widest',
@@ -25,7 +23,18 @@ export const commandPaletteRecipeOptions = {
       'text-muted-foreground outline-none border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center hover:text-foreground',
     empty: 'text-muted-foreground py-6 text-center text-sm',
   },
-  variants: {},
+  defaults: {
+    descriptionPosition: 'bottom',
+  },
+  variants: {
+    descriptionPosition: {
+      bottom: {},
+      trailing: {
+        itemWrapper: 'flex-row gap-2 items-baseline',
+        itemLabel: 'flex flex-1 gap-2',
+      },
+    },
+  },
 } as const
 
 export const commandPaletteRecipe = /* @__PURE__ */ slotRecipe(commandPaletteRecipeOptions)

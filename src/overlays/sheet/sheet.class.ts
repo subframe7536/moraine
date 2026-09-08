@@ -7,7 +7,7 @@ import type { SheetT } from './sheet.types.ts'
 export const sheetRecipeOptions = {
   base: {
     content:
-      'text-sm text-popover-foreground outline-none bg-popover flex flex-col gap-4 max-h-full min-h-0 min-w-0 shadow-lg fixed z-floating bg-clip-padding data-[transition=false]:(transition-none animate-none) data-closed:(animate-mo-exit exit-opacity-0) data-expanded:(animate-mo-enter enter-opacity-0) motion-reduce:animate-none',
+      'text-sm text-popover-foreground outline-none bg-popover flex flex-col gap-4 max-h-full min-h-0 min-w-0 shadow-lg fixed z-floating bg-clip-padding data-transition:data-closed:(animate-mo-exit exit-opacity-0) data-transition:data-expanded:(animate-mo-enter enter-opacity-0) data-transition:motion-reduce:animate-none',
     overlay: MODAL_OVERLAY_CLASS,
     header: 'p-4 flex gap-1.5 items-start',
     wrapper: 'flex-1 gap-0.5 grid min-w-0',

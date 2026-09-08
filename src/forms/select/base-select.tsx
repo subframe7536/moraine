@@ -190,11 +190,6 @@ export namespace BaseSelectT {
     listboxProps?: ElementProps<HTMLDivElement>
     /** Additional attributes for an option row. */
     itemProps?: (option: TItem & OptionRenderState) => ElementProps<HTMLDivElement> | undefined
-    /**
-     * Enable search input.
-     * @default false
-     */
-    search?: boolean
     /** Controlled search value. */
     searchValue?: string
     /**
@@ -285,30 +280,10 @@ const SELECT_FILTER_STRATEGIES: Record<SelectFilterMode, (text: string, input: s
     contains: (text, input) => text.includes(input),
   }
 
-function resolveSelectContentSide(placement: string): 'top' | 'right' | 'bottom' | 'left' {
+function resolveSelectContentSide(placement: string): 'top' | 'bottom' {
   const [side] = placement.split('-')
 
-  if (side === 'top' || side === 'right' || side === 'bottom' || side === 'left') {
-    return side
-  }
-
-  return 'bottom'
-}
-
-function resolveSelectContentOrigin(
-  side: 'top' | 'right' | 'bottom' | 'left',
-): 'bottom center' | 'center left' | 'top center' | 'center right' {
-  switch (side) {
-    case 'top':
-      return 'bottom center'
-    case 'right':
-      return 'center left'
-    case 'left':
-      return 'center right'
-    case 'bottom':
-    default:
-      return 'top center'
-  }
+  return side === 'top' ? 'top' : 'bottom'
 }
 
 function matchesFilter<TOption extends { key: string }>(
@@ -702,7 +677,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
 
   const [currentInputText, setCurrentInputText] = createSignal(merged.defaultSearchValue ?? '')
   const [highlightedKey, setHighlightedKey] = createSignal<string | undefined>()
-  const [contentSide, setContentSide] = createSignal<'top' | 'right' | 'bottom' | 'left'>('bottom')
+  const [contentSide, setContentSide] = createSignal<'top' | 'bottom'>('bottom')
   const resolved = untrack(() => local._styles)
 
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>()
@@ -1436,7 +1411,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
               data-side={contentSide()}
               class={resolved.slot('content').class}
               style={{
-                '--mo-popper-content-transform-origin': resolveSelectContentOrigin(contentSide()),
+                '--mo-popper-content-transform-origin': undefined,
                 ...resolved.slot('content').style,
               }}
             >

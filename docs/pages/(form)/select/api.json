@@ -188,12 +188,6 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present when the field input is required."
-        },
-        {
-          "name": "data-search",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
         }
       ],
       "ariaAttributes": []
@@ -203,12 +197,6 @@
       "description": "Search input or value text field inside the control.",
       "cssVariables": [],
       "dataAttributes": [
-        {
-          "name": "data-mode",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
-        },
         {
           "name": "data-placeholder",
           "required": false,
@@ -558,8 +546,8 @@
       {
         "name": "search",
         "required": false,
-        "type": "boolean | undefined",
-        "description": "Enable search input.",
+        "type": "boolean | null | undefined",
+        "description": "Whether the control accepts searchable input.",
         "defaultValue": "false"
       },
       {

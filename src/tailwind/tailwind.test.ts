@@ -927,7 +927,7 @@ describe('animations', () => {
     `)
   })
 
-  test('standard transition utilities use shared enter tokens', async () => {
+  test('standard transition utilities preserve Tailwind defaults', async () => {
     const css = await compileCSS([
       'transition',
       'transition-all',

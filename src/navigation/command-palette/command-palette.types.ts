@@ -62,7 +62,12 @@ export namespace CommandPaletteT {
     empty?: T
   }
 
-  export type Variant = never
+  export interface Variant {
+    /** Where descriptions render in each command item.
+     * @default 'bottom'
+     */
+    descriptionPosition?: DescriptionPosition | null
+  }
   export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
@@ -86,8 +91,6 @@ export namespace CommandPaletteT {
     description?: string
     /** Additional keywords included in built-in search matching. */
     keywords?: string[]
-    /** Where the item description is rendered. Overrides the root setting. */
-    descriptionPosition?: DescriptionPosition
     /** Custom visual rendered at the start of the item. */
     leadingRender?: ComponentOrElement<ItemRenderProps>
     /** Custom visual rendered at the end of the item. */
@@ -224,11 +227,6 @@ export namespace CommandPaletteT {
     getItemSearchText?: (item: TItem, group: Group<TItem>) => string
     /** Custom filter function that fully controls which groups and items are visible. */
     filterItems?: (args: { groups: Group<TItem>[]; searchTerm: string }) => Group<TItem>[]
-    /**
-     * Where descriptions render by default.
-     * @default 'bottom'
-     */
-    descriptionPosition?: DescriptionPosition
     /** Custom empty state renderer. */
     emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
     /** Custom footer renderer. */

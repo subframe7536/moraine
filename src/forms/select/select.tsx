@@ -35,6 +35,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     'class',
     'style',
     'variant',
+    'search',
     'placeholder',
     'allowClear',
     'loading',
@@ -173,6 +174,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     <BaseSelect<Item>
       {...rest}
       ref={local.ref}
+      search={resolved.variants.search ?? false}
 
       _styles={resolved}
 
@@ -229,7 +231,6 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
         return (
           <div
             data-slot="control"
-            data-search={api.isSearchable() ? '' : undefined}
             data-disabled={api.field.disabled() ? '' : undefined}
             data-invalid={api.field.invalid() ? '' : undefined}
             data-required={api.field.required() ? '' : undefined}
@@ -247,7 +248,6 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
               fallback={
                 <span
                   data-slot="input"
-                  data-mode="single"
                   data-placeholder={getCurrentValue(api) === null ? '' : undefined}
                   {...controlResolved.slot('input')}
                 >
@@ -261,7 +261,6 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                   callRef(local.inputRef, element)
                 }}
                 data-slot="input"
-                data-mode="single"
                 {...controlResolved.slot('input')}
                 placeholder={local.placeholder}
                 {...api.inputProps()}
