@@ -57,15 +57,14 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     'style',
     'ref',
   ])
+  const merged = mergeProps({ orientation: 'vertical' as const }, local)
   const themeField = useFormFieldContext()
-  const resolved = createComponentStyles('radioGroup', local, {
+  const resolved = createComponentStyles('radioGroup', merged, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })
 
-  const merged = mergeProps(local)
-
   const items = createMemo(() => merged.items ?? [])
-  const orientation = createMemo(() => merged.orientation ?? 'vertical')
+  const orientation = createMemo(() => merged.orientation)
   const variant = createMemo(() => resolved.variants.variant)
   const indicator = createMemo(() => resolved.variants.indicator)
 
@@ -301,7 +300,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       role="radiogroup"
       aria-orientation={orientation()}
       data-slot="root"
-      data-orientation={orientation()}
       {...dataAttrs()}
       {...groupAriaAttrs()}
       {...rest}
@@ -331,7 +329,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               component={variant() === 'list' ? 'div' : 'label'}
               id={item.id}
               data-slot="item"
-              data-table-orientation={variant() === 'table' ? orientation() : undefined}
               data-checked={variant() === 'list' ? undefined : selected() ? '' : undefined}
               data-disabled={disabled() ? '' : undefined}
               {...resolved.slot('item')}

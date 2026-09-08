@@ -37,7 +37,7 @@ describe('ButtonGroup', () => {
 
     const group = screen.getByRole('group', { name: 'History controls' })
     expect(group.getAttribute('data-slot')).toBe('root')
-    expect(group.getAttribute('data-orientation')).toBe('horizontal')
+    expect(group.hasAttribute('data-orientation')).toBe(false)
     expect(group.className).toContain('[&>*:not(:first-child)]:border-s-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-s-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-e-none')
@@ -75,7 +75,7 @@ describe('ButtonGroup', () => {
     expect(separators).toHaveLength(2)
     for (const separator of separators) {
       expect(separator.getAttribute('aria-hidden')).toBe('true')
-      expect(separator.getAttribute('data-orientation')).toBe('vertical')
+      expect(separator.hasAttribute('data-orientation')).toBe(false)
       expect(separator.className).toContain('h-full w-px')
     }
   })
@@ -223,9 +223,8 @@ describe('ButtonGroup', () => {
       </MoraineProvider>
     ))
 
-    const group = screen.getByRole('group')
     const button = screen.getByRole('button', { name: size })
-    expect(group.getAttribute('data-size')).toBe(size)
+    expect(button.hasAttribute('data-size')).toBe(false)
     expect(button.className).toContain(expectedClass)
   })
 
@@ -245,9 +244,8 @@ describe('ButtonGroup', () => {
       </MoraineProvider>
     ))
 
-    const group = screen.getByRole('group')
     const button = screen.getByRole('button', { name: variant })
-    expect(group.getAttribute('data-variant')).toBe(variant)
+    expect(button.hasAttribute('data-variant')).toBe(false)
     expect(button.className).toContain(expectedClass)
   })
 
@@ -278,7 +276,7 @@ describe('ButtonGroup', () => {
     ))
 
     const group = screen.getByRole('group')
-    expect(group.getAttribute('data-orientation')).toBe('vertical')
+    expect(group.hasAttribute('data-orientation')).toBe(false)
     expect(group.className).toContain('flex-col')
     expect(group.className).toContain('[&>*:not(:first-child)]:border-t-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-t-none')
@@ -295,7 +293,7 @@ describe('ButtonGroup', () => {
 
     const separator = screen.container.querySelector('[data-slot="separator"]')
     expect(separator?.getAttribute('aria-hidden')).toBe('true')
-    expect(separator?.getAttribute('data-orientation')).toBe('horizontal')
+    expect(separator?.hasAttribute('data-orientation')).toBe(false)
   })
 
   test('joins overlay trigger roots as direct children vertically', () => {

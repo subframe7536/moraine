@@ -5,6 +5,7 @@ import { defineConfig } from 'tsdown'
 import solid from 'vite-plugin-solid'
 
 import { DEFAULT_ICON_SHORTCUTS } from './src/shared/style/icons.ts'
+import { variantGroupPlugin } from './vite-plugin-variant-group.ts'
 
 export default defineConfig([
   {
@@ -15,7 +16,7 @@ export default defineConfig([
       tailwind: './src/tailwind/index.ts',
       theme: './src/theme.ts',
     },
-    plugins: [solid()],
+    plugins: [variantGroupPlugin(), solid()],
     clean: false,
     deps: {
       neverBundle: ['@subf/unocss', '@tanstack/virtual-core', 'tailwindcss'],
@@ -32,10 +33,11 @@ export default defineConfig([
     clean: false,
     platform: 'neutral',
     plugins: [
+      variantGroupPlugin(),
       unocss({
         generateCSS: true,
         fileName: 'icon.css',
-        filter: { id: /^$/ },
+        filter: { id: /[\\/]src[\\/]shared[\\/]style[\\/]icons\.ts$/ },
         config: {
           configFile: false,
           presets: [

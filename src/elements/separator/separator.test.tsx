@@ -24,10 +24,10 @@ describe('Separator', () => {
 
     expect(root?.tagName).toBe('DIV')
     expect(root?.children).toHaveLength(0)
-    expect(root?.getAttribute('data-orientation')).toBe('horizontal')
+    expect(root?.hasAttribute('data-orientation')).toBe(false)
     expect(root?.getAttribute('aria-orientation')).toBe('horizontal')
     expect(root?.getAttribute('role')).toBe('separator')
-    expect(root?.className).toContain('border-t')
+    expect(root?.className).toContain('h-px')
     expect(root?.className).toContain('w-full')
   })
 
@@ -41,13 +41,13 @@ describe('Separator', () => {
     const root = screen.getByRole('separator')
 
     expect(root.getAttribute('aria-orientation')).toBe('horizontal')
-    expect(root.className).toContain('border-t')
+    expect(root.className).toContain('h-px')
 
     setOrientation('vertical')
 
-    expect(root.getAttribute('data-orientation')).toBe('vertical')
+    expect(root.hasAttribute('data-orientation')).toBe(false)
     expect(root.getAttribute('aria-orientation')).toBe('vertical')
-    expect(root.className).toContain('border-s')
+    expect(root.className).toContain('w-px')
     expect(root.className).toContain('h-full')
   })
 
@@ -136,7 +136,7 @@ describe('Separator', () => {
       </MoraineProvider>
     ))
 
-    expect(screen.getByRole('separator').getAttribute('data-orientation')).toBe('horizontal')
+    expect(screen.getByRole('separator').getAttribute('aria-orientation')).toBe('horizontal')
     expect(reads.orientation).toBe(1)
   })
 

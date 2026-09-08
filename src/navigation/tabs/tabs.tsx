@@ -56,14 +56,13 @@ export function Tabs(props: TabsProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createComponentStyles('tabs', local)
-
   const merged = mergeProps(
     {
       orientation: 'horizontal' as const,
     },
     local,
   )
+  const resolved = createComponentStyles('tabs', merged)
 
   const rootId = useId(() => merged.id, 'tabs')
   const [requestedValue, setRequestedValue] = useControllableValue<string>({
@@ -264,25 +263,17 @@ export function Tabs(props: TabsProps): JSX.Element {
   })
 
   return (
-    <div
-      id={rootId()}
-      data-slot="root"
-      data-orientation={merged.orientation}
-      {...resolved.root}
-      {...rest}
-    >
+    <div id={rootId()} data-slot="root" {...resolved.root} {...rest}>
       <div
         ref={(e) => (listRef = e)}
         role="tablist"
         aria-orientation={merged.orientation ?? undefined}
         data-slot="list"
-        data-orientation={merged.orientation}
         {...resolved.slot('list')}
       >
         <div
           aria-hidden="true"
           data-slot="indicator"
-          data-orientation={merged.orientation}
           style={{ ...indicatorStyle(), ...resolved.slot('indicator').style }}
           class={resolved.slot('indicator').class}
         />
@@ -322,7 +313,6 @@ export function Tabs(props: TabsProps): JSX.Element {
                 data-highlighted={highlighted() && !selected() ? '' : undefined}
                 disabled={Boolean(merged.disabled || item.disabled)}
                 data-slot="trigger"
-                data-orientation={merged.orientation}
                 {...resolved.slot('trigger')}
                 onClick={() => {
                   setHighlightedKey(item.instanceKey)

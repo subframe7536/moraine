@@ -165,7 +165,11 @@ const theme = createTheme({
   icon: { base: { root: 'size-4' } },
   kbd: { base: { root: 'px-1' } },
   modal: { base: { content: 'p-4' } },
-  separator: { base: { root: 'border-t' } },
+  separator: {
+    base: { root: 'border-t' },
+    variants: { orientation: { vertical: { root: 'h-full' } } },
+  },
+  sheet: { variants: { side: { left: { content: 'left-0' } } } },
 })
 ;<MoraineProvider theme={theme}>
   <Button />

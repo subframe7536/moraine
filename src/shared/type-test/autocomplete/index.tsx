@@ -119,7 +119,11 @@ createTheme({
   form: { base: { root: 'space-y-2' } },
   icon: { base: { root: 'size-4' } },
   kbd: { base: { root: 'px-1' } },
-  separator: { base: { root: 'border-t' } },
+  separator: {
+    base: { root: 'border-t' },
+    variants: { orientation: { vertical: { root: 'h-full' } } },
+  },
+  sheet: { variants: { side: { left: { content: 'left-0' } } } },
 })
 
 // @ts-expect-error Button<'a'> exposes anchor props and rejects button-only props.

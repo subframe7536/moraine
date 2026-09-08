@@ -73,7 +73,7 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
     local,
   )
 
-  const resolved = createComponentStyles('sheet', local, { rootSlot: 'content' })
+  const resolved = createComponentStyles('sheet', merged, { rootSlot: 'content' })
 
   const title = createLazyMemo(() => merged.title)
   const description = createLazyMemo(() => merged.description)
@@ -108,7 +108,6 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
       overlay={merged.overlay}
       overlayClass={resolved.slot('overlay').class}
       overlayStyle={resolved.slot('overlay').style}
-      data-side={merged.side}
       ariaLabel={merged.ariaLabel}
       ariaLabelledBy={titleId()}
       ariaDescribedBy={descriptionId()}

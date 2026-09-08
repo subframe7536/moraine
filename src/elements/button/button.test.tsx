@@ -1034,21 +1034,21 @@ describe('Button', () => {
       ))
 
       const pBtn = screen.getByTestId('p-btn')
-      expect(pBtn.getAttribute('data-variant')).toBe('outline')
-      expect(pBtn.getAttribute('data-size')).toBe('lg')
+      expect(pBtn.className).toContain('border-border')
+      expect(pBtn.className).toContain('h-9')
       expect(pBtn.className).toContain('provider-slot-root')
       expect(pBtn.className).toContain('m-1')
       expect(pBtn.className).toContain('text-blue-500')
 
       const gBtn = screen.getByTestId('g-btn')
       // Group variant 'secondary' overrides provider 'outline'
-      expect(gBtn.getAttribute('data-variant')).toBe('secondary')
+      expect(gBtn.className).toContain('bg-secondary')
       // Provider buttonGroup variants 'sm' overrides provider button 'lg'
-      expect(gBtn.getAttribute('data-size')).toBe('sm')
+      expect(gBtn.className).toContain('h-7')
 
       const iBtn = screen.getByTestId('i-btn')
       // Instance variant overrides all
-      expect(iBtn.getAttribute('data-variant')).toBe('destructive')
+      expect(iBtn.className).toContain('bg-destructive')
       expect(iBtn.className).toContain('instance-class')
       expect(iBtn.style.color).toBe('green')
     })

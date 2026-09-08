@@ -46,11 +46,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'class',
     'style',
   ])
-  const themeField = useFormFieldContext()
-  const resolved = createComponentStyles('slider', local, {
-    inheritedVariants: () => ({ size: themeField?.size }),
-  })
-
   const merged = mergeProps(
     {
       min: 0,
@@ -63,6 +58,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
 
     local,
   )
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('slider', merged, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
 
   const generatedId = useId(() => merged.id, 'slider')
   const field = useFormField(
@@ -114,7 +113,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       id={`${field.id()}-root`}
       role="group"
       data-slot="root"
-      data-orientation={merged.orientation}
       data-dragging={slider.dragging() ? '' : undefined}
       data-disabled={field.disabled() ? '' : undefined}
       data-invalid={field.invalid() ? '' : undefined}
@@ -129,7 +127,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           slider.setTrackRef(element)
         }}
         data-slot="track"
-        data-orientation={merged.orientation}
         {...resolved.slot('track')}
         onPointerDown={slider.onTrackPointerDown}
         onPointerMove={slider.onTrackPointerMove}
@@ -141,7 +138,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           data-slot="range"
           data-multiple={slider.currentValues().length > 1 ? '' : undefined}
           data-inverted={merged.inverted ? '' : undefined}
-          data-orientation={merged.orientation}
           data-dragging={slider.dragging() ? '' : undefined}
           style={{ ...slider.rangeStyle(), ...resolved.slot('range').style }}
           class={resolved.slot('range').class}
@@ -152,7 +148,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             {(dividerIndex) => (
               <div
                 data-slot="divider"
-                data-orientation={merged.orientation}
                 style={{
                   ...slider.getDividerStyle(dividerIndex),
                   ...resolved.slot('divider').style,
@@ -176,7 +171,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             }}
             data-slot="thumb"
             data-inverted={merged.inverted ? '' : undefined}
-            data-orientation={merged.orientation}
             data-dragging={
               slider.dragging() && slider.activeThumbIndexState() === thumbIndex ? '' : undefined
             }

@@ -127,7 +127,7 @@ describe('Slider', () => {
     expect(inputs[0]?.required).toBe(true)
     expect(inputs[0]?.disabled).toBe(true)
     expect(inputs[0]?.readOnly).toBe(true)
-    expect(root?.getAttribute('data-orientation')).toBe('vertical')
+    expect(root?.hasAttribute('data-orientation')).toBe(false)
     expect(root?.getAttribute('data-required')).toBe('')
     expect(root?.getAttribute('data-disabled')).toBe('')
     expect(root?.getAttribute('data-readonly')).toBe('')
@@ -178,7 +178,7 @@ describe('Slider', () => {
 
     expect(thumb.style.bottom).toBe('100%')
     expect(thumb.className).toContain('translate-y-1/2')
-    expect(thumb.getAttribute('data-orientation')).toBe('vertical')
+    expect(thumb.hasAttribute('data-orientation')).toBe(false)
     expect(thumb.hasAttribute('data-inverted')).toBe(false)
   })
 

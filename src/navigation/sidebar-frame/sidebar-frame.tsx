@@ -44,7 +44,7 @@ export function SidebarFrameSheetOnlyRender(ctx: SidebarFrameT.FrameContext): JS
     <Show
       when={ctx.isMobile()}
       fallback={
-        <div data-slot="layout" {...resolved.root} data-side={ctx.side}>
+        <div data-slot="layout" {...resolved.root}>
           <ctx.sidebar data-closed={ctx.isOpen() ? undefined : ''} />
           {main()}
         </div>
@@ -137,8 +137,6 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createComponentStyles('sidebarFrame', local)
-
   const merged = mergeProps(
     {
       side: 'left' as const,
@@ -147,6 +145,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     },
     local,
   )
+  const resolved = createComponentStyles('sidebarFrame', merged)
 
   const sidebarHeaderRender = createMemo(() => merged.sidebarHeaderRender)
   const sidebarFooterRender = createMemo(() => merged.sidebarFooterRender)
@@ -213,7 +212,6 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             ref={merged.sidebarRef}
             data-slot="sidebar"
             data-mobile={context.isMobile() ? '' : undefined}
-            data-side={context.side}
             aria-hidden={!isOpen()}
             {...props}
             class={cn(resolved.slot('sidebar').class, props.classes)}

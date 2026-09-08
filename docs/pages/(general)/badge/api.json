@@ -12,20 +12,7 @@
       "name": "root",
       "description": "Inline badge container that carries the variant, size, and interactive state.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-size",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved size variant."
-        },
-        {
-          "name": "data-variant",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved visual variant."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": []
     },
     {

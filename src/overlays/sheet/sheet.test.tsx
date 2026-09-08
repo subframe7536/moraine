@@ -37,7 +37,7 @@ describe('Sheet', () => {
 
     const content = document.body.querySelector('[data-slot="content"]')
 
-    expect(content?.getAttribute('data-side')).toBe(side)
+    expect(content?.hasAttribute('data-side')).toBe(false)
     expect(content?.className).toContain(expectedClass)
     expect(content?.className).toContain('data-expanded:animate-mo-enter')
     expect(content?.className).toContain('data-closed:animate-mo-exit')
@@ -283,7 +283,7 @@ describe('Sheet', () => {
     ))
 
     const content = document.body.querySelector('[data-slot="content"]')!
-    expect(content.getAttribute('data-side')).toBe('left')
+    expect(content.hasAttribute('data-side')).toBe(false)
     expect(content.className).toContain('left-0')
     expect(content.className).toContain('rounded-none')
     expect(content.hasAttribute('data-transition')).toBe(false)
@@ -293,9 +293,8 @@ describe('Sheet', () => {
     setTransition(false)
 
     expect(document.body.querySelector('[data-slot="content"]')).toBe(content)
-    expect(content.getAttribute('data-side')).toBe('right')
+    expect(content.hasAttribute('data-side')).toBe(false)
     expect(content.className).toContain('right-0')
-    expect(content.className).toContain('data-[side=right]:right-0')
     expect(content.className).toContain('sm:m-4 sm:border sm:border-border sm:rounded-2xl')
     expect(content?.getAttribute('data-transition')).toBe('false')
   })

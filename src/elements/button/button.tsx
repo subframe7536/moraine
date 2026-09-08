@@ -54,8 +54,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const tag = createMemo(() => (local.as as ValidComponent) ?? 'button')
 
   const isDisabledOrLoading = () => isLoading() || Boolean(local.disabled)
-  const size = () => resolved.variants.size
-  const variant = () => resolved.variants.variant
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
 
@@ -114,8 +112,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   return (
     <Dynamic
       data-slot={local.slotName || 'root'}
-      data-size={size()}
-      data-variant={variant()}
       aria-busy={isLoading() ? true : undefined}
       data-loading={isLoading() ? '' : undefined}
       data-disabled={local.disabled ? '' : undefined}

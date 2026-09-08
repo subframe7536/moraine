@@ -14,12 +14,6 @@
       "cssVariables": [],
       "dataAttributes": [
         {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
-        },
-        {
           "name": "data-resizable-root",
           "required": false,
           "type": "string | undefined",
@@ -44,12 +38,6 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present when the panel, accordion, or menu is expanded."
-        },
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
         },
         {
           "name": "data-resizing",
@@ -88,12 +76,6 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present while the related thumb or handle is being dragged."
-        },
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
         }
       ],
       "ariaAttributes": [

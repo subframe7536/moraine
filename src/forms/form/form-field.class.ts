@@ -1,6 +1,5 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
-import { cn } from '../../shared/utils.ts'
 
 import type { FormFieldT } from './form-field.types.ts'
 
@@ -9,10 +8,8 @@ export const formFieldRecipeOptions = {
     root: '',
     wrapper: 'flex flex-col gap-1',
     labelWrapper: 'flex gap-1.5 items-center',
-    label: /* @__PURE__ */ cn(
-      'text-foreground font-medium block',
-      "data-required:after:text-destructive data-required:after:ms-0.5 data-required:after:content-['*']",
-    ),
+    label:
+      "text-foreground font-medium block data-required:after:(text-destructive ms-0.5 content-['*'])",
     container: 'flex flex-col gap-1.5 relative',
     description: 'text-muted-foreground leading-normal',
     error: 'text-destructive font-medium leading-normal',

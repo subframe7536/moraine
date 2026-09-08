@@ -187,8 +187,10 @@ describe('Pagination', () => {
     const prev = screen.container.querySelector('[data-slot="prev"]')
     const next = screen.container.querySelector('[data-slot="next"]')
 
-    expect(prev?.getAttribute('data-size')).toBe('icon-md')
-    expect(next?.getAttribute('data-size')).toBe('icon-md')
+    expect(prev?.className).toContain('size-8')
+    expect(next?.className).toContain('size-8')
+    expect(prev?.hasAttribute('data-size')).toBe(false)
+    expect(next?.hasAttribute('data-size')).toBe(false)
     expect(prev?.hasAttribute('data-text')).toBe(false)
     expect(next?.hasAttribute('data-text')).toBe(false)
     expect(prev?.querySelector('[data-slot="leading"]')).toBeNull()
@@ -204,8 +206,8 @@ describe('Pagination', () => {
     const prev = screen.container.querySelector('[data-slot="prev"]')
     const next = screen.container.querySelector('[data-slot="next"]')
 
-    expect(prev?.getAttribute('data-size')).toBe('md')
-    expect(next?.getAttribute('data-size')).toBe('md')
+    expect(prev?.className).toContain('h-8')
+    expect(next?.className).toContain('h-8')
     expect(prev?.className).toContain('ps-2!')
     expect(next?.className).toContain('pe-2!')
     expect(prev?.querySelector('[data-slot="leading"]')).not.toBeNull()

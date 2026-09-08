@@ -1,19 +1,12 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
-import { cn } from '../../shared/utils.ts'
 
 import type { RadioGroupT } from './radio-group.types.ts'
 
 export const radioGroupRecipeOptions = {
   base: {
-    root: /* @__PURE__ */ cn(
-      'flex relative',
-      'data-[orientation=horizontal]:flex-row data-[orientation=vertical]:flex-col',
-    ),
-    item: /* @__PURE__ */ cn(
-      'flex items-start data-disabled:opacity-64 data-disabled:pointer-events-none',
-      'data-[table-orientation=horizontal]:first-of-type:rounded-s-lg data-[table-orientation=horizontal]:last-of-type:rounded-e-lg data-[table-orientation=vertical]:first-of-type:rounded-t-lg data-[table-orientation=vertical]:last-of-type:rounded-b-lg data-[table-orientation=horizontal]:[&:not(:first-of-type)]:-ms-px data-[table-orientation=vertical]:[&:not(:first-of-type)]:-mt-px',
-    ),
+    root: 'flex relative',
+    item: 'flex items-start data-disabled:(opacity-64 pointer-events-none)',
     control:
       'outline-none border border-input rounded-full bg-background inline-flex shrink-0 transition-shadow items-center justify-center relative overflow-hidden bg-clip-padding data-checked:text-primary-foreground data-checked:border-primary data-checked:bg-primary peer-focus-visible:outline-none peer-focus-visible:border-ring peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50 data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 dark:bg-input/30 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
     container: 'flex items-center',
@@ -24,11 +17,15 @@ export const radioGroupRecipeOptions = {
   },
   defaults: {
     variant: 'list',
-
+    orientation: 'vertical',
     size: 'md',
     indicator: 'start',
   },
   variants: {
+    orientation: {
+      horizontal: { root: 'flex-row' },
+      vertical: { root: 'flex-col' },
+    },
     size: {
       sm: {
         item: 'text-xs',
@@ -94,6 +91,18 @@ export const radioGroupRecipeOptions = {
     {
       variants: { variant: 'table', size: 'lg' },
       class: { item: 'p-4' },
+    },
+    {
+      variants: { variant: 'table', orientation: 'horizontal' },
+      class: {
+        item: 'first-of-type:rounded-s-lg last-of-type:rounded-e-lg [&:not(:first-of-type)]:-ms-px',
+      },
+    },
+    {
+      variants: { variant: 'table', orientation: 'vertical' },
+      class: {
+        item: 'first-of-type:rounded-t-lg last-of-type:rounded-b-lg [&:not(:first-of-type)]:-mt-px',
+      },
     },
   ],
 } as const satisfies SlotRecipeOptions<keyof RadioGroupT.Slot>

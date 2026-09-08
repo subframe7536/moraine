@@ -712,13 +712,9 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
     return {
       'data-slot': kind,
-      'data-variant': 'link',
       type: 'button',
       tabIndex: -1,
       'aria-label': isIncrement ? 'Increment' : 'Decrement',
-      get 'data-size'() {
-        return `icon-${resolved.variants.size}`
-      },
       get 'aria-controls'() {
         return field.id()
       },

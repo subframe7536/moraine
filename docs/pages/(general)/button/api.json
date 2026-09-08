@@ -24,18 +24,6 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present when the component or async operation is loading."
-        },
-        {
-          "name": "data-size",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved size variant."
-        },
-        {
-          "name": "data-variant",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved visual variant."
         }
       ],
       "ariaAttributes": [

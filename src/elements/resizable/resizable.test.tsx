@@ -201,7 +201,7 @@ describe('Resizable', () => {
     const root = screen.container.querySelector('[data-slot="root"]')
     const handle = screen.container.querySelector('[data-slot="divider"]')
 
-    expect(root?.getAttribute('data-orientation')).toBe('vertical')
+    expect(root?.hasAttribute('data-orientation')).toBe(false)
     expect(root?.className).toContain('flex-col')
     expect(handle?.className).toContain('cursor-ns-resize')
   })

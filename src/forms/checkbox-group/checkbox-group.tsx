@@ -226,7 +226,6 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         aria-labelledby={
           field.ariaAttrs()['aria-labelledby'] ?? (legend() ? legendId() : undefined)
         }
-        data-variant={resolved.variants.variant}
         {...resolved.slot('fieldset')}
         {...field.ariaAttrs()}
       >
@@ -264,9 +263,6 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                 }
                 size={resolved.variants.size}
                 variant={resolved.variants.variant === 'table' ? 'card' : resolved.variants.variant}
-                data-table-orientation={
-                  resolved.variants.variant === 'table' ? resolved.variants.orientation : undefined
-                }
                 indicator={merged.indicator}
                 checkedIcon={item().checkedIcon ?? checkedIcon()}
                 indeterminateIcon={item().indeterminateIcon ?? indeterminateIcon()}

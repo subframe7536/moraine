@@ -27,8 +27,8 @@ describe('Badge', () => {
     const label = screen.container.querySelector('[data-slot="label"]')
 
     expect(badge?.tagName).toBe('SPAN')
-    expect(badge?.getAttribute('data-variant')).toBe('default')
-    expect(badge?.getAttribute('data-size')).toBe('md')
+    expect(badge?.hasAttribute('data-variant')).toBe(false)
+    expect(badge?.hasAttribute('data-size')).toBe(false)
     expect(label?.textContent).toBe('New')
   })
 

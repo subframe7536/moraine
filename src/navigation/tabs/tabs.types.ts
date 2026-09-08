@@ -33,6 +33,9 @@ export namespace TabsT {
   }
 
   export interface Variant {
+    /** Layout axis used by the component Recipe. */
+    orientation?: 'horizontal' | 'vertical' | null
+
     /** Visual treatment of the component.
      * @default 'pill'
      */

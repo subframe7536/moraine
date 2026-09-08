@@ -47,6 +47,9 @@ export namespace StepperT {
   }
 
   export interface Variant {
+    /** Layout axis used by the component Recipe. */
+    orientation?: 'horizontal' | 'vertical' | null
+
     /** Visual size of the component.
      * @default 'md'
      */

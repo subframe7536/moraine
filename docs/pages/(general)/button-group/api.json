@@ -12,26 +12,7 @@
       "name": "root",
       "description": "Container that joins the edges of its direct button children.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
-        },
-        {
-          "name": "data-size",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved size variant."
-        },
-        {
-          "name": "data-variant",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved visual variant."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": [
         {
           "name": "role",
@@ -45,14 +26,7 @@
       "name": "separator",
       "description": "Separator element between buttons.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": [
         {
           "name": "aria-hidden",

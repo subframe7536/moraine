@@ -241,13 +241,7 @@ export function FormField<
     })
 
     return (
-      <Dynamic
-        data-slot="root"
-        data-orientation={resolved.variants.orientation}
-        {...rest}
-        component={merged.as as any}
-        {...resolved.root}
-      >
+      <Dynamic data-slot="root" {...rest} component={merged.as as any} {...resolved.root}>
         <div data-slot="wrapper" {...resolved.slot('wrapper')}>
           <Show when={showLabel()}>
             <div data-slot="labelWrapper" {...resolved.slot('labelWrapper')}>

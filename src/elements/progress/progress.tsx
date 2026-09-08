@@ -166,7 +166,6 @@ export function Progress(props: ProgressProps): JSX.Element {
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
       data-slot="root"
-      data-orientation={orientation()}
       {...dataAttrs()}
       {...rest}
       {...resolved.root}

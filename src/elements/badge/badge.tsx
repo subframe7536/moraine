@@ -23,9 +23,6 @@ export function Badge(props: BadgeProps): JSX.Element {
   ])
   const resolved = createComponentStyles('badge', local)
 
-  const size = () => resolved.variants.size
-  const variant = () => resolved.variants.variant
-
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
   const resolvedChildren = resolveChildren(() => local.children)
@@ -35,7 +32,7 @@ export function Badge(props: BadgeProps): JSX.Element {
   })
 
   return (
-    <span data-slot="root" data-size={size()} data-variant={variant()} {...rest} {...resolved.root}>
+    <span data-slot="root" {...rest} {...resolved.root}>
       <Show when={leading()}>
         {(leading) => <Icon name={leading()} slotName="leading" {...resolved.slot('leading')} />}
       </Show>

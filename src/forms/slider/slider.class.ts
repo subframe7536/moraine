@@ -1,34 +1,36 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
-import { cn } from '../../shared/utils.ts'
 
 import type { SliderT } from './slider.types.ts'
 
 export const sliderRecipeOptions = {
   base: {
-    root: /* @__PURE__ */ cn(
-      'group flex select-none items-center relative touch-none data-disabled:opacity-64 data-disabled:pointer-events-none',
-      'data-[orientation=vertical]:flex-col data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full',
-    ),
-    track: /* @__PURE__ */ cn(
-      'bg-input select-none translate-z-0 relative overflow-hidden',
-      'data-[orientation=horizontal]:h-[var(--s-size)] data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-[var(--s-size)]',
-    ),
-    range: /* @__PURE__ */ cn(
-      'bg-primary select-none absolute z-raised',
-      'data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full',
-    ),
-    divider: /* @__PURE__ */ cn(
-      'pointer-events-none absolute',
-      'data-[orientation=horizontal]:top-1/2 data-[orientation=vertical]:left-1/2 data-[orientation=horizontal]:-translate-x-1/2 data-[orientation=horizontal]:-translate-y-1/2 data-[orientation=vertical]:-translate-x-1/2 data-[orientation=vertical]:-translate-y-1/2',
-    ),
+    root: 'group flex select-none items-center relative touch-none data-disabled:(opacity-64 pointer-events-none)',
+    track: 'bg-input select-none translate-z-0 relative overflow-hidden',
+    range: 'bg-primary select-none absolute z-raised',
+    divider: 'pointer-events-none absolute',
     thumb: 'shrink-0 block select-none absolute z-control touch-none',
   },
   defaults: {
+    orientation: 'horizontal',
     size: 'md',
     variant: 'default',
   },
   variants: {
+    orientation: {
+      horizontal: {
+        root: 'w-full',
+        track: 'h-[var(--s-size)] w-full',
+        range: 'h-full',
+        divider: 'top-1/2 -translate-x-1/2 -translate-y-1/2',
+      },
+      vertical: {
+        root: 'flex-col h-full',
+        track: 'h-full w-[var(--s-size)]',
+        range: 'w-full',
+        divider: 'left-1/2 -translate-x-1/2 -translate-y-1/2',
+      },
+    },
     size: {
       sm: { root: '[--s-size:4px]' },
       md: { root: '[--s-size:5px]' },
@@ -40,12 +42,12 @@ export const sliderRecipeOptions = {
         range: 'rounded-full',
         divider: 'bg-background',
         thumb:
-          'outline-none border border-border rounded-full bg-background cursor-pointer shadow-xs/5 transition-[box-shadow,transform] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 hover:ring-3 hover:ring-ring/50 dark:bg-foreground data-dragging:scale-120 [html:not(.dark)_&]:bg-clip-padding duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+          'outline-none border border-border rounded-full bg-background cursor-pointer shadow-xs/5 transition-[box-shadow,transform] focus-visible:(outline-none ring-3 ring-ring/50) hover:(ring-3 ring-ring/50) dark:bg-foreground data-dragging:scale-120 [html:not(.dark)_&]:bg-clip-padding duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
       },
       bold: {
         track: 'cursor-pointer',
         range:
-          "rounded-[inherit] transition-[width,height,left,right,top,bottom] after:rounded-full after:bg-primary-foreground/90 after:opacity-0 after:content-[''] after:transition-opacity after:absolute group-focus-within:after:opacity-100 group-hover:after:opacity-100 data-dragging:transition-none duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]",
+          "rounded-[inherit] transition-[width,height,left,right,top,bottom] after:(rounded-full bg-primary-foreground/90 opacity-0 content-[''] transition-opacity absolute) group-focus-within:after:opacity-100 group-hover:after:opacity-100 data-dragging:transition-none data-multiple:before:(rounded-full bg-primary-foreground/90 opacity-0 content-[''] transition-opacity absolute) data-multiple:group-focus-within:before:opacity-100 data-multiple:group-hover:before:opacity-100 data-multiple:(duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]) duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]",
         divider: 'bg-muted-foreground/30',
         thumb: 'outline-none opacity-0 cursor-grab data-dragging:cursor-grabbing',
       },
@@ -74,131 +76,37 @@ export const sliderRecipeOptions = {
       },
     },
     {
-      variants: { variant: 'bold' },
+      variants: { orientation: 'horizontal', variant: 'default' },
       class: {
-        range:
-          'data-[orientation=horizontal]:[&:not([data-inverted])]:after:h-[var(--s-len)] data-[orientation=horizontal]:[&:not([data-inverted])]:after:w-[var(--s-offset)] data-[orientation=horizontal]:[&:not([data-inverted])]:after:top-1/2 data-[orientation=horizontal]:[&:not([data-inverted])]:after:-translate-y-1/2 data-[orientation=horizontal]:[&:not([data-inverted])]:after:left-[var(--s-pos)]',
+        divider: 'h-full w-px',
+        thumb: '[&:not([data-inverted])]:-translate-x-1/2 data-inverted:translate-x-1/2',
       },
     },
     {
-      variants: { variant: 'bold' },
+      variants: { orientation: 'vertical', variant: 'default' },
       class: {
-        range:
-          'data-[orientation=horizontal]:data-inverted:after:h-[var(--s-len)] data-[orientation=horizontal]:data-inverted:after:w-[var(--s-offset)] data-[orientation=horizontal]:data-inverted:after:top-1/2 data-[orientation=horizontal]:data-inverted:after:-translate-y-1/2 data-[orientation=horizontal]:data-inverted:after:right-[var(--s-pos)]',
+        divider: 'h-px w-full',
+        thumb: '[&:not([data-inverted])]:translate-y-1/2 data-inverted:-translate-y-1/2',
       },
     },
     {
-      variants: { variant: 'bold' },
+      variants: { orientation: 'horizontal', variant: 'bold' },
       class: {
         range:
-          'data-[orientation=vertical]:[&:not([data-inverted])]:after:w-[var(--s-len)] data-[orientation=vertical]:[&:not([data-inverted])]:after:h-[var(--s-offset)] data-[orientation=vertical]:[&:not([data-inverted])]:after:left-1/2 data-[orientation=vertical]:[&:not([data-inverted])]:after:-translate-x-1/2 data-[orientation=vertical]:[&:not([data-inverted])]:after:bottom-[var(--s-pos)]',
-      },
-    },
-    {
-      variants: { variant: 'bold' },
-      class: {
-        range:
-          'data-[orientation=vertical]:data-inverted:after:w-[var(--s-len)] data-[orientation=vertical]:data-inverted:after:h-[var(--s-offset)] data-[orientation=vertical]:data-inverted:after:left-1/2 data-[orientation=vertical]:data-inverted:after:-translate-x-1/2 data-[orientation=vertical]:data-inverted:after:top-[var(--s-pos)]',
-      },
-    },
-    {
-      variants: { variant: 'bold' },
-      class: {
-        range:
-          "data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:before:rounded-full data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:before:bg-primary-foreground/90 data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:before:opacity-0 data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:before:content-[''] data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:before:transition-opacity data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:before:absolute data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:group-focus-within:before:opacity-100 data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:group-hover:before:opacity-100 data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:before:h-[var(--s-len)] data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:before:w-[var(--s-offset)] data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:before:top-1/2 data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:before:-translate-y-1/2 data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:before:left-[var(--s-offset)] data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] data-[orientation=horizontal]:[&:not([data-inverted])]:data-multiple:ease-[cubic-bezier(0.16,1,0.3,1)]",
-      },
-    },
-    {
-      variants: { variant: 'bold' },
-      class: {
-        range:
-          "data-[orientation=horizontal]:data-inverted:data-multiple:before:rounded-full data-[orientation=horizontal]:data-inverted:data-multiple:before:bg-primary-foreground/90 data-[orientation=horizontal]:data-inverted:data-multiple:before:opacity-0 data-[orientation=horizontal]:data-inverted:data-multiple:before:content-[''] data-[orientation=horizontal]:data-inverted:data-multiple:before:transition-opacity data-[orientation=horizontal]:data-inverted:data-multiple:before:absolute data-[orientation=horizontal]:data-inverted:data-multiple:group-focus-within:before:opacity-100 data-[orientation=horizontal]:data-inverted:data-multiple:group-hover:before:opacity-100 data-[orientation=horizontal]:data-inverted:data-multiple:before:h-[var(--s-len)] data-[orientation=horizontal]:data-inverted:data-multiple:before:w-[var(--s-offset)] data-[orientation=horizontal]:data-inverted:data-multiple:before:top-1/2 data-[orientation=horizontal]:data-inverted:data-multiple:before:-translate-y-1/2 data-[orientation=horizontal]:data-inverted:data-multiple:before:right-[var(--s-offset)] data-[orientation=horizontal]:data-inverted:data-multiple:duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] data-[orientation=horizontal]:data-inverted:data-multiple:ease-[cubic-bezier(0.16,1,0.3,1)]",
-      },
-    },
-    {
-      variants: { variant: 'bold' },
-      class: {
-        range:
-          "data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:before:rounded-full data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:before:bg-primary-foreground/90 data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:before:opacity-0 data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:before:content-[''] data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:before:transition-opacity data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:before:absolute data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:group-focus-within:before:opacity-100 data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:group-hover:before:opacity-100 data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:before:w-[var(--s-len)] data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:before:h-[var(--s-offset)] data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:before:left-1/2 data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:before:-translate-x-1/2 data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:before:bottom-[var(--s-offset)] data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] data-[orientation=vertical]:[&:not([data-inverted])]:data-multiple:ease-[cubic-bezier(0.16,1,0.3,1)]",
-      },
-    },
-    {
-      variants: { variant: 'bold' },
-      class: {
-        range:
-          "data-[orientation=vertical]:data-inverted:data-multiple:before:rounded-full data-[orientation=vertical]:data-inverted:data-multiple:before:bg-primary-foreground/90 data-[orientation=vertical]:data-inverted:data-multiple:before:opacity-0 data-[orientation=vertical]:data-inverted:data-multiple:before:content-[''] data-[orientation=vertical]:data-inverted:data-multiple:before:transition-opacity data-[orientation=vertical]:data-inverted:data-multiple:before:absolute data-[orientation=vertical]:data-inverted:data-multiple:group-focus-within:before:opacity-100 data-[orientation=vertical]:data-inverted:data-multiple:group-hover:before:opacity-100 data-[orientation=vertical]:data-inverted:data-multiple:before:w-[var(--s-len)] data-[orientation=vertical]:data-inverted:data-multiple:before:h-[var(--s-offset)] data-[orientation=vertical]:data-inverted:data-multiple:before:left-1/2 data-[orientation=vertical]:data-inverted:data-multiple:before:-translate-x-1/2 data-[orientation=vertical]:data-inverted:data-multiple:before:top-[var(--s-offset)] data-[orientation=vertical]:data-inverted:data-multiple:duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] data-[orientation=vertical]:data-inverted:data-multiple:ease-[cubic-bezier(0.16,1,0.3,1)]",
-      },
-    },
-    {
-      variants: { variant: 'default' },
-      class: { divider: 'data-[orientation=horizontal]:h-full data-[orientation=horizontal]:w-px' },
-    },
-    {
-      variants: { variant: 'default' },
-      class: { divider: 'data-[orientation=vertical]:h-px data-[orientation=vertical]:w-full' },
-    },
-    {
-      variants: { variant: 'bold' },
-      class: { divider: 'data-[orientation=horizontal]:h-1/3 data-[orientation=horizontal]:w-px' },
-    },
-    {
-      variants: { variant: 'bold' },
-      class: { divider: 'data-[orientation=vertical]:h-px data-[orientation=vertical]:w-1/3' },
-    },
-    {
-      variants: { size: 'sm', variant: 'default' },
-      class: { thumb: 'size-3' },
-    },
-    {
-      variants: { size: 'md', variant: 'default' },
-      class: { thumb: 'size-3.5' },
-    },
-    {
-      variants: { size: 'lg', variant: 'default' },
-      class: { thumb: 'size-4' },
-    },
-    {
-      variants: { variant: 'default' },
-      class: { thumb: 'data-[orientation=horizontal]:[&:not([data-inverted])]:-translate-x-1/2' },
-    },
-    {
-      variants: { variant: 'default' },
-      class: { thumb: 'data-[orientation=horizontal]:data-inverted:translate-x-1/2' },
-    },
-    {
-      variants: { variant: 'default' },
-      class: { thumb: 'data-[orientation=vertical]:[&:not([data-inverted])]:translate-y-1/2' },
-    },
-    {
-      variants: { variant: 'default' },
-      class: { thumb: 'data-[orientation=vertical]:data-inverted:-translate-y-1/2' },
-    },
-    {
-      variants: { variant: 'bold' },
-      class: {
+          '[&:not([data-inverted])]:after:(h-[var(--s-len)] w-[var(--s-offset)] top-1/2 -translate-y-1/2 left-[var(--s-pos)]) data-inverted:after:(h-[var(--s-len)] w-[var(--s-offset)] top-1/2 -translate-y-1/2 right-[var(--s-pos)]) [&:not([data-inverted])]:data-multiple:before:(h-[var(--s-len)] w-[var(--s-offset)] top-1/2 -translate-y-1/2 left-[var(--s-offset)]) data-inverted:data-multiple:before:(h-[var(--s-len)] w-[var(--s-offset)] top-1/2 -translate-y-1/2 right-[var(--s-offset)])',
+        divider: 'h-1/3 w-px',
         thumb:
-          'data-[orientation=horizontal]:[&:not([data-inverted])]:h-full data-[orientation=horizontal]:[&:not([data-inverted])]:top-0 data-[orientation=horizontal]:[&:not([data-inverted])]:-translate-x-1/2 data-[orientation=horizontal]:[&:not([data-inverted])]:w-[var(--s-size)]',
+          '[&:not([data-inverted])]:h-full [&:not([data-inverted])]:top-0 [&:not([data-inverted])]:-translate-x-1/2 [&:not([data-inverted])]:w-[var(--s-size)] data-inverted:(h-full top-0 translate-x-1/2 w-[var(--s-size)])',
       },
     },
     {
-      variants: { variant: 'bold' },
+      variants: { orientation: 'vertical', variant: 'bold' },
       class: {
+        range:
+          '[&:not([data-inverted])]:after:(w-[var(--s-len)] h-[var(--s-offset)] left-1/2 -translate-x-1/2 bottom-[var(--s-pos)]) data-inverted:after:(w-[var(--s-len)] h-[var(--s-offset)] left-1/2 -translate-x-1/2 top-[var(--s-pos)]) [&:not([data-inverted])]:data-multiple:before:(w-[var(--s-len)] h-[var(--s-offset)] left-1/2 -translate-x-1/2 bottom-[var(--s-offset)]) data-inverted:data-multiple:before:(w-[var(--s-len)] h-[var(--s-offset)] left-1/2 -translate-x-1/2 top-[var(--s-offset)])',
+        divider: 'h-px w-1/3',
         thumb:
-          'data-[orientation=horizontal]:data-inverted:h-full data-[orientation=horizontal]:data-inverted:top-0 data-[orientation=horizontal]:data-inverted:translate-x-1/2 data-[orientation=horizontal]:data-inverted:w-[var(--s-size)]',
-      },
-    },
-    {
-      variants: { variant: 'bold' },
-      class: {
-        thumb:
-          'data-[orientation=vertical]:[&:not([data-inverted])]:w-full data-[orientation=vertical]:[&:not([data-inverted])]:left-0 data-[orientation=vertical]:[&:not([data-inverted])]:translate-y-1/2 data-[orientation=vertical]:[&:not([data-inverted])]:h-[var(--s-size)]',
-      },
-    },
-    {
-      variants: { variant: 'bold' },
-      class: {
-        thumb:
-          'data-[orientation=vertical]:data-inverted:w-full data-[orientation=vertical]:data-inverted:left-0 data-[orientation=vertical]:data-inverted:-translate-y-1/2 data-[orientation=vertical]:data-inverted:h-[var(--s-size)]',
+          '[&:not([data-inverted])]:w-full [&:not([data-inverted])]:left-0 [&:not([data-inverted])]:translate-y-1/2 [&:not([data-inverted])]:h-[var(--s-size)] data-inverted:(w-full left-0 -translate-y-1/2 h-[var(--s-size)])',
       },
     },
   ],

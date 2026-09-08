@@ -3,6 +3,8 @@ import path from 'node:path'
 import solid from 'vite-plugin-solid'
 import { defineConfig } from 'vitest/config'
 
+import { variantGroupPlugin } from './vite-plugin-variant-group.ts'
+
 export default defineConfig({
   define: {
     'process.env.NODE_ENV': JSON.stringify('test'),
@@ -19,7 +21,7 @@ export default defineConfig({
     },
     dedupe: ['solid-js', '@solidjs/router'],
   },
-  plugins: [solid({ hot: false, solid: { hydratable: true } })],
+  plugins: [variantGroupPlugin(), solid({ hot: false, solid: { hydratable: true } })],
   test: {
     globalSetup: ['./src/test-utils/ssr-global-setup.ts'],
     include: [

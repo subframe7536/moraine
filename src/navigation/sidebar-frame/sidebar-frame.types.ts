@@ -92,6 +92,9 @@ export namespace SidebarFrameT {
   }
 
   export interface Variant {
+    /** Sidebar edge used by the component Recipe. */
+    side?: 'left' | 'right' | null
+
     /** Visual treatment of the component.
      * @default 'default'
      */

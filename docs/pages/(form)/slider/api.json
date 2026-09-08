@@ -32,12 +32,6 @@
           "description": "Present when the field or form has a validation error."
         },
         {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
-        },
-        {
           "name": "data-readonly",
           "required": false,
           "type": "string | undefined",
@@ -63,14 +57,7 @@
       "name": "track",
       "description": "Background rail representing the full slider range.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": []
     },
     {
@@ -83,12 +70,6 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present while the related thumb or handle is being dragged."
-        },
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
         }
       ],
       "ariaAttributes": []
@@ -97,14 +78,7 @@
       "name": "divider",
       "description": "Visual marker for one slider step.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": []
     },
     {

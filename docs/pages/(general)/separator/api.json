@@ -11,14 +11,7 @@
     {
       "name": "root",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": [
         {
           "name": "aria-hidden",

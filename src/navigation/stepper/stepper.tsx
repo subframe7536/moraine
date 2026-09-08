@@ -41,8 +41,6 @@ export function Stepper(props: StepperProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createComponentStyles('stepper', local)
-
   const merged = mergeProps(
     {
       orientation: 'horizontal' as const,
@@ -52,6 +50,7 @@ export function Stepper(props: StepperProps): JSX.Element {
     },
     local,
   )
+  const resolved = createComponentStyles('stepper', merged)
 
   const id = useId(() => merged.id, 'stepper')
   const [requestedValue, setRequestedValue] = useControllableValue<StepperT.Value>({
@@ -179,18 +178,11 @@ export function Stepper(props: StepperProps): JSX.Element {
   }
 
   return (
-    <div
-      id={id()}
-      data-slot="root"
-      data-orientation={merged.orientation}
-      {...resolved.root}
-      {...rest}
-    >
+    <div id={id()} data-slot="root" {...resolved.root} {...rest}>
       <div
         role="tablist"
         aria-orientation={merged.orientation ?? undefined}
         data-slot="header"
-        data-orientation={merged.orientation}
         {...resolved.slot('header')}
       >
         <For each={normalizedItems()}>
@@ -206,17 +198,12 @@ export function Stepper(props: StepperProps): JSX.Element {
             return (
               <div
                 data-slot="item"
-                data-orientation={merged.orientation}
                 data-state={state()}
                 data-disabled={disabled() ? '' : undefined}
                 class={cn(resolved.slot('item').class, entry.item.class)}
                 style={resolved.slot('item').style}
               >
-                <div
-                  data-slot="container"
-                  data-orientation={merged.orientation}
-                  {...resolved.slot('container')}
-                >
+                <div data-slot="container" {...resolved.slot('container')}>
                   <button
                     id={triggerId()}
                     ref={(element) => {
@@ -246,7 +233,6 @@ export function Stepper(props: StepperProps): JSX.Element {
                   <Show when={entry.index < normalizedItems().length - 1}>
                     <div
                       data-slot="separator"
-                      data-orientation={merged.orientation}
                       data-state={state()}
                       data-disabled={disabled() ? '' : undefined}
                       {...resolved.slot('separator')}
@@ -254,11 +240,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                   </Show>
                 </div>
 
-                <div
-                  data-slot="wrapper"
-                  data-orientation={merged.orientation}
-                  {...resolved.slot('wrapper')}
-                >
+                <div data-slot="wrapper" {...resolved.slot('wrapper')}>
                   <Show when={entry.item.title}>
                     <div data-slot="title" id={titleId()} {...resolved.slot('title')}>
                       {entry.item.title}

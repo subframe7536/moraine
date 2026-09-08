@@ -99,7 +99,7 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 - Use `cn` from `src/shared/utils` to combine classes.
 - No need to create memo for classes, just write them inplace
 - State-based class should use a pure class instead of adding a new variant in `recipe`.
-- Always use standard flat Tailwind CSS utility syntax (e.g. `hover:bg-red-500 hover:text-white`). NEVER use UnoCSS parenthesized variant groups (`hover:(...)`) in component code so classes are compatible with both Tailwind v4 and UnoCSS, and can be parsed by the `cn` conflict resolution engine.
+- Recipe options in `*.class.ts` may use parenthesized variant groups (for example, `hover:(bg-red-500 text-white)`); the build plugin expands them before `cn`, Tailwind, or UnoCSS reads the classes. Use standard flat utility syntax everywhere else.
 
 ## Code Style & Conventions
 

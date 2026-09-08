@@ -1,16 +1,13 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
-import { cn } from '../../shared/utils.ts'
 
 import type { FileUploadT } from './file-upload.types.ts'
 
 export const fileUploadRecipeOptions = {
   base: {
     root: 'flex flex-col relative data-disabled:opacity-64 data-disabled:pointer-events-none',
-    control: /* @__PURE__ */ cn(
-      'text-center outline-none border border-input rounded-lg bg-background inline-flex w-full cursor-pointer shadow-xs transition-[colors,box-shadow] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)] items-center justify-center relative focus-visible:outline-none data-dragging:border-primary data-invalid:border-destructive focus-visible:border-ring dark:bg-input/30 data-dragging:bg-input hover:bg-input data-invalid:ring-3 focus-visible:ring-3 data-invalid:ring-destructive/20 focus-visible:ring-ring/50 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40',
-      '[&:not([data-dropzone])]:border-solid data-dropzone:border-dashed',
-    ),
+    control:
+      'text-center outline-none border border-input rounded-lg bg-background inline-flex w-full cursor-pointer shadow-xs transition-[colors,box-shadow] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)] items-center justify-center relative focus-visible:(outline-none border-ring ring-3 ring-ring/50) data-dragging:(border-primary bg-input) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:(bg-input/30 data-invalid:border-destructive/50 data-invalid:ring-destructive/40) hover:bg-input [&:not([data-dropzone])]:border-solid data-dropzone:border-dashed',
     wrapper: 'text-center flex flex-col pointer-events-none items-center justify-center',
     icon: 'text-muted-foreground',
     label: 'text-foreground font-medium',

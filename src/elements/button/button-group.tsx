@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Show, children as resolveChildren, splitProps, createMemo } from 'solid-js'
+import { For, Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
 import { createComponentStyles } from '../../shared/provider/index.ts'
 
@@ -24,7 +24,6 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
   ])
   const resolved = createComponentStyles('buttonGroup', local)
 
-  const orientation = () => resolved.variants.orientation
   const size = () => resolved.variants.size
   const variant = () => resolved.variants.variant
 
@@ -43,26 +42,13 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
     )
 
     return (
-      <div
-        role={local.role ?? 'group'}
-        data-slot="root"
-        data-orientation={orientation()}
-        data-size={size()}
-        data-variant={variant()}
-        {...rest}
-        {...resolved.root}
-      >
+      <div role={local.role ?? 'group'} data-slot="root" {...rest} {...resolved.root}>
         <Show when={local.separator} fallback={resolvedChildren()}>
           <For each={childArray()}>
             {(child, index) => (
               <>
                 <Show when={index() > 0}>
-                  <span
-                    data-slot="separator"
-                    data-orientation={orientation() === 'horizontal' ? 'vertical' : 'horizontal'}
-                    aria-hidden="true"
-                    {...resolved.slot('separator')}
-                  />
+                  <span data-slot="separator" aria-hidden="true" {...resolved.slot('separator')} />
                 </Show>
                 {child}
               </>

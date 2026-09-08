@@ -1080,7 +1080,7 @@ describe('InputNumber', () => {
     const incrementOnlyButton = incrementOnly.container.querySelector('[data-slot="increment"]')
 
     expect(incrementOnlyRoot?.className).toContain('overflow-hidden')
-    expect(incrementOnlyButton?.getAttribute('data-variant')).toBe('link')
+    expect(incrementOnlyButton?.hasAttribute('data-variant')).toBe(false)
     expect(incrementOnlyButton?.className).toContain('w-9')
     expect(incrementOnlyButton?.className).toContain('rounded-e-none')
     expect(incrementOnlyButton?.className).not.toContain('border-s')
@@ -1096,7 +1096,7 @@ describe('InputNumber', () => {
     const decrementOnlyBase = decrementOnly.container.querySelector('[data-slot="input"]')
     const decrementOnlyButton = decrementOnly.container.querySelector('[data-slot="decrement"]')
 
-    expect(decrementOnlyButton?.getAttribute('data-variant')).toBe('link')
+    expect(decrementOnlyButton?.hasAttribute('data-variant')).toBe(false)
     expect(decrementOnlyButton?.className).toContain('w-9')
     expect(decrementOnlyButton?.className).toContain('rounded-s-none')
     expect(decrementOnlyButton?.className).not.toContain('border-e')
@@ -1211,8 +1211,8 @@ describe('InputNumber', () => {
     expect(decrementButton.getAttribute('type')).toBe('button')
     expect(incrementButton.tabIndex).toBe(-1)
     expect(decrementButton.tabIndex).toBe(-1)
-    expect(incrementButton.getAttribute('data-variant')).toBe('link')
-    expect(decrementButton.getAttribute('data-variant')).toBe('link')
+    expect(incrementButton.hasAttribute('data-variant')).toBe(false)
+    expect(decrementButton.hasAttribute('data-variant')).toBe(false)
     expect(incrementButton.className).toContain('text-primary')
     expect(incrementButton.className).toContain('hover:text-primary/75')
     expect(incrementButton.className).toContain('data-active:text-primary/75')

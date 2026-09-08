@@ -1,16 +1,13 @@
 import { slotRecipe } from '../../shared/style/recipe.ts'
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
-import { cn } from '../../shared/utils.ts'
 import { MODAL_OVERLAY_CLASS } from '../modal/modal.class.ts'
 
 import type { SheetT } from './sheet.types.ts'
 
 export const sheetRecipeOptions = {
   base: {
-    content: /* @__PURE__ */ cn(
-      'text-sm text-popover-foreground outline-none bg-popover flex flex-col gap-4 max-h-full min-h-0 min-w-0 shadow-lg fixed z-floating bg-clip-padding data-[transition=false]:transition-none data-closed:animate-mo-exit data-expanded:animate-mo-enter data-[transition=false]:animate-none motion-reduce:animate-none data-closed:exit-opacity-0 data-expanded:enter-opacity-0',
-      'data-[side=bottom]:border-t data-[side=left]:border-r data-[side=right]:border-l data-[side=top]:border-b data-[side=bottom]:border-border data-[side=left]:border-border data-[side=right]:border-border data-[side=top]:border-border data-[side=bottom]:h-auto data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=top]:h-auto data-[side=bottom]:inset-x-0 data-[side=left]:inset-y-0 data-[side=right]:inset-y-0 data-[side=top]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=left]:left-0 data-[side=right]:right-0 data-[side=top]:top-0 data-[side=bottom]:enter-translate-y-10 data-[side=bottom]:exit-translate-y-10 data-[side=right]:enter-translate-x-10 data-[side=right]:exit-translate-x-10 data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm data-[side=left]:-enter-translate-x-10 data-[side=left]:-exit-translate-x-10 data-[side=top]:-enter-translate-y-10 data-[side=top]:-exit-translate-y-10',
-    ),
+    content:
+      'text-sm text-popover-foreground outline-none bg-popover flex flex-col gap-4 max-h-full min-h-0 min-w-0 shadow-lg fixed z-floating bg-clip-padding data-[transition=false]:(transition-none animate-none) data-closed:(animate-mo-exit exit-opacity-0) data-expanded:(animate-mo-enter enter-opacity-0) motion-reduce:animate-none',
     overlay: MODAL_OVERLAY_CLASS,
     header: 'p-4 flex gap-1.5 items-start',
     wrapper: 'flex-1 gap-0.5 grid min-w-0',
@@ -24,11 +21,30 @@ export const sheetRecipeOptions = {
   },
   defaults: {
     inset: false,
+    side: 'right',
   },
   variants: {
     inset: {
       true: { content: 'sm:m-4 sm:border sm:border-border sm:rounded-2xl' },
       false: { content: 'rounded-none' },
+    },
+    side: {
+      bottom: {
+        content:
+          'border-t border-border h-auto inset-x-0 bottom-0 enter-translate-y-10 exit-translate-y-10',
+      },
+      left: {
+        content:
+          'border-r border-border h-full w-3/4 inset-y-0 left-0 sm:max-w-sm -enter-translate-x-10 -exit-translate-x-10',
+      },
+      right: {
+        content:
+          'border-l border-border h-full w-3/4 inset-y-0 right-0 sm:max-w-sm enter-translate-x-10 exit-translate-x-10',
+      },
+      top: {
+        content:
+          'border-b border-border h-auto inset-x-0 top-0 -enter-translate-y-10 -exit-translate-y-10',
+      },
     },
   },
 } as const satisfies SlotRecipeOptions<keyof SheetT.Slot>

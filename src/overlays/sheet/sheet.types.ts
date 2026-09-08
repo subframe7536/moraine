@@ -40,6 +40,9 @@ export namespace SheetT {
   }
 
   export interface Variant {
+    /** Viewport edge used by the component Recipe. */
+    side?: 'top' | 'right' | 'bottom' | 'left' | null
+
     /** Whether the surface is inset from viewport edges.
      * @default false
      */

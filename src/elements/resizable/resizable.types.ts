@@ -31,7 +31,10 @@ export namespace ResizableT {
     crossTarget?: T
   }
 
-  export type Variant = never
+  export interface Variant {
+    /** Layout axis used by the component Recipe. */
+    orientation?: ResizableOrientation | null
+  }
 
   export type SlotName = keyof Slot
 

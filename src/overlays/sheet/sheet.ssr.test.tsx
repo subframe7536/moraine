@@ -72,7 +72,7 @@ describe('Sheet SSR Hydration', () => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
     })
     const content = document.body.querySelector('[data-slot="content"]')!
-    expect(content.getAttribute('data-side')).toBe('left')
+    expect(content.hasAttribute('data-side')).toBe(false)
     expect(content.getAttribute('aria-label')).toBe('Server sheet')
     expect(content.getAttribute('aria-labelledby')).toBeNull()
     expect(content.getAttribute('aria-describedby')).toBeNull()
