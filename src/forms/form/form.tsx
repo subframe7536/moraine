@@ -7,7 +7,7 @@ import {
 import type { JSX, ValidComponent } from 'solid-js'
 import { createComponent, mergeProps, splitProps } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { callHandler } from '../../shared/utils.ts'
 
 import { FormField } from './form-field.tsx'
@@ -20,14 +20,15 @@ interface InternalFormProps<TSchema extends FormSchema> extends FormProps<TSchem
 }
 
 function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>): JSX.Element {
-  const design = useMoraineDesign()
-  const formDesign = () => design().form
-
-  const [local, , formProps] = splitProps(
-    props,
-    ['class', 'style', 'of', 'onSubmit', 'onReset', 'children'],
-    ['classes', 'styles'],
-  )
+  const [local, formProps] = splitProps(props, [
+    'class',
+    'style',
+    'of',
+    'onSubmit',
+    'onReset',
+    'children',
+  ])
+  const resolved = createComponentStyles('form', local)
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
     const { defaultPrevented } = callHandler(event, local.onReset)
@@ -40,27 +41,13 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
     }
   }
 
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return formDesign()?.recipe()
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        style: local.style,
-      }
-    },
-  })
-
   return (
     <FormischForm
       {...formProps}
       of={local.of}
       onSubmit={local.onSubmit ?? (() => {})}
       onReset={onReset}
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
       data-slot="root"
       data-submitting={local.of.isSubmitting ? '' : undefined}
     >

@@ -2,13 +2,11 @@ import { render, screen } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
-import { MoraineProvider } from '../../shared/provider/index.ts'
+import { MoraineUnstyledProvider, MoraineProvider } from '../../shared/provider/index.ts'
+import { createTheme } from '../../theme.ts'
 
-import { Kbd } from './kbd'
-import { KbdGroup } from './kbd-group'
-
-const officialDesign = createDesign()
+import { KbdGroup } from './kbd-group.tsx'
+import { Kbd } from './kbd.tsx'
 
 describe('Kbd', () => {
   test('renders unstyled when provider is absent', () => {
@@ -89,7 +87,7 @@ describe('Kbd', () => {
 
     for (const [size, expectedClass] of sizes) {
       const view = render(() => (
-        <MoraineProvider design={officialDesign}>
+        <MoraineProvider>
           <Kbd size={size} value={size} />
         </MoraineProvider>
       ))
@@ -98,15 +96,7 @@ describe('Kbd', () => {
   })
 
   test('keeps direct root styling while ignoring legacy slot maps', () => {
-    const view = render(() => (
-      <Kbd
-        value="K"
-        class="custom-kbd-root"
-        style={{ padding: '8px' }}
-        classes={{ root: 'ignored-kbd-root' }}
-        styles={{ root: { padding: '12px' } }}
-      />
-    ))
+    const view = render(() => <Kbd value="K" class="custom-kbd-root" style={{ padding: '8px' }} />)
     const root = view.container.querySelector<HTMLElement>('[data-slot="root"]')
 
     expect(root?.className).toContain('custom-kbd-root')
@@ -127,19 +117,17 @@ describe('Kbd', () => {
   })
 
   test('replaces Design root styling without remounting the keycap', () => {
-    const [design, setDesign] = createSignal(
-      createDesign({ preset: false, kbd: { base: { root: 'p-2' } } }),
-    )
+    const [design, setDesign] = createSignal(createTheme({ kbd: { base: { root: 'p-2' } } }))
     const view = render(() => (
-      <MoraineProvider design={design()}>
+      <MoraineUnstyledProvider theme={design()}>
         <Kbd value="K" />
-      </MoraineProvider>
+      </MoraineUnstyledProvider>
     ))
     const root = view.container.querySelector<HTMLElement>('[data-slot="root"]')!
 
     expect(root.className).toContain('p-2')
 
-    setDesign(createDesign({ preset: false, kbd: { base: { root: 'p-4' } } }))
+    setDesign(createTheme({ kbd: { base: { root: 'p-4' } } }))
 
     expect(view.container.querySelector('[data-slot="root"]')).toBe(root)
     expect(root.className).toContain('p-4')

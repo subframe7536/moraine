@@ -1,3 +1,4 @@
+import { slotRecipe } from '../../shared/style/recipe.ts'
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { MODAL_CONTENT_CLASS, MODAL_OVERLAY_CLASS } from '../modal/modal.class.ts'
 
@@ -41,5 +42,7 @@ export const dialogRecipeOptions = {
       class: { content: DIALOG_CONTENT_SCROLLABLE_CLASS },
     },
   ],
-  defaultVariants: { fullscreen: false, scrollable: false },
+  defaults: { fullscreen: false, scrollable: false },
 } as const satisfies SlotRecipeOptions<keyof DialogT.Slot>
+
+export const dialogRecipe = /* @__PURE__ */ slotRecipe(dialogRecipeOptions)

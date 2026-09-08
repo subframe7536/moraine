@@ -9,6 +9,7 @@ import {
   on,
   onCleanup,
   splitProps,
+  untrack,
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
@@ -17,8 +18,7 @@ import { List } from '../../elements/list/index.ts'
 import type { ListProps, ListT } from '../../elements/list/index.ts'
 import { useFloatingPosition } from '../../overlays/base/floating.ts'
 import { useOverlayInteraction } from '../../overlays/base/interaction.ts'
-import { resolveComponentStyle } from '../../shared/provider/moraine-provider.tsx'
-import type { ComponentStyleInputs } from '../../shared/provider/moraine-provider.tsx'
+import type { createComponentStyles } from '../../shared/provider/create-component-styles.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { createTypeahead } from '../../shared/typeahead.ts'
@@ -26,8 +26,8 @@ import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '..
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import type { UseFormFieldReturn, FormFieldSize } from '../form/form-context.ts'
+import { cn, callHandler, callRef, useId } from '../../shared/utils.ts'
+import type { UseFormFieldReturn } from '../form/form-context.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
@@ -104,7 +104,7 @@ export namespace BaseSelectT {
     onInput: (event: InputEvent) => void
     onKeyDown: (event: KeyboardEvent) => void
     toggle: () => void
-    resolved: ReturnType<typeof resolveComponentStyle<any>>
+    resolved: ReturnType<typeof createComponentStyles<'select'>>
   }
 
   export interface OptionSelectContext<TItem extends Item> {
@@ -171,8 +171,6 @@ export namespace BaseSelectT {
 
   export interface Base<TItem extends Item>
     extends FormIdentityOptions, FormRequiredOption, FormDisableOption {
-    /** Internal provider fallback, used only when no field or instance size is set. */
-    _defaultSize?: FormFieldSize
     /** Available options. */
     options?: TItem[]
     /** Controlled open state. */
@@ -277,12 +275,7 @@ export namespace BaseSelectT {
 
 export interface BaseSelectProps<TItem extends BaseSelectT.Item> extends BaseSelectT.Props<TItem> {
   ref?: Ref<HTMLDivElement>
-  _styleInputs?: Pick<ComponentStyleInputs<keyof BaseSelectT.Slot>, 'group' | 'instance'>
-  _designRecipe?: (args: {
-    size: FormFieldSize
-    side: 'top' | 'right' | 'bottom' | 'left'
-    search: boolean
-  }) => Record<string, string | undefined> | undefined
+  _styles: ReturnType<typeof createComponentStyles<'select'>>
 }
 
 const SELECT_FILTER_STRATEGIES: Record<SelectFilterMode, (text: string, input: string) => boolean> =
@@ -543,9 +536,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     'required',
     'disabled',
     'size',
-    '_defaultSize',
-    '_styleInputs',
-    '_designRecipe',
+    '_styles',
     'variant',
     'classes',
     'styles',
@@ -615,7 +606,6 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     id: merged.id,
     name: merged.name,
     size: merged.size ?? undefined,
-    defaultSize: local._defaultSize,
     disabled: merged.disabled,
     required: local.required,
     initialValue: merged.initialValue,
@@ -713,39 +703,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   const [currentInputText, setCurrentInputText] = createSignal(merged.defaultSearchValue ?? '')
   const [highlightedKey, setHighlightedKey] = createSignal<string | undefined>()
   const [contentSide, setContentSide] = createSignal<'top' | 'right' | 'bottom' | 'left'>('bottom')
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return local._designRecipe?.({
-          size: field.size(),
-          side: contentSide(),
-          search: isSearchable(),
-        })
-      },
-    },
-    get group() {
-      return local._styleInputs?.group
-    },
-    get instance() {
-      return (
-        local._styleInputs?.instance ?? {
-          class: local.class,
-          classes: local.classes,
-          style: local.style,
-          styles: local.styles,
-        }
-      )
-    },
-    state: {
-      get styles() {
-        return {
-          content: {
-            '--mo-popper-content-transform-origin': resolveSelectContentOrigin(contentSide()),
-          },
-        }
-      },
-    },
-  })
+  const resolved = untrack(() => local._styles)
 
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
@@ -1260,17 +1218,12 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
           callRef(itemAttributes()?.ref, element)
           virtualProps?.ref?.(element)
         }}
-        {...resolved.slotClassAndStyle('item', {
-          get state() {
-            return {
-              class: [itemAttributes()?.class, virtualProps?.class],
-              style: {
-                ...toStyleObject(itemAttributes()?.style),
-                ...toStyleObject(virtualProps?.style),
-              },
-            }
-          },
-        })}
+        class={cn(resolved.slot('item').class, [itemAttributes()?.class, virtualProps?.class])}
+        style={{
+          ...toStyleObject(itemAttributes()?.style),
+          ...toStyleObject(virtualProps?.style),
+          ...resolved.slot('item').style,
+        }}
         onPointerMove={(event) => {
           callHandler(event, itemAttributes()?.onPointerMove)
           callHandler(event, virtualProps?.onPointerMove)
@@ -1324,13 +1277,10 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
           aria-owns={entry.optionKeys.map(getOptionId).join(' ') || undefined}
           data-slot="group"
           {...virtualProps}
-          {...resolved.slotClassAndStyle('group', {
-            get state() {
-              return { class: virtualProps?.class, style: toStyleObject(virtualProps?.style) }
-            },
-          })}
+          class={cn(resolved.slot('group').class, virtualProps?.class)}
+          style={{ ...toStyleObject(virtualProps?.style), ...resolved.slot('group').style }}
         >
-          <span id={labelId} data-slot="label" {...resolved.slotClassAndStyle('label')}>
+          <span id={labelId} data-slot="label" {...resolved.slot('label')}>
             {entry.label}
           </span>
         </div>
@@ -1377,9 +1327,9 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         data-slot="group"
         role="group"
         aria-labelledby={groupLabelId}
-        {...resolved.slotClassAndStyle('group')}
+        {...resolved.slot('group')}
       >
-        <span id={groupLabelId} data-slot="label" {...resolved.slotClassAndStyle('label')}>
+        <span id={groupLabelId} data-slot="label" {...resolved.slot('label')}>
           {option.label}
         </span>
         <For each={option.options}>{(item) => renderVisibleOption(item)}</For>
@@ -1395,7 +1345,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       data-invalid={field.invalid() ? '' : undefined}
       data-required={field.required() ? '' : undefined}
       {...rest}
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
     >
       <select
         ref={(element) => {
@@ -1483,7 +1433,12 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                 contentPresence.setElement(element)
               }}
               data-slot="content"
-              {...resolved.slotClassAndStyle('content')}
+              data-side={contentSide()}
+              class={resolved.slot('content').class}
+              style={{
+                '--mo-popper-content-transform-origin': resolveSelectContentOrigin(contentSide()),
+                ...resolved.slot('content').style,
+              }}
             >
               <Show
                 when={visibleFlatOptions().length > 0}
@@ -1515,14 +1470,11 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                     listboxRef = element
                     callRef(merged.listboxProps?.ref, element)
                   }}
-                  {...resolved.slotClassAndStyle('listbox', {
-                    get state() {
-                      return {
-                        class: merged.listboxProps?.class,
-                        style: toStyleObject(merged.listboxProps?.style),
-                      }
-                    },
-                  })}
+                  class={cn(resolved.slot('listbox').class, merged.listboxProps?.class)}
+                  style={{
+                    ...toStyleObject(merged.listboxProps?.style),
+                    ...resolved.slot('listbox').style,
+                  }}
                   onScroll={(event: Event) => {
                     const { defaultPrevented } = callHandler(event, merged.listboxProps?.onScroll)
                     if (!defaultPrevented) {

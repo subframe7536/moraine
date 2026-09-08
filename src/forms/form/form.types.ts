@@ -24,7 +24,9 @@ export namespace FormT {
     root?: T
   }
 
-  export interface Variant {}
+  export type Variant = never
+
+  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

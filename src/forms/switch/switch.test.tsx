@@ -2,15 +2,12 @@ import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-libra
 import { createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 
-import { Switch } from './switch'
-
-const officialDesign = createDesign()
+import { Switch } from './switch.tsx'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 function expectSwitchChecked(element: Element, checked: boolean): void {
   expect(element.getAttribute('aria-checked')).toBe(String(checked))

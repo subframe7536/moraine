@@ -31,9 +31,9 @@ export namespace ResizableT {
     crossTarget?: T
   }
 
-  export interface Variant {
-    orientation?: ResizableOrientation
-  }
+  export type Variant = never
+
+  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -42,6 +42,9 @@ export namespace ResizableT {
 
   /** Base props for the Resizable component. */
   export interface Base {
+    /** Axis along which panels resize. @default 'horizontal' */
+    orientation?: ResizableOrientation
+
     /** Unique identifier for the resizable root. */
     id?: string
 

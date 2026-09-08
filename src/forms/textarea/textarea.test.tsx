@@ -4,17 +4,14 @@ import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithOwner } from '../../test-utils/owner-render'
-import { createForm } from '../form/index'
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { createForm } from '../form/index.ts'
 
 import { Textarea } from './textarea.tsx'
 
-const officialDesign = createDesign()
-
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 afterEach(() => {
   vi.useRealTimers()

@@ -1,6 +1,7 @@
 import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
-import type { SlotRecipeOptions, VariantProps } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
+import { cn } from '../../shared/utils.ts'
 
 import type { TextareaT } from './textarea.types.ts'
 
@@ -8,14 +9,15 @@ export const textareaRecipeOptions = {
   base: {
     root: 'rounded-md flex flex-col w-full transition-[colors,box-shadow] overflow-hidden data-focused:outline-none data-focused:border-ring data-focused:ring-3 data-focused:ring-ring/50 data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 data-disabled:opacity-64 data-disabled:pointer-events-none data-focused:data-invalid:border-destructive data-focused:data-invalid:ring-3 data-focused:data-invalid:ring-destructive/20 dark:data-focused:data-invalid:border-destructive/50 dark:data-focused:data-invalid:ring-destructive/40 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
     header: 'text-muted-foreground font-medium flex gap-2 w-full items-center',
-    input:
-      'placeholder:text-muted-foreground text-foreground outline-none bg-transparent flex-1 min-w-0',
+    input: /* @__PURE__ */ cn(
+      'text-foreground outline-none bg-transparent flex-1 min-w-0 placeholder:text-muted-foreground',
+      '[&:not([data-autoresize])]:resize-y data-autoresize:resize-none',
+    ),
     footer: 'text-muted-foreground font-medium flex gap-2 w-full items-center',
   },
-  defaultVariants: {
+  defaults: {
     size: 'md',
     variant: 'outline',
-    autoresize: false,
   },
   variants: {
     size: {
@@ -44,13 +46,7 @@ export const textareaRecipeOptions = {
       ghost: { root: INPUT_VARIANT.ghost },
       none: { root: INPUT_VARIANT.none },
     },
-    autoresize: {
-      true: { input: 'resize-none' },
-      false: { input: 'resize-y' },
-    },
   },
 } as const satisfies SlotRecipeOptions<keyof TextareaT.Slot>
 
-export const textareaRecipe = recipe(textareaRecipeOptions)
-
-export type TextareaVariantProps = VariantProps<typeof textareaRecipe>
+export const textareaRecipe = /* @__PURE__ */ slotRecipe(textareaRecipeOptions)

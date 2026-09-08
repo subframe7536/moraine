@@ -13,7 +13,7 @@ import {
 
 import { Icon } from '../../elements/icon/index.ts'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { useId } from '../../shared/utils.ts'
@@ -56,38 +56,14 @@ export function Tabs(props: TabsProps): JSX.Element {
     'class',
     'style',
   ])
-  const design = useMoraineDesign()
-  const tabsDesign = () => design().tabs
+  const resolved = createComponentStyles('tabs', local)
 
   const merged = mergeProps(
     {
       orientation: 'horizontal' as const,
-      variant: 'pill' as const,
-      size: 'md' as const,
     },
-    () => tabsDesign().defaultVariants,
     local,
   )
-
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return tabsDesign().recipe({
-          orientation: merged.orientation,
-          variant: merged.variant,
-          size: merged.size,
-        })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
 
   const rootId = useId(() => merged.id, 'tabs')
   const [requestedValue, setRequestedValue] = useControllableValue<string>({
@@ -292,7 +268,7 @@ export function Tabs(props: TabsProps): JSX.Element {
       id={rootId()}
       data-slot="root"
       data-orientation={merged.orientation}
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
       {...rest}
     >
       <div
@@ -300,17 +276,15 @@ export function Tabs(props: TabsProps): JSX.Element {
         role="tablist"
         aria-orientation={merged.orientation ?? undefined}
         data-slot="list"
-        {...resolved.slotClassAndStyle('list')}
+        data-orientation={merged.orientation}
+        {...resolved.slot('list')}
       >
         <div
           aria-hidden="true"
           data-slot="indicator"
-          style={resolved.slotStyle('indicator', {
-            get state() {
-              return { style: indicatorStyle() }
-            },
-          })}
-          class={resolved.slotClass('indicator')}
+          data-orientation={merged.orientation}
+          style={{ ...indicatorStyle(), ...resolved.slot('indicator').style }}
+          class={resolved.slot('indicator').class}
         />
 
         <For each={normalizedItems()}>
@@ -348,7 +322,8 @@ export function Tabs(props: TabsProps): JSX.Element {
                 data-highlighted={highlighted() && !selected() ? '' : undefined}
                 disabled={Boolean(merged.disabled || item.disabled)}
                 data-slot="trigger"
-                {...resolved.slotClassAndStyle('trigger')}
+                data-orientation={merged.orientation}
+                {...resolved.slot('trigger')}
                 onClick={() => {
                   setHighlightedKey(item.instanceKey)
                   selectValue(item.value)
@@ -359,13 +334,13 @@ export function Tabs(props: TabsProps): JSX.Element {
                 }}
               >
                 <Show when={item.icon}>
-                  <span data-slot="leading" {...resolved.slotClassAndStyle('leading')}>
+                  <span data-slot="leading" {...resolved.slot('leading')}>
                     <Icon name={item.icon} />
                   </span>
                 </Show>
 
                 <Show when={typeof item.label === 'string'} fallback={item.label}>
-                  <span data-slot="label" {...resolved.slotClassAndStyle('label')}>
+                  <span data-slot="label" {...resolved.slot('label')}>
                     {item.label}
                   </span>
                 </Show>
@@ -388,7 +363,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 aria-labelledby={getTriggerId(item.instanceKey)}
                 data-selected=""
                 data-slot="content"
-                {...resolved.slotClassAndStyle('content')}
+                {...resolved.slot('content')}
               >
                 {item.content}
               </div>

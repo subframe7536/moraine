@@ -1,5 +1,5 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { AvatarGroupT } from './avatar-group.types.ts'
 import type { AvatarT } from './avatar.types.ts'
@@ -15,7 +15,7 @@ export const avatarRecipeOptions = {
     badge:
       '[&>[data-slot=root]]:text-[0.75em] text-foreground rounded-full bg-background inline-flex pointer-events-none ring-2 ring-background items-center justify-center absolute z-sticky',
   },
-  defaultVariants: {
+  defaults: {
     size: 'md',
     badgePosition: 'bottom-right',
   },
@@ -49,7 +49,7 @@ export const avatarRecipeOptions = {
   },
 } as const satisfies SlotRecipeOptions<keyof AvatarT.Slot>
 
-export const avatarRecipe = recipe(avatarRecipeOptions)
+export const avatarRecipe = /* @__PURE__ */ slotRecipe(avatarRecipeOptions)
 
 export const avatarGroupRecipeOptions = {
   base: {
@@ -62,7 +62,7 @@ export const avatarGroupRecipeOptions = {
     fallbackIcon: '',
     badge: '',
   },
-  defaultVariants: {
+  defaults: {
     size: 'md',
   },
   variants: {
@@ -83,7 +83,4 @@ export const avatarGroupRecipeOptions = {
   },
 } as const satisfies SlotRecipeOptions<keyof AvatarGroupT.Slot>
 
-export const avatarGroupRecipe = recipe(avatarGroupRecipeOptions)
-
-export type AvatarVariantProps = AvatarT.Variant
-export type AvatarGroupVariantProps = AvatarGroupT.Variant
+export const avatarGroupRecipe = /* @__PURE__ */ slotRecipe(avatarGroupRecipeOptions)

@@ -135,21 +135,17 @@ test('collects CSS variables from class and style layers by slot', async () => {
       path.join(projectRoot, 'src/demo.tsx'),
       `
 function Icon() {
-  const resolved = resolveComponentStyle({ base: { classes: { root: 'block' } } })
   return <span data-slot="icon" aria-hidden />
 }
 export function Demo() {
-  const resolved = resolveComponentStyle({
-    base: {
-      get classes() { return { content: 'w-[var(--panel-width)]', label: 'text-sm' } },
-      styles: { content: { '--panel-color': 'red' } },
-    },
-    state: {
-      get styles() { return { label: { '--label-color': 'blue' } } },
-    },
+  const resolved = createComponentStyles('demo', {
+    classes: { content: 'w-[var(--panel-width)]', label: 'text-sm' },
+    styles: { content: { '--panel-color': 'red' } },
+  }, {
+    dynamicStyles: () => ({ label: { '--label-color': 'blue' } }),
   })
-  return <div data-slot="content" {...resolved.slotClassAndStyle('content')}>
-    <span data-slot="label" {...resolved.slotClassAndStyle('label')} />
+  return <div data-slot="content" {...resolved.slot('content')}>
+    <span data-slot="label" {...resolved.slot('label')} />
     <Icon slotName="leading" />
   </div>
 }

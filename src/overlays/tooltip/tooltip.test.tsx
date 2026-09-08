@@ -2,12 +2,12 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithDesign } from '../../test-utils/design-render.tsx'
-import { setPopperTestPlacementAccessor } from '../base/popper'
+import { renderWithTheme } from '../../test-utils/theme-render.tsx'
+import { createTheme } from '../../theme.ts'
+import { setPopperTestPlacementAccessor } from '../base/popper.tsx'
 
-import { Tooltip } from './tooltip'
+import { Tooltip } from './tooltip.tsx'
 
 let getMockPlacement: () => string = () => 'top'
 let setMockPlacement: (value: string) => void = () => undefined
@@ -90,7 +90,7 @@ describe('Tooltip', () => {
   })
 
   test('applies top-level class and style to trigger', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Tooltip>
         <Tooltip.Trigger as="button" class="trigger-class" style={{ width: '200px' }} type="button">
           Trigger
@@ -106,13 +106,13 @@ describe('Tooltip', () => {
   })
 
   test('applies provider trigger classes and styles', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <MoraineProvider
-        design={createDesign({ tooltip: { base: { trigger: 'provider-trigger w-40' } } })}
+        theme={createTheme({ tooltip: { base: { trigger: 'provider-trigger w-40' } } })}
       >
         <Tooltip>
           <Tooltip.Trigger as="button">Trigger</Tooltip.Trigger>
-          <Tooltip.Content content="Help" />
+          <Tooltip.Content>Help</Tooltip.Content>
         </Tooltip>
       </MoraineProvider>
     ))
@@ -140,7 +140,7 @@ describe('Tooltip', () => {
   })
 
   test('applies classes.content to content slot', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Tooltip open>
         <Tooltip.Trigger as="button" type="button">
           Trigger
@@ -214,7 +214,7 @@ describe('Tooltip', () => {
     const [version, setVersion] = createSignal(0)
 
     // oxlint-disable-next-line subf/solid-reactivity
-    renderWithDesign(() => {
+    renderWithTheme(() => {
       version()
 
       return (
@@ -230,8 +230,8 @@ describe('Tooltip', () => {
     const initialContent = document.body.querySelector('[data-slot="content"]')
     expect(initialContent?.className).toContain('data-expanded:animate-mo-enter')
     expect(initialContent?.className).toContain('data-closed:animate-mo-exit')
-    expect(initialContent?.classList.contains('enter-translate-y-1')).toBe(true)
-    expect(initialContent?.classList.contains('-enter-translate-y-1')).toBe(false)
+    expect(initialContent?.className).toContain('data-[side=top]:enter-translate-y-1')
+    expect(initialContent?.getAttribute('data-side')).toBe('top')
 
     setMockPlacement('bottom')
     setVersion(1)
@@ -239,8 +239,8 @@ describe('Tooltip', () => {
     const updatedContent = document.body.querySelector('[data-slot="content"]')
     expect(updatedContent?.className).toContain('data-expanded:animate-mo-enter')
     expect(updatedContent?.className).toContain('data-closed:animate-mo-exit')
-    expect(updatedContent?.classList.contains('-enter-translate-y-1')).toBe(true)
-    expect(updatedContent?.classList.contains('enter-translate-y-1')).toBe(false)
+    expect(updatedContent?.className).toContain('data-[side=bottom]:-enter-translate-y-1')
+    expect(updatedContent?.getAttribute('data-side')).toBe('bottom')
   })
 
   test('opens first hover after delay', async () => {
@@ -460,7 +460,7 @@ describe('Tooltip', () => {
     vi.useFakeTimers()
     mockInstantTooltipExit()
 
-    const screen = renderWithDesign(() => (
+    const screen = renderWithTheme(() => (
       <div>
         <Tooltip>
           <Tooltip.Trigger as="button" type="button">
@@ -508,7 +508,7 @@ describe('Tooltip', () => {
   test('does not restart an always-open tooltip after switching from another tooltip', async () => {
     vi.useFakeTimers()
 
-    const screen = renderWithDesign(() => (
+    const screen = renderWithTheme(() => (
       <div>
         <Tooltip open>
           <Tooltip.Trigger as="button" type="button">
@@ -589,7 +589,7 @@ describe('Tooltip', () => {
     vi.useFakeTimers()
     mockInstantTooltipExit()
 
-    const screen = renderWithDesign(() => (
+    const screen = renderWithTheme(() => (
       <div>
         <Tooltip>
           <Tooltip.Trigger as="button" type="button">

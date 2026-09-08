@@ -10,11 +10,11 @@ import {
   untrack,
 } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useId } from '../../shared/utils.ts'
 import type { CheckboxProps } from '../checkbox/checkbox.types.ts'
 import { Checkbox } from '../checkbox/index.ts'
-import { useFormField } from '../form/form-context.ts'
+import { useFormField, useFormFieldContext } from '../form/form-context.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { CheckboxGroupProps, CheckboxGroupT } from './checkbox-group.types.ts'
@@ -99,17 +99,16 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     'class',
     'style',
   ])
-
-  const design = useMoraineDesign()
-  const checkboxGroupDesign = () => design().checkboxGroup
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('checkboxGroup', local, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
 
   const merged = mergeProps(
     {
-      orientation: 'vertical' as const,
-      variant: 'list' as const,
       defaultValue: [] as string[],
     },
-    () => checkboxGroupDesign()?.defaultVariants,
+
     local,
   )
   const legend = createMemo(() => merged.legend)
@@ -124,39 +123,16 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size,
+      size: resolved.variants.size,
       disabled: merged.disabled,
       required: local.required,
     }),
     () => ({
       bind: false,
       defaultId: groupId(),
-      defaultSize: 'md',
       initialValue: initialDefaultValue,
     }),
   )
-
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return checkboxGroupDesign()?.recipe({
-          orientation: merged.orientation,
-          size: field.size(),
-          required: field.required(),
-          variant: merged.variant,
-          tableOrientation: merged.variant === 'table' ? merged.orientation : undefined,
-        })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
 
   const [uncontrolledValue, setUncontrolledValue] = createSignal<string[]>(initialDefaultValue)
   let fieldsetEl: HTMLFieldSetElement | undefined
@@ -239,7 +215,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
   )
 
   return (
-    <div id={`${groupId()}-root`} data-slot="root" {...rest} {...resolved.rootClassAndStyle()}>
+    <div id={`${groupId()}-root`} data-slot="root" {...rest} {...resolved.root}>
       <fieldset
         ref={(element) => {
           fieldsetEl = element
@@ -248,15 +224,19 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         data-slot="fieldset"
         disabled={field.disabled()}
         aria-labelledby={
-          (field.ariaAttrs()['aria-labelledby'] as string | undefined) ??
-          (legend() ? legendId() : undefined)
+          field.ariaAttrs()['aria-labelledby'] ?? (legend() ? legendId() : undefined)
         }
-        data-variant={merged.variant}
-        {...resolved.slotClassAndStyle('fieldset')}
+        data-variant={resolved.variants.variant}
+        {...resolved.slot('fieldset')}
         {...field.ariaAttrs()}
       >
         <Show when={legend()}>
-          <legend id={legendId()} data-slot="legend" {...resolved.slotClassAndStyle('legend')}>
+          <legend
+            id={legendId()}
+            data-slot="legend"
+            data-required={field.required() ? '' : undefined}
+            {...resolved.slot('legend')}
+          >
             {legend()}
           </legend>
         </Show>
@@ -282,30 +262,33 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
                 required={
                   field.required() && !hasEnabledSelection() && index() === requiredOwnerIndex()
                 }
-                size={field.size()}
-                variant={merged.variant === 'list' ? 'list' : 'card'}
+                size={resolved.variants.size}
+                variant={resolved.variants.variant === 'table' ? 'card' : resolved.variants.variant}
+                data-table-orientation={
+                  resolved.variants.variant === 'table' ? resolved.variants.orientation : undefined
+                }
                 indicator={merged.indicator}
                 checkedIcon={item().checkedIcon ?? checkedIcon()}
                 indeterminateIcon={item().indeterminateIcon ?? indeterminateIcon()}
                 classes={{
-                  root: resolved.slotClass('item'),
-                  container: resolved.slotClass('container'),
-                  control: resolved.slotClass('control'),
-                  indicator: resolved.slotClass('indicator'),
-                  icon: resolved.slotClass('icon'),
-                  wrapper: resolved.slotClass('wrapper'),
-                  label: resolved.slotClass('label'),
-                  description: resolved.slotClass('description'),
+                  root: resolved.slot('item').class,
+                  container: resolved.slot('container').class,
+                  control: resolved.slot('control').class,
+                  indicator: resolved.slot('indicator').class,
+                  icon: resolved.slot('icon').class,
+                  wrapper: resolved.slot('wrapper').class,
+                  label: resolved.slot('label').class,
+                  description: resolved.slot('description').class,
                 }}
                 styles={{
-                  root: resolved.slotStyle('item'),
-                  container: resolved.slotStyle('container'),
-                  control: resolved.slotStyle('control'),
-                  indicator: resolved.slotStyle('indicator'),
-                  icon: resolved.slotStyle('icon'),
-                  wrapper: resolved.slotStyle('wrapper'),
-                  label: resolved.slotStyle('label'),
-                  description: resolved.slotStyle('description'),
+                  root: resolved.slot('item').style,
+                  container: resolved.slot('container').style,
+                  control: resolved.slot('control').style,
+                  indicator: resolved.slot('indicator').style,
+                  icon: resolved.slot('icon').style,
+                  wrapper: resolved.slot('wrapper').style,
+                  label: resolved.slot('label').style,
+                  description: resolved.slot('description').style,
                 }}
                 onChange={(checked) => onItemCheckedChange(item().value, checked)}
               />

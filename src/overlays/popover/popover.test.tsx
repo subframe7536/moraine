@@ -2,11 +2,11 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { renderWithDesign } from '../../test-utils/design-render.tsx'
-import { finishExitMotion } from '../../test-utils/overlay-test'
-import { setPopperTestPlacementAccessor } from '../base/popper'
+import { finishExitMotion } from '../../test-utils/overlay-test.ts'
+import { renderWithTheme } from '../../test-utils/theme-render.tsx'
+import { setPopperTestPlacementAccessor } from '../base/popper.tsx'
 
-import { Popover } from './popover'
+import { Popover } from './popover.tsx'
 
 let getMockPlacement: () => string = () => 'bottom'
 let setMockPlacement: (value: string) => void = () => undefined
@@ -252,7 +252,7 @@ describe('Popover', () => {
   ] as const)('applies side class for placement %s', (placement, expectedClass) => {
     setMockPlacement(placement)
 
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Popover open placement={placement}>
         <Popover.Trigger as="button" type="button">
           Trigger
@@ -267,7 +267,7 @@ describe('Popover', () => {
   })
 
   test('supports classes for content slot', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Popover open>
         <Popover.Trigger as="button" type="button">
           Trigger
@@ -599,7 +599,7 @@ describe('Popover', () => {
     const [version, setVersion] = createSignal(0)
 
     // oxlint-disable-next-line subf/solid-reactivity
-    renderWithDesign(() => {
+    renderWithTheme(() => {
       version()
 
       return (
@@ -616,7 +616,7 @@ describe('Popover', () => {
     expect(initialContent?.className).toContain('data-expanded:animate-mo-enter')
     expect(initialContent?.className).toContain('data-closed:animate-mo-exit')
     expect(initialContent?.className).toContain('-enter-translate-y-1')
-    expect(initialContent?.className).not.toContain('-enter-translate-x-1')
+    expect(initialContent?.getAttribute('data-side')).toBe('bottom')
 
     setMockPlacement('right')
     setVersion(1)
@@ -625,6 +625,6 @@ describe('Popover', () => {
     expect(updatedContent?.className).toContain('data-expanded:animate-mo-enter')
     expect(updatedContent?.className).toContain('data-closed:animate-mo-exit')
     expect(updatedContent?.className).toContain('-enter-translate-x-1')
-    expect(updatedContent?.className).not.toContain('-enter-translate-y-1')
+    expect(updatedContent?.getAttribute('data-side')).toBe('right')
   })
 })

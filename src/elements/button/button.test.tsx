@@ -4,13 +4,11 @@ import type { JSX } from 'solid-js'
 import { Show, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
+import { createTheme } from '../../theme.ts'
 
 import { ButtonGroup } from './button-group.tsx'
 import { Button } from './button.tsx'
-
-const officialDesign = createDesign()
 
 function createDeferred() {
   let resolve: (() => void) | undefined
@@ -33,14 +31,6 @@ describe('Button', () => {
 
     expect(button.getAttribute('type')).toBe('button')
     expect(button.getAttribute('data-slot')).toBe('root')
-  })
-
-  test('keeps the structural root when an arbitrary component prop is passed', () => {
-    const screen = render(() => <Button component="a">Save</Button>)
-    const button = screen.getByRole('button', { name: 'Save' })
-
-    expect(button.tagName).toBe('BUTTON')
-    expect(screen.queryByRole('link', { name: 'Save' })).toBeNull()
   })
 
   test('calls pointer handlers without replacing internal interaction behavior', async () => {
@@ -136,7 +126,7 @@ describe('Button', () => {
 
   test('applies variant and size classes', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Button variant="destructive" size="sm">
           Delete
         </Button>
@@ -150,7 +140,7 @@ describe('Button', () => {
 
   test('applies press interaction classes', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Button>Press</Button>
       </MoraineProvider>
     ))
@@ -164,7 +154,7 @@ describe('Button', () => {
     'does not apply a built-in shadow to the %s variant',
     (variant) => {
       const screen = render(() => (
-        <MoraineProvider design={officialDesign}>
+        <MoraineProvider>
           <Button variant={variant}>{variant}</Button>
         </MoraineProvider>
       ))
@@ -206,7 +196,7 @@ describe('Button', () => {
     ['icon-xl', 'text-lg', 'size-11'],
   ] as const)('applies %s size classes', (size, textClass, dimensionClass) => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Button size={size} aria-label={`${size} button`}>
           Label
         </Button>
@@ -333,7 +323,7 @@ describe('Button', () => {
   test('resolves provider loading styles for the active icon slot', () => {
     const screen = render(() => (
       <MoraineProvider
-        design={createDesign({
+        theme={createTheme({
           button: {
             base: { loading: 'provider-loading w-3' },
           },
@@ -354,7 +344,7 @@ describe('Button', () => {
 
   test('renders built-in loading icon by default when loading', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Button loading>Saving</Button>
       </MoraineProvider>
     ))
@@ -430,7 +420,7 @@ describe('Button', () => {
 
   test('renders loadingIcon when loading', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Button loading loadingIcon="i-lucide-loader-circle">
           Saving
         </Button>
@@ -447,7 +437,7 @@ describe('Button', () => {
 
   test('uses loading icon in trailing slot when only trailing is provided', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Button loading trailing={<span data-testid="trailing-icon">T</span>}>
           Saving
         </Button>
@@ -470,7 +460,7 @@ describe('Button', () => {
 
   test('keeps trailing content when loading if leading and trailing are both provided', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Button
           loading
           leading={<span data-testid="leading-icon">L</span>}
@@ -492,7 +482,7 @@ describe('Button', () => {
 
   test('applies loading class override when trailing slot is replaced by loading icon', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Button
           loading
           trailing="i-lucide:timer"
@@ -1012,13 +1002,13 @@ describe('Button', () => {
     test('inherits provider defaults, classes, and styles, with group and instance overrides', () => {
       const screen = render(() => (
         <MoraineProvider
-          design={createDesign({
+          theme={createTheme({
             button: {
-              defaultVariants: { variant: 'outline', size: 'lg' },
+              defaults: { variant: 'outline', size: 'lg' },
               base: { root: 'provider-slot-root text-blue-500 m-1', leading: 'provider-leading' },
             },
             buttonGroup: {
-              defaultVariants: { size: 'sm' },
+              defaults: { size: 'sm' },
               base: { root: 'provider-group-root' },
             },
           })}

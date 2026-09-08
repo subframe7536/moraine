@@ -63,7 +63,8 @@ function unwrapExpression(expression: ESTree.Expression | null): ESTree.Expressi
     current &&
     (current.type === 'TSAsExpression' ||
       current.type === 'TSTypeAssertion' ||
-      current.type === 'TSNonNullExpression')
+      current.type === 'TSNonNullExpression' ||
+      current.type === 'ParenthesizedExpression')
   ) {
     current = current.expression
   }
@@ -588,11 +589,19 @@ export class SourceSlotAnalyzer {
     walkAst(declaration, (node) => {
       if (
         node.type === 'Property' &&
-        ['classes', 'styles'].includes(getIdentifierName(node.key) ?? '')
+        ['classes', 'styles', 'dynamicStyles'].includes(getIdentifierName(node.key) ?? '')
       ) {
         const maps: ESTree.ObjectExpression[] = []
         if (node.value.type === 'ObjectExpression') {
           maps.push(node.value)
+        } else if (
+          node.value.type === 'ArrowFunctionExpression' &&
+          node.value.body.type !== 'BlockStatement'
+        ) {
+          const body = unwrapExpression(node.value.body)
+          if (body?.type === 'ObjectExpression') {
+            maps.push(body)
+          }
         } else if (node.kind === 'get' && node.value.type === 'FunctionExpression') {
           for (const statement of node.value.body?.body ?? []) {
             if (

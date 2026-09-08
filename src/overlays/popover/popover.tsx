@@ -12,7 +12,7 @@ import {
 } from 'solid-js'
 
 import { hasJsxContent } from '../../shared/jsx-content.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
 import { mergePopperContentProps } from '../base/popper.tsx'
 import type { PopperContentContext } from '../base/popper.tsx'
@@ -240,19 +240,8 @@ export function Popover(props: PopoverProps): JSX.Element {
 function PopoverTrigger<T extends ValidComponent = 'button'>(
   props: PopoverT.TriggerProps<T>,
 ): JSX.Element {
-  const design = useMoraineDesign()
-  const resolved = resolveComponentStyle({
-    rootSlot: 'trigger',
-    design: {
-      get classes() {
-        return design().popover.recipe()
-      },
-    },
-    get instance() {
-      return props
-    },
-  })
-  const triggerProps = mergeProps(props, resolved.rootClassAndStyle()) as PopoverT.TriggerProps<T>
+  const resolved = createComponentStyles('popover', props, { rootSlot: 'trigger' })
+  const triggerProps = mergeProps(props, resolved.root) as PopoverT.TriggerProps<T>
   return createComponent(Popper.Anchor<T>, triggerProps)
 }
 
@@ -267,35 +256,24 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
     'classes',
     'styles',
   ])
-  const design = useMoraineDesign()
+
   function Content(context: PopperContentContext): JSX.Element {
     const explicitContent = createMemo(() => local.content)
     const content = createMemo(() => {
       const value = explicitContent()
       return value === undefined ? resolveChildren(() => local.children)() : value
     })
-    const resolved = resolveComponentStyle({
-      rootSlot: 'content',
-      design: {
-        get classes() {
-          return design().popover.recipe({
-            side: resolveOverlayMenuSide(context.currentPlacement() || local.side || 'bottom'),
-          })
-        },
-      },
-      get instance() {
-        return local
-      },
-    })
+    const resolved = createComponentStyles('popover', local, { rootSlot: 'content' })
     return (
       <div
         {...mergePopperContentProps(context.contentProps, rest)}
         data-slot="content"
-        aria-label={local.ariaLabel ?? (rest['aria-label'] as string | undefined)}
-        {...resolved.rootClassAndStyle()}
+        data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'bottom')}
+        aria-label={local.ariaLabel ?? rest['aria-label']}
+        {...resolved.root}
       >
         <Show when={hasJsxContent(content())}>
-          <div data-slot="body" {...resolved.slotClassAndStyle('body')}>
+          <div data-slot="body" {...resolved.slot('body')}>
             {content()}
           </div>
         </Show>

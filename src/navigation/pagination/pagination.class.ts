@@ -1,5 +1,4 @@
-import type { VariantProps } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 
 export const PAGINATION_CONTROL_LABEL_CLASS = 'hidden sm:block'
 
@@ -14,9 +13,7 @@ export const paginationRecipeOptions = {
     ellipsis: '',
     controlLabel: PAGINATION_CONTROL_LABEL_CLASS,
   },
-  variants: {},
+  defaults: { size: 'md', variant: 'ghost', activeVariant: 'outline', controlVariant: 'ghost' },
 } as const
 
-export const paginationRecipe = recipe(paginationRecipeOptions)
-
-export type PaginationVariantProps = VariantProps<typeof paginationRecipe>
+export const paginationRecipe = /* @__PURE__ */ slotRecipe(paginationRecipeOptions)

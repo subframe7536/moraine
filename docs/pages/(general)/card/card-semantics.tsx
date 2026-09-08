@@ -4,7 +4,6 @@ export function CardSemantics() {
   return (
     <div class="max-w-sm w-full">
       <Card
-        as="article"
         title="Release v2.4.0 Available"
         description="Published 2 hours ago by @release-bot"
         action={<Badge>New</Badge>}

@@ -14,7 +14,7 @@ import { Resizable } from '../../elements/resizable/index.ts'
 import type { ResizableT } from '../../elements/resizable/index.ts'
 import { Sheet } from '../../overlays/sheet/index.ts'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { createMediaQuery } from '../../shared/use-media-query.ts'
 import { cn } from '../../shared/utils.ts'
@@ -38,26 +38,14 @@ function renderMobileSheet(ctx: SidebarFrameT.FrameContext, main: JSX.Element): 
  * Default frame renderer: mobile uses `Sheet`, desktop uses animated split layout.
  */
 export function SidebarFrameSheetOnlyRender(ctx: SidebarFrameT.FrameContext): JSX.Element {
-  const design = useMoraineDesign()
+  const resolved = createComponentStyles('sidebarFrame', ctx, { rootSlot: 'desktopLayout' })
   const main = createLazyMemo(() => <ctx.main />)
   return (
     <Show
       when={ctx.isMobile()}
       fallback={
-        <div
-          data-slot="layout"
-          class={
-            design().sidebarFrame.recipe({
-              variant: ctx.variant,
-              side: ctx.side,
-              isMobile: false,
-            }).desktopLayout
-          }
-        >
-          <ctx.sidebar
-            data-closed={ctx.isOpen() ? undefined : ''}
-            classes={ctx.isOpen() ? undefined : 'w-0 pointer-events-none'}
-          />
+        <div data-slot="layout" {...resolved.root} data-side={ctx.side}>
+          <ctx.sidebar data-closed={ctx.isOpen() ? undefined : ''} />
           {main()}
         </div>
       }
@@ -149,17 +137,14 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     'class',
     'style',
   ])
-  const design = useMoraineDesign()
-  const sidebarFrameDesign = () => design().sidebarFrame
+  const resolved = createComponentStyles('sidebarFrame', local)
 
   const merged = mergeProps(
     {
-      variant: 'default' as const,
       side: 'left' as const,
       scrollThreshold: 60,
       frameRender: SidebarFrameSheetOnlyRender,
     },
-    () => sidebarFrameDesign().defaultVariants,
     local,
   )
 
@@ -189,26 +174,6 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     untrack(() => setOpen(!isMobile))
   })
 
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return sidebarFrameDesign().recipe({
-          isMobile: resolvedIsMobile(),
-          side: merged.side,
-          variant: merged.variant,
-        })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
-
   const context: SidebarFrameT.BaseContext = {
     isMobile: resolvedIsMobile,
     scrolled,
@@ -216,7 +181,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     setOpen,
     toggle: () => setOpen((prev) => !prev),
     get variant() {
-      return merged.variant
+      return resolved.variants.variant
     },
     get side() {
       return merged.side
@@ -224,7 +189,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   }
 
   return (
-    <div data-slot="root" {...resolved.rootClassAndStyle()} {...rest}>
+    <div data-slot="root" {...resolved.root} {...rest}>
       {renderComponentOrElement(merged.frameRender, {
         isMobile: context.isMobile,
         scrolled: context.scrolled,
@@ -237,6 +202,12 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
         get side() {
           return context.side
         },
+        get classes() {
+          return local.classes
+        },
+        get styles() {
+          return local.styles
+        },
         sidebar: (props) => (
           <div
             ref={merged.sidebarRef}
@@ -245,24 +216,21 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             data-side={context.side}
             aria-hidden={!isOpen()}
             {...props}
-            {...resolved.slotClassAndStyle('sidebar', {
-              get group() {
-                return { class: props.classes, style: props.styles }
-              },
-            })}
+            class={cn(resolved.slot('sidebar').class, props.classes)}
+            style={{ ...props.styles, ...resolved.slot('sidebar').style }}
           >
             <Show when={sidebarHeaderRender() !== undefined}>
-              <div data-slot="sidebarHeader" {...resolved.slotClassAndStyle('sidebarHeader')}>
+              <div data-slot="sidebarHeader" {...resolved.slot('sidebarHeader')}>
                 {renderComponentOrElement(sidebarHeaderRender(), context)}
               </div>
             </Show>
 
-            <div data-slot="sidebarBody" {...resolved.slotClassAndStyle('sidebarBody')}>
+            <div data-slot="sidebarBody" {...resolved.slot('sidebarBody')}>
               {renderComponentOrElement(merged.sidebarBodyRender, context)}
             </div>
 
             <Show when={sidebarFooterRender() !== undefined}>
-              <div data-slot="sidebarFooter" {...resolved.slotClassAndStyle('sidebarFooter')}>
+              <div data-slot="sidebarFooter" {...resolved.slot('sidebarFooter')}>
                 {renderComponentOrElement(sidebarFooterRender(), context)}
               </div>
             </Show>
@@ -273,11 +241,8 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
             ref={merged.mainRef}
             data-slot="main"
             {...props}
-            {...resolved.slotClassAndStyle('main', {
-              get group() {
-                return { class: props.classes, style: props.styles }
-              },
-            })}
+            class={cn(resolved.slot('main').class, props.classes)}
+            style={{ ...props.styles, ...resolved.slot('main').style }}
             onScroll={(event) => {
               setScrolled(event.currentTarget.scrollTop > (merged.scrollThreshold ?? 60))
             }}

@@ -1,5 +1,5 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { ButtonT } from './button.types.ts'
 
@@ -11,7 +11,7 @@ export const buttonRecipeOptions = {
     label: 'min-w-0 truncate',
     trailing: '',
   },
-  defaultVariants: {
+  defaults: {
     size: 'md',
     variant: 'default',
   },
@@ -51,6 +51,4 @@ export const buttonRecipeOptions = {
   },
 } as const satisfies SlotRecipeOptions<keyof ButtonT.Slot>
 
-export const buttonRecipe = recipe(buttonRecipeOptions)
-
-export type ButtonVariantProps = ButtonT.Variant
+export const buttonRecipe = /* @__PURE__ */ slotRecipe(buttonRecipeOptions)

@@ -2,17 +2,17 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { renderWithDesign } from '../../test-utils/design-render.tsx'
+import { renderWithTheme } from '../../test-utils/theme-render.tsx'
 
-import { SidebarFrame, SidebarFrameSheetResizableRender } from './sidebar-frame'
-import type { SidebarFrameProps } from './sidebar-frame'
+import { SidebarFrame, SidebarFrameSheetResizableRender } from './sidebar-frame.tsx'
+import type { SidebarFrameProps } from './sidebar-frame.tsx'
 
 const originalMatchMedia = window.matchMedia
 
 test('preserves the main subtree when moving between desktop and mobile layouts', () => {
   const [mobile, setMobile] = createSignal(false)
   let mounts = 0
-  const view = renderWithDesign(() => (
+  const view = renderWithTheme(() => (
     <SidebarFrame
       isMobile={mobile()}
       sidebarBodyRender={() => 'Navigation'}
@@ -49,7 +49,7 @@ beforeEach(() => {
 
 test('official Design does not override the responsive media query', async () => {
   window.matchMedia = createMatchMediaMock(true)
-  const view = renderWithDesign(() => (
+  const view = renderWithTheme(() => (
     <SidebarFrame
       sidebarBodyRender={() => <a href="#main">Mobile navigation</a>}
       mainRender={(ctx) => <button onClick={ctx.toggle}>Open navigation</button>}
@@ -108,7 +108,7 @@ describe('SidebarFrame', () => {
   })
 
   test('uses SheetOnly as default frame and does not render resizable on desktop', () => {
-    const screen = renderWithDesign(() => <SidebarFrame {...createBaseProps()} />)
+    const screen = renderWithTheme(() => <SidebarFrame {...createBaseProps()} />)
 
     expect(screen.container.querySelector('[data-slot="root"]')?.className).toContain('h-screen')
     expect(screen.container.querySelector('[data-slot="root"]')?.className).toContain('max-h-full')
@@ -126,7 +126,7 @@ describe('SidebarFrame', () => {
   })
 
   test('toggles desktop sidebar width in the default frame', async () => {
-    const screen = renderWithDesign(() => (
+    const screen = renderWithTheme(() => (
       <SidebarFrame
         {...createBaseProps()}
         mainRender={(ctx) => (
@@ -182,13 +182,13 @@ describe('SidebarFrame', () => {
   })
 
   test('applies variant classes for default, floating and inset', () => {
-    const defaultScreen = renderWithDesign(() => (
+    const defaultScreen = renderWithTheme(() => (
       <SidebarFrame {...createBaseProps()} variant="default" />
     ))
-    const floatingScreen = renderWithDesign(() => (
+    const floatingScreen = renderWithTheme(() => (
       <SidebarFrame {...createBaseProps()} variant="floating" />
     ))
-    const insetScreen = renderWithDesign(() => (
+    const insetScreen = renderWithTheme(() => (
       <SidebarFrame {...createBaseProps()} variant="inset" />
     ))
 
@@ -211,7 +211,7 @@ describe('SidebarFrame', () => {
   })
 
   test('handles right side layout order and inset direction', () => {
-    const screen = renderWithDesign(() => (
+    const screen = renderWithTheme(() => (
       <SidebarFrame {...createBaseProps()} side="right" variant="inset" />
     ))
 
@@ -222,8 +222,8 @@ describe('SidebarFrame', () => {
   })
 
   test('applies default sidebar border by side direction', () => {
-    const leftScreen = renderWithDesign(() => <SidebarFrame {...createBaseProps()} side="left" />)
-    const rightScreen = renderWithDesign(() => <SidebarFrame {...createBaseProps()} side="right" />)
+    const leftScreen = renderWithTheme(() => <SidebarFrame {...createBaseProps()} side="left" />)
+    const rightScreen = renderWithTheme(() => <SidebarFrame {...createBaseProps()} side="right" />)
 
     expect(leftScreen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
       'border-r',

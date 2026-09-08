@@ -33,10 +33,17 @@ export namespace TabsT {
   }
 
   export interface Variant {
-    orientation?: 'horizontal' | 'vertical' | null
+    /** Visual treatment of the component.
+     * @default 'pill'
+     */
     variant?: 'pill' | 'link' | null
+    /** Visual size of the component.
+     * @default 'md'
+     */
     size?: 'sm' | 'md' | 'lg' | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 

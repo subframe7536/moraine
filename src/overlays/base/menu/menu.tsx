@@ -15,23 +15,21 @@ import {
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import { Icon } from '../../../elements/icon/index'
-import type { IconT } from '../../../elements/icon/index'
-import { KbdGroup } from '../../../elements/kbd/index'
-import { List } from '../../../elements/list/index'
-import type { ListProps } from '../../../elements/list/index'
+import { Icon } from '../../../elements/icon/index.ts'
+import type { IconT } from '../../../elements/icon/index.ts'
+import { KbdGroup } from '../../../elements/kbd/index.ts'
+import { List } from '../../../elements/list/index.ts'
+import type { ListProps } from '../../../elements/list/index.ts'
 import { createLazyMemo } from '../../../shared/create-lazy-memo.ts'
-import { resolveComponentStyle } from '../../../shared/provider/moraine-provider.tsx'
-import type { SlotOverride } from '../../../shared/provider/moraine-provider.tsx'
-import type { ComponentOrElement } from '../../../shared/render-prop'
-import { renderComponentOrElement } from '../../../shared/render-prop'
-import type { ClassValue, ElementProps } from '../../../shared/types'
-import { useControllableValue } from '../../../shared/use-controllable-value'
-import { useEventListener } from '../../../shared/use-event-listener'
-import { useTransitionPresence } from '../../../shared/use-transition-presence'
-import { callHandler, useId } from '../../../shared/utils'
-import { useFloatingPosition } from '../floating'
-import { useOverlayInteraction } from '../interaction'
+import type { ComponentOrElement } from '../../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../../shared/render-prop.ts'
+import type { ClassValue, ElementProps } from '../../../shared/types.ts'
+import { useControllableValue } from '../../../shared/use-controllable-value.ts'
+import { useEventListener } from '../../../shared/use-event-listener.ts'
+import { useTransitionPresence } from '../../../shared/use-transition-presence.ts'
+import { cn, callHandler, useId } from '../../../shared/utils.ts'
+import { useFloatingPosition } from '../floating.ts'
+import { useOverlayInteraction } from '../interaction.ts'
 import {
   acquireBodyScrollLock,
   focusTrigger,
@@ -39,7 +37,7 @@ import {
   getFocusableElements,
   resolveDirection,
   resolveOverlayMenuSide,
-} from '../utils'
+} from '../utils.ts'
 
 import {
   createPointerGraceIntent,
@@ -66,9 +64,9 @@ import type {
   OverlayMenuSharedItemRenderProps,
   OverlayMenuSharedSlots,
   OverlayMenuSharedStyles,
-  OverlayMenuSlotClassAndStyle,
-} from './types'
-import type { OverlayMenuItemVariantProps } from './types.ts'
+  OverlayMenuSlotBinding,
+  OverlayMenuItemVariantProps,
+} from './types.ts'
 
 export type { OverlayMenuAnchorRect, OverlayMenuFocusStrategy } from './menu.utils'
 
@@ -87,7 +85,7 @@ interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TItem>> {
   classes?: OverlayMenuSharedClasses
 
   /** Unified slot class and style resolver. */
-  slotClassAndStyle?: OverlayMenuSlotClassAndStyle
+  slotBinding?: OverlayMenuSlotBinding
 
   /** Content rendered after the resolved item groups. */
   contentBottom?: OverlayMenuContentSlot
@@ -182,18 +180,19 @@ function callRef<T extends HTMLElement>(
 }
 
 function resolveMenuSlot(
-  props: Pick<OverlayMenuSharedProps<never>, 'slotClassAndStyle' | 'classes' | 'styles'>,
+  props: Pick<OverlayMenuSharedProps<never>, 'slotBinding' | 'classes' | 'styles'>,
   slot: keyof OverlayMenuSharedSlots,
-  override?: SlotOverride,
 ) {
-  if (props.slotClassAndStyle) {
-    return props.slotClassAndStyle(slot, override)
-  }
-  return resolveComponentStyle({
-    get instance() {
-      return props
-    },
-  }).slotClassAndStyle(slot, override)
+  return (
+    props.slotBinding?.(slot) ?? {
+      get class() {
+        return cn(props.classes?.[slot])
+      },
+      get style() {
+        return props.styles?.[slot] ?? {}
+      },
+    }
+  )
 }
 
 interface OverlayMenuLayerProps<
@@ -255,7 +254,7 @@ export interface OverlayMenuProps<TItem extends OverlayMenuSharedItem<TItem>>
 }
 
 export interface OverlayMenuRootProps<TItem extends OverlayMenuSharedItem<TItem>>
-  extends Omit<OverlayMenuSharedProps<TItem>, 'slotClassAndStyle'>, OverlayMenuScrollLockProps {
+  extends Omit<OverlayMenuSharedProps<TItem>, 'slotBinding'>, OverlayMenuScrollLockProps {
   /** Controlled open state of the menu. */
   open?: boolean
 
@@ -279,8 +278,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   props: OverlayMenuLayerProps<TItem>,
 ): JSX.Element {
   const layer = useOverlayMenuLayerState()
-  const resolveSlot = (slot: keyof OverlayMenuSharedSlots, override?: SlotOverride) =>
-    resolveMenuSlot(props, slot, override)
+  const resolveSlot = (slot: keyof OverlayMenuSharedSlots) => resolveMenuSlot(props, slot)
   const resolvedPlacement = () => props.placement ?? 'bottom-start'
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>(
     undefined,
@@ -490,14 +488,15 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   })
 
   function getItemSlot(itemAttrsStyle?: string | JSX.CSSProperties, itemAttrsClass?: ClassValue) {
-    return resolveSlot('item', {
-      get state() {
-        return {
-          class: itemAttrsClass,
-          style: toStyleObject(itemAttrsStyle),
-        }
+    const binding = resolveSlot('item')
+    return {
+      get class() {
+        return cn(binding.class, itemAttrsClass)
       },
-    })
+      get style() {
+        return { ...toStyleObject(itemAttrsStyle), ...binding.style }
+      },
+    }
   }
 
   function getItemRenderProps(
@@ -1169,7 +1168,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               items={itemProps.item.children}
               classes={props.classes}
               styles={props.styles}
-              slotClassAndStyle={props.slotClassAndStyle}
+              slotBinding={props.slotBinding}
               size={props.size}
               checkedIcon={props.checkedIcon}
               submenuIcon={props.submenuIcon}
@@ -1273,18 +1272,14 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       JSX.HTMLAttributes<HTMLDivElement>
   >
 
-  const contentSlot = () =>
-    resolveSlot('content', {
-      get state() {
-        return {
-          class: props.contentProps?.class,
-          style: {
-            '--mo-popper-content-transform-origin': undefined,
-            ...toStyleObject(props.contentProps?.style),
-          },
-        }
-      },
-    })
+  const contentSlot = () => ({
+    class: cn(resolveSlot('content').class, props.contentProps?.class),
+    style: {
+      '--mo-popper-content-transform-origin': undefined,
+      ...toStyleObject(props.contentProps?.style),
+      ...resolveSlot('content').style,
+    },
+  })
 
   return (
     <div
@@ -1544,7 +1539,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           items={merged.items}
           classes={merged.classes}
           styles={merged.styles}
-          slotClassAndStyle={merged.slotClassAndStyle}
+          slotBinding={merged.slotBinding}
           size={merged.size}
           checkedIcon={merged.checkedIcon}
           submenuIcon={merged.submenuIcon}

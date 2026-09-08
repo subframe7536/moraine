@@ -1,5 +1,4 @@
-import { recipe } from '../../shared/style/recipe.ts'
-import type { VariantProps } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 
 export const commandPaletteRecipeOptions = {
   base: {
@@ -29,6 +28,4 @@ export const commandPaletteRecipeOptions = {
   variants: {},
 } as const
 
-export const commandPaletteRecipe = recipe(commandPaletteRecipeOptions)
-
-export type CommandPaletteVariantProps = VariantProps<typeof commandPaletteRecipe>
+export const commandPaletteRecipe = /* @__PURE__ */ slotRecipe(commandPaletteRecipeOptions)

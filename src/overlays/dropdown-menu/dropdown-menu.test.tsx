@@ -2,14 +2,14 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { renderWithDesign } from '../../test-utils/design-render.tsx'
-import { finishMenuExitMotion } from '../../test-utils/overlay-test'
+import { finishMenuExitMotion } from '../../test-utils/overlay-test.ts'
+import { renderWithTheme } from '../../test-utils/theme-render.tsx'
 
-import { DropdownMenu } from './dropdown-menu'
+import { DropdownMenu } from './dropdown-menu.tsx'
 
 describe('DropdownMenu', () => {
   test('applies top-level class and style to trigger', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <DropdownMenu>
         <DropdownMenu.Trigger
           as="button"
@@ -343,7 +343,7 @@ describe('DropdownMenu', () => {
   })
 
   test('keeps content mounted with closed data attrs until exit motion finishes', async () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
           Actions
@@ -379,7 +379,7 @@ describe('DropdownMenu', () => {
   })
 
   test('uses shared bottom-side transition classes for default placement', async () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
           Actions
@@ -417,7 +417,7 @@ describe('DropdownMenu', () => {
       </div>
     ))
 
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <DropdownMenu defaultOpen placement="left-start">
         <DropdownMenu.Trigger as="button" type="button">
           Actions
@@ -932,7 +932,7 @@ describe('DropdownMenu', () => {
   })
 
   test('destructive item icon does not force muted color class', async () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
           Actions
@@ -1134,7 +1134,7 @@ describe('DropdownMenu', () => {
     const contentRef = vi.fn()
     const itemRef = vi.fn()
     const onSelect = vi.fn()
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
           Actions
@@ -1179,7 +1179,7 @@ describe('DropdownMenu', () => {
   })
 
   test('locks body scroll and renders an overlay layer while open', async () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <DropdownMenu defaultOpen>
         <DropdownMenu.Trigger as="button" type="button">
           Actions

@@ -1,4 +1,4 @@
-import type { JSX, Ref } from 'solid-js'
+import type { JSX } from 'solid-js'
 import {
   Show,
   createEffect,
@@ -13,10 +13,11 @@ import {
 
 import type { ModelModifiers } from '../../shared/input-modifiers.ts'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form/form-context.ts'
+import { useFormField, useFormFieldContext } from '../form/form-context.ts'
 import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
+import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
@@ -44,11 +45,7 @@ function calculateNeededRows(el: HTMLTextAreaElement, padding: number, lineHeigh
 export function Textarea<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
   props: TextareaProps<M>,
 ): JSX.Element {
-  type RootProps = TextareaProps<M> & {
-    onPointerDown?: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent>
-    ref?: Ref<HTMLDivElement>
-  }
-  const [local, rest] = splitProps(props as RootProps, [
+  const [local, rest] = splitProps(props, [
     'ref',
     'textareaRef',
     'id',
@@ -60,10 +57,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     'disabled',
     'size',
     'variant',
-    'placeholder',
     'autofocus',
     'autofocusDelay',
-    'maxLength',
     'autoResize',
     'autoResizeDelay',
     'rows',
@@ -81,11 +76,11 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     'styles',
     'class',
     'style',
-    'onPointerDown',
   ])
-
-  const design = useMoraineDesign()
-  const textareaDesign = () => design().textarea
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('textarea', local, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
 
   const merged = mergeProps(
     {
@@ -93,10 +88,10 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       maxRows: 0,
       autofocusDelay: 0,
       autoResizeDelay: 0,
-      variant: 'outline' as const,
+
       autoResize: false,
     },
-    () => textareaDesign()?.defaultVariants,
+
     local,
   )
   const header = createMemo(() => merged.header)
@@ -113,34 +108,13 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       size: local.size,
       disabled: merged.disabled,
       required: local.required,
-      readOnly: Boolean(merged.readOnly),
+      readOnly: merged.readOnly,
     }),
     () => ({
       defaultId: generatedId(),
-      defaultSize: textareaDesign()?.defaultVariants?.size ?? 'md',
       initialValue: merged.defaultValue ?? '',
     }),
   )
-
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return textareaDesign()?.recipe({
-          size: field.size(),
-          variant: merged.variant,
-          autoresize: merged.autoResize ? 'true' : 'false',
-        })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
 
   let textareaEl: HTMLTextAreaElement | undefined
   const [isFocused, setIsFocused] = createSignal(false)
@@ -159,8 +133,24 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     'data-invalid': field.invalid() ? '' : undefined,
     'data-disabled': field.disabled() ? '' : undefined,
     'data-required': field.required() ? '' : undefined,
-    'data-readonly': merged.readOnly ? '' : undefined,
+    'data-readonly': field.readOnly() ? '' : undefined,
   }))
+
+  const ariaAttrs = createMemo(() => {
+    const generated = field.ariaAttrs()
+    return {
+      'aria-invalid':
+        rest['aria-invalid'] !== undefined ? rest['aria-invalid'] : generated['aria-invalid'],
+      'aria-required':
+        rest['aria-required'] !== undefined ? rest['aria-required'] : generated['aria-required'],
+      'aria-disabled':
+        rest['aria-disabled'] !== undefined ? rest['aria-disabled'] : generated['aria-disabled'],
+      'aria-readonly':
+        rest['aria-readonly'] !== undefined ? rest['aria-readonly'] : generated['aria-readonly'],
+      'aria-describedby': mergeAriaTokens(rest['aria-describedby'], generated['aria-describedby']),
+      'aria-labelledby': mergeAriaTokens(rest['aria-labelledby'], generated['aria-labelledby']),
+    }
+  })
 
   const restoreControlledValue = textControl.restoreControlledValue
 
@@ -205,13 +195,6 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   }
 
   const onInput: JSX.EventHandler<HTMLTextAreaElement, InputEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, merged.onInput)
-    if (defaultPrevented) {
-      if (!isLazy()) {
-        restoreControlledValue()
-      }
-      return
-    }
     autoResize()
 
     if (!isLazy()) {
@@ -219,6 +202,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       field.emit('input')
       restoreControlledValue()
     }
+    callHandler(event, merged.onInput)
   }
 
   const onChange: JSX.EventHandler<HTMLTextAreaElement, Event> = (event) => {
@@ -232,34 +216,24 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       event.currentTarget.value = value.trim()
     }
 
-    field.emit('change')
-    merged.onChange?.(textControl.applyValue(value))
+    field.emit('change', event)
     restoreControlledValue()
+    callHandler(event, merged.onChange)
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, merged.onBlur)
-    if (defaultPrevented) {
-      return
-    }
     setIsFocused(false)
     field.emit('blur', event)
+    callHandler(event, merged.onBlur)
   }
 
   const onFocus: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, merged.onFocus)
-    if (defaultPrevented) {
-      return
-    }
     setIsFocused(true)
     field.emit('focus', event)
+    callHandler(event, merged.onFocus)
   }
 
   const onRootPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, local.onPointerDown)
-    if (defaultPrevented) {
-      return
-    }
     if (
       event.button !== 0 ||
       event.defaultPrevented ||
@@ -329,46 +303,45 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     <div
       ref={(el) => callRef(local.ref, el)}
       data-slot="root"
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
       onPointerDown={onRootPointerDown}
       data-focused={isFocused() ? '' : undefined}
       {...dataAttrs()}
-      {...rest}
     >
       <Show when={showHeader()}>
-        <div data-slot="header" {...resolved.slotClassAndStyle('header')}>
+        <div data-slot="header" {...resolved.slot('header')}>
           {header()}
         </div>
       </Show>
 
       <textarea
+        {...rest}
         id={field.id()}
+        name={field.name()}
+        rows={merged.rows ?? 3}
+        required={field.required()}
+        disabled={field.disabled()}
+        readonly={field.readOnly()}
+        data-slot="input"
+        data-autoresize={merged.autoResize ? '' : undefined}
+        {...dataAttrs()}
+        {...ariaAttrs()}
+        {...textControl.valueProps()}
         ref={(element) => {
           textareaEl = element
           callRef(local.textareaRef, element)
         }}
-        name={field.name()}
-        rows={merged.rows ?? 3}
-        placeholder={merged.placeholder}
-        required={field.required()}
-        disabled={field.disabled()}
-        readOnly={merged.readOnly}
-        maxLength={merged.maxLength}
-        data-slot="input"
-        {...resolved.slotClassAndStyle('input')}
+        {...resolved.slot('input')}
         onInput={onInput}
         onChange={onChange}
         onBlur={onBlur}
         onFocus={onFocus}
-        {...dataAttrs()}
-        {...field.ariaAttrs()}
-        {...textControl.valueProps()}
       />
 
       {merged.children}
 
       <Show when={showFooter()}>
-        <div data-slot="footer" {...resolved.slotClassAndStyle('footer')}>
+        <div data-slot="footer" {...resolved.slot('footer')}>
           {footer()}
         </div>
       </Show>

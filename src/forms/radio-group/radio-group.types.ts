@@ -39,12 +39,21 @@ export namespace RadioGroupT {
   }
 
   export interface Variant {
-    orientation?: 'horizontal' | 'vertical' | null
+    /** Visual size of the component.
+     * @default 'md'
+     */
     size?: 'sm' | 'md' | 'lg' | null
+    /** Visual treatment of the component.
+     * @default 'list'
+     */
     variant?: 'card' | 'table' | 'list' | null
+    /** Placement of the selection indicator.
+     * @default 'start'
+     */
     indicator?: 'start' | 'end' | 'hidden' | null
-    tableOrientation?: 'horizontal' | 'vertical' | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 

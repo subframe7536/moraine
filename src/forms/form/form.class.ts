@@ -1,5 +1,5 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { FormT } from './form.types.ts'
 
@@ -9,4 +9,4 @@ export const formRecipeOptions = {
   },
 } as const satisfies SlotRecipeOptions<keyof FormT.Slot>
 
-export const formRecipe = recipe(formRecipeOptions)
+export const formRecipe = /* @__PURE__ */ slotRecipe(formRecipeOptions)

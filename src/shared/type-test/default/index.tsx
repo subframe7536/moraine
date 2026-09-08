@@ -8,6 +8,9 @@ import {
   Dialog,
   DropdownMenu,
   Icon,
+  Input,
+  Textarea,
+  Select,
   Kbd,
   List,
   Modal,
@@ -20,7 +23,7 @@ import {
   useId,
 } from 'moraine'
 import type { AvatarGroupT, AvatarT, ModalT } from 'moraine'
-import { createDesign } from 'moraine/design'
+import { createTheme } from 'moraine/theme'
 import { createContextProvider, renderComponentOrElement } from 'moraine/utils'
 import type { Component, JSX } from 'solid-js'
 import * as v from 'valibot'
@@ -119,6 +122,7 @@ const divRef = (element: HTMLDivElement) => element.focus()
 
 ;<Badge id="badge" />
 ;<Card onClick={() => undefined} />
+// @ts-expect-error Div roots reject anchor attributes.
 ;<Card href="/details" />
 // @ts-expect-error Required custom component props must be supplied to the trigger.
 ;<Dialog.Trigger as={CustomRoot} />
@@ -150,40 +154,72 @@ void generatedId
 // @ts-expect-error The legacy config prop is removed.
 ;<MoraineProvider config={{}} />
 
-// @ts-expect-error A Design is required.
 ;<MoraineProvider />
 
 // @ts-expect-error String defineStyleVars extra styles are rejected
 defineStyleVars({ base: { size: '1px' } })({}, 'color: red')
 
-const design = createDesign({
-  button: { base: { root: 'rounded-lg' }, defaultVariants: { size: 'sm' } },
+const theme = createTheme({
+  button: { base: { root: 'rounded-lg' }, defaults: { size: 'sm' } },
   form: { base: { root: 'space-y-2' } },
   icon: { base: { root: 'size-4' } },
   kbd: { base: { root: 'px-1' } },
   modal: { base: { content: 'p-4' } },
   separator: { base: { root: 'border-t' } },
 })
-;<MoraineProvider design={design}>
+;<MoraineProvider theme={theme}>
   <Button />
 </MoraineProvider>
 
 // @ts-expect-error Unknown component names are rejected.
-createDesign({ unknownComponent: {} })
-// @ts-expect-error List has no Design slots.
-createDesign({ list: { base: { root: 'p-4' } } })
-createDesign({ collapsible: { base: { content: 'overflow-hidden' } } })
+createTheme({ unknownComponent: {} })
+// @ts-expect-error List has no Theme slots.
+createTheme({ list: { base: { root: 'p-4' } } })
+createTheme({ collapsible: { base: { content: 'overflow-hidden' } } })
 // @ts-expect-error Collapsible has no visual variants.
-createDesign({ collapsible: { defaultVariants: { size: 'sm' } } })
+createTheme({ collapsible: { defaults: { size: 'sm' } } })
 // @ts-expect-error Unknown slots are rejected.
-createDesign({ button: { base: { missing: 'p-4' } } })
+createTheme({ button: { base: { missing: 'p-4' } } })
 // @ts-expect-error Variant defaults are constrained to component variants.
-createDesign({ button: { defaultVariants: { size: 'huge' } } })
-// @ts-expect-error Design does not accept inline styles.
-createDesign({ button: { styles: { root: { color: 'red' } } } })
-// @ts-expect-error Design does not accept legacy class maps.
-createDesign({ button: { classes: { root: 'p-4' } } })
+createTheme({ button: { defaults: { size: 'huge' } } })
+// @ts-expect-error Theme does not accept inline styles.
+createTheme({ button: { styles: { root: { color: 'red' } } } })
+// @ts-expect-error Theme does not accept legacy class maps.
+createTheme({ button: { classes: { root: 'p-4' } } })
 // @ts-expect-error Variant selectors are constrained.
-createDesign({ button: { variants: { size: { huge: { root: 'p-4' } } } } })
+createTheme({ button: { variants: { size: { huge: { root: 'p-4' } } } } })
 // @ts-expect-error Compound slots are constrained.
-createDesign({ button: { compoundVariants: [{ size: 'sm', class: { missing: 'p-4' } }] } })
+createTheme({ button: { compoundVariants: [{ size: 'sm', class: { missing: 'p-4' } }] } })
+
+;<Input
+  form="checkout"
+  list="cities"
+  enterkeyhint="next"
+  ref={(element) => element.align}
+  inputRef={(element) => element.select()}
+  onChange={(event) => event.currentTarget.select()}
+  onPaste={(event) => event.currentTarget.checkValidity()}
+/>
+;<Textarea
+  form="checkout"
+  wrap="soft"
+  textareaRef={(element) => element.rows}
+  onChange={(event) => event.currentTarget.rows}
+  onValueChange={(value) => {
+    const text: string = value
+    void text
+  }}
+/>
+;<Select
+  options={[{ label: 'One', value: 1 }]}
+  onChange={(value) => {
+    const selected: number | null = value
+    void selected
+  }}
+/>
+// @ts-expect-error Unknown native props are rejected.
+;<Input unknownNativeProp="invalid" />
+// @ts-expect-error Native change handlers receive events, not normalized strings.
+;<Textarea onChange={(value: string) => value.trim()} />
+// @ts-expect-error Null is a suppression value for instances, not a Theme default.
+createTheme({ button: { defaults: { size: null } } })

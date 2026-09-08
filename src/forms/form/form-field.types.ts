@@ -50,11 +50,17 @@ export namespace FormFieldT {
   }
 
   export interface Variant {
-    size?: 'sm' | 'md' | 'lg'
-    orientation?: 'vertical' | 'horizontal'
-    required?: boolean
-    hasText?: boolean
+    /** Visual size of the component.
+     * @default 'md'
+     */
+    size?: 'sm' | 'md' | 'lg' | null
+    /** Visual layout direction.
+     * @default 'vertical'
+     */
+    orientation?: 'vertical' | 'horizontal' | null
   }
+
+  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -101,6 +107,12 @@ export namespace FormFieldT {
      * @default false
      */
     required?: boolean
+
+    /** Whether controls inherit a disabled state. */
+    disabled?: boolean
+
+    /** Whether controls inherit a read-only state. */
+    readOnly?: boolean
 
     /** Children of the field, can be a render function. */
     children?: ComponentOrElement<RenderContext>

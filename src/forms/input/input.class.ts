@@ -1,6 +1,6 @@
 import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
-import type { SlotRecipeOptions, VariantProps } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { InputT } from './input.types.ts'
 
@@ -12,7 +12,7 @@ export const inputRecipeOptions = {
     leading: 'flex shrink-0 items-center [&_[data-loading]]:animate-spin',
     trailing: 'flex shrink-0 items-center [&_[data-loading]]:animate-spin',
   },
-  defaultVariants: {
+  defaults: {
     size: 'md',
     variant: 'outline',
   },
@@ -46,6 +46,4 @@ export const inputRecipeOptions = {
   },
 } as const satisfies SlotRecipeOptions<keyof InputT.Slot>
 
-export const inputRecipe = recipe(inputRecipeOptions)
-
-export type InputVariantProps = VariantProps<typeof inputRecipe>
+export const inputRecipe = /* @__PURE__ */ slotRecipe(inputRecipeOptions)

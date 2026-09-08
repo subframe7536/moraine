@@ -2,15 +2,12 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { createDesign } from '../../design.ts'
-import { DropdownMenu } from '../../overlays/dropdown-menu/index'
-import { Popover } from '../../overlays/popover/index'
+import { DropdownMenu } from '../../overlays/dropdown-menu/index.ts'
+import { Popover } from '../../overlays/popover/index.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 
-import { Button } from './button'
-import { ButtonGroup } from './button-group'
-
-const officialDesign = createDesign()
+import { ButtonGroup } from './button-group.tsx'
+import { Button } from './button.tsx'
 
 describe('ButtonGroup', () => {
   test('renders unstyled when provider is absent', () => {
@@ -30,7 +27,7 @@ describe('ButtonGroup', () => {
 
   test('renders related buttons with group semantics and joined horizontal edges', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <ButtonGroup aria-label="History controls">
           <Button>Back</Button>
           <Button>Forward</Button>
@@ -65,7 +62,7 @@ describe('ButtonGroup', () => {
 
   test('renders decorative separators between horizontal children', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <ButtonGroup separator>
           <Button>Back</Button>
           <Button>Forward</Button>
@@ -171,7 +168,7 @@ describe('ButtonGroup', () => {
 
   test('joins overlay trigger roots as direct children', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <ButtonGroup>
           <Button>Export</Button>
           <DropdownMenu>
@@ -219,7 +216,7 @@ describe('ButtonGroup', () => {
     ['lg', 'h-9'],
   ] as const)('provides the %s size to nested buttons', (size, expectedClass) => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <ButtonGroup size={size}>
           <Button>{size}</Button>
         </ButtonGroup>
@@ -241,7 +238,7 @@ describe('ButtonGroup', () => {
     ['destructive', 'bg-destructive'],
   ] as const)('provides the %s variant to nested buttons', (variant, expectedClass) => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <ButtonGroup variant={variant}>
           <Button>{variant}</Button>
         </ButtonGroup>
@@ -256,7 +253,7 @@ describe('ButtonGroup', () => {
 
   test('allows a nested button to override group size and variant defaults', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <ButtonGroup size="lg" variant="secondary">
           <Button size="sm" variant="destructive">
             Remove
@@ -272,7 +269,7 @@ describe('ButtonGroup', () => {
 
   test('supports a cohesive vertical orientation', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <ButtonGroup orientation="vertical">
           <Button>Up</Button>
           <Button>Down</Button>
@@ -303,7 +300,7 @@ describe('ButtonGroup', () => {
 
   test('joins overlay trigger roots as direct children vertically', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <ButtonGroup orientation="vertical">
           <Button>Export</Button>
           <DropdownMenu>
@@ -328,7 +325,7 @@ describe('ButtonGroup', () => {
     const [size, setSize] = createSignal<'sm' | 'lg'>('sm')
     const [variant, setVariant] = createSignal<'outline' | 'secondary'>('outline')
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <ButtonGroup size={size()} variant={variant()}>
           <Button>Action</Button>
         </ButtonGroup>

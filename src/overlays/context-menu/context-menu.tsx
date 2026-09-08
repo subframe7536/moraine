@@ -12,8 +12,7 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { createContextProvider } from '../../shared/create-context-provider.tsx'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
-import type { ElementProps } from '../../shared/types.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useEventListener } from '../../shared/use-event-listener.ts'
 import { useId } from '../../shared/utils.ts'
 import { OverlayMenu } from '../base/menu/index.ts'
@@ -562,19 +561,9 @@ function ContextMenuTrigger<T extends ValidComponent = 'div'>(
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style'])
   const context = useContextMenuContext()
-  const design = useMoraineDesign()
-  const resolved = resolveComponentStyle({
-    rootSlot: 'trigger',
-    design: {
-      get classes() {
-        return design().contextMenu.recipe()
-      },
-    },
-    get instance() {
-      return local
-    },
-  })
-  const binding = mergeMenuTriggerProps(rest as Partial<OverlayTriggerProps>, context.triggerProps)
+
+  const resolved = createComponentStyles('contextMenu', local, { rootSlot: 'trigger' })
+  const binding = mergeMenuTriggerProps(rest, context.triggerProps)
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
   return (
@@ -582,7 +571,7 @@ function ContextMenuTrigger<T extends ValidComponent = 'div'>(
       component={(local.as as ValidComponent) ?? 'div'}
       type={undefined}
       {...binding}
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
     >
       {children()}
     </Dynamic>
@@ -605,33 +594,23 @@ function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Element {
     'styles',
   ])
   const context = useContextMenuContext()
-  const design = useMoraineDesign()
+
   const merged = mergeProps(
-    { size: 'md' as const, checkedIcon: 'icon-check', submenuIcon: 'icon-chevron-right' },
-    () => design().contextMenu.defaultVariants,
+    { checkedIcon: 'icon-check', submenuIcon: 'icon-chevron-right' },
+
     local,
   )
-  const resolved = resolveComponentStyle({
-    rootSlot: 'content',
-    design: {
-      get classes() {
-        return design().contextMenu.recipe({ size: merged.size })
-      },
-    },
-    get instance() {
-      return local
-    },
-  })
+  const resolved = createComponentStyles('contextMenu', local, { rootSlot: 'content' })
   return (
     <OverlayMenu<ContextMenuT.Item>
       {...context.menuProps}
-      slotClassAndStyle={resolved.slotClassAndStyle}
-      size={merged.size ?? undefined}
+      slotBinding={resolved.slot}
+      size={resolved.variants.size ?? undefined}
       items={merged.items}
       checkedIcon={merged.checkedIcon}
       submenuIcon={merged.submenuIcon}
       itemRender={merged.itemRender}
-      contentProps={rest as ElementProps<HTMLDivElement>}
+      contentProps={rest}
       itemProps={merged.itemProps}
       contentTop={merged.contentTop}
       contentBottom={merged.contentBottom}

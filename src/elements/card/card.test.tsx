@@ -2,12 +2,9 @@ import { render } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 
 import { Card } from './card.tsx'
-
-const officialDesign = createDesign()
 
 describe('Card', () => {
   test('renders unstyled when provider is absent', () => {
@@ -28,7 +25,7 @@ describe('Card', () => {
 
   test('renders root with the default outline appearance', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Card />
       </MoraineProvider>
     ))

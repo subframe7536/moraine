@@ -4,18 +4,15 @@ import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, expectTypeOf, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithOwner } from '../../test-utils/owner-render'
-import { createForm } from '../form/index'
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { createForm } from '../form/index.ts'
 
-import { InputNumber } from './input-number'
-import type { InputNumberT } from './input-number'
-
-const officialDesign = createDesign()
+import { InputNumber } from './input-number.tsx'
+import type { InputNumberT } from './input-number.tsx'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 describe('InputNumber', () => {
   test('renders unstyled when provider is absent', () => {
@@ -1090,7 +1087,8 @@ describe('InputNumber', () => {
     expect(incrementOnlyButton?.className).not.toContain('absolute')
     expect(incrementOnlyBase?.className).not.toContain('pe-10')
     expect(incrementOnlyBase?.className).not.toContain('ps-10')
-    expect(incrementOnlyBase?.className).toContain('text-start')
+    expect(incrementOnlyBase?.className).toContain('data-auto-align:text-start')
+    expect(incrementOnlyBase?.hasAttribute('data-auto-align')).toBe(true)
 
     incrementOnly.unmount()
 
@@ -1105,7 +1103,7 @@ describe('InputNumber', () => {
     expect(decrementOnlyButton?.className).not.toContain('absolute')
     expect(decrementOnlyBase?.className).not.toContain('pe-10')
     expect(decrementOnlyBase?.className).not.toContain('ps-10')
-    expect(decrementOnlyBase?.className).not.toContain('text-start')
+    expect(decrementOnlyBase?.hasAttribute('data-auto-align')).toBe(false)
   })
 
   test('uses a dedicated vertical control column instead of end-padding the input', () => {

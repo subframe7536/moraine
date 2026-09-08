@@ -10,7 +10,7 @@ import {
 import { Icon } from '../../elements/icon/index.ts'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import { hasJsxContent } from '../../shared/jsx-content.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { ModalSurface } from '../modal/modal-content.tsx'
 import { useModalContext } from '../modal/modal-context.ts'
 import { Modal } from '../modal/modal.tsx'
@@ -27,38 +27,16 @@ export function Dialog(props: DialogProps): JSX.Element {
 function DialogTrigger<T extends ValidComponent = 'button'>(
   props: DialogT.TriggerProps<T>,
 ): JSX.Element {
-  const design = useMoraineDesign()
-  const resolved = resolveComponentStyle({
-    rootSlot: 'trigger',
-    design: {
-      get classes() {
-        return design().dialog.recipe()
-      },
-    },
-    get instance() {
-      return props
-    },
-  })
-  const partProps = mergeProps(props, resolved.rootClassAndStyle()) as DialogT.TriggerProps<T>
+  const resolved = createComponentStyles('dialog', props, { rootSlot: 'trigger' })
+  const partProps = mergeProps(props, resolved.root) as DialogT.TriggerProps<T>
   return createComponent(Modal.Trigger<T>, partProps)
 }
 
 function DialogClose<T extends ValidComponent = 'button'>(
   props: DialogT.CloseProps<T>,
 ): JSX.Element {
-  const design = useMoraineDesign()
-  const resolved = resolveComponentStyle({
-    rootSlot: 'close',
-    design: {
-      get classes() {
-        return design().dialog.recipe()
-      },
-    },
-    get instance() {
-      return props
-    },
-  })
-  const partProps = mergeProps(props, resolved.rootClassAndStyle()) as DialogT.CloseProps<T>
+  const resolved = createComponentStyles('dialog', props, { rootSlot: 'close' })
+  const partProps = mergeProps(props, resolved.root) as DialogT.CloseProps<T>
   return createComponent(Modal.Close<T>, partProps)
 }
 
@@ -81,28 +59,16 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
     'class',
     'style',
   ])
-  const design = useMoraineDesign()
+
   const context = useModalContext()
   const merged = mergeProps(
     { overlay: true, close: true, closeIcon: 'icon-close' as const },
-    () => design().dialog.defaultVariants,
+
     local,
   )
-  const overlayScroll = () => Boolean(merged.scrollable && merged.overlay && !merged.fullscreen)
-  const resolved = resolveComponentStyle({
-    rootSlot: 'content',
-    design: {
-      get classes() {
-        return design().dialog.recipe({
-          fullscreen: merged.fullscreen,
-          scrollable: overlayScroll(),
-        })
-      },
-    },
-    get instance() {
-      return local
-    },
-  })
+  const resolved = createComponentStyles('dialog', local, { rootSlot: 'content' })
+  const overlayScroll = () =>
+    Boolean(resolved.variants.scrollable && merged.overlay && !resolved.variants.fullscreen)
   const title = createLazyMemo(() => merged.title)
   const description = createLazyMemo(() => merged.description)
   const header = createLazyMemo(() => merged.header)
@@ -129,9 +95,9 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
       {...rest}
       overlay={merged.overlay}
       overlayScroll={overlayScroll()}
-      overlayClass={resolved.slotClass('overlay')}
-      overlayStyle={resolved.slotStyle('overlay')}
-      {...resolved.rootClassAndStyle()}
+      overlayClass={resolved.slot('overlay').class}
+      overlayStyle={resolved.slot('overlay').style}
+      {...resolved.root}
       ariaLabel={merged.ariaLabel}
       ariaLabelledBy={titleId()}
       ariaDescribedBy={descriptionId()}
@@ -139,7 +105,7 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
       {() => (
         <>
           <Show when={hasHeader()}>
-            <div data-slot="header" {...resolved.slotClassAndStyle('header')}>
+            <div data-slot="header" {...resolved.slot('header')}>
               <Show
                 when={hasCustomHeader()}
                 fallback={
@@ -148,14 +114,10 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
                       <div
                         data-slot="wrapper"
                         data-close={merged.close ? '' : undefined}
-                        {...resolved.slotClassAndStyle('wrapper')}
+                        {...resolved.slot('wrapper')}
                       >
                         <Show when={hasJsxContent(title())}>
-                          <h2
-                            id={titleId()}
-                            data-slot="title"
-                            {...resolved.slotClassAndStyle('title')}
-                          >
+                          <h2 id={titleId()} data-slot="title" {...resolved.slot('title')}>
                             {title()}
                           </h2>
                         </Show>
@@ -163,7 +125,7 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
                           <p
                             id={descriptionId()}
                             data-slot="description"
-                            {...resolved.slotClassAndStyle('description')}
+                            {...resolved.slot('description')}
                           >
                             {description()}
                           </p>
@@ -171,7 +133,7 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
                       </div>
                     </Show>
                     <Show when={merged.close}>
-                      <Modal.Close aria-label="Close" {...resolved.slotClassAndStyle('close')}>
+                      <Modal.Close aria-label="Close" {...resolved.slot('close')}>
                         <Icon name={closeIcon()} />
                       </Modal.Close>
                     </Show>
@@ -188,13 +150,13 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
               data-scroll={overlayScroll() ? undefined : ''}
               data-header={hasHeader() ? '' : undefined}
               data-footer={hasJsxContent(footer()) ? '' : undefined}
-              {...resolved.slotClassAndStyle('body')}
+              {...resolved.slot('body')}
             >
               {body()}
             </div>
           </Show>
           <Show when={hasJsxContent(footer())}>
-            <div data-slot="footer" {...resolved.slotClassAndStyle('footer')}>
+            <div data-slot="footer" {...resolved.slot('footer')}>
               {footer()}
             </div>
           </Show>

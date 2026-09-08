@@ -1,8 +1,8 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createMemo, untrack } from 'solid-js'
 
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
-import { applyInputModifiers } from '../../shared/input-modifiers'
+import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
+import { applyInputModifiers } from '../../shared/input-modifiers.ts'
 
 type TextControlElement = HTMLInputElement | HTMLTextAreaElement
 type TextControlValue = string | number | undefined
@@ -66,10 +66,10 @@ export function useTextControlValue<
     const nextValue = applyValue(value)
     const controlledValue = options.value()
 
+    options.onValueChange()?.(nextValue)
     if (controlledValue === undefined) {
       options.setFormValue(nextValue)
     }
-    options.onValueChange()?.(nextValue)
     if (controlledValue !== undefined && Object.is(options.value(), controlledValue)) {
       options.setFormValue(controlledValue)
     }

@@ -1,14 +1,15 @@
-import type { JSX, Ref } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
 
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import type { ModelModifiers } from '../../shared/input-modifiers.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form/form-context.ts'
+import { useFormField, useFormFieldContext } from '../form/form-context.ts'
 import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
+import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
@@ -20,11 +21,7 @@ export * from './input.types.ts'
 export function Input<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
   props: InputProps<M>,
 ): JSX.Element {
-  type RootProps = InputProps<M> & {
-    onPointerDown?: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent>
-    ref?: Ref<HTMLDivElement>
-  }
-  const [local, rest] = splitProps(props as RootProps, [
+  const [local, rest] = splitProps(props, [
     'ref',
     'inputRef',
     'id',
@@ -36,11 +33,9 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     'disabled',
     'size',
     'type',
-    'placeholder',
     'autocomplete',
     'autofocus',
     'autofocusDelay',
-    'maxLength',
     'leading',
     'trailing',
     'loading',
@@ -57,28 +52,27 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     'styles',
     'class',
     'style',
-    'onPointerDown',
   ])
-
-  const design = useMoraineDesign()
-  const inputDesign = () => design().input
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('input', local, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
 
   const merged = mergeProps(
     {
       type: 'text',
       autocomplete: 'off',
       autofocusDelay: 0,
-      variant: 'outline' as const,
+
       loadingIcon: 'icon-loading' as const,
     },
-    () => inputDesign()?.defaultVariants,
+
     local,
   )
   const leading = createMemo(() => merged.leading)
   const trailing = createMemo(() => merged.trailing)
   const loadingIcon = createMemo(() => merged.loadingIcon)
   const modelModifiers = createMemo(() => merged.modelModifiers)
-  const readOnly = createMemo(() => Boolean(merged.readOnly))
 
   const generatedId = useId(() => merged.id, 'input')
   const field = useFormField(
@@ -88,33 +82,13 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       size: local.size,
       disabled: merged.disabled,
       required: local.required,
-      readOnly: readOnly(),
+      readOnly: merged.readOnly,
     }),
     () => ({
       defaultId: generatedId(),
-      defaultSize: inputDesign()?.defaultVariants?.size ?? 'md',
       initialValue: merged.defaultValue ?? '',
     }),
   )
-
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return inputDesign()?.recipe({
-          size: field.size(),
-          variant: merged.variant,
-        })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
 
   let inputEl: HTMLInputElement | undefined
 
@@ -166,25 +140,34 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     'data-invalid': field.invalid() ? '' : undefined,
     'data-disabled': field.disabled() ? '' : undefined,
     'data-required': field.required() ? '' : undefined,
-    'data-readonly': readOnly() ? '' : undefined,
+    'data-readonly': field.readOnly() ? '' : undefined,
   }))
+
+  const ariaAttrs = createMemo(() => {
+    const generated = field.ariaAttrs()
+    return {
+      'aria-invalid':
+        rest['aria-invalid'] !== undefined ? rest['aria-invalid'] : generated['aria-invalid'],
+      'aria-required':
+        rest['aria-required'] !== undefined ? rest['aria-required'] : generated['aria-required'],
+      'aria-disabled':
+        rest['aria-disabled'] !== undefined ? rest['aria-disabled'] : generated['aria-disabled'],
+      'aria-readonly':
+        rest['aria-readonly'] !== undefined ? rest['aria-readonly'] : generated['aria-readonly'],
+      'aria-describedby': mergeAriaTokens(rest['aria-describedby'], generated['aria-describedby']),
+      'aria-labelledby': mergeAriaTokens(rest['aria-labelledby'], generated['aria-labelledby']),
+    }
+  })
 
   const restoreControlledValue = textControl.restoreControlledValue
 
   const onInput: JSX.EventHandler<HTMLInputElement, InputEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, merged.onInput)
-    if (defaultPrevented) {
-      if (!isLazy()) {
-        restoreControlledValue()
-      }
-      return
-    }
-
     if (!isLazy()) {
       textControl.updateValue(event.currentTarget.value)
       field.emit('input')
       restoreControlledValue()
     }
+    callHandler(event, merged.onInput)
   }
 
   const onChange: JSX.EventHandler<HTMLInputElement, Event> = (event) => {
@@ -199,32 +182,22 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       event.currentTarget.value = value.trim()
     }
 
-    field.emit('change')
-    merged.onChange?.(textControl.applyValue(value))
+    field.emit('change', event)
     restoreControlledValue()
+    callHandler(event, merged.onChange)
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, merged.onBlur)
-    if (defaultPrevented) {
-      return
-    }
     field.emit('blur', event)
+    callHandler(event, merged.onBlur)
   }
 
   const onFocus: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, merged.onFocus)
-    if (defaultPrevented) {
-      return
-    }
     field.emit('focus', event)
+    callHandler(event, merged.onFocus)
   }
 
   const onRootPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, local.onPointerDown)
-    if (defaultPrevented) {
-      return
-    }
     if (
       event.button !== 0 ||
       event.defaultPrevented ||
@@ -281,47 +254,45 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       data-slot="root"
       onPointerDown={onRootPointerDown}
       {...dataAttrs()}
-      {...rest}
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
     >
       <Show when={resolvedLeading()}>
         {(adornment) => (
-          <span data-slot="leading" {...resolved.slotClassAndStyle('leading')}>
+          <span data-slot="leading" {...resolved.slot('leading')}>
             <RenderAdornment value={adornment()} loading={isLeadingLoading()} />
           </span>
         )}
       </Show>
 
       <input
+        {...rest}
         id={field.id()}
+        type={merged.type}
+        name={field.name()}
+        required={field.required()}
+        disabled={field.disabled()}
+        readonly={field.readOnly()}
+        autocomplete={merged.autocomplete}
+        data-slot="input"
+        {...dataAttrs()}
+        {...ariaAttrs()}
+        {...textControl.valueProps()}
         ref={(element) => {
           inputEl = element
           callRef(local.inputRef, element)
         }}
-        type={merged.type}
-        name={field.name()}
-        placeholder={merged.placeholder}
-        required={field.required()}
-        disabled={field.disabled()}
-        readOnly={readOnly()}
-        autocomplete={merged.autocomplete}
-        maxLength={merged.maxLength}
-        data-slot="input"
-        {...resolved.slotClassAndStyle('input')}
+        {...resolved.slot('input')}
         onInput={onInput}
         onChange={onChange}
         onBlur={onBlur}
         onFocus={onFocus}
-        {...dataAttrs()}
-        {...field.ariaAttrs()}
-        {...textControl.valueProps()}
       />
 
       {merged.children}
 
       <Show when={resolvedTrailing()}>
         {(adornment) => (
-          <span data-slot="trailing" {...resolved.slotClassAndStyle('trailing')}>
+          <span data-slot="trailing" {...resolved.slot('trailing')}>
             <RenderAdornment value={adornment()} loading={isTrailingLoading()} />
           </span>
         )}

@@ -7,7 +7,9 @@ export namespace SidebarFrameT {
   /**
    * Render context exposed to sidebar/main render functions.
    */
-  export interface BaseContext extends Omit<Variant, 'isMobile'> {
+  export interface BaseContext extends Variant {
+    /** Side occupied by the sidebar. */
+    side: 'left' | 'right'
     /**
      * Whether current viewport is treated as mobile.
      */
@@ -34,18 +36,25 @@ export namespace SidebarFrameT {
    * Extended render context for frame composition.
    */
   export interface FrameContext extends BaseContext {
+    /** Parent overrides for the family slots. */
+    classes?: Classes
+    /** Parent inline styles for the family slots. */
+    styles?: Styles
     /**
      * Processed sidebar block component.
      */
-    sidebar: Component<{
-      classes?: SlotClassValue
-      styles?: JSX.CSSProperties
-      [x: string]: unknown
-    }>
+    sidebar: Component<
+      JSX.HTMLAttributes<HTMLDivElement> & {
+        classes?: SlotClassValue
+        styles?: JSX.CSSProperties
+      }
+    >
     /**
      * Processed main block component.
      */
-    main: Component<{ classes?: SlotClassValue; styles?: JSX.CSSProperties; [x: string]: unknown }>
+    main: Component<
+      JSX.HTMLAttributes<HTMLDivElement> & { classes?: SlotClassValue; styles?: JSX.CSSProperties }
+    >
   }
 
   export type SidebarHeaderRenderProps = BaseContext
@@ -83,16 +92,22 @@ export namespace SidebarFrameT {
   }
 
   export interface Variant {
-    isMobile?: boolean | 'true' | 'false' | null
-    side?: 'left' | 'right' | null
+    /** Visual treatment of the component.
+     * @default 'default'
+     */
     variant?: 'default' | 'floating' | 'inset' | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
   export interface Item {}
 
   export interface Base {
+    /** Side occupied by the sidebar. @default 'left' */
+    side?: 'left' | 'right'
+
     /**
      * Controlled mobile mode state.
      * When omitted, mobile state is resolved from `matchMedia`.

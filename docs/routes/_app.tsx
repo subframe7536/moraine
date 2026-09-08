@@ -4,7 +4,6 @@ import { MDXProvider } from 'solid-file-router/mdx'
 import type { JSX } from 'solid-js'
 import { Show, Suspense, createEffect, createMemo, createSignal, untrack } from 'solid-js'
 
-import { createDesign } from '../../src/design.ts'
 import {
   Button,
   Icon,
@@ -20,8 +19,6 @@ import { Sidebar, SidebarHeader } from './components/layout/sidebar'
 import { DOCS_MDX_COMPONENTS } from './components/markdown/mdx-components'
 import { getDocsPages } from './docs-route'
 import { useTheme } from './hooks/use-theme'
-
-const officialDesign = createDesign()
 
 function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   const pages = getDocsPages()
@@ -182,7 +179,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
 
 export default createRoute({
   component: (props) => (
-    <MoraineProvider design={officialDesign}>
+    <MoraineProvider>
       <MDXProvider components={DOCS_MDX_COMPONENTS}>
         <DocsAppLayout>{props.children}</DocsAppLayout>
       </MDXProvider>

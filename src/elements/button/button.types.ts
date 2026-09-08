@@ -36,7 +36,13 @@ export namespace ButtonT {
   }
 
   export interface Variant {
-    variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'
+    /** Visual treatment of the component.
+     * @default 'default'
+     */
+    variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive' | null
+    /** Visual size of the component.
+     * @default 'md'
+     */
     size?:
       | 'xs'
       | 'sm'
@@ -48,7 +54,10 @@ export namespace ButtonT {
       | 'icon-md'
       | 'icon-lg'
       | 'icon-xl'
+      | null
   }
+
+  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

@@ -14,7 +14,7 @@ import {
 } from 'solid-js'
 
 import { KbdGroup } from '../../elements/kbd/index.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useId } from '../../shared/utils.ts'
 import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
@@ -311,19 +311,8 @@ export function Tooltip(props: TooltipProps): JSX.Element {
 function TooltipTrigger<T extends ValidComponent = 'button'>(
   props: TooltipT.TriggerProps<T>,
 ): JSX.Element {
-  const design = useMoraineDesign()
-  const resolved = resolveComponentStyle({
-    rootSlot: 'trigger',
-    design: {
-      get classes() {
-        return design().tooltip.recipe()
-      },
-    },
-    get instance() {
-      return props
-    },
-  })
-  const triggerProps = mergeProps(props, resolved.rootClassAndStyle()) as TooltipT.TriggerProps<T>
+  const resolved = createComponentStyles('tooltip', props, { rootSlot: 'trigger' })
+  const triggerProps = mergeProps(props, resolved.root) as TooltipT.TriggerProps<T>
   return createComponent(Popper.Anchor<T>, triggerProps)
 }
 
@@ -339,17 +328,14 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
     'classes',
     'styles',
   ])
-  const design = useMoraineDesign()
+
   const instantMotion = useContext(TooltipMotionContext)
-  const merged = mergeProps(() => design().tooltip.defaultVariants, local)
-  const positioner = resolveComponentStyle({
-    design: {
-      get classes() {
-        return design().tooltip.recipe()
-      },
+  const positioner = createComponentStyles('tooltip', {
+    get classes() {
+      return local.classes
     },
-    get instance() {
-      return { classes: local.classes, styles: local.styles }
+    get styles() {
+      return local.styles
     },
   })
   function Content(context: PopperContentContext): JSX.Element {
@@ -359,41 +345,29 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       return value === undefined ? resolveChildren(() => local.children)() : value
     })
     const kbds = createMemo(() => local.kbds)
-    const resolved = resolveComponentStyle({
-      rootSlot: 'content',
-      design: {
-        get classes() {
-          return design().tooltip.recipe({
-            side: resolveOverlayMenuSide(context.currentPlacement() || merged.side || 'top'),
-            invert: merged.invert,
-          })
-        },
-      },
-      get instance() {
-        return local
-      },
-    })
+    const resolved = createComponentStyles('tooltip', local, { rootSlot: 'content' })
     return (
       <div
         {...mergePopperContentProps(context.contentProps, rest)}
         data-slot="content"
+        data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'top')}
         data-instant-motion={instantMotion() ? '' : undefined}
-        {...resolved.rootClassAndStyle()}
+        {...resolved.root}
       >
         <Show when={typeof text() === 'string'} fallback={text()}>
-          <span data-slot="text" {...resolved.slotClassAndStyle('text')}>
+          <span data-slot="text" {...resolved.slot('text')}>
             {text()}
           </span>
         </Show>
         <Show when={kbds()?.length ? kbds() : undefined}>
           {(keys) => (
             <KbdGroup
-              variant={merged.invert ? 'invert' : undefined}
+              variant={resolved.variants.invert ? 'invert' : undefined}
               size="sm"
               items={keys()}
-              {...resolved.slotClassAndStyle('kbds')}
-              classes={{ item: resolved.slotClass('kbd') }}
-              styles={{ item: resolved.slotStyle('kbd') }}
+              {...resolved.slot('kbds')}
+              classes={{ item: resolved.slot('kbd').class }}
+              styles={{ item: resolved.slot('kbd').style }}
             />
           )}
         </Show>
@@ -403,8 +377,8 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
   return (
     <Popper.Content
       contentRender={Content}
-      positionerClass={positioner.slotClass('positioner')}
-      positionerStyle={positioner.slotStyle('positioner')}
+      positionerClass={positioner.slot('positioner').class}
+      positionerStyle={positioner.slot('positioner').style}
     />
   )
 }

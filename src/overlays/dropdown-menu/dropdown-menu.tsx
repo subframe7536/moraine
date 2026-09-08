@@ -11,8 +11,7 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { createContextProvider } from '../../shared/create-context-provider.tsx'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
-import type { ElementProps } from '../../shared/types.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useId } from '../../shared/utils.ts'
 import { OverlayMenu } from '../base/menu/index.ts'
@@ -205,19 +204,9 @@ function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
 ): JSX.Element {
   const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style'])
   const context = useDropdownMenuContext()
-  const design = useMoraineDesign()
-  const resolved = resolveComponentStyle({
-    rootSlot: 'trigger',
-    design: {
-      get classes() {
-        return design().dropdownMenu.recipe()
-      },
-    },
-    get instance() {
-      return local
-    },
-  })
-  const binding = mergeMenuTriggerProps(rest as Partial<OverlayTriggerProps>, context.triggerProps)
+
+  const resolved = createComponentStyles('dropdownMenu', local, { rootSlot: 'trigger' })
+  const binding = mergeMenuTriggerProps(rest, context.triggerProps)
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu'))
   return (
@@ -225,7 +214,7 @@ function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
       component={(local.as as ValidComponent) ?? 'button'}
       type={local.as === undefined || local.as === 'button' ? 'button' : undefined}
       {...binding}
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
     >
       {children()}
     </Dynamic>
@@ -248,33 +237,23 @@ function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Element {
     'styles',
   ])
   const context = useDropdownMenuContext()
-  const design = useMoraineDesign()
+
   const merged = mergeProps(
-    { size: 'md' as const, checkedIcon: 'icon-check', submenuIcon: 'icon-chevron-right' },
-    () => design().dropdownMenu.defaultVariants,
+    { checkedIcon: 'icon-check', submenuIcon: 'icon-chevron-right' },
+
     local,
   )
-  const resolved = resolveComponentStyle({
-    rootSlot: 'content',
-    design: {
-      get classes() {
-        return design().dropdownMenu.recipe({ size: merged.size })
-      },
-    },
-    get instance() {
-      return local
-    },
-  })
+  const resolved = createComponentStyles('dropdownMenu', local, { rootSlot: 'content' })
   return (
     <OverlayMenu<DropdownMenuT.Item>
       {...context.menuProps}
-      slotClassAndStyle={resolved.slotClassAndStyle}
-      size={merged.size ?? undefined}
+      slotBinding={resolved.slot}
+      size={resolved.variants.size ?? undefined}
       items={merged.items}
       checkedIcon={merged.checkedIcon}
       submenuIcon={merged.submenuIcon}
       itemRender={merged.itemRender}
-      contentProps={rest as ElementProps<HTMLDivElement>}
+      contentProps={rest}
       itemProps={merged.itemProps}
       contentTop={merged.contentTop}
       contentBottom={merged.contentBottom}

@@ -27,8 +27,13 @@ export namespace AvatarGroupT {
   }
 
   export interface Variant {
-    size?: 'sm' | 'md' | 'lg'
+    /** Visual size of the component.
+     * @default 'md'
+     */
+    size?: 'sm' | 'md' | 'lg' | null
   }
+
+  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

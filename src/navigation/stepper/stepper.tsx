@@ -3,10 +3,10 @@ import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { useId } from '../../shared/utils.ts'
+import { cn, useId } from '../../shared/utils.ts'
 
 import type { StepperProps, StepperT } from './stepper.types.ts'
 
@@ -41,38 +41,17 @@ export function Stepper(props: StepperProps): JSX.Element {
     'class',
     'style',
   ])
-  const design = useMoraineDesign()
-  const stepperDesign = () => design().stepper
+  const resolved = createComponentStyles('stepper', local)
 
   const merged = mergeProps(
     {
       orientation: 'horizontal' as const,
-      size: 'md' as const,
+
       linear: true,
       clickable: false,
     },
-    () => stepperDesign().defaultVariants,
     local,
   )
-
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return stepperDesign().recipe({
-          orientation: merged.orientation,
-          size: merged.size,
-        })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
 
   const id = useId(() => merged.id, 'stepper')
   const [requestedValue, setRequestedValue] = useControllableValue<StepperT.Value>({
@@ -200,12 +179,19 @@ export function Stepper(props: StepperProps): JSX.Element {
   }
 
   return (
-    <div id={id()} data-slot="root" {...resolved.rootClassAndStyle()} {...rest}>
+    <div
+      id={id()}
+      data-slot="root"
+      data-orientation={merged.orientation}
+      {...resolved.root}
+      {...rest}
+    >
       <div
         role="tablist"
         aria-orientation={merged.orientation ?? undefined}
         data-slot="header"
-        {...resolved.slotClassAndStyle('header')}
+        data-orientation={merged.orientation}
+        {...resolved.slot('header')}
       >
         <For each={normalizedItems()}>
           {(entry) => {
@@ -220,15 +206,17 @@ export function Stepper(props: StepperProps): JSX.Element {
             return (
               <div
                 data-slot="item"
+                data-orientation={merged.orientation}
                 data-state={state()}
                 data-disabled={disabled() ? '' : undefined}
-                {...resolved.slotClassAndStyle('item', {
-                  get state() {
-                    return { class: entry.item.class }
-                  },
-                })}
+                class={cn(resolved.slot('item').class, entry.item.class)}
+                style={resolved.slot('item').style}
               >
-                <div data-slot="container" {...resolved.slotClassAndStyle('container')}>
+                <div
+                  data-slot="container"
+                  data-orientation={merged.orientation}
+                  {...resolved.slot('container')}
+                >
                   <button
                     id={triggerId()}
                     ref={(element) => {
@@ -246,7 +234,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                     disabled={disabled()}
                     aria-labelledby={entry.item.title ? titleId() : undefined}
                     aria-describedby={entry.item.description ? descriptionId() : undefined}
-                    {...resolved.slotClassAndStyle('trigger')}
+                    {...resolved.slot('trigger')}
                     onClick={() => selectStep(entry.value)}
                     onKeyDown={(event) => {
                       onNavigationKeyDown(event, entry.value, merged.orientation ?? 'horizontal')
@@ -258,16 +246,21 @@ export function Stepper(props: StepperProps): JSX.Element {
                   <Show when={entry.index < normalizedItems().length - 1}>
                     <div
                       data-slot="separator"
+                      data-orientation={merged.orientation}
                       data-state={state()}
                       data-disabled={disabled() ? '' : undefined}
-                      {...resolved.slotClassAndStyle('separator')}
+                      {...resolved.slot('separator')}
                     />
                   </Show>
                 </div>
 
-                <div data-slot="wrapper" {...resolved.slotClassAndStyle('wrapper')}>
+                <div
+                  data-slot="wrapper"
+                  data-orientation={merged.orientation}
+                  {...resolved.slot('wrapper')}
+                >
                   <Show when={entry.item.title}>
-                    <div data-slot="title" id={titleId()} {...resolved.slotClassAndStyle('title')}>
+                    <div data-slot="title" id={titleId()} {...resolved.slot('title')}>
                       {entry.item.title}
                     </div>
                   </Show>
@@ -276,7 +269,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                     <div
                       data-slot="description"
                       id={descriptionId()}
-                      {...resolved.slotClassAndStyle('description')}
+                      {...resolved.slot('description')}
                     >
                       {entry.item.description}
                     </div>
@@ -298,11 +291,8 @@ export function Stepper(props: StepperProps): JSX.Element {
               aria-labelledby={getTriggerId(entry.value)}
               data-selected=""
               data-slot="content"
-              {...resolved.slotClassAndStyle('content', {
-                get state() {
-                  return { class: entry.item.class }
-                },
-              })}
+              class={cn(resolved.slot('content').class, entry.item.class)}
+              style={resolved.slot('content').style}
             >
               {entry.item.content}
             </div>

@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createMemo, createSignal, splitProps } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useDisclosureState } from '../../shared/use-disclosure-state.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
@@ -31,22 +31,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     'class',
     'style',
   ])
-  const design = useMoraineDesign()
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return design().collapsible.recipe()
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        style: local.style,
-        classes: local.classes,
-        styles: local.styles,
-      }
-    },
-  })
+  const resolved = createComponentStyles('collapsible', local)
   const rootId = useId(() => local.id, 'collapsible')
   const contentId = createMemo(() => `${rootId()}-content`)
   const triggerId = createMemo(() => `${rootId()}-trigger`)
@@ -78,7 +63,14 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   }
 
   const context: CollapsibleContext = {
-    resolved,
+    presentation: {
+      get classes() {
+        return local.classes
+      },
+      get styles() {
+        return local.styles
+      },
+    },
     rootId,
     triggerId,
     contentId,
@@ -102,13 +94,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
 
   return (
     <CollapsibleProvider value={context}>
-      <div
-        id={rootId()}
-        data-slot="root"
-        {...dataAttrs()}
-        {...rest}
-        {...resolved.rootClassAndStyle()}
-      >
+      <div id={rootId()} data-slot="root" {...dataAttrs()} {...rest} {...resolved.root}>
         {local.children}
       </div>
     </CollapsibleProvider>

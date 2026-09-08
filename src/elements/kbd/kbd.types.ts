@@ -31,9 +31,17 @@ export namespace KbdT {
   }
 
   export interface Variant {
-    size?: 'sm' | 'md' | 'lg'
-    variant?: 'default' | 'outline' | 'invert'
+    /** Visual size of the component.
+     * @default 'md'
+     */
+    size?: 'sm' | 'md' | 'lg' | null
+    /** Visual treatment of the component.
+     * @default 'default'
+     */
+    variant?: 'default' | 'outline' | 'invert' | null
   }
+
+  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

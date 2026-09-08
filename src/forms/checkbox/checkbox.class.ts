@@ -1,5 +1,6 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
+import { cn } from '../../shared/utils.ts'
 
 import type { CheckboxT } from './checkbox.types.ts'
 
@@ -12,10 +13,13 @@ export const checkboxRecipeOptions = {
     icon: 'shrink-0 size-full',
     wrapper: 'flex flex-col gap-0.5 w-full',
     container: 'flex items-center',
-    label: 'text-foreground font-medium block select-none',
+    label: /* @__PURE__ */ cn(
+      'text-foreground font-medium block select-none',
+      "data-required:after:text-destructive data-required:after:ms-0.5 data-required:after:content-['*']",
+    ),
     description: 'text-muted-foreground leading-normal',
   },
-  defaultVariants: {
+  defaults: {
     size: 'md',
     indicator: 'start',
   },
@@ -49,11 +53,6 @@ export const checkboxRecipeOptions = {
         description: 'text-base leading-normal',
       },
     },
-    required: {
-      true: {
-        label: "after:text-destructive after:ms-0.5 after:content-['*']",
-      },
-    },
   },
   compoundVariants: [
     {
@@ -71,6 +70,4 @@ export const checkboxRecipeOptions = {
   ],
 } as const satisfies SlotRecipeOptions<keyof CheckboxT.Slot>
 
-export const checkboxRecipe = recipe(checkboxRecipeOptions)
-
-export type CheckboxVariantProps = CheckboxT.Variant
+export const checkboxRecipe = /* @__PURE__ */ slotRecipe(checkboxRecipeOptions)

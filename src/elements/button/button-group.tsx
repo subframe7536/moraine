@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, children as resolveChildren, splitProps, createMemo } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 
 import { ButtonGroupContext } from './button-group-context.ts'
 import type { ButtonGroupProps } from './button-group.types.ts'
@@ -10,9 +10,6 @@ export * from './button-group.types.ts'
 
 /** Joins related buttons and provides shared size and visual variant defaults. */
 export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
-  const design = useMoraineDesign()
-  const buttonGroupDesign = () => design().buttonGroup
-
   const [local, rest] = splitProps(props, [
     'orientation',
     'role',
@@ -25,27 +22,11 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
     'style',
     'children',
   ])
+  const resolved = createComponentStyles('buttonGroup', local)
 
-  const orientation = () =>
-    local.orientation ?? buttonGroupDesign()?.defaultVariants?.orientation ?? 'horizontal'
-  const size = () => local.size ?? buttonGroupDesign()?.defaultVariants?.size
-  const variant = () => local.variant ?? buttonGroupDesign()?.defaultVariants?.variant
-
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return buttonGroupDesign()?.recipe({ orientation: orientation() })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
+  const orientation = () => resolved.variants.orientation
+  const size = () => resolved.variants.size
+  const variant = () => resolved.variants.variant
 
   function renderContent(): JSX.Element {
     const resolvedChildren = resolveChildren(() => local.children)
@@ -69,7 +50,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
         data-size={size()}
         data-variant={variant()}
         {...rest}
-        {...resolved.rootClassAndStyle()}
+        {...resolved.root}
       >
         <Show when={local.separator} fallback={resolvedChildren()}>
           <For each={childArray()}>
@@ -80,7 +61,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
                     data-slot="separator"
                     data-orientation={orientation() === 'horizontal' ? 'vertical' : 'horizontal'}
                     aria-hidden="true"
-                    {...resolved.slotClassAndStyle('separator')}
+                    {...resolved.slot('separator')}
                   />
                 </Show>
                 {child}

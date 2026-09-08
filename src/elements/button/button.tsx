@@ -2,10 +2,11 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps, useContext } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
 import { useLoadingAutoClick } from '../../shared/use-loading-auto.ts'
+import { cn } from '../../shared/utils.ts'
 import { Icon } from '../icon/index.ts'
 import type { IconT } from '../icon/index.ts'
 
@@ -37,6 +38,10 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'trailing',
     'children',
   ])
+  const resolved = createComponentStyles('button', local, {
+    inheritedVariants: () => group,
+    groupStyles: () => group,
+  })
 
   const { isLoading, onClick } = useLoadingAutoClick<ButtonT.ElementFor<T>>({
     loading: () => local.loading,
@@ -47,19 +52,10 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   })
 
   const tag = createMemo(() => (local.as as ValidComponent) ?? 'button')
-  const design = useMoraineDesign()
-  const buttonDesign = () => design().button
 
   const isDisabledOrLoading = () => isLoading() || Boolean(local.disabled)
-  const size = () =>
-    (local.size ?? group?.size ?? buttonDesign()?.defaultVariants?.size ?? 'md') as NonNullable<
-      ButtonT.Variant['size']
-    >
-  const variant = () =>
-    (local.variant ??
-      group?.variant ??
-      buttonDesign()?.defaultVariants?.variant ??
-      'default') as NonNullable<ButtonT.Variant['variant']>
+  const size = () => resolved.variants.size
+  const variant = () => resolved.variants.variant
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
 
@@ -115,25 +111,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     return value === 0 || Boolean(value)
   })
 
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return buttonDesign()?.recipe({ variant: variant(), size: size() })
-      },
-    },
-    get group() {
-      return group
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
-
   return (
     <Dynamic
       data-slot={local.slotName || 'root'}
@@ -144,30 +121,28 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       data-disabled={local.disabled ? '' : undefined}
       {...interactionProps}
       component={tag()}
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
     >
       <Show when={resolvedLeading()}>
         {(leading) => (
           <Icon
             name={leading()}
             slotName="leading"
-            {...resolved.slotClassAndStyle('leading', {
-              get state() {
-                return isLeadingLoading()
-                  ? {
-                      class: resolved.slotClass('loading'),
-                      style: resolved.slotStyle('loading'),
-                    }
-                  : undefined
-              },
-            })}
+            class={cn(
+              isLeadingLoading() ? resolved.slot('loading').class : undefined,
+              resolved.slot('leading').class,
+            )}
+            style={{
+              ...(isLeadingLoading() ? resolved.slot('loading').style : undefined),
+              ...resolved.slot('leading').style,
+            }}
             aria-hidden={isLeadingLoading() ? true : undefined}
           />
         )}
       </Show>
 
       <Show when={hasResolvedChildren()}>
-        <span data-slot="label" {...resolved.slotClassAndStyle('label')}>
+        <span data-slot="label" {...resolved.slot('label')}>
           {resolvedChildren()}
         </span>
       </Show>
@@ -177,16 +152,14 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
           <Icon
             name={trailing()}
             slotName="trailing"
-            {...resolved.slotClassAndStyle('trailing', {
-              get state() {
-                return isTrailingLoading()
-                  ? {
-                      class: resolved.slotClass('loading'),
-                      style: resolved.slotStyle('loading'),
-                    }
-                  : undefined
-              },
-            })}
+            class={cn(
+              isTrailingLoading() ? resolved.slot('loading').class : undefined,
+              resolved.slot('trailing').class,
+            )}
+            style={{
+              ...(isTrailingLoading() ? resolved.slot('loading').style : undefined),
+              ...resolved.slot('trailing').style,
+            }}
             aria-hidden={isTrailingLoading() ? true : undefined}
           />
         )}

@@ -32,12 +32,17 @@ export namespace SliderT {
   }
 
   export interface Variant {
-    orientation?: 'horizontal' | 'vertical' | null
+    /** Visual size of the component.
+     * @default 'md'
+     */
     size?: 'sm' | 'md' | 'lg' | null
+    /** Visual treatment of the component.
+     * @default 'default'
+     */
     variant?: 'default' | 'bold' | null
-    inverted?: boolean | 'true' | 'false' | null
-    multiple?: boolean | 'true' | 'false' | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -53,6 +58,11 @@ export namespace SliderT {
       FormRequiredOption,
       FormDisableOption,
       FormReadOnlyOption {
+    /** Direction of keyboard and pointer value movement. @default 'horizontal' */
+    orientation?: 'horizontal' | 'vertical'
+    /** Reverses value movement along the track. @default false */
+    inverted?: boolean
+
     /**
      * Minimum value of the slider.
      * @default 0

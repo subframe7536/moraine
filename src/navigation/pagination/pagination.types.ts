@@ -40,26 +40,28 @@ export namespace PaginationT {
      * Size of the pagination buttons.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg'
+    size?: 'sm' | 'md' | 'lg' | null
 
     /**
      * Visual variant for the page buttons.
      * @default 'ghost'
      */
-    variant?: PaginationVariant
+    variant?: PaginationVariant | null
 
     /**
      * Visual variant for the active page button.
      * @default 'outline'
      */
-    activeVariant?: PaginationVariant
+    activeVariant?: PaginationVariant | null
 
     /**
      * Visual variant for the previous/next control buttons.
      * @default 'ghost'
      */
-    controlVariant?: PaginationVariant
+    controlVariant?: PaginationVariant | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 

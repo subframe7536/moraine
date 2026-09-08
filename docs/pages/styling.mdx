@@ -7,7 +7,7 @@ search:
   tags: [UnoCSS, Tailwind CSS, theme, tokens]
 ---
 
-Moraine's styling system architecture uses atomic utility classes in the published Design recipes. Your application's CSS engine must scan those classes and load Moraine's theme integration. Moraine does not ship precompiled component CSS.
+Moraine's styling system architecture uses atomic utility classes in the official Theme recipes. Your application's CSS engine must scan those classes and load Moraine's theme integration. Moraine does not ship precompiled component CSS.
 
 ## UnoCSS
 
@@ -130,11 +130,7 @@ Interactive surfaces use semantic `hover` and `active` colors. Each hover token 
 
 ## Override component styles
 
-Moraine resolves presentation from the active Design, composition-group overrides, component state, and component-instance overrides, in that order. Instance `class` and `style` win for the DOM element that owns them; `classes` and `styles` target named slots on multi-slot components.
-
-Root-only components (`Icon`, `Kbd`, `Separator`, and the bound `form.Form`) accept direct `class` and `style` only. Their shared defaults remain configurable through the corresponding Design root entry, such as `icon.base.root` or `form.base.root`.
-
-Overlay roots own behavior and children, not DOM attributes. Put trigger attributes on `Dialog.Trigger`, and content attributes and shell slots on `Dialog.Content` (likewise for the other overlay families).
+Theme classes merge in layer order, followed by composition-group overrides, instance `classes`, and root `class`. Inline styles merge dynamic geometry, group `styles`, instance `styles`, and root `style`. Pass CSS property objects to inline style props.
 
 ```tsx
 <Button class="bg-red-500" style={{ borderColor: 'red' }} classes={{ label: 'text-white' }}>
@@ -142,41 +138,78 @@ Overlay roots own behavior and children, not DOM attributes. Put trigger attribu
 </Button>
 ```
 
-Pass CSS property objects to `style` and `styles` props.
+Root-only components (`Icon`, `Kbd`, `Separator`, and the bound `form.Form`) expose direct `class` and `style`. Their Theme entries still have a `root` slot. Overlay roots own behavior and children; put DOM attributes and presentation on their Trigger and Content parts.
 
-## Design and MoraineProvider
+## Theme layers and Providers
 
-Create a Design once at your application boundary. `createDesign()` includes the official recipes; passing overrides extends them. The provider requires a Design and does not load the official preset itself.
+Place `<MoraineProvider>` at the application root to enable the official presentation. It needs no Theme prop. `createTheme()` creates an empty sparse layer collection and imports no official recipes.
 
 ```tsx
-import type { ParentProps } from 'solid-js'
-import { MoraineProvider } from 'moraine'
-import { createDesign } from 'moraine/design'
+import { Button, MoraineProvider, MoraineUnstyledProvider } from 'moraine'
+import { createTheme } from 'moraine/theme'
 
-const design = createDesign({
-  button: {
-    defaultVariants: { size: 'sm' },
-    base: { root: 'rounded-xl shadow-xs' },
-  },
-  badge: { defaultVariants: { variant: 'outline' } },
+const compact = createTheme({
+  button: { defaults: { size: 'sm' }, base: { root: 'rounded-xl' } },
+})
+const brand = createTheme({
+  extends: compact,
+  button: { base: { root: 'font-semibold' } },
 })
 
-export function App(props: ParentProps) {
-  return <MoraineProvider design={design}>{props.children}</MoraineProvider>
-}
+<MoraineProvider theme={brand}>
+  <Button>Official + compact + brand</Button>
+  <MoraineProvider theme={createTheme({ button: { base: { root: 'shadow-md' } } })}>
+    <Button>Appended shadow</Button>
+  </MoraineProvider>
+  <MoraineUnstyledProvider>
+    <Button>Behavior with no presentation</Button>
+    <MoraineProvider theme={compact}>
+      <Button>Only compact presentation</Button>
+    </MoraineProvider>
+  </MoraineUnstyledProvider>
+</MoraineProvider>
 ```
 
-Each component accepts `base`, `variants`, `compoundVariants`, and `defaultVariants`. Base and variant values map named slots to utility classes. Inline styles remain instance props.
+`extends` accepts one parent Theme, preserving its ordered layers before appending the child’s non-empty layer. There is no recursive configuration merge. Nested providers append custom layers without duplicating the official Theme. An unstyled boundary discards all inherited layers, and a styled provider below it inherits that reset.
 
-Use `createDesign({ preset: false })` for a complete unstyled slot skeleton, or `createDesign({ extends: parentDesign, button: { ... } })` for explicit inheritance. A nested provider replaces the parent Design; it does not merge automatically. Changing its `design` signal updates existing DOM without remounting components.
+Components outside a Provider remain functional and unstyled. Development builds warn once per owner tree; production and tests do not warn.
 
-Without a provider, components retain behavior and accessibility but render unstyled. Development builds warn once per owner tree. The CSS integrations supply tokens and motion utilities without changing the host application's default transition duration or easing.
+### Recipes and defaults
+
+A component Theme entry accepts `base`, `variants`, `compoundVariants`, and `defaults`. Each class contribution targets named slots. Missing families and slots allocate no empty Recipe or slot inventory.
+
+```ts
+const theme = createTheme({
+  button: {
+    defaults: { size: 'sm' },
+    variants: { size: { sm: { label: 'tracking-wide' } } },
+    compoundVariants: [{ size: 'sm', variant: 'outline', class: { root: 'border-2' } }],
+  },
+})
+```
+
+Visual values resolve from explicit instance props, inherited composition/FormField values, and finally the latest Theme default. Only `undefined` falls back. `null` suppresses the default and selects no branch; `false`, `0`, and `''` remain explicit values where the Variant type supports them. All layers use the same final visual values.
+
+For standalone recipe authoring, `slotRecipe` produces slot-class maps and `atomicRecipe` produces one class string. Both are exported from `moraine/theme`, accept `defaults`, and expose readonly `.options` metadata. Neither chooses a factory based on the shape of `base`.
+
+### State selectors
+
+Visual Variants describe presentation. Disabled, required, selected, open/closed, loading, orientation, and placement state use the component's documented data/ARIA attributes. Keep selectors flat so both CSS engines can scan them:
+
+```ts
+const theme = createTheme({
+  button: { base: { root: 'data-disabled:opacity-50 data-loading:cursor-wait' } },
+  popover: { base: { content: 'data-[side=bottom]:mt-2' } },
+})
+```
+
+Measurements such as slider percentages and floating transform origins remain inline styles or CSS variables.
 
 ### Reactive replacement and native refs
 
-Named callback refs such as `inputRef` and `textareaRef` target the editable native element; the ordinary `ref` continues to target the component root. Use callbacks for named refs rather than relying on JSX variable-assignment shorthand. Design replacement preserves those nodes and their state.
+Changing a Provider's `theme` updates classes without remounting component DOM. Input and Textarea keep their values, focus, selection, and refs. Their ordinary `ref` targets the wrapper; callback `inputRef` and `textareaRef` target the editable native control.
 
-<Preview path="./styling/design-replacement" />
+<Preview path="./styling/theme-replacement" />
 
 ## `cn`
 

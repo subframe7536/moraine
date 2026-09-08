@@ -29,8 +29,13 @@ export namespace CardT {
   }
 
   export interface Variant {
-    compact?: boolean
+    /** Visual compact of the component.
+     * @default false
+     */
+    compact?: boolean | null
   }
+
+  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

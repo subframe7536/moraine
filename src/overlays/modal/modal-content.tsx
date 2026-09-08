@@ -3,7 +3,7 @@ import { Show, children as resolveChildren, createMemo, onCleanup, splitProps } 
 import { Portal } from 'solid-js/web'
 
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef, cn } from '../../shared/utils.ts'
 import { trapFocusInContainer } from '../base/utils.ts'
@@ -21,29 +21,14 @@ export function ModalContent(props: ModalT.ContentProps): JSX.Element {
     'overlayClass',
     'overlayStyle',
   ])
-  const design = useMoraineDesign()
-  const resolved = resolveComponentStyle({
-    rootSlot: 'content',
-    design: {
-      get classes() {
-        return design().modal.recipe()
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        style: local.style,
-        classes: { ...local.classes, overlay: cn(local.classes?.overlay, local.overlayClass) },
-        styles: { ...local.styles, overlay: { ...local.styles?.overlay, ...local.overlayStyle } },
-      }
-    },
-  })
+
+  const resolved = createComponentStyles('modal', local, { rootSlot: 'content' })
   return (
     <ModalSurface
       {...rest}
-      {...resolved.rootClassAndStyle()}
-      overlayClass={resolved.slotClass('overlay')}
-      overlayStyle={resolved.slotStyle('overlay')}
+      {...resolved.root}
+      overlayClass={cn(resolved.slot('overlay').class, local.overlayClass)}
+      overlayStyle={{ ...resolved.slot('overlay').style, ...local.overlayStyle }}
     />
   )
 }

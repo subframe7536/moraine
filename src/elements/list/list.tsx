@@ -6,7 +6,7 @@ import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import type { RowProps as BaseRowProps } from '../../shared/use-list-virtualizer.tsx'
 import { cn } from '../../shared/utils.ts'
 
-import type { ListProps } from './list.types.ts'
+import type { ListProps, ListT } from './list.types.ts'
 
 export * from './list.types.ts'
 
@@ -66,21 +66,11 @@ export function List<
         }
       >
         {(virtualRender) => (
-          <Dynamic
-            component={
-              virtualRender() as Component<{
-                entries: readonly TItem[]
-                scrollElement: HTMLElement | undefined
-                render: (
-                  item: TItem,
-                  index: number,
-                  rowProps: BaseRowProps<TItemElement>,
-                ) => JSX.Element
-              }>
-            }
+          <Dynamic<Component<ListT.VirtualRenderProps<TItem, HTMLElement, TItemElement>>>
+            component={virtualRender()}
             entries={local.items ?? []}
             scrollElement={scrollElement()}
-            render={(item: TItem, index: number, rowProps: BaseRowProps<TItemElement>) =>
+            render={(item: TItem, index: number, rowProps?: BaseRowProps<TItemElement>) =>
               renderComponentOrElement(local.itemRender, {
                 get item() {
                   return item

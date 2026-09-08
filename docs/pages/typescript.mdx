@@ -38,27 +38,32 @@ function PrimaryButton(props: PrimaryButtonProps) {
 
 Components with a DOM root document that root through their public types. Some composite primitives, such as `Modal`, are state providers and expose their DOM through subcomponents instead of rendering a root element themselves.
 
-In the default type mode, a rendered root accepts arbitrary attributes, while component-specific props stay separate from the DOM surface and `ref` remains typed to the concrete root element.
+DOM roots expose precise native Solid attributes by default. Unknown attributes fail type checking, while `data-*` and ARIA attributes remain supported. Polymorphic `as` preserves required custom-component props and the native root's ref/event types.
 
 ```tsx
 <Card aria-describedby="details" data-testid="card" />
+<Button as="a" href="/docs" ref={(anchor) => anchor.focus()}>Docs</Button>
 ```
 
-Full intrinsic attributes are opt-in because including every HTML attribute in every component makes editor completion slower and allows control props to be mistaken for wrapper props. Enable the expanded surface with a type-only package-root augmentation:
+Lowercase event aliases and Solid directive prefixes are excluded from ordinary root props. Use camelCase native event handlers.
+
+### Input and Textarea native ownership
+
+Native attributes such as `form`, `list`, `enterkeyhint`, and `aria-label`, together with clipboard, composition, keyboard, and validation handlers, go to the editable element. Root `class`, `style`, and `ref` belong to the wrapper. Use `inputRef` or `textareaRef` for a native control ref.
 
 ```tsx
-import 'moraine'
-
-declare module 'moraine' {
-  interface MoraineTypeConfig {
-    enableRootAutocomplete: true
-  }
-}
+<Input
+  form="checkout"
+  list="cities"
+  inputRef={(input) => input.select()}
+  onChange={(event) => console.log(event.currentTarget.value)}
+  onValueChange={(value) => console.log(value)}
+/>
 ```
 
-The augmentation has no runtime effect. It enables the exact attributes for the documented root tag, including camelCase Solid handlers, and preserves required props for custom Solid components passed through polymorphic `as` APIs such as `Button`, `List`, `FormField`, and `FileUpload`. Lowercase event aliases and Solid directive prefixes remain excluded from the autocomplete surface.
+`onValueChange` is the normalized-value callback, including model modifiers. `onInput`, `onChange`, `onBlur`, and `onFocus` receive native events after internal synchronization and FormField notification. A caller handler's `preventDefault()` does not undo those earlier steps.
 
-Root attributes are forwarded at runtime even when the expanded type mode is disabled. Generated state metadata is emitted before user rest props, so caller values can override `data-slot`, state `data-*`, and generated `aria-*` attributes. Avoid overriding generated accessibility or state attributes unless you intentionally need to replace Moraine's behavior. Wrapper components forward root props to their wrapper or trigger, while form control props and secondary APIs such as `listboxProps` stay on their documented internal elements.
+Explicit control identity and boolean state override FormField values, including `false`. Caller `aria-describedby` and `aria-labelledby` tokens come first, followed by generated IDs with duplicates removed. Explicit scalar ARIA values take precedence over generated values.
 
 ## Component Namespace (`XxxT`)
 
@@ -100,7 +105,7 @@ const labelRender: SelectProps['labelRender'] = (option) =>
 
 ### Slot types
 
-`XxxT.Slot` is a readonly mapping from the public override key to the runtime `data-slot` value. `classes` and `styles` use the keys for editor completion and retain each slot's JSDoc in hover help, while the values identify the DOM slot exactly; a `never` value marks a styling-only virtual slot with no independent DOM element.
+`XxxT.Slot<T>` documents each named presentation slot. `SlotName` is its key union; `Classes` and `Styles` specialize the values for class names and CSS objects while retaining slot documentation. A presentation slot may be virtual, such as a loading class applied to an existing icon.
 
 ```tsx
 import type { CardT } from 'moraine'
@@ -114,16 +119,17 @@ const overrides: CardT.Classes = {
 
 Each `XxxT` namespace may expose the following members depending on the component:
 
-| Member    | Description                                                                           |
-| --------- | ------------------------------------------------------------------------------------- |
-| `Slot`    | Readonly public-key to runtime `data-slot` mapping; `never` is a virtual styling slot |
-| `Variant` | Variant options for visual/style customization                                        |
-| `Item`    | Data model for list items or option objects                                           |
-| `Value`   | Domain type of the component's controlled value                                       |
-| `Classes` | Typed map from slot name to CSS class string                                          |
-| `Styles`  | Typed map from slot name to inline style object                                       |
-| `Base`    | Component-specific base/business props                                                |
-| `Props`   | Final public props shape (same as `XxxProps`)                                         |
+| Member     | Description                                          |
+| ---------- | ---------------------------------------------------- |
+| `Slot`     | Generic documented map of presentation slots         |
+| `SlotName` | Union of named presentation slot keys                |
+| `Variant`  | Nullable visual options; `null` suppresses a default |
+| `Item`     | Data model for list items or option objects          |
+| `Value`    | Domain type of the component's controlled value      |
+| `Classes`  | Typed map from slot name to CSS class string         |
+| `Styles`   | Typed map from slot name to inline style object      |
+| `Base`     | Component-specific base/business props               |
+| `Props`    | Final public props shape (same as `XxxProps`)        |
 
 ## Tips
 

@@ -2,7 +2,7 @@ import type { FieldStore, RequiredPath } from '@formisch/solid'
 import type { Accessor, JSX } from 'solid-js'
 import { createEffect, createMemo, onCleanup, onMount } from 'solid-js'
 
-import { createContextProvider } from '../../shared/create-context-provider'
+import { createContextProvider } from '../../shared/create-context-provider.tsx'
 
 export interface FormFieldRuntimeState {
   touched: boolean
@@ -24,6 +24,8 @@ export interface FormFieldContextOptions {
   ariaId: string
   labelId?: string
   required?: boolean
+  disabled?: boolean
+  readOnly?: boolean
   ariaAttrs?: Accessor<Record<string, string | boolean | undefined>>
   controlId?: string
   registerControl?: (entry: { id: Accessor<string>; bind: Accessor<boolean> }) => () => void
@@ -41,7 +43,6 @@ export interface UseFormFieldProps {
 export interface UseFormFieldOptions {
   bind?: boolean
   defaultId: string
-  defaultSize: FormFieldSize
   defaultAriaAttrs?: Record<string, string | boolean | undefined>
   initialValue?: unknown
 }
@@ -50,12 +51,12 @@ export interface UseFormFieldReturn {
   id: Accessor<string>
   name: Accessor<string | undefined>
   value: Accessor<unknown>
-  size: Accessor<FormFieldSize>
+  size: Accessor<FormFieldSize | null | undefined>
   disabled: Accessor<boolean>
   required: Accessor<boolean>
   readOnly: Accessor<boolean>
   invalid: Accessor<boolean>
-  ariaAttrs: Accessor<Record<string, string | boolean | undefined>>
+  ariaAttrs: Accessor<JSX.AriaAttributes>
   runtimeState: Accessor<FormFieldRuntimeState>
   setFormValue: (value: unknown) => void
   emit: (type: 'blur' | 'change' | 'focus' | 'input', event?: Event) => void
@@ -94,13 +95,12 @@ export function useFormField(
     () => fieldProps().name ?? formField?.field?.props.name ?? formField?.name,
   )
   const value = createMemo(() => formField?.field?.input)
-  const size = createMemo(
-    () =>
-      (fieldProps().size || undefined) ?? (formField?.size || undefined) ?? options().defaultSize,
+  const size = createMemo(() =>
+    fieldProps().size !== undefined ? fieldProps().size : formField?.size,
   )
-  const disabled = createMemo(() => Boolean(fieldProps().disabled))
+  const disabled = createMemo(() => fieldProps().disabled ?? formField?.disabled ?? false)
   const required = createMemo(() => fieldProps().required ?? Boolean(formField?.required))
-  const readOnly = createMemo(() => Boolean(fieldProps().readOnly))
+  const readOnly = createMemo(() => fieldProps().readOnly ?? formField?.readOnly ?? false)
   const invalid = createMemo(() => {
     const error = formField?.error
     return error !== undefined && error !== null && error !== false && error !== ''
@@ -139,9 +139,9 @@ export function useFormField(
     }
   })
 
-  const ariaAttrs = createMemo<Record<string, string | boolean | undefined>>(() => {
+  const ariaAttrs = createMemo<JSX.AriaAttributes>(() => {
     const fromFormField = formField?.ariaAttrs?.() ?? options().defaultAriaAttrs ?? {}
-    const attrs: Record<string, string | boolean | undefined> = {}
+    const attrs: JSX.AriaAttributes = {}
 
     if (invalid()) {
       attrs['aria-invalid'] = 'true'
@@ -155,10 +155,10 @@ export function useFormField(
     if (readOnly()) {
       attrs['aria-readonly'] = 'true'
     }
-    if (fromFormField['aria-describedby']) {
+    if (typeof fromFormField['aria-describedby'] === 'string') {
       attrs['aria-describedby'] = fromFormField['aria-describedby']
     }
-    if (fromFormField['aria-labelledby']) {
+    if (typeof fromFormField['aria-labelledby'] === 'string') {
       attrs['aria-labelledby'] = fromFormField['aria-labelledby']
     }
 

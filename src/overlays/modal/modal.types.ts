@@ -55,7 +55,9 @@ export namespace ModalT {
     overlay: T
     content: T
   }
-  export interface Variant {}
+  export type Variant = never
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<JSX.CSSProperties>
   export interface Item {}

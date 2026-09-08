@@ -2,10 +2,10 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
-import { MoraineProvider } from '../../shared/provider/index.ts'
+import { MoraineUnstyledProvider, MoraineProvider } from '../../shared/provider/index.ts'
+import { createTheme } from '../../theme.ts'
 
-import { Tabs } from './tabs'
+import { Tabs } from './tabs.tsx'
 
 if (!(globalThis as Record<string, unknown>).ResizeObserver) {
   ;(globalThis as Record<string, unknown>).ResizeObserver = class {
@@ -270,7 +270,7 @@ describe('Tabs', () => {
 
   test('applies orientation/variant classes and class overrides', () => {
     const screen = render(() => (
-      <MoraineProvider design={createDesign()}>
+      <MoraineProvider theme={createTheme()}>
         <Tabs
           orientation="vertical"
           variant="link"
@@ -298,7 +298,7 @@ describe('Tabs', () => {
 
   test('applies vertical pill indicator inset class', () => {
     const screen = render(() => (
-      <MoraineProvider design={createDesign()}>
+      <MoraineProvider theme={createTheme()}>
         <Tabs orientation="vertical" items={ITEMS} />
       </MoraineProvider>
     ))
@@ -318,16 +318,16 @@ describe('Tabs', () => {
   })
 
   test('replaces Design without remounting the selected tab or panel', () => {
-    const [design, setDesign] = createSignal(createDesign())
+    const [design, setDesign] = createSignal(createTheme())
     const screen = render(() => (
-      <MoraineProvider design={design()}>
+      <MoraineUnstyledProvider theme={design()}>
         <Tabs items={ITEMS} defaultValue="settings" />
-      </MoraineProvider>
+      </MoraineUnstyledProvider>
     ))
     const tab = screen.getByRole('tab', { name: 'Settings' })
     const panel = screen.getByRole('tabpanel')
     tab.focus()
-    setDesign(createDesign({ preset: false, tabs: { base: { trigger: 'custom-tab' } } }))
+    setDesign(createTheme({ tabs: { base: { trigger: 'custom-tab' } } }))
     expect(screen.getByRole('tab', { name: 'Settings' })).toBe(tab)
     expect(screen.getByRole('tabpanel')).toBe(panel)
     expect(document.activeElement).toBe(tab)

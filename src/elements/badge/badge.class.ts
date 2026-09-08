@@ -1,5 +1,5 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { BadgeT } from './badge.types.ts'
 
@@ -10,7 +10,7 @@ export const badgeRecipeOptions = {
     label: 'min-w-0 truncate',
     trailing: '',
   },
-  defaultVariants: {
+  defaults: {
     size: 'md',
     variant: 'default',
   },
@@ -40,6 +40,4 @@ export const badgeRecipeOptions = {
   },
 } as const satisfies SlotRecipeOptions<keyof BadgeT.Slot>
 
-export const badgeRecipe = recipe(badgeRecipeOptions)
-
-export type BadgeVariantProps = BadgeT.Variant
+export const badgeRecipe = /* @__PURE__ */ slotRecipe(badgeRecipeOptions)

@@ -6,10 +6,18 @@ export namespace SeparatorT {
   }
 
   export interface Variant {
-    size?: 'sm' | 'md' | 'lg'
-    orientation?: 'horizontal' | 'vertical'
-    type?: 'solid' | 'dashed' | 'dotted'
+    /** Visual size of the component.
+     * @default 'sm'
+     */
+    size?: 'sm' | 'md' | 'lg' | null
+
+    /** Visual type of the component.
+     * @default 'solid'
+     */
+    type?: 'solid' | 'dashed' | 'dotted' | null
   }
+
+  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

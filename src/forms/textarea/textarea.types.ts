@@ -30,10 +30,17 @@ export namespace TextareaT {
   }
 
   export interface Variant {
+    /** Visual size of the component.
+     * @default 'md'
+     */
     size?: 'sm' | 'md' | 'lg' | null
+    /** Visual treatment of the component.
+     * @default 'outline'
+     */
     variant?: 'outline' | 'subtle' | 'ghost' | 'none' | null
-    autoresize?: boolean | 'true' | 'false' | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -44,6 +51,10 @@ export namespace TextareaT {
    */
   export interface Base<M extends ModelModifiers | undefined = ModelModifiers | undefined>
     extends
+      Omit<
+        JSX.TextareaHTMLAttributes<HTMLTextAreaElement>,
+        'value' | 'defaultValue' | 'ref' | 'size'
+      >,
       FormIdentityOptions,
       FormValueOptions<Value>,
       FormRequiredOption,
@@ -113,6 +124,9 @@ export namespace TextareaT {
     /**
      * Optional inner textarea element ref.
      */
+    ref?: Ref<HTMLDivElement>
+
+    /** Ref for the editable textarea element. */
     textareaRef?: Ref<HTMLTextAreaElement>
 
     /**
@@ -121,9 +135,9 @@ export namespace TextareaT {
     onValueChange?: (value: ModifierValue<M>) => void
 
     /**
-     * Callback when the textarea value change is committed.
+     * Native change event, after value synchronization and FormField notification.
      */
-    onChange?: (value: ModifierValue<M>) => void
+    onChange?: JSX.EventHandlerUnion<HTMLTextAreaElement, Event>
 
     /**
      * Native input event handler.
@@ -150,7 +164,7 @@ export namespace TextareaT {
    * Props for the Textarea component.
    */
   export type Props<M extends ModelModifiers | undefined = ModelModifiers | undefined> = BaseProps<
-    'div',
+    'textarea',
     Base<M>,
     Variant,
     Classes,

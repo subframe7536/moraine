@@ -4,10 +4,10 @@ import { For, Show, createEffect, createMemo, createSignal, mergeProps, splitPro
 import { Icon } from '../../elements/icon/index.ts'
 import { List } from '../../elements/list/index.ts'
 import type { ListProps, ListT } from '../../elements/list/index.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
+import { cn, callHandler, callRef, useId } from '../../shared/utils.ts'
 
 import type { CommandPaletteProps, CommandPaletteT } from './command-palette.types.ts'
 
@@ -143,8 +143,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     'class',
     'style',
   ])
-  const design = useMoraineDesign()
-  const commandPaletteDesign = () => design().commandPalette
+  const resolved = createComponentStyles('commandPalette', local)
 
   const merged = mergeProps(
     {
@@ -157,25 +156,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       loadingIcon: 'icon-loading',
       closeIcon: 'icon-close',
     },
-    () => commandPaletteDesign()?.defaultVariants,
+
     local,
   )
-
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return commandPaletteDesign()?.recipe()
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
 
   const [internalSearch, setInternalSearch] = createSignal('')
   const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
@@ -437,7 +420,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   function renderItemDescription(item: NormalizedItem<TItem>): JSX.Element {
     return (
       <Show when={item.item.description}>
-        <span data-slot="itemDescription" {...resolved.slotClassAndStyle('itemDescription')}>
+        <span data-slot="itemDescription" {...resolved.slot('itemDescription')}>
           {item.item.description}
         </span>
       </Show>
@@ -456,7 +439,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         fallback={
           <>
             <Show when={item.item.leadingRender !== undefined}>
-              <span data-slot="itemLeading" {...resolved.slotClassAndStyle('itemLeading')}>
+              <span data-slot="itemLeading" {...resolved.slot('itemLeading')}>
                 {renderComponentOrElement(item.item.leadingRender, itemContext)}
               </span>
             </Show>
@@ -464,12 +447,12 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             <span
               data-slot="itemWrapper"
               data-description-position={descriptionPosition()}
-              {...resolved.slotClassAndStyle('itemWrapper')}
+              {...resolved.slot('itemWrapper')}
             >
               <span
                 data-slot="itemLabel"
                 data-description-position={descriptionPosition()}
-                {...resolved.slotClassAndStyle('itemLabel')}
+                {...resolved.slot('itemLabel')}
               >
                 <span>{item.item.label ?? item.label}</span>
                 <Show when={descriptionPosition() === 'trailing'}>
@@ -480,7 +463,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             </span>
 
             <Show when={item.item.trailingRender !== undefined}>
-              <span data-slot="itemTrailing" {...resolved.slotClassAndStyle('itemTrailing')}>
+              <span data-slot="itemTrailing" {...resolved.slot('itemTrailing')}>
                 {renderComponentOrElement(item.item.trailingRender, itemContext)}
               </span>
             </Show>
@@ -517,21 +500,12 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           callRef(itemAttributes()?.ref, element)
           virtualProps?.ref?.(element)
         }}
-        style={resolved.slotStyle('item', {
-          get state() {
-            return {
-              style: {
-                ...toStyleObject(itemAttributes()?.style),
-                ...toStyleObject(virtualProps?.style),
-              },
-            }
-          },
-        })}
-        class={resolved.slotClass('item', {
-          get state() {
-            return { class: [itemAttributes()?.class, virtualProps?.class] }
-          },
-        })}
+        style={{
+          ...toStyleObject(itemAttributes()?.style),
+          ...toStyleObject(virtualProps?.style),
+          ...resolved.slot('item').style,
+        }}
+        class={cn(resolved.slot('item').class, [itemAttributes()?.class, virtualProps?.class])}
         onPointerMove={(event) => {
           callHandler(event, itemAttributes()?.onPointerMove)
           callHandler(event, virtualProps?.onPointerMove)
@@ -575,19 +549,14 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   >
 
   return (
-    <div
-      ref={(el) => callRef(local.ref, el)}
-      data-slot="root"
-      {...resolved.rootClassAndStyle()}
-      {...rest}
-    >
-      <div data-slot="inputWrapper" {...resolved.slotClassAndStyle('inputWrapper')}>
+    <div ref={(el) => callRef(local.ref, el)} data-slot="root" {...resolved.root} {...rest}>
+      <div data-slot="inputWrapper" {...resolved.slot('inputWrapper')}>
         <Icon
           name={merged.loading ? merged.loadingIcon : merged.leadingIcon}
           slotName="search"
           aria-busy={merged.loading || undefined}
           data-loading={merged.loading ? '' : undefined}
-          {...resolved.slotClassAndStyle('search')}
+          {...resolved.slot('search')}
         />
 
         <input
@@ -598,7 +567,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             callRef(local.inputRef, el)
           }}
           data-slot="input"
-          {...resolved.slotClassAndStyle('input')}
+          {...resolved.slot('input')}
           role="combobox"
           aria-controls={listboxId()}
           aria-expanded="true"
@@ -626,7 +595,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           <button
             type="button"
             data-slot="close"
-            {...resolved.slotClassAndStyle('close')}
+            {...resolved.slot('close')}
             onClick={() => {
               merged.onClose?.()
             }}
@@ -640,7 +609,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
       <Show
         when={hasItems()}
         fallback={
-          <div data-slot="empty" {...resolved.slotClassAndStyle('empty')}>
+          <div data-slot="empty" {...resolved.slot('empty')}>
             <Show when={merged.emptyRender !== undefined} fallback="No results.">
               {renderComponentOrElement(merged.emptyRender, getContext())}
             </Show>
@@ -654,9 +623,9 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             <Show
               when={merged.virtualRender}
               fallback={
-                <div data-slot="group" {...resolved.slotClassAndStyle('group')}>
+                <div data-slot="group" {...resolved.slot('group')}>
                   <Show when={(context.item as NormalizedGroup<TItem>).label}>
-                    <span data-slot="label" {...resolved.slotClassAndStyle('label')}>
+                    <span data-slot="label" {...resolved.slot('label')}>
                       {(context.item as NormalizedGroup<TItem>).label}
                     </span>
                   </Show>
@@ -683,18 +652,13 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                   role="presentation"
                   data-slot="group"
                   {...context.props}
-                  style={resolved.slotStyle('group', {
-                    get state() {
-                      return { style: { ...toStyleObject(context.props?.style) } }
-                    },
-                  })}
-                  class={resolved.slotClass('group', {
-                    get state() {
-                      return { class: context.props?.class }
-                    },
-                  })}
+                  style={{
+                    ...toStyleObject(context.props?.style),
+                    ...resolved.slot('group').style,
+                  }}
+                  class={cn(resolved.slot('group').class, context.props?.class)}
                 >
-                  <span data-slot="label" {...resolved.slotClassAndStyle('label')}>
+                  <span data-slot="label" {...resolved.slot('label')}>
                     {(context.item as CommandPaletteT.VirtualLabelEntry<TItem>).label}
                   </span>
                 </div>
@@ -714,21 +678,16 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             listboxElement = element
             callRef(merged.listboxProps?.ref, element)
           }}
-          style={resolved.slotStyle('listbox', {
-            get state() {
-              return { style: { ...toStyleObject(merged.listboxProps?.style) } }
-            },
-          })}
-          class={resolved.slotClass('listbox', {
-            get state() {
-              return { class: merged.listboxProps?.class }
-            },
-          })}
+          style={{
+            ...toStyleObject(merged.listboxProps?.style),
+            ...resolved.slot('listbox').style,
+          }}
+          class={cn(resolved.slot('listbox').class, merged.listboxProps?.class)}
         />
       </Show>
 
       <Show when={merged.footerRender !== undefined}>
-        <div data-slot="footer" {...resolved.slotClassAndStyle('footer')}>
+        <div data-slot="footer" {...resolved.slot('footer')}>
           {renderComponentOrElement(merged.footerRender, getContext())}
         </div>
       </Show>

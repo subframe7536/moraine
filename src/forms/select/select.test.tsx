@@ -4,18 +4,16 @@ import { For, createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithOwner } from '../../test-utils/owner-render'
-import { createForm } from '../form/index'
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { createTheme } from '../../theme.ts'
+import { createForm } from '../form/index.ts'
 
 import { Select } from './select.tsx'
 import type { SelectT } from './select.tsx'
 
-const officialDesign = createDesign()
-
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 const FRUITS = [
   { label: 'Apple', value: 'apple' },
@@ -87,17 +85,6 @@ test('forwards root ref and inner inputRef when searchable', () => {
   expect(inputEl?.placeholder).toBe('Ref test')
 })
 
-test('single Select accepts arbitrary root props at type level', () => {
-  const screen = render(() => (
-    <>
-      <Select options={FRUITS} multiple />
-      <Select options={FRUITS} allowCreate tokenSeparators={[',']} maxCount={2} />
-    </>
-  ))
-
-  expect(screen.getAllByRole('combobox')).toHaveLength(2)
-})
-
 test('uses input sizing classes in single mode', () => {
   const single = render(() => <Select options={FRUITS} size="sm" placeholder="SM" />)
   const singleInput = single.container.querySelector('[data-slot="input"]')
@@ -108,7 +95,7 @@ test('uses input sizing classes in single mode', () => {
 
 test('uses the provider size as the field default', () => {
   const screen = render(() => (
-    <MoraineProvider design={createDesign({ select: { defaultVariants: { size: 'lg' } } })}>
+    <MoraineProvider theme={createTheme({ select: { defaults: { size: 'lg' } } })}>
       <Select options={FRUITS} placeholder="Provider size" />
     </MoraineProvider>
   ))
@@ -184,7 +171,7 @@ describe('Select - single mode', () => {
   test('uses the normative root class and style precedence', () => {
     const screen = render(() => (
       <MoraineProvider
-        design={createDesign({
+        theme={createTheme({
           select: {
             base: { root: 'w-24 px-1 h-[10px] text-red-500 provider-root' },
           },
@@ -221,7 +208,7 @@ describe('Select - single mode', () => {
   test('merges named slot classes and styles through the resolver', () => {
     render(() => (
       <MoraineProvider
-        design={createDesign({
+        theme={createTheme({
           select: {
             base: { content: 'p-1 w-24 text-red-500 bg-black provider-content' },
           },
@@ -257,7 +244,7 @@ describe('Select - single mode', () => {
     const [instanceStyles, setInstanceStyles] = createSignal({ root: { border: '1px solid red' } })
 
     const screen = render(() => (
-      <MoraineProvider design={createDesign(providerConfig())}>
+      <MoraineProvider theme={createTheme(providerConfig())}>
         <Select
           data-testid="reactive-select"
           options={FRUITS}
@@ -334,7 +321,8 @@ describe('Select - single mode', () => {
     fireEvent.click(control)
 
     expect(control.className).toContain('focus-visible:ring-ring/50')
-    expect(control.className).not.toContain('focus-within:ring-ring/50')
+    expect(control.hasAttribute('data-search')).toBe(false)
+    expect(control.className).toContain('data-search:focus-within:ring-ring/50')
   })
 
   test('prevents mouse pointerdown but preserves touch and pen defaults', () => {

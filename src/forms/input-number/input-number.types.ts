@@ -33,11 +33,24 @@ export namespace InputNumberT {
   }
 
   export interface Variant {
+    /** Visual size of the component.
+     * @default 'md'
+     */
     size?: 'sm' | 'md' | 'lg' | null
+    /** Visual treatment of the component.
+     * @default 'outline'
+     */
     variant?: 'outline' | 'subtle' | 'ghost' | 'none' | null
+    /** Text alignment; omitted values follow the control layout.
+     */
     align?: 'center' | 'start' | null
+    /** Visual layout direction.
+     * @default 'horizontal'
+     */
     orientation?: 'horizontal' | 'vertical' | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 

@@ -1,5 +1,5 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { CardT } from './card.types.ts'
 
@@ -13,7 +13,7 @@ export const cardRecipeOptions = {
     body: 'flex-1',
     footer: '',
   },
-  defaultVariants: {
+  defaults: {
     compact: false,
   },
   variants: {
@@ -32,6 +32,4 @@ export const cardRecipeOptions = {
   },
 } as const satisfies SlotRecipeOptions<keyof CardT.Slot>
 
-export const cardRecipe = recipe(cardRecipeOptions)
-
-export type CardVariantProps = CardT.Variant
+export const cardRecipe = /* @__PURE__ */ slotRecipe(cardRecipeOptions)

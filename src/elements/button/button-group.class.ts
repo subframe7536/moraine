@@ -1,5 +1,5 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { ButtonGroupT } from './button-group.types.ts'
 
@@ -8,7 +8,7 @@ export const buttonGroupRecipeOptions = {
     root: 'inline-flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-sticky',
     separator: 'bg-input shrink-0 self-stretch',
   },
-  defaultVariants: {
+  defaults: {
     orientation: 'horizontal',
   },
   variants: {
@@ -25,8 +25,4 @@ export const buttonGroupRecipeOptions = {
   },
 } as const satisfies SlotRecipeOptions<keyof ButtonGroupT.Slot>
 
-export const buttonGroupRecipe = recipe(buttonGroupRecipeOptions)
-
-export type ButtonGroupLayoutVariantProps = {
-  orientation?: 'horizontal' | 'vertical'
-}
+export const buttonGroupRecipe = /* @__PURE__ */ slotRecipe(buttonGroupRecipeOptions)

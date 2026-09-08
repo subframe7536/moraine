@@ -25,9 +25,13 @@ export namespace TooltipT {
   }
 
   export interface Variant {
-    side?: 'top' | 'right' | 'bottom' | 'left' | null
+    /** Visual invert of the component.
+     * @default false
+     */
     invert?: boolean | 'true' | 'false' | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item {}
@@ -67,6 +71,9 @@ export namespace TooltipT {
     children?: JSX.Element
   }
   export interface ContentBase {
+    /** Preferred placement relative to the trigger. @default 'top' */
+    side?: 'top' | 'right' | 'bottom' | 'left'
+
     /**
      * Primary text content or element to display.
      */

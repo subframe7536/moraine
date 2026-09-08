@@ -88,11 +88,17 @@ export namespace MultiSelectT {
   export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, OptionSlot<T> {}
 
   export interface Variant {
+    /** Visual treatment of the component.
+     * @default 'outline'
+     */
     variant?: 'outline' | 'subtle' | 'ghost' | 'none' | null
+    /** Visual size of the component.
+     * @default 'md'
+     */
     size?: 'sm' | 'md' | 'lg' | null
-    search?: boolean | 'true' | 'false' | null
-    side?: 'top' | 'right' | 'bottom' | 'left' | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item<Val extends Value = Value> extends BaseSelectT.Item<Val> {}
@@ -108,6 +114,7 @@ export namespace MultiSelectT {
         | 'onInputKeyDown'
         | '_onFormReset'
         | '_isValueControlled'
+        | '_styles'
         | 'onOptionSelect'
         | 'optionRender'
         | 'selectedValues'
@@ -115,11 +122,6 @@ export namespace MultiSelectT {
         | 'tabSelectionBehavior'
         | 'virtualRender'
         | 'scrollToItem'
-        | '_defaultSize'
-        | '_recipe'
-        | '_provider'
-        | '_design'
-        | '_styleInputs'
       >,
       FormIdentityOptions,
       FormValueOptions<TItem[]>,

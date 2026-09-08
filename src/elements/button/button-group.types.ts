@@ -12,8 +12,13 @@ export namespace ButtonGroupT {
     separator?: T
   }
   export interface Variant extends ButtonT.Variant {
-    orientation?: 'horizontal' | 'vertical'
+    /** Visual layout direction.
+     * @default 'horizontal'
+     */
+    orientation?: 'horizontal' | 'vertical' | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 

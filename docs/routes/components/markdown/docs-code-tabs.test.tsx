@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
-import { renderWithDesign } from '../../../../src/test-utils/design-render.tsx'
+import { renderWithTheme } from '../../../../src/test-utils/theme-render.tsx'
 
 import { CodeTabs } from './docs-code-tabs'
 
@@ -13,7 +13,7 @@ describe('CodeTabs', () => {
   ]
 
   test('merges official trigger styles without scaling and keeps keyboard selection', () => {
-    const screen = renderWithDesign(() => <CodeTabs items={ITEMS} />)
+    const screen = renderWithTheme(() => <CodeTabs items={ITEMS} />)
     const tabs = screen.getAllByRole('tab')
     for (const tab of tabs) {
       expect(tab.className).toContain('transition-colors')

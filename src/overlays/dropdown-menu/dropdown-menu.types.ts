@@ -13,8 +13,13 @@ import type { ModalT } from '../modal/modal.types.ts'
 export namespace DropdownMenuT {
   export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}
   export interface Variant {
+    /** Visual size of the component.
+     * @default 'md'
+     */
     size?: 'sm' | 'md' | 'lg' | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item extends OverlayMenuSharedItem<Item> {}

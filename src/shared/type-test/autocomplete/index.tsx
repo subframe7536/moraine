@@ -19,15 +19,9 @@ import {
   useId,
 } from 'moraine'
 import type { ModalT } from 'moraine'
-import { createDesign } from 'moraine/design'
+import { createTheme } from 'moraine/theme'
 import type { Component, JSX } from 'solid-js'
 import * as v from 'valibot'
-
-declare module 'moraine' {
-  interface MoraineTypeConfig {
-    enableRootAutocomplete: true
-  }
-}
 
 const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (props) => (
   <section>
@@ -121,7 +115,7 @@ const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
 // @ts-expect-error The bound Form component does not accept instance slot style maps.
 ;<rootOnlyForm.Form styles={{ root: { color: 'red' } }} />
 
-createDesign({
+createTheme({
   form: { base: { root: 'space-y-2' } },
   icon: { base: { root: 'size-4' } },
   kbd: { base: { root: 'px-1' } },

@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 
 import type { AvatarGroupProps } from './avatar-group.types.ts'
 import { AvatarFace } from './avatar.tsx'
@@ -28,9 +28,6 @@ function resolveMax(max: AvatarGroupProps['max']): number | undefined {
 
 /** Group of overlapping avatars with optional overflow count. */
 export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
-  const design = useMoraineDesign()
-  const avatarGroupDesign = () => design().avatarGroup
-
   const [local, rest] = splitProps(props, [
     'items',
     'max',
@@ -40,8 +37,9 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     'class',
     'style',
   ])
+  const resolved = createComponentStyles('avatarGroup', local)
 
-  const size = () => local.size ?? avatarGroupDesign()?.defaultVariants?.size ?? 'md'
+  const size = () => resolved.variants.size
   const items = createMemo(() => local.items ?? [])
   const visibleItems = createMemo(() => {
     const allItems = items()
@@ -59,27 +57,11 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
 
   const hiddenCount = createMemo(() => items().length - visibleItems().length)
 
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return avatarGroupDesign()?.recipe({ size: size() })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
-
   return (
     <Show when={items().length > 0}>
-      <div data-slot="root" {...rest} {...resolved.rootClassAndStyle()}>
+      <div data-slot="root" {...rest} {...resolved.root}>
         <Show when={hiddenCount() > 0}>
-          <span data-slot="count" {...resolved.slotClassAndStyle('count')}>
+          <span data-slot="count" {...resolved.slot('count')}>
             +{hiddenCount()}
           </span>
         </Show>
@@ -90,18 +72,18 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
               {...item}
               size={size()}
               rootSlot="item"
-              {...resolved.slotClassAndStyle('item')}
+              {...resolved.slot('item')}
               classes={{
-                image: resolved.slotClass('image'),
-                fallback: resolved.slotClass('fallback'),
-                fallbackIcon: resolved.slotClass('fallbackIcon'),
-                badge: resolved.slotClass('badge'),
+                image: resolved.slot('image').class,
+                fallback: resolved.slot('fallback').class,
+                fallbackIcon: resolved.slot('fallbackIcon').class,
+                badge: resolved.slot('badge').class,
               }}
               styles={{
-                image: resolved.slotStyle('image'),
-                fallback: resolved.slotStyle('fallback'),
-                fallbackIcon: resolved.slotStyle('fallbackIcon'),
-                badge: resolved.slotStyle('badge'),
+                image: resolved.slot('image').style,
+                fallback: resolved.slot('fallback').style,
+                fallbackIcon: resolved.slot('fallbackIcon').style,
+                badge: resolved.slot('badge').style,
               }}
             />
           )}

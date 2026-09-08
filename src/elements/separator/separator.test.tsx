@@ -2,12 +2,10 @@ import { render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
-import { MoraineProvider } from '../../shared/provider/index.ts'
+import { MoraineUnstyledProvider, MoraineProvider } from '../../shared/provider/index.ts'
+import { createTheme } from '../../theme.ts'
 
 import { Separator } from './separator.tsx'
-
-const officialDesign = createDesign()
 
 describe('Separator', () => {
   test('renders unstyled when provider is absent', () => {
@@ -18,7 +16,7 @@ describe('Separator', () => {
 
   test('renders a single root element with default semantics and horizontal orientation', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Separator />
       </MoraineProvider>
     ))
@@ -36,7 +34,7 @@ describe('Separator', () => {
   test('updates orientation semantics and classes reactively', () => {
     const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Separator orientation={orientation()} />
       </MoraineProvider>
     ))
@@ -91,7 +89,7 @@ describe('Separator', () => {
     ['dotted', 'border-dotted'],
   ] as const)('applies %s type variant to the root line', (type, expectedClass) => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Separator type={type} />
       </MoraineProvider>
     ))
@@ -104,7 +102,7 @@ describe('Separator', () => {
     ['lg', 'border-4'],
   ] as const)('applies %s size variant to the root line', (size, expectedClass) => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Separator size={size} />
       </MoraineProvider>
     ))
@@ -113,7 +111,7 @@ describe('Separator', () => {
 
   test('uses root color inheritance for the line', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Separator class="text-primary" />
       </MoraineProvider>
     ))
@@ -128,7 +126,7 @@ describe('Separator', () => {
     const reads = { orientation: 0 }
     const [orientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         {createComponent(Separator, {
           get orientation() {
             reads.orientation += 1
@@ -144,7 +142,7 @@ describe('Separator', () => {
 
   test('applies root class and style overrides', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Separator class="root-override" style={{ width: '200px' }} />
       </MoraineProvider>
     ))
@@ -155,14 +153,7 @@ describe('Separator', () => {
   })
 
   test('keeps direct root styling while ignoring legacy slot maps', () => {
-    const screen = render(() => (
-      <Separator
-        class="custom-root"
-        style={{ width: '200px' }}
-        classes={{ root: 'ignored-root' }}
-        styles={{ root: { width: '100px' } }}
-      />
-    ))
+    const screen = render(() => <Separator class="custom-root" style={{ width: '200px' }} />)
     const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
 
     expect(root?.className).toContain('custom-root')
@@ -173,19 +164,17 @@ describe('Separator', () => {
   })
 
   test('replaces Design root styling without remounting the separator', () => {
-    const [design, setDesign] = createSignal(
-      createDesign({ preset: false, separator: { base: { root: 'p-2' } } }),
-    )
+    const [design, setDesign] = createSignal(createTheme({ separator: { base: { root: 'p-2' } } }))
     const screen = render(() => (
-      <MoraineProvider design={design()}>
+      <MoraineUnstyledProvider theme={design()}>
         <Separator />
-      </MoraineProvider>
+      </MoraineUnstyledProvider>
     ))
     const root = screen.getByRole('separator')
 
     expect(root.className).toContain('p-2')
 
-    setDesign(createDesign({ preset: false, separator: { base: { root: 'p-4' } } }))
+    setDesign(createTheme({ separator: { base: { root: 'p-4' } } }))
 
     expect(screen.getByRole('separator')).toBe(root)
     expect(root.className).toContain('p-4')
@@ -195,7 +184,7 @@ describe('Separator', () => {
   test('keeps the root element stable when orientation changes', () => {
     const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Separator orientation={orientation()} />
       </MoraineProvider>
     ))

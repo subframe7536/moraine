@@ -78,9 +78,9 @@ Collapsible (root, state provider)
 
 ### Styling
 
-Configure `collapsible.base` in your Design with `root`, `trigger`, `contentWrapper`, and `content`. All four slots are unstyled by default; the optional height transition remains structural even with `preset: false`.
+Configure `collapsible.base` in your Theme with `root`, `trigger`, `contentWrapper`, and `content`. The root, trigger, and content have no official base classes. The official Theme supplies optional height transitions on `contentWrapper`; an unstyled boundary removes those classes while retaining disclosure behavior.
 
-Root `classes` and `styles` override Design slots. Root `class` and `style` take precedence on the root element. Child `class` and `style` override the trigger or inner content slot; Content's `wrapperClass` and `wrapperStyle` override `contentWrapper`. Use `CollapsibleT.Slot`, `CollapsibleT.Classes`, and `CollapsibleT.Styles` for typed slot configuration. No visual variants are provided.
+Root `classes` and `styles` override Theme slots. Root `class` and `style` take precedence on the root element. Child `class` and `style` override the trigger or inner content slot; Content's `wrapperClass` and `wrapperStyle` override `contentWrapper`. Use `CollapsibleT.Slot`, `CollapsibleT.Classes`, and `CollapsibleT.Styles` for typed slot configuration. No visual variants are provided.
 
 <Preview path="./design-styling" />
 

@@ -10,7 +10,7 @@ import {
 import { Icon } from '../../elements/icon/index.ts'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import { hasJsxContent } from '../../shared/jsx-content.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { ModalSurface } from '../modal/modal-content.tsx'
 import { useModalContext } from '../modal/modal-context.ts'
 import { Modal } from '../modal/modal.tsx'
@@ -27,36 +27,14 @@ export function Sheet(props: SheetProps): JSX.Element {
 function SheetTrigger<T extends ValidComponent = 'button'>(
   props: SheetT.TriggerProps<T>,
 ): JSX.Element {
-  const design = useMoraineDesign()
-  const resolved = resolveComponentStyle({
-    rootSlot: 'trigger',
-    design: {
-      get classes() {
-        return design().sheet.recipe()
-      },
-    },
-    get instance() {
-      return props
-    },
-  })
-  const partProps = mergeProps(props, resolved.rootClassAndStyle()) as SheetT.TriggerProps<T>
+  const resolved = createComponentStyles('sheet', props, { rootSlot: 'trigger' })
+  const partProps = mergeProps(props, resolved.root) as SheetT.TriggerProps<T>
   return createComponent(Modal.Trigger<T>, partProps)
 }
 
 function SheetClose<T extends ValidComponent = 'button'>(props: SheetT.CloseProps<T>): JSX.Element {
-  const design = useMoraineDesign()
-  const resolved = resolveComponentStyle({
-    rootSlot: 'close',
-    design: {
-      get classes() {
-        return design().sheet.recipe()
-      },
-    },
-    get instance() {
-      return props
-    },
-  })
-  const partProps = mergeProps(props, resolved.rootClassAndStyle()) as SheetT.CloseProps<T>
+  const resolved = createComponentStyles('sheet', props, { rootSlot: 'close' })
+  const partProps = mergeProps(props, resolved.root) as SheetT.CloseProps<T>
   return createComponent(Modal.Close<T>, partProps)
 }
 
@@ -80,7 +58,7 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
     'class',
     'style',
   ])
-  const design = useMoraineDesign()
+
   const context = useModalContext()
 
   const merged = mergeProps(
@@ -88,24 +66,14 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
       overlay: true,
       transition: true,
       side: 'right' as const,
-      inset: false,
+
       close: true,
     },
-    () => design().sheet.defaultVariants,
+
     local,
   )
 
-  const resolved = resolveComponentStyle({
-    rootSlot: 'content',
-    design: {
-      get classes() {
-        return design().sheet.recipe({ side: merged.side, inset: merged.inset })
-      },
-    },
-    get instance() {
-      return local
-    },
-  })
+  const resolved = createComponentStyles('sheet', local, { rootSlot: 'content' })
 
   const title = createLazyMemo(() => merged.title)
   const description = createLazyMemo(() => merged.description)
@@ -138,30 +106,26 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
       {...rest}
       data-transition={merged.transition ? undefined : 'false'}
       overlay={merged.overlay}
-      overlayClass={resolved.slotClass('overlay')}
-      overlayStyle={resolved.slotStyle('overlay')}
+      overlayClass={resolved.slot('overlay').class}
+      overlayStyle={resolved.slot('overlay').style}
       data-side={merged.side}
       ariaLabel={merged.ariaLabel}
       ariaLabelledBy={titleId()}
       ariaDescribedBy={descriptionId()}
-      class={resolved.slotClass('content')}
-      style={resolved.slotStyle('content')}
+      class={resolved.slot('content').class}
+      style={resolved.slot('content').style}
     >
       {(): JSX.Element => (
         <>
           <Show when={hasCustomHeader() || hasDefaultHeader()}>
-            <div data-slot="header" {...resolved.slotClassAndStyle('header')}>
+            <div data-slot="header" {...resolved.slot('header')}>
               <Show
                 when={hasCustomHeader()}
                 fallback={
                   <>
-                    <div data-slot="wrapper" {...resolved.slotClassAndStyle('wrapper')}>
+                    <div data-slot="wrapper" {...resolved.slot('wrapper')}>
                       <Show when={hasJsxContent(title())}>
-                        <h2
-                          id={titleId()}
-                          data-slot="title"
-                          {...resolved.slotClassAndStyle('title')}
-                        >
+                        <h2 id={titleId()} data-slot="title" {...resolved.slot('title')}>
                           {title()}
                         </h2>
                       </Show>
@@ -170,7 +134,7 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
                         <p
                           id={descriptionId()}
                           data-slot="description"
-                          {...resolved.slotClassAndStyle('description')}
+                          {...resolved.slot('description')}
                         >
                           {description()}
                         </p>
@@ -178,17 +142,13 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
                     </div>
 
                     <Show when={hasJsxContent(action())}>
-                      <div data-slot="actions" {...resolved.slotClassAndStyle('actions')}>
+                      <div data-slot="actions" {...resolved.slot('actions')}>
                         {action()}
                       </div>
                     </Show>
 
                     <Show when={closeContent() !== false}>
-                      <Modal.Close
-                        data-slot="close"
-                        aria-label="Close"
-                        {...resolved.slotClassAndStyle('close')}
-                      >
+                      <Modal.Close data-slot="close" aria-label="Close" {...resolved.slot('close')}>
                         <Show when={closeContent() === true} fallback={closeContent()}>
                           <Icon name="icon-close" />
                         </Show>
@@ -206,14 +166,14 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
             <div
               data-slot="body"
               data-header={hasCustomHeader() || hasDefaultHeader() ? '' : undefined}
-              {...resolved.slotClassAndStyle('body')}
+              {...resolved.slot('body')}
             >
               {body()}
             </div>
           </Show>
 
           <Show when={hasJsxContent(footer())}>
-            <div data-slot="footer" {...resolved.slotClassAndStyle('footer')}>
+            <div data-slot="footer" {...resolved.slot('footer')}>
               {footer()}
             </div>
           </Show>

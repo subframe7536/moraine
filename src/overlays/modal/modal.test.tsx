@@ -2,16 +2,16 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { Button } from '../../elements/button/index.ts'
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithDesign } from '../../test-utils/design-render.tsx'
-import { pushOverlayLayer } from '../base/overlay-stack'
-import { getFocusableElements } from '../base/utils'
+import { MoraineUnstyledProvider, MoraineProvider } from '../../shared/provider/index.ts'
+import { renderWithTheme } from '../../test-utils/theme-render.tsx'
+import { createTheme } from '../../theme.ts'
+import { pushOverlayLayer } from '../base/overlay-stack.ts'
+import { getFocusableElements } from '../base/utils.ts'
 import { Dialog } from '../dialog/dialog.tsx'
 import { Sheet } from '../sheet/sheet.tsx'
 
-import { Modal } from './modal'
+import { Modal } from './modal.tsx'
 
 describe('Modal primitives', () => {
   test('keeps closed content lazy and resolves its JSX once when opened', () => {
@@ -45,23 +45,21 @@ describe('Modal primitives', () => {
 
   test('replaces modal Design without replacing the focused surface', () => {
     const [design, setDesign] = createSignal(
-      createDesign({
-        preset: false,
+      createTheme({
         modal: { base: { content: 'first-surface', overlay: 'first-overlay' } },
       }),
     )
     render(() => (
-      <MoraineProvider design={design()}>
+      <MoraineUnstyledProvider theme={design()}>
         <Modal defaultOpen>
           <Modal.Content overlay>Content</Modal.Content>
         </Modal>
-      </MoraineProvider>
+      </MoraineUnstyledProvider>
     ))
     const surface = document.querySelector<HTMLElement>('[data-slot="content"]')!
     surface.focus()
     setDesign(
-      createDesign({
-        preset: false,
+      createTheme({
         modal: { base: { content: 'second-surface', overlay: 'second-overlay' } },
       }),
     )
@@ -179,7 +177,7 @@ describe('Modal primitives', () => {
   test('composed overlays use their own Design without inheriting Modal presentation', () => {
     const screen = render(() => (
       <MoraineProvider
-        design={createDesign({
+        theme={createTheme({
           modal: { base: { content: 'modal-provider-class' } },
           dialog: { base: { content: 'dialog-design-surface' } },
           sheet: { base: { content: 'sheet-design-surface' } },
@@ -249,7 +247,7 @@ describe('Modal primitives', () => {
 
   test('supports non-native and Button trigger roots', async () => {
     let triggerElement: HTMLElement | undefined
-    const screen = renderWithDesign(() => (
+    const screen = renderWithTheme(() => (
       <>
         <Modal>
           <Modal.Trigger
@@ -337,7 +335,7 @@ describe('Modal primitives', () => {
   })
 
   test('applies the shared dialog overlay classes by default', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Modal defaultOpen>
         <Modal.Content overlay>
           <span>Content</span>
@@ -359,7 +357,7 @@ describe('Modal primitives', () => {
   })
 
   test('applies the default popup transition classes to custom modal content', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Modal defaultOpen>
         <Modal.Content>
           <span>Content</span>
@@ -492,7 +490,7 @@ describe('Modal primitives', () => {
   })
 
   test('can contain the content inside a scrolling overlay', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Modal defaultOpen>
         <Modal.Content overlay overlayScroll>
           <span>Content</span>

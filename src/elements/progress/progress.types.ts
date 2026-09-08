@@ -37,10 +37,21 @@ export namespace ProgressT {
   }
 
   export interface Variant {
-    orientation?: 'horizontal' | 'vertical'
-    size?: 'sm' | 'md' | 'lg'
-    animation?: 'carousel' | 'reverse' | 'swing' | 'elastic'
+    /** Visual layout direction.
+     * @default 'horizontal'
+     */
+    orientation?: 'horizontal' | 'vertical' | null
+    /** Visual size of the component.
+     * @default 'md'
+     */
+    size?: 'sm' | 'md' | 'lg' | null
+    /** Visual animation of the component.
+     * @default 'carousel'
+     */
+    animation?: 'carousel' | 'reverse' | 'swing' | 'elastic' | null
   }
+
+  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

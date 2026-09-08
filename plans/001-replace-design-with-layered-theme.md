@@ -94,21 +94,21 @@ The following work was deliberately removed from the implementation design becau
 
 ## Commands you will need
 
-| Purpose | Command | Expected on success |
-| --- | --- | --- |
-| Confirm tool | `nub --version` | exits 0 |
-| Typecheck | `nub run typecheck` | exits 0 with no TypeScript errors |
-| Packaged type tests | `nub run test:types` | both type-test projects compile |
-| Focused baseline | `nub run test src/shared/style/recipe.test.ts src/shared/provider/moraine-provider.test.tsx src/forms/input/input.test.tsx src/forms/textarea/textarea.test.tsx` | 4 files and 84 baseline tests pass before edits |
-| Focused Theme tests | `nub run test src/shared/style/recipe.test.ts src/theme/create-theme.test.ts src/shared/provider/create-component-styles.test.tsx src/shared/provider/moraine-provider.test.tsx` | all focused tests pass |
-| Full runtime suite | `nub run test` | build succeeds and all Vitest tests pass |
-| Full QA | `nub run qa` | format, lint, typecheck, and packaged type tests pass |
-| Documentation build | `nub run docs:build` | library and docs production builds succeed |
-| Production preview | `nub run docs:preview -- --host 127.0.0.1` | preview starts without build errors |
-| Old API guard | `rg -n "createDesign|MoraineDesign|MoraineDesignContext|useMoraineDesign|SLOT_SKELETONS|ComponentDesign|resolveComponentStyle|MoraineTypeConfig|enableRootAutocomplete" src test docs README.md package.json tsdown.config.ts` | exits 1 with no matches |
-| Old Recipe field guard | `rg -n "defaultVariants" src test docs README.md --glob '!src/shared/style/css-vars.ts' --glob '!src/shared/style/css-vars.test.ts'` | exits 1 with no matches; the independent CSS-variable helper is intentionally excluded |
-| Component ownership guard | `rg -n "defaultTheme|/default-theme|\.class\.ts" src/{elements,forms,navigation,overlays} --glob '*.tsx'` | exits 1 with no component implementation imports |
-| Recipe naming guard | `rg -n "\brecipe\(" src --glob '*.class.ts'` | exits 1; all multi-slot files use `slotRecipe` and atomic fragments use `atomicRecipe` |
+| Purpose                   | Command                                                                                                                                                                          | Expected on success                                                                    |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Confirm tool              | `nub --version`                                                                                                                                                                  | exits 0                                                                                |
+| Typecheck                 | `nub run typecheck`                                                                                                                                                              | exits 0 with no TypeScript errors                                                      |
+| Packaged type tests       | `nub run test:types`                                                                                                                                                             | both type-test projects compile                                                        |
+| Focused baseline          | `nub run test src/shared/style/recipe.test.ts src/shared/provider/moraine-provider.test.tsx src/forms/input/input.test.tsx src/forms/textarea/textarea.test.tsx`                 | 4 files and 84 baseline tests pass before edits                                        |
+| Focused Theme tests       | `nub run test src/shared/style/recipe.test.ts src/theme/create-theme.test.ts src/shared/provider/create-component-styles.test.tsx src/shared/provider/moraine-provider.test.tsx` | all focused tests pass                                                                 |
+| Full runtime suite        | `nub run test`                                                                                                                                                                   | build succeeds and all Vitest tests pass                                               |
+| Full QA                   | `nub run qa`                                                                                                                                                                     | format, lint, typecheck, and packaged type tests pass                                  |
+| Documentation build       | `nub run docs:build`                                                                                                                                                             | library and docs production builds succeed                                             |
+| Production preview        | `nub run docs:preview -- --host 127.0.0.1`                                                                                                                                       | preview starts without build errors                                                    |
+| Old API guard             | `rg -n "createDesign                                                                                                                                                             | MoraineDesign                                                                          | MoraineDesignContext                                                  | useMoraineDesign                                 | SLOT_SKELETONS | ComponentDesign | resolveComponentStyle | MoraineTypeConfig | enableRootAutocomplete" src test docs README.md package.json tsdown.config.ts` | exits 1 with no matches |
+| Old Recipe field guard    | `rg -n "defaultVariants" src test docs README.md --glob '!src/shared/style/css-vars.ts' --glob '!src/shared/style/css-vars.test.ts'`                                             | exits 1 with no matches; the independent CSS-variable helper is intentionally excluded |
+| Component ownership guard | `rg -n "defaultTheme                                                                                                                                                             | /default-theme                                                                         | \.class\.ts" src/{elements,forms,navigation,overlays} --glob '*.tsx'` | exits 1 with no component implementation imports |
+| Recipe naming guard       | `rg -n "\brecipe\(" src --glob '*.class.ts'`                                                                                                                                     | exits 1; all multi-slot files use `slotRecipe` and atomic fragments use `atomicRecipe` |
 
 The focused baseline was verified at plan time. If the baseline count changes before implementation, inspect drift instead of updating the expected number mechanically.
 
@@ -184,39 +184,40 @@ The compile-time schema must contain these presentation families, matching the c
 2. Make every visual Variant accept `null`, because explicit `null` suppresses all Recipe defaults for that property. Preserve literal unions and generic relationships rather than widening to `string`, `boolean`, or `number`.
 3. Use the following presentation-only Variant matrix. Properties not listed remain behavior/Base props or derived DOM state and must not appear in Theme defaults:
 
-   | Family | Visual Variant properties |
-   | --- | --- |
-   | `accordion`, `collapsible`, `commandPalette`, `form`, `icon`, `modal`, `popover`, `resizable` | none |
-   | `avatar` | `size`, `badgePosition` |
-   | `avatarGroup` | `size` |
-   | `badge` | `variant`, `size` |
-   | `breadcrumb` | `size`, `wrap` |
-   | `button` | `variant`, `size` |
-   | `buttonGroup` | inherited Button `variant`/`size`, plus `orientation` |
-   | `card` | `compact` |
-   | `checkbox` | `size`, `variant`, `indicator` |
-   | `checkboxGroup` | `orientation`, `size`, `variant` |
-   | `contextMenu`, `dropdownMenu` | `size` |
-   | `dialog` | `fullscreen`, `scrollable` |
-   | `fileUpload` | `size` |
-   | `formField` | `size`, `orientation` |
-   | `input`, `textarea` | `size`, `variant` |
-   | `inputNumber` | `size`, `variant`, `align`, `orientation` |
-   | `kbd`, `kbdGroup` | `size`, `variant` |
-   | `select`, `multiSelect` | `size`, `variant` |
-   | `pagination` | `size`, `variant`, `activeVariant`, `controlVariant` |
-   | `progress` | `orientation`, `size`, `animation` |
-   | `radioGroup` | `size`, `variant`, `indicator` |
-   | `separator` | `size`, `type` |
-   | `sheet` | `inset` |
-   | `sidebarFrame` | `variant` |
-   | `slider` | `size`, `variant` |
-   | `stepper` | `size` |
-   | `switch` | `size` |
-   | `tabs` | `variant`, `size` |
-   | `tooltip` | `invert` |
+   | Family                                                                                        | Visual Variant properties                             |
+   | --------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+   | `accordion`, `collapsible`, `commandPalette`, `form`, `icon`, `modal`, `popover`, `resizable` | none                                                  |
+   | `avatar`                                                                                      | `size`, `badgePosition`                               |
+   | `avatarGroup`                                                                                 | `size`                                                |
+   | `badge`                                                                                       | `variant`, `size`                                     |
+   | `breadcrumb`                                                                                  | `size`, `wrap`                                        |
+   | `button`                                                                                      | `variant`, `size`                                     |
+   | `buttonGroup`                                                                                 | inherited Button `variant`/`size`, plus `orientation` |
+   | `card`                                                                                        | `compact`                                             |
+   | `checkbox`                                                                                    | `size`, `variant`, `indicator`                        |
+   | `checkboxGroup`                                                                               | `orientation`, `size`, `variant`                      |
+   | `contextMenu`, `dropdownMenu`                                                                 | `size`                                                |
+   | `dialog`                                                                                      | `fullscreen`, `scrollable`                            |
+   | `fileUpload`                                                                                  | `size`                                                |
+   | `formField`                                                                                   | `size`, `orientation`                                 |
+   | `input`, `textarea`                                                                           | `size`, `variant`                                     |
+   | `inputNumber`                                                                                 | `size`, `variant`, `align`, `orientation`             |
+   | `kbd`, `kbdGroup`                                                                             | `size`, `variant`                                     |
+   | `select`, `multiSelect`                                                                       | `size`, `variant`                                     |
+   | `pagination`                                                                                  | `size`, `variant`, `activeVariant`, `controlVariant`  |
+   | `progress`                                                                                    | `orientation`, `size`, `animation`                    |
+   | `radioGroup`                                                                                  | `size`, `variant`, `indicator`                        |
+   | `separator`                                                                                   | `size`, `type`                                        |
+   | `sheet`                                                                                       | `inset`                                               |
+   | `sidebarFrame`                                                                                | `variant`                                             |
+   | `slider`                                                                                      | `size`, `variant`                                     |
+   | `stepper`                                                                                     | `size`                                                |
+   | `switch`                                                                                      | `size`                                                |
+   | `tabs`                                                                                        | `variant`, `size`                                     |
+   | `tooltip`                                                                                     | `invert`                                              |
 
    Remove these state/behavior-only Recipe properties while retaining any real public behavior prop in `Base`: Checkbox/CheckboxGroup `required`; FileUpload `dropzone`; FormField `required` and `hasText`; RadioGroup `orientation` and `tableOrientation`; Select/MultiSelect `mode`, `search`, and `side`; Resizable/Separator/Slider/Stepper/Tabs `orientation`; Slider `inverted` and `multiple`; SidebarFrame `isMobile` and `side`; Popover/Sheet/Tooltip `side`; Textarea `autoresize`. Derived-only values such as `hasText`, `tableOrientation`, `isMobile`, and placement side do not become public Base props merely because they leave `Variant`.
+
 4. In `src/shared/types.ts`, remove `MoraineTypeConfig`, `CommonRootProps`, and the opt-in branch. For intrinsic `as`, use the existing restricted Solid intrinsic attributes directly; for a custom component, use `ComponentProps<T>`; then `Override` them with component-owned Base/Variant/style props. Preserve required custom-component props, ref/event inference, `data-*` support provided by Solid, and the current lowercase-event exclusions. Do not introduce another unrestricted string index signature.
 5. Update `src/shared/type-test/default/index.tsx` and repurpose `src/shared/type-test/autocomplete/index.tsx`: arbitrary Card/root props must fail without module augmentation, valid native attributes must compile, and polymorphic Button custom components must still require their own props. Keep current Design assertions temporarily; the public Theme cutover happens in Step 4.
 6. Remove top-level `*VariantProps`, `*RenderProps`, `*Item`, and similar component type exports if found; update internal imports to namespace members such as `ButtonT.Variant`. The only permitted top-level component type is the matching `XxxProps`. Context-only roots expose no `class`, `style`, `classes`, or `styles`; those props belong to the public parts that render DOM.
@@ -360,20 +361,20 @@ Expected: the three build/test commands exit 0; each `rg` exits 1 with no matche
 
 ## Done criteria
 
-- [ ] `MoraineThemeSchema` maps every family listed in Scope using only namespace `SlotName` and `Variant` types and emits no runtime registry.
-- [ ] `moraine/theme` exports the required public Theme and explicit Recipe API; `moraine/design` and every old Design symbol are gone without aliases.
-- [ ] Root, nested, unstyled, and missing-Provider behavior exactly matches `requirements.md:145-156`.
-- [ ] Variant and class/style precedence matches `requirements.md:158-171`, including `null`, `false`, `0`, and `''`.
-- [ ] Every component implementation obtains official presentation only through `createComponentStyles`; no component imports `defaultTheme` or official Recipe modules.
-- [ ] Behavior/derived state removed from the Variant matrix is represented with stable DOM attributes, and measurement geometry remains inline/CSS-variable based.
-- [ ] Public component props have no unrestricted string index signature; polymorphic required props, native refs/events, Slot docs, and Select/Form generics compile.
-- [ ] Input/Textarea native attributes and handlers land on the editable control; wrapper style/ref ownership, event order, normalized callback, FormField precedence, and ARIA token merge tests pass.
-- [ ] Component-only consumer output excludes `defaultTheme` and unrelated Recipes; Provider output includes and applies official presentation; before/after raw/gzip values are recorded without fixed limits.
-- [ ] `nub run qa`, `nub run test`, and `nub run docs:build` all exit 0.
-- [ ] Production hydration checks pass at 375, 768, and 1440 px with no warnings or console errors.
-- [ ] All four final `rg` guards in Step 8 return no matches.
-- [ ] `git status --short` contains no out-of-scope or generated files.
-- [ ] `plans/README.md` marks Plan 001 `DONE` and this plan records bundle measurements.
+- [x] `MoraineThemeSchema` maps every family listed in Scope using only namespace `SlotName` and `Variant` types and emits no runtime registry.
+- [x] `moraine/theme` exports the required public Theme and explicit Recipe API; `moraine/design` and every old Design symbol are gone without aliases.
+- [x] Root, nested, unstyled, and missing-Provider behavior exactly matches `requirements.md:145-156`.
+- [x] Variant and class/style precedence matches `requirements.md:158-171`, including `null`, `false`, `0`, and `''`.
+- [x] Every component implementation obtains official presentation only through `createComponentStyles`; no component imports `defaultTheme` or official Recipe modules.
+- [x] Behavior/derived state removed from the Variant matrix is represented with stable DOM attributes, and measurement geometry remains inline/CSS-variable based.
+- [x] Public component props have no unrestricted string index signature; polymorphic required props, native refs/events, Slot docs, and Select/Form generics compile.
+- [x] Input/Textarea native attributes and handlers land on the editable control; wrapper style/ref ownership, event order, normalized callback, FormField precedence, and ARIA token merge tests pass.
+- [x] Component-only consumer output excludes `defaultTheme` and unrelated Recipes; Provider output includes and applies official presentation; before/after raw/gzip values are recorded without fixed limits.
+- [x] `nub run qa`, `nub run test`, and `nub run docs:build` all exit 0.
+- [x] Production hydration checks pass at 375, 768, and 1440 px with no warnings or console errors.
+- [x] All four final `rg` guards in Step 8 return no matches.
+- [x] `git status --short` contains no out-of-scope or generated files.
+- [x] `plans/README.md` marks Plan 001 `DONE` and this plan records bundle measurements.
 
 ## STOP conditions
 
@@ -390,14 +391,28 @@ Stop and report; do not improvise if any of these occurs:
 - Any solution requires a new runtime dependency, edits to an out-of-scope directory, or public API beyond the named contract.
 - Any verification command fails twice after a reasonable, scoped fix attempt.
 
+## Execution notes
+
+- Execution is directly on `style-refactor`, without subagents or worktrees, as requested by the operator.
+- Closed native props exposed two documentation examples using unsupported props. Scope includes removing the ineffective `FileUpload.value` binding in `docs/pages/(form)/file-upload/selecting-files.tsx` and `Card.as` in `docs/pages/(general)/card/card-semantics.tsx`; no new behavior is introduced.
+- State-only Variant removal is performed with the Step 4 cutover so old Recipe consumers remain type-correct between verified stages.
+
+- Verification completed on 2026-09-08: `nub run qa`, all 125 Vitest files (1,782 tests), and `nub run docs:build` passed. All four final API/import guards and `git diff --check` passed.
+- Production Chrome checks passed for `/`, `/button`, `/dialog`, and `/form` at 375, 768, and 1440 px: no console/hydration errors, working Button activation, Dialog open/close with focus restoration, and editable Input/Textarea values with preserved focus. The temporary preview on port 4189 was stopped.
+- Focused emitted-declaration tests retain Button Variant/default docs, Button/Input/Select slot docs, Input native inheritance and owned props, and Select generic callbacks. No separate language-service completion harness was needed.
+- Scope adaptations required by verification: the docs Theme chunk includes its dependencies to avoid an initialization cycle; the API slot extractor recognizes a parenthesized `dynamicStyles` arrow body; List's internal Dynamic uses its existing concrete namespace prop type so QA preserves generic inference. Generated API JSON and build outputs are excluded from the source change.
+- `useTextControlValue` changes only the required notification order. Text controls emit the native boolean `readonly` attribute correctly during SSR. Solid's native attribute spelling is `enterkeyhint`, which is covered in the native type/runtime tests.
+- Cleanup removed unused atomic select recipes, the unused compiled menu recipe, obsolete Variant inference exports, default-Theme construction in tests, and one-use slot-map wrappers. A bundle ablation identified the nested frozen layer array as retaining official recipes; pure initialization annotations and deferred default metadata preserve the verified ownership boundary.
+- The cutover and its dependent native contract/docs changes are kept in one verified atomic commit in the existing checkout.
+
 ## Maintenance notes
 
 - Before/after consumer bundle measurements must be filled in by the executor:
 
-  | Fixture | Before raw | Before gzip | After raw | After gzip |
-  | --- | ---: | ---: | ---: | ---: |
-  | component-only Button | TBD | TBD | TBD | TBD |
-  | Provider + Button | TBD | TBD | TBD | TBD |
+  | Fixture               | Before raw | Before gzip | After raw | After gzip |
+  | --------------------- | ---------: | ----------: | --------: | ---------: |
+  | component-only Button |     399478 |       84479 |    390950 |      83268 |
+  | Provider + Button     |     480804 |       97881 |    478373 |      96042 |
 
 - When adding a new presentational family, add one type-only `MoraineThemeSchema` entry and one official `defaultTheme` Recipe entry. Do not add a runtime slot registry.
 - When adding a Variant, decide whether it is purely visual. Behavior, state, placement, and measured values stay in Base/context/DOM attributes even when Recipes style them.

@@ -2,9 +2,9 @@ import type { JSX, Ref } from 'solid-js'
 import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
 import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { callRef, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form/form-context.ts'
+import { useFormField, useFormFieldContext } from '../form/form-context.ts'
 
 import { useSlider } from './hook/index.ts'
 import type { SliderProps, SliderT } from './slider.types.ts'
@@ -46,9 +46,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'class',
     'style',
   ])
-
-  const design = useMoraineDesign()
-  const sliderDesign = () => design().slider
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('slider', local, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
 
   const merged = mergeProps(
     {
@@ -58,9 +59,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       allowThumbCrossing: true,
       orientation: 'horizontal' as const,
       inverted: false,
-      variant: 'default' as const,
     },
-    () => sliderDesign()?.defaultVariants,
+
     local,
   )
 
@@ -76,11 +76,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     }),
     () => ({
       defaultId: generatedId(),
-      defaultSize: sliderDesign()?.defaultVariants?.size ?? 'md',
     }),
   )
 
-  const slider = useSlider<TValue>(merged as any, {
+  const slider = useSlider<TValue>(merged, {
     disabled: field.disabled,
     onValueInput(value) {
       field.setFormValue(value)
@@ -103,28 +102,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     },
   })
 
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return sliderDesign()?.recipe({
-          orientation: merged.orientation,
-          size: field.size(),
-          variant: merged.variant,
-          inverted: merged.inverted,
-          multiple: slider.currentValues().length > 1,
-        })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
-
   onMount(() => {
     if (field.value() === undefined) {
       field.setFormValue(slider.getPublicValue(slider.currentValues()))
@@ -144,7 +121,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       data-readonly={merged.readOnly ? '' : undefined}
       data-required={field.required() ? '' : undefined}
       {...field.ariaAttrs()}
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
       {...rest}
     >
       <div
@@ -153,7 +130,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         }}
         data-slot="track"
         data-orientation={merged.orientation}
-        {...resolved.slotClassAndStyle('track')}
+        {...resolved.slot('track')}
         onPointerDown={slider.onTrackPointerDown}
         onPointerMove={slider.onTrackPointerMove}
         onPointerUp={slider.onTrackPointerUp}
@@ -162,14 +139,12 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       >
         <div
           data-slot="range"
+          data-multiple={slider.currentValues().length > 1 ? '' : undefined}
+          data-inverted={merged.inverted ? '' : undefined}
           data-orientation={merged.orientation}
           data-dragging={slider.dragging() ? '' : undefined}
-          style={resolved.slotStyle('range', {
-            get state() {
-              return { style: slider.rangeStyle() }
-            },
-          })}
-          class={resolved.slotClass('range')}
+          style={{ ...slider.rangeStyle(), ...resolved.slot('range').style }}
+          class={resolved.slot('range').class}
         />
 
         <Show when={merged.divider}>
@@ -178,12 +153,11 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               <div
                 data-slot="divider"
                 data-orientation={merged.orientation}
-                style={resolved.slotStyle('divider', {
-                  get state() {
-                    return { style: slider.getDividerStyle(dividerIndex) }
-                  },
-                })}
-                class={resolved.slotClass('divider')}
+                style={{
+                  ...slider.getDividerStyle(dividerIndex),
+                  ...resolved.slot('divider').style,
+                }}
+                class={resolved.slot('divider').class}
               />
             )}
           </For>
@@ -201,6 +175,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               })
             }}
             data-slot="thumb"
+            data-inverted={merged.inverted ? '' : undefined}
+            data-orientation={merged.orientation}
             data-dragging={
               slider.dragging() && slider.activeThumbIndexState() === thumbIndex ? '' : undefined
             }
@@ -210,12 +186,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             data-required={field.required() ? '' : undefined}
             role="slider"
             tabIndex={field.disabled() ? undefined : 0}
-            style={resolved.slotStyle('thumb', {
-              get state() {
-                return { style: slider.thumbStyles()[thumbIndex] }
-              },
-            })}
-            class={resolved.slotClass('thumb')}
+            style={{ ...slider.thumbStyles()[thumbIndex], ...resolved.slot('thumb').style }}
+            class={resolved.slot('thumb').class}
             aria-valuemin={slider.getThumbMinValue(thumbIndex)}
             aria-valuenow={slider.currentValues()[thumbIndex] ?? merged.min}
             aria-valuemax={slider.getThumbMaxValue(thumbIndex)}
@@ -272,7 +244,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         )}
       </For>
 
-      {rest.children as JSX.Element}
+      {rest.children}
     </div>
   )
 }

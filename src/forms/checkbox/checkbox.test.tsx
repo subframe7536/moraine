@@ -2,12 +2,9 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 
-import { Checkbox } from './checkbox'
-
-const officialDesign = createDesign()
+import { Checkbox } from './checkbox.tsx'
 
 function expectCheckboxChecked(element: Element, checked: boolean | 'mixed'): void {
   expect(element.getAttribute('aria-checked')).toBe(checked === 'mixed' ? 'mixed' : String(checked))
@@ -397,7 +394,7 @@ describe('Checkbox', () => {
 
   test('applies card variant, end indicator and size classes', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Checkbox
           variant="card"
           indicator="end"

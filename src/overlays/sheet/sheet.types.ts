@@ -40,9 +40,13 @@ export namespace SheetT {
   }
 
   export interface Variant {
-    side?: 'top' | 'right' | 'bottom' | 'left' | null
+    /** Whether the surface is inset from viewport edges.
+     * @default false
+     */
     inset?: boolean | 'true' | 'false' | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item {}
@@ -52,6 +56,9 @@ export namespace SheetT {
    */
   export interface Base extends ModalT.Base {}
   export interface ContentBase {
+    /** Edge from which the sheet opens. @default 'right' */
+    side?: 'top' | 'right' | 'bottom' | 'left'
+
     /** Whether to render the overlay element. */
     overlay?: boolean
 

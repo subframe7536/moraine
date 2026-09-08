@@ -22,9 +22,17 @@ export namespace AvatarT {
   }
 
   export interface Variant {
-    size?: 'sm' | 'md' | 'lg'
-    badgePosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+    /** Visual size of the component.
+     * @default 'md'
+     */
+    size?: 'sm' | 'md' | 'lg' | null
+    /** Position of the badge relative to the avatar.
+     * @default 'bottom-right'
+     */
+    badgePosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | null
   }
+
+  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

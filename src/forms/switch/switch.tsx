@@ -5,10 +5,10 @@ import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form/form-context.ts'
+import { useFormField, useFormFieldContext } from '../form/form-context.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { SwitchProps } from './switch.types.ts'
@@ -51,9 +51,10 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'style',
     'onClick',
   ])
-
-  const design = useMoraineDesign()
-  const switchDesign = () => design().switch
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('switch', local, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
 
   const merged = mergeProps(
     {
@@ -86,29 +87,12 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     }),
     () => ({
       defaultId: generatedId(),
-      defaultSize: switchDesign()?.defaultVariants?.size ?? 'md',
       initialValue:
         normalizeFieldValue(
           merged.checked !== undefined ? merged.checked : merged.defaultChecked,
         ) ?? merged.falseValue,
     }),
   )
-
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return switchDesign()?.recipe({ size: field.size() })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
 
   const labelId = createMemo(() => `${field.id()}-label`)
   const descriptionId = createMemo(() => `${field.id()}-description`)
@@ -265,7 +249,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       ref={(element) => callRef(local.ref, element)}
       data-slot="root"
       {...rest}
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
       onClick={onRootClick}
     >
       <HiddenInput
@@ -307,7 +291,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         data-invalid={field.invalid() ? '' : undefined}
         aria-checked={Boolean(checked())}
         {...switchAriaAttrs()}
-        {...resolved.slotClassAndStyle('track')}
+        {...resolved.slot('track')}
         onPointerDown={onPointerDown}
         data-checked={checked() ? '' : undefined}
         data-unchecked={!checked() ? '' : undefined}
@@ -319,7 +303,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           data-checked={checked() ? '' : undefined}
           data-disabled={field.disabled() ? '' : undefined}
           data-readonly={readOnly() ? '' : undefined}
-          {...resolved.slotClassAndStyle('thumb')}
+          {...resolved.slot('thumb')}
         >
           <Show when={resolvedIconName()} keyed>
             {(iconName) => (
@@ -328,7 +312,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
                 data-checked={!merged.loading && checked() ? '' : undefined}
                 data-unchecked={!merged.loading && !checked() ? '' : undefined}
                 data-loading={merged.loading ? '' : undefined}
-                class={resolved.slotClass('icon')}
+                class={resolved.slot('icon').class}
               />
             )}
           </Show>
@@ -336,25 +320,21 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       </button>
 
       <Show when={showLabel() || showDescription()}>
-        <span data-slot="wrapper" {...resolved.slotClassAndStyle('wrapper')}>
+        <span data-slot="wrapper" {...resolved.slot('wrapper')}>
           <Show when={showLabel()}>
             <label
               for={field.id()}
               id={labelId()}
               data-slot="label"
               data-required={field.required() ? '' : undefined}
-              {...resolved.slotClassAndStyle('label')}
+              {...resolved.slot('label')}
             >
               {label()}
             </label>
           </Show>
 
           <Show when={showDescription()}>
-            <span
-              id={descriptionId()}
-              data-slot="description"
-              {...resolved.slotClassAndStyle('description')}
-            >
+            <span id={descriptionId()} data-slot="description" {...resolved.slot('description')}>
               {description()}
             </span>
           </Show>

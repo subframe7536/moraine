@@ -1,4 +1,4 @@
-import { recipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 
 import type { AccordionT } from './accordion.types.ts'
@@ -20,4 +20,4 @@ export const accordionRecipeOptions = {
   },
 } as const satisfies SlotRecipeOptions<keyof AccordionT.Slot>
 
-export const accordionRecipe = recipe(accordionRecipeOptions)
+export const accordionRecipe = /* @__PURE__ */ slotRecipe(accordionRecipeOptions)

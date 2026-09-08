@@ -2,8 +2,8 @@ import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
-import { MoraineProvider } from '../../shared/provider/index.ts'
+import { MoraineUnstyledProvider } from '../../shared/provider/index.ts'
+import { createTheme } from '../../theme.ts'
 import { ContextMenu } from '../context-menu/context-menu.tsx'
 import { DropdownMenu } from '../dropdown-menu/dropdown-menu.tsx'
 import { Popover } from '../popover/popover.tsx'
@@ -72,11 +72,11 @@ describe.each([
   test('keeps closed content lazy and preserves an open surface across Design replacement', async () => {
     let reads = 0
     const key = name === 'DropdownMenu' ? 'dropdownMenu' : 'contextMenu'
-    const [design, setDesign] = createSignal(createDesign({ preset: false }))
+    const [design, setDesign] = createSignal(createTheme({}))
     const [open, setOpen] = createSignal(false)
     const top = vi.fn(() => <span>Menu header</span>)
     render(() => (
-      <MoraineProvider design={design()}>
+      <MoraineUnstyledProvider theme={design()}>
         <Root open={open()}>
           <Root.Trigger>Trigger</Root.Trigger>
           {createComponent(Root.Content, {
@@ -87,7 +87,7 @@ describe.each([
             },
           })}
         </Root>
-      </MoraineProvider>
+      </MoraineUnstyledProvider>
     ))
     expect(reads).toBe(0)
     expect(top).not.toHaveBeenCalled()
@@ -97,7 +97,7 @@ describe.each([
     expect(top).toHaveBeenCalledTimes(1)
     const content = within(document.body).getByRole('menu')
     expect(content.className).toBe('')
-    setDesign(createDesign({ preset: false, [key]: { base: { content: 'bg-red-500' } } }))
+    setDesign(createTheme({ [key]: { base: { content: 'bg-red-500' } } }))
     expect(within(document.body).getByRole('menu')).toBe(content)
     expect(content.className).toContain('bg-red-500')
     expect(top).toHaveBeenCalledTimes(1)

@@ -3,14 +3,11 @@ import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithOwner } from '../../test-utils/owner-render'
-import { createForm } from '../form/index'
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { createForm } from '../form/index.ts'
 
-import { FileUpload } from './file-upload'
-
-const officialDesign = createDesign()
+import { FileUpload } from './file-upload.tsx'
 
 function createFile(
   name: string,
@@ -82,7 +79,7 @@ describe('FileUpload', () => {
 
   test('renders official classes when provider is present', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <FileUpload dropzone />
       </MoraineProvider>
     ))

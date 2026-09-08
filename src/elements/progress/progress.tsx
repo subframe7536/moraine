@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 
 import type { ProgressProps, ProgressT } from './progress.types.ts'
@@ -26,9 +26,6 @@ function clamp(value: number, min: number, max: number): number {
 
 /** Determinate or indeterminate progress indicator with optional step labels. */
 export function Progress(props: ProgressProps): JSX.Element {
-  const design = useMoraineDesign()
-  const progressDesign = () => design().progress
-
   const [local, rest] = splitProps(props, [
     'value',
     'max',
@@ -44,36 +41,9 @@ export function Progress(props: ProgressProps): JSX.Element {
     'class',
     'style',
   ])
+  const resolved = createComponentStyles('progress', local)
 
-  const orientation = createMemo<NonNullable<ProgressT.Variant['orientation']>>(
-    () => local.orientation ?? progressDesign()?.defaultVariants?.orientation ?? 'horizontal',
-  )
-  const size = createMemo<NonNullable<ProgressT.Variant['size']>>(
-    () => local.size ?? progressDesign()?.defaultVariants?.size ?? 'md',
-  )
-  const animation = createMemo<NonNullable<ProgressT.Variant['animation']>>(
-    () => local.animation ?? progressDesign()?.defaultVariants?.animation ?? 'carousel',
-  )
-
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return progressDesign()?.recipe({
-          orientation: orientation(),
-          size: size(),
-          animation: animation(),
-        })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
+  const orientation = () => resolved.variants.orientation
 
   const rawValue = createMemo(() => local.value ?? null)
   const rawMax = createMemo(() => local.max ?? 100)
@@ -199,7 +169,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       data-orientation={orientation()}
       {...dataAttrs()}
       {...rest}
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
     >
       <Show when={!isIndeterminate()}>
         {(_determinate) => {
@@ -210,11 +180,8 @@ export function Progress(props: ProgressProps): JSX.Element {
             <Show when={shouldRenderStatus()}>
               <div
                 data-slot="status"
-                {...resolved.slotClassAndStyle('status', {
-                  get state() {
-                    return { style: statusStyle() }
-                  },
-                })}
+                class={resolved.slot('status').class}
+                style={{ ...statusStyle(), ...resolved.slot('status').style }}
                 {...dataAttrs()}
               >
                 <Show when={statusRender() !== undefined} fallback={`${percent() ?? 0}%`}>
@@ -230,14 +197,11 @@ export function Progress(props: ProgressProps): JSX.Element {
         }}
       </Show>
 
-      <div data-slot="track" {...resolved.slotClassAndStyle('track')} {...dataAttrs()}>
+      <div data-slot="track" {...resolved.slot('track')} {...dataAttrs()}>
         <div
           data-slot="indicator"
-          {...resolved.slotClassAndStyle('indicator', {
-            get state() {
-              return { style: indicatorStyle() }
-            },
-          })}
+          class={resolved.slot('indicator').class}
+          style={{ ...indicatorStyle(), ...resolved.slot('indicator').style }}
           {...dataAttrs()}
         />
       </div>
@@ -247,13 +211,13 @@ export function Progress(props: ProgressProps): JSX.Element {
           const stepRender = createMemo(() => local.stepRender)
 
           return (
-            <div data-slot="steps" {...resolved.slotClassAndStyle('steps')} {...dataAttrs()}>
+            <div data-slot="steps" {...resolved.slot('steps')} {...dataAttrs()}>
               <For each={steps()}>
                 {(step, index) => (
                   <div
                     data-slot="step"
                     data-state={stepState(index())}
-                    {...resolved.slotClassAndStyle('step')}
+                    {...resolved.slot('step')}
                     {...dataAttrs()}
                   >
                     <Show when={stepRender() !== undefined} fallback={step}>

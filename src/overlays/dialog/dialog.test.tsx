@@ -3,18 +3,18 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { Show, createComponent, createMemo, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
-import { Button } from '../../elements/button/index'
-import { CommandPalette } from '../../navigation/command-palette/index'
+import { Button } from '../../elements/button/index.ts'
+import { CommandPalette } from '../../navigation/command-palette/index.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderWithDesign } from '../../test-utils/design-render.tsx'
-import { finishExitMotion } from '../../test-utils/overlay-test'
-import type { OverlayTriggerProps } from '../base/trigger'
-import { Modal } from '../modal/index'
-import type { ModalT } from '../modal/modal'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { finishExitMotion } from '../../test-utils/overlay-test.ts'
+import { renderWithTheme } from '../../test-utils/theme-render.tsx'
+import { createTheme } from '../../theme.ts'
+import type { OverlayTriggerProps } from '../base/trigger.ts'
+import { Modal } from '../modal/index.ts'
+import type { ModalT } from '../modal/modal.tsx'
 
-import { Dialog } from './dialog'
+import { Dialog } from './dialog.tsx'
 
 interface TestModalProps {
   defaultOpen?: boolean
@@ -78,7 +78,7 @@ describe('Modal', () => {
   })
 
   test('renders default shell with title, description, body, footer and close button', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Dialog open>
         <Dialog.Trigger as="button" type="button">
           Trigger
@@ -156,7 +156,7 @@ describe('Modal', () => {
   })
 
   test('renders an existing polymorphic component as the trigger root', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Dialog>
         <Dialog.Trigger as={Button} variant="outline">
           Open dialog
@@ -526,7 +526,7 @@ describe('Modal', () => {
   })
 
   test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Dialog open>
         <Dialog.Content body="Body" classes={{ overlay: 'bg-red-500 custom-dialog-overlay' }} />
       </Dialog>
@@ -545,9 +545,9 @@ describe('Modal', () => {
   })
 
   test('preserves Modal overlay behavior for provider slot overrides', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <MoraineProvider
-        design={createDesign({
+        theme={createTheme({
           dialog: { base: { overlay: 'bg-blue-500 provider-dialog-overlay' } },
         })}
       >
@@ -570,7 +570,7 @@ describe('Modal', () => {
   })
 
   test('keeps long dialog content scrolling inside the body', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Dialog open>
         <Dialog.Trigger as="button" type="button">
           Trigger
@@ -603,7 +603,7 @@ describe('Modal', () => {
   })
 
   test('moves long dialog scrolling to the overlay when scrollable is true', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Dialog open>
         <Dialog.Content scrollable title="Overlay scroll" body="Long body" footer="Actions" />
       </Dialog>
@@ -623,7 +623,7 @@ describe('Modal', () => {
   })
 
   test('uses a full viewport flex panel for fullscreen dialogs', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Dialog open>
         <Dialog.Content fullscreen body="Fullscreen body" />
       </Dialog>
@@ -787,7 +787,7 @@ describe('Modal', () => {
   })
 
   test('forwards custom classes and styles to dialog slots', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Dialog open>
         <Dialog.Content
           title="Custom Title"
@@ -848,7 +848,7 @@ describe('Modal', () => {
   })
 
   test('adjusts body padding when header or footer is absent', () => {
-    const { unmount } = renderWithDesign(() => (
+    const { unmount } = renderWithTheme(() => (
       <Dialog open>
         <Dialog.Content title={false} description={false} close={false} body="No header body" />
       </Dialog>
@@ -859,7 +859,7 @@ describe('Modal', () => {
     expect(bodyNoHeader.className).toContain('pb-6')
     unmount()
 
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Dialog open>
         <Dialog.Content
           title="Title"

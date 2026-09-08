@@ -3,14 +3,11 @@ import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithOwner } from '../../test-utils/owner-render'
-import { createForm } from '../form/index'
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { createForm } from '../form/index.ts'
 
-import { CheckboxGroup } from './checkbox-group'
-
-const officialDesign = createDesign()
+import { CheckboxGroup } from './checkbox-group.tsx'
 
 function expectCheckboxChecked(element: Element, checked: boolean | 'mixed'): void {
   expect(element.getAttribute('aria-checked')).toBe(checked === 'mixed' ? 'mixed' : String(checked))
@@ -321,7 +318,7 @@ describe('CheckboxGroup', () => {
 
   test('applies horizontal table layout classes', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <CheckboxGroup items={['A', 'B']} orientation="horizontal" variant="table" size="lg" />
       </MoraineProvider>
     ))
@@ -341,7 +338,7 @@ describe('CheckboxGroup', () => {
 
   test('applies vertical table layout classes', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <CheckboxGroup items={['A', 'B']} variant="table" size="lg" />
       </MoraineProvider>
     ))
@@ -405,7 +402,7 @@ describe('CheckboxGroup', () => {
 
   test('applies flattened classes to item and checkbox slots', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <CheckboxGroup
           items={['A']}
           variant="table"

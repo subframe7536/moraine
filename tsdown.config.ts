@@ -13,7 +13,7 @@ export default defineConfig([
       utils: './src/utils.ts',
       unocss: './src/unocss/index.ts',
       tailwind: './src/tailwind/index.ts',
-      design: './src/design.ts',
+      theme: './src/theme.ts',
     },
     plugins: [solid()],
     clean: false,
@@ -66,7 +66,7 @@ export default defineConfig([
         exports['./unocss'] = './dist/unocss.mjs'
         exports['./tailwind'] = './dist/tailwind.mjs'
         exports['./utils'] = './dist/utils.mjs'
-        exports['./design'] = './dist/design.mjs'
+        exports['./theme'] = './dist/theme.mjs'
         return exports
       },
     },

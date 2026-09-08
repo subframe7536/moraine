@@ -2,13 +2,10 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 
-import { Accordion } from './accordion'
-import type { AccordionT } from './accordion'
-
-const officialDesign = createDesign()
+import { Accordion } from './accordion.tsx'
+import type { AccordionT } from './accordion.tsx'
 
 const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
   {
@@ -574,7 +571,7 @@ describe('Accordion', () => {
       }
 
       const screen = render(() => (
-        <MoraineProvider design={officialDesign}>
+        <MoraineProvider>
           <ControlledAccordion />
         </MoraineProvider>
       ))

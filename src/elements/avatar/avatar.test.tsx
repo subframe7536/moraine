@@ -2,13 +2,11 @@ import { render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
+import { createTheme } from '../../theme.ts'
 
 import { AvatarGroup } from './avatar-group.tsx'
 import { Avatar } from './avatar.tsx'
-
-const officialDesign = createDesign()
 
 type MockImageOutcome = 'pending' | 'success' | 'error' | 'cached-success' | 'cached-error'
 
@@ -175,7 +173,7 @@ describe('Avatar', () => {
 
   test('renders badge and supports four corner positions', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Avatar badge="i-lucide-check" badgePosition="top-left" />
         <Avatar badge="i-lucide-check" badgePosition="top-right" />
         <Avatar badge="i-lucide-check" badgePosition="bottom-left" />
@@ -197,7 +195,7 @@ describe('Avatar', () => {
 
   test('keeps badge visible by not clipping avatar root overflow', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Avatar badge="i-lucide-check" />
       </MoraineProvider>
     ))
@@ -209,7 +207,7 @@ describe('Avatar', () => {
 
   test('supports sm and lg size variants for single avatars', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Avatar size="sm" fallback="i-lucide-user" badge="i-lucide-check" />
         <Avatar size="lg" fallback="i-lucide-user" badge="i-lucide-check" />
       </MoraineProvider>
@@ -389,7 +387,7 @@ describe('Avatar', () => {
 
   test('keeps badge icons passive and creates no internal tab stop', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Avatar badge="i-lucide-check" text="MR" />
       </MoraineProvider>
     ))
@@ -451,7 +449,7 @@ describe('Avatar', () => {
 
   test('renders avatar group with items + max', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <AvatarGroup max={2} items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }, { text: 'D' }]} />
       </MoraineProvider>
     ))
@@ -491,7 +489,7 @@ describe('Avatar', () => {
 
   test('supports sm and lg size variants for avatar groups', () => {
     const screen = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <AvatarGroup size="sm" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
         <AvatarGroup size="lg" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
       </MoraineProvider>
@@ -591,16 +589,16 @@ describe('Avatar', () => {
     test('Avatar and AvatarGroup inherit provider configuration with instance overrides', () => {
       const screen = render(() => (
         <MoraineProvider
-          design={createDesign({
+          theme={createTheme({
             avatar: {
-              defaultVariants: { size: 'lg' },
+              defaults: { size: 'lg' },
               base: {
                 root: 'p-slot-root m-0.5 text-red-500',
                 fallback: 'p-fallback text-blue-500',
               },
             },
             avatarGroup: {
-              defaultVariants: { size: 'sm' },
+              defaults: { size: 'sm' },
               base: { root: 'p-group-root', count: 'p-count' },
             },
           })}

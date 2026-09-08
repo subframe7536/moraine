@@ -2,12 +2,9 @@ import { render } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 
 import { Badge } from './badge.tsx'
-
-const officialDesign = createDesign()
 
 describe('Badge', () => {
   test('renders unstyled when provider is absent', () => {
@@ -21,7 +18,11 @@ describe('Badge', () => {
   })
 
   test('renders default badge semantics and label', () => {
-    const screen = render(() => <Badge>New</Badge>)
+    const screen = render(() => (
+      <MoraineProvider>
+        <Badge>New</Badge>
+      </MoraineProvider>
+    ))
     const badge = screen.container.querySelector('[data-slot="root"]')
     const label = screen.container.querySelector('[data-slot="label"]')
 
@@ -52,14 +53,14 @@ describe('Badge', () => {
 
   test('applies variant and size classes', () => {
     const solid = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Badge variant="solid" size="lg">
           Solid
         </Badge>
       </MoraineProvider>
     ))
     const outline = render(() => (
-      <MoraineProvider design={officialDesign}>
+      <MoraineProvider>
         <Badge variant="outline" size="sm">
           Outline
         </Badge>

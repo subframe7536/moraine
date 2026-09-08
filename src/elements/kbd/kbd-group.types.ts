@@ -22,10 +22,15 @@ export namespace KbdGroupT {
   }
 
   export interface Variant {
-    size?: 'sm' | 'md' | 'lg'
+    /** Visual size of the component.
+     * @default 'md'
+     */
+    size?: 'sm' | 'md' | 'lg' | null
     /** Visual style variant applied to rendered shortcut keys. */
-    variant?: KbdT.Variant['variant']
+    variant?: KbdT.Variant['variant'] | null
   }
+
+  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

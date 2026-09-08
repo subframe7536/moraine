@@ -42,6 +42,11 @@ export function createIsolatedConsumer(): IsolatedConsumer {
   mkdirSync(packageDir, { recursive: true })
   mkdirSync(join(root, 'node_modules', '@subf'), { recursive: true })
   mkdirSync(join(root, 'node_modules', '@tanstack'), { recursive: true })
+  for (const name of ['@formisch/solid', '@floating-ui/dom']) {
+    const destination = join(root, 'node_modules', name)
+    mkdirSync(dirname(destination), { recursive: true })
+    symlinkSync(join(PROJECT_ROOT, 'node_modules', name), destination, 'junction')
+  }
   symlinkSync(
     join(PROJECT_ROOT, 'node_modules', 'tailwindcss'),
     join(root, 'node_modules', 'tailwindcss'),
@@ -112,12 +117,11 @@ const specifiers = [
   'moraine/tailwind',
   'moraine/unocss',
   'moraine/utils',
-  'moraine/design',
+  'moraine/theme',
 ]
 
-const { createDesign } = await import('moraine/design')
-if (!createDesign().button.recipe().root) throw new Error('Official Design is missing')
-if (createDesign({ preset: false }).button.recipe().root) throw new Error('Unstyled Design is styled')
+const { createTheme } = await import('moraine/theme')
+if (Object.keys(createTheme()).length !== 0) throw new Error('Theme has public runtime entries')
 
 for (const specifier of specifiers) {
   import.meta.resolve(specifier)

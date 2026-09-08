@@ -1,5 +1,5 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { KbdGroupT } from './kbd-group.types.ts'
 import type { KbdT } from './kbd.types.ts'
@@ -8,7 +8,7 @@ export const kbdRecipeOptions = {
   base: {
     root: 'leading-none font-medium font-mono px-1 rounded-sm inline-flex select-none uppercase items-center justify-center',
   },
-  defaultVariants: {
+  defaults: {
     size: 'md',
     variant: 'default',
   },
@@ -26,7 +26,7 @@ export const kbdRecipeOptions = {
   },
 } as const satisfies SlotRecipeOptions<keyof KbdT.Slot>
 
-export const kbdRecipe = recipe(kbdRecipeOptions)
+export const kbdRecipe = /* @__PURE__ */ slotRecipe(kbdRecipeOptions)
 
 export const kbdGroupRecipeOptions = {
   base: {
@@ -36,7 +36,7 @@ export const kbdGroupRecipeOptions = {
     divider: 'text-muted-foreground',
     sequenceDivider: 'text-muted-foreground',
   },
-  defaultVariants: {
+  defaults: {
     size: 'md',
   },
   variants: {
@@ -48,7 +48,4 @@ export const kbdGroupRecipeOptions = {
   },
 } as const satisfies SlotRecipeOptions<keyof KbdGroupT.Slot>
 
-export const kbdGroupRecipe = recipe(kbdGroupRecipeOptions)
-
-export type KbdVariantProps = KbdT.Variant
-export type KbdGroupVariantProps = KbdGroupT.Variant
+export const kbdGroupRecipe = /* @__PURE__ */ slotRecipe(kbdGroupRecipeOptions)

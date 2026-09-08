@@ -1,5 +1,6 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
+import { cn } from '../../shared/utils.ts'
 
 import type { FormFieldT } from './form-field.types.ts'
 
@@ -8,14 +9,17 @@ export const formFieldRecipeOptions = {
     root: '',
     wrapper: 'flex flex-col gap-1',
     labelWrapper: 'flex gap-1.5 items-center',
-    label: 'text-foreground font-medium block',
+    label: /* @__PURE__ */ cn(
+      'text-foreground font-medium block',
+      "data-required:after:text-destructive data-required:after:ms-0.5 data-required:after:content-['*']",
+    ),
     container: 'flex flex-col gap-1.5 relative',
     description: 'text-muted-foreground leading-normal',
     error: 'text-destructive font-medium leading-normal',
     hint: 'text-muted-foreground',
     help: 'text-muted-foreground leading-normal',
   },
-  defaultVariants: {
+  defaults: {
     size: 'md',
     orientation: 'vertical',
   },
@@ -54,39 +58,17 @@ export const formFieldRecipeOptions = {
         container: 'col-span-3 min-w-0',
       },
     },
-    required: {
-      true: {
-        label: "after:text-destructive after:ms-0.5 after:content-['*']",
-      },
-      false: {},
-    },
-    hasText: {
-      true: {},
-      false: {},
-    },
   },
   compoundVariants: [
     {
-      variants: {
-        orientation: 'horizontal',
-        required: true,
-      },
+      variants: { orientation: 'horizontal' },
       class: {
-        label: "before:text-destructive before:me-0.5 before:content-['*'] after:content-none",
+        label:
+          "data-required:before:text-destructive data-required:before:me-0.5 data-required:before:content-['*'] data-required:after:content-none",
       },
     },
-    {
-      variants: {
-        orientation: 'vertical',
-        hasText: true,
-      },
-      class: {
-        container: 'mt-1.5',
-      },
-    },
+    { variants: { orientation: 'vertical' }, class: { container: 'data-has-text:mt-1.5' } },
   ],
 } as const satisfies SlotRecipeOptions<keyof FormFieldT.Slot>
 
-export const formFieldRecipe = recipe(formFieldRecipeOptions)
-
-export type FormFieldVariantProps = FormFieldT.Variant
+export const formFieldRecipe = /* @__PURE__ */ slotRecipe(formFieldRecipeOptions)

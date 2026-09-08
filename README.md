@@ -57,17 +57,14 @@ For Tailwind CSS v4, add the plugin and a source path relative to your styleshee
 
 Import `moraine/icon.css` only when you want the optional bundled icon masks. It does not replace the required preset/plugin configuration.
 
-3. Create the official Design once and provide it at the application root. Components without a provider render unstyled.
+3. Wrap the application in `MoraineProvider` to load the official Theme. Components without a provider retain behavior and render unstyled.
 
 ```tsx
 import { Button, Input, MoraineProvider } from 'moraine'
-import { createDesign } from 'moraine/design'
-
-const design = createDesign()
 
 function App() {
   return (
-    <MoraineProvider design={design}>
+    <MoraineProvider>
       <div class="flex flex-col gap-3">
         <Input placeholder="Enter text" />
         <Button variant="outline">Save changes</Button>
@@ -77,7 +74,19 @@ function App() {
 }
 ```
 
-`createDesign({ button: { defaultVariants: { size: 'sm' }, base: { root: 'rounded-xl' } } })` extends the official recipes. Use `preset: false` for an unstyled Design, or `extends: existingDesign` for explicit inheritance. Nested providers replace the Design without remounting components. UnoCSS and Tailwind integrations do not override global transition defaults.
+Use `createTheme` from `moraine/theme` for sparse presentation layers:
+
+```tsx
+const compact = createTheme({ button: { defaults: { size: 'sm' }, base: { root: 'rounded-xl' } } })
+const brand = createTheme({ extends: compact, button: { base: { root: 'font-semibold' } } })
+<MoraineProvider theme={brand}><Button>Save</Button></MoraineProvider>
+```
+
+Root providers add the official Theme before custom layers. Nested providers append their layers; `MoraineUnstyledProvider` resets all inherited layers, including the official Theme. Styled providers inside that boundary inherit the reset. Reactive Theme replacement preserves component nodes and state.
+
+Visual values resolve from instance props, inherited group/FormField values, then the latest Theme defaults. Only `undefined` falls back; `null` suppresses a visual default. Classes merge from Theme layers to group overrides, instance slot classes, and root `class`. Inline styles merge dynamic geometry, group styles, instance slot styles, and root `style`. State uses data/ARIA selectors such as `data-disabled:opacity-64`; it is not a Theme Variant.
+
+Input and Textarea forward native attributes and events to their editable controls. `ref`, `class`, and `style` belong to the wrapper; `inputRef` and `textareaRef` target the native control. `onChange` receives the native event, while `onValueChange` receives the normalized value.
 
 ## Development
 

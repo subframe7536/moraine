@@ -24,5 +24,5 @@ export const overlayMenuRecipeOptions = {
       lg: { item: 'min-h-9' },
     },
   },
-  defaultVariants: { size: 'md' },
+  defaults: { size: 'md' },
 } as const satisfies SlotRecipeOptions<keyof OverlayMenuSharedSlots>

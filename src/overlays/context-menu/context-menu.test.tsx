@@ -2,10 +2,10 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { renderWithDesign } from '../../test-utils/design-render.tsx'
-import { expectNoPlacementMotion, finishMenuExitMotion } from '../../test-utils/overlay-test'
+import { expectNoPlacementMotion, finishMenuExitMotion } from '../../test-utils/overlay-test.ts'
+import { renderWithTheme } from '../../test-utils/theme-render.tsx'
 
-import { ContextMenu } from './context-menu'
+import { ContextMenu } from './context-menu.tsx'
 
 describe('ContextMenu', () => {
   test('renders a div trigger root by default', () => {
@@ -44,7 +44,7 @@ describe('ContextMenu', () => {
     const [placement, setPlacement] = createSignal<'right-start' | 'left-start'>('right-start')
     let initialContent: HTMLElement | null = null
 
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <ContextMenu placement={placement()} defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content items={[{ label: 'Open item' }]} />
@@ -211,8 +211,8 @@ describe('ContextMenu', () => {
         <ContextMenu.Trigger
           as="div"
           aria-controls="caller-content"
-          aria-expanded={'caller-expanded'}
-          aria-haspopup={'caller-menu'}
+          aria-expanded={false}
+          aria-haspopup="dialog"
         >
           Row Item
         </ContextMenu.Trigger>
@@ -222,8 +222,8 @@ describe('ContextMenu', () => {
     const trigger = screen.getByText('Row Item').closest('[data-slot="trigger"]')
 
     expect(trigger?.getAttribute('aria-controls')).toBe('caller-content')
-    expect(trigger?.getAttribute('aria-expanded')).toBe('caller-expanded')
-    expect(trigger?.getAttribute('aria-haspopup')).toBe('caller-menu')
+    expect(trigger?.getAttribute('aria-expanded')).toBe('false')
+    expect(trigger?.getAttribute('aria-haspopup')).toBe('dialog')
   })
 
   test('exposes disabled semantics for native and non-native triggers with caller overrides', () => {
@@ -441,7 +441,7 @@ describe('ContextMenu', () => {
   })
 
   test('supports defaultOpen without anchor coordinates', async () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <ContextMenu defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content items={[{ label: 'Default open item' }]} />
@@ -471,7 +471,7 @@ describe('ContextMenu', () => {
   })
 
   test('uses a centered origin without a placement alignment', async () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <ContextMenu placement="bottom" defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content items={[{ label: 'Centered item' }]} />
@@ -835,7 +835,7 @@ describe('ContextMenu', () => {
   })
 
   test('dismisses menu when right-clicking opened menu content', async () => {
-    const screen = renderWithDesign(() => (
+    const screen = renderWithTheme(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content items={[{ label: 'Pinned action' }]} />
@@ -974,7 +974,7 @@ describe('ContextMenu', () => {
       </div>
     ))
 
-    const screen = renderWithDesign(() => (
+    const screen = renderWithTheme(() => (
       <ContextMenu placement="bottom-start">
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content
@@ -1054,7 +1054,7 @@ describe('ContextMenu', () => {
   })
 
   test('applies enter transition classes to an opened submenu', async () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <ContextMenu defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content
@@ -1104,7 +1104,7 @@ describe('ContextMenu', () => {
     vi.useFakeTimers()
 
     try {
-      renderWithDesign(() => (
+      renderWithTheme(() => (
         <ContextMenu defaultOpen>
           <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
           <ContextMenu.Content
@@ -1455,7 +1455,7 @@ describe('ContextMenu', () => {
   })
 
   test('destructive item icon does not force muted color class', async () => {
-    const screen = renderWithDesign(() => (
+    const screen = renderWithTheme(() => (
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content

@@ -47,9 +47,13 @@ export namespace StepperT {
   }
 
   export interface Variant {
-    orientation?: 'horizontal' | 'vertical' | null
+    /** Visual size of the component.
+     * @default 'md'
+     */
     size?: 'sm' | 'md' | 'lg' | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 

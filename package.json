@@ -40,7 +40,7 @@
     "./unocss": "./dist/unocss.mjs",
     "./tailwind": "./dist/tailwind.mjs",
     "./utils": "./dist/utils.mjs",
-    "./design": "./dist/design.mjs"
+    "./theme": "./dist/theme.mjs"
   },
   "publishConfig": {
     "access": "public",

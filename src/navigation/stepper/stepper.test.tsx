@@ -2,10 +2,10 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
+import { createTheme } from '../../theme.ts'
 
-import { Stepper } from './stepper'
+import { Stepper } from './stepper.tsx'
 
 test('reads JSX fields once and delays the inactive panel', () => {
   const reads = { title: 0, description: 0, content: 0 }
@@ -212,7 +212,7 @@ describe('Stepper', () => {
 
   test('applies orientation classes and slot overrides', () => {
     const screen = render(() => (
-      <MoraineProvider design={createDesign()}>
+      <MoraineProvider theme={createTheme()}>
         <Stepper
           items={ITEMS}
           orientation="vertical"
@@ -241,7 +241,7 @@ describe('Stepper', () => {
 
   test('uses stepper css variable helper classes for size and separator layout', () => {
     const screen = render(() => (
-      <MoraineProvider design={createDesign()}>
+      <MoraineProvider theme={createTheme()}>
         <Stepper items={ITEMS} size="lg" orientation="vertical" />
       </MoraineProvider>
     ))

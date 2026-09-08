@@ -3,10 +3,10 @@ import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 
 
 import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form/form-context.ts'
+import { cn, callHandler, callRef, useId } from '../../shared/utils.ts'
+import { useFormField, useFormFieldContext } from '../form/form-context.ts'
 import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
@@ -50,14 +50,13 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     'style',
     'onClick',
   ])
-
-  const design = useMoraineDesign()
-  const checkboxDesign = () => design().checkbox
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('checkbox', local, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
 
   const merged = mergeProps(
     {
-      variant: 'list' as const,
-      indicator: 'start' as const,
       checkedIcon: 'icon-check' as const,
       indeterminateIcon: 'icon-minus' as const,
       formFieldBind: true,
@@ -65,7 +64,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       falseValue: false,
       value: 'on',
     },
-    () => checkboxDesign()?.defaultVariants,
+
     local,
   )
   const label = createMemo(() => merged.label)
@@ -86,7 +85,6 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     () => ({
       bind: merged.formFieldBind,
       defaultId: generatedId(),
-      defaultSize: checkboxDesign()?.defaultVariants?.size ?? 'md',
       initialValue:
         merged.formFieldBind === false
           ? undefined
@@ -95,27 +93,6 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
             ) ?? merged.falseValue),
     }),
   )
-
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return checkboxDesign()?.recipe({
-          variant: merged.variant,
-          indicator: merged.indicator,
-          size: field.size(),
-          required: field.required(),
-        })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
 
   const defaultCheckedState = createMemo<boolean | 'indeterminate'>(() => {
     if (merged.defaultChecked === undefined) {
@@ -322,7 +299,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       return
     }
 
-    if (merged.variant !== 'card' || isInteractiveTarget(target)) {
+    if (resolved.variants.variant !== 'card' || isInteractiveTarget(target)) {
       return
     }
 
@@ -330,8 +307,8 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   }
 
   return (
-    <div data-slot="root" {...rest} {...resolved.rootClassAndStyle()} onClick={onRootClick}>
-      <div data-slot="container" {...resolved.slotClassAndStyle('container')}>
+    <div data-slot="root" {...rest} {...resolved.root} onClick={onRootClick}>
+      <div data-slot="container" {...resolved.slot('container')}>
         <HiddenInput
           ref={(element) => {
             inputEl = element
@@ -372,13 +349,10 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           data-slot="control"
           data-invalid={field.invalid() ? '' : undefined}
           aria-checked={indeterminate() ? 'mixed' : Boolean(resolvedChecked())}
-          {...resolved.slotClassAndStyle('control', {
-            get state() {
-              return {
-                class: [merged.indicator === 'hidden' && 'sr-only'],
-              }
-            },
-          })}
+          class={cn(resolved.slot('control').class, [
+            resolved.variants.indicator === 'hidden' && 'sr-only',
+          ])}
+          style={resolved.slot('control').style}
           onPointerDown={onPointerDown}
           onClick={onControlClick}
           onKeyDown={onControlKeyDown}
@@ -396,47 +370,49 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           <Show when={resolvedChecked() || indeterminate()}>
             <span
               data-slot="indicator"
-              {...resolved.slotClassAndStyle('indicator')}
+              {...resolved.slot('indicator')}
               data-checked={resolvedChecked() ? '' : undefined}
               data-disabled={field.disabled() ? '' : undefined}
               data-indeterminate={indeterminate() ? '' : undefined}
               data-readonly={readOnly() ? '' : undefined}
               data-required={field.required() ? '' : undefined}
             >
-              <Icon name={activeIcon()} {...resolved.slotClassAndStyle('icon')} />
+              <Icon name={activeIcon()} {...resolved.slot('icon')} />
             </span>
           </Show>
         </button>
       </div>
 
       <Show when={label() || description()}>
-        <div data-slot="wrapper" {...resolved.slotClassAndStyle('wrapper')}>
+        <div data-slot="wrapper" {...resolved.slot('wrapper')}>
           <Show when={label()}>
             <Show
-              when={merged.variant === 'card'}
+              when={resolved.variants.variant === 'card'}
               fallback={
                 <label
                   for={field.id()}
                   id={labelId()}
                   data-slot="label"
-                  {...resolved.slotClassAndStyle('label')}
+                  data-required={field.required() ? '' : undefined}
+                  {...resolved.slot('label')}
                 >
                   {label()}
                 </label>
               }
             >
-              <p id={labelId()} data-slot="label" {...resolved.slotClassAndStyle('label')}>
+              <p
+                id={labelId()}
+                data-slot="label"
+                data-required={field.required() ? '' : undefined}
+                {...resolved.slot('label')}
+              >
                 {label()}
               </p>
             </Show>
           </Show>
 
           <Show when={description()}>
-            <p
-              id={descriptionId()}
-              data-slot="description"
-              {...resolved.slotClassAndStyle('description')}
-            >
+            <p id={descriptionId()} data-slot="description" {...resolved.slot('description')}>
               {description()}
             </p>
           </Show>

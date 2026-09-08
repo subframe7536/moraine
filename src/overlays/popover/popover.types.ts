@@ -16,10 +16,10 @@ export namespace PopoverT {
     body?: T
   }
 
-  export interface Variant {
-    side?: 'top' | 'right' | 'bottom' | 'left' | null
-  }
+  export type Variant = never
   export type Mode = 'click' | 'hover'
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item {}
@@ -63,6 +63,9 @@ export namespace PopoverT {
     children?: JSX.Element
   }
   export interface ContentBase {
+    /** Preferred placement relative to the trigger. @default 'bottom' */
+    side?: 'top' | 'right' | 'bottom' | 'left'
+
     ariaLabel?: string
     /** Body content; an explicit null or false value suppresses children. */
     content?: JSX.Element

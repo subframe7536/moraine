@@ -1,5 +1,5 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { ProgressT } from './progress.types.ts'
 
@@ -14,7 +14,7 @@ export const progressRecipeOptions = {
     steps: 'grid items-end',
     step: 'text-end col-start-1 row-start-1 truncate transition-opacity data-[state=active]:opacity-100 data-[state=first]:text-muted-foreground data-[state=first]:opacity-100 data-[state=other]:opacity-0 data-[state=last]:opacity-100 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
   },
-  defaultVariants: {
+  defaults: {
     orientation: 'horizontal',
     size: 'md',
     animation: 'carousel',
@@ -142,6 +142,4 @@ export const progressRecipeOptions = {
   ],
 } as const satisfies SlotRecipeOptions<keyof ProgressT.Slot>
 
-export const progressRecipe = recipe(progressRecipeOptions)
-
-export type ProgressVariantProps = ProgressT.Variant
+export const progressRecipe = /* @__PURE__ */ slotRecipe(progressRecipeOptions)

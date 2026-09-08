@@ -30,11 +30,20 @@ export namespace CheckboxT {
   }
 
   export interface Variant {
-    size?: 'sm' | 'md' | 'lg'
-    variant?: 'card' | 'list'
-    indicator?: 'start' | 'end' | 'hidden'
-    required?: boolean
+    /** Visual size of the component.
+     * @default 'md'
+     */
+    size?: 'sm' | 'md' | 'lg' | null
+    /** Visual treatment of the component.
+     */
+    variant?: 'card' | 'list' | null
+    /** Placement of the selection indicator.
+     * @default 'start'
+     */
+    indicator?: 'start' | 'end' | 'hidden' | null
   }
+
+  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

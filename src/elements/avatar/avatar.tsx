@@ -9,7 +9,7 @@ import {
   untrack,
 } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import type { SlotClassValue } from '../../shared/types.ts'
 import { Icon } from '../icon/index.ts'
 
@@ -60,13 +60,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     'size',
     'rootSlot',
   ])
-
-  const design = useMoraineDesign()
-  const avatarDesign = () => design().avatar
-
-  const size = () => local.size ?? avatarDesign()?.defaultVariants?.size ?? 'md'
-  const badgePosition = () =>
-    local.badgePosition ?? avatarDesign()?.defaultVariants?.badgePosition ?? 'bottom-right'
+  const resolved = createComponentStyles('avatar', local)
 
   const source = createMemo(() => local.src?.trim() || undefined)
   const alt = createMemo(() => local.alt)
@@ -137,32 +131,13 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     }
   })
 
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return avatarDesign()?.recipe({
-          size: size(),
-          badgePosition: badgePosition(),
-        })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
-
   return (
     <span
       data-slot={local.rootSlot ?? 'root'}
       data-status={status()}
       role={rootAriaLabel() !== undefined ? 'img' : undefined}
       {...rest}
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
     >
       <img
         data-slot="image"
@@ -170,7 +145,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         src={resolvedSrc()}
         alt={alt() ?? ''}
         aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
-        {...resolved.slotClassAndStyle('image')}
+        {...resolved.slot('image')}
       />
 
       <span
@@ -187,14 +162,14 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
             : undefined
         }
         aria-hidden={rootAriaLabel() !== undefined || status() === 'loaded' ? 'true' : undefined}
-        {...resolved.slotClassAndStyle('fallback')}
+        {...resolved.slot('fallback')}
       >
         <Show when={fallback()} fallback={fallbackText()}>
           {(fallbackIcon) => (
             <Icon
               name={fallbackIcon()}
               slotName="fallbackIcon"
-              {...resolved.slotClassAndStyle('fallbackIcon')}
+              {...resolved.slot('fallbackIcon')}
             />
           )}
         </Show>
@@ -202,7 +177,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
       <Show when={badge()}>
         {(badge) => (
-          <span data-slot="badge" {...resolved.slotClassAndStyle('badge')}>
+          <span data-slot="badge" {...resolved.slot('badge')}>
             <Icon name={badge()} />
           </span>
         )}

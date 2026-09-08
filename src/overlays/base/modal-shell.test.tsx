@@ -2,8 +2,8 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { createDesign } from '../../design.ts'
-import { MoraineProvider } from '../../shared/provider/index.ts'
+import { MoraineUnstyledProvider } from '../../shared/provider/index.ts'
+import { createTheme } from '../../theme.ts'
 import { Dialog } from '../dialog/dialog.tsx'
 import { Sheet } from '../sheet/sheet.tsx'
 
@@ -89,21 +89,20 @@ describe.each([
   test('replaces Design while preserving content identity and focus', () => {
     const key = name === 'Dialog' ? 'dialog' : 'sheet'
     const [design, setDesign] = createSignal(
-      createDesign({
-        preset: false,
+      createTheme({
         [key]: { base: { content: 'first-content' } },
       }),
     )
     render(() => (
-      <MoraineProvider design={design()}>
+      <MoraineUnstyledProvider theme={design()}>
         <Root defaultOpen>
           <Root.Content title="Title" body="Body" />
         </Root>
-      </MoraineProvider>
+      </MoraineUnstyledProvider>
     ))
     const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
     content.focus()
-    setDesign(createDesign({ preset: false, [key]: { base: { content: 'next-content' } } }))
+    setDesign(createTheme({ [key]: { base: { content: 'next-content' } } }))
     expect(document.body.querySelector('[data-slot="content"]')).toBe(content)
     expect(content.className).toBe('next-content')
     expect(document.activeElement).toBe(content)

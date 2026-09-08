@@ -31,9 +31,17 @@ export namespace InputT {
   }
 
   export interface Variant {
+    /** Visual size of the component.
+     * @default 'md'
+     */
     size?: 'sm' | 'md' | 'lg' | null
+    /** Visual treatment of the component.
+     * @default 'outline'
+     */
     variant?: 'outline' | 'subtle' | 'ghost' | 'none' | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -44,6 +52,7 @@ export namespace InputT {
    */
   export interface Base<M extends ModelModifiers | undefined = ModelModifiers | undefined>
     extends
+      Omit<JSX.InputHTMLAttributes<HTMLInputElement>, 'value' | 'defaultValue' | 'ref' | 'size'>,
       FormIdentityOptions,
       FormValueOptions<Value>,
       FormRequiredOption,
@@ -113,6 +122,9 @@ export namespace InputT {
     /**
      * Optional inner input element ref.
      */
+    ref?: Ref<HTMLDivElement>
+
+    /** Ref for the editable input element. */
     inputRef?: Ref<HTMLInputElement>
 
     /**
@@ -121,9 +133,9 @@ export namespace InputT {
     onValueChange?: (value: ModifierValue<M>) => void
 
     /**
-     * Callback when the input value change is committed.
+     * Native change event, after value synchronization and FormField notification.
      */
-    onChange?: (value: ModifierValue<M>) => void
+    onChange?: JSX.EventHandlerUnion<HTMLInputElement, Event>
 
     /**
      * Event handler for the input event.
@@ -150,7 +162,7 @@ export namespace InputT {
    * Props for the Input component.
    */
   export type Props<M extends ModelModifiers | undefined = ModelModifiers | undefined> = BaseProps<
-    'div',
+    'input',
     Base<M>,
     Variant,
     Classes,

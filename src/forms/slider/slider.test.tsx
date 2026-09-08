@@ -2,16 +2,13 @@ import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-libra
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 
-import { useSlider } from './hook/index'
-import { Slider } from './slider'
-
-const officialDesign = createDesign()
+import { useSlider } from './hook/index.ts'
+import { Slider } from './slider.tsx'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 function getThumbs(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll('[data-slot="thumb"]')) as HTMLElement[]
@@ -181,7 +178,8 @@ describe('Slider', () => {
 
     expect(thumb.style.bottom).toBe('100%')
     expect(thumb.className).toContain('translate-y-1/2')
-    expect(thumb.className).not.toContain('-translate-y-1/2')
+    expect(thumb.getAttribute('data-orientation')).toBe('vertical')
+    expect(thumb.hasAttribute('data-inverted')).toBe(false)
   })
 
   test('vertical pointer values increase from bottom to top by default', async () => {
@@ -884,7 +882,8 @@ describe('Slider', () => {
     const screen = render(() => <Slider variant="bold" defaultValue={40} />)
     const range = screen.container.querySelector('[data-slot="range"]') as HTMLElement
 
-    expect(range.className).not.toContain('before:')
+    expect(range.hasAttribute('data-multiple')).toBe(false)
+    expect(range.className).toContain('data-multiple:before:')
     expect(range.className).toContain('after:')
   })
 

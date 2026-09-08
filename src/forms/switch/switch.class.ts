@@ -1,5 +1,5 @@
-import type { SlotRecipeOptions, VariantProps } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { SwitchT } from './switch.types.ts'
 
@@ -16,7 +16,7 @@ export const switchRecipeOptions = {
       "text-foreground leading-tight font-medium block cursor-pointer select-none data-required:after:text-destructive data-required:after:ms-0.5 data-required:after:content-['*']",
     description: 'text-muted-foreground leading-normal',
   },
-  defaultVariants: {
+  defaults: {
     size: 'md',
   },
   variants: {
@@ -43,6 +43,4 @@ export const switchRecipeOptions = {
   },
 } as const satisfies SlotRecipeOptions<keyof SwitchT.Slot>
 
-export const switchRecipe = recipe(switchRecipeOptions)
-
-export type SwitchVariantProps = VariantProps<typeof switchRecipe>
+export const switchRecipe = /* @__PURE__ */ slotRecipe(switchRecipeOptions)

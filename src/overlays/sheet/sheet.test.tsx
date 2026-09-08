@@ -2,12 +2,12 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithDesign } from '../../test-utils/design-render.tsx'
-import { finishExitMotion } from '../../test-utils/overlay-test'
+import { finishExitMotion } from '../../test-utils/overlay-test.ts'
+import { renderWithTheme } from '../../test-utils/theme-render.tsx'
+import { createTheme } from '../../theme.ts'
 
-import { Sheet } from './sheet'
+import { Sheet } from './sheet.tsx'
 
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {
@@ -26,7 +26,7 @@ describe('Sheet', () => {
     ['top', 'top-0', '-enter-translate-y-10'],
     ['bottom', 'bottom-0', 'enter-translate-y-10'],
   ] as const)('applies side variant %s to content', (side, expectedClass, sideClass) => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Sheet open>
         <Sheet.Trigger as="button" type="button">
           Trigger
@@ -45,7 +45,7 @@ describe('Sheet', () => {
   })
 
   test('applies inset + transition=false classes', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Sheet open>
         <Sheet.Trigger as="button" type="button">
           Trigger
@@ -270,7 +270,7 @@ describe('Sheet', () => {
     const [inset, setInset] = createSignal(false)
     const [transition, setTransition] = createSignal(true)
 
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Sheet open>
         <Sheet.Content
           side={side()}
@@ -295,7 +295,7 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-slot="content"]')).toBe(content)
     expect(content.getAttribute('data-side')).toBe('right')
     expect(content.className).toContain('right-0')
-    expect(content.className).not.toContain('left-0')
+    expect(content.className).toContain('data-[side=right]:right-0')
     expect(content.className).toContain('sm:m-4 sm:border sm:border-border sm:rounded-2xl')
     expect(content?.getAttribute('data-transition')).toBe('false')
   })
@@ -452,7 +452,7 @@ describe('Sheet', () => {
   })
 
   test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <Sheet open>
         <Sheet.Content body="Body" classes={{ overlay: 'bg-red-500 custom-sheet-overlay' }} />
       </Sheet>
@@ -471,9 +471,9 @@ describe('Sheet', () => {
   })
 
   test('preserves Modal overlay behavior for provider slot overrides', () => {
-    renderWithDesign(() => (
+    renderWithTheme(() => (
       <MoraineProvider
-        design={createDesign({
+        theme={createTheme({
           sheet: { base: { overlay: 'bg-blue-500 provider-sheet-overlay' } },
         })}
       >

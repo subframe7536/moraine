@@ -14,10 +14,10 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { callRef, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form/form-context.ts'
+import { cn, callRef, useId } from '../../shared/utils.ts'
+import { useFormField, useFormFieldContext } from '../form/form-context.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { RadioGroupProps } from './radio-group.types.ts'
@@ -57,24 +57,18 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     'style',
     'ref',
   ])
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('radioGroup', local, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
 
-  const design = useMoraineDesign()
-  const radioGroupDesign = () => design().radioGroup
-
-  const merged = mergeProps(() => radioGroupDesign()?.defaultVariants, local)
+  const merged = mergeProps(local)
 
   const items = createMemo(() => merged.items ?? [])
   const orientation = createMemo(() => merged.orientation ?? 'vertical')
-  const variant = createMemo(() => merged.variant ?? 'list')
-  const indicator = createMemo(() => merged.indicator ?? 'start')
-  const itemVariant = createMemo(() => {
-    const value = variant()
-    return value === 'list' ? undefined : value
-  })
-  const visibleIndicator = createMemo(() => {
-    const value = indicator()
-    return value === 'hidden' ? undefined : value
-  })
+  const variant = createMemo(() => resolved.variants.variant)
+  const indicator = createMemo(() => resolved.variants.indicator)
+
   const controlledValue = createMemo(() => merged.value)
   const initialDefaultValue = untrack(() => merged.defaultValue ?? '')
   const readOnly = createMemo(() => Boolean(merged.readOnly))
@@ -92,32 +86,9 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     () => ({
       bind: false,
       defaultId: groupId(),
-      defaultSize: radioGroupDesign()?.defaultVariants?.size ?? 'md',
       initialValue: initialDefaultValue,
     }),
   )
-
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return radioGroupDesign()?.recipe({
-          orientation: orientation(),
-          size: field.size(),
-          variant: itemVariant(),
-          indicator: visibleIndicator(),
-          tableOrientation: variant() === 'table' ? orientation() : undefined,
-        })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
 
   const [uncontrolledValue, setUncontrolledValue] = createSignal(initialDefaultValue)
   const selectedValue = createMemo(() => {
@@ -330,10 +301,11 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       role="radiogroup"
       aria-orientation={orientation()}
       data-slot="root"
+      data-orientation={orientation()}
       {...dataAttrs()}
       {...groupAriaAttrs()}
       {...rest}
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
     >
       <For each={normalizedItems()}>
         {(item) => {
@@ -359,11 +331,12 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               component={variant() === 'list' ? 'div' : 'label'}
               id={item.id}
               data-slot="item"
+              data-table-orientation={variant() === 'table' ? orientation() : undefined}
               data-checked={variant() === 'list' ? undefined : selected() ? '' : undefined}
               data-disabled={disabled() ? '' : undefined}
-              {...resolved.slotClassAndStyle('item')}
+              {...resolved.slot('item')}
             >
-              <div data-slot="container" {...resolved.slotClassAndStyle('container')}>
+              <div data-slot="container" {...resolved.slot('container')}>
                 <HiddenInput
                   ref={(element) => {
                     inputRefs.set(item.id, element)
@@ -406,11 +379,8 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
 
                 <div
                   data-slot="control"
-                  {...resolved.slotClassAndStyle('control', {
-                    get state() {
-                      return { class: indicator() === 'hidden' && 'sr-only' }
-                    },
-                  })}
+                  class={cn(resolved.slot('control').class, indicator() === 'hidden' && 'sr-only')}
+                  style={resolved.slot('control').style}
                   data-checked={selected() ? '' : undefined}
                   data-invalid={field.invalid() ? '' : undefined}
                   data-disabled={disabled() ? '' : undefined}
@@ -420,7 +390,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                   <Show when={selected()}>
                     <div
                       data-slot="indicator"
-                      {...resolved.slotClassAndStyle('indicator')}
+                      {...resolved.slot('indicator')}
                       data-checked={selected() ? '' : undefined}
                       data-invalid={field.invalid() ? '' : undefined}
                       data-disabled={disabled() ? '' : undefined}
@@ -432,16 +402,12 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               </div>
 
               <Show when={item.label || item.description}>
-                <div data-slot="wrapper" {...resolved.slotClassAndStyle('wrapper')}>
+                <div data-slot="wrapper" {...resolved.slot('wrapper')}>
                   <Show when={item.label}>
                     <Show
                       when={variant() === 'list'}
                       fallback={
-                        <p
-                          id={item.labelId}
-                          data-slot="label"
-                          {...resolved.slotClassAndStyle('label')}
-                        >
+                        <p id={item.labelId} data-slot="label" {...resolved.slot('label')}>
                           {item.label}
                         </p>
                       }
@@ -450,7 +416,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                         id={item.labelId}
                         for={item.inputId}
                         data-slot="label"
-                        {...resolved.slotClassAndStyle('label')}
+                        {...resolved.slot('label')}
                       >
                         {item.label}
                       </label>
@@ -461,7 +427,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                     <p
                       id={item.descriptionId}
                       data-slot="description"
-                      {...resolved.slotClassAndStyle('description')}
+                      {...resolved.slot('description')}
                     >
                       {item.description}
                     </p>

@@ -1,5 +1,6 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
+import { cn } from '../../shared/utils.ts'
 
 import type { CheckboxGroupT } from './checkbox-group.types.ts'
 
@@ -7,8 +8,14 @@ export const checkboxGroupRecipeOptions = {
   base: {
     root: 'relative',
     fieldset: 'data-[variant=list]:gap-2 data-[variant=card]:gap-2 flex',
-    legend: 'text-foreground font-medium mb-1.5 block',
-    item: '',
+    legend: /* @__PURE__ */ cn(
+      'text-foreground font-medium mb-1.5 block',
+      "data-required:after:text-destructive data-required:after:ms-0.5 data-required:after:content-['*']",
+    ),
+    item: /* @__PURE__ */ cn(
+      '',
+      'data-[table-orientation=horizontal]:first-of-type:rounded-s-lg data-[table-orientation=horizontal]:last-of-type:rounded-e-lg data-[table-orientation=vertical]:first-of-type:rounded-t-lg data-[table-orientation=vertical]:last-of-type:rounded-b-lg data-[table-orientation=horizontal]:[&:not(:first-of-type)]:-ms-px data-[table-orientation=vertical]:[&:not(:first-of-type)]:-mt-px',
+    ),
     container: '',
     control: '',
     indicator: '',
@@ -17,7 +24,8 @@ export const checkboxGroupRecipeOptions = {
     label: '',
     description: '',
   },
-  defaultVariants: {
+  defaults: {
+    variant: 'list',
     orientation: 'vertical',
     size: 'md',
   },
@@ -38,19 +46,6 @@ export const checkboxGroupRecipeOptions = {
       },
       list: {},
     },
-    tableOrientation: {
-      horizontal: {
-        item: 'first-of-type:rounded-s-lg last-of-type:rounded-e-lg [&:not(:first-of-type)]:-ms-px',
-      },
-      vertical: {
-        item: 'first-of-type:rounded-t-lg last-of-type:rounded-b-lg [&:not(:first-of-type)]:-mt-px',
-      },
-    },
-    required: {
-      true: {
-        legend: "after:text-destructive after:ms-0.5 after:content-['*']",
-      },
-    },
   },
   compoundVariants: [
     {
@@ -68,6 +63,4 @@ export const checkboxGroupRecipeOptions = {
   ],
 } as const satisfies SlotRecipeOptions<keyof CheckboxGroupT.Slot>
 
-export const checkboxGroupRecipe = recipe(checkboxGroupRecipeOptions)
-
-export type CheckboxGroupVariantProps = CheckboxGroupT.Variant
+export const checkboxGroupRecipe = /* @__PURE__ */ slotRecipe(checkboxGroupRecipeOptions)

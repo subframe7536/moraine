@@ -1,15 +1,19 @@
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
+import { cn } from '../../shared/utils.ts'
 
 import type { SeparatorT } from './separator.types.ts'
 
 export const separatorRecipeOptions = {
   base: {
-    root: 'border-current bg-border shrink-0',
+    root: /* @__PURE__ */ cn(
+      'border-current bg-border shrink-0',
+      'data-[orientation=horizontal]:border-t data-[orientation=vertical]:border-s data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px',
+    ),
   },
-  defaultVariants: {
+  defaults: {
     size: 'sm',
-    orientation: 'horizontal',
+
     type: 'solid',
   },
   variants: {
@@ -18,10 +22,7 @@ export const separatorRecipeOptions = {
       md: { root: 'border-3' },
       lg: { root: 'border-4' },
     },
-    orientation: {
-      horizontal: { root: 'border-t h-px w-full' },
-      vertical: { root: 'border-s h-full w-px' },
-    },
+
     type: {
       solid: { root: 'border-solid' },
       dashed: { root: 'border-dashed' },
@@ -30,6 +31,4 @@ export const separatorRecipeOptions = {
   },
 } as const satisfies SlotRecipeOptions<keyof SeparatorT.Slot>
 
-export const separatorRecipe = recipe(separatorRecipeOptions)
-
-export type SeparatorVariantProps = SeparatorT.Variant
+export const separatorRecipe = /* @__PURE__ */ slotRecipe(separatorRecipeOptions)

@@ -1,13 +1,10 @@
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
-import { hydrateFixture } from '../../test-utils/ssr-test'
+import { hydrateFixture } from '../../test-utils/ssr-test.ts'
 
 import { Separator } from './separator.tsx'
-
-const officialDesign = createDesign()
 
 describe('Separator SSR Hydration', () => {
   test('hydrates the single separator root without reordering nodes', () => {
@@ -18,7 +15,7 @@ describe('Separator SSR Hydration', () => {
       '/src/elements/separator/separator.ssr.fixture.tsx',
       'renderSeparatorFixture',
       () => (
-        <MoraineProvider design={officialDesign}>
+        <MoraineProvider>
           {createComponent(Separator, {
             get orientation() {
               reads.orientation += 1

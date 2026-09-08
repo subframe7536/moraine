@@ -13,13 +13,13 @@ import {
 
 import type { IconT } from '../../elements/icon/index.ts'
 import { Icon } from '../../elements/icon/index.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import { useFormField } from '../form/form-context.ts'
+import { useFormField, useFormFieldContext } from '../form/form-context.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
-import type { InputNumberProps, InputNumberT } from './input-number.types.ts'
+import type { InputNumberProps } from './input-number.types.ts'
 
 export * from './input-number.types.ts'
 
@@ -214,17 +214,17 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'class',
     'style',
   ])
-
-  const design = useMoraineDesign()
-  const inputNumberDesign = () => design().inputNumber
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('inputNumber', local, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
 
   const merged = mergeProps(
     {
-      variant: 'outline' as const,
       holdRepeat: true,
       repeatPointerTypes: 'all' as const,
     },
-    () => inputNumberDesign()?.defaultVariants,
+
     local,
   )
 
@@ -254,7 +254,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     }),
     () => ({
       defaultId: generatedId(),
-      defaultSize: inputNumberDesign()?.defaultVariants?.size ?? 'md',
       initialValue,
     }),
   )
@@ -346,9 +345,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     })
   })
 
-  const resolvedOrientation = createMemo<InputNumberT.Orientation>(
-    () => merged.orientation ?? 'horizontal',
-  )
+  const resolvedOrientation = createMemo(() => resolved.variants.orientation)
 
   const incrementIcon = createMemo<IconT.Name>(() => {
     if (merged.incrementIcon) {
@@ -369,27 +366,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   const isVertical = createMemo(() => resolvedOrientation() === 'vertical')
   const showIncrement = createMemo(() => merged.increment !== false)
   const showDecrement = createMemo(() => merged.decrement !== false)
-
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return inputNumberDesign()?.recipe({
-          size: field.size(),
-          variant: merged.variant,
-          align: resolvedOrientation() === 'horizontal' && !showDecrement() ? 'start' : 'center',
-          orientation: resolvedOrientation(),
-        })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
 
   function commitValue(nextValue: number): boolean {
     if (field.disabled() || readOnly() || !Number.isFinite(nextValue)) {
@@ -741,7 +717,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       tabIndex: -1,
       'aria-label': isIncrement ? 'Increment' : 'Decrement',
       get 'data-size'() {
-        return `icon-${field.size()}`
+        return `icon-${resolved.variants.size}`
       },
       get 'aria-controls'() {
         return field.id()
@@ -755,7 +731,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       get 'data-active'() {
         return pressedControls()[kind] ? '' : undefined
       },
-      ...resolved.slotClassAndStyle(kind),
+      ...resolved.slot(kind),
       onClick: (event) => onControlClick(kind, event),
       onPointerDown: (event) => onControlPointerDown(kind, event),
       onPointerUp: (event) => onControlPointerUp(kind, event),
@@ -872,7 +848,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       id={`${field.id()}-root`}
       role="group"
       data-slot="root"
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
       {...dataAttrs()}
       {...rest}
     >
@@ -902,7 +878,12 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         aria-valuetext={formattedValue()}
         placeholder={merged.placeholder}
         data-slot="input"
-        {...resolved.slotClassAndStyle('input')}
+        data-auto-align={
+          resolved.variants.align === undefined && !isVertical() && !showDecrement()
+            ? ''
+            : undefined
+        }
+        {...resolved.slot('input')}
         onInput={(event) => {
           if (field.disabled() || readOnly()) {
             event.currentTarget.value = inputText()
@@ -1009,7 +990,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>
-        <div data-slot="controls" {...resolved.slotClassAndStyle('controls')}>
+        <div data-slot="controls" {...resolved.slot('controls')}>
           <Show when={showIncrement()}>
             <button {...resolveControlProps('increment')}>
               <Icon name={incrementIcon()} slotName="leading" />

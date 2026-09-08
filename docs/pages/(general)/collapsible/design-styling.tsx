@@ -1,7 +1,7 @@
 import { Collapsible, MoraineProvider } from '@src'
-import { createDesign } from '@src/design.ts'
+import { createTheme } from '@src/theme.ts'
 
-const design = createDesign({
+const theme = createTheme({
   collapsible: {
     base: {
       root: 'w-full rounded-lg border border-border',
@@ -14,13 +14,13 @@ const design = createDesign({
 
 export function DesignStyling() {
   return (
-    <MoraineProvider design={design}>
+    <MoraineProvider theme={theme}>
       <Collapsible defaultOpen transition classes={{ trigger: 'text-emerald-600' }}>
         <Collapsible.Trigger style={{ 'letter-spacing': '0.02em' }}>
           Project details
         </Collapsible.Trigger>
         <Collapsible.Content class="text-foreground">
-          Design slots provide defaults; instance and child styles refine this disclosure.
+          Theme slots provide defaults; instance and child styles refine this disclosure.
         </Collapsible.Content>
       </Collapsible>
     </MoraineProvider>

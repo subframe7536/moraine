@@ -15,7 +15,6 @@ interface UseSelectFieldProps {
   id?: string
   name?: string
   size?: FormFieldSize | null
-  defaultSize?: FormFieldSize
   disabled?: boolean
   required?: boolean
   initialValue: unknown
@@ -65,7 +64,6 @@ export function useSelectField(props: () => UseSelectFieldProps): UseFormFieldRe
     () => ({
       bind: false,
       defaultId: generatedId(),
-      defaultSize: props().defaultSize ?? 'md',
       initialValue: props().initialValue,
     }),
   )

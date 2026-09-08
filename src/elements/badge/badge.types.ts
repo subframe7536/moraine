@@ -21,9 +21,17 @@ export namespace BadgeT {
   }
 
   export interface Variant {
-    variant?: 'default' | 'outline' | 'solid'
-    size?: 'sm' | 'md' | 'lg'
+    /** Visual treatment of the component.
+     * @default 'default'
+     */
+    variant?: 'default' | 'outline' | 'solid' | null
+    /** Visual size of the component.
+     * @default 'md'
+     */
+    size?: 'sm' | 'md' | 'lg' | null
   }
+
+  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

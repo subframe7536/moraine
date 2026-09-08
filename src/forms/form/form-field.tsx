@@ -13,7 +13,7 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useId } from '../../shared/utils.ts'
 
@@ -41,6 +41,8 @@ export function FormField<
     'error',
     'hint',
     'required',
+    'disabled',
+    'readOnly',
     'children',
     'orientation',
     'size',
@@ -49,6 +51,7 @@ export function FormField<
     'class',
     'style',
   ])
+  const resolved = createComponentStyles('formField', local)
 
   type MergedProps = FormFieldT.Base<TSchema, T> &
     FormFieldT.Variant & {
@@ -58,17 +61,13 @@ export function FormField<
       style?: JSX.CSSProperties
     }
 
-  const design = useMoraineDesign()
-  const formFieldDesign = () => design().formField
-
   const merged = mergeProps(
     {
       as: 'div' as T,
-      orientation: 'vertical' as const,
-      size: 'md' as const,
+
       required: false,
     },
-    () => formFieldDesign()?.defaultVariants,
+
     local,
   ) as MergedProps
 
@@ -197,7 +196,7 @@ export function FormField<
       return fieldPath()
     },
     get size() {
-      return merged.size
+      return resolved.variants.size
     },
     get field() {
       return field
@@ -210,6 +209,12 @@ export function FormField<
     },
     get help() {
       return help()
+    },
+    get disabled() {
+      return merged.disabled
+    },
+    get readOnly() {
+      return merged.readOnly
     },
     get required() {
       return merged.required
@@ -227,27 +232,6 @@ export function FormField<
     registerControl,
   }
 
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return formFieldDesign()?.recipe({
-          size: merged.size,
-          orientation: merged.orientation,
-          required: Boolean(merged.required),
-          hasText: showLabel() || showDescription(),
-        })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
-
   function renderFieldRoot(): JSX.Element {
     const body = resolveChildren(() => merged.children as JSX.Element)
     const fieldChildren = renderComponentOrElement<FormFieldT.RenderContext>(body(), {
@@ -259,29 +243,26 @@ export function FormField<
     return (
       <Dynamic
         data-slot="root"
-        data-orientation={merged.orientation}
+        data-orientation={resolved.variants.orientation}
         {...rest}
         component={merged.as as any}
-        {...resolved.rootClassAndStyle()}
+        {...resolved.root}
       >
-        <div data-slot="wrapper" {...resolved.slotClassAndStyle('wrapper')}>
+        <div data-slot="wrapper" {...resolved.slot('wrapper')}>
           <Show when={showLabel()}>
-            <div data-slot="labelWrapper" {...resolved.slotClassAndStyle('labelWrapper')}>
+            <div data-slot="labelWrapper" {...resolved.slot('labelWrapper')}>
               <label
                 id={`${ariaId()}-label`}
                 for={resolvedLabelTargetId()}
                 data-slot="label"
-                {...resolved.slotClassAndStyle('label')}
+                data-required={merged.required ? '' : undefined}
+                {...resolved.slot('label')}
               >
                 {label()}
               </label>
 
               <Show when={showHint()}>
-                <span
-                  id={`${ariaId()}-hint`}
-                  data-slot="hint"
-                  {...resolved.slotClassAndStyle('hint')}
-                >
+                <span id={`${ariaId()}-hint`} data-slot="hint" {...resolved.slot('hint')}>
                   {hint()}
                 </span>
               </Show>
@@ -292,35 +273,31 @@ export function FormField<
             <p
               id={`${ariaId()}-description`}
               data-slot="description"
-              {...resolved.slotClassAndStyle('description')}
+              {...resolved.slot('description')}
             >
               {description()}
             </p>
           </Show>
         </div>
 
-        <div data-slot="container" {...resolved.slotClassAndStyle('container')}>
+        <div
+          data-slot="container"
+          data-has-text={showLabel() || showDescription() ? '' : undefined}
+          {...resolved.slot('container')}
+        >
           {fieldChildren}
 
           <Show
             when={showError()}
             fallback={
               <Show when={showHelp()}>
-                <div
-                  id={`${ariaId()}-help`}
-                  data-slot="help"
-                  {...resolved.slotClassAndStyle('help')}
-                >
+                <div id={`${ariaId()}-help`} data-slot="help" {...resolved.slot('help')}>
                   {help()}
                 </div>
               </Show>
             }
           >
-            <div
-              id={`${ariaId()}-error`}
-              data-slot="error"
-              {...resolved.slotClassAndStyle('error')}
-            >
+            <div id={`${ariaId()}-error`} data-slot="error" {...resolved.slot('error')}>
               {resolvedError()}
             </div>
           </Show>

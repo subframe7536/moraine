@@ -2,7 +2,7 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { resolveComponentStyle } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { callRef, cn } from '../../shared/utils.ts'
 
 import { useCollapsibleContext } from './collapsible-context.ts'
@@ -11,9 +11,6 @@ import type { CollapsibleT } from './collapsible.types.ts'
 type CollapsibleContentElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[T]
   : HTMLElement
-
-const COLLAPSIBLE_TRANSITION_CLASS =
-  'h-[var(--mo-collapsible-content-height)] overflow-hidden data-expanded:animate-accordion-down data-closed:h-0 data-closed:animate-accordion-up motion-reduce:animate-none'
 
 /** Panel containing the expandable collapsible content. */
 export function CollapsibleContent<T extends ValidComponent = 'div'>(
@@ -38,19 +35,9 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     'wrapperRef',
   ])
   const context = useCollapsibleContext()
-  const resolved = resolveComponentStyle({
+  const resolved = createComponentStyles('collapsible', local, {
     rootSlot: 'content',
-    base: {
-      get classes() {
-        return { content: context.resolved.slotClass('content') }
-      },
-      get styles() {
-        return { content: context.resolved.slotStyle('content') }
-      },
-    },
-    get instance() {
-      return { class: local.class, style: local.style }
-    },
+    groupStyles: () => context.presentation,
   })
   const customAs = createMemo(() => local.as)
   const unmount = createMemo(() => local.unmountOnHide ?? context.unmountOnHide())
@@ -97,16 +84,13 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
             id={context.contentId()}
             aria-labelledby={context.triggerId()}
             data-slot="content-wrapper"
+            data-transition={transition() ? '' : undefined}
             style={{
               '--mo-collapsible-content-height': `${context.contentHeight()}px`,
-              ...context.resolved.slotStyle('contentWrapper'),
+              ...resolved.slot('contentWrapper').style,
               ...local.wrapperStyle,
             }}
-            class={cn(
-              transition() && COLLAPSIBLE_TRANSITION_CLASS,
-              context.resolved.slotClass('contentWrapper'),
-              local.wrapperClass,
-            )}
+            class={cn(resolved.slot('contentWrapper').class, local.wrapperClass)}
             {...context.dataAttrs()}
           >
             <Show
@@ -114,7 +98,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
               fallback={
                 <div
                   data-slot="content"
-                  {...resolved.rootClassAndStyle()}
+                  {...resolved.root}
                   ref={(el) => handleInnerRef(el)}
                   {...rest}
                 >
@@ -127,7 +111,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
                   data-slot="content"
                   {...(rest as Record<string, unknown>)}
                   component={as() as ValidComponent}
-                  {...resolved.rootClassAndStyle()}
+                  {...resolved.root}
                   ref={(el: HTMLElement | undefined) => handleInnerRef(el)}
                 >
                   {children()}

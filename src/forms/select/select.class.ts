@@ -1,6 +1,5 @@
-import { INPUT_VARIANT, POPPER_CONTENT_SIDE_VARIANT } from '../../shared/recipe-common.class.ts'
-import type { VariantProps } from '../../shared/style/recipe.ts'
-import { recipe } from '../../shared/style/recipe.ts'
+import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 import { cn } from '../../shared/utils.ts'
 
 const SELECT_CONTENT_CLASS =
@@ -13,49 +12,32 @@ export const SELECT_LEADING_ICON_CLASS = 'text-muted-foreground shrink-0'
 export const SELECT_CLEAR_ACTION_CLASS =
   '[&>[data-slot=icon]]:text-muted-foreground [&>[data-slot=icon]]:opacity-80 [&>[data-loading]]:animate-spin disabled:pointer-events-none data-loading:cursor-wait transition-colors hover:bg-muted-hover active:bg-muted-active duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]'
 
-export const selectItemVariants = recipe({
-  base: 'px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between relative data-highlighted:bg-muted data-disabled:opacity-64 data-disabled:pointer-events-none',
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: {
-      sm: 'text-xs min-h-7',
-      md: 'text-sm min-h-8',
-      lg: 'text-base min-h-9',
-    },
-  },
-})
-
-export const selectContentVariants = recipe({
-  base: SELECT_CONTENT_CLASS,
-  defaultVariants: {
-    side: 'right',
-  },
-  variants: {
-    side: POPPER_CONTENT_SIDE_VARIANT,
-  },
-})
-
 export const selectRecipeOptions = {
   base: {
     root: 'inline-flex h-fit w-full relative',
-    content: cn(
-      SELECT_CONTENT_CLASS,
-      'max-w-[var(--mo-popper-content-available-width)] min-w-[var(--mo-popper-anchor-width)] w-[var(--mo-popper-anchor-width)]',
+    content: /* @__PURE__ */ cn(
+      /* @__PURE__ */ cn(
+        SELECT_CONTENT_CLASS,
+        'max-w-[var(--mo-popper-content-available-width)] min-w-[var(--mo-popper-anchor-width)] w-[var(--mo-popper-anchor-width)]',
+      ),
+      'data-[side=bottom]:mt-[var(--mo-popper-content-overflow-padding)] data-[side=left]:mr-[var(--mo-popper-content-overflow-padding)] data-[side=right]:ml-[var(--mo-popper-content-overflow-padding)] data-[side=top]:mb-[var(--mo-popper-content-overflow-padding)] data-[side=left]:enter-translate-x-1 data-[side=left]:exit-translate-x-1 data-[side=top]:enter-translate-y-1 data-[side=top]:exit-translate-y-1 data-[side=bottom]:-enter-translate-y-1 data-[side=bottom]:-exit-translate-y-1 data-[side=right]:-enter-translate-x-1 data-[side=right]:-exit-translate-x-1',
     ),
     listbox:
       'm-0 p-1 outline-none max-h-[var(--mo-popper-content-available-height)] overflow-y-auto',
     item: '[&_[data-option-wrapper]]:flex [&_[data-option-wrapper]]:flex-1 [&_[data-option-wrapper]]:gap-2 [&_[data-option-wrapper]]:min-w-0 [&_[data-option-wrapper]]:items-center [&_[data-option-icon]]:shrink-0 [&_[data-option-text]]:flex-1 [&_[data-option-text]]:min-w-0 px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between relative data-highlighted:bg-muted data-disabled:opacity-64 data-disabled:pointer-events-none',
     group: '[&:not(:first-child)]:mt-1.5',
     label: 'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
-    control:
-      'text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] items-center data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 data-disabled:opacity-64 data-disabled:pointer-events-none data-invalid:ring-3 focus-visible:ring-3 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
-    input:
-      'text-start truncate data-placeholder:text-muted-foreground read-only:cursor-pointer outline-none bg-transparent flex-1 min-w-0 w-full disabled:opacity-64 disabled:pointer-events-none',
+    control: /* @__PURE__ */ cn(
+      'text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)] items-center data-invalid:border-destructive data-disabled:opacity-64 data-disabled:pointer-events-none data-invalid:ring-3 data-invalid:ring-3 focus-visible:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40',
+      'data-search:focus-within:data-invalid:border-destructive data-search:focus-within:data-invalid:ring-3 data-search:focus-within:data-invalid:ring-destructive/20 data-search:dark:focus-within:data-invalid:border-destructive/50 data-search:dark:focus-within:data-invalid:ring-destructive/40 data-[mode=multi]:px-1.5 [&:not([data-search])]:cursor-pointer data-search:cursor-text [&:not([data-search])]:focus-visible:outline-none data-search:focus-within:outline-none [&:not([data-search])]:focus-visible:border-ring data-search:focus-within:border-ring [&:not([data-search])]:focus-visible:ring-3 data-search:focus-within:ring-3 [&:not([data-search])]:focus-visible:ring-ring/50 data-search:focus-within:ring-ring/50 [&:not([data-search])]:focus-visible:data-invalid:border-destructive [&:not([data-search])]:focus-visible:data-invalid:ring-3 [&:not([data-search])]:focus-visible:data-invalid:ring-destructive/20 [&:not([data-search])]:dark:focus-visible:data-invalid:border-destructive/50 [&:not([data-search])]:dark:focus-visible:data-invalid:ring-destructive/40',
+    ),
+    input: /* @__PURE__ */ cn(
+      'text-start outline-none bg-transparent flex-1 min-w-0 w-full truncate data-placeholder:text-muted-foreground disabled:opacity-64 read-only:cursor-pointer disabled:pointer-events-none',
+      'data-[mode=multi]:leading-tight data-[mode=multi]:px-0.5 data-[mode=multi]:py-0.5 data-[mode=single]:py-1.5 data-[mode=multi]:min-w-12',
+    ),
     leading: SELECT_LEADING_ICON_CLASS,
     trigger: SELECT_TRIGGER_ICON_CLASS,
-    clear: cn(
+    clear: /* @__PURE__ */ cn(
       SELECT_CLEAR_ACTION_CLASS,
       'border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center',
     ),
@@ -65,12 +47,9 @@ export const selectRecipeOptions = {
     itemTrailing:
       'text-sm flex shrink-0 size-4 pointer-events-none items-center end-2 justify-center absolute',
   },
-  defaultVariants: {
+  defaults: {
     variant: 'outline',
     size: 'md',
-    mode: 'single',
-    search: false,
-    side: 'right',
   },
   variants: {
     variant: {
@@ -96,61 +75,50 @@ export const selectRecipeOptions = {
         item: 'text-base min-h-9',
       },
     },
-    mode: {
-      single: {
-        input: 'py-1.5',
-      },
-      multi: {
-        control: 'px-1.5',
-        input: 'leading-tight px-0.5 py-0.5 min-w-12',
-      },
-    },
-    search: {
-      true: {
-        control:
-          'cursor-text focus-within:outline-none focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 focus-within:data-invalid:border-destructive focus-within:data-invalid:ring-3 focus-within:data-invalid:ring-destructive/20 dark:focus-within:data-invalid:border-destructive/50 dark:focus-within:data-invalid:ring-destructive/40',
-      },
-      false: {
-        control:
-          'cursor-pointer focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:data-invalid:border-destructive focus-visible:data-invalid:ring-3 focus-visible:data-invalid:ring-destructive/20 dark:focus-visible:data-invalid:border-destructive/50 dark:focus-visible:data-invalid:ring-destructive/40',
-      },
-    },
-    side: {
-      top: { content: POPPER_CONTENT_SIDE_VARIANT.top },
-      right: { content: POPPER_CONTENT_SIDE_VARIANT.right },
-      bottom: { content: POPPER_CONTENT_SIDE_VARIANT.bottom },
-      left: { content: POPPER_CONTENT_SIDE_VARIANT.left },
-    },
   },
   compoundVariants: [
-    { variants: { size: 'sm', mode: 'single' }, class: { control: 'pe-1.5 ps-2' } },
-    { variants: { size: 'md', mode: 'single' }, class: { control: 'pe-2 ps-2.5' } },
-    { variants: { size: 'lg', mode: 'single' }, class: { control: 'pe-2.5 ps-3' } },
+    {
+      variants: { size: 'sm' },
+      class: { control: 'data-[mode=single]:pe-1.5 data-[mode=single]:ps-2' },
+    },
+    {
+      variants: { size: 'md' },
+      class: { control: 'data-[mode=single]:pe-2 data-[mode=single]:ps-2.5' },
+    },
+    {
+      variants: { size: 'lg' },
+      class: { control: 'data-[mode=single]:pe-2.5 data-[mode=single]:ps-3' },
+    },
   ],
 } as const
 
-export const selectRecipe = recipe(selectRecipeOptions)
+export const selectRecipe = /* @__PURE__ */ slotRecipe(selectRecipeOptions)
 
 export const multiSelectRecipeOptions = {
   base: {
     root: 'inline-flex h-fit w-full relative',
-    content: cn(
-      SELECT_CONTENT_CLASS,
-      'max-w-[var(--mo-popper-content-available-width)] min-w-[var(--mo-popper-anchor-width)] w-[var(--mo-popper-anchor-width)]',
+    content: /* @__PURE__ */ cn(
+      /* @__PURE__ */ cn(
+        SELECT_CONTENT_CLASS,
+        'max-w-[var(--mo-popper-content-available-width)] min-w-[var(--mo-popper-anchor-width)] w-[var(--mo-popper-anchor-width)]',
+      ),
+      'data-[side=bottom]:mt-[var(--mo-popper-content-overflow-padding)] data-[side=left]:mr-[var(--mo-popper-content-overflow-padding)] data-[side=right]:ml-[var(--mo-popper-content-overflow-padding)] data-[side=top]:mb-[var(--mo-popper-content-overflow-padding)] data-[side=left]:enter-translate-x-1 data-[side=left]:exit-translate-x-1 data-[side=top]:enter-translate-y-1 data-[side=top]:exit-translate-y-1 data-[side=bottom]:-enter-translate-y-1 data-[side=bottom]:-exit-translate-y-1 data-[side=right]:-enter-translate-x-1 data-[side=right]:-exit-translate-x-1',
     ),
     listbox:
       'm-0 p-1 outline-none max-h-[var(--mo-popper-content-available-height)] overflow-y-auto',
     item: '[&_[data-option-wrapper]]:flex [&_[data-option-wrapper]]:flex-1 [&_[data-option-wrapper]]:gap-2 [&_[data-option-wrapper]]:min-w-0 [&_[data-option-wrapper]]:items-center [&_[data-option-icon]]:shrink-0 [&_[data-option-text]]:flex-1 [&_[data-option-text]]:min-w-0 px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between relative data-highlighted:bg-muted data-disabled:opacity-64 data-disabled:pointer-events-none',
     group: '[&:not(:first-child)]:mt-1.5',
     label: 'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
-    control:
-      'text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] items-center data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 data-disabled:opacity-64 data-disabled:pointer-events-none data-invalid:ring-3 focus-visible:ring-3 px-1.5 duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)]',
+    control: /* @__PURE__ */ cn(
+      'text-foreground px-1.5 outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)] items-center data-invalid:border-destructive data-disabled:opacity-64 data-disabled:pointer-events-none data-invalid:ring-3 data-invalid:ring-3 focus-visible:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40',
+      'data-search:focus-within:data-invalid:border-destructive data-search:focus-within:data-invalid:ring-3 data-search:focus-within:data-invalid:ring-destructive/20 data-search:dark:focus-within:data-invalid:border-destructive/50 data-search:dark:focus-within:data-invalid:ring-destructive/40 [&:not([data-search])]:cursor-pointer data-search:cursor-text [&:not([data-search])]:focus-visible:outline-none data-search:focus-within:outline-none [&:not([data-search])]:focus-visible:border-ring data-search:focus-within:border-ring [&:not([data-search])]:focus-visible:ring-3 data-search:focus-within:ring-3 [&:not([data-search])]:focus-visible:ring-ring/50 data-search:focus-within:ring-ring/50 [&:not([data-search])]:focus-visible:data-invalid:border-destructive [&:not([data-search])]:focus-visible:data-invalid:ring-3 [&:not([data-search])]:focus-visible:data-invalid:ring-destructive/20 [&:not([data-search])]:dark:focus-visible:data-invalid:border-destructive/50 [&:not([data-search])]:dark:focus-visible:data-invalid:ring-destructive/40',
+    ),
     input:
       'read-only:cursor-pointer outline-none bg-transparent flex-1 min-w-0 w-full disabled:opacity-64 disabled:pointer-events-none leading-tight px-0.5 py-0.5 min-w-12',
     leading: SELECT_LEADING_ICON_CLASS,
     trigger:
       'outline-none shrink-0 cursor-pointer disabled:pointer-events-none data-loading:cursor-wait [&>[data-slot=icon]]:text-muted-foreground [&>[data-slot=icon]]:opacity-80 [&>[data-loading]]:animate-spin',
-    clear: cn(
+    clear: /* @__PURE__ */ cn(
       SELECT_CLEAR_ACTION_CLASS,
       'border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center',
     ),
@@ -166,11 +134,9 @@ export const multiSelectRecipeOptions = {
     itemTrailing:
       'text-sm flex shrink-0 size-4 pointer-events-none items-center end-2 justify-center absolute',
   },
-  defaultVariants: {
+  defaults: {
     variant: 'outline',
     size: 'md',
-    search: false,
-    side: 'right',
   },
   variants: {
     variant: {
@@ -205,27 +171,7 @@ export const multiSelectRecipeOptions = {
         item: 'text-base min-h-9',
       },
     },
-    search: {
-      true: {
-        control:
-          'cursor-text focus-within:outline-none focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 focus-within:data-invalid:border-destructive focus-within:data-invalid:ring-3 focus-within:data-invalid:ring-destructive/20 dark:focus-within:data-invalid:border-destructive/50 dark:focus-within:data-invalid:ring-destructive/40',
-      },
-      false: {
-        control:
-          'cursor-pointer focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:data-invalid:border-destructive focus-visible:data-invalid:ring-3 focus-visible:data-invalid:ring-destructive/20 dark:focus-visible:data-invalid:border-destructive/50 dark:focus-visible:data-invalid:ring-destructive/40',
-      },
-    },
-    side: {
-      top: { content: POPPER_CONTENT_SIDE_VARIANT.top },
-      right: { content: POPPER_CONTENT_SIDE_VARIANT.right },
-      bottom: { content: POPPER_CONTENT_SIDE_VARIANT.bottom },
-      left: { content: POPPER_CONTENT_SIDE_VARIANT.left },
-    },
   },
 } as const
 
-export const multiSelectRecipe = recipe(multiSelectRecipeOptions)
-
-export type SelectVariantProps = VariantProps<typeof selectRecipe>
-export type SelectControlVariantProps = SelectVariantProps
-export type MultiSelectVariantProps = VariantProps<typeof multiSelectRecipe>
+export const multiSelectRecipe = /* @__PURE__ */ slotRecipe(multiSelectRecipeOptions)

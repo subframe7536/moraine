@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 
 import type { CardProps } from './card.types.ts'
 
@@ -9,9 +9,6 @@ export * from './card.types.ts'
 
 /** Structured content container with optional header, body, footer, and action slots. */
 export function Card(props: CardProps): JSX.Element {
-  const design = useMoraineDesign()
-  const cardDesign = () => design().card
-
   const [local, rest] = splitProps(props, [
     'header',
     'title',
@@ -25,7 +22,7 @@ export function Card(props: CardProps): JSX.Element {
     'class',
     'style',
   ])
-  const compact = () => local.compact ?? cardDesign()?.defaultVariants?.compact ?? false
+  const resolved = createComponentStyles('card', local)
 
   const header = createMemo(() => local.header)
   const title = createMemo(() => local.title)
@@ -34,43 +31,27 @@ export function Card(props: CardProps): JSX.Element {
   const footer = createMemo(() => local.footer)
   const resolvedChildren = resolveChildren(() => local.children)
 
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return cardDesign()?.recipe({ compact: compact() })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
-
   return (
-    <div data-slot="root" {...rest} {...resolved.rootClassAndStyle()}>
+    <div data-slot="root" {...rest} {...resolved.root}>
       <Show when={header() || title() || description()}>
         <div
           data-slot="header"
           data-action={action() ? '' : undefined}
-          {...resolved.slotClassAndStyle('header')}
+          {...resolved.slot('header')}
         >
           <Show when={title() || description()} fallback={header()}>
             <Show when={title()}>
-              <div data-slot="title" {...resolved.slotClassAndStyle('title')}>
+              <div data-slot="title" {...resolved.slot('title')}>
                 {title()}
               </div>
             </Show>
             <Show when={description()}>
-              <p data-slot="description" {...resolved.slotClassAndStyle('description')}>
+              <p data-slot="description" {...resolved.slot('description')}>
                 {description()}
               </p>
             </Show>
             <Show when={action()}>
-              <div data-slot="action" {...resolved.slotClassAndStyle('action')}>
+              <div data-slot="action" {...resolved.slot('action')}>
                 {action()}
               </div>
             </Show>
@@ -83,7 +64,7 @@ export function Card(props: CardProps): JSX.Element {
           <div
             data-slot="body"
             data-no-footer={!footer() ? '' : undefined}
-            {...resolved.slotClassAndStyle('body')}
+            {...resolved.slot('body')}
           >
             {body()}
           </div>
@@ -91,7 +72,7 @@ export function Card(props: CardProps): JSX.Element {
       </Show>
 
       <Show when={footer()}>
-        <div data-slot="footer" {...resolved.slotClassAndStyle('footer')}>
+        <div data-slot="footer" {...resolved.slot('footer')}>
           {footer()}
         </div>
       </Show>

@@ -11,11 +11,11 @@ import {
   untrack,
 } from 'solid-js'
 
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useDisclosureState } from '../../shared/use-disclosure-state.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { callRef, useId } from '../../shared/utils.ts'
+import { cn, callRef, useId } from '../../shared/utils.ts'
 import { Icon } from '../icon/index.ts'
 
 import type { AccordionProps } from './accordion.types.ts'
@@ -42,6 +42,8 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'style',
     'ref',
   ])
+  const resolved = createComponentStyles('accordion', local)
+
   const merged = mergeProps(
     {
       multiple: false,
@@ -52,25 +54,6 @@ export function Accordion(props: AccordionProps): JSX.Element {
     },
     local,
   )
-
-  const design = useMoraineDesign()
-  const accordionDesign = () => design().accordion
-
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return accordionDesign()?.recipe()
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
 
   const rootId = useId(() => merged.id, 'accordion')
   const trailing = createMemo(() => merged.trailing)
@@ -237,7 +220,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       data-slot="root"
       data-disabled={merged.disabled ? '' : undefined}
       {...rest}
-      {...resolved.rootClassAndStyle()}
+      {...resolved.root}
     >
       <For each={items()}>
         {(item) => {
@@ -276,7 +259,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
             return (
               <Show when={content()}>
-                {(value) => <div {...resolved.slotClassAndStyle('contentInner')}>{value()}</div>}
+                {(value) => <div {...resolved.slot('contentInner')}>{value()}</div>}
               </Show>
             )
           }
@@ -364,14 +347,11 @@ export function Accordion(props: AccordionProps): JSX.Element {
           return (
             <div
               data-slot="item"
-              {...resolved.slotClassAndStyle('item', {
-                get state() {
-                  return { class: item.class }
-                },
-              })}
+              class={cn(resolved.slot('item').class, item.class)}
+              style={resolved.slot('item').style}
               {...itemDataAttrs()}
             >
-              <h3 data-slot="header" {...resolved.slotClassAndStyle('header')} {...itemDataAttrs()}>
+              <h3 data-slot="header" {...resolved.slot('header')} {...itemDataAttrs()}>
                 <button
                   id={triggerId()}
                   type="button"
@@ -379,7 +359,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   aria-expanded={expanded()}
                   disabled={disabled()}
                   data-slot="trigger"
-                  {...resolved.slotClassAndStyle('trigger')}
+                  {...resolved.slot('trigger')}
                   onClick={onTriggerClick}
                   onKeyDown={onTriggerKeyDown}
                   onKeyUp={onTriggerKeyUp}
@@ -394,28 +374,20 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 >
                   <Show when={leading()}>
                     {(value) => (
-                      <Icon
-                        name={value()}
-                        slotName="leading"
-                        {...resolved.slotClassAndStyle('leading')}
-                      />
+                      <Icon name={value()} slotName="leading" {...resolved.slot('leading')} />
                     )}
                   </Show>
 
                   <Show when={label()}>
                     {(value) => (
-                      <span data-slot="label" {...resolved.slotClassAndStyle('label')}>
+                      <span data-slot="label" {...resolved.slot('label')}>
                         {value()}
                       </span>
                     )}
                   </Show>
 
                   <Show when={trailing()}>
-                    <Icon
-                      name={trailing()}
-                      slotName="trailing"
-                      {...resolved.slotClassAndStyle('trailing')}
-                    />
+                    <Icon name={trailing()} slotName="trailing" {...resolved.slot('trailing')} />
                   </Show>
                 </button>
               </h3>
@@ -435,15 +407,11 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   role="region"
                   aria-labelledby={triggerId()}
                   data-slot="content"
-                  {...resolved.slotClassAndStyle('content', {
-                    get state() {
-                      return {
-                        style: {
-                          '--mo-collapsible-content-height': `${contentHeight()}px`,
-                        },
-                      }
-                    },
-                  })}
+                  class={resolved.slot('content').class}
+                  style={{
+                    '--mo-collapsible-content-height': `${contentHeight()}px`,
+                    ...resolved.slot('content').style,
+                  }}
                   {...contentDataAttrs()}
                 >
                   {renderContent()}

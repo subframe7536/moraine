@@ -68,10 +68,10 @@ export default defineConfig({
         codeSplitting: {
           groups: [
             {
-              name: 'moraine-design',
-              test: /[\\/]src[\\/]design(?:[\\/]|\.ts$)|\.class\.ts$/,
+              name: 'moraine-theme',
+              test: /[\\/]src[\\/]theme(?:[\\/]|\.ts$)|\.class\.ts$/,
               priority: 20,
-              includeDependenciesRecursively: false,
+              includeDependenciesRecursively: true,
             },
             {
               name: 'moraine-elements',

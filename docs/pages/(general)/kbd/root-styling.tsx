@@ -1,7 +1,7 @@
 import { Kbd, MoraineProvider } from '@src'
-import { createDesign } from '@src/design.ts'
+import { createTheme } from '@src/theme.ts'
 
-const design = createDesign({
+const theme = createTheme({
   kbd: { base: { root: 'rounded-none' } },
 })
 
@@ -12,9 +12,9 @@ export function RootStyling() {
         <p class="text-sm text-muted-foreground">Instance class and style</p>
         <Kbd value="K" class="text-blue-600" style={{ 'border-radius': '8px' }} />
       </div>
-      <MoraineProvider design={design}>
+      <MoraineProvider theme={theme}>
         <div class="space-y-2">
-          <p class="text-sm text-muted-foreground">Local design defaults</p>
+          <p class="text-sm text-muted-foreground">Local Theme defaults</p>
           <Kbd value="K" />
         </div>
       </MoraineProvider>

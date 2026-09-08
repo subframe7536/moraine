@@ -38,9 +38,17 @@ export namespace DialogT {
   }
 
   export interface Variant {
+    /** Whether the surface fills the viewport.
+     * @default false
+     */
     fullscreen?: boolean | null
+    /** Whether the overlay scrolls its content.
+     * @default false
+     */
     scrollable?: boolean | null
   }
+  export type SlotName = keyof Slot
+
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item {}

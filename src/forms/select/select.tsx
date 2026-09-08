@@ -1,11 +1,12 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
+import { Show, createMemo, splitProps, untrack } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
-import { resolveComponentStyle, useMoraineDesign } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { callRef } from '../../shared/utils.ts'
+import { useFormFieldContext } from '../form/form-context.ts'
 
 import { BaseSelect } from './base-select.tsx'
 import type { BaseSelectT } from './base-select.tsx'
@@ -25,9 +26,6 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
   props: SelectProps<TItem>,
 ): JSX.Element {
   type Item = SelectT.Item<TItem>
-
-  const design = useMoraineDesign()
-  const selectDesign = () => design().select
 
   const [local, rest] = splitProps(props, [
     'ref',
@@ -52,25 +50,21 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     'trailingIcon',
     'closeIcon',
   ])
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('select', props, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
 
-  const merged = mergeProps(
-    {
-      variant: 'outline' as const,
-    },
-    () => selectDesign()?.defaultVariants,
-    local,
-  )
-
-  const initialDefaultValue = untrack(() => merged.defaultValue ?? null)
-  const optionRender = createMemo(() => merged.optionRender)
-  const labelRender = createMemo(() => merged.labelRender)
-  const emptyRender = createMemo(() => merged.emptyRender)
-  const leadingIcon = createMemo(() => merged.leadingIcon)
-  const loadingIcon = createMemo(() => merged.loadingIcon)
-  const trailingIcon = createMemo(() => merged.trailingIcon)
-  const closeIcon = createMemo(() => merged.closeIcon)
+  const initialDefaultValue = untrack(() => local.defaultValue ?? null)
+  const optionRender = createMemo(() => local.optionRender)
+  const labelRender = createMemo(() => local.labelRender)
+  const emptyRender = createMemo(() => local.emptyRender)
+  const leadingIcon = createMemo(() => local.leadingIcon)
+  const loadingIcon = createMemo(() => local.loadingIcon)
+  const trailingIcon = createMemo(() => local.trailingIcon)
+  const closeIcon = createMemo(() => local.closeIcon)
   const [selectedValue, setSelectedValue] = useControllableValue<TItem | null>({
-    value: () => merged.value,
+    value: () => local.value,
     defaultValue: () => initialDefaultValue,
   })
 
@@ -86,8 +80,8 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
   function getCurrentValue(
     api: Pick<BaseSelectT.StateApi<Item>, 'allFlatOptions' | 'field'>,
   ): TItem | null {
-    if (merged.value !== undefined) {
-      return merged.value
+    if (local.value !== undefined) {
+      return local.value
     }
 
     const fieldValue = api.field.value()
@@ -122,12 +116,12 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
       return
     }
 
-    if (merged.value === undefined) {
+    if (local.value === undefined) {
       setSelectedValue(value)
     }
 
     api.field.setFormValue(value ?? '')
-    merged.onChange?.(value)
+    local.onChange?.(value)
   }
 
   function displayValue(
@@ -147,57 +141,24 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     }
 
     const value = getCurrentValue(api)
-    return value === null || value === undefined ? merged.placeholder : String(value)
+    return value === null || value === undefined ? local.placeholder : String(value)
   }
-
-  const resolved = resolveComponentStyle({
-    design: {
-      get classes() {
-        return selectDesign()?.recipe({
-          variant: merged.variant,
-          mode: 'single',
-        })
-      },
-    },
-    get instance() {
-      return {
-        class: local.class,
-        classes: local.classes,
-        style: local.style,
-        styles: local.styles,
-      }
-    },
-  })
-
-  const resolvedClasses = () => ({
-    content: resolved.slotClass('content'),
-    listbox: resolved.slotClass('listbox'),
-    item: resolved.slotClass('item'),
-    group: resolved.slotClass('group'),
-    label: resolved.slotClass('label'),
-    empty: resolved.slotClass('empty'),
-    itemLabel: resolved.slotClass('itemLabel'),
-    itemDescription: resolved.slotClass('itemDescription'),
-    itemTrailing: resolved.slotClass('itemTrailing'),
-  })
-
-  const resolvedStyles = () => ({
-    content: resolved.slotStyle('content'),
-    listbox: resolved.slotStyle('listbox'),
-    item: resolved.slotStyle('item'),
-    group: resolved.slotStyle('group'),
-    label: resolved.slotStyle('label'),
-    empty: resolved.slotStyle('empty'),
-    itemLabel: resolved.slotStyle('itemLabel'),
-    itemDescription: resolved.slotStyle('itemDescription'),
-    itemTrailing: resolved.slotStyle('itemTrailing'),
-  })
 
   function renderDefaultOption(option: (Item & SelectT.OptionRenderState) | null): JSX.Element {
     return renderDefaultSelectOption({
       option,
-      classes: resolvedClasses(),
-      styles: resolvedStyles(),
+      classes: {
+        empty: resolved.slot('empty').class,
+        itemLabel: resolved.slot('itemLabel').class,
+        itemDescription: resolved.slot('itemDescription').class,
+        itemTrailing: resolved.slot('itemTrailing').class,
+      },
+      styles: {
+        empty: resolved.slot('empty').style,
+        itemLabel: resolved.slot('itemLabel').style,
+        itemDescription: resolved.slot('itemDescription').style,
+        itemTrailing: resolved.slot('itemTrailing').style,
+      },
       labelRender: labelRender(),
     })
   }
@@ -205,38 +166,23 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
   function clearSelection(api: BaseSelectT.StateApi<Item>): void {
     updateSelection(null, api)
     api.close()
-    merged.onClear?.()
+    local.onClear?.()
   }
 
   return (
     <BaseSelect<Item>
       {...rest}
       ref={local.ref}
-      _defaultSize={merged.size ?? undefined}
-      _designRecipe={(args) =>
-        selectDesign()?.recipe({
-          variant: merged.variant,
-          mode: 'single',
-          ...args,
-        })
-      }
-      _styleInputs={{
-        get instance() {
-          return {
-            class: local.class,
-            classes: local.classes,
-            style: local.style,
-            styles: local.styles,
-          }
-        },
-      }}
+
+      _styles={resolved}
+
       initialValue={getInitialValue()}
-      _isValueControlled={merged.value !== undefined}
+      _isValueControlled={local.value !== undefined}
       multiple={false}
       selectedValues={getSelectedValues()}
       onOptionSelect={(option, api) => updateSelection(option, api)}
       _onFormReset={(api) => {
-        const value = merged.value !== undefined ? merged.value : initialDefaultValue
+        const value = local.value !== undefined ? local.value : initialDefaultValue
         setSelectedValue(initialDefaultValue)
         api.setInputValue('')
         api.field.setFormValue(value ?? '')
@@ -273,9 +219,9 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
       )}
     >
       {(api) => {
-        const isActionLoading = createMemo(() => Boolean(merged.loading))
+        const isActionLoading = createMemo(() => Boolean(local.loading))
         const isClearAction = createMemo(() =>
-          Boolean(!isActionLoading() && merged.allowClear && getCurrentValue(api) !== null),
+          Boolean(!isActionLoading() && local.allowClear && getCurrentValue(api) !== null),
         )
 
         const controlResolved = api.resolved
@@ -283,19 +229,16 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
         return (
           <div
             data-slot="control"
+            data-search={api.isSearchable() ? '' : undefined}
             data-disabled={api.field.disabled() ? '' : undefined}
             data-invalid={api.field.invalid() ? '' : undefined}
             data-required={api.field.required() ? '' : undefined}
-            {...controlResolved.slotClassAndStyle('control')}
+            {...controlResolved.slot('control')}
             {...api.controlProps()}
           >
             <Show when={leadingIcon()}>
               {(icon) => (
-                <Icon
-                  name={icon()}
-                  slotName="leading"
-                  {...controlResolved.slotClassAndStyle('leading')}
-                />
+                <Icon name={icon()} slotName="leading" {...controlResolved.slot('leading')} />
               )}
             </Show>
 
@@ -304,8 +247,9 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
               fallback={
                 <span
                   data-slot="input"
+                  data-mode="single"
                   data-placeholder={getCurrentValue(api) === null ? '' : undefined}
-                  {...controlResolved.slotClassAndStyle('input')}
+                  {...controlResolved.slot('input')}
                 >
                   {displayValue(api)}
                 </span>
@@ -317,8 +261,9 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                   callRef(local.inputRef, element)
                 }}
                 data-slot="input"
-                {...controlResolved.slotClassAndStyle('input')}
-                placeholder={merged.placeholder}
+                data-mode="single"
+                {...controlResolved.slot('input')}
+                placeholder={local.placeholder}
                 {...api.inputProps()}
                 onInput={(event) => {
                   api.setInputValue(event.currentTarget.value)
@@ -338,7 +283,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                   }
                   slotName="trigger"
                   data-loading={isActionLoading() ? '' : undefined}
-                  {...controlResolved.slotClassAndStyle('trigger')}
+                  {...controlResolved.slot('trigger')}
                 />
               }
             >
@@ -347,7 +292,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                 data-slot="clear"
                 aria-label="Clear selection"
                 tabIndex={-1}
-                {...controlResolved.slotClassAndStyle('clear')}
+                {...controlResolved.slot('clear')}
                 disabled={api.field.disabled()}
                 onPointerDown={(event) => {
                   event.preventDefault()

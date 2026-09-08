@@ -1,3 +1,4 @@
+import { slotRecipe } from '../../shared/style/recipe.ts'
 import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 
 import type { ModalT } from './modal.types.ts'
@@ -19,3 +20,5 @@ export const modalRecipeOptions = {
     content: `${MODAL_CONTENT_CLASS} ${MODAL_CONTENT_DEFAULT_CLASS}`,
   },
 } as const satisfies SlotRecipeOptions<keyof ModalT.Slot>
+
+export const modalRecipe = /* @__PURE__ */ slotRecipe(modalRecipeOptions)

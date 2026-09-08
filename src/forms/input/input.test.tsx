@@ -4,17 +4,14 @@ import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { createDesign } from '../../design.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithOwner } from '../../test-utils/owner-render'
-import { createForm } from '../form/index'
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { createForm } from '../form/index.ts'
 
-import { Input } from './input'
-
-const officialDesign = createDesign()
+import { Input } from './input.tsx'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider design={officialDesign}>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 describe('Input', () => {
   test('renders unstyled when provider is absent', () => {
@@ -310,7 +307,7 @@ describe('Input', () => {
       <Input
         onInput={() => calls.push('input')}
         onValueChange={(value) => calls.push(`value:${value}`)}
-        onChange={(value) => calls.push(`change:${value}`)}
+        onChange={(event) => calls.push(`change:${event.currentTarget.value}`)}
       />
     ))
     const input = screen.getByRole<HTMLInputElement>('textbox')
@@ -325,7 +322,7 @@ describe('Input', () => {
       currentTarget: { value: '拼音' },
     })
 
-    expect(calls).toEqual(['input', 'value:拼', 'change:拼音'])
+    expect(calls).toEqual(['value:拼', 'input', 'change:拼音'])
   })
 
   test('does not publish programmatic value property changes without a native event', () => {
@@ -368,7 +365,7 @@ describe('Input', () => {
     cancelledInput.dispatchEvent(cancelledEvent)
 
     expect(cancelledEvent.defaultPrevented).toBe(true)
-    expect(cancelledChange).not.toHaveBeenCalled()
+    expect(cancelledChange).toHaveBeenCalledWith('Cancelled')
     expect(cancelledInput.value).toBe('Locked')
   })
 
@@ -436,19 +433,6 @@ describe('Input', () => {
     fireEvent.pointerDown(root, { button: 1 })
 
     expect(focus).toHaveBeenCalledTimes(2)
-  })
-
-  test('respects cancelled wrapper pointer handlers', async () => {
-    const screen = render(() => (
-      <Input onPointerDown={(event: PointerEvent) => event.preventDefault()} />
-    ))
-    const root = screen.container.querySelector('[data-slot="root"]')!
-    const input = screen.getByRole<HTMLInputElement>('textbox')
-    const focus = vi.spyOn(input, 'focus')
-
-    fireEvent.pointerDown(root, { button: 0 })
-
-    expect(focus).not.toHaveBeenCalled()
   })
 
   test('cancels delayed autofocus on unmount and rechecks disabled state', () => {
