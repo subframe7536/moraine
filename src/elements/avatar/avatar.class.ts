@@ -1,16 +1,15 @@
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { AvatarGroupT } from './avatar-group.types.ts'
 import type { AvatarT } from './avatar.types.ts'
 
-export const avatarRecipeOptions = {
+export const avatarRecipe = /* @__PURE__ */ slotRecipe<keyof AvatarT.Slot>({
   base: {
-    root: "text-muted-foreground rounded-full bg-muted inline-flex shrink-0 select-none items-center justify-center relative overflow-visible after:border after:border-border after:rounded-full after:pointer-events-none after:content-[''] after:inset-0 after:absolute dark:after:mix-blend-lighten",
+    root: "text-muted-foreground rounded-full bg-muted inline-flex shrink-0 select-none items-center justify-center relative overflow-visible after:(border border-border rounded-full pointer-events-none content-[''] inset-0 absolute) dark:after:mix-blend-lighten",
     image:
-      'opacity-0 pointer-events-none data-[status=loaded]:opacity-100 data-[status=loaded]:pointer-events-auto rounded-full size-full transition-opacity inset-0 absolute object-cover',
+      'opacity-0 pointer-events-none data-[status=loaded]:(opacity-100 pointer-events-auto) rounded-full size-full transition-opacity inset-0 absolute object-cover',
     fallback:
-      'opacity-100 data-[status=loaded]:opacity-0 data-[status=loaded]:pointer-events-none text-muted-foreground font-medium rounded-full bg-muted flex uppercase transition-opacity items-center inset-0 justify-center absolute',
+      'opacity-100 data-[status=loaded]:(opacity-0 pointer-events-none) text-muted-foreground font-medium rounded-full bg-muted flex uppercase transition-opacity items-center inset-0 justify-center absolute',
     fallbackIcon: 'shrink-0',
     badge:
       '[&>[data-slot=root]]:text-[0.75em] text-foreground rounded-full bg-background inline-flex pointer-events-none ring-2 ring-background items-center justify-center absolute z-sticky',
@@ -47,11 +46,9 @@ export const avatarRecipeOptions = {
       'bottom-right': { badge: '-bottom-0.5 -right-0.5' },
     },
   },
-} as const satisfies SlotRecipeOptions<keyof AvatarT.Slot>
+})
 
-export const avatarRecipe = /* @__PURE__ */ slotRecipe(avatarRecipeOptions)
-
-export const avatarGroupRecipeOptions = {
+export const avatarGroupRecipe = /* @__PURE__ */ slotRecipe<keyof AvatarGroupT.Slot>({
   base: {
     root: 'inline-flex flex-row-reverse justify-end',
     item: 'rounded-full ring-background relative first:me-0',
@@ -81,6 +78,4 @@ export const avatarGroupRecipeOptions = {
       },
     },
   },
-} as const satisfies SlotRecipeOptions<keyof AvatarGroupT.Slot>
-
-export const avatarGroupRecipe = /* @__PURE__ */ slotRecipe(avatarGroupRecipeOptions)
+})

@@ -19,6 +19,53 @@ describe('presetMoraine', () => {
   test.each([
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
+  ])('compiles CSS variable shorthand with %s', async (_name, wind) => {
+    const utilities = {
+      w: 'width',
+      h: 'height',
+      'min-w': 'min-width',
+      'max-w': 'max-width',
+      'max-h': 'max-height',
+      mt: 'margin-top',
+      mr: 'margin-right',
+      mb: 'margin-bottom',
+      ml: 'margin-left',
+      pt: 'padding-top',
+      gap: 'gap',
+      top: 'top',
+      bottom: 'bottom',
+      left: 'left',
+      right: 'right',
+      origin: 'transform-origin',
+    }
+    for (const [utility, property] of Object.entries(utilities)) {
+      const css = await generate([`${utility}-(--test-value)`], false, wind)
+      expect(css).toContain(`${property}:var(--test-value)`)
+    }
+
+    const css = await generate(
+      [
+        'size-(--test-size)',
+        'data-expanded:after:h-(--test-height)',
+        'hover:-mt-(--test-offset)',
+        'enter-translate-x-(--test-translate)',
+      ],
+      false,
+      wind,
+    )
+    expect(css).toContain('width:var(--test-size)')
+    expect(css).toContain('height:var(--test-size)')
+    expect(css).toContain('[data-expanded]')
+    expect(css).toContain('::after')
+    expect(css).toContain('height:var(--test-height)')
+    expect(css).toContain(':hover')
+    expect(css).toContain('margin-top:calc(var(--test-offset) * -1)')
+    expect(css).toContain('--mo-enter-translate-x:var(--test-translate)')
+  })
+
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
   ])('registers %s theme tokens', async (name, wind) => {
     const css = await generate(
       [
@@ -86,9 +133,6 @@ describe('presetMoraine', () => {
 
     expect(shortcuts).toContain('z-floating')
     expect(shortcuts).toContain('icon-check')
-    expect(
-      shortcuts.every((shortcut) => shortcut.startsWith('z-') || shortcut.startsWith('icon-')),
-    ).toBe(true)
     expect(preset.transformers).toBeUndefined()
     expect(preset.rules).toBeDefined()
   })

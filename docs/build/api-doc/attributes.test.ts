@@ -139,7 +139,7 @@ function Icon() {
 }
 export function Demo() {
   const resolved = createComponentStyles('demo', {
-    classes: { content: 'w-[var(--panel-width)]', label: 'text-sm' },
+    classes: { content: 'w-(--panel-width)', label: 'text-sm' },
     styles: { content: { '--panel-color': 'red' } },
   }, {
     dynamicStyles: () => ({ label: { '--label-color': 'blue' } }),

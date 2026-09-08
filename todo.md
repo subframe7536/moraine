@@ -9,13 +9,14 @@
 - [x] convert sidebar-frame and resizable into namespaced component, get rid of `frameRender` in sidebar-frame
 - [x] add indicator type in `<component>T` to indicate if the component is a single or a composite/namespaced component
 - [x] cleanup `data-[*`
+- [ ] optimize `stepperRecipe` css variables
 - [ ] `cn` config should be customizable in MoraineProvider
 - [ ] metric adjust across all sizes
 - [ ] production barrel import optimize
 
 ### UI Regression
 
-- [ ] textarea inline padding too large
+- [ ] textarea inline padding too large, not balanced
 - [ ] slider bold variant 's thumb indicator is missing
 - [ ] file-upload style refactor to https://diceui.com/docs/components/base/file-upload
 - [ ] correct/verify button group separator

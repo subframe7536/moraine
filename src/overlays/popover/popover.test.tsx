@@ -245,10 +245,10 @@ describe('Popover', () => {
   })
 
   test.each([
-    ['top-start', 'mb-[var(--mo-popper-content-overflow-padding)]'],
-    ['right-start', 'ml-[var(--mo-popper-content-overflow-padding)]'],
-    ['bottom-start', 'mt-[var(--mo-popper-content-overflow-padding)]'],
-    ['left-start', 'mr-[var(--mo-popper-content-overflow-padding)]'],
+    ['top-start', 'mb-(--mo-popper-content-overflow-padding)'],
+    ['right-start', 'ml-(--mo-popper-content-overflow-padding)'],
+    ['bottom-start', 'mt-(--mo-popper-content-overflow-padding)'],
+    ['left-start', 'mr-(--mo-popper-content-overflow-padding)'],
   ] as const)('applies side class for placement %s', (placement, expectedClass) => {
     setMockPlacement(placement)
 

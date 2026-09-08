@@ -1,9 +1,8 @@
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { SliderT } from './slider.types.ts'
 
-export const sliderRecipeOptions = {
+export const sliderRecipe = /* @__PURE__ */ slotRecipe<keyof SliderT.Slot>({
   base: {
     root: 'group flex select-none items-center relative touch-none data-disabled:(opacity-64 pointer-events-none)',
     track: 'bg-input select-none translate-z-0 relative overflow-hidden',
@@ -20,13 +19,13 @@ export const sliderRecipeOptions = {
     orientation: {
       horizontal: {
         root: 'w-full',
-        track: 'h-[var(--s-size)] w-full',
+        track: 'h-(--s-size) w-full',
         range: 'h-full',
         divider: 'top-1/2 -translate-x-1/2 -translate-y-1/2',
       },
       vertical: {
         root: 'flex-col h-full',
-        track: 'h-full w-[var(--s-size)]',
+        track: 'h-full w-(--s-size)',
         range: 'w-full',
         divider: 'left-1/2 -translate-x-1/2 -translate-y-1/2',
       },
@@ -93,23 +92,21 @@ export const sliderRecipeOptions = {
       variants: { orientation: 'horizontal', variant: 'bold' },
       class: {
         range:
-          '[&:not([data-inverted])]:after:(h-[var(--s-len)] w-[var(--s-offset)] top-1/2 -translate-y-1/2 left-[var(--s-pos)]) data-inverted:after:(h-[var(--s-len)] w-[var(--s-offset)] top-1/2 -translate-y-1/2 right-[var(--s-pos)]) [&:not([data-inverted])]:data-multiple:before:(h-[var(--s-len)] w-[var(--s-offset)] top-1/2 -translate-y-1/2 left-[var(--s-offset)]) data-inverted:data-multiple:before:(h-[var(--s-len)] w-[var(--s-offset)] top-1/2 -translate-y-1/2 right-[var(--s-offset)])',
+          '[&:not([data-inverted])]:after:(h-(--s-len) w-(--s-offset) top-1/2 -translate-y-1/2 left-(--s-pos)) data-inverted:after:(h-(--s-len) w-(--s-offset) top-1/2 -translate-y-1/2 right-(--s-pos)) [&:not([data-inverted])]:data-multiple:before:(h-(--s-len) w-(--s-offset) top-1/2 -translate-y-1/2 left-(--s-offset)) data-inverted:data-multiple:before:(h-(--s-len) w-(--s-offset) top-1/2 -translate-y-1/2 right-(--s-offset))',
         divider: 'h-1/3 w-px',
         thumb:
-          '[&:not([data-inverted])]:h-full [&:not([data-inverted])]:top-0 [&:not([data-inverted])]:-translate-x-1/2 [&:not([data-inverted])]:w-[var(--s-size)] data-inverted:(h-full top-0 translate-x-1/2 w-[var(--s-size)])',
+          '[&:not([data-inverted])]:(h-full top-0 -translate-x-1/2 w-(--s-size)) data-inverted:(h-full top-0 translate-x-1/2 w-(--s-size))',
       },
     },
     {
       variants: { orientation: 'vertical', variant: 'bold' },
       class: {
         range:
-          '[&:not([data-inverted])]:after:(w-[var(--s-len)] h-[var(--s-offset)] left-1/2 -translate-x-1/2 bottom-[var(--s-pos)]) data-inverted:after:(w-[var(--s-len)] h-[var(--s-offset)] left-1/2 -translate-x-1/2 top-[var(--s-pos)]) [&:not([data-inverted])]:data-multiple:before:(w-[var(--s-len)] h-[var(--s-offset)] left-1/2 -translate-x-1/2 bottom-[var(--s-offset)]) data-inverted:data-multiple:before:(w-[var(--s-len)] h-[var(--s-offset)] left-1/2 -translate-x-1/2 top-[var(--s-offset)])',
+          '[&:not([data-inverted])]:after:(w-(--s-len) h-(--s-offset) left-1/2 -translate-x-1/2 bottom-(--s-pos)) data-inverted:after:(w-(--s-len) h-(--s-offset) left-1/2 -translate-x-1/2 top-(--s-pos)) [&:not([data-inverted])]:data-multiple:before:(w-(--s-len) h-(--s-offset) left-1/2 -translate-x-1/2 bottom-(--s-offset)) data-inverted:data-multiple:before:(w-(--s-len) h-(--s-offset) left-1/2 -translate-x-1/2 top-(--s-offset))',
         divider: 'h-px w-1/3',
         thumb:
-          '[&:not([data-inverted])]:w-full [&:not([data-inverted])]:left-0 [&:not([data-inverted])]:translate-y-1/2 [&:not([data-inverted])]:h-[var(--s-size)] data-inverted:(w-full left-0 -translate-y-1/2 h-[var(--s-size)])',
+          '[&:not([data-inverted])]:(w-full left-0 translate-y-1/2 h-(--s-size)) data-inverted:(w-full left-0 -translate-y-1/2 h-(--s-size))',
       },
     },
   ],
-} as const satisfies SlotRecipeOptions<keyof SliderT.Slot>
-
-export const sliderRecipe = /* @__PURE__ */ slotRecipe(sliderRecipeOptions)
+})

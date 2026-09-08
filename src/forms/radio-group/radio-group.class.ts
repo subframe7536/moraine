@@ -1,14 +1,13 @@
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { RadioGroupT } from './radio-group.types.ts'
 
-export const radioGroupRecipeOptions = {
+export const radioGroupRecipe = /* @__PURE__ */ slotRecipe<keyof RadioGroupT.Slot>({
   base: {
     root: 'flex relative',
     item: 'flex items-start data-disabled:(opacity-64 pointer-events-none)',
     control:
-      'outline-none border border-input rounded-full bg-background inline-flex shrink-0 transition-shadow items-center justify-center relative overflow-hidden bg-clip-padding data-checked:text-primary-foreground data-checked:border-primary data-checked:bg-primary peer-focus-visible:outline-none peer-focus-visible:border-ring peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50 data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 dark:bg-input/30',
+      'outline-none border border-input rounded-full bg-background inline-flex shrink-0 transition-shadow items-center justify-center relative overflow-hidden bg-clip-padding data-checked:(text-primary-foreground border-primary bg-primary) peer-focus-visible:(outline-none border-ring ring-3 ring-ring/50) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:data-invalid:(border-destructive/50 ring-destructive/40) dark:bg-input/30',
     container: 'flex items-center',
     indicator: 'rounded-full bg-primary-foreground',
     wrapper: 'flex flex-col gap-0.5 w-full',
@@ -55,7 +54,7 @@ export const radioGroupRecipeOptions = {
         item: 'border border-border rounded-md data-checked:border-primary',
       },
       table: {
-        item: 'border border-muted relative data-checked:border-primary/50 data-checked:bg-primary/10 data-checked:z-base',
+        item: 'border border-muted relative data-checked:(border-primary/50 bg-primary/10 z-base)',
       },
       list: {
         root: 'gap-2',
@@ -105,6 +104,4 @@ export const radioGroupRecipeOptions = {
       },
     },
   ],
-} as const satisfies SlotRecipeOptions<keyof RadioGroupT.Slot>
-
-export const radioGroupRecipe = /* @__PURE__ */ slotRecipe(radioGroupRecipeOptions)
+})

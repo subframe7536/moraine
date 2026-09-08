@@ -1,16 +1,16 @@
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
-export const commandPaletteRecipeOptions = {
+export const commandPaletteRecipe = /* @__PURE__ */ slotRecipe({
   base: {
     root: 'bg-popover text-popover-foreground border border-border rounded-lg flex flex-col min-h-0 shadow-md overflow-hidden',
     inputWrapper: 'px-2.5 gap-2 h-11 border-b border-border/60 flex items-center',
     input:
-      'outline-none bg-transparent flex-1 placeholder:text-muted-foreground disabled:opacity-64 disabled:pointer-events-none text-sm h-10 w-full',
+      'outline-none bg-transparent flex-1 placeholder:text-muted-foreground disabled:(opacity-64 pointer-events-none) text-sm h-10 w-full',
     listbox: 'no-scrollbar max-h-72 scroll-py-1 p-1 outline-none overflow-x-hidden overflow-y-auto',
     footer: 'text-sm text-muted-foreground p-3',
     group: 'text-foreground overflow-hidden leading-loose mt-2',
     label: 'text-muted-foreground px-2 py-1.5 text-xs font-medium',
-    item: 'text-sm px-2 py-1 min-h-8 text-foreground outline-none rounded-sm flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:bg-muted data-disabled:opacity-50 data-disabled:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4',
+    item: 'text-sm px-2 py-1 min-h-8 text-foreground outline-none rounded-sm flex gap-2 w-full cursor-default select-none items-center relative data-highlighted:bg-muted data-disabled:(opacity-50 pointer-events-none) [&_svg]:(shrink-0 size-4)',
     itemLeading: 'text-muted-foreground shrink-0 [&_svg]:size-4',
     itemWrapper: 'text-start flex flex-1 flex-col min-w-0',
     itemLabel: 'min-w-0 truncate items-baseline',
@@ -35,6 +35,4 @@ export const commandPaletteRecipeOptions = {
       },
     },
   },
-} as const
-
-export const commandPaletteRecipe = /* @__PURE__ */ slotRecipe(commandPaletteRecipeOptions)
+} as const)

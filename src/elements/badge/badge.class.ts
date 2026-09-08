@@ -1,9 +1,8 @@
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { BadgeT } from './badge.types.ts'
 
-export const badgeRecipeOptions = {
+export const badgeRecipe = /* @__PURE__ */ slotRecipe<keyof BadgeT.Slot>({
   base: {
     root: 'leading-normal font-medium border inline-flex shrink-0 max-w-full select-none whitespace-nowrap items-center',
     leading: '',
@@ -38,6 +37,4 @@ export const badgeRecipeOptions = {
       },
     },
   },
-} as const satisfies SlotRecipeOptions<keyof BadgeT.Slot>
-
-export const badgeRecipe = /* @__PURE__ */ slotRecipe(badgeRecipeOptions)
+})

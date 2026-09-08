@@ -1,11 +1,10 @@
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { ButtonT } from './button.types.ts'
 
-export const buttonRecipeOptions = {
+export const buttonRecipe = /* @__PURE__ */ slotRecipe<keyof ButtonT.Slot>({
   base: {
-    root: 'border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[colors,transform] items-center justify-center bg-clip-padding focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-disabled:opacity-64 aria-disabled:pointer-events-none disabled:opacity-64 disabled:pointer-events-none [&:active:not([aria-haspopup])]:translate-y-px',
+    root: 'border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[colors,transform] items-center justify-center bg-clip-padding focus-visible:(outline-none border-ring ring-3 ring-ring/50) aria-invalid:(border-destructive ring-3 ring-destructive/20) aria-disabled:(opacity-64 pointer-events-none) disabled:(opacity-64 pointer-events-none) [&:active:not([aria-haspopup])]:translate-y-px',
     loading: 'cursor-wait opacity-80 animate-spin',
     leading: '',
     label: 'min-w-0 truncate',
@@ -24,16 +23,16 @@ export const buttonRecipeOptions = {
         root: 'text-secondary-foreground border-transparent bg-secondary active:bg-secondary-active hover:bg-secondary-hover',
       },
       outline: {
-        root: 'border-border bg-background hover:text-foreground hover:bg-background-hover dark:border-input active:bg-background-active',
+        root: 'border-border bg-background hover:(text-foreground bg-background-hover) dark:border-input active:bg-background-active',
       },
       ghost: {
-        root: 'border-transparent active:text-foreground active:bg-muted-active hover:text-foreground hover:bg-muted-hover',
+        root: 'border-transparent active:(text-foreground bg-muted-active) hover:(text-foreground bg-muted-hover)',
       },
       link: {
         root: 'text-primary border-transparent underline-offset-4 hover:underline',
       },
       destructive: {
-        root: 'text-destructive-foreground border-transparent bg-destructive focus-visible:border-destructive/40 active:bg-destructive-active hover:bg-destructive-hover focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
+        root: 'text-destructive-foreground border-transparent bg-destructive focus-visible:(border-destructive/40 ring-destructive/20) active:bg-destructive-active hover:bg-destructive-hover dark:focus-visible:ring-destructive/40',
       },
     },
     size: {
@@ -49,6 +48,4 @@ export const buttonRecipeOptions = {
       'icon-xl': { root: 'text-lg rounded-lg size-11' },
     },
   },
-} as const satisfies SlotRecipeOptions<keyof ButtonT.Slot>
-
-export const buttonRecipe = /* @__PURE__ */ slotRecipe(buttonRecipeOptions)
+})

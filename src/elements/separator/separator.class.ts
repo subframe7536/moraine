@@ -1,9 +1,8 @@
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { SeparatorT } from './separator.types.ts'
 
-export const separatorRecipeOptions = {
+export const separatorRecipe = /* @__PURE__ */ slotRecipe<keyof SeparatorT.Slot>({
   base: {
     root: 'border-current bg-border shrink-0',
   },
@@ -28,6 +27,4 @@ export const separatorRecipeOptions = {
       dotted: { root: 'border-dotted' },
     },
   },
-} as const satisfies SlotRecipeOptions<keyof SeparatorT.Slot>
-
-export const separatorRecipe = /* @__PURE__ */ slotRecipe(separatorRecipeOptions)
+})

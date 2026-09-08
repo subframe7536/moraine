@@ -2,7 +2,7 @@ import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 const SELECT_CONTENT_CLASS =
-  'text-popover-foreground p-0 outline-none rounded-md bg-popover flex flex-col min-w-36 max-w-[var(--mo-popper-content-available-width)] min-w-[var(--mo-popper-anchor-width)] w-[var(--mo-popper-anchor-width)] origin-[var(--mo-popper-content-transform-origin)] z-floating motion-reduce:animate-none border border-border shadow-md data-closed:animate-mo-exit data-closed:exit-opacity-0 data-closed:exit-scale-95 data-expanded:animate-mo-enter data-expanded:enter-opacity-0 data-expanded:enter-scale-95 data-[side=bottom]:(mt-[var(--mo-popper-content-overflow-padding)] -enter-translate-y-1 -exit-translate-y-1) data-[side=top]:(mb-[var(--mo-popper-content-overflow-padding)] enter-translate-y-1 exit-translate-y-1)'
+  'text-popover-foreground p-0 outline-none rounded-md bg-popover flex flex-col min-w-36 max-w-(--mo-popper-content-available-width) min-w-(--mo-popper-anchor-width) w-(--mo-popper-anchor-width) origin-(--mo-popper-content-transform-origin) z-floating motion-reduce:animate-none border border-border shadow-md data-closed:(animate-mo-exit exit-opacity-0 exit-scale-95) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-95) data-[side=bottom]:(mt-(--mo-popper-content-overflow-padding) -enter-translate-y-1 -exit-translate-y-1) data-[side=top]:(mb-(--mo-popper-content-overflow-padding) enter-translate-y-1 exit-translate-y-1)'
 
 const SELECT_CONTROL_CLASS =
   'text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] items-center data-invalid:(border-destructive ring-3 ring-destructive/20) data-disabled:(opacity-64 pointer-events-none) dark:data-invalid:(border-destructive/50 ring-destructive/40)'
@@ -15,13 +15,13 @@ export const SELECT_TRIGGER_ICON_CLASS =
 export const SELECT_LEADING_ICON_CLASS = 'text-muted-foreground shrink-0'
 
 export const SELECT_CLEAR_ACTION_CLASS =
-  '[&>[data-slot=icon]]:text-muted-foreground [&>[data-slot=icon]]:opacity-80 [&>[data-loading]]:animate-spin disabled:pointer-events-none data-loading:cursor-wait transition-colors hover:bg-muted-hover active:bg-muted-active'
+  '[&>[data-slot=icon]]:(text-muted-foreground opacity-80) [&>[data-loading]]:animate-spin disabled:pointer-events-none data-loading:cursor-wait transition-colors hover:bg-muted-hover active:bg-muted-active'
 
 const SELECT_BASE_CLASSES = {
   root: 'inline-flex h-fit w-full relative',
   content: SELECT_CONTENT_CLASS,
-  listbox: 'm-0 p-1 outline-none max-h-[var(--mo-popper-content-available-height)] overflow-y-auto',
-  item: '[&_[data-option-wrapper]]:flex [&_[data-option-wrapper]]:flex-1 [&_[data-option-wrapper]]:gap-2 [&_[data-option-wrapper]]:min-w-0 [&_[data-option-wrapper]]:items-center [&_[data-option-icon]]:shrink-0 [&_[data-option-text]]:flex-1 [&_[data-option-text]]:min-w-0 px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between relative data-highlighted:bg-muted data-disabled:opacity-64 data-disabled:pointer-events-none',
+  listbox: 'm-0 p-1 outline-none max-h-(--mo-popper-content-available-height) overflow-y-auto',
+  item: '[&_[data-option-wrapper]]:(flex flex-1 gap-2 min-w-0 items-center) [&_[data-option-icon]]:shrink-0 [&_[data-option-text]]:(flex-1 min-w-0) px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between relative data-highlighted:bg-muted data-disabled:(opacity-64 pointer-events-none)',
   group: '[&:not(:first-child)]:mt-1.5',
   label: 'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
   leading: SELECT_LEADING_ICON_CLASS,
@@ -49,11 +49,11 @@ const SELECT_VARIANTS = {
   search: {
     true: {
       control:
-        'cursor-text focus-within:(outline-none border-ring ring-3 ring-ring/50 data-invalid:border-destructive data-invalid:ring-destructive/20) dark:focus-within:data-invalid:(border-destructive/50 ring-destructive/40)',
+        'cursor-text focus-within:(outline-none border-ring ring-3 ring-ring/50) focus-within:data-invalid:(border-destructive ring-destructive/20) dark:focus-within:data-invalid:(border-destructive/50 ring-destructive/40)',
     },
     false: {
       control:
-        'cursor-pointer focus-visible:(outline-none border-ring ring-3 ring-ring/50 data-invalid:border-destructive data-invalid:ring-destructive/20) dark:focus-visible:data-invalid:(border-destructive/50 ring-destructive/40)',
+        'cursor-pointer focus-visible:(outline-none border-ring ring-3 ring-ring/50) focus-visible:data-invalid:(border-destructive ring-destructive/20) dark:focus-visible:data-invalid:(border-destructive/50 ring-destructive/40)',
     },
   },
 } as const
@@ -76,7 +76,7 @@ const SELECT_SIZE_VARIANTS = {
   },
 } as const
 
-export const selectRecipeOptions = {
+export const selectRecipe = /* @__PURE__ */ slotRecipe({
   base: {
     ...SELECT_BASE_CLASSES,
     control: SELECT_CONTROL_CLASS,
@@ -101,19 +101,17 @@ export const selectRecipeOptions = {
       },
     },
   },
-} as const
+} as const)
 
-export const selectRecipe = /* @__PURE__ */ slotRecipe(selectRecipeOptions)
-
-export const multiSelectRecipeOptions = {
+export const multiSelectRecipe = /* @__PURE__ */ slotRecipe({
   base: {
     ...SELECT_BASE_CLASSES,
     control: `${SELECT_CONTROL_CLASS} px-1.5`,
     input: `${SELECT_INPUT_CLASS} leading-tight px-0.5 py-0.5 min-w-12`,
     trigger:
-      'outline-none shrink-0 cursor-pointer disabled:pointer-events-none data-loading:cursor-wait [&>[data-slot=icon]]:text-muted-foreground [&>[data-slot=icon]]:opacity-80 [&>[data-loading]]:animate-spin',
+      'outline-none shrink-0 cursor-pointer disabled:pointer-events-none data-loading:cursor-wait [&>[data-slot=icon]]:(text-muted-foreground opacity-80) [&>[data-loading]]:animate-spin',
     tagsContainer: 'py-1.5 bg-transparent flex flex-1 flex-wrap gap-1 max-w-full select-none',
-    tag: '[&>[data-slot=label]]:min-w-0 [&>[data-slot=label]]:truncate text-foreground leading-tight px-1.5 pe-0 border-0 rounded-sm bg-muted inline-flex gap-1 max-w-50% w-fit whitespace-nowrap items-center justify-center',
+    tag: '[&>[data-slot=label]]:(min-w-0 truncate) text-foreground leading-tight px-1.5 pe-0 border-0 rounded-sm bg-muted inline-flex gap-1 max-w-50% w-fit whitespace-nowrap items-center justify-center',
     tagRemove:
       'p-0.5 appearance-none flex shrink-0 items-center justify-center -ms-1 cursor-pointer disabled:pointer-events-none [&>[data-slot=icon]]:opacity-50 [&:not(:disabled)>[data-slot=icon]:hover]:opacity-100',
     tagOverflow: 'text-muted-foreground leading-tight px-1 flex items-center',
@@ -145,6 +143,4 @@ export const multiSelectRecipeOptions = {
       },
     },
   },
-} as const
-
-export const multiSelectRecipe = /* @__PURE__ */ slotRecipe(multiSelectRecipeOptions)
+} as const)

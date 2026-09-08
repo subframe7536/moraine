@@ -455,13 +455,13 @@ describe('ContextMenu', () => {
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
 
-    expect(content.className).toContain('ml-[var(--mo-popper-content-overflow-padding)]')
+    expect(content.className).toContain('ml-(--mo-popper-content-overflow-padding)')
     expect(content.className).toContain('data-expanded:animate-mo-enter')
     expect(content.className).toContain('data-closed:animate-mo-exit')
     expect(content.getAttribute('data-motion')).toBeNull()
     expect(content.getAttribute('data-align')).toBe('start')
     expect(content.className).toContain('-enter-translate-x-1')
-    expect(content.className).toContain('origin-[var(--mo-popper-content-transform-origin)]')
+    expect(content.className).toContain('origin-(--mo-popper-content-transform-origin)')
 
     await waitFor(() => {
       expect(content.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
@@ -1031,7 +1031,7 @@ describe('ContextMenu', () => {
     expect(document.body.querySelector('[data-testid="avatar-node"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="itemIndicator"]')).not.toBeNull()
 
-    expect(rootContent?.className).toContain('mt-[var(--mo-popper-content-overflow-padding)]')
+    expect(rootContent?.className).toContain('mt-(--mo-popper-content-overflow-padding)')
     expect(rootContent?.className).toContain('border-border')
     expect(rootContent?.className).toContain('shadow-md')
     expect(rootContent?.className).toContain('data-expanded:animate-mo-enter')
@@ -1039,7 +1039,7 @@ describe('ContextMenu', () => {
     expect(rootContent?.getAttribute('data-motion')).toBeNull()
     expect(rootContent?.getAttribute('data-align')).toBe('start')
     expect(rootContent?.className).toContain('-enter-translate-y-1')
-    expect(rootContent?.className).toContain('origin-[var(--mo-popper-content-transform-origin)]')
+    expect(rootContent?.className).toContain('origin-(--mo-popper-content-transform-origin)')
     expect(rootContent?.className).toContain('content-class')
 
     expect(document.body.querySelector('[data-testid="content-top-root"]')).not.toBeNull()

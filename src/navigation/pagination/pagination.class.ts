@@ -2,7 +2,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 export const PAGINATION_CONTROL_LABEL_CLASS = 'hidden sm:block'
 
-export const paginationRecipeOptions = {
+export const paginationRecipe = /* @__PURE__ */ slotRecipe({
   base: {
     root: 'mx-auto flex w-full justify-center',
     list: 'flex gap-1 items-center justify-center',
@@ -14,6 +14,4 @@ export const paginationRecipeOptions = {
     controlLabel: PAGINATION_CONTROL_LABEL_CLASS,
   },
   defaults: { size: 'md', variant: 'ghost', activeVariant: 'outline', controlVariant: 'ghost' },
-} as const
-
-export const paginationRecipe = /* @__PURE__ */ slotRecipe(paginationRecipeOptions)
+} as const)

@@ -1,11 +1,10 @@
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { ButtonGroupT } from './button-group.types.ts'
 
-export const buttonGroupRecipeOptions = {
+export const buttonGroupRecipe = /* @__PURE__ */ slotRecipe<keyof ButtonGroupT.Slot>({
   base: {
-    root: 'inline-flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-sticky',
+    root: 'inline-flex w-fit items-stretch *:focus-visible:(relative z-sticky)',
     separator: 'bg-input shrink-0 self-stretch',
   },
   defaults: {
@@ -14,15 +13,13 @@ export const buttonGroupRecipeOptions = {
   variants: {
     orientation: {
       horizontal: {
-        root: 'flex-row [&>[data-slot=separator]]:mx-px [&>*:not(:first-child)]:border-s-0 [&>*:not(:first-child)]:rounded-s-none [&>*:not(:last-child)]:rounded-e-none',
+        root: 'flex-row [&>[data-slot=separator]]:mx-px [&>*:not(:first-child)]:(border-s-0 rounded-s-none) [&>*:not(:last-child)]:rounded-e-none',
         separator: 'h-full w-px',
       },
       vertical: {
-        root: 'flex-col [&>[data-slot=separator]]:my-px [&>*:not(:first-child)]:border-t-0 [&>*:not(:first-child)]:rounded-t-none [&>*:not(:last-child)]:rounded-b-none',
+        root: 'flex-col [&>[data-slot=separator]]:my-px [&>*:not(:first-child)]:(border-t-0 rounded-t-none) [&>*:not(:last-child)]:rounded-b-none',
         separator: 'h-px w-full',
       },
     },
   },
-} as const satisfies SlotRecipeOptions<keyof ButtonGroupT.Slot>
-
-export const buttonGroupRecipe = /* @__PURE__ */ slotRecipe(buttonGroupRecipeOptions)
+})

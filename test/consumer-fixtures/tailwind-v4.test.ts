@@ -92,6 +92,9 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(css).toContain('z-index: 50')
     expect(css).toContain('opacity: 64%')
     expect(css).toContain('var(--primary)')
+    expect(css).toMatch(
+      /html\s*\{\s*background-color: var\(--background\);\s*color: var\(--foreground\);\s*\}/,
+    )
     expect(css).not.toContain('.icon-check')
   })
 

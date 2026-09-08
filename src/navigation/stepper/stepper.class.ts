@@ -1,16 +1,15 @@
 import { slotRecipe } from '../../shared/style/recipe.ts'
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 
 import type { StepperT } from './stepper.types.ts'
 
-export const stepperRecipeOptions = {
+export const stepperRecipe = /* @__PURE__ */ slotRecipe<keyof StepperT.Slot>({
   base: {
     root: 'flex gap-2',
     header: 'flex',
     item: 'min-w-0 relative data-disabled:(opacity-64 pointer-events-none)',
     container: 'flex items-center relative',
     trigger:
-      'rounded-full inline-flex size-[var(--st-size)] transition-colors items-center justify-center focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 data-clickable:cursor-pointer data-[state=inactive]:text-muted-foreground data-[state=inactive]:border-input data-[state=inactive]:bg-background data-[state=inactive]:shadow-xs data-[state=active]:text-primary-foreground data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=completed]:text-primary-foreground data-[state=completed]:border-primary data-[state=completed]:bg-primary',
+      'rounded-full inline-flex size-(--st-size) transition-colors items-center justify-center focus-visible:(outline-none ring-3 ring-ring/50) data-clickable:cursor-pointer data-[state=inactive]:(text-muted-foreground border-input bg-background shadow-xs) data-[state=active]:(text-primary-foreground border-primary bg-primary) data-[state=completed]:(text-primary-foreground border-primary bg-primary)',
     indicator: '',
     icon: '',
     separator:
@@ -33,15 +32,15 @@ export const stepperRecipeOptions = {
         container: 'justify-center',
         separator:
           'h-1.5 end-[calc(-50%+var(--st-sep-x))] start-[calc(50%+var(--st-sep-x))] top-1/2 -translate-y-1/2',
-        wrapper: 'mt-[var(--st-gap)] text-center w-full',
+        wrapper: 'mt-(--st-gap) text-center w-full',
       },
       vertical: {
         root: 'flex-row gap-6 w-full items-start',
         header: 'flex-col gap-4 min-w-0',
-        item: 'text-start flex gap-[var(--st-gap)] items-start',
+        item: 'text-start flex gap-(--st-gap) items-start',
         container: 'shrink-0 flex-col self-stretch',
-        separator: 'w-1.5 left-1/2 top-[var(--st-sep-top)] -translate-x-1/2 -bottom-3',
-        wrapper: 'pt-[var(--st-pt)] text-start',
+        separator: 'w-1.5 left-1/2 top-(--st-sep-top) -translate-x-1/2 -bottom-3',
+        wrapper: 'pt-(--st-pt) text-start',
       },
     },
     size: {
@@ -65,6 +64,4 @@ export const stepperRecipeOptions = {
       },
     },
   },
-} as const satisfies SlotRecipeOptions<keyof StepperT.Slot>
-
-export const stepperRecipe = /* @__PURE__ */ slotRecipe(stepperRecipeOptions)
+})

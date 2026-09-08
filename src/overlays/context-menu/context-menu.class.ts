@@ -1,11 +1,8 @@
 import { slotRecipe } from '../../shared/style/recipe.ts'
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { overlayMenuRecipeOptions } from '../base/menu/menu.class.ts'
 
 import type { ContextMenuT } from './context-menu.types.ts'
 
-export const contextMenuRecipeOptions = {
+export const contextMenuRecipe = /* @__PURE__ */ slotRecipe<keyof ContextMenuT.Slot>({
   ...overlayMenuRecipeOptions,
-} as const satisfies SlotRecipeOptions<keyof ContextMenuT.Slot>
-
-export const contextMenuRecipe = /* @__PURE__ */ slotRecipe(contextMenuRecipeOptions)
+})

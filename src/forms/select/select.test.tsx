@@ -412,8 +412,8 @@ describe('Select - single mode', () => {
     await waitFor(() => {
       const content = queryBody('[data-slot="content"]')
       expect(content).not.toBeNull()
-      expect(content?.className).toContain('w-[var(--mo-popper-anchor-width)]')
-      expect(content?.className).toContain('min-w-[var(--mo-popper-anchor-width)]')
+      expect(content?.className).toContain('w-(--mo-popper-anchor-width)')
+      expect(content?.className).toContain('min-w-(--mo-popper-anchor-width)')
       expect(content?.className).toContain('data-[side=bottom]')
       expect(content?.className).toContain('data-[side=top]')
       expect(content?.className).not.toContain('data-[side=left]')

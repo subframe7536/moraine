@@ -12,12 +12,12 @@ export function variantGroupPlugin(): Plugin {
     name: 'moraine:variant-group',
     enforce: 'pre',
     async transform(code, id) {
-      if (!CLASS_MODULE_RE.test(id) || transformer.codeFilter?.(code, id) === false) {
+      if (!CLASS_MODULE_RE.test(id) || !code.includes(':(')) {
         return null
       }
 
       const transformed = new MagicString(code)
-      await transformer.transform(transformed, id, undefined as never)
+      await transformer.transform(transformed, id, undefined)
       if (!transformed.hasChanged()) {
         return null
       }

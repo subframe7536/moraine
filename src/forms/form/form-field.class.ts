@@ -1,9 +1,8 @@
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { FormFieldT } from './form-field.types.ts'
 
-export const formFieldRecipeOptions = {
+export const formFieldRecipe = /* @__PURE__ */ slotRecipe<keyof FormFieldT.Slot>({
   base: {
     root: '',
     wrapper: 'flex flex-col gap-1',
@@ -61,11 +60,9 @@ export const formFieldRecipeOptions = {
       variants: { orientation: 'horizontal' },
       class: {
         label:
-          "data-required:before:text-destructive data-required:before:me-0.5 data-required:before:content-['*'] data-required:after:content-none",
+          "data-required:before:(text-destructive me-0.5 content-['*']) data-required:after:content-none",
       },
     },
     { variants: { orientation: 'vertical' }, class: { container: 'data-has-text:mt-1.5' } },
   ],
-} as const satisfies SlotRecipeOptions<keyof FormFieldT.Slot>
-
-export const formFieldRecipe = /* @__PURE__ */ slotRecipe(formFieldRecipeOptions)
+})

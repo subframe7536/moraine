@@ -18,6 +18,8 @@ import {
 } from '../shared/style/theme.ts'
 
 export interface MorainePluginOptions {
+  /** Emit default page background and text colors. @default true */
+  globalStyles?: boolean
   /**
    * Emit `icon-*` utility stubs so Tailwind's scanner recognises them.
    * Actual icon rendering is handled by `@iconify/tailwind` or `moraine/icon.css`.
@@ -38,7 +40,16 @@ type TailwindPlugin = (options?: MorainePluginOptions) => ReturnType<typeof plug
 
 export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = {}) =>
   plugin(
-    ({ addUtilities, matchUtilities, matchVariant, theme }) => {
+    ({ addBase, addUtilities, matchUtilities, matchVariant, theme }) => {
+      if (options.globalStyles !== false) {
+        addBase({
+          html: {
+            backgroundColor: 'var(--background)',
+            color: 'var(--foreground)',
+          },
+        })
+      }
+
       if (options.icons !== false) {
         addUtilities(buildIconShortcutUtilities())
       }

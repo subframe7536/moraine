@@ -1,9 +1,8 @@
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { CheckboxGroupT } from './checkbox-group.types.ts'
 
-export const checkboxGroupRecipeOptions = {
+export const checkboxGroupRecipe = /* @__PURE__ */ slotRecipe<keyof CheckboxGroupT.Slot>({
   base: {
     root: 'relative',
     fieldset: 'flex',
@@ -67,6 +66,4 @@ export const checkboxGroupRecipeOptions = {
       },
     },
   ],
-} as const satisfies SlotRecipeOptions<keyof CheckboxGroupT.Slot>
-
-export const checkboxGroupRecipe = /* @__PURE__ */ slotRecipe(checkboxGroupRecipeOptions)
+})

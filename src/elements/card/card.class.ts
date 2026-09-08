@@ -1,9 +1,8 @@
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { CardT } from './card.types.ts'
 
-export const cardRecipeOptions = {
+export const cardRecipe = /* @__PURE__ */ slotRecipe<keyof CardT.Slot>({
   base: {
     root: 'text-card-foreground border border-border rounded-xl bg-card flex flex-col shadow-xs relative overflow-hidden [html:not(.dark)_&]:bg-clip-padding',
     header: 'grid auto-rows-min items-start data-action:grid-cols-[1fr_auto]',
@@ -30,6 +29,4 @@ export const cardRecipeOptions = {
       },
     },
   },
-} as const satisfies SlotRecipeOptions<keyof CardT.Slot>
-
-export const cardRecipe = /* @__PURE__ */ slotRecipe(cardRecipeOptions)
+})

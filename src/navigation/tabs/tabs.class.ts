@@ -1,9 +1,8 @@
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { TabsT } from './tabs.types.ts'
 
-export const tabsRecipeOptions = {
+export const tabsRecipe = /* @__PURE__ */ slotRecipe<keyof TabsT.Slot>({
   base: {
     root: 'flex gap-2',
     list: 'p-1 inline-flex items-center relative',
@@ -76,6 +75,4 @@ export const tabsRecipeOptions = {
       class: { indicator: 'right-0 w-px rounded-full' },
     },
   ],
-} as const satisfies SlotRecipeOptions<keyof TabsT.Slot>
-
-export const tabsRecipe = /* @__PURE__ */ slotRecipe(tabsRecipeOptions)
+})

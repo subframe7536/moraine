@@ -445,6 +445,7 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
     },
     variants,
     shortcuts: [
+      [/^(.*)-\((--[\w-]+)\)$/, ([, name, variable]) => `${name}-[var(${variable})]`],
       ...Object.entries(MORAINE_Z_INDEX).map(
         ([name, value]) => [`z-${name}`, `z-${value}`] as [string, string],
       ),

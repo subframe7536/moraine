@@ -17,7 +17,7 @@ export default defineConfig([
       theme: './src/theme.ts',
     },
     plugins: [variantGroupPlugin(), solid()],
-    clean: false,
+    clean: true,
     deps: {
       neverBundle: ['@subf/unocss', '@tanstack/virtual-core', 'tailwindcss'],
       onlyBundle: ['valibot'],

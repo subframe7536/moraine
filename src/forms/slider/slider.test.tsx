@@ -87,11 +87,11 @@ describe('Slider', () => {
     const horizontalTrack = horizontal.container.querySelector('[data-slot="track"]')
     const verticalTrack = vertical.container.querySelector('[data-slot="track"]')
 
-    expect(horizontalTrack?.className).toContain('h-[var(--s-size)]')
+    expect(horizontalTrack?.className).toContain('h-(--s-size)')
     expect(
       (horizontal.container.querySelector('[data-slot="root"]') as HTMLElement).className,
     ).toContain('[--s-size:4px]')
-    expect(verticalTrack?.className).toContain('w-[var(--s-size)]')
+    expect(verticalTrack?.className).toContain('w-(--s-size)')
     expect(
       (vertical.container.querySelector('[data-slot="root"]') as HTMLElement).className,
     ).toContain('[--s-size:6px]')
@@ -742,7 +742,7 @@ describe('Slider', () => {
     const divider = screen.container.querySelector('[data-slot="divider"]')
     const thumb = screen.container.querySelector('[data-slot="thumb"]')
 
-    expect(track?.className).toContain('h-[var(--s-size)]')
+    expect(track?.className).toContain('h-(--s-size)')
     expect(
       (screen.container.querySelector('[data-slot="root"]') as HTMLElement).className,
     ).toContain('[--s-size:24px]')

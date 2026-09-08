@@ -1,12 +1,9 @@
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { FormT } from './form.types.ts'
 
-export const formRecipeOptions = {
+export const formRecipe = /* @__PURE__ */ slotRecipe<keyof FormT.Slot>({
   base: {
     root: 'w-full space-y-4 data-submitting:opacity-80',
   },
-} as const satisfies SlotRecipeOptions<keyof FormT.Slot>
-
-export const formRecipe = /* @__PURE__ */ slotRecipe(formRecipeOptions)
+})

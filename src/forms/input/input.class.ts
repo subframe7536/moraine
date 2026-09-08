@@ -1,14 +1,13 @@
 import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { InputT } from './input.types.ts'
 
-export const inputRecipeOptions = {
+export const inputRecipe = /* @__PURE__ */ slotRecipe<keyof InputT.Slot>({
   base: {
-    root: 'inline-flex w-full cursor-text transition-[colors,box-shadow] items-center overflow-hidden focus-within:outline-none focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 data-disabled:opacity-64 data-disabled:pointer-events-none focus-within:data-invalid:border-destructive focus-within:data-invalid:ring-3 focus-within:data-invalid:ring-destructive/20 dark:focus-within:data-invalid:border-destructive/50 dark:focus-within:data-invalid:ring-destructive/40',
+    root: 'inline-flex w-full cursor-text transition-[colors,box-shadow] items-center overflow-hidden focus-within:(outline-none border-ring ring-3 ring-ring/50) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:data-invalid:(border-destructive/50 ring-destructive/40) data-disabled:(opacity-64 pointer-events-none) focus-within:data-invalid:(border-destructive ring-3 ring-destructive/20) dark:focus-within:data-invalid:(border-destructive/50 ring-destructive/40)',
     input:
-      'placeholder:text-muted-foreground text-foreground outline-none flex-1 h-full min-w-0 disabled:opacity-64 disabled:pointer-events-none [&[type=file]]:text-muted-foreground file:font-medium file:me-1.5 file:outline-none',
+      'placeholder:text-muted-foreground text-foreground outline-none flex-1 h-full min-w-0 disabled:(opacity-64 pointer-events-none) [&[type=file]]:text-muted-foreground file:(font-medium me-1.5 outline-none)',
     leading: 'flex shrink-0 items-center [&_[data-loading]]:animate-spin',
     trailing: 'flex shrink-0 items-center [&_[data-loading]]:animate-spin',
   },
@@ -44,6 +43,4 @@ export const inputRecipeOptions = {
       none: { root: INPUT_VARIANT.none },
     },
   },
-} as const satisfies SlotRecipeOptions<keyof InputT.Slot>
-
-export const inputRecipe = /* @__PURE__ */ slotRecipe(inputRecipeOptions)
+})

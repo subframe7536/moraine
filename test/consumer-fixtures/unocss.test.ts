@@ -52,6 +52,9 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'data-closed:animate-mo-exit',
         'z-floating',
         'bg-primary',
+        'w-(--mo-popper-anchor-width)',
+        'origin-(--mo-popper-content-transform-origin)',
+        'data-inverted:after:h-(--s-offset)',
       ]
       for (const token of requiredTokens) {
         expect(tokens).toContain(token)
@@ -77,6 +80,9 @@ describe('isolated built-dist UnoCSS consumer', () => {
       expect(css).toContain('z-index:50')
       expect(css).toMatch(/opacity:(0\.64|64%)/)
       expect(css).toContain('var(--primary)')
+      expect(css).toContain('width:var(--mo-popper-anchor-width)')
+      expect(css).toContain('transform-origin:var(--mo-popper-content-transform-origin)')
+      expect(css).toContain('height:var(--s-offset)')
     },
     15_000,
   )

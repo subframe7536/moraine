@@ -45,9 +45,9 @@ describe('Progress', () => {
     const verticalBase = vertical.container.querySelector('[data-slot="track"]')
 
     expect(horizontalRoot.className).toContain('[--p-size:0.25rem]')
-    expect(horizontalBase?.className).toContain('h-[var(--p-size)]')
+    expect(horizontalBase?.className).toContain('h-(--p-size)')
     expect(verticalRoot.className).toContain('[--p-size:0.75rem]')
-    expect(verticalBase?.className).toContain('w-[var(--p-size)]')
+    expect(verticalBase?.className).toContain('w-(--p-size)')
   })
 
   test('renders determinate progress with default aria values', () => {

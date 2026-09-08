@@ -5,9 +5,10 @@ import { addIconSelectors } from '@iconify/tailwind'
 import { __unstable__loadDesignSystem, compile } from 'tailwindcss'
 import { describe, expect, test } from 'vitest'
 
-import { DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons'
+import { DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons.ts'
 
-import { moraineTailwind } from './index'
+import { moraineTailwind } from './index.ts'
+import type { MorainePluginOptions } from './index.ts'
 
 const THEME_CSS = readFileSync(
   resolve(__dirname, '../../node_modules/tailwindcss/theme.css'),
@@ -19,7 +20,7 @@ const UTILITIES_CSS = readFileSync(
 )
 const BASE_CSS = `${THEME_CSS}\n${UTILITIES_CSS}`
 
-function moraineLoadModule(options?: { icons?: boolean }) {
+function moraineLoadModule(options?: MorainePluginOptions) {
   return async (id: string) => ({
     path: id,
     base: '',
@@ -33,7 +34,7 @@ function moraineLoadModule(options?: { icons?: boolean }) {
  *   plugin 'moraine/tailwind';
  *   plugin '@iconify/tailwind' { collections: lucide; }
  */
-function combinedLoadModule(moraineOptions?: { icons?: boolean }) {
+function combinedLoadModule(moraineOptions?: MorainePluginOptions) {
   return async (id: string) => {
     if (id === 'virtual:moraine') {
       return { path: id, base: '', module: moraineTailwind(moraineOptions) }
@@ -45,30 +46,30 @@ function combinedLoadModule(moraineOptions?: { icons?: boolean }) {
   }
 }
 
-async function loadDesignSystem(options?: { icons?: boolean }) {
+async function loadDesignSystem(options?: MorainePluginOptions) {
   return __unstable__loadDesignSystem(`${BASE_CSS}\n@plugin "virtual:moraine"`, {
-    loadModule: moraineLoadModule(options),
+    loadModule: moraineLoadModule({ globalStyles: false, ...options }),
   })
 }
 
-async function compileCSS(candidates: string[], options?: { icons?: boolean }) {
+async function compileCSS(candidates: string[], options?: MorainePluginOptions) {
   const { build } = await compile(`${BASE_CSS}\n@plugin "virtual:moraine"`, {
-    loadModule: moraineLoadModule(options),
+    loadModule: moraineLoadModule({ globalStyles: false, ...options }),
   })
   return build(candidates)
 }
 
-async function loadDesignSystemWithIconify(moraineOptions?: { icons?: boolean }) {
+async function loadDesignSystemWithIconify(moraineOptions?: MorainePluginOptions) {
   const css = [BASE_CSS, '@plugin "virtual:moraine";', '@plugin "virtual:iconify";'].join('\n')
   return __unstable__loadDesignSystem(css, {
-    loadModule: combinedLoadModule(moraineOptions),
+    loadModule: combinedLoadModule({ globalStyles: false, ...moraineOptions }),
   })
 }
 
-async function compileCSSWithIconify(candidates: string[], moraineOptions?: { icons?: boolean }) {
+async function compileCSSWithIconify(candidates: string[], moraineOptions?: MorainePluginOptions) {
   const css = [BASE_CSS, '@plugin "virtual:moraine";', '@plugin "virtual:iconify";'].join('\n')
   const { build } = await compile(css, {
-    loadModule: combinedLoadModule(moraineOptions),
+    loadModule: combinedLoadModule({ globalStyles: false, ...moraineOptions }),
   })
   return build(candidates)
 }
@@ -1593,5 +1594,22 @@ describe('with @iconify/tailwind (docs config)', () => {
       }
       "
     `)
+  })
+})
+
+describe('global styles', () => {
+  test('emits default page colors in the base layer without utility candidates', async () => {
+    const { build } = await compile(`${BASE_CSS}\n@plugin "virtual:moraine"`, {
+      loadModule: moraineLoadModule(),
+    })
+    const css = build([])
+    expect(css).toMatch(
+      /@layer base\s*\{\s*html\s*\{\s*background-color: var\(--background\);\s*color: var\(--foreground\);/,
+    )
+  })
+
+  test('allows disabling the default page colors', async () => {
+    const css = await compileCSS([], { globalStyles: false })
+    expect(css).not.toMatch(/html\s*\{/)
   })
 })

@@ -12,7 +12,7 @@ export const TEXT_SIZE_VARIANT = {
 } as const
 
 export const REQUIRED_MARK_VARIANT = {
-  true: "after:text-destructive after:ms-0.5 after:content-['*']",
+  true: "after:(text-destructive ms-0.5 content-['*'])",
 } as const
 
 export const FLEX_ORIENTATION_VARIANT = {
@@ -57,8 +57,8 @@ export const CARD_PADDING_SIZE_VARIANT = {
 export const OVERLAY_POSITIONER_CLASS = 'left-0 top-0 absolute'
 
 export const POPPER_CONTENT_SIDE_VARIANT = {
-  top: 'mb-[var(--mo-popper-content-overflow-padding)] enter-translate-y-1 exit-translate-y-1',
-  right: 'ml-[var(--mo-popper-content-overflow-padding)] -enter-translate-x-1 -exit-translate-x-1',
-  bottom: 'mt-[var(--mo-popper-content-overflow-padding)] -enter-translate-y-1 -exit-translate-y-1',
-  left: 'mr-[var(--mo-popper-content-overflow-padding)] enter-translate-x-1 exit-translate-x-1',
+  top: 'mb-(--mo-popper-content-overflow-padding) enter-translate-y-1 exit-translate-y-1',
+  right: 'ml-(--mo-popper-content-overflow-padding) -enter-translate-x-1 -exit-translate-x-1',
+  bottom: 'mt-(--mo-popper-content-overflow-padding) -enter-translate-y-1 -exit-translate-y-1',
+  left: 'mr-(--mo-popper-content-overflow-padding) enter-translate-x-1 exit-translate-x-1',
 } as const

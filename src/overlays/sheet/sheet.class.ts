@@ -1,10 +1,9 @@
 import { slotRecipe } from '../../shared/style/recipe.ts'
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { MODAL_OVERLAY_CLASS } from '../modal/modal.class.ts'
 
 import type { SheetT } from './sheet.types.ts'
 
-export const sheetRecipeOptions = {
+export const sheetRecipe = /* @__PURE__ */ slotRecipe<keyof SheetT.Slot>({
   base: {
     content:
       'text-sm text-popover-foreground outline-none bg-popover flex flex-col gap-4 max-h-full min-h-0 min-w-0 shadow-lg fixed z-floating bg-clip-padding data-transition:data-closed:(animate-mo-exit exit-opacity-0) data-transition:data-expanded:(animate-mo-enter enter-opacity-0) data-transition:motion-reduce:animate-none',
@@ -15,8 +14,8 @@ export const sheetRecipeOptions = {
     description: 'text-sm text-muted-foreground',
     actions: 'ms-auto inline-flex shrink-0 gap-2 items-center',
     close:
-      'absolute top-4 right-4 inline-flex items-center justify-center size-8 rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
-    body: 'flex-1 overflow-auto data-header:px-4 data-header:pb-4 data-header:pt-0',
+      'absolute top-4 right-4 inline-flex items-center justify-center size-8 rounded-md hover:bg-accent focus-visible:(outline-none ring-2 ring-ring) disabled:(pointer-events-none opacity-50)',
+    body: 'flex-1 overflow-auto data-header:(px-4 pb-4 pt-0)',
     footer: 'mt-auto p-4 flex flex-col gap-2',
   },
   defaults: {
@@ -25,7 +24,7 @@ export const sheetRecipeOptions = {
   },
   variants: {
     inset: {
-      true: { content: 'sm:m-4 sm:border sm:border-border sm:rounded-2xl' },
+      true: { content: 'sm:(m-4 border border-border rounded-2xl)' },
       false: { content: 'rounded-none' },
     },
     side: {
@@ -47,6 +46,4 @@ export const sheetRecipeOptions = {
       },
     },
   },
-} as const satisfies SlotRecipeOptions<keyof SheetT.Slot>
-
-export const sheetRecipe = /* @__PURE__ */ slotRecipe(sheetRecipeOptions)
+})

@@ -1,9 +1,8 @@
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { ProgressT } from './progress.types.ts'
 
-export const progressRecipeOptions = {
+export const progressRecipe = /* @__PURE__ */ slotRecipe<keyof ProgressT.Slot>({
   base: {
     root: 'gap-2 relative',
     status: 'text-sm text-muted-foreground font-medium flex transition-[width,height] tabular-nums',
@@ -11,7 +10,7 @@ export const progressRecipeOptions = {
     indicator:
       'will-change-transform bg-primary size-full transition-transform inset-0 absolute data-indeterminate:opacity-100',
     steps: 'grid items-end',
-    step: 'text-end col-start-1 row-start-1 truncate transition-opacity data-[state=active]:opacity-100 data-[state=first]:text-muted-foreground data-[state=first]:opacity-100 data-[state=other]:opacity-0 data-[state=last]:opacity-100',
+    step: 'text-end col-start-1 row-start-1 truncate transition-opacity data-[state=active]:opacity-100 data-[state=first]:(text-muted-foreground opacity-100) data-[state=other]:opacity-0 data-[state=last]:opacity-100',
   },
   defaults: {
     orientation: 'horizontal',
@@ -23,14 +22,14 @@ export const progressRecipeOptions = {
       horizontal: {
         root: 'flex flex-col w-full',
         status: 'flex-row min-w-fit items-center justify-end',
-        track: 'h-[var(--p-size)] w-full',
+        track: 'h-(--p-size) w-full',
         indicator: 'origin-left',
         steps: 'w-full',
       },
       vertical: {
         root: 'flex flex-row-reverse h-full min-h-36 items-start',
         status: 'flex-col min-h-fit justify-end',
-        track: 'h-full min-h-36 w-[var(--p-size)]',
+        track: 'h-full min-h-36 w-(--p-size)',
         indicator: 'origin-bottom',
         steps: 'ms-2 h-full items-start',
       },
@@ -98,8 +97,7 @@ export const progressRecipeOptions = {
         animation: 'reverse',
       },
       class: {
-        indicator:
-          'data-indeterminate:animate-carousel-vertical data-indeterminate:animate-direction-reverse',
+        indicator: 'data-indeterminate:(animate-carousel-vertical animate-direction-reverse)',
       },
     },
     {
@@ -139,6 +137,4 @@ export const progressRecipeOptions = {
       },
     },
   ],
-} as const satisfies SlotRecipeOptions<keyof ProgressT.Slot>
-
-export const progressRecipe = /* @__PURE__ */ slotRecipe(progressRecipeOptions)
+})

@@ -394,7 +394,7 @@ describe('DropdownMenu', () => {
 
     const rootContent = document.body.querySelector('[data-slot="content"]') as HTMLElement
 
-    expect(rootContent.className).toContain('mt-[var(--mo-popper-content-overflow-padding)]')
+    expect(rootContent.className).toContain('mt-(--mo-popper-content-overflow-padding)')
     expect(rootContent.className).toContain('data-expanded:animate-mo-enter')
     expect(rootContent.className).toContain('data-closed:animate-mo-exit')
     expect(rootContent.getAttribute('data-side')).toBe('bottom')
@@ -402,7 +402,7 @@ describe('DropdownMenu', () => {
     expect(rootContent.getAttribute('data-placement')).toBeNull()
     expect(rootContent.getAttribute('data-motion')).toBeNull()
     expect(rootContent.className).toContain('-enter-translate-y-1')
-    expect(rootContent.className).toContain('origin-[var(--mo-popper-content-transform-origin)]')
+    expect(rootContent.className).toContain('origin-(--mo-popper-content-transform-origin)')
   })
 
   test('renders item matrix, nested submenu, and content slots', async () => {
@@ -474,7 +474,7 @@ describe('DropdownMenu', () => {
     expect(document.body.querySelector('[data-testid="avatar-node"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="itemIndicator"]')).not.toBeNull()
 
-    expect(rootContent?.className).toContain('mr-[var(--mo-popper-content-overflow-padding)]')
+    expect(rootContent?.className).toContain('mr-(--mo-popper-content-overflow-padding)')
     expect(rootContent?.className).toContain('border-border')
     expect(rootContent?.className).toContain('shadow-md')
     expect(rootContent?.className).toContain('data-expanded:animate-mo-enter')
@@ -484,7 +484,7 @@ describe('DropdownMenu', () => {
     expect(rootContent?.getAttribute('data-placement')).toBeNull()
     expect(rootContent?.getAttribute('data-motion')).toBeNull()
     expect(rootContent?.className).toContain('enter-translate-x-1')
-    expect(rootContent?.className).toContain('origin-[var(--mo-popper-content-transform-origin)]')
+    expect(rootContent?.className).toContain('origin-(--mo-popper-content-transform-origin)')
     expect(rootContent?.className).toContain('content-class')
 
     expect(document.body.querySelector('[data-testid="content-top-root"]')).not.toBeNull()

@@ -3,11 +3,10 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 export const BREADCRUMB_LINK_CLASS =
   'transition-colors hover:text-foreground inline-flex items-center gap-1.5'
 export const BREADCRUMB_PAGE_CLASS = 'text-foreground font-normal inline-flex items-center gap-1'
-export const BREADCRUMB_DISABLED_CLASS =
-  'aria-disabled:opacity-64 aria-disabled:pointer-events-none'
+export const BREADCRUMB_DISABLED_CLASS = 'aria-disabled:(opacity-64 pointer-events-none)'
 export const BREADCRUMB_TRUNCATE_CLASS = 'min-w-0 truncate'
 
-export const breadcrumbRecipeOptions = {
+export const breadcrumbRecipe = /* @__PURE__ */ slotRecipe({
   base: {
     root: 'min-w-0 relative',
     list: 'text-sm text-muted-foreground flex gap-1.5 break-words items-center',
@@ -49,6 +48,4 @@ export const breadcrumbRecipeOptions = {
       },
     },
   },
-} as const
-
-export const breadcrumbRecipe = /* @__PURE__ */ slotRecipe(breadcrumbRecipeOptions)
+} as const)

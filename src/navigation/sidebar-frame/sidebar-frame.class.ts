@@ -1,13 +1,12 @@
-import type { SlotRecipeOptions } from '../../shared/style/recipe.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { SidebarFrameT } from './sidebar-frame.types.ts'
 
-export const sidebarFrameRecipeOptions = {
+export const sidebarFrameRecipe = /* @__PURE__ */ slotRecipe<keyof SidebarFrameT.Slot>({
   base: {
     root: 'flex h-screen max-h-full min-h-0 overflow-hidden',
     sidebar:
-      'opacity-100 flex flex-col h-full min-h-0 translate-x-0 transition-[width,opacity,transform] overflow-hidden data-closed:(opacity-0 w-0 pointer-events-none) motion-reduce:transition-none [[data-frame-resizable]_&]:border-0! [&:not([data-mobile])]:shrink-0 [&:not([data-mobile])]:max-w-[45%] [&:not([data-mobile])]:w-64',
+      'opacity-100 flex flex-col h-full min-h-0 translate-x-0 transition-[width,opacity,transform] overflow-hidden data-closed:(opacity-0 w-0 pointer-events-none) motion-reduce:transition-none [[data-frame-resizable]_&]:border-0! [&:not([data-mobile])]:(shrink-0 max-w-[45%] w-64)',
     sidebarHeader: 'flex gap-2 p-2',
     sidebarBody: 'flex-1 min-h-0 overflow-y-auto',
     sidebarFooter: 'flex gap-2 p-2',
@@ -44,16 +43,14 @@ export const sidebarFrameRecipeOptions = {
     {
       variants: { variant: 'default', side: 'left' },
       class: {
-        sidebar: '[&:not([data-mobile])]:border-r [&:not([data-mobile])]:border-border',
+        sidebar: '[&:not([data-mobile])]:(border-r border-border)',
       },
     },
     {
       variants: { variant: 'default', side: 'right' },
       class: {
-        sidebar: '[&:not([data-mobile])]:border-l [&:not([data-mobile])]:border-border',
+        sidebar: '[&:not([data-mobile])]:(border-l border-border)',
       },
     },
   ],
-} as const satisfies SlotRecipeOptions<keyof SidebarFrameT.Slot>
-
-export const sidebarFrameRecipe = /* @__PURE__ */ slotRecipe(sidebarFrameRecipeOptions)
+})
