@@ -1,10 +1,12 @@
+import type { JSX } from 'solid-js'
+
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook/index.ts'
 
 export namespace ResizableT {
-  export interface HandleRenderProps {
+  export interface HandleContext {
     orientation: ResizableOrientation
     disabled: boolean
     action: 'resize' | 'collapse'
@@ -41,8 +43,6 @@ export namespace ResizableT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item extends ResizablePanelItem {}
-
   /** Base props for the Resizable component. */
   export interface Base {
     /** Axis along which panels resize. @default 'horizontal' */
@@ -51,8 +51,8 @@ export namespace ResizableT {
     /** Unique identifier for the resizable root. */
     id?: string
 
-    /** Array of panels to render. */
-    panels?: Item[]
+    /** Ordered `Resizable.Panel` and `Resizable.Handle` children. */
+    children?: JSX.Element
 
     /** Callback when any panel is resized. */
     onResize?: (sizes: number[]) => void
@@ -77,29 +77,6 @@ export namespace ResizableT {
     disable?: boolean
 
     /**
-     * Whether to render handles between panels.
-     * @default true
-     */
-    handle?: boolean
-
-    /** Custom component rendered inside each handle. */
-    handleRender?: ComponentOrElement<HandleRenderProps>
-
-    /**
-     * Handle interaction behavior.
-     * - `resize`: handle area follows divider resize interactions.
-     * - `collapse`: handle click toggles the nearest collapsible panel.
-     * @default 'resize'
-     */
-    handleAction?: 'resize' | 'collapse'
-
-    /**
-     * Whether to use intersection-based handle sizing.
-     * @default false
-     */
-    intersection?: boolean
-
-    /**
      * The amount to resize when using keyboard shortcuts.
      * @default '10%'
      */
@@ -108,6 +85,32 @@ export namespace ResizableT {
 
   /** Props for the Resizable component. */
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+
+  export interface PanelBase extends Omit<
+    ResizablePanelItem,
+    'panelId' | 'content' | 'class' | 'style'
+  > {
+    /** Content rendered inside the panel. */
+    children?: JSX.Element
+  }
+
+  export type PanelProps = BaseProps<'div', PanelBase, never, never, never>
+
+  export interface HandleBase {
+    /**
+     * Handle interaction behavior.
+     * @default 'resize'
+     */
+    action?: 'resize' | 'collapse'
+
+    /** Whether this handle participates in intersection resizing. @default false */
+    intersection?: boolean
+
+    /** Custom grip content, or a component receiving the live handle state. */
+    children?: ComponentOrElement<HandleContext>
+  }
+
+  export type HandleProps = BaseProps<'div', HandleBase, never, never, never>
 }
 
 /** Props for the Resizable component. */

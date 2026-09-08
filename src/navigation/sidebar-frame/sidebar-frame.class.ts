@@ -5,8 +5,7 @@ import type { SidebarFrameT } from './sidebar-frame.types.ts'
 
 export const sidebarFrameRecipeOptions = {
   base: {
-    root: 'h-screen max-h-full min-h-0 overflow-hidden',
-    desktopLayout: 'flex h-full min-h-0',
+    root: 'flex h-screen max-h-full min-h-0 overflow-hidden',
     sidebar:
       'opacity-100 flex flex-col h-full min-h-0 translate-x-0 transition-[width,opacity,transform] duration-[var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms))] ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden data-closed:(opacity-0 w-0 pointer-events-none) motion-reduce:transition-none [[data-frame-resizable]_&]:border-0! [&:not([data-mobile])]:shrink-0 [&:not([data-mobile])]:max-w-[45%] [&:not([data-mobile])]:w-64',
     sidebarHeader: 'flex gap-2 p-2',
@@ -21,22 +20,22 @@ export const sidebarFrameRecipeOptions = {
   variants: {
     side: {
       left: {
-        desktopLayout: 'flex-row',
+        root: 'flex-row',
         sidebar: 'data-closed:-translate-x-2',
       },
       right: {
-        desktopLayout: 'flex-row-reverse',
+        root: 'flex-row-reverse',
         sidebar: 'data-closed:translate-x-2',
       },
     },
     variant: {
       default: {},
       floating: {
-        desktopLayout: 'p-2 gap-2',
+        root: 'p-2 gap-2',
         sidebar: 'border border-border/80 rounded-lg bg-card shadow-sm overflow-hidden',
       },
       inset: {
-        desktopLayout: 'p-2 gap-2',
+        root: 'p-2 gap-2',
         main: 'rounded-xl bg-background shadow-sm',
       },
     },

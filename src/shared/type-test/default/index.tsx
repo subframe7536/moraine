@@ -16,7 +16,9 @@ import {
   Modal,
   MoraineProvider,
   Popover,
+  Resizable,
   Sheet,
+  SidebarFrame,
   Separator,
   Tooltip,
   createForm,
@@ -111,6 +113,27 @@ modalContentContext.close()
   </Sheet.Trigger>
   <Sheet.Content />
 </Sheet>
+;<Resizable>
+  <Resizable.Panel id="navigation" min="20%">
+    Navigation
+  </Resizable.Panel>
+  <Resizable.Handle action="collapse">{(state) => String(state.collapsed)}</Resizable.Handle>
+  <Resizable.Panel>Main</Resizable.Panel>
+</Resizable>
+;<SidebarFrame isMobile={false}>
+  <SidebarFrame.Sidebar>
+    <SidebarFrame.SidebarHeader>Header</SidebarFrame.SidebarHeader>
+    <SidebarFrame.SidebarBody>Navigation</SidebarFrame.SidebarBody>
+    <SidebarFrame.SidebarFooter>Footer</SidebarFrame.SidebarFooter>
+  </SidebarFrame.Sidebar>
+  <SidebarFrame.Main>Main</SidebarFrame.Main>
+</SidebarFrame>
+
+// @ts-expect-error The legacy panel array API is removed.
+;<Resizable panels={[]} />
+
+// @ts-expect-error The legacy frame render API is removed.
+;<SidebarFrame frameRender={() => null} />
 
 const acceptSpan = (element: HTMLSpanElement) => element.focus()
 const divRef = (element: HTMLDivElement) => element.focus()

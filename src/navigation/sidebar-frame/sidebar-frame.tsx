@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 import {
   Show,
+  children as resolveChildren,
   createEffect,
   createMemo,
   createSignal,
@@ -10,126 +11,136 @@ import {
   untrack,
 } from 'solid-js'
 
-import { Resizable } from '../../elements/resizable/index.ts'
-import type { ResizableT } from '../../elements/resizable/index.ts'
 import { Sheet } from '../../overlays/sheet/index.ts'
-import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { createMediaQuery } from '../../shared/use-media-query.ts'
-import { cn } from '../../shared/utils.ts'
+import { callHandler, cn } from '../../shared/utils.ts'
 
+import { SidebarFrameProvider, useSidebarFrameContext } from './sidebar-frame-context.ts'
 import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types.ts'
 
 export type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types.ts'
+export { useSidebarFrame } from './sidebar-frame-context.ts'
 
-function renderMobileSheet(ctx: SidebarFrameT.FrameContext, main: JSX.Element): JSX.Element {
+function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
+  const context = useSidebarFrameContext()
+  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
+  const content = resolveChildren(() => local.children)
+
+  const SidebarContent = (contentProps: { mobile: boolean }) => (
+    <div
+      data-slot="sidebar"
+      data-mobile={contentProps.mobile ? '' : undefined}
+      data-closed={context.isOpen() ? undefined : ''}
+      hidden={!contentProps.mobile && context.isMobile()}
+      aria-hidden={
+        contentProps.mobile ? !context.isOpen() : context.isMobile() || !context.isOpen()
+      }
+      {...rest}
+      class={cn(context.resolved.slot('sidebar').class, local.class)}
+      style={{ ...context.resolved.slot('sidebar').style, ...local.style }}
+    >
+      <Show
+        when={contentProps.mobile}
+        fallback={<Show when={!context.isMobile()}>{content()}</Show>}
+      >
+        {content()}
+      </Show>
+    </div>
+  )
+
   return (
     <>
-      <Sheet open={ctx.isOpen()} onOpenChange={ctx.setOpen}>
-        <Sheet.Content side={ctx.side} close={false} body={<ctx.sidebar />} />
-      </Sheet>
-      {main}
+      <SidebarContent mobile={false} />
+      <Show when={context.isMobile()}>
+        <Sheet open={context.isOpen()} onOpenChange={context.setOpen}>
+          <Sheet.Content side={context.side} close={false} body={<SidebarContent mobile />} />
+        </Sheet>
+      </Show>
     </>
   )
 }
 
-/**
- * Default frame renderer: mobile uses `Sheet`, desktop uses animated split layout.
- */
-export function SidebarFrameSheetOnlyRender(ctx: SidebarFrameT.FrameContext): JSX.Element {
-  const resolved = createComponentStyles('sidebarFrame', ctx, { rootSlot: 'desktopLayout' })
-  const main = createLazyMemo(() => <ctx.main />)
+function SidebarFrameSidebarHeader(props: SidebarFrameT.SidebarHeaderProps): JSX.Element {
+  const context = useSidebarFrameContext()
+  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
+  const content = resolveChildren(() => local.children)
+
   return (
-    <Show
-      when={ctx.isMobile()}
-      fallback={
-        <div data-slot="layout" {...resolved.root}>
-          <ctx.sidebar data-closed={ctx.isOpen() ? undefined : ''} />
-          {main()}
-        </div>
-      }
+    <div
+      data-slot="sidebarHeader"
+      {...rest}
+      class={cn(context.resolved.slot('sidebarHeader').class, local.class)}
+      style={{ ...context.resolved.slot('sidebarHeader').style, ...local.style }}
     >
-      {renderMobileSheet(ctx, main())}
-    </Show>
+      {content()}
+    </div>
   )
 }
 
-/**
- * Frame renderer with mobile `Sheet` and desktop `Resizable` behavior.
- */
-export function SidebarFrameSheetResizableRender(
-  ctx: SidebarFrameT.FrameContext & {
-    /**
-     * Additional options for the `Resizable` wrapper when on desktop layout.
-     */
-    resizableOptions?: Omit<ResizableT.Props, 'items' | 'panels'> & {
-      classes?: ResizableT.Props['classes']
-      styles?: ResizableT.Props['styles']
-    }
-    /**
-     * Additional options for the sidebar panel when on desktop layout.
-     */
-    resizablePanelOptions?: Omit<ResizableT.Item, 'content'>
-  },
-): JSX.Element {
-  const main = createLazyMemo(() => <ctx.main />)
+function SidebarFrameSidebarBody(props: SidebarFrameT.SidebarBodyProps): JSX.Element {
+  const context = useSidebarFrameContext()
+  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
+  const content = resolveChildren(() => local.children)
+
   return (
-    <Show
-      when={ctx.isMobile()}
-      fallback={
-        <Resizable
-          orientation="horizontal"
-          data-frame-resizable=""
-          panels={
-            ctx.side === 'left'
-              ? [
-                  {
-                    content: <ctx.sidebar />,
-                    ...ctx.resizablePanelOptions,
-                    class: cn(ctx.resizablePanelOptions?.class),
-                  },
-                  {
-                    content: main(),
-                  },
-                ]
-              : [
-                  {
-                    content: main(),
-                  },
-                  {
-                    content: <ctx.sidebar />,
-                    ...ctx.resizablePanelOptions,
-                    class: cn(ctx.resizablePanelOptions?.class),
-                  },
-                ]
-          }
-          {...ctx.resizableOptions}
-          classes={{
-            root: 'h-full',
-            ...ctx.resizableOptions?.classes,
-          }}
-          styles={ctx.resizableOptions?.styles}
-        />
-      }
+    <div
+      data-slot="sidebarBody"
+      {...rest}
+      class={cn(context.resolved.slot('sidebarBody').class, local.class)}
+      style={{ ...context.resolved.slot('sidebarBody').style, ...local.style }}
     >
-      {renderMobileSheet(ctx, main())}
-    </Show>
+      {content()}
+    </div>
   )
 }
 
-/** Sidebar + main frame with mobile Sheet support and desktop layout wrappers. */
+function SidebarFrameSidebarFooter(props: SidebarFrameT.SidebarFooterProps): JSX.Element {
+  const context = useSidebarFrameContext()
+  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
+  const content = resolveChildren(() => local.children)
+
+  return (
+    <div
+      data-slot="sidebarFooter"
+      {...rest}
+      class={cn(context.resolved.slot('sidebarFooter').class, local.class)}
+      style={{ ...context.resolved.slot('sidebarFooter').style, ...local.style }}
+    >
+      {content()}
+    </div>
+  )
+}
+
+function SidebarFrameMain(props: SidebarFrameT.MainProps): JSX.Element {
+  const context = useSidebarFrameContext()
+  const [local, rest] = splitProps(props, ['children', 'class', 'style', 'onScroll'])
+  const content = resolveChildren(() => local.children)
+
+  return (
+    <div
+      data-slot="main"
+      {...rest}
+      class={cn(context.resolved.slot('main').class, local.class)}
+      style={{ ...context.resolved.slot('main').style, ...local.style }}
+      onScroll={(event) => {
+        const result = callHandler(event, local.onScroll)
+        if (!result.defaultPrevented) {
+          context.setScrolled(event.currentTarget.scrollTop > context.scrollThreshold())
+        }
+      }}
+    >
+      {content()}
+    </div>
+  )
+}
+
+/** Responsive sidebar layout with a mobile Sheet fallback. */
 export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'isMobile',
     'scrollThreshold',
-    'mainRef',
-    'sidebarRef',
-    'sidebarHeaderRender',
-    'sidebarBodyRender',
-    'sidebarFooterRender',
-    'mainRender',
-    'frameRender',
+    'children',
     'variant',
     'side',
     'classes',
@@ -137,48 +148,38 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     'class',
     'style',
   ])
-  const merged = mergeProps(
-    {
-      side: 'left' as const,
-      scrollThreshold: 60,
-      frameRender: SidebarFrameSheetOnlyRender,
-    },
-    local,
-  )
+  const merged = mergeProps({ side: 'left' as const, scrollThreshold: 60 }, local)
   const resolved = createComponentStyles('sidebarFrame', merged)
-
-  const sidebarHeaderRender = createMemo(() => merged.sidebarHeaderRender)
-  const sidebarFooterRender = createMemo(() => merged.sidebarFooterRender)
 
   const [internalIsMobile, setInternalIsMobile] = createSignal(false)
   const [isOpen, setOpen] = createSignal(untrack(() => local.isMobile !== true))
   const [scrolled, setScrolled] = createSignal(false)
-  const isMobile = createMediaQuery('(max-width: 768px)', false)
+  const mediaMatches = createMediaQuery('(max-width: 768px)', false)
+
   createEffect(
-    on(
-      () => isMobile(),
-      (is) => {
-        if (local.isMobile !== undefined) {
-          return
-        }
-        setInternalIsMobile(is)
-      },
-    ),
+    on(mediaMatches, (matches) => {
+      if (local.isMobile === undefined) {
+        setInternalIsMobile(matches)
+      }
+    }),
   )
 
-  const resolvedIsMobile = createMemo(() => local.isMobile ?? internalIsMobile())
+  const isMobile = createMemo(() => local.isMobile ?? internalIsMobile())
 
   createEffect(() => {
-    const isMobile = resolvedIsMobile()
-    untrack(() => setOpen(!isMobile))
+    const mobile = isMobile()
+    untrack(() => setOpen(!mobile))
   })
 
-  const context: SidebarFrameT.BaseContext = {
-    isMobile: resolvedIsMobile,
+  const context = {
+    resolved,
+    scrollThreshold: () => merged.scrollThreshold,
+    isMobile,
     scrolled,
+    setScrolled,
     isOpen,
     setOpen,
-    toggle: () => setOpen((prev) => !prev),
+    toggle: () => setOpen((open) => !open),
     get variant() {
       return resolved.variants.variant
     },
@@ -188,67 +189,16 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   }
 
   return (
-    <div data-slot="root" {...resolved.root} {...rest}>
-      {renderComponentOrElement(merged.frameRender, {
-        isMobile: context.isMobile,
-        scrolled: context.scrolled,
-        isOpen: context.isOpen,
-        setOpen: context.setOpen,
-        toggle: context.toggle,
-        get variant() {
-          return context.variant
-        },
-        get side() {
-          return context.side
-        },
-        get classes() {
-          return local.classes
-        },
-        get styles() {
-          return local.styles
-        },
-        sidebar: (props) => (
-          <div
-            ref={merged.sidebarRef}
-            data-slot="sidebar"
-            data-mobile={context.isMobile() ? '' : undefined}
-            aria-hidden={!isOpen()}
-            {...props}
-            class={cn(resolved.slot('sidebar').class, props.classes)}
-            style={{ ...props.styles, ...resolved.slot('sidebar').style }}
-          >
-            <Show when={sidebarHeaderRender() !== undefined}>
-              <div data-slot="sidebarHeader" {...resolved.slot('sidebarHeader')}>
-                {renderComponentOrElement(sidebarHeaderRender(), context)}
-              </div>
-            </Show>
-
-            <div data-slot="sidebarBody" {...resolved.slot('sidebarBody')}>
-              {renderComponentOrElement(merged.sidebarBodyRender, context)}
-            </div>
-
-            <Show when={sidebarFooterRender() !== undefined}>
-              <div data-slot="sidebarFooter" {...resolved.slot('sidebarFooter')}>
-                {renderComponentOrElement(sidebarFooterRender(), context)}
-              </div>
-            </Show>
-          </div>
-        ),
-        main: (props) => (
-          <div
-            ref={merged.mainRef}
-            data-slot="main"
-            {...props}
-            class={cn(resolved.slot('main').class, props.classes)}
-            style={{ ...props.styles, ...resolved.slot('main').style }}
-            onScroll={(event) => {
-              setScrolled(event.currentTarget.scrollTop > (merged.scrollThreshold ?? 60))
-            }}
-          >
-            {renderComponentOrElement(merged.mainRender, context)}
-          </div>
-        ),
-      })}
-    </div>
+    <SidebarFrameProvider value={context}>
+      <div data-slot="root" {...rest} {...resolved.root}>
+        {local.children}
+      </div>
+    </SidebarFrameProvider>
   )
 }
+
+SidebarFrame.Sidebar = SidebarFrameSidebar
+SidebarFrame.SidebarHeader = SidebarFrameSidebarHeader
+SidebarFrame.SidebarBody = SidebarFrameSidebarBody
+SidebarFrame.SidebarFooter = SidebarFrameSidebarFooter
+SidebarFrame.Main = SidebarFrameMain

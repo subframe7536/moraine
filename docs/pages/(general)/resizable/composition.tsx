@@ -1,44 +1,25 @@
 import { Resizable } from '@src'
 
+const panelClass = 'text-xs text-muted-foreground flex h-full items-center justify-center'
+
 export function Composition() {
   return (
     <div class="b-(1 border) rounded-xl h-48 w-full overflow-hidden">
-      <Resizable
-        panels={[
-          {
-            defaultSize: '35%',
-            content: (
-              <div class="text-xs text-muted-foreground bg-muted/20 flex h-full items-center justify-center">
-                Navigation
-              </div>
-            ),
-          },
-          {
-            content: (
-              <Resizable
-                orientation="vertical"
-                panels={[
-                  {
-                    defaultSize: '60%',
-                    content: (
-                      <div class="text-xs text-muted-foreground flex h-full items-center justify-center">
-                        Editor workspace
-                      </div>
-                    ),
-                  },
-                  {
-                    content: (
-                      <div class="text-xs text-muted-foreground bg-muted/10 flex h-full items-center justify-center">
-                        Terminal output
-                      </div>
-                    ),
-                  },
-                ]}
-              />
-            ),
-          },
-        ]}
-      />
+      <Resizable>
+        <Resizable.Panel defaultSize="35%" class={`${panelClass} bg-muted/20`}>
+          Navigation
+        </Resizable.Panel>
+        <Resizable.Handle />
+        <Resizable.Panel>
+          <Resizable orientation="vertical">
+            <Resizable.Panel defaultSize="60%" class={panelClass}>
+              Editor workspace
+            </Resizable.Panel>
+            <Resizable.Handle />
+            <Resizable.Panel class={`${panelClass} bg-muted/10`}>Terminal output</Resizable.Panel>
+          </Resizable>
+        </Resizable.Panel>
+      </Resizable>
     </div>
   )
 }

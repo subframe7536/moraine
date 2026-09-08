@@ -1,10 +1,10 @@
 ---
 title: Resizable
-description: A multi-pane layout component with draggable separators, size constraints, nested layouts, collapse behavior, and keyboard resizing.
+description: A multi-pane layout component with explicit panels and handles.
 sidebar:
   order: 12
 search:
-  tags: [panels, splitter, drag, resize, split view, ide layout, resizable]
+  tags: [panels, splitter, drag, resize, split view, resizable]
 ---
 
 import { Resizable } from '@src'
@@ -16,50 +16,24 @@ import { Resizable } from 'moraine'
 import type { ResizableT } from 'moraine'
 ```
 
-## Features
-
-- **Pointer Resizing**: Drag separators to resize adjacent panels within their configured constraints.
-- **Pixel & Percentage Constraints**: `min`, `max`, and `defaultSize` accept the size forms supported by panel configuration.
-- **Collapsible Panels**: Configure collapsible panels and collapsed minimum sizes for compact rails.
-- **Nested Layouts**: Compose resizable instances to build multi-axis layouts.
-- **Separator Semantics**: Interactive separators expose separator semantics and keyboard resizing controls.
-
-Performance depends on the content rendered inside each panel and the surrounding application; Resizable does not promise a fixed frame rate or zero-latency dragging.
+`Resizable.Panel` owns panel sizing and constraints. Place `Resizable.Handle` only where adjacent panels should interact; omitting it leaves the panels adjacent without a separator.
 
 ## Playground
 
 <Playground
-  controls={[
-    { kind: 'switch', prop: 'handle', label: 'Handle', defaultValue: true },
-    { kind: 'switch', prop: 'disable', label: 'Disabled', defaultValue: false },
-  ]}
+  controls={[{ kind: 'switch', prop: 'disable', label: 'Disabled', defaultValue: false }]}
 >
   {(props) => (
     <div class="border border-border/60 rounded-xl bg-card/30 h-48 max-w-xl w-full overflow-hidden">
-      <Resizable
-        handle={props.handle}
-        disable={props.disable}
-        panels={[
-          {
-            defaultSize: '35%',
-            min: '20%',
-            content: (
-              <div class="text-xs text-muted-foreground font-mono p-4 bg-muted/20 flex h-full items-center justify-center">
-                Sidebar Panel
-              </div>
-            ),
-          },
-          {
-            defaultSize: '65%',
-            min: '30%',
-            content: (
-              <div class="text-xs text-muted-foreground font-mono p-4 bg-background/50 flex h-full items-center justify-center">
-                Main Editor Content
-              </div>
-            ),
-          },
-        ]}
-      />
+      <Resizable disable={props.disable}>
+        <Resizable.Panel defaultSize="35%" min="20%" class="p-4 bg-muted/20">
+          Sidebar Panel
+        </Resizable.Panel>
+        <Resizable.Handle />
+        <Resizable.Panel defaultSize="65%" min="30%" class="p-4 bg-background/50">
+          Main Editor Content
+        </Resizable.Panel>
+      </Resizable>
     </div>
   )}
 </Playground>
@@ -67,28 +41,15 @@ Performance depends on the content rendered inside each panel and the surroundin
 ## Anatomy
 
 ```text
-root
-├── panel (×n)
-└── divider (between panels)
-    ├── cross-target (when applicable)
-    └── handle (optional)
+Resizable
+├── Resizable.Panel
+├── Resizable.Handle
+└── Resizable.Panel
 ```
 
-## Usage
+Each handle can independently set `action="collapse"`, enable `intersection`, or render a custom grip through its children. Use `children={false}` to keep the divider while omitting the inner grip.
 
-### Panel sizes and constraints
-
-Use controlled panel sizes when application state needs to persist or synchronize layout. Minimum, maximum, and default sizes define the allowed geometry; collapsible panels add a distinct closed size.
-
-<Preview path="./constraints" />
-
-### Nested composition
-
-Nested groups are supported when each group owns its own axes. Handles can be disabled, and keyboard resizing follows the component's handle semantics.
-
-<Preview path="./composition" />
-
-### Keyboard interaction
+## Keyboard interaction
 
 | Key                                          | Description                                                   |
 | -------------------------------------------- | ------------------------------------------------------------- |
@@ -96,22 +57,18 @@ Nested groups are supported when each group owns its own axes. Handles can be di
 | <kbd>ArrowRight</kbd> / <kbd>ArrowDown</kbd> | Resizes in the increasing direction for the active separator. |
 | <kbd>Home</kbd>                              | Moves the adjacent panel toward its minimum permitted size.   |
 | <kbd>End</kbd>                               | Moves the adjacent panel toward its maximum permitted size.   |
-| <kbd>Enter</kbd>                             | Toggles collapse/expand when collapse behavior is configured. |
+| <kbd>Enter</kbd>                             | Toggles the nearest collapsible panel for collapse handles.   |
 
 ## Examples
 
-### Controlled panels
+<Preview path="./constraints" />
+
+<Preview path="./composition" />
 
 <Preview path="./controlled" />
 
-### Collapsible panels
-
 <Preview path="./collapsible" />
 
-### Vertical and disabled handles
-
 <Preview path="./vertical-disable" />
-
-### Nested panels
 
 <Preview path="./nested-panels" />

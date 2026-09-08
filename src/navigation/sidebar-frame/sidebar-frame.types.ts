@@ -1,165 +1,56 @@
-import type { Accessor, Component, JSX } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 export namespace SidebarFrameT {
-  /**
-   * Render context exposed to sidebar/main render functions.
-   */
-  export interface BaseContext extends Variant {
-    /** Side occupied by the sidebar. */
+  export interface Context extends Variant {
     side: 'left' | 'right'
-    /**
-     * Whether current viewport is treated as mobile.
-     */
     isMobile: Accessor<boolean>
-    /**
-     * Whether the main scroll container has crossed `scrollThreshold`.
-     */
     scrolled: Accessor<boolean>
-    /**
-     * Current sidebar open state (mainly for mobile sheet).
-     */
     isOpen: Accessor<boolean>
-    /**
-     * Set sidebar open state.
-     */
     setOpen: (open: boolean) => void
-    /**
-     * Toggle sidebar open state.
-     */
     toggle: () => void
   }
 
-  /**
-   * Extended render context for frame composition.
-   */
-  export interface FrameContext extends BaseContext {
-    /** Parent overrides for the family slots. */
-    classes?: Classes
-    /** Parent inline styles for the family slots. */
-    styles?: Styles
-    /**
-     * Processed sidebar block component.
-     */
-    sidebar: Component<
-      JSX.HTMLAttributes<HTMLDivElement> & {
-        classes?: SlotClassValue
-        styles?: JSX.CSSProperties
-      }
-    >
-    /**
-     * Processed main block component.
-     */
-    main: Component<
-      JSX.HTMLAttributes<HTMLDivElement> & { classes?: SlotClassValue; styles?: JSX.CSSProperties }
-    >
-  }
-
-  export type SidebarHeaderRenderProps = BaseContext
-  export type SidebarBodyRenderProps = BaseContext
-  export type SidebarFooterRenderProps = BaseContext
-  export type MainRenderProps = BaseContext
-  export type FrameRenderProps = FrameContext
-
-  /**
-   * Slot keys for classes/styles overrides.
-   */
   export interface Slot<T = unknown> {
-    /**
-     * Frame container that coordinates sidebar and main content layout.
-     */
     root?: T
-
-    /** Desktop layout wrapper around sidebar and main. */
-    desktopLayout?: T
-
-    /** Sidebar region rendered inline on desktop or inside a sheet on mobile. */
     sidebar?: T
-
-    /** Optional header region at the top of the sidebar. */
     sidebarHeader?: T
-
-    /** Main sidebar content region. */
     sidebarBody?: T
-
-    /** Optional footer region at the bottom of the sidebar. */
     sidebarFooter?: T
-
-    /** Primary content region beside or beneath the sidebar. */
     main?: T
   }
 
   export interface Variant {
-    /** Sidebar edge used by the component Recipe. */
     side?: 'left' | 'right' | null
-
-    /** Visual treatment of the component.
-     * @default 'default'
-     */
     variant?: 'default' | 'floating' | 'inset' | null
   }
-  export type SlotName = keyof Slot
 
+  export type SlotName = keyof Slot
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
 
   export interface Base {
     /** Side occupied by the sidebar. @default 'left' */
     side?: 'left' | 'right'
-
-    /**
-     * Controlled mobile mode state.
-     * When omitted, mobile state is resolved from `matchMedia`.
-     */
+    /** Controlled mobile mode. When omitted, `matchMedia` determines the value. */
     isMobile?: boolean
-    /**
-     * Scroll threshold for `scrolled` state.
-     * @default 60
-     */
+    /** Main scroll offset that changes `scrolled` to true. @default 60 */
     scrollThreshold?: number
-    /**
-     * Callback ref for the main scroll container element (`data-slot="main"`).
-     * Useful for programmatic scrolling, e.g. scrolling to top on route change.
-     */
-    mainRef?: (el: HTMLDivElement) => void
-    /**
-     * Callback ref for the sidebar container element (`data-slot="sidebar"`).
-     */
-    sidebarRef?: (el: HTMLDivElement) => void
-    /**
-     * Optional render function for sidebar header section.
-     */
-    sidebarHeaderRender?: ComponentOrElement<SidebarHeaderRenderProps>
-    /**
-     * Render function for sidebar body section.
-     */
-    sidebarBodyRender: ComponentOrElement<SidebarBodyRenderProps>
-    /**
-     * Optional render function for sidebar footer section.
-     */
-    sidebarFooterRender?: ComponentOrElement<SidebarFooterRenderProps>
-    /**
-     * Render function for main content section.
-     */
-    mainRender: ComponentOrElement<MainRenderProps>
-    /**
-     * Optional frame renderer used to compose sidebar/main layout.
-     * @default SidebarFrameSheetOnlyRender
-     */
-    frameRender?: ComponentOrElement<FrameRenderProps>
+    children?: JSX.Element
   }
 
-  /**
-   * Props for the SidebarFrame component.
-   */
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+
+  export interface RegionBase {
+    children?: JSX.Element
+  }
+
+  export type SidebarProps = BaseProps<'div', RegionBase, never, never, never>
+  export type SidebarHeaderProps = BaseProps<'div', RegionBase, never, never, never>
+  export type SidebarBodyProps = BaseProps<'div', RegionBase, never, never, never>
+  export type SidebarFooterProps = BaseProps<'div', RegionBase, never, never, never>
+  export type MainProps = BaseProps<'div', RegionBase, never, never, never>
 }
 
-/**
- * Props for the SidebarFrame component.
- */
 export interface SidebarFrameProps extends SidebarFrameT.Props {}

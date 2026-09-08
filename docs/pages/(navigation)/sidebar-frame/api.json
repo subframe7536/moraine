@@ -4,7 +4,7 @@
     "name": "SidebarFrame",
     "category": "navigation",
     "polymorphic": false,
-    "description": "Sidebar + main frame with mobile Sheet support and desktop layout wrappers.",
+    "description": "Responsive sidebar layout with a mobile Sheet fallback.",
     "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
   },
   "slots": [],

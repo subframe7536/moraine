@@ -1,12 +1,28 @@
 import { renderToString } from 'solid-js/web'
 
-import { SidebarFrame } from './sidebar-frame.tsx'
+import { SidebarFrame, useSidebarFrame } from './sidebar-frame.tsx'
+
+function FixtureContent() {
+  const frame = useSidebarFrame()
+
+  return (
+    <>
+      <SidebarFrame.Sidebar>
+        <SidebarFrame.SidebarBody>
+          <span>Navigation</span>
+        </SidebarFrame.SidebarBody>
+      </SidebarFrame.Sidebar>
+      <SidebarFrame.Main data-open={frame.isOpen() ? '' : undefined}>
+        <h1>Main content</h1>
+      </SidebarFrame.Main>
+    </>
+  )
+}
 
 export function renderSidebarFrameFixture(): string {
   return renderToString(() => (
-    <SidebarFrame
-      sidebarBodyRender={() => <span>Navigation</span>}
-      mainRender={() => <h1>Main content</h1>}
-    />
+    <SidebarFrame>
+      <FixtureContent />
+    </SidebarFrame>
   ))
 }

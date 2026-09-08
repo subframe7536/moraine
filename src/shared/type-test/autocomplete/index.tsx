@@ -12,7 +12,9 @@ import {
   Modal,
   MoraineProvider,
   Popover,
+  Resizable,
   Sheet,
+  SidebarFrame,
   Separator,
   Tooltip,
   createForm,
@@ -102,6 +104,17 @@ modalContentContext.close()
   </Sheet.Trigger>
   <Sheet.Content />
 </Sheet>
+;<Resizable>
+  <Resizable.Panel defaultSize="30%">Navigation</Resizable.Panel>
+  <Resizable.Handle />
+  <Resizable.Panel>Main</Resizable.Panel>
+</Resizable>
+;<SidebarFrame>
+  <SidebarFrame.Sidebar>
+    <SidebarFrame.SidebarBody>Navigation</SidebarFrame.SidebarBody>
+  </SidebarFrame.Sidebar>
+  <SidebarFrame.Main>Main</SidebarFrame.Main>
+</SidebarFrame>
 
 const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
 ;<rootOnlyForm.Form class="space-y-2" style={{ color: 'red' }} />
