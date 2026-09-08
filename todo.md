@@ -8,25 +8,23 @@
 - [x] cleanup useless `mergeProps` across all components
 - [x] convert sidebar-frame and resizable into namespaced component, get rid of `frameRender` in sidebar-frame
 - [x] add indicator type in `<component>T` to indicate if the component is a single or a composite/namespaced component
-- [ ] `cn` config should be customizable in MoraineProvider
 - [x] cleanup `data-[*`
+- [ ] `cn` config should be customizable in MoraineProvider
 - [ ] metric adjust across all sizes
 - [ ] production barrel import optimize
 
 ### UI Regression
 
-- [ ] select inline padding is 0
-- [ ] input composition cancel should clear ghost text
 - [ ] textarea inline padding too large
 - [ ] slider bold variant 's thumb indicator is missing
-- [ ] file-upload style refactor
+- [ ] file-upload style refactor to https://diceui.com/docs/components/base/file-upload
 - [ ] correct/verify button group separator
-- [ ] badge subtle variant style fix
+- [ ] badge subtle variant style 's border color is too contrast with background color
 - [ ] transition on collapsible is broken
 - [ ] separator should be thinner
 - [ ] process indicator percision control?
-- [ ] list playground should removed
-- [ ] resizable divider is not follows the mouse
+- [ ] list Playground & Usage should removed
+- [ ] resizable divider is not follows the mouse: when move out and back, the divider will directly move instead of waiting mouse move on the divider
 - [ ] kbd-group 's `*Render` should be renamed and reconsider default value
 - [ ] refresh breadcrumb/pagination usage and examples doc
 - [ ] command-palette gaps between groups is too large
