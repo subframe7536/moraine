@@ -338,7 +338,9 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "ResizableOrientation | undefined"
+        "type": "ResizableOrientation & ResizableOrientation | null | undefined",
+        "description": "Axis along which panels resize.",
+        "defaultValue": "horizontal"
       },
       {
         "name": "panels",

@@ -885,7 +885,21 @@ class DeclarationAnalyzer {
       })
     }
 
-    return this.#resolveNamedProperties(name, typeArguments, context, visited)
+    const properties = await this.#resolveNamedProperties(name, typeArguments, context, visited)
+    if (
+      name === 'BaseProps' &&
+      typeArguments.length === 5 &&
+      !properties.some((property) => property.name === 'ref')
+    ) {
+      const elementType = formatType(contextValue(typeArguments[0]!, context))
+      properties.push({
+        name: 'ref',
+        optional: true,
+        typeText: `JSX.HTMLElementTags[${elementType}] extends { ref?: infer Ref; } ? Ref : never | undefined`,
+        originModule: 'Moraine',
+      })
+    }
+    return properties
   }
 
   async resolveProperties(

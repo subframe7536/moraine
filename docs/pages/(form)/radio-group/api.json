@@ -217,7 +217,9 @@
       {
         "name": "indicator",
         "required": false,
-        "type": "\"hidden\" | \"end\" | \"start\" | null | undefined"
+        "type": "\"hidden\" | \"end\" | \"start\" | null | undefined",
+        "description": "Placement of the selection indicator.",
+        "defaultValue": "start"
       },
       {
         "name": "items",
@@ -266,7 +268,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",
@@ -279,11 +283,6 @@
         "type": "RadioGroupT.Styles | undefined"
       },
       {
-        "name": "tableOrientation",
-        "required": false,
-        "type": "\"horizontal\" | \"vertical\" | null | undefined"
-      },
-      {
         "name": "value",
         "required": false,
         "type": "string | undefined",
@@ -292,7 +291,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"list\" | \"table\" | \"card\" | null | undefined"
+        "type": "\"list\" | \"table\" | \"card\" | null | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "list"
       }
     ],
     "inherited": []

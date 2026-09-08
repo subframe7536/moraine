@@ -70,6 +70,18 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present while the related thumb or handle is being dragged."
+        },
+        {
+          "name": "data-inverted",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        },
+        {
+          "name": "data-multiple",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
         }
       ],
       "ariaAttributes": []
@@ -103,6 +115,12 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present when the field or form has a validation error."
+        },
+        {
+          "name": "data-inverted",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
         },
         {
           "name": "data-readonly",
@@ -218,7 +236,9 @@
       {
         "name": "inverted",
         "required": false,
-        "type": "boolean | \"true\" | \"false\" | null | undefined"
+        "type": "boolean | undefined",
+        "description": "Reverses value movement along the track.",
+        "defaultValue": "false"
       },
       {
         "name": "max",
@@ -242,11 +262,6 @@
         "defaultValue": "0"
       },
       {
-        "name": "multiple",
-        "required": false,
-        "type": "boolean | \"true\" | \"false\" | null | undefined"
-      },
-      {
         "name": "name",
         "required": false,
         "type": "string | undefined",
@@ -267,7 +282,9 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | null | undefined"
+        "type": "\"horizontal\" | \"vertical\" & \"horizontal\" | \"vertical\" | null | undefined",
+        "description": "Direction of keyboard and pointer value movement.",
+        "defaultValue": "horizontal"
       },
       {
         "name": "readOnly",
@@ -291,7 +308,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "step",
@@ -318,7 +337,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"default\" | \"bold\" | null | undefined"
+        "type": "\"default\" | \"bold\" | null | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "default"
       }
     ],
     "inherited": []

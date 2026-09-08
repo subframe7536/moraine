@@ -206,7 +206,7 @@
       {
         "name": "activeVariant",
         "required": false,
-        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
+        "type": "PaginationVariant | null | undefined",
         "description": "Visual variant for the active page button.",
         "defaultValue": "outline"
       },
@@ -224,7 +224,7 @@
       {
         "name": "controlVariant",
         "required": false,
-        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
+        "type": "PaginationVariant | null | undefined",
         "description": "Visual variant for the previous/next control buttons.",
         "defaultValue": "ghost"
       },
@@ -296,7 +296,7 @@
       {
         "name": "ref",
         "required": false,
-        "type": "(Ref<HTMLElement> & JSX.HTMLElementTags[\"nav\"] extends { ref?: infer Ref; } ? Ref : never) | undefined",
+        "type": "Ref<HTMLElement> | undefined",
         "description": "Ref forwarded to the root `<nav>` element."
       },
       {
@@ -316,7 +316,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
         "description": "Size of the pagination buttons.",
         "defaultValue": "md"
       },
@@ -346,7 +346,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
+        "type": "PaginationVariant | null | undefined",
         "description": "Visual variant for the page buttons.",
         "defaultValue": "ghost"
       }

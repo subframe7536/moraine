@@ -423,7 +423,9 @@
           {
             "name": "inset",
             "required": false,
-            "type": "boolean | \"true\" | \"false\" | null | undefined"
+            "type": "boolean | \"true\" | \"false\" | null | undefined",
+            "description": "Whether the surface is inset from viewport edges.",
+            "defaultValue": "false"
           },
           {
             "name": "overlay",
@@ -439,7 +441,9 @@
           {
             "name": "side",
             "required": false,
-            "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | null | undefined"
+            "type": "\"bottom\" | \"top\" | \"right\" | \"left\" & \"bottom\" | \"top\" | \"right\" | \"left\" | null | undefined",
+            "description": "Edge from which the sheet opens.",
+            "defaultValue": "right"
           },
           {
             "name": "style",

@@ -45,7 +45,14 @@
           "description": "CSS custom property exposed by this slot."
         }
       ],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-side",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the resolved floating or drawer content side."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -180,6 +187,12 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present when the field input is required."
+        },
+        {
+          "name": "data-search",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
         }
       ],
       "ariaAttributes": []
@@ -611,7 +624,7 @@
       {
         "name": "search",
         "required": false,
-        "type": "boolean & boolean | \"true\" | \"false\" | null | undefined",
+        "type": "boolean | undefined",
         "description": "Enable search input.",
         "defaultValue": "false"
       },
@@ -628,14 +641,11 @@
         "description": "Controlled search value."
       },
       {
-        "name": "side",
-        "required": false,
-        "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | null | undefined"
-      },
-      {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",
@@ -675,7 +685,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | null | undefined"
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | null | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "outline"
       },
       {
         "name": "virtualRender",

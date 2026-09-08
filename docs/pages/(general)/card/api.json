@@ -100,7 +100,7 @@
       {
         "name": "compact",
         "required": false,
-        "type": "boolean | undefined",
+        "type": "boolean & boolean | null | undefined",
         "description": "Whether to use a compact layout.",
         "defaultValue": "false"
       },

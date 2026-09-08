@@ -84,7 +84,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",
@@ -111,7 +113,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"default\" | \"outline\" | \"solid\" | undefined"
+        "type": "\"default\" | \"outline\" | \"solid\" | null | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "default"
       }
     ],
     "inherited": []

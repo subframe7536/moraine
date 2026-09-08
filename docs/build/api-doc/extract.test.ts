@@ -71,6 +71,23 @@ export interface DemoProps { title: string }
 
     expect(result?.componentDocs.size).toBeGreaterThan(0)
     expect(result?.componentDocs.has('button')).toBe(true)
+    expect(
+      result?.componentDocs.get('button')?.props.own.find((prop) => prop.name === 'ref'),
+    ).toEqual({
+      name: 'ref',
+      required: false,
+      type: 'JSX.HTMLElementTags["button"] extends { ref?: infer Ref; } ? Ref : never | undefined',
+    })
+    expect(
+      result?.componentDocs.get('breadcrumb')?.props.own.filter((prop) => prop.name === 'ref'),
+    ).toEqual([
+      {
+        name: 'ref',
+        required: false,
+        type: 'Ref<HTMLElement> | undefined',
+        description: 'Ref forwarded to the root `<nav>` element.',
+      },
+    ])
   })
 
   test('returns null when dist/index.d.mts is missing', async () => {

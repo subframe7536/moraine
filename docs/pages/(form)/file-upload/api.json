@@ -59,6 +59,12 @@
           "description": "Present while the related thumb or handle is being dragged."
         },
         {
+          "name": "data-dropzone",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        },
+        {
           "name": "data-invalid",
           "required": false,
           "type": "string | undefined",
@@ -347,7 +353,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",

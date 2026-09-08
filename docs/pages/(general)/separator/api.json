@@ -52,7 +52,7 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined",
+        "type": "\"horizontal\" | \"vertical\" & \"horizontal\" | \"vertical\" | null | undefined",
         "description": "The orientation of the separator.",
         "defaultValue": "horizontal"
       },
@@ -64,7 +64,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "sm"
       },
       {
         "name": "style",
@@ -74,7 +76,9 @@
       {
         "name": "type",
         "required": false,
-        "type": "\"solid\" | \"dashed\" | \"dotted\" | undefined"
+        "type": "\"solid\" | \"dashed\" | \"dotted\" | null | undefined",
+        "description": "Visual type of the component.",
+        "defaultValue": "solid"
       }
     ],
     "inherited": []

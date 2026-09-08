@@ -26,7 +26,14 @@
       "name": "input",
       "description": "Native number input element.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-auto-align",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": [
         {
           "name": "aria-valuemax",
@@ -87,7 +94,8 @@
       {
         "name": "align",
         "required": false,
-        "type": "\"center\" | \"start\" | null | undefined"
+        "type": "\"center\" | \"start\" | null | undefined",
+        "description": "Text alignment; omitted values follow the control layout."
       },
       {
         "name": "autofocus",
@@ -256,7 +264,9 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | null | undefined"
+        "type": "\"horizontal\" | \"vertical\" | null | undefined",
+        "description": "Visual layout direction.",
+        "defaultValue": "horizontal"
       },
       {
         "name": "placeholder",
@@ -320,7 +330,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "step",
@@ -348,7 +360,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | null | undefined"
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | null | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "outline"
       },
       {
         "name": "wheel",

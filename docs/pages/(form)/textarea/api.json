@@ -33,7 +33,14 @@
       "name": "input",
       "description": "Native textarea control used for multi-line text entry.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-autoresize",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -59,11 +66,6 @@
         "type": "number | undefined",
         "description": "Delay in milliseconds before focusing the textarea.",
         "defaultValue": "0"
-      },
-      {
-        "name": "autoresize",
-        "required": false,
-        "type": "boolean | \"true\" | \"false\" | null | undefined"
       },
       {
         "name": "autoResize",
@@ -161,8 +163,8 @@
       {
         "name": "onChange",
         "required": false,
-        "type": "((value: ModifierValue<M>) => void) | undefined",
-        "description": "Callback when the textarea value change is committed."
+        "type": "JSX.EventHandlerUnion<HTMLTextAreaElement, Event> | undefined",
+        "description": "Native change event, after value synchronization and FormField notification."
       },
       {
         "name": "onFocus",
@@ -198,7 +200,8 @@
       {
         "name": "ref",
         "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+        "type": "Ref<HTMLDivElement> | undefined",
+        "description": "Optional inner textarea element ref."
       },
       {
         "name": "required",
@@ -217,7 +220,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",
@@ -233,7 +238,7 @@
         "name": "textareaRef",
         "required": false,
         "type": "Ref<HTMLTextAreaElement> | undefined",
-        "description": "Optional inner textarea element ref."
+        "description": "Ref for the editable textarea element."
       },
       {
         "name": "value",
@@ -244,7 +249,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | null | undefined"
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | null | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "outline"
       }
     ],
     "inherited": []

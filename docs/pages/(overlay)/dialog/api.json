@@ -436,7 +436,8 @@
             "name": "scrollable",
             "required": false,
             "type": "boolean & boolean | null | undefined",
-            "description": "Whether the overlay should scroll the complete dialog panel."
+            "description": "Whether the overlay should scroll the complete dialog panel.",
+            "defaultValue": "false"
           },
           {
             "name": "style",

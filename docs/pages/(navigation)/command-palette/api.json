@@ -479,7 +479,7 @@
       {
         "name": "ref",
         "required": false,
-        "type": "(Ref<HTMLDivElement> & JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never) | undefined",
+        "type": "Ref<HTMLDivElement> | undefined",
         "description": "Ref forwarded to the root `<div>` element."
       },
       {

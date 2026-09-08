@@ -125,7 +125,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",
@@ -140,7 +142,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"default\" | \"outline\" | \"invert\" | undefined",
+        "type": "KbdT.Variant[\"variant\"] | null | undefined",
         "description": "Visual style variant applied to rendered shortcut keys."
       }
     ],

@@ -33,7 +33,14 @@
       "name": "legend",
       "description": "Legend text that labels the checkbox group.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field input is required."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -170,7 +177,14 @@
       "name": "label",
       "description": "Primary label text for an option.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field input is required."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -274,7 +288,7 @@
       {
         "name": "indicator",
         "required": false,
-        "type": "\"hidden\" | \"end\" | \"start\" | undefined",
+        "type": "\"hidden\" | \"end\" | \"start\" | null | undefined",
         "description": "Default indicator position for all items."
       },
       {
@@ -304,7 +318,9 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined"
+        "type": "\"horizontal\" | \"vertical\" | null | undefined",
+        "description": "Visual layout direction.",
+        "defaultValue": "vertical"
       },
       {
         "name": "readOnly",
@@ -328,7 +344,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",
@@ -341,11 +359,6 @@
         "type": "CheckboxGroupT.Styles | undefined"
       },
       {
-        "name": "tableOrientation",
-        "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined"
-      },
-      {
         "name": "value",
         "required": false,
         "type": "string[] | undefined",
@@ -354,7 +367,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"list\" | \"table\" | \"card\" | undefined"
+        "type": "\"list\" | \"table\" | \"card\" | null | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "list"
       }
     ],
     "inherited": []

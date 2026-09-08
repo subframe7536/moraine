@@ -261,7 +261,9 @@
           {
             "name": "invert",
             "required": false,
-            "type": "boolean | \"true\" | \"false\" | null | undefined"
+            "type": "boolean | \"true\" | \"false\" | null | undefined",
+            "description": "Visual invert of the component.",
+            "defaultValue": "false"
           },
           {
             "name": "kbds",
@@ -277,7 +279,9 @@
           {
             "name": "side",
             "required": false,
-            "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | null | undefined"
+            "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined",
+            "description": "Preferred placement relative to the trigger.",
+            "defaultValue": "top"
           },
           {
             "name": "style",

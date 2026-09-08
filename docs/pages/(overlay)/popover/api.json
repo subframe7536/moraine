@@ -282,7 +282,9 @@
           {
             "name": "side",
             "required": false,
-            "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | null | undefined"
+            "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined",
+            "description": "Preferred placement relative to the trigger.",
+            "defaultValue": "bottom"
           },
           {
             "name": "style",
