@@ -131,6 +131,12 @@
         "defaultValue": "horizontal"
       },
       {
+        "name": "precision",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Number of decimal places to format the percentage in status text and aria-valuetext."
+      },
+      {
         "name": "ref",
         "required": false,
         "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"

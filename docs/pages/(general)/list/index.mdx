@@ -7,7 +7,7 @@ search:
   tags: [list, collection, virtualization, headless, virtual list, dynamic height]
 ---
 
-import { Badge, List } from '@src'
+import { List } from '@src'
 
 ## Import
 
@@ -26,43 +26,6 @@ import type { ListT } from 'moraine'
 
 `List` itself does not impose a dataset-size or frame-rate guarantee; virtualization performance depends on row content, browser workload, and virtualizer configuration.
 
-## Playground
-
-<Playground
-  controls={[
-    { kind: 'input', prop: 'label', label: 'List title', defaultValue: 'Recent projects' },
-  ]}
->
-  {(props) => {
-    const PROJECT_ITEMS = [
-      { id: '1', name: 'Moraine UI', status: 'Active', category: 'Design System' },
-      { id: '2', name: 'SolidDocs', status: 'Review', category: 'Documentation' },
-      { id: '3', name: 'Formisch', status: 'Stable', category: 'Form Validation' },
-    ]
-
-    return (
-      <>
-        <p class="text-xs text-muted-foreground/80 tracking-wider font-medium mb-2 uppercase">{props.label}</p>
-        <List
-          items={PROJECT_ITEMS}
-          itemRender={(ctx) => (
-            <li class="p-3 border-b border-border/50 rounded-lg flex transition-colors items-center justify-between last:border-0 hover:bg-muted/30">
-              <div>
-                <p class="text-xs text-foreground font-medium">{ctx.item.name}</p>
-                <p class="text-[0.7rem] text-muted-foreground">{ctx.item.category}</p>
-              </div>
-              <Badge variant="outline" size="sm">{ctx.item.status}</Badge>
-            </li>
-          )}
-          class="p-1 border border-border/60 rounded-xl bg-card/30"
-        />
-      </>
-    )
-
-}}
-
-</Playground>
-
 ## Anatomy
 
 ```text
@@ -71,20 +34,6 @@ root (<ul> by default)
 ```
 
 When virtualization is enabled, `props` contains attributes supplied by the virtual renderer for the final row element.
-
-## Usage
-
-### Normal and virtual lists
-
-Use the normal renderer for modest collections. For large collections, provide the virtualizer configuration and stable item identity required by virtual rendering.
-
-<Preview path="./list-usage" />
-
-### Dynamic heights
-
-Dynamic measurement is application-owned configuration. Use it only when row height cannot be known in advance, and keep rendered row content stable enough for measurements to remain useful.
-
-<Preview path="./dynamic-heights-usage" />
 
 ## Examples
 

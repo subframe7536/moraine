@@ -537,7 +537,14 @@ export function FileUpload<T extends ValidComponent = 'div'>(
   function Content(): JSX.Element {
     return (
       <div data-slot="wrapper" {...resolved.slot('wrapper')}>
-        <Icon name={merged.icon} slotName="icon" {...resolved.slot('icon')} />
+        <Show
+          when={dropzone()}
+          fallback={<Icon name={merged.icon} slotName="icon" {...resolved.slot('icon')} />}
+        >
+          <div class="text-muted-foreground mb-1 p-2.5 border border-border rounded-full bg-background flex shadow-xs items-center justify-center">
+            <Icon name={merged.icon} slotName="icon" {...resolved.slot('icon')} />
+          </div>
+        </Show>
 
         <Show when={label()}>
           <span id={labelId()} data-slot="label" {...resolved.slot('label')}>

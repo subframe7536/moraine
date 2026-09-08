@@ -22,7 +22,12 @@ export function useDisclosureState(options: UseDisclosureStateOptions) {
       return
     }
 
-    setContentHeight(element.scrollHeight)
+    if (options.open() || contentHeight() === 0) {
+      const height = element.scrollHeight
+      if (height > 0) {
+        setContentHeight(height)
+      }
+    }
   }
 
   function queueContentHeightMeasurement(element = contentEl): void {

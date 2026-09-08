@@ -1614,4 +1614,35 @@ describe('DropdownMenu', () => {
       vi.useRealTimers()
     }
   })
+
+  test('renders checkbox indicator without absolute overlap when item has shortcuts', () => {
+    render(() => (
+      <DropdownMenu defaultOpen preventScroll={false}>
+        <DropdownMenu.Trigger as="button" type="button">
+          Options
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              type: 'checkbox',
+              label: 'Show Bookmarks',
+              checked: true,
+              kbds: ['⌘', 'B'],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const item = document.body.querySelector('[role="menuitemcheckbox"]')
+    const indicator = document.body.querySelector('[data-slot="itemIndicator"]')
+    const trailing = document.body.querySelector('[data-slot="itemTrailing"]')
+
+    expect(item).not.toBeNull()
+    expect(indicator).not.toBeNull()
+    expect(trailing).not.toBeNull()
+    expect(indicator?.className).not.toContain('absolute')
+    expect(trailing?.contains(indicator)).toBe(true)
+    expect(trailing?.textContent).toContain('⌘')
+  })
 })

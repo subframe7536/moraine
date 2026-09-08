@@ -54,7 +54,7 @@ export interface ResizableHandleRegistration {
   setDragging: (dragging: boolean) => void
   setCrossHovered: (hovered: boolean) => void
   onDrag: (deltaPx: number, altKey: boolean) => void
-  onDragEnd: (event: PointerEvent | TouchEvent | MouseEvent) => void
+  onDragEnd: (event?: Event) => void
 }
 
 interface RegisteredHandleEntry {
@@ -222,7 +222,7 @@ export function scheduleResizableHandleIntersectionsRefresh(): void {
   queueMicrotask(runScheduledIntersectionsRefresh)
 }
 
-function clearDragSession(event: PointerEvent | TouchEvent | MouseEvent): void {
+function clearDragSession(event?: Event): void {
   if (!dragSession) {
     return
   }
@@ -629,6 +629,7 @@ export function startResizableHandleDrag(
           pointermove: onPointerMove,
           pointerup: clearDragSession,
           pointercancel: clearDragSession,
+          lostpointercapture: clearDragSession,
         })
       : undefined
 
@@ -640,6 +641,7 @@ export function startResizableHandleDrag(
           pointerup: clearDragSession,
           pointercancel: clearDragSession,
           contextmenu: clearDragSession,
+          blur: clearDragSession,
         })
 
   dragSession = {

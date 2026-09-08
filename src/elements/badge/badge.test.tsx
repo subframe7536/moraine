@@ -66,11 +66,19 @@ describe('Badge', () => {
         </Badge>
       </MoraineProvider>
     ))
+    const subtle = render(() => (
+      <MoraineProvider>
+        <Badge variant="subtle" size="md">
+          Subtle
+        </Badge>
+      </MoraineProvider>
+    ))
 
     expect(solid.container.querySelector('[data-slot="root"]')?.className).toContain('bg-primary')
     expect(outline.container.querySelector('[data-slot="root"]')?.className).toContain(
       'border-border',
     )
+    expect(subtle.container.querySelector('[data-slot="root"]')?.className).toContain('bg-muted/60')
   })
 
   test('renders leading and trailing icon slots', () => {

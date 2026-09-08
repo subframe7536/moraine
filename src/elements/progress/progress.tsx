@@ -30,6 +30,7 @@ export function Progress(props: ProgressProps): JSX.Element {
     'value',
     'max',
     'status',
+    'precision',
     'getValueLabel',
     'statusRender',
     'stepRender',
@@ -98,6 +99,19 @@ export function Progress(props: ProgressProps): JSX.Element {
     }
   })
 
+  const formatPercent = createMemo(() => {
+    const current = percent()
+    if (current === undefined) {
+      return '0%'
+    }
+
+    if (local.precision !== undefined) {
+      return `${current.toFixed(local.precision)}%`
+    }
+
+    return `${current}%`
+  })
+
   const valueText = createMemo(() => {
     if (isIndeterminate()) {
       return undefined
@@ -108,7 +122,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       return valueLabel({ value: resolvedValue(), min: minValue, max: resolvedMax() })
     }
 
-    return `${percent() ?? 0}%`
+    return formatPercent()
   })
 
   const statusStyle = createMemo<JSX.CSSProperties>(() => {
@@ -183,7 +197,7 @@ export function Progress(props: ProgressProps): JSX.Element {
                 style={{ ...statusStyle(), ...resolved.slot('status').style }}
                 {...dataAttrs()}
               >
-                <Show when={statusRender() !== undefined} fallback={`${percent() ?? 0}%`}>
+                <Show when={statusRender() !== undefined} fallback={formatPercent()}>
                   {renderComponentOrElement(statusRender(), {
                     get percent() {
                       return percent()

@@ -627,4 +627,28 @@ describe('Popover', () => {
     expect(updatedContent?.className).toContain('-enter-translate-x-1')
     expect(updatedContent?.getAttribute('data-side')).toBe('right')
   })
+
+  test('does not dismiss on instant click in hover mode when already open', async () => {
+    vi.useFakeTimers()
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Popover mode="hover" openDelay={50} onOpenChange={onOpenChange}>
+        <Popover.Trigger as="button" type="button">
+          Hover Trigger
+        </Popover.Trigger>
+        <Popover.Content content="Hover details" />
+      </Popover>
+    ))
+    const trigger = screen.getByRole('button')
+
+    // Open via hover
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(50)
+    expect(document.body.querySelector('[role="dialog"]')).not.toBeNull()
+
+    // Click trigger while open should NOT dismiss it
+    fireEvent.click(trigger)
+    await vi.advanceTimersByTimeAsync(50)
+    expect(document.body.querySelector('[role="dialog"]')).not.toBeNull()
+  })
 })

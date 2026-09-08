@@ -16,26 +16,26 @@
 
 ### UI Regression
 
-- [ ] textarea inline padding too large, not balanced
-- [ ] slider bold variant 's thumb indicator is missing
-- [ ] file-upload style refactor to https://diceui.com/docs/components/base/file-upload
-- [ ] correct/verify button group separator
-- [ ] badge subtle variant style 's border color is too contrast with background color
-- [ ] transition on collapsible is broken
-- [ ] separator should be thinner
-- [ ] process indicator percision control?
-- [ ] list Playground & Usage should removed
-- [ ] resizable divider is not follows the mouse: when move out and back, the divider will directly move instead of waiting mouse move on the divider
+- [x] textarea inline padding too large, not balanced
+- [x] slider bold variant 's thumb indicator is missing
+- [x] file-upload style refactor to https://diceui.com/docs/components/base/file-upload
+- [x] correct/verify button group separator
+- [x] badge subtle variant style 's border color is too contrast with background color
+- [x] transition on collapsible is broken
+- [x] separator should be thinner
+- [x] process indicator percision control?
+- [x] list Playground & Usage should removed
+- [x] resizable divider is not follows the mouse: when move out and back, the divider will directly move instead of waiting mouse move on the divider
 - [ ] kbd-group 's `*Render` should be renamed and reconsider default value
-- [ ] refresh breadcrumb/pagination usage and examples doc
-- [ ] command-palette gaps between groups is too large
-- [ ] sidebar-frame styling is broken, more useful usage and example
-- [ ] popover hover mode when hover and click instantly, the floating pannel will show and dismiss quickly
-- [ ] tooltip 's trigger when click/active, the tooltip should dismiss
-- [ ] dialog `### Nested overlays` usage preview style broken
-- [ ] dropdown-menu `### Stateful and nested items` 's checkbox item 's indicator overlaps the text
-- [ ] add more complex, real-world example in dropdown-menu & context-menu
-- [ ] solid-toaster have a option to prevent duplicate toast, add it in example
+- [x] refresh breadcrumb/pagination usage and examples doc
+- [x] command-palette gaps between groups is too large
+- [x] sidebar-frame styling is broken, more useful usage and example
+- [x] popover hover mode when hover and click instantly, the floating pannel will show and dismiss quickly
+- [x] tooltip 's trigger when click/active, the tooltip should dismiss
+- [x] dialog `### Nested overlays` usage preview style broken
+- [x] dropdown-menu `### Stateful and nested items` 's checkbox item 's indicator overlaps the text
+- [x] add more complex, real-world example in dropdown-menu & context-menu
+- [x] solid-toaster have a option to prevent duplicate toast, add it in example
 
 # V1
 
