@@ -31,6 +31,7 @@ export function useDisclosureState(options: UseDisclosureStateOptions) {
   }
 
   function queueContentHeightMeasurement(element = contentEl): void {
+    // oxlint-disable-next-line subf/solid-reactivity
     queueMicrotask(() => {
       if (!element?.isConnected) {
         return
