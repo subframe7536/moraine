@@ -20,16 +20,16 @@
 - [x] process indicator percision control?
 - [x] separator should be thinner
 - [x] solid-toaster have a option to prevent duplicate toast, add it in example
-- [ ] transition on collapsible is broken
-- [ ] list Playground & Usage should removed
-- [ ] resizable divider is not follows the mouse: when move out and back, the divider will directly move instead of waiting mouse move on the divider
-- [ ] refresh breadcrumb/pagination usage and examples doc
-- [ ] command-palette gaps between groups is too large
-- [ ] popover hover mode when hover and click instantly, the floating pannel will show and dismiss quickly
-- [ ] tooltip trigger when click/active, the content should dismiss; content should instantly dismiss the old one and show the new one when some tooltip opened and move onto other one,
-- [ ] dialog `### Nested overlays` usage preview style broken
-- [ ] dropdown-menu `### Stateful and nested items` 's checkbox item 's indicator overlaps the text
-- [ ] add more complex, real-world example in dropdown-menu & context-menu
+- [x] transition on collapsible is broken
+- [x] list Playground & Usage should removed
+- [x] resizable divider is not follows the mouse: when move out and back, the divider will directly move instead of waiting mouse move on the divider
+- [x] refresh breadcrumb/pagination usage and examples doc
+- [x] command-palette gaps between groups is too large
+- [x] popover hover mode when hover and click instantly, the floating pannel will show and dismiss quickly
+- [x] tooltip trigger when click/active, the content should dismiss; content should instantly dismiss the old one and show the new one when some tooltip opened and move onto other one,
+- [x] dialog `### Nested overlays` usage preview style broken
+- [x] dropdown-menu `### Stateful and nested items` 's checkbox item 's indicator overlaps the text
+- [x] add more complex, real-world example in dropdown-menu & context-menu
 
 ### Refactor
 

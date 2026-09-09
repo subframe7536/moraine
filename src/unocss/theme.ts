@@ -74,7 +74,7 @@ export interface MoraineColorVariablesOptions {
   lightSelector?: string
 }
 
-const RE_ATTR = /^(data|aria)-(\w+):/
+const RE_ATTR = /^(data|aria)-([\w-]+):/
 
 interface ResolvedPresetThemeOptions {
   globalStyles: boolean
@@ -353,15 +353,19 @@ export function presetMoraine(options?: PresetThemeOptions): Preset {
   const normalized = resolvePresetThemeOptions(options)
   const colorVariablesCSS = createColorVariablesCSS(normalized.colorVariables)
   const variants: Preset['variants'] = [
-    (matcher) => {
-      const match = matcher.match(RE_ATTR)
-      if (!match) {
-        return matcher
-      }
-      return {
-        matcher: matcher.slice(match[0].length),
-        selector: (s) => `${s}[${match[1]}-${match[2]}]`,
-      }
+    {
+      name: 'moraine-attribute',
+      multiPass: true,
+      match(matcher) {
+        const match = matcher.match(RE_ATTR)
+        if (!match) {
+          return matcher
+        }
+        return {
+          matcher: matcher.slice(match[0].length),
+          selector: (s) => `${s}[${match[1]}-${match[2]}]`,
+        }
+      },
     },
   ]
 

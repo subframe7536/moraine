@@ -19,6 +19,27 @@ describe('presetMoraine', () => {
   test.each([
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],
+  ])('compiles compound and hyphenated attributes with %s', async (_name, wind) => {
+    const css = await generate(
+      [
+        'data-transition:data-expanded:animate-accordion-down',
+        'data-transition:data-closed:h-0',
+        'data-instant-motion:data-expanded:animate-none',
+        'data-instant-motion:data-closed:animate-none',
+      ],
+      false,
+      wind,
+    )
+    expect(css).toContain('[data-expanded][data-transition]')
+    expect(css).toContain('[data-closed][data-transition]')
+    expect(css).toContain('[data-expanded][data-instant-motion]')
+    expect(css).toContain('[data-closed][data-instant-motion]')
+    expect(css).toContain('animation:none')
+    expect(css).toContain('@keyframes accordion-down')
+  })
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
   ])('compiles CSS variable shorthand with %s', async (_name, wind) => {
     const utilities = {
       w: 'width',

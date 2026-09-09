@@ -12,6 +12,28 @@ let getMockPlacement: () => string = () => 'bottom'
 let setMockPlacement: (value: string) => void = () => undefined
 
 describe('Popover', () => {
+  test.each([0, 100])('keeps hover content open when clicked after %i ms', async (delay) => {
+    vi.useFakeTimers()
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Popover mode="hover" openDelay={100} closeDelay={100} onOpenChange={onOpenChange}>
+        <Popover.Trigger>Hover target</Popover.Trigger>
+        <Popover.Content content="Hover content" />
+      </Popover>
+    ))
+    const trigger = screen.getByText('Hover target')
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(delay)
+    fireEvent.pointerDown(trigger, { pointerType: 'mouse' })
+    fireEvent.focus(trigger)
+    fireEvent.click(trigger)
+    await vi.advanceTimersByTimeAsync(200)
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(onOpenChange.mock.calls).toEqual([[true]])
+    fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(100)
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+  })
   beforeEach(() => {
     const [placement, setPlacement] = createSignal('bottom')
     getMockPlacement = placement

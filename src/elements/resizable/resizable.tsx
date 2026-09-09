@@ -42,6 +42,7 @@ import type { ResizableProps, ResizableT } from './resizable.types.ts'
 export * from './resizable.types.ts'
 
 interface DragState {
+  deltaPx: number
   initialSizes: number[]
   handleIndex: number
   altKey: boolean
@@ -678,6 +679,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
     }
 
     drag = {
+      deltaPx: 0,
       initialSizes: [...sizes()],
       handleIndex,
       altKey,
@@ -695,16 +697,14 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
     if (!drag || drag.handleIndex !== handleIndex || drag.altKey !== altKey) {
       drag = resetDragState(handleIndex, altKey)
-    } else {
-      // Incremental mode: base each resize step on the last committed sizes
-      // so that a per-frame delta accumulates correctly without position jumps.
-      drag.initialSizes = [...drag.lastSizes]
     }
+
+    drag.deltaPx += deltaPx
 
     const nextSizes = normalizeSizes(
       resizeFromHandle({
         handleIndex,
-        deltaPercentage: deltaPx / Math.max(rootSize(), 1),
+        deltaPercentage: drag.deltaPx / Math.max(rootSize(), 1),
         altKey,
         initialSizes: drag.initialSizes,
         panels: resolvedPanels(),

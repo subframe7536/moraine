@@ -795,6 +795,18 @@ describe('z-index', () => {
 // ─── Animations ───────────────────────────────────────────────────────
 
 describe('animations', () => {
+  test('compiles compound disclosure and instant tooltip states', async () => {
+    const css = await compileCSS([
+      'data-transition:data-expanded:animate-accordion-down',
+      'data-instant-motion:data-expanded:animate-none',
+      'data-instant-motion:data-closed:animate-none',
+    ])
+    expect(css).toContain('[data-transition][data-expanded]')
+    expect(css).toContain('[data-instant-motion][data-expanded]')
+    expect(css).toContain('[data-instant-motion][data-closed]')
+    expect(css).toContain('animation: none')
+    expect(css).toContain('@keyframes accordion-down')
+  })
   test('animate-mo-enter uses CSS variable duration', async () => {
     const css = await compileCSS(['animate-mo-enter'])
     expect(css).toMatchInlineSnapshot(`

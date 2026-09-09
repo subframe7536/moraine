@@ -8,6 +8,46 @@ import { renderWithTheme } from '../../test-utils/theme-render.tsx'
 import { DropdownMenu } from './dropdown-menu.tsx'
 
 describe('DropdownMenu', () => {
+  test.each(['checkbox', 'radio'] as const)(
+    'reserves an inline indicator for an unchecked %s item',
+    async (type) => {
+      const [checked, setChecked] = createSignal(false)
+      renderWithTheme(() => (
+        <DropdownMenu defaultOpen>
+          <DropdownMenu.Trigger>Preferences</DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            items={[
+              {
+                type,
+                label: 'Show bookmarks bar',
+                description: 'Keep important links visible',
+                group: 'view',
+                value: 'bookmarks',
+                checked: checked(),
+                kbds: ['Ctrl', 'B'],
+              },
+            ]}
+          />
+        </DropdownMenu>
+      ))
+      const item = await waitFor(() => {
+        const element = document.body.querySelector(`[role="menuitem${type}"]`)
+        expect(element).not.toBeNull()
+        return element!
+      })
+      const indicator = item.querySelector('[data-slot="itemIndicator"]')!
+      expect(indicator.parentElement?.getAttribute('data-slot')).toBe('itemTrailing')
+      expect(indicator.classList.contains('absolute')).toBe(false)
+      expect(indicator.classList.contains('shrink-0')).toBe(true)
+      expect(indicator.childElementCount).toBe(0)
+      setChecked(true)
+      await waitFor(() => {
+        expect(
+          document.body.querySelector('[data-slot="itemIndicator"]')?.childElementCount,
+        ).toBeGreaterThan(0)
+      })
+    },
+  )
   test('applies top-level class and style to trigger', () => {
     renderWithTheme(() => (
       <DropdownMenu>

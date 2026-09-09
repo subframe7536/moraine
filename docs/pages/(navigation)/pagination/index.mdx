@@ -1,6 +1,6 @@
 ---
 title: Pagination
-description: Page navigation with sibling windows, optional edge controls, polymorphic page items, and current-page metadata.
+description: Page navigation with sibling windows, optional previous and next controls, link destinations, and current-page metadata.
 sidebar:
   order: 4
 search:
@@ -20,9 +20,9 @@ import type { PaginationT } from 'moraine'
 ## Features
 
 - **Sibling Window**: `siblingCount` controls how many nearby page numbers remain visible around the current page, with ellipses filling gaps.
-- **Edge Controls**: `showEdges` adds controls for the first and last page; `showControls` controls previous/next buttons.
+- **Navigation Controls**: `showControls` controls previous/next buttons. The first and last page numbers remain available around the sibling window.
 - **Pagination Landmark**: Uses a pagination navigation landmark and marks the active page with `aria-current="page"`.
-- **Polymorphic Page Items**: Configure page controls to render with the element/component shape required by your router or application.
+- **Link Destinations**: Use `to(page)` to generate anchor destinations for page controls.
 - **Controlled State**: `page` and `onPageChange` support application-owned page state.
 
 ## Playground
@@ -52,17 +52,25 @@ import type { PaginationT } from 'moraine'
 >
   {(props) => {
     const [page, setPage] = createSignal(1)
+    const itemsPerPage = () => {
+      const value = Number(props.itemsPerPage)
+      return Number.isFinite(value) ? Math.max(1, Math.trunc(value)) : 10
+    }
+    const pageCount = () => Math.ceil(100 / itemsPerPage())
+    const currentPage = () => Math.min(page(), pageCount())
     return (
       <div class="flex flex-col gap-3 items-center">
         <Pagination
           total={100}
-          page={page()}
+          page={currentPage()}
           onPageChange={setPage}
-          itemsPerPage={props.itemsPerPage}
+          itemsPerPage={itemsPerPage()}
           size={props.size}
           showControls={props.showControls}
         />
-        <span class="text-xs text-muted-foreground font-mono">Current Page: {page()} of 10</span>
+        <span class="text-xs text-muted-foreground font-mono">
+          Current Page: {currentPage()} of {pageCount()}
+        </span>
       </div>
     )
   }}
@@ -82,13 +90,13 @@ root (pagination navigation)
 
 ### Current page
 
-Use `page` with `onChange` for controlled navigation. The component calculates the visible sibling window and edge controls; the surrounding application owns data fetching and URL updates.
+Use `page` with `onPageChange` for controlled navigation. `total` is the number of records, not the page count; the component derives the page count from `itemsPerPage`. The surrounding application owns data fetching and URL updates.
 
 <Preview path="./page-state" />
 
 ### Rendering links
 
-Use the supported polymorphic rendering path when page controls should be links. Ensure the resulting link target and current-page semantics fit the router in use.
+Use `to(page)` to render page controls as links. This example uses Solid Router's `useSearchParams` to keep the current page synchronized with destinations such as `/pagination?page=2`, including browser back and forward navigation. The application owns URL state; `to` only generates destinations.
 
 <Preview path="./link-rendering" />
 

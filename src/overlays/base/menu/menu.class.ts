@@ -12,8 +12,9 @@ export const overlayMenuRecipeOptions = {
     itemWrapper: 'flex flex-1 flex-col gap-0.5 min-w-0',
     itemLabel: 'truncate',
     itemDescription: 'text-xs text-muted-foreground truncate',
-    itemTrailing: 'text-sm ms-auto inline-flex gap-2 pointer-events-none items-center justify-end',
-    itemIndicator: 'flex size-4 pointer-events-none items-center end-2 justify-center absolute',
+    itemTrailing:
+      'text-sm ms-auto inline-flex shrink-0 gap-2 pointer-events-none items-center justify-end',
+    itemIndicator: 'flex shrink-0 size-4 pointer-events-none items-center justify-center',
     label: 'text-xs text-muted-foreground font-medium px-2 py-1.5 inline-flex',
     separator: 'my-1 bg-border h-px -mx-1',
   },

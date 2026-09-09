@@ -132,7 +132,15 @@ export function Popover(props: PopoverProps): JSX.Element {
       dismissible={merged.dismissible}
       onClosePrevent={merged.onClosePrevent}
       role="dialog"
-      toggleOnClick
+      toggleOnClick={merged.mode === 'click'}
+      onTriggerClick={({ open, isOpen }) => {
+        if (merged.mode === 'hover') {
+          invalidateHoverTimers()
+          if (!isOpen) {
+            open()
+          }
+        }
+      }}
       onTriggerFocus={
         merged.mode === 'hover'
           ? ({ open }) => {

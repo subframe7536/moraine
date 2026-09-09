@@ -2,7 +2,7 @@ import { Breadcrumb } from '@src'
 
 const BREADCRUMB_ITEMS = [
   { label: 'Home', href: '/' },
-  { label: 'Components', href: '/general/button' },
+  { label: 'Components', href: '/button' },
   { label: 'Breadcrumb' },
 ]
 

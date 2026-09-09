@@ -36,6 +36,31 @@ function mockInstantTooltipExit(): void {
 }
 
 describe('Tooltip', () => {
+  test.each([0, 600])('dismisses activation and cancels reopening after %i ms', async (delay) => {
+    vi.useFakeTimers()
+    mockInstantTooltipExit()
+    const screen = render(() => (
+      <Tooltip>
+        <Tooltip.Trigger>Press target</Tooltip.Trigger>
+        <Tooltip.Content text="Press hint" />
+      </Tooltip>
+    ))
+    const trigger = screen.getByText('Press target')
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(delay)
+    fireEvent.pointerDown(trigger, { pointerType: 'mouse' })
+    fireEvent.focus(trigger)
+    fireEvent.click(trigger)
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(document.querySelector('[role="tooltip"]')).toBeNull()
+    fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(600)
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    fireEvent.click(trigger, { detail: 0 })
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+  })
   beforeEach(() => {
     const [placement, setPlacement] = createSignal('top')
     getMockPlacement = placement
@@ -549,7 +574,7 @@ describe('Tooltip', () => {
     expect(getAlwaysContent().getAttribute('data-expanded')).toBe('')
   })
 
-  test('keeps the first hover delay when another tooltip starts open', async () => {
+  test('skips the hover delay when another tooltip starts open', async () => {
     vi.useFakeTimers()
 
     const screen = render(() => (
@@ -576,12 +601,6 @@ describe('Tooltip', () => {
 
     fireEvent.pointerEnter(screen.getByText('Delayed'), { pointerType: 'mouse' })
 
-    expect(hasDelayedTooltip()).toBe(false)
-
-    await vi.advanceTimersByTimeAsync(99)
-    expect(hasDelayedTooltip()).toBe(false)
-
-    await vi.advanceTimersByTimeAsync(1)
     expect(hasDelayedTooltip()).toBe(true)
   })
 

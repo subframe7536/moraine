@@ -582,11 +582,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             </Show>
           </Show>
 
-          <Show
-            when={(contentProps.isCheckbox || contentProps.isRadio) && contentProps.checked?.()}
-          >
+          <Show when={contentProps.isCheckbox || contentProps.isRadio}>
             <span data-slot="itemIndicator" {...resolveSlot('itemIndicator')}>
-              <Icon name={props.checkedIcon} />
+              <Show when={contentProps.checked?.()}>
+                <Icon name={props.checkedIcon} />
+              </Show>
             </span>
           </Show>
         </span>

@@ -3,14 +3,14 @@ import { Breadcrumb } from '@src'
 export function CustomSeparatorDisabled() {
   return (
     <Breadcrumb
-      separator={() => '/'}
+      separator={() => <span>/</span>}
       classes={{
         separator: 'size-unset',
       }}
       items={[
-        { label: 'Workspace', href: '#', icon: 'i-lucide:briefcase' },
-        { label: 'Settings', href: '#', icon: 'i-lucide:settings' },
-        { label: 'Danger Zone', href: '#', disabled: true, icon: 'i-lucide:triangle-alert' },
+        { label: 'Home', href: '/', icon: 'i-lucide:home' },
+        { label: 'Private workspace', href: '/breadcrumb', disabled: true, icon: 'i-lucide:lock' },
+        { label: 'Activity' },
       ]}
     />
   )

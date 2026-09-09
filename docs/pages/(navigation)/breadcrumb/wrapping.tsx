@@ -5,18 +5,18 @@ export function Wrapping() {
   const [wrap, setWrap] = createSignal(true)
 
   return (
-    <div class="space-y-3">
+    <div class="min-w-0 w-full space-y-3">
       <Button onClick={() => setWrap((value) => !value)}>
         Wrap: {wrap() ? 'enabled' : 'disabled'}
       </Button>
 
-      <div class="max-w-md">
+      <div class="p-3 border border-border rounded-lg max-w-xs overflow-x-auto">
         <Breadcrumb
           wrap={wrap()}
           items={[
-            { label: 'Very long section name that can wrap', href: '#' },
-            { label: 'Another long nested section title', href: '#' },
-            { label: 'Current page with long title', href: '#', active: true },
+            { label: 'Component documentation', href: '/' },
+            { label: 'Navigation and page organization', href: '/breadcrumb' },
+            { label: 'Responsive breadcrumb trails' },
           ]}
         />
       </div>

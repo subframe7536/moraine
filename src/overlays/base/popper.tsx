@@ -171,6 +171,12 @@ export interface PopperProps {
   /** Called when the trigger loses focus. */
   onTriggerBlur?: (controls: PopperControls) => void
 
+  /** Called when the trigger is activated. */
+  onTriggerClick?: (controls: PopperControls, event: MouseEvent) => void
+
+  /** Called when a pointer press starts on the trigger. */
+  onTriggerPointerDown?: (controls: PopperControls, event: PointerEvent) => void
+
   /** Called when the trigger receives focus. */
   onTriggerFocus?: (controls: PopperControls) => void
 
@@ -654,8 +660,17 @@ function PopperTrigger(props: PopperTriggerProps): JSX.Element {
       },
       onClick: (event: MouseEvent) => {
         callHandler<HTMLElement, MouseEvent>(event, userTriggerProps()?.onClick)
+        if (!event.defaultPrevented) {
+          options.onTriggerClick?.(context.getControls(), event)
+        }
         if (!event.defaultPrevented && options.toggleOnClick) {
           context.getControls().toggle()
+        }
+      },
+      onPointerDown: (event: PointerEvent) => {
+        callHandler<HTMLElement, PointerEvent>(event, userTriggerProps()?.onPointerDown)
+        if (!event.defaultPrevented) {
+          options.onTriggerPointerDown?.(context.getControls(), event)
         }
       },
       onFocus: (event: FocusEvent) => {

@@ -24,7 +24,7 @@ export const dialogRecipe = /* @__PURE__ */ slotRecipe<DialogT.Slot, DialogT.Var
     title: DIALOG_TITLE_CLASS,
     description: DIALOG_DESCRIPTION_CLASS,
     close: `${DIALOG_CLOSE_CLASS} inline-flex items-center justify-center size-8 rounded-md hover:bg-accent focus-visible:(outline-none ring-2 ring-ring) disabled:(pointer-events-none opacity-50)`,
-    body: `${DIALOG_BODY_CLASS} data-scroll:overflow-y-auto not-data-header:pt-6 data-footer:pb-2 not-data-footer:pb-6`,
+    body: `${DIALOG_BODY_CLASS} pt-6 pb-6 data-header:pt-0 data-footer:pb-2 data-scroll:overflow-y-auto`,
     footer: DIALOG_FOOTER_CLASS,
   },
   variants: {

@@ -35,7 +35,6 @@ interface TooltipTimers {
 interface ActiveTooltip {
   close: () => void
   id: string
-  skipsOpenDelay: boolean
 }
 
 interface TooltipSkipDelay {
@@ -86,7 +85,7 @@ function clearActiveTooltip(id: string): void {
 }
 
 function shouldOpenImmediately(): boolean {
-  return Boolean(activeTooltip?.skipsOpenDelay || skipDelay)
+  return Boolean(activeTooltip || skipDelay)
 }
 
 /** Hover-triggered informational overlay anchored to a trigger element. */
@@ -110,7 +109,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   let ownerAlive = true
   let timerVersion = 0
   let wasResolvedOpen = false
-  let wasOpenedByInteraction = false
+  let dismissedByPress = false
   let disabledInitialized = false
   let wasDisabled = false
 
@@ -145,7 +144,9 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   function closeImmediately(): void {
     invalidateTimers()
     setShouldUseInstantMotion(true)
-    requestOpen(false)
+    if (open()) {
+      requestOpen(false)
+    }
 
     if (open()) {
       setShouldUseInstantMotion(false)
@@ -159,7 +160,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   }
 
   function scheduleOpen(openTooltip: () => void, isOpen: boolean): void {
-    if (merged.disabled) {
+    if (merged.disabled || dismissedByPress) {
       return
     }
 
@@ -169,8 +170,6 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     if (isOpen) {
       return
     }
-
-    wasOpenedByInteraction = true
 
     if (shouldOpenImmediately()) {
       requestTooltipOpen(openTooltip, true)
@@ -245,7 +244,6 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         setActiveTooltip({
           id: tooltipId(),
           close: closeImmediately,
-          skipsOpenDelay: wasOpenedByInteraction,
         })
       }
 
@@ -273,14 +271,24 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       toggleOnClick={false}
       restoreFocusOnClose={false}
       describeTrigger
+      onTriggerPointerDown={() => {
+        dismissedByPress = true
+        closeImmediately()
+      }}
+      onTriggerClick={() => {
+        dismissedByPress = true
+        closeImmediately()
+      }}
       onTriggerFocus={(props) => {
         scheduleOpen(props.open, props.isOpen)
       }}
       onTriggerBlur={(props) => {
+        dismissedByPress = false
         scheduleClose(props.close, props.isOpen)
       }}
       onTriggerPointerEnter={(props, event) => {
         if (event.pointerType === 'mouse' || !event.pointerType) {
+          dismissedByPress = false
           scheduleOpen(props.open, props.isOpen)
         }
       }}

@@ -95,7 +95,7 @@ Root (context only)
 
 ### Triggering the menu
 
-Wrap the target with the render-function child. The menu opens from a context-menu gesture, keyboard context-menu keys, or a supported touch/pen long press. Avoid putting essential actions only in a context menu.
+Wrap the target with `ContextMenu.Trigger`. The menu opens from a context-menu gesture, keyboard context-menu keys, or a supported touch/pen long press. Avoid putting essential actions only in a context menu.
 
 <Preview path="./trigger-usage" />
 
@@ -117,6 +117,12 @@ Groups, separators, checkbox items, radio items, disabled items, and nested chil
 | <kbd>Escape</kbd>                               | Closes the current menu layer.                             |
 
 ## Examples
+
+### File actions
+
+Move a file between folders, add it to favorites, or move it to the trash and undo. These actions update local example state; permission-dependent actions remain disabled.
+
+<Preview path="./file-actions" />
 
 ### Basic context menu
 

@@ -1557,6 +1557,32 @@ describe('Resizable', () => {
       expect(handle.getAttribute('data-dragging')).toBeNull()
     })
 
+    test.each([1, -1])(
+      'keeps a constrained divider still until the pointer returns (%i)',
+      async (direction) => {
+        const onResize = vi.fn()
+        const screen = render(() => (
+          <ResizableFixture
+            onResize={onResize}
+            items={[
+              { content: 'Left', min: '20%', max: '80%' },
+              { content: 'Right', min: '20%', max: '80%' },
+            ]}
+          />
+        ))
+        await waitForLayoutInitialization()
+        const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+        fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
+        fireEvent.pointerMove(window, { pointerId: 1, clientX: direction * 500, clientY: 0 })
+        const callsAtLimit = onResize.mock.calls.length
+        fireEvent.pointerMove(window, { pointerId: 1, clientX: direction * 400, clientY: 0 })
+        expect(onResize).toHaveBeenCalledTimes(callsAtLimit)
+        fireEvent.pointerMove(window, { pointerId: 1, clientX: direction * 200, clientY: 0 })
+        expect(onResize.mock.calls.at(-1)?.[0][0]).toBeCloseTo(500 + direction * 200)
+        fireEvent.pointerUp(window, { pointerId: 1 })
+      },
+    )
+
     test('incremental moves accumulate correctly across multiple pointermove events', async () => {
       const onResize = vi.fn()
 
