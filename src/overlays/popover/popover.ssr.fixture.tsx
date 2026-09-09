@@ -8,7 +8,9 @@ export function renderPopoverFixture(): string {
       <Popover.Trigger as="button" type="button">
         Trigger
       </Popover.Trigger>
-      <Popover.Content ariaLabel="Hydrated popover" content={<span>Hydrated content</span>} />
+      <Popover.Content ariaLabel="Hydrated popover">
+        <span>Hydrated content</span>
+      </Popover.Content>
     </Popover>
   ))
 }

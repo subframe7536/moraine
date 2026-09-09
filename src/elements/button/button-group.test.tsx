@@ -197,7 +197,9 @@ describe('ButtonGroup', () => {
           <Popover.Trigger as={Button} size="icon-md" aria-label="Open save options">
             Options
           </Popover.Trigger>
-          <Popover.Content content={<div>Save options</div>} />
+          <Popover.Content>
+            <div>Save options</div>
+          </Popover.Content>
         </Popover>
       </ButtonGroup>
     ))

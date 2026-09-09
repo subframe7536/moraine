@@ -18,7 +18,7 @@ describe('Popover', () => {
     const screen = render(() => (
       <Popover mode="hover" openDelay={100} closeDelay={100} onOpenChange={onOpenChange}>
         <Popover.Trigger>Hover target</Popover.Trigger>
-        <Popover.Content content="Hover content" />
+        <Popover.Content>{'Hover content'}</Popover.Content>
       </Popover>
     ))
     const trigger = screen.getByText('Hover target')
@@ -52,7 +52,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content content="Popover content" />
+        <Popover.Content>{'Popover content'}</Popover.Content>
       </Popover>
     ))
 
@@ -68,7 +68,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content content="Popover content" />
+        <Popover.Content>{'Popover content'}</Popover.Content>
       </Popover>
     ))
 
@@ -84,7 +84,7 @@ describe('Popover', () => {
         <Popover.Trigger as="a" href="#options">
           Options
         </Popover.Trigger>
-        <Popover.Content content="Popover content" />
+        <Popover.Content>{'Popover content'}</Popover.Content>
       </Popover>
     ))
 
@@ -99,7 +99,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content content="Hover content" />
+        <Popover.Content>{'Hover content'}</Popover.Content>
       </Popover>
     ))
 
@@ -115,7 +115,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content content="Mouse content" />
+        <Popover.Content>{'Mouse content'}</Popover.Content>
       </Popover>
     ))
     const trigger = screen.getByRole('button')
@@ -138,7 +138,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content content="Keyboard content" />
+        <Popover.Content>{'Keyboard content'}</Popover.Content>
       </Popover>
     ))
     const trigger = screen.getByRole('button')
@@ -164,7 +164,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content content="Timed content" />
+        <Popover.Content>{'Timed content'}</Popover.Content>
       </Popover>
     ))
     const trigger = screen.getByRole('button')
@@ -190,7 +190,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content content="Controlled content" />
+        <Popover.Content>{'Controlled content'}</Popover.Content>
       </Popover>
     ))
     const trigger = screen.getByRole('button')
@@ -212,7 +212,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content content="Controlled content" />
+        <Popover.Content>{'Controlled content'}</Popover.Content>
       </Popover>
     ))
     const trigger = screen.getByRole('button')
@@ -232,7 +232,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content ariaLabel="Account actions" content="Named content" />
+        <Popover.Content ariaLabel="Account actions">{'Named content'}</Popover.Content>
       </Popover>
     ))
 
@@ -254,7 +254,7 @@ describe('Popover', () => {
           },
         })}
         {createComponent(Popover.Content, {
-          get content() {
+          get children() {
             contentReads += 1
             return <span>Cached content</span>
           },
@@ -279,7 +279,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content content="Placement content" />
+        <Popover.Content>{'Placement content'}</Popover.Content>
       </Popover>
     ))
 
@@ -298,8 +298,9 @@ describe('Popover', () => {
           classes={{
             content: 'content-slot-class',
           }}
-          content="Styled"
-        />
+        >
+          {'Styled'}
+        </Popover.Content>
       </Popover>
     ))
 
@@ -314,7 +315,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content content="Portal default" />
+        <Popover.Content>{'Portal default'}</Popover.Content>
       </Popover>
     ))
 
@@ -325,7 +326,7 @@ describe('Popover', () => {
   test('renders controlled overlay without a trigger', async () => {
     render(() => (
       <Popover open>
-        <Popover.Content content="No trigger" />
+        <Popover.Content>{'No trigger'}</Popover.Content>
       </Popover>
     ))
 
@@ -354,7 +355,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content content={null} />
+        <Popover.Content>{null}</Popover.Content>
       </Popover>
     ))
     expect(document.body.querySelector('[data-slot="body"]')).toBeNull()
@@ -368,7 +369,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content content="Persistent" />
+        <Popover.Content>{'Persistent'}</Popover.Content>
       </Popover>
     ))
 
@@ -394,7 +395,7 @@ describe('Popover', () => {
           <Popover.Trigger as="button" type="button">
             Trigger
           </Popover.Trigger>
-          <Popover.Content content="Persistent" />
+          <Popover.Content>{'Persistent'}</Popover.Content>
         </Popover>
       </>
     ))
@@ -420,7 +421,7 @@ describe('Popover', () => {
           <Popover.Trigger as="button" type="button">
             Trigger
           </Popover.Trigger>
-          <Popover.Content content="Persistent" />
+          <Popover.Content>{'Persistent'}</Popover.Content>
         </Popover>
       </>
     ))
@@ -446,7 +447,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content content="Closable" />
+        <Popover.Content>{'Closable'}</Popover.Content>
       </Popover>
     ))
 
@@ -480,7 +481,7 @@ describe('Popover', () => {
           <Popover.Trigger as="button" type="button">
             Trigger
           </Popover.Trigger>
-          <Popover.Content content="Closable" />
+          <Popover.Content>{'Closable'}</Popover.Content>
         </Popover>
       </>
     ))
@@ -507,13 +508,13 @@ describe('Popover', () => {
           <Popover.Trigger as="button" type="button">
             First trigger
           </Popover.Trigger>
-          <Popover.Content content="First content" />
+          <Popover.Content>{'First content'}</Popover.Content>
         </Popover>
         <Popover defaultOpen onOpenChange={onSecondOpenChange}>
           <Popover.Trigger as="button" type="button">
             Second trigger
           </Popover.Trigger>
-          <Popover.Content content="Second content" />
+          <Popover.Content>{'Second content'}</Popover.Content>
         </Popover>
       </>
     ))
@@ -547,13 +548,13 @@ describe('Popover', () => {
           <Popover.Trigger as="button" type="button">
             First trigger
           </Popover.Trigger>
-          <Popover.Content content="First content" />
+          <Popover.Content>{'First content'}</Popover.Content>
         </Popover>
         <Popover defaultOpen onOpenChange={onSecondOpenChange}>
           <Popover.Trigger as="button" type="button">
             Second trigger
           </Popover.Trigger>
-          <Popover.Content content="Second content" />
+          <Popover.Content>{'Second content'}</Popover.Content>
         </Popover>
       </>
     ))
@@ -590,7 +591,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content content="Positioned" />
+        <Popover.Content>{'Positioned'}</Popover.Content>
       </Popover>
     ))
 
@@ -609,7 +610,7 @@ describe('Popover', () => {
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
-        <Popover.Content styles={{ content: { width: '200px' } }} content="Styled" />
+        <Popover.Content styles={{ content: { width: '200px' } }}>{'Styled'}</Popover.Content>
       </Popover>
     ))
 
@@ -629,7 +630,7 @@ describe('Popover', () => {
           <Popover.Trigger as="button" type="button">
             Trigger
           </Popover.Trigger>
-          <Popover.Content content="Popover content" />
+          <Popover.Content>{'Popover content'}</Popover.Content>
         </Popover>
       )
     })

@@ -7,6 +7,33 @@ import type { PopperContentContext, PopperPlacement } from './popper'
 import type { OverlayTriggerProps } from './trigger'
 
 describe('Popper primitives', () => {
+  test('resolves plain content children only after opening and tracks replacement', async () => {
+    const [label, setLabel] = createSignal('First')
+    let reads = 0
+    const contentProps = {
+      get children() {
+        reads += 1
+        return <span>{label()}</span>
+      },
+    }
+    const screen = render(() => (
+      <Popper>
+        <Popper.Trigger>{(props) => <button {...props}>Open</button>}</Popper.Trigger>
+        <Popper.Content {...contentProps} />
+      </Popper>
+    ))
+
+    expect(reads).toBe(0)
+    fireEvent.click(screen.getByRole('button'))
+    await waitFor(() =>
+      expect(document.querySelector('[data-slot="positioner"]')?.textContent).toBe('First'),
+    )
+    expect(reads).toBe(1)
+    setLabel('Second')
+    expect(document.querySelector('[data-slot="positioner"]')?.textContent).toBe('Second')
+    expect(reads).toBe(1)
+  })
+
   test('resolves trigger children getter once', () => {
     let childrenReads = 0
 
@@ -44,20 +71,20 @@ describe('Popper primitives', () => {
         onContentPointerEnter={onContentPointerEnter}
         onContentPointerLeave={onContentPointerLeave}
       >
-        <Popper.Trigger
-          children={(props) => (
+        <Popper.Trigger>
+          {(props) => (
             <button {...props} type="button">
               Open
             </button>
           )}
-        />
-        <Popper.Content
-          contentRender={(context) => (
+        </Popper.Trigger>
+        <Popper.Content>
+          {(context) => (
             <div data-testid="content" {...context.contentProps}>
               Content
             </div>
           )}
-        />
+        </Popper.Content>
       </Popper>
     ))
     const trigger = screen.getByRole('button')
@@ -87,19 +114,19 @@ describe('Popper primitives', () => {
 
     render(() => (
       <Popper>
-        <Popper.Trigger
-          children={(props) => (
+        <Popper.Trigger>
+          {(props) => (
             <button {...props} type="button">
               Open
             </button>
           )}
-        />
-        <Popper.Content
-          contentRender={() => {
+        </Popper.Trigger>
+        <Popper.Content>
+          {() => {
             instances += 1
             return <div role="dialog">Content</div>
           }}
-        />
+        </Popper.Content>
       </Popper>
     ))
 
@@ -116,20 +143,20 @@ describe('Popper primitives', () => {
     const onEscapeKeyDown = vi.fn()
     const screen = render(() => (
       <Popper forceMount modal onEscapeKeyDown={onEscapeKeyDown}>
-        <Popper.Trigger
-          children={(props) => (
+        <Popper.Trigger>
+          {(props) => (
             <button {...props} type="button">
               Open
             </button>
           )}
-        />
-        <Popper.Content
-          contentRender={(context) => (
+        </Popper.Trigger>
+        <Popper.Content>
+          {(context) => (
             <div data-slot="content" {...context.contentProps}>
               Content
             </div>
           )}
-        />
+        </Popper.Content>
       </Popper>
     ))
 
@@ -150,14 +177,14 @@ describe('Popper primitives', () => {
   test('uses an absolute positioner for the absolute Floating UI strategy', async () => {
     render(() => (
       <Popper defaultOpen>
-        <Popper.Trigger
-          children={(props) => (
+        <Popper.Trigger>
+          {(props) => (
             <button {...props} type="button">
               Open
             </button>
           )}
-        />
-        <Popper.Content contentRender={(context) => <div {...context.contentProps}>Content</div>} />
+        </Popper.Trigger>
+        <Popper.Content>{(context) => <div {...context.contentProps}>Content</div>}</Popper.Content>
       </Popper>
     ))
 
@@ -169,20 +196,20 @@ describe('Popper primitives', () => {
   test('copies the content z-index to the positioner', async () => {
     render(() => (
       <Popper defaultOpen>
-        <Popper.Trigger
-          children={(props) => (
+        <Popper.Trigger>
+          {(props) => (
             <button {...props} type="button">
               Open
             </button>
           )}
-        />
-        <Popper.Content
-          contentRender={(context) => (
+        </Popper.Trigger>
+        <Popper.Content>
+          {(context) => (
             <div {...context.contentProps} style={{ 'z-index': '73' }}>
               Content
             </div>
           )}
-        />
+        </Popper.Content>
       </Popper>
     ))
 
@@ -198,15 +225,15 @@ describe('Popper primitives', () => {
     render(() => (
       <Popper defaultOpen>
         <Show when={showTrigger()}>
-          <Popper.Trigger
-            children={(props) => (
+          <Popper.Trigger>
+            {(props) => (
               <button {...props} type="button">
                 Open
               </button>
             )}
-          />
+          </Popper.Trigger>
         </Show>
-        <Popper.Content contentRender={(context) => <div {...context.contentProps}>Content</div>} />
+        <Popper.Content>{(context) => <div {...context.contentProps}>Content</div>}</Popper.Content>
       </Popper>
     ))
 
@@ -235,20 +262,20 @@ describe('Popper primitives', () => {
           Outside
         </button>
         <Popper defaultOpen onOpenChange={onOpenChange}>
-          <Popper.Trigger
-            children={(props) => (
+          <Popper.Trigger>
+            {(props) => (
               <button {...props} type="button">
                 Open
               </button>
             )}
-          />
-          <Popper.Content
-            contentRender={(context) => (
+          </Popper.Trigger>
+          <Popper.Content>
+            {(context) => (
               <div data-slot="content" {...context.contentProps}>
                 Content
               </div>
             )}
-          />
+          </Popper.Content>
         </Popper>
       </>
     ))
@@ -265,20 +292,20 @@ describe('Popper primitives', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Popper defaultOpen onOpenChange={onOpenChange}>
-        <Popper.Trigger
-          children={(props) => (
+        <Popper.Trigger>
+          {(props) => (
             <button {...props} type="button">
               Open
             </button>
           )}
-        />
-        <Popper.Content
-          contentRender={(context) => (
+        </Popper.Trigger>
+        <Popper.Content>
+          {(context) => (
             <div data-slot="content" {...context.contentProps}>
               Content
             </div>
           )}
-        />
+        </Popper.Content>
       </Popper>
     ))
 
@@ -304,8 +331,8 @@ describe('Popper primitives', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Popper defaultOpen onOpenChange={onOpenChange}>
-        <Popper.Trigger children={(props) => <button {...props}>Open</button>} />
-        <Popper.Content contentRender={(context) => <div {...context.contentProps}>Content</div>} />
+        <Popper.Trigger>{(props) => <button {...props}>Open</button>}</Popper.Trigger>
+        <Popper.Content>{(context) => <div {...context.contentProps}>Content</div>}</Popper.Content>
       </Popper>
     ))
 
@@ -321,8 +348,8 @@ describe('Popper primitives', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Popper defaultOpen onOpenChange={onOpenChange}>
-        <Popper.Trigger children={(props) => <button {...props}>Open</button>} />
-        <Popper.Content contentRender={(context) => <input {...context.contentProps} />} />
+        <Popper.Trigger>{(props) => <button {...props}>Open</button>}</Popper.Trigger>
+        <Popper.Content>{(context) => <input {...context.contentProps} />}</Popper.Content>
       </Popper>
     ))
     const content = document.body.querySelector('input')!
@@ -340,13 +367,13 @@ describe('Popper primitives', () => {
     const onEscapeKeyDown = vi.fn()
     const screen = render(() => (
       <Popper defaultOpen modal onEscapeKeyDown={onEscapeKeyDown}>
-        <Popper.Trigger
-          children={(props) => (
+        <Popper.Trigger>
+          {(props) => (
             <button {...props} type="button">
               Open
             </button>
           )}
-        />
+        </Popper.Trigger>
       </Popper>
     ))
 
@@ -363,20 +390,20 @@ describe('Popper primitives', () => {
     document.body.append(background)
     const screen = render(() => (
       <Popper defaultOpen modal>
-        <Popper.Trigger
-          children={(props) => (
+        <Popper.Trigger>
+          {(props) => (
             <button {...props} type="button">
               Open
             </button>
           )}
-        />
-        <Popper.Content
-          contentRender={(context) => (
+        </Popper.Trigger>
+        <Popper.Content>
+          {(context) => (
             <div data-slot="content" {...context.contentProps}>
               Content
             </div>
           )}
-        />
+        </Popper.Content>
       </Popper>
     ))
 
@@ -393,20 +420,20 @@ describe('Popper primitives', () => {
     const [placement, setPlacement] = createSignal<PopperPlacement>('top')
     render(() => (
       <Popper open placement={placement()} flip={false} slide={false}>
-        <Popper.Trigger
-          children={(props) => (
+        <Popper.Trigger>
+          {(props) => (
             <button {...props} type="button">
               Open
             </button>
           )}
-        />
-        <Popper.Content
-          contentRender={(context) => (
+        </Popper.Trigger>
+        <Popper.Content>
+          {(context) => (
             <div data-slot="content" {...context.contentProps}>
               <span data-testid="placement">{context.currentPlacement()}</span>
             </div>
           )}
-        />
+        </Popper.Content>
       </Popper>
     ))
 
@@ -435,15 +462,15 @@ describe('Popper primitives', () => {
     let instances = 0
     render(() => (
       <Popper open={open()}>
-        <Popper.Trigger
-          children={(props) => (
+        <Popper.Trigger>
+          {(props) => (
             <button {...props} type="button">
               Open
             </button>
           )}
-        />
-        <Popper.Content
-          contentRender={(context) => {
+        </Popper.Trigger>
+        <Popper.Content>
+          {(context) => {
             instances += 1
             return (
               <div data-slot="content" {...context.contentProps}>
@@ -451,7 +478,7 @@ describe('Popper primitives', () => {
               </div>
             )
           }}
-        />
+        </Popper.Content>
       </Popper>
     ))
 
@@ -475,14 +502,14 @@ describe('Popper primitives', () => {
     Reflect.deleteProperty(globalThis, 'ResizeObserver')
     const screen = render(() => (
       <Popper defaultOpen>
-        <Popper.Trigger
-          children={(props) => (
+        <Popper.Trigger>
+          {(props) => (
             <button {...props} type="button">
               Open
             </button>
           )}
-        />
-        <Popper.Content contentRender={(context) => <div {...context.contentProps}>Content</div>} />
+        </Popper.Trigger>
+        <Popper.Content>{(context) => <div {...context.contentProps}>Content</div>}</Popper.Content>
       </Popper>
     ))
 
@@ -503,21 +530,21 @@ describe('Popper primitives', () => {
     const onEscapeKeyDown = vi.fn()
     render(() => (
       <Popper defaultOpen modal onEscapeKeyDown={onEscapeKeyDown}>
-        <Popper.Trigger
-          children={(props) => (
+        <Popper.Trigger>
+          {(props) => (
             <button {...props} type="button">
               Open
             </button>
           )}
-        />
+        </Popper.Trigger>
         <Show when={showContent()}>
-          <Popper.Content
-            contentRender={(context) => (
+          <Popper.Content>
+            {(context) => (
               <div data-slot="content" {...context.contentProps}>
                 Content
               </div>
             )}
-          />
+          </Popper.Content>
         </Show>
       </Popper>
     ))
@@ -537,10 +564,10 @@ describe('Popper primitives', () => {
   })
 
   test('resolves a force-mounted content render prop once across state changes', async () => {
-    let contentRenderReads = 0
+    let childrenReads = 0
     const contentProps = {
-      get contentRender() {
-        contentRenderReads += 1
+      get children() {
+        childrenReads += 1
         return (context: PopperContentContext) => (
           <div data-slot="content" {...context.contentProps}>
             Content
@@ -550,21 +577,21 @@ describe('Popper primitives', () => {
     }
     const screen = render(() => (
       <Popper forceMount>
-        <Popper.Trigger
-          children={(props) => (
+        <Popper.Trigger>
+          {(props) => (
             <button {...props} type="button">
               Toggle
             </button>
           )}
-        />
+        </Popper.Trigger>
         <Popper.Content {...contentProps} />
       </Popper>
     ))
 
-    expect(contentRenderReads).toBe(1)
+    expect(childrenReads).toBe(1)
     fireEvent.click(screen.getByRole('button'))
     fireEvent.click(screen.getByRole('button'))
-    expect(contentRenderReads).toBe(1)
+    expect(childrenReads).toBe(1)
   })
 
   test('retargets positioning when the trigger is replaced', async () => {
@@ -574,8 +601,8 @@ describe('Popper primitives', () => {
         <Show
           when={useFirstTrigger()}
           fallback={
-            <Popper.Trigger
-              children={(props) => (
+            <Popper.Trigger>
+              {(props) => (
                 <button
                   {...props}
                   ref={(element) => {
@@ -597,11 +624,11 @@ describe('Popper primitives', () => {
                   Second
                 </button>
               )}
-            />
+            </Popper.Trigger>
           }
         >
-          <Popper.Trigger
-            children={(props) => (
+          <Popper.Trigger>
+            {(props) => (
               <button
                 {...props}
                 ref={(element) => {
@@ -623,9 +650,9 @@ describe('Popper primitives', () => {
                 First
               </button>
             )}
-          />
+          </Popper.Trigger>
         </Show>
-        <Popper.Content contentRender={(context) => <div {...context.contentProps}>Content</div>} />
+        <Popper.Content>{(context) => <div {...context.contentProps}>Content</div>}</Popper.Content>
       </Popper>
     ))
 
@@ -645,16 +672,16 @@ describe('Popper primitives', () => {
     expect(() =>
       render(() => (
         <Popper defaultOpen flip="bottom sideways">
-          <Popper.Trigger
-            children={(props) => (
+          <Popper.Trigger>
+            {(props) => (
               <button {...props} type="button">
                 Open
               </button>
             )}
-          />
-          <Popper.Content
-            contentRender={(context) => <div {...context.contentProps}>Content</div>}
-          />
+          </Popper.Trigger>
+          <Popper.Content>
+            {(context) => <div {...context.contentProps}>Content</div>}
+          </Popper.Content>
         </Popper>
       )),
     ).toThrow('`flip` expects a space-delimited list of placements')

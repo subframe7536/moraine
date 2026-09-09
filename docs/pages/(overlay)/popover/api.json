@@ -256,7 +256,8 @@
           {
             "name": "children",
             "required": false,
-            "type": "JSX.Element"
+            "type": "JSX.Element",
+            "description": "Body content."
           },
           {
             "name": "class",
@@ -268,12 +269,6 @@
             "name": "classes",
             "required": false,
             "type": "PopoverT.Classes | undefined"
-          },
-          {
-            "name": "content",
-            "required": false,
-            "type": "JSX.Element",
-            "description": "Body content; an explicit null or false value suppresses children."
           },
           {
             "name": "ref",

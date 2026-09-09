@@ -15,10 +15,9 @@ export function NestedOverlays() {
             <Popover.Trigger as={Button} variant="outline">
               View settings help
             </Popover.Trigger>
-            <Popover.Content
-              ariaLabel="Settings help"
-              content="Changes apply to this workspace only."
-            />
+            <Popover.Content ariaLabel="Settings help">
+              Changes apply to this workspace only.
+            </Popover.Content>
           </Popover>
           <Dialog>
             <Dialog.Trigger as={Button}>Confirm workspace changes</Dialog.Trigger>

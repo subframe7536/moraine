@@ -49,23 +49,21 @@ import type { PopoverT } from 'moraine'
       <Popover.Trigger as={Button} variant="outline" size="sm">
         Adjust dimensions
       </Popover.Trigger>
-      <Popover.Content
-        content={
-          <div class="p-4 w-72 space-y-3">
-            <h4 class="text-xs text-foreground font-semibold">Dimensions & Scale</h4>
-            <div class="space-y-2">
-              <div class="flex gap-2 items-center justify-between">
-                <span class="text-xs text-muted-foreground">Width</span>
-                <Input size="sm" defaultValue="100%" class="w-28" />
-              </div>
-              <div class="flex gap-2 items-center justify-between">
-                <span class="text-xs text-muted-foreground">Max height</span>
-                <Input size="sm" defaultValue="300px" class="w-28" />
-              </div>
+      <Popover.Content>
+        <div class="p-4 w-72 space-y-3">
+          <h4 class="text-xs text-foreground font-semibold">Dimensions & Scale</h4>
+          <div class="space-y-2">
+            <div class="flex gap-2 items-center justify-between">
+              <span class="text-xs text-muted-foreground">Width</span>
+              <Input size="sm" defaultValue="100%" class="w-28" />
+            </div>
+            <div class="flex gap-2 items-center justify-between">
+              <span class="text-xs text-muted-foreground">Max height</span>
+              <Input size="sm" defaultValue="300px" class="w-28" />
             </div>
           </div>
-        }
-      />
+        </div>
+      </Popover.Content>
     </Popover>
   )}
 </Playground>

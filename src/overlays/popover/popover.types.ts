@@ -68,8 +68,7 @@ export namespace PopoverT {
     side?: 'top' | 'right' | 'bottom' | 'left'
 
     ariaLabel?: string
-    /** Body content; an explicit null or false value suppresses children. */
-    content?: JSX.Element
+    /** Body content. */
     children?: JSX.Element
   }
 

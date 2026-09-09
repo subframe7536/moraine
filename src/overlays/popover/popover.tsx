@@ -4,7 +4,6 @@ import {
   children as resolveChildren,
   createComponent,
   createEffect,
-  createMemo,
   mergeProps,
   on,
   onCleanup,
@@ -15,11 +14,8 @@ import { hasJsxContent } from '../../shared/jsx-content.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
 import { mergePopperContentProps } from '../base/popper.tsx'
-import type { PopperContentContext } from '../base/popper.tsx'
 
 import type { PopoverProps, PopoverT } from './popover.types.ts'
-
-export type { PopoverProps, PopoverT } from './popover.types.ts'
 
 /** Click-triggered floating content panel anchored to a trigger element. */
 export function Popover(props: PopoverProps): JSX.Element {
@@ -256,7 +252,6 @@ function PopoverTrigger<T extends ValidComponent = 'button'>(
 function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'ariaLabel',
-    'content',
     'children',
     'side',
     'class',
@@ -264,31 +259,28 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
     'classes',
     'styles',
   ])
+  const content = resolveChildren(() => local.children)
+  const resolved = createComponentStyles('popover', local, { rootSlot: 'content' })
 
-  function Content(context: PopperContentContext): JSX.Element {
-    const explicitContent = createMemo(() => local.content)
-    const content = createMemo(() => {
-      const value = explicitContent()
-      return value === undefined ? resolveChildren(() => local.children)() : value
-    })
-    const resolved = createComponentStyles('popover', local, { rootSlot: 'content' })
-    return (
-      <div
-        {...mergePopperContentProps(context.contentProps, rest)}
-        data-slot="content"
-        data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'bottom')}
-        aria-label={local.ariaLabel ?? rest['aria-label']}
-        {...resolved.root}
-      >
-        <Show when={hasJsxContent(content())}>
-          <div data-slot="body" {...resolved.slot('body')}>
-            {content()}
-          </div>
-        </Show>
-      </div>
-    )
-  }
-  return <Popper.Content contentRender={Content} />
+  return (
+    <Popper.Content>
+      {(context) => (
+        <div
+          {...mergePopperContentProps(context.contentProps, rest)}
+          data-slot="content"
+          data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'bottom')}
+          aria-label={local.ariaLabel ?? rest['aria-label']}
+          {...resolved.root}
+        >
+          <Show when={hasJsxContent(content())}>
+            <div data-slot="body" {...resolved.slot('body')}>
+              {content()}
+            </div>
+          </Show>
+        </div>
+      )}
+    </Popper.Content>
+  )
 }
 
 Popover.Trigger = PopoverTrigger

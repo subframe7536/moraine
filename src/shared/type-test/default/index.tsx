@@ -124,6 +124,11 @@ modalContentContext.close()
   </Popover.Trigger>
   <Popover.Content />
 </Popover>
+// @ts-expect-error Popover content is provided through children.
+;<Popover.Content content="Legacy content" />
+;<Popover.Content>
+  <span>Content</span>
+</Popover.Content>
 ;<Tooltip>
   <Tooltip.Trigger as={CustomRoot} data-testid="tooltip-trigger" required="tooltip">
     Hover target

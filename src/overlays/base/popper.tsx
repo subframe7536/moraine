@@ -278,7 +278,7 @@ export interface PopperTriggerProps {
 
 export interface PopperContentComponentProps {
   /** Component or element rendered inside the positioned content. */
-  contentRender: ComponentOrElement<PopperContentContext>
+  children: ComponentOrElement<PopperContentContext>
 
   /** Class applied to the positioning wrapper. */
   positionerClass?: string
@@ -740,7 +740,6 @@ function PopperAnchor<T extends ValidComponent = 'button'>(
 function PopperContent(props: PopperContentComponentProps): JSX.Element {
   const context = usePopperContext()
   const options = context.options
-  const contentRender = createMemo(() => props.contentRender)
 
   const onContentKeyDown = (event: KeyboardEvent): void => {
     if (options.modal) {
@@ -778,6 +777,7 @@ function PopperContent(props: PopperContentComponentProps): JSX.Element {
     },
   }
 
+  const children = resolveChildren(() => props.children as JSX.Element)
   return (
     <Show when={context.contentMounted()}>
       <Portal>
@@ -795,7 +795,7 @@ function PopperContent(props: PopperContentComponentProps): JSX.Element {
           style={{ visibility: 'hidden', ...props.positionerStyle }}
           class={cn('left-0 top-0 absolute', props.positionerClass)}
         >
-          {renderComponentOrElement(contentRender(), {
+          {renderComponentOrElement(children() as PopperContentComponentProps['children'], {
             close: () => context.setOpen(false),
             contentProps,
             currentPlacement: context.currentPlacement,

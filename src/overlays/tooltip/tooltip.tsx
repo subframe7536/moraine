@@ -19,11 +19,8 @@ import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useId } from '../../shared/utils.ts'
 import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
 import { mergePopperContentProps } from '../base/popper.tsx'
-import type { PopperContentContext } from '../base/popper.tsx'
 
 import type { TooltipProps, TooltipT } from './tooltip.types.ts'
-
-export type { TooltipProps, TooltipT } from './tooltip.types.ts'
 
 const TooltipMotionContext = createContext<() => boolean>(() => false)
 
@@ -346,48 +343,46 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       return local.styles
     },
   })
-  function Content(context: PopperContentContext): JSX.Element {
-    const explicitText = createMemo(() => local.text)
-    const text = createMemo(() => {
-      const value = explicitText()
-      return value === undefined ? resolveChildren(() => local.children)() : value
-    })
-    const kbds = createMemo(() => local.kbds)
-    const resolved = createComponentStyles('tooltip', local, { rootSlot: 'content' })
-    return (
-      <div
-        {...mergePopperContentProps(context.contentProps, rest)}
-        data-slot="content"
-        data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'top')}
-        data-instant-motion={instantMotion() ? '' : undefined}
-        {...resolved.root}
-      >
-        <Show when={typeof text() === 'string'} fallback={text()}>
-          <span data-slot="text" {...resolved.slot('text')}>
-            {text()}
-          </span>
-        </Show>
-        <Show when={kbds()?.length ? kbds() : undefined}>
-          {(keys) => (
-            <KbdGroup
-              variant={resolved.variants.invert ? 'invert' : undefined}
-              size="sm"
-              items={keys()}
-              {...resolved.slot('kbds')}
-              classes={{ item: resolved.slot('kbd').class }}
-              styles={{ item: resolved.slot('kbd').style }}
-            />
-          )}
-        </Show>
-      </div>
-    )
-  }
+  const explicitText = createMemo(() => local.text)
+  const text = createMemo(() => {
+    const value = explicitText()
+    return value === undefined ? resolveChildren(() => local.children)() : value
+  })
+  const kbds = createMemo(() => local.kbds)
+  const resolved = createComponentStyles('tooltip', local, { rootSlot: 'content' })
   return (
     <Popper.Content
-      contentRender={Content}
       positionerClass={positioner.slot('positioner').class}
       positionerStyle={positioner.slot('positioner').style}
-    />
+    >
+      {(context) => (
+        <div
+          {...mergePopperContentProps(context.contentProps, rest)}
+          data-slot="content"
+          data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'top')}
+          data-instant-motion={instantMotion() ? '' : undefined}
+          {...resolved.root}
+        >
+          <Show when={typeof text() === 'string'} fallback={text()}>
+            <span data-slot="text" {...resolved.slot('text')}>
+              {text()}
+            </span>
+          </Show>
+          <Show when={kbds()?.length ? kbds() : undefined}>
+            {(keys) => (
+              <KbdGroup
+                variant={resolved.variants.invert ? 'invert' : undefined}
+                size="sm"
+                items={keys()}
+                {...resolved.slot('kbds')}
+                classes={{ item: resolved.slot('kbd').class }}
+                styles={{ item: resolved.slot('kbd').style }}
+              />
+            )}
+          </Show>
+        </div>
+      )}
+    </Popper.Content>
   )
 }
 
