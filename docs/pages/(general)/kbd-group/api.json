@@ -38,27 +38,15 @@
       ]
     },
     {
-      "name": "separator",
+      "name": "divider",
       "description": "Divider between keys pressed at the same time.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
     },
     {
-      "name": "divider",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "sequenceSeparator",
-      "description": "Divider between shortcut steps pressed in sequence.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
       "name": "sequenceDivider",
+      "description": "Divider between shortcut steps pressed in sequence.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
@@ -109,7 +97,8 @@
       {
         "name": "dividerRender",
         "required": false,
-        "type": "ComponentOrElement<KbdGroupT.SeparatorRenderProps> | undefined"
+        "type": "ComponentOrElement<KbdGroupT.DividerRenderProps> | undefined",
+        "description": "Custom divider rendered between keys in the same group."
       },
       {
         "name": "items",
@@ -123,12 +112,6 @@
         "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
-        "name": "separatorRender",
-        "required": false,
-        "type": "ComponentOrElement<KbdGroupT.SeparatorRenderProps> | undefined",
-        "description": "Custom separator rendered between keys in the same group."
-      },
-      {
         "name": "sequence",
         "required": false,
         "type": "KbdGroupT.Item[][] | undefined",
@@ -137,13 +120,8 @@
       {
         "name": "sequenceDividerRender",
         "required": false,
-        "type": "ComponentOrElement<KbdGroupT.SeparatorRenderProps> | undefined"
-      },
-      {
-        "name": "sequenceSeparatorRender",
-        "required": false,
-        "type": "ComponentOrElement<KbdGroupT.SeparatorRenderProps> | undefined",
-        "description": "Custom separator rendered between shortcut steps."
+        "type": "ComponentOrElement<KbdGroupT.DividerRenderProps> | undefined",
+        "description": "Custom divider rendered between shortcut steps."
       },
       {
         "name": "size",
