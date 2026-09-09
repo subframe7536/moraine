@@ -78,34 +78,32 @@ export const sliderRecipe = /* @__PURE__ */ slotRecipe<keyof SliderT.Slot>({
       variants: { orientation: 'horizontal', variant: 'default' },
       class: {
         divider: 'h-full w-px',
-        thumb: '[&:not([data-inverted])]:-translate-x-1/2 data-inverted:translate-x-1/2',
+        thumb: '-translate-x-1/2 data-inverted:translate-x-1/2',
       },
     },
     {
       variants: { orientation: 'vertical', variant: 'default' },
       class: {
         divider: 'h-px w-full',
-        thumb: '[&:not([data-inverted])]:translate-y-1/2 data-inverted:-translate-y-1/2',
+        thumb: 'translate-y-1/2 data-inverted:-translate-y-1/2',
       },
     },
     {
       variants: { orientation: 'horizontal', variant: 'bold' },
       class: {
         range:
-          '[&:not([data-inverted])]:after:(h-(--s-len) w-(--s-offset) top-1/2 -translate-y-1/2 left-(--s-pos)) data-inverted:after:(h-(--s-len) w-(--s-offset) top-1/2 -translate-y-1/2 right-(--s-pos)) [&:not([data-inverted])]:data-multiple:before:(h-(--s-len) w-(--s-offset) top-1/2 -translate-y-1/2 left-(--s-offset)) data-inverted:data-multiple:before:(h-(--s-len) w-(--s-offset) top-1/2 -translate-y-1/2 right-(--s-offset))',
+          'after:h-(--s-len) after:w-(--s-offset) after:top-1/2 after:-translate-y-1/2 [&:not([data-inverted])]:after:left-(--s-pos) data-inverted:after:right-(--s-pos) data-multiple:before:h-(--s-len) data-multiple:before:w-(--s-offset) data-multiple:before:top-1/2 data-multiple:before:-translate-y-1/2 [&:not([data-inverted])]:data-multiple:before:left-(--s-offset) data-inverted:data-multiple:before:right-(--s-offset)',
         divider: 'h-1/3 w-px',
-        thumb:
-          '[&:not([data-inverted])]:(h-full top-0 -translate-x-1/2 w-(--s-size)) data-inverted:(h-full top-0 translate-x-1/2 w-(--s-size))',
+        thumb: 'h-full top-0 -translate-x-1/2 w-(--s-size) data-inverted:translate-x-1/2',
       },
     },
     {
       variants: { orientation: 'vertical', variant: 'bold' },
       class: {
         range:
-          '[&:not([data-inverted])]:after:(w-(--s-len) h-(--s-offset) left-1/2 -translate-x-1/2 bottom-(--s-pos)) data-inverted:after:(w-(--s-len) h-(--s-offset) left-1/2 -translate-x-1/2 top-(--s-pos)) [&:not([data-inverted])]:data-multiple:before:(w-(--s-len) h-(--s-offset) left-1/2 -translate-x-1/2 bottom-(--s-offset)) data-inverted:data-multiple:before:(w-(--s-len) h-(--s-offset) left-1/2 -translate-x-1/2 top-(--s-offset))',
+          'after:w-(--s-len) after:h-(--s-offset) after:left-1/2 after:-translate-x-1/2 [&:not([data-inverted])]:after:bottom-(--s-pos) data-inverted:after:top-(--s-pos) data-multiple:before:w-(--s-len) data-multiple:before:h-(--s-offset) data-multiple:before:left-1/2 data-multiple:before:-translate-x-1/2 [&:not([data-inverted])]:data-multiple:before:bottom-(--s-offset) data-inverted:data-multiple:before:top-(--s-offset)',
         divider: 'h-px w-1/3',
-        thumb:
-          '[&:not([data-inverted])]:(w-full left-0 translate-y-1/2 h-(--s-size)) data-inverted:(w-full left-0 -translate-y-1/2 h-(--s-size))',
+        thumb: 'w-full left-0 translate-y-1/2 h-(--s-size) data-inverted:-translate-y-1/2',
       },
     },
   ],

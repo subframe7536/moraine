@@ -764,7 +764,7 @@ describe('Slider', () => {
     expect(thumb?.className).toContain('top-0')
     expect(thumb?.className).toContain('z-control')
     expect(thumb?.className).toContain('cursor-grab')
-    expect(thumb?.className).toContain('-translate-x-1/2')
+    expect(thumb?.classList).toContain('-translate-x-1/2')
   })
 
   test('applies distinct border radius and heights across bold sizes', () => {
@@ -864,8 +864,8 @@ describe('Slider', () => {
     const screen = render(() => <Slider variant="bold" defaultValue={[30, 70]} />)
     const thumbs = getThumbs(screen.container)
 
-    expect(thumbs[0]?.className).toContain('-translate-x-1/2')
-    expect(thumbs[1]?.className).toContain('-translate-x-1/2')
+    expect(thumbs[0]?.classList).toContain('-translate-x-1/2')
+    expect(thumbs[1]?.classList).toContain('-translate-x-1/2')
     expect(thumbs[0]?.className).not.toContain('translate-x-1 -translate-y-1/2')
     expect(thumbs[1]?.className).not.toContain('-translate-x-[calc(100%+4px)]')
   })

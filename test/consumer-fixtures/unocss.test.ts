@@ -54,7 +54,12 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'bg-primary',
         'w-(--mo-popper-anchor-width)',
         'origin-(--mo-popper-content-transform-origin)',
-        'data-inverted:after:h-(--s-offset)',
+        'after:h-(--s-offset)',
+        '-translate-x-1/2',
+        'data-transition:h-(--mo-collapsible-content-height)',
+        'data-[side=bottom]:mt-(--mo-popper-content-overflow-padding)',
+        'data-[side=bottom]:-enter-translate-y-1',
+        'data-[side=right]:-enter-translate-x-1',
       ]
       for (const token of requiredTokens) {
         expect(tokens).toContain(token)

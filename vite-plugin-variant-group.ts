@@ -6,6 +6,7 @@ const CLASS_MODULE_RE = /\.class\.ts(?:\?.*)?$/
 
 /** Expands UnoCSS variant groups in class modules before framework transforms run. */
 export function variantGroupPlugin(): Plugin {
+  // Keep utilities containing parentheses (e.g. h-(--size)) outside variant groups.
   const transformer = transformerVariantGroup({ separators: [':'] })
 
   return {
@@ -17,7 +18,7 @@ export function variantGroupPlugin(): Plugin {
       }
 
       const transformed = new MagicString(code)
-      await transformer.transform(transformed, id, undefined as never)
+      await transformer.transform(transformed, id, undefined)
       if (!transformed.hasChanged()) {
         return null
       }
