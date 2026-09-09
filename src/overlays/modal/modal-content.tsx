@@ -3,9 +3,10 @@ import { Show, children as resolveChildren, createMemo, onCleanup, splitProps } 
 import { Portal } from 'solid-js/web'
 
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
+import { useCn } from '../../shared/provider/cn-context.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { callHandler, callRef, cn } from '../../shared/utils.ts'
+import { callHandler, callRef } from '../../shared/utils.ts'
 import { trapFocusInContainer } from '../base/utils.ts'
 
 import { useModalContext } from './modal-context.ts'
@@ -13,6 +14,7 @@ import type { ModalT } from './modal.types.ts'
 
 /** Standalone Modal presentation; composed overlays use the same unstyled surface. */
 export function ModalContent(props: ModalT.ContentProps): JSX.Element {
+  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'class',
     'style',
@@ -35,6 +37,7 @@ export function ModalContent(props: ModalT.ContentProps): JSX.Element {
 
 /** Shared modal DOM, presence, and focus behavior without a default visual layer. */
 export function ModalSurface(props: ModalT.ContentProps): JSX.Element {
+  const cn = useCn()
   type RuntimeProps = ModalT.ContentBase & {
     class?: ModalT.Classes['content']
     style?: JSX.CSSProperties

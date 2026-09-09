@@ -1,14 +1,7 @@
-import { cn } from '../utils.ts'
+import type { ClassValue, Cn } from './cn.ts'
+import { cn } from './cn.ts'
 
-export type ClassValue =
-  | string
-  | number
-  | bigint
-  | boolean
-  | undefined
-  | null
-  | ClassValue[]
-  | Record<string, unknown>
+export type { ClassValue } from './cn.ts'
 
 type SlotKey<S extends object> = Extract<keyof S, string>
 
@@ -71,6 +64,8 @@ export type ResolvedSlotClasses<S extends object> = Record<SlotKey<S>, string | 
 
 export interface SlotRecipeFn<S extends object, V> {
   (variants?: ComponentVariantSelection<V>): ResolvedSlotClasses<S>
+  /** Resolves all contributions with the supplied merger. */
+  resolve: (variants: ComponentVariantSelection<V> | undefined, cn: Cn) => ResolvedSlotClasses<S>
   readonly options: ComponentRecipeConfig<S, V>
 }
 
@@ -87,6 +82,12 @@ export interface AtomicRecipeOptions<
 
 export interface AtomicRecipeFn<V extends Record<string, Record<string, ClassValue>>> {
   (variants?: VariantSelection<V>, ...extraClasses: ClassValue[]): string | undefined
+  /** Resolves all contributions and extra classes with the supplied merger. */
+  resolve: (
+    variants: VariantSelection<V> | undefined,
+    cn: Cn,
+    ...extraClasses: ClassValue[]
+  ) => string | undefined
   readonly options: AtomicRecipeOptions<V>
 }
 
@@ -162,7 +163,10 @@ function getSelectedVariantValues<C>(
 export function slotRecipe<S extends object, V>(
   options: ComponentRecipeConfig<S, V>,
 ): SlotRecipeFn<S, V> {
-  const recipeFn = ((variants?: ComponentVariantSelection<V>): ResolvedSlotClasses<S> => {
+  const resolve = (
+    variants: ComponentVariantSelection<V> | undefined,
+    cn: Cn,
+  ): ResolvedSlotClasses<S> => {
     const activeVariants = getActiveVariants(options, variants)
     const contributions = [
       options.base,
@@ -185,7 +189,11 @@ export function slotRecipe<S extends object, V>(
       classes[slot] = cn(slotClasses[slot])
     }
     return classes
-  }) as SlotRecipeFn<S, V>
+  }
+  const recipeFn = Object.assign(
+    (variants?: ComponentVariantSelection<V>) => resolve(variants, cn),
+    { resolve },
+  ) as SlotRecipeFn<S, V>
 
   Object.defineProperty(recipeFn, 'options', { value: options, enumerable: true })
   return recipeFn
@@ -194,7 +202,11 @@ export function slotRecipe<S extends object, V>(
 export function atomicRecipe<V extends Record<string, Record<string, ClassValue>>>(
   options: AtomicRecipeOptions<V>,
 ): AtomicRecipeFn<V> {
-  const recipeFn = (variants?: VariantSelection<V>, ...extraClasses: ClassValue[]) => {
+  const resolve = (
+    variants: VariantSelection<V> | undefined,
+    cn: Cn,
+    ...extraClasses: ClassValue[]
+  ) => {
     const activeVariants = getActiveVariants(options, variants)
     const classes: ClassValue[] = [options.base]
 
@@ -213,6 +225,11 @@ export function atomicRecipe<V extends Record<string, Record<string, ClassValue>
 
     return cn(classes, ...extraClasses)
   }
+  const recipeFn = Object.assign(
+    (variants?: VariantSelection<V>, ...extraClasses: ClassValue[]) =>
+      resolve(variants, cn, ...extraClasses),
+    { resolve },
+  )
   Object.defineProperty(recipeFn, 'options', { value: options, enumerable: true })
   return recipeFn as AtomicRecipeFn<V>
 }

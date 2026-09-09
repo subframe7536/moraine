@@ -2,13 +2,14 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { useCn } from '../../shared/provider/cn-context.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
-import { cn } from '../../shared/utils.ts'
 
 import type { IconProps } from './icon.types.ts'
 
 /** Renders an icon from a UnoCSS icon class, JSX element, or render function. */
 export function Icon(props: IconProps): JSX.Element {
+  const cn = useCn()
   const [local, rest] = splitProps(props, ['name', 'class', 'style', 'size', 'slotName'])
   const resolved = createComponentStyles('icon', local, {
     dynamicStyles: () => ({

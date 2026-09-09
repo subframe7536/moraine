@@ -10,9 +10,10 @@
 - [x] add indicator type in `<component>T` to indicate if the component is a single or a composite/namespaced component
 - [x] cleanup `data-[*`
 - [x] remove `SlotName` in namespace, add missing jsdoc on slot keys; `slotRecipe` 's type param usage should be `slotRecipe<ComponentT.Slot, ComponentT.Variant>()`
-- [ ] `cn` config should be customizable in MoraineProvider
+- [x] `cn` config should be customizable in MoraineProvider
+- [ ] reorganize [overlay base](src/components/overlay/base) props, move to namespace component specific props
 - [ ] metric adjust across all sizes
-- [ ] production barrel import optimize
+- [ ] production barrel import optimize, reconsider exports
 - [ ] cleanup ssr adaption
 
 ### UI Regression
@@ -39,8 +40,6 @@
 - [ ] correct/verify button group separator
 - [ ] badge variants config refresh, maybe similar to button?
 - [ ] kbd-group 's `*Render` should be renamed and reconsider default value
-- [ ] reorganize [overlay base](src/components/overlay/base) props, move to namespace component specific props
-  - [ ] tooltip should become a single component, remove trigger and content; refactor implemention
 - [ ] sidebar-frame styling is broken, more useful usage and example
 - [ ] src/forms/form/form-field.tsx 's `local.form` should be reconsidered
 - [ ] itemRender in pagination

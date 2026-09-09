@@ -12,9 +12,10 @@ import {
   onMount,
 } from 'solid-js'
 
+import { useCn } from '../../shared/provider/cn-context.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { callHandler, callRef, cn, useId } from '../../shared/utils.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
 
 import {
   collapsePanel,
@@ -169,6 +170,7 @@ function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
 
 /** Resizable panel layout with draggable dividers and keyboard support. */
 export function Resizable(props: ResizableProps): JSX.Element {
+  const cn = useCn()
   const [localProps, rest] = splitProps(props, [
     'id',
     'children',

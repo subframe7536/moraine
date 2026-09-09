@@ -1,14 +1,19 @@
 import type { JSX } from 'solid-js'
-import { useContext } from 'solid-js'
+import { createMemo, useContext } from 'solid-js'
 
 import type { MoraineTheme } from '../../theme/types.ts'
+import type { CnConfig } from '../style/cn.ts'
+import { createCn } from '../style/cn.ts'
 
+import { MoraineCnContext } from './cn-context.ts'
 import { MoraineThemeContext } from './theme-context.tsx'
 
 export interface MoraineProviderProps {
   /** Replaces inherited presentation. Undefined inherits the parent Theme; emptyTheme clears it. */
   theme?: MoraineTheme
-  /** Components that receive the theme. */
+  /** Undefined inherits the parent merger; an object replaces it with Moraine defaults plus this config. */
+  cnConfig?: CnConfig
+  /** Components that receive the theme and class merging rules. */
   children?: JSX.Element
 }
 
@@ -16,5 +21,14 @@ export interface MoraineProviderProps {
 export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
   const parent = useContext(MoraineThemeContext)
   const theme = () => props.theme ?? parent()
-  return <MoraineThemeContext.Provider value={theme}>{props.children}</MoraineThemeContext.Provider>
+  const parentCn = useContext(MoraineCnContext)
+  const currentCn = createMemo(() => {
+    const config = props.cnConfig
+    return config === undefined ? parentCn() : createCn(config)
+  })
+  return (
+    <MoraineThemeContext.Provider value={theme}>
+      <MoraineCnContext.Provider value={currentCn}>{props.children}</MoraineCnContext.Provider>
+    </MoraineThemeContext.Provider>
+  )
 }

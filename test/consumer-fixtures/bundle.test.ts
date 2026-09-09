@@ -1,4 +1,4 @@
-// @vitest-environment node
+// @vitest-environment jsdom
 
 import { describe, expect, test } from 'vitest'
 
@@ -29,4 +29,19 @@ describe('published component bundle ownership', () => {
     expect(bundle.code).toContain('--s-len')
     expect(bundle.code).toContain('animate-accordion-down')
   })
+})
+
+test('executes public class merging exports from the built package', async () => {
+  const bundle = await buildConsumerBundle(`
+    import { cn, createCn, useCn } from 'moraine'
+    export { useCn }
+    export const defaultResult = cn('density-roomy density-compact')
+    export const result = createCn({ extend: { classGroups: { density: ['density-roomy', 'density-compact'] } } })('density-roomy density-compact')
+  `)
+  const consumer = await import(
+    `data:text/javascript;base64,${Buffer.from(bundle.code).toString('base64')}`
+  )
+  expect(consumer.result).toBe('density-compact')
+  expect(consumer.defaultResult).toBe('density-roomy density-compact')
+  expect(consumer.useCn()('p-2 p-4')).toBe('p-4')
 })

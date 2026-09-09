@@ -4,10 +4,11 @@ import { For, Show, createEffect, createMemo, createSignal, mergeProps, splitPro
 import { Icon } from '../../elements/icon/index.ts'
 import { List } from '../../elements/list/index.ts'
 import type { ListProps, ListT } from '../../elements/list/index.ts'
+import { useCn } from '../../shared/provider/cn-context.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { cn, callHandler, callRef, useId } from '../../shared/utils.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
 
 import type { CommandPaletteProps, CommandPaletteT } from './command-palette.types.ts'
 
@@ -107,6 +108,7 @@ function createNormalizedGroups<TItem extends CommandPaletteT.Item>(
 export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPaletteT.Item>(
   props: CommandPaletteProps<TItem>,
 ): JSX.Element {
+  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'ref',
     'inputRef',

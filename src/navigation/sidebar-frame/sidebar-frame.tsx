@@ -12,14 +12,16 @@ import {
 } from 'solid-js'
 
 import { Sheet } from '../../overlays/sheet/index.ts'
+import { useCn } from '../../shared/provider/cn-context.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { createMediaQuery } from '../../shared/use-media-query.ts'
-import { callHandler, cn } from '../../shared/utils.ts'
+import { callHandler } from '../../shared/utils.ts'
 
 import { SidebarFrameProvider, useSidebarFrameContext } from './sidebar-frame-context.ts'
 import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types.ts'
 
 function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
+  const cn = useCn()
   const context = useSidebarFrameContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style'])
   const content = resolveChildren(() => local.children)
@@ -59,6 +61,7 @@ function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
 }
 
 function SidebarFrameSidebarHeader(props: SidebarFrameT.SidebarHeaderProps): JSX.Element {
+  const cn = useCn()
   const context = useSidebarFrameContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style'])
   const content = resolveChildren(() => local.children)
@@ -76,6 +79,7 @@ function SidebarFrameSidebarHeader(props: SidebarFrameT.SidebarHeaderProps): JSX
 }
 
 function SidebarFrameSidebarBody(props: SidebarFrameT.SidebarBodyProps): JSX.Element {
+  const cn = useCn()
   const context = useSidebarFrameContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style'])
   const content = resolveChildren(() => local.children)
@@ -93,6 +97,7 @@ function SidebarFrameSidebarBody(props: SidebarFrameT.SidebarBodyProps): JSX.Ele
 }
 
 function SidebarFrameSidebarFooter(props: SidebarFrameT.SidebarFooterProps): JSX.Element {
+  const cn = useCn()
   const context = useSidebarFrameContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style'])
   const content = resolveChildren(() => local.children)
@@ -110,6 +115,7 @@ function SidebarFrameSidebarFooter(props: SidebarFrameT.SidebarFooterProps): JSX
 }
 
 function SidebarFrameMain(props: SidebarFrameT.MainProps): JSX.Element {
+  const cn = useCn()
   const context = useSidebarFrameContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'onScroll'])
   const content = resolveChildren(() => local.children)

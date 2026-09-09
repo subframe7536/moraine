@@ -14,9 +14,10 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { HiddenInput } from '../../shared/hidden-input.tsx'
+import { useCn } from '../../shared/provider/cn-context.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { cn, callRef, useId } from '../../shared/utils.ts'
+import { callRef, useId } from '../../shared/utils.ts'
 import { useFormField, useFormFieldContext } from '../form/form-context.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
@@ -35,6 +36,7 @@ interface NormalizedRadioGroupItem {
 
 /** Single-select radio group with card, list, and table layout variants. */
 export function RadioGroup(props: RadioGroupProps): JSX.Element {
+  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'id',
     'name',

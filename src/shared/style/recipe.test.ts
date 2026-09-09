@@ -341,3 +341,24 @@ test('matches sparse compound-only keys and preserves false, zero, empty string,
   expect(sparse({ count: undefined })).toEqual({ root: 'p-2' })
   expect(sparse({ count: null })).toEqual({})
 })
+
+test('resolves base, variant, compound, and extra classes with an explicit merger', async () => {
+  const { cn, createCn } = await import('./cn.ts')
+  const customCn = createCn({ override: { classGroups: { p: [] } } })
+  const atomic = atomicRecipe({
+    base: 'p-2',
+    variants: { active: { true: 'p-4' } },
+    compoundVariants: [{ active: true, class: 'p-6' }],
+  })
+  const slots = slotRecipe<RootSlot, { active?: boolean }>({
+    base: { root: 'p-2' },
+    variants: { active: { true: { root: 'p-4' } } },
+    compoundVariants: [{ active: true, class: { root: 'p-6' } }],
+  })
+  expect(atomic({ active: true }, 'p-8')).toBe('p-8')
+  expect(atomic.resolve({ active: true }, customCn, 'p-8')).toBe('p-2 p-4 p-6 p-8')
+  expect(slots({ active: true })).toEqual({ root: 'p-6' })
+  expect(slots.resolve({ active: true }, customCn)).toEqual({ root: 'p-2 p-4 p-6' })
+  expect(slots.resolve({ active: true }, cn)).toEqual(slots({ active: true }))
+  expect(slots.options.base).toEqual({ root: 'p-2' })
+})

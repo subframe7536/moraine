@@ -2,8 +2,8 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { children as resolveChildren, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { useCn } from '../../shared/provider/cn-context.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
-import { cn } from '../../shared/utils.ts'
 
 import { useModalContext } from './modal-context.ts'
 import type { ModalT } from './modal.types.ts'
@@ -12,6 +12,7 @@ import type { ModalT } from './modal.types.ts'
 export function ModalClose<T extends ValidComponent = 'button'>(
   props: ModalT.CloseProps<T>,
 ): JSX.Element {
+  const cn = useCn()
   const [local, rest] = splitProps(props, ['as', 'type', 'disabled', 'children', 'class', 'style'])
   const context = useModalContext()
   const interaction = useButtonInteraction(

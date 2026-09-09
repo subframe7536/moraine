@@ -3,8 +3,8 @@ import { createMemo, mergeProps } from 'solid-js'
 
 import type { ThemeName, ThemeSlots, ThemeVariants } from '../../theme/types.ts'
 import type { SlotClassValue } from '../types.ts'
-import { cn } from '../utils.ts'
 
+import { useCn } from './cn-context.ts'
 import { useTheme } from './theme-context.tsx'
 
 const EMPTY_DEFAULTS = Object.freeze({})
@@ -39,6 +39,7 @@ export function createComponentStyles<Name extends ThemeName>(
     },
   options: CreateComponentStylesOptions<ThemeSlots<Name>, ThemeVariants<Name>> = {},
 ) {
+  const cn = useCn()
   const theme = useTheme()
   const entry = createMemo(() => theme()[name])
   const variants = mergeProps(
@@ -48,7 +49,7 @@ export function createComponentStyles<Name extends ThemeName>(
     props,
   )
   const outputs = createMemo(
-    () => entry()?.recipes.map((recipe) => recipe(variants)) ?? EMPTY_OUTPUTS,
+    () => entry()?.recipes.map((recipe) => recipe.resolve(variants, cn)) ?? EMPTY_OUTPUTS,
   )
   const rootSlot = (options.rootSlot ?? 'root') as ThemeSlots<Name>
 

@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, createMemo, splitProps, untrack } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
+import { useCn } from '../../shared/provider/cn-context.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
@@ -23,6 +24,7 @@ import type { NormalizedOption } from './shared/index.ts'
 export function Select<TItem extends SelectT.Value = SelectT.Value>(
   props: SelectProps<TItem>,
 ): JSX.Element {
+  const cn = useCn()
   type Item = SelectT.Item<TItem>
 
   const [local, rest] = splitProps(props, [
@@ -144,22 +146,25 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
   }
 
   function renderDefaultOption(option: (Item & SelectT.OptionRenderState) | null): JSX.Element {
-    return renderDefaultSelectOption({
-      option,
-      classes: {
-        empty: resolved.slot('empty').class,
-        itemLabel: resolved.slot('itemLabel').class,
-        itemDescription: resolved.slot('itemDescription').class,
-        itemTrailing: resolved.slot('itemTrailing').class,
+    return renderDefaultSelectOption(
+      {
+        option,
+        classes: {
+          empty: resolved.slot('empty').class,
+          itemLabel: resolved.slot('itemLabel').class,
+          itemDescription: resolved.slot('itemDescription').class,
+          itemTrailing: resolved.slot('itemTrailing').class,
+        },
+        styles: {
+          empty: resolved.slot('empty').style,
+          itemLabel: resolved.slot('itemLabel').style,
+          itemDescription: resolved.slot('itemDescription').style,
+          itemTrailing: resolved.slot('itemTrailing').style,
+        },
+        labelRender: labelRender(),
       },
-      styles: {
-        empty: resolved.slot('empty').style,
-        itemLabel: resolved.slot('itemLabel').style,
-        itemDescription: resolved.slot('itemDescription').style,
-        itemTrailing: resolved.slot('itemTrailing').style,
-      },
-      labelRender: labelRender(),
-    })
+      cn,
+    )
   }
 
   function clearSelection(api: BaseSelectT.StateApi<Item>): void {

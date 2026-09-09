@@ -15,12 +15,13 @@ import {
 import { Dynamic, Portal } from 'solid-js/web'
 
 import { createContextProvider } from '../../shared/create-context-provider'
+import { useCn } from '../../shared/provider/cn-context.ts'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { callHandler, callRef, cn, useId } from '../../shared/utils'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import type { ModalT } from '../modal/modal.types.ts'
 
 import { useFloatingPosition } from './floating'
@@ -365,7 +366,7 @@ export function Popper(props: PopperProps): JSX.Element {
       dismissible: true,
       disabled: false,
       fitViewport: false,
-      flip: true,   
+      flip: true,
       forceMount: false,
       gutter: 0,
       hideWhenDetached: false,
@@ -712,6 +713,7 @@ function PopperTrigger(props: PopperTriggerProps): JSX.Element {
 function PopperAnchor<T extends ValidComponent = 'button'>(
   props: ModalT.TriggerProps<T>,
 ): JSX.Element {
+  const cn = useCn()
   const [local, rest] = splitProps(props, ['as', 'type', 'disabled', 'children', 'class', 'style'])
   const context = usePopperContext()
   const tag = () => (local.as as ValidComponent) ?? 'button'
@@ -739,6 +741,7 @@ function PopperAnchor<T extends ValidComponent = 'button'>(
 }
 
 function PopperContent(props: PopperContentComponentProps): JSX.Element {
+  const cn = useCn()
   const context = usePopperContext()
   const options = context.options
 

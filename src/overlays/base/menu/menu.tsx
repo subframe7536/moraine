@@ -21,13 +21,15 @@ import { KbdGroup } from '../../../elements/kbd/index.ts'
 import { List } from '../../../elements/list/index.ts'
 import type { ListProps } from '../../../elements/list/index.ts'
 import { createLazyMemo } from '../../../shared/create-lazy-memo.ts'
+import { useCn } from '../../../shared/provider/cn-context.ts'
 import type { ComponentOrElement } from '../../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../../shared/render-prop.ts'
+import type { Cn } from '../../../shared/style/cn.ts'
 import type { ClassValue, ElementProps } from '../../../shared/types.ts'
 import { useControllableValue } from '../../../shared/use-controllable-value.ts'
 import { useEventListener } from '../../../shared/use-event-listener.ts'
 import { useTransitionPresence } from '../../../shared/use-transition-presence.ts'
-import { cn, callHandler, useId } from '../../../shared/utils.ts'
+import { callHandler, useId } from '../../../shared/utils.ts'
 import { useFloatingPosition } from '../floating.ts'
 import { useOverlayInteraction } from '../interaction.ts'
 import {
@@ -180,6 +182,7 @@ function callRef<T extends HTMLElement>(
 function resolveMenuSlot(
   props: Pick<OverlayMenuSharedProps<never>, 'slotBinding' | 'classes' | 'styles'>,
   slot: keyof OverlayMenuSharedSlots,
+  cn: Cn,
 ) {
   return (
     props.slotBinding?.(slot) ?? {
@@ -275,8 +278,9 @@ export interface OverlayMenuRootProps<TItem extends OverlayMenuSharedItem<TItem>
 function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   props: OverlayMenuLayerProps<TItem>,
 ): JSX.Element {
+  const cn = useCn()
   const layer = useOverlayMenuLayerState()
-  const resolveSlot = (slot: keyof OverlayMenuSharedSlots) => resolveMenuSlot(props, slot)
+  const resolveSlot = (slot: keyof OverlayMenuSharedSlots) => resolveMenuSlot(props, slot, cn)
   const resolvedPlacement = () => props.placement ?? 'bottom-start'
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>(
     undefined,
@@ -1374,6 +1378,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
   props: OverlayMenuProps<TItem>,
 ): JSX.Element {
+  const cn = useCn()
   const merged = mergeProps(
     {
       preventScroll: true,
@@ -1524,7 +1529,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
     <Show when={contentPresence.present()}>
       <Portal>
         <Show when={merged.preventScroll}>
-          <div data-slot="overlay" aria-hidden="true" {...resolveMenuSlot(merged, 'overlay')} />
+          <div data-slot="overlay" aria-hidden="true" {...resolveMenuSlot(merged, 'overlay', cn)} />
         </Show>
         <OverlayMenuLayer<TItem>
           id={contentId()}

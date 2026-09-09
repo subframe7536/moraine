@@ -4,8 +4,9 @@ import type { Accessor, JSX } from 'solid-js'
 import { Icon } from '../../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../../shared/render-prop.ts'
+import type { Cn } from '../../../shared/style/cn.ts'
 import type { SlotClassValue, SlotStyleValue } from '../../../shared/types.ts'
-import { cn, useId } from '../../../shared/utils.ts'
+import { useId } from '../../../shared/utils.ts'
 import { useFormField } from '../../form/form-context.ts'
 import type { FormFieldSize, UseFormFieldReturn } from '../../form/form-context.ts'
 
@@ -241,6 +242,7 @@ export function mapNormalizedListToRawValues<TRaw extends { value?: string | num
 
 export function renderDefaultSelectOption<TItem>(
   options: RenderDefaultSelectOptionOptions<TItem>,
+  cn: Cn,
 ): JSX.Element {
   const option = options.option
   if (!option) {

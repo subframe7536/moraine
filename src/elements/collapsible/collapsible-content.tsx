@@ -2,8 +2,9 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { useCn } from '../../shared/provider/cn-context.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
-import { callRef, cn } from '../../shared/utils.ts'
+import { callRef } from '../../shared/utils.ts'
 
 import { useCollapsibleContext } from './collapsible-context.ts'
 import type { CollapsibleT } from './collapsible.types.ts'
@@ -16,6 +17,7 @@ type CollapsibleContentElementFor<T extends ValidComponent> = T extends keyof HT
 export function CollapsibleContent<T extends ValidComponent = 'div'>(
   props: CollapsibleT.ContentProps<T>,
 ): JSX.Element {
+  const cn = useCn()
   type RuntimeProps = CollapsibleT.ContentBase<T> & {
     class?: string
     style?: JSX.CSSProperties

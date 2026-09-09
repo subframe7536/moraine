@@ -1,8 +1,7 @@
-import { createCn, validators } from 'cn/config'
 import type { Accessor } from 'solid-js'
 import { createMemo, createUniqueId } from 'solid-js'
 
-import type { ClassValue } from './style/recipe.ts'
+export { cn } from './style/cn.ts'
 
 /**
  * Generates a unique identifier for accessibility and form association.
@@ -44,28 +43,6 @@ export function useId(
   })
 
   return resolvedId
-}
-
-const _cn = createCn({
-  extend: {
-    classGroups: {
-      z: ['z-base', 'z-raised', 'z-control', 'z-sticky', 'z-resize', 'z-overlay', 'z-floating'],
-      'enter-opacity': [{ 'enter-opacity': [validators.isAny] }],
-      'exit-opacity': [{ 'exit-opacity': [validators.isAny] }],
-      'enter-scale': [{ 'enter-scale': [validators.isAny] }],
-      'exit-scale': [{ 'exit-scale': [validators.isAny] }],
-      'enter-translate-x': [{ 'enter-translate-x': [validators.isAny] }],
-      'exit-translate-x': [{ 'exit-translate-x': [validators.isAny] }],
-      'enter-translate-y': [{ 'enter-translate-y': [validators.isAny] }],
-      'exit-translate-y': [{ 'exit-translate-y': [validators.isAny] }],
-      'enter-rotate': [{ 'enter-rotate': [validators.isAny] }],
-      'exit-rotate': [{ 'exit-rotate': [validators.isAny] }],
-    },
-  },
-})
-
-export function cn(...classes: ClassValue[]): string | undefined {
-  return _cn(...(classes as any[])) || undefined
 }
 
 export interface HandlerCallResult<R = unknown> {

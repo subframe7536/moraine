@@ -3,10 +3,11 @@ import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
+import { useCn } from '../../shared/provider/cn-context.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { cn, useId } from '../../shared/utils.ts'
+import { useId } from '../../shared/utils.ts'
 
 import type { StepperProps, StepperT } from './stepper.types.ts'
 
@@ -22,6 +23,7 @@ interface NormalizedStepperItem {
  * Tab-structured step navigation with configurable orientation and separator layout.
  */
 export function Stepper(props: StepperProps): JSX.Element {
+  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'id',
     'value',

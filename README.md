@@ -88,7 +88,7 @@ const theme = createTheme({
 <MoraineProvider theme={theme}><Button>Save</Button></MoraineProvider>
 ```
 
-A Provider without `theme` inherits its parent theme, or uses empty presentation at the root. An explicit theme replaces the parent; `emptyTheme` clears inherited styles. See the [styling guide](docs/pages/styling.mdx) for theme composition, slot overrides, and value precedence.
+A Provider without `theme` inherits its parent theme, or uses empty presentation at the root. An explicit theme replaces the parent; `emptyTheme` clears inherited styles. Use `cnConfig` to configure class conflict rules independently of the theme. Components and `useCn()` follow the nearest Provider; exported `cn` keeps fixed default rules, and `createCn(config)` creates an independent merger for ordinary code. An omitted `cnConfig` inherits, an object replaces inherited application rules, and `{}` resets to Moraine defaults. See the [styling guide](docs/pages/styling.mdx) for examples, theme composition, and slot precedence.
 
 Input and Textarea forward native attributes and events to their editable controls. `ref`, `class`, and `style` belong to the wrapper; `inputRef` and `textareaRef` target the native control. `onChange` receives the native event, while `onValueChange` receives the normalized value.
 

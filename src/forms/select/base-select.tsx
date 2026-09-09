@@ -18,6 +18,7 @@ import { List } from '../../elements/list/index.ts'
 import type { ListProps, ListT } from '../../elements/list/index.ts'
 import { useFloatingPosition } from '../../overlays/base/floating.ts'
 import { useOverlayInteraction } from '../../overlays/base/interaction.ts'
+import { useCn } from '../../shared/provider/cn-context.ts'
 import type { createComponentStyles } from '../../shared/provider/create-component-styles.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
@@ -26,7 +27,7 @@ import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '..
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { cn, callHandler, callRef, useId } from '../../shared/utils.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import type { UseFormFieldReturn } from '../form/form-context.ts'
 import type {
   FormDisableOption,
@@ -504,6 +505,7 @@ function useBaseSelectOverlay(options: {
 export function BaseSelect<TItem extends BaseSelectT.Item>(
   props: BaseSelectProps<TItem>,
 ): JSX.Element {
+  const cn = useCn()
   const [local, rest] = splitProps(props as BaseSelectProps<TItem> & Record<string, unknown>, [
     'ref',
     'id',

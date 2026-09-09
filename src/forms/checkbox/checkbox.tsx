@@ -3,9 +3,10 @@ import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 
 
 import { Icon } from '../../elements/icon/index.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
+import { useCn } from '../../shared/provider/cn-context.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { cn, callHandler, callRef, useId } from '../../shared/utils.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import { useFormField, useFormFieldContext } from '../form/form-context.ts'
 import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
@@ -16,6 +17,7 @@ import type { CheckboxProps } from './checkbox.types.ts'
 export function Checkbox<TTrue = boolean, TFalse = boolean>(
   props: CheckboxProps<TTrue, TFalse>,
 ): JSX.Element {
+  const cn = useCn()
   type RootProps = CheckboxProps<TTrue, TFalse> & {
     onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
   }

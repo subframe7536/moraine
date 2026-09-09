@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal, splitProps, untrack } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
+import { useCn } from '../../shared/provider/cn-context.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
@@ -76,6 +77,7 @@ function escapeRegex(str: string): string {
 export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Value>(
   props: MultiSelectProps<TItem>,
 ): JSX.Element {
+  const cn = useCn()
   type Item = MultiSelectT.Item<TItem>
 
   const [local, rest] = splitProps(props, [
@@ -475,22 +477,25 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   function renderDefaultOption(
     option: (Item & MultiSelectT.OptionRenderState) | null,
   ): JSX.Element {
-    return renderDefaultSelectOption({
-      option,
-      classes: {
-        empty: resolved.slot('empty').class,
-        itemLabel: resolved.slot('itemLabel').class,
-        itemDescription: resolved.slot('itemDescription').class,
-        itemTrailing: resolved.slot('itemTrailing').class,
+    return renderDefaultSelectOption(
+      {
+        option,
+        classes: {
+          empty: resolved.slot('empty').class,
+          itemLabel: resolved.slot('itemLabel').class,
+          itemDescription: resolved.slot('itemDescription').class,
+          itemTrailing: resolved.slot('itemTrailing').class,
+        },
+        styles: {
+          empty: resolved.slot('empty').style,
+          itemLabel: resolved.slot('itemLabel').style,
+          itemDescription: resolved.slot('itemDescription').style,
+          itemTrailing: resolved.slot('itemTrailing').style,
+        },
+        labelRender: labelRender(),
       },
-      styles: {
-        empty: resolved.slot('empty').style,
-        itemLabel: resolved.slot('itemLabel').style,
-        itemDescription: resolved.slot('itemDescription').style,
-        itemTrailing: resolved.slot('itemTrailing').style,
-      },
-      labelRender: labelRender(),
-    })
+      cn,
+    )
   }
 
   return (

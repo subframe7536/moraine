@@ -96,7 +96,7 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 - Create a `{component}.class.ts` file.
 - Reusable constant class should define as `*_CLASS` global variable
 - Use `recipe` from `src/shared/style/recipe.ts` to define variants.
-- Use `cn` from `src/shared/utils` to combine classes.
+- In components, capture `useCn()` during initialization and use that handle to combine classes. Pass `Cn` explicitly to plain rendering helpers. Use static `cn` or `createCn` for owner-independent tools.
 - No need to create memo for classes, just write them inplace
 - State-based class should use a pure class instead of adding a new variant in `recipe`.
 - Recipe options in `*.class.ts` may use parenthesized variant groups (for example, `hover:(bg-red-500 text-white)`); the build plugin expands them before `cn`, Tailwind, or UnoCSS reads the classes. Use standard flat utility syntax everywhere else.

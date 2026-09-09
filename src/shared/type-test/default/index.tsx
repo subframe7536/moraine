@@ -22,9 +22,14 @@ import {
   Separator,
   Tooltip,
   createForm,
+  cn,
+  createCn,
+  useCn,
   useId,
 } from 'moraine'
 import type {
+  Cn,
+  CnConfig,
   AvatarGroupT,
   AvatarT,
   ButtonT,
@@ -36,7 +41,7 @@ import type {
   SelectT,
   SidebarFrameT,
 } from 'moraine'
-import { createTheme, defaultTheme, emptyTheme } from 'moraine/theme'
+import { atomicRecipe, slotRecipe, createTheme, defaultTheme, emptyTheme } from 'moraine/theme'
 import { createContextProvider, renderComponentOrElement } from 'moraine/utils'
 import type { Component, JSX } from 'solid-js'
 import * as v from 'valibot'
@@ -298,3 +303,30 @@ createTheme({ button: { compoundVariants: [{ size: 'sm', class: { missing: 'p-4'
 ;<Textarea onChange={(value: string) => value.trim()} />
 // @ts-expect-error Null is a suppression value for instances, not a Theme default.
 createTheme({ button: { defaults: { size: null } } })
+
+const cnConfig = {
+  cacheSize: 0,
+  prefix: 'tw',
+  extend: { classGroups: { density: ['density-roomy', 'density-compact'] } },
+} satisfies CnConfig
+const customCn: Cn = createCn(cnConfig)
+const scopedCn: Cn = useCn()
+const mergedClass: string | undefined = cn(customCn('p-2'), scopedCn('p-4'))
+const atomic = atomicRecipe({ variants: { size: { sm: 'p-2' } } })
+const slots = slotRecipe<ButtonT.Slot, ButtonT.Variant>({ base: { root: 'p-2' } })
+const atomicResult: string | undefined = atomic.resolve({ size: 'sm' }, customCn, 'p-4')
+const slotResult: string | undefined = slots.resolve({ size: 'sm' }, customCn).root
+const emptySlots = slotRecipe<{ root: unknown }, never>({ base: { root: 'p-2' } })
+emptySlots.resolve(undefined, customCn)
+// @ts-expect-error resolve preserves inferred variant values.
+atomic.resolve({ size: 'invalid' }, customCn)
+// @ts-expect-error resolve preserves slot names.
+void slots.resolve(undefined, customCn).unknown
+// @ts-expect-error Provider only accepts an extension object.
+;<MoraineProvider cnConfig={customCn} />
+;<MoraineProvider cnConfig={cnConfig}>
+  <Button class={mergedClass}>
+    {atomicResult}
+    {slotResult}
+  </Button>
+</MoraineProvider>

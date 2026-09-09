@@ -4,8 +4,14 @@ import { expect, test } from 'vitest'
 
 import { renderSsrFixture, installHydrationState } from '../../test-utils/ssr-test.ts'
 import { createTheme } from '../../theme/create-theme.ts'
+import type { CnConfig } from '../style/cn.ts'
 
-import { ThemeHydrationFixture, fixtureTheme } from './moraine-provider.ssr.fixture.tsx'
+import {
+  CnHydrationFixture,
+  fixtureCnConfig,
+  ThemeHydrationFixture,
+  fixtureTheme,
+} from './moraine-provider.ssr.fixture.tsx'
 
 test('hydrates Theme presentation once and preserves native nodes across replacement', () => {
   const container = document.createElement('div')
@@ -82,6 +88,43 @@ test('hydrates headless presentation with the same component nodes', () => {
     expect(container.querySelector('input')).toBe(input)
     expect(button.className).toBe('')
     expect(input.value).toBe('Input draft')
+  } finally {
+    dispose()
+    container.remove()
+    restore()
+  }
+})
+
+test('isolates SSR requests and hydrates scoped merging with live config replacement', () => {
+  const fixture = '/src/shared/provider/moraine-provider.ssr.fixture.tsx'
+  const html = renderSsrFixture(fixture, 'renderCnFixture')
+  const defaultHtml = renderSsrFixture(fixture, 'renderDefaultCnFixture')
+  expect(html).toContain('p-2 p-4')
+  expect(defaultHtml).not.toContain('p-2 p-4')
+  expect(renderSsrFixture(fixture, 'renderCnFixture')).toBe(html)
+  const container = document.createElement('div')
+  container.innerHTML = html
+  document.body.append(container)
+  const button = container.querySelector('button')!
+  const input = container.querySelector('input')!
+  const before = button.className
+  const restore = installHydrationState()
+  const [config, setConfig] = createSignal<CnConfig | undefined>(fixtureCnConfig)
+  const dispose = hydrate(() => <CnHydrationFixture cnConfig={config()} />, container)
+  try {
+    expect(container.querySelector('button')).toBe(button)
+    expect(button.className).toBe(before)
+    expect(container.querySelector('input')).toBe(input)
+    input.focus()
+    input.value = 'Local edit'
+    input.setSelectionRange(1, 4)
+    setConfig(undefined)
+    expect(button.className).toContain('p-4')
+    expect(button.className).not.toContain('p-2')
+    expect(container.querySelector('input')).toBe(input)
+    expect(input.value).toBe('Local edit')
+    expect(document.activeElement).toBe(input)
+    expect([input.selectionStart, input.selectionEnd]).toEqual([1, 4])
   } finally {
     dispose()
     container.remove()

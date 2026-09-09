@@ -212,6 +212,87 @@ const section = createTheme({
 
 `createTheme()` returns an empty theme. `extends` merges component defaults, preserving parent values where the child supplies `undefined`, and evaluates parent recipes before child recipes. Update presentation by replacing the theme object. Setting `theme` back to `undefined` resumes inheritance and follows subsequent parent updates.
 
+### Class merging configuration
+
+`cn`, `createCn`, and `useCn` are exported from `moraine`:
+
+| API                 | Rules and scope                                                                           |
+| ------------------- | ----------------------------------------------------------------------------------------- |
+| `cn(...classes)`    | Fixed upstream defaults plus Moraine's semantic z-index and animation rules.              |
+| `createCn(config?)` | An independent merger with application rules, usable in modules, scripts, or server code. |
+| `useCn()`           | A stable merger bound to the nearest Provider at component initialization.                |
+
+Components use the nearest Provider's rules for recipe evaluation and final class merging. `cnConfig` accepts the upstream `ConfigExtension` options: `extend`, `override`, `prefix`, and `cacheSize`. Rules apply in order: upstream defaults, Moraine extensions, application `override`, then application `extend`.
+
+```ts title="app-cn.ts"
+import { createCn } from 'moraine'
+import type { CnConfig } from 'moraine'
+
+export const appCnConfig = {
+  extend: {
+    classGroups: {
+      density: ['density-roomy', 'density-compact'],
+    },
+  },
+} satisfies CnConfig
+
+export const appCn = createCn(appCnConfig)
+```
+
+Define the corresponding CSS in your application. Conflict rules do not generate CSS or expand UnoCSS shortcuts.
+
+```css
+.density-roomy {
+  padding: 1rem;
+}
+.density-compact {
+  padding: 0.5rem;
+}
+```
+
+```tsx
+import { Button, MoraineProvider, cn, useCn } from 'moraine'
+import { defaultTheme, emptyTheme } from 'moraine/theme'
+import { appCnConfig } from './app-cn.ts'
+
+function Preview() {
+  const scopedCn = useCn()
+  return (
+    <>
+      <div class={cn('density-roomy', 'density-compact')}>Both classes remain</div>
+      <div class={scopedCn('density-roomy', 'density-compact')}>Compact wins</div>
+      <Button class="density-roomy density-compact">Compact button</Button>
+    </>
+  )
+}
+
+export function App() {
+  return (
+    <MoraineProvider theme={defaultTheme} cnConfig={appCnConfig}>
+      <Preview />
+      <MoraineProvider theme={emptyTheme}>
+        <Preview />
+      </MoraineProvider>
+      <MoraineProvider cnConfig={{}}>
+        <Button class="density-roomy density-compact">Default merging</Button>
+      </MoraineProvider>
+    </MoraineProvider>
+  )
+}
+```
+
+| `cnConfig`             | Behavior                                                                                                             |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Omitted or `undefined` | Inherit the current parent merger, or use default rules at the root.                                                 |
+| An extension object    | Replace the inherited merger with Moraine defaults plus this object; parent application extensions are not retained. |
+| `{}`                   | Reset to Moraine default rules.                                                                                      |
+
+Replace the config object to update existing descendants. Changing it back to `undefined` resumes live parent inheritance. Theme and class merging are independent: `emptyTheme` clears presentation while preserving the current merger. `prefix` only changes class parsing; it does not prefix official theme classes or generated CSS. `cacheSize: 0` disables the upstream result cache.
+
+Call `useCn()` during initialization in a descendant such as `Preview`; a parent cannot read a Provider that it will later return. The captured handle remains usable in events and after `await` while its owner lives. Calls in JSX or memos track config changes; a previously computed string does not update itself. Without a Provider, `useCn()` uses the same rules as `cn`.
+
+A merger cannot restore classes already removed by another merger. Use `useCn()` in components or `appCn` in ordinary helpers when application code needs the same rules. Composed parts retain their existing style ownership: a part merges its own classes in its local scope, while already-resolved root presentation remains from the root's scope.
+
 ### Recipes and defaults
 
 Component configurations accept `base`, `variants`, `compoundVariants`, and `defaults`. Class contributions target named slots.
@@ -229,7 +310,7 @@ const theme = createTheme({
 
 Visual values resolve from explicit instance props, inherited composition/FormField values, and finally the latest Theme default. Only `undefined` falls back. `null` suppresses the default and selects no branch; `false`, `0`, and `''` remain explicit values where the Variant type supports them. Every recipe for a component uses the same final visual values.
 
-For standalone recipe authoring, `slotRecipe` produces slot-class maps and `atomicRecipe` produces one class string. Both are exported from `moraine/theme`, accept `defaults`, and expose readonly `.options` metadata.
+For standalone recipe authoring, `slotRecipe` produces slot-class maps and `atomicRecipe` produces one class string. Both are exported from `moraine/theme`, accept `defaults`, and expose readonly `.options` metadata. Ordinary calls always use default `cn` rules. To supply an explicit merger, call `slotRecipeFn.resolve(variants, scopedCn)` or `atomicRecipeFn.resolve(variants, scopedCn, ...extraClasses)`. These pure calls preserve the usual slot-map or string output; one recipe can be shared across Providers.
 
 ### State selectors
 
