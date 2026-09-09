@@ -20,8 +20,6 @@ import { Icon } from '../icon/index.ts'
 
 import type { AccordionProps } from './accordion.types.ts'
 
-export * from './accordion.types.ts'
-
 /** Stacked disclosure component with single or multiple expanded sections. */
 export function Accordion(props: AccordionProps): JSX.Element {
   const [local, rest] = splitProps(props, [

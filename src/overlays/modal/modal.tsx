@@ -18,7 +18,6 @@ import { ModalContent } from './modal-content.tsx'
 import { ModalProvider } from './modal-context.ts'
 import { ModalTrigger } from './modal-trigger.tsx'
 import type { ModalProps } from './modal.types.ts'
-export type { ModalProps, ModalT } from './modal.types.ts'
 
 /** Low-level modal primitives for composing custom dialog surfaces. */
 export function Modal(props: ModalProps): JSX.Element {

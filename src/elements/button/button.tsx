@@ -13,8 +13,6 @@ import type { IconT } from '../icon/index.ts'
 import { ButtonGroupContext } from './button-group-context.ts'
 import type { ButtonProps, ButtonT } from './button.types.ts'
 
-export * from './button.types.ts'
-
 /**
  * Button component with polymorphic `as` support and loading state.
  */

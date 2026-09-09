@@ -26,8 +26,6 @@ import {
 
 import type { DropdownMenuProps, DropdownMenuT } from './dropdown-menu.types.ts'
 
-export type { DropdownMenuProps, DropdownMenuT } from './dropdown-menu.types.ts'
-
 /**
  * Triggered action menu anchored to its child content.
  */

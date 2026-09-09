@@ -10,10 +10,6 @@ import { validateOverlayTrigger } from '../base/trigger.ts'
 import { useModalContext } from './modal-context.ts'
 import type { ModalT } from './modal.types.ts'
 
-type ModalTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
-  ? HTMLElementTagNameMap[T]
-  : HTMLElement
-
 function useModalTriggerBinding(
   ref: () => ((element: HTMLElement | undefined) => void) | undefined,
 ) {
@@ -45,7 +41,7 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
   type RuntimeProps = ModalT.TriggerBase<T> & {
     class?: SlotClassValue
     style?: JSX.CSSProperties
-    ref?: (element: ModalTriggerElementFor<T> | undefined) => void
+    ref?: (element: ModalT.TriggerElementFor<T> | undefined) => void
   } & Record<string, unknown>
 
   const [local, rest] = splitProps(props as RuntimeProps, [
@@ -62,7 +58,7 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
   const binding = useModalTriggerBinding(
     () => local.ref as ((element: HTMLElement | undefined) => void) | undefined,
   )
-  const interactionProps = useButtonInteraction<ModalTriggerElementFor<T>>(
+  const interactionProps = useButtonInteraction<ModalT.TriggerElementFor<T>>(
     {
       disabled,
       disabledForComponent: true,

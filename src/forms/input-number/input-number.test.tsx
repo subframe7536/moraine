@@ -9,7 +9,7 @@ import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { createForm } from '../form/index.ts'
 
 import { InputNumber } from './input-number.tsx'
-import type { InputNumberT } from './input-number.tsx'
+import type { InputNumberT } from './input-number.types.ts'
 
 const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)

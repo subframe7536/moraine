@@ -19,8 +19,6 @@ import {
 } from './shared/index.ts'
 import type { NormalizedOption } from './shared/index.ts'
 
-export * from './select.types.ts'
-
 /** Dropdown select component with search and custom item rendering. */
 export function Select<TItem extends SelectT.Value = SelectT.Value>(
   props: SelectProps<TItem>,

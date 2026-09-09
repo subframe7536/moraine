@@ -6,8 +6,6 @@ import { createComponentStyles } from '../../shared/provider/index.ts'
 import { ButtonGroupContext } from './button-group-context.ts'
 import type { ButtonGroupProps } from './button-group.types.ts'
 
-export * from './button-group.types.ts'
-
 /** Joins related buttons and provides shared size and visual variant defaults. */
 export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, [

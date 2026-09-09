@@ -6,8 +6,6 @@ import { renderComponentOrElement } from '../../shared/render-prop.ts'
 
 import type { ProgressProps, ProgressT } from './progress.types.ts'
 
-export * from './progress.types.ts'
-
 function resolveMaxValue(max: ProgressProps['max']): number {
   if (Array.isArray(max)) {
     return Math.max(max.length - 1, 0)

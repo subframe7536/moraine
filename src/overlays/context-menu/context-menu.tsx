@@ -27,8 +27,6 @@ import {
 
 import type { ContextMenuProps, ContextMenuT } from './context-menu.types.ts'
 
-export type { ContextMenuProps, ContextMenuT } from './context-menu.types.ts'
-
 const CONTEXT_MENU_LONG_PRESS_DELAY = 700
 const CONTEXT_MENU_LONG_PRESS_MOVE_TOLERANCE = 10
 const CONTEXT_MENU_POINTER_EVENT_GUARD_DELAY = 1_000

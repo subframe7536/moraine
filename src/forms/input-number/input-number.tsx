@@ -21,8 +21,6 @@ import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { InputNumberProps } from './input-number.types.ts'
 
-export * from './input-number.types.ts'
-
 type ControlKind = 'increment' | 'decrement'
 type InputNumberControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
   [key: `data-${string}`]: string | undefined

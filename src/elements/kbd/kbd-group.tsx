@@ -9,8 +9,6 @@ import type { KbdGroupProps, KbdGroupT } from './kbd-group.types.ts'
 import { Kbd } from './kbd.tsx'
 import type { KbdT } from './kbd.types.ts'
 
-export * from './kbd-group.types.ts'
-
 function resolveDivider(
   dividerRender: ComponentOrElement<KbdGroupT.DividerRenderProps>,
   props: KbdGroupT.DividerRenderProps,

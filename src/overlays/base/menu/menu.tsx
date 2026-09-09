@@ -68,8 +68,6 @@ import type {
   OverlayMenuItemVariantProps,
 } from './types.ts'
 
-export type { OverlayMenuAnchorRect, OverlayMenuFocusStrategy } from './menu.utils'
-
 /** Shared overlay menu props used by the shell, root wrappers, and layers. */
 interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TItem>> {
   /** Unique base id used to derive trigger and content ids. */

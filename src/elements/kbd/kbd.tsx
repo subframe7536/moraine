@@ -6,8 +6,6 @@ import { createComponentStyles } from '../../shared/provider/index.ts'
 import { KBD_KEY_ALIASES } from './kbd.types.ts'
 import type { KbdProps, KbdT } from './kbd.types.ts'
 
-export * from './kbd.types.ts'
-
 /** Keyboard keycap component with configurable size, variant, and accessible label. */
 export function Kbd(props: KbdProps): JSX.Element {
   const [local, rest] = splitProps(props, [

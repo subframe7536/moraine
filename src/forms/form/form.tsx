@@ -13,8 +13,6 @@ import { callHandler } from '../../shared/utils.ts'
 import { FormField } from './form-field.tsx'
 import type { FormProps, FormT } from './form.types.ts'
 
-export * from './form.types.ts'
-
 interface InternalFormProps<TSchema extends FormSchema> extends FormProps<TSchema> {
   of: FormStore<TSchema>
 }

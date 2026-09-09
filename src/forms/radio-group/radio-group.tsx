@@ -22,8 +22,6 @@ import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { RadioGroupProps } from './radio-group.types.ts'
 
-export * from './radio-group.types.ts'
-
 interface NormalizedRadioGroupItem {
   id: string
   inputId: string

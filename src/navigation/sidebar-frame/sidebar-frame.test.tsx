@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { renderWithTheme } from '../../test-utils/theme-render.tsx'
 
-import { SidebarFrame, useSidebarFrame } from './sidebar-frame.tsx'
+import { useSidebarFrame } from './sidebar-frame-context.ts'
+import { SidebarFrame } from './sidebar-frame.tsx'
 
 const originalMatchMedia = window.matchMedia
 

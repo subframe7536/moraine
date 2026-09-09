@@ -39,8 +39,6 @@ import {
 import type { ResizablePanelItem, ResizableSize } from './hook/index.ts'
 import type { ResizableProps, ResizableT } from './resizable.types.ts'
 
-export * from './resizable.types.ts'
-
 interface DragState {
   deltaPx: number
   initialSizes: number[]

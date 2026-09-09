@@ -5,8 +5,6 @@ import { createComponentStyles } from '../../shared/provider/index.ts'
 
 import type { SeparatorProps } from './separator.types.ts'
 
-export * from './separator.types.ts'
-
 /** Visual divider with configurable orientation, style, and border type. */
 export function Separator(props: SeparatorProps): JSX.Element {
   const [local, rest] = splitProps(props, ['decorative', 'orientation', 'class', 'style'])

@@ -17,8 +17,6 @@ import { Modal } from '../modal/modal.tsx'
 
 import type { SheetProps, SheetT } from './sheet.types.ts'
 
-export type { SheetProps, SheetT } from './sheet.types.ts'
-
 /** Sheet state and context. Trigger, Content, and Close own their respective DOM. */
 export function Sheet(props: SheetProps): JSX.Element {
   return <Modal {...props} />

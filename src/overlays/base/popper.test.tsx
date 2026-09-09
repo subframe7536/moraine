@@ -1,9 +1,10 @@
+import type { Placement } from '@floating-ui/dom'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Popper } from './popper'
-import type { PopperContentContext, PopperPlacement } from './popper'
+import type { PopperContentContext } from './popper'
 import type { OverlayTriggerProps } from './trigger'
 
 describe('Popper primitives', () => {
@@ -417,7 +418,7 @@ describe('Popper primitives', () => {
   })
 
   test('updates placement data and transform origin when options change', async () => {
-    const [placement, setPlacement] = createSignal<PopperPlacement>('top')
+    const [placement, setPlacement] = createSignal<Placement>('top')
     render(() => (
       <Popper open placement={placement()} flip={false} slide={false}>
         <Popper.Trigger>

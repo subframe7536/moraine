@@ -12,8 +12,6 @@ import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { CheckboxProps } from './checkbox.types.ts'
 
-export * from './checkbox.types.ts'
-
 /** Single checkbox control with card and list variants and custom true/false values. */
 export function Checkbox<TTrue = boolean, TFalse = boolean>(
   props: CheckboxProps<TTrue, TFalse>,

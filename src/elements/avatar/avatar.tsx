@@ -15,9 +15,7 @@ import { Icon } from '../icon/index.ts'
 
 import type { AvatarProps, AvatarT } from './avatar.types.ts'
 
-export * from './avatar.types.ts'
-
-export function resolveFallbackText(text: string | undefined, alt: string | undefined): string {
+function resolveFallbackText(text: string | undefined, alt: string | undefined): string {
   const preferredText = text?.trim()
   if (preferredText) {
     return preferredText

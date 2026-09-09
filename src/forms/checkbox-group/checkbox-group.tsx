@@ -19,8 +19,6 @@ import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { CheckboxGroupProps, CheckboxGroupT } from './checkbox-group.types.ts'
 
-export * from './checkbox-group.types.ts'
-
 interface NormalizedCheckboxGroupItem<TTrue = boolean, TFalse = boolean> {
   value: string
   label?: JSX.Element

@@ -13,8 +13,6 @@ import { CollapsibleProvider } from './collapsible-context.ts'
 import { CollapsibleTrigger } from './collapsible-trigger.tsx'
 import type { CollapsibleProps } from './collapsible.types.ts'
 
-export * from './collapsible.types.ts'
-
 /** Expandable content section with optional height transitions. */
 export function Collapsible(props: CollapsibleProps): JSX.Element {
   const [local, rest] = splitProps(props, [

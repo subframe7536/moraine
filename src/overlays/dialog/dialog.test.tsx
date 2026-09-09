@@ -12,7 +12,7 @@ import { renderWithTheme } from '../../test-utils/theme-render.tsx'
 import { createTheme } from '../../theme.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 import { Modal } from '../modal/index.ts'
-import type { ModalT } from '../modal/modal.tsx'
+import type { ModalT } from '../modal/modal.types.ts'
 
 import { Dialog } from './dialog.tsx'
 

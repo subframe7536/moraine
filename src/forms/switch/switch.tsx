@@ -13,8 +13,6 @@ import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { SwitchProps } from './switch.types.ts'
 
-export * from './switch.types.ts'
-
 /** Toggle switch control with icon slots and loading state. */
 export function Switch<TTrue = boolean, TFalse = boolean>(
   props: SwitchProps<TTrue, TFalse>,

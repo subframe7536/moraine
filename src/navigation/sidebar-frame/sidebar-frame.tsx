@@ -19,9 +19,6 @@ import { callHandler, cn } from '../../shared/utils.ts'
 import { SidebarFrameProvider, useSidebarFrameContext } from './sidebar-frame-context.ts'
 import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types.ts'
 
-export type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types.ts'
-export { useSidebarFrame } from './sidebar-frame-context.ts'
-
 function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
   const context = useSidebarFrameContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style'])

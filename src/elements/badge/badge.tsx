@@ -6,8 +6,6 @@ import { Icon } from '../icon/index.ts'
 
 import type { BadgeProps } from './badge.types.ts'
 
-export * from './badge.types.ts'
-
 /** Compact label component with leading/trailing icon slots and variant styles. */
 export function Badge(props: BadgeProps): JSX.Element {
   const [local, rest] = splitProps(props, [

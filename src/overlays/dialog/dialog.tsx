@@ -17,8 +17,6 @@ import { Modal } from '../modal/modal.tsx'
 
 import type { DialogProps, DialogT } from './dialog.types.ts'
 
-export type { DialogProps, DialogT } from './dialog.types.ts'
-
 /** Dialog state and context. Trigger, Content, and Close own their respective DOM. */
 export function Dialog(props: DialogProps): JSX.Element {
   return <Modal {...props} />

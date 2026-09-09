@@ -8,8 +8,6 @@ import { cn } from '../../shared/utils.ts'
 
 import type { ListProps, ListT } from './list.types.ts'
 
-export * from './list.types.ts'
-
 /** Headless polymorphic list with optional caller-controlled virtualization. */
 export function List<
   TItem,

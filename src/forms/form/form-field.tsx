@@ -21,8 +21,6 @@ import type { FormFieldContextOptions } from './form-context.ts'
 import { FormFieldProvider } from './form-context.ts'
 import type { FormFieldProps, FormFieldT } from './form-field.types.ts'
 
-export * from './form-field.types.ts'
-
 type LooseUseField = (form: FormStore, config: () => { path: RequiredPath }) => FieldStore
 
 /** Form field wrapper providing label, description, and validation message layout. */
@@ -64,10 +62,8 @@ export function FormField<
   const merged = mergeProps(
     {
       as: 'div' as T,
-
       required: false,
     },
-
     local,
   ) as MergedProps
 

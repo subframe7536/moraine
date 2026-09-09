@@ -5,7 +5,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 
 import { Progress } from './progress.tsx'
-import type { ProgressT } from './progress.tsx'
+import type { ProgressT } from './progress.types.ts'
 
 describe('Progress', () => {
   test('renders unstyled when provider is absent', () => {

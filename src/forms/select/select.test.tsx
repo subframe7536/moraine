@@ -10,7 +10,7 @@ import { createTheme } from '../../theme.ts'
 import { createForm } from '../form/index.ts'
 
 import { Select } from './select.tsx'
-import type { SelectT } from './select.tsx'
+import type { SelectT } from './select.types.ts'
 
 const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)

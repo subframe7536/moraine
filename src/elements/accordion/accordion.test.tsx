@@ -5,7 +5,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 
 import { Accordion } from './accordion.tsx'
-import type { AccordionT } from './accordion.tsx'
+import type { AccordionT } from './accordion.types.ts'
 
 const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
   {

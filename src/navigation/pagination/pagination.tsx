@@ -9,8 +9,6 @@ import { callRef } from '../../shared/utils.ts'
 
 import type { PaginationProps } from './pagination.types.ts'
 
-export * from './pagination.types.ts'
-
 const MAX_SIBLING_COUNT = 100
 
 function clampPage(page: number, count: number): number {

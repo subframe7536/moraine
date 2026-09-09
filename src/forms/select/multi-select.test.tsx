@@ -10,7 +10,7 @@ import { createTheme } from '../../theme.ts'
 import { createForm } from '../form/index.ts'
 
 import { MultiSelect } from './multi-select.tsx'
-import type { MultiSelectProps, MultiSelectT } from './multi-select.tsx'
+import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
 
 const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)

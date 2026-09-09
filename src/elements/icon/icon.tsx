@@ -7,8 +7,6 @@ import { cn } from '../../shared/utils.ts'
 
 import type { IconProps } from './icon.types.ts'
 
-export * from './icon.types.ts'
-
 /** Renders an icon from a UnoCSS icon class, JSX element, or render function. */
 export function Icon(props: IconProps): JSX.Element {
   const [local, rest] = splitProps(props, ['name', 'class', 'style', 'size', 'slotName'])

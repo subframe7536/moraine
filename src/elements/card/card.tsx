@@ -5,8 +5,6 @@ import { createComponentStyles } from '../../shared/provider/index.ts'
 
 import type { CardProps } from './card.types.ts'
 
-export * from './card.types.ts'
-
 /** Structured content container with optional header, body, footer, and action slots. */
 export function Card(props: CardProps): JSX.Element {
   const [local, rest] = splitProps(props, [

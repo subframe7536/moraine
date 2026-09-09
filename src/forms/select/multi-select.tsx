@@ -21,8 +21,6 @@ import {
 } from './shared/index.ts'
 import type { NormalizedOption } from './shared/index.ts'
 
-export * from './multi-select.types.ts'
-
 function disableUnselectedOptionsWhenAtMax<
   TItem extends {
     value?: string | number

@@ -20,8 +20,6 @@ import { useId } from '../../shared/utils.ts'
 
 import type { TabsProps, TabsT } from './tabs.types.ts'
 
-export type { TabsProps, TabsT } from './tabs.types.ts'
-
 interface NormalizedTabItem extends TabsT.Item {
   instanceKey: string
   value: string

@@ -23,8 +23,6 @@ import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
 import type { TextareaProps, TextareaT } from './textarea.types.ts'
 
-export * from './textarea.types.ts'
-
 // --- Autosize helpers ---
 function getVerticalPadding(styles: CSSStyleDeclaration): number {
   const paddingTop = Number.parseInt(styles.paddingTop, 10) || 0

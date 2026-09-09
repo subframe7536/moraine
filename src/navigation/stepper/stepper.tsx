@@ -12,8 +12,6 @@ import type { StepperProps, StepperT } from './stepper.types.ts'
 
 type StepperState = 'inactive' | 'active' | 'completed'
 
-export type { StepperProps, StepperT } from './stepper.types.ts'
-
 interface NormalizedStepperItem {
   item: StepperT.Item
   index: number

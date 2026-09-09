@@ -6,8 +6,6 @@ import { createComponentStyles } from '../../shared/provider/index.ts'
 import type { AvatarGroupProps } from './avatar-group.types.ts'
 import { AvatarFace } from './avatar.tsx'
 
-export * from './avatar-group.types.ts'
-
 function resolveMax(max: AvatarGroupProps['max']): number | undefined {
   if (typeof max === 'string') {
     const parsed = Number.parseInt(max, 10)

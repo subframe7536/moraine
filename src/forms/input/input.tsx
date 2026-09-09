@@ -15,8 +15,6 @@ import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
 import type { InputProps, InputT } from './input.types.ts'
 
-export * from './input.types.ts'
-
 /** Text input component with leading/trailing icon slots, loading state, and form field integration. */
 export function Input<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
   props: InputProps<M>,

@@ -11,8 +11,6 @@ import { cn, callHandler, callRef, useId } from '../../shared/utils.ts'
 
 import type { CommandPaletteProps, CommandPaletteT } from './command-palette.types.ts'
 
-export * from './command-palette.types.ts'
-
 interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
   key: string
   label: string

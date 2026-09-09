@@ -1,6 +1,6 @@
 export * from './floating'
 export * from './interaction'
-export * from './menu/index'
+export * from './menu'
 export * from './overlay-stack'
 export * from './popper'
 export * from './utils'

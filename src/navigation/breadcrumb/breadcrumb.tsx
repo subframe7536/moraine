@@ -11,8 +11,6 @@ import { callRef } from '../../shared/utils.ts'
 
 import type { BreadcrumbProps, BreadcrumbT } from './breadcrumb.types.ts'
 
-export * from './breadcrumb.types.ts'
-
 /** Breadcrumb navigation trail with separator icons and optional wrapping. */
 export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
   const [local, rest] = splitProps(props, [

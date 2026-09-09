@@ -41,6 +41,7 @@
 - [ ] reorganize [overlay base](src/components/overlay/base) props, move to namespace component specific props
   - [ ] tooltip should become a single component, remove trigger and content; refactor implemention
 - [ ] sidebar-frame styling is broken, more useful usage and example
+- [ ] src/forms/form/form-field.tsx 's `local.form` should be reconsidered
 
 # V1
 

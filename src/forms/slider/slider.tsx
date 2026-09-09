@@ -9,8 +9,6 @@ import { useFormField, useFormFieldContext } from '../form/form-context.ts'
 import { useSlider } from './hook/index.ts'
 import type { SliderProps, SliderT } from './slider.types.ts'
 
-export * from './slider.types.ts'
-
 type RootProps<TValue = SliderT.Value> = SliderProps<TValue> & {
   ref?: Ref<HTMLDivElement>
 }

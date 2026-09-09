@@ -19,8 +19,8 @@ import { Slider } from '../slider/index.ts'
 import { Switch } from '../switch/index.ts'
 import { Textarea } from '../textarea/index.ts'
 
-import type { FormFieldProps, FormFieldT } from './form-field.tsx'
 import { FormField } from './form-field.tsx'
+import type { FormFieldProps, FormFieldT } from './form-field.types.ts'
 import { createForm } from './form.tsx'
 
 const render: typeof baseRender = (ui, options) =>

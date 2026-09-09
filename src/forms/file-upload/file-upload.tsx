@@ -20,8 +20,6 @@ import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { FileUploadProps, FileUploadT } from './file-upload.types.ts'
 
-export * from './file-upload.types.ts'
-
 function isImageFile(file: File): boolean {
   return file.type.startsWith('image/')
 }
