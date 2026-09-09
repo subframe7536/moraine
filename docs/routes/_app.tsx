@@ -154,7 +154,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
             </div>
           </header>
 
-          <main id="main-content" class="min-w-0">
+          <main id="main-content" tabindex="-1" class="min-w-0" data-docs-main>
             <Suspense fallback={<div class="px-5 py-8 min-h-screen sm:px-8" />}>
               {props.children}
             </Suspense>
@@ -165,7 +165,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   }
 
   return (
-    <SidebarFrame classes={{ root: 'h-screen', sidebar: 'border-none' }} scrollThreshold={4}>
+    <>
       <Show when={navigationLoading()}>
         <Progress
           aria-label="Loading page"
@@ -177,8 +177,10 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           }}
         />
       </Show>
-      <FrameContent />
-    </SidebarFrame>
+      <SidebarFrame classes={{ root: 'h-screen', sidebar: 'border-none' }} scrollThreshold={4}>
+        <FrameContent />
+      </SidebarFrame>
+    </>
   )
 }
 
