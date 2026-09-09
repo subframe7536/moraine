@@ -2,7 +2,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { StepperT } from './stepper.types.ts'
 
-export const stepperRecipe = /* @__PURE__ */ slotRecipe<keyof StepperT.Slot>({
+export const stepperRecipe = /* @__PURE__ */ slotRecipe<StepperT.Slot, StepperT.Variant>({
   base: {
     root: 'flex gap-2',
     header: 'flex',

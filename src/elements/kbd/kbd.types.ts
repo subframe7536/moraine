@@ -29,6 +29,7 @@ export namespace KbdT {
   export type Kind = 'single'
 
   export interface Slot<T = unknown> {
+    /** Keyboard keycap element. */
     root?: T
   }
 
@@ -42,9 +43,6 @@ export namespace KbdT {
      */
     variant?: 'default' | 'outline' | 'invert'
   }
-
-  export type SlotName = keyof Slot
-
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export type BuiltinKbds = keyof typeof KBD_KEY_ALIASES

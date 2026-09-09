@@ -59,6 +59,12 @@ export type RecipeVariants = [
   Assert<'search' extends keyof MultiSelectT.Variant ? true : false>,
 ]
 
+export type SlotContracts = [
+  Assert<'root' extends keyof ButtonT.Slot ? true : false>,
+  // @ts-expect-error SlotName aliases are not part of the component namespace contract.
+  ButtonT.SlotName,
+]
+
 // @ts-expect-error Recipe entry is internal and not exported.
 type RecipeEntry = typeof import('moraine/recipe')
 // @ts-expect-error Recipe APIs are not public from root.

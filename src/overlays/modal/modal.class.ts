@@ -13,7 +13,7 @@ export const MODAL_CONTENT_CLASS =
 export const MODAL_CONTENT_DEFAULT_CLASS =
   'max-h-[calc(100%-2rem)] max-w-[calc(100%-2rem)] left-1/2 top-1/2 fixed sm:max-w-md -translate-x-1/2 -translate-y-1/2'
 
-export const modalRecipe = /* @__PURE__ */ slotRecipe<keyof ModalT.Slot>({
+export const modalRecipe = /* @__PURE__ */ slotRecipe<ModalT.Slot, ModalT.Variant>({
   base: {
     overlay: `${MODAL_OVERLAY_CLASS} data-overlay-scroll:(p-4 overflow-y-auto)`,
     content: `${MODAL_CONTENT_CLASS} ${MODAL_CONTENT_DEFAULT_CLASS}`,

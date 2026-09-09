@@ -2,7 +2,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { CheckboxT } from './checkbox.types.ts'
 
-export const checkboxRecipe = /* @__PURE__ */ slotRecipe<keyof CheckboxT.Slot>({
+export const checkboxRecipe = /* @__PURE__ */ slotRecipe<CheckboxT.Slot, CheckboxT.Variant>({
   base: {
     root: 'flex items-start relative',
     control:

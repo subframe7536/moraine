@@ -11,12 +11,14 @@
   "slots": [
     {
       "name": "overlay",
+      "description": "Fixed backdrop that contains the modal shell.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
     },
     {
       "name": "content",
+      "description": "Modal panel that contains the dialog content.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []

@@ -11,6 +11,7 @@
   "slots": [
     {
       "name": "root",
+      "description": "Keyboard keycap element.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": [

@@ -46,7 +46,6 @@ export namespace SliderT {
      */
     variant?: 'default' | 'bold'
   }
-  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

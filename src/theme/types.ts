@@ -40,50 +40,53 @@ export const THEME_LAYERS: unique symbol = Symbol('moraine.theme.layers')
 
 /** Component families and their locally declared presentation contracts. */
 export interface MoraineThemeSchema {
-  accordion: { slots: AccordionT.SlotName; variants: AccordionT.Variant }
-  avatar: { slots: AvatarT.SlotName; variants: AvatarT.Variant }
-  avatarGroup: { slots: AvatarGroupT.SlotName; variants: AvatarGroupT.Variant }
-  badge: { slots: BadgeT.SlotName; variants: BadgeT.Variant }
-  breadcrumb: { slots: BreadcrumbT.SlotName; variants: BreadcrumbT.Variant }
-  button: { slots: ButtonT.SlotName; variants: ButtonT.Variant }
-  buttonGroup: { slots: ButtonGroupT.SlotName; variants: ButtonGroupT.Variant }
-  card: { slots: CardT.SlotName; variants: CardT.Variant }
-  checkbox: { slots: CheckboxT.SlotName; variants: CheckboxT.Variant }
-  checkboxGroup: { slots: CheckboxGroupT.SlotName; variants: CheckboxGroupT.Variant }
-  collapsible: { slots: CollapsibleT.SlotName; variants: CollapsibleT.Variant }
-  commandPalette: { slots: CommandPaletteT.SlotName; variants: CommandPaletteT.Variant }
-  contextMenu: { slots: ContextMenuT.SlotName; variants: ContextMenuT.Variant }
-  dialog: { slots: DialogT.SlotName; variants: DialogT.Variant }
-  dropdownMenu: { slots: DropdownMenuT.SlotName; variants: DropdownMenuT.Variant }
-  fileUpload: { slots: FileUploadT.SlotName; variants: FileUploadT.Variant }
-  form: { slots: FormT.SlotName; variants: FormT.Variant }
-  formField: { slots: FormFieldT.SlotName; variants: FormFieldT.Variant }
-  icon: { slots: IconT.SlotName; variants: IconT.Variant }
-  input: { slots: InputT.SlotName; variants: InputT.Variant }
-  inputNumber: { slots: InputNumberT.SlotName; variants: InputNumberT.Variant }
-  kbd: { slots: KbdT.SlotName; variants: KbdT.Variant }
-  kbdGroup: { slots: KbdGroupT.SlotName; variants: KbdGroupT.Variant }
-  modal: { slots: ModalT.SlotName; variants: ModalT.Variant }
-  multiSelect: { slots: MultiSelectT.SlotName; variants: MultiSelectT.Variant }
-  pagination: { slots: PaginationT.SlotName; variants: PaginationT.Variant }
-  popover: { slots: PopoverT.SlotName; variants: PopoverT.Variant }
-  progress: { slots: ProgressT.SlotName; variants: ProgressT.Variant }
-  radioGroup: { slots: RadioGroupT.SlotName; variants: RadioGroupT.Variant }
-  resizable: { slots: ResizableT.SlotName; variants: ResizableT.Variant }
-  select: { slots: SelectT.SlotName; variants: SelectT.Variant }
-  separator: { slots: SeparatorT.SlotName; variants: SeparatorT.Variant }
-  sheet: { slots: SheetT.SlotName; variants: SheetT.Variant }
-  sidebarFrame: { slots: SidebarFrameT.SlotName; variants: SidebarFrameT.Variant }
-  slider: { slots: SliderT.SlotName; variants: SliderT.Variant }
-  stepper: { slots: StepperT.SlotName; variants: StepperT.Variant }
-  switch: { slots: SwitchT.SlotName; variants: SwitchT.Variant }
-  tabs: { slots: TabsT.SlotName; variants: TabsT.Variant }
-  textarea: { slots: TextareaT.SlotName; variants: TextareaT.Variant }
-  tooltip: { slots: TooltipT.SlotName; variants: TooltipT.Variant }
+  accordion: { slots: AccordionT.Slot; variants: AccordionT.Variant }
+  avatar: { slots: AvatarT.Slot; variants: AvatarT.Variant }
+  avatarGroup: { slots: AvatarGroupT.Slot; variants: AvatarGroupT.Variant }
+  badge: { slots: BadgeT.Slot; variants: BadgeT.Variant }
+  breadcrumb: { slots: BreadcrumbT.Slot; variants: BreadcrumbT.Variant }
+  button: { slots: ButtonT.Slot; variants: ButtonT.Variant }
+  buttonGroup: { slots: ButtonGroupT.Slot; variants: ButtonGroupT.Variant }
+  card: { slots: CardT.Slot; variants: CardT.Variant }
+  checkbox: { slots: CheckboxT.Slot; variants: CheckboxT.Variant }
+  checkboxGroup: { slots: CheckboxGroupT.Slot; variants: CheckboxGroupT.Variant }
+  collapsible: { slots: CollapsibleT.Slot; variants: CollapsibleT.Variant }
+  commandPalette: { slots: CommandPaletteT.Slot; variants: CommandPaletteT.Variant }
+  contextMenu: { slots: ContextMenuT.Slot; variants: ContextMenuT.Variant }
+  dialog: { slots: DialogT.Slot; variants: DialogT.Variant }
+  dropdownMenu: { slots: DropdownMenuT.Slot; variants: DropdownMenuT.Variant }
+  fileUpload: { slots: FileUploadT.Slot; variants: FileUploadT.Variant }
+  form: { slots: FormT.Slot; variants: FormT.Variant }
+  formField: { slots: FormFieldT.Slot; variants: FormFieldT.Variant }
+  icon: { slots: IconT.Slot; variants: IconT.Variant }
+  input: { slots: InputT.Slot; variants: InputT.Variant }
+  inputNumber: { slots: InputNumberT.Slot; variants: InputNumberT.Variant }
+  kbd: { slots: KbdT.Slot; variants: KbdT.Variant }
+  kbdGroup: { slots: KbdGroupT.Slot; variants: KbdGroupT.Variant }
+  modal: { slots: ModalT.Slot; variants: ModalT.Variant }
+  multiSelect: { slots: MultiSelectT.Slot; variants: MultiSelectT.Variant }
+  pagination: { slots: PaginationT.Slot; variants: PaginationT.Variant }
+  popover: { slots: PopoverT.Slot; variants: PopoverT.Variant }
+  progress: { slots: ProgressT.Slot; variants: ProgressT.Variant }
+  radioGroup: { slots: RadioGroupT.Slot; variants: RadioGroupT.Variant }
+  resizable: { slots: ResizableT.Slot; variants: ResizableT.Variant }
+  select: { slots: SelectT.Slot; variants: SelectT.Variant }
+  separator: { slots: SeparatorT.Slot; variants: SeparatorT.Variant }
+  sheet: { slots: SheetT.Slot; variants: SheetT.Variant }
+  sidebarFrame: { slots: SidebarFrameT.Slot; variants: SidebarFrameT.Variant }
+  slider: { slots: SliderT.Slot; variants: SliderT.Variant }
+  stepper: { slots: StepperT.Slot; variants: StepperT.Variant }
+  switch: { slots: SwitchT.Slot; variants: SwitchT.Variant }
+  tabs: { slots: TabsT.Slot; variants: TabsT.Variant }
+  textarea: { slots: TextareaT.Slot; variants: TextareaT.Variant }
+  tooltip: { slots: TooltipT.Slot; variants: TooltipT.Variant }
 }
 
 export type ThemeName = keyof MoraineThemeSchema
-export type ThemeSlots<Name extends ThemeName> = MoraineThemeSchema[Name]['slots']
+export type ThemeSlots<Name extends ThemeName> = Extract<
+  keyof MoraineThemeSchema[Name]['slots'],
+  string
+>
 export type ThemeVariants<Name extends ThemeName> = MoraineThemeSchema[Name]['variants']
 
 export interface CompiledComponentRecipe {
@@ -102,7 +105,10 @@ export interface MoraineTheme {
 }
 
 type ThemeEntries = {
-  [Name in ThemeName]?: ComponentRecipeConfig<ThemeSlots<Name>, ThemeVariants<Name>>
+  [Name in ThemeName]?: ComponentRecipeConfig<
+    MoraineThemeSchema[Name]['slots'],
+    ThemeVariants<Name>
+  >
 }
 
 /** Sparse component Recipes and an optional parent Theme. */

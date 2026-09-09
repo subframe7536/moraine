@@ -3,7 +3,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { InputT } from './input.types.ts'
 
-export const inputRecipe = /* @__PURE__ */ slotRecipe<keyof InputT.Slot>({
+export const inputRecipe = /* @__PURE__ */ slotRecipe<InputT.Slot, InputT.Variant>({
   base: {
     root: 'inline-flex w-full cursor-text transition-[colors,box-shadow] items-center overflow-hidden focus-within:(outline-none border-ring ring-3 ring-ring/50) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:data-invalid:(border-destructive/50 ring-destructive/40) data-disabled:(opacity-64 pointer-events-none) focus-within:data-invalid:(border-destructive ring-3 ring-destructive/20) dark:focus-within:data-invalid:(border-destructive/50 ring-destructive/40)',
     input:

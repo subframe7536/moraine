@@ -1,6 +1,6 @@
-import type { SlotRecipeOptions } from '../../../shared/style/recipe.ts'
+import type { ComponentRecipeConfig } from '../../../shared/style/recipe.ts'
 
-import type { OverlayMenuSharedSlots } from './types.ts'
+import type { OverlayMenuItemVariantProps, OverlayMenuSharedSlots } from './types.ts'
 
 export const overlayMenuRecipeOptions = {
   base: {
@@ -25,4 +25,4 @@ export const overlayMenuRecipeOptions = {
     },
   },
   defaults: { size: 'md' },
-} as const satisfies SlotRecipeOptions<keyof OverlayMenuSharedSlots>
+} as const satisfies ComponentRecipeConfig<OverlayMenuSharedSlots, OverlayMenuItemVariantProps>

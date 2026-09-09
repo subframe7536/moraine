@@ -1,12 +1,14 @@
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
+import type { BreadcrumbT } from './breadcrumb.types.ts'
+
 export const BREADCRUMB_LINK_CLASS =
   'transition-colors hover:text-foreground inline-flex items-center gap-1.5'
 export const BREADCRUMB_PAGE_CLASS = 'text-foreground font-normal inline-flex items-center gap-1'
 export const BREADCRUMB_DISABLED_CLASS = 'aria-disabled:(opacity-64 pointer-events-none)'
 export const BREADCRUMB_TRUNCATE_CLASS = 'min-w-0 truncate'
 
-export const breadcrumbRecipe = /* @__PURE__ */ slotRecipe({
+export const breadcrumbRecipe = /* @__PURE__ */ slotRecipe<BreadcrumbT.Slot, BreadcrumbT.Variant>({
   base: {
     root: 'min-w-0 relative',
     list: 'text-sm text-muted-foreground flex gap-1.5 break-words items-center',

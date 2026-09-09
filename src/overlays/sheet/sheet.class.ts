@@ -3,7 +3,7 @@ import { MODAL_OVERLAY_CLASS } from '../modal/modal.class.ts'
 
 import type { SheetT } from './sheet.types.ts'
 
-export const sheetRecipe = /* @__PURE__ */ slotRecipe<keyof SheetT.Slot>({
+export const sheetRecipe = /* @__PURE__ */ slotRecipe<SheetT.Slot, SheetT.Variant>({
   base: {
     content:
       'text-sm text-popover-foreground outline-none bg-popover flex flex-col gap-4 max-h-full min-h-0 min-w-0 shadow-lg fixed z-floating bg-clip-padding data-transition:data-closed:(animate-mo-exit exit-opacity-0) data-transition:data-expanded:(animate-mo-enter enter-opacity-0) data-transition:motion-reduce:animate-none',

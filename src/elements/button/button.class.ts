@@ -2,7 +2,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { ButtonT } from './button.types.ts'
 
-export const buttonRecipe = /* @__PURE__ */ slotRecipe<keyof ButtonT.Slot>({
+export const buttonRecipe = /* @__PURE__ */ slotRecipe<ButtonT.Slot, ButtonT.Variant>({
   base: {
     root: 'border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[colors,transform] items-center justify-center bg-clip-padding focus-visible:(outline-none border-ring ring-3 ring-ring/50) aria-invalid:(border-destructive ring-3 ring-destructive/20) aria-disabled:(opacity-64 pointer-events-none) disabled:(opacity-64 pointer-events-none) [&:active:not([aria-haspopup])]:translate-y-px',
     loading: 'cursor-wait opacity-80 animate-spin',

@@ -1,14 +1,54 @@
 import { createMemo, createRoot, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import type { SlotRecipeOptions } from './recipe.ts'
+import type { ComponentRecipeConfig } from './recipe.ts'
 import { atomicRecipe, slotRecipe } from './recipe.ts'
 
-const missingSlotBase: SlotRecipeOptions<'root'> = {}
-const unknownVariantSlot: SlotRecipeOptions<'root'> = {
+interface RootSlot {
+  root?: unknown
+}
+
+interface StateVariant {
+  state?: 'active'
+}
+
+interface CardSlot {
+  root?: unknown
+  header?: unknown
+  content?: unknown
+  footer?: unknown
+  icon?: unknown
+}
+
+interface CardVariant {
+  variant?: 'solid' | 'ghost'
+  size?: 'sm' | 'lg'
+  bordered?: boolean
+}
+
+interface InferredSlot {
+  root?: unknown
+  header?: unknown
+  body?: unknown
+}
+
+interface SparseVariant {
+  enabled?: boolean
+  count?: number
+  label?: string
+}
+
+const missingSlotBase: ComponentRecipeConfig<RootSlot, never> = {}
+const unknownVariantSlot: ComponentRecipeConfig<RootSlot, StateVariant> = {
   base: { root: 'root' },
-  // @ts-expect-error Variant slots must be declared by base.
-  variants: { state: { active: { leading: 'leading' } } },
+  variants: {
+    state: {
+      active: {
+        // @ts-expect-error Variant slots must be declared by the component Slot contract.
+        leading: 'leading',
+      },
+    },
+  },
 }
 
 void missingSlotBase
@@ -140,7 +180,7 @@ describe('recipe', () => {
   })
 
   describe('multi-slot recipe', () => {
-    const card = slotRecipe({
+    const card = slotRecipe<CardSlot, CardVariant>({
       base: {
         root: 'rounded-lg border border-border bg-card p-4',
         header: 'font-semibold text-card-foreground mb-2',
@@ -228,8 +268,8 @@ describe('recipe', () => {
       expect(run1).toEqual(run2)
     })
 
-    test('infers slots from base without runtime slots array', () => {
-      const inferred = slotRecipe({
+    test('resolves declared slots without a runtime slots array', () => {
+      const inferred = slotRecipe<InferredSlot, never>({
         base: {
           root: 'flex flex-col',
           header: 'p-4 border-b',
@@ -291,7 +331,7 @@ describe('recipe', () => {
 })
 
 test('matches sparse compound-only keys and preserves false, zero, empty string, and null', () => {
-  const sparse = slotRecipe<'root'>({
+  const sparse = slotRecipe<RootSlot, SparseVariant>({
     defaults: { enabled: false, count: 0, label: '' },
     compoundVariants: [
       { variants: { enabled: false, count: 0, label: '' }, class: { root: 'p-2' } },

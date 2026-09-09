@@ -68,7 +68,6 @@ export namespace CommandPaletteT {
      */
     descriptionPosition?: DescriptionPosition
   }
-  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

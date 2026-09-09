@@ -2,7 +2,10 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { ButtonGroupT } from './button-group.types.ts'
 
-export const buttonGroupRecipe = /* @__PURE__ */ slotRecipe<keyof ButtonGroupT.Slot>({
+export const buttonGroupRecipe = /* @__PURE__ */ slotRecipe<
+  ButtonGroupT.Slot,
+  ButtonGroupT.Variant
+>({
   base: {
     root: 'inline-flex w-fit items-stretch *:focus-visible:(relative z-sticky)',
     separator: 'bg-input shrink-0 self-stretch',

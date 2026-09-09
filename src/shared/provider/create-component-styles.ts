@@ -78,7 +78,7 @@ export function createComponentStyles<Name extends ThemeName>(
       return entry ? [entry.recipe(variants)] : []
     }),
   )
-  const rootSlot = options.rootSlot ?? 'root'
+  const rootSlot = (options.rootSlot ?? 'root') as ThemeSlots<Name>
 
   function slot(name: ThemeSlots<Name>): SlotBinding {
     return {

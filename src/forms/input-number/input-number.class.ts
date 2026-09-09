@@ -3,7 +3,10 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { InputNumberT } from './input-number.types.ts'
 
-export const inputNumberRecipe = /* @__PURE__ */ slotRecipe<keyof InputNumberT.Slot>({
+export const inputNumberRecipe = /* @__PURE__ */ slotRecipe<
+  InputNumberT.Slot,
+  InputNumberT.Variant
+>({
   base: {
     root: 'inline-flex w-full cursor-text transition-[colors,box-shadow] items-stretch overflow-hidden focus-within:(outline-none border-ring ring-3 ring-ring/50) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:data-invalid:(border-destructive/50 ring-destructive/40) data-disabled:(opacity-64 pointer-events-none) focus-within:data-invalid:(border-destructive ring-3 ring-destructive/20) dark:focus-within:data-invalid:(border-destructive/50 ring-destructive/40)',
     input:

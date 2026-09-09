@@ -2,7 +2,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { ProgressT } from './progress.types.ts'
 
-export const progressRecipe = /* @__PURE__ */ slotRecipe<keyof ProgressT.Slot>({
+export const progressRecipe = /* @__PURE__ */ slotRecipe<ProgressT.Slot, ProgressT.Variant>({
   base: {
     root: 'gap-2 relative',
     status: 'text-sm text-muted-foreground font-medium flex transition-[width,height] tabular-nums',

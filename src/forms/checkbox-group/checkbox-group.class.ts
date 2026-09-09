@@ -2,7 +2,10 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { CheckboxGroupT } from './checkbox-group.types.ts'
 
-export const checkboxGroupRecipe = /* @__PURE__ */ slotRecipe<keyof CheckboxGroupT.Slot>({
+export const checkboxGroupRecipe = /* @__PURE__ */ slotRecipe<
+  CheckboxGroupT.Slot,
+  CheckboxGroupT.Variant
+>({
   base: {
     root: 'relative',
     fieldset: 'flex',

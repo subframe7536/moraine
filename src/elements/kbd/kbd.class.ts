@@ -3,7 +3,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 import type { KbdGroupT } from './kbd-group.types.ts'
 import type { KbdT } from './kbd.types.ts'
 
-export const kbdRecipe = /* @__PURE__ */ slotRecipe<keyof KbdT.Slot>({
+export const kbdRecipe = /* @__PURE__ */ slotRecipe<KbdT.Slot, KbdT.Variant>({
   base: {
     root: 'leading-none font-medium font-mono px-1 rounded-sm inline-flex select-none uppercase items-center justify-center',
   },
@@ -25,7 +25,7 @@ export const kbdRecipe = /* @__PURE__ */ slotRecipe<keyof KbdT.Slot>({
   },
 })
 
-export const kbdGroupRecipe = /* @__PURE__ */ slotRecipe<keyof KbdGroupT.Slot>({
+export const kbdGroupRecipe = /* @__PURE__ */ slotRecipe<KbdGroupT.Slot, KbdGroupT.Variant>({
   base: {
     root: 'inline-flex gap-1 items-center',
     chord: 'inline-flex gap-1 items-center',

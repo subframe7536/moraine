@@ -11,6 +11,7 @@
   "slots": [
     {
       "name": "root",
+      "description": "Visual divider element.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": [

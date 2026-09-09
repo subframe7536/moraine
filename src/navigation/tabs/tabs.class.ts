@@ -2,7 +2,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { TabsT } from './tabs.types.ts'
 
-export const tabsRecipe = /* @__PURE__ */ slotRecipe<keyof TabsT.Slot>({
+export const tabsRecipe = /* @__PURE__ */ slotRecipe<TabsT.Slot, TabsT.Variant>({
   base: {
     root: 'flex gap-2',
     list: 'p-1 inline-flex items-center relative',

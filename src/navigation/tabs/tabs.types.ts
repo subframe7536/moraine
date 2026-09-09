@@ -47,7 +47,6 @@ export namespace TabsT {
      */
     size?: 'sm' | 'md' | 'lg'
   }
-  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

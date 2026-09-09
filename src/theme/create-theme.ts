@@ -1,5 +1,5 @@
 import { slotRecipe } from '../shared/style/recipe.ts'
-import type { SlotRecipeOptions } from '../shared/style/recipe.ts'
+import type { ComponentRecipeConfig } from '../shared/style/recipe.ts'
 
 import { THEME_LAYERS } from './types.ts'
 import type {
@@ -21,7 +21,12 @@ export function createTheme(options: CreateThemeOptions = {}): MoraineTheme {
       continue
     }
     own[name] = Object.freeze({
-      recipe: slotRecipe(config as unknown as SlotRecipeOptions),
+      recipe: slotRecipe(
+        config as unknown as ComponentRecipeConfig<
+          Record<string, unknown>,
+          Record<string, unknown>
+        >,
+      ),
       defaults: config.defaults,
     })
   }

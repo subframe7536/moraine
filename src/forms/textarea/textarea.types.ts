@@ -41,7 +41,6 @@ export namespace TextareaT {
      */
     variant?: 'outline' | 'subtle' | 'ghost' | 'none'
   }
-  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

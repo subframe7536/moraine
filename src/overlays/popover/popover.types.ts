@@ -20,7 +20,6 @@ export namespace PopoverT {
 
   export type Variant = never
   export type Mode = 'click' | 'hover'
-  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

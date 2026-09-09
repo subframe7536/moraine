@@ -8,10 +8,10 @@ export namespace IconT {
   export type Name = string | JSX.Element | Component<Omit<IconProps, 'name'>>
 
   export interface Slot<T = unknown> {
+    /** Rendered icon element. */
     root?: T
   }
   export type Variant = never
-  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

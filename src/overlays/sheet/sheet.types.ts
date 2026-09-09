@@ -50,7 +50,6 @@ export namespace SheetT {
      */
     inset?: boolean | 'true' | 'false'
   }
-  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

@@ -34,8 +34,6 @@ export namespace AvatarT {
     badgePosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
   }
 
-  export type SlotName = keyof Slot
-
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 

@@ -3,7 +3,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { TextareaT } from './textarea.types.ts'
 
-export const textareaRecipe = /* @__PURE__ */ slotRecipe<keyof TextareaT.Slot>({
+export const textareaRecipe = /* @__PURE__ */ slotRecipe<TextareaT.Slot, TextareaT.Variant>({
   base: {
     root: 'rounded-md flex flex-col w-full transition-[colors,box-shadow] overflow-hidden data-focused:(outline-none border-ring ring-3 ring-ring/50) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:data-invalid:(border-destructive/50 ring-destructive/40) data-disabled:(opacity-64 pointer-events-none) data-focused:data-invalid:(border-destructive ring-3 ring-destructive/20) dark:data-focused:data-invalid:(border-destructive/50 ring-destructive/40)',
     header: 'text-muted-foreground font-medium flex gap-2 w-full items-center',

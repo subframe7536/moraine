@@ -3,7 +3,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 import type { AvatarGroupT } from './avatar-group.types.ts'
 import type { AvatarT } from './avatar.types.ts'
 
-export const avatarRecipe = /* @__PURE__ */ slotRecipe<keyof AvatarT.Slot>({
+export const avatarRecipe = /* @__PURE__ */ slotRecipe<AvatarT.Slot, AvatarT.Variant>({
   base: {
     root: "text-muted-foreground rounded-full bg-muted inline-flex shrink-0 select-none items-center justify-center relative overflow-visible after:(border border-border rounded-full pointer-events-none content-[''] inset-0 absolute) dark:after:mix-blend-lighten",
     image:
@@ -48,7 +48,10 @@ export const avatarRecipe = /* @__PURE__ */ slotRecipe<keyof AvatarT.Slot>({
   },
 })
 
-export const avatarGroupRecipe = /* @__PURE__ */ slotRecipe<keyof AvatarGroupT.Slot>({
+export const avatarGroupRecipe = /* @__PURE__ */ slotRecipe<
+  AvatarGroupT.Slot,
+  AvatarGroupT.Variant
+>({
   base: {
     root: 'inline-flex flex-row-reverse justify-end',
     item: 'rounded-full ring-background relative first:me-0',

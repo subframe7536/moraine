@@ -9,7 +9,7 @@
 - [x] convert sidebar-frame and resizable into namespaced component, get rid of `frameRender` in sidebar-frame
 - [x] add indicator type in `<component>T` to indicate if the component is a single or a composite/namespaced component
 - [x] cleanup `data-[*`
-- [ ] remove `SlotName` in namespace, add missing jsdoc on slot keys; `slotRecipe` 's type param usage should be `slotRecipe<ComponentT.Slot, ComponentT.Variant>()`
+- [x] remove `SlotName` in namespace, add missing jsdoc on slot keys; `slotRecipe` 's type param usage should be `slotRecipe<ComponentT.Slot, ComponentT.Variant>()`
 - [ ] `cn` config should be customizable in MoraineProvider
 - [ ] metric adjust across all sizes
 - [ ] production barrel import optimize

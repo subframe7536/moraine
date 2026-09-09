@@ -2,7 +2,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { SwitchT } from './switch.types.ts'
 
-export const switchRecipe = /* @__PURE__ */ slotRecipe<keyof SwitchT.Slot>({
+export const switchRecipe = /* @__PURE__ */ slotRecipe<SwitchT.Slot, SwitchT.Variant>({
   base: {
     root: 'flex flex-row items-start',
     track:

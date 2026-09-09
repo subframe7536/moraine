@@ -2,7 +2,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { ResizableT } from './resizable.types.ts'
 
-export const resizableRecipe = /* @__PURE__ */ slotRecipe<keyof ResizableT.Slot>({
+export const resizableRecipe = /* @__PURE__ */ slotRecipe<ResizableT.Slot, ResizableT.Variant>({
   base: {
     root: 'flex h-full min-h-0 min-w-0 w-full',
     panel:

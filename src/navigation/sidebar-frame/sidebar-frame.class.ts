@@ -2,7 +2,10 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { SidebarFrameT } from './sidebar-frame.types.ts'
 
-export const sidebarFrameRecipe = /* @__PURE__ */ slotRecipe<keyof SidebarFrameT.Slot>({
+export const sidebarFrameRecipe = /* @__PURE__ */ slotRecipe<
+  SidebarFrameT.Slot,
+  SidebarFrameT.Variant
+>({
   base: {
     root: 'flex h-screen max-h-full min-h-0 overflow-hidden',
     sidebar:

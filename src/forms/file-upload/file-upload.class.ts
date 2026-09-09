@@ -2,7 +2,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { FileUploadT } from './file-upload.types.ts'
 
-export const fileUploadRecipe = /* @__PURE__ */ slotRecipe<keyof FileUploadT.Slot>({
+export const fileUploadRecipe = /* @__PURE__ */ slotRecipe<FileUploadT.Slot, FileUploadT.Variant>({
   base: {
     root: 'flex flex-col relative data-disabled:(opacity-64 pointer-events-none)',
     control:

@@ -119,7 +119,7 @@ const labelRender: SelectProps['labelRender'] = (option) =>
 
 ### Slot types
 
-`XxxT.Slot<T>` documents each named presentation slot. `SlotName` is its key union; `Classes` and `Styles` specialize the values for class names and CSS objects while retaining slot documentation. A presentation slot may be virtual, such as a loading class applied to an existing icon.
+`XxxT.Slot<T>` documents each named presentation slot. Use `keyof XxxT.Slot` when a slot-key union is needed. `Classes` and `Styles` specialize the values for class names and CSS objects while retaining slot documentation. A presentation slot may be virtual, such as a loading class applied to an existing icon.
 
 ```tsx
 import type { CardT } from 'moraine'
@@ -133,18 +133,17 @@ const overrides: CardT.Classes = {
 
 Each `XxxT` namespace may expose the following members depending on the component:
 
-| Member     | Description                                              |
-| ---------- | -------------------------------------------------------- |
-| `Kind`     | Component composition model: `'single'` or `'composite'` |
-| `Slot`     | Generic documented map of presentation slots             |
-| `SlotName` | Union of named presentation slot keys                    |
-| `Variant`  | Nullable visual options; `null` suppresses a default     |
-| `Item`     | Data model for list items or option objects              |
-| `Value`    | Domain type of the component's controlled value          |
-| `Classes`  | Typed map from slot name to CSS class string             |
-| `Styles`   | Typed map from slot name to inline style object          |
-| `Base`     | Component-specific base/business props                   |
-| `Props`    | Final public props shape (same as `XxxProps`)            |
+| Member    | Description                                              |
+| --------- | -------------------------------------------------------- |
+| `Kind`    | Component composition model: `'single'` or `'composite'` |
+| `Slot`    | Generic documented map of presentation slots             |
+| `Variant` | Nullable visual options; `null` suppresses a default     |
+| `Item`    | Data model for list items or option objects              |
+| `Value`   | Domain type of the component's controlled value          |
+| `Classes` | Typed map from slot name to CSS class string             |
+| `Styles`  | Typed map from slot name to inline style object          |
+| `Base`    | Component-specific base/business props                   |
+| `Props`   | Final public props shape (same as `XxxProps`)            |
 
 ## Tips
 

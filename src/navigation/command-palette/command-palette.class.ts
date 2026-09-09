@@ -1,6 +1,11 @@
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
-export const commandPaletteRecipe = /* @__PURE__ */ slotRecipe({
+import type { CommandPaletteT } from './command-palette.types.ts'
+
+export const commandPaletteRecipe = /* @__PURE__ */ slotRecipe<
+  CommandPaletteT.Slot,
+  CommandPaletteT.Variant
+>({
   base: {
     root: 'bg-popover text-popover-foreground border border-border rounded-lg flex flex-col min-h-0 shadow-md overflow-hidden',
     inputWrapper: 'px-2.5 gap-2 h-11 border-b border-border/60 flex items-center',

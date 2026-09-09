@@ -57,7 +57,6 @@ export namespace RadioGroupT {
      */
     indicator?: 'start' | 'end' | 'hidden'
   }
-  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

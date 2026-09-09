@@ -11,24 +11,28 @@
   "slots": [
     {
       "name": "root",
+      "description": "Container that owns the trigger and expandable content.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
     },
     {
       "name": "trigger",
+      "description": "Interactive element that toggles the content.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
     },
     {
       "name": "contentWrapper",
+      "description": "Outer wrapper that measures and animates the content height.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
     },
     {
       "name": "content",
+      "description": "Inner region that renders the collapsible content.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []

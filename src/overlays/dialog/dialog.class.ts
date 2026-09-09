@@ -15,7 +15,7 @@ export const DIALOG_BODY_CLASS = 'flex-1 min-h-0 px-6 text-sm text-foreground'
 export const DIALOG_FOOTER_CLASS =
   'shrink-0 p-6 pt-2 flex flex-col-reverse gap-2 sm:(flex-row justify-end items-center)'
 
-export const dialogRecipe = /* @__PURE__ */ slotRecipe<keyof DialogT.Slot>({
+export const dialogRecipe = /* @__PURE__ */ slotRecipe<DialogT.Slot, DialogT.Variant>({
   base: {
     trigger: '',
     overlay: `${MODAL_OVERLAY_CLASS} data-overlay-scroll:(p-4 overflow-y-auto)`,

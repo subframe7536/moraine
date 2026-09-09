@@ -2,7 +2,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { AccordionT } from './accordion.types.ts'
 
-export const accordionRecipe = /* @__PURE__ */ slotRecipe<keyof AccordionT.Slot>({
+export const accordionRecipe = /* @__PURE__ */ slotRecipe<AccordionT.Slot, AccordionT.Variant>({
   base: {
     root: 'flex flex-col w-full data-disabled:(opacity-64 pointer-events-none)',
     item: '[&:not(:last-child)]:(border-b border-border) data-disabled:(opacity-64 pointer-events-none)',

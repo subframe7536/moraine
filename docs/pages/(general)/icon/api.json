@@ -11,6 +11,7 @@
   "slots": [
     {
       "name": "root",
+      "description": "Rendered icon element.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []

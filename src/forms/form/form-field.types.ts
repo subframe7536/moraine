@@ -62,8 +62,6 @@ export namespace FormFieldT {
     orientation?: 'vertical' | 'horizontal'
   }
 
-  export type SlotName = keyof Slot
-
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 

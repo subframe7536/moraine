@@ -2,7 +2,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { RadioGroupT } from './radio-group.types.ts'
 
-export const radioGroupRecipe = /* @__PURE__ */ slotRecipe<keyof RadioGroupT.Slot>({
+export const radioGroupRecipe = /* @__PURE__ */ slotRecipe<RadioGroupT.Slot, RadioGroupT.Variant>({
   base: {
     root: 'flex relative',
     item: 'flex items-start data-disabled:(opacity-64 pointer-events-none)',

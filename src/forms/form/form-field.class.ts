@@ -2,7 +2,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { FormFieldT } from './form-field.types.ts'
 
-export const formFieldRecipe = /* @__PURE__ */ slotRecipe<keyof FormFieldT.Slot>({
+export const formFieldRecipe = /* @__PURE__ */ slotRecipe<FormFieldT.Slot, FormFieldT.Variant>({
   base: {
     root: '',
     wrapper: 'flex flex-col gap-1',

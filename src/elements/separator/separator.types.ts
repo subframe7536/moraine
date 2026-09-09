@@ -4,6 +4,7 @@ export namespace SeparatorT {
   export type Kind = 'single'
 
   export interface Slot<T = unknown> {
+    /** Visual divider element. */
     root?: T
   }
 
@@ -11,9 +12,6 @@ export namespace SeparatorT {
     /** Layout axis used by the component Recipe. */
     orientation?: 'horizontal' | 'vertical'
   }
-
-  export type SlotName = keyof Slot
-
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 

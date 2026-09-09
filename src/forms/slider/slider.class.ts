@@ -2,7 +2,7 @@ import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { SliderT } from './slider.types.ts'
 
-export const sliderRecipe = /* @__PURE__ */ slotRecipe<keyof SliderT.Slot>({
+export const sliderRecipe = /* @__PURE__ */ slotRecipe<SliderT.Slot, SliderT.Variant>({
   base: {
     root: 'group flex select-none items-center relative touch-none data-disabled:(opacity-64 pointer-events-none)',
     track: 'bg-input select-none translate-z-0 relative overflow-hidden',

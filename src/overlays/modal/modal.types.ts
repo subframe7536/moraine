@@ -54,11 +54,12 @@ export namespace ModalT {
   }
 
   export interface Slot<T = unknown> {
+    /** Fixed backdrop that contains the modal shell. */
     overlay: T
+    /** Modal panel that contains the dialog content. */
     content: T
   }
   export type Variant = never
-  export type SlotName = keyof Slot
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<JSX.CSSProperties>

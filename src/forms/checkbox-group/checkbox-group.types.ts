@@ -53,8 +53,6 @@ export namespace CheckboxGroupT {
     variant?: 'card' | 'table' | 'list'
   }
 
-  export type SlotName = keyof Slot
-
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
