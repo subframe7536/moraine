@@ -177,7 +177,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           }}
         />
       </Show>
-      <SidebarFrame classes={{ root: 'h-screen', sidebar: 'border-none' }} scrollThreshold={4}>
+      <SidebarFrame classes={{ sidebar: 'border-none' }} scrollThreshold={4}>
         <FrameContent />
       </SidebarFrame>
     </>

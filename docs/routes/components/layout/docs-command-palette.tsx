@@ -224,7 +224,7 @@ export function DocsCommandPalette(props: DocsCommandPaletteProps): JSX.Element 
                       items={['arrowup', 'arrowdown']}
                       size="sm"
                       variant="outline"
-                      dividerRender={() => '/'}
+                      separatorRender={() => '/'}
                     />
                     Navigate
                   </span>
