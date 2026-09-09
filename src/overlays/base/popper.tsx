@@ -777,31 +777,35 @@ function PopperContent(props: PopperContentComponentProps): JSX.Element {
     },
   }
 
-  const children = resolveChildren(() => props.children as JSX.Element)
   return (
     <Show when={context.contentMounted()}>
-      <Portal>
-        <div
-          ref={(element) => {
-            context.setPositionerElement(element)
-            onCleanup(() => {
-              if (context.positionerElement() === element) {
-                context.setPositionerElement(undefined)
-              }
-            })
-          }}
-          data-slot="positioner"
-          data-positioned={context.positionerPositioned() ? '' : undefined}
-          style={{ visibility: 'hidden', ...props.positionerStyle }}
-          class={cn('left-0 top-0 absolute', props.positionerClass)}
-        >
-          {renderComponentOrElement(children() as PopperContentComponentProps['children'], {
-            close: () => context.setOpen(false),
-            contentProps,
-            currentPlacement: context.currentPlacement,
-          })}
-        </div>
-      </Portal>
+      {(_present) => {
+        const children = resolveChildren(() => props.children as JSX.Element)
+        return (
+          <Portal>
+            <div
+              ref={(element) => {
+                context.setPositionerElement(element)
+                onCleanup(() => {
+                  if (context.positionerElement() === element) {
+                    context.setPositionerElement(undefined)
+                  }
+                })
+              }}
+              data-slot="positioner"
+              data-positioned={context.positionerPositioned() ? '' : undefined}
+              style={{ visibility: 'hidden', ...props.positionerStyle }}
+              class={cn('left-0 top-0 absolute', props.positionerClass)}
+            >
+              {renderComponentOrElement(children() as PopperContentComponentProps['children'], {
+                close: () => context.setOpen(false),
+                contentProps,
+                currentPlacement: context.currentPlacement,
+              })}
+            </div>
+          </Portal>
+        )
+      }}
     </Show>
   )
 }

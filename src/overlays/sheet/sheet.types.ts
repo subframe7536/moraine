@@ -48,7 +48,7 @@ export namespace SheetT {
     /** Whether the surface is inset from viewport edges.
      * @default false
      */
-    inset?: boolean | 'true' | 'false'
+    inset?: boolean
   }
 
   export type Classes = Slot<SlotClassValue>

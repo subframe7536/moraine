@@ -30,7 +30,7 @@ export namespace TooltipT {
     /** Visual invert of the component.
      * @default false
      */
-    invert?: boolean | 'true' | 'false'
+    invert?: boolean
   }
 
   export type Classes = Slot<SlotClassValue>

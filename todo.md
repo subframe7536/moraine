@@ -13,6 +13,7 @@
 - [ ] `cn` config should be customizable in MoraineProvider
 - [ ] metric adjust across all sizes
 - [ ] production barrel import optimize
+- [ ] cleanup ssr adaption
 
 ### UI Regression
 
@@ -42,6 +43,7 @@
   - [ ] tooltip should become a single component, remove trigger and content; refactor implemention
 - [ ] sidebar-frame styling is broken, more useful usage and example
 - [ ] src/forms/form/form-field.tsx 's `local.form` should be reconsidered
+- [ ] itemRender in pagination
 
 # V1
 

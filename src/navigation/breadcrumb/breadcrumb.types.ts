@@ -68,7 +68,7 @@ export namespace BreadcrumbT {
     /** Visual wrap of the component.
      * @default true
      */
-    wrap?: boolean | 'true' | 'false'
+    wrap?: boolean
   }
 
   export type Classes = Slot<SlotClassValue>

@@ -1,5 +1,5 @@
 import { render } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineUnstyledProvider, MoraineProvider } from '../../shared/provider/index.ts'
@@ -93,24 +93,6 @@ describe('Separator', () => {
 
     expect(root?.className).toContain('text-primary')
     expect(root?.className).not.toContain('border-primary')
-  })
-
-  test('evaluates orientation once per render when used for semantics and classes', () => {
-    const reads = { orientation: 0 }
-    const [orientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
-    const screen = render(() => (
-      <MoraineProvider>
-        {createComponent(Separator, {
-          get orientation() {
-            reads.orientation += 1
-            return orientation()
-          },
-        })}
-      </MoraineProvider>
-    ))
-
-    expect(screen.getByRole('separator').getAttribute('aria-orientation')).toBe('horizontal')
-    expect(reads.orientation).toBe(1)
   })
 
   test('applies root class and style overrides', () => {

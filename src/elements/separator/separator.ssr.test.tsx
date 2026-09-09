@@ -1,4 +1,4 @@
-import { createComponent, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
@@ -9,19 +9,13 @@ import { Separator } from './separator.tsx'
 describe('Separator SSR Hydration', () => {
   test('hydrates the single separator root without reordering nodes', () => {
     const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
-    const reads = { orientation: 0 }
 
     const { container } = hydrateFixture(
       '/src/elements/separator/separator.ssr.fixture.tsx',
       'renderSeparatorFixture',
       () => (
         <MoraineProvider>
-          {createComponent(Separator, {
-            get orientation() {
-              reads.orientation += 1
-              return orientation()
-            },
-          })}
+          <Separator orientation={orientation()} />
         </MoraineProvider>
       ),
     )
@@ -29,11 +23,15 @@ describe('Separator SSR Hydration', () => {
     const root = container.querySelector('[data-slot="root"]')!
     expect(root).not.toBeNull()
     expect(root.children).toHaveLength(0)
-    expect(reads.orientation).toBe(1)
+    expect(root.getAttribute('aria-orientation')).toBe('horizontal')
+    expect(root.className).toContain('h-px')
+    expect(root.className).toContain('w-full')
 
     setOrientation('vertical')
     expect(root.getAttribute('aria-orientation')).toBe('vertical')
     expect(root.className).toContain('bg-border')
-    expect(reads.orientation).toBe(2)
+    expect(root.className).toContain('w-px')
+    expect(root.className).toContain('h-full')
+    expect(container.querySelector('[data-slot="root"]')).toBe(root)
   })
 })

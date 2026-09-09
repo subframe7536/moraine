@@ -259,26 +259,28 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
     'classes',
     'styles',
   ])
-  const content = resolveChildren(() => local.children)
   const resolved = createComponentStyles('popover', local, { rootSlot: 'content' })
 
   return (
     <Popper.Content>
-      {(context) => (
-        <div
-          {...mergePopperContentProps(context.contentProps, rest)}
-          data-slot="content"
-          data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'bottom')}
-          aria-label={local.ariaLabel ?? rest['aria-label']}
-          {...resolved.root}
-        >
-          <Show when={hasJsxContent(content())}>
-            <div data-slot="body" {...resolved.slot('body')}>
-              {content()}
-            </div>
-          </Show>
-        </div>
-      )}
+      {(context) => {
+        const content = resolveChildren(() => local.children)
+        return (
+          <div
+            {...mergePopperContentProps(context.contentProps, rest)}
+            data-slot="content"
+            data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'bottom')}
+            aria-label={local.ariaLabel ?? rest['aria-label']}
+            {...resolved.root}
+          >
+            <Show when={hasJsxContent(content())}>
+              <div data-slot="body" {...resolved.slot('body')}>
+                {content()}
+              </div>
+            </Show>
+          </div>
+        )
+      }}
     </Popper.Content>
   )
 }
