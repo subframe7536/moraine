@@ -11,7 +11,7 @@
 - [x] cleanup `data-[*`
 - [x] remove `SlotName` in namespace, add missing jsdoc on slot keys; `slotRecipe` 's type param usage should be `slotRecipe<ComponentT.Slot, ComponentT.Variant>()`
 - [x] `cn` config should be customizable in MoraineProvider
-- [ ] reorganize [overlay base](src/components/overlay/base) props, move to namespace component specific props
+- [x] reorganize [overlay base](src/overlays/base) props; use namespaces only for public component types
 - [ ] metric adjust across all sizes
 - [ ] production barrel import optimize, reconsider exports
 - [ ] cleanup ssr adaption

@@ -1,28 +1,31 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { Accessor, JSX, ValidComponent } from 'solid-js'
 import {
   Show,
   children as resolveChildren,
   createComponent,
-  createContext,
   createEffect,
   createMemo,
   createSignal,
   mergeProps,
   onCleanup,
   splitProps,
-  useContext,
 } from 'solid-js'
 
 import { KbdGroup } from '../../elements/kbd/index.ts'
+import { createContextProvider } from '../../shared/create-context-provider.tsx'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useId } from '../../shared/utils.ts'
-import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
-import { mergePopperContentProps } from '../base/popper.tsx'
+import { resolveOverlayMenuSide } from '../base/index.ts'
+import {
+  createPopper,
+  PopperTrigger,
+  PopperContent,
+  mergePopperElementProps,
+} from '../base/popper.tsx'
+import type { PopperTriggerProps } from '../base/popper.types.ts'
 
 import type { TooltipProps, TooltipT } from './tooltip.types.ts'
-
-const TooltipMotionContext = createContext<() => boolean>(() => false)
 
 interface TooltipTimers {
   close?: ReturnType<typeof setTimeout>
@@ -85,6 +88,17 @@ function shouldOpenImmediately(): boolean {
   return Boolean(activeTooltip || skipDelay)
 }
 
+const [TooltipProvider, useTooltipContext] = createContextProvider<{
+  options: TooltipProps
+  popper: ReturnType<typeof createPopper>
+  instantMotion: Accessor<boolean>
+  scheduleOpen: () => void
+  scheduleClose: () => void
+  dismiss: () => void
+  resetPress: () => void
+  keepOpen: () => void
+}>('Tooltip')
+
 /** Hover-triggered informational overlay anchored to a trigger element. */
 export function Tooltip(props: TooltipProps): JSX.Element {
   const merged = mergeProps(
@@ -100,6 +114,18 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   const [open, setOpen] = useControllableValue<boolean>({
     value: () => merged.open,
     defaultValue: () => merged.defaultOpen ?? false,
+  })
+  const popper = createPopper({
+    get id() {
+      return tooltipId()
+    },
+    get open() {
+      return open()
+    },
+    onOpenChange: requestOpen,
+    get disabled() {
+      return merged.disabled
+    },
   })
   const timers: TooltipTimers = {}
   const [shouldUseInstantMotion, setShouldUseInstantMotion] = createSignal(false)
@@ -150,13 +176,13 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     }
   }
 
-  function requestTooltipOpen(openTooltip: () => void, instantMotion: boolean): void {
+  function requestTooltipOpen(instantMotion: boolean): void {
     clearOpenTimer()
     setShouldUseInstantMotion(instantMotion)
-    openTooltip()
+    popper.setOpen(true)
   }
 
-  function scheduleOpen(openTooltip: () => void, isOpen: boolean): void {
+  function scheduleOpen(): void {
     if (merged.disabled || dismissedByPress) {
       return
     }
@@ -164,17 +190,17 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     clearCloseTimer()
     clearOpenTimer()
 
-    if (isOpen) {
+    if (popper.isOpen()) {
       return
     }
 
     if (shouldOpenImmediately()) {
-      requestTooltipOpen(openTooltip, true)
+      requestTooltipOpen(true)
       return
     }
 
     if (merged.openDelay <= 0) {
-      requestTooltipOpen(openTooltip, false)
+      requestTooltipOpen(false)
       return
     }
 
@@ -185,14 +211,14 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         return
       }
 
-      requestTooltipOpen(openTooltip, false)
+      requestTooltipOpen(false)
     }, merged.openDelay)
   }
 
-  function scheduleClose(close: () => void, isOpen: boolean): void {
+  function scheduleClose(): void {
     clearOpenTimer()
 
-    if (!isOpen) {
+    if (!popper.isOpen()) {
       setShouldUseInstantMotion(false)
       return
     }
@@ -201,7 +227,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
 
     if (merged.closeDelay <= 0) {
       setShouldUseInstantMotion(false)
-      close()
+      popper.setOpen(false)
       return
     }
 
@@ -212,7 +238,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       }
 
       setShouldUseInstantMotion(false)
-      close()
+      popper.setOpen(false)
       clearCloseTimer()
     }, merged.closeDelay)
   }
@@ -255,70 +281,61 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     }
   })
 
-  return (
-    <Popper
-      id={tooltipId()}
-      open={open()}
-      onOpenChange={requestOpen}
-      disabled={merged.disabled}
-      placement={merged.placement ?? 'top'}
-      forceMount={merged.forceMount}
-      overflowPadding={4}
-      role="tooltip"
-      toggleOnClick={false}
-      restoreFocusOnClose={false}
-      describeTrigger
-      onTriggerPointerDown={() => {
-        dismissedByPress = true
-        closeImmediately()
-      }}
-      onTriggerClick={() => {
-        dismissedByPress = true
-        closeImmediately()
-      }}
-      onTriggerFocus={(props) => {
-        scheduleOpen(props.open, props.isOpen)
-      }}
-      onTriggerBlur={(props) => {
-        dismissedByPress = false
-        scheduleClose(props.close, props.isOpen)
-      }}
-      onTriggerPointerEnter={(props, event) => {
-        if (event.pointerType === 'mouse' || !event.pointerType) {
-          dismissedByPress = false
-          scheduleOpen(props.open, props.isOpen)
-        }
-      }}
-      onTriggerPointerLeave={(props, event) => {
-        if (event.pointerType === 'mouse' || !event.pointerType) {
-          scheduleClose(props.close, props.isOpen)
-        }
-      }}
-      onContentPointerEnter={(_, event) => {
-        if (event.pointerType === 'mouse' || !event.pointerType) {
-          clearCloseTimer()
-          clearSkipDelay(tooltipId())
-        }
-      }}
-      onContentPointerLeave={(props, event) => {
-        if (event.pointerType === 'mouse' || !event.pointerType) {
-          scheduleClose(props.close, props.isOpen)
-        }
-      }}
-    >
-      <TooltipMotionContext.Provider value={shouldUseInstantMotion}>
-        {merged.children}
-      </TooltipMotionContext.Provider>
-    </Popper>
-  )
+  const behavior: ReturnType<typeof useTooltipContext> = {
+    options: merged,
+    popper,
+    instantMotion: shouldUseInstantMotion,
+    scheduleOpen,
+    scheduleClose,
+    dismiss: () => {
+      dismissedByPress = true
+      closeImmediately()
+    },
+    resetPress: () => {
+      dismissedByPress = false
+    },
+    keepOpen: () => {
+      clearCloseTimer()
+      clearSkipDelay(tooltipId())
+    },
+  }
+  return <TooltipProvider value={behavior}>{merged.children}</TooltipProvider>
 }
 
 function TooltipTrigger<T extends ValidComponent = 'button'>(
   props: TooltipT.TriggerProps<T>,
 ): JSX.Element {
+  const context = useTooltipContext()
   const resolved = createComponentStyles('tooltip', props, { rootSlot: 'trigger' })
-  const triggerProps = mergeProps(props, resolved.root) as TooltipT.TriggerProps<T>
-  return createComponent(Popper.Anchor<T>, triggerProps)
+  const popper = context.popper
+  const triggerProps = mergeProps(
+    mergePopperElementProps<HTMLElement>(
+      {
+        onPointerDown: context.dismiss,
+        onClick: context.dismiss,
+        onFocus: context.scheduleOpen,
+        onBlur: () => {
+          context.resetPress()
+          context.scheduleClose()
+        },
+        onPointerEnter: (event) => {
+          if (event.pointerType === 'mouse' || !event.pointerType) {
+            context.resetPress()
+            context.scheduleOpen()
+          }
+        },
+        onPointerLeave: (event) => {
+          if (event.pointerType === 'mouse' || !event.pointerType) {
+            context.scheduleClose()
+          }
+        },
+      },
+      props,
+    ),
+    resolved.root,
+    { context: popper, toggleOnClick: false, describeTrigger: true },
+  ) as PopperTriggerProps<T> & { context: ReturnType<typeof createPopper> }
+  return createComponent(PopperTrigger<T>, triggerProps)
 }
 
 function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
@@ -334,7 +351,19 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
     'styles',
   ])
 
-  const instantMotion = useContext(TooltipMotionContext)
+  const behavior = useTooltipContext()
+  const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
+    onPointerEnter: (event) => {
+      if (event.pointerType === 'mouse' || !event.pointerType) {
+        behavior.keepOpen()
+      }
+    },
+    onPointerLeave: (event) => {
+      if (event.pointerType === 'mouse' || !event.pointerType) {
+        behavior.scheduleClose()
+      }
+    },
+  }
   const positioner = createComponentStyles('tooltip', {
     get classes() {
       return local.classes
@@ -345,11 +374,18 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
   })
   const resolved = createComponentStyles('tooltip', local, { rootSlot: 'content' })
   return (
-    <Popper.Content
+    <PopperContent
+      context={behavior.popper}
+      placement={behavior.options.placement ?? 'top'}
+      forceMount={behavior.options.forceMount}
+      overflowPadding={4}
+      role="tooltip"
+      restoreFocusOnClose={false}
       positionerClass={positioner.slot('positioner').class}
       positionerStyle={positioner.slot('positioner').style}
     >
       {(context) => {
+        const contentProps = mergeProps(context.contentProps, contentEvents)
         const explicitText = createMemo(() => local.text)
         const text = createMemo(() => {
           const value = explicitText()
@@ -358,10 +394,10 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
         const kbds = createMemo(() => local.kbds)
         return (
           <div
-            {...mergePopperContentProps(context.contentProps, rest)}
+            {...mergePopperElementProps(contentProps, rest)}
             data-slot="content"
             data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'top')}
-            data-instant-motion={instantMotion() ? '' : undefined}
+            data-instant-motion={behavior.instantMotion() ? '' : undefined}
             {...resolved.root}
           >
             <Show when={typeof text() === 'string'} fallback={text()}>
@@ -384,7 +420,7 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
           </div>
         )
       }}
-    </Popper.Content>
+    </PopperContent>
   )
 }
 

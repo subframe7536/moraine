@@ -10,12 +10,29 @@ import {
   splitProps,
 } from 'solid-js'
 
+import { createContextProvider } from '../../shared/create-context-provider.tsx'
 import { hasJsxContent } from '../../shared/jsx-content.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
-import { Popper, resolveOverlayMenuSide } from '../base/index.ts'
-import { mergePopperContentProps } from '../base/popper.tsx'
+import { resolveOverlayMenuSide } from '../base/index.ts'
+import {
+  createPopper,
+  PopperTrigger,
+  PopperContent,
+  mergePopperElementProps,
+} from '../base/popper.tsx'
+import type { PopperTriggerProps } from '../base/popper.types.ts'
 
 import type { PopoverProps, PopoverT } from './popover.types.ts'
+
+const [PopoverProvider, usePopoverContext] = createContextProvider<{
+  options: PopoverProps
+  popper: ReturnType<typeof createPopper>
+  mode: () => PopoverT.Props['mode']
+  scheduleOpen: () => void
+  scheduleClose: () => void
+  clearCloseTimer: () => void
+  invalidateHoverTimers: () => void
+}>('Popover')
 
 /** Click-triggered floating content panel anchored to a trigger element. */
 export function Popover(props: PopoverProps): JSX.Element {
@@ -24,15 +41,14 @@ export function Popover(props: PopoverProps): JSX.Element {
       mode: 'click' as const,
       openDelay: 100,
       closeDelay: 100,
-      dismissible: true,
     },
     props,
   )
 
+  const popper = createPopper(merged)
+
   let openTimer: ReturnType<typeof setTimeout> | undefined
   let closeTimer: ReturnType<typeof setTimeout> | undefined
-  let hasPreventedPointerAttempt = false
-  let resetTimeout: ReturnType<typeof setTimeout> | undefined
   let hoverTimerVersion = 0
   let ownerAlive = true
 
@@ -52,7 +68,7 @@ export function Popover(props: PopoverProps): JSX.Element {
     clearCloseTimer()
   }
 
-  function scheduleOpen(open: () => void): void {
+  function scheduleOpen(): void {
     if (merged.mode !== 'hover' || merged.disabled) {
       return
     }
@@ -71,11 +87,11 @@ export function Popover(props: PopoverProps): JSX.Element {
       }
 
       openTimer = undefined
-      open()
+      popper.setOpen(true)
     }, merged.openDelay)
   }
 
-  function scheduleClose(close: () => void): void {
+  function scheduleClose(): void {
     if (merged.mode !== 'hover' || merged.disabled) {
       return
     }
@@ -94,7 +110,7 @@ export function Popover(props: PopoverProps): JSX.Element {
       }
 
       closeTimer = undefined
-      close()
+      popper.setOpen(false)
     }, merged.closeDelay)
   }
 
@@ -109,144 +125,62 @@ export function Popover(props: PopoverProps): JSX.Element {
 
   onCleanup(() => {
     ownerAlive = false
-    clearTimeout(resetTimeout)
     invalidateHoverTimers()
   })
 
-  return (
-    <Popper
-      id={merged.id}
-      placement={merged.placement}
-      open={merged.open}
-      defaultOpen={merged.defaultOpen}
-      onOpenChange={merged.onOpenChange}
-      disabled={merged.disabled}
-      forceMount={merged.forceMount}
-      overflowPadding={4}
-      modal={merged.modal}
-      preventScroll={merged.preventScroll}
-      dismissible={merged.dismissible}
-      onClosePrevent={merged.onClosePrevent}
-      role="dialog"
-      toggleOnClick={merged.mode === 'click'}
-      onTriggerClick={({ open, isOpen }) => {
-        if (merged.mode === 'hover') {
-          invalidateHoverTimers()
-          if (!isOpen) {
-            open()
-          }
-        }
-      }}
-      onTriggerFocus={
-        merged.mode === 'hover'
-          ? ({ open }) => {
-              scheduleOpen(open)
-            }
-          : undefined
-      }
-      onTriggerBlur={
-        merged.mode === 'hover'
-          ? ({ close }) => {
-              scheduleClose(close)
-            }
-          : undefined
-      }
-      onTriggerPointerEnter={
-        merged.mode === 'hover'
-          ? ({ open }, event) => {
-              if (event.pointerType === 'mouse') {
-                scheduleOpen(open)
-              }
-            }
-          : undefined
-      }
-      onTriggerPointerLeave={
-        merged.mode === 'hover'
-          ? ({ close }, event) => {
-              if (event.pointerType === 'mouse') {
-                scheduleClose(close)
-              }
-            }
-          : undefined
-      }
-      onContentFocus={
-        merged.mode === 'hover'
-          ? () => {
-              clearCloseTimer()
-            }
-          : undefined
-      }
-      onContentBlur={
-        merged.mode === 'hover'
-          ? ({ close }) => {
-              scheduleClose(close)
-            }
-          : undefined
-      }
-      onContentPointerEnter={
-        merged.mode === 'hover'
-          ? (_, event) => {
-              if (event.pointerType === 'mouse') {
-                clearCloseTimer()
-              }
-            }
-          : undefined
-      }
-      onContentPointerLeave={
-        merged.mode === 'hover'
-          ? ({ close }, event) => {
-              if (event.pointerType === 'mouse') {
-                scheduleClose(close)
-              }
-            }
-          : undefined
-      }
-      closeOnOutsideFocus={merged.mode === 'click'}
-      onPointerDownOutside={(event) => {
-        if (merged.dismissible) {
-          return
-        }
-
-        event.preventDefault()
-        hasPreventedPointerAttempt = true
-        clearTimeout(resetTimeout)
-        resetTimeout = setTimeout(() => {
-          hasPreventedPointerAttempt = false
-          resetTimeout = undefined
-        }, 0)
-        merged.onClosePrevent?.()
-      }}
-      onInteractOutside={(event) => {
-        if (merged.dismissible || event.defaultPrevented) {
-          return
-        }
-
-        event.preventDefault()
-
-        if (!hasPreventedPointerAttempt) {
-          merged.onClosePrevent?.()
-        }
-      }}
-      onEscapeKeyDown={(event) => {
-        if (merged.dismissible) {
-          return
-        }
-
-        event.preventDefault()
-        merged.onClosePrevent?.()
-      }}
-    >
-      {merged.children}
-    </Popper>
-  )
+  const behavior: ReturnType<typeof usePopoverContext> = {
+    options: merged,
+    popper,
+    mode: () => merged.mode,
+    scheduleOpen,
+    scheduleClose,
+    clearCloseTimer,
+    invalidateHoverTimers,
+  }
+  return <PopoverProvider value={behavior}>{merged.children}</PopoverProvider>
 }
 
 function PopoverTrigger<T extends ValidComponent = 'button'>(
   props: PopoverT.TriggerProps<T>,
 ): JSX.Element {
+  const context = usePopoverContext()
   const resolved = createComponentStyles('popover', props, { rootSlot: 'trigger' })
-  const triggerProps = mergeProps(props, resolved.root) as PopoverT.TriggerProps<T>
-  return createComponent(Popper.Anchor<T>, triggerProps)
+  const popper = context.popper
+  const triggerProps = mergeProps(
+    mergePopperElementProps<HTMLElement>(
+      {
+        onClick: () => {
+          if (context.mode() === 'hover') {
+            context.invalidateHoverTimers()
+            if (!popper.isOpen()) {
+              popper.setOpen(true)
+            }
+          }
+        },
+        onFocus: context.scheduleOpen,
+        onBlur: context.scheduleClose,
+        onPointerEnter: (event) => {
+          if (event.pointerType === 'mouse') {
+            context.scheduleOpen()
+          }
+        },
+        onPointerLeave: (event) => {
+          if (event.pointerType === 'mouse') {
+            context.scheduleClose()
+          }
+        },
+      },
+      props,
+    ),
+    resolved.root,
+    {
+      context: popper,
+      get toggleOnClick() {
+        return context.mode() === 'click'
+      },
+    },
+  ) as PopperTriggerProps<T> & { context: ReturnType<typeof createPopper> }
+  return createComponent(PopperTrigger<T>, triggerProps)
 }
 
 function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
@@ -259,15 +193,82 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
     'classes',
     'styles',
   ])
+  let hasPreventedPointerAttempt = false
+  let resetTimeout: ReturnType<typeof setTimeout> | undefined
+  onCleanup(() => clearTimeout(resetTimeout))
+  const behavior = usePopoverContext()
+  const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
+    onFocus: () => {
+      if (behavior.mode() === 'hover') {
+        behavior.clearCloseTimer()
+      }
+    },
+    onBlur: behavior.scheduleClose,
+    onPointerEnter: (event) => {
+      if (behavior.mode() === 'hover' && event.pointerType === 'mouse') {
+        behavior.clearCloseTimer()
+      }
+    },
+    onPointerLeave: (event) => {
+      if (event.pointerType === 'mouse') {
+        behavior.scheduleClose()
+      }
+    },
+  }
   const resolved = createComponentStyles('popover', local, { rootSlot: 'content' })
 
   return (
-    <Popper.Content>
+    <PopperContent
+      context={behavior.popper}
+      closeOnOutsideFocus={behavior.mode() === 'click'}
+      placement={behavior.options.placement}
+      forceMount={behavior.options.forceMount}
+      modal={behavior.options.modal}
+      preventScroll={behavior.options.preventScroll}
+      dismissible={behavior.options.dismissible}
+      onClosePrevent={behavior.options.onClosePrevent}
+      overflowPadding={4}
+      role="dialog"
+      onPointerDownOutside={(event) => {
+        if (behavior.options.dismissible ?? true) {
+          return
+        }
+
+        event.preventDefault()
+        hasPreventedPointerAttempt = true
+        clearTimeout(resetTimeout)
+        resetTimeout = setTimeout(() => {
+          hasPreventedPointerAttempt = false
+          resetTimeout = undefined
+        }, 0)
+        behavior.options.onClosePrevent?.()
+      }}
+      onInteractOutside={(event) => {
+        if ((behavior.options.dismissible ?? true) || event.defaultPrevented) {
+          return
+        }
+
+        event.preventDefault()
+
+        if (!hasPreventedPointerAttempt) {
+          behavior.options.onClosePrevent?.()
+        }
+      }}
+      onEscapeKeyDown={(event) => {
+        if (behavior.options.dismissible ?? true) {
+          return
+        }
+
+        event.preventDefault()
+        behavior.options.onClosePrevent?.()
+      }}
+    >
       {(context) => {
+        const contentProps = mergeProps(context.contentProps, contentEvents)
         const content = resolveChildren(() => local.children)
         return (
           <div
-            {...mergePopperContentProps(context.contentProps, rest)}
+            {...mergePopperElementProps(contentProps, rest)}
             data-slot="content"
             data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'bottom')}
             aria-label={local.ariaLabel ?? rest['aria-label']}
@@ -281,7 +282,7 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
           </div>
         )
       }}
-    </Popper.Content>
+    </PopperContent>
   )
 }
 

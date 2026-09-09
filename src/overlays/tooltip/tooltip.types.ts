@@ -1,7 +1,7 @@
 import type { JSX, ValidComponent } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import type { PopperProps } from '../base/popper.tsx'
+import type { PopperContentOptions, PopperPlacement, PopperProps } from '../base/popper.types.ts'
 import type { ModalT } from '../modal/modal.types.ts'
 
 export namespace TooltipT {
@@ -41,14 +41,14 @@ export namespace TooltipT {
    * Base props for the Tooltip component.
    */
   export interface Base extends Pick<
-    PopperProps,
+    PopperProps & PopperContentOptions,
     'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'disabled' | 'placement' | 'forceMount'
   > {
     /**
      * Preferred content placement relative to the trigger.
      * @default 'top'
      */
-    placement?: PopperProps['placement']
+    placement?: PopperPlacement
 
     /**
      * Delay in milliseconds before opening on hover or focus.

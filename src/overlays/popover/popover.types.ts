@@ -1,7 +1,7 @@
 import type { JSX, ValidComponent } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import type { PopperProps } from '../base/popper.tsx'
+import type { PopperContentOptions, PopperProps } from '../base/popper.types.ts'
 import type { ModalT } from '../modal/modal.types.ts'
 
 export namespace PopoverT {
@@ -29,7 +29,7 @@ export namespace PopoverT {
    * Base props for the Popover component.
    */
   export interface Base extends Pick<
-    PopperProps,
+    PopperProps & PopperContentOptions,
     | 'id'
     | 'open'
     | 'defaultOpen'

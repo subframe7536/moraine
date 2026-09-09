@@ -5,9 +5,7 @@ export function SetupUsage() {
   return (
     <div class="space-y-4">
       <Toaster position="bottom-right" />
-      <Button onClick={() => toast('Event notification triggered')}>
-        Trigger Basic Toast
-      </Button>
+      <Button onClick={() => toast('Event notification triggered')}>Trigger Basic Toast</Button>
     </div>
   )
 }

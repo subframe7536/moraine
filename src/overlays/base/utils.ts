@@ -1,7 +1,7 @@
 import type { Placement } from '@floating-ui/dom'
 
-import type { OverlayMenuSide } from './menu/index'
-import { containsOverlayContentAbove } from './overlay-stack'
+import type { OverlayMenuSide } from './menu/index.ts'
+import { containsOverlayContentAbove } from './overlay-stack.ts'
 
 const FOCUSABLE_SELECTOR_PARTS = [
   'a[href]',
