@@ -7,6 +7,7 @@ import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { defaultTheme } from '../../theme/default-theme.ts'
 import { CheckboxGroup } from '../checkbox-group/index.ts'
 import { Checkbox } from '../checkbox/index.ts'
 import { FileUpload } from '../file-upload/index.ts'
@@ -24,7 +25,7 @@ import type { FormFieldProps, FormFieldT } from './form-field.types.ts'
 import { createForm } from './form.tsx'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
 
 const TypedFormSchema = v.object({
   email: v.string(),

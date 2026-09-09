@@ -5,6 +5,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { defaultTheme } from '../../theme/default-theme.ts'
 import { createForm } from '../form/index.ts'
 
 import { FileUpload } from './file-upload.tsx'
@@ -79,7 +80,7 @@ describe('FileUpload', () => {
 
   test('renders official classes when provider is present', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <FileUpload dropzone />
       </MoraineProvider>
     ))

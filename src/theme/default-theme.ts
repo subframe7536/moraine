@@ -36,247 +36,49 @@ import { popoverRecipe } from '../overlays/popover/popover.class.ts'
 import { sheetRecipe } from '../overlays/sheet/sheet.class.ts'
 import { tooltipRecipe } from '../overlays/tooltip/tooltip.class.ts'
 
-import { THEME_LAYERS } from './types.ts'
-import type { CompiledThemeLayer, MoraineTheme } from './types.ts'
+import { toThemeEntry } from './create-theme.ts'
+import type { MoraineTheme } from './types.ts'
 
-const official = /* @__PURE__ */ Object.freeze({
-  accordion: {
-    recipe: accordionRecipe,
-    get defaults() {
-      return accordionRecipe.options.defaults
-    },
-  },
-  avatar: {
-    recipe: avatarRecipe,
-    get defaults() {
-      return avatarRecipe.options.defaults
-    },
-  },
-  avatarGroup: {
-    recipe: avatarGroupRecipe,
-    get defaults() {
-      return avatarGroupRecipe.options.defaults
-    },
-  },
-  badge: {
-    recipe: badgeRecipe,
-    get defaults() {
-      return badgeRecipe.options.defaults
-    },
-  },
-  breadcrumb: {
-    recipe: breadcrumbRecipe,
-    get defaults() {
-      return breadcrumbRecipe.options.defaults
-    },
-  },
-  button: {
-    recipe: buttonRecipe,
-    get defaults() {
-      return buttonRecipe.options.defaults
-    },
-  },
-  buttonGroup: {
-    recipe: buttonGroupRecipe,
-    get defaults() {
-      return buttonGroupRecipe.options.defaults
-    },
-  },
-  card: {
-    recipe: cardRecipe,
-    get defaults() {
-      return cardRecipe.options.defaults
-    },
-  },
-  checkbox: {
-    recipe: checkboxRecipe,
-    get defaults() {
-      return checkboxRecipe.options.defaults
-    },
-  },
-  checkboxGroup: {
-    recipe: checkboxGroupRecipe,
-    get defaults() {
-      return checkboxGroupRecipe.options.defaults
-    },
-  },
-  commandPalette: {
-    recipe: commandPaletteRecipe,
-    get defaults() {
-      return commandPaletteRecipe.options.defaults
-    },
-  },
-  contextMenu: {
-    recipe: contextMenuRecipe,
-    get defaults() {
-      return contextMenuRecipe.options.defaults
-    },
-  },
-  dialog: {
-    recipe: dialogRecipe,
-    get defaults() {
-      return dialogRecipe.options.defaults
-    },
-  },
-  dropdownMenu: {
-    recipe: dropdownMenuRecipe,
-    get defaults() {
-      return dropdownMenuRecipe.options.defaults
-    },
-  },
-  fileUpload: {
-    recipe: fileUploadRecipe,
-    get defaults() {
-      return fileUploadRecipe.options.defaults
-    },
-  },
-  form: {
-    recipe: formRecipe,
-    get defaults() {
-      return formRecipe.options.defaults
-    },
-  },
-  formField: {
-    recipe: formFieldRecipe,
-    get defaults() {
-      return formFieldRecipe.options.defaults
-    },
-  },
-  icon: {
-    recipe: iconRecipe,
-    get defaults() {
-      return iconRecipe.options.defaults
-    },
-  },
-  input: {
-    recipe: inputRecipe,
-    get defaults() {
-      return inputRecipe.options.defaults
-    },
-  },
-  inputNumber: {
-    recipe: inputNumberRecipe,
-    get defaults() {
-      return inputNumberRecipe.options.defaults
-    },
-  },
-  kbd: {
-    recipe: kbdRecipe,
-    get defaults() {
-      return kbdRecipe.options.defaults
-    },
-  },
-  kbdGroup: {
-    recipe: kbdGroupRecipe,
-    get defaults() {
-      return kbdGroupRecipe.options.defaults
-    },
-  },
-  modal: {
-    recipe: modalRecipe,
-    get defaults() {
-      return modalRecipe.options.defaults
-    },
-  },
-  multiSelect: {
-    recipe: multiSelectRecipe,
-    get defaults() {
-      return multiSelectRecipe.options.defaults
-    },
-  },
-  pagination: {
-    recipe: paginationRecipe,
-    get defaults() {
-      return paginationRecipe.options.defaults
-    },
-  },
-  popover: {
-    recipe: popoverRecipe,
-    get defaults() {
-      return popoverRecipe.options.defaults
-    },
-  },
-  progress: {
-    recipe: progressRecipe,
-    get defaults() {
-      return progressRecipe.options.defaults
-    },
-  },
-  radioGroup: {
-    recipe: radioGroupRecipe,
-    get defaults() {
-      return radioGroupRecipe.options.defaults
-    },
-  },
-  resizable: {
-    recipe: resizableRecipe,
-    get defaults() {
-      return resizableRecipe.options.defaults
-    },
-  },
-  select: {
-    recipe: selectRecipe,
-    get defaults() {
-      return selectRecipe.options.defaults
-    },
-  },
-  separator: {
-    recipe: separatorRecipe,
-    get defaults() {
-      return separatorRecipe.options.defaults
-    },
-  },
-  sheet: {
-    recipe: sheetRecipe,
-    get defaults() {
-      return sheetRecipe.options.defaults
-    },
-  },
-  sidebarFrame: {
-    recipe: sidebarFrameRecipe,
-    get defaults() {
-      return sidebarFrameRecipe.options.defaults
-    },
-  },
-  slider: {
-    recipe: sliderRecipe,
-    get defaults() {
-      return sliderRecipe.options.defaults
-    },
-  },
-  stepper: {
-    recipe: stepperRecipe,
-    get defaults() {
-      return stepperRecipe.options.defaults
-    },
-  },
-  switch: {
-    recipe: switchRecipe,
-    get defaults() {
-      return switchRecipe.options.defaults
-    },
-  },
-  tabs: {
-    recipe: tabsRecipe,
-    get defaults() {
-      return tabsRecipe.options.defaults
-    },
-  },
-  textarea: {
-    recipe: textareaRecipe,
-    get defaults() {
-      return textareaRecipe.options.defaults
-    },
-  },
-  tooltip: {
-    recipe: tooltipRecipe,
-    get defaults() {
-      return tooltipRecipe.options.defaults
-    },
-  },
-  collapsible: { recipe: collapsibleRecipe },
-} satisfies Required<CompiledThemeLayer>)
-
+/** Official component presentation, explicitly supplied to MoraineProvider. */
 export const defaultTheme: MoraineTheme = /* @__PURE__ */ Object.freeze({
-  [THEME_LAYERS]: /* @__PURE__ */ Object.freeze([official]),
-})
+  accordion: toThemeEntry(accordionRecipe),
+  avatar: toThemeEntry(avatarRecipe),
+  avatarGroup: toThemeEntry(avatarGroupRecipe),
+  badge: toThemeEntry(badgeRecipe),
+  breadcrumb: toThemeEntry(breadcrumbRecipe),
+  button: toThemeEntry(buttonRecipe),
+  buttonGroup: toThemeEntry(buttonGroupRecipe),
+  card: toThemeEntry(cardRecipe),
+  checkbox: toThemeEntry(checkboxRecipe),
+  checkboxGroup: toThemeEntry(checkboxGroupRecipe),
+  commandPalette: toThemeEntry(commandPaletteRecipe),
+  contextMenu: toThemeEntry(contextMenuRecipe),
+  dialog: toThemeEntry(dialogRecipe),
+  dropdownMenu: toThemeEntry(dropdownMenuRecipe),
+  fileUpload: toThemeEntry(fileUploadRecipe),
+  form: toThemeEntry(formRecipe),
+  formField: toThemeEntry(formFieldRecipe),
+  icon: toThemeEntry(iconRecipe),
+  input: toThemeEntry(inputRecipe),
+  inputNumber: toThemeEntry(inputNumberRecipe),
+  kbd: toThemeEntry(kbdRecipe),
+  kbdGroup: toThemeEntry(kbdGroupRecipe),
+  modal: toThemeEntry(modalRecipe),
+  multiSelect: toThemeEntry(multiSelectRecipe),
+  pagination: toThemeEntry(paginationRecipe),
+  popover: toThemeEntry(popoverRecipe),
+  progress: toThemeEntry(progressRecipe),
+  radioGroup: toThemeEntry(radioGroupRecipe),
+  resizable: toThemeEntry(resizableRecipe),
+  select: toThemeEntry(selectRecipe),
+  separator: toThemeEntry(separatorRecipe),
+  sheet: toThemeEntry(sheetRecipe),
+  sidebarFrame: toThemeEntry(sidebarFrameRecipe),
+  slider: toThemeEntry(sliderRecipe),
+  stepper: toThemeEntry(stepperRecipe),
+  switch: toThemeEntry(switchRecipe),
+  tabs: toThemeEntry(tabsRecipe),
+  textarea: toThemeEntry(textareaRecipe),
+  tooltip: toThemeEntry(tooltipRecipe),
+  collapsible: toThemeEntry(collapsibleRecipe),
+} satisfies Required<MoraineTheme>)

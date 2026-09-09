@@ -1,11 +1,14 @@
-import type { Accessor, JSX } from 'solid-js'
-import { createMemo, getOwner, runWithOwner } from 'solid-js'
+import type { JSX } from 'solid-js'
+import { createMemo, mergeProps } from 'solid-js'
 
 import type { ThemeName, ThemeSlots, ThemeVariants } from '../../theme/types.ts'
 import type { SlotClassValue } from '../types.ts'
 import { cn } from '../utils.ts'
 
-import { useThemeLayers } from './theme-context.tsx'
+import { useTheme } from './theme-context.tsx'
+
+const EMPTY_DEFAULTS = Object.freeze({})
+const EMPTY_OUTPUTS = Object.freeze([])
 
 interface StyleLayer<S extends string> {
   classes?: Partial<Record<S, SlotClassValue>>
@@ -26,7 +29,7 @@ export interface SlotBinding {
   readonly style: JSX.CSSProperties
 }
 
-/** Resolves presentation without reading content or changing component ownership. */
+/** Resolves variant defaults and reactive class/style bindings for each slot. */
 export function createComponentStyles<Name extends ThemeName>(
   name: Name,
   props: VariantInput<ThemeVariants<Name>> &
@@ -36,47 +39,16 @@ export function createComponentStyles<Name extends ThemeName>(
     },
   options: CreateComponentStylesOptions<ThemeSlots<Name>, ThemeVariants<Name>> = {},
 ) {
-  const layers = useThemeLayers()
-  const owner = getOwner()
-  const variantValues = new Map<string, Accessor<unknown>>()
-  const variants = new Proxy<VariantInput<ThemeVariants<Name>>>(
-    {},
-    {
-      get(_target, key: string) {
-        let value = variantValues.get(key)
-        if (!value) {
-          value = runWithOwner(owner, () => {
-            const resolvedValue = createMemo(() => {
-              const instance = (props as Record<string, unknown>)[key]
-              if (instance !== undefined) {
-                return instance
-              }
-              const inherited = options.inheritedVariants?.() as Record<string, unknown> | undefined
-              if (inherited?.[key] !== undefined) {
-                return inherited[key]
-              }
-              const active = layers()
-              for (let index = active.length - 1; index >= 0; index--) {
-                const value = active[index]?.[name]?.defaults?.[key]
-                if (value !== undefined) {
-                  return value
-                }
-              }
-              return undefined
-            })
-            return resolvedValue
-          })!
-          variantValues.set(key, value)
-        }
-        return value()
-      },
-    },
+  const theme = useTheme()
+  const entry = createMemo(() => theme()[name])
+  const variants = mergeProps(
+    // oxlint-disable-next-line subf/solid-reactivity -- mergeProps tracks function sources on property reads.
+    () => entry()?.defaults ?? EMPTY_DEFAULTS,
+    () => options.inheritedVariants?.() ?? EMPTY_DEFAULTS,
+    props,
   )
-  const outputs = createMemo(() =>
-    layers().flatMap((layer) => {
-      const entry = layer[name]
-      return entry ? [entry.recipe(variants)] : []
-    }),
+  const outputs = createMemo(
+    () => entry()?.recipes.map((recipe) => recipe(variants)) ?? EMPTY_OUTPUTS,
   )
   const rootSlot = (options.rootSlot ?? 'root') as ThemeSlots<Name>
 

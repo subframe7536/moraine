@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
 import { Separator } from './separator.tsx'
 
@@ -14,7 +15,7 @@ describe('Separator SSR Hydration', () => {
       '/src/elements/separator/separator.ssr.fixture.tsx',
       'renderSeparatorFixture',
       () => (
-        <MoraineProvider>
+        <MoraineProvider theme={defaultTheme}>
           <Separator orientation={orientation()} />
         </MoraineProvider>
       ),

@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithTheme } from '../../test-utils/theme-render.tsx'
 import { createTheme } from '../../theme.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 import { setPopperTestPlacementAccessor } from '../base/popper.tsx'
 
 import { Tooltip } from './tooltip.tsx'
@@ -133,7 +134,10 @@ describe('Tooltip', () => {
   test('applies provider trigger classes and styles', () => {
     renderWithTheme(() => (
       <MoraineProvider
-        theme={createTheme({ tooltip: { base: { trigger: 'provider-trigger w-40' } } })}
+        theme={createTheme({
+          extends: defaultTheme,
+          tooltip: { base: { trigger: 'provider-trigger w-40' } },
+        })}
       >
         <Tooltip>
           <Tooltip.Trigger as="button">Trigger</Tooltip.Trigger>

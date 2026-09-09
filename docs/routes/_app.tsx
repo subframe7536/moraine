@@ -14,6 +14,7 @@ import {
   cn,
   useSidebarFrame,
 } from '../../src/index.ts'
+import { defaultTheme } from '../../src/theme.ts'
 
 import { DocsCommandPalette } from './components/layout/docs-command-palette'
 import { Sidebar, SidebarHeader } from './components/layout/sidebar'
@@ -184,7 +185,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
 
 export default createRoute({
   component: (props) => (
-    <MoraineProvider>
+    <MoraineProvider theme={defaultTheme}>
       <MDXProvider components={DOCS_MDX_COMPONENTS}>
         <DocsAppLayout>{props.children}</DocsAppLayout>
       </MDXProvider>

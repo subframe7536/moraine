@@ -7,13 +7,14 @@ import { describe, expect, test, vi } from 'vitest'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { createTheme } from '../../theme.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 import { createForm } from '../form/index.ts'
 
 import { MultiSelect } from './multi-select.tsx'
 import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
 
 const FRUITS: MultiSelectT.Item[] = [
   { label: 'Apple', value: 'apple' },
@@ -68,7 +69,9 @@ describe('MultiSelect', () => {
   })
   test('uses the provider size as the field default', () => {
     const screen = render(() => (
-      <MoraineProvider theme={createTheme({ multiSelect: { defaults: { size: 'lg' } } })}>
+      <MoraineProvider
+        theme={createTheme({ extends: defaultTheme, multiSelect: { defaults: { size: 'lg' } } })}
+      >
         <MultiSelect options={FRUITS} />
       </MoraineProvider>
     ))
@@ -80,7 +83,9 @@ describe('MultiSelect', () => {
 
   test('uses the provider search default for behavior and styles', () => {
     const screen = render(() => (
-      <MoraineProvider theme={createTheme({ multiSelect: { defaults: { search: true } } })}>
+      <MoraineProvider
+        theme={createTheme({ extends: defaultTheme, multiSelect: { defaults: { search: true } } })}
+      >
         <MultiSelect options={FRUITS} placeholder="Search fruits" />
       </MoraineProvider>
     ))
@@ -96,6 +101,7 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MoraineProvider
         theme={createTheme({
+          extends: defaultTheme,
           multiSelect: {
             base: { root: 'w-24 px-1 h-[10px] text-red-500 provider-root' },
           },
@@ -132,6 +138,7 @@ describe('MultiSelect', () => {
     render(() => (
       <MoraineProvider
         theme={createTheme({
+          extends: defaultTheme,
           multiSelect: {
             base: { content: 'p-1 w-24 text-red-500 bg-black provider-content' },
           },
@@ -167,7 +174,7 @@ describe('MultiSelect', () => {
     const [instanceStyles, setInstanceStyles] = createSignal({ root: { border: '1px solid red' } })
 
     const screen = render(() => (
-      <MoraineProvider theme={createTheme(providerConfig())}>
+      <MoraineProvider theme={createTheme({ extends: defaultTheme, ...providerConfig() })}>
         <MultiSelect
           data-testid="reactive-multi-select"
           options={FRUITS}

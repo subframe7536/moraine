@@ -3,7 +3,7 @@ import { Show, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../elements/button/index.ts'
-import { MoraineUnstyledProvider, MoraineProvider } from '../../shared/provider/index.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithTheme } from '../../test-utils/theme-render.tsx'
 import { createTheme } from '../../theme.ts'
 import { pushOverlayLayer } from '../base/overlay-stack.ts'
@@ -50,11 +50,11 @@ describe('Modal primitives', () => {
       }),
     )
     render(() => (
-      <MoraineUnstyledProvider theme={design()}>
+      <MoraineProvider theme={design()}>
         <Modal defaultOpen>
           <Modal.Content overlay>Content</Modal.Content>
         </Modal>
-      </MoraineUnstyledProvider>
+      </MoraineProvider>
     ))
     const surface = document.querySelector<HTMLElement>('[data-slot="content"]')!
     surface.focus()

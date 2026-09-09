@@ -5,6 +5,7 @@ import { createStore } from 'solid-js/store'
 import { beforeAll, afterAll, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
 import type { ResizablePanelItem } from './hook/index.ts'
 import { Resizable } from './resizable.tsx'
@@ -253,7 +254,7 @@ describe('Resizable', () => {
 
   test('supports vertical orientation classes', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <ResizableFixture
           orientation="vertical"
           items={[{ content: 'Top' }, { content: 'Bottom' }]}
@@ -923,7 +924,7 @@ describe('Resizable', () => {
 
   test('uses pointer cursor for handle in collapse mode and keeps divider resize cursor', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <ResizableFixture
           action="collapse"
           items={[
@@ -1149,7 +1150,7 @@ describe('Resizable', () => {
 
   test('enables transition when collapse or expand is triggered', async () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <ResizableFixture
           action="collapse"
           items={[

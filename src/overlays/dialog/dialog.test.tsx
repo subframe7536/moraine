@@ -10,6 +10,7 @@ import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { finishExitMotion } from '../../test-utils/overlay-test.ts'
 import { renderWithTheme } from '../../test-utils/theme-render.tsx'
 import { createTheme } from '../../theme.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 import type { OverlayTriggerProps } from '../base/trigger.ts'
 import { Modal } from '../modal/index.ts'
 import type { ModalT } from '../modal/modal.types.ts'
@@ -548,6 +549,7 @@ describe('Modal', () => {
     renderWithTheme(() => (
       <MoraineProvider
         theme={createTheme({
+          extends: defaultTheme,
           dialog: { base: { overlay: 'bg-blue-500 provider-dialog-overlay' } },
         })}
       >

@@ -1,7 +1,8 @@
 import { Separator, MoraineProvider } from '@src'
-import { createTheme } from '@src/theme.ts'
+import { createTheme, defaultTheme } from '@src/theme.ts'
 
 const theme = createTheme({
+  extends: defaultTheme,
   separator: { base: { root: 'border-emerald-500' } },
 })
 

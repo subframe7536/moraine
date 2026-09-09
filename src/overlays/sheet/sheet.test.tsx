@@ -6,6 +6,7 @@ import { MoraineProvider } from '../../shared/provider/index.ts'
 import { finishExitMotion } from '../../test-utils/overlay-test.ts'
 import { renderWithTheme } from '../../test-utils/theme-render.tsx'
 import { createTheme } from '../../theme.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
 import { Sheet } from './sheet.tsx'
 
@@ -473,6 +474,7 @@ describe('Sheet', () => {
     renderWithTheme(() => (
       <MoraineProvider
         theme={createTheme({
+          extends: defaultTheme,
           sheet: { base: { overlay: 'bg-blue-500 provider-sheet-overlay' } },
         })}
       >

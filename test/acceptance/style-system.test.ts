@@ -5,19 +5,24 @@ import { resolve } from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import { createTheme } from '../../src/theme.ts'
+import { createTheme, defaultTheme, emptyTheme } from '../../src/theme.ts'
 import * as themeApi from '../../src/theme.ts'
-import { defaultTheme } from '../../src/theme/default-theme.ts'
-import { THEME_LAYERS } from '../../src/theme/types.ts'
 
 const root = resolve(import.meta.dirname, '../..')
 
 describe('Theme architecture', () => {
-  test('keeps the public authoring API separate from the official presentation', () => {
-    expect(Object.keys(themeApi).sort()).toEqual(['atomicRecipe', 'createTheme', 'slotRecipe'])
-    expect(createTheme()[THEME_LAYERS]).toHaveLength(0)
-    expect(defaultTheme[THEME_LAYERS]).toHaveLength(1)
-    expect(defaultTheme[THEME_LAYERS][0]?.button?.recipe({ size: 'sm' }).root).toContain('h-7')
+  test('exports empty and official presentation through the theme entry', () => {
+    expect(Object.keys(themeApi).sort()).toEqual([
+      'atomicRecipe',
+      'createTheme',
+      'defaultTheme',
+      'emptyTheme',
+      'slotRecipe',
+    ])
+    expect(createTheme()).toEqual(emptyTheme)
+    expect(
+      defaultTheme.button?.recipes.map((recipe) => recipe({ size: 'sm' }).root).join(' '),
+    ).toContain('h-7')
   })
 
   test('keeps component imports independent of official Recipe modules', () => {
@@ -56,8 +61,9 @@ describe('Theme architecture', () => {
         compoundVariants: [{ size: 'sm', class: { trailing: 'font-bold' } }],
       },
     })
-    const recipe = theme[THEME_LAYERS][0].button!.recipe
-    expect(recipe({ size: 'sm' })).toEqual({ label: 'text-sm', trailing: 'font-bold' })
-    expect(recipe({ size: null })).toEqual({})
+    expect(theme.button?.recipes.map((recipe) => recipe({ size: 'sm' }))).toEqual([
+      { label: 'text-sm', trailing: 'font-bold' },
+    ])
+    expect(theme.button?.recipes.map((recipe) => recipe({ size: null }))).toEqual([{}])
   })
 })

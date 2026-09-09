@@ -3,6 +3,7 @@ import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
 import { Card } from './card.tsx'
 
@@ -25,7 +26,7 @@ describe('Card', () => {
 
   test('renders root with the default outline appearance', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <Card />
       </MoraineProvider>
     ))

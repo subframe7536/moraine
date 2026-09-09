@@ -36,7 +36,7 @@ import type {
   SelectT,
   SidebarFrameT,
 } from 'moraine'
-import { createTheme } from 'moraine/theme'
+import { createTheme, defaultTheme, emptyTheme } from 'moraine/theme'
 import { createContextProvider, renderComponentOrElement } from 'moraine/utils'
 import type { Component, JSX } from 'solid-js'
 import * as v from 'valibot'
@@ -218,11 +218,16 @@ void generatedId
 ;<MoraineProvider config={{}} />
 
 ;<MoraineProvider />
+;<MoraineProvider theme={defaultTheme} />
+;<MoraineProvider theme={emptyTheme} />
+// @ts-expect-error Undefined inherits; null is not a reset value.
+;<MoraineProvider theme={null} />
 
 // @ts-expect-error String defineStyleVars extra styles are rejected
 defineStyleVars({ base: { size: '1px' } })({}, 'color: red')
 
 const theme = createTheme({
+  extends: defaultTheme,
   button: { base: { root: 'rounded-lg' }, defaults: { size: 'sm' } },
   commandPalette: { defaults: { descriptionPosition: 'trailing' } },
   form: { base: { root: 'space-y-2' } },

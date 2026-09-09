@@ -3,6 +3,7 @@ import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
 import { Accordion } from './accordion.tsx'
 import type { AccordionT } from './accordion.types.ts'
@@ -571,7 +572,7 @@ describe('Accordion', () => {
       }
 
       const screen = render(() => (
-        <MoraineProvider>
+        <MoraineProvider theme={defaultTheme}>
           <ControlledAccordion />
         </MoraineProvider>
       ))

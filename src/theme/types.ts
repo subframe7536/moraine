@@ -34,9 +34,7 @@ import type { ModalT } from '../overlays/modal/index.ts'
 import type { PopoverT } from '../overlays/popover/index.ts'
 import type { SheetT } from '../overlays/sheet/index.ts'
 import type { TooltipT } from '../overlays/tooltip/index.ts'
-import type { ComponentRecipeConfig } from '../shared/style/recipe.ts'
-
-export const THEME_LAYERS: unique symbol = Symbol('moraine.theme.layers')
+import type { ComponentRecipeConfig, SlotRecipeFn } from '../shared/style/recipe.ts'
 
 /** Component families and their locally declared presentation contracts. */
 export interface MoraineThemeSchema {
@@ -89,20 +87,21 @@ export type ThemeSlots<Name extends ThemeName> = Extract<
 >
 export type ThemeVariants<Name extends ThemeName> = MoraineThemeSchema[Name]['variants']
 
-export interface CompiledComponentRecipe {
-  readonly recipe: {
-    (variants?: object): Partial<Record<string, string | undefined>>
-    readonly options: unknown
-  }
-  readonly defaults?: Readonly<Record<string, unknown>>
+export interface ComponentThemeEntry<S extends object, V> {
+  readonly defaults?: ComponentRecipeConfig<S, V>['defaults']
+  readonly recipes: readonly SlotRecipeFn<S, V>[]
 }
 
-export type CompiledThemeLayer = Readonly<Partial<Record<ThemeName, CompiledComponentRecipe>>>
-
-/** Immutable ordered presentation layers, constructed with createTheme. */
-export interface MoraineTheme {
-  readonly [THEME_LAYERS]: readonly CompiledThemeLayer[]
+/** Component presentation. Replace the theme object to update consumers. */
+export type MoraineTheme = {
+  readonly [Name in ThemeName]?: ComponentThemeEntry<
+    MoraineThemeSchema[Name]['slots'],
+    ThemeVariants<Name>
+  >
 }
+
+/** Clears inherited presentation when passed to MoraineProvider. */
+export const emptyTheme: MoraineTheme = Object.freeze({})
 
 type ThemeEntries = {
   [Name in ThemeName]?: ComponentRecipeConfig<
@@ -111,8 +110,8 @@ type ThemeEntries = {
   >
 }
 
-/** Sparse component Recipes and an optional parent Theme. */
+/** Component recipe configurations and an optional parent theme. */
 export interface CreateThemeOptions extends ThemeEntries {
-  /** Parent layers evaluated before this Theme's own layer. */
+  /** Theme extended by these component configurations. */
   extends?: MoraineTheme
 }

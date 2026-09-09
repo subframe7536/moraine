@@ -2,7 +2,7 @@ import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { MoraineUnstyledProvider, MoraineProvider } from '../../shared/provider/index.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { createTheme } from '../../theme.ts'
 
 import { Icon } from './icon.tsx'
@@ -147,9 +147,9 @@ describe('Icon', () => {
   test('replaces Design root styling without remounting the icon', () => {
     const [design, setDesign] = createSignal(createTheme({ icon: { base: { root: 'p-2' } } }))
     const screen = render(() => (
-      <MoraineUnstyledProvider theme={design()}>
+      <MoraineProvider theme={design()}>
         <Icon name="i-lucide-search" />
-      </MoraineUnstyledProvider>
+      </MoraineProvider>
     ))
     const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')!
 

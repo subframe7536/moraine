@@ -3,7 +3,7 @@ import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
-import { createTheme } from '../../theme.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
 import { Stepper } from './stepper.tsx'
 
@@ -212,7 +212,7 @@ describe('Stepper', () => {
 
   test('applies orientation classes and slot overrides', () => {
     const screen = render(() => (
-      <MoraineProvider theme={createTheme()}>
+      <MoraineProvider theme={defaultTheme}>
         <Stepper
           items={ITEMS}
           orientation="vertical"
@@ -241,7 +241,7 @@ describe('Stepper', () => {
 
   test('uses stepper css variable helper classes for size and separator layout', () => {
     const screen = render(() => (
-      <MoraineProvider theme={createTheme()}>
+      <MoraineProvider theme={defaultTheme}>
         <Stepper items={ITEMS} size="lg" orientation="vertical" />
       </MoraineProvider>
     ))

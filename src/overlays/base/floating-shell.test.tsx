@@ -2,7 +2,7 @@ import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineUnstyledProvider } from '../../shared/provider/index.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { createTheme } from '../../theme.ts'
 import { ContextMenu } from '../context-menu/context-menu.tsx'
 import { DropdownMenu } from '../dropdown-menu/dropdown-menu.tsx'
@@ -76,7 +76,7 @@ describe.each([
     const [open, setOpen] = createSignal(false)
     const top = vi.fn(() => <span>Menu header</span>)
     render(() => (
-      <MoraineUnstyledProvider theme={design()}>
+      <MoraineProvider theme={design()}>
         <Root open={open()}>
           <Root.Trigger>Trigger</Root.Trigger>
           {createComponent(Root.Content, {
@@ -87,7 +87,7 @@ describe.each([
             },
           })}
         </Root>
-      </MoraineUnstyledProvider>
+      </MoraineProvider>
     ))
     expect(reads).toBe(0)
     expect(top).not.toHaveBeenCalled()

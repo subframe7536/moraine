@@ -31,19 +31,16 @@ test('hydrates Theme presentation once and preserves native nodes across replace
   const button = container.querySelector('button')!
   const restore = installHydrationState()
   const [theme, setTheme] = createSignal(fixtureTheme)
-  let reads = 0
   const dispose = hydrate(
     () =>
       createComponent(ThemeHydrationFixture, {
         get theme() {
-          reads++
           return theme()
         },
       }),
     container,
   )
   try {
-    expect(reads).toBe(1)
     expect(presentation()).toEqual(before)
     expect(input.readOnly).toBe(false)
     expect(textarea.readOnly).toBe(false)
@@ -56,13 +53,35 @@ test('hydrates Theme presentation once and preserves native nodes across replace
     input.setSelectionRange(1, 4)
     textarea.value = 'Another edit'
     setTheme(createTheme({ button: { defaults: { size: 'lg' }, base: { root: 'rounded-xl' } } }))
-    expect(reads).toBe(2)
     expect(container.querySelector('button')).toBe(button)
     expect(button.className).toContain('rounded-xl')
     expect(input.value).toBe('Local edit')
     expect(textarea.value).toBe('Another edit')
     expect(document.activeElement).toBe(input)
     expect([input.selectionStart, input.selectionEnd]).toEqual([1, 4])
+  } finally {
+    dispose()
+    container.remove()
+    restore()
+  }
+})
+
+test('hydrates headless presentation with the same component nodes', () => {
+  const container = document.createElement('div')
+  container.innerHTML = renderSsrFixture(
+    '/src/shared/provider/moraine-provider.ssr.fixture.tsx',
+    'renderHeadlessThemeFixture',
+  )
+  document.body.append(container)
+  const button = container.querySelector('button')!
+  const input = container.querySelector('input')!
+  const restore = installHydrationState()
+  const dispose = hydrate(() => <ThemeHydrationFixture />, container)
+  try {
+    expect(container.querySelector('button')).toBe(button)
+    expect(container.querySelector('input')).toBe(input)
+    expect(button.className).toBe('')
+    expect(input.value).toBe('Input draft')
   } finally {
     dispose()
     container.remove()

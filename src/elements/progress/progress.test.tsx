@@ -3,6 +3,7 @@ import { ErrorBoundary, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
 import { Progress } from './progress.tsx'
 import type { ProgressT } from './progress.types.ts'
@@ -29,12 +30,12 @@ describe('Progress', () => {
 
   test('uses css variable classes for base thickness', () => {
     const horizontal = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <Progress value={20} size="sm" />
       </MoraineProvider>
     ))
     const vertical = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <Progress value={20} size="lg" orientation="vertical" />
       </MoraineProvider>
     ))
@@ -375,7 +376,7 @@ describe('Progress', () => {
 
   test('applies orientation and animation classes', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <Progress value={25} status orientation="vertical" animation="swing" />
       </MoraineProvider>
     ))
@@ -392,12 +393,12 @@ describe('Progress', () => {
 
   test('uses reverse animation classes without inverse utilities', () => {
     const horizontal = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <Progress value={null} animation="reverse" />
       </MoraineProvider>
     ))
     const vertical = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <Progress value={null} orientation="vertical" animation="reverse" />
       </MoraineProvider>
     ))

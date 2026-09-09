@@ -5,9 +5,10 @@ import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../elements/button/index.ts'
-import { MoraineUnstyledProvider, MoraineProvider } from '../../shared/provider/index.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { createTheme } from '../../theme.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 import { Input } from '../input/index.ts'
 import { Switch } from '../switch/index.ts'
 
@@ -106,9 +107,9 @@ describe('Form', () => {
         return { form: createForm({ schema: Schema }), design, setDesign }
       },
       (props) => (
-        <MoraineUnstyledProvider theme={props.design()}>
+        <MoraineProvider theme={props.design()}>
           <props.form.Form />
-        </MoraineUnstyledProvider>
+        </MoraineProvider>
       ),
     )
     const element = screen.container.querySelector<HTMLFormElement>('form')!
@@ -356,7 +357,7 @@ describe('Form', () => {
           initialInput: { value: '' },
         }),
       (form) => (
-        <MoraineProvider>
+        <MoraineProvider theme={defaultTheme}>
           <form.Form>
             <form.Field name="value" label="Value">
               <Input />

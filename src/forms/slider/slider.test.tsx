@@ -3,12 +3,13 @@ import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
 import { useSlider } from './hook/index.ts'
 import { Slider } from './slider.tsx'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
 
 function getThumbs(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll('[data-slot="thumb"]')) as HTMLElement[]

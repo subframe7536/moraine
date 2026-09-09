@@ -4,7 +4,6 @@ import { describe, expect, test } from 'vitest'
 
 import type { ButtonT } from '../../elements/button/button.types.ts'
 import { createTheme } from '../../theme/create-theme.ts'
-import { THEME_LAYERS } from '../../theme/types.ts'
 
 import { createComponentStyles } from './create-component-styles.ts'
 import { MoraineThemeContext } from './theme-context.tsx'
@@ -36,7 +35,7 @@ describe('createComponentStyles', () => {
       return <button {...styles.root}>Save</button>
     }
     const screen = render(() => (
-      <MoraineThemeContext.Provider value={() => theme()[THEME_LAYERS]}>
+      <MoraineThemeContext.Provider value={theme}>
         <Fixture />
       </MoraineThemeContext.Provider>
     ))
@@ -58,14 +57,20 @@ describe('createComponentStyles', () => {
   })
 
   test('merges group, instance, and root bindings after dynamic styles', () => {
+    const [classes, setClasses] = createSignal<ButtonT.Classes>({ root: 'p-3', label: 'text-lg' })
+    const [slotStyles, setSlotStyles] = createSignal<ButtonT.Styles>({ root: { color: 'blue' } })
     function Fixture() {
       const styles = createComponentStyles(
         'button',
         {
           class: 'p-4',
-          classes: { root: 'p-3', label: 'text-lg' },
+          get classes() {
+            return classes()
+          },
           style: { color: 'red' },
-          styles: { root: { color: 'blue' } },
+          get styles() {
+            return slotStyles()
+          },
         },
         {
           groupStyles: () => ({ classes: { root: 'p-2' }, styles: { root: { color: 'green' } } }),
@@ -83,6 +88,49 @@ describe('createComponentStyles', () => {
     expect(button.className).toBe('p-4')
     expect(button.style.color).toBe('red')
     expect(button.style.width).toBe('20px')
-    expect(screen.getByText('Save').className).toBe('text-lg')
+    const label = screen.getByText('Save')
+    expect(label.className).toBe('text-lg')
+    expect(label.style.color).toBe('')
+    setClasses({ root: 'p-5', label: 'text-sm' })
+    setSlotStyles({ root: { width: '30px' }, label: { color: 'purple' } })
+    expect(button.className).toBe('p-4')
+    expect(button.style.color).toBe('red')
+    expect(button.style.width).toBe('30px')
+    expect(label.className).toBe('text-sm')
+    expect(label.style.color).toBe('purple')
+    expect(screen.getByText('Save')).toBe(label)
+  })
+
+  test('preserves false over inherited and theme defaults', () => {
+    const theme = createTheme({
+      select: {
+        defaults: { search: true },
+        variants: { search: { true: { root: 'searchable' }, false: { root: 'plain' } } },
+      },
+    })
+    const [search, setSearch] = createSignal<boolean | null | undefined>(false)
+    function Fixture() {
+      const styles = createComponentStyles(
+        'select',
+        {
+          get search() {
+            return search()
+          },
+        },
+        { inheritedVariants: () => ({ search: true }) },
+      )
+      return <div data-testid="select" {...styles.root} />
+    }
+    const screen = render(() => (
+      <MoraineThemeContext.Provider value={() => theme}>
+        <Fixture />
+      </MoraineThemeContext.Provider>
+    ))
+    const root = screen.getByTestId('select')
+    expect(root.className).toBe('plain')
+    setSearch(null)
+    expect(root.className).toBe('')
+    setSearch(undefined)
+    expect(root.className).toBe('searchable')
   })
 })

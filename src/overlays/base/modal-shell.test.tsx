@@ -2,7 +2,7 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { MoraineUnstyledProvider } from '../../shared/provider/index.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { createTheme } from '../../theme.ts'
 import { Dialog } from '../dialog/dialog.tsx'
 import { Sheet } from '../sheet/sheet.tsx'
@@ -94,11 +94,11 @@ describe.each([
       }),
     )
     render(() => (
-      <MoraineUnstyledProvider theme={design()}>
+      <MoraineProvider theme={design()}>
         <Root defaultOpen>
           <Root.Content title="Title" body="Body" />
         </Root>
-      </MoraineUnstyledProvider>
+      </MoraineProvider>
     ))
     const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
     content.focus()

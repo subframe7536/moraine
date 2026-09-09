@@ -5,6 +5,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { defaultTheme } from '../../theme/default-theme.ts'
 import { createForm } from '../form/index.ts'
 
 import { CheckboxGroup } from './checkbox-group.tsx'
@@ -318,7 +319,7 @@ describe('CheckboxGroup', () => {
 
   test('applies horizontal table layout classes', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <CheckboxGroup items={['A', 'B']} orientation="horizontal" variant="table" size="lg" />
       </MoraineProvider>
     ))
@@ -338,7 +339,7 @@ describe('CheckboxGroup', () => {
 
   test('applies vertical table layout classes', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <CheckboxGroup items={['A', 'B']} variant="table" size="lg" />
       </MoraineProvider>
     ))
@@ -402,7 +403,7 @@ describe('CheckboxGroup', () => {
 
   test('applies flattened classes to item and checkbox slots', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <CheckboxGroup
           items={['A']}
           variant="table"

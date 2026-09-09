@@ -7,12 +7,13 @@ import { Dialog } from '../../overlays/dialog/index.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { finishExitMotion } from '../../test-utils/overlay-test.ts'
 import { createTheme } from '../../theme.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
 import { CommandPalette } from './command-palette.tsx'
 import type { CommandPaletteT } from './command-palette.types.ts'
 
 function renderWithTheme(ui: () => JSX.Element) {
-  return render(() => <MoraineProvider>{ui()}</MoraineProvider>)
+  return render(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>)
 }
 
 const body = () => within(document.body)
@@ -626,6 +627,7 @@ describe('CommandPalette', () => {
     render(() => (
       <MoraineProvider
         theme={createTheme({
+          extends: defaultTheme,
           commandPalette: { defaults: { descriptionPosition: 'trailing' } },
         })}
       >

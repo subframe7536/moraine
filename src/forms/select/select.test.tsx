@@ -7,13 +7,14 @@ import { describe, expect, test, vi } from 'vitest'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { createTheme } from '../../theme.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 import { createForm } from '../form/index.ts'
 
 import { Select } from './select.tsx'
 import type { SelectT } from './select.types.ts'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
 
 const FRUITS = [
   { label: 'Apple', value: 'apple' },
@@ -96,7 +97,9 @@ test('uses input sizing classes in single mode', () => {
 
 test('uses the provider size as the field default', () => {
   const screen = render(() => (
-    <MoraineProvider theme={createTheme({ select: { defaults: { size: 'lg' } } })}>
+    <MoraineProvider
+      theme={createTheme({ extends: defaultTheme, select: { defaults: { size: 'lg' } } })}
+    >
       <Select options={FRUITS} placeholder="Provider size" />
     </MoraineProvider>
   ))
@@ -106,7 +109,9 @@ test('uses the provider size as the field default', () => {
 
 test('uses the provider search default for behavior and styles', () => {
   const screen = render(() => (
-    <MoraineProvider theme={createTheme({ select: { defaults: { search: true } } })}>
+    <MoraineProvider
+      theme={createTheme({ extends: defaultTheme, select: { defaults: { search: true } } })}
+    >
       <Select options={FRUITS} placeholder="Search fruit" />
     </MoraineProvider>
   ))
@@ -187,6 +192,7 @@ describe('Select - single mode', () => {
     const screen = render(() => (
       <MoraineProvider
         theme={createTheme({
+          extends: defaultTheme,
           select: {
             base: { root: 'w-24 px-1 h-[10px] text-red-500 provider-root' },
           },
@@ -224,6 +230,7 @@ describe('Select - single mode', () => {
     render(() => (
       <MoraineProvider
         theme={createTheme({
+          extends: defaultTheme,
           select: {
             base: { content: 'p-1 w-24 text-red-500 bg-black provider-content' },
           },
@@ -259,7 +266,7 @@ describe('Select - single mode', () => {
     const [instanceStyles, setInstanceStyles] = createSignal({ root: { border: '1px solid red' } })
 
     const screen = render(() => (
-      <MoraineProvider theme={createTheme(providerConfig())}>
+      <MoraineProvider theme={createTheme({ extends: defaultTheme, ...providerConfig() })}>
         <Select
           data-testid="reactive-select"
           options={FRUITS}

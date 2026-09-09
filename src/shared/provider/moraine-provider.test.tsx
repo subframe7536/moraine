@@ -1,53 +1,105 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { Button } from '../../elements/button/button.tsx'
 import { Input } from '../../forms/input/input.tsx'
 import { createTheme } from '../../theme/create-theme.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
+import { emptyTheme } from '../../theme/types.ts'
+import type { MoraineTheme } from '../../theme/types.ts'
 
-import { MoraineProvider, MoraineUnstyledProvider } from './moraine-provider.tsx'
+import { MoraineProvider } from './moraine-provider.tsx'
 
 describe('MoraineProvider', () => {
-  test('supplies official root presentation without a theme prop', () => {
+  test('uses empty presentation at the root unless the official theme is supplied', () => {
     const screen = render(() => (
-      <MoraineProvider>
-        <Button>Save</Button>
-      </MoraineProvider>
+      <>
+        <MoraineProvider>
+          <Button class="custom">Headless</Button>
+        </MoraineProvider>
+        <MoraineProvider theme={defaultTheme}>
+          <Button>Official</Button>
+        </MoraineProvider>
+      </>
     ))
-    expect(screen.getByRole('button').className).toContain('bg-primary')
-    expect(screen.getByRole('button').className).toContain('h-8')
+    expect(screen.getByRole('button', { name: 'Headless' }).className).toBe('custom')
+    expect(screen.getByRole('button', { name: 'Official' }).className).toContain('bg-primary')
+    expect(screen.getByRole('button', { name: 'Official' }).className).toContain('h-8')
   })
 
-  test('appends nested layers without adding the official layer again', () => {
-    const parent = createTheme({ button: { defaults: { size: 'sm' }, base: { root: 'p-4' } } })
-    const child = createTheme({ button: { base: { root: 'p-6' } } })
+  test('inherits reactively, replaces explicit themes, and restores inheritance for undefined', () => {
+    const parent = createTheme({
+      extends: defaultTheme,
+      button: { defaults: { size: 'sm' }, base: { root: 'parent-class' } },
+    })
+    const [outer, setOuter] = createSignal(parent)
+    const [inner, setInner] = createSignal<MoraineTheme | undefined>()
     const screen = render(() => (
-      <MoraineProvider theme={parent}>
-        <MoraineProvider theme={child}>
-          <Button>Save</Button>
+      <MoraineProvider theme={outer()}>
+        <MoraineProvider theme={inner()}>
+          <MoraineProvider>
+            <Button>Save</Button>
+          </MoraineProvider>
         </MoraineProvider>
       </MoraineProvider>
     ))
     const button = screen.getByRole('button')
+    expect(button.className).toContain('parent-class')
     expect(button.className).toContain('h-7')
-    expect(button.className).toContain('p-6')
-    expect(button.className).not.toContain('p-4')
+    setInner(createTheme({ button: { base: { root: 'child-class' } } }))
+    expect(button.className).toBe('child-class')
+    setOuter(createTheme({ button: { base: { root: 'next-parent' } } }))
+    expect(button.className).toBe('child-class')
+    setInner(undefined)
+    expect(button.className).toBe('next-parent')
+    setOuter(parent)
+    expect(button.className).toContain('parent-class')
+    setInner(emptyTheme)
+    expect(button.className).toBe('')
+    setOuter(createTheme({ button: { base: { root: 'latest-parent' } } }))
+    expect(button.className).toBe('')
+    setInner(undefined)
+    expect(button.className).toBe('latest-parent')
+    expect(screen.getByRole('button')).toBe(button)
   })
 
-  test('resets inherited and official layers across styled descendants', () => {
-    const parent = createTheme({ button: { base: { root: 'parent-class' } } })
-    const custom = createTheme({ button: { base: { root: 'reset-class' } } })
+  test('evaluates children inside their theme owner once and isolates sibling trees', () => {
+    const [theme, setTheme] = createSignal(
+      createTheme({ button: { base: { root: 'first-theme' } } }),
+    )
+    let reads = 0
+    let mounts = 0
+    let cleanups = 0
+    function Child() {
+      mounts++
+      onCleanup(() => cleanups++)
+      return <Button>Owned</Button>
+    }
     const screen = render(() => (
-      <MoraineProvider theme={parent}>
-        <MoraineUnstyledProvider theme={custom}>
-          <MoraineProvider>
-            <Button>Save</Button>
-          </MoraineProvider>
-        </MoraineUnstyledProvider>
-      </MoraineProvider>
+      <>
+        {createComponent(MoraineProvider, {
+          get theme() {
+            return theme()
+          },
+          get children() {
+            reads++
+            return <Child />
+          },
+        })}
+        <MoraineProvider theme={emptyTheme}>
+          <Button>Sibling</Button>
+        </MoraineProvider>
+      </>
     ))
-    expect(screen.getByRole('button').className).toBe('reset-class')
+    expect(reads).toBe(1)
+    expect(screen.getByRole('button', { name: 'Owned' }).className).toBe('first-theme')
+    setTheme(createTheme({ button: { base: { root: 'second-theme' } } }))
+    expect(screen.getByRole('button', { name: 'Owned' }).className).toBe('second-theme')
+    expect(screen.getByRole('button', { name: 'Sibling' }).className).toBe('')
+    expect([reads, mounts, cleanups]).toEqual([1, 1, 0])
+    screen.unmount()
+    expect(cleanups).toBe(1)
   })
 
   test('keeps a missing Provider functional and unstyled', () => {

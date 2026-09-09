@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { createTheme } from '../../theme.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
 import { AvatarGroup } from './avatar-group.tsx'
 import { Avatar } from './avatar.tsx'
@@ -173,7 +174,7 @@ describe('Avatar', () => {
 
   test('renders badge and supports four corner positions', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <Avatar badge="i-lucide-check" badgePosition="top-left" />
         <Avatar badge="i-lucide-check" badgePosition="top-right" />
         <Avatar badge="i-lucide-check" badgePosition="bottom-left" />
@@ -195,7 +196,7 @@ describe('Avatar', () => {
 
   test('keeps badge visible by not clipping avatar root overflow', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <Avatar badge="i-lucide-check" />
       </MoraineProvider>
     ))
@@ -207,7 +208,7 @@ describe('Avatar', () => {
 
   test('supports sm and lg size variants for single avatars', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <Avatar size="sm" fallback="i-lucide-user" badge="i-lucide-check" />
         <Avatar size="lg" fallback="i-lucide-user" badge="i-lucide-check" />
       </MoraineProvider>
@@ -387,7 +388,7 @@ describe('Avatar', () => {
 
   test('keeps badge icons passive and creates no internal tab stop', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <Avatar badge="i-lucide-check" text="MR" />
       </MoraineProvider>
     ))
@@ -449,7 +450,7 @@ describe('Avatar', () => {
 
   test('renders avatar group with items + max', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <AvatarGroup max={2} items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }, { text: 'D' }]} />
       </MoraineProvider>
     ))
@@ -489,7 +490,7 @@ describe('Avatar', () => {
 
   test('supports sm and lg size variants for avatar groups', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <AvatarGroup size="sm" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
         <AvatarGroup size="lg" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
       </MoraineProvider>
@@ -590,6 +591,7 @@ describe('Avatar', () => {
       const screen = render(() => (
         <MoraineProvider
           theme={createTheme({
+            extends: defaultTheme,
             avatar: {
               defaults: { size: 'lg' },
               base: {

@@ -120,8 +120,9 @@ const specifiers = [
   'moraine/theme',
 ]
 
-const { createTheme } = await import('moraine/theme')
-if (Object.keys(createTheme()).length !== 0) throw new Error('Theme has public runtime entries')
+const { createTheme, defaultTheme, emptyTheme } = await import('moraine/theme')
+if (Object.keys(createTheme()).length !== 0 || Object.keys(emptyTheme).length !== 0) throw new Error('Expected empty presentation')
+if (!defaultTheme.button) throw new Error('Official Theme is missing Button presentation')
 
 for (const specifier of specifiers) {
   import.meta.resolve(specifier)

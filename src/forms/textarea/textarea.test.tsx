@@ -6,12 +6,13 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { defaultTheme } from '../../theme/default-theme.ts'
 import { createForm } from '../form/index.ts'
 
 import { Textarea } from './textarea.tsx'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
 
 afterEach(() => {
   vi.useRealTimers()

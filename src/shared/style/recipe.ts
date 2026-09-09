@@ -32,7 +32,7 @@ type ComponentVariantSelection<V> = [V] extends [never]
   ? object
   : { [K in keyof V]?: V[K] | null | undefined }
 
-/** Declarative presentation contributed by one component in one Theme layer. */
+/** Declarative presentation contributed by one component recipe. */
 export interface ComponentRecipeConfig<S extends object, V> {
   base?: SlotClasses<S>
   variants?: ComponentRecipeVariants<S, V>

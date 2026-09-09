@@ -3,6 +3,7 @@ import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
 import { Checkbox } from './checkbox.tsx'
 
@@ -394,7 +395,7 @@ describe('Checkbox', () => {
 
   test('applies card variant, end indicator and size classes', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <Checkbox
           variant="card"
           indicator="end"

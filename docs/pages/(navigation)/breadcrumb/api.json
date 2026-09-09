@@ -274,7 +274,7 @@
       {
         "name": "wrap",
         "required": false,
-        "type": "boolean | \"true\" | \"false\" | undefined",
+        "type": "boolean | undefined",
         "description": "Visual wrap of the component.",
         "defaultValue": "true"
       }

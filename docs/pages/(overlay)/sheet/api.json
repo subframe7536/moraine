@@ -424,7 +424,7 @@
           {
             "name": "inset",
             "required": false,
-            "type": "boolean | \"true\" | \"false\" | undefined",
+            "type": "boolean | undefined",
             "description": "Whether the surface is inset from viewport edges.",
             "defaultValue": "false"
           },

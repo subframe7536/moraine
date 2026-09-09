@@ -6,13 +6,14 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { defaultTheme } from '../../theme/default-theme.ts'
 import { FormField } from '../form/form-field.tsx'
 import { createForm } from '../form/index.ts'
 
 import { RadioGroup } from './radio-group.tsx'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
 
 describe('RadioGroup', () => {
   test('renders unstyled when provider is absent', () => {

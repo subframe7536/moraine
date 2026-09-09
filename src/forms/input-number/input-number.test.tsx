@@ -1,18 +1,19 @@
 import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, expectTypeOf, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { defaultTheme } from '../../theme/default-theme.ts'
 import { createForm } from '../form/index.ts'
 
 import { InputNumber } from './input-number.tsx'
 import type { InputNumberT } from './input-number.types.ts'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
 
 describe('InputNumber', () => {
   test('renders unstyled when provider is absent', () => {
@@ -1141,28 +1142,22 @@ describe('InputNumber', () => {
     expect(screen.queryByRole('button', { name: 'Decrement' })).toBeNull()
   })
 
-  test('single-evaluates orientation and conditional control props', () => {
-    const reads = { decrement: 0, increment: 0, orientation: 0 }
-    const screen = render(() =>
-      createComponent(InputNumber, {
-        get decrement() {
-          reads.decrement += 1
-          return true
-        },
-        get increment() {
-          reads.increment += 1
-          return true
-        },
-        get orientation() {
-          reads.orientation += 1
-          return 'vertical' as const
-        },
-      }),
-    )
-
+  test('updates orientation and conditional controls while preserving the native input', () => {
+    const [orientation, setOrientation] = createSignal<'vertical' | 'horizontal'>('vertical')
+    const [controls, setControls] = createSignal(true)
+    const screen = render(() => (
+      <InputNumber orientation={orientation()} increment={controls()} decrement={controls()} />
+    ))
+    const input = screen.getByRole('spinbutton')
     expect(screen.getByRole('button', { name: 'Increment' })).not.toBeNull()
     expect(screen.getByRole('button', { name: 'Decrement' })).not.toBeNull()
-    expect(reads).toEqual({ decrement: 1, increment: 1, orientation: 1 })
+    expect(screen.container.querySelector('[data-slot="controls"]')).not.toBeNull()
+    setOrientation('horizontal')
+    expect(screen.container.querySelector('[data-slot="controls"]')).toBeNull()
+    setControls(false)
+    expect(screen.queryByRole('button', { name: 'Increment' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Decrement' })).toBeNull()
+    expect(screen.getByRole('spinbutton')).toBe(input)
   })
 
   test('applies size classes', () => {

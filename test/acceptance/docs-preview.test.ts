@@ -162,7 +162,7 @@ describe('production documentation preview', () => {
     expect(page).toContain('presetMoraine()')
     expect(page).toContain('moraine/icon.css')
     expect(page).toContain('moraine/theme')
-    expect(page).toContain('Theme layers and Providers')
+    expect(page).toContain('Themes and Providers')
     expect(page).toContain('MoraineProvider')
     expect(page).toContain('cn()')
     expect(page).toContain('CSS property objects')

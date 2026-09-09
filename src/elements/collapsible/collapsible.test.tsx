@@ -2,8 +2,9 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineUnstyledProvider, MoraineProvider } from '../../shared/provider/index.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { createTheme } from '../../theme.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
 import { Collapsible } from './collapsible.tsx'
 
@@ -15,7 +16,7 @@ function renderCollapsible(props?: {
   onOpenChange?: (open: boolean) => void
 }) {
   return render(() => (
-    <MoraineProvider>
+    <MoraineProvider theme={defaultTheme}>
       <Collapsible
         open={props?.open}
         defaultOpen={props?.defaultOpen}
@@ -529,10 +530,10 @@ test('inherits Design slots and applies reactive root and child overrides in ord
       <Collapsible
         defaultOpen
         class="p-4"
-        classes={{ root: 'p-2', trigger: 'p-2', contentWrapper: 'p-2', content: 'p-2' }}
+        classes={{ root: 'p-2', trigger: 'p-2 font-bold', contentWrapper: 'p-2', content: 'p-2' }}
         styles={{
           root: { color: 'red' },
-          trigger: { color: 'red' },
+          trigger: { color: 'red', 'background-color': 'black' },
           contentWrapper: { color: 'red' },
           content: { color: 'red' },
         }}
@@ -557,6 +558,8 @@ test('inherits Design slots and applies reactive root and child overrides in ord
   const wrapper = screen.container.querySelector<HTMLElement>('[data-slot="content-wrapper"]')!
   const content = screen.getByText('Styled content')
   expect(root.className).toBe('p-4')
+  expect(trigger.className).toContain('font-bold')
+  expect(trigger.style.backgroundColor).toBe('black')
   expect(trigger.className).toContain('text-red-500')
   expect(trigger.className).not.toContain('text-blue-500')
   for (const element of [root, trigger, wrapper, content]) {
@@ -577,12 +580,12 @@ test('inherits Design slots and applies reactive root and child overrides in ord
 test('keeps an unstyled disclosure functional with transition state exposed', () => {
   const design = createTheme({})
   const screen = render(() => (
-    <MoraineUnstyledProvider theme={design}>
+    <MoraineProvider theme={design}>
       <Collapsible defaultOpen transition>
         <Collapsible.Trigger>Toggle empty</Collapsible.Trigger>
         <Collapsible.Content>Empty preset content</Collapsible.Content>
       </Collapsible>
-    </MoraineUnstyledProvider>
+    </MoraineProvider>
   ))
   expect(screen.getByRole('button').className).toBe('')
   expect(screen.getByText('Empty preset content').className).toBe('')

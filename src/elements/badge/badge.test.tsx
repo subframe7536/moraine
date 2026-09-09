@@ -3,6 +3,7 @@ import { createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
 import { Badge } from './badge.tsx'
 
@@ -19,7 +20,7 @@ describe('Badge', () => {
 
   test('renders default badge semantics and label', () => {
     const screen = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <Badge>New</Badge>
       </MoraineProvider>
     ))
@@ -53,14 +54,14 @@ describe('Badge', () => {
 
   test('applies variant and size classes', () => {
     const solid = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <Badge variant="solid" size="lg">
           Solid
         </Badge>
       </MoraineProvider>
     ))
     const outline = render(() => (
-      <MoraineProvider>
+      <MoraineProvider theme={defaultTheme}>
         <Badge variant="outline" size="sm">
           Outline
         </Badge>

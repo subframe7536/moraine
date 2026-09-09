@@ -2,8 +2,9 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineUnstyledProvider, MoraineProvider } from '../../shared/provider/index.ts'
+import { MoraineProvider } from '../../shared/provider/index.ts'
 import { createTheme } from '../../theme.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
 import { Tabs } from './tabs.tsx'
 
@@ -270,7 +271,7 @@ describe('Tabs', () => {
 
   test('applies orientation/variant classes and class overrides', () => {
     const screen = render(() => (
-      <MoraineProvider theme={createTheme()}>
+      <MoraineProvider theme={defaultTheme}>
         <Tabs
           orientation="vertical"
           variant="link"
@@ -298,7 +299,7 @@ describe('Tabs', () => {
 
   test('applies vertical pill indicator inset class', () => {
     const screen = render(() => (
-      <MoraineProvider theme={createTheme()}>
+      <MoraineProvider theme={defaultTheme}>
         <Tabs orientation="vertical" items={ITEMS} />
       </MoraineProvider>
     ))
@@ -320,9 +321,9 @@ describe('Tabs', () => {
   test('replaces Design without remounting the selected tab or panel', () => {
     const [design, setDesign] = createSignal(createTheme())
     const screen = render(() => (
-      <MoraineUnstyledProvider theme={design()}>
+      <MoraineProvider theme={design()}>
         <Tabs items={ITEMS} defaultValue="settings" />
-      </MoraineUnstyledProvider>
+      </MoraineProvider>
     ))
     const tab = screen.getByRole('tab', { name: 'Settings' })
     const panel = screen.getByRole('tabpanel')

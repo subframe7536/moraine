@@ -262,7 +262,7 @@
           {
             "name": "invert",
             "required": false,
-            "type": "boolean | \"true\" | \"false\" | undefined",
+            "type": "boolean | undefined",
             "description": "Visual invert of the component.",
             "defaultValue": "false"
           },

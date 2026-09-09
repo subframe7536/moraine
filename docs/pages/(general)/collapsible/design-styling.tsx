@@ -1,7 +1,8 @@
 import { Collapsible, MoraineProvider } from '@src'
-import { createTheme } from '@src/theme.ts'
+import { createTheme, defaultTheme } from '@src/theme.ts'
 
 const theme = createTheme({
+  extends: defaultTheme,
   collapsible: {
     base: {
       root: 'w-full rounded-lg border border-border',
