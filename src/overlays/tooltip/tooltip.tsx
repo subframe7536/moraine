@@ -273,12 +273,6 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       toggleOnClick={false}
       restoreFocusOnClose={false}
       describeTrigger
-      onTriggerPointerDown={() => {
-        closeImmediately()
-      }}
-      onTriggerClick={() => {
-        closeImmediately()
-      }}
       onTriggerFocus={(props) => {
         scheduleOpen(props.open, props.isOpen)
       }}

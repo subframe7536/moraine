@@ -46,7 +46,7 @@ export const sliderRecipe = /* @__PURE__ */ slotRecipe<keyof SliderT.Slot>({
       bold: {
         track: 'cursor-pointer',
         range:
-          "rounded-[inherit] transition-[width,height,left,right,top,bottom] after:(rounded-full bg-primary-foreground/90 content-[''] transition-opacity absolute) data-dragging:transition-none data-multiple:before:(rounded-full bg-primary-foreground/90 content-[''] transition-opacity absolute)",
+          "rounded-[inherit] transition-[width,height,left,right,top,bottom] after:(rounded-full bg-primary-foreground/90 opacity-0 content-[''] transition-opacity absolute) group-focus-within:after:opacity-100 group-hover:after:opacity-100 data-dragging:transition-none data-multiple:before:(rounded-full bg-primary-foreground/90 opacity-0 content-[''] transition-opacity absolute) data-multiple:group-focus-within:before:opacity-100 data-multiple:group-hover:before:opacity-100",
         divider: 'bg-muted-foreground/30',
         thumb: 'outline-none opacity-0 cursor-grab data-dragging:cursor-grabbing',
       },
@@ -92,20 +92,20 @@ export const sliderRecipe = /* @__PURE__ */ slotRecipe<keyof SliderT.Slot>({
       variants: { orientation: 'horizontal', variant: 'bold' },
       class: {
         range:
-          'after:h-(--s-len) after:w-(--s-offset) after:top-1/2 after:-translate-y-1/2 [&:not([data-inverted])]:after:left-(--s-pos) data-inverted:after:right-(--s-pos) data-multiple:before:h-(--s-len) data-multiple:before:w-(--s-offset) data-multiple:before:top-1/2 data-multiple:before:-translate-y-1/2 [&:not([data-inverted])]:data-multiple:before:left-(--s-offset) data-inverted:data-multiple:before:right-(--s-offset)',
+          '[&:not([data-inverted])]:after:(h-(--s-len) w-(--s-offset) top-1/2 -translate-y-1/2 left-(--s-pos)) data-inverted:after:(h-(--s-len) w-(--s-offset) top-1/2 -translate-y-1/2 right-(--s-pos)) [&:not([data-inverted])]:data-multiple:before:(h-(--s-len) w-(--s-offset) top-1/2 -translate-y-1/2 left-(--s-offset)) data-inverted:data-multiple:before:(h-(--s-len) w-(--s-offset) top-1/2 -translate-y-1/2 right-(--s-offset))',
         divider: 'h-1/3 w-px',
         thumb:
-          'h-full top-0 w-(--s-size) [&:not([data-inverted])]:-translate-x-1/2 data-inverted:translate-x-1/2',
+          '[&:not([data-inverted])]:(h-full top-0 -translate-x-1/2 w-(--s-size)) data-inverted:(h-full top-0 translate-x-1/2 w-(--s-size))',
       },
     },
     {
       variants: { orientation: 'vertical', variant: 'bold' },
       class: {
         range:
-          'after:left-1/2 after:-translate-x-1/2 [&:not([data-inverted])]:after:w-(--s-len) [&:not([data-inverted])]:after:h-(--s-offset) [&:not([data-inverted])]:after:bottom-(--s-pos) data-inverted:after:w-(--s-len) data-inverted:after:h-(--s-offset) data-inverted:after:top-(--s-pos) data-multiple:before:w-(--s-len) data-multiple:before:h-(--s-offset) data-multiple:before:left-1/2 data-multiple:before:-translate-x-1/2 [&:not([data-inverted])]:data-multiple:before:bottom-(--s-offset) data-inverted:data-multiple:before:top-(--s-offset)',
+          '[&:not([data-inverted])]:after:(w-(--s-len) h-(--s-offset) left-1/2 -translate-x-1/2 bottom-(--s-pos)) data-inverted:after:(w-(--s-len) h-(--s-offset) left-1/2 -translate-x-1/2 top-(--s-pos)) [&:not([data-inverted])]:data-multiple:before:(w-(--s-len) h-(--s-offset) left-1/2 -translate-x-1/2 bottom-(--s-offset)) data-inverted:data-multiple:before:(w-(--s-len) h-(--s-offset) left-1/2 -translate-x-1/2 top-(--s-offset))',
         divider: 'h-px w-1/3',
         thumb:
-          'w-full left-0 h-(--s-size) [&:not([data-inverted])]:translate-y-1/2 data-inverted:-translate-y-1/2',
+          '[&:not([data-inverted])]:(w-full left-0 translate-y-1/2 h-(--s-size)) data-inverted:(w-full left-0 -translate-y-1/2 h-(--s-size))',
       },
     },
   ],

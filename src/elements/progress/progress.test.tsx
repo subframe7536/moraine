@@ -200,20 +200,6 @@ describe('Progress', () => {
     expect(indicator.style.transform).toBe('translateX(-66.66666666666667%)')
   })
 
-  test('formats percentage using precision prop', () => {
-    const screen0 = render(() => <Progress value={1} max={3} status precision={0} />)
-    expect(screen0.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('33%')
-    expect(screen0.container.querySelector('[data-slot="status"]')?.textContent).toBe('33%')
-
-    const screen1 = render(() => <Progress value={1} max={3} status precision={1} />)
-    expect(screen1.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('33.3%')
-    expect(screen1.container.querySelector('[data-slot="status"]')?.textContent).toBe('33.3%')
-
-    const screen2 = render(() => <Progress value={1} max={3} status precision={2} />)
-    expect(screen2.getByRole('progressbar').getAttribute('aria-valuetext')).toBe('33.33%')
-    expect(screen2.container.querySelector('[data-slot="status"]')?.textContent).toBe('33.33%')
-  })
-
   test('synchronizes loading, complete, and indeterminate data across rendered parts', () => {
     const [value, setValue] = createSignal<number | null>(25)
     const screen = render(() => (

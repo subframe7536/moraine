@@ -671,30 +671,4 @@ describe('Tooltip', () => {
     await vi.advanceTimersByTimeAsync(1)
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Second tooltip')
   })
-
-  test('dismisses open tooltip when trigger is clicked or pressed', async () => {
-    vi.useFakeTimers()
-    const onOpenChange = vi.fn()
-    const screen = render(() => (
-      <Tooltip openDelay={100} onOpenChange={onOpenChange}>
-        <Tooltip.Trigger as="button" type="button">
-          Action
-        </Tooltip.Trigger>
-        <Tooltip.Content text="Action tooltip" />
-      </Tooltip>
-    ))
-    const trigger = screen.getByRole('button')
-
-    // Open via hover
-    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
-    await vi.advanceTimersByTimeAsync(100)
-    expect(document.body.querySelector('[role="tooltip"]')).not.toBeNull()
-
-    // Click/pointerdown dismisses immediately
-    fireEvent.pointerDown(trigger)
-    fireEvent.click(trigger)
-    const content = document.body.querySelector('[role="tooltip"]')
-    expect(content?.hasAttribute('data-closed')).toBe(true)
-    expect(onOpenChange).toHaveBeenLastCalledWith(false)
-  })
 })

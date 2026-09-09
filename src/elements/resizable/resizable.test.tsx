@@ -1580,46 +1580,6 @@ describe('Resizable', () => {
       expect(finalSizes?.[0]).toBeCloseTo(650, 3)
       expect(finalSizes?.[1]).toBeCloseTo(350, 3)
     })
-
-    test('absorbs overshoot when moving beyond panel constraints and moving back', async () => {
-      const onResize = vi.fn()
-      const screen = render(() => (
-        <ResizableFixture
-          onResize={onResize}
-          items={[
-            { content: 'Left', size: 300, min: 200 },
-            { content: 'Right', size: 700 },
-          ]}
-        />
-      ))
-
-      await waitForLayoutInitialization()
-
-      const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
-      fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
-
-      // Move left by 100px (to x = -100), reaching the min 200px limit
-      fireEvent.pointerMove(window, { pointerId: 1, clientX: -100, clientY: 0 })
-      let sizes = onResize.mock.calls.at(-1)?.[0] as number[]
-      expect(sizes[0]).toBeCloseTo(200, 3)
-
-      // Move further left by 100px (to x = -200, beyond the min limit)
-      fireEvent.pointerMove(window, { pointerId: 1, clientX: -200, clientY: 0 })
-      sizes = onResize.mock.calls.at(-1)?.[0] as number[]
-      expect(sizes[0]).toBeCloseTo(200, 3)
-
-      // Move back right by 50px (to x = -150, still in overshoot region)
-      fireEvent.pointerMove(window, { pointerId: 1, clientX: -150, clientY: 0 })
-      sizes = onResize.mock.calls.at(-1)?.[0] as number[]
-      expect(sizes[0]).toBeCloseTo(200, 3)
-
-      // Move back past boundary to x = -50 (size becomes 250)
-      fireEvent.pointerMove(window, { pointerId: 1, clientX: -50, clientY: 0 })
-      sizes = onResize.mock.calls.at(-1)?.[0] as number[]
-      expect(sizes[0]).toBeCloseTo(250, 3)
-
-      fireEvent.pointerUp(window, { pointerId: 1, clientX: -50, clientY: 0 })
-    })
   })
 
   describe('compound API', () => {

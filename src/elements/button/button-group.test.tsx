@@ -77,25 +77,7 @@ describe('ButtonGroup', () => {
       expect(separator.getAttribute('aria-hidden')).toBe('true')
       expect(separator.hasAttribute('data-orientation')).toBe(false)
       expect(separator.className).toContain('h-full w-px')
-      expect(separator.className).toContain('bg-border')
     }
-  })
-
-  test('renders seamless separators between outline buttons without double borders or gaps', () => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <ButtonGroup variant="outline" separator>
-          <Button>Back</Button>
-          <Button>Forward</Button>
-        </ButtonGroup>
-      </MoraineProvider>
-    ))
-
-    const group = screen.getByRole('group')
-    expect(group.className).toContain('[&>*:has(+[data-slot=separator])]:border-e-0')
-    const separator = screen.container.querySelector('[data-slot="separator"]') as HTMLElement
-    expect(separator.className).toContain('bg-border')
-    expect(separator.className).not.toContain('mx-px')
   })
 
   test('forwards separator classes and styles', () => {

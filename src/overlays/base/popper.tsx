@@ -174,14 +174,8 @@ export interface PopperProps {
   /** Called when the trigger receives focus. */
   onTriggerFocus?: (controls: PopperControls) => void
 
-  /** Called when the trigger is clicked. */
-  onTriggerClick?: (controls: PopperControls, event: MouseEvent) => void
-
   /** Called when the pointer enters the trigger. */
   onTriggerPointerEnter?: (controls: PopperControls, event: PointerEvent) => void
-
-  /** Called when the pointer is pressed on the trigger. */
-  onTriggerPointerDown?: (controls: PopperControls, event: PointerEvent) => void
 
   /** Called when the pointer leaves the trigger. */
   onTriggerPointerLeave?: (controls: PopperControls, event: PointerEvent) => void
@@ -660,11 +654,8 @@ function PopperTrigger(props: PopperTriggerProps): JSX.Element {
       },
       onClick: (event: MouseEvent) => {
         callHandler<HTMLElement, MouseEvent>(event, userTriggerProps()?.onClick)
-        if (!event.defaultPrevented) {
-          options.onTriggerClick?.(context.getControls(), event)
-          if (!event.defaultPrevented && options.toggleOnClick) {
-            context.getControls().toggle()
-          }
+        if (!event.defaultPrevented && options.toggleOnClick) {
+          context.getControls().toggle()
         }
       },
       onFocus: (event: FocusEvent) => {
@@ -677,12 +668,6 @@ function PopperTrigger(props: PopperTriggerProps): JSX.Element {
         callHandler<HTMLElement, PointerEvent>(event, userTriggerProps()?.onPointerEnter)
         if (!event.defaultPrevented) {
           options.onTriggerPointerEnter?.(context.getControls(), event)
-        }
-      },
-      onPointerDown: (event: PointerEvent) => {
-        callHandler<HTMLElement, PointerEvent>(event, userTriggerProps()?.onPointerDown)
-        if (!event.defaultPrevented) {
-          options.onTriggerPointerDown?.(context.getControls(), event)
         }
       },
       onPointerLeave: (event: PointerEvent) => {

@@ -26,7 +26,7 @@ export namespace BadgeT {
     /** Visual treatment of the component.
      * @default 'default'
      */
-    variant?: 'default' | 'outline' | 'solid' | 'subtle' | null
+    variant?: 'default' | 'outline' | 'solid' | null
     /** Visual size of the component.
      * @default 'md'
      */

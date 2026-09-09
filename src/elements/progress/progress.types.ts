@@ -81,11 +81,6 @@ export namespace ProgressT {
     status?: boolean
 
     /**
-     * Number of decimal places to format the percentage in status text and aria-valuetext.
-     */
-    precision?: number
-
-    /**
      * Callback to get a localized label for the current value.
      */
     getValueLabel?: (params: { value: number; min: number; max: number }) => string

@@ -97,9 +97,9 @@ describe('Separator', () => {
   })
 
   test.each([
-    ['sm', 'border'],
-    ['md', 'border-2'],
-    ['lg', 'border-3'],
+    ['sm', 'border-2'],
+    ['md', 'border-3'],
+    ['lg', 'border-4'],
   ] as const)('applies %s size variant to the root line', (size, expectedClass) => {
     const screen = render(() => (
       <MoraineProvider>

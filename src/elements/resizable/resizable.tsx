@@ -47,7 +47,6 @@ interface DragState {
   altKey: boolean
   started: boolean
   lastSizes: number[]
-  overshootPx: number
 }
 
 const RESIZABLE_PANEL_PART = Symbol('Resizable.Panel')
@@ -684,7 +683,6 @@ export function Resizable(props: ResizableProps): JSX.Element {
       altKey,
       started: false,
       lastSizes: [...sizes()],
-      overshootPx: 0,
     }
 
     return drag
@@ -697,36 +695,16 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
     if (!drag || drag.handleIndex !== handleIndex || drag.altKey !== altKey) {
       drag = resetDragState(handleIndex, altKey)
+    } else {
+      // Incremental mode: base each resize step on the last committed sizes
+      // so that a per-frame delta accumulates correctly without position jumps.
+      drag.initialSizes = [...drag.lastSizes]
     }
-
-    let effectiveDelta = deltaPx
-
-    // If there is accumulated overshoot from hitting a boundary, absorb the reverse motion first
-    if (drag.overshootPx !== 0) {
-      if (
-        (drag.overshootPx > 0 && effectiveDelta < 0) ||
-        (drag.overshootPx < 0 && effectiveDelta > 0)
-      ) {
-        const remaining = drag.overshootPx + effectiveDelta
-        if ((drag.overshootPx > 0 && remaining < 0) || (drag.overshootPx < 0 && remaining > 0)) {
-          effectiveDelta = remaining
-          drag.overshootPx = 0
-        } else {
-          drag.overshootPx = remaining
-          return
-        }
-      } else {
-        drag.overshootPx += effectiveDelta
-        return
-      }
-    }
-
-    drag.initialSizes = [...drag.lastSizes]
 
     const nextSizes = normalizeSizes(
       resizeFromHandle({
         handleIndex,
-        deltaPercentage: effectiveDelta / Math.max(rootSize(), 1),
+        deltaPercentage: deltaPx / Math.max(rootSize(), 1),
         altKey,
         initialSizes: drag.initialSizes,
         panels: resolvedPanels(),
@@ -735,11 +713,8 @@ export function Resizable(props: ResizableProps): JSX.Element {
     const currentSizes = drag.lastSizes
 
     if (!hasSizeChange(currentSizes, nextSizes)) {
-      drag.overshootPx += deltaPx
       return
     }
-
-    drag.overshootPx = 0
 
     if (!drag.started) {
       setInteractionResizing(true)

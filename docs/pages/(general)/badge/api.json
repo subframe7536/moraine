@@ -114,7 +114,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"default\" | \"outline\" | \"solid\" | \"subtle\" | null | undefined",
+        "type": "\"default\" | \"outline\" | \"solid\" | null | undefined",
         "description": "Visual treatment of the component.",
         "defaultValue": "default"
       }
