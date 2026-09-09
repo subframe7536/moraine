@@ -31,17 +31,10 @@
       "ariaAttributes": []
     },
     {
-      "name": "input",
+      "name": "textarea",
       "description": "Native textarea control used for multi-line text entry.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-autoresize",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": []
     },
     {
@@ -221,7 +214,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
         "description": "Visual size of the component.",
         "defaultValue": "md"
       },
@@ -250,7 +243,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | null | undefined",
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined",
         "description": "Visual treatment of the component.",
         "defaultValue": "outline"
       }

@@ -6,7 +6,7 @@ export const fileUploadRecipe = /* @__PURE__ */ slotRecipe<keyof FileUploadT.Slo
   base: {
     root: 'flex flex-col relative data-disabled:(opacity-64 pointer-events-none)',
     control:
-      'text-center outline-none border border-input rounded-lg bg-background inline-flex w-full cursor-pointer shadow-xs transition-[colors,box-shadow] items-center justify-center relative focus-visible:(outline-none border-ring ring-3 ring-ring/50) data-dragging:(border-primary bg-input) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:bg-input/30 dark:data-invalid:(border-destructive/50 ring-destructive/40) hover:bg-input [&:not([data-dropzone])]:border-solid data-dropzone:border-dashed',
+      'text-center outline-none border border-input rounded-lg bg-background inline-flex w-full cursor-pointer shadow-xs transition-[colors,box-shadow] items-center justify-center relative focus-visible:(outline-none border-ring ring-3 ring-ring/50) data-dragging:(border-primary bg-input) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:bg-input/30 dark:data-invalid:(border-destructive/50 ring-destructive/40) hover:bg-input border-solid data-dropzone:border-dashed',
     wrapper: 'text-center flex flex-col pointer-events-none items-center justify-center',
     icon: 'text-muted-foreground',
     label: 'text-foreground font-medium',

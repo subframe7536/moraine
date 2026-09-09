@@ -283,7 +283,7 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" & \"horizontal\" | \"vertical\" | null | undefined",
+        "type": "\"horizontal\" | \"vertical\" | undefined",
         "description": "Direction of keyboard and pointer value movement.",
         "defaultValue": "horizontal"
       },
@@ -309,7 +309,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
         "description": "Visual size of the component.",
         "defaultValue": "md"
       },
@@ -338,7 +338,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"default\" | \"bold\" | null | undefined",
+        "type": "\"default\" | \"bold\" | undefined",
         "description": "Visual treatment of the component.",
         "defaultValue": "default"
       }

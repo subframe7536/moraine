@@ -331,7 +331,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
           textareaEl = element
           callRef(local.textareaRef, element)
         }}
-        {...resolved.slot('input')}
+        {...resolved.slot('textarea')}
         onInput={onInput}
         onChange={onChange}
         onBlur={onBlur}

@@ -34,7 +34,7 @@ export namespace CardT {
     /** Visual compact of the component.
      * @default false
      */
-    compact?: boolean | null
+    compact?: boolean
   }
 
   export type SlotName = keyof Slot

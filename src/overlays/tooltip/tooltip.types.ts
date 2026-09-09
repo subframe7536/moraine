@@ -30,7 +30,7 @@ export namespace TooltipT {
     /** Visual invert of the component.
      * @default false
      */
-    invert?: boolean | 'true' | 'false' | null
+    invert?: boolean | 'true' | 'false'
   }
   export type SlotName = keyof Slot
 

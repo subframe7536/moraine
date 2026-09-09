@@ -35,16 +35,16 @@ export namespace SliderT {
 
   export interface Variant {
     /** Layout axis used by the component Recipe. */
-    orientation?: 'horizontal' | 'vertical' | null
+    orientation?: 'horizontal' | 'vertical'
 
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
     /** Visual treatment of the component.
      * @default 'default'
      */
-    variant?: 'default' | 'bold' | null
+    variant?: 'default' | 'bold'
   }
   export type SlotName = keyof Slot
 

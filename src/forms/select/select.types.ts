@@ -73,11 +73,11 @@ export namespace SelectT {
     /** Visual treatment of the component.
      * @default 'outline'
      */
-    variant?: 'outline' | 'subtle' | 'ghost' | 'none' | null
+    variant?: 'outline' | 'subtle' | 'ghost' | 'none'
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
     /** Whether the control accepts searchable input.
      * @default false
      */

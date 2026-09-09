@@ -41,7 +41,7 @@ export namespace ButtonT {
     /** Visual treatment of the component.
      * @default 'default'
      */
-    variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive' | null
+    variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'
     /** Visual size of the component.
      * @default 'md'
      */

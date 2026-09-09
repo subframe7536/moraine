@@ -24,6 +24,9 @@ export const badgeRecipe = /* @__PURE__ */ slotRecipe<keyof BadgeT.Slot>({
       solid: {
         root: 'text-primary-foreground border-transparent bg-primary shadow-xs',
       },
+      subtle: {
+        root: 'text-accent-foreground border-border bg-accent',
+      },
     },
     size: {
       sm: {

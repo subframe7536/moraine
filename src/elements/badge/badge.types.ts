@@ -26,11 +26,11 @@ export namespace BadgeT {
     /** Visual treatment of the component.
      * @default 'default'
      */
-    variant?: 'default' | 'outline' | 'solid' | null
+    variant?: 'default' | 'outline' | 'solid' | 'subtle'
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
   }
 
   export type SlotName = keyof Slot

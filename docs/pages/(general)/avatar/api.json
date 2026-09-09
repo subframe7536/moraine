@@ -123,7 +123,7 @@
       {
         "name": "badgePosition",
         "required": false,
-        "type": "\"top-left\" | \"top-right\" | \"bottom-left\" | \"bottom-right\" | null | undefined",
+        "type": "\"top-left\" | \"top-right\" | \"bottom-left\" | \"bottom-right\" | undefined",
         "description": "Position of the badge.",
         "defaultValue": "bottom-right"
       },
@@ -158,7 +158,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
         "description": "Visual size of the component.",
         "defaultValue": "md"
       },

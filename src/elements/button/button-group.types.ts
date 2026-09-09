@@ -17,7 +17,7 @@ export namespace ButtonGroupT {
     /** Visual layout direction.
      * @default 'horizontal'
      */
-    orientation?: 'horizontal' | 'vertical' | null
+    orientation?: 'horizontal' | 'vertical'
   }
   export type SlotName = keyof Slot
 

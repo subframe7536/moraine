@@ -55,11 +55,11 @@ export namespace FormFieldT {
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
     /** Visual layout direction.
      * @default 'vertical'
      */
-    orientation?: 'vertical' | 'horizontal' | null
+    orientation?: 'vertical' | 'horizontal'
   }
 
   export type SlotName = keyof Slot

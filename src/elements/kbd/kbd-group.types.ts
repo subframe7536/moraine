@@ -27,9 +27,9 @@ export namespace KbdGroupT {
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
     /** Visual style variant applied to rendered shortcut keys. */
-    variant?: KbdT.Variant['variant'] | null
+    variant?: KbdT.Variant['variant']
   }
 
   export type SlotName = keyof Slot

@@ -9,33 +9,38 @@
 - [x] convert sidebar-frame and resizable into namespaced component, get rid of `frameRender` in sidebar-frame
 - [x] add indicator type in `<component>T` to indicate if the component is a single or a composite/namespaced component
 - [x] cleanup `data-[*`
-- [ ] optimize `stepperRecipe` css variables
+- [ ] remove `SlotName` in namespace, add missing jsdoc on slot keys; `slotRecipe` 's type param usage should be `slotRecipe<ComponentT.Slot, ComponentT.Variant>()`
 - [ ] `cn` config should be customizable in MoraineProvider
 - [ ] metric adjust across all sizes
 - [ ] production barrel import optimize
 
 ### UI Regression
 
-- [ ] textarea inline padding too large, not balanced
-- [ ] slider bold variant 's thumb indicator is missing
-- [ ] file-upload style refactor to https://diceui.com/docs/components/base/file-upload
-- [ ] correct/verify button group separator
-- [ ] badge subtle variant style 's border color is too contrast with background color
+- [x] textarea inline padding too large, not balanced
+- [x] process indicator percision control?
+- [x] separator should be thinner
+- [x] solid-toaster have a option to prevent duplicate toast, add it in example
 - [ ] transition on collapsible is broken
-- [ ] separator should be thinner
-- [ ] process indicator percision control?
 - [ ] list Playground & Usage should removed
 - [ ] resizable divider is not follows the mouse: when move out and back, the divider will directly move instead of waiting mouse move on the divider
-- [ ] kbd-group 's `*Render` should be renamed and reconsider default value
 - [ ] refresh breadcrumb/pagination usage and examples doc
 - [ ] command-palette gaps between groups is too large
-- [ ] sidebar-frame styling is broken, more useful usage and example
 - [ ] popover hover mode when hover and click instantly, the floating pannel will show and dismiss quickly
-- [ ] tooltip 's trigger when click/active, the tooltip should dismiss
+- [ ] tooltip trigger when click/active, the content should dismiss; content should instantly dismiss the old one and show the new one when some tooltip opened and move onto other one,
 - [ ] dialog `### Nested overlays` usage preview style broken
 - [ ] dropdown-menu `### Stateful and nested items` 's checkbox item 's indicator overlaps the text
 - [ ] add more complex, real-world example in dropdown-menu & context-menu
-- [ ] solid-toaster have a option to prevent duplicate toast, add it in example
+
+### Refactor
+
+- [ ] file-upload style refactor to https://diceui.com/docs/components/base/file-upload
+- [ ] slider & stepper recipe structure refactor
+- [ ] correct/verify button group separator
+- [ ] badge variants config refresh, maybe similar to button?
+- [ ] kbd-group 's `*Render` should be renamed and reconsider default value
+- [ ] reorganize [overlay base](src/components/overlay/base) props, move to namespace component specific props
+  - [ ] tooltip should become a single component, remove trigger and content; refactor implemention
+- [ ] sidebar-frame styling is broken, more useful usage and example
 
 # V1
 

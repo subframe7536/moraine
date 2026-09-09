@@ -33,7 +33,7 @@ describe('Separator SSR Hydration', () => {
 
     setOrientation('vertical')
     expect(root.getAttribute('aria-orientation')).toBe('vertical')
-    expect(root.className).toContain('border-s')
+    expect(root.className).toContain('bg-border')
     expect(reads.orientation).toBe(2)
   })
 })

@@ -17,7 +17,7 @@ export interface FormFieldContextOptions {
   name?: string
   path?: RequiredPath
   field?: FieldStore
-  size?: FormFieldSize | null
+  size?: FormFieldSize
   hint?: JSX.Element
   description?: JSX.Element
   help?: JSX.Element

@@ -1196,7 +1196,7 @@ describe('InputNumber', () => {
 
     expect(root?.className).toContain('bg-transparent')
     expectTypeOf<InputNumberT.Variant['variant']>().toEqualTypeOf<
-      'outline' | 'subtle' | 'ghost' | 'none' | null | undefined
+      'outline' | 'subtle' | 'ghost' | 'none' | undefined
     >()
   })
 

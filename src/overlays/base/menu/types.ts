@@ -5,8 +5,8 @@ import type { SlotBinding } from '../../../shared/provider/create-component-styl
 import type { SlotClassValue, SlotStyleValue } from '../../../shared/types.ts'
 
 export interface OverlayMenuItemVariantProps {
-  color?: 'default' | 'destructive' | null
-  size?: 'sm' | 'md' | 'lg' | null
+  color?: 'default' | 'destructive'
+  size?: 'sm' | 'md' | 'lg'
 }
 
 export type OverlayMenuSide = 'top' | 'right' | 'bottom' | 'left'

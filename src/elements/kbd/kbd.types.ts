@@ -36,11 +36,11 @@ export namespace KbdT {
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
     /** Visual treatment of the component.
      * @default 'default'
      */
-    variant?: 'default' | 'outline' | 'invert' | null
+    variant?: 'default' | 'outline' | 'invert'
   }
 
   export type SlotName = keyof Slot

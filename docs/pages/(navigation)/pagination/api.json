@@ -207,7 +207,7 @@
       {
         "name": "activeVariant",
         "required": false,
-        "type": "PaginationVariant | null | undefined",
+        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
         "description": "Visual variant for the active page button.",
         "defaultValue": "outline"
       },
@@ -225,7 +225,7 @@
       {
         "name": "controlVariant",
         "required": false,
-        "type": "PaginationVariant | null | undefined",
+        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
         "description": "Visual variant for the previous/next control buttons.",
         "defaultValue": "ghost"
       },
@@ -317,7 +317,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
         "description": "Size of the pagination buttons.",
         "defaultValue": "md"
       },
@@ -347,7 +347,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "PaginationVariant | null | undefined",
+        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
         "description": "Visual variant for the page buttons.",
         "defaultValue": "ghost"
       }

@@ -165,7 +165,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   }
 
   return (
-    <>
+    <SidebarFrame classes={{ sidebar: 'border-none' }} scrollThreshold={4}>
       <Show when={navigationLoading()}>
         <Progress
           aria-label="Loading page"
@@ -177,10 +177,8 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           }}
         />
       </Show>
-      <SidebarFrame classes={{ sidebar: 'border-none' }} scrollThreshold={4}>
-        <FrameContent />
-      </SidebarFrame>
-    </>
+      <FrameContent />
+    </SidebarFrame>
   )
 }
 

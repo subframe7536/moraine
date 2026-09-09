@@ -43,11 +43,11 @@ export namespace DialogT {
     /** Whether the surface fills the viewport.
      * @default false
      */
-    fullscreen?: boolean | null
+    fullscreen?: boolean
     /** Whether the overlay scrolls its content.
      * @default false
      */
-    scrollable?: boolean | null
+    scrollable?: boolean
   }
   export type SlotName = keyof Slot
 

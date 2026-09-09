@@ -9,7 +9,7 @@ import { Separator } from './separator.tsx'
 
 describe('Separator', () => {
   test('renders unstyled when provider is absent', () => {
-    const screen = render(() => <Separator size="lg" type="dashed" />)
+    const screen = render(() => <Separator />)
     const root = screen.container.querySelector('[data-slot="root"]')
     expect(root?.className).toBe('')
   })
@@ -83,32 +83,6 @@ describe('Separator', () => {
     expect(onPointerDown).toHaveBeenCalledTimes(1)
   })
 
-  test.each([
-    ['solid', 'border-solid'],
-    ['dashed', 'border-dashed'],
-    ['dotted', 'border-dotted'],
-  ] as const)('applies %s type variant to the root line', (type, expectedClass) => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <Separator type={type} />
-      </MoraineProvider>
-    ))
-    expect(screen.getByRole('separator').className).toContain(expectedClass)
-  })
-
-  test.each([
-    ['sm', 'border-2'],
-    ['md', 'border-3'],
-    ['lg', 'border-4'],
-  ] as const)('applies %s size variant to the root line', (size, expectedClass) => {
-    const screen = render(() => (
-      <MoraineProvider>
-        <Separator size={size} />
-      </MoraineProvider>
-    ))
-    expect(screen.getByRole('separator').className).toContain(expectedClass)
-  })
-
   test('uses root color inheritance for the line', () => {
     const screen = render(() => (
       <MoraineProvider>
@@ -118,7 +92,6 @@ describe('Separator', () => {
     const root = screen.container.querySelector('[data-slot="root"]')
 
     expect(root?.className).toContain('text-primary')
-    expect(root?.className).toContain('border-current')
     expect(root?.className).not.toContain('border-primary')
   })
 
@@ -193,7 +166,7 @@ describe('Separator', () => {
     setOrientation('vertical')
 
     expect(screen.getByRole('separator')).toBe(root)
-    expect(root.className).toContain('border-s')
+    expect(root.className).toContain('bg-border')
   })
 
   test('decorative mode uses presentational semantics', () => {

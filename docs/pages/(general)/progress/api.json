@@ -95,7 +95,7 @@
       {
         "name": "animation",
         "required": false,
-        "type": "\"carousel\" | \"reverse\" | \"swing\" | \"elastic\" | null | undefined",
+        "type": "\"carousel\" | \"reverse\" | \"swing\" | \"elastic\" | undefined",
         "description": "Visual animation of the component.",
         "defaultValue": "carousel"
       },
@@ -126,7 +126,7 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | null | undefined",
+        "type": "\"horizontal\" | \"vertical\" | undefined",
         "description": "Visual layout direction.",
         "defaultValue": "horizontal"
       },
@@ -138,7 +138,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
         "description": "Visual size of the component.",
         "defaultValue": "md"
       },

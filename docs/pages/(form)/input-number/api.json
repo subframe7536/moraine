@@ -95,7 +95,7 @@
       {
         "name": "align",
         "required": false,
-        "type": "\"center\" | \"start\" | null | undefined",
+        "type": "\"center\" | \"start\" | undefined",
         "description": "Text alignment; omitted values follow the control layout."
       },
       {
@@ -265,7 +265,7 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | null | undefined",
+        "type": "\"horizontal\" | \"vertical\" | undefined",
         "description": "Visual layout direction.",
         "defaultValue": "horizontal"
       },
@@ -331,7 +331,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
         "description": "Visual size of the component.",
         "defaultValue": "md"
       },
@@ -361,7 +361,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | null | undefined",
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined",
         "description": "Visual treatment of the component.",
         "defaultValue": "outline"
       },

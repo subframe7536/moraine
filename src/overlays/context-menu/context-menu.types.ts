@@ -18,7 +18,7 @@ export namespace ContextMenuT {
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
   }
   export type SlotName = keyof Slot
 

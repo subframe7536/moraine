@@ -25,7 +25,7 @@ export namespace TextareaT {
     header?: T
 
     /** Native textarea control used for multi-line text entry. */
-    input?: T
+    textarea?: T
 
     /** Optional content rendered below the textarea. */
     footer?: T
@@ -35,11 +35,11 @@ export namespace TextareaT {
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
     /** Visual treatment of the component.
      * @default 'outline'
      */
-    variant?: 'outline' | 'subtle' | 'ghost' | 'none' | null
+    variant?: 'outline' | 'subtle' | 'ghost' | 'none'
   }
   export type SlotName = keyof Slot
 

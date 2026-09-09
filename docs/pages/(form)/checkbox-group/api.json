@@ -289,7 +289,7 @@
       {
         "name": "indicator",
         "required": false,
-        "type": "\"hidden\" | \"end\" | \"start\" | null | undefined",
+        "type": "\"hidden\" | \"end\" | \"start\" | undefined",
         "description": "Default indicator position for all items."
       },
       {
@@ -319,7 +319,7 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | null | undefined",
+        "type": "\"horizontal\" | \"vertical\" | undefined",
         "description": "Visual layout direction.",
         "defaultValue": "vertical"
       },
@@ -345,7 +345,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
         "description": "Visual size of the component.",
         "defaultValue": "md"
       },
@@ -368,7 +368,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"list\" | \"table\" | \"card\" | null | undefined",
+        "type": "\"list\" | \"table\" | \"card\" | undefined",
         "description": "Visual treatment of the component.",
         "defaultValue": "list"
       }

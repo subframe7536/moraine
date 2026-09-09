@@ -38,18 +38,18 @@ export namespace InputNumberT {
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
     /** Visual treatment of the component.
      * @default 'outline'
      */
-    variant?: 'outline' | 'subtle' | 'ghost' | 'none' | null
+    variant?: 'outline' | 'subtle' | 'ghost' | 'none'
     /** Text alignment; omitted values follow the control layout.
      */
-    align?: 'center' | 'start' | null
+    align?: 'center' | 'start'
     /** Visual layout direction.
      * @default 'horizontal'
      */
-    orientation?: 'horizontal' | 'vertical' | null
+    orientation?: 'horizontal' | 'vertical'
   }
   export type SlotName = keyof Slot
 

@@ -42,15 +42,15 @@ export namespace CheckboxGroupT {
     /** Visual layout direction.
      * @default 'vertical'
      */
-    orientation?: 'horizontal' | 'vertical' | null
+    orientation?: 'horizontal' | 'vertical'
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
     /** Visual treatment of the component.
      * @default 'list'
      */
-    variant?: 'card' | 'table' | 'list' | null
+    variant?: 'card' | 'table' | 'list'
   }
 
   export type SlotName = keyof Slot

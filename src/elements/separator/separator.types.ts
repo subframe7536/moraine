@@ -9,17 +9,7 @@ export namespace SeparatorT {
 
   export interface Variant {
     /** Layout axis used by the component Recipe. */
-    orientation?: 'horizontal' | 'vertical' | null
-
-    /** Visual size of the component.
-     * @default 'sm'
-     */
-    size?: 'sm' | 'md' | 'lg' | null
-
-    /** Visual type of the component.
-     * @default 'solid'
-     */
-    type?: 'solid' | 'dashed' | 'dotted' | null
+    orientation?: 'horizontal' | 'vertical'
   }
 
   export type SlotName = keyof Slot

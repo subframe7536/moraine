@@ -36,16 +36,16 @@ export namespace TabsT {
 
   export interface Variant {
     /** Layout axis used by the component Recipe. */
-    orientation?: 'horizontal' | 'vertical' | null
+    orientation?: 'horizontal' | 'vertical'
 
     /** Visual treatment of the component.
      * @default 'pill'
      */
-    variant?: 'pill' | 'link' | null
+    variant?: 'pill' | 'link'
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
   }
   export type SlotName = keyof Slot
 

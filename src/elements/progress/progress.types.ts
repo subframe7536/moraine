@@ -42,15 +42,15 @@ export namespace ProgressT {
     /** Visual layout direction.
      * @default 'horizontal'
      */
-    orientation?: 'horizontal' | 'vertical' | null
+    orientation?: 'horizontal' | 'vertical'
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
     /** Visual animation of the component.
      * @default 'carousel'
      */
-    animation?: 'carousel' | 'reverse' | 'swing' | 'elastic' | null
+    animation?: 'carousel' | 'reverse' | 'swing' | 'elastic'
   }
 
   export type SlotName = keyof Slot

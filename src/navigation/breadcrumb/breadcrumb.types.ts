@@ -64,11 +64,11 @@ export namespace BreadcrumbT {
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
     /** Visual wrap of the component.
      * @default true
      */
-    wrap?: boolean | 'true' | 'false' | null
+    wrap?: boolean | 'true' | 'false'
   }
   export type SlotName = keyof Slot
 

@@ -66,7 +66,7 @@ export namespace CommandPaletteT {
     /** Where descriptions render in each command item.
      * @default 'bottom'
      */
-    descriptionPosition?: DescriptionPosition | null
+    descriptionPosition?: DescriptionPosition
   }
   export type SlotName = keyof Slot
 

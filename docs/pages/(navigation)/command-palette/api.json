@@ -339,7 +339,7 @@
       {
         "name": "descriptionPosition",
         "required": false,
-        "type": "CommandPaletteT.DescriptionPosition | null | undefined",
+        "type": "CommandPaletteT.DescriptionPosition | undefined",
         "description": "Where descriptions render in each command item.",
         "defaultValue": "bottom"
       },

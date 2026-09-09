@@ -36,11 +36,11 @@ export namespace InputT {
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
     /** Visual treatment of the component.
      * @default 'outline'
      */
-    variant?: 'outline' | 'subtle' | 'ghost' | 'none' | null
+    variant?: 'outline' | 'subtle' | 'ghost' | 'none'
   }
   export type SlotName = keyof Slot
 

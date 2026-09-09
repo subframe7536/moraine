@@ -24,8 +24,8 @@ export namespace SidebarFrameT {
   }
 
   export interface Variant {
-    side?: 'left' | 'right' | null
-    variant?: 'default' | 'floating' | 'inset' | null
+    side?: 'left' | 'right'
+    variant?: 'default' | 'floating' | 'inset'
   }
 
   export type SlotName = keyof Slot

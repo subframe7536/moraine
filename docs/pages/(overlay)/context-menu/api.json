@@ -132,7 +132,7 @@
       {
         "name": "color",
         "required": false,
-        "type": "NonNullable<\"default\" | \"destructive\" | null | undefined> | undefined",
+        "type": "NonNullable<\"default\" | \"destructive\" | undefined> | undefined",
         "description": "Color theme variant for the menu item."
       },
       {
@@ -533,7 +533,7 @@
           {
             "name": "size",
             "required": false,
-            "type": "\"sm\" | \"md\" | \"lg\" | null | undefined",
+            "type": "\"sm\" | \"md\" | \"lg\" | undefined",
             "description": "Menu item size variant.",
             "defaultValue": "md"
           },

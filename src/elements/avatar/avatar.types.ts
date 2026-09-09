@@ -27,11 +27,11 @@ export namespace AvatarT {
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
     /** Position of the badge relative to the avatar.
      * @default 'bottom-right'
      */
-    badgePosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | null
+    badgePosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
   }
 
   export type SlotName = keyof Slot

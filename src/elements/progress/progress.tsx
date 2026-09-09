@@ -81,7 +81,7 @@ export function Progress(props: ProgressProps): JSX.Element {
 
     const ratio = (resolvedValue() - minValue) / range
     const bounded = Math.min(Math.max(ratio, 0), 1)
-    return bounded * 100
+    return Math.round(bounded * 10000) / 100
   })
 
   const dataAttrs = createMemo(() => {

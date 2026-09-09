@@ -35,14 +35,14 @@ export namespace CheckboxT {
     /** Visual size of the component.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg' | null
+    size?: 'sm' | 'md' | 'lg'
     /** Visual treatment of the component.
      */
-    variant?: 'card' | 'list' | null
+    variant?: 'card' | 'list'
     /** Placement of the selection indicator.
      * @default 'start'
      */
-    indicator?: 'start' | 'end' | 'hidden' | null
+    indicator?: 'start' | 'end' | 'hidden'
   }
 
   export type SlotName = keyof Slot

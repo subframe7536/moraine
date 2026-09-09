@@ -226,7 +226,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | null | undefined",
+        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
         "description": "Visual treatment of the component.",
         "defaultValue": "default"
       }

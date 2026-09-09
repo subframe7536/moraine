@@ -194,10 +194,10 @@ describe('Progress', () => {
     const status = screen.container.querySelector('[data-slot="status"]') as HTMLElement
     const indicator = screen.container.querySelector('[data-slot="indicator"]') as HTMLElement
 
-    expect(progress.getAttribute('aria-valuetext')).toBe('33.33333333333333%')
-    expect(status.textContent).toBe('33.33333333333333%')
-    expect(status.style.width).toBe('33.33333333333333%')
-    expect(indicator.style.transform).toBe('translateX(-66.66666666666667%)')
+    expect(progress.getAttribute('aria-valuetext')).toBe('33.33%')
+    expect(status.textContent).toBe('33.33%')
+    expect(status.style.width).toBe('33.33%')
+    expect(indicator.style.transform).toBe('translateX(-66.67%)')
   })
 
   test('synchronizes loading, complete, and indeterminate data across rendered parts', () => {

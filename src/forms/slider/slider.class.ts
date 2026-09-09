@@ -41,7 +41,7 @@ export const sliderRecipe = /* @__PURE__ */ slotRecipe<keyof SliderT.Slot>({
         range: 'rounded-full',
         divider: 'bg-background',
         thumb:
-          'outline-none border border-border rounded-full bg-background cursor-pointer shadow-xs/5 transition-[box-shadow,transform] focus-visible:(outline-none ring-3 ring-ring/50) hover:(ring-3 ring-ring/50) dark:bg-foreground data-dragging:scale-120 [html:not(.dark)_&]:bg-clip-padding',
+          'size-[calc(var(--s-size)_*_3)] outline-none border border-border rounded-full bg-background cursor-pointer shadow-xs/5 transition-[box-shadow,transform] focus-visible:(outline-none ring-3 ring-ring/50) hover:(ring-3 ring-ring/50) dark:bg-foreground data-dragging:scale-120 bg-clip-padding',
       },
       bold: {
         track: 'cursor-pointer',

@@ -29,32 +29,20 @@ import type { SeparatorT } from 'moraine'
   controls={[
     {
       kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'sm',
+      prop: 'orientation',
+      label: 'Orientation',
+      defaultValue: 'horizontal',
       options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'type',
-      label: 'Border Style',
-      defaultValue: 'solid',
-      options: [
-        { label: 'Solid', value: 'solid' },
-        { label: 'Dashed', value: 'dashed' },
-        { label: 'Dotted', value: 'dotted' },
+        { label: 'Horizontal', value: 'horizontal' },
+        { label: 'Vertical', value: 'vertical' },
       ],
     },
   ]}
 >
   {(props) => (
-    <div class="space-y-4">
+    <div class={'flex gap-4 ' + (props.orientation === 'vertical' ? 'h-4' : 'flex-col')}>
       <div class="text-xs text-muted-foreground">Section Header</div>
-      <Separator size={props.size} type={props.type} />
+      <Separator orientation={props.orientation} />
       <div class="text-xs text-muted-foreground">Content Section</div>
     </div>
   )}
@@ -84,4 +72,4 @@ Use a semantic separator when it marks a real thematic break, and decorative mod
 
 ### Orientation and semantics
 
-<Preview path="./orientation-and-types" />
+<Preview path="./orientation" />
