@@ -365,7 +365,7 @@ export function Popper(props: PopperProps): JSX.Element {
       dismissible: true,
       disabled: false,
       fitViewport: false,
-      flip: true,
+      flip: true,   
       forceMount: false,
       gutter: 0,
       hideWhenDetached: false,
@@ -625,6 +625,7 @@ function PopperTrigger(props: PopperTriggerProps): JSX.Element {
   const userTriggerProps = (): Partial<OverlayTriggerProps> | undefined => props.triggerProps
   const triggerProps = mergeProps(
     {
+      'aria-haspopup': true,
       get 'aria-controls'() {
         return context.contentPresence.present() ? context.contentId() : undefined
       },

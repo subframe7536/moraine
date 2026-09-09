@@ -44,6 +44,7 @@
 - [ ] sidebar-frame styling is broken, more useful usage and example
 - [ ] src/forms/form/form-field.tsx 's `local.form` should be reconsidered
 - [ ] itemRender in pagination
+- [ ] the way to define destructive item in menu
 
 # V1
 
