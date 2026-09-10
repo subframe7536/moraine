@@ -12,21 +12,24 @@ export function variantGroupPlugin(): Plugin {
   return {
     name: 'moraine:variant-group',
     enforce: 'pre',
-    async transform(code, id) {
-      if (!CLASS_MODULE_RE.test(id) || !code.includes(':(')) {
-        return null
-      }
+    transform: {
+      order: 'pre',
+      filter: {
+        id: CLASS_MODULE_RE,
+        code: /:\(/,
+      },
+      async handler(code, id) {
+        const transformed = new MagicString(code)
+        await transformer.transform(transformed, id, undefined as any)
+        if (!transformed.hasChanged()) {
+          return null
+        }
 
-      const transformed = new MagicString(code)
-      await transformer.transform(transformed, id, undefined as any)
-      if (!transformed.hasChanged()) {
-        return null
-      }
-
-      return {
-        code: transformed.toString(),
-        map: transformed.generateMap({ hires: true }),
-      }
+        return {
+          code: transformed.toString(),
+          map: transformed.generateMap({ hires: true }),
+        }
+      },
     },
   }
 }
