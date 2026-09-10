@@ -57,11 +57,18 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     'style',
     'ref',
   ])
-  const merged = mergeProps({ orientation: 'vertical' as const }, local)
   const themeField = useFormFieldContext()
-  const resolved = createComponentStyles('radioGroup', merged, {
+  const resolved = createComponentStyles('radioGroup', local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })
+  const merged = mergeProps(
+    {
+      get orientation() {
+        return resolved.variants.orientation ?? 'vertical'
+      },
+    },
+    local,
+  )
 
   const items = createMemo(() => merged.items ?? [])
   const orientation = createMemo(() => merged.orientation)

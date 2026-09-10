@@ -63,7 +63,6 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
     {
       overlay: true,
       transition: true,
-      side: 'right' as const,
 
       close: true,
     },
@@ -71,7 +70,7 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
     local,
   )
 
-  const resolved = createComponentStyles('sheet', merged, { rootSlot: 'content' })
+  const resolved = createComponentStyles('sheet', local, { rootSlot: 'content' })
 
   return (
     <ModalSurface

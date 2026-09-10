@@ -108,21 +108,27 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
 
   function updateSelection(
     option: NormalizedOption<Item> | null,
-    api: Pick<BaseSelectT.StateApi<Item>, 'field'>,
+    api: BaseSelectT.OptionSelectContext<Item>,
   ): void {
     const value = option ? (mapNormalizedToRawValue(option) as TItem) : null
-    const current = getCurrentValue({ allFlatOptions: () => [], field: api.field })
+    const current = getCurrentValue(api)
 
-    if (current === value) {
+    if (Object.is(current, value)) {
       return
     }
 
     if (local.value === undefined) {
       setSelectedValue(value)
+      api.field.setFormValue(value ?? '')
     }
 
-    api.field.setFormValue(value ?? '')
+    api.setInputValue(option?.key ?? '')
     local.onChange?.(value)
+    if (local.value !== undefined) {
+      api.field.setFormValue(local.value ?? '')
+    }
+    api.field.emit('change')
+    api.field.emit('input')
   }
 
   function displayValue(

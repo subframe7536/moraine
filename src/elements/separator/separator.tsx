@@ -8,8 +8,15 @@ import type { SeparatorProps } from './separator.types'
 /** Visual divider with configurable orientation, style, and border type. */
 export function Separator(props: SeparatorProps): JSX.Element {
   const [local, rest] = splitProps(props, ['decorative', 'orientation', 'class', 'style'])
-  const merged = mergeProps({ orientation: 'horizontal' as const }, local)
-  const resolved = createComponentStyles('separator', merged)
+  const resolved = createComponentStyles('separator', local)
+  const merged = mergeProps(
+    {
+      get orientation() {
+        return resolved.variants.orientation ?? 'horizontal'
+      },
+    },
+    local,
+  )
 
   return (
     <div

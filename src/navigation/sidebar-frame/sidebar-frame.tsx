@@ -151,8 +151,16 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     'class',
     'style',
   ])
-  const merged = mergeProps({ side: 'left' as const, scrollThreshold: 60 }, local)
-  const resolved = createComponentStyles('sidebarFrame', merged)
+  const resolved = createComponentStyles('sidebarFrame', local)
+  const merged = mergeProps(
+    {
+      get side() {
+        return resolved.variants.side ?? 'left'
+      },
+      scrollThreshold: 60,
+    },
+    local,
+  )
 
   const [internalIsMobile, setInternalIsMobile] = createSignal(false)
   const [isOpen, setOpen] = createSignal(untrack(() => local.isMobile !== true))

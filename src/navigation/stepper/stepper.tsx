@@ -41,16 +41,18 @@ export function Stepper(props: StepperProps): JSX.Element {
     'class',
     'style',
   ])
+  const resolved = createComponentStyles('stepper', local)
   const merged = mergeProps(
     {
-      orientation: 'horizontal' as const,
+      get orientation() {
+        return resolved.variants.orientation ?? 'horizontal'
+      },
 
       linear: true,
       clickable: false,
     },
     local,
   )
-  const resolved = createComponentStyles('stepper', merged)
 
   const id = useId(() => merged.id, 'stepper')
   const [requestedValue, setRequestedValue] = useControllableValue<StepperT.Value>({

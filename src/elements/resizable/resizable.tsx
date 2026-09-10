@@ -187,14 +187,16 @@ export function Resizable(props: ResizableProps): JSX.Element {
     'style',
     'ref',
   ])
+  const resolved = createComponentStyles('resizable', localProps)
   const local = mergeProps(
     {
       keyboardDelta: '10%' as const,
-      orientation: 'horizontal' as const,
+      get orientation() {
+        return resolved.variants.orientation ?? 'horizontal'
+      },
     },
     localProps,
   )
-  const resolved = createComponentStyles('resizable', local)
 
   const panelIdPrefix = useId(() => local.id, 'resizable')
   const orientation = () => local.orientation

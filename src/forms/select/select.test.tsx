@@ -22,6 +22,55 @@ const FRUITS = [
   { label: 'Cherry', value: 'cherry', disabled: true },
 ]
 
+test('replaces the search query on selection and clears it with the selection', () => {
+  const screen = render(() => <Select search allowClear defaultOpen options={FRUITS} />)
+  const input = screen.container.querySelector<HTMLInputElement>('input[data-slot="input"]')!
+  fireEvent.input(input, { target: { value: 'ba' } })
+  fireEvent.click(queryAllBody('[data-slot="item"]')[0]!)
+  expect(input.value).toBe('Banana')
+  fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
+  expect(input.value).toBe('')
+})
+
+test('validates a committed selection in change mode', async () => {
+  const { screen } = renderWithOwner(
+    () =>
+      createForm({
+        schema: v.object({
+          fruit: v.pipe(
+            v.string(),
+            v.check((value) => value === 'apple', 'Choose apple'),
+          ),
+        }),
+        initialInput: { fruit: 'apple' },
+        validate: 'change',
+      }),
+    (form) => (
+      <form.Form>
+        <form.Field name="fruit">
+          <Select options={FRUITS} defaultOpen />
+        </form.Field>
+      </form.Form>
+    ),
+  )
+  fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+  await waitFor(() => expect(screen.getByText('Choose apple')).toBeTruthy())
+})
+
+test('does not publish a change when reselecting NaN', () => {
+  const onChange = vi.fn()
+  render(() => (
+    <Select
+      options={[{ label: 'Unknown', value: Number.NaN }]}
+      defaultValue={Number.NaN}
+      defaultOpen
+      onChange={onChange}
+    />
+  ))
+  fireEvent.click(queryAllBody('[data-slot="item"]')[0]!)
+  expect(onChange).not.toHaveBeenCalled()
+})
+
 const GROUPED_OPTIONS = [
   {
     label: 'Fruits',

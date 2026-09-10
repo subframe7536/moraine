@@ -54,13 +54,15 @@ export function Tabs(props: TabsProps): JSX.Element {
     'class',
     'style',
   ])
+  const resolved = createComponentStyles('tabs', local)
   const merged = mergeProps(
     {
-      orientation: 'horizontal' as const,
+      get orientation() {
+        return resolved.variants.orientation ?? 'horizontal'
+      },
     },
     local,
   )
-  const resolved = createComponentStyles('tabs', merged)
 
   const rootId = useId(() => merged.id, 'tabs')
   const [requestedValue, setRequestedValue] = useControllableValue<string>({

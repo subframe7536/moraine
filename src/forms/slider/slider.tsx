@@ -44,22 +44,24 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'class',
     'style',
   ])
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('slider', local, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
   const merged = mergeProps(
     {
       min: 0,
       max: 100,
       minStepsBetweenThumbs: 0,
       allowThumbCrossing: true,
-      orientation: 'horizontal' as const,
+      get orientation() {
+        return resolved.variants.orientation ?? 'horizontal'
+      },
       inverted: false,
     },
 
     local,
   )
-  const themeField = useFormFieldContext()
-  const resolved = createComponentStyles('slider', merged, {
-    inheritedVariants: () => ({ size: themeField?.size }),
-  })
 
   const generatedId = useId(() => merged.id, 'slider')
   const field = useFormField(
