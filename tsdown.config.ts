@@ -24,7 +24,6 @@ export default defineConfig([
     clean: true,
     deps: {
       neverBundle: ['@subf/unocss', '@tanstack/virtual-core', 'tailwindcss'],
-      onlyBundle: ['valibot'],
     },
     dts: {
       parallel: true,

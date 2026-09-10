@@ -1,6 +1,5 @@
 import type { FormSchema, FormStore, RequiredPath } from '@formisch/solid'
 import type { JSX, ValidComponent } from 'solid-js'
-import type { InferInput } from 'valibot'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
@@ -19,7 +18,9 @@ export namespace FormFieldT {
       : never
 
   export type Name<TSchema extends FormSchema | undefined = undefined> = TSchema extends FormSchema
-    ? Extract<keyof InferInput<TSchema>, string> | SchemaPath<InferInput<TSchema>>
+    ? NonNullable<TSchema['~types']>['input'] extends infer Input
+      ? Extract<keyof Input, string> | SchemaPath<Input>
+      : never
     : string | RequiredPath
 
   /**
