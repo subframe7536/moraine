@@ -4,7 +4,7 @@
 - [x] production barrel import optimize, reconsider exports
 - [x] cleanup ssr adaption
 - [x] restore bound Switch initial state after a native Form reset
-- [ ] slider & stepper recipe structure refactor
+- [x] slider & stepper recipe structure refactor
 - [ ] correct/verify button group separator
 - [ ] badge variants config / padding refresh, maybe similar to button?
 - [ ] kbd-group 's `*Render` should be renamed and reconsider default value

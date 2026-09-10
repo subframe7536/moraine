@@ -239,17 +239,18 @@ describe('Stepper', () => {
     expect(content?.className).toContain('content-override')
   })
 
-  test('uses stepper css variable helper classes for size and separator layout', () => {
+  test('applies stepper size and separator layout classes', () => {
     const screen = render(() => (
       <MoraineProvider theme={defaultTheme}>
         <Stepper items={ITEMS} size="lg" orientation="vertical" />
       </MoraineProvider>
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
-    const separator = screen.container.querySelector('[data-slot="separator"]')
+    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
+    const separator = screen.container.querySelector('[data-slot="separator"]') as HTMLElement
 
-    expect(root?.className).toContain('[--st-size:calc(var(--spacing)*10)]')
+    expect(trigger?.className).toContain('size-10')
+    expect(separator?.className).toContain('top-11')
     expect(separator?.className).toContain('-bottom-3')
   })
 

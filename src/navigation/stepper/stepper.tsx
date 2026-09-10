@@ -229,7 +229,13 @@ export function Stepper(props: StepperProps): JSX.Element {
                       onNavigationKeyDown(event, entry.value, merged.orientation ?? 'horizontal')
                     }}
                   >
-                    <Icon name={entry.item.icon || (() => entry.index + 1)} />
+                    <span data-slot="indicator" {...resolved.slot('indicator')}>
+                      <Icon
+                        name={entry.item.icon || (() => entry.index + 1)}
+                        class={resolved.slot('icon').class}
+                        style={resolved.slot('icon').style}
+                      />
+                    </span>
                   </button>
 
                   <Show when={entry.index < normalizedItems().length - 1}>

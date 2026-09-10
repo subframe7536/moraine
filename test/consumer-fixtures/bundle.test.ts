@@ -17,7 +17,7 @@ describe('published component bundle ownership', () => {
       })
       expect(bundle.code).toContain('Button')
       expect(bundle.code).not.toContain('defaultTheme')
-      expect(bundle.code).not.toContain('--s-len')
+      expect(bundle.code).not.toContain('sliderRecipe')
       expect(bundle.code).not.toContain('animate-accordion-down')
       expect(bundle.code).not.toContain('Dialog')
       expect(bundle.code).not.toContain('Resizable')
@@ -34,7 +34,7 @@ describe('published component bundle ownership', () => {
   test('keeps the Provider independent of official presentation', async () => {
     const bundle = await buildConsumerBundle("export { Button, MoraineProvider } from 'moraine'")
     expect(bundle.code).not.toContain('defaultTheme')
-    expect(bundle.code).not.toContain('--s-len')
+    expect(bundle.code).not.toContain('sliderRecipe')
     expect(bundle.code).not.toContain('animate-accordion-down')
   })
 
@@ -43,7 +43,7 @@ describe('published component bundle ownership', () => {
       "export { Button, MoraineProvider } from 'moraine'; export { defaultTheme } from 'moraine/theme'",
     )
     expect(bundle.code).toContain('defaultTheme')
-    expect(bundle.code).toContain('--s-len')
+    expect(bundle.code).toContain('sliderRecipe')
     expect(bundle.code).toContain('animate-accordion-down')
   })
 })

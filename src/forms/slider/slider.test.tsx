@@ -88,14 +88,10 @@ describe('Slider', () => {
     const horizontalTrack = horizontal.container.querySelector('[data-slot="track"]')
     const verticalTrack = vertical.container.querySelector('[data-slot="track"]')
 
-    expect(horizontalTrack?.className).toContain('h-(--s-size)')
-    expect(
-      (horizontal.container.querySelector('[data-slot="root"]') as HTMLElement).className,
-    ).toContain('[--s-size:4px]')
-    expect(verticalTrack?.className).toContain('w-(--s-size)')
-    expect(
-      (vertical.container.querySelector('[data-slot="root"]') as HTMLElement).className,
-    ).toContain('[--s-size:6px]')
+    expect(horizontalTrack?.className).toContain('h-1')
+    expect(horizontalTrack?.className).toContain('w-full')
+    expect(verticalTrack?.className).toContain('w-1.5')
+    expect(verticalTrack?.className).toContain('h-full')
   })
 
   test('renders base attributes and orientation without tooltip', () => {
@@ -743,24 +739,18 @@ describe('Slider', () => {
     const divider = screen.container.querySelector('[data-slot="divider"]')
     const thumb = screen.container.querySelector('[data-slot="thumb"]')
 
-    expect(track?.className).toContain('h-(--s-size)')
-    expect(
-      (screen.container.querySelector('[data-slot="root"]') as HTMLElement).className,
-    ).toContain('[--s-size:24px]')
-    expect(
-      (screen.container.querySelector('[data-slot="root"]') as HTMLElement).className,
-    ).toContain('[--s-len:16px]')
-    expect(
-      (screen.container.querySelector('[data-slot="root"]') as HTMLElement).className,
-    ).toContain('[--s-offset:4px]')
+    expect(track?.className).toContain('w-full')
+    expect(track?.className).toContain('h-6')
     expect(track?.className).toContain('rounded-sm')
     expect(track?.className).toContain('bg-input')
     expect(range?.className).toContain('rounded-[inherit]')
     expect(range?.className).toContain('bg-primary')
     expect(range?.className).toContain('z-raised')
-    expect(range?.className).toContain('after:')
     expect(divider?.className).toContain('w-px')
+    expect(divider?.className).toContain('h-1/3')
+    expect(range?.className).toContain('after:')
     expect(thumb?.className).toContain('opacity-0')
+    expect(thumb?.className).toContain('w-6')
     expect(thumb?.className).toContain('h-full')
     expect(thumb?.className).toContain('top-0')
     expect(thumb?.className).toContain('z-control')
@@ -777,19 +767,13 @@ describe('Slider', () => {
     const mdTrack = md.container.querySelector('[data-slot="track"]')
     const lgTrack = lg.container.querySelector('[data-slot="track"]')
 
-    expect((sm.container.querySelector('[data-slot="root"]') as HTMLElement).className).toContain(
-      '[--s-size:20px]',
-    )
+    expect(smTrack?.className).toContain('h-5')
     expect(smTrack?.className).toContain('rounded-xs')
 
-    expect((md.container.querySelector('[data-slot="root"]') as HTMLElement).className).toContain(
-      '[--s-size:24px]',
-    )
+    expect(mdTrack?.className).toContain('h-6')
     expect(mdTrack?.className).toContain('rounded-sm')
 
-    expect((lg.container.querySelector('[data-slot="root"]') as HTMLElement).className).toContain(
-      '[--s-size:28px]',
-    )
+    expect(lgTrack?.className).toContain('h-7')
     expect(lgTrack?.className).toContain('rounded-md')
   })
 
