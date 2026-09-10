@@ -143,7 +143,8 @@ describe('production documentation preview', () => {
       {
         cwd: PROJECT_ROOT,
         detached: true,
-        env: process.env,
+        // Vitest's NODE_ENV=test makes the client build render instead of hydrating SSR HTML.
+        env: { ...process.env, NODE_ENV: 'production' },
         stdio: ['ignore', 'pipe', 'pipe'],
       },
     )

@@ -17,8 +17,8 @@ export function TriggerModeNoDropzone() {
     <div class="p-4 b-(1 border) rounded-xl max-w-md space-y-3">
       <FileUpload
         dropzone={false}
-        label="Attach receipts or invoices"
-        description="Click the button to select a file directly from your computer."
+        label="Attach files"
+        description="Choose receipts or invoices from your computer."
         onValueChange={setAttached}
       />
 

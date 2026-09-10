@@ -1,6 +1,6 @@
 ## Fix
 
-- [ ] file-upload style refactor to https://diceui.com/docs/components/base/file-upload
+- [x] file-upload style refactor to https://diceui.com/docs/components/base/file-upload
 - [ ] slider & stepper recipe structure refactor
 - [ ] correct/verify button group separator
 - [ ] badge variants config / padding refresh, maybe similar to button?
