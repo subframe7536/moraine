@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { FileUploadT } from './file-upload.types.ts'
+import type { FileUploadT } from './file-upload.types'
 
 export const fileUploadRecipe = /* @__PURE__ */ slotRecipe<FileUploadT.Slot, FileUploadT.Variant>({
   base: {

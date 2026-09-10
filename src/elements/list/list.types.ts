@@ -1,17 +1,19 @@
-import type { Component, ValidComponent } from 'solid-js'
+import type { Component, JSX, ValidComponent } from 'solid-js'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps } from '../../shared/types'
-import type {
-  RowProps as BaseRowProps,
-  VirtualRenderProps as BaseVirtualRenderProps,
-} from '../../shared/use-list-virtualizer'
 
 export namespace ListT {
   export type Kind = 'single'
 
   export type Variant = never
-  export type RowProps<TItemElement extends HTMLElement = HTMLElement> = BaseRowProps<TItemElement>
+  export type RowProps<TItemElement extends HTMLElement = HTMLElement> = Omit<
+    JSX.HTMLAttributes<TItemElement>,
+    'ref'
+  > & {
+    ref?: (element: TItemElement) => void
+    'data-index'?: number | string
+  }
 
   export interface ItemRenderProps<TItem, TItemElement extends HTMLElement = HTMLElement> {
     /** Source item being rendered. */
@@ -26,7 +28,14 @@ export namespace ListT {
     TItem,
     TScrollElement extends HTMLElement = HTMLElement,
     TItemElement extends HTMLElement = HTMLElement,
-  > extends BaseVirtualRenderProps<TItem, TScrollElement, TItemElement> {}
+  > {
+    /** Complete reactive collection, including structural entries such as group labels. */
+    readonly entries: readonly TItem[]
+    /** Current scroll container, or undefined while it is not mounted. */
+    readonly scrollElement: TScrollElement | undefined
+    /** Renders an item and forwards optional attributes to its final row element. */
+    render: (item: TItem, index: number, props?: RowProps<TItemElement>) => JSX.Element
+  }
 
   export type Base<
     TItem,

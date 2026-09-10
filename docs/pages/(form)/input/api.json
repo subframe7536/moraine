@@ -43,7 +43,7 @@
       {
         "name": "autocomplete",
         "required": false,
-        "type": "JSX.InputHTMLAttributes<HTMLInputElement>[\"autocomplete\"] | undefined",
+        "type": "JSX.HTMLAutocomplete | undefined",
         "description": "The autocomplete attribute for the input.",
         "defaultValue": "off"
       },
@@ -223,7 +223,7 @@
       {
         "name": "type",
         "required": false,
-        "type": "JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] | undefined",
+        "type": "| \"button\" | \"checkbox\" | \"color\" | \"date\" | \"datetime-local\" | \"email\" | \"file\" | \"hidden\" | \"image\" | \"month\" | \"number\" | \"password\" | \"radio\" | \"range\" | \"reset\" | \"search\" | \"submit\" | \"tel\" | \"text\" | \"time\" | \"url\" | \"week\" | (string & {}) | undefined",
         "description": "The type of the input element.",
         "defaultValue": "text"
       },

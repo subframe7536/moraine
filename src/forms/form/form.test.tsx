@@ -227,59 +227,68 @@ describe('Form', () => {
     expect(formElement.getAttribute('data-submitting')).toBeNull()
   })
 
-  test('resets native controls and Formisch state after the caller handler', async () => {
-    const resetSnapshots: unknown[] = []
-    const { screen, value: form } = renderWithOwner(
-      () =>
-        createForm({
-          schema: Schema,
-          initialInput: { email: 'initial@example.com', enabled: false },
-          validate: 'blur',
-        }),
-      (form) => (
-        <form.Form
-          onReset={() => {
-            resetSnapshots.push({ dirty: form.isDirty, input: getInput(form) })
-          }}
-        >
-          <form.Field name="email" label="Email">
-            <Input />
-          </form.Field>
-          <form.Field name="enabled" label="Enabled">
-            <Switch />
-          </form.Field>
-          <Button type="reset">Reset</Button>
-        </form.Form>
-      ),
-    )
-    const input = screen.getByLabelText('Email') as HTMLInputElement
+  test.each([false, true])(
+    'resets native controls and Formisch state with enabled initially %s',
+    async (enabled) => {
+      const resetSnapshots: unknown[] = []
+      const onChange = vi.fn()
+      const { screen, value: form } = renderWithOwner(
+        () =>
+          createForm({
+            schema: Schema,
+            initialInput: { email: 'initial@example.com', enabled },
+            validate: 'blur',
+          }),
+        (form) => (
+          <form.Form
+            onReset={() => {
+              resetSnapshots.push({ dirty: form.isDirty, input: getInput(form) })
+            }}
+          >
+            <form.Field name="email" label="Email">
+              <Input />
+            </form.Field>
+            <form.Field name="enabled" label="Enabled">
+              <Switch onChange={onChange} />
+            </form.Field>
+            <Button type="reset">Reset</Button>
+          </form.Form>
+        ),
+      )
+      const input = screen.getByLabelText('Email') as HTMLInputElement
 
-    fireEvent.input(input, { target: { value: 'invalid' } })
-    fireEvent.blur(input)
-    fireEvent.click(screen.getByRole('switch'))
-    await waitFor(() => expect(screen.getByText('Enter a valid email.')).not.toBeNull())
-    expect(form.isDirty).toBe(true)
-    expect(form.isTouched).toBe(true)
+      fireEvent.input(input, { target: { value: 'invalid' } })
+      fireEvent.blur(input)
+      fireEvent.click(screen.getByRole('switch'))
+      await waitFor(() => expect(screen.getByText('Enter a valid email.')).not.toBeNull())
+      expect(form.isDirty).toBe(true)
+      expect(form.isTouched).toBe(true)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
 
-    await waitFor(() => {
-      expect(input.value).toBe('initial@example.com')
-      expect(screen.getByRole('switch').getAttribute('aria-checked')).toBe('false')
-      expect(screen.queryByText('Enter a valid email.')).toBeNull()
-    })
-    expect(form.isDirty).toBe(false)
-    expect(form.isTouched).toBe(false)
-    expect(getInput(form)).toEqual({ email: 'initial@example.com', enabled: false })
-    expect(resetSnapshots).toEqual([
-      {
-        dirty: true,
-        input: { email: 'invalid', enabled: true },
-      },
-    ])
-  })
+      await waitFor(() => {
+        expect(input.value).toBe('initial@example.com')
+        expect(screen.getByRole('switch').getAttribute('aria-checked')).toBe(String(enabled))
+        expect(screen.queryByText('Enter a valid email.')).toBeNull()
+      })
+      expect(form.isDirty).toBe(false)
+      expect(form.isTouched).toBe(false)
+      expect(form.isEdited).toBe(false)
+      expect(
+        screen.container.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked,
+      ).toBe(enabled)
+      expect(onChange).toHaveBeenCalledTimes(1)
+      expect(getInput(form)).toEqual({ email: 'initial@example.com', enabled })
+      expect(resetSnapshots).toEqual([
+        {
+          dirty: true,
+          input: { email: 'invalid', enabled: !enabled },
+        },
+      ])
+    },
+  )
 
-  test('does not reset native or Formisch state when the caller cancels reset', async () => {
+  test.each(['form', 'ancestor'])('keeps state when the %s cancels reset', async (cancelAt) => {
     const { screen, value: form } = renderWithOwner(
       () =>
         createForm({
@@ -287,18 +296,21 @@ describe('Form', () => {
           initialInput: { value: 'Initial' },
         }),
       (form) => (
-        <form.Form onReset={(event) => event.preventDefault()}>
-          <form.Field name="value" label="Value">
-            <Input />
-          </form.Field>
-          <Button type="reset">Reset</Button>
-        </form.Form>
+        <div onReset={cancelAt === 'ancestor' ? (event) => event.preventDefault() : undefined}>
+          <form.Form onReset={cancelAt === 'form' ? (event) => event.preventDefault() : undefined}>
+            <form.Field name="value" label="Value">
+              <Input />
+            </form.Field>
+            <Button type="reset">Reset</Button>
+          </form.Form>
+        </div>
       ),
     )
     const input = screen.getByLabelText('Value') as HTMLInputElement
 
     fireEvent.input(input, { target: { value: 'Changed' } })
     fireEvent.click(screen.getByRole('button', { name: 'Reset' }))
+    await new Promise((resolve) => setTimeout(resolve, 0))
 
     expect(input.value).toBe('Changed')
     expect(getInput(form)).toEqual({ value: 'Changed' })

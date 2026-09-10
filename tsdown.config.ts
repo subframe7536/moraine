@@ -12,11 +12,15 @@ export default defineConfig([
     entry: {
       index: './src/index.ts',
       utils: './src/utils.ts',
+      virtualizer: './src/virtualizer.ts',
       unocss: './src/unocss/index.ts',
       tailwind: './src/tailwind/index.ts',
       theme: './src/theme.ts',
     },
     plugins: [variantGroupPlugin(), solid()],
+    root: 'src',
+    unbundle: true,
+    exports: false,
     clean: true,
     deps: {
       neverBundle: ['@subf/unocss', '@tanstack/virtual-core', 'tailwindcss'],
@@ -29,7 +33,12 @@ export default defineConfig([
   {
     entry: {
       index: './src/index.ts',
+      utils: './src/utils.ts',
+      virtualizer: './src/virtualizer.ts',
     },
+    root: 'src',
+    unbundle: true,
+    exports: false,
     clean: false,
     platform: 'neutral',
     plugins: [
@@ -53,25 +62,6 @@ export default defineConfig([
         },
       }),
     ],
-    exports: {
-      customExports(exports) {
-        for (const [key, val] of Object.entries(exports)) {
-          if (val.endsWith('.jsx')) {
-            exports[key] = {
-              solid: val,
-              default: val.replace('.jsx', '.mjs'),
-              type: val.replace('.jsx', '.d.mts'),
-            }
-          }
-        }
-        exports['./icon.css'] = './dist/icon.css'
-        exports['./unocss'] = './dist/unocss.mjs'
-        exports['./tailwind'] = './dist/tailwind.mjs'
-        exports['./utils'] = './dist/utils.mjs'
-        exports['./theme'] = './dist/theme.mjs'
-        return exports
-      },
-    },
     deps: {
       neverBundle: ['@tanstack/virtual-core'],
     },

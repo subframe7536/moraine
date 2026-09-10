@@ -3,14 +3,15 @@ import * as v from 'valibot'
 
 import { Button } from '../../elements/button'
 import { Input } from '../input'
+import { Switch } from '../switch'
 
 import { createForm } from './'
 
 export function renderFormFixture(): string {
   function ServerForm() {
     const form = createForm({
-      schema: v.object({ value: v.string() }),
-      initialInput: { value: 'Server value' },
+      schema: v.object({ value: v.string(), enabled: v.boolean() }),
+      initialInput: { value: 'Server value', enabled: true },
     })
 
     return (
@@ -18,6 +19,10 @@ export function renderFormFixture(): string {
         <form.Field name="value" label="Value">
           <Input />
         </form.Field>
+        <form.Field name="enabled" label="Enabled">
+          <Switch />
+        </form.Field>
+        <Button type="reset">Reset</Button>
         <Button type="submit">Submit</Button>
       </form.Form>
     )

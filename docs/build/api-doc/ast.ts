@@ -32,7 +32,10 @@ export async function parseTypeScript(
   text: string,
   lang: 'ts' | 'tsx',
 ): Promise<ParsedSource> {
-  const result = await parse(fileName, text, { ...PARSE_OPTIONS, lang })
+  const result = await parse(fileName, text, {
+    ...PARSE_OPTIONS,
+    lang: /\.d\.(?:ts|mts|cts)$/.test(fileName) ? 'dts' : lang,
+  })
   if (result.errors.length > 0) {
     const message = result.errors.map((error) => error.message).join('\n')
     throw new Error(`Failed to parse ${fileName}:\n${message}`)

@@ -6,11 +6,13 @@ import { resolve } from 'node:path'
 import { describe, expect, test } from 'vitest'
 
 const dist = resolve(import.meta.dirname, '../../dist')
-const entry = readFileSync(resolve(dist, 'index.d.mts'), 'utf8')
-const moduleName = entry.match(/"(\.\/index-[^"]+\.mjs)"/)![1]
-const declarations = readFileSync(resolve(dist, moduleName.replace(/\.mjs$/, '.d.mts')), 'utf8')
-
 function namespace(name: string): string {
+  const files: Record<string, string> = {
+    ButtonT: 'elements/button/button.types.d.mts',
+    InputT: 'forms/input/input.types.d.mts',
+    SelectT: 'forms/select/select.types.d.mts',
+  }
+  const declarations = readFileSync(resolve(dist, files[name]), 'utf8')
   const start = declarations.indexOf(`declare namespace ${name} {`)
   expect(start).toBeGreaterThan(-1)
   const end = declarations.indexOf('\n}', start)

@@ -91,7 +91,7 @@
       {
         "name": "children",
         "required": false,
-        "type": "ComponentOrElement<{ loading: boolean; }> | undefined",
+        "type": "ComponentOrElement<{ loading: boolean; }>",
         "description": "Children of the button. Supports render function form."
       },
       {

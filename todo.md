@@ -1,8 +1,9 @@
 ## Fix
 
 - [x] file-upload style refactor to https://diceui.com/docs/components/base/file-upload
-- [ ] production barrel import optimize, reconsider exports
+- [x] production barrel import optimize, reconsider exports
 - [ ] cleanup ssr adaption
+- [x] restore bound Switch initial state after a native Form reset
 - [ ] slider & stepper recipe structure refactor
 - [ ] correct/verify button group separator
 - [ ] badge variants config / padding refresh, maybe similar to button?

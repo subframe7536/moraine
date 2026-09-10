@@ -120,5 +120,165 @@
       }
     ],
     "inherited": []
-  }
+  },
+  "primitives": [
+    {
+      "component": {
+        "key": "collapsible-trigger",
+        "name": "Collapsible.Trigger",
+        "category": "elements",
+        "polymorphic": true,
+        "description": "Interactive trigger button for expanding/collapsing collapsible content.",
+        "sourcePath": "src/elements/collapsible/collapsible-trigger.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "as",
+            "required": false,
+            "type": "\"button\" | undefined",
+            "description": "Element or component to render as.",
+            "defaultValue": "button"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Trigger label and visual content."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "disabled",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether this trigger is disabled."
+          },
+          {
+            "name": "onBlur",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<CollapsibleTriggerElementFor<\"button\">, FocusEvent> | undefined"
+          },
+          {
+            "name": "onClick",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<CollapsibleTriggerElementFor<\"button\">, MouseEvent> | undefined"
+          },
+          {
+            "name": "onKeyDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<CollapsibleTriggerElementFor<\"button\">, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onKeyUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<CollapsibleTriggerElementFor<\"button\">, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onPointerDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<CollapsibleTriggerElementFor<\"button\">, PointerEvent> | undefined"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "type",
+            "required": false,
+            "type": "\"button\" extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : \"button\" extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : \"button\" extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : never | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "collapsible-content",
+        "name": "Collapsible.Content",
+        "category": "elements",
+        "polymorphic": true,
+        "description": "Panel containing the expandable collapsible content.",
+        "sourcePath": "src/elements/collapsible/collapsible-content.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "as",
+            "required": false,
+            "type": "\"div\" | undefined",
+            "description": "Element or component to render inner content as.",
+            "defaultValue": "div"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Content to render."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "forceMount",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Force mounting the content in the DOM even when closed.",
+            "defaultValue": "false"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "unmountOnHide",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether to unmount content when closed.",
+            "defaultValue": "true"
+          },
+          {
+            "name": "wrapperClass",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Additional class applied to the outer animated height wrapper."
+          },
+          {
+            "name": "wrapperRef",
+            "required": false,
+            "type": "((element: HTMLDivElement | undefined) => void) | undefined",
+            "description": "Ref callback for the outer animated height wrapper element."
+          },
+          {
+            "name": "wrapperStyle",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined",
+            "description": "Additional style applied to the outer animated height wrapper."
+          }
+        ],
+        "inherited": []
+      }
+    }
+  ]
 }

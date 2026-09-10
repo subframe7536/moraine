@@ -157,7 +157,7 @@
           {
             "name": "as",
             "required": false,
-            "type": "T | undefined",
+            "type": "\"button\" | undefined",
             "description": "Element or component to render as.",
             "defaultValue": "button"
           },
@@ -182,52 +182,52 @@
           {
             "name": "onBlur",
             "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, FocusEvent> | undefined"
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, FocusEvent> | undefined"
           },
           {
             "name": "onClick",
             "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, MouseEvent> | undefined"
           },
           {
             "name": "onContextMenu",
             "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, MouseEvent> | undefined"
           },
           {
             "name": "onKeyDown",
             "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, KeyboardEvent> | undefined"
           },
           {
             "name": "onKeyUp",
             "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, KeyboardEvent> | undefined"
           },
           {
             "name": "onPointerCancel",
             "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
           },
           {
             "name": "onPointerDown",
             "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
           },
           {
             "name": "onPointerMove",
             "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
           },
           {
             "name": "onPointerUp",
             "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
           },
           {
             "name": "ref",
             "required": false,
-            "type": "JSX.HTMLElementTags[T] extends { ref?: infer Ref; } ? Ref : never | undefined"
+            "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
           },
           {
             "name": "style",
@@ -237,107 +237,7 @@
           {
             "name": "type",
             "required": false,
-            "type": "T extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : T extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : T extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined"
-          }
-        ],
-        "inherited": []
-      }
-    },
-    {
-      "component": {
-        "key": "dialog-close",
-        "name": "Dialog.Close",
-        "category": "overlays",
-        "polymorphic": true,
-        "sourcePath": "src/overlays/dialog/dialog.tsx"
-      },
-      "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "as",
-            "required": false,
-            "type": "T | undefined",
-            "description": "Element or component to render as.",
-            "defaultValue": "button"
-          },
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element",
-            "description": "Trigger label and visual content."
-          },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "disabled",
-            "required": false,
-            "type": "boolean | undefined",
-            "description": "Whether this trigger is disabled."
-          },
-          {
-            "name": "onBlur",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, FocusEvent> | undefined"
-          },
-          {
-            "name": "onClick",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
-          },
-          {
-            "name": "onContextMenu",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, MouseEvent> | undefined"
-          },
-          {
-            "name": "onKeyDown",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
-          },
-          {
-            "name": "onKeyUp",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, KeyboardEvent> | undefined"
-          },
-          {
-            "name": "onPointerCancel",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
-          },
-          {
-            "name": "onPointerDown",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
-          },
-          {
-            "name": "onPointerMove",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
-          },
-          {
-            "name": "onPointerUp",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<T>, PointerEvent> | undefined"
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[T] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
-          },
-          {
-            "name": "type",
-            "required": false,
-            "type": "T extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : T extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : T extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined"
+            "type": "\"button\" extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : \"button\" extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : \"button\" extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined"
           }
         ],
         "inherited": []
@@ -455,6 +355,106 @@
             "required": false,
             "type": "JSX.Element",
             "description": "Primary title displayed in the dialog header."
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "dialog-close",
+        "name": "Dialog.Close",
+        "category": "overlays",
+        "polymorphic": true,
+        "sourcePath": "src/overlays/dialog/dialog.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "as",
+            "required": false,
+            "type": "\"button\" | undefined",
+            "description": "Element or component to render as.",
+            "defaultValue": "button"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Trigger label and visual content."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "disabled",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether this trigger is disabled."
+          },
+          {
+            "name": "onBlur",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, FocusEvent> | undefined"
+          },
+          {
+            "name": "onClick",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, MouseEvent> | undefined"
+          },
+          {
+            "name": "onContextMenu",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, MouseEvent> | undefined"
+          },
+          {
+            "name": "onKeyDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onKeyUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onPointerCancel",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerMove",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "type",
+            "required": false,
+            "type": "\"button\" extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : \"button\" extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : \"button\" extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined"
           }
         ],
         "inherited": []

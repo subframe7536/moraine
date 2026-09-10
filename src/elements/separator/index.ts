@@ -1,2 +1,2 @@
-export * from './separator.types'
-export * from './separator'
+export type { SeparatorT, SeparatorProps } from './separator.types'
+export { Separator } from './separator'

@@ -29,14 +29,16 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
   const resolved = createComponentStyles('form', local)
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
-    const { defaultPrevented } = callHandler(event, local.onReset)
+    const form = local.of
+    callHandler(event, local.onReset)
 
-    if (!defaultPrevented) {
-      // Let the native reset and control-owned reset microtasks finish before
-      // Formisch restores the canonical input and metadata snapshot.
-      // oxlint-disable-next-line subf/solid-reactivity -- The reset event intentionally snapshots the current store later.
-      queueMicrotask(() => queueMicrotask(() => resetForm(local.of)))
-    }
+    // Native events can drain microtasks between listeners. Restore the store in
+    // the next task, after native controls and control-owned reset handlers finish.
+    setTimeout(() => {
+      if (!event.defaultPrevented) {
+        resetForm(form)
+      }
+    }, 0)
   }
 
   return (

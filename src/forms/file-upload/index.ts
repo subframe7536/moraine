@@ -1,2 +1,2 @@
-export * from './file-upload.types'
-export * from './file-upload'
+export type { FileUploadT, FileUploadProps } from './file-upload.types'
+export { FileUpload } from './file-upload'

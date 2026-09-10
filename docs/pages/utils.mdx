@@ -32,13 +32,13 @@ import {
   useDisclosureState,
   useEventListener,
   useEventListenerMap,
-  useListVirtualizer,
   useLoadingAutoClick,
   useSelectableCollectionNavigation,
   useTransitionPresence,
 } from 'moraine/utils'
 
 import { useId } from 'moraine'
+import { useListVirtualizer } from 'moraine/virtualizer'
 ```
 
 ### `useControllableValue`
@@ -73,6 +73,8 @@ const isMobile = createMediaQuery('(max-width: 768px)', false)
 ```
 
 ### `useListVirtualizer`
+
+Import this optional adapter from `moraine/virtualizer` and install `@tanstack/virtual-core`. Ordinary components and `moraine/utils` do not require it.
 
 Create a `virtualRender` adapter for `List`, `Select`, or `MultiSelect` based on `@tanstack/virtual-core`. Configure row measurement with `estimateSize` and forward `scrollToIndex` through Select or MultiSelect's `scrollToItem` prop when keyboard navigation must reveal an off-screen item.
 

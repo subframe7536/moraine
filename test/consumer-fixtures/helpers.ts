@@ -35,7 +35,7 @@ export interface IsolatedConsumer {
   root: string
 }
 
-export function createIsolatedConsumer(): IsolatedConsumer {
+export function createIsolatedConsumer(options: { virtualizer?: boolean } = {}): IsolatedConsumer {
   ensureBuild()
   const root = mkdtempSync(join(tmpdir(), 'moraine-consumer-'))
   const packageDir = join(root, 'node_modules', 'moraine')
@@ -67,11 +67,13 @@ export function createIsolatedConsumer(): IsolatedConsumer {
     join(root, 'node_modules', 'cn'),
     'junction',
   )
-  symlinkSync(
-    join(PROJECT_ROOT, 'node_modules', '@tanstack', 'virtual-core'),
-    join(root, 'node_modules', '@tanstack', 'virtual-core'),
-    'junction',
-  )
+  if (options.virtualizer !== false) {
+    symlinkSync(
+      join(PROJECT_ROOT, 'node_modules', '@tanstack', 'virtual-core'),
+      join(root, 'node_modules', '@tanstack', 'virtual-core'),
+      'junction',
+    )
+  }
 
   // Keep the consumer isolated while exercising the built package output.
   cpSync(join(PROJECT_ROOT, 'dist'), join(packageDir, 'dist'), { recursive: true })
@@ -118,6 +120,7 @@ const specifiers = [
   'moraine/unocss',
   'moraine/utils',
   'moraine/theme',
+  'moraine/virtualizer',
 ]
 
 const { createTheme, defaultTheme, emptyTheme } = await import('moraine/theme')

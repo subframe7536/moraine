@@ -96,9 +96,14 @@ export async function preprocessGenericTypeAliases(
   fileName: string,
 ): Promise<string> {
   const source = await parseTypeScript(fileName, text, 'ts')
+  const statements = source.program.body
+    .map((statement) =>
+      statement.type === 'ExportNamedDeclaration' ? statement.declaration : statement,
+    )
+    .filter((statement) => statement !== null)
   const genericAliases = new Map<string, GenericAliasInfo>()
 
-  for (const statement of source.program.body) {
+  for (const statement of statements) {
     if (
       statement.type !== 'TSTypeAliasDeclaration' ||
       statement.typeParameters?.params.length !== 1
@@ -124,7 +129,7 @@ export async function preprocessGenericTypeAliases(
   const referencedAliases = new Set<string>()
   const functionGenerics: GenericFunctionInfo[] = []
 
-  for (const statement of source.program.body) {
+  for (const statement of statements) {
     if (statement.type !== 'TSDeclareFunction' || statement.typeParameters?.params.length !== 1) {
       continue
     }

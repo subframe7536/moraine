@@ -8,9 +8,291 @@
     "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
     "kind": "composite"
   },
-  "slots": [],
+  "slots": [
+    {
+      "name": "root",
+      "description": "Frame that contains the sidebar and main regions.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "sidebar",
+      "description": "Sidebar region, rendered in a Sheet on mobile.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "sidebarHeader",
+      "description": "Header region inside the sidebar.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "sidebarBody",
+      "description": "Scrollable content region inside the sidebar.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "sidebarFooter",
+      "description": "Footer region inside the sidebar.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "main",
+      "description": "Main application content region.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    }
+  ],
   "props": {
-    "own": [],
+    "own": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element"
+      },
+      {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "SidebarFrameT.Classes | undefined"
+      },
+      {
+        "name": "isMobile",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled mobile mode. When omitted, `matchMedia` determines the value."
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
+        "name": "scrollThreshold",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Main scroll offset that changes `scrolled` to true.",
+        "defaultValue": "60"
+      },
+      {
+        "name": "side",
+        "required": false,
+        "type": "\"right\" | \"left\" | undefined",
+        "description": "Side occupied by the sidebar.",
+        "defaultValue": "left"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "SlotStyleValue | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "SidebarFrameT.Styles | undefined"
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"default\" | \"floating\" | \"inset\" | undefined"
+      }
+    ],
     "inherited": []
-  }
+  },
+  "primitives": [
+    {
+      "component": {
+        "key": "sidebar-frame-sidebar",
+        "name": "SidebarFrame.Sidebar",
+        "category": "navigation",
+        "polymorphic": false,
+        "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element"
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "sidebar-frame-sidebar-header",
+        "name": "SidebarFrame.SidebarHeader",
+        "category": "navigation",
+        "polymorphic": false,
+        "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element"
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "sidebar-frame-sidebar-body",
+        "name": "SidebarFrame.SidebarBody",
+        "category": "navigation",
+        "polymorphic": false,
+        "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element"
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "sidebar-frame-sidebar-footer",
+        "name": "SidebarFrame.SidebarFooter",
+        "category": "navigation",
+        "polymorphic": false,
+        "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element"
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "sidebar-frame-main",
+        "name": "SidebarFrame.Main",
+        "category": "navigation",
+        "polymorphic": false,
+        "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element"
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    }
+  ]
 }

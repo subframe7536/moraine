@@ -8,7 +8,12 @@ import { generateApiDoc, normalizePathForComparison, shouldIncludeInheritedGroup
 import type { IndexDoc } from './types'
 
 async function createTempProject(): Promise<string> {
-  return mkdtemp(path.join(tmpdir(), 'moraine-api-doc-'))
+  const root = await mkdtemp(path.join(tmpdir(), 'moraine-api-doc-'))
+  await writeFile(
+    path.join(root, 'package.json'),
+    JSON.stringify({ exports: { '.': { types: './dist/index.d.mts' } } }),
+  )
+  return root
 }
 
 async function writeProjectDts(projectRoot: string, content: string): Promise<void> {
@@ -44,10 +49,10 @@ describe('generateApiDoc', () => {
         projectRoot,
         `
 export { CompositeT } from './kinds.mjs'
-declare function Composite(props: {}): JSX.Element
-declare function Helper(props: {}): JSX.Element
-declare namespace SingleT { type Kind = 'single' }
-declare function Single(props: {}): JSX.Element
+export declare function Composite(props: {}): JSX.Element
+export declare function Helper(props: {}): JSX.Element
+export declare namespace SingleT { type Kind = 'single' }
+export declare function Single(props: {}): JSX.Element
 `,
       )
       await writeFile(
@@ -77,8 +82,8 @@ export declare namespace CompositeT { type Kind = 'composite' }
         await writeProjectDts(
           projectRoot,
           `
-declare namespace DemoT { type Kind = ${kind} }
-declare function Demo(props: {}): JSX.Element
+export declare namespace DemoT { type Kind = ${kind} }
+export declare function Demo(props: {}): JSX.Element
 `,
         )
         await expect(generateApiDoc(projectRoot)).rejects.toThrow(
@@ -99,7 +104,7 @@ declare function Demo(props: {}): JSX.Element
         path.join(projectRoot, 'dist/demo.d.mts'),
         `
 import type { DemoProps } from './props.mjs'
-declare function Demo(props: DemoProps): JSX.Element
+export declare function Demo(props: DemoProps): JSX.Element
 export { Demo }
 `,
       )
@@ -114,17 +119,37 @@ export interface DemoProps { title: string }
       const result = await generateApiDoc(projectRoot)
       expect(result?.componentDocs.has('demo')).toBe(true)
       expect(resultProps(result, 'demo').map((prop) => prop.name)).toContain('title')
+      await rm(path.join(projectRoot, 'dist/props.d.mts'))
+      await expect(generateApiDoc(projectRoot)).rejects.toThrow(
+        'Cannot resolve declaration import "./props.mjs"',
+      )
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }
   })
 
-  test('extracts components from the bundled public declaration entry', async () => {
+  test('extracts components from the public declaration graph', async () => {
     const projectRoot = path.resolve(import.meta.dirname, '../../..')
     const result = await generateApiDoc(projectRoot)
 
     expect(result?.componentDocs.size).toBeGreaterThan(0)
     expect(result?.componentDocs.has('button')).toBe(true)
+    expect(result?.componentDocs.get('button')?.slots).toHaveLength(5)
+    expect(result?.componentDocs.get('select')?.slots).toHaveLength(15)
+    expect(resultProps(result, 'select').map((prop) => prop.name)).toContain('onChange')
+    expect(resultProps(result, 'dialog').map((prop) => prop.name)).toContain('open')
+    expect(
+      result?.componentDocs.get('dialog')?.primitives?.map((doc) => doc.component.name),
+    ).toEqual(['Dialog.Trigger', 'Dialog.Content', 'Dialog.Close'])
+    expect(
+      result?.componentDocs.get('collapsible')?.primitives?.map((doc) => doc.component.name),
+    ).toEqual(['Collapsible.Trigger', 'Collapsible.Content'])
+    expect(result?.componentDocs.get('form')?.component.kind).toBe('single')
+    expect(resultProps(result, 'form').map((prop) => prop.name)).toContain('onSubmit')
+    expect(result?.componentDocs.get('form')?.primitives?.[0]?.component.name).toBe('form.Field')
+    expect(result?.componentDocs.has('avatar-face')).toBe(false)
+    expect(result?.componentDocs.has('render-component-or-element')).toBe(false)
+    expect(result?.componentDocs.has('collapsible-content')).toBe(false)
     const index = JSON.parse(
       await readFile(path.join(projectRoot, 'docs/pages/_api-index.json'), 'utf8'),
     ) as IndexDoc
@@ -164,6 +189,58 @@ export interface DemoProps { title: string }
     ])
   })
 
+  test('resolves renamed exports, namespace aliases, split metadata and cyclic barrels', async () => {
+    const projectRoot = await createTempProject()
+    try {
+      await writeProjectDts(projectRoot, `export * from './barrel.mjs'`)
+      await writeFile(
+        path.join(projectRoot, 'dist/barrel.d.mts'),
+        `
+        export * from './index.mjs'
+        export { InternalDemo as Demo } from './component.mjs'
+        export { Contract as DemoT } from './types.mjs'
+      `,
+      )
+      await writeFile(
+        path.join(projectRoot, 'dist/component.d.mts'),
+        `
+        import type * as Types from './types.mjs'
+        import type { Contract as Local } from './types.mjs'
+        export declare function InternalDemo(props: Local.Props): JSX.Element
+        export declare namespace InternalDemo { export { Content as Content } }
+        declare function Content(props: Types.Contract.Props): JSX.Element
+        declare function InternalHelper(props: {}): JSX.Element
+      `,
+      )
+      await writeFile(
+        path.join(projectRoot, 'dist/types.d.mts'),
+        `
+        export declare namespace Contract {
+          type Kind = 'composite'
+          interface Slot<T = unknown> { /** Primary element. */ root?: T }
+          interface Item { /** Item label. */ label: string }
+          interface Props { /** Display title. */ title: string }
+        }
+      `,
+      )
+      const result = await generateApiDoc(projectRoot)
+      expect([...result!.componentDocs.keys()]).toEqual(['demo'])
+      const doc = result!.componentDocs.get('demo')!
+      expect(doc.component.kind).toBe('composite')
+      expect(doc.props.own[0]).toMatchObject({
+        name: 'title',
+        type: 'string',
+        description: 'Display title.',
+      })
+      expect(doc.slots[0]).toMatchObject({ name: 'root', description: 'Primary element.' })
+      expect(doc.item?.props[0]?.name).toBe('label')
+      expect(doc.primitives?.[0]?.component.name).toBe('Demo.Content')
+      expect(doc.primitives?.[0]?.props.own[0]?.name).toBe('title')
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
+
   test('returns null when dist/index.d.mts is missing', async () => {
     const projectRoot = await createTempProject()
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -179,7 +256,7 @@ export interface DemoProps { title: string }
     await writeProjectDts(
       projectRoot,
       `
-declare namespace DemoT {
+export declare namespace DemoT {
   /** Items for demo. */
   interface Item {
     /** Label text. */
@@ -203,9 +280,9 @@ interface DemoProps {
   mode?: 'a' | 'b'
 }
 
-declare function Demo(props: DemoProps): JSX.Element
+export declare function Demo(props: DemoProps): JSX.Element
 
-declare namespace EmptyT {
+export declare namespace EmptyT {
   interface Item {}
   interface Slot {
     /** Root wrapper. */
@@ -218,7 +295,7 @@ interface EmptyProps {
   value?: number
 }
 
-declare function Empty(props: EmptyProps): JSX.Element
+export declare function Empty(props: EmptyProps): JSX.Element
 `,
     )
 
@@ -290,7 +367,7 @@ interface SharedSlots {
   /** Shared root. */
   root: RootRuntime
 }
-declare namespace DemoT {
+export declare namespace DemoT {
   type Slot = SharedSlots & {
     /** Two runtime nodes. */
     target: 'target' | 'target-alt'
@@ -299,7 +376,7 @@ declare namespace DemoT {
   }
 }
 interface DemoProps {}
-declare function Demo(props: DemoProps): JSX.Element
+export declare function Demo(props: DemoProps): JSX.Element
 `,
     )
 
@@ -333,9 +410,9 @@ declare function Demo(props: DemoProps): JSX.Element
     await writeProjectDts(
       invalidRoot,
       `
-declare namespace InvalidT { interface Slot { root: string } }
+export declare namespace InvalidT { interface Slot { root: string } }
 interface InvalidProps {}
-declare function Invalid(props: InvalidProps): JSX.Element
+export declare function Invalid(props: InvalidProps): JSX.Element
 `,
     )
     await expect(generateApiDoc(invalidRoot)).rejects.toThrow('literal union')
@@ -347,7 +424,7 @@ declare function Invalid(props: InvalidProps): JSX.Element
     await writeProjectDts(
       projectRoot,
       `
-declare namespace AliasT {
+export declare namespace AliasT {
   /** Alias-only items doc. */
   type Item = string | number
   interface Slot {
@@ -361,12 +438,12 @@ interface AliasProps {
 }
 
 //#region src/forms/alias/alias.d.ts
-declare function Alias(props: AliasProps): JSX.Element
+export declare function Alias(props: AliasProps): JSX.Element
 //#endregion
 
-declare function Helper(props: AliasProps): string
+export declare function Helper(props: AliasProps): string
 
-declare namespace PropOnlyT {
+export declare namespace PropOnlyT {
   interface Item {
     /** Identifier field. */
     id?: number
@@ -374,7 +451,7 @@ declare namespace PropOnlyT {
 }
 
 interface PropOnlyProps {}
-declare function PropOnly(props: PropOnlyProps): JSX.Element
+export declare function PropOnly(props: PropOnlyProps): JSX.Element
 `,
     )
 
@@ -417,7 +494,7 @@ declare function PropOnly(props: PropOnlyProps): JSX.Element
       `
 type GenericItems<T> = T[] | T[][]
 
-declare namespace CollectionT {
+export declare namespace CollectionT {
   interface SubItem {
     /** Label text. */
     label?: string
@@ -436,7 +513,7 @@ interface CollectionProps {
   items?: CollectionT.Item
 }
 
-declare function Collection(props: CollectionProps): JSX.Element
+export declare function Collection(props: CollectionProps): JSX.Element
 `,
     )
 
@@ -469,14 +546,14 @@ declare function Collection(props: CollectionProps): JSX.Element
       `
 import type { ExternalProps } from 'opaque-lib'
 
-declare namespace ExternalAliasT {
+export declare namespace ExternalAliasT {
   interface Slot {
     root: 'root'
   }
 }
 
 interface ExternalAliasProps extends ExternalProps {}
-declare function ExternalAlias(props: ExternalAliasProps): JSX.Element
+export declare function ExternalAlias(props: ExternalAliasProps): JSX.Element
 `,
     )
 
@@ -535,7 +612,7 @@ export interface ExternalProps {
       `
 import { m as ComponentOrElement } from './chunk.mjs'
 
-declare namespace RenderAliasT {
+export declare namespace RenderAliasT {
   interface RenderProps {
     active: boolean
   }
@@ -545,10 +622,14 @@ interface RenderAliasProps {
   itemRender?: ComponentOrElement<RenderAliasT.RenderProps>
 }
 
-declare function RenderAlias(props: RenderAliasProps): JSX.Element
+export declare function RenderAlias(props: RenderAliasProps): JSX.Element
 `,
     )
 
+    await writeFile(
+      path.join(projectRoot, 'dist/chunk.d.mts'),
+      'export type m<T> = (props: T) => JSX.Element',
+    )
     const props = resultProps(await generateApiDoc(projectRoot), 'render-alias')
 
     expect(props.find((prop) => prop.name === 'itemRender')?.type).toBe(
@@ -573,7 +654,7 @@ type DemoProps<T extends string = 'button'> = {
   nested?: { kind: T }
 } & BaseProps<T>;
 
-declare function Demo<T extends string = 'button'>(props: DemoProps<T>): JSX.Element
+export declare function Demo<T extends string = 'button'>(props: DemoProps<T>): JSX.Element
 `,
     )
 
@@ -596,7 +677,7 @@ declare function Demo<T extends string = 'button'>(props: DemoProps<T>): JSX.Ele
       projectRoot,
       `
 type ClassValue = string
-declare namespace JSX {
+export declare namespace JSX {
   interface CSSProperties {
     color?: string
   }
@@ -607,7 +688,7 @@ type BaseProps<Base, Variant, Classes, Styles> = Base & ([Variant] extends [neve
   styles?: Styles
 }
 
-declare namespace AliasButtonT {
+export declare namespace AliasButtonT {
   interface Slot<T = unknown> {
     /** Root wrapper. */
     root?: T
@@ -623,7 +704,7 @@ declare namespace AliasButtonT {
   interface Props extends BaseProps<Base, Variant, Classes, Styles> {}
 }
 
-declare function AliasButton(props: AliasButtonT.Props): JSX.Element
+export declare function AliasButton(props: AliasButtonT.Props): JSX.Element
 `,
     )
 
@@ -650,7 +731,7 @@ type BaseProps<Base, Classes, Styles> = Base & ([Classes] extends [never] ? {} :
   styles?: Styles
 })
 
-declare namespace EmptySlotsT {
+export declare namespace EmptySlotsT {
   interface Slot<_T = unknown> {}
   interface Base {
     open?: boolean
@@ -658,7 +739,7 @@ declare namespace EmptySlotsT {
   type Props = BaseProps<Base, never, never>
 }
 
-declare function EmptySlots(props: EmptySlotsT.Props): JSX.Element
+export declare function EmptySlots(props: EmptySlotsT.Props): JSX.Element
 `,
     )
 
@@ -675,7 +756,7 @@ declare function EmptySlots(props: EmptySlotsT.Props): JSX.Element
       projectRoot,
       `
 type ClassValue = string
-declare namespace JSX {
+export declare namespace JSX {
   interface CSSProperties {
     color?: string
   }
@@ -697,7 +778,7 @@ interface SharedRootProps {
   styles?: SharedStyles
 }
 
-declare namespace SharedMenuT {
+export declare namespace SharedMenuT {
   interface Slot extends SharedSlots {}
   type Variant = never
   type Classes = Slot<SlotClassValue>
@@ -706,7 +787,7 @@ declare namespace SharedMenuT {
   interface Props extends BaseProps<Base, Variant, Classes, Styles> {}
 }
 
-declare function SharedMenu(props: SharedMenuT.Props): JSX.Element
+export declare function SharedMenu(props: SharedMenuT.Props): JSX.Element
 `,
     )
 
@@ -753,7 +834,7 @@ type BaseProps<B, V, E, TClasses, TStyles> = B & ([V] extends [never] ? {} : V) 
   styles?: TStyles
 }
 
-declare namespace DialogT {
+export declare namespace DialogT {
   type Variant = never
   interface Classes {}
   interface Styles {}
@@ -764,7 +845,7 @@ declare namespace DialogT {
   interface Props extends BaseProps<Base, Variant, never, Classes, Styles> {}
 }
 
-declare function Dialog(props: DialogT.Props): JSX.Element
+export declare function Dialog(props: DialogT.Props): JSX.Element
 `,
     )
 

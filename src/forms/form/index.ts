@@ -1,4 +1,4 @@
-export * from './form.types'
-export * from './form'
-export * from './form-field.types'
-export * from './form-field'
+export type { FormT, FormProps } from './form.types'
+export { createForm } from './form'
+export type { FormFieldT, FormFieldProps } from './form-field.types'
+export { FormField } from './form-field'

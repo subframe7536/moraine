@@ -1,2 +1,2 @@
-export * from './breadcrumb'
-export * from './breadcrumb.types'
+export { Breadcrumb } from './breadcrumb'
+export type { BreadcrumbT, BreadcrumbProps } from './breadcrumb.types'

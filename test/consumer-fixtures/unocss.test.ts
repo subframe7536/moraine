@@ -12,8 +12,8 @@ import {
   readPublishedModules,
   removeIsolatedConsumer,
   verifyConsumerPackageExports,
-} from './helpers.ts'
-import type { IsolatedConsumer } from './helpers.ts'
+} from './helpers'
+import type { IsolatedConsumer } from './helpers'
 
 describe('isolated built-dist UnoCSS consumer', () => {
   let consumer: IsolatedConsumer

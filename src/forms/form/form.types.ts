@@ -3,8 +3,8 @@ import type {
   FormSchema,
   FormStore,
   SubmitEventHandler,
-  ValidationMode as FormischValidationMode,
 } from '@formisch/solid'
+import type * as Formisch from '@formisch/solid'
 import type { JSX, ValidComponent } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
@@ -19,7 +19,7 @@ export namespace FormT {
     Field: <T extends ValidComponent = 'div'>(props: FieldProps<TSchema, T>) => JSX.Element
   }
 
-  export type ValidationMode = FormischValidationMode
+  export type ValidationMode = Formisch.ValidationMode
 
   export interface Slot<T = unknown> {
     /** Form root container. */

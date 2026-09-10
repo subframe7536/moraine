@@ -1,4 +1,4 @@
-export * from './avatar'
-export * from './avatar-group'
-export * from './avatar.types'
-export * from './avatar-group.types'
+export { Avatar } from './avatar'
+export { AvatarGroup } from './avatar-group'
+export type { AvatarT, AvatarProps } from './avatar.types'
+export type { AvatarGroupT, AvatarGroupProps } from './avatar-group.types'

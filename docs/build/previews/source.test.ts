@@ -34,7 +34,7 @@ export function BasicExample() {
   })
 
   test('converts subpath imports (@src/utils.ts, @src/unocss, @src/elements/...)', async () => {
-    const source = `import { useListVirtualizer } from '@src/utils.ts'
+    const source = `import { useListVirtualizer } from '@src/virtualizer.ts'
 import { unocssPreset } from '@src/unocss'
 import { Button } from '@src/elements/button/button.tsx'
 import '@src/icon.css'
@@ -43,7 +43,7 @@ export const VirtualList = () => <div />
 `
 
     expect(await resolvePreviewComponentSource(source, 'VirtualList', parsePreviewCode)).toBe(
-      `import { useListVirtualizer } from 'moraine/utils'
+      `import { useListVirtualizer } from 'moraine/virtualizer'
 import { unocssPreset } from 'moraine/unocss'
 import { Button } from 'moraine'
 import 'moraine/icon.css'

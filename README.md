@@ -92,6 +92,14 @@ A Provider without `theme` inherits its parent theme, or uses empty presentation
 
 Input and Textarea forward native attributes and events to their editable controls. `ref`, `class`, and `style` belong to the wrapper; `inputRef` and `textareaRef` target the native control. `onChange` receives the native event, while `onValueChange` receives the normalized value.
 
+## Package entry points
+
+Import every component and `MoraineProvider` from `moraine`. The package preserves ESM module boundaries so production bundlers can remove unused components; component subpaths and internal files are not public APIs.
+
+Use `moraine/theme` for theme authoring and official presentation, `moraine/utils` for shared hooks, and `moraine/unocss` or `moraine/tailwind` for styling integration. Solid-aware bundlers select the preserved JSX entry for client or server compilation; other bundlers use the compiled browser ESM entry.
+
+The optional `useListVirtualizer` adapter is available from `moraine/virtualizer` and requires `@tanstack/virtual-core`. It is not exported by `moraine/utils`.
+
 ## Development
 
 ```bash

@@ -18,6 +18,8 @@ import {
 } from 'solid-js'
 import { createStore, reconcile } from 'solid-js/store'
 
+import type { ListT } from '../elements/list/list.types'
+
 export type ListVirtualizerOptions<
   TItem,
   TScrollElement extends HTMLElement = HTMLElement,
@@ -39,22 +41,9 @@ export type VirtualRenderProps<
   TItem,
   TScrollElement extends HTMLElement = HTMLElement,
   TItemElement extends HTMLElement = HTMLElement,
-> = {
-  /** Complete reactive collection, including structural entries such as group labels. */
-  readonly entries: readonly TItem[]
-  /** Current scroll container, or undefined while it is not mounted. */
-  readonly scrollElement: TScrollElement | undefined
-  /** Renders an item and forwards optional attributes to its final row element. */
-  render: (item: TItem, index: number, props?: RowProps<TItemElement>) => JSX.Element
-}
+> = ListT.VirtualRenderProps<TItem, TScrollElement, TItemElement>
 
-export type RowProps<TItemElement extends HTMLElement = HTMLElement> = Omit<
-  JSX.HTMLAttributes<TItemElement>,
-  'ref'
-> & {
-  ref?: (element: TItemElement) => void
-  'data-index'?: number | string
-}
+export type RowProps<TItemElement extends HTMLElement = HTMLElement> = ListT.RowProps<TItemElement>
 
 export type ListVirtualizerReturn<
   TItem,

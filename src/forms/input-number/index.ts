@@ -1,2 +1,2 @@
-export * from './input-number'
-export * from './input-number.types'
+export { InputNumber } from './input-number'
+export type { InputNumberT, InputNumberProps } from './input-number.types'

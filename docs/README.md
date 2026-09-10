@@ -5,7 +5,7 @@ The docs app is a Vite + SolidJS application using `solid-file-router` for file-
 ## Build Pipeline
 
 - `docs/build/plugin.ts` owns docs-specific build work.
-- `buildStart` regenerates component API JSON from `dist/index.d.mts`.
+- `configResolved` regenerates component API JSON from the public root declaration entry in `package.json`, following its declaration module graph. Namespace contracts and attached members are resolved across files; source JSX supplies slot attributes.
 - `docs/build/markdown/page.ts` configures the built-in `mdxRouteProvider` with docs metadata, previews, code tabs, and rendered Markdown layout.
 - `solid-file-router` discovers `docs/routes` through its built-in `fsRouteProvider`, discovers `docs/pages/**/*.mdx` through its built-in `mdxRouteProvider`, provides `virtual:routes`, and prerenders static HTML with its `ssg` option.
 

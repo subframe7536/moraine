@@ -152,13 +152,13 @@
       {
         "name": "statusRender",
         "required": false,
-        "type": "ComponentOrElement<ProgressT.StatusRenderProps> | undefined",
+        "type": "ComponentOrElement<ProgressT.StatusRenderProps>",
         "description": "Custom render function for the status label."
       },
       {
         "name": "stepRender",
         "required": false,
-        "type": "ComponentOrElement<ProgressT.StepRenderProps> | undefined",
+        "type": "ComponentOrElement<ProgressT.StepRenderProps>",
         "description": "Custom render function for each step when `max` is an array."
       },
       {

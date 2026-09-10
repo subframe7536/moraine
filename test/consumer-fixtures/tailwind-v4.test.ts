@@ -13,8 +13,8 @@ import {
   removeIsolatedConsumer,
   resolveStylesheet,
   verifyConsumerPackageExports,
-} from './helpers.ts'
-import type { IsolatedConsumer } from './helpers.ts'
+} from './helpers'
+import type { IsolatedConsumer } from './helpers'
 
 const CANDIDATES = [
   'data-disabled:opacity-64',

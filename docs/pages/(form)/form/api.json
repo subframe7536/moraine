@@ -1,0 +1,270 @@
+{
+  "component": {
+    "key": "form",
+    "name": "Form",
+    "category": "forms",
+    "polymorphic": false,
+    "sourcePath": "src/forms/form/form.tsx",
+    "kind": "single"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Form root container.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-submitting",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
+      "ariaAttributes": []
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element"
+      },
+      {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "onSubmit",
+        "required": false,
+        "type": "SubmitEventHandler<TSchema> | undefined",
+        "description": "Called with validated schema output and the native submit event."
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "SlotStyleValue | undefined"
+      }
+    ],
+    "inherited": []
+  },
+  "primitives": [
+    {
+      "component": {
+        "key": "form-field",
+        "name": "form.Field",
+        "category": "forms",
+        "polymorphic": true,
+        "description": "Form field wrapper providing label, description, and validation message layout.",
+        "sourcePath": "src/forms/form/form-field.tsx",
+        "kind": "single"
+      },
+      "slots": [
+        {
+          "name": "root",
+          "description": "Field wrapper that links label, control, description, and messages.",
+          "cssVariables": [],
+          "dataAttributes": [],
+          "ariaAttributes": []
+        },
+        {
+          "name": "wrapper",
+          "description": "Inner wrapper that arranges label, control, helper text, and messages.",
+          "cssVariables": [],
+          "dataAttributes": [],
+          "ariaAttributes": []
+        },
+        {
+          "name": "labelWrapper",
+          "description": "Row that groups the field label and optional hint.",
+          "cssVariables": [],
+          "dataAttributes": [],
+          "ariaAttributes": []
+        },
+        {
+          "name": "label",
+          "description": "Accessible field label associated with the control.",
+          "cssVariables": [],
+          "dataAttributes": [
+            {
+              "name": "data-required",
+              "required": false,
+              "type": "string | undefined",
+              "description": "Present when the field input is required."
+            }
+          ],
+          "ariaAttributes": []
+        },
+        {
+          "name": "container",
+          "description": "Region that contains the wrapped form control.",
+          "cssVariables": [],
+          "dataAttributes": [
+            {
+              "name": "data-has-text",
+              "required": false,
+              "type": "string | undefined",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ],
+          "ariaAttributes": []
+        },
+        {
+          "name": "description",
+          "description": "Helper text associated with the control.",
+          "cssVariables": [],
+          "dataAttributes": [],
+          "ariaAttributes": []
+        },
+        {
+          "name": "error",
+          "description": "Validation error message region for the field.",
+          "cssVariables": [],
+          "dataAttributes": [],
+          "ariaAttributes": []
+        },
+        {
+          "name": "hint",
+          "description": "Short hint rendered beside the field label.",
+          "cssVariables": [],
+          "dataAttributes": [],
+          "ariaAttributes": []
+        },
+        {
+          "name": "help",
+          "description": "Additional guidance rendered below the control.",
+          "cssVariables": [],
+          "dataAttributes": [],
+          "ariaAttributes": []
+        }
+      ],
+      "props": {
+        "own": [
+          {
+            "name": "as",
+            "required": false,
+            "type": "\"div\" | undefined",
+            "description": "The HTML element or component to render as.",
+            "defaultValue": "div"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "ComponentOrElement<FormFieldT.RenderContext>",
+            "description": "Children of the field, can be a render function."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "classes",
+            "required": false,
+            "type": "FormFieldT.Classes | undefined"
+          },
+          {
+            "name": "description",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Description text shown below the label."
+          },
+          {
+            "name": "disabled",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether controls inherit a disabled state."
+          },
+          {
+            "name": "error",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Custom error message or force error state."
+          },
+          {
+            "name": "form",
+            "required": false,
+            "type": "FormStore<TSchema extends FormSchema ? TSchema : any> | undefined",
+            "description": "Form store to bind field state. Provided automatically by `<form.Field>`."
+          },
+          {
+            "name": "help",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Help text shown below the control when no error is present."
+          },
+          {
+            "name": "hint",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Hint text shown near the label."
+          },
+          {
+            "name": "id",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Unique identifier for the form field."
+          },
+          {
+            "name": "label",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Label for the field."
+          },
+          {
+            "name": "name",
+            "required": false,
+            "type": "FormFieldT.Name<TSchema> | undefined",
+            "description": "The name of the field (key in form state)."
+          },
+          {
+            "name": "orientation",
+            "required": false,
+            "type": "\"horizontal\" | \"vertical\" | undefined",
+            "description": "Visual layout direction.",
+            "defaultValue": "vertical"
+          },
+          {
+            "name": "readOnly",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether controls inherit a read-only state."
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "required",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether the field is required.",
+            "defaultValue": "false"
+          },
+          {
+            "name": "size",
+            "required": false,
+            "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+            "description": "Visual size of the component.",
+            "defaultValue": "md"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "styles",
+            "required": false,
+            "type": "FormFieldT.Styles | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    }
+  ]
+}

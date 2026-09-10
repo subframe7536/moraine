@@ -1,2 +1,2 @@
-export * from './list.types'
-export * from './list'
+export type { ListT, ListProps } from './list.types'
+export { List } from './list'

@@ -246,5 +246,160 @@
       }
     ],
     "inherited": []
-  }
+  },
+  "primitives": [
+    {
+      "component": {
+        "key": "resizable-panel",
+        "name": "Resizable.Panel",
+        "category": "elements",
+        "polymorphic": false,
+        "sourcePath": "src/elements/resizable/resizable.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Content rendered inside the panel."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "collapsible",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether the panel is collapsible.\nThis prop is reactive; toggling `true/false` can be used as a simple collapse signal.",
+            "defaultValue": "false"
+          },
+          {
+            "name": "collapsibleMin",
+            "required": false,
+            "type": "ResizableSize | undefined",
+            "description": "Size of the panel when collapsed.\nOnly works when `collapsible` is true.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+            "defaultValue": "0"
+          },
+          {
+            "name": "defaultSize",
+            "required": false,
+            "type": "ResizableSize | undefined",
+            "description": "Default size of the panel (uncontrolled).\n- Use string as percent, like `20%`\n- Use number as px, like `328`"
+          },
+          {
+            "name": "max",
+            "required": false,
+            "type": "ResizableSize | undefined",
+            "description": "Maximum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+            "defaultValue": "1"
+          },
+          {
+            "name": "min",
+            "required": false,
+            "type": "ResizableSize | undefined",
+            "description": "Minimum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
+            "defaultValue": "0"
+          },
+          {
+            "name": "onCollapse",
+            "required": false,
+            "type": "((size: number) => void) | undefined",
+            "description": "Callback when the panel is collapsed."
+          },
+          {
+            "name": "onExpand",
+            "required": false,
+            "type": "((size: number) => void) | undefined",
+            "description": "Callback when the panel is expanded."
+          },
+          {
+            "name": "onResize",
+            "required": false,
+            "type": "((size: number) => void) | undefined",
+            "description": "Callback when the panel is resized."
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "resizable",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether the panel is resizable.",
+            "defaultValue": "true"
+          },
+          {
+            "name": "size",
+            "required": false,
+            "type": "ResizableSize | undefined",
+            "description": "Current size of the panel (controlled).\n- Use string as percent, like `20%`\n- Use number as px, like `328`"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "resizable-handle",
+        "name": "Resizable.Handle",
+        "category": "elements",
+        "polymorphic": false,
+        "sourcePath": "src/elements/resizable/resizable.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "action",
+            "required": false,
+            "type": "\"resize\" | \"collapse\" | undefined",
+            "description": "Handle interaction behavior.",
+            "defaultValue": "resize"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "ComponentOrElement<ResizableT.HandleContext>",
+            "description": "Custom grip content, or a component receiving the live handle state."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "intersection",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether this handle participates in intersection resizing.",
+            "defaultValue": "false"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    }
+  ]
 }

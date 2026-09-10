@@ -4,7 +4,6 @@ import { Dynamic } from 'solid-js/web'
 
 import { useCn } from '../../shared/provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
-import type { RowProps as BaseRowProps } from '../../shared/use-list-virtualizer'
 
 import type { ListProps, ListT } from './list.types'
 
@@ -69,7 +68,7 @@ export function List<
             component={virtualRender()}
             entries={local.items ?? []}
             scrollElement={scrollElement()}
-            render={(item: TItem, index: number, rowProps?: BaseRowProps<TItemElement>) =>
+            render={(item: TItem, index: number, rowProps?: ListT.RowProps<TItemElement>) =>
               renderComponentOrElement(local.itemRender, {
                 get item() {
                   return item

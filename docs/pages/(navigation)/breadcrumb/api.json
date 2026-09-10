@@ -232,7 +232,7 @@
       {
         "name": "itemRender",
         "required": false,
-        "type": "ComponentOrElement<BreadcrumbT.ItemRenderProps> | undefined",
+        "type": "ComponentOrElement<BreadcrumbT.ItemRenderProps>",
         "description": "Custom renderer for individual breadcrumb items."
       },
       {

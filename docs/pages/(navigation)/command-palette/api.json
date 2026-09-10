@@ -279,7 +279,7 @@
       {
         "name": "leadingRender",
         "required": false,
-        "type": "ComponentOrElement<CommandPaletteT.ItemRenderProps> | undefined",
+        "type": "ComponentOrElement<CommandPaletteT.ItemRenderProps>",
         "description": "Custom visual rendered at the start of the item."
       },
       {
@@ -291,7 +291,7 @@
       {
         "name": "trailingRender",
         "required": false,
-        "type": "ComponentOrElement<CommandPaletteT.ItemRenderProps> | undefined",
+        "type": "ComponentOrElement<CommandPaletteT.ItemRenderProps>",
         "description": "Custom visual rendered at the end of the item."
       },
       {
@@ -353,7 +353,7 @@
       {
         "name": "emptyRender",
         "required": false,
-        "type": "ComponentOrElement<CommandPaletteT.EmptyRenderProps<TItem>> | undefined",
+        "type": "ComponentOrElement<CommandPaletteT.EmptyRenderProps<TItem>>",
         "description": "Custom empty state renderer."
       },
       {
@@ -365,7 +365,7 @@
       {
         "name": "footerRender",
         "required": false,
-        "type": "ComponentOrElement<CommandPaletteT.FooterRenderProps<TItem>> | undefined",
+        "type": "ComponentOrElement<CommandPaletteT.FooterRenderProps<TItem>>",
         "description": "Custom footer renderer."
       },
       {
@@ -402,7 +402,7 @@
       {
         "name": "itemRender",
         "required": false,
-        "type": "ComponentOrElement<CommandPaletteT.ItemRenderProps<TItem>> | undefined",
+        "type": "ComponentOrElement<CommandPaletteT.ItemRenderProps<TItem>>",
         "description": "Custom command row content renderer."
       },
       {

@@ -35,6 +35,16 @@ interface ImportBinding {
   specifier: string
 }
 
+interface ExportBinding {
+  localName: string
+  specifier?: string
+}
+
+interface SymbolReference {
+  name: string
+  unit: SourceUnit
+}
+
 interface SourceUnit {
   fileName: string
   moduleName: string
@@ -42,6 +52,10 @@ interface SourceUnit {
   declarations: Map<string, DeclarationRef[]>
   imports: Map<string, ImportBinding>
   variables: Map<string, ESTree.VariableDeclarator>
+  functions: Map<string, DeclareFunctionNode>
+  namespaces: Set<string>
+  exports: Map<string, ExportBinding>
+  exportStars: string[]
 }
 
 interface DeclarationRef {
@@ -188,6 +202,32 @@ function collectUnitDeclarations(unit: SourceUnit): void {
 
   const collectStatements = (statements: ProgramStatement[], namespace?: string) => {
     for (const statement of statements) {
+      const qualify = (name: string) => (namespace ? `${namespace}.${name}` : name)
+      if (statement.type === 'ExportAllDeclaration') {
+        if (statement.exported) {
+          unit.exports.set(qualify(getIdentifierName(statement.exported)!), {
+            localName: '*',
+            specifier: statement.source.value,
+          })
+        } else {
+          unit.exportStars.push(statement.source.value)
+        }
+      }
+      if (statement.type === 'ExportNamedDeclaration') {
+        for (const specifier of statement.specifiers) {
+          unit.exports.set(qualify(getIdentifierName(specifier.exported)!), {
+            localName: getIdentifierName(specifier.local)!,
+            ...(statement.source ? { specifier: statement.source.value } : {}),
+          })
+        }
+        const declared = statement.declaration
+        if (declared && 'id' in declared) {
+          const name = getIdentifierName(declared.id)
+          if (name) {
+            unit.exports.set(qualify(name), { localName: qualify(name) })
+          }
+        }
+      }
       const declaration = declarationFromStatement(statement)
       if (!declaration) {
         continue
@@ -205,9 +245,14 @@ function collectUnitDeclarations(unit: SourceUnit): void {
         const name = entityNameToText(declaration.id)
         if (name) {
           const nestedNamespace = namespace ? `${namespace}.${name}` : name
+          unit.namespaces.add(nestedNamespace)
           collectStatements(declaration.body.body, nestedNamespace)
         }
         continue
+      }
+
+      if (declaration.type === 'TSDeclareFunction' && declaration.id) {
+        unit.functions.set(qualify(declaration.id.name), declaration)
       }
 
       if (declaration.type === 'VariableDeclaration') {
@@ -215,6 +260,9 @@ function collectUnitDeclarations(unit: SourceUnit): void {
           const name = getIdentifierName(variable.id)
           if (name) {
             unit.variables.set(namespace ? `${namespace}.${name}` : name, variable)
+            if (statement.type === 'ExportNamedDeclaration') {
+              unit.exports.set(qualify(name), { localName: qualify(name) })
+            }
           }
         }
       }
@@ -556,6 +604,10 @@ class DeclarationAnalyzer {
       declarations: new Map(),
       imports: new Map(),
       variables: new Map(),
+      functions: new Map(),
+      namespaces: new Set(),
+      exports: new Map(),
+      exportStars: [],
     }
     collectUnitDeclarations(mainUnit)
     return new DeclarationAnalyzer(projectRoot, mainUnit)
@@ -572,7 +624,8 @@ class DeclarationAnalyzer {
     }
 
     const promise = (async () => {
-      const source = await parseTypeScript(fileName, readFileSync(fileName, 'utf8'), 'ts')
+      const content = await preprocessGenericTypeAliases(readFileSync(fileName, 'utf8'), fileName)
+      const source = await parseTypeScript(fileName, content, 'ts')
       const unit: SourceUnit = {
         fileName,
         moduleName,
@@ -580,6 +633,10 @@ class DeclarationAnalyzer {
         declarations: new Map(),
         imports: new Map(),
         variables: new Map(),
+        functions: new Map(),
+        namespaces: new Set(),
+        exports: new Map(),
+        exportStars: [],
       }
       collectUnitDeclarations(unit)
       return unit
@@ -592,14 +649,17 @@ class DeclarationAnalyzer {
     if (specifier.startsWith('.')) {
       const base = path.resolve(path.dirname(unit.fileName), specifier)
       return [
-        base.replace(/(?<!\.d)\.mjs$/, '.d.mts').replace(/(?<!\.d)\.js$/, '.d.ts'),
+        base
+          .replace(/(?<!\.d)\.mjs$/, '.d.mts')
+          .replace(/(?<!\.d)\.cjs$/, '.d.cts')
+          .replace(/(?<!\.d)\.js$/, '.d.ts'),
         base,
         `${base}.d.ts`,
         `${base}.d.mts`,
         `${base}.d.cts`,
         path.join(base, 'index.d.ts'),
         path.join(base, 'index.d.mts'),
-      ].find(existsSync)
+      ].find((fileName) => /\.d\.[cm]?ts$/.test(fileName) && existsSync(fileName))
     }
 
     const packageName = packageNameFromSpecifier(specifier)
@@ -622,6 +682,11 @@ class DeclarationAnalyzer {
   ): Promise<SourceUnit | undefined> {
     const fileName = this.#resolveImportPath(unit, binding.specifier)
     if (!fileName) {
+      if (binding.specifier.startsWith('.')) {
+        throw new Error(
+          `Cannot resolve declaration import "${binding.specifier}" in ${unit.fileName}`,
+        )
+      }
       return undefined
     }
     const moduleName = binding.specifier.startsWith('.')
@@ -630,36 +695,111 @@ class DeclarationAnalyzer {
     return this.#loadUnit(fileName, moduleName)
   }
 
+  async resolveSymbol(
+    unit: SourceUnit,
+    name: string,
+    visited = new Set<string>(),
+  ): Promise<SymbolReference | undefined> {
+    const key = `${unit.fileName}:${name}`
+    if (visited.has(key)) {
+      return undefined
+    }
+    const nextVisited = new Set(visited).add(key)
+    if (
+      unit.declarations.has(name) ||
+      unit.functions.has(name) ||
+      unit.namespaces.has(name) ||
+      unit.variables.has(name)
+    ) {
+      return { unit, name }
+    }
+
+    const [head, ...tail] = name.split('.')
+    const imported = unit.imports.get(head!)
+    if (imported) {
+      const target = await this.#resolveImportedUnit(unit, imported)
+      if (!target) {
+        return undefined
+      }
+      const targetName = [imported.importedName === '*' ? '' : imported.importedName, ...tail]
+        .filter(Boolean)
+        .join('.')
+      return this.resolveSymbol(target, targetName, nextVisited)
+    }
+
+    const exported = unit.exports.get(name) ?? unit.exports.get(head!)
+    if (exported) {
+      const suffix = unit.exports.has(name) ? [] : tail
+      const targetName = [exported.localName === '*' ? '' : exported.localName, ...suffix]
+        .filter(Boolean)
+        .join('.')
+      const target = exported.specifier
+        ? await this.#resolveImportedUnit(unit, {
+            importedName: exported.localName,
+            specifier: exported.specifier,
+          })
+        : unit
+      if (target) {
+        return this.resolveSymbol(target, targetName, nextVisited)
+      }
+    }
+
+    for (const specifier of unit.exportStars) {
+      const target = await this.#resolveImportedUnit(unit, { importedName: '*', specifier })
+      if (!target) {
+        continue
+      }
+      const resolved = await this.resolveSymbol(target, name, nextVisited)
+      if (resolved) {
+        return resolved
+      }
+    }
+    return undefined
+  }
+
+  async publicSymbols(
+    unit = this.mainUnit,
+    visited = new Set<string>(),
+  ): Promise<Map<string, SymbolReference>> {
+    const symbols = new Map<string, SymbolReference>()
+    if (visited.has(unit.fileName)) {
+      return symbols
+    }
+    const nextVisited = new Set(visited).add(unit.fileName)
+    for (const specifier of unit.exportStars) {
+      const target = await this.#resolveImportedUnit(unit, { importedName: '*', specifier })
+      if (!target) {
+        throw new Error(`Cannot resolve declaration export "${specifier}" in ${unit.fileName}`)
+      }
+      for (const [name, reference] of await this.publicSymbols(target, nextVisited)) {
+        if (name !== 'default') {
+          symbols.set(name, reference)
+        }
+      }
+    }
+    for (const name of unit.exports.keys()) {
+      if (name.includes('.')) {
+        continue
+      }
+      const reference = await this.resolveSymbol(unit, name)
+      if (!reference) {
+        throw new Error(`Cannot resolve public declaration "${name}" in ${unit.fileName}`)
+      }
+      symbols.set(name, reference)
+    }
+    return symbols
+  }
+
   async #findDeclarations(name: string, context: ResolveContext): Promise<DeclarationRef[]> {
-    const localNames = name.includes('.')
-      ? [name]
-      : [context.namespace ? `${context.namespace}.${name}` : '', name].filter(Boolean)
-    for (const localName of localNames) {
-      const declarations = context.unit.declarations.get(localName)
+    const names = [context.namespace ? `${context.namespace}.${name}` : '', name].filter(Boolean)
+    for (const candidate of names) {
+      const reference = await this.resolveSymbol(context.unit, candidate)
+      const declarations = reference?.unit.declarations.get(reference.name)
       if (declarations?.length) {
         return declarations
       }
     }
-
-    if (name.includes('.')) {
-      const [head, ...tail] = name.split('.')
-      const binding = head ? context.unit.imports.get(head) : undefined
-      if (binding?.importedName === '*') {
-        const importedUnit = await this.#resolveImportedUnit(context.unit, binding)
-        return importedUnit?.declarations.get(tail.join('.')) ?? []
-      }
-      return []
-    }
-
-    const binding = context.unit.imports.get(name)
-    if (!binding) {
-      return []
-    }
-    const importedUnit = await this.#resolveImportedUnit(context.unit, binding)
-    if (!importedUnit) {
-      return []
-    }
-    return importedUnit.declarations.get(binding.importedName) ?? []
+    return []
   }
 
   static #declarationEnvironment(
@@ -1099,14 +1239,14 @@ class DeclarationAnalyzer {
     return [...new Set(values)]
   }
 
-  async extractSlotDocs(namespace: string): Promise<SlotDefinitionDoc[]> {
-    const declarations = this.mainUnit.declarations.get(`${namespace}.Slot`) ?? []
+  async extractSlotDocs(namespace: string, unit: SourceUnit): Promise<SlotDefinitionDoc[]> {
+    const declarations = unit.declarations.get(`${namespace}.Slot`) ?? []
     const docs: SlotDefinitionDoc[] = []
     for (const declaration of declarations) {
       const properties = await this.#resolveNamedProperties(
         `${namespace}.Slot`,
         [],
-        { unit: this.mainUnit, namespace: undefined, env: new Map() },
+        { unit, namespace: undefined, env: new Map() },
         new Set(),
       )
       if (declaration.node.type === 'TSTypeAliasDeclaration' && properties.length === 0) {
@@ -1127,8 +1267,8 @@ class DeclarationAnalyzer {
     return uniqueSlotDefinitions(docs)
   }
 
-  async extractItemDoc(namespace: string): Promise<ItemDoc | undefined> {
-    const declaration = this.mainUnit.declarations.get(`${namespace}.Item`)?.[0]
+  async extractItemDoc(namespace: string, unit: SourceUnit): Promise<ItemDoc | undefined> {
+    const declaration = unit.declarations.get(`${namespace}.Item`)?.[0]
     if (!declaration) {
       return undefined
     }
@@ -1414,57 +1554,66 @@ interface ComponentMetadata {
   items: Map<string, ItemDoc>
   slots: Map<string, SlotDefinitionDoc[]>
   slotOverrideTypes: Map<string, ReadonlySet<string>>
+  kinds: Map<string, NonNullable<ComponentIndexEntry['kind']>>
 }
 
-async function collectNamespaceMetadata(analyzer: DeclarationAnalyzer): Promise<ComponentMetadata> {
-  const namespaceNames = new Set<string>()
-  for (const name of analyzer.mainUnit.declarations.keys()) {
-    const namespace = name.split('.')[0]
-    if (namespace?.endsWith('T')) {
-      namespaceNames.add(namespace)
-    }
-  }
-
+async function collectNamespaceMetadata(
+  analyzer: DeclarationAnalyzer,
+  symbols: ReadonlyMap<string, SymbolReference>,
+): Promise<ComponentMetadata> {
   const items = new Map<string, ItemDoc>()
   const slots = new Map<string, SlotDefinitionDoc[]>()
   const slotOverrideTypes = new Map<string, ReadonlySet<string>>()
-  await Promise.all(
-    [...namespaceNames].map(async (namespace) => {
-      const componentName = namespace.slice(0, -1)
-      const overrideTypes = new Set<string>()
-      if (analyzer.mainUnit.declarations.has(`${namespace}.Classes`)) {
-        overrideTypes.add('Classes')
-      }
-      if (analyzer.mainUnit.declarations.has(`${namespace}.Styles`)) {
-        overrideTypes.add('Styles')
-      }
-      if (overrideTypes.size > 0) {
-        slotOverrideTypes.set(componentName, overrideTypes)
-      }
+  const kinds = new Map<string, NonNullable<ComponentIndexEntry['kind']>>()
 
-      const [slotDocs, itemDoc] = await Promise.all([
-        analyzer.extractSlotDocs(namespace),
-        analyzer.extractItemDoc(namespace),
-      ])
-      if (slotDocs.length > 0) {
-        slots.set(componentName, slotDocs)
+  for (const [name, { unit, name: namespace }] of symbols) {
+    if (!name.endsWith('T') || !unit.namespaces.has(namespace)) {
+      continue
+    }
+    const componentName = name.slice(0, -1)
+    const overrideTypes = new Set<string>()
+    for (const type of ['Classes', 'Styles']) {
+      if (unit.declarations.has(`${namespace}.${type}`)) {
+        overrideTypes.add(type)
       }
-      if (itemDoc) {
-        items.set(componentName, itemDoc)
+    }
+    slotOverrideTypes.set(componentName, overrideTypes)
+    for (const { node } of unit.declarations.get(`${namespace}.Kind`) ?? []) {
+      if (
+        node.type !== 'TSTypeAliasDeclaration' ||
+        node.typeAnnotation.type !== 'TSLiteralType' ||
+        node.typeAnnotation.literal.type !== 'Literal' ||
+        (node.typeAnnotation.literal.value !== 'single' &&
+          node.typeAnnotation.literal.value !== 'composite')
+      ) {
+        throw new Error(`${namespace}.Kind must be the literal type 'single' or 'composite'`)
       }
-    }),
-  )
-  return { items, slots, slotOverrideTypes }
+      kinds.set(componentName, node.typeAnnotation.literal.value)
+    }
+    const [slotDocs, itemDoc] = await Promise.all([
+      analyzer.extractSlotDocs(namespace, unit),
+      analyzer.extractItemDoc(namespace, unit),
+    ])
+    if (slotDocs.length) {
+      slots.set(componentName, slotDocs)
+    }
+    if (itemDoc) {
+      items.set(componentName, itemDoc)
+    }
+  }
+  return { items, slots, slotOverrideTypes, kinds }
 }
 
 async function processComponentNode(
-  node: DeclareFunctionNode,
+  node: DeclareFunctionNode | ESTree.TSFunctionType,
+  reference: SymbolReference,
+  componentName: string,
   analyzer: DeclarationAnalyzer,
   sourceSlotAnalyzer: SourceSlotAnalyzer,
-  regionByLine: Array<string | undefined>,
   metadata: ComponentMetadata,
-): Promise<{ key: string; doc: ComponentDoc } | null> {
-  if (!node.id || node.params.length === 0 || !isJsxElementReturn(node.returnType)) {
+  namespace?: string,
+): Promise<ComponentDoc | null> {
+  if (node.params.length === 0 || !isJsxElementReturn(node.returnType)) {
     return null
   }
   const propsParam = node.params[0]
@@ -1472,45 +1621,67 @@ async function processComponentNode(
     return null
   }
 
-  const componentName = node.id.name.replace(/\$\d+$/, '')
-  const componentKey = toKebabCase(componentName)
-  const jsDoc = getJsDoc(analyzer.mainUnit.source, node)
-  const line = lineAtOffset(analyzer.mainUnit.source.text, node.start)
-  const sourcePath = resolveSourcePath(analyzer.projectRoot, regionByLine[line])
+  const { unit } = reference
+  const jsDoc = getJsDoc(unit.source, node)
+  const regionByLine = buildRegionByLine(unit.source.text)
+  const line = lineAtOffset(unit.source.text, node.start)
+  const moduleSource = path
+    .relative(path.join(analyzer.projectRoot, 'dist'), unit.fileName)
+    .replace(/\\/g, '/')
+    .replace(/\.d\.(?:mts|cts|ts)$/, '.d.ts')
+  let sourcePath = resolveSourcePath(
+    analyzer.projectRoot,
+    regionByLine[line] ?? `src/${moduleSource}`,
+  )
+  if (namespace) {
+    sourcePath = sourcePath?.replace(/\.types\.ts$/, '.tsx')
+  }
+  const env = new Map<string, TypeValue>()
+  for (const parameter of node.typeParameters?.params ?? []) {
+    if (parameter.default?.type === 'TSLiteralType') {
+      env.set(parameter.name.name, { node: parameter.default, unit, namespace, env: new Map(env) })
+    }
+  }
   const propsValue: TypeValue = {
     node: propsParam.typeAnnotation.typeAnnotation,
-    unit: analyzer.mainUnit,
-    env: new Map(),
+    unit,
+    namespace,
+    env,
   }
   const resolvedProperties = await analyzer.resolveProperties(propsValue)
   const props = await analyzer.groupProperties(resolvedProperties, {
     componentName,
     slotOverrideTypes: metadata.slotOverrideTypes.get(componentName),
   })
-
+  const kind = metadata.kinds.get(componentName)
   const component: ComponentIndexEntry = {
-    key: componentKey,
+    key: toKebabCase(componentName),
     name: componentName,
     category: categoryFromSourcePath(sourcePath),
     polymorphic: resolvedProperties.some((property) => property.name === 'as'),
     ...(jsDoc.description ? { description: jsDoc.description } : {}),
     ...(sourcePath ? { sourcePath } : {}),
+    ...(kind ? { kind } : {}),
   }
   const slotDefinitions = metadata.slots.get(componentName) ?? []
-  const slots = await sourceSlotAnalyzer.enrichSlots(componentName, sourcePath, slotDefinitions)
+  const slots = await sourceSlotAnalyzer.enrichSlots(
+    reference.name.replace(/\$\d+$/, ''),
+    sourcePath,
+    slotDefinitions,
+  )
   return {
-    key: componentKey,
-    doc: {
-      component,
-      slots,
-      ...(metadata.items.get(componentName) ? { item: metadata.items.get(componentName) } : {}),
-      props,
-    },
+    component,
+    slots,
+    ...(metadata.items.get(componentName) ? { item: metadata.items.get(componentName) } : {}),
+    props,
   }
 }
 
 export async function generateApiDoc(projectRoot: string): Promise<GenerationResult | null> {
-  const dtsPath = path.join(projectRoot, 'dist', 'index.d.mts')
+  const packageJson = JSON.parse(readFileSync(path.join(projectRoot, 'package.json'), 'utf8')) as {
+    exports: { '.': { types: string } }
+  }
+  const dtsPath = path.resolve(projectRoot, packageJson.exports['.'].types)
   if (!existsSync(dtsPath)) {
     console.warn(`[api-doc] ${dtsPath} not found, skipping generation`)
     return null
@@ -1518,96 +1689,89 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
 
   const sourceSlotAnalyzer = new SourceSlotAnalyzer(projectRoot)
   const componentDocs = new Map<string, ComponentDoc>()
-  const kinds = new Map<string, NonNullable<ComponentIndexEntry['kind']>>()
-  const pending = [dtsPath]
-  const visited = new Set<string>()
+  const content = await preprocessGenericTypeAliases(readFileSync(dtsPath, 'utf8'), dtsPath)
+  const analyzer = await DeclarationAnalyzer.create(projectRoot, dtsPath, content)
+  const symbols = await analyzer.publicSymbols()
+  const metadata = await collectNamespaceMetadata(analyzer, symbols)
 
-  while (pending.length > 0) {
-    const fileName = pending.pop()!
-    if (visited.has(fileName)) {
+  for (const [name, reference] of symbols) {
+    const node = reference.unit.functions.get(reference.name)
+    if (!node || !/^[A-Z]/.test(name)) {
       continue
     }
-    visited.add(fileName)
-    const content = readFileSync(fileName, 'utf8')
-    const processedContent = await preprocessGenericTypeAliases(content, fileName)
-    const analyzer = await DeclarationAnalyzer.create(projectRoot, fileName, processedContent)
-    const regionByLine = buildRegionByLine(processedContent)
-    const metadata = await collectNamespaceMetadata(analyzer)
-
-    for (const [name, declarations] of analyzer.mainUnit.declarations) {
-      if (!name.endsWith('T.Kind')) {
-        continue
-      }
-      for (const { node } of declarations) {
-        if (
-          node.type !== 'TSTypeAliasDeclaration' ||
-          node.typeAnnotation.type !== 'TSLiteralType' ||
-          node.typeAnnotation.literal.type !== 'Literal' ||
-          (node.typeAnnotation.literal.value !== 'single' &&
-            node.typeAnnotation.literal.value !== 'composite')
-        ) {
-          throw new Error(`${name} must be the literal type 'single' or 'composite'`)
-        }
-        kinds.set(name.slice(0, -'T.Kind'.length), node.typeAnnotation.literal.value)
-      }
+    const doc = await processComponentNode(
+      node,
+      reference,
+      name,
+      analyzer,
+      sourceSlotAnalyzer,
+      metadata,
+    )
+    if (!doc) {
+      continue
     }
+    componentDocs.set(doc.component.key, doc)
 
-    for (const statement of analyzer.mainUnit.source.program.body) {
-      if (
-        (statement.type === 'ImportDeclaration' ||
-          statement.type === 'ExportNamedDeclaration' ||
-          statement.type === 'ExportAllDeclaration') &&
-        typeof statement.source?.value === 'string' &&
-        statement.source.value.startsWith('.')
-      ) {
-        const dependency = path
-          .resolve(path.dirname(fileName), statement.source.value)
-          .replace(/(?<!\.d)\.mjs$/, '.d.mts')
-          .replace(/(?<!\.d)\.js$/, '.d.ts')
-        if (existsSync(dependency)) {
-          pending.push(dependency)
-        }
-      }
-      const declaration = declarationFromStatement(statement)
-      if (declaration?.type !== 'TSDeclareFunction') {
+    // Attached component names come from the public declaration namespace, not implementation names.
+    for (const member of reference.unit.exports.keys()) {
+      if (!member.startsWith(`${reference.name}.`)) {
         continue
       }
-      const component = await processComponentNode(
-        declaration,
+      const child = await analyzer.resolveSymbol(reference.unit, member)
+      const childNode = child?.unit.functions.get(child.name)
+      if (!child || !childNode) {
+        continue
+      }
+      const childDoc = await processComponentNode(
+        childNode,
+        child,
+        child.name,
         analyzer,
         sourceSlotAnalyzer,
-        regionByLine,
         metadata,
       )
-      if (component) {
-        componentDocs.set(component.key, component.doc)
+      if (!childDoc) {
+        continue
+      }
+      childDoc.component.name = `${name}.${member.slice(reference.name.length + 1)}`
+      ;(doc.primitives ??= []).push(childDoc)
+    }
+  }
+
+  // Form is returned by createForm rather than exported as a standalone component.
+  const form = symbols.get('FormT')
+  const instance = form?.unit.declarations.get(`${form.name}.Instance`)?.[0]
+  if (form && instance?.node.type === 'TSInterfaceDeclaration') {
+    const member = instance.node.body.body.find(
+      (node) => node.type === 'TSPropertySignature' && getIdentifierName(node.key) === 'Form',
+    )
+    const signature =
+      member?.type === 'TSPropertySignature' ? member.typeAnnotation?.typeAnnotation : undefined
+    if (signature?.type === 'TSFunctionType') {
+      const doc = await processComponentNode(
+        signature,
+        { ...form, name: 'FormRoot' },
+        'Form',
+        analyzer,
+        sourceSlotAnalyzer,
+        metadata,
+        form.name,
+      )
+      if (doc) {
+        const field = componentDocs.get('form-field')
+        if (field) {
+          doc.primitives = [{ ...field, component: { ...field.component, name: 'form.Field' } }]
+        }
+        componentDocs.set('form', doc)
       }
     }
   }
 
-  for (const [key, doc] of componentDocs) {
-    const kind = kinds.get(doc.component.name)
-    if (kind) {
-      doc.component.kind = kind
-    }
-    const match =
-      /^(dialog|sheet|modal|popover|tooltip|dropdown-menu|context-menu)-(trigger|content|close)$/.exec(
-        key,
-      )
-    const root = match && componentDocs.get(match[1]!)
-    if (!root || !match) {
-      continue
-    }
-    const primitive = match[2]!
-    doc.component.name = `${root.component.name}.${primitive[0]!.toUpperCase()}${primitive.slice(1)}`
-    ;(root.primitives ??= []).push(doc)
-    componentDocs.delete(key)
-  }
-
+  const docs = [...componentDocs.values()].sort((left, right) =>
+    left.component.key.localeCompare(right.component.key),
+  )
   return {
-    indexDoc: {
-      components: [...componentDocs.values()].map((doc) => doc.component),
-    },
-    componentDocs,
+    indexDoc: { components: docs.map((doc) => doc.component) },
+    componentDocs: new Map(docs.map((doc) => [doc.component.key, doc])),
   }
 }

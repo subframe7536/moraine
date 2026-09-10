@@ -1,42 +1,6 @@
 {
   "components": [
     {
-      "key": "sidebar-frame",
-      "name": "SidebarFrame",
-      "category": "navigation",
-      "polymorphic": false,
-      "description": "Responsive sidebar layout with a mobile Sheet fallback.",
-      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
-      "kind": "composite"
-    },
-    {
-      "key": "stepper",
-      "name": "Stepper",
-      "category": "navigation",
-      "polymorphic": false,
-      "description": "Tab-structured step navigation with configurable orientation and separator layout.",
-      "sourcePath": "src/navigation/stepper/stepper.tsx",
-      "kind": "single"
-    },
-    {
-      "key": "tabs",
-      "name": "Tabs",
-      "category": "navigation",
-      "polymorphic": false,
-      "description": "Tabbed navigation component with configurable orientation and variant styles.",
-      "sourcePath": "src/navigation/tabs/tabs.tsx",
-      "kind": "single"
-    },
-    {
-      "key": "icon",
-      "name": "Icon",
-      "category": "elements",
-      "polymorphic": false,
-      "description": "Renders an icon from a UnoCSS icon class, JSX element, or render function.",
-      "sourcePath": "src/elements/icon/icon.tsx",
-      "kind": "single"
-    },
-    {
       "key": "accordion",
       "name": "Accordion",
       "category": "elements",
@@ -73,6 +37,15 @@
       "kind": "single"
     },
     {
+      "key": "breadcrumb",
+      "name": "Breadcrumb",
+      "category": "navigation",
+      "polymorphic": false,
+      "description": "Breadcrumb navigation trail with separator icons and optional wrapping.",
+      "sourcePath": "src/navigation/breadcrumb/breadcrumb.tsx",
+      "kind": "single"
+    },
+    {
       "key": "button",
       "name": "Button",
       "category": "elements",
@@ -100,69 +73,6 @@
       "kind": "single"
     },
     {
-      "key": "collapsible",
-      "name": "Collapsible",
-      "category": "elements",
-      "polymorphic": false,
-      "description": "Expandable content section with optional height transitions.",
-      "sourcePath": "src/elements/collapsible/collapsible.tsx",
-      "kind": "composite"
-    },
-    {
-      "key": "kbd",
-      "name": "Kbd",
-      "category": "elements",
-      "polymorphic": false,
-      "description": "Keyboard keycap component with configurable size, variant, and accessible label.",
-      "sourcePath": "src/elements/kbd/kbd.tsx",
-      "kind": "single"
-    },
-    {
-      "key": "kbd-group",
-      "name": "KbdGroup",
-      "category": "elements",
-      "polymorphic": false,
-      "description": "Group of keyboard shortcut keys with support for simultaneous chords and ordered sequences.",
-      "sourcePath": "src/elements/kbd/kbd-group.tsx",
-      "kind": "single"
-    },
-    {
-      "key": "list",
-      "name": "List",
-      "category": "elements",
-      "polymorphic": true,
-      "description": "Headless polymorphic list with optional caller-controlled virtualization.",
-      "sourcePath": "src/elements/list/list.tsx",
-      "kind": "single"
-    },
-    {
-      "key": "progress",
-      "name": "Progress",
-      "category": "elements",
-      "polymorphic": false,
-      "description": "Determinate or indeterminate progress indicator with optional step labels.",
-      "sourcePath": "src/elements/progress/progress.tsx",
-      "kind": "single"
-    },
-    {
-      "key": "resizable",
-      "name": "Resizable",
-      "category": "elements",
-      "polymorphic": false,
-      "description": "Resizable panel layout with draggable dividers and keyboard support.",
-      "sourcePath": "src/elements/resizable/resizable.tsx",
-      "kind": "composite"
-    },
-    {
-      "key": "separator",
-      "name": "Separator",
-      "category": "elements",
-      "polymorphic": false,
-      "description": "Visual divider with configurable orientation, style, and border type.",
-      "sourcePath": "src/elements/separator/separator.tsx",
-      "kind": "single"
-    },
-    {
       "key": "checkbox",
       "name": "Checkbox",
       "category": "forms",
@@ -181,76 +91,13 @@
       "kind": "single"
     },
     {
-      "key": "file-upload",
-      "name": "FileUpload",
-      "category": "forms",
-      "polymorphic": true,
-      "description": "Drag-and-drop file upload component with progress tracking and file list management.",
-      "sourcePath": "src/forms/file-upload/file-upload.tsx",
-      "kind": "single"
-    },
-    {
-      "key": "input",
-      "name": "Input",
-      "category": "forms",
+      "key": "collapsible",
+      "name": "Collapsible",
+      "category": "elements",
       "polymorphic": false,
-      "description": "Text input component with leading/trailing icon slots, loading state, and form field integration.",
-      "sourcePath": "src/forms/input/input.tsx",
-      "kind": "single"
-    },
-    {
-      "key": "input-number",
-      "name": "InputNumber",
-      "category": "forms",
-      "polymorphic": false,
-      "description": "Numeric input with increment/decrement controls, step, and min/max constraints.",
-      "sourcePath": "src/forms/input-number/input-number.tsx",
-      "kind": "single"
-    },
-    {
-      "key": "radio-group",
-      "name": "RadioGroup",
-      "category": "forms",
-      "polymorphic": false,
-      "description": "Single-select radio group with card, list, and table layout variants.",
-      "sourcePath": "src/forms/radio-group/radio-group.tsx",
-      "kind": "single"
-    },
-    {
-      "key": "slider",
-      "name": "Slider",
-      "category": "forms",
-      "polymorphic": false,
-      "description": "Range slider component with single or multi-thumb support and step markers.",
-      "sourcePath": "src/forms/slider/slider.tsx",
-      "kind": "single"
-    },
-    {
-      "key": "switch",
-      "name": "Switch",
-      "category": "forms",
-      "polymorphic": false,
-      "description": "Toggle switch control with icon slots and loading state.",
-      "sourcePath": "src/forms/switch/switch.tsx",
-      "kind": "single"
-    },
-    {
-      "key": "textarea",
-      "name": "Textarea",
-      "category": "forms",
-      "polymorphic": false,
-      "description": "Multi-line text input with autoresize support and form field integration.",
-      "sourcePath": "src/forms/textarea/textarea.tsx",
-      "kind": "single"
-    },
-    {
-      "key": "breadcrumb",
-      "name": "Breadcrumb",
-      "category": "navigation",
-      "polymorphic": false,
-      "description": "Breadcrumb navigation trail with separator icons and optional wrapping.",
-      "sourcePath": "src/navigation/breadcrumb/breadcrumb.tsx",
-      "kind": "single"
+      "description": "Expandable content section with optional height transitions.",
+      "sourcePath": "src/elements/collapsible/collapsible.tsx",
+      "kind": "composite"
     },
     {
       "key": "command-palette",
@@ -259,15 +106,6 @@
       "polymorphic": false,
       "description": "CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports keyboard navigation and customizable rendering through slots and styles.",
       "sourcePath": "src/navigation/command-palette/command-palette.tsx",
-      "kind": "single"
-    },
-    {
-      "key": "pagination",
-      "name": "Pagination",
-      "category": "navigation",
-      "polymorphic": false,
-      "description": "Page navigation component with configurable sibling count and edge display.",
-      "sourcePath": "src/navigation/pagination/pagination.tsx",
       "kind": "single"
     },
     {
@@ -298,6 +136,77 @@
       "kind": "composite"
     },
     {
+      "key": "file-upload",
+      "name": "FileUpload",
+      "category": "forms",
+      "polymorphic": true,
+      "description": "Drag-and-drop file upload component with progress tracking and file list management.",
+      "sourcePath": "src/forms/file-upload/file-upload.tsx",
+      "kind": "single"
+    },
+    {
+      "key": "form",
+      "name": "Form",
+      "category": "forms",
+      "polymorphic": false,
+      "sourcePath": "src/forms/form/form.tsx",
+      "kind": "single"
+    },
+    {
+      "key": "icon",
+      "name": "Icon",
+      "category": "elements",
+      "polymorphic": false,
+      "description": "Renders an icon from a UnoCSS icon class, JSX element, or render function.",
+      "sourcePath": "src/elements/icon/icon.tsx",
+      "kind": "single"
+    },
+    {
+      "key": "input",
+      "name": "Input",
+      "category": "forms",
+      "polymorphic": false,
+      "description": "Text input component with leading/trailing icon slots, loading state, and form field integration.",
+      "sourcePath": "src/forms/input/input.tsx",
+      "kind": "single"
+    },
+    {
+      "key": "input-number",
+      "name": "InputNumber",
+      "category": "forms",
+      "polymorphic": false,
+      "description": "Numeric input with increment/decrement controls, step, and min/max constraints.",
+      "sourcePath": "src/forms/input-number/input-number.tsx",
+      "kind": "single"
+    },
+    {
+      "key": "kbd",
+      "name": "Kbd",
+      "category": "elements",
+      "polymorphic": false,
+      "description": "Keyboard keycap component with configurable size, variant, and accessible label.",
+      "sourcePath": "src/elements/kbd/kbd.tsx",
+      "kind": "single"
+    },
+    {
+      "key": "kbd-group",
+      "name": "KbdGroup",
+      "category": "elements",
+      "polymorphic": false,
+      "description": "Group of keyboard shortcut keys with support for simultaneous chords and ordered sequences.",
+      "sourcePath": "src/elements/kbd/kbd-group.tsx",
+      "kind": "single"
+    },
+    {
+      "key": "list",
+      "name": "List",
+      "category": "elements",
+      "polymorphic": true,
+      "description": "Headless polymorphic list with optional caller-controlled virtualization.",
+      "sourcePath": "src/elements/list/list.tsx",
+      "kind": "single"
+    },
+    {
       "key": "modal",
       "name": "Modal",
       "category": "overlays",
@@ -305,6 +214,24 @@
       "description": "Low-level modal primitives for composing custom dialog surfaces.",
       "sourcePath": "src/overlays/modal/modal.tsx",
       "kind": "composite"
+    },
+    {
+      "key": "multi-select",
+      "name": "MultiSelect",
+      "category": "forms",
+      "polymorphic": false,
+      "description": "Dropdown select component with search, multi-select, and custom item rendering.",
+      "sourcePath": "src/forms/select/multi-select.tsx",
+      "kind": "single"
+    },
+    {
+      "key": "pagination",
+      "name": "Pagination",
+      "category": "navigation",
+      "polymorphic": false,
+      "description": "Page navigation component with configurable sibling count and edge display.",
+      "sourcePath": "src/navigation/pagination/pagination.tsx",
+      "kind": "single"
     },
     {
       "key": "popover",
@@ -316,21 +243,30 @@
       "kind": "composite"
     },
     {
-      "key": "sheet",
-      "name": "Sheet",
-      "category": "overlays",
+      "key": "progress",
+      "name": "Progress",
+      "category": "elements",
       "polymorphic": false,
-      "description": "Sheet state and context. Trigger, Content, and Close own their respective DOM.",
-      "sourcePath": "src/overlays/sheet/sheet.tsx",
-      "kind": "composite"
+      "description": "Determinate or indeterminate progress indicator with optional step labels.",
+      "sourcePath": "src/elements/progress/progress.tsx",
+      "kind": "single"
     },
     {
-      "key": "tooltip",
-      "name": "Tooltip",
-      "category": "overlays",
+      "key": "radio-group",
+      "name": "RadioGroup",
+      "category": "forms",
       "polymorphic": false,
-      "description": "Hover-triggered informational overlay anchored to a trigger element.",
-      "sourcePath": "src/overlays/tooltip/tooltip.tsx",
+      "description": "Single-select radio group with card, list, and table layout variants.",
+      "sourcePath": "src/forms/radio-group/radio-group.tsx",
+      "kind": "single"
+    },
+    {
+      "key": "resizable",
+      "name": "Resizable",
+      "category": "elements",
+      "polymorphic": false,
+      "description": "Resizable panel layout with draggable dividers and keyboard support.",
+      "sourcePath": "src/elements/resizable/resizable.tsx",
       "kind": "composite"
     },
     {
@@ -343,13 +279,85 @@
       "kind": "single"
     },
     {
-      "key": "multi-select",
-      "name": "MultiSelect",
+      "key": "separator",
+      "name": "Separator",
+      "category": "elements",
+      "polymorphic": false,
+      "description": "Visual divider with configurable orientation, style, and border type.",
+      "sourcePath": "src/elements/separator/separator.tsx",
+      "kind": "single"
+    },
+    {
+      "key": "sheet",
+      "name": "Sheet",
+      "category": "overlays",
+      "polymorphic": false,
+      "description": "Sheet state and context. Trigger, Content, and Close own their respective DOM.",
+      "sourcePath": "src/overlays/sheet/sheet.tsx",
+      "kind": "composite"
+    },
+    {
+      "key": "sidebar-frame",
+      "name": "SidebarFrame",
+      "category": "navigation",
+      "polymorphic": false,
+      "description": "Responsive sidebar layout with a mobile Sheet fallback.",
+      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
+      "kind": "composite"
+    },
+    {
+      "key": "slider",
+      "name": "Slider",
       "category": "forms",
       "polymorphic": false,
-      "description": "Dropdown select component with search, multi-select, and custom item rendering.",
-      "sourcePath": "src/forms/select/multi-select.tsx",
+      "description": "Range slider component with single or multi-thumb support and step markers.",
+      "sourcePath": "src/forms/slider/slider.tsx",
       "kind": "single"
+    },
+    {
+      "key": "stepper",
+      "name": "Stepper",
+      "category": "navigation",
+      "polymorphic": false,
+      "description": "Tab-structured step navigation with configurable orientation and separator layout.",
+      "sourcePath": "src/navigation/stepper/stepper.tsx",
+      "kind": "single"
+    },
+    {
+      "key": "switch",
+      "name": "Switch",
+      "category": "forms",
+      "polymorphic": false,
+      "description": "Toggle switch control with icon slots and loading state.",
+      "sourcePath": "src/forms/switch/switch.tsx",
+      "kind": "single"
+    },
+    {
+      "key": "tabs",
+      "name": "Tabs",
+      "category": "navigation",
+      "polymorphic": false,
+      "description": "Tabbed navigation component with configurable orientation and variant styles.",
+      "sourcePath": "src/navigation/tabs/tabs.tsx",
+      "kind": "single"
+    },
+    {
+      "key": "textarea",
+      "name": "Textarea",
+      "category": "forms",
+      "polymorphic": false,
+      "description": "Multi-line text input with autoresize support and form field integration.",
+      "sourcePath": "src/forms/textarea/textarea.tsx",
+      "kind": "single"
+    },
+    {
+      "key": "tooltip",
+      "name": "Tooltip",
+      "category": "overlays",
+      "polymorphic": false,
+      "description": "Hover-triggered informational overlay anchored to a trigger element.",
+      "sourcePath": "src/overlays/tooltip/tooltip.tsx",
+      "kind": "composite"
     }
   ]
 }

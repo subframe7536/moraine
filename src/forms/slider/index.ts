@@ -1,3 +1,2 @@
-export * from './slider'
-export * from './hook'
-export * from './slider.types'
+export { Slider } from './slider'
+export type { SliderT, SliderProps } from './slider.types'

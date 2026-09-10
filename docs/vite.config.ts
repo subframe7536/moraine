@@ -7,9 +7,9 @@ import type { UserConfig } from 'vite'
 import { defineConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
-import { variantGroupPlugin } from '../vite-plugin-variant-group.ts'
+import { variantGroupPlugin } from '../vite-plugin-variant-group'
 
-import { createDocsMdxOptions, docsBuildPlugin, llmsTxtPlugin, siteMetaPlugin } from './build/index'
+import { createDocsMdxOptions, docsBuildPlugin, llmsTxtPlugin, siteMetaPlugin } from './build'
 import unocfg from './unocss.config'
 
 const docsRoot = fileURLToPath(new URL('.', import.meta.url))

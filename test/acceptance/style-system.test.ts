@@ -5,8 +5,8 @@ import { resolve } from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import { createTheme, defaultTheme, emptyTheme } from '../../src/theme.ts'
-import * as themeApi from '../../src/theme.ts'
+import { createTheme, defaultTheme, emptyTheme } from '../../src/theme'
+import * as themeApi from '../../src/theme'
 
 const root = resolve(import.meta.dirname, '../..')
 

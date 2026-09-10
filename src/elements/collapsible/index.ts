@@ -1,2 +1,2 @@
-export * from './collapsible.types'
-export * from './collapsible'
+export type { CollapsibleT, CollapsibleProps } from './collapsible.types'
+export { Collapsible } from './collapsible'

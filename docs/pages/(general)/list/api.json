@@ -14,7 +14,7 @@
       {
         "name": "as",
         "required": false,
-        "type": "T | undefined",
+        "type": "\"ul\" | undefined",
         "description": "Root element or component.",
         "defaultValue": "ul"
       },
@@ -26,7 +26,7 @@
       },
       {
         "name": "itemRender",
-        "required": true,
+        "required": false,
         "type": "ComponentOrElement<ListT.ItemRenderProps<TItem, TItemElement>>",
         "description": "Renders one collection item."
       },
@@ -39,7 +39,7 @@
       {
         "name": "ref",
         "required": false,
-        "type": "JSX.HTMLElementTags[T] extends { ref?: infer Ref; } ? Ref : never | undefined"
+        "type": "JSX.HTMLElementTags[\"ul\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
         "name": "style",

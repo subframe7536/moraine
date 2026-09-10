@@ -1,5 +1,5 @@
 import { List } from '@src'
-import { useListVirtualizer } from '@src/utils'
+import { useListVirtualizer } from '@src/virtualizer'
 import { For } from 'solid-js'
 
 export function DynamicHeight() {

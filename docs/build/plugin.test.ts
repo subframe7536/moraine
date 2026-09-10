@@ -1,6 +1,6 @@
 // @vitest-environment node
 
-import { access, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises'
+import { access, mkdir, mkdtemp, readFile, realpath, rm, utimes, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
@@ -18,7 +18,7 @@ const TRANSFORM_CONTEXT = {
 }
 
 const D_MTS_SAMPLE = `
-declare namespace ButtonT {
+export declare namespace ButtonT {
   interface Slot {
     root: 'root'
   }
@@ -29,7 +29,7 @@ interface ButtonProps {
   label: string
 }
 
-declare function Button(props: ButtonProps): JSX.Element
+export declare function Button(props: ButtonProps): JSX.Element
 `
 
 async function createTempProject(): Promise<string> {
@@ -37,6 +37,10 @@ async function createTempProject(): Promise<string> {
 }
 
 async function seedDocsProject(projectRoot: string): Promise<void> {
+  await writeFile(
+    path.join(projectRoot, 'package.json'),
+    JSON.stringify({ exports: { '.': { types: './dist/index.d.mts' } } }),
+  )
   await mkdir(path.join(projectRoot, 'dist'), { recursive: true })
   await mkdir(path.join(projectRoot, 'docs/pages/(general)/button'), { recursive: true })
 
@@ -66,6 +70,49 @@ search:
 }
 
 describe('docsBuildPlugin', () => {
+  test('regenerates after a non-root declaration changes and preserves docs on invalid declarations', async () => {
+    const projectRoot = await createTempProject()
+    await seedDocsProject(projectRoot)
+    try {
+      await writeFile(
+        path.join(projectRoot, 'dist/index.d.mts'),
+        `export { Button } from './button.mjs'`,
+      )
+      const declaration = path.join(projectRoot, 'dist/button.d.mts')
+      await writeFile(
+        declaration,
+        `export declare function Button(props: { first: string }): JSX.Element`,
+      )
+      const plugin = docsBuildPlugin({ projectRoot })
+      const configResolved = plugin.configResolved as (config: { root: string }) => Promise<void>
+      await configResolved({ root: path.join(projectRoot, 'docs') })
+      const indexPath = path.join(projectRoot, 'docs/pages/_api-index.json')
+      const apiPath = path.join(projectRoot, 'docs/pages/(general)/button/api.json')
+      const future = new Date(Date.now() + 60_000)
+      await utimes(indexPath, future, future)
+      await writeFile(
+        declaration,
+        `export declare function Button(props: { second: boolean }): JSX.Element`,
+      )
+      await configResolved({ root: path.join(projectRoot, 'docs') })
+      const generated = await readFile(apiPath, 'utf8')
+      expect(JSON.parse(generated).props.own[0].name).toBe('second')
+      await writeFile(declaration, 'export declare function Button(')
+      await expect(configResolved({ root: path.join(projectRoot, 'docs') })).rejects.toThrow(
+        'Failed to parse',
+      )
+      expect(await readFile(apiPath, 'utf8')).toBe(generated)
+      await rm(declaration)
+      await writeFile(path.join(projectRoot, 'dist/button.mjs'), 'export function Button() {}')
+      await expect(configResolved({ root: path.join(projectRoot, 'docs') })).rejects.toThrow(
+        'Cannot resolve declaration import "./button.mjs"',
+      )
+      expect(await readFile(apiPath, 'utf8')).toBe(generated)
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
+
   test('generates api docs, virtual api data and transforms content', async () => {
     const projectRoot = await createTempProject()
     await seedDocsProject(projectRoot)

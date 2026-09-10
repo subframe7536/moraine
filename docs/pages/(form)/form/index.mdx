@@ -125,6 +125,7 @@ export function NotificationForm() {
       <div class="max-w-lg w-full">
         {createComponent(form.Form, {
           onSubmit: handleSubmit,
+          onReset: () => setSubmitted(null),
           class: 'w-full',
           get children() {
             return [
@@ -244,14 +245,10 @@ export function NotificationForm() {
               }),
               <div class="flex gap-2 justify-end pt-2">
                 <Button
-                  type="button"
+                  type="reset"
                   variant="outline"
                   size={props.size}
                   disabled={props.disabled || form.isSubmitting}
-                  onClick={() => {
-                    form.reset()
-                    setSubmitted(null)
-                  }}
                 >
                   Reset
                 </Button>
