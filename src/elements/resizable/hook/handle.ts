@@ -25,12 +25,6 @@ const HANDLE_STATE_CROSS_HOVERED = 1 << 3
 
 const HANDLE_START_TARGET_ATTR = 'data-resizable-handle-start-target'
 const HANDLE_END_TARGET_ATTR = 'data-resizable-handle-end-target'
-
-export interface ResizableHandleOptions {
-  disable?: boolean
-  intersection?: boolean
-}
-
 export interface UseResizableHandleOptions {
   handleIndex: Accessor<number>
   orientation: Accessor<ResizableOrientation>

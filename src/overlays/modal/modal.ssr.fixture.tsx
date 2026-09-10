@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Button } from '../../elements/button/index'
+import { Button } from '../../elements/button'
 
 import { Modal } from './modal'
 

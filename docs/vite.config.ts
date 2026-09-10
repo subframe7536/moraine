@@ -7,6 +7,8 @@ import type { UserConfig } from 'vite'
 import { defineConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
+import { variantGroupPlugin } from '../vite-plugin-variant-group.ts'
+
 import { createDocsMdxOptions, docsBuildPlugin, llmsTxtPlugin, siteMetaPlugin } from './build/index'
 import unocfg from './unocss.config'
 
@@ -21,6 +23,7 @@ const site = {
 
 export default defineConfig({
   plugins: [
+    variantGroupPlugin() as unknown,
     docsBuildPlugin({ projectRoot }) as unknown,
     uno(unocfg) as unknown,
     solid({ ssr: true, extensions: ['.mdx'] }) as unknown,
@@ -67,6 +70,12 @@ export default defineConfig({
       output: {
         codeSplitting: {
           groups: [
+            {
+              name: 'moraine-theme',
+              test: /[\\/]src[\\/]theme(?:[\\/]|\.ts$)|\.class\.ts$/,
+              priority: 20,
+              includeDependenciesRecursively: true,
+            },
             {
               name: 'moraine-elements',
               test: /[\\/]src[\\/]elements[\\/]/,

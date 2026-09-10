@@ -48,9 +48,9 @@ import type { TabsT } from 'moraine'
 >
   {(props) => {
     const ITEMS = [
-      { label: 'Overview', value: 'overview', icon: 'i-lucide:layout-dashboard', content: <p class="text-xs text-muted-foreground leading-relaxed pt-3">High-level metrics and system activity overview.</p> },
-      { label: 'Deployments', value: 'deployments', icon: 'i-lucide:rocket', content: <p class="text-xs text-muted-foreground leading-relaxed pt-3">Production pipelines, recent builds, and rollout health.</p> },
-      { label: 'Settings', value: 'settings', icon: 'i-lucide:settings', content: <p class="text-xs text-muted-foreground leading-relaxed pt-3">Environment variables, security secrets, and domain management.</p> },
+      { label: 'Overview', value: 'overview', icon: 'i-lucide:layout-dashboard', get content() { return <p class="text-xs text-muted-foreground leading-relaxed pt-3">High-level metrics and system activity overview.</p> } },
+      { label: 'Deployments', value: 'deployments', icon: 'i-lucide:rocket', get content() { return <p class="text-xs text-muted-foreground leading-relaxed pt-3">Production pipelines, recent builds, and rollout health.</p> } },
+      { label: 'Settings', value: 'settings', icon: 'i-lucide:settings', get content() { return <p class="text-xs text-muted-foreground leading-relaxed pt-3">Environment variables, security secrets, and domain management.</p> } },
     ]
 
     return (
@@ -87,6 +87,8 @@ root
 ### Selected value
 
 Use `value` with `onChange` for controlled tabs, or `defaultValue` for an initial local selection. Disabled items are skipped during selection and keyboard navigation.
+
+For JSX panel content, use an item `content` getter so inactive panels are not constructed before they are rendered. This is especially important in SSR and MDX, where eagerly creating an omitted component can consume hydration keys that have no matching HTML.
 
 <Preview path="./selection-usage" />
 

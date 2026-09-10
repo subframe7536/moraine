@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Range slider component with single or multi-thumb support and step markers.",
-    "sourcePath": "src/forms/slider/slider.tsx"
+    "sourcePath": "src/forms/slider/slider.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -30,12 +31,6 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present when the field or form has a validation error."
-        },
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
         },
         {
           "name": "data-readonly",
@@ -63,14 +58,7 @@
       "name": "track",
       "description": "Background rail representing the full slider range.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": []
     },
     {
@@ -85,10 +73,16 @@
           "description": "Present while the related thumb or handle is being dragged."
         },
         {
-          "name": "data-orientation",
+          "name": "data-inverted",
           "required": false,
           "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        },
+        {
+          "name": "data-multiple",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
         }
       ],
       "ariaAttributes": []
@@ -97,14 +91,7 @@
       "name": "divider",
       "description": "Visual marker for one slider step.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": []
     },
     {
@@ -129,6 +116,12 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present when the field or form has a validation error."
+        },
+        {
+          "name": "data-inverted",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
         },
         {
           "name": "data-readonly",
@@ -236,9 +229,17 @@
         "description": "The ID of the input element."
       },
       {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined",
+        "description": "Optional inner input element ref."
+      },
+      {
         "name": "inverted",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Reverses value movement along the track.",
+        "defaultValue": "false"
       },
       {
         "name": "max",
@@ -282,7 +283,9 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined"
+        "type": "\"horizontal\" | \"vertical\" | undefined",
+        "description": "Direction of keyboard and pointer value movement.",
+        "defaultValue": "horizontal"
       },
       {
         "name": "readOnly",
@@ -306,7 +309,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "step",
@@ -333,7 +338,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"default\" | \"bold\" | undefined"
+        "type": "\"default\" | \"bold\" | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "default"
       }
     ],
     "inherited": []

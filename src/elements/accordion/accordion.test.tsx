@@ -2,8 +2,11 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../shared/provider'
+import { defaultTheme } from '../../theme/default-theme'
+
 import { Accordion } from './accordion'
-import type { AccordionT } from './accordion'
+import type { AccordionT } from './accordion.types'
 
 const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
   {
@@ -25,6 +28,16 @@ const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
 ]
 
 describe('Accordion', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = render(() => <Accordion items={BASE_ITEMS} defaultValue={['one']} />)
+    const root = screen.container.firstElementChild
+    expect(root?.className).toBe('')
+    const trigger = screen.getByRole('button', { name: 'One' })
+    expect(trigger.className).toBe('')
+    const content = screen.getByRole('region', { name: 'One' })
+    expect(content.className).toBe('')
+  })
+
   test('renders default expanded item in single mode', () => {
     const screen = render(() => <Accordion items={BASE_ITEMS} defaultValue={['one']} />)
 
@@ -278,7 +291,7 @@ describe('Accordion', () => {
       <Accordion items={[{ value: 'empty', label: 'Empty' }]} defaultValue={['empty']} />
     ))
     const panel = panelScreen.getByRole('region', { name: 'Empty' })
-    expect(panel.querySelector('.style-accordion-content')).toBeNull()
+    expect(panel.childElementCount).toBe(0)
   })
 
   test('navigates triggers with ArrowDown, ArrowUp, Home, and End', async () => {
@@ -558,7 +571,11 @@ describe('Accordion', () => {
         )
       }
 
-      const screen = render(() => <ControlledAccordion />)
+      const screen = render(() => (
+        <MoraineProvider theme={defaultTheme}>
+          <ControlledAccordion />
+        </MoraineProvider>
+      ))
       const triggerOne = screen.getByRole('button', { name: 'One' })
 
       expect(screen.getByTestId('open-value').textContent).toBe('none')

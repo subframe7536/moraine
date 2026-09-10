@@ -17,6 +17,11 @@ export async function runApiDocGeneration(projectRoot: string): Promise<void> {
   if (!result) {
     return
   }
+  if (result.componentDocs.size === 0) {
+    throw new Error(
+      '[api-doc] No component declarations were generated; refusing to remove API docs.',
+    )
+  }
 
   await writeJsonFiles(path.join(projectRoot, 'docs/pages'), result)
 }

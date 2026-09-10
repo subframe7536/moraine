@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Single-select radio group with card, list, and table layout variants.",
-    "sourcePath": "src/forms/radio-group/radio-group.tsx"
+    "sourcePath": "src/forms/radio-group/radio-group.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -217,7 +218,9 @@
       {
         "name": "indicator",
         "required": false,
-        "type": "RadioGroupItemIndicator | undefined"
+        "type": "\"hidden\" | \"end\" | \"start\" | undefined",
+        "description": "Placement of the selection indicator.",
+        "defaultValue": "start"
       },
       {
         "name": "items",
@@ -266,7 +269,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",
@@ -287,7 +292,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "RadioGroupItemVariant | undefined"
+        "type": "\"list\" | \"table\" | \"card\" | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "list"
       }
     ],
     "inherited": []

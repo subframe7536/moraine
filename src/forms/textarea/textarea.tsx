@@ -11,29 +11,17 @@ import {
   splitProps,
 } from 'solid-js'
 
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
+import type { ModelModifiers } from '../../shared/input-modifiers'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { callHandler, useId } from '../../shared/utils'
-import { useFormField } from '../form/form-context'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form-options'
+import { createComponentStyles } from '../../shared/provider'
+import { callHandler, callRef, useId } from '../../shared/utils'
+import { useFormField, useFormFieldContext } from '../form/form-context'
 import { isInteractiveTarget } from '../shared/is-interactive-target'
+import { mergeAriaTokens } from '../shared/merge-aria-tokens'
 import { useFormReset } from '../shared/use-form-reset'
 import { useTextControlValue } from '../shared/use-text-control-value'
 
-import type { TextareaVariantProps } from './textarea.class'
-import {
-  textareaBaseVariants,
-  textareaFooterVariants,
-  textareaHeaderVariants,
-  textareaRootVariants,
-} from './textarea.class'
+import type { TextareaProps, TextareaT } from './textarea.types'
 
 // --- Autosize helpers ---
 function getVerticalPadding(styles: CSSStyleDeclaration): number {
@@ -51,160 +39,13 @@ function calculateNeededRows(el: HTMLTextAreaElement, padding: number, lineHeigh
   return Math.ceil((el.scrollHeight - padding) / lineHeight)
 }
 
-export namespace TextareaT {
-  export type Value = string | number | undefined
-
-  export interface Slot<T = unknown> {
-    /**
-     * Textarea wrapper that owns header, textarea, footer, and autoresize state.
-     */
-    root?: T
-
-    /** Optional content rendered above the textarea. */
-    header?: T
-
-    /** Native textarea control used for multi-line text entry. */
-    input?: T
-
-    /** Optional content rendered below the textarea. */
-    footer?: T
-  }
-
-  export type Variant = Pick<TextareaVariantProps, 'size' | 'variant' | 'autoresize'>
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  /**
-   * Base props for the Textarea component.
-   */
-  export interface Base<M extends ModelModifiers | undefined = ModelModifiers | undefined>
-    extends
-      FormIdentityOptions,
-      FormValueOptions<Value>,
-      FormRequiredOption,
-      FormReadOnlyOption,
-      FormDisableOption {
-    /**
-     * Placeholder text for the textarea.
-     */
-    placeholder?: string
-
-    /**
-     * Whether to automatically focus the textarea on mount.
-     * @default false
-     */
-    autofocus?: boolean
-
-    /**
-     * Delay in milliseconds before focusing the textarea.
-     * @default 0
-     */
-    autofocusDelay?: number
-
-    /**
-     * Maximum character length for the textarea.
-     */
-    maxLength?: number | string
-
-    /**
-     * Whether the textarea should automatically resize based on content.
-     * @default false
-     */
-    autoResize?: boolean
-
-    /**
-     * Delay in milliseconds before triggering autoresize on mount.
-     * @default 0
-     */
-    autoResizeDelay?: number
-
-    /**
-     * Default number of rows.
-     * @default 3
-     */
-    rows?: number
-
-    /**
-     * Maximum number of rows allowed during autoresize.
-     * @default 0
-     */
-    maxRows?: number
-
-    /**
-     * Element to render above the textarea.
-     */
-    header?: JSX.Element
-
-    /**
-     * Element to render below the textarea.
-     */
-    footer?: JSX.Element
-
-    /**
-     * Modifiers for input processing (e.g., lazy, trim, number).
-     */
-    modelModifiers?: M
-
-    /**
-     * Callback when the textarea value changes during input.
-     */
-    onValueChange?: (value: ModifierValue<M>) => void
-
-    /**
-     * Callback when the textarea value change is committed.
-     */
-    onChange?: (value: ModifierValue<M>) => void
-
-    /**
-     * Native input event handler.
-     */
-    onInput?: JSX.InputEventHandlerUnion<HTMLTextAreaElement, InputEvent>
-
-    /**
-     * Native blur event handler.
-     */
-    onBlur?: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>
-
-    /**
-     * Native focus event handler.
-     */
-    onFocus?: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>
-
-    /**
-     * Children elements, rendered inside the root below the textarea.
-     */
-    children?: JSX.Element
-  }
-
-  /**
-   * Props for the Textarea component.
-   */
-  export type Props<M extends ModelModifiers | undefined = ModelModifiers | undefined> = BaseProps<
-    'div',
-    Base<M>,
-    Variant,
-    Classes,
-    Styles
-  >
-}
-
-/**
- * Props for the Textarea component.
- */
-export interface TextareaProps<
-  M extends ModelModifiers | undefined = ModelModifiers | undefined,
-> extends TextareaT.Props<M> {}
-
 /** Multi-line text input with autoresize support and form field integration. */
 export function Textarea<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
   props: TextareaProps<M>,
 ): JSX.Element {
-  type RootProps = TextareaProps<M> & {
-    onPointerDown?: JSX.EventHandlerUnion<HTMLDivElement, PointerEvent>
-  }
-  const [local, rest] = splitProps(props as RootProps, [
+  const [local, rest] = splitProps(props, [
+    'ref',
+    'textareaRef',
     'id',
     'name',
     'value',
@@ -214,10 +55,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     'disabled',
     'size',
     'variant',
-    'placeholder',
     'autofocus',
     'autofocusDelay',
-    'maxLength',
     'autoResize',
     'autoResizeDelay',
     'rows',
@@ -235,17 +74,22 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     'styles',
     'class',
     'style',
-    'onPointerDown',
   ])
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('textarea', local, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
+
   const merged = mergeProps(
     {
       rows: 3,
       maxRows: 0,
       autofocusDelay: 0,
       autoResizeDelay: 0,
-      variant: 'outlined' as TextareaVariantProps['variant'],
+
       autoResize: false,
     },
+
     local,
   )
   const header = createMemo(() => merged.header)
@@ -259,14 +103,13 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size,
+      size: local.size,
       disabled: merged.disabled,
       required: local.required,
-      readOnly: Boolean(merged.readOnly),
+      readOnly: merged.readOnly,
     }),
     () => ({
       defaultId: generatedId(),
-      defaultSize: 'md',
       initialValue: merged.defaultValue ?? '',
     }),
   )
@@ -288,8 +131,24 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     'data-invalid': field.invalid() ? '' : undefined,
     'data-disabled': field.disabled() ? '' : undefined,
     'data-required': field.required() ? '' : undefined,
-    'data-readonly': merged.readOnly ? '' : undefined,
+    'data-readonly': field.readOnly() ? '' : undefined,
   }))
+
+  const ariaAttrs = createMemo(() => {
+    const generated = field.ariaAttrs()
+    return {
+      'aria-invalid':
+        rest['aria-invalid'] !== undefined ? rest['aria-invalid'] : generated['aria-invalid'],
+      'aria-required':
+        rest['aria-required'] !== undefined ? rest['aria-required'] : generated['aria-required'],
+      'aria-disabled':
+        rest['aria-disabled'] !== undefined ? rest['aria-disabled'] : generated['aria-disabled'],
+      'aria-readonly':
+        rest['aria-readonly'] !== undefined ? rest['aria-readonly'] : generated['aria-readonly'],
+      'aria-describedby': mergeAriaTokens(rest['aria-describedby'], generated['aria-describedby']),
+      'aria-labelledby': mergeAriaTokens(rest['aria-labelledby'], generated['aria-labelledby']),
+    }
+  })
 
   const restoreControlledValue = textControl.restoreControlledValue
 
@@ -334,13 +193,6 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   }
 
   const onInput: JSX.EventHandler<HTMLTextAreaElement, InputEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, merged.onInput)
-    if (defaultPrevented) {
-      if (!isLazy()) {
-        restoreControlledValue()
-      }
-      return
-    }
     autoResize()
 
     if (!isLazy()) {
@@ -348,6 +200,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       field.emit('input')
       restoreControlledValue()
     }
+    callHandler(event, merged.onInput)
   }
 
   const onChange: JSX.EventHandler<HTMLTextAreaElement, Event> = (event) => {
@@ -361,34 +214,24 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       event.currentTarget.value = value.trim()
     }
 
-    field.emit('change')
-    merged.onChange?.(textControl.applyValue(value))
+    field.emit('change', event)
     restoreControlledValue()
+    callHandler(event, merged.onChange)
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, merged.onBlur)
-    if (defaultPrevented) {
-      return
-    }
     setIsFocused(false)
     field.emit('blur', event)
+    callHandler(event, merged.onBlur)
   }
 
   const onFocus: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, merged.onFocus)
-    if (defaultPrevented) {
-      return
-    }
     setIsFocused(true)
     field.emit('focus', event)
+    callHandler(event, merged.onFocus)
   }
 
   const onRootPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
-    const { defaultPrevented } = callHandler(event, local.onPointerDown)
-    if (defaultPrevented) {
-      return
-    }
     if (
       event.button !== 0 ||
       event.defaultPrevented ||
@@ -456,77 +299,47 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
 
   return (
     <div
+      ref={(el) => callRef(local.ref, el)}
       data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={textareaRootVariants(
-        {
-          size: field.size(),
-          variant: merged.variant,
-        },
-        merged.classes?.root,
-        merged.class,
-      )}
+      {...resolved.root}
       onPointerDown={onRootPointerDown}
       data-focused={isFocused() ? '' : undefined}
       {...dataAttrs()}
-      {...rest}
     >
       <Show when={showHeader()}>
-        <div
-          data-slot="header"
-          style={merged.styles?.header}
-          class={textareaHeaderVariants(
-            {
-              size: field.size(),
-            },
-            merged.classes?.header,
-          )}
-        >
+        <div data-slot="header" {...resolved.slot('header')}>
           {header()}
         </div>
       </Show>
 
       <textarea
+        {...rest}
         id={field.id()}
-        ref={(element) => (textareaEl = element)}
         name={field.name()}
         rows={merged.rows ?? 3}
-        placeholder={merged.placeholder}
         required={field.required()}
         disabled={field.disabled()}
-        readOnly={merged.readOnly}
-        maxLength={merged.maxLength}
+        readonly={field.readOnly()}
         data-slot="input"
-        style={merged.styles?.input}
-        class={textareaBaseVariants(
-          {
-            size: field.size(),
-            autoresize: merged.autoResize,
-          },
-          merged.classes?.input,
-        )}
+        data-autoresize={merged.autoResize ? '' : undefined}
+        {...dataAttrs()}
+        {...ariaAttrs()}
+        {...textControl.valueProps()}
+        ref={(element) => {
+          textareaEl = element
+          callRef(local.textareaRef, element)
+        }}
+        {...resolved.slot('textarea')}
         onInput={onInput}
         onChange={onChange}
         onBlur={onBlur}
         onFocus={onFocus}
-        {...dataAttrs()}
-        {...field.ariaAttrs()}
-        {...textControl.valueProps()}
       />
 
       {merged.children}
 
       <Show when={showFooter()}>
-        <div
-          data-slot="footer"
-          style={merged.styles?.footer}
-          class={textareaFooterVariants(
-            {
-              size: field.size(),
-            },
-            merged.classes?.footer,
-          )}
-        >
+        <div data-slot="footer" {...resolved.slot('footer')}>
           {footer()}
         </div>
       </Show>

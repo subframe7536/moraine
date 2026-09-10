@@ -286,6 +286,41 @@ function literalKeys(node: ESTree.TSType): Set<string> {
   return new Set()
 }
 
+function isNeverType(node: ESTree.TSType, environment: TypeEnvironment): boolean {
+  if (node.type === 'TSNeverKeyword') {
+    return true
+  }
+  if (node.type === 'TSParenthesizedType') {
+    return isNeverType(node.typeAnnotation, environment)
+  }
+  if (node.type !== 'TSTypeReference' || node.typeArguments) {
+    return false
+  }
+  const name = entityNameToText(node.typeName)
+  const substitution = name ? environment.get(name) : undefined
+  return substitution ? isNeverType(substitution.node, substitution.env) : false
+}
+
+function isNeverTuple(node: ESTree.TSType, environment: TypeEnvironment): boolean {
+  if (node.type !== 'TSTupleType') {
+    return false
+  }
+  return node.elementTypes.every((element) => isNeverType(element as ESTree.TSType, environment))
+}
+
+function resolveConditionalBranch(
+  node: ESTree.TSConditionalType,
+  environment: TypeEnvironment,
+): ESTree.TSType | undefined {
+  if (isNeverType(node.checkType, environment) && isNeverType(node.extendsType, environment)) {
+    return node.trueType
+  }
+  if (isNeverTuple(node.checkType, environment) && isNeverTuple(node.extendsType, environment)) {
+    return node.trueType
+  }
+  return undefined
+}
+
 function applyTextEdits(text: string, edits: TextEdit[]): string {
   let output = text
   for (const edit of edits.sort((left, right) => right.start - left.start)) {
@@ -557,6 +592,7 @@ class DeclarationAnalyzer {
     if (specifier.startsWith('.')) {
       const base = path.resolve(path.dirname(unit.fileName), specifier)
       return [
+        base.replace(/(?<!\.d)\.mjs$/, '.d.mts').replace(/(?<!\.d)\.js$/, '.d.ts'),
         base,
         `${base}.d.ts`,
         `${base}.d.mts`,
@@ -849,7 +885,21 @@ class DeclarationAnalyzer {
       })
     }
 
-    return this.#resolveNamedProperties(name, typeArguments, context, visited)
+    const properties = await this.#resolveNamedProperties(name, typeArguments, context, visited)
+    if (
+      name === 'BaseProps' &&
+      typeArguments.length === 5 &&
+      !properties.some((property) => property.name === 'ref')
+    ) {
+      const elementType = formatType(contextValue(typeArguments[0]!, context))
+      properties.push({
+        name: 'ref',
+        optional: true,
+        typeText: `JSX.HTMLElementTags[${elementType}] extends { ref?: infer Ref; } ? Ref : never | undefined`,
+        originModule: 'Moraine',
+      })
+    }
+    return properties
   }
 
   async resolveProperties(
@@ -879,6 +929,10 @@ class DeclarationAnalyzer {
       return this.resolveProperties(contextValue(node.typeAnnotation, context), visited)
     }
     if (node.type === 'TSConditionalType') {
+      const resolvedBranch = resolveConditionalBranch(node, context.env)
+      if (resolvedBranch) {
+        return this.resolveProperties(contextValue(resolvedBranch, context), visited)
+      }
       const [trueProperties, falseProperties] = await Promise.all([
         this.resolveProperties(contextValue(node.trueType, context), visited),
         this.resolveProperties(contextValue(node.falseType, context), visited),
@@ -1418,7 +1472,7 @@ async function processComponentNode(
     return null
   }
 
-  const componentName = node.id.name
+  const componentName = node.id.name.replace(/\$\d+$/, '')
   const componentKey = toKebabCase(componentName)
   const jsDoc = getJsDoc(analyzer.mainUnit.source, node)
   const line = lineAtOffset(analyzer.mainUnit.source.text, node.start)
@@ -1462,29 +1516,92 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
     return null
   }
 
-  const dtsContent = readFileSync(dtsPath, 'utf8')
-  const processedContent = await preprocessGenericTypeAliases(dtsContent, dtsPath)
-  const analyzer = await DeclarationAnalyzer.create(projectRoot, dtsPath, processedContent)
   const sourceSlotAnalyzer = new SourceSlotAnalyzer(projectRoot)
-  const regionByLine = buildRegionByLine(processedContent)
-  const metadata = await collectNamespaceMetadata(analyzer)
   const componentDocs = new Map<string, ComponentDoc>()
+  const kinds = new Map<string, NonNullable<ComponentIndexEntry['kind']>>()
+  const pending = [dtsPath]
+  const visited = new Set<string>()
 
-  for (const statement of analyzer.mainUnit.source.program.body) {
-    const declaration = declarationFromStatement(statement)
-    if (declaration?.type !== 'TSDeclareFunction') {
+  while (pending.length > 0) {
+    const fileName = pending.pop()!
+    if (visited.has(fileName)) {
       continue
     }
-    const component = await processComponentNode(
-      declaration,
-      analyzer,
-      sourceSlotAnalyzer,
-      regionByLine,
-      metadata,
-    )
-    if (component) {
-      componentDocs.set(component.key, component.doc)
+    visited.add(fileName)
+    const content = readFileSync(fileName, 'utf8')
+    const processedContent = await preprocessGenericTypeAliases(content, fileName)
+    const analyzer = await DeclarationAnalyzer.create(projectRoot, fileName, processedContent)
+    const regionByLine = buildRegionByLine(processedContent)
+    const metadata = await collectNamespaceMetadata(analyzer)
+
+    for (const [name, declarations] of analyzer.mainUnit.declarations) {
+      if (!name.endsWith('T.Kind')) {
+        continue
+      }
+      for (const { node } of declarations) {
+        if (
+          node.type !== 'TSTypeAliasDeclaration' ||
+          node.typeAnnotation.type !== 'TSLiteralType' ||
+          node.typeAnnotation.literal.type !== 'Literal' ||
+          (node.typeAnnotation.literal.value !== 'single' &&
+            node.typeAnnotation.literal.value !== 'composite')
+        ) {
+          throw new Error(`${name} must be the literal type 'single' or 'composite'`)
+        }
+        kinds.set(name.slice(0, -'T.Kind'.length), node.typeAnnotation.literal.value)
+      }
     }
+
+    for (const statement of analyzer.mainUnit.source.program.body) {
+      if (
+        (statement.type === 'ImportDeclaration' ||
+          statement.type === 'ExportNamedDeclaration' ||
+          statement.type === 'ExportAllDeclaration') &&
+        typeof statement.source?.value === 'string' &&
+        statement.source.value.startsWith('.')
+      ) {
+        const dependency = path
+          .resolve(path.dirname(fileName), statement.source.value)
+          .replace(/(?<!\.d)\.mjs$/, '.d.mts')
+          .replace(/(?<!\.d)\.js$/, '.d.ts')
+        if (existsSync(dependency)) {
+          pending.push(dependency)
+        }
+      }
+      const declaration = declarationFromStatement(statement)
+      if (declaration?.type !== 'TSDeclareFunction') {
+        continue
+      }
+      const component = await processComponentNode(
+        declaration,
+        analyzer,
+        sourceSlotAnalyzer,
+        regionByLine,
+        metadata,
+      )
+      if (component) {
+        componentDocs.set(component.key, component.doc)
+      }
+    }
+  }
+
+  for (const [key, doc] of componentDocs) {
+    const kind = kinds.get(doc.component.name)
+    if (kind) {
+      doc.component.kind = kind
+    }
+    const match =
+      /^(dialog|sheet|modal|popover|tooltip|dropdown-menu|context-menu)-(trigger|content|close)$/.exec(
+        key,
+      )
+    const root = match && componentDocs.get(match[1]!)
+    if (!root || !match) {
+      continue
+    }
+    const primitive = match[2]!
+    doc.component.name = `${root.component.name}.${primitive[0]!.toUpperCase()}${primitive.slice(1)}`
+    ;(root.primitives ??= []).push(doc)
+    componentDocs.delete(key)
   }
 
   return {

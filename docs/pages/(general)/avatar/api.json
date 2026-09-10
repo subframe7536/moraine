@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Circular user or entity avatar with fallback initials and optional indicator.",
-    "sourcePath": "src/elements/avatar/avatar.tsx"
+    "sourcePath": "src/elements/avatar/avatar.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -33,7 +34,14 @@
       "name": "image",
       "description": "Loaded avatar image rendered inside the frame.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-status",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores async loading, loaded, or error status."
+        }
+      ],
       "ariaAttributes": [
         {
           "name": "aria-hidden",
@@ -47,7 +55,14 @@
       "name": "fallback",
       "description": "Text fallback shown while the image is unavailable or failed.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-status",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores async loading, loaded, or error status."
+        }
+      ],
       "ariaAttributes": [
         {
           "name": "aria-hidden",
@@ -143,7 +158,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "src",

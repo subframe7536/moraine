@@ -43,41 +43,42 @@ import type { ContextMenuT } from 'moraine'
   ]}
 >
   {(props) => (
-    <ContextMenu
-      items={[
-        {
-          type: 'group',
-          label: 'Edit',
-          children: [
-            { label: 'Cut', icon: 'i-lucide:scissors', kbds: ['⌘', 'X'] },
-            { label: 'Copy', icon: 'i-lucide:copy', kbds: ['⌘', 'C'] },
-            { label: 'Paste', icon: 'i-lucide:clipboard', kbds: ['⌘', 'V'] },
-          ],
-        },
-        {
-          type: 'group',
-          children: [{ label: 'Delete', icon: 'i-lucide:trash-2', color: 'destructive' }],
-        },
-      ]}
-      size={props.size}
-      disabled={props.disabled}
-    >
-      {(triggerProps) => (
-        <div
-          {...triggerProps}
-          class="text-xs text-muted-foreground border border-border/60 rounded-xl border-dashed bg-muted/20 flex h-36 max-w-full w-80 select-none items-center justify-center"
-        >
-          Right click or long press here
-        </div>
-      )}
+    <ContextMenu disabled={props.disabled}>
+      <ContextMenu.Trigger
+        as="div"
+        class="text-xs text-muted-foreground border border-border/60 rounded-xl border-dashed bg-muted/20 flex h-36 max-w-full w-80 select-none items-center justify-center"
+      >
+        Right click or long press here
+      </ContextMenu.Trigger>
+      <ContextMenu.Content
+        items={[
+          {
+            type: 'group',
+            label: 'Edit',
+            children: [
+              { label: 'Cut', icon: 'i-lucide:scissors', kbds: ['⌘', 'X'] },
+              { label: 'Copy', icon: 'i-lucide:copy', kbds: ['⌘', 'C'] },
+              { label: 'Paste', icon: 'i-lucide:clipboard', kbds: ['⌘', 'V'] },
+            ],
+          },
+          {
+            type: 'group',
+            children: [{ label: 'Delete', icon: 'i-lucide:trash-2', color: 'destructive' }],
+          },
+        ]}
+        size={props.size}
+      />
     </ContextMenu>
   )}
 </Playground>
 
 ## Anatomy
 
+`ContextMenu` owns state and context without adding a DOM element. `ContextMenu.Trigger` owns its attributes, events, ref, and styling; `ContextMenu.Content` owns the floating surface and presentation props. Put native surface attributes directly on Content.
+
 ```text
-trigger
+Root (context only)
+├── Trigger
 └── content (floating portal)
     └── group (×n)
         ├── label (optional)
@@ -94,7 +95,7 @@ trigger
 
 ### Triggering the menu
 
-Wrap the target with the render-function child. The menu opens from a context-menu gesture, keyboard context-menu keys, or a supported touch/pen long press. Avoid putting essential actions only in a context menu.
+Wrap the target with `ContextMenu.Trigger`. The menu opens from a context-menu gesture, keyboard context-menu keys, or a supported touch/pen long press. Avoid putting essential actions only in a context menu.
 
 <Preview path="./trigger-usage" />
 
@@ -116,6 +117,12 @@ Groups, separators, checkbox items, radio items, disabled items, and nested chil
 | <kbd>Escape</kbd>                               | Closes the current menu layer.                             |
 
 ## Examples
+
+### File actions
+
+Move a file between folders, add it to favorites, or move it to the trash and undo. These actions update local example state; permission-dependent actions remain disabled.
+
+<Preview path="./file-actions" />
 
 ### Basic context menu
 

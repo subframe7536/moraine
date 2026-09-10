@@ -1,8 +1,8 @@
 import type { JSX } from 'solid-js'
 import { createMemo, createSignal, onMount, Show, untrack } from 'solid-js'
 
-import { Button } from '../../../../src/index'
-import type { ItemDoc, SlotDoc } from '../../../build/api-doc/types'
+import { Button } from '../../../../src'
+import type { ComponentDoc } from '../../../build/api-doc/types'
 import type { DocsRouteMetadata, FrontmatterData } from '../../../build/markdown/types'
 import type { OnThisPageEntry } from '../../hooks/use-table-of-contents'
 
@@ -12,37 +12,7 @@ import { OnThisPage } from './on-this-page'
 
 const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/main'
 
-interface ComponentIndexEntry {
-  name: string
-  key: string
-  category: string
-  description?: string
-  sourcePath?: string
-  polymorphic: boolean
-}
-
-interface ComponentPropDoc {
-  name: string
-  required: boolean
-  type: string
-  description?: string
-  defaultValue?: string
-}
-
-interface ComponentPropsDoc {
-  own: ComponentPropDoc[]
-  inherited: {
-    from: string
-    props: ComponentPropDoc[]
-  }[]
-}
-
-export interface ExamplePageApiDoc {
-  component: ComponentIndexEntry
-  slots: SlotDoc[]
-  props: ComponentPropsDoc
-  item?: ItemDoc
-}
+export type ExamplePageApiDoc = ComponentDoc
 
 export interface DocsMdxCodeTabItem {
   label: string
@@ -161,6 +131,17 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
             <Show when={componentKey()}>
               {(nextComponentKey) => (
                 <span class="text-xs text-muted-foreground font-mono">{nextComponentKey()}</span>
+              )}
+            </Show>
+            <Show when={component()?.kind}>
+              {(kind) => (
+                <a
+                  href="/styling#component-kinds"
+                  aria-label={`${kind() === 'single' ? 'Single' : 'Composite'} component: styling guide`}
+                  class="text-xs text-muted-foreground px-2 py-0.5 border border-border rounded-md bg-muted/40 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+                >
+                  {kind() === 'single' ? 'Single' : 'Composite'}
+                </a>
               )}
             </Show>
           </div>

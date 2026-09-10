@@ -2,6 +2,9 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../shared/provider'
+import { defaultTheme } from '../../theme/default-theme'
+
 import { Checkbox } from './checkbox'
 
 function expectCheckboxChecked(element: Element, checked: boolean | 'mixed'): void {
@@ -13,6 +16,22 @@ function getHiddenCheckbox(container: HTMLElement): HTMLInputElement {
 }
 
 describe('Checkbox', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = render(() => (
+      <Checkbox variant="card" indicator="end" size="lg" label="Classes" />
+    ))
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const base = screen.container.querySelector('[data-slot="control"]')
+    expect(root?.className).toBe('')
+    expect(base?.className).toBe('')
+  })
+
+  test('exposes native inputRef', () => {
+    let ref: HTMLInputElement | undefined
+    render(() => <Checkbox inputRef={(el) => (ref = el)} label="Ref test" />)
+    expect(ref).toBeInstanceOf(HTMLInputElement)
+    expect(ref?.type).toBe('checkbox')
+  })
   test('renders label and description with accessible checkbox input', () => {
     const screen = render(() => (
       <Checkbox label="Accept terms" description="Required to continue" />
@@ -376,13 +395,15 @@ describe('Checkbox', () => {
 
   test('applies card variant, end indicator and size classes', () => {
     const screen = render(() => (
-      <Checkbox
-        variant="card"
-        indicator="end"
-        size="lg"
-        label="Classes"
-        classes={{ root: 'root-override' }}
-      />
+      <MoraineProvider theme={defaultTheme}>
+        <Checkbox
+          variant="card"
+          indicator="end"
+          size="lg"
+          label="Classes"
+          classes={{ root: 'root-override' }}
+        />
+      </MoraineProvider>
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]')
@@ -395,7 +416,7 @@ describe('Checkbox', () => {
     expect(root?.className).toContain('root-override')
     expect(input?.className).toContain('peer')
     expect(container?.className).toContain('h-6')
-    expect(base?.className).toContain('focus-visible:effect-fv-border')
+    expect(base?.className).toContain('focus-visible:ring-ring/50')
     expect(base?.className).toContain('size-4.5')
     expect(screen.getByText('Classes').className).toContain('select-none')
   })

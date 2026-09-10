@@ -5,7 +5,8 @@
     "category": "navigation",
     "polymorphic": false,
     "description": "CommandPalette is a component for displaying a searchable list of commands or options, optionally grouped into categories. It supports keyboard navigation and customizable rendering through slots and styles.",
-    "sourcePath": "src/navigation/command-palette/command-palette.tsx"
+    "sourcePath": "src/navigation/command-palette/command-palette.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -258,12 +259,6 @@
         "description": "Secondary description text shown for the item."
       },
       {
-        "name": "descriptionPosition",
-        "required": false,
-        "type": "CommandPaletteT.DescriptionPosition | undefined",
-        "description": "Where the item description is rendered. Overrides the root setting."
-      },
-      {
         "name": "disabled",
         "required": false,
         "type": "boolean | undefined",
@@ -345,7 +340,7 @@
         "name": "descriptionPosition",
         "required": false,
         "type": "CommandPaletteT.DescriptionPosition | undefined",
-        "description": "Where descriptions render by default.",
+        "description": "Where descriptions render in each command item.",
         "defaultValue": "bottom"
       },
       {
@@ -391,6 +386,12 @@
         "required": false,
         "type": "JSX.HTMLAttributes<HTMLInputElement> | undefined",
         "description": "Additional props of input"
+      },
+      {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined",
+        "description": "Ref forwarded to the inner search `<input>` element."
       },
       {
         "name": "itemProps",
@@ -459,7 +460,8 @@
       {
         "name": "ref",
         "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+        "type": "Ref<HTMLDivElement> | undefined",
+        "description": "Ref forwarded to the root `<div>` element."
       },
       {
         "name": "scrollToItem",

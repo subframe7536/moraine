@@ -1,8 +1,6 @@
 import plugin from 'tailwindcss/plugin'
 
 import {
-  MORAINE_ANIM_DUR_VAR_ENTER,
-  MORAINE_EASE_OUT,
   MORAINE_KEYFRAMES,
   buildTailwindAnimations,
   getMoraineAnimCounts,
@@ -20,6 +18,8 @@ import {
 } from '../shared/style/theme'
 
 export interface MorainePluginOptions {
+  /** Emit default page background and text colors. @default true */
+  globalStyles?: boolean
   /**
    * Emit `icon-*` utility stubs so Tailwind's scanner recognises them.
    * Actual icon rendering is handled by `@iconify/tailwind` or `moraine/icon.css`.
@@ -30,9 +30,7 @@ export interface MorainePluginOptions {
 
 /**
  * Generate empty CSS stubs for each `icon-*` shortcut so Tailwind's scanner
- * keeps them when they appear in moraine component files.
- * Actual icon rendering comes from `@iconify/tailwind` (Tier 2) or
- * `moraine/icon.css` (Tier 1).
+ * Actual icon rendering comes from `@iconify/tailwind` or `moraine/icon.css`.
  */
 function buildIconShortcutUtilities(): Record<string, Record<string, never>> {
   return Object.fromEntries(DEFAULT_ICON_SHORTCUTS.map(([name]) => [`.${name}`, {}]))
@@ -42,36 +40,96 @@ type TailwindPlugin = (options?: MorainePluginOptions) => ReturnType<typeof plug
 
 export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = {}) =>
   plugin(
-    ({ addBase, addUtilities, matchVariant }) => {
-      addBase({
-        ':root, :host': {
-          '--default-transition-duration': MORAINE_ANIM_DUR_VAR_ENTER,
-          '--default-transition-timing-function': MORAINE_EASE_OUT,
-        },
-      })
+    ({ addBase, addUtilities, matchUtilities, matchVariant, theme }) => {
+      if (options.globalStyles !== false) {
+        addBase({
+          html: {
+            backgroundColor: 'var(--background)',
+            color: 'var(--foreground)',
+          },
+        })
+      }
 
       if (options.icons !== false) {
         addUtilities(buildIconShortcutUtilities())
       }
 
+      matchUtilities(
+        {
+          'enter-opacity': (value) => ({ '--mo-enter-opacity': value }),
+          'exit-opacity': (value) => ({ '--mo-exit-opacity': value }),
+        },
+        { values: theme('opacity') },
+      )
+
+      matchUtilities(
+        {
+          'enter-scale': (value) => ({ '--mo-enter-scale': value }),
+          'exit-scale': (value) => ({ '--mo-exit-scale': value }),
+        },
+        { values: theme('scale') },
+      )
+
+      matchUtilities(
+        {
+          'enter-translate-x': (value) => ({ '--mo-enter-translate-x': value }),
+          'exit-translate-x': (value) => ({ '--mo-exit-translate-x': value }),
+          'enter-translate-y': (value) => ({ '--mo-enter-translate-y': value }),
+          'exit-translate-y': (value) => ({ '--mo-exit-translate-y': value }),
+        },
+        {
+          values: { ...theme('spacing'), ...theme('translate') },
+          supportsNegativeValues: true,
+        },
+      )
+
+      matchUtilities(
+        {
+          'enter-rotate': (value) => ({ '--mo-enter-rotate': value }),
+          'exit-rotate': (value) => ({ '--mo-exit-rotate': value }),
+        },
+        {
+          values: theme('rotate'),
+          supportsNegativeValues: true,
+        },
+      )
+
       // Attribute variants for data-* and aria-* selectors
       // Enables utilities like data-active:bg-primary -> [data-active]:bg-primary
-      matchVariant('data', (value) => `[data-${value}] &`, {
+      matchVariant('data', (value) => `&[data-${value}]`, {
         values: Object.fromEntries(
           [
             'active',
             'checked',
+            'clickable',
+            'closed',
+            'cross',
             'disabled',
+            'dragging',
             'expanded',
+            'focused',
+            'footer',
+            'header',
+            'highlighted',
             'hidden',
+            'indeterminate',
+            'instant-motion',
+            'invalid',
+            'loading',
             'open',
+            'positioned',
             'selected',
+            'scroll',
             'pressed',
+            'submitting',
+            'transitioning',
+            'transition',
+            'unchecked',
           ].map((v) => [v, v]),
         ),
       })
 
-      matchVariant('aria', (value) => `[aria-${value}] &`, {
+      matchVariant('aria', (value) => `&[aria-${value}]`, {
         values: Object.fromEntries(
           [
             'busy',
@@ -79,6 +137,7 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
             'disabled',
             'expanded',
             'hidden',
+            'invalid',
             'modal',
             'pressed',
             'readonly',
@@ -100,11 +159,9 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
           keyframes: MORAINE_KEYFRAMES,
           animation: buildTailwindAnimations(),
           transitionDuration: {
-            DEFAULT: MORAINE_ANIM_DUR_VAR_ENTER,
             ...getMoraineAnimDurations(),
           },
           transitionTimingFunction: {
-            DEFAULT: MORAINE_EASE_OUT,
             ...getMoraineAnimTimingFns(),
           },
           animationIterationCount: getMoraineAnimCounts(),
@@ -112,3 +169,5 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
       },
     },
   )
+
+export default moraineTailwind()

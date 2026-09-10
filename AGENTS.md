@@ -7,13 +7,14 @@ Current stage: pre-alpha. breaking change allowed.
 
 ## Essential Commands
 
-Use `nub` for package management and script execution. Prefer `nub` over `node`, `bun`, `npm`, `npx`, `pnpm`, and `yarn`.
+Use `nub` for package management and script execution. Prefer `nub` / `nubx` over `node`, `bun`, `npm`, `npx`, `pnpm`, and `yarn`.
+
+If not installed, follows the instructions at https://nubjs.com/start.md to install.
 
 ### Build & Development
 
 - `nub run build` - Build the library using tsdown (outputs to dist/).
-- `nub run dev` - Build in watch mode for development.
-- `nub run docs` - Start the dev Vite server on port 3000.
+- `nub run dev` - Build the library and start the documentation/development Vite server.
 - `nub run typecheck` - Run TypeScript type checking.
 
 ### Linting & Formatting
@@ -94,11 +95,11 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 
 - Create a `{component}.class.ts` file.
 - Reusable constant class should define as `*_CLASS` global variable
-- Use `cva` from `src/shared/utils` to define variants.
-- Use `cn` from `src/shared/utils` to combine classes.
+- Use `recipe` from `src/shared/style/recipe.ts` to define variants.
+- In components, capture `useCn()` during initialization and use that handle to combine classes. Pass `Cn` explicitly to plain rendering helpers. Use static `cn` or `createCn` for owner-independent tools.
 - No need to create memo for classes, just write them inplace
-- State-based class should use pure class instead of adding a newn variant in cva
-- Use UnoCSS variant groups for cleaner code: `hover:(bg-red-500 text-white)` instead of `hover:bg-red-500 hover:text-white`.
+- State-based class should use a pure class instead of adding a new variant in `recipe`.
+- Recipe options in `*.class.ts` may use parenthesized variant groups (for example, `hover:(bg-red-500 text-white)`); the build plugin expands them before `cn`, Tailwind, or UnoCSS reads the classes. Use standard flat utility syntax everywhere else.
 
 ## Code Style & Conventions
 
@@ -115,6 +116,7 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 ### Public Type Exports
 
 - Component public types must be declared in the component namespace: `<Component>T`.
+- Each public component namespace must declare `Kind` as the literal type `'single'` or `'composite'`. Use `'composite'` when the component exposes attached child components for composition; slot count and group naming do not determine the kind. `FormT.Kind` describes the bound `form.Form`, so it is `'single'`. Documentation reads this type to generate `component.kind`.
 - Component namespaces should contain `Slot`, `Variant`, `Classes`, `Styles`, `Item`, `Base`, and `Props` as applicable.
 - Do not add an `Extend` namespace type. Inline inherited/extended prop sources into the namespace `Base` type and pass `never` as the extension argument to `BaseProps`.
 - Top-level type export is only allowed for the component props type: `XxxProps` (must match the component name).
@@ -134,14 +136,14 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 
 - **Utility First:** Use utility classes for 99% of styling.
 - **Class Prop:** Always use `class` (not `className`).
-- **Consistency:** Use the `cn` (classnames) utility or `cva` to merge classes.
+- **Consistency:** Use `cn` to merge classes and `recipe` to define variants.
 
 ### Error Handling
 
 - **Async:** Use `try/catch` block within async event handlers.
 - **Boundaries:** Use `<ErrorBoundary>` for component-level error containment.
 - **Types:** Avoid `any`. Use `unknown` if type is truly uncertain, then narrow it.
-- NEVER use `cva()` with static-only classes
+- Never use `recipe()` for static-only classes.
 
 ### Testing
 

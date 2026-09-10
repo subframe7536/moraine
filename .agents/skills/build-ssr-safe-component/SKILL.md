@@ -5,7 +5,21 @@ description: Gate the design, implementation, tests, and production validation o
 
 # Build an SSR-Safe Component
 
-Treat SSR safety as a required component acceptance gate, not a later bug fix. Do not consider a new component complete until every gate below passes.
+Validate JSX ownership, lazy mounting, and hydration behavior when creating or changing a component.
+Apply the gates relevant to the change; an example's syntax is not a universal implementation requirement.
+
+## Establish Runtime Evidence
+
+For a suspected regression, reproduce observable behavior before choosing a fix. Inspect the installed
+Solid runtime when ownership or evaluation timing is unclear. Use getter, mount, and cleanup counters
+as probes alongside DOM identity, reactive updates, and real SSR/hydration assertions. Remove a candidate
+change in isolation to establish whether it is necessary; restore temporary instrumentation afterward.
+
+Do not infer a hydration bug from a getter-count assertion alone. Ordinary scalar props such as
+`orientation`, `disabled`, or numeric values may be read by multiple consumers. Do not add memos or
+single-read tests for those props unless an explicit API contract or measured computation cost requires
+it. Test their observable semantics and reactive updates instead. JSX-producing getters differ because
+reading them can instantiate nodes and owned computations.
 
 ## Gate 1: Inventory the JSX API
 
@@ -22,7 +36,11 @@ Reject the API design if a value has ambiguous semantics. A function must not so
 
 Follow Moraine's namespace and public type rules from `AGENTS.md` while defining the API.
 
-## Gate 2: Prove Single Resolution
+## Gate 2: Resolve JSX in the Correct Owner
+
+Both `children()` and `createMemo()` evaluate immediately when created; deferring calls to their returned
+accessors does not defer initialization. The examples below assume their owning tree should exist now.
+For conditional content, create these resolvers in the mounting scope described in Gate 4.
 
 ### Actual children
 
@@ -69,7 +87,7 @@ adds its own boundary and can hide the actual asymmetry.
 
 ### Arbitrary JSX props
 
-Cache each prop before condition checks, normalization, classes, or rendering:
+When a JSX prop is consumed repeatedly, cache it in its mounting scope before condition checks, normalization, classes, or rendering. A single rendering site may read it directly:
 
 ```tsx
 const title = createMemo(() => props.title)
@@ -125,21 +143,31 @@ and intentional `createComponent` boundaries.
 
 For overlays and other presence-controlled components:
 
-- Cache raw trigger/content props.
-- Base presence on the cached raw value.
-- Instantiate the rendered content only inside the present branch.
-- Never eagerly resolve a closed overlay's content tree.
+- Determine presence from open/transition state without reading a JSX-producing content getter.
+- Initialize content resolvers only inside the present branch, including in public wrappers. Delaying
+  the base component cannot undo a wrapper's earlier `children()` or `createMemo()` call.
+- A prop returning a component function can be read without mounting that function, but a raw JSX
+  getter can create nodes immediately. Do not assume caching a "raw value" makes JSX lazy.
 
 ```tsx
-const content = createMemo(() => props.content)
-const contentPresence = useTransitionPresence({
-  open: () => Boolean(open() && content()),
-})
-
 <Show when={contentPresence.present()}>
-  {renderComponentOrElement(content(), state)}
+  {(_present) => {
+    const content = resolveChildren(() => props.children)
+    return <div>{content()}</div>
+  }}
 </Show>
 ```
+
+A named function passed as the callback is equivalent to an inline callback when invoked in the same
+owner and at the same time. Choose the clearer local form; do not add helpers or force inlining merely
+to satisfy this skill. Moving resolver construction into a function only helps if its invocation is
+also deferred.
+
+In Solid 1.9.15, `Show` recognizes a render callback using `typeof child === 'function' && child.length > 0`
+and invokes it with `untrack`. Keep a parameter even when unused. A zero-argument function is treated as
+an ordinary JSX accessor, which can acquire dependencies and recreate content during unrelated updates.
+Verify this against the installed version when changing that pattern, and test node identity across
+trigger replacement and positioning updates.
 
 For client-only content, SSR and initial hydration must render the same tree. Defer the client tree until Solid has cleared the hydration context:
 
@@ -151,9 +179,9 @@ onMount(() => queueMicrotask(() => setIsMounted(true)))
 
 A synchronous `onMount` update can still occur during hydration. Likewise, a hydrating `ref` must not synchronously set state that reveals SSR-absent nodes. Assign the element in the ref, then measure from an effect, observer, or microtask.
 
-## Gate 5: Add Mandatory Regression Tests
+## Gate 5: Test Observable Behavior and JSX Ownership
 
-For every JSX prop inspected or consumed from multiple paths, add a getter-backed single-evaluation test:
+For JSX-producing props consumed from multiple paths, use a getter-backed test to detect duplicate instantiation within one mount. Do not apply this assertion to ordinary scalar props:
 
 ```tsx
 let reads = 0
@@ -172,14 +200,14 @@ expect(reads).toBe(1)
 
 Add applicable coverage for:
 
-- Plain JSX children and slot props evaluate once.
+- Plain JSX children and slot props are not instantiated repeatedly within one mount.
 - Render-prop components are created once and remain reactive to state changes.
 - Falsy render results omit optional wrappers.
 - Empty, fallback, and reactive replacement behavior.
-- Overlay trigger/content values evaluate once and closed content is not instantiated.
+- Closed overlay content is not instantiated; opening mounts it, closing releases owned resources, and reopening may create a fresh instance. Force-mounted content retains its instance across open-state changes.
 - Client-only or measured nodes are absent before their microtask and appear afterward.
 
-JSDOM does not validate hydration key order. Unit tests are necessary but insufficient.
+JSDOM can detect hydration-key mismatches when tests hydrate actual SSR output; client-only `render()` tests cannot. Production browser checks additionally cover build differences, layout, and visibility.
 
 Hydration can silently remove a mismatched descendant without logging an error. For critical JSX,
 also assert in a production browser that the hydrated node still exists under its intended parent.
@@ -236,17 +264,17 @@ Port the behavior, not Kobalte's API shape. Keep Moraine's `ComponentOrElement` 
 
 ## Acceptance Checklist
 
-Do not approve the new component until all answers are yes:
+For the gates applicable to the change, verify:
 
 - Every JSX-capable prop has one documented semantic category.
-- Every inspected/rendered JSX value has one cached accessor.
+- Repeatedly consumed JSX-producing values are resolved in the correct mounting scope; scalar props are not subject to a single-read rule.
 - `ComponentOrElement` children resolve Solid accessors before component/render-prop mounting.
 - No original prop is reread after resolution.
 - Server and client create the same nodes and component boundaries in the same order.
 - No helper component or DOM wrapper exists only to manipulate hydration keys.
 - No empty wrapper, visual variant branch, or leaf-element substitution masks key-order drift.
 - Closed/client-only branches do not create SSR-absent trees during hydration.
-- Getter-backed tests prove single evaluation.
+- Getter-backed tests detect duplicate JSX instantiation; behavior tests prove scalar reactivity and DOM identity.
 - Stateful render props remain reactive without reinvocation.
 - Focused tests, QA, and relevant full tests pass or unrelated failures are recorded.
 - Production SSG has zero hydration console errors.

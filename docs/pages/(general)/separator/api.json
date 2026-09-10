@@ -5,9 +5,37 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Visual divider with configurable orientation, style, and border type.",
-    "sourcePath": "src/elements/separator/separator.tsx"
+    "sourcePath": "src/elements/separator/separator.tsx",
+    "kind": "single"
   },
-  "slots": [],
+  "slots": [
+    {
+      "name": "root",
+      "description": "Visual divider element.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        },
+        {
+          "name": "aria-orientation",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Communicates horizontal or vertical orientation."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    }
+  ],
   "props": {
     "own": [
       {
@@ -15,11 +43,6 @@
         "required": false,
         "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "SeparatorT.Classes | undefined"
       },
       {
         "name": "decorative",
@@ -41,24 +64,9 @@
         "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
-        "name": "size",
-        "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
-      },
-      {
         "name": "style",
         "required": false,
         "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "SeparatorT.Styles | undefined"
-      },
-      {
-        "name": "type",
-        "required": false,
-        "type": "\"solid\" | \"dashed\" | \"dotted\" | undefined"
       }
     ],
     "inherited": []

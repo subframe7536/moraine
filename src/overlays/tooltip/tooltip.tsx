@@ -1,6 +1,8 @@
-import type { JSX } from 'solid-js'
+import type { Accessor, JSX, ValidComponent } from 'solid-js'
 import {
   Show,
+  children as resolveChildren,
+  createComponent,
   createEffect,
   createMemo,
   createSignal,
@@ -9,105 +11,16 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { KbdGroup } from '../../elements/kbd/index'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { KbdGroup } from '../../elements/kbd'
+import { createContextProvider } from '../../shared/create-context-provider'
+import { createComponentStyles } from '../../shared/provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
-import { cn, useId } from '../../shared/utils'
-import { Popper, resolveOverlayMenuSide } from '../base/index'
-import type { OverlayMenuSide, PopperContentContext, PopperProps } from '../base/index'
-import type { OverlayTriggerProps } from '../base/trigger'
+import { useId } from '../../shared/utils'
+import { resolveOverlayMenuSide } from '../base'
+import { createPopper, PopperTrigger, PopperContent, mergePopperElementProps } from '../base/popper'
+import type { PopperTriggerProps } from '../base/popper.types'
 
-import { tooltipContentVariants } from './tooltip.class'
-import type { TooltipVariantProps } from './tooltip.class'
-
-export namespace TooltipT {
-  export interface Slot<T = unknown> {
-    /** Tooltip bubble positioned next to its trigger. */
-    content?: T
-
-    /** Primary text region inside the tooltip bubble. */
-    text?: T
-
-    /** Container for shortcut hints displayed beside tooltip text. */
-    kbds?: T
-
-    /** Individual keyboard key hint inside the tooltip. */
-    kbd?: T
-  }
-
-  export interface Variant extends TooltipVariantProps {
-    /**
-     * Visual side styles applied after the positioned placement is resolved.
-     * @default 'top'
-     */
-    side?: TooltipVariantProps['side']
-
-    /**
-     * Whether to use the inverted foreground-on-background color treatment.
-     * @default false
-     */
-    invert?: TooltipVariantProps['invert']
-  }
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-  export interface Item {}
-
-  /**
-   * Base props for the Tooltip component.
-   */
-  export interface Base extends Pick<
-    PopperProps,
-    'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'disabled' | 'placement' | 'forceMount'
-  > {
-    /**
-     * Preferred content placement relative to the trigger.
-     * @default 'top'
-     */
-    placement?: PopperProps['placement']
-
-    /**
-     * Delay in milliseconds before opening on hover or focus.
-     * @default 600
-     */
-    openDelay?: number
-
-    /**
-     * Delay in milliseconds before closing after leaving trigger or content.
-     * @default 200
-     */
-    closeDelay?: number
-
-    /**
-     * Delay in milliseconds to skip the open delay for the next trigger after closing.
-     * @default 300
-     */
-    instantOpenDelay?: number
-
-    /**
-     * Primary text content or element to display.
-     */
-    text?: JSX.Element
-
-    /**
-     * Keyboard shortcuts to display next to the text.
-     */
-    kbds?: string[]
-
-    /** Render the tooltip trigger as a single HTMLElement root. */
-    children?: (props: OverlayTriggerProps) => JSX.Element
-  }
-
-  /**
-   * Props for the Tooltip component.
-   */
-  export type TriggerProps = OverlayTriggerProps
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the Tooltip component.
- */
-export interface TooltipProps extends TooltipT.Props {}
+import type { TooltipProps, TooltipT } from './tooltip.types'
 
 interface TooltipTimers {
   close?: ReturnType<typeof setTimeout>
@@ -117,7 +30,6 @@ interface TooltipTimers {
 interface ActiveTooltip {
   close: () => void
   id: string
-  skipsOpenDelay: boolean
 }
 
 interface TooltipSkipDelay {
@@ -168,60 +80,54 @@ function clearActiveTooltip(id: string): void {
 }
 
 function shouldOpenImmediately(): boolean {
-  return Boolean(activeTooltip?.skipsOpenDelay || skipDelay)
+  return Boolean(activeTooltip || skipDelay)
 }
+
+const [TooltipProvider, useTooltipContext] = createContextProvider<{
+  options: TooltipProps
+  popper: ReturnType<typeof createPopper>
+  instantMotion: Accessor<boolean>
+  scheduleOpen: () => void
+  scheduleClose: () => void
+  dismiss: () => void
+  resetPress: () => void
+  keepOpen: () => void
+}>('Tooltip')
 
 /** Hover-triggered informational overlay anchored to a trigger element. */
 export function Tooltip(props: TooltipProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'id',
-    'open',
-    'defaultOpen',
-    'onOpenChange',
-    'disabled',
-    'placement',
-    'forceMount',
-    'openDelay',
-    'closeDelay',
-    'instantOpenDelay',
-    'side',
-    'invert',
-    'text',
-    'kbds',
-    'children',
-    'classes',
-    'styles',
-    'class',
-    'style',
-  ])
   const merged = mergeProps(
     {
-      placement: 'top' as const,
       openDelay: 600,
       closeDelay: 200,
       instantOpenDelay: 300,
     },
-    local,
+    props,
   )
-  const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
-    get class() {
-      return cn(props.class)
-    },
-    get style() {
-      return props.style
-    },
-  }) as Partial<OverlayTriggerProps>
+
   const tooltipId = useId(() => merged.id, 'tooltip')
   const [open, setOpen] = useControllableValue<boolean>({
     value: () => merged.open,
     defaultValue: () => merged.defaultOpen ?? false,
+  })
+  const popper = createPopper({
+    get id() {
+      return tooltipId()
+    },
+    get open() {
+      return open()
+    },
+    onOpenChange: requestOpen,
+    get disabled() {
+      return merged.disabled
+    },
   })
   const timers: TooltipTimers = {}
   const [shouldUseInstantMotion, setShouldUseInstantMotion] = createSignal(false)
   let ownerAlive = true
   let timerVersion = 0
   let wasResolvedOpen = false
-  let wasOpenedByInteraction = false
+  let dismissedByPress = false
   let disabledInitialized = false
   let wasDisabled = false
 
@@ -256,40 +162,40 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   function closeImmediately(): void {
     invalidateTimers()
     setShouldUseInstantMotion(true)
-    requestOpen(false)
+    if (open()) {
+      requestOpen(false)
+    }
 
     if (open()) {
       setShouldUseInstantMotion(false)
     }
   }
 
-  function requestTooltipOpen(openTooltip: () => void, instantMotion: boolean): void {
+  function requestTooltipOpen(instantMotion: boolean): void {
     clearOpenTimer()
     setShouldUseInstantMotion(instantMotion)
-    openTooltip()
+    popper.setOpen(true)
   }
 
-  function scheduleOpen(openTooltip: () => void, isOpen: boolean): void {
-    if (merged.disabled) {
+  function scheduleOpen(): void {
+    if (merged.disabled || dismissedByPress) {
       return
     }
 
     clearCloseTimer()
     clearOpenTimer()
 
-    if (isOpen) {
+    if (popper.isOpen()) {
       return
     }
 
-    wasOpenedByInteraction = true
-
     if (shouldOpenImmediately()) {
-      requestTooltipOpen(openTooltip, true)
+      requestTooltipOpen(true)
       return
     }
 
     if (merged.openDelay <= 0) {
-      requestTooltipOpen(openTooltip, false)
+      requestTooltipOpen(false)
       return
     }
 
@@ -300,14 +206,14 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         return
       }
 
-      requestTooltipOpen(openTooltip, false)
+      requestTooltipOpen(false)
     }, merged.openDelay)
   }
 
-  function scheduleClose(close: () => void, isOpen: boolean): void {
+  function scheduleClose(): void {
     clearOpenTimer()
 
-    if (!isOpen) {
+    if (!popper.isOpen()) {
       setShouldUseInstantMotion(false)
       return
     }
@@ -316,7 +222,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
 
     if (merged.closeDelay <= 0) {
       setShouldUseInstantMotion(false)
-      close()
+      popper.setOpen(false)
       return
     }
 
@@ -327,7 +233,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       }
 
       setShouldUseInstantMotion(false)
-      close()
+      popper.setOpen(false)
       clearCloseTimer()
     }, merged.closeDelay)
   }
@@ -356,7 +262,6 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         setActiveTooltip({
           id: tooltipId(),
           close: closeImmediately,
-          skipsOpenDelay: wasOpenedByInteraction,
         })
       }
 
@@ -371,113 +276,148 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     }
   })
 
-  function Content(context: PopperContentContext): JSX.Element {
-    const text = createMemo(() => merged.text)
-    const resolvedSide = createMemo<OverlayMenuSide>(() => {
-      const runtimePlacement = context.currentPlacement()
-
-      if (runtimePlacement) {
-        return resolveOverlayMenuSide(runtimePlacement)
-      }
-
-      if (merged.side) {
-        return merged.side
-      }
-
-      return resolveOverlayMenuSide(merged.placement)
-    })
-
-    return (
-      <div
-        data-slot="content"
-        style={merged.styles?.content}
-        class={tooltipContentVariants(
-          { side: resolvedSide(), invert: merged.invert },
-          shouldUseInstantMotion()
-            ? 'data-expanded:animate-none data-closed:animate-none'
-            : undefined,
-          merged.classes?.content,
-        )}
-        {...context.contentProps}
-      >
-        <Show when={typeof text() === 'string'} fallback={text()}>
-          <span
-            data-slot="text"
-            style={merged.styles?.text}
-            class={cn('leading-4 text-pretty', merged.classes?.text)}
-          >
-            {text()}
-          </span>
-        </Show>
-
-        <Show when={merged.kbds?.length ? merged.kbds : undefined}>
-          {(value) => (
-            <KbdGroup
-              variant={merged.invert ? 'invert' : undefined}
-              size="sm"
-              items={value()}
-              class={cn(text() && 'rounded-sm relative z-floating isolate', merged.classes?.kbds)}
-              classes={{ item: merged.classes?.kbd }}
-            />
-          )}
-        </Show>
-      </div>
-    )
+  const behavior: ReturnType<typeof useTooltipContext> = {
+    options: merged,
+    popper,
+    instantMotion: shouldUseInstantMotion,
+    scheduleOpen,
+    scheduleClose,
+    dismiss: () => {
+      dismissedByPress = true
+      closeImmediately()
+    },
+    resetPress: () => {
+      dismissedByPress = false
+    },
+    keepOpen: () => {
+      clearCloseTimer()
+      clearSkipDelay(tooltipId())
+    },
   }
+  return <TooltipProvider value={behavior}>{merged.children}</TooltipProvider>
+}
 
+function TooltipTrigger<T extends ValidComponent = 'button'>(
+  props: TooltipT.TriggerProps<T>,
+): JSX.Element {
+  const context = useTooltipContext()
+  const resolved = createComponentStyles('tooltip', props, { rootSlot: 'trigger' })
+  const popper = context.popper
+  const triggerProps = mergeProps(
+    mergePopperElementProps<HTMLElement>(
+      {
+        onPointerDown: context.dismiss,
+        onClick: context.dismiss,
+        onFocus: context.scheduleOpen,
+        onBlur: () => {
+          context.resetPress()
+          context.scheduleClose()
+        },
+        onPointerEnter: (event) => {
+          if (event.pointerType === 'mouse' || !event.pointerType) {
+            context.resetPress()
+            context.scheduleOpen()
+          }
+        },
+        onPointerLeave: (event) => {
+          if (event.pointerType === 'mouse' || !event.pointerType) {
+            context.scheduleClose()
+          }
+        },
+      },
+      props,
+    ),
+    resolved.root,
+    { context: popper, toggleOnClick: false, describeTrigger: true },
+  ) as PopperTriggerProps<T> & { context: ReturnType<typeof createPopper> }
+  return createComponent(PopperTrigger<T>, triggerProps)
+}
+
+function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'text',
+    'kbds',
+    'children',
+    'side',
+    'invert',
+    'class',
+    'style',
+    'classes',
+    'styles',
+  ])
+
+  const behavior = useTooltipContext()
+  const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
+    onPointerEnter: (event) => {
+      if (event.pointerType === 'mouse' || !event.pointerType) {
+        behavior.keepOpen()
+      }
+    },
+    onPointerLeave: (event) => {
+      if (event.pointerType === 'mouse' || !event.pointerType) {
+        behavior.scheduleClose()
+      }
+    },
+  }
+  const positioner = createComponentStyles('tooltip', {
+    get classes() {
+      return local.classes
+    },
+    get styles() {
+      return local.styles
+    },
+  })
+  const resolved = createComponentStyles('tooltip', local, { rootSlot: 'content' })
   return (
-    <Popper
-      id={tooltipId()}
-      open={open()}
-      onOpenChange={requestOpen}
-      disabled={merged.disabled}
-      placement={merged.placement ?? 'top'}
-      forceMount={merged.forceMount}
+    <PopperContent
+      context={behavior.popper}
+      placement={behavior.options.placement ?? 'top'}
+      forceMount={behavior.options.forceMount}
       overflowPadding={4}
       role="tooltip"
-      toggleOnClick={false}
       restoreFocusOnClose={false}
-      describeTrigger
-      onTriggerFocus={(props) => {
-        scheduleOpen(props.open, props.isOpen)
-      }}
-      onTriggerBlur={(props) => {
-        scheduleClose(props.close, props.isOpen)
-      }}
-      onTriggerPointerEnter={(props, event) => {
-        if (event.pointerType === 'mouse' || !event.pointerType) {
-          scheduleOpen(props.open, props.isOpen)
-        }
-      }}
-      onTriggerPointerLeave={(props, event) => {
-        if (event.pointerType === 'mouse' || !event.pointerType) {
-          scheduleClose(props.close, props.isOpen)
-        }
-      }}
-      onContentPointerEnter={(_, event) => {
-        if (event.pointerType === 'mouse' || !event.pointerType) {
-          clearCloseTimer()
-          clearSkipDelay(tooltipId())
-        }
-      }}
-      onContentPointerLeave={(props, event) => {
-        if (event.pointerType === 'mouse' || !event.pointerType) {
-          scheduleClose(props.close, props.isOpen)
-        }
-      }}
+      positionerClass={positioner.slot('positioner').class}
+      positionerStyle={positioner.slot('positioner').style}
     >
-      <Popper.Trigger
-        children={merged.children}
-        describeTrigger
-        toggleOnClick={false}
-        triggerProps={triggerProps}
-      />
-      <Popper.Content
-        positionerClass={
-          shouldUseInstantMotion() ? 'data-positioned:transition-transform' : undefined
-        }
-        contentRender={Content}
-      />
-    </Popper>
+      {(context) => {
+        const contentProps = mergeProps(context.contentProps, contentEvents)
+        const explicitText = createMemo(() => local.text)
+        const text = createMemo(() => {
+          const value = explicitText()
+          return value === undefined ? resolveChildren(() => local.children)() : value
+        })
+        const kbds = createMemo(() => local.kbds)
+        return (
+          <div
+            {...mergePopperElementProps(contentProps, rest)}
+            data-slot="content"
+            data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'top')}
+            data-instant-motion={behavior.instantMotion() ? '' : undefined}
+            {...resolved.root}
+          >
+            <Show when={typeof text() === 'string'} fallback={text()}>
+              <span data-slot="text" {...resolved.slot('text')}>
+                {text()}
+              </span>
+            </Show>
+            <Show when={kbds()?.length ? kbds() : undefined}>
+              {(keys) => (
+                <KbdGroup
+                  variant={resolved.variants.invert ? 'invert' : undefined}
+                  size="sm"
+                  items={keys()}
+                  {...resolved.slot('kbds')}
+                  classes={{ item: resolved.slot('kbd').class }}
+                  styles={{ item: resolved.slot('kbd').style }}
+                />
+              )}
+            </Show>
+          </div>
+        )
+      }}
+    </PopperContent>
   )
 }
+
+Tooltip.Trigger = TooltipTrigger
+Tooltip.Content = TooltipContent

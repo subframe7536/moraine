@@ -1,10 +1,17 @@
+import type { JSX } from 'solid-js'
 import { createContext } from 'solid-js'
 
-import type { ButtonVariantProps } from './button.class'
+import type { SlotClassValue, SlotStyleValue } from '../../shared/types'
+
+import type { ButtonT } from './button.types'
 
 export interface ButtonGroupContextValue {
-  readonly size: ButtonVariantProps['size']
-  readonly variant: ButtonVariantProps['variant']
+  readonly size?: ButtonT.Variant['size']
+  readonly variant?: ButtonT.Variant['variant']
+  readonly class?: SlotClassValue
+  readonly classes?: Record<string, SlotClassValue>
+  readonly style?: JSX.CSSProperties
+  readonly styles?: Record<string, SlotStyleValue>
 }
 
 export const ButtonGroupContext = createContext<ButtonGroupContextValue>()

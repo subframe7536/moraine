@@ -5,26 +5,34 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Expandable content section with optional height transitions.",
-    "sourcePath": "src/elements/collapsible/collapsible.tsx"
+    "sourcePath": "src/elements/collapsible/collapsible.tsx",
+    "kind": "composite"
   },
   "slots": [
     {
       "name": "root",
-      "description": "Container that owns the trigger and expandable content state.",
+      "description": "Container that owns the trigger and expandable content.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
     },
     {
       "name": "trigger",
-      "description": "Button users activate to toggle the content visibility.",
+      "description": "Interactive element that toggles the content.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "contentWrapper",
+      "description": "Outer wrapper that measures and animates the content height.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
     },
     {
       "name": "content",
-      "description": "Region that is mounted for the expanded collapsible content.",
+      "description": "Inner region that renders the collapsible content.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []

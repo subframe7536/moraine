@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Multi-select checkbox group with card, list, and table layout variants.",
-    "sourcePath": "src/forms/checkbox-group/checkbox-group.tsx"
+    "sourcePath": "src/forms/checkbox-group/checkbox-group.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -33,7 +34,14 @@
       "name": "legend",
       "description": "Legend text that labels the checkbox group.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field input is required."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -170,7 +178,14 @@
       "name": "label",
       "description": "Primary label text for an option.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field input is required."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -304,7 +319,9 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined"
+        "type": "\"horizontal\" | \"vertical\" | undefined",
+        "description": "Visual layout direction.",
+        "defaultValue": "vertical"
       },
       {
         "name": "readOnly",
@@ -328,7 +345,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",
@@ -349,7 +368,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"list\" | \"table\" | \"card\" | undefined"
+        "type": "\"list\" | \"table\" | \"card\" | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "list"
       }
     ],
     "inherited": []

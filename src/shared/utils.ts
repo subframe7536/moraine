@@ -1,9 +1,7 @@
-import { cls } from 'cls-variant'
-import type { ClassValueArray } from 'cls-variant'
-import { cvaFactory } from 'cls-variant/cva'
-import type { CvaFunction } from 'cls-variant/cva'
 import type { Accessor } from 'solid-js'
 import { createMemo, createUniqueId } from 'solid-js'
+
+export { cn } from './style/cn'
 
 /**
  * Generates a unique identifier for accessibility and form association.
@@ -45,20 +43,6 @@ export function useId(
   })
 
   return resolvedId
-}
-type extendCNFunction = (clz: string) => string
-
-let __fn: extendCNFunction = (s) => s
-export function extendCN(fn: extendCNFunction): void {
-  __fn = fn
-}
-
-export function cn(...classes: ClassValueArray): string | undefined {
-  return __fn(cls(...classes)) || undefined
-}
-
-export const cva: CvaFunction = (...args) => {
-  return cvaFactory((...classes) => __fn(cls(...classes)))(...args) || undefined
 }
 
 export interface HandlerCallResult<R = unknown> {

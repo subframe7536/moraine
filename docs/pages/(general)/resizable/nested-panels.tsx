@@ -1,125 +1,29 @@
 import { Icon, Resizable } from '@src'
 
+const panelClass = 'text-xs text-muted-foreground p-4 flex h-full items-center justify-center'
+
 export function NestedPanels() {
-  function createPanel(title: string, description: string, tone: string) {
-    return (
-      <div class={`p-4 h-full ${tone}`}>
-        <p class="text-sm text-foreground font-semibold">{title}</p>
-        <p class="text-xs text-muted-foreground mt-1">{description}</p>
-      </div>
-    )
-  }
-
   return (
-    <div class="gap-4 grid md:grid-cols-2">
-      <div class="space-y-2">
-        <p class="text-xs text-muted-foreground">
-          <code>intersection: true</code>
-        </p>
-        <div class="b-1 b-border border-border rounded-xl h-72 overflow-hidden">
-          <Resizable
-            handle
-            intersection
-            panels={[
-              {
-                defaultSize: '32%',
-                min: '20%',
-                content: createPanel(
-                  'Sidebar',
-                  'Outer divider can intersect with the nested group.',
-                  'bg-muted',
-                ),
-              },
-              {
-                defaultSize: '68%',
-                min: '35%',
-                content: (
-                  <Resizable
-                    orientation="vertical"
-                    handle
-                    intersection
-                    panels={[
-                      {
-                        defaultSize: '50%',
-                        min: '25%',
-                        content: createPanel('Editor', 'Nested top panel.', 'bg-background'),
-                      },
-                      {
-                        defaultSize: '50%',
-                        min: '20%',
-                        content: createPanel(
-                          'Console',
-                          'Nested bottom panel with cross drag enabled.',
-                          'bg-muted/50',
-                        ),
-                      },
-                    ]}
-                  />
-                ),
-              },
-              {
-                defaultSize: '32%',
-                min: '20%',
-                content: createPanel(
-                  'Sidebar',
-                  'Outer divider can intersect with the nested group.',
-                  'bg-muted',
-                ),
-              },
-            ]}
-          />
-        </div>
-      </div>
-
-      <div class="space-y-2">
-        <p class="text-xs text-muted-foreground">
-          <code>intersection: false</code>
-        </p>
-        <div class="b-1 b-border border-border rounded-xl h-72 overflow-hidden">
-          <Resizable
-            handle
-            intersection={false}
-            panels={[
-              {
-                defaultSize: '68%',
-                min: '35%',
-                content: (
-                  <Resizable
-                    orientation="vertical"
-                    handleRender={() => <Icon name="i-lucide:activity" />}
-                    intersection={false}
-                    panels={[
-                      {
-                        defaultSize: '50%',
-                        min: '25%',
-                        content: createPanel('Editor', 'Nested top panel.', 'bg-background'),
-                      },
-                      {
-                        defaultSize: '50%',
-                        min: '20%',
-                        content: createPanel(
-                          'Console',
-                          'Nested bottom panel with cross drag disabled.',
-                          'bg-muted/50',
-                        ),
-                      },
-                    ]}
-                  />
-                ),
-              },
-              {
-                defaultSize: '32%',
-                min: '20%',
-                content: createPanel(
-                  'Inspector',
-                  'Comparison panel for nested intersection behavior.',
-                  'bg-muted',
-                ),
-              },
-            ]}
-          />
-        </div>
-      </div>
+    <div class="b-1 b-border border-border rounded-xl h-72 overflow-hidden">
+      <Resizable>
+        <Resizable.Panel defaultSize="32%" min="20%" class={`${panelClass} bg-muted`}>
+          Sidebar
+        </Resizable.Panel>
+        <Resizable.Handle intersection />
+        <Resizable.Panel defaultSize="68%" min="35%">
+          <Resizable orientation="vertical">
+            <Resizable.Panel defaultSize="50%" min="25%" class={panelClass}>
+              Editor
+            </Resizable.Panel>
+            <Resizable.Handle intersection>
+              <Icon name="i-lucide:activity" />
+            </Resizable.Handle>
+            <Resizable.Panel defaultSize="50%" min="20%" class={`${panelClass} bg-muted/50`}>
+              Console
+            </Resizable.Panel>
+          </Resizable>
+        </Resizable.Panel>
+      </Resizable>
     </div>
   )
 }

@@ -5,6 +5,7 @@ export interface ComponentIndexEntry {
   description?: string
   sourcePath?: string
   polymorphic: boolean
+  kind?: 'single' | 'composite'
 }
 
 export interface IndexDoc {
@@ -51,6 +52,7 @@ export interface SlotDefinitionDoc {
 }
 
 export interface ComponentDoc {
+  primitives?: ComponentDoc[]
   component: ComponentIndexEntry
   slots: SlotDoc[]
   props: {

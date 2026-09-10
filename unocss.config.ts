@@ -7,7 +7,7 @@ import {
   // presetCompletion,
 } from '@subf/unocss'
 
-import { presetMoraine } from './src/unocss/index'
+import { presetMoraine } from './src/unocss/index.ts'
 
 export default defineConfig<PresetWind4Theme>({
   presets: [
@@ -15,9 +15,7 @@ export default defineConfig<PresetWind4Theme>({
     presetIcons({
       scale: 1.2,
     }),
-    presetMoraine({
-      enableComponentLayer: true,
-    }),
+    presetMoraine(),
     // presetCompletion(),
   ],
   transformers: [transformerVariantGroup()],

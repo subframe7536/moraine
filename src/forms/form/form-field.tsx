@@ -11,172 +11,15 @@ import {
   untrack,
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
-import type { InferInput } from 'valibot'
 
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import type { ComponentOrElement } from '../../shared/render-prop'
+import { createComponentStyles } from '../../shared/provider'
 import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn, useId } from '../../shared/utils'
+import { useId } from '../../shared/utils'
 
 import type { FormFieldContextOptions } from './form-context'
 import { FormFieldProvider } from './form-context'
-import type { FormFieldVariantProps } from './form-field.class'
-import {
-  FORM_FIELD_DESCRIPTION_CLASS,
-  FORM_FIELD_ERROR_CLASS,
-  FORM_FIELD_HELP_CLASS,
-  FORM_FIELD_HINT_CLASS,
-  FORM_FIELD_LABEL_WRAPPER_CLASS,
-  FORM_FIELD_WRAPPER_CLASS,
-  formFieldContainerVariants,
-  formFieldLabelVariants,
-  formFieldSizeVariants,
-} from './form-field.class'
-
-export namespace FormFieldT {
-  type SchemaPath<TValue> = TValue extends readonly (infer TItem)[]
-    ? readonly [number] | readonly [number, ...SchemaPath<NonNullable<TItem>>]
-    : TValue extends Record<PropertyKey, unknown>
-      ? {
-          [TKey in Extract<keyof TValue, string | number>]:
-            | readonly [TKey]
-            | readonly [TKey, ...SchemaPath<NonNullable<TValue[TKey]>>]
-        }[Extract<keyof TValue, string | number>]
-      : never
-
-  export type Name<TSchema extends FormSchema | undefined = undefined> = TSchema extends FormSchema
-    ? Extract<keyof InferInput<TSchema>, string> | SchemaPath<InferInput<TSchema>>
-    : string | RequiredPath
-
-  /**
-   * Props passed to the children of FormField when provided as a render function.
-   */
-  export interface RenderContext {
-    /**
-     * The current error for the field.
-     */
-    error?: JSX.Element
-  }
-
-  export interface Slot<T = unknown> {
-    /**
-     * Field wrapper that links label, control, description, and messages.
-     */
-    root?: T
-
-    /** Inner wrapper that arranges label, control, helper text, and messages. */
-    wrapper?: T
-
-    /** Row that groups the field label and optional hint. */
-    labelWrapper?: T
-
-    /** Accessible field label associated with the control. */
-    label?: T
-
-    /** Region that contains the wrapped form control. */
-    container?: T
-
-    /** Helper text associated with the control. */
-    description?: T
-
-    /** Validation error message region for the field. */
-    error?: T
-
-    /** Short hint rendered beside the field label. */
-    hint?: T
-
-    /** Additional guidance rendered below the control. */
-    help?: T
-  }
-
-  export type Variant = FormFieldVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  /**
-   * Base props for the FormField component.
-   */
-  export interface Base<
-    TSchema extends FormSchema | undefined = undefined,
-    T extends ValidComponent = 'div',
-  > {
-    /**
-     * The HTML element or component to render as.
-     * @default 'div'
-     */
-    as?: T
-
-    /**
-     * Unique identifier for the form field.
-     */
-    id?: string
-
-    /**
-     * Form store to bind field state. Provided automatically by `<form.Field>`.
-     */
-    form?: FormStore<TSchema extends FormSchema ? TSchema : any>
-
-    /**
-     * The name of the field (key in form state).
-     */
-    name?: Name<TSchema>
-
-    /**
-     * Label for the field.
-     */
-    label?: JSX.Element
-
-    /**
-     * Description text shown below the label.
-     */
-    description?: JSX.Element
-
-    /**
-     * Help text shown below the control when no error is present.
-     */
-    help?: JSX.Element
-
-    /**
-     * Custom error message or force error state.
-     */
-    error?: JSX.Element
-
-    /**
-     * Hint text shown near the label.
-     */
-    hint?: JSX.Element
-
-    /**
-     * Whether the field is required.
-     * @default false
-     */
-    required?: boolean
-
-    /**
-     * Children of the field, can be a render function.
-     */
-    children?: ComponentOrElement<RenderContext>
-  }
-
-  /**
-   * Props for the FormField component.
-   */
-  export type Props<
-    TSchema extends FormSchema | undefined = undefined,
-    T extends ValidComponent = 'div',
-  > = BaseProps<T, Base<TSchema, T>, Variant, Classes, Styles>
-}
-
-/**
- * Props for the FormField component.
- */
-export type FormFieldProps<
-  TSchema extends FormSchema | undefined = undefined,
-  T extends ValidComponent = 'div',
-> = FormFieldT.Props<TSchema, T>
+import type { FormFieldProps, FormFieldT } from './form-field.types'
 
 type LooseUseField = (form: FormStore, config: () => { path: RequiredPath }) => FieldStore
 
@@ -196,6 +39,8 @@ export function FormField<
     'error',
     'hint',
     'required',
+    'disabled',
+    'readOnly',
     'children',
     'orientation',
     'size',
@@ -204,6 +49,7 @@ export function FormField<
     'class',
     'style',
   ])
+  const resolved = createComponentStyles('formField', local)
 
   type MergedProps = FormFieldT.Base<TSchema, T> &
     FormFieldT.Variant & {
@@ -216,8 +62,6 @@ export function FormField<
   const merged = mergeProps(
     {
       as: 'div' as T,
-      orientation: 'vertical' as const,
-      size: 'md' as const,
       required: false,
     },
     local,
@@ -348,7 +192,7 @@ export function FormField<
       return fieldPath()
     },
     get size() {
-      return merged.size
+      return resolved.variants.size
     },
     get field() {
       return field
@@ -361,6 +205,12 @@ export function FormField<
     },
     get help() {
       return help()
+    },
+    get disabled() {
+      return merged.disabled
+    },
+    get readOnly() {
+      return merged.readOnly
     },
     get required() {
       return merged.required
@@ -387,65 +237,22 @@ export function FormField<
     })
 
     return (
-      <Dynamic
-        data-slot="root"
-        data-orientation={merged.orientation}
-        {...rest}
-        component={merged.as as any}
-        style={{ ...merged.styles?.root, ...merged.style }}
-        class={formFieldSizeVariants(
-          { size: merged.size },
-          merged.orientation === 'horizontal' && 'gap-x-2 grid grid-cols-4 items-baseline',
-          merged.classes?.root,
-          merged.class,
-        )}
-      >
-        <div
-          data-slot="wrapper"
-          style={merged.styles?.wrapper}
-          class={cn(
-            FORM_FIELD_WRAPPER_CLASS,
-            merged.orientation === 'horizontal' && 'text-end col-span-1 items-end',
-            merged.classes?.wrapper,
-          )}
-        >
+      <Dynamic data-slot="root" {...rest} component={merged.as as any} {...resolved.root}>
+        <div data-slot="wrapper" {...resolved.slot('wrapper')}>
           <Show when={showLabel()}>
-            <div
-              data-slot="labelWrapper"
-              style={merged.styles?.labelWrapper}
-              class={cn(
-                FORM_FIELD_LABEL_WRAPPER_CLASS,
-                merged.orientation === 'horizontal' ? 'justify-end' : 'justify-between',
-                merged.classes?.labelWrapper,
-              )}
-            >
+            <div data-slot="labelWrapper" {...resolved.slot('labelWrapper')}>
               <label
                 id={`${ariaId()}-label`}
                 for={resolvedLabelTargetId()}
                 data-slot="label"
-                style={merged.styles?.label}
-                class={formFieldLabelVariants(
-                  {
-                    required: merged.required ? true : undefined,
-                    orientation: merged.orientation,
-                  },
-                  merged.classes?.label,
-                )}
+                data-required={merged.required ? '' : undefined}
+                {...resolved.slot('label')}
               >
                 {label()}
               </label>
 
               <Show when={showHint()}>
-                <span
-                  id={`${ariaId()}-hint`}
-                  data-slot="hint"
-                  style={merged.styles?.hint}
-                  class={formFieldSizeVariants(
-                    { size: merged.size },
-                    FORM_FIELD_HINT_CLASS,
-                    merged.classes?.hint,
-                  )}
-                >
+                <span id={`${ariaId()}-hint`} data-slot="hint" {...resolved.slot('hint')}>
                   {hint()}
                 </span>
               </Show>
@@ -456,12 +263,7 @@ export function FormField<
             <p
               id={`${ariaId()}-description`}
               data-slot="description"
-              style={merged.styles?.description}
-              class={formFieldSizeVariants(
-                { size: merged.size },
-                FORM_FIELD_DESCRIPTION_CLASS,
-                merged.classes?.description,
-              )}
+              {...resolved.slot('description')}
             >
               {description()}
             </p>
@@ -470,13 +272,8 @@ export function FormField<
 
         <div
           data-slot="container"
-          class={formFieldContainerVariants(
-            {
-              orientation: merged.orientation,
-              hasText: showLabel() || showDescription(),
-            },
-            merged.classes?.container,
-          )}
+          data-has-text={showLabel() || showDescription() ? '' : undefined}
+          {...resolved.slot('container')}
         >
           {fieldChildren}
 
@@ -484,31 +281,13 @@ export function FormField<
             when={showError()}
             fallback={
               <Show when={showHelp()}>
-                <div
-                  id={`${ariaId()}-help`}
-                  data-slot="help"
-                  style={merged.styles?.help}
-                  class={formFieldSizeVariants(
-                    { size: merged.size },
-                    FORM_FIELD_HELP_CLASS,
-                    merged.classes?.help,
-                  )}
-                >
+                <div id={`${ariaId()}-help`} data-slot="help" {...resolved.slot('help')}>
                   {help()}
                 </div>
               </Show>
             }
           >
-            <div
-              id={`${ariaId()}-error`}
-              data-slot="error"
-              style={merged.styles?.error}
-              class={formFieldSizeVariants(
-                { size: merged.size },
-                FORM_FIELD_ERROR_CLASS,
-                merged.classes?.error,
-              )}
-            >
+            <div id={`${ariaId()}-error`} data-slot="error" {...resolved.slot('error')}>
               {resolvedError()}
             </div>
           </Show>

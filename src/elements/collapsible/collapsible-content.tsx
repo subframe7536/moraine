@@ -2,11 +2,12 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { callRef, cn } from '../../shared/utils'
+import { createComponentStyles } from '../../shared/provider'
+import { useCn } from '../../shared/provider/cn-context'
+import { callRef } from '../../shared/utils'
 
-import type { CollapsibleT } from './collapsible'
 import { useCollapsibleContext } from './collapsible-context'
-import { COLLAPSIBLE_CONTENT_ANIMATION_CLASS, COLLAPSIBLE_CONTENT_CLASS } from './collapsible.class'
+import type { CollapsibleT } from './collapsible.types'
 
 type CollapsibleContentElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[T]
@@ -16,9 +17,10 @@ type CollapsibleContentElementFor<T extends ValidComponent> = T extends keyof HT
 export function CollapsibleContent<T extends ValidComponent = 'div'>(
   props: CollapsibleT.ContentProps<T>,
 ): JSX.Element {
+  const cn = useCn()
   type RuntimeProps = CollapsibleT.ContentBase<T> & {
     class?: string
-    style?: JSX.CSSProperties | string
+    style?: JSX.CSSProperties
     ref?: (element: CollapsibleContentElementFor<T> | undefined) => void
   } & Record<string, unknown>
 
@@ -35,6 +37,10 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     'wrapperRef',
   ])
   const context = useCollapsibleContext()
+  const resolved = createComponentStyles('collapsible', local, {
+    rootSlot: 'content',
+    groupStyles: () => context.presentation,
+  })
   const customAs = createMemo(() => local.as)
   const unmount = createMemo(() => local.unmountOnHide ?? context.unmountOnHide())
   const forceMount = createMemo(() => Boolean(local.forceMount))
@@ -46,16 +52,6 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
       context.open() ||
       (transition() && context.contentPresence.present()),
   )
-
-  const innerStyle = createMemo(() => {
-    if (typeof context.styles?.content === 'object' || typeof local.style === 'object') {
-      return {
-        ...(typeof context.styles?.content === 'object' ? context.styles?.content : undefined),
-        ...(typeof local.style === 'object' ? local.style : undefined),
-      }
-    }
-    return local.style ?? context.styles?.content
-  })
 
   return (
     <Show when={shouldRender()}>
@@ -90,15 +86,13 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
             id={context.contentId()}
             aria-labelledby={context.triggerId()}
             data-slot="content-wrapper"
+            data-transition={transition() ? '' : undefined}
             style={{
               '--mo-collapsible-content-height': `${context.contentHeight()}px`,
+              ...resolved.slot('contentWrapper').style,
               ...local.wrapperStyle,
             }}
-            class={cn(
-              COLLAPSIBLE_CONTENT_CLASS,
-              transition() && COLLAPSIBLE_CONTENT_ANIMATION_CLASS,
-              local.wrapperClass,
-            )}
+            class={cn(resolved.slot('contentWrapper').class, local.wrapperClass)}
             {...context.dataAttrs()}
           >
             <Show
@@ -106,8 +100,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
               fallback={
                 <div
                   data-slot="content"
-                  style={innerStyle()}
-                  class={cn(context.classes?.content, local.class)}
+                  {...resolved.root}
                   ref={(el) => handleInnerRef(el)}
                   {...rest}
                 >
@@ -120,8 +113,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
                   data-slot="content"
                   {...(rest as Record<string, unknown>)}
                   component={as() as ValidComponent}
-                  style={innerStyle()}
-                  class={cn(context.classes?.content, local.class)}
+                  {...resolved.root}
                   ref={(el: HTMLElement | undefined) => handleInnerRef(el)}
                 >
                   {children()}

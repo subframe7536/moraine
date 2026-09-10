@@ -4,8 +4,9 @@ import { ContextMenu } from './context-menu'
 
 export function renderContextMenuFixture(): string {
   return renderToString(() => (
-    <ContextMenu id="ssr-context" items={[{ label: 'Archive' }, { label: 'Delete' }]}>
-      {(props) => <div {...props}>Row Item</div>}
+    <ContextMenu id="ssr-context">
+      <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
+      <ContextMenu.Content items={[{ label: 'Archive' }, { label: 'Delete' }]} />
     </ContextMenu>
   ))
 }

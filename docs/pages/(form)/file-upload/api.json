@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": true,
     "description": "Drag-and-drop file upload component with progress tracking and file list management.",
-    "sourcePath": "src/forms/file-upload/file-upload.tsx"
+    "sourcePath": "src/forms/file-upload/file-upload.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -57,6 +58,12 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present while the related thumb or handle is being dragged."
+        },
+        {
+          "name": "data-dropzone",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
         },
         {
           "name": "data-invalid",
@@ -234,6 +241,12 @@
         "description": "The ID of the input element."
       },
       {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined",
+        "description": "Native input element ref."
+      },
+      {
         "name": "label",
         "required": false,
         "type": "JSX.Element",
@@ -341,7 +354,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",

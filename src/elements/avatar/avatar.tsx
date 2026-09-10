@@ -4,86 +4,18 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  mergeProps,
   onCleanup,
   splitProps,
   untrack,
 } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn } from '../../shared/utils'
-import type { IconT } from '../icon/index'
-import { Icon } from '../icon/index'
+import { createComponentStyles } from '../../shared/provider'
+import type { SlotClassValue } from '../../shared/types'
+import { Icon } from '../icon'
 
-import type { AvatarVariantProps } from './avatar.class'
-import {
-  AVATAR_IMAGE_CLASS,
-  avatarBadgeVariants,
-  avatarFallbackIconVariants,
-  avatarFallbackVariants,
-  avatarRootVariants,
-} from './avatar.class'
+import type { AvatarProps, AvatarT } from './avatar.types'
 
-export namespace AvatarT {
-  export type Status = 'idle' | 'loading' | 'loaded' | 'error'
-
-  export interface Slot<T = unknown> {
-    /** Avatar frame that controls size, shape, image, fallback, and badge placement. */
-    root?: T
-
-    /** Loaded avatar image rendered inside the frame. */
-    image?: T
-
-    /** Text fallback shown while the image is unavailable or failed. */
-    fallback?: T
-
-    /** Icon fallback shown when no image or text fallback is available. */
-    fallbackIcon?: T
-
-    /** Status or indicator badge anchored to the avatar frame. */
-    badge?: T
-  }
-  export type Variant = AvatarVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  /** Base props for the Avatar component. */
-  export interface Base {
-    /** Source URL for the avatar image. */
-    src?: string
-
-    /** Accessible alt text for the avatar. */
-    alt?: string
-
-    /** Icon name for the badge. */
-    badge?: IconT.Name
-
-    /**
-     * Position of the badge.
-     * @default 'bottom-right'
-     */
-    badgePosition?: NonNullable<AvatarVariantProps['badgePosition']>
-
-    /** Initial text to show if image fails or is missing. */
-    text?: string
-
-    /** Icon name to show as fallback. */
-    fallback?: IconT.Name
-
-    /** Callback when the loading status of the avatar changes. */
-    onStatusChange?: (status: AvatarT.Status) => void
-  }
-
-  /** Props for the Avatar component. */
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
-}
-
-/** Props for the Avatar component. */
-export interface AvatarProps extends AvatarT.Props {}
-
-export function resolveFallbackText(text: string | undefined, alt: string | undefined): string {
+function resolveFallbackText(text: string | undefined, alt: string | undefined): string {
   const preferredText = text?.trim()
   if (preferredText) {
     return preferredText
@@ -126,17 +58,13 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     'size',
     'rootSlot',
   ])
-  const merged = mergeProps(
-    {
-      size: 'md' as const,
-    },
-    local,
-  )
-  const source = createMemo(() => merged.src?.trim() || undefined)
-  const alt = createMemo(() => merged.alt)
-  const text = createMemo(() => merged.text)
-  const fallback = createMemo(() => merged.fallback)
-  const badge = createMemo(() => merged.badge)
+  const resolved = createComponentStyles('avatar', local)
+
+  const source = createMemo(() => local.src?.trim() || undefined)
+  const alt = createMemo(() => local.alt)
+  const text = createMemo(() => local.text)
+  const fallback = createMemo(() => local.fallback)
+  const badge = createMemo(() => local.badge)
   const fallbackText = createMemo(() => resolveFallbackText(text(), alt()))
   const fallbackAccessibleLabel = createMemo(() => alt()?.trim() || text()?.trim() || undefined)
   const rootAriaLabel = createMemo(() => (rest as JSX.AriaAttributes)['aria-label'])
@@ -152,7 +80,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
     currentStatus = nextStatus
     setStatusSignal(nextStatus)
-    untrack(() => merged.onStatusChange)?.(nextStatus)
+    untrack(() => local.onStatusChange)?.(nextStatus)
   }
 
   createEffect(() => {
@@ -203,33 +131,24 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
   return (
     <span
-      data-slot={merged.rootSlot ?? 'root'}
+      data-slot={local.rootSlot ?? 'root'}
       data-status={status()}
       role={rootAriaLabel() !== undefined ? 'img' : undefined}
       {...rest}
-      style={
-        merged.rootSlot === 'item' ? merged.style : { ...merged.styles?.root, ...merged.style }
-      }
-      class={avatarRootVariants(
-        { size: merged.size },
-        merged.rootSlot === 'item' ? merged.class : [merged.classes?.root, merged.class],
-      )}
+      {...resolved.root}
     >
       <img
         data-slot="image"
-        style={merged.styles?.image}
+        data-status={status()}
         src={resolvedSrc()}
         alt={alt() ?? ''}
         aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
-        class={cn(
-          AVATAR_IMAGE_CLASS,
-          status() === 'loaded' ? 'opacity-100' : 'hidden-hitless',
-          merged.classes?.image,
-        )}
+        {...resolved.slot('image')}
       />
 
       <span
         data-slot="fallback"
+        data-status={status()}
         role={
           status() !== 'loaded' && rootAriaLabel() === undefined && fallbackAccessibleLabel()
             ? 'img'
@@ -241,25 +160,14 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
             : undefined
         }
         aria-hidden={rootAriaLabel() !== undefined || status() === 'loaded' ? 'true' : undefined}
-        style={merged.styles?.fallback}
-        class={avatarFallbackVariants(
-          {
-            size: merged.size,
-            status: status(),
-          },
-          merged.classes?.fallback,
-        )}
+        {...resolved.slot('fallback')}
       >
         <Show when={fallback()} fallback={fallbackText()}>
           {(fallbackIcon) => (
             <Icon
               name={fallbackIcon()}
               slotName="fallbackIcon"
-              style={merged.styles?.fallbackIcon}
-              class={avatarFallbackIconVariants(
-                { size: merged.size },
-                merged.classes?.fallbackIcon,
-              )}
+              {...resolved.slot('fallbackIcon')}
             />
           )}
         </Show>
@@ -267,18 +175,8 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
       <Show when={badge()}>
         {(badge) => (
-          <span
-            data-slot="badge"
-            style={merged.styles?.badge}
-            class={avatarBadgeVariants(
-              {
-                size: merged.size,
-                badgePosition: merged.badgePosition ?? 'bottom-right',
-              },
-              merged.classes?.badge,
-            )}
-          >
-            <Icon name={badge()} class="text-[0.75em]" />
+          <span data-slot="badge" {...resolved.slot('badge')}>
+            <Icon name={badge()} />
           </span>
         )}
       </Show>

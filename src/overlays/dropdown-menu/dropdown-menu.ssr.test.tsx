@@ -6,7 +6,6 @@ import { finishMenuExitMotion } from '../../test-utils/overlay-test'
 import { hydrateFixture } from '../../test-utils/ssr-test'
 
 import { DropdownMenu } from './dropdown-menu'
-import type { DropdownMenuT } from './dropdown-menu'
 
 describe('DropdownMenu SSR Hydration', () => {
   test('hydrates the trigger once and opens on the first keyboard action', async () => {
@@ -15,19 +14,19 @@ describe('DropdownMenu SSR Hydration', () => {
     const { container } = hydrateFixture(
       '/src/overlays/dropdown-menu/dropdown-menu.ssr.fixture.tsx',
       'renderDropdownMenuFixture',
-      () =>
-        createComponent(DropdownMenu, {
-          id: 'ssr-dropdown',
-          items: [{ label: 'Archive' }, { label: 'Delete' }],
-          get children() {
-            triggerReads += 1
-            return (props: DropdownMenuT.TriggerProps) => (
-              <button {...props} type="button">
-                Actions
-              </button>
-            )
-          },
-        }),
+      () => (
+        <DropdownMenu id="ssr-dropdown">
+          {createComponent(DropdownMenu.Trigger<'button'>, {
+            as: 'button',
+            type: 'button',
+            get children() {
+              triggerReads += 1
+              return 'Actions'
+            },
+          })}
+          <DropdownMenu.Content items={[{ label: 'Archive' }, { label: 'Delete' }]} />
+        </DropdownMenu>
+      ),
     )
 
     const serverTrigger = container.querySelector<HTMLButtonElement>('[data-slot="trigger"]')!

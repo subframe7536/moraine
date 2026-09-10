@@ -1,7 +1,7 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
-import { Button } from '../../elements/button/index'
+import { Button } from '../../elements/button'
 import { hydrateFixture } from '../../test-utils/ssr-test'
 
 import { Modal } from './modal'

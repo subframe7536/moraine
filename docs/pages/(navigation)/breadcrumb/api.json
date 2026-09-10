@@ -5,7 +5,8 @@
     "category": "navigation",
     "polymorphic": false,
     "description": "Breadcrumb navigation trail with separator icons and optional wrapping.",
-    "sourcePath": "src/navigation/breadcrumb/breadcrumb.tsx"
+    "sourcePath": "src/navigation/breadcrumb/breadcrumb.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -39,6 +40,45 @@
     {
       "name": "link",
       "description": "Clickable breadcrumb target for navigable entries.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-current",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item represents the current location or step."
+        },
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component, slot, or item is disabled."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-current",
+          "required": false,
+          "type": "string",
+          "description": "Marks the current item in a set or navigation trail."
+        },
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "page",
+      "description": "Current page entry.",
       "cssVariables": [],
       "dataAttributes": [
         {
@@ -204,7 +244,8 @@
       {
         "name": "ref",
         "required": false,
-        "type": "JSX.HTMLElementTags[\"nav\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+        "type": "Ref<HTMLElement> | undefined",
+        "description": "Ref forwarded to the root `<nav>` element."
       },
       {
         "name": "separator",
@@ -233,7 +274,9 @@
       {
         "name": "wrap",
         "required": false,
-        "type": "boolean | undefined"
+        "type": "boolean | undefined",
+        "description": "Visual wrap of the component.",
+        "defaultValue": "true"
       }
     ],
     "inherited": []

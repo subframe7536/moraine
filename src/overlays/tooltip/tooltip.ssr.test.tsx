@@ -13,12 +13,11 @@ describe('Tooltip SSR Hydration', () => {
         '/src/overlays/tooltip/tooltip.ssr.fixture.tsx',
         'renderTooltipFixture',
         () => (
-          <Tooltip openDelay={50} text={<span>Hydrated tooltip</span>} kbds={['Ctrl', 'K']}>
-            {(props) => (
-              <button {...props} type="button">
-                Trigger
-              </button>
-            )}
+          <Tooltip openDelay={50}>
+            <Tooltip.Trigger as="button" type="button">
+              Trigger
+            </Tooltip.Trigger>
+            <Tooltip.Content text={<span>Hydrated tooltip</span>} kbds={['Ctrl', 'K']} />
           </Tooltip>
         ),
       )

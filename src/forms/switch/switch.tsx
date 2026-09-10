@@ -1,153 +1,17 @@
-import type { JSX } from 'solid-js'
+import type { JSX, Ref } from 'solid-js'
 import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index'
-import { Icon } from '../../elements/icon/index'
-import { TEXT_SIZE_VARIANT } from '../../shared/cva-common.class'
+import type { IconT } from '../../elements/icon'
+import { Icon } from '../../elements/icon'
 import { HiddenInput } from '../../shared/hidden-input'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { createComponentStyles } from '../../shared/provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
-import { callHandler, cn, useId } from '../../shared/utils'
-import { useFormField } from '../form/form-context'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-} from '../shared/form-options'
+import { callHandler, callRef, useId } from '../../shared/utils'
+import { useFormField, useFormFieldContext } from '../form/form-context'
 import { useFormReset } from '../shared/use-form-reset'
 
-import type { SwitchVariantProps } from './switch.class'
-import { switchTrackVariants, switchThumbVariants, switchWrapperVariants } from './switch.class'
-
-export namespace SwitchT {
-  export interface Slot<T = unknown> {
-    /**
-     * Switch wrapper that coordinates input, track, thumb, and text content.
-     */
-    root?: T
-
-    /** Visible switch track that shows checked and unchecked state. */
-    track?: T
-
-    /** Movable knob inside the switch track. */
-    thumb?: T
-
-    /** Checked, unchecked, or loading icon rendered inside the thumb. */
-    icon?: T
-
-    /** Inner layout wrapper used by switch list and card variants. */
-    wrapper?: T
-
-    /** Primary switch label text. */
-    label?: T
-
-    /** Supporting text associated with the switch. */
-    description?: T
-  }
-
-  export type Variant = SwitchVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  /**
-   * Base props for the Switch component.
-   */
-  export interface Base<TTrue = boolean, TFalse = boolean>
-    extends FormIdentityOptions, FormDisableOption, FormRequiredOption, FormReadOnlyOption {
-    /**
-     * Pointer down handler for the switch root container.
-     */
-    onPointerDown?: JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>
-
-    /**
-     * Native value submitted when the switch is checked.
-     * @default 'on'
-     */
-    value?: string
-
-    /**
-     * Whether the switch is checked.
-     */
-    checked?: TTrue | TFalse
-
-    /**
-     * Whether the switch is checked by default.
-     */
-    defaultChecked?: boolean
-
-    /**
-     * Value to use when the switch is checked.
-     * @default true
-     */
-    trueValue?: TTrue
-
-    /**
-     * Value to use when the switch is unchecked.
-     * @default false
-     */
-    falseValue?: TFalse
-
-    /**
-     * Whether the switch is in a loading state.
-     * @default false
-     */
-    loading?: boolean
-
-    /**
-     * Icon shown during loading state.
-     * @default 'icon-loading'
-     */
-    loadingIcon?: IconT.Name
-
-    /**
-     * Icon shown when the switch is checked.
-     */
-    checkedIcon?: IconT.Name
-
-    /**
-     * Icon shown when the switch is unchecked.
-     */
-    uncheckedIcon?: IconT.Name
-
-    /**
-     * Label for the switch.
-     */
-    label?: JSX.Element
-
-    /**
-     * Description for the switch.
-     */
-    description?: JSX.Element
-
-    /**
-     * Callback when the switch state changes.
-     */
-    onChange?: (value: TTrue | TFalse) => void
-  }
-
-  /**
-   * Props for the Switch component.
-   */
-  export type Props<TTrue = boolean, TFalse = boolean> = BaseProps<
-    'div',
-    Base<TTrue, TFalse>,
-    Variant,
-    Classes,
-    Styles
-  >
-}
-
-/**
- * Props for the Switch component.
- */
-export interface SwitchProps<TTrue = boolean, TFalse = boolean> extends SwitchT.Props<
-  TTrue,
-  TFalse
-> {}
+import type { SwitchProps } from './switch.types'
 
 /** Toggle switch control with icon slots and loading state. */
 export function Switch<TTrue = boolean, TFalse = boolean>(
@@ -155,8 +19,11 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 ): JSX.Element {
   type RootProps = SwitchProps<TTrue, TFalse> & {
     onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
+    ref?: Ref<HTMLDivElement>
   }
   const [local, rest] = splitProps(props as RootProps, [
+    'ref',
+    'inputRef',
     'id',
     'name',
     'disabled',
@@ -182,6 +49,11 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'style',
     'onClick',
   ])
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('switch', local, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
+
   const merged = mergeProps(
     {
       loading: false,
@@ -206,20 +78,20 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size,
+      size: local.size,
       disabled: merged.disabled || merged.loading,
       required: local.required,
       readOnly: readOnly(),
     }),
     () => ({
       defaultId: generatedId(),
-      defaultSize: 'md',
       initialValue:
         normalizeFieldValue(
           merged.checked !== undefined ? merged.checked : merged.defaultChecked,
         ) ?? merged.falseValue,
     }),
   )
+
   const labelId = createMemo(() => `${field.id()}-label`)
   const descriptionId = createMemo(() => `${field.id()}-description`)
 
@@ -372,15 +244,16 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
 
   return (
     <div
+      ref={(element) => callRef(local.ref, element)}
       data-slot="root"
       {...rest}
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn('flex flex-row', merged.classes?.root, merged.class)}
+      {...resolved.root}
       onClick={onRootClick}
     >
       <HiddenInput
         ref={(element) => {
           inputEl = element
+          callRef(local.inputRef, element)
         }}
         id={`${field.id()}-input`}
         type="checkbox"
@@ -416,14 +289,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         data-invalid={field.invalid() ? '' : undefined}
         aria-checked={Boolean(checked())}
         {...switchAriaAttrs()}
-        style={merged.styles?.track}
-        class={switchTrackVariants(
-          {
-            size: field.size(),
-          },
-          merged.classes?.track,
-          field.disabled() && 'effect-dis',
-        )}
+        {...resolved.slot('track')}
         onPointerDown={onPointerDown}
         data-checked={checked() ? '' : undefined}
         data-unchecked={!checked() ? '' : undefined}
@@ -435,13 +301,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           data-checked={checked() ? '' : undefined}
           data-disabled={field.disabled() ? '' : undefined}
           data-readonly={readOnly() ? '' : undefined}
-          style={merged.styles?.thumb}
-          class={switchThumbVariants(
-            {
-              size: field.size(),
-            },
-            merged.classes?.thumb,
-          )}
+          {...resolved.slot('thumb')}
         >
           <Show when={resolvedIconName()} keyed>
             {(iconName) => (
@@ -450,10 +310,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
                 data-checked={!merged.loading && checked() ? '' : undefined}
                 data-unchecked={!merged.loading && !checked() ? '' : undefined}
                 data-loading={merged.loading ? '' : undefined}
-                class={cn(
-                  'text-primary size-4/5 transition-opacity absolute data-unchecked:(text-muted-foreground opacity-90) data-checked:opacity-100 data-loading:effect-loading',
-                  merged.classes?.icon,
-                )}
+                class={resolved.slot('icon').class}
               />
             )}
           </Show>
@@ -461,43 +318,21 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       </button>
 
       <Show when={showLabel() || showDescription()}>
-        <span
-          data-slot="wrapper"
-          style={merged.styles?.wrapper}
-          class={switchWrapperVariants(
-            {
-              size: field.size(),
-            },
-            merged.classes?.wrapper,
-          )}
-        >
+        <span data-slot="wrapper" {...resolved.slot('wrapper')}>
           <Show when={showLabel()}>
             <label
               for={field.id()}
               id={labelId()}
               data-slot="label"
-              style={merged.styles?.label}
-              class={cn(
-                'text-foreground leading-tight font-medium block cursor-pointer select-none',
-                field.required() && "after:(text-destructive ms-0.5 content-['*'])",
-                merged.classes?.label,
-              )}
+              data-required={field.required() ? '' : undefined}
+              {...resolved.slot('label')}
             >
               {label()}
             </label>
           </Show>
 
           <Show when={showDescription()}>
-            <span
-              id={descriptionId()}
-              data-slot="description"
-              style={merged.styles?.description}
-              class={cn(
-                TEXT_SIZE_VARIANT[field.size()],
-                'text-muted-foreground leading-normal',
-                merged.classes?.description,
-              )}
-            >
+            <span id={descriptionId()} data-slot="description" {...resolved.slot('description')}>
               {description()}
             </span>
           </Show>

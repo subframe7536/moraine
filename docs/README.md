@@ -74,8 +74,8 @@ navigation, and overlay; pages are sorted by `sidebar.order` inside each group.
 
 - Preview paths may omit the `.tsx` extension, must resolve inside `docs/pages`, and cannot contain runtime expressions, queries, or hashes.
 - Each preview file directly exports exactly one component. The internal `?preview` module exposes its component and highlighted source as a default descriptor.
-- Fenced blocks, Preview sources, and package-manager tabs are rendered by the shared Expressive Code instance in `docs/build/core/expressive-code.ts`.
-- Expressive Code base CSS, theme CSS, and copy interaction code are emitted once through docs virtual modules; individual rendered blocks only contain their block-specific styles.
+- Fenced blocks, Preview sources, and package-manager tabs are pre-rendered at build time with Shiki using `docs/build/core/shiki.ts`.
+- Code block styling uses dual-theme CSS variables in `docs/code.css` without runtime highlighter overhead; `<CodeBlock />` provides the shared interactive container for normal blocks, `<CodeTabs />`, and `<Preview />`.
 - During SSR, Preview descriptors avoid importing browser-only modules; the client loads the interactive preview while SSG retains the Preview container and source.
 - Previous/next cards use the flattened sidebar order and continue across group boundaries.
 

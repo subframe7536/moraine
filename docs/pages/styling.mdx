@@ -7,72 +7,41 @@ search:
   tags: [UnoCSS, Tailwind CSS, theme, tokens]
 ---
 
-## Interactive State Color Tokens
-
-Moraine uses semantic `hover` and `active` color tokens for interactive surfaces instead of applying translucent overlays. Defining opaque colors for each state keeps contrast predictable when controls appear on different backgrounds.
-
-State tokens are available for `background`, `card`, `popover`, `primary`, `secondary`, `muted`, `accent`, and `destructive`. Use them through the same color utilities as the base token:
-
-```tsx
-<button class="bg-primary hover:bg-primary-hover active:bg-primary-active text-primary-foreground">
-  Continue
-</button>
-```
-
-Each state has a built-in fallback, so themes can adopt the tokens incrementally:
-
-| Utility             | CSS variable fallback                                         |
-| ------------------- | ------------------------------------------------------------- |
-| `bg-primary-hover`  | `var(--primary-hover, var(--primary))`                        |
-| `bg-primary-active` | `var(--primary-active, var(--primary-hover, var(--primary)))` |
-
-The same fallback applies to every supported color family: `hover` falls back to the base color, while `active` falls back to `hover` and then the base color. There is no separate `focus` color token; focused or keyboard-highlighted interactions reuse the hover color where applicable, while focus visibility remains controlled by ring and border styles.
-
-You can define the variables directly in CSS or generate them with UnoCSS's [`colorVariables`](#color-variables) option. Moraine's Tailwind plugin exposes the same utility names.
+Moraine's styling system architecture uses atomic utility classes in the official Theme recipes. Your application's CSS engine must scan those classes and load Moraine's theme integration. Moraine does not ship precompiled component CSS.
 
 ## UnoCSS
 
-Use either `presetWind3` or `presetWind4`, then add `presetMoraine`. Built-in component animations are included in the preset, so no extra animation preset is needed.
+Use either the Wind4 or Wind3 preset with `presetMoraine()`, and include Moraine's published JavaScript in the content scan.
 
-[`@subf/unocss`](https://github.com/subframe7536/unocss) is a subset of UnoCSS optimized for the SolidJS setup used by Moraine. The full `unocss` package can also be used.
-
-```ts
-// unocss.config.ts
+```ts title="unocss.config.ts (Wind4)" {1,5} group-id="unocss"
 import { defineConfig, presetWind4 } from '@subf/unocss'
 import { presetMoraine } from 'moraine/unocss'
 
 export default defineConfig({
-  presets: [
-    presetWind4(),
-    presetMoraine({
-      enableComponentLayer: true,
-    }),
-    // ...other presets
-  ],
+  presets: [presetWind4(), presetMoraine()],
+  content: {
+    filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
+  },
 })
 ```
 
-`presetWind3()` is also supported; use it in place of `presetWind4()` when your application targets the Wind3 preset.
+```ts title="unocss.config.ts (Wind3)" {1,5} group-id="unocss"
+import { defineConfig, presetWind3 } from '@subf/unocss'
+import { presetMoraine } from 'moraine/unocss'
 
-### Motion duration variables
-
-Moraine components use shared duration tokens for transitions and animations. `--mo-anim-duration` overrides every Moraine motion effect; use a semantic variable when only one category should change.
-
-```css
-:root {
-  --mo-anim-duration: 180ms;
-  --mo-anim-duration-enter: 150ms;
-  --mo-anim-duration-exit: 100ms;
-  --mo-anim-duration-loop: 2s;
-  --mo-anim-duration-spin: 1s;
-}
+export default defineConfig({
+  presets: [presetWind3(), presetMoraine()],
+  content: {
+    filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
+  },
+})
 ```
 
-Standard UnoCSS and Tailwind transition utilities use the enter token. Enter animations use the enter token, exit animations use the exit token, indeterminate progress animations use the loop token, and loading indicators use the spin token.
+The preset registers Moraine theme tokens, shared animations, semantic z-index values, and `data-*` / `aria-*` variants. `globalStyles` defaults to `true`.
 
 ### Color variables
 
-The preset can generate light and dark semantic variables from the same grouped shape used by Moraine's color utilities. Nothing is generated unless `colorVariables` is configured. Light and dark selectors default to `:root` and `.dark`.
+The preset can generate light and dark semantic variables. Nothing is emitted unless `colorVariables` is configured; selectors default to `:root` and `.dark`.
 
 ```ts
 presetMoraine({
@@ -97,141 +66,279 @@ presetMoraine({
     },
     hoverAdjustment: 6,
     activeAdjustment: 12,
-    // lightSelector: ':root',
-    // darkSelector: '.dark',
   },
 })
 ```
 
-Exact state colors override the global adjustments. Numeric state values generate an opaque `color-mix()` against the group's foreground color; missing state variables continue to fall back through Moraine's existing utility tokens.
+## Tailwind CSS v4
 
-## Semantic z-index utilities
-
-Moraine provides the same semantic z-index utilities through UnoCSS and Tailwind. They keep stacking intent readable while preserving the framework's numeric z-index utilities:
-
-| Utility      | Value | Typical use                                   |
-| ------------ | ----: | --------------------------------------------- |
-| `z-base`     |   `1` | Base elevated content                         |
-| `z-raised`   |   `2` | Raised content and ranges                     |
-| `z-control`  |   `3` | Interactive controls above ranges             |
-| `z-sticky`   |  `10` | Sticky and locally elevated content           |
-| `z-resize`   |  `20` | Resize affordances                            |
-| `z-overlay`  |  `40` | Modal or menu overlays                        |
-| `z-floating` |  `50` | Floating content such as dialogs and popovers |
-
-## Tailwind CSS
-
-Moraine ships a Tailwind plugin that injects CSS variable tokens, theme extensions (colors, font families, radius, shadows, keyframes, animations, and animation metadata), and `icon-*` utility stubs. It also provides `data-*` and `aria-*` variants for attribute-based styling.
-
-### v4
+Register the plugin and scan the published distribution. The `@source` path is relative to the stylesheet containing it, so adjust the leading `..` for your project layout.
 
 ```css
 @import 'tailwindcss';
-
-/* Moraine plugin: tokens, theme, icon stubs */
 @plugin 'moraine/tailwind';
-
-/* Optional: on-demand icon utilities */
-@plugin '@iconify/tailwind' {
-  collections: lucide;
-}
-
-/* Scan Moraine dist for component utility classes */
-@source './node_modules/moraine/**/*';
+@source '../node_modules/moraine/dist';
 ```
 
-Or, for a zero-config icon setup with the full bundled icon set, import the pre-built icon CSS instead:
+`@source "moraine"` is not valid: Tailwind requires a resolvable source path. The plugin provides the same colors, typography, radius, shadows, animations, z-index values, and state variants as the UnoCSS preset.
+
+## Icons
+
+`moraine/icon.css` is an optional runtime mask asset. It is independent of component utility generation and does not replace the required Tailwind plugin or UnoCSS preset.
 
 ```css
 @import 'moraine/icon.css';
 ```
 
-### v3
+You may instead configure an engine icon integration such as `@iconify/tailwind`. In either case, keep the Moraine plugin or preset and the published-distribution scan.
 
-```js
-/** @type {import('tailwindcss').Config} */
-const { addIconSelectors } = require('@iconify/tailwind')
-module.exports = {
-  content: ['./src/**/*.{js,ts,jsx,tsx}', './node_modules/moraine/dist/**/*'],
-  plugins: [
-    require('moraine/tailwind')(),
-    addIconSelectors(['lucide']), // optional, for on-demand icon utilities
-  ],
+## Animation duration variables
+
+```css
+:root {
+  --mo-anim-duration: 180ms;
+  --mo-anim-duration-enter: 150ms;
+  --mo-anim-duration-exit: 100ms;
+  --mo-anim-duration-loop: 2s;
+  --mo-anim-duration-spin: 1s;
 }
 ```
 
-```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-```
+The general variable overrides every Moraine CSS animation. The semantic variables target entry, exit, looping, and spinner animations separately. CSS transitions retain the duration and timing function configured by the host Tailwind CSS or UnoCSS setup.
 
-### Icon tiers
+## Interactive color tokens
 
-| Tier                        | How                                                   | Size              |
-| --------------------------- | ----------------------------------------------------- | ----------------- |
-| **1 — `moraine/icon.css`**  | `@import 'moraine/icon.css'` — zero deps              | ≈ full lucide set |
-| **2 — `@iconify/tailwind`** | Install `@iconify/tailwind`, use per the config above | On-demand ✓       |
-
-### Plugin options
-
-```ts
-import { moraineTailwind } from 'moraine/tailwind'
-
-moraineTailwind({
-  icons: true, // emit icon-* utility stubs (default: true)
-})
-```
-
-## Override Component Styles
-
-Use top-level `class` and `style` for the component root in normal components. Use `classes` and `styles` for named slots when you need to target a specific inner slot or overlay content; keys match slot names.
-
-- Overlay components apply top-level `class` and `style` to their **trigger** slot, because the floating content is rendered separately.
+Interactive surfaces use semantic `hover` and `active` colors. Each hover token falls back to its base color; each active token falls back to hover and then base.
 
 ```tsx
-import { Button } from 'moraine'
+<button class="bg-primary hover:bg-primary-hover active:bg-primary-active text-primary-foreground">
+  Continue
+</button>
+```
 
-function MyButton() {
+## Semantic z-index utilities
+
+| Utility      | Value | Typical use                      |
+| ------------ | ----: | -------------------------------- |
+| `z-base`     |     1 | Base elevated content            |
+| `z-raised`   |     2 | Raised content and ranges        |
+| `z-control`  |     3 | Controls above local ranges      |
+| `z-sticky`   |    10 | Sticky content                   |
+| `z-resize`   |    20 | Resize affordances               |
+| `z-overlay`  |    40 | Overlay layers                   |
+| `z-floating` |    50 | Dialogs, menus, and other popups |
+
+## Override component styles
+
+Theme classes merge in layer order, followed by composition-group overrides, instance `classes`, and root `class`. Inline styles merge dynamic geometry, group `styles`, instance `styles`, and root `style`. Pass CSS property objects to inline style props.
+
+```tsx
+<Button class="bg-red-500" style={{ borderColor: 'red' }} classes={{ label: 'text-white' }}>
+  Continue
+</Button>
+```
+
+Root-only components (`Icon`, `Kbd`, `Separator`, and the bound `form.Form`) expose direct `class` and `style`. Their Theme entries still have a `root` slot. Overlay roots own behavior and children; put DOM attributes and presentation on their Trigger and Content parts.
+
+## Component kinds
+
+The `Single` or `Composite` label in each component page header comes from its `XxxT.Kind` type. It describes how you compose the component, not how many DOM elements or presentation slots it renders.
+
+**Single** components expose their configuration through one component's props. `Card` is single even though it has header, body, and footer slots; `ButtonGroup` is single even though it groups children. Apply root styles with `class` and `style`, and use `classes` and `styles` for named slots when the component supports them.
+
+```tsx
+<Card title="Account" class="max-w-md" classes={{ body: 'space-y-4' }}>
+  Account settings
+</Card>
+```
+
+**Composite** components expose attached parts that you arrange explicitly. Styling belongs to the root or part that owns the corresponding DOM. `SidebarFrame` renders a layout root and accepts family slot overrides, while each part also accepts its own `class` and `style`.
+
+```tsx
+<SidebarFrame class="h-80" classes={{ sidebar: 'bg-muted' }}>
+  <SidebarFrame.Sidebar>
+    <SidebarFrame.SidebarBody class="p-4">Navigation</SidebarFrame.SidebarBody>
+  </SidebarFrame.Sidebar>
+  <SidebarFrame.Main class="p-6">Workspace</SidebarFrame.Main>
+</SidebarFrame>
+```
+
+`Dialog` also has a composite API, but its root only provides state and context. Put presentation on `Dialog.Trigger` and `Dialog.Content`; the root has no DOM element to style.
+
+```tsx
+<Dialog>
+  <Dialog.Trigger class="font-semibold">Edit profile</Dialog.Trigger>
+  <Dialog.Content title="Profile" class="max-w-lg" classes={{ body: 'space-y-4' }}>
+    Profile settings
+  </Dialog.Content>
+</Dialog>
+```
+
+The bound `form.Form` is single: `createForm()` returns separate `Form` and `Field` components. Each component's API lists its supported style overrides.
+
+## Themes and Providers
+
+Pass `defaultTheme` from `moraine/theme` to the application Provider for official styles. Components outside a Provider remain functional and unstyled.
+
+| `theme`                | Behavior                                                         |
+| ---------------------- | ---------------------------------------------------------------- |
+| Omitted or `undefined` | Inherit the parent theme, or use empty presentation at the root. |
+| A theme object         | Replace the parent theme. Use `extends` to compose themes.       |
+| `emptyTheme`           | Clear inherited presentation.                                    |
+
+```tsx
+import { Button, MoraineProvider } from 'moraine'
+import { createTheme, defaultTheme, emptyTheme } from 'moraine/theme'
+
+const brand = createTheme({
+  extends: defaultTheme,
+  button: { defaults: { size: 'sm' }, base: { root: 'rounded-xl' } },
+})
+const section = createTheme({
+  extends: brand,
+  button: { base: { root: 'shadow-md' } },
+})
+
+<MoraineProvider theme={brand}>
+  <Button>Brand presentation</Button>
+  <MoraineProvider theme={section}>
+    <Button>Extended presentation</Button>
+  </MoraineProvider>
+  <MoraineProvider theme={emptyTheme}>
+    <Button class="my-button">Custom presentation</Button>
+  </MoraineProvider>
+</MoraineProvider>
+```
+
+`createTheme()` returns an empty theme. `extends` merges component defaults, preserving parent values where the child supplies `undefined`, and evaluates parent recipes before child recipes. Update presentation by replacing the theme object. Setting `theme` back to `undefined` resumes inheritance and follows subsequent parent updates.
+
+### Class merging configuration
+
+`cn`, `createCn`, and `useCn` are exported from `moraine`:
+
+| API                 | Rules and scope                                                                           |
+| ------------------- | ----------------------------------------------------------------------------------------- |
+| `cn(...classes)`    | Fixed upstream defaults plus Moraine's semantic z-index and animation rules.              |
+| `createCn(config?)` | An independent merger with application rules, usable in modules, scripts, or server code. |
+| `useCn()`           | A stable merger bound to the nearest Provider at component initialization.                |
+
+Components use the nearest Provider's rules for recipe evaluation and final class merging. `cnConfig` accepts the upstream `ConfigExtension` options: `extend`, `override`, `prefix`, and `cacheSize`. Rules apply in order: upstream defaults, Moraine extensions, application `override`, then application `extend`.
+
+```ts title="app-cn.ts"
+import { createCn } from 'moraine'
+import type { CnConfig } from 'moraine'
+
+export const appCnConfig = {
+  extend: {
+    classGroups: {
+      density: ['density-roomy', 'density-compact'],
+    },
+  },
+} satisfies CnConfig
+
+export const appCn = createCn(appCnConfig)
+```
+
+Define the corresponding CSS in your application. Conflict rules do not generate CSS or expand UnoCSS shortcuts.
+
+```css
+.density-roomy {
+  padding: 1rem;
+}
+.density-compact {
+  padding: 0.5rem;
+}
+```
+
+```tsx
+import { Button, MoraineProvider, cn, useCn } from 'moraine'
+import { defaultTheme, emptyTheme } from 'moraine/theme'
+import { appCnConfig } from './app-cn.ts'
+
+function Preview() {
+  const scopedCn = useCn()
   return (
-    <Button class="bg-red-500" style={{ borderColor: 'red' }} classes={{ label: 'bg-green-500' }}>
-      Click me
-    </Button>
+    <>
+      <div class={cn('density-roomy', 'density-compact')}>Both classes remain</div>
+      <div class={scopedCn('density-roomy', 'density-compact')}>Compact wins</div>
+      <Button class="density-roomy density-compact">Compact button</Button>
+    </>
+  )
+}
+
+export function App() {
+  return (
+    <MoraineProvider theme={defaultTheme} cnConfig={appCnConfig}>
+      <Preview />
+      <MoraineProvider theme={emptyTheme}>
+        <Preview />
+      </MoraineProvider>
+      <MoraineProvider cnConfig={{}}>
+        <Button class="density-roomy density-compact">Default merging</Button>
+      </MoraineProvider>
+    </MoraineProvider>
   )
 }
 ```
 
-## Class Concatenation
+| `cnConfig`             | Behavior                                                                                                             |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Omitted or `undefined` | Inherit the current parent merger, or use default rules at the root.                                                 |
+| An extension object    | Replace the inherited merger with Moraine defaults plus this object; parent application extensions are not retained. |
+| `{}`                   | Reset to Moraine default rules.                                                                                      |
 
-Moraine provides `cn()` and `cva()` utilities that concatenate class strings and conditionals. They are used internally to merge user-provided classes with defaults.
+Replace the config object to update existing descendants. Changing it back to `undefined` resumes live parent inheritance. Theme and class merging are independent: `emptyTheme` clears presentation while preserving the current merger. `prefix` only changes class parsing; it does not prefix official theme classes or generated CSS. `cacheSize: 0` disables the upstream result cache.
+
+Call `useCn()` during initialization in a descendant such as `Preview`; a parent cannot read a Provider that it will later return. The captured handle remains usable in events and after `await` while its owner lives. Calls in JSX or memos track config changes; a previously computed string does not update itself. Without a Provider, `useCn()` uses the same rules as `cn`.
+
+A merger cannot restore classes already removed by another merger. Use `useCn()` in components or `appCn` in ordinary helpers when application code needs the same rules. Composed parts retain their existing style ownership: a part merges its own classes in its local scope, while already-resolved root presentation remains from the root's scope.
+
+### Recipes and defaults
+
+Component configurations accept `base`, `variants`, `compoundVariants`, and `defaults`. Class contributions target named slots.
 
 ```ts
-import { cn, cva } from 'moraine'
-
-cn('btn', 'btn-primary', isDisabled && 'btn-disabled') // => "btn btn-primary btn-disabled"
-
-const buttonClasses = cva('btn', {
-  variants: {
-    color: {
-      primary: 'btn-primary',
-      secondary: 'btn-secondary',
-    },
-    disabled: {
-      true: 'btn-disabled',
-    },
+const theme = createTheme({
+  extends: defaultTheme,
+  button: {
+    defaults: { size: 'sm' },
+    variants: { size: { sm: { label: 'tracking-wide' } } },
+    compoundVariants: [{ size: 'sm', variant: 'outline', class: { root: 'border-2' } }],
   },
 })
-buttonClasses({ color: 'primary', disabled: isDisabled }, 'other', condition && 'another')
-// => "btn btn-primary btn-disabled other another"
 ```
 
-## Patch Built-in `cn`
+Visual values resolve from explicit instance props, inherited composition/FormField values, and finally the latest Theme default. Only `undefined` falls back. `null` suppresses the default and selects no branch; `false`, `0`, and `''` remain explicit values where the Variant type supports them. Every recipe for a component uses the same final visual values.
 
-Moraine exports `extendCN` so you can plug in class merge utilities like `tailwind-merge`.
+For standalone recipe authoring, `slotRecipe` produces slot-class maps and `atomicRecipe` produces one class string. Both are exported from `moraine/theme`, accept `defaults`, and expose readonly `.options` metadata. Ordinary calls always use default `cn` rules. To supply an explicit merger, call `slotRecipeFn.resolve(variants, scopedCn)` or `atomicRecipeFn.resolve(variants, scopedCn, ...extraClasses)`. These pure calls preserve the usual slot-map or string output; one recipe can be shared across Providers.
 
-```tsx
-import { extendCN } from 'moraine'
-import { twMerge } from 'tailwind-merge'
+### State selectors
 
-extendCN(twMerge)
+Recipe Variants describe stable component options that select class branches, including visual treatments and configured layout or interaction modes. Transient disabled, required, selected, open/closed, loading, orientation, and placement state use the component's documented data/ARIA attributes. Keep state selectors flat so both CSS engines can scan them:
+
+```ts
+const theme = createTheme({
+  extends: defaultTheme,
+  button: { base: { root: 'data-disabled:opacity-50 data-loading:cursor-wait' } },
+  select: { variants: { search: { true: { control: 'focus-within:ring-2' } } } },
+  popover: { base: { content: 'data-[side=bottom]:mt-2' } },
+})
+```
+
+Measurements such as slider percentages and floating transform origins remain inline styles or CSS variables.
+
+### Reactive replacement and native refs
+
+Changing a Provider's `theme` updates classes without remounting component DOM. Input and Textarea keep their values, focus, selection, and refs. Their ordinary `ref` targets the wrapper; callback `inputRef` and `textareaRef` target the editable native control.
+
+<Preview path="./styling/theme-replacement" />
+
+## `cn`
+
+`cn()` combines conditional class values and resolves supported utility conflicts. It does not generate CSS, scan component files, load the plugin or preset, or validate theme tokens.
+
+```ts
+import { cn } from 'moraine'
+
+cn('px-2 bg-primary', active && 'bg-primary-active')
 ```

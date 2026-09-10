@@ -1,159 +1,45 @@
-import type { JSX } from 'solid-js'
-import { Show, createMemo, mergeProps, splitProps } from 'solid-js'
+import type { JSX, ValidComponent } from 'solid-js'
+import {
+  Show,
+  children as resolveChildren,
+  createComponent,
+  mergeProps,
+  splitProps,
+} from 'solid-js'
 
-import { Icon } from '../../elements/icon/index'
-import { Button } from '../../elements/index'
+import { Icon } from '../../elements/icon'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { cn, useId } from '../../shared/utils'
-import type { OverlayTriggerProps } from '../base/trigger'
+import { createComponentStyles } from '../../shared/provider'
 import { Modal } from '../modal/modal'
-import type { ModalProps, ModalT } from '../modal/modal'
-import { ModalTriggerRenderer } from '../modal/modal-trigger'
+import { ModalSurface } from '../modal/modal-content'
+import { useModalContext } from '../modal/modal-context'
 
-import { sheetContentVariants } from './sheet.class'
-import type { SheetVariantProps } from './sheet.class'
+import type { SheetProps, SheetT } from './sheet.types'
 
-export namespace SheetT {
-  export interface Slot<T = unknown> {
-    /** Backdrop layer rendered behind the sheet panel. */
-    overlay?: T
-
-    /** Slide-in panel containing header, body, footer, and close control. */
-    content?: T
-
-    /** Top region for sheet title and description. */
-    header?: T
-
-    /** Inner wrapper that arranges sheet header, body, footer, and actions. */
-    wrapper?: T
-
-    /** Accessible title for the sheet. */
-    title?: T
-
-    /** Supporting text associated with the sheet title. */
-    description?: T
-
-    /** Header action region, usually paired with the close control. */
-    actions?: T
-
-    /** Button that dismisses the sheet. */
-    close?: T
-
-    /** Main sheet content region. */
-    body?: T
-
-    /** Bottom region for sheet actions. */
-    footer?: T
-  }
-
-  export interface Variant extends SheetVariantProps {
-    /**
-     * Edge of the viewport from which the sheet enters.
-     * @default 'right'
-     */
-    side?: SheetVariantProps['side']
-
-    /**
-     * Whether to inset the sheet from the viewport on larger screens.
-     * @default false
-     */
-    inset?: SheetVariantProps['inset']
-  }
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-  export interface Item {}
-
-  /**
-   * Base props for the Sheet component.
-   */
-  export interface Base extends Pick<
-    ModalProps,
-    | 'id'
-    | 'open'
-    | 'defaultOpen'
-    | 'onOpenChange'
-    | 'onExitComplete'
-    | 'dismissible'
-    | 'onClosePrevent'
-  > {
-    /** Whether to render the overlay element. */
-    overlay?: boolean
-
-    /** Accessible name used when the sheet has no rendered title. */
-    ariaLabel?: string
-
-    /**
-     * Primary title displayed in the sheet header.
-     */
-    title?: JSX.Element
-
-    /**
-     * Secondary description displayed below the title.
-     */
-    description?: JSX.Element
-
-    /**
-     * Whether to enable transition animations.
-     * @default true
-     */
-    transition?: boolean
-
-    /**
-     * Whether to show a close button, or a custom element to use as one.
-     * @default true
-     */
-    close?: JSX.Element
-
-    /**
-     * Custom element to render in the header slot.
-     */
-    header?: JSX.Element
-
-    /**
-     * Custom element to render in the scrollable body slot.
-     */
-    body?: JSX.Element
-
-    /**
-     * Custom element to render in the footer slot.
-     */
-    footer?: JSX.Element
-
-    /**
-     * Additional action elements to render in the header.
-     */
-    action?: JSX.Element
-
-    /** Render the sheet trigger as a single HTMLElement root. */
-    children?: (props: OverlayTriggerProps) => JSX.Element
-  }
-
-  /**
-   * Props for the Sheet component.
-   */
-  export type TriggerProps = OverlayTriggerProps
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
+/** Sheet state and context. Trigger, Content, and Close own their respective DOM. */
+export function Sheet(props: SheetProps): JSX.Element {
+  return <Modal {...props} />
 }
 
-/**
- * Props for the Sheet component.
- */
-export interface SheetProps extends SheetT.Props {}
+function SheetTrigger<T extends ValidComponent = 'button'>(
+  props: SheetT.TriggerProps<T>,
+): JSX.Element {
+  const resolved = createComponentStyles('sheet', props, { rootSlot: 'trigger' })
+  const partProps = mergeProps(props, resolved.root) as SheetT.TriggerProps<T>
+  return createComponent(Modal.Trigger<T>, partProps)
+}
 
-/** Slide-in panel overlay from any screen edge with header, body, and footer slots. */
-export function Sheet(props: SheetProps): JSX.Element {
+function SheetClose<T extends ValidComponent = 'button'>(props: SheetT.CloseProps<T>): JSX.Element {
+  const resolved = createComponentStyles('sheet', props, { rootSlot: 'close' })
+  const partProps = mergeProps(props, resolved.root) as SheetT.CloseProps<T>
+  return createComponent(Modal.Close<T>, partProps)
+}
+
+function SheetContent(props: SheetT.ContentProps): JSX.Element {
   const [local, rest] = splitProps(props, [
-    'id',
-    'open',
-    'defaultOpen',
-    'onOpenChange',
-    'onExitComplete',
     'overlay',
     'ariaLabel',
-    'dismissible',
-    'onClosePrevent',
     'title',
     'description',
     'side',
@@ -170,180 +56,137 @@ export function Sheet(props: SheetProps): JSX.Element {
     'class',
     'style',
   ])
+
+  const context = useModalContext()
+
   const merged = mergeProps(
     {
       overlay: true,
       transition: true,
-      side: 'right' as const,
-      inset: false,
+
       close: true,
-      dismissible: true,
     },
+
     local,
   )
-  const title = createLazyMemo(() => merged.title)
-  const description = createLazyMemo(() => merged.description)
-  const header = createLazyMemo(() => merged.header)
-  const action = createLazyMemo(() => merged.action)
-  const closeContent = createLazyMemo(() => merged.close)
-  const body = createLazyMemo(() => merged.body)
-  const footer = createLazyMemo(() => merged.footer)
-  const triggerRender = createMemo(() => merged.children)
-  const triggerProps = mergeProps(rest as Partial<OverlayTriggerProps>, {
-    get class() {
-      return cn(props.class)
-    },
-    get style() {
-      return props.style
-    },
-  }) as Partial<OverlayTriggerProps>
-  const rootId = useId(() => merged.id, 'sheet')
-  const hasCustomHeader = createLazyMemo(() => hasJsxContent(header()))
-  const titleId = createLazyMemo(() =>
-    !hasCustomHeader() && hasJsxContent(title()) ? `${rootId()}-title` : undefined,
-  )
-  const descriptionId = createLazyMemo(() =>
-    !hasCustomHeader() && hasJsxContent(description()) ? `${rootId()}-description` : undefined,
-  )
 
-  const hasDefaultHeader = () =>
-    hasJsxContent(title()) ||
-    hasJsxContent(description()) ||
-    hasJsxContent(action()) ||
-    closeContent() !== false
+  const resolved = createComponentStyles('sheet', local, { rootSlot: 'content' })
 
   return (
-    <Modal
-      id={merged.id}
-      open={merged.open}
-      defaultOpen={merged.defaultOpen}
-      onOpenChange={merged.onOpenChange}
-      onExitComplete={merged.onExitComplete}
-      dismissible={merged.dismissible}
-      onClosePrevent={merged.onClosePrevent}
-    >
-      <ModalTriggerRenderer {...triggerProps}>{triggerRender()}</ModalTriggerRenderer>
-      <Modal.Content
-        overlay={merged.overlay}
-        overlayClass={cn(merged.classes?.overlay)}
-        overlayStyle={merged.styles?.overlay}
-        data-side={merged.side}
-        ariaLabel={merged.ariaLabel}
-        ariaLabelledBy={titleId()}
-        ariaDescribedBy={descriptionId()}
-        class={sheetContentVariants(
-          {
-            side: merged.side,
-            inset: merged.inset,
-          },
-          !merged.transition &&
-            'transition-none data-expanded:animate-none data-closed:animate-none',
-          merged.classes?.content,
-        )}
-        style={merged.styles?.content}
-      >
-        {(props: ModalT.ContentContext): JSX.Element => (
-          <>
-            <Show when={hasCustomHeader() || hasDefaultHeader()}>
-              <div
-                data-slot="header"
-                style={merged.styles?.header}
-                class={cn('p-4 flex gap-1.5 items-start', merged.classes?.header)}
-              >
-                <Show
-                  when={hasCustomHeader()}
-                  fallback={
-                    <>
-                      <div
-                        data-slot="wrapper"
-                        style={merged.styles?.wrapper}
-                        class={cn('flex-1 gap-0.5 grid min-w-0', merged.classes?.wrapper)}
-                      >
-                        <Show when={hasJsxContent(title())}>
-                          <h2
-                            id={titleId()}
-                            data-slot="title"
-                            style={merged.styles?.title}
-                            class={cn('text-foreground font-medium', merged.classes?.title)}
-                          >
-                            {title()}
-                          </h2>
-                        </Show>
+    <ModalSurface
+      {...rest}
+      data-transition={merged.transition ? '' : undefined}
+      overlay={merged.overlay}
+      overlayClass={resolved.slot('overlay').class}
+      overlayStyle={resolved.slot('overlay').style}
+      class={resolved.slot('content').class}
+      style={resolved.slot('content').style}
+      surfaceRender={() => {
+        const title = createLazyMemo(() => merged.title)
+        const description = createLazyMemo(() => merged.description)
+        const header = createLazyMemo(() => merged.header)
+        const action = createLazyMemo(() => merged.action)
+        const closeContent = createLazyMemo(() => merged.close)
+        const body = createLazyMemo(() => {
+          const explicitBody = merged.body
+          return explicitBody === undefined
+            ? resolveChildren(() => merged.children)()
+            : explicitBody
+        })
+        const footer = createLazyMemo(() => merged.footer)
+        const hasCustomHeader = createLazyMemo(() => hasJsxContent(header()))
+        const titleId = createLazyMemo(() =>
+          !hasCustomHeader() && hasJsxContent(title()) ? `${context.contentId()}-title` : undefined,
+        )
+        const descriptionId = createLazyMemo(() =>
+          !hasCustomHeader() && hasJsxContent(description())
+            ? `${context.contentId()}-description`
+            : undefined,
+        )
+        const hasDefaultHeader = () =>
+          hasJsxContent(title()) ||
+          hasJsxContent(description()) ||
+          hasJsxContent(action()) ||
+          closeContent() !== false
 
-                        <Show when={hasJsxContent(description())}>
-                          <p
-                            id={descriptionId()}
-                            data-slot="description"
-                            style={merged.styles?.description}
-                            class={cn('text-sm text-muted-foreground', merged.classes?.description)}
-                          >
-                            {description()}
-                          </p>
-                        </Show>
-                      </div>
-
-                      <Show when={hasJsxContent(action())}>
-                        <div
-                          data-slot="actions"
-                          style={merged.styles?.actions}
-                          class={cn(
-                            'ms-auto inline-flex shrink-0 gap-2 items-center',
-                            merged.classes?.actions,
-                          )}
-                        >
-                          {action()}
-                        </div>
-                      </Show>
-
-                      <Show when={closeContent() !== false}>
-                        <Button
-                          data-slot="close"
-                          aria-label="Close"
-                          variant="ghost"
-                          size="icon-sm"
-                          style={merged.styles?.close}
-                          class={['absolute top-4 right-4', merged.classes?.close]}
-                          onClick={() => props.close()}
-                        >
-                          <Show when={closeContent() === true} fallback={closeContent()}>
-                            <Icon name="icon-close" />
+        return {
+          ariaLabel: merged.ariaLabel,
+          ariaLabelledBy: titleId(),
+          ariaDescribedBy: descriptionId(),
+          children: () => (
+            <>
+              <Show when={hasCustomHeader() || hasDefaultHeader()}>
+                <div data-slot="header" {...resolved.slot('header')}>
+                  <Show
+                    when={hasCustomHeader()}
+                    fallback={
+                      <>
+                        <div data-slot="wrapper" {...resolved.slot('wrapper')}>
+                          <Show when={hasJsxContent(title())}>
+                            <h2 id={titleId()} data-slot="title" {...resolved.slot('title')}>
+                              {title()}
+                            </h2>
                           </Show>
-                        </Button>
-                      </Show>
-                    </>
-                  }
+
+                          <Show when={hasJsxContent(description())}>
+                            <p
+                              id={descriptionId()}
+                              data-slot="description"
+                              {...resolved.slot('description')}
+                            >
+                              {description()}
+                            </p>
+                          </Show>
+                        </div>
+
+                        <Show when={hasJsxContent(action())}>
+                          <div data-slot="actions" {...resolved.slot('actions')}>
+                            {action()}
+                          </div>
+                        </Show>
+
+                        <Show when={closeContent() !== false}>
+                          <Modal.Close
+                            data-slot="close"
+                            aria-label="Close"
+                            {...resolved.slot('close')}
+                          >
+                            <Show when={closeContent() === true} fallback={closeContent()}>
+                              <Icon name="icon-close" />
+                            </Show>
+                          </Modal.Close>
+                        </Show>
+                      </>
+                    }
+                  >
+                    {header()}
+                  </Show>
+                </div>
+              </Show>
+
+              <Show when={hasJsxContent(body())}>
+                <div
+                  data-slot="body"
+                  data-header={hasCustomHeader() || hasDefaultHeader() ? '' : undefined}
+                  {...resolved.slot('body')}
                 >
-                  {header()}
-                </Show>
-              </div>
-            </Show>
+                  {body()}
+                </div>
+              </Show>
 
-            <Show when={hasJsxContent(body())}>
-              <div
-                data-slot="body"
-                style={merged.styles?.body}
-                class={cn(
-                  'flex-1 overflow-auto',
-                  (hasCustomHeader() || hasDefaultHeader()) && 'px-4 pb-4 pt-0',
-                  merged.classes?.body,
-                )}
-              >
-                {body()}
-              </div>
-            </Show>
-
-            <Show when={hasJsxContent(footer())}>
-              <div
-                data-slot="footer"
-                style={merged.styles?.footer}
-                class={cn('mt-auto p-4 flex flex-col gap-2', merged.classes?.footer)}
-              >
-                {footer()}
-              </div>
-            </Show>
-          </>
-        )}
-      </Modal.Content>
-    </Modal>
+              <Show when={hasJsxContent(footer())}>
+                <div data-slot="footer" {...resolved.slot('footer')}>
+                  {footer()}
+                </div>
+              </Show>
+            </>
+          ),
+        }
+      }}
+    />
   )
 }
+
+Sheet.Trigger = SheetTrigger
+Sheet.Content = SheetContent
+Sheet.Close = SheetClose

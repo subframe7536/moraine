@@ -1,4 +1,4 @@
-import { renderDocsCodeHtml } from '../core/expressive-code'
+import { renderDocsCodeHtml } from '../core/shiki'
 import { parsePreviewCode } from '../previews/ast'
 import { transformPreviewModule } from '../previews/module'
 import { transformPreviewSourceModule } from '../previews/source'
@@ -28,16 +28,10 @@ export function createDocsTransformHandler() {
       id,
       parsePreviewCode,
       (source, lang) => {
-        const sourceFilePath = id.split('?')[0] ?? id
         return renderDocsCodeHtml({
           code: source,
           language: lang,
-          sourceFilePath,
-          stickyCopyButton: true,
-          props: {
-            frame: 'none',
-            showLineNumbers: true,
-          },
+          lineNumbers: true,
         })
       },
     )

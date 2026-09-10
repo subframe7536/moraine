@@ -48,38 +48,36 @@ import type { SheetT } from 'moraine'
 >
   {(props) => {
     return (
-      <Sheet
-        side={props.side}
-        title="Edit User Profile"
-        description="Make changes to your account profile here."
-        dismissible={props.dismissible}
-        overlay={props.overlay}
-        body={
-          <div class="py-3 space-y-4">
-            <div class="space-y-1.5">
-              <label class="text-xs text-muted-foreground font-medium">Display name</label>
-              <Input defaultValue="Sarah Connor" />
+      <Sheet dismissible={props.dismissible}>
+        <Sheet.Trigger as={Button} variant="outline">
+          Open Sheet
+        </Sheet.Trigger>
+        <Sheet.Content
+          side={props.side}
+          title="Edit User Profile"
+          description="Make changes to your account profile here."
+          overlay={props.overlay}
+          body={
+            <div class="py-3 space-y-4">
+              <div class="space-y-1.5">
+                <label class="text-xs text-muted-foreground font-medium">Display name</label>
+                <Input defaultValue="Sarah Connor" />
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-xs text-muted-foreground font-medium">Username</label>
+                <Input defaultValue="@sconnor" />
+              </div>
             </div>
-            <div class="space-y-1.5">
-              <label class="text-xs text-muted-foreground font-medium">Username</label>
-              <Input defaultValue="@sconnor" />
+          }
+          footer={
+            <div class="flex gap-2 w-full justify-end">
+              <Button variant="ghost" size="sm">
+                Cancel
+              </Button>
+              <Button size="sm">Save changes</Button>
             </div>
-          </div>
-        }
-        footer={
-          <div class="flex gap-2 w-full justify-end">
-            <Button variant="ghost" size="sm">
-              Cancel
-            </Button>
-            <Button size="sm">Save changes</Button>
-          </div>
-        }
-      >
-        {(triggerProps) => (
-          <Button {...triggerProps} variant="outline">
-            Open Sheet
-          </Button>
-        )}
+          }
+        />
       </Sheet>
     )
   }}
@@ -87,10 +85,13 @@ import type { SheetT } from 'moraine'
 
 ## Anatomy
 
+`Sheet` owns state and context without adding a DOM element. `Sheet.Trigger` owns its attributes, events, ref, and styling; `Sheet.Content` owns the floating surface and presentation props. `Sheet.Close` closes the nearest root, and Content children fill the body unless an explicit `body` prop is provided.
+
 Hierarchical slot and element structure:
 
 ```text
-trigger (button opening drawer)
+Root (context only)
+├── Trigger (button opening drawer)
 ├── overlay (dark backdrop screen)
 └── content (sliding drawer panel)
     ├── header (top region)

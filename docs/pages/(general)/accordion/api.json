@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Stacked disclosure component with single or multiple expanded sections.",
-    "sourcePath": "src/elements/accordion/accordion.tsx"
+    "sourcePath": "src/elements/accordion/accordion.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -117,10 +118,23 @@
           "description": "Defines the semantic role exposed to assistive technology."
         }
       ]
+    },
+    {
+      "name": "contentInner",
+      "description": "Inner container inside the collapsible panel for padding.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "item": {
     "props": [
+      {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Optional class applied to the item element."
+      },
       {
         "name": "content",
         "required": false,

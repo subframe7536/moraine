@@ -1,9 +1,16 @@
 import type { JSX } from 'solid-js'
 
-import type { IconT } from '../../../elements/icon/index'
-import type { SlotClassValue, SlotStyleValue } from '../../../shared/types'
+import type { IconT } from '../../../elements/icon'
+import type { SlotBinding as ComponentSlotBinding } from '../../../shared/provider/create-component-styles'
+import type { ComponentOrElement } from '../../../shared/render-prop'
+import type { SlotClassValue, SlotStyleValue, ElementProps } from '../../../shared/types'
 
-import type { OverlayMenuItemVariantProps } from './menu.class'
+import type { OverlayMenuFocusStrategy, OverlayMenuAnchorRect } from './menu.utils'
+
+export interface OverlayMenuItemVariantProps {
+  color?: 'default' | 'destructive'
+  size?: 'sm' | 'md' | 'lg'
+}
 
 export type OverlayMenuSide = 'top' | 'right' | 'bottom' | 'left'
 
@@ -118,6 +125,8 @@ export interface OverlayMenuSharedItem<TItem> {
 }
 
 export interface OverlayMenuSharedSlots<T = unknown> {
+  /** Element that opens the menu. */
+  trigger?: T
   /** Optional backdrop rendered behind modal menu content. */
   overlay?: T
   /** Positioned menu panel that contains groups, items, and submenus. */
@@ -152,8 +161,10 @@ export type OverlayMenuSharedClasses = OverlayMenuSharedSlots<SlotClassValue>
 
 export type OverlayMenuSharedStyles = OverlayMenuSharedSlots<SlotStyleValue>
 
+export type OverlayMenuSlotBinding = (slot: keyof OverlayMenuSharedSlots) => ComponentSlotBinding
+
 /**
- * Props provided to custom menu item render components.
+ * OverlayMenuProps provided to custom menu item render components.
  */
 export interface OverlayMenuSharedItemRenderProps<TItem> {
   /**
@@ -180,4 +191,142 @@ export interface OverlayMenuSharedItemRenderProps<TItem> {
    * Whether the item has nested children and triggers a submenu.
    */
   hasChildren: boolean
+}
+/** Shared overlay menu props used by the shell, root wrappers, and layers. */
+export interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TItem>> {
+  /**
+   * Whether body scroll should be locked while the menu is open.
+   * @default true
+   */
+  preventScroll?: boolean
+
+  /** Unique base id used to derive trigger and content ids. */
+  id?: string
+
+  /**
+   * Icon used for checked checkbox items.
+   * @default 'icon-check'
+   */
+  checkedIcon?: IconT.Name
+
+  /** Slot class overrides for menu sections. */
+  classes?: OverlayMenuSharedClasses
+
+  /** Unified slot class and style resolver. */
+  slotBinding?: OverlayMenuSlotBinding
+
+  /** Content rendered after the resolved item groups. */
+  contentBottom?: OverlayMenuContentSlot
+
+  /** Content rendered before the resolved item groups. */
+  contentTop?: OverlayMenuContentSlot
+
+  /**
+   * Gap between the anchor and the content.
+   * @default 0
+   */
+  gutter?: number
+
+  /**
+   * Cross-axis or alignment offset relative to the anchor.
+   * @default 0
+   */
+  shift?: number
+
+  /** Custom renderer for individual items. */
+  itemRender?: ComponentOrElement<OverlayMenuSharedItemRenderProps<TItem>>
+
+  /** Additional attributes for each menu layer content element. */
+  contentProps?: ElementProps<HTMLDivElement>
+
+  /** Additional attributes for an interactive menu item. */
+  itemProps?: (
+    context: OverlayMenuSharedItemRenderProps<TItem>,
+  ) => ElementProps<HTMLDivElement> | undefined
+
+  /** Items rendered in the menu body. */
+  items?: TItem[]
+
+  /**
+   * Padding applied to the overflow area when calculating the menu's position.
+   * @default 4
+   */
+  overflowPadding?: number
+
+  /**
+   * Preferred content placement relative to the trigger or anchor point.
+   */
+  placement?: OverlayMenuPlacement
+
+  /**
+   * Menu item size variant.
+   * @default 'md'
+   */
+  size?: NonNullable<OverlayMenuItemVariantProps['size']>
+
+  /** Slot style overrides for menu sections. */
+  styles?: OverlayMenuSharedStyles
+
+  /**
+   * Icon used for submenu trigger items.
+   * @default 'icon-chevron-right'
+   */
+  submenuIcon?: IconT.Name
+}
+
+export interface OverlayMenuProps<
+  TItem extends OverlayMenuSharedItem<TItem>,
+> extends OverlayMenuSharedProps<TItem> {
+  /**
+   * Strategy used to auto-focus the menu after it is positioned.
+   */
+  autoFocusStrategy?: OverlayMenuFocusStrategy
+
+  /**
+   * Resolve a virtual anchor rectangle when the menu is anchored to a point.
+   */
+  getAnchorRect?: (anchor?: HTMLElement) => OverlayMenuAnchorRect | undefined
+
+  /**
+   * Called after an auto-focus strategy has been handled.
+   */
+  onAutoFocusHandled?: () => void
+
+  /** Called when the overlay menu should close. */
+  onClose: () => void
+
+  /** Pointer down handler for the content wrapper. */
+  onContentPointerDown?: JSX.EventHandler<HTMLDivElement, PointerEvent>
+
+  /** Context menu handler for the content wrapper. */
+  onContentContextMenu?: JSX.EventHandler<HTMLDivElement, MouseEvent>
+
+  /** Whether the overlay menu content is open. */
+  open: boolean
+
+  /** Trigger element used as the position reference. */
+  triggerElement?: HTMLElement
+}
+
+export interface OverlayMenuRootProps<TItem extends OverlayMenuSharedItem<TItem>> extends Omit<
+  OverlayMenuSharedProps<TItem>,
+  'slotBinding'
+> {
+  /** Controlled open state of the menu. */
+  open?: boolean
+
+  /**
+   * Initial open state when the component is uncontrolled.
+   * @default false
+   */
+  defaultOpen?: boolean
+
+  /** Called whenever the menu requests an open state change. */
+  onOpenChange?: (open: boolean) => void
+
+  /**
+   * Whether trigger interactions should be ignored.
+   * @default false
+   */
+  disabled?: boolean
 }

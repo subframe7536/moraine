@@ -1,8 +1,11 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { SidebarFrame, SidebarFrameSheetResizableRender } from './sidebar-frame'
-import type { SidebarFrameProps } from './sidebar-frame'
+import { renderWithTheme } from '../../test-utils/theme-render'
+
+import { SidebarFrame } from './sidebar-frame'
+import { useSidebarFrame } from './sidebar-frame-context'
 
 const originalMatchMedia = window.matchMedia
 
@@ -19,6 +22,26 @@ function createMatchMediaMock(matches = false) {
   }))
 }
 
+function FrameContent() {
+  const context = useSidebarFrame()
+
+  return (
+    <>
+      <SidebarFrame.Sidebar>
+        <SidebarFrame.SidebarHeader>Header</SidebarFrame.SidebarHeader>
+        <SidebarFrame.SidebarBody>Navigation</SidebarFrame.SidebarBody>
+        <SidebarFrame.SidebarFooter>Footer</SidebarFrame.SidebarFooter>
+      </SidebarFrame.Sidebar>
+      <SidebarFrame.Main>
+        <button type="button" onClick={context.toggle}>
+          Toggle
+        </button>
+        <span data-testid="scroll-state">{context.scrolled() ? 'on' : 'off'}</span>
+      </SidebarFrame.Main>
+    </>
+  )
+}
+
 beforeEach(() => {
   window.matchMedia = createMatchMediaMock(false)
 })
@@ -27,215 +50,128 @@ afterEach(() => {
   window.matchMedia = originalMatchMedia
 })
 
-function createBaseProps(): SidebarFrameProps {
-  return {
-    isMobile: false,
-    sidebarBodyRender: () => <div>Sidebar body</div>,
-    mainRender: () => <div>Main content</div>,
-  }
-}
-
 describe('SidebarFrame', () => {
-  test('initializes the desktop sidebar open before effects run', () => {
-    let initialOpen: boolean | undefined
-
-    render(() => (
-      <SidebarFrame
-        isMobile={false}
-        sidebarBodyRender={(ctx) => {
-          initialOpen ??= ctx.isOpen()
-          return <div>Sidebar body</div>
-        }}
-        mainRender={() => <div>Main content</div>}
-      />
+  test('renders compound regions in the desktop layout', () => {
+    const screen = renderWithTheme(() => (
+      <SidebarFrame isMobile={false}>
+        <FrameContent />
+      </SidebarFrame>
     ))
 
-    expect(initialOpen).toBe(true)
-  })
-
-  test('accepts static JSX for sidebar and main renderers', () => {
-    const screen = render(() => (
-      <SidebarFrame
-        isMobile={false}
-        sidebarBodyRender={<div data-testid="static-sidebar">Static sidebar</div>}
-        mainRender={<div data-testid="static-main">Static main</div>}
-      />
-    ))
-
-    expect(screen.getByTestId('static-sidebar').textContent).toBe('Static sidebar')
-    expect(screen.getByTestId('static-main').textContent).toBe('Static main')
-  })
-
-  test('uses SheetOnly as default frame and does not render resizable on desktop', () => {
-    const screen = render(() => <SidebarFrame {...createBaseProps()} />)
-
-    expect(screen.container.querySelector('[data-slot="root"]')?.className).toContain('h-screen')
-    expect(screen.container.querySelector('[data-slot="root"]')?.className).toContain('max-h-full')
-    expect(screen.container.querySelector('[data-slot="layout"]')).not.toBeNull()
-    expect(screen.container.querySelector('[data-slot="divider"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="sidebarWrapper"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
-      'transition-[width,opacity,transform]',
-    )
-    expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).not.toContain(
-      'transition-mo-enter',
-    )
+    expect(screen.getByText('Header')).toBeTruthy()
+    expect(screen.getByText('Navigation')).toBeTruthy()
+    expect(screen.getByText('Footer')).toBeTruthy()
+    expect(screen.container.querySelector('[data-slot="root"]')?.className).toContain('flex')
     expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain('w-64')
     expect(screen.container.querySelector('[data-slot="main"]')?.className).toContain('flex-1')
   })
 
-  test('toggles desktop sidebar width in the default frame', async () => {
+  test('preserves the main subtree when switching between desktop and mobile', () => {
+    const [mobile, setMobile] = createSignal(false)
+    let input: HTMLInputElement | undefined
     const screen = render(() => (
-      <SidebarFrame
-        {...createBaseProps()}
-        mainRender={(ctx) => (
-          <button type="button" onClick={ctx.toggle}>
-            toggle desktop
-          </button>
-        )}
-      />
+      <SidebarFrame isMobile={mobile()}>
+        <SidebarFrame.Sidebar>Navigation</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <input ref={(element) => (input = element)} aria-label="Persistent input" />
+        </SidebarFrame.Main>
+      </SidebarFrame>
     ))
-    const sidebar = screen.container.querySelector('[data-slot="sidebar"]') as HTMLDivElement
+    const initialInput = screen.getByLabelText('Persistent input')
 
-    expect(sidebar.className).toContain('opacity-100')
-    expect(sidebar.className).toContain('w-64')
-
-    fireEvent.click(screen.getByText('toggle desktop'))
-
-    expect(sidebar.className).toContain('opacity-0')
-    expect(sidebar.className).toContain('w-0')
-    expect(sidebar.getAttribute('aria-hidden')).toBe('true')
+    setMobile(true)
+    expect(screen.getByLabelText('Persistent input')).toBe(initialInput)
+    setMobile(false)
+    expect(screen.getByLabelText('Persistent input')).toBe(initialInput)
+    expect(input).toBe(initialInput)
   })
 
-  test('supports renderFrame override', () => {
+  test('opens the mobile Sheet through the public context', async () => {
     const screen = render(() => (
-      <SidebarFrame
-        {...createBaseProps()}
-        frameRender={() => <div data-testid="custom-frame">custom</div>}
-      />
-    ))
-
-    expect(screen.getByTestId('custom-frame').textContent).toBe('custom')
-    expect(screen.container.querySelector('[data-slot="layout"]')).toBeNull()
-  })
-
-  test('renders resizable wrapper on desktop when using SheetResizable render', () => {
-    const screen = render(() => (
-      <SidebarFrame {...createBaseProps()} frameRender={SidebarFrameSheetResizableRender} />
-    ))
-
-    expect(screen.container.querySelector('[data-slot="divider"]')).not.toBeNull()
-  })
-
-  test('renders mobile sheet path for SheetResizable render', () => {
-    const screen = render(() => (
-      <SidebarFrame
-        {...createBaseProps()}
-        isMobile
-        frameRender={SidebarFrameSheetResizableRender}
-      />
-    ))
-
-    expect(screen.container.querySelector('[data-slot="main"]')).not.toBeNull()
-    expect(screen.container.querySelector('[data-slot="divider"]')).toBeNull()
-  })
-
-  test('applies variant classes for default, floating and inset', () => {
-    const defaultScreen = render(() => <SidebarFrame {...createBaseProps()} variant="default" />)
-    const floatingScreen = render(() => <SidebarFrame {...createBaseProps()} variant="floating" />)
-    const insetScreen = render(() => <SidebarFrame {...createBaseProps()} variant="inset" />)
-
-    expect(defaultScreen.container.querySelector('[data-slot="sidebar"]')?.className).not.toContain(
-      'rounded-lg',
-    )
-    expect(floatingScreen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
-      'rounded-lg',
-    )
-    expect(floatingScreen.container.querySelector('[data-slot="layout"]')?.className).toContain(
-      'p-2',
-    )
-    expect(insetScreen.container.querySelector('[data-slot="sidebar"]')?.className).not.toContain(
-      'rounded-lg',
-    )
-    expect(insetScreen.container.querySelector('[data-slot="layout"]')?.className).toContain('p-2')
-    expect(insetScreen.container.querySelector('[data-slot="main"]')?.className).toContain(
-      'rounded-xl',
-    )
-  })
-
-  test('handles right side layout order and inset direction', () => {
-    const screen = render(() => (
-      <SidebarFrame {...createBaseProps()} side="right" variant="inset" />
-    ))
-
-    expect(screen.container.querySelector('[data-slot="layout"]')?.className).toContain(
-      'flex-row-reverse',
-    )
-    expect(screen.container.querySelector('[data-slot="layout"]')?.className).toContain('p-2')
-  })
-
-  test('applies default sidebar border by side direction', () => {
-    const leftScreen = render(() => <SidebarFrame {...createBaseProps()} side="left" />)
-    const rightScreen = render(() => <SidebarFrame {...createBaseProps()} side="right" />)
-
-    expect(leftScreen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
-      'border-r',
-    )
-    expect(rightScreen.container.querySelector('[data-slot="sidebar"]')?.className).toContain(
-      'border-l',
-    )
-  })
-
-  test('supports ctx.toggle to open mobile sheet', async () => {
-    const screen = render(() => (
-      <SidebarFrame
-        isMobile
-        sidebarBodyRender={() => <div>Mobile sidebar body</div>}
-        mainRender={(ctx) => (
-          <button type="button" onClick={ctx.toggle}>
-            toggle
-          </button>
-        )}
-      />
+      <SidebarFrame isMobile>
+        <FrameContent />
+      </SidebarFrame>
     ))
 
     expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
-
-    fireEvent.click(screen.getByText('toggle'))
+    fireEvent.click(screen.getByText('Toggle'))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
-      expect(document.body.textContent).toContain('Mobile sidebar body')
+      expect(document.body.textContent).toContain('Navigation')
     })
   })
 
-  test('updates scrolled state by scroll threshold', async () => {
+  test('derives mobile mode from matchMedia when it is uncontrolled', async () => {
+    window.matchMedia = createMatchMediaMock(true)
     const screen = render(() => (
-      <SidebarFrame
-        {...createBaseProps()}
-        scrollThreshold={10}
-        mainRender={(ctx) => <div data-testid="scroll-state">{ctx.scrolled() ? 'on' : 'off'}</div>}
-      />
+      <SidebarFrame>
+        <FrameContent />
+      </SidebarFrame>
     ))
 
+    await waitFor(() =>
+      expect(screen.container.querySelector('[data-slot="sidebar"]')).toHaveProperty(
+        'hidden',
+        true,
+      ),
+    )
+    fireEvent.click(screen.getByText('Toggle'))
+    await waitFor(() => expect(document.body.textContent).toContain('Navigation'))
+  })
+
+  test('toggles desktop visibility and updates scroll state', () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile={false} scrollThreshold={10}>
+        <FrameContent />
+      </SidebarFrame>
+    ))
+    const sidebar = screen.container.querySelector('[data-slot="sidebar"]') as HTMLDivElement
     const main = screen.container.querySelector('[data-slot="main"]') as HTMLDivElement
 
-    expect(screen.getByTestId('scroll-state').textContent).toBe('off')
+    fireEvent.click(screen.getByText('Toggle'))
+    expect(sidebar.getAttribute('data-closed')).toBe('')
+    expect(sidebar.getAttribute('aria-hidden')).toBe('true')
 
     main.scrollTop = 20
     fireEvent.scroll(main)
-
     expect(screen.getByTestId('scroll-state').textContent).toBe('on')
   })
 
-  test('prefers controlled isMobile over internal matchMedia', () => {
-    const matchMedia = createMatchMediaMock(true)
+  test('applies side and visual variants to the merged root', () => {
+    const screen = renderWithTheme(() => (
+      <SidebarFrame isMobile={false} side="right" variant="inset">
+        <FrameContent />
+      </SidebarFrame>
+    ))
+    const root = screen.container.querySelector('[data-slot="root"]')
 
-    window.matchMedia = matchMedia
+    expect(root?.className).toContain('flex-row-reverse')
+    expect(root?.className).toContain('p-2')
+    expect(screen.container.querySelector('[data-slot="main"]')?.className).toContain('rounded-xl')
+  })
 
-    const screen = render(() => <SidebarFrame {...createBaseProps()} isMobile={false} />)
+  test('forwards region attributes, classes, styles, refs, and events', () => {
+    const onScroll = vi.fn()
+    let mainRef: HTMLDivElement | undefined
+    const screen = render(() => (
+      <SidebarFrame isMobile={false}>
+        <SidebarFrame.Sidebar data-testid="sidebar" class="custom-sidebar" />
+        <SidebarFrame.Main
+          ref={(element) => (mainRef = element)}
+          data-testid="main"
+          class="custom-main"
+          style={{ color: 'red' }}
+          onScroll={onScroll}
+        />
+      </SidebarFrame>
+    ))
 
-    expect(matchMedia).toHaveBeenCalledWith('(max-width: 768px)')
-    expect(screen.container.querySelector('[data-slot="layout"]')).not.toBeNull()
+    fireEvent.scroll(screen.getByTestId('main'))
+    expect(screen.getByTestId('sidebar').className).toContain('custom-sidebar')
+    expect(screen.getByTestId('main').className).toContain('custom-main')
+    expect(screen.getByTestId('main').style.color).toBe('red')
+    expect(mainRef).toBe(screen.getByTestId('main'))
+    expect(onScroll).toHaveBeenCalledOnce()
   })
 })

@@ -5,33 +5,15 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Joins related buttons and provides shared size and visual variant defaults.",
-    "sourcePath": "src/elements/button/button-group.tsx"
+    "sourcePath": "src/elements/button/button-group.tsx",
+    "kind": "single"
   },
   "slots": [
     {
       "name": "root",
       "description": "Container that joins the edges of its direct button children.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
-        },
-        {
-          "name": "data-size",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved size variant."
-        },
-        {
-          "name": "data-variant",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved visual variant."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": [
         {
           "name": "role",
@@ -45,14 +27,7 @@
       "name": "separator",
       "description": "Separator element between buttons.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": [
         {
           "name": "aria-hidden",
@@ -91,7 +66,9 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined"
+        "type": "\"horizontal\" | \"vertical\" | undefined",
+        "description": "Visual layout direction.",
+        "defaultValue": "horizontal"
       },
       {
         "name": "ref",
@@ -113,7 +90,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | undefined"
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | null | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",
@@ -128,7 +107,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined"
+        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "default"
       }
     ],
     "inherited": []

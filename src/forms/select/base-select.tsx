@@ -1,4 +1,4 @@
-import type { Accessor, Component, JSX } from 'solid-js'
+import type { Accessor, Component, JSX, Ref } from 'solid-js'
 import {
   For,
   Show,
@@ -9,15 +9,17 @@ import {
   on,
   onCleanup,
   splitProps,
+  untrack,
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import type { IconT } from '../../elements/icon/index'
-import { List } from '../../elements/list/index'
-import type { ListProps, ListT } from '../../elements/list/index'
+import type { IconT } from '../../elements/icon'
+import { List } from '../../elements/list'
+import type { ListProps, ListT } from '../../elements/list'
 import { useFloatingPosition } from '../../overlays/base/floating'
 import { useOverlayInteraction } from '../../overlays/base/interaction'
-import { OVERLAY_POSITIONER_CLASS } from '../../shared/cva-common.class'
+import { useCn } from '../../shared/provider/cn-context'
+import type { createComponentStyles } from '../../shared/provider/create-component-styles'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { createTypeahead } from '../../shared/typeahead'
@@ -25,7 +27,7 @@ import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '..
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { callHandler, cn, useId } from '../../shared/utils'
+import { callHandler, callRef, useId } from '../../shared/utils'
 import type { UseFormFieldReturn } from '../form/form-context'
 import type {
   FormDisableOption,
@@ -34,20 +36,9 @@ import type {
 } from '../shared/form-options'
 import { useFormReset } from '../shared/use-form-reset'
 
-import type { SelectControlVariantProps } from './select.class'
-import { selectContentVariants, selectItemVariants } from './select.class'
-import {
-  flattenOptions,
-  normalizeOptions,
-  useSelectField,
-  useSelectMenuControl,
-} from './shared/index'
-import type {
-  BaseSelectItems,
-  NormalizedGroup,
-  NormalizedOption,
-  SelectFilterMode,
-} from './shared/index'
+import type { SelectT } from './select.types'
+import { flattenOptions, normalizeOptions, useSelectField, useSelectMenuControl } from './shared'
+import type { BaseSelectItems, NormalizedGroup, NormalizedOption, SelectFilterMode } from './shared'
 
 export namespace BaseSelectT {
   export type Value = string | number
@@ -104,6 +95,7 @@ export namespace BaseSelectT {
     onInput: (event: InputEvent) => void
     onKeyDown: (event: KeyboardEvent) => void
     toggle: () => void
+    resolved: ReturnType<typeof createComponentStyles<'select'>>
   }
 
   export interface OptionSelectContext<TItem extends Item> {
@@ -164,7 +156,7 @@ export namespace BaseSelectT {
     label?: T
   }
 
-  export type Variant = SelectControlVariantProps
+  export type Variant = SelectT.Variant
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
@@ -189,11 +181,6 @@ export namespace BaseSelectT {
     listboxProps?: ElementProps<HTMLDivElement>
     /** Additional attributes for an option row. */
     itemProps?: (option: TItem & OptionRenderState) => ElementProps<HTMLDivElement> | undefined
-    /**
-     * Enable search input.
-     * @default false
-     */
-    search?: boolean
     /** Controlled search value. */
     searchValue?: string
     /**
@@ -272,7 +259,10 @@ export namespace BaseSelectT {
   export type Props<TItem extends Item> = BaseProps<'div', Base<TItem>, Variant, Classes, Styles>
 }
 
-export interface BaseSelectProps<TItem extends BaseSelectT.Item> extends BaseSelectT.Props<TItem> {}
+export interface BaseSelectProps<TItem extends BaseSelectT.Item> extends BaseSelectT.Props<TItem> {
+  ref?: Ref<HTMLDivElement>
+  _styles: ReturnType<typeof createComponentStyles<'select'>>
+}
 
 const SELECT_FILTER_STRATEGIES: Record<SelectFilterMode, (text: string, input: string) => boolean> =
   {
@@ -281,30 +271,10 @@ const SELECT_FILTER_STRATEGIES: Record<SelectFilterMode, (text: string, input: s
     contains: (text, input) => text.includes(input),
   }
 
-function resolveSelectContentSide(placement: string): 'top' | 'right' | 'bottom' | 'left' {
+function resolveSelectContentSide(placement: string): 'top' | 'bottom' {
   const [side] = placement.split('-')
 
-  if (side === 'top' || side === 'right' || side === 'bottom' || side === 'left') {
-    return side
-  }
-
-  return 'bottom'
-}
-
-function resolveSelectContentOrigin(
-  side: 'top' | 'right' | 'bottom' | 'left',
-): 'bottom center' | 'center left' | 'top center' | 'center right' {
-  switch (side) {
-    case 'top':
-      return 'bottom center'
-    case 'right':
-      return 'center left'
-    case 'left':
-      return 'center right'
-    case 'bottom':
-    default:
-      return 'top center'
-  }
+  return side === 'top' ? 'top' : 'bottom'
 }
 
 function matchesFilter<TOption extends { key: string }>(
@@ -366,15 +336,6 @@ function toStyleObject(
   style: string | JSX.CSSProperties | undefined,
 ): JSX.CSSProperties | undefined {
   return typeof style === 'object' ? style : undefined
-}
-
-function callRef<T extends HTMLElement>(
-  ref: T | ((element: T) => void) | undefined,
-  element: T,
-): void {
-  if (typeof ref === 'function') {
-    ref(element)
-  }
 }
 
 function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
@@ -534,12 +495,15 @@ function useBaseSelectOverlay(options: {
 export function BaseSelect<TItem extends BaseSelectT.Item>(
   props: BaseSelectProps<TItem>,
 ): JSX.Element {
+  const cn = useCn()
   const [local, rest] = splitProps(props as BaseSelectProps<TItem> & Record<string, unknown>, [
+    'ref',
     'id',
     'name',
     'required',
     'disabled',
     'size',
+    '_styles',
     'variant',
     'classes',
     'styles',
@@ -594,9 +558,6 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   ])
   const merged = mergeProps(
     {
-      variant: 'outline',
-      filterOption: true,
-      overflowPadding: 4,
       closeOnSelect: true,
     },
     local as BaseSelectProps<TItem>,
@@ -611,7 +572,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   const field = useSelectField(() => ({
     id: merged.id,
     name: merged.name,
-    size: merged.size,
+    size: merged.size ?? undefined,
     disabled: merged.disabled,
     required: local.required,
     initialValue: merged.initialValue,
@@ -708,7 +669,9 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
 
   const [currentInputText, setCurrentInputText] = createSignal(merged.defaultSearchValue ?? '')
   const [highlightedKey, setHighlightedKey] = createSignal<string | undefined>()
-  const [contentSide, setContentSide] = createSignal<'top' | 'right' | 'bottom' | 'left'>('bottom')
+  const [contentSide, setContentSide] = createSignal<'top' | 'bottom'>('bottom')
+  const resolved = untrack(() => local._styles)
+
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const contentPresence = useTransitionPresence({
@@ -1222,17 +1185,12 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
           callRef(itemAttributes()?.ref, element)
           virtualProps?.ref?.(element)
         }}
+        class={cn(resolved.slot('item').class, [itemAttributes()?.class, virtualProps?.class])}
         style={{
-          ...merged.styles?.item,
           ...toStyleObject(itemAttributes()?.style),
           ...toStyleObject(virtualProps?.style),
+          ...resolved.slot('item').style,
         }}
-        class={selectItemVariants(
-          { size: field.size() },
-          merged.classes?.item,
-          itemAttributes()?.class,
-          virtualProps?.class,
-        )}
         onPointerMove={(event) => {
           callHandler(event, itemAttributes()?.onPointerMove)
           callHandler(event, virtualProps?.onPointerMove)
@@ -1286,21 +1244,10 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
           aria-owns={entry.optionKeys.map(getOptionId).join(' ') || undefined}
           data-slot="group"
           {...virtualProps}
-          style={{
-            ...merged.styles?.group,
-            ...toStyleObject(virtualProps?.style),
-          }}
-          class={cn('[&:not(:first-child)]:mt-1.5', merged.classes?.group, virtualProps?.class)}
+          class={cn(resolved.slot('group').class, virtualProps?.class)}
+          style={{ ...toStyleObject(virtualProps?.style), ...resolved.slot('group').style }}
         >
-          <span
-            id={labelId}
-            data-slot="label"
-            style={merged.styles?.label}
-            class={cn(
-              'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
-              merged.classes?.label,
-            )}
-          >
+          <span id={labelId} data-slot="label" {...resolved.slot('label')}>
             {entry.label}
           </span>
         </div>
@@ -1347,18 +1294,9 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         data-slot="group"
         role="group"
         aria-labelledby={groupLabelId}
-        style={merged.styles?.group}
-        class={cn('[&:not(:first-child)]:mt-1.5', merged.classes?.group)}
+        {...resolved.slot('group')}
       >
-        <span
-          id={groupLabelId}
-          data-slot="label"
-          style={merged.styles?.label}
-          class={cn(
-            'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
-            merged.classes?.label,
-          )}
-        >
+        <span id={groupLabelId} data-slot="label" {...resolved.slot('label')}>
           {option.label}
         </span>
         <For each={option.options}>{(item) => renderVisibleOption(item)}</For>
@@ -1368,13 +1306,13 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
 
   return (
     <div
+      ref={(element) => callRef(local.ref, element)}
       data-slot="root"
       data-disabled={field.disabled() ? '' : undefined}
       data-invalid={field.invalid() ? '' : undefined}
       data-required={field.required() ? '' : undefined}
       {...rest}
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn('inline-flex h-fit w-full relative', merged.classes?.root, merged.class)}
+      {...resolved.root}
     >
       <select
         ref={(element) => {
@@ -1439,6 +1377,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         onInput: handleInput,
         onKeyDown: handleKeyDown,
         toggle: menuControl.toggleMenu,
+        resolved,
       })}
 
       <Show when={contentPresence.present()}>
@@ -1452,7 +1391,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
               }
             }}
             data-slot="positioner"
-            class={OVERLAY_POSITIONER_CLASS}
+            class={'left-0 top-0 absolute'}
           >
             <div
               {...contentPresence.dataAttrs()}
@@ -1461,15 +1400,12 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                 contentPresence.setElement(element)
               }}
               data-slot="content"
+              data-side={contentSide()}
+              class={resolved.slot('content').class}
               style={{
-                ...merged.styles?.content,
-                '--mo-popper-content-transform-origin': resolveSelectContentOrigin(contentSide()),
+                '--mo-popper-content-transform-origin': undefined,
+                ...resolved.slot('content').style,
               }}
-              class={selectContentVariants(
-                { side: contentSide() },
-                'w-$mo-popper-anchor-width min-w-$mo-popper-anchor-width max-w-$mo-popper-content-available-width',
-                merged.classes?.content,
-              )}
             >
               <Show
                 when={visibleFlatOptions().length > 0}
@@ -1501,15 +1437,11 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
                     listboxRef = element
                     callRef(merged.listboxProps?.ref, element)
                   }}
+                  class={cn(resolved.slot('listbox').class, merged.listboxProps?.class)}
                   style={{
-                    ...merged.styles?.listbox,
                     ...toStyleObject(merged.listboxProps?.style),
+                    ...resolved.slot('listbox').style,
                   }}
-                  class={cn(
-                    'm-0 p-1 outline-none max-h-$mo-popper-content-available-height overflow-y-auto',
-                    merged.classes?.listbox,
-                    merged.listboxProps?.class,
-                  )}
                   onScroll={(event: Event) => {
                     const { defaultPrevented } = callHandler(event, merged.listboxProps?.onScroll)
                     if (!defaultPrevented) {

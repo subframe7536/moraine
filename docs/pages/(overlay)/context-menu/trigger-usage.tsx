@@ -9,15 +9,14 @@ const MENU_ITEMS = [
 export function TriggerUsage() {
   return (
     <div class="max-w-md w-full">
-      <ContextMenu items={MENU_ITEMS}>
-        {(props) => (
-          <div
-            {...props}
-            class="text-xs text-muted-foreground b-(2 border dashed) rounded-xl flex h-32 w-full select-none items-center justify-center"
-          >
-            Right-click or long-press inside this area
-          </div>
-        )}
+      <ContextMenu>
+        <ContextMenu.Trigger
+          as="div"
+          class="text-xs text-muted-foreground b-(2 border dashed) rounded-xl flex h-32 w-full select-none items-center justify-center"
+        >
+          Right-click or long-press inside this area
+        </ContextMenu.Trigger>
+        <ContextMenu.Content items={MENU_ITEMS} />
       </ContextMenu>
     </div>
   )

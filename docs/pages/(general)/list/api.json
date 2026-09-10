@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": true,
     "description": "Headless polymorphic list with optional caller-controlled virtualization.",
-    "sourcePath": "src/elements/list/list.tsx"
+    "sourcePath": "src/elements/list/list.tsx",
+    "kind": "single"
   },
   "slots": [],
   "props": {
@@ -22,11 +23,6 @@
         "required": false,
         "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "ListT.Classes | undefined"
       },
       {
         "name": "itemRender",
@@ -49,11 +45,6 @@
         "name": "style",
         "required": false,
         "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "ListT.Styles | undefined"
       },
       {
         "name": "virtualRender",

@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX, Ref } from 'solid-js'
 import {
   createEffect,
   createMemo,
@@ -11,31 +11,17 @@ import {
   untrack,
 } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index'
-import type { IconT } from '../../elements/icon/index'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { IconT } from '../../elements/icon'
+import { Icon } from '../../elements/icon'
+import { createComponentStyles } from '../../shared/provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
-import { callHandler, useId } from '../../shared/utils'
-import { useFormField } from '../form/form-context'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-} from '../shared/form-options'
+import { callHandler, callRef, useId } from '../../shared/utils'
+import { useFormField, useFormFieldContext } from '../form/form-context'
 import { useFormReset } from '../shared/use-form-reset'
 
-import type { InputNumberOrientation, InputNumberVariantProps } from './input-number.class'
-import {
-  inputNumberBaseVariants,
-  inputNumberControlButtonVariants,
-  inputNumberControlColumnVariants,
-  inputNumberRootVariants,
-  resolveInputNumberAlign,
-} from './input-number.class'
+import type { InputNumberProps } from './input-number.types'
 
 type ControlKind = 'increment' | 'decrement'
-type PointerType = 'mouse' | 'touch' | 'pen'
 type InputNumberControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
   [key: `data-${string}`]: string | undefined
 }
@@ -175,215 +161,15 @@ function addDecimal(value: number, amount: number): number {
   return (multipliedValue + multipliedAmount) / multiplier
 }
 
-export namespace InputNumberT {
-  export interface Slot<T = unknown> {
-    /**
-     * Number input wrapper that owns the input and step controls.
-     */
-    root?: T
-
-    /** Native number input element. */
-    input?: T
-
-    /** Button that increases the current numeric value. */
-    increment?: T
-
-    /** Button that decreases the current numeric value. */
-    decrement?: T
-  }
-
-  export type Variant = InputNumberVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  /**
-   * Base props for the InputNumber component.
-   */
-  export interface Base
-    extends FormIdentityOptions, FormDisableOption, FormRequiredOption, FormReadOnlyOption {
-    /**
-     * Controlled displayed value.
-     */
-    value?: string | number
-
-    /**
-     * Default displayed value for uncontrolled usage.
-     */
-    defaultValue?: string | number
-
-    /**
-     * Controlled numeric value. Takes precedence over `value`.
-     */
-    rawValue?: number
-
-    /**
-     * Minimum allowed numeric value.
-     */
-    minValue?: number
-
-    /**
-     * Maximum allowed numeric value.
-     */
-    maxValue?: number
-
-    /**
-     * The increment/decrement step size.
-     * @default 1
-     */
-    step?: number
-
-    /**
-     * The step size used for PageUp/PageDown.
-     * @default step * 10
-     */
-    largeStep?: number
-
-    /**
-     * Locale for number formatting and parsing.
-     * Uses browser default if not specified.
-     */
-    locale?: string
-
-    /**
-     * Callback when the formatted string value changes.
-     */
-    onChange?: (value: string) => void
-
-    /**
-     * Callback when the numeric value changes.
-     */
-    onRawValueChange?: (value: number) => void
-
-    /**
-     * The orientation of the control buttons.
-     * @default 'horizontal'
-     */
-    orientation?: InputNumberOrientation
-
-    /**
-     * Placeholder text for the input.
-     */
-    placeholder?: string
-
-    /**
-     * Whether to show the increment button.
-     * @default true
-     */
-    increment?: boolean
-
-    /**
-     * Icon for the increment button.
-     * @default orientation === 'vertical' ? 'icon-chevron-up' : 'icon-plus'
-     */
-    incrementIcon?: IconT.Name
-
-    /**
-     * Whether the increment button is disabled.
-     */
-    incrementDisabled?: boolean
-
-    /**
-     * Whether to show the decrement button.
-     * @default true
-     */
-    decrement?: boolean
-
-    /**
-     * Icon for the decrement button.
-     * @default orientation === 'vertical' ? 'icon-chevron-down' : 'icon-minus'
-     */
-    decrementIcon?: IconT.Name
-
-    /**
-     * Whether the decrement button is disabled.
-     */
-    decrementDisabled?: boolean
-
-    /**
-     * Whether to automatically focus the input on mount.
-     * @default false
-     */
-    autofocus?: boolean
-
-    /**
-     * Whether mouse wheel changes the value while the input is focused.
-     * @default false
-     */
-    wheel?: boolean
-
-    /**
-     * Delay in milliseconds before focusing the input.
-     * @default 0
-     */
-    autofocusDelay?: number
-
-    /**
-     * Callback when the input loses focus.
-     */
-    onBlur?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
-
-    /**
-     * Callback when the input gains focus.
-     */
-    onFocus?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
-
-    /**
-     * Callback when the increment button is clicked.
-     */
-    onIncrementClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
-
-    /**
-     * Callback when the decrement button is clicked.
-     */
-    onDecrementClick?: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>
-
-    /**
-     * Whether press-and-hold should trigger repeated value changes.
-     * @default true
-     */
-    holdRepeat?: boolean
-
-    /**
-     * Delay in milliseconds before repeated value changes start.
-     * @default 500
-     */
-    repeatDelayMs?: number
-
-    /**
-     * Interval in milliseconds between repeated value changes.
-     * @default 80
-     */
-    repeatIntervalMs?: number
-
-    /**
-     * Minimum elapsed time in milliseconds between repeat triggers.
-     * @default 0
-     */
-    repeatThrottleMs?: number
-
-    /**
-     * Pointer types that can trigger press-and-hold repeat.
-     * @default 'all'
-     */
-    repeatPointerTypes?: 'all' | PointerType
-  }
-
-  /**
-   * Props for the InputNumber component.
-   */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+type RootProps = InputNumberProps & {
+  ref?: Ref<HTMLDivElement>
 }
-
-/**
- * Props for the InputNumber component.
- */
-export interface InputNumberProps extends InputNumberT.Props {}
 
 /** Numeric input with increment/decrement controls, step, and min/max constraints. */
 export function InputNumber(props: InputNumberProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const [local, rest] = splitProps(props as RootProps, [
+    'ref',
+    'inputRef',
     'id',
     'name',
     'value',
@@ -426,19 +212,17 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'class',
     'style',
   ])
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('inputNumber', local, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
+
   const merged = mergeProps(
     {
-      variant: 'outline' as const,
-      orientation: 'horizontal' as const,
-      increment: true,
-      decrement: true,
-      autofocusDelay: 0,
       holdRepeat: true,
-      repeatDelayMs: 500,
-      repeatIntervalMs: 80,
-      repeatThrottleMs: 0,
       repeatPointerTypes: 'all' as const,
     },
+
     local,
   )
 
@@ -461,14 +245,13 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size,
+      size: local.size,
       disabled: merged.disabled,
       required: local.required,
       readOnly: readOnly(),
     }),
     () => ({
       defaultId: generatedId(),
-      defaultSize: 'md',
       initialValue,
     }),
   )
@@ -505,8 +288,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
   const minValue = createMemo(() => merged.minValue ?? Number.MIN_SAFE_INTEGER)
   const maxValue = createMemo(() => merged.maxValue ?? Number.MAX_SAFE_INTEGER)
-  const stepValue = createMemo(() => merged.step ?? 1)
-  const largeStepValue = createMemo(() => merged.largeStep ?? stepValue() * 10)
+  const stepValue = createMemo(() =>
+    typeof merged.step === 'number' ? merged.step : Number(merged.step) || 1,
+  )
+  const largeStepValue = createMemo(() =>
+    typeof merged.largeStep === 'number'
+      ? merged.largeStep
+      : Number(merged.largeStep) || stepValue() * 10,
+  )
 
   const currentValue = createMemo(() => clamp(resolvedValue() ?? 0, minValue(), maxValue()))
   const formattedValue = createMemo(() => formatLocaleNumber(currentValue(), merged.locale))
@@ -554,9 +343,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     })
   })
 
-  const resolvedOrientation = createMemo<InputNumberOrientation>(
-    () => merged.orientation ?? 'horizontal',
-  )
+  const resolvedOrientation = createMemo(() => resolved.variants.orientation)
 
   const incrementIcon = createMemo<IconT.Name>(() => {
     if (merged.incrementIcon) {
@@ -923,13 +710,9 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
     return {
       'data-slot': kind,
-      'data-variant': 'link',
       type: 'button',
       tabIndex: -1,
       'aria-label': isIncrement ? 'Increment' : 'Decrement',
-      get 'data-size'() {
-        return `icon-${field.size()}`
-      },
       get 'aria-controls'() {
         return field.id()
       },
@@ -942,9 +725,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       get 'data-active'() {
         return pressedControls()[kind] ? '' : undefined
       },
-      get style() {
-        return merged.styles?.[kind]
-      },
+      ...resolved.slot(kind),
       onClick: (event) => onControlClick(kind, event),
       onPointerDown: (event) => onControlPointerDown(kind, event),
       onPointerUp: (event) => onControlPointerUp(kind, event),
@@ -952,17 +733,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       onLostPointerCapture: (event: PointerEvent) => onControlPointerCancel(kind, event),
       onPointerLeave: () => onControlPointerLeave(kind),
       onContextMenu: onControlContextMenu,
-      get class() {
-        return inputNumberControlButtonVariants(
-          {
-            control: kind,
-            orientation: resolvedOrientation(),
-            size: field.size(),
-          },
-          'select-none touch-none',
-          merged.classes?.[kind],
-        )
-      },
     }
   }
 
@@ -1068,19 +838,11 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
   return (
     <div
+      ref={(element) => callRef(local.ref, element)}
       id={`${field.id()}-root`}
       role="group"
       data-slot="root"
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={inputNumberRootVariants(
-        {
-          size: field.size(),
-          variant: merged.variant,
-        },
-        'items-stretch',
-        merged.classes?.root,
-        merged.class,
-      )}
+      {...resolved.root}
       {...dataAttrs()}
       {...rest}
     >
@@ -1095,7 +857,10 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         inputMode="decimal"
         role="spinbutton"
         id={field.id()}
-        ref={(e) => (inputEl = e)}
+        ref={(e) => {
+          inputEl = e
+          callRef(local.inputRef, e)
+        }}
         name={field.name()}
         value={inputText()}
         required={field.required()}
@@ -1107,14 +872,12 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         aria-valuetext={formattedValue()}
         placeholder={merged.placeholder}
         data-slot="input"
-        style={merged.styles?.input}
-        class={inputNumberBaseVariants(
-          {
-            size: field.size(),
-            align: resolveInputNumberAlign(resolvedOrientation(), showDecrement()),
-          },
-          merged.classes?.input,
-        )}
+        data-auto-align={
+          resolved.variants.align === undefined && !isVertical() && !showDecrement()
+            ? ''
+            : undefined
+        }
+        {...resolved.slot('input')}
         onInput={(event) => {
           if (field.disabled() || readOnly()) {
             event.currentTarget.value = inputText()
@@ -1221,12 +984,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>
-        <div
-          data-slot="controls"
-          class={inputNumberControlColumnVariants({
-            size: field.size(),
-          })}
-        >
+        <div data-slot="controls" {...resolved.slot('controls')}>
           <Show when={showIncrement()}>
             <button {...resolveControlProps('increment')}>
               <Icon name={incrementIcon()} slotName="leading" />

@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Resizable panel layout with draggable dividers and keyboard support.",
-    "sourcePath": "src/elements/resizable/resizable.tsx"
+    "sourcePath": "src/elements/resizable/resizable.tsx",
+    "kind": "composite"
   },
   "slots": [
     {
@@ -13,12 +14,6 @@
       "description": "Layout container that owns resizable panels and handles.",
       "cssVariables": [],
       "dataAttributes": [
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
-        },
         {
           "name": "data-resizable-root",
           "required": false,
@@ -44,12 +39,6 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present when the panel, accordion, or menu is expanded."
-        },
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
         },
         {
           "name": "data-resizing",
@@ -88,12 +77,6 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present while the related thumb or handle is being dragged."
-        },
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
         }
       ],
       "ariaAttributes": [
@@ -145,7 +128,14 @@
       "name": "handle",
       "description": "Interactive target users drag or focus to resize panels.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-collapse",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -169,101 +159,14 @@
       "ariaAttributes": []
     }
   ],
-  "item": {
-    "props": [
-      {
-        "name": "class",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Additional CSS classes for the panel."
-      },
-      {
-        "name": "collapsible",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the panel is collapsible.\nThis prop is reactive; toggling `true/false` can be used as a simple collapse signal.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "collapsibleMin",
-        "required": false,
-        "type": "ResizableSize | undefined",
-        "description": "Size of the panel when collapsed.\nOnly works when `collapsible` is true.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
-        "defaultValue": "0"
-      },
-      {
-        "name": "content",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Content to render inside the panel."
-      },
-      {
-        "name": "defaultSize",
-        "required": false,
-        "type": "ResizableSize | undefined",
-        "description": "Default size of the panel (uncontrolled).\n- Use string as percent, like `20%`\n- Use number as px, like `328`"
-      },
-      {
-        "name": "max",
-        "required": false,
-        "type": "ResizableSize | undefined",
-        "description": "Maximum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
-        "defaultValue": "1"
-      },
-      {
-        "name": "min",
-        "required": false,
-        "type": "ResizableSize | undefined",
-        "description": "Minimum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
-        "defaultValue": "0"
-      },
-      {
-        "name": "onCollapse",
-        "required": false,
-        "type": "((size: number) => void) | undefined",
-        "description": "Callback when the panel is collapsed."
-      },
-      {
-        "name": "onExpand",
-        "required": false,
-        "type": "((size: number) => void) | undefined",
-        "description": "Callback when the panel is expanded."
-      },
-      {
-        "name": "onResize",
-        "required": false,
-        "type": "((size: number) => void) | undefined",
-        "description": "Callback when the panel is resized."
-      },
-      {
-        "name": "panelId",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Unique identifier for the panel."
-      },
-      {
-        "name": "resizable",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the panel is resizable.",
-        "defaultValue": "true"
-      },
-      {
-        "name": "size",
-        "required": false,
-        "type": "ResizableSize | undefined",
-        "description": "Current size of the panel (controlled).\n- Use string as percent, like `20%`\n- Use number as px, like `328`"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "JSX.CSSProperties | undefined",
-        "description": "Additional CSS styles for the panel."
-      }
-    ]
-  },
   "props": {
     "own": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Ordered `Resizable.Panel` and `Resizable.Handle` children."
+      },
       {
         "name": "class",
         "required": false,
@@ -283,37 +186,10 @@
         "defaultValue": "false"
       },
       {
-        "name": "handle",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to render handles between panels.",
-        "defaultValue": "true"
-      },
-      {
-        "name": "handleAction",
-        "required": false,
-        "type": "\"resize\" | \"collapse\" | undefined",
-        "description": "Handle interaction behavior.\n- `resize`: handle area follows divider resize interactions.\n- `collapse`: handle click toggles the nearest collapsible panel.",
-        "defaultValue": "resize"
-      },
-      {
-        "name": "handleRender",
-        "required": false,
-        "type": "ComponentOrElement<ResizableT.HandleRenderProps> | undefined",
-        "description": "Custom component rendered inside each handle."
-      },
-      {
         "name": "id",
         "required": false,
         "type": "string | undefined",
         "description": "Unique identifier for the resizable root."
-      },
-      {
-        "name": "intersection",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to use intersection-based handle sizing.",
-        "defaultValue": "false"
       },
       {
         "name": "keyboardDelta",
@@ -349,13 +225,9 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined"
-      },
-      {
-        "name": "panels",
-        "required": false,
-        "type": "ResizableT.Item[] | undefined",
-        "description": "Array of panels to render."
+        "type": "ResizableOrientation & ResizableOrientation | null | undefined",
+        "description": "Axis along which panels resize.",
+        "defaultValue": "horizontal"
       },
       {
         "name": "ref",

@@ -1,13 +1,18 @@
 import { getInput, setInput } from '@formisch/solid'
-import { fireEvent, render } from '@solidjs/testing-library'
+import { fireEvent, render as baseRender } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../shared/provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
-import { createForm } from '../form/index'
+import { defaultTheme } from '../../theme/default-theme'
+import { createForm } from '../form'
 
 import { Textarea } from './textarea'
+
+const render: typeof baseRender = (ui, options) =>
+  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
 
 afterEach(() => {
   vi.useRealTimers()
@@ -15,6 +20,31 @@ afterEach(() => {
 })
 
 describe('Textarea', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = baseRender(() => <Textarea />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const input = screen.container.querySelector('[data-slot="input"]')
+    expect(root?.className).toBe('')
+    expect(input?.className).toBe('')
+  })
+
+  test('forwards root ref and inner textareaRef', () => {
+    let rootEl: HTMLDivElement | undefined
+    let textareaEl: HTMLTextAreaElement | undefined
+
+    render(() => (
+      <Textarea
+        ref={(el) => (rootEl = el)}
+        textareaRef={(el) => (textareaEl = el)}
+        placeholder="ref test"
+      />
+    ))
+
+    expect(rootEl).toBeInstanceOf(HTMLDivElement)
+    expect(textareaEl).toBeInstanceOf(HTMLTextAreaElement)
+    expect(textareaEl?.placeholder).toBe('ref test')
+  })
+
   test('renders base attributes', () => {
     const screen = render(() => (
       <Textarea id="bio" name="bio" rows={4} placeholder="Write bio" required disabled />
@@ -47,9 +77,9 @@ describe('Textarea', () => {
   })
 
   test.each([
-    ['sm', 'text-xs', 'leading-4', 'px-2', 'py-1'],
-    ['md', 'text-sm', 'leading-5', 'px-2.5', 'py-1.5'],
-    ['lg', 'text-base', 'leading-6', 'px-3', 'py-2'],
+    ['sm', 'text-xs', 'leading-4', 'px-1.5', 'py-1'],
+    ['md', 'text-sm', 'leading-5', 'px-2', 'py-1.5'],
+    ['lg', 'text-base', 'leading-6', 'px-2.5', 'py-2'],
   ] as const)('uses the input density scale for %s textareas', (size, ...classes) => {
     const screen = render(() => <Textarea size={size} />)
     const textarea = screen.container.querySelector('[data-slot="input"]') as HTMLElement
@@ -266,9 +296,9 @@ describe('Textarea', () => {
     const screen = render(() => <Textarea classes={{ root: 'root-override' }} />)
     const root = screen.container.querySelector('[data-slot="root"]')
 
-    expect(root?.className).toContain('data-focused:effect-fv-border')
-    expect(root?.className).not.toContain('focus-within:effect-fv-border')
-    expect(root?.className).toContain('effect-invalid')
+    expect(root?.className).toContain('data-focused:ring-ring/50')
+    expect(root?.className).not.toContain('focus-within:ring-ring/50')
+    expect(root?.className).toContain('data-invalid:border-destructive')
     expect(root?.className).toContain('root-override')
   })
 

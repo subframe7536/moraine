@@ -50,6 +50,7 @@ interface MdxComponentNode {
   start: number
   end: number
   hasChildren: boolean
+  children?: unknown[]
 }
 
 interface PageConversionContext {
@@ -57,6 +58,27 @@ interface PageConversionContext {
   siteUrl: string
   routes: DocsRouteEntry[]
   sourcePath: string
+  markdownSource?: string
+}
+
+function extractExpressionCode(exprNode: any, fullSource?: string): string {
+  const start = exprNode?.position?.start?.offset
+  const end = exprNode?.position?.end?.offset
+  if (typeof start === 'number' && typeof end === 'number' && typeof fullSource === 'string') {
+    let raw = fullSource.slice(start, end).trim()
+    if (raw.startsWith('{') && raw.endsWith('}')) {
+      raw = raw.slice(1, -1).trim()
+    }
+    if (raw.startsWith('`') && raw.endsWith('`')) {
+      raw = raw.slice(1, -1)
+    }
+    return raw.replace(/^\r?\n/, '').replace(/\r?\n$/, '')
+  }
+  let val = (exprNode?.value ?? '').trim()
+  if (val.startsWith('`') && val.endsWith('`')) {
+    val = val.slice(1, -1)
+  }
+  return val
 }
 
 const COMPONENT_CATEGORIES = new Map<string, string>([
@@ -127,10 +149,6 @@ function readFrontmatterBlock(source: string): string {
 
 function removePlaygroundSections(source: string): string {
   return source.replace(PLAYGROUND_SECTION_PATTERN, '')
-}
-
-function stringOffsetFromUtf8ByteOffset(source: Buffer, offset: number): number {
-  return source.subarray(0, offset).toString('utf8').length
 }
 
 function renderTable(rows: readonly (readonly string[])[], headers: readonly string[]): string {
@@ -305,20 +323,99 @@ async function renderPreviewNode(node: MdxComponentNode, context: PageConversion
 }
 
 function renderCodeTabsNode(node: MdxComponentNode, context: PageConversionContext): string {
+  const result: string[] = []
+
+  if (Array.isArray(node.children)) {
+    for (const child of node.children as any[]) {
+      if (!child) {
+        continue
+      }
+
+      if (child.name === 'CodeTabs.Item') {
+        const langAttr = (child.attributes as any[])?.find((a: any) => a?.name === 'lang')
+        const titleAttr = (child.attributes as any[])?.find((a: any) => a?.name === 'title')
+        const codeAttr = (child.attributes as any[])?.find((a: any) => a?.name === 'code')
+
+        let lang = (langAttr?.value?.value ?? langAttr?.value ?? '').toString().trim()
+        let title = (titleAttr?.value?.value ?? titleAttr?.value ?? '').toString().trim()
+        let code = (codeAttr?.value?.value ?? codeAttr?.value ?? '').toString()
+
+        if (!code && Array.isArray(child.children)) {
+          const codeChild = child.children.find((c: any) => c?.type === 'code')
+          if (codeChild) {
+            code = codeChild.value
+            if (!lang && codeChild.lang) {
+              lang = codeChild.lang
+            }
+            if (!title && codeChild.meta) {
+              title = codeChild.meta
+            }
+          } else {
+            const exprChild = child.children.find(
+              (c: any) => c?.type === 'mdxFlowExpression' || c?.type === 'mdxTextExpression',
+            )
+            if (exprChild) {
+              code = extractExpressionCode(exprChild, context.markdownSource)
+            } else {
+              const textParts: string[] = []
+              for (const sub of child.children) {
+                if (sub.value) {
+                  textParts.push(sub.value)
+                }
+                if (Array.isArray(sub.children)) {
+                  for (const pSub of sub.children) {
+                    if (pSub.value) {
+                      textParts.push(pSub.value)
+                    }
+                  }
+                }
+              }
+              code = textParts.join('\n').trim()
+            }
+          }
+        }
+
+        lang ||= 'bash'
+        const info = title ? `${lang} ${title}` : lang
+        result.push(codeFence(info, code))
+      } else if (child.type === 'code') {
+        const info = child.lang || 'bash'
+        result.push(codeFence(info, child.value))
+      }
+    }
+
+    if (result.length > 0) {
+      return result.join('\n')
+    }
+  }
+
+  const itemsAttr = (node.attributes as any[]).find((attr: any) => attr?.name === 'items')
+  if (itemsAttr) {
+    try {
+      const rawValue = itemsAttr.value?.value ?? itemsAttr.value
+      const items = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue
+      if (Array.isArray(items)) {
+        return items
+          .map((item: any) => {
+            const lang = item.lang || 'bash'
+            const info = item.title ? `${lang} ${item.title}` : lang
+            return codeFence(info, item.code || '')
+          })
+          .join('\n')
+      }
+    } catch {}
+  }
+
   const packageName = getComponentAttribute(node, 'package', context.sourcePath)?.trim()
-  if (!packageName) {
-    throw new Error(
-      `[docs-llms] <CodeTabs /> requires a static "package" string in ${context.sourcePath}`,
-    )
+  if (packageName) {
+    return [
+      codeFence('bash bun', `bun add ${packageName}`),
+      codeFence('bash pnpm', `pnpm add ${packageName}`),
+      codeFence('bash npm', `npm i ${packageName}`),
+    ].join('\n')
   }
-  if (node.hasChildren) {
-    throw new Error(`[docs-llms] <CodeTabs /> cannot have children in ${context.sourcePath}`)
-  }
-  return [
-    codeFence('bash', `bun add ${packageName}`),
-    codeFence('bash', `pnpm add ${packageName}`),
-    codeFence('bash', `npm i ${packageName}`),
-  ].join('\n')
+
+  return ''
 }
 
 function renderComponentNode(
@@ -343,8 +440,7 @@ function renderComponentNode(
   throw new Error(`[docs-llms] unsupported JSX component <${node.name}> in ${context.sourcePath}`)
 }
 
-function createLlmsMdastPlugin(source: string, sourcePath: string, nodes: MdxComponentNode[]) {
-  const sourceBuffer = Buffer.from(source)
+function createLlmsMdastPlugin(_source: string, sourcePath: string, nodes: MdxComponentNode[]) {
   const visit = (node: unknown) => {
     const record = asObjectRecord(node)
     const position = asObjectRecord(record?.position)
@@ -354,18 +450,47 @@ function createLlmsMdastPlugin(source: string, sourcePath: string, nodes: MdxCom
       !record ||
       typeof record.name !== 'string' ||
       record.name[0] !== record.name[0]?.toUpperCase() ||
+      record.name === 'CodeTabs.Item' ||
       !Array.isArray(record.attributes) ||
       typeof start?.offset !== 'number' ||
       typeof end?.offset !== 'number'
     ) {
       return
     }
+    const children = Array.isArray(record.children)
+      ? record.children.map((child: any) => ({
+          type: child?.type,
+          name: child?.name,
+          attributes: child?.attributes,
+          lang: child?.lang,
+          meta: child?.meta,
+          value: child?.value,
+          children: Array.isArray(child?.children)
+            ? child.children.map((sub: any) => ({
+                type: sub?.type,
+                name: sub?.name,
+                lang: sub?.lang,
+                meta: sub?.meta,
+                value: sub?.value,
+                position: sub?.position,
+                children: Array.isArray(sub?.children)
+                  ? sub.children.map((pSub: any) => ({
+                      type: pSub?.type,
+                      value: pSub?.value,
+                    }))
+                  : undefined,
+              }))
+            : undefined,
+        }))
+      : undefined
+
     nodes.push({
       name: record.name,
       attributes: record.attributes,
-      start: stringOffsetFromUtf8ByteOffset(sourceBuffer, start.offset),
-      end: stringOffsetFromUtf8ByteOffset(sourceBuffer, end.offset),
+      start: start.offset,
+      end: end.offset,
       hasChildren: Array.isArray(record.children) && record.children.length > 0,
+      children,
     })
   }
 
@@ -379,7 +504,7 @@ function createLlmsMdastPlugin(source: string, sourcePath: string, nodes: MdxCom
 async function collectMdxComponents(source: string, sourcePath: string) {
   const nodes: MdxComponentNode[] = []
   const plugin = createLlmsMdastPlugin(source, sourcePath, nodes)
-  const handle = createMdxMdastHandle(source, DOCS_MDX_FEATURES)
+  const handle = createMdxMdastHandle(source, DOCS_MDX_FEATURES, true)
   try {
     await visitMdastHandle(
       handle,
@@ -402,11 +527,15 @@ async function convertPageMarkdown(
 ): Promise<string> {
   const markdownSource = removePlaygroundSections(source)
   const components = await collectMdxComponents(markdownSource, context.sourcePath)
+  const pageContext: PageConversionContext = {
+    ...context,
+    markdownSource,
+  }
   const replacements = await Promise.all(
     components.map(async (node) => ({
       start: node.start,
       end: node.end,
-      value: await renderComponentNode(node, context),
+      value: await renderComponentNode(node, pageContext),
     })),
   )
 

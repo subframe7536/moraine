@@ -1,0 +1,58 @@
+.shiki {
+  color: var(--shiki-light);
+  background-color: transparent !important;
+}
+
+.shiki span {
+  color: var(--shiki-light);
+}
+
+.dark .shiki {
+  color: var(--shiki-dark);
+  background-color: transparent !important;
+}
+
+.dark .shiki span {
+  color: var(--shiki-dark);
+}
+
+.shiki code {
+  display: grid;
+  min-width: 100%;
+}
+
+.shiki .line {
+  position: relative;
+}
+
+.shiki .line.highlighted {
+  position: relative;
+  isolation: isolate;
+}
+
+.shiki .line.highlighted::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline: -1rem;
+  background-color: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-inline-start: 2px solid var(--primary);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.shiki.line-numbers code {
+  counter-reset: line;
+}
+
+.shiki.line-numbers .line::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 1.5rem;
+  margin-inline-end: 1.25rem;
+  text-align: right;
+  color: var(--muted-foreground);
+  opacity: 0.5;
+  user-select: none;
+}

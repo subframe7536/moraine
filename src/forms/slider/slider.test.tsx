@@ -1,9 +1,15 @@
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { useSlider } from './hook/index'
+import { MoraineProvider } from '../../shared/provider'
+import { defaultTheme } from '../../theme/default-theme'
+
+import { useSlider } from './hook'
 import { Slider } from './slider'
+
+const render: typeof baseRender = (ui, options) =>
+  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
 
 function getThumbs(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll('[data-slot="thumb"]')) as HTMLElement[]
@@ -59,6 +65,22 @@ function mockTrackRect(target: HTMLElement): void {
 }
 
 describe('Slider', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = baseRender(() => <Slider />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.className).toBe('')
+  })
+
+  test('forwards root ref and inner inputRef', () => {
+    let rootEl: HTMLDivElement | undefined
+    let inputEl: HTMLInputElement | undefined
+
+    render(() => <Slider ref={(el) => (rootEl = el)} inputRef={(el) => (inputEl = el)} />)
+
+    expect(rootEl).toBeInstanceOf(HTMLDivElement)
+    expect(rootEl?.getAttribute('data-slot')).toBe('root')
+    expect(inputEl).toBeInstanceOf(HTMLInputElement)
+  })
   test('uses the compact track thickness scale', () => {
     const horizontal = render(() => <Slider orientation="horizontal" size="sm" />)
     const vertical = render(() => <Slider orientation="vertical" size="lg" />)
@@ -66,10 +88,14 @@ describe('Slider', () => {
     const horizontalTrack = horizontal.container.querySelector('[data-slot="track"]')
     const verticalTrack = vertical.container.querySelector('[data-slot="track"]')
 
-    expect(horizontalTrack?.className).toContain('h-$s-size')
-    expect(horizontalTrack?.className).toContain('var-slider-4')
-    expect(verticalTrack?.className).toContain('w-$s-size')
-    expect(verticalTrack?.className).toContain('var-slider-6')
+    expect(horizontalTrack?.className).toContain('h-(--s-size)')
+    expect(
+      (horizontal.container.querySelector('[data-slot="root"]') as HTMLElement).className,
+    ).toContain('[--s-size:4px]')
+    expect(verticalTrack?.className).toContain('w-(--s-size)')
+    expect(
+      (vertical.container.querySelector('[data-slot="root"]') as HTMLElement).className,
+    ).toContain('[--s-size:6px]')
   })
 
   test('renders base attributes and orientation without tooltip', () => {
@@ -102,7 +128,7 @@ describe('Slider', () => {
     expect(inputs[0]?.required).toBe(true)
     expect(inputs[0]?.disabled).toBe(true)
     expect(inputs[0]?.readOnly).toBe(true)
-    expect(root?.getAttribute('data-orientation')).toBe('vertical')
+    expect(root?.hasAttribute('data-orientation')).toBe(false)
     expect(root?.getAttribute('data-required')).toBe('')
     expect(root?.getAttribute('data-disabled')).toBe('')
     expect(root?.getAttribute('data-readonly')).toBe('')
@@ -118,8 +144,8 @@ describe('Slider', () => {
     expect(thumb?.className).toContain('-translate-y-1/2')
     expect(thumb?.className).toContain('scale-120')
     expect(thumb?.className).toContain('cursor-pointer')
-    expect(thumb?.className).toContain('hover:effect-fv')
-    expect(thumb?.className).toContain('focus-visible:effect-fv')
+    expect(thumb?.className).toContain('hover:ring-ring/50')
+    expect(thumb?.className).toContain('focus-visible:ring-ring/50')
     expect(screen.queryByRole('tooltip')).toBeNull()
   })
 
@@ -153,7 +179,8 @@ describe('Slider', () => {
 
     expect(thumb.style.bottom).toBe('100%')
     expect(thumb.className).toContain('translate-y-1/2')
-    expect(thumb.className).not.toContain('-translate-y-1/2')
+    expect(thumb.hasAttribute('data-orientation')).toBe(false)
+    expect(thumb.hasAttribute('data-inverted')).toBe(false)
   })
 
   test('vertical pointer values increase from bottom to top by default', async () => {
@@ -396,8 +423,8 @@ describe('Slider', () => {
 
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('70')
-    expect(thumbs[0]?.className).toContain('hover:effect-fv')
-    expect(thumbs[1]?.className).toContain('hover:effect-fv')
+    expect(thumbs[0]?.className).toContain('hover:ring-ring/50')
+    expect(thumbs[1]?.className).toContain('hover:ring-ring/50')
     expect(document.activeElement).toBe(thumbs[1])
 
     fireEvent.pointerUp(thumbs[0] as HTMLElement, {
@@ -432,8 +459,8 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('60')
     expect(thumbs[1]?.getAttribute('data-dragging')).toBe('')
-    expect(thumbs[0]?.className).toContain('hover:effect-fv')
-    expect(thumbs[1]?.className).toContain('hover:effect-fv')
+    expect(thumbs[0]?.className).toContain('hover:ring-ring/50')
+    expect(thumbs[1]?.className).toContain('hover:ring-ring/50')
     expect(document.activeElement).toBe(thumbs[1])
 
     fireEvent.pointerMove(thumbs[0] as HTMLElement, {
@@ -446,8 +473,8 @@ describe('Slider', () => {
     expect(thumbs[0]?.getAttribute('aria-valuenow')).toBe('40')
     expect(thumbs[1]?.getAttribute('aria-valuenow')).toBe('50')
     expect(thumbs[0]?.getAttribute('data-dragging')).toBe('')
-    expect(thumbs[0]?.className).toContain('hover:effect-fv')
-    expect(thumbs[1]?.className).toContain('hover:effect-fv')
+    expect(thumbs[0]?.className).toContain('hover:ring-ring/50')
+    expect(thumbs[1]?.className).toContain('hover:ring-ring/50')
     expect(document.activeElement).toBe(thumbs[0])
 
     fireEvent.pointerUp(thumbs[0] as HTMLElement, {
@@ -716,8 +743,16 @@ describe('Slider', () => {
     const divider = screen.container.querySelector('[data-slot="divider"]')
     const thumb = screen.container.querySelector('[data-slot="thumb"]')
 
-    expect(track?.className).toContain('h-$s-size')
-    expect(track?.className).toContain('var-slider-bold-24-16-4')
+    expect(track?.className).toContain('h-(--s-size)')
+    expect(
+      (screen.container.querySelector('[data-slot="root"]') as HTMLElement).className,
+    ).toContain('[--s-size:24px]')
+    expect(
+      (screen.container.querySelector('[data-slot="root"]') as HTMLElement).className,
+    ).toContain('[--s-len:16px]')
+    expect(
+      (screen.container.querySelector('[data-slot="root"]') as HTMLElement).className,
+    ).toContain('[--s-offset:4px]')
     expect(track?.className).toContain('rounded-sm')
     expect(track?.className).toContain('bg-input')
     expect(range?.className).toContain('rounded-[inherit]')
@@ -730,7 +765,7 @@ describe('Slider', () => {
     expect(thumb?.className).toContain('top-0')
     expect(thumb?.className).toContain('z-control')
     expect(thumb?.className).toContain('cursor-grab')
-    expect(thumb?.className).toContain('-translate-x-1/2')
+    expect(thumb?.classList).toContain('-translate-x-1/2')
   })
 
   test('applies distinct border radius and heights across bold sizes', () => {
@@ -742,13 +777,19 @@ describe('Slider', () => {
     const mdTrack = md.container.querySelector('[data-slot="track"]')
     const lgTrack = lg.container.querySelector('[data-slot="track"]')
 
-    expect(smTrack?.className).toContain('var-slider-bold-20-14-3')
+    expect((sm.container.querySelector('[data-slot="root"]') as HTMLElement).className).toContain(
+      '[--s-size:20px]',
+    )
     expect(smTrack?.className).toContain('rounded-xs')
 
-    expect(mdTrack?.className).toContain('var-slider-bold-24-16-4')
+    expect((md.container.querySelector('[data-slot="root"]') as HTMLElement).className).toContain(
+      '[--s-size:24px]',
+    )
     expect(mdTrack?.className).toContain('rounded-sm')
 
-    expect(lgTrack?.className).toContain('var-slider-bold-28-18-5')
+    expect((lg.container.querySelector('[data-slot="root"]') as HTMLElement).className).toContain(
+      '[--s-size:28px]',
+    )
     expect(lgTrack?.className).toContain('rounded-md')
   })
 
@@ -824,8 +865,8 @@ describe('Slider', () => {
     const screen = render(() => <Slider variant="bold" defaultValue={[30, 70]} />)
     const thumbs = getThumbs(screen.container)
 
-    expect(thumbs[0]?.className).toContain('-translate-x-1/2')
-    expect(thumbs[1]?.className).toContain('-translate-x-1/2')
+    expect(thumbs[0]?.classList).toContain('-translate-x-1/2')
+    expect(thumbs[1]?.classList).toContain('-translate-x-1/2')
     expect(thumbs[0]?.className).not.toContain('translate-x-1 -translate-y-1/2')
     expect(thumbs[1]?.className).not.toContain('-translate-x-[calc(100%+4px)]')
   })
@@ -842,7 +883,8 @@ describe('Slider', () => {
     const screen = render(() => <Slider variant="bold" defaultValue={40} />)
     const range = screen.container.querySelector('[data-slot="range"]') as HTMLElement
 
-    expect(range.className).not.toContain('before:')
+    expect(range.hasAttribute('data-multiple')).toBe(false)
+    expect(range.className).toContain('data-multiple:before:')
     expect(range.className).toContain('after:')
   })
 

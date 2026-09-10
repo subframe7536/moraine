@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Dropdown select component with search, multi-select, and custom item rendering.",
-    "sourcePath": "src/forms/select/multi-select.tsx"
+    "sourcePath": "src/forms/select/multi-select.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -45,7 +46,14 @@
           "description": "CSS custom property exposed by this slot."
         }
       ],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-side",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the resolved floating or drawer content side."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -188,7 +196,14 @@
       "name": "input",
       "description": "Search input used to filter or add selections.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-searchable",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -455,6 +470,11 @@
         "description": "The ID of the input element."
       },
       {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined"
+      },
+      {
         "name": "itemProps",
         "required": false,
         "type": "((option: MultiSelectT.Item<TItem> & BaseSelectT.OptionRenderState) => ElementProps<HTMLDivElement> | undefined) | undefined",
@@ -502,11 +522,6 @@
         "required": false,
         "type": "number | undefined",
         "description": "Maximum visible tags before showing +N (visual only)."
-      },
-      {
-        "name": "mode",
-        "required": false,
-        "type": "\"single\" | \"multi\" | undefined"
       },
       {
         "name": "name",
@@ -579,7 +594,7 @@
       {
         "name": "ref",
         "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+        "type": "Ref<HTMLDivElement> | undefined"
       },
       {
         "name": "required",
@@ -604,8 +619,8 @@
       {
         "name": "search",
         "required": false,
-        "type": "boolean | undefined",
-        "description": "Enable search input.",
+        "type": "boolean | null | undefined",
+        "description": "Whether the control accepts searchable input.",
         "defaultValue": "false"
       },
       {
@@ -623,7 +638,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",
@@ -663,7 +680,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined"
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "outline"
       },
       {
         "name": "virtualRender",

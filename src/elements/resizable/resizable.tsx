@@ -2,6 +2,7 @@ import type { JSX } from 'solid-js'
 import {
   Index,
   Show,
+  children as resolveChildren,
   createEffect,
   createMemo,
   createSignal,
@@ -11,10 +12,10 @@ import {
   onMount,
 } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop'
+import { createComponentStyles } from '../../shared/provider'
+import { useCn } from '../../shared/provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { callRef, cn, useId } from '../../shared/utils'
+import { callHandler, callRef, useId } from '../../shared/utils'
 
 import {
   collapsePanel,
@@ -35,137 +36,12 @@ import {
   resizePanelToSize,
   toggleHandleNearestPanel,
   useResizableHandle,
-} from './hook/index'
-import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook/index'
-import {
-  resizableCrossTargetVariants,
-  resizableHandleVariants,
-  resizableRootVariants,
-  RESIZABLE_HANDLE_GRIP_CLASS,
-} from './resizable.class'
-import type { ResizableVariantProps } from './resizable.class'
-
-export namespace ResizableT {
-  export interface HandleRenderProps {
-    orientation: ResizableOrientation
-    disabled: boolean
-    action: 'resize' | 'collapse'
-    active: boolean
-    dragging: boolean
-    canCollapse: boolean
-    collapsed: boolean
-  }
-
-  export interface Slot<T = unknown> {
-    /**
-     * Layout container that owns resizable panels and handles.
-     */
-    root?: T
-
-    /** Content pane whose size is controlled by adjacent resize handles. */
-    panel?: T
-
-    /** Visual separator between adjacent panels. */
-    divider?: T
-
-    /** Interactive target users drag or focus to resize panels. */
-    handle?: T
-
-    /** Extra hit target used when nested handles meet across axes. */
-    crossTarget?: T
-  }
-
-  export type Variant = ResizableVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item extends ResizablePanelItem {}
-  /**
-   * Base props for the Resizable component.
-   */
-  export interface Base {
-    /**
-     * Unique identifier for the resizable root.
-     */
-    id?: string
-
-    /**
-     * Array of panels to render.
-     */
-    panels?: Item[]
-
-    /**
-     * Callback when any panel is resized.
-     */
-    onResize?: (sizes: number[]) => void
-
-    /**
-     * Callback when a resize operation starts.
-     */
-    onResizeStart?: (sizes: number[]) => void
-
-    /**
-     * Callback when a resize operation ends.
-     */
-    onResizeEnd?: (sizes: number[]) => void
-
-    /**
-     * Callback when a key is pressed on a handle.
-     */
-    onHandleKeyDown?: (context: {
-      event: KeyboardEvent
-      handleIndex: number
-      sizes: number[]
-    }) => void
-
-    /**
-     * Whether the resizable component is disabled.
-     * @default false
-     */
-    disable?: boolean
-
-    /**
-     * Whether to render handles between panels.
-     * @default true
-     */
-    handle?: boolean
-
-    /** Custom component rendered inside each handle. */
-    handleRender?: ComponentOrElement<HandleRenderProps>
-
-    /**
-     * Handle interaction behavior.
-     * - `resize`: handle area follows divider resize interactions.
-     * - `collapse`: handle click toggles the nearest collapsible panel.
-     * @default 'resize'
-     */
-    handleAction?: 'resize' | 'collapse'
-
-    /**
-     * Whether to use intersection-based handle sizing.
-     * @default false
-     */
-    intersection?: boolean
-
-    /**
-     * The amount to resize when using keyboard shortcuts.
-     * @default '10%'
-     */
-    keyboardDelta?: ResizableSize
-  }
-
-  /**
-   * Props for the Resizable component.
-   */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the Resizable component.
- */
-export interface ResizableProps extends ResizableT.Props {}
+} from './hook'
+import type { ResizablePanelItem, ResizableSize } from './hook'
+import type { ResizableProps, ResizableT } from './resizable.types'
 
 interface DragState {
+  deltaPx: number
   initialSizes: number[]
   handleIndex: number
   altKey: boolean
@@ -173,22 +49,136 @@ interface DragState {
   lastSizes: number[]
 }
 
-const EMPTY_PANELS: ResizablePanelItem[] = []
+const RESIZABLE_PANEL_PART = Symbol('Resizable.Panel')
+const RESIZABLE_HANDLE_PART = Symbol('Resizable.Handle')
+
+type PanelLocalProps = Pick<
+  ResizableT.PanelProps,
+  | 'id'
+  | 'size'
+  | 'defaultSize'
+  | 'min'
+  | 'max'
+  | 'resizable'
+  | 'collapsible'
+  | 'collapsibleMin'
+  | 'onResize'
+  | 'onCollapse'
+  | 'onExpand'
+  | 'class'
+  | 'style'
+  | 'ref'
+  | 'onTransitionEnd'
+  | 'onTransitionCancel'
+>
+
+interface PanelPart {
+  kind: typeof RESIZABLE_PANEL_PART
+  local: PanelLocalProps
+  rest: Omit<ResizableT.PanelProps, keyof PanelLocalProps | 'children'>
+  content: () => JSX.Element
+}
+
+type HandleLocalProps = Pick<
+  ResizableT.HandleProps,
+  | 'action'
+  | 'intersection'
+  | 'class'
+  | 'style'
+  | 'ref'
+  | 'onMouseEnter'
+  | 'onMouseLeave'
+  | 'onFocus'
+  | 'onBlur'
+  | 'onKeyDown'
+  | 'onPointerDown'
+  | 'onClick'
+>
+
+interface HandlePart {
+  kind: typeof RESIZABLE_HANDLE_PART
+  local: HandleLocalProps
+  rest: Omit<ResizableT.HandleProps, keyof HandleLocalProps | 'children'>
+  content: () => ResizableT.HandleBase['children']
+}
+
+type ResizablePart = PanelPart | HandlePart
+
+function isResizablePart(value: unknown): value is ResizablePart {
+  if (typeof value !== 'object' || value === null || !('kind' in value)) {
+    return false
+  }
+
+  return value.kind === RESIZABLE_PANEL_PART || value.kind === RESIZABLE_HANDLE_PART
+}
+
+function ResizablePanel(props: ResizableT.PanelProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'id',
+    'size',
+    'defaultSize',
+    'min',
+    'max',
+    'resizable',
+    'collapsible',
+    'collapsibleMin',
+    'onResize',
+    'onCollapse',
+    'onExpand',
+    'children',
+    'class',
+    'style',
+    'ref',
+    'onTransitionEnd',
+    'onTransitionCancel',
+  ])
+  const content = resolveChildren(() => local.children)
+
+  return {
+    kind: RESIZABLE_PANEL_PART,
+    local,
+    rest,
+    content,
+  } as unknown as JSX.Element
+}
+
+function ResizableHandle(props: ResizableT.HandleProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'action',
+    'intersection',
+    'children',
+    'class',
+    'style',
+    'ref',
+    'onMouseEnter',
+    'onMouseLeave',
+    'onFocus',
+    'onBlur',
+    'onKeyDown',
+    'onPointerDown',
+    'onClick',
+  ])
+  const content = createMemo(() => local.children)
+
+  return {
+    kind: RESIZABLE_HANDLE_PART,
+    local,
+    rest,
+    content,
+  } as unknown as JSX.Element
+}
 
 /** Resizable panel layout with draggable dividers and keyboard support. */
 export function Resizable(props: ResizableProps): JSX.Element {
+  const cn = useCn()
   const [localProps, rest] = splitProps(props, [
     'id',
-    'panels',
+    'children',
     'onResize',
     'onResizeStart',
     'onResizeEnd',
     'onHandleKeyDown',
     'disable',
-    'handle',
-    'handleRender',
-    'handleAction',
-    'intersection',
     'keyboardDelta',
     'orientation',
     'classes',
@@ -197,18 +187,61 @@ export function Resizable(props: ResizableProps): JSX.Element {
     'style',
     'ref',
   ])
+  const resolved = createComponentStyles('resizable', localProps)
   const local = mergeProps(
     {
-      orientation: 'horizontal' as const,
       keyboardDelta: '10%' as const,
-      handle: true,
-      handleAction: 'resize' as const,
+      get orientation() {
+        return resolved.variants.orientation ?? 'horizontal'
+      },
     },
     localProps,
   )
 
   const panelIdPrefix = useId(() => local.id, 'resizable')
   const orientation = () => local.orientation
+  const content = resolveChildren(() => local.children)
+
+  const parts = createMemo(() => {
+    const values: unknown[] = content
+      .toArray()
+      .filter((value) => value !== null && value !== undefined && value !== false && value !== true)
+
+    if (!values.every(isResizablePart)) {
+      throw new Error('Resizable only accepts Resizable.Panel and Resizable.Handle children')
+    }
+
+    const validated = values
+
+    validated.forEach((part, index) => {
+      if (
+        part.kind === RESIZABLE_HANDLE_PART &&
+        (validated[index - 1]?.kind !== RESIZABLE_PANEL_PART ||
+          validated[index + 1]?.kind !== RESIZABLE_PANEL_PART)
+      ) {
+        throw new Error('Resizable.Handle must be placed between two Resizable.Panel children')
+      }
+    })
+
+    return validated
+  })
+  const panelParts = createMemo(() =>
+    parts().filter((part): part is PanelPart => part.kind === RESIZABLE_PANEL_PART),
+  )
+  const handleParts = createMemo(() => {
+    const handles = new Map<number, HandlePart>()
+    let panelIndex = -1
+
+    for (const part of parts()) {
+      if (part.kind === RESIZABLE_PANEL_PART) {
+        panelIndex += 1
+      } else {
+        handles.set(panelIndex, part)
+      }
+    }
+
+    return handles
+  })
 
   let rootRef: HTMLDivElement | undefined = undefined
   const [rootSize, setRootSize] = createSignal(0)
@@ -218,7 +251,24 @@ export function Resizable(props: ResizableProps): JSX.Element {
   const [interactionResizing, setInteractionResizing] = createSignal(false)
   const [transitioningPanelIndexes, setTransitioningPanelIndexes] = createSignal<number[]>([])
   let initializedWithMeasuredRootSize = false
-  const panelItems = createMemo(() => local.panels ?? EMPTY_PANELS)
+  const panelItems = createMemo<ResizablePanelItem[]>(() =>
+    panelParts().map((part) => ({
+      panelId: part.local.id,
+      size: part.local.size,
+      defaultSize: part.local.defaultSize,
+      min: part.local.min,
+      max: part.local.max,
+      resizable: part.local.resizable,
+      collapsible: part.local.collapsible,
+      collapsibleMin: part.local.collapsibleMin,
+      onResize: part.local.onResize,
+      onCollapse: part.local.onCollapse,
+      onExpand: part.local.onExpand,
+      class: cn(part.local.class),
+      style: part.local.style,
+      content: part.content(),
+    })),
+  )
 
   const resolvedPanels = createMemo(() => resolvePanels(panelItems(), rootSize(), panelIdPrefix()))
   const panelCount = createMemo(() => resolvedPanels().length)
@@ -631,6 +681,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
     }
 
     drag = {
+      deltaPx: 0,
       initialSizes: [...sizes()],
       handleIndex,
       altKey,
@@ -648,16 +699,14 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
     if (!drag || drag.handleIndex !== handleIndex || drag.altKey !== altKey) {
       drag = resetDragState(handleIndex, altKey)
-    } else {
-      // Incremental mode: base each resize step on the last committed sizes
-      // so that a per-frame delta accumulates correctly without position jumps.
-      drag.initialSizes = [...drag.lastSizes]
     }
+
+    drag.deltaPx += deltaPx
 
     const nextSizes = normalizeSizes(
       resizeFromHandle({
         handleIndex,
-        deltaPercentage: deltaPx / Math.max(rootSize(), 1),
+        deltaPercentage: drag.deltaPx / Math.max(rootSize(), 1),
         altKey,
         initialSizes: drag.initialSizes,
         panels: resolvedPanels(),
@@ -762,198 +811,234 @@ export function Resizable(props: ResizableProps): JSX.Element {
       id={local.id}
       data-slot="root"
       data-resizable-root
-      data-orientation={orientation()}
       {...rest}
-      style={{ ...local.styles?.root, ...local.style }}
-      class={resizableRootVariants(
-        { orientation: orientation() },
-        local.classes?.root,
-        local.class,
-      )}
+      {...resolved.root}
     >
       <Index each={resolvedPanels()}>
         {(panel, index) => {
           const panelItem = createMemo(() => panel())
+          const panelPart = createMemo(() => panelParts()[index])
           const size = () => sizes()[index] ?? 0
           const collapsed = () => isPanelCollapsed(size(), panelItem())
-          const handleDisabled = createMemo(
-            () => local.disable === true || !isHandleResizable(index),
-          )
-          const handleCollapseAction = createMemo(
-            () => local.handleAction === 'collapse' && local.disable !== true,
-          )
-          const handleRenderDisabled = createMemo(() =>
-            local.handleAction === 'collapse' ? local.disable === true : handleDisabled(),
-          )
-          const collapseState = createMemo(() => resolveNearestCollapsibleState(index))
-
-          const aria = createMemo(() =>
-            getHandleAria({ handleIndex: index, sizes: sizes(), panels: resolvedPanels() }),
-          )
-
-          const bindings = useResizableHandle({
-            handleIndex: () => index,
-            orientation,
-            disable: handleDisabled,
-            intersection: () => local.intersection,
-            onDrag: resizeHandleByDelta,
-            onDragEnd: stopHandleDrag,
-            onKeyDown: onHandleKeyDown,
-          })
-
-          function onHandlePointerDown(event: PointerEvent): void {
-            if (!handleCollapseAction()) {
-              return
-            }
-
-            event.stopPropagation()
-          }
-
-          function onHandleClick(event: MouseEvent): void {
-            if (!handleCollapseAction()) {
-              return
-            }
-
-            event.stopPropagation()
-            toggleHandleCollapse(index)
-          }
-
-          const handleRenderProps: ResizableT.HandleRenderProps = {
-            get orientation() {
-              return orientation()
-            },
-            get disabled() {
-              return handleRenderDisabled()
-            },
-            get action() {
-              return local.handleAction
-            },
-            get active() {
-              return bindings.active()
-            },
-            get dragging() {
-              return bindings.dragging()
-            },
-            get canCollapse() {
-              return collapseState().canCollapse
-            },
-            get collapsed() {
-              return collapseState().collapsed
-            },
-          }
-
           const isTransitioning = createMemo(() => transitioningPanelIndexes().includes(index))
 
           return (
             <>
               <div
+                ref={(element) => callRef(panelPart()!.local.ref, element)}
+                {...panelPart()!.rest}
                 id={panelItem().panelId}
                 data-slot="panel"
-                data-orientation={orientation()}
                 data-collapsed={collapsed() ? '' : undefined}
                 data-expanded={panelItem().collapsible && !collapsed() ? '' : undefined}
                 data-resizing={interactionResizing() ? '' : undefined}
                 data-transitioning={isTransitioning() ? '' : undefined}
-                class={cn(
-                  'min-h-0 min-w-0 overflow-auto data-transitioning:transition-flex-grow motion-reduce:transition-none',
-                  local.classes?.panel,
-                  panelItem().class,
-                )}
+                class={cn(resolved.slot('panel').class, panelItem().class)}
                 style={{
                   'flex-grow': size(),
                   'flex-shrink': 1,
-                  'flex-basis': 0,
-                  ...local.styles?.panel,
-                  ...panelItem().style,
+                  'flex-basis': '0px',
+                  ...resolved.slot('panel').style,
+                  ...(panelItem().style as JSX.CSSProperties),
                 }}
-                onTransitionEnd={(event) => onPanelTransitionFinish(index, event)}
-                onTransitionCancel={(event) => onPanelTransitionFinish(index, event)}
+                onTransitionEnd={(event) => {
+                  const result = callHandler(event, panelPart()!.local.onTransitionEnd)
+                  if (!result.defaultPrevented) {
+                    onPanelTransitionFinish(index, event)
+                  }
+                }}
+                onTransitionCancel={(event) => {
+                  const result = callHandler(event, panelPart()!.local.onTransitionCancel)
+                  if (!result.defaultPrevented) {
+                    onPanelTransitionFinish(index, event)
+                  }
+                }}
               >
                 {panelItem().content}
               </div>
 
-              <Show when={index < resolvedPanels().length - 1}>
-                <div
-                  ref={bindings.setElement}
-                  role="separator"
-                  aria-controls={aria().controls}
-                  aria-orientation={orientation()}
-                  aria-valuemin={aria().valueMin}
-                  aria-valuemax={aria().valueMax}
-                  aria-valuenow={aria().valueNow}
-                  aria-disabled={handleDisabled() ? 'true' : undefined}
-                  tabIndex={handleDisabled() ? -1 : 0}
-                  data-slot="divider"
-                  style={local.styles?.divider}
-                  data-orientation={orientation()}
-                  data-active={bindings.active() ? '' : undefined}
-                  data-cross={bindings.crossHovered() ? '' : undefined}
-                  data-dragging={bindings.dragging() ? '' : undefined}
-                  class={resizableHandleVariants(
-                    { orientation: orientation() },
-                    local.classes?.divider,
-                  )}
-                  onMouseEnter={bindings.onMouseEnter}
-                  onMouseLeave={bindings.onMouseLeave}
-                  onFocus={bindings.onFocus}
-                  onBlur={bindings.onBlur}
-                  onKeyDown={bindings.onKeyDown}
-                  onPointerDown={bindings.onPointerDown}
-                >
-                  <Show when={bindings.startIntersectionVisible()}>
-                    <div
-                      data-slot="crossTarget"
-                      data-resizable-handle-start-target
-                      class={resizableCrossTargetVariants(
-                        { orientation: orientation(), target: 'start' },
-                        local.classes?.crossTarget,
-                      )}
-                      onMouseEnter={() =>
-                        bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_START)
-                      }
-                      onMouseLeave={bindings.onIntersectionMouseLeave}
-                    />
-                  </Show>
+              <Show when={handleParts().get(index)}>
+                {(handlePart) => {
+                  const action = () => handlePart().local.action ?? 'resize'
+                  const handleDisabled = createMemo(
+                    () => local.disable === true || !isHandleResizable(index),
+                  )
+                  const handleCollapseAction = createMemo(
+                    () => action() === 'collapse' && local.disable !== true,
+                  )
+                  const gripDisabled = createMemo(() =>
+                    action() === 'collapse' ? local.disable === true : handleDisabled(),
+                  )
+                  const collapseState = createMemo(() => resolveNearestCollapsibleState(index))
+                  const aria = createMemo(() =>
+                    getHandleAria({ handleIndex: index, sizes: sizes(), panels: resolvedPanels() }),
+                  )
+                  const bindings = useResizableHandle({
+                    handleIndex: () => index,
+                    orientation,
+                    disable: handleDisabled,
+                    intersection: () => handlePart().local.intersection,
+                    onDrag: resizeHandleByDelta,
+                    onDragEnd: stopHandleDrag,
+                    onKeyDown: onHandleKeyDown,
+                  })
 
-                  <Show when={local.handle}>
-                    <button
-                      type="button"
-                      data-slot="handle"
-                      tabIndex={local.handleAction === 'collapse' ? undefined : -1}
-                      style={local.styles?.handle}
-                      onPointerDown={onHandlePointerDown}
-                      onClick={onHandleClick}
-                      class={cn(
-                        RESIZABLE_HANDLE_GRIP_CLASS,
-                        handleCollapseAction() && 'active:cursor-pointer hover:cursor-pointer',
-                        !local.handleRender && [
-                          'bg-border flex shrink-0',
-                          orientation() === 'vertical' ? 'h-1 w-6' : 'h-6 w-1',
-                        ],
-                        local.classes?.handle,
-                      )}
+                  function callHandleEvent<E extends Event>(
+                    event: E,
+                    handler: unknown,
+                    internal: (event: E) => void,
+                  ): void {
+                    const result = callHandler(event, handler)
+                    if (!result.defaultPrevented) {
+                      internal(event)
+                    }
+                  }
+
+                  function onDividerPointerDown(event: PointerEvent): void {
+                    callHandleEvent(event, handlePart().local.onPointerDown, bindings.onPointerDown)
+                  }
+
+                  function onGripPointerDown(event: PointerEvent): void {
+                    if (!handleCollapseAction()) {
+                      return
+                    }
+
+                    callHandler(event, handlePart().local.onPointerDown)
+                    if (!event.defaultPrevented) {
+                      event.stopPropagation()
+                    }
+                  }
+
+                  function onHandleClick(event: MouseEvent): void {
+                    if (!handleCollapseAction()) {
+                      return
+                    }
+
+                    const result = callHandler(event, handlePart().local.onClick)
+                    if (result.defaultPrevented) {
+                      return
+                    }
+
+                    event.stopPropagation()
+                    toggleHandleCollapse(index)
+                  }
+
+                  const handleContext: ResizableT.HandleContext = {
+                    get orientation() {
+                      return orientation()
+                    },
+                    get disabled() {
+                      return gripDisabled()
+                    },
+                    get action() {
+                      return action()
+                    },
+                    get active() {
+                      return bindings.active()
+                    },
+                    get dragging() {
+                      return bindings.dragging()
+                    },
+                    get canCollapse() {
+                      return collapseState().canCollapse
+                    },
+                    get collapsed() {
+                      return collapseState().collapsed
+                    },
+                  }
+
+                  return (
+                    <div
+                      ref={(element) => {
+                        bindings.setElement(element)
+                        callRef(handlePart().local.ref, element)
+                      }}
+                      {...handlePart().rest}
+                      role="separator"
+                      aria-controls={aria().controls}
+                      aria-orientation={orientation()}
+                      aria-valuemin={aria().valueMin}
+                      aria-valuemax={aria().valueMax}
+                      aria-valuenow={aria().valueNow}
+                      aria-disabled={handleDisabled() ? 'true' : undefined}
+                      tabIndex={handleDisabled() ? -1 : 0}
+                      data-slot="divider"
+                      data-active={bindings.active() ? '' : undefined}
+                      data-cross={bindings.crossHovered() ? '' : undefined}
+                      data-dragging={bindings.dragging() ? '' : undefined}
+                      class={cn(resolved.slot('divider').class, handlePart().local.class)}
+                      style={{
+                        ...resolved.slot('divider').style,
+                        ...(handlePart().local.style as JSX.CSSProperties),
+                      }}
+                      onMouseEnter={(event) =>
+                        callHandleEvent(
+                          event,
+                          handlePart().local.onMouseEnter,
+                          bindings.onMouseEnter,
+                        )
+                      }
+                      onMouseLeave={(event) =>
+                        callHandleEvent(
+                          event,
+                          handlePart().local.onMouseLeave,
+                          bindings.onMouseLeave,
+                        )
+                      }
+                      onFocus={(event) =>
+                        callHandleEvent(event, handlePart().local.onFocus, bindings.onFocus)
+                      }
+                      onBlur={(event) =>
+                        callHandleEvent(event, handlePart().local.onBlur, bindings.onBlur)
+                      }
+                      onKeyDown={(event) =>
+                        callHandleEvent(event, handlePart().local.onKeyDown, bindings.onKeyDown)
+                      }
+                      onPointerDown={onDividerPointerDown}
+                      onClick={(event) => callHandler(event, handlePart().local.onClick)}
                     >
-                      <Show when={local.handleRender !== undefined}>
-                        {renderComponentOrElement(local.handleRender, handleRenderProps)}
+                      <Show when={bindings.startIntersectionVisible()}>
+                        <div
+                          data-slot="crossTarget"
+                          data-resizable-handle-start-target
+                          {...resolved.slot('crossTarget')}
+                          onMouseEnter={() =>
+                            bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_START)
+                          }
+                          onMouseLeave={bindings.onIntersectionMouseLeave}
+                        />
                       </Show>
-                    </button>
-                  </Show>
 
-                  <Show when={bindings.endIntersectionVisible()}>
-                    <div
-                      data-slot="crossTarget"
-                      data-resizable-handle-end-target
-                      class={resizableCrossTargetVariants(
-                        { orientation: orientation(), target: 'end' },
-                        local.classes?.crossTarget,
-                      )}
-                      onMouseEnter={() =>
-                        bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_END)
-                      }
-                      onMouseLeave={bindings.onIntersectionMouseLeave}
-                    />
-                  </Show>
-                </div>
+                      <Show when={handlePart().content() !== false}>
+                        <button
+                          type="button"
+                          data-slot="handle"
+                          tabIndex={action() === 'collapse' ? undefined : -1}
+                          onPointerDown={onGripPointerDown}
+                          onClick={onHandleClick}
+                          data-collapse={handleCollapseAction() ? '' : undefined}
+                          {...resolved.slot('handle')}
+                        >
+                          <Show when={handlePart().content() !== undefined}>
+                            {renderComponentOrElement(handlePart().content(), handleContext)}
+                          </Show>
+                        </button>
+                      </Show>
+
+                      <Show when={bindings.endIntersectionVisible()}>
+                        <div
+                          data-slot="crossTarget"
+                          data-resizable-handle-end-target
+                          {...resolved.slot('crossTarget')}
+                          onMouseEnter={() =>
+                            bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_END)
+                          }
+                          onMouseLeave={bindings.onIntersectionMouseLeave}
+                        />
+                      </Show>
+                    </div>
+                  )
+                }}
               </Show>
             </>
           )
@@ -962,3 +1047,6 @@ export function Resizable(props: ResizableProps): JSX.Element {
     </div>
   )
 }
+
+Resizable.Panel = ResizablePanel
+Resizable.Handle = ResizableHandle

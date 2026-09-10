@@ -1,61 +1,68 @@
-import type { VariantProps } from 'cls-variant'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import { REQUIRED_MARK_VARIANT, TEXT_SIZE_VARIANT } from '../../shared/cva-common.class'
-import { cva } from '../../shared/utils'
+import type { FormFieldT } from './form-field.types'
 
-export const formFieldSizeVariants = cva('', {
-  defaultVariants: {
+export const formFieldRecipe = /* @__PURE__ */ slotRecipe<FormFieldT.Slot, FormFieldT.Variant>({
+  base: {
+    root: '',
+    wrapper: 'flex flex-col gap-1',
+    labelWrapper: 'flex gap-1.5 items-center',
+    label:
+      "text-foreground font-medium block data-required:after:(text-destructive ms-0.5 content-['*'])",
+    container: 'flex flex-col gap-1.5 relative',
+    description: 'text-muted-foreground leading-normal',
+    error: 'text-destructive font-medium leading-normal',
+    hint: 'text-muted-foreground',
+    help: 'text-muted-foreground leading-normal',
+  },
+  defaults: {
     size: 'md',
+    orientation: 'vertical',
   },
   variants: {
-    size: TEXT_SIZE_VARIANT,
-  },
-})
-
-export const formFieldLabelVariants = cva('text-foreground font-medium block', {
-  variants: {
-    required: REQUIRED_MARK_VARIANT,
+    size: {
+      sm: {
+        root: 'text-xs',
+        description: 'text-xs leading-normal',
+        error: 'text-xs leading-normal',
+        hint: 'text-xs',
+        help: 'text-xs leading-normal',
+      },
+      md: {
+        root: 'text-sm',
+        description: 'text-sm leading-normal',
+        error: 'text-sm leading-normal',
+        hint: 'text-sm',
+        help: 'text-sm leading-normal',
+      },
+      lg: {
+        root: 'text-base',
+        description: 'text-base leading-normal',
+        error: 'text-base leading-normal',
+        hint: 'text-base',
+        help: 'text-base leading-normal',
+      },
+    },
     orientation: {
-      vertical: '',
-      horizontal: '',
+      vertical: {
+        labelWrapper: 'justify-between',
+      },
+      horizontal: {
+        root: 'gap-x-2 grid grid-cols-4 items-baseline',
+        wrapper: 'text-end col-span-1 items-end',
+        labelWrapper: 'justify-end',
+        container: 'col-span-3 min-w-0',
+      },
     },
   },
   compoundVariants: [
     {
-      orientation: 'horizontal',
-      required: true,
-      class: "before:(text-destructive me-0.5 content-['*']) after:content-none",
+      variants: { orientation: 'horizontal' },
+      class: {
+        label:
+          "data-required:before:(text-destructive me-0.5 content-['*']) data-required:after:content-none",
+      },
     },
+    { variants: { orientation: 'vertical' }, class: { container: 'data-has-text:mt-1.5' } },
   ],
 })
-
-export const FORM_FIELD_WRAPPER_CLASS = 'flex flex-col gap-1'
-export const FORM_FIELD_LABEL_WRAPPER_CLASS = 'flex gap-1.5 items-center'
-export const FORM_FIELD_HINT_CLASS = 'text-muted-foreground'
-export const FORM_FIELD_DESCRIPTION_CLASS = 'text-muted-foreground leading-normal'
-export const FORM_FIELD_HELP_CLASS = 'text-muted-foreground leading-normal'
-export const FORM_FIELD_ERROR_CLASS = 'text-destructive font-medium leading-normal'
-
-export const formFieldContainerVariants = cva('flex flex-col gap-1.5 relative', {
-  variants: {
-    orientation: {
-      vertical: '',
-      horizontal: 'col-span-3 min-w-0',
-    },
-    hasText: {
-      true: '',
-      false: '',
-    },
-  },
-  compoundVariants: [
-    {
-      orientation: 'vertical',
-      hasText: true,
-      class: 'mt-1.5',
-    },
-  ],
-})
-
-export type FormFieldVariantProps = VariantProps<typeof formFieldSizeVariants> & {
-  orientation?: 'vertical' | 'horizontal'
-}

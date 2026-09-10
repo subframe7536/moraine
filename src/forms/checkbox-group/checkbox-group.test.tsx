@@ -3,8 +3,10 @@ import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../shared/provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
-import { createForm } from '../form/index'
+import { defaultTheme } from '../../theme/default-theme'
+import { createForm } from '../form'
 
 import { CheckboxGroup } from './checkbox-group'
 
@@ -17,6 +19,23 @@ function getHiddenCheckbox(container: HTMLElement, value: string): HTMLInputElem
 }
 
 describe('CheckboxGroup', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = render(() => (
+      <CheckboxGroup
+        variant="table"
+        orientation="horizontal"
+        size="lg"
+        legend="Test"
+        items={['One']}
+      />
+    ))
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const fieldset = screen.container.querySelector('[data-slot="fieldset"]')
+    const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')
+    expect(root?.className).toBe('')
+    expect(fieldset?.className).toBe('')
+    expect(item?.className).toBe('')
+  })
   test('renders legend and primitive items', () => {
     const screen = render(() => <CheckboxGroup legend="Fruits" items={['Apple', 'Banana']} />)
 
@@ -300,7 +319,9 @@ describe('CheckboxGroup', () => {
 
   test('applies horizontal table layout classes', () => {
     const screen = render(() => (
-      <CheckboxGroup items={['A', 'B']} orientation="horizontal" variant="table" size="lg" />
+      <MoraineProvider theme={defaultTheme}>
+        <CheckboxGroup items={['A', 'B']} orientation="horizontal" variant="table" size="lg" />
+      </MoraineProvider>
     ))
 
     const fieldset = screen.container.querySelector('[data-slot="fieldset"]')
@@ -313,11 +334,15 @@ describe('CheckboxGroup', () => {
     expect(item?.className).toContain('p-4')
     expect(item?.className).toContain('first-of-type:rounded-s-lg')
     expect(item?.className).toContain('last-of-type:rounded-e-lg')
-    expect(item?.className).toContain('not-first-of-type:-ms-px')
+    expect(item?.className).toContain('[&:not(:first-of-type)]:-ms-px')
   })
 
   test('applies vertical table layout classes', () => {
-    const screen = render(() => <CheckboxGroup items={['A', 'B']} variant="table" size="lg" />)
+    const screen = render(() => (
+      <MoraineProvider theme={defaultTheme}>
+        <CheckboxGroup items={['A', 'B']} variant="table" size="lg" />
+      </MoraineProvider>
+    ))
 
     const fieldset = screen.container.querySelector('[data-slot="fieldset"]')
     const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')
@@ -325,7 +350,7 @@ describe('CheckboxGroup', () => {
     expect(fieldset?.className).toContain('flex-col')
     expect(item?.className).toContain('first-of-type:rounded-t-lg')
     expect(item?.className).toContain('last-of-type:rounded-b-lg')
-    expect(item?.className).toContain('not-first-of-type:-mt-px')
+    expect(item?.className).toContain('[&:not(:first-of-type)]:-mt-px')
   })
 
   test('renders checkbox items as direct fieldset children', () => {
@@ -378,15 +403,17 @@ describe('CheckboxGroup', () => {
 
   test('applies flattened classes to item and checkbox slots', () => {
     const screen = render(() => (
-      <CheckboxGroup
-        items={['A']}
-        variant="table"
-        classes={{
-          item: 'item-override',
-          control: 'control-override',
-          label: 'label-override',
-        }}
-      />
+      <MoraineProvider theme={defaultTheme}>
+        <CheckboxGroup
+          items={['A']}
+          variant="table"
+          classes={{
+            item: 'item-override',
+            control: 'control-override',
+            label: 'label-override',
+          }}
+        />
+      </MoraineProvider>
     ))
 
     const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')
@@ -404,7 +431,7 @@ describe('CheckboxGroup', () => {
         items={['A']}
         variant="table"
         styles={{
-          root: { width: '200px' },
+          item: { width: '200px' },
           control: { width: '200px' },
           label: { width: '200px' },
         }}

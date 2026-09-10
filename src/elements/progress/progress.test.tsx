@@ -2,10 +2,24 @@ import { render } from '@solidjs/testing-library'
 import { ErrorBoundary, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../shared/provider'
+import { defaultTheme } from '../../theme/default-theme'
+
 import { Progress } from './progress'
-import type { ProgressT } from './progress'
+import type { ProgressT } from './progress.types'
 
 describe('Progress', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = render(() => <Progress value={50} status />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const track = screen.container.querySelector('[data-slot="track"]')
+    const indicator = screen.container.querySelector('[data-slot="indicator"]')
+
+    expect(root?.className).toBe('')
+    expect(track?.className).toBe('')
+    expect(indicator?.className).toBe('')
+  })
+
   test('accepts static JSX for statusRender', () => {
     const screen = render(() => (
       <Progress value={40} statusRender={<span data-testid="status">Working</span>} />
@@ -15,16 +29,26 @@ describe('Progress', () => {
   })
 
   test('uses css variable classes for base thickness', () => {
-    const horizontal = render(() => <Progress value={20} size="sm" />)
-    const vertical = render(() => <Progress value={20} size="lg" orientation="vertical" />)
+    const horizontal = render(() => (
+      <MoraineProvider theme={defaultTheme}>
+        <Progress value={20} size="sm" />
+      </MoraineProvider>
+    ))
+    const vertical = render(() => (
+      <MoraineProvider theme={defaultTheme}>
+        <Progress value={20} size="lg" orientation="vertical" />
+      </MoraineProvider>
+    ))
 
+    const horizontalRoot = horizontal.container.querySelector('[data-slot="root"]') as HTMLElement
+    const verticalRoot = vertical.container.querySelector('[data-slot="root"]') as HTMLElement
     const horizontalBase = horizontal.container.querySelector('[data-slot="track"]')
     const verticalBase = vertical.container.querySelector('[data-slot="track"]')
 
-    expect(horizontalBase?.className).toContain('h-$p-size')
-    expect(horizontalBase?.className).toContain('var-progress-1')
-    expect(verticalBase?.className).toContain('w-$p-size')
-    expect(verticalBase?.className).toContain('var-progress-3')
+    expect(horizontalRoot.className).toContain('[--p-size:0.25rem]')
+    expect(horizontalBase?.className).toContain('h-(--p-size)')
+    expect(verticalRoot.className).toContain('[--p-size:0.75rem]')
+    expect(verticalBase?.className).toContain('w-(--p-size)')
   })
 
   test('renders determinate progress with default aria values', () => {
@@ -100,9 +124,9 @@ describe('Progress', () => {
 
     const stepNodes = screen.container.querySelectorAll('[data-slot="step"]')
     expect(stepNodes.length).toBe(steps.length)
-    expect(stepNodes[0]?.className).toContain('opacity-0')
-    expect(stepNodes[1]?.className).toContain('opacity-100')
-    expect(stepNodes[2]?.className).toContain('opacity-0')
+    expect(stepNodes[0]?.getAttribute('data-state')).toBe('other')
+    expect(stepNodes[1]?.getAttribute('data-state')).toBe('active')
+    expect(stepNodes[2]?.getAttribute('data-state')).toBe('other')
   })
 
   test('supports stepRender callback with state metadata', () => {
@@ -171,10 +195,10 @@ describe('Progress', () => {
     const status = screen.container.querySelector('[data-slot="status"]') as HTMLElement
     const indicator = screen.container.querySelector('[data-slot="indicator"]') as HTMLElement
 
-    expect(progress.getAttribute('aria-valuetext')).toBe('33.33333333333333%')
-    expect(status.textContent).toBe('33.33333333333333%')
-    expect(status.style.width).toBe('33.33333333333333%')
-    expect(indicator.style.transform).toBe('translateX(-66.66666666666667%)')
+    expect(progress.getAttribute('aria-valuetext')).toBe('33.33%')
+    expect(status.textContent).toBe('33.33%')
+    expect(status.style.width).toBe('33.33%')
+    expect(indicator.style.transform).toBe('translateX(-66.67%)')
   })
 
   test('synchronizes loading, complete, and indeterminate data across rendered parts', () => {
@@ -272,7 +296,7 @@ describe('Progress', () => {
     expect(updated[0]).toBe(initial[0])
     expect(updated[1]).toBe(initial[1])
     expect(updated[2]).toBe(initial[2])
-    expect(updated[1]?.className).toContain('opacity-100')
+    expect(updated[1]?.getAttribute('data-state')).toBe('active')
   })
 
   test('reads conditional renderers only while their branches are mounted', () => {
@@ -352,7 +376,9 @@ describe('Progress', () => {
 
   test('applies orientation and animation classes', () => {
     const screen = render(() => (
-      <Progress value={25} status orientation="vertical" animation="swing" />
+      <MoraineProvider theme={defaultTheme}>
+        <Progress value={25} status orientation="vertical" animation="swing" />
+      </MoraineProvider>
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]')
@@ -366,9 +392,15 @@ describe('Progress', () => {
   })
 
   test('uses reverse animation classes without inverse utilities', () => {
-    const horizontal = render(() => <Progress value={null} animation="reverse" />)
+    const horizontal = render(() => (
+      <MoraineProvider theme={defaultTheme}>
+        <Progress value={null} animation="reverse" />
+      </MoraineProvider>
+    ))
     const vertical = render(() => (
-      <Progress value={null} orientation="vertical" animation="reverse" />
+      <MoraineProvider theme={defaultTheme}>
+        <Progress value={null} orientation="vertical" animation="reverse" />
+      </MoraineProvider>
     ))
 
     const horizontalIndicator = horizontal.container.querySelector(

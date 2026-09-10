@@ -16,7 +16,7 @@ export function HeaderFooter() {
         }
         classes={{
           header: 'border-b border-border',
-          input: 'min-h-24',
+          textarea: 'min-h-24',
         }}
       />
 
@@ -35,7 +35,7 @@ export function HeaderFooter() {
         }
         classes={{
           footer: 'b-(t border)',
-          input: 'min-h-24',
+          textarea: 'min-h-24',
         }}
       />
 
@@ -56,7 +56,7 @@ export function HeaderFooter() {
         classes={{
           header: 'b-(b border)',
           footer: 'b-(t border)',
-          input: 'min-h-28',
+          textarea: 'min-h-28',
         }}
       />
     </div>

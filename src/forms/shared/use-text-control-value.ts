@@ -66,10 +66,10 @@ export function useTextControlValue<
     const nextValue = applyValue(value)
     const controlledValue = options.value()
 
+    options.onValueChange()?.(nextValue)
     if (controlledValue === undefined) {
       options.setFormValue(nextValue)
     }
-    options.onValueChange()?.(nextValue)
     if (controlledValue !== undefined && Object.is(options.value(), controlledValue)) {
       options.setFormValue(controlledValue)
     }

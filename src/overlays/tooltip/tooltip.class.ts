@@ -1,27 +1,22 @@
-import type { VariantProps } from 'cls-variant'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import { cva } from '../../shared/utils'
+import type { TooltipT } from './tooltip.types'
 
-export const tooltipContentVariants = cva(
-  'text-xs px-1.5 py-0.5 outline-none rounded-md flex gap-1 max-w-xs w-fit origin-$mo-popper-content-transform-origin items-center z-floating data-closed:animate-tooltip-out data-expanded:animate-tooltip-in motion-reduce:animate-none',
-  {
-    variants: {
-      side: {
-        left: 'mr-$mo-popper-content-overflow-padding animate-tooltip-side-left',
-        right: 'ml-$mo-popper-content-overflow-padding animate-tooltip-side-right',
-        top: 'mb-$mo-popper-content-overflow-padding animate-tooltip-side-top',
-        bottom: 'mt-$mo-popper-content-overflow-padding animate-tooltip-side-bottom',
-      },
-      invert: {
-        true: 'text-background bg-foreground',
-        false: 'text-foreground surface-overlay bg-background shadow-sm',
-      },
-    },
-    defaultVariants: {
-      side: 'top',
-      invert: false,
+export const tooltipRecipe = /* @__PURE__ */ slotRecipe<TooltipT.Slot, TooltipT.Variant>({
+  base: {
+    content:
+      'data-instant-motion:data-expanded:animate-none data-instant-motion:data-closed:animate-none text-xs px-1.5 py-0.5 outline-none rounded-md flex gap-1 max-w-xs w-fit origin-(--mo-popper-content-transform-origin) items-center z-floating data-closed:(animate-mo-exit exit-opacity-0 exit-scale-95) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-95) motion-reduce:animate-none data-[side=bottom]:mt-(--mo-popper-content-overflow-padding) data-[side=bottom]:-enter-translate-y-1 data-[side=bottom]:-exit-translate-y-1 data-[side=left]:mr-(--mo-popper-content-overflow-padding) data-[side=left]:enter-translate-x-1 data-[side=left]:exit-translate-x-1 data-[side=right]:ml-(--mo-popper-content-overflow-padding) data-[side=right]:-enter-translate-x-1 data-[side=right]:-exit-translate-x-1 data-[side=top]:mb-(--mo-popper-content-overflow-padding) data-[side=top]:enter-translate-y-1 data-[side=top]:exit-translate-y-1',
+    positioner: 'has-[[data-instant-motion]]:data-positioned:transition-transform',
+    text: 'leading-4 text-pretty',
+    kbds: 'rounded-sm relative z-floating isolate',
+  },
+  defaults: {
+    invert: false,
+  },
+  variants: {
+    invert: {
+      true: { content: 'text-background bg-foreground' },
+      false: { content: 'text-foreground border border-border bg-background shadow-sm' },
     },
   },
-)
-
-export type TooltipVariantProps = VariantProps<typeof tooltipContentVariants>
+})

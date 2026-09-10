@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Numeric input with increment/decrement controls, step, and min/max constraints.",
-    "sourcePath": "src/forms/input-number/input-number.tsx"
+    "sourcePath": "src/forms/input-number/input-number.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -26,7 +27,14 @@
       "name": "input",
       "description": "Native number input element.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-auto-align",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": [
         {
           "name": "aria-valuemax",
@@ -73,10 +81,23 @@
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
+    },
+    {
+      "name": "controls",
+      "description": "Column container for vertical increment/decrement controls.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "props": {
     "own": [
+      {
+        "name": "align",
+        "required": false,
+        "type": "\"center\" | \"start\" | undefined",
+        "description": "Text alignment; omitted values follow the control layout."
+      },
       {
         "name": "autofocus",
         "required": false,
@@ -169,6 +190,12 @@
         "defaultValue": "orientation === 'vertical' ? 'icon-chevron-up' : 'icon-plus"
       },
       {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined",
+        "description": "Optional inner input element ref."
+      },
+      {
         "name": "largeStep",
         "required": false,
         "type": "number | undefined",
@@ -238,8 +265,8 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "InputNumberOrientation | undefined",
-        "description": "The orientation of the control buttons.",
+        "type": "\"horizontal\" | \"vertical\" | undefined",
+        "description": "Visual layout direction.",
         "defaultValue": "horizontal"
       },
       {
@@ -283,7 +310,7 @@
       {
         "name": "repeatPointerTypes",
         "required": false,
-        "type": "\"all\" | PointerType | undefined",
+        "type": "\"all\" | InputNumberT.PointerType | undefined",
         "description": "Pointer types that can trigger press-and-hold repeat.",
         "defaultValue": "all"
       },
@@ -304,7 +331,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "step",
@@ -332,7 +361,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined"
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "outline"
       },
       {
         "name": "wheel",

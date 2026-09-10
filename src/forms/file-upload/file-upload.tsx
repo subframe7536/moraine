@@ -11,225 +11,14 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { IconT } from '../../elements/icon/index'
-import { Icon } from '../../elements/icon/index'
+import { Icon } from '../../elements/icon'
 import { HiddenInput } from '../../shared/hidden-input'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { callHandler, useId } from '../../shared/utils'
-import { useFormField } from '../form/form-context'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-} from '../shared/form-options'
+import { createComponentStyles } from '../../shared/provider'
+import { callHandler, callRef, useId } from '../../shared/utils'
+import { useFormField, useFormFieldContext } from '../form/form-context'
 import { useFormReset } from '../shared/use-form-reset'
 
-import type { FileUploadVariantProps } from './file-upload.class'
-import {
-  fileUploadBaseVariants,
-  fileUploadDescriptionVariants,
-  fileUploadFileVariants,
-  fileUploadFilesVariants,
-  fileUploadIconVariants,
-  fileUploadLabelVariants,
-  fileUploadMetaVariants,
-  fileUploadNameVariants,
-  fileUploadPreviewVariants,
-  fileUploadRemoveVariants,
-  fileUploadRootVariants,
-  fileUploadSizeVariants,
-  fileUploadWrapperVariants,
-} from './file-upload.class'
-
-type FileError =
-  | 'TOO_MANY_FILES'
-  | 'FILE_INVALID_TYPE'
-  | 'FILE_TOO_LARGE'
-  | 'FILE_TOO_SMALL'
-  | 'FILE_DUPLICATE'
-
-interface FileRejection {
-  file: File
-  errors: FileError[]
-}
-
-export namespace FileUploadT {
-  export type Value = File | File[] | null
-
-  export interface Slot<T = unknown> {
-    /**
-     * Upload component container that owns dropzone, file input, and file list.
-     */
-    root?: T
-
-    /** Dropzone and picker control users interact with to select files. */
-    control?: T
-
-    /** Inner control layout for icon, label, and description. */
-    wrapper?: T
-
-    /** Upload or status icon shown inside the control. */
-    icon?: T
-
-    /** Primary instruction text for the upload control. */
-    label?: T
-
-    /** Supporting upload requirements or helper text. */
-    description?: T
-
-    /** List region that displays selected files and upload progress. */
-    files?: T
-
-    /** Row for one selected file, including preview, metadata, and remove action. */
-    file?: T
-
-    /** Preview or file-type icon area for a selected file. */
-    filePreview?: T
-
-    /** Text region for file name, size, and validation state. */
-    fileMeta?: T
-
-    /** Display name for a selected file. */
-    fileName?: T
-
-    /** File size text for a selected file. */
-    fileSize?: T
-
-    /** Button used to remove a selected file from the list. */
-    fileRemove?: T
-  }
-
-  export type Variant = FileUploadVariantProps
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
-
-  /**
-   * Base props for the FileUpload component.
-   */
-  export interface Base<T extends ValidComponent = 'div'>
-    extends FormIdentityOptions, FormRequiredOption, FormDisableOption, FormReadOnlyOption {
-    /**
-     * The HTML element or component to render as.
-     * @default 'div'
-     */
-    as?: T
-
-    /**
-     * Click handler for the upload control.
-     */
-    onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
-
-    /**
-     * Keyboard handler for the upload control.
-     */
-    onKeyDown?: JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>
-
-    /**
-     * Drag-over handler for the upload dropzone.
-     */
-    onDragOver?: JSX.EventHandlerUnion<HTMLElement, DragEvent>
-
-    /**
-     * Drag-leave handler for the upload dropzone.
-     */
-    onDragLeave?: JSX.EventHandlerUnion<HTMLElement, DragEvent>
-
-    /**
-     * Drop handler for the upload dropzone.
-     */
-    onDrop?: JSX.EventHandlerUnion<HTMLElement, DragEvent>
-
-    /**
-     * Accepted file types (e.g., ".jpg,.png", "image/*").
-     * @default '*'
-     */
-    accept?: string
-
-    /**
-     * Whether multiple files can be uploaded.
-     * @default false
-     */
-    multiple?: boolean
-
-    /**
-     * Whether to enable drag and drop.
-     * @default true
-     */
-    dropzone?: boolean
-
-    /**
-     * Whether to show file previews.
-     * @default true
-     */
-    preview?: boolean
-
-    /**
-     * Label for the upload area.
-     */
-    label?: JSX.Element
-
-    /**
-     * Description text for the upload area.
-     */
-    description?: JSX.Element
-
-    /**
-     * Icon to show in the upload area.
-     * @default 'icon-upload'
-     */
-    icon?: IconT.Name
-
-    /**
-     * Icon to show for individual files when no preview is available.
-     * @default 'icon-file'
-     */
-    fileIcon?: IconT.Name
-
-    /**
-     * Maximum number of files allowed.
-     */
-    maxFiles?: number
-
-    /**
-     * Minimum accepted file size in bytes.
-     */
-    minSize?: number
-
-    /**
-     * Maximum accepted file size in bytes.
-     */
-    maxSize?: number
-
-    /**
-     * Callback when the selected files change.
-     */
-    onValueChange?: (value: Value) => void
-
-    /**
-     * Callback when files are rejected (e.g., due to type or count).
-     */
-    onFileReject?: (files: FileRejection[]) => void
-  }
-
-  /**
-   * Props for the FileUpload component.
-   */
-  export type Props<T extends ValidComponent = 'div'> = BaseProps<
-    T,
-    Base<T>,
-    Variant,
-    Classes,
-    Styles
-  >
-}
-
-/**
- * Props for the FileUpload component.
- */
-export type FileUploadProps<T extends ValidComponent = 'div'> = FileUploadT.Props<T>
+import type { FileUploadProps, FileUploadT } from './file-upload.types'
 
 function isImageFile(file: File): boolean {
   return file.type.startsWith('image/')
@@ -356,7 +145,7 @@ function formatFileSize(bytes: number): string {
   return `${value.toFixed(precision)}${units[power]}`
 }
 
-function createRejection(file: File, error: FileError): FileRejection {
+function createRejection(file: File, error: FileUploadT.Error): FileUploadT.Rejection {
   return {
     file,
     errors: [error],
@@ -377,14 +166,14 @@ function filterAcceptedFiles(
   },
 ): {
   accepted: File[]
-  rejected: FileRejection[]
+  rejected: FileUploadT.Rejection[]
 } {
   const accepted: File[] = []
-  const rejected: FileRejection[] = []
+  const rejected: FileUploadT.Rejection[] = []
   const seenFiles = new Set(options.existingFiles.map(getFileIdentity))
 
   for (const file of files) {
-    const errors: FileError[] = []
+    const errors: FileUploadT.Error[] = []
 
     if (!isAcceptedFileType(file, options.accept)) {
       errors.push('FILE_INVALID_TYPE')
@@ -420,9 +209,9 @@ function constrainMultipleFiles(
   maxFiles: number,
 ): {
   accepted: File[]
-  rejected: FileRejection[]
+  rejected: FileUploadT.Rejection[]
 } {
-  const rejected: FileRejection[] = []
+  const rejected: FileUploadT.Rejection[] = []
   const remainingSlots = Number.isFinite(maxFiles)
     ? Math.max(0, maxFiles - currentCount)
     : Number.POSITIVE_INFINITY
@@ -451,7 +240,7 @@ function constrainMultipleFiles(
 
 function constrainSingleFile(accepted: File[]): {
   accepted: File[]
-  rejected: FileRejection[]
+  rejected: FileUploadT.Rejection[]
 } {
   if (accepted.length <= 1) {
     return { accepted, rejected: [] }
@@ -473,6 +262,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     'required',
     'disabled',
     'readOnly',
+    'inputRef',
     'onClick',
     'onKeyDown',
     'onDragOver',
@@ -497,6 +287,11 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     'class',
     'style',
   ])
+  const themeField = useFormFieldContext()
+  const resolved = createComponentStyles('fileUpload', local, {
+    inheritedVariants: () => ({ size: themeField?.size }),
+  })
+
   const merged = mergeProps(
     {
       as: 'div' as T,
@@ -507,6 +302,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       icon: 'icon-upload' as const,
       fileIcon: 'icon-file' as const,
     },
+
     local,
   )
   const label = createMemo(() => merged.label)
@@ -520,14 +316,13 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     () => ({
       id: merged.id,
       name: merged.name,
-      size: merged.size,
+      size: resolved.variants.size,
       disabled: merged.disabled,
       required: local.required,
       readOnly: readOnly(),
     }),
     () => ({
       defaultId: generatedId(),
-      defaultSize: 'md',
       initialValue: merged.multiple ? [] : null,
     }),
   )
@@ -667,13 +462,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         type="button"
         aria-label={`Remove ${props.file.name}`}
         data-slot="fileRemove"
-        style={merged.styles?.fileRemove}
-        class={fileUploadRemoveVariants(
-          {
-            size: field.size(),
-          },
-          merged.classes?.fileRemove,
-        )}
+        {...resolved.slot('fileRemove')}
         disabled={field.disabled() || readOnly()}
         onClick={() => {
           removeFileAt(props.index)
@@ -745,56 +534,17 @@ export function FileUpload<T extends ValidComponent = 'div'>(
 
   function Content(): JSX.Element {
     return (
-      <div
-        data-slot="wrapper"
-        style={merged.styles?.wrapper}
-        class={fileUploadWrapperVariants(
-          {
-            size: field.size(),
-          },
-          merged.classes?.wrapper,
-        )}
-      >
-        <Icon
-          name={merged.icon}
-          slotName="icon"
-          style={merged.styles?.icon}
-          class={fileUploadIconVariants(
-            {
-              size: field.size(),
-            },
-            merged.classes?.icon,
-          )}
-        />
+      <div data-slot="wrapper" {...resolved.slot('wrapper')}>
+        <Icon name={merged.icon} slotName="icon" {...resolved.slot('icon')} />
 
         <Show when={label()}>
-          <span
-            id={labelId()}
-            data-slot="label"
-            style={merged.styles?.label}
-            class={fileUploadLabelVariants(
-              {
-                size: field.size(),
-              },
-              merged.classes?.label,
-            )}
-          >
+          <span id={labelId()} data-slot="label" {...resolved.slot('label')}>
             {label()}
           </span>
         </Show>
 
         <Show when={description()}>
-          <span
-            id={descriptionId()}
-            data-slot="description"
-            style={merged.styles?.description}
-            class={fileUploadDescriptionVariants(
-              {
-                size: field.size(),
-              },
-              merged.classes?.description,
-            )}
-          >
+          <span id={descriptionId()} data-slot="description" {...resolved.slot('description')}>
             {description()}
           </span>
         </Show>
@@ -871,23 +621,19 @@ export function FileUpload<T extends ValidComponent = 'div'>(
   return (
     <Dynamic
       role="group"
-      aria-labelledby={label() ? labelId() : undefined}
-      aria-label={label() ? undefined : 'File upload'}
+      aria-labelledby={field.ariaAttrs()['aria-labelledby'] ?? (label() ? labelId() : undefined)}
+      aria-label={field.ariaAttrs()['aria-labelledby'] || label() ? undefined : 'File upload'}
       disabled={field.disabled()}
       data-slot="root"
       data-disabled={field.disabled() ? '' : undefined}
       data-readonly={readOnly() ? '' : undefined}
       {...(rest as Record<string, unknown>)}
       id={`${field.id()}-root`}
-      component={merged.as as any}
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={fileUploadRootVariants(
-        {
-          size: field.size(),
-        },
-        merged.classes?.root,
-        merged.class,
-      )}
+      component={
+        // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- Internal Dynamic spreads use a widened element type.
+        merged.as as ValidComponent
+      }
+      {...resolved.root}
     >
       <Show
         when={dropzone()}
@@ -895,16 +641,9 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           <button
             type="button"
             data-slot="control"
-            style={merged.styles?.control}
+            data-dropzone={dropzone() ? '' : undefined}
+            {...resolved.slot('control')}
             data-invalid={field.invalid() ? '' : undefined}
-            class={fileUploadBaseVariants(
-              {
-                size: field.size(),
-                dropzone: false,
-              },
-              field.disabled() && 'bg-muted/32',
-              merged.classes?.control,
-            )}
             disabled={field.disabled()}
             {...controlAriaAttrs()}
             onFocus={(event) => field.emit('focus', event)}
@@ -920,17 +659,10 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           tabIndex={field.disabled() ? undefined : 0}
           {...controlAriaAttrs()}
           data-slot="control"
-          style={merged.styles?.control}
+          data-dropzone={dropzone() ? '' : undefined}
+          {...resolved.slot('control')}
           data-dragging={dragging() ? '' : undefined}
           data-invalid={field.invalid() ? '' : undefined}
-          class={fileUploadBaseVariants(
-            {
-              size: field.size(),
-              dropzone: true,
-            },
-            field.disabled() && 'bg-muted/32',
-            merged.classes?.control,
-          )}
           onFocus={(event) => field.emit('focus', event)}
           onBlur={(event) => field.emit('blur', event)}
           onClick={onControlClick}
@@ -946,7 +678,10 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       <HiddenInput
         type="file"
         id={field.id()}
-        ref={(element) => (hiddenInputEl = element)}
+        ref={(element) => {
+          hiddenInputEl = element
+          callRef(local.inputRef, element)
+        }}
         name={field.name()}
         accept={merged.accept}
         multiple={merged.multiple}
@@ -961,85 +696,24 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       />
 
       <Show when={preview() && selectedFiles().length > 0}>
-        <ul
-          data-slot="files"
-          style={merged.styles?.files}
-          class={fileUploadFilesVariants(
-            {
-              size: field.size(),
-            },
-            merged.classes?.files,
-          )}
-        >
+        <ul data-slot="files" {...resolved.slot('files')}>
           <For each={selectedFiles()}>
             {(file, index) => (
-              <li
-                data-slot="file"
-                style={merged.styles?.file}
-                class={fileUploadFileVariants(
-                  {
-                    size: field.size(),
-                  },
-                  merged.classes?.file,
-                )}
-              >
-                <span
-                  data-slot="filePreview"
-                  style={merged.styles?.filePreview}
-                  class={fileUploadPreviewVariants(
-                    {
-                      size: field.size(),
-                    },
-                    merged.classes?.filePreview,
-                  )}
-                >
+              <li data-slot="file" {...resolved.slot('file')}>
+                <span data-slot="filePreview" {...resolved.slot('filePreview')}>
                   <Show
                     when={previewUrls().get(file)}
-                    fallback={
-                      <Icon
-                        name={merged.fileIcon}
-                        class={fileUploadIconVariants({
-                          size: field.size(),
-                        })}
-                      />
-                    }
+                    fallback={<Icon name={merged.fileIcon} class={resolved.slot('icon').class} />}
                   >
-                    {(url) => <img src={url()} alt={file.name} class="size-full object-cover" />}
+                    {(url) => <img src={url()} alt={file.name} />}
                   </Show>
                 </span>
 
-                <div
-                  data-slot="fileMeta"
-                  style={merged.styles?.fileMeta}
-                  class={fileUploadMetaVariants(
-                    {
-                      size: field.size(),
-                    },
-                    merged.classes?.fileMeta,
-                  )}
-                >
-                  <span
-                    data-slot="fileName"
-                    style={merged.styles?.fileName}
-                    class={fileUploadNameVariants(
-                      {
-                        size: field.size(),
-                      },
-                      merged.classes?.fileName,
-                    )}
-                  >
+                <div data-slot="fileMeta" {...resolved.slot('fileMeta')}>
+                  <span data-slot="fileName" {...resolved.slot('fileName')}>
                     {file.name}
                   </span>
-                  <span
-                    data-slot="fileSize"
-                    style={merged.styles?.fileSize}
-                    class={fileUploadSizeVariants(
-                      {
-                        size: field.size(),
-                      },
-                      merged.classes?.fileSize,
-                    )}
-                  >
+                  <span data-slot="fileSize" {...resolved.slot('fileSize')}>
                     {formatFileSize(file.size)}
                   </span>
                 </div>

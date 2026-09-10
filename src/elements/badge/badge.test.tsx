@@ -2,17 +2,34 @@ import { render } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../shared/provider'
+import { defaultTheme } from '../../theme/default-theme'
+
 import { Badge } from './badge'
 
 describe('Badge', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = render(() => (
+      <Badge variant="solid" size="lg">
+        Solid
+      </Badge>
+    ))
+    const badge = screen.container.querySelector('[data-slot="root"]')
+    expect(badge?.className).toBe('')
+  })
+
   test('renders default badge semantics and label', () => {
-    const screen = render(() => <Badge>New</Badge>)
+    const screen = render(() => (
+      <MoraineProvider theme={defaultTheme}>
+        <Badge>New</Badge>
+      </MoraineProvider>
+    ))
     const badge = screen.container.querySelector('[data-slot="root"]')
     const label = screen.container.querySelector('[data-slot="label"]')
 
     expect(badge?.tagName).toBe('SPAN')
-    expect(badge?.getAttribute('data-variant')).toBe('default')
-    expect(badge?.getAttribute('data-size')).toBe('md')
+    expect(badge?.hasAttribute('data-variant')).toBe(false)
+    expect(badge?.hasAttribute('data-size')).toBe(false)
     expect(label?.textContent).toBe('New')
   })
 
@@ -37,14 +54,18 @@ describe('Badge', () => {
 
   test('applies variant and size classes', () => {
     const solid = render(() => (
-      <Badge variant="solid" size="lg">
-        Solid
-      </Badge>
+      <MoraineProvider theme={defaultTheme}>
+        <Badge variant="solid" size="lg">
+          Solid
+        </Badge>
+      </MoraineProvider>
     ))
     const outline = render(() => (
-      <Badge variant="outline" size="sm">
-        Outline
-      </Badge>
+      <MoraineProvider theme={defaultTheme}>
+        <Badge variant="outline" size="sm">
+          Outline
+        </Badge>
+      </MoraineProvider>
     ))
 
     expect(solid.container.querySelector('[data-slot="root"]')?.className).toContain('bg-primary')

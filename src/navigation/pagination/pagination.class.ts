@@ -1,7 +1,19 @@
-export const PAGINATION_ROOT_CLASS = 'mx-auto flex w-full justify-center'
-export const PAGINATION_LIST_CLASS = 'flex gap-1 items-center justify-center'
-export const PAGINATION_ITEM_CLASS = 'flex items-center justify-center'
-export const PAGINATION_ELLIPSIS_CLASS = 'flex size-9 items-center justify-center'
-export const PAGINATION_PREV_CLASS = 'ps-2!'
-export const PAGINATION_NEXT_CLASS = 'pe-2!'
+import { slotRecipe } from '../../shared/style/recipe'
+
+import type { PaginationT } from './pagination.types'
+
 export const PAGINATION_CONTROL_LABEL_CLASS = 'hidden sm:block'
+
+export const paginationRecipe = /* @__PURE__ */ slotRecipe<PaginationT.Slot, PaginationT.Variant>({
+  base: {
+    root: 'mx-auto flex w-full justify-center',
+    list: 'flex gap-1 items-center justify-center',
+    item: 'flex items-center justify-center data-ellipsis:size-9',
+    link: 'outline-none',
+    prev: 'data-text:ps-2!',
+    next: 'data-text:pe-2!',
+    ellipsis: '',
+    controlLabel: PAGINATION_CONTROL_LABEL_CLASS,
+  },
+  defaults: { size: 'md', variant: 'ghost', activeVariant: 'outline', controlVariant: 'ghost' },
+} as const)

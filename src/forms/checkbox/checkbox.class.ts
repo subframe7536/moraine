@@ -1,86 +1,67 @@
-import type { VariantProps } from 'cls-variant'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import {
-  CHECKABLE_BASE_SIZE_VARIANT,
-  CHECKABLE_CONTAINER_SIZE_VARIANT,
-  CHECKABLE_INDICATOR_VARIANT,
-  CHECKABLE_WRAPPER_ALIGN_VARIANT,
-  REQUIRED_MARK_VARIANT,
-  TEXT_SIZE_VARIANT,
-} from '../../shared/cva-common.class'
-import { cva } from '../../shared/utils'
+import type { CheckboxT } from './checkbox.types'
 
-export const checkboxRootVariants = cva('flex items-start relative', {
-  defaultVariants: {
+export const checkboxRecipe = /* @__PURE__ */ slotRecipe<CheckboxT.Slot, CheckboxT.Variant>({
+  base: {
+    root: 'flex items-start relative',
+    control:
+      'disabled:(opacity-64 pointer-events-none) outline-none border border-input rounded-xs bg-background inline-flex shrink-0 cursor-pointer shadow-xs transition-shadow items-center justify-center overflow-hidden bg-clip-padding focus-visible:(outline-none border-ring ring-3 ring-ring/50) data-checked:(border-primary bg-primary) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:data-invalid:(border-destructive/50 ring-destructive/40) dark:bg-input/30',
+    indicator: 'text-primary-foreground bg-primary flex size-full items-center justify-center',
+    icon: 'shrink-0 size-full',
+    wrapper: 'flex flex-col gap-0.5 w-full',
+    container: 'flex items-center',
+    label:
+      "text-foreground font-medium block select-none data-required:after:(text-destructive ms-0.5 content-['*'])",
+    description: 'text-muted-foreground leading-normal',
+  },
+  defaults: {
+    size: 'md',
     indicator: 'start',
   },
   variants: {
     variant: {
-      card: 'border border-border rounded-md',
-      list: '',
+      card: { root: 'border border-border rounded-md cursor-pointer' },
+      list: {},
     },
-    indicator: CHECKABLE_INDICATOR_VARIANT,
-  },
-})
-
-export const checkboxCardPaddingVariants = cva('p-3', {
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
+    indicator: {
+      start: { root: 'flex-row', wrapper: 'ms-2' },
+      end: { root: 'flex-row-reverse', wrapper: 'me-2' },
+      hidden: { wrapper: '' },
+    },
     size: {
-      sm: 'p-3',
-      md: 'p-3.5',
-      lg: 'p-4',
+      sm: {
+        control: 'size-3.5',
+        container: 'h-4',
+        wrapper: 'text-xs',
+        description: 'text-xs leading-normal',
+      },
+      md: {
+        control: 'size-4',
+        container: 'h-5',
+        wrapper: 'text-sm',
+        description: 'text-sm leading-normal',
+      },
+      lg: {
+        control: 'size-4.5',
+        container: 'h-6',
+        wrapper: 'text-base',
+        description: 'text-base leading-normal',
+      },
     },
   },
-})
-
-export const checkboxBaseVariants = cva(
-  'outline-none border border-input rounded-xs bg-background inline-flex shrink-0 cursor-pointer shadow-xs transition-shadow items-center justify-center overflow-hidden bg-clip-padding focus-visible:effect-fv-border data-checked:(border-primary bg-primary) data-invalid:effect-invalid dark:bg-input/30',
-  {
-    defaultVariants: {
-      size: 'md',
+  compoundVariants: [
+    {
+      variants: { variant: 'card', size: 'sm' },
+      class: { root: 'p-3' },
     },
-    variants: {
-      size: CHECKABLE_BASE_SIZE_VARIANT,
+    {
+      variants: { variant: 'card', size: 'md' },
+      class: { root: 'p-3.5' },
     },
-  },
-)
-
-export const checkboxContainerVariants = cva('flex items-center', {
-  defaultVariants: {
-    size: 'md',
-  },
-  variants: {
-    size: CHECKABLE_CONTAINER_SIZE_VARIANT,
-  },
+    {
+      variants: { variant: 'card', size: 'lg' },
+      class: { root: 'p-4' },
+    },
+  ],
 })
-
-export const checkboxWrapperVariants = cva('flex flex-col gap-0.5 w-full', {
-  defaultVariants: {
-    indicator: 'start',
-    size: 'md',
-  },
-  variants: {
-    indicator: CHECKABLE_WRAPPER_ALIGN_VARIANT,
-    size: TEXT_SIZE_VARIANT,
-  },
-})
-
-export const checkboxLabelVariants = cva('text-foreground font-medium block select-none', {
-  variants: {
-    required: REQUIRED_MARK_VARIANT,
-  },
-})
-
-type CheckboxRootVariantProps = Omit<
-  VariantProps<typeof checkboxRootVariants>,
-  'variant' | 'indicator'
->
-
-export type CheckboxVariantProps = CheckboxRootVariantProps &
-  VariantProps<typeof checkboxBaseVariants> & {
-    variant?: 'list' | 'card'
-    indicator?: 'start' | 'end' | 'hidden'
-  }

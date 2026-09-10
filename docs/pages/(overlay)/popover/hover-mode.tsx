@@ -3,11 +3,11 @@ import { Avatar, Badge, Button, Popover } from '@src'
 export function HoverMode() {
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Popover
-        mode="hover"
-        openDelay={180}
-        closeDelay={120}
-        content={
+      <Popover mode="hover" openDelay={180} closeDelay={120}>
+        <Popover.Trigger as={Button} variant="outline" leading="i-lucide:user">
+          Hover for Author Card
+        </Popover.Trigger>
+        <Popover.Content>
           <div class="p-4 rounded-xl bg-card max-w-xs space-y-3">
             <div class="flex items-start justify-between">
               <Avatar text="AM" alt="Alex Morgan" size="lg" />
@@ -39,13 +39,7 @@ export function HoverMode() {
               </span>
             </div>
           </div>
-        }
-      >
-        {(props) => (
-          <Button {...props} variant="outline" leading="i-lucide:user">
-            Hover for Author Card
-          </Button>
-        )}
+        </Popover.Content>
       </Popover>
     </div>
   )

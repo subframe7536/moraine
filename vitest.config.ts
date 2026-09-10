@@ -1,7 +1,9 @@
 import path from 'node:path'
 
 import solid from 'vite-plugin-solid'
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
+
+import { variantGroupPlugin } from './vite-plugin-variant-group.ts'
 
 export default defineConfig({
   define: {
@@ -19,10 +21,34 @@ export default defineConfig({
     },
     dedupe: ['solid-js', '@solidjs/router'],
   },
-  plugins: [solid({ hot: false, solid: { hydratable: true } })],
+  plugins: [variantGroupPlugin(), solid({ hot: false, solid: { hydratable: true } })],
   test: {
-    globalSetup: ['./src/test-utils/ssr-global-setup.ts'],
-    include: ['src/**/*.{test,spec}.?(c|m)[jt]s?(x)', 'docs/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'main',
+          globalSetup: ['./src/test-utils/ssr-global-setup.ts'],
+          include: [
+            'src/**/*.{test,spec}.?(c|m)[jt]s?(x)',
+            'docs/**/*.{test,spec}.?(c|m)[jt]s?(x)',
+            'test/**/*.{test,spec}.?(c|m)[jt]s?(x)',
+          ],
+          exclude: [...configDefaults.exclude, 'test/acceptance/docs-preview.test.ts'],
+          sequence: { groupOrder: 0 },
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'docs-preview',
+          include: ['test/acceptance/docs-preview.test.ts'],
+          environment: 'node',
+          // The preview rebuilds dist, so it must run after tests consuming the build.
+          sequence: { groupOrder: 1 },
+        },
+      },
+    ],
     environment: 'jsdom',
     globals: true,
     server: {

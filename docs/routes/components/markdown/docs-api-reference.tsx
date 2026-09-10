@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, createSignal, For, Show } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Badge, Icon, Input, Select, cn } from '../../../../src/index'
+import { Badge, Icon, Input, Select, cn } from '../../../../src'
 import { createMediaQuery } from '../../../../src/shared/use-media-query'
 import { getApiReferenceTocEntries } from '../../../build/api-doc/reference-sections'
 import type { ApiAttributeDoc, ComponentDoc, PropDoc, SlotDoc } from '../../../build/api-doc/types'
@@ -137,6 +137,18 @@ export function createDocsApiReferenceModel(
       heading: 'Inherited',
       props: [],
       groups: inheritedProps.map((group) => ({
+        description: `From ${group.from}`,
+        props: group.props,
+      })),
+    })
+  }
+
+  for (const primitive of apiDoc.primitives ?? []) {
+    sections.push({
+      id: `api-${primitive.component.key}`,
+      heading: primitive.component.name,
+      props: primitive.props.own,
+      groups: primitive.props.inherited.map((group) => ({
         description: `From ${group.from}`,
         props: group.props,
       })),

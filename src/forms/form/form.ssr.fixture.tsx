@@ -1,10 +1,10 @@
 import { renderToString } from 'solid-js/web'
 import * as v from 'valibot'
 
-import { Button } from '../../elements/button/index'
-import { Input } from '../input/index'
+import { Button } from '../../elements/button'
+import { Input } from '../input'
 
-import { createForm } from './index'
+import { createForm } from './'
 
 export function renderFormFixture(): string {
   function ServerForm() {

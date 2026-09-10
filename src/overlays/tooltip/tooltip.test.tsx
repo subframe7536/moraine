@@ -2,10 +2,13 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../shared/provider'
+import { renderWithTheme } from '../../test-utils/theme-render'
+import { createTheme } from '../../theme'
+import { defaultTheme } from '../../theme/default-theme'
 import { setPopperTestPlacementAccessor } from '../base/popper'
 
 import { Tooltip } from './tooltip'
-import type { TooltipT } from './tooltip'
 
 let getMockPlacement: () => string = () => 'top'
 let setMockPlacement: (value: string) => void = () => undefined
@@ -18,33 +21,47 @@ function mockInstantTooltipExit(): void {
     const isInstantExit =
       element instanceof HTMLElement &&
       element.hasAttribute('data-closed') &&
-      element.className.includes('data-closed:animate-none')
+      element.hasAttribute('data-instant-motion')
 
     if (!isInstantExit) {
       return style
     }
 
-    return new Proxy(style, {
-      get(target, property, receiver) {
-        if (property === 'animationDelay') {
-          return '0s'
-        }
-        if (property === 'animationDuration') {
-          return '0s'
-        }
-        if (property === 'animationName') {
-          return 'none'
-        }
-        if (property === 'display') {
-          return 'block'
-        }
-        return Reflect.get(target, property, receiver)
-      },
+    return Object.create(style, {
+      animationDelay: { value: '0s', configurable: true },
+      animationDuration: { value: '0s', configurable: true },
+      animationName: { value: 'none', configurable: true },
+      display: { value: 'block', configurable: true },
     })
   })
 }
 
 describe('Tooltip', () => {
+  test.each([0, 600])('dismisses activation and cancels reopening after %i ms', async (delay) => {
+    vi.useFakeTimers()
+    mockInstantTooltipExit()
+    const screen = render(() => (
+      <Tooltip>
+        <Tooltip.Trigger>Press target</Tooltip.Trigger>
+        <Tooltip.Content text="Press hint" />
+      </Tooltip>
+    ))
+    const trigger = screen.getByText('Press target')
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(delay)
+    fireEvent.pointerDown(trigger, { pointerType: 'mouse' })
+    fireEvent.focus(trigger)
+    fireEvent.click(trigger)
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(document.querySelector('[role="tooltip"]')).toBeNull()
+    fireEvent.pointerLeave(trigger, { pointerType: 'mouse' })
+    fireEvent.pointerEnter(trigger, { pointerType: 'mouse' })
+    await vi.advanceTimersByTimeAsync(600)
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    fireEvent.click(trigger, { detail: 0 })
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+  })
   beforeEach(() => {
     const [placement, setPlacement] = createSignal('top')
     getMockPlacement = placement
@@ -60,12 +77,11 @@ describe('Tooltip', () => {
 
   test('renders text content when open is controlled', () => {
     render(() => (
-      <Tooltip open text="Tooltip content">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Tooltip open>
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Tooltip content" />
       </Tooltip>
     ))
 
@@ -74,12 +90,11 @@ describe('Tooltip', () => {
 
   test('renders the trigger content as a native button root', () => {
     render(() => (
-      <Tooltip text="Tooltip content">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Tooltip>
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Tooltip content" />
       </Tooltip>
     ))
 
@@ -91,20 +106,22 @@ describe('Tooltip', () => {
 
   test('renders a span trigger root', () => {
     render(() => (
-      <Tooltip text="Tooltip content">{(props) => <span {...props}>Trigger</span>}</Tooltip>
+      <Tooltip>
+        <Tooltip.Trigger as="span">Trigger</Tooltip.Trigger>
+        <Tooltip.Content text="Tooltip content" />
+      </Tooltip>
     ))
 
     expect(document.body.querySelector('[data-slot="trigger"]')?.tagName).toBe('SPAN')
   })
 
   test('applies top-level class and style to trigger', () => {
-    render(() => (
-      <Tooltip text="Tooltip content">
-        {(props) => (
-          <button {...props} class="trigger-class" style={{ width: '200px' }} type="button">
-            Trigger
-          </button>
-        )}
+    renderWithTheme(() => (
+      <Tooltip>
+        <Tooltip.Trigger as="button" class="trigger-class" style={{ width: '200px' }} type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Tooltip content" />
       </Tooltip>
     ))
 
@@ -114,14 +131,33 @@ describe('Tooltip', () => {
     expect(trigger?.style.width).toBe('200px')
   })
 
+  test('applies provider trigger classes and styles', () => {
+    renderWithTheme(() => (
+      <MoraineProvider
+        theme={createTheme({
+          extends: defaultTheme,
+          tooltip: { base: { trigger: 'provider-trigger w-40' } },
+        })}
+      >
+        <Tooltip>
+          <Tooltip.Trigger as="button">Trigger</Tooltip.Trigger>
+          <Tooltip.Content>Help</Tooltip.Content>
+        </Tooltip>
+      </MoraineProvider>
+    ))
+
+    const trigger = document.body.querySelector<HTMLElement>('[data-slot="trigger"]')
+    expect(trigger?.className).toContain('provider-trigger')
+    expect(trigger?.className).toContain('w-40')
+  })
+
   test('renders keyboard hints', () => {
     render(() => (
-      <Tooltip open text="Save" kbds={['Ctrl', 'S']}>
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Tooltip open>
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Save" kbds={['Ctrl', 'S']} />
       </Tooltip>
     ))
 
@@ -133,13 +169,12 @@ describe('Tooltip', () => {
   })
 
   test('applies classes.content to content slot', () => {
-    render(() => (
-      <Tooltip open text="Tooltip content" classes={{ content: 'content-override' }}>
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+    renderWithTheme(() => (
+      <Tooltip open>
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Tooltip content" classes={{ content: 'content-override' }} />
       </Tooltip>
     ))
 
@@ -150,11 +185,10 @@ describe('Tooltip', () => {
   test('renders tooltip container when no text or kbds are provided', () => {
     render(() => (
       <Tooltip open>
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content />
       </Tooltip>
     ))
 
@@ -166,12 +200,11 @@ describe('Tooltip', () => {
 
   test('does not render content when disabled', () => {
     const screen = render(() => (
-      <Tooltip open text="Tooltip content" disabled>
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Tooltip open disabled>
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Tooltip content" />
       </Tooltip>
     ))
 
@@ -179,7 +212,11 @@ describe('Tooltip', () => {
   })
 
   test('renders controlled overlay without a trigger', async () => {
-    render(() => <Tooltip open text="Tooltip content" />)
+    render(() => (
+      <Tooltip open>
+        <Tooltip.Content text="Tooltip content" />
+      </Tooltip>
+    ))
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')?.textContent).toContain(
@@ -190,12 +227,11 @@ describe('Tooltip', () => {
 
   test('applies styles override to content', () => {
     render(() => (
-      <Tooltip open text="Styled" styles={{ content: { width: '200px' } }}>
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Tooltip open>
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Styled" styles={{ content: { width: '200px' } }} />
       </Tooltip>
     ))
 
@@ -207,46 +243,44 @@ describe('Tooltip', () => {
     const [version, setVersion] = createSignal(0)
 
     // oxlint-disable-next-line subf/solid-reactivity
-    render(() => {
+    renderWithTheme(() => {
       version()
 
       return (
-        <Tooltip open side="top" text="Tooltip content">
-          {(props) => (
-            <button {...props} type="button">
-              Trigger
-            </button>
-          )}
+        <Tooltip open>
+          <Tooltip.Trigger as="button" type="button">
+            Trigger
+          </Tooltip.Trigger>
+          <Tooltip.Content side="top" text="Tooltip content" />
         </Tooltip>
       )
     })
 
     const initialContent = document.body.querySelector('[data-slot="content"]')
-    expect(initialContent?.className).toContain('data-expanded:animate-tooltip-in')
-    expect(initialContent?.className).toContain('data-closed:animate-tooltip-out')
-    expect(initialContent?.className).toContain('animate-tooltip-side-top')
-    expect(initialContent?.className).not.toContain('animate-tooltip-side-bottom')
+    expect(initialContent?.className).toContain('data-expanded:animate-mo-enter')
+    expect(initialContent?.className).toContain('data-closed:animate-mo-exit')
+    expect(initialContent?.classList).toContain('data-[side=top]:enter-translate-y-1')
+    expect(initialContent?.getAttribute('data-side')).toBe('top')
 
     setMockPlacement('bottom')
     setVersion(1)
 
     const updatedContent = document.body.querySelector('[data-slot="content"]')
-    expect(updatedContent?.className).toContain('data-expanded:animate-tooltip-in')
-    expect(updatedContent?.className).toContain('data-closed:animate-tooltip-out')
-    expect(updatedContent?.className).toContain('animate-tooltip-side-bottom')
-    expect(updatedContent?.className).not.toContain('animate-tooltip-side-top')
+    expect(updatedContent?.className).toContain('data-expanded:animate-mo-enter')
+    expect(updatedContent?.className).toContain('data-closed:animate-mo-exit')
+    expect(updatedContent?.classList).toContain('data-[side=bottom]:-enter-translate-y-1')
+    expect(updatedContent?.getAttribute('data-side')).toBe('bottom')
   })
 
   test('opens first hover after delay', async () => {
     vi.useFakeTimers()
 
     const screen = render(() => (
-      <Tooltip text="Tooltip content">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Tooltip>
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Tooltip content" />
       </Tooltip>
     ))
 
@@ -266,12 +300,11 @@ describe('Tooltip', () => {
   test('ignores touch and pen hover before accepting mouse hover', async () => {
     vi.useFakeTimers()
     const screen = render(() => (
-      <Tooltip openDelay={50} text="Mouse tooltip">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Tooltip openDelay={50}>
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Mouse tooltip" />
       </Tooltip>
     ))
     const trigger = screen.getByRole('button')
@@ -291,17 +324,11 @@ describe('Tooltip', () => {
     const [disabled, setDisabled] = createSignal(false)
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Tooltip
-        disabled={disabled()}
-        openDelay={50}
-        onOpenChange={onOpenChange}
-        text="Disabled tooltip"
-      >
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Tooltip disabled={disabled()} openDelay={50} onOpenChange={onOpenChange}>
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Disabled tooltip" />
       </Tooltip>
     ))
     const trigger = screen.getByRole('button')
@@ -330,12 +357,11 @@ describe('Tooltip', () => {
     vi.useFakeTimers()
     const onOpenChange = vi.fn()
     const screen = render(() => (
-      <Tooltip open closeDelay={50} onOpenChange={onOpenChange} text="Controlled tooltip">
-        {(props) => (
-          <button {...props} type="button">
-            Trigger
-          </button>
-        )}
+      <Tooltip open closeDelay={50} onOpenChange={onOpenChange}>
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Controlled tooltip" />
       </Tooltip>
     ))
 
@@ -351,24 +377,17 @@ describe('Tooltip', () => {
     const onFirstOpenChange = vi.fn()
     const screen = render(() => (
       <div>
-        <Tooltip
-          open={false}
-          openDelay={50}
-          onOpenChange={onFirstOpenChange}
-          text="Rejected tooltip"
-        >
-          {(props) => (
-            <button {...props} type="button">
-              Rejected
-            </button>
-          )}
+        <Tooltip open={false} openDelay={50} onOpenChange={onFirstOpenChange}>
+          <Tooltip.Trigger as="button" type="button">
+            Rejected
+          </Tooltip.Trigger>
+          <Tooltip.Content text="Rejected tooltip" />
         </Tooltip>
-        <Tooltip openDelay={100} text="Second tooltip">
-          {(props) => (
-            <button {...props} type="button">
-              Second
-            </button>
-          )}
+        <Tooltip openDelay={100}>
+          <Tooltip.Trigger as="button" type="button">
+            Second
+          </Tooltip.Trigger>
+          <Tooltip.Content text="Second tooltip" />
         </Tooltip>
       </div>
     ))
@@ -389,12 +408,11 @@ describe('Tooltip', () => {
   test('isolates global coordination after an owner is disposed', async () => {
     vi.useFakeTimers()
     const first = render(() => (
-      <Tooltip openDelay={10} text="First tooltip">
-        {(props) => (
-          <button {...props} type="button">
-            First
-          </button>
-        )}
+      <Tooltip openDelay={10}>
+        <Tooltip.Trigger as="button" type="button">
+          First
+        </Tooltip.Trigger>
+        <Tooltip.Content text="First tooltip" />
       </Tooltip>
     ))
 
@@ -403,12 +421,11 @@ describe('Tooltip', () => {
     first.unmount()
 
     const second = render(() => (
-      <Tooltip openDelay={50} text="Second tooltip">
-        {(props) => (
-          <button {...props} type="button">
-            Second
-          </button>
-        )}
+      <Tooltip openDelay={50}>
+        <Tooltip.Trigger as="button" type="button">
+          Second
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Second tooltip" />
       </Tooltip>
     ))
     fireEvent.pointerEnter(second.getByRole('button'), { pointerType: 'mouse' })
@@ -422,13 +439,15 @@ describe('Tooltip', () => {
 
   test('uses unique description ids across independent owners', () => {
     const first = render(() => (
-      <Tooltip open text="First tooltip">
-        {(props) => <button {...props}>First</button>}
+      <Tooltip open>
+        <Tooltip.Trigger as="button">First</Tooltip.Trigger>
+        <Tooltip.Content text="First tooltip" />
       </Tooltip>
     ))
     const second = render(() => (
-      <Tooltip open text="Second tooltip">
-        {(props) => <button {...props}>Second</button>}
+      <Tooltip open>
+        <Tooltip.Trigger as="button">Second</Tooltip.Trigger>
+        <Tooltip.Content text="Second tooltip" />
       </Tooltip>
     ))
 
@@ -445,19 +464,22 @@ describe('Tooltip', () => {
     let triggerReads = 0
     let textReads = 0
 
-    render(() =>
-      createComponent(Tooltip, {
-        open: true,
-        get children() {
-          triggerReads += 1
-          return (props: TooltipT.TriggerProps) => <button {...props}>Trigger</button>
-        },
-        get text() {
-          textReads += 1
-          return <span>Cached tooltip</span>
-        },
-      }),
-    )
+    render(() => (
+      <Tooltip open>
+        {createComponent(Tooltip.Trigger, {
+          get children() {
+            triggerReads += 1
+            return <span>Trigger</span>
+          },
+        })}
+        {createComponent(Tooltip.Content, {
+          get text() {
+            textReads += 1
+            return <span>Cached tooltip</span>
+          },
+        })}
+      </Tooltip>
+    ))
 
     expect(triggerReads).toBe(1)
     expect(textReads).toBe(1)
@@ -467,21 +489,19 @@ describe('Tooltip', () => {
     vi.useFakeTimers()
     mockInstantTooltipExit()
 
-    const screen = render(() => (
+    const screen = renderWithTheme(() => (
       <div>
-        <Tooltip text="First tooltip">
-          {(props) => (
-            <button {...props} type="button">
-              First
-            </button>
-          )}
+        <Tooltip>
+          <Tooltip.Trigger as="button" type="button">
+            First
+          </Tooltip.Trigger>
+          <Tooltip.Content text="First tooltip" />
         </Tooltip>
-        <Tooltip text="Second tooltip">
-          {(props) => (
-            <button {...props} type="button">
-              Second
-            </button>
-          )}
+        <Tooltip>
+          <Tooltip.Trigger as="button" type="button">
+            Second
+          </Tooltip.Trigger>
+          <Tooltip.Content text="Second tooltip" />
         </Tooltip>
       </div>
     ))
@@ -508,6 +528,7 @@ describe('Tooltip', () => {
       'First tooltip',
     )
     expect(activeTooltip?.className).toContain('data-expanded:animate-none')
+    expect(activeTooltip?.hasAttribute('data-instant-motion')).toBe(true)
     expect(document.body.querySelector('[data-slot=positioner]')?.className).toContain(
       'transition-transform',
     )
@@ -516,21 +537,19 @@ describe('Tooltip', () => {
   test('does not restart an always-open tooltip after switching from another tooltip', async () => {
     vi.useFakeTimers()
 
-    const screen = render(() => (
+    const screen = renderWithTheme(() => (
       <div>
-        <Tooltip open text="Always open">
-          {(props) => (
-            <button {...props} type="button">
-              Always
-            </button>
-          )}
+        <Tooltip open>
+          <Tooltip.Trigger as="button" type="button">
+            Always
+          </Tooltip.Trigger>
+          <Tooltip.Content text="Always open" />
         </Tooltip>
-        <Tooltip text="Other tooltip">
-          {(props) => (
-            <button {...props} type="button">
-              Other
-            </button>
-          )}
+        <Tooltip>
+          <Tooltip.Trigger as="button" type="button">
+            Other
+          </Tooltip.Trigger>
+          <Tooltip.Content text="Other tooltip" />
         </Tooltip>
       </div>
     ))
@@ -550,7 +569,7 @@ describe('Tooltip', () => {
     fireEvent.pointerEnter(alwaysTrigger)
 
     expect(getAlwaysContent().className).toBe(initialClass)
-    expect(getAlwaysContent().className).not.toContain('data-expanded:animate-none')
+    expect(getAlwaysContent().hasAttribute('data-instant-motion')).toBe(false)
 
     fireEvent.pointerLeave(alwaysTrigger)
     await vi.advanceTimersByTimeAsync(200)
@@ -559,24 +578,22 @@ describe('Tooltip', () => {
     expect(getAlwaysContent().getAttribute('data-expanded')).toBe('')
   })
 
-  test('keeps the first hover delay when another tooltip starts open', async () => {
+  test('skips the hover delay when another tooltip starts open', async () => {
     vi.useFakeTimers()
 
     const screen = render(() => (
       <div>
-        <Tooltip open text="Always open">
-          {(props) => (
-            <button {...props} type="button">
-              Always
-            </button>
-          )}
+        <Tooltip open>
+          <Tooltip.Trigger as="button" type="button">
+            Always
+          </Tooltip.Trigger>
+          <Tooltip.Content text="Always open" />
         </Tooltip>
-        <Tooltip openDelay={100} text="Delayed tooltip">
-          {(props) => (
-            <button {...props} type="button">
-              Delayed
-            </button>
-          )}
+        <Tooltip openDelay={100}>
+          <Tooltip.Trigger as="button" type="button">
+            Delayed
+          </Tooltip.Trigger>
+          <Tooltip.Content text="Delayed tooltip" />
         </Tooltip>
       </div>
     ))
@@ -588,12 +605,6 @@ describe('Tooltip', () => {
 
     fireEvent.pointerEnter(screen.getByText('Delayed'), { pointerType: 'mouse' })
 
-    expect(hasDelayedTooltip()).toBe(false)
-
-    await vi.advanceTimersByTimeAsync(99)
-    expect(hasDelayedTooltip()).toBe(false)
-
-    await vi.advanceTimersByTimeAsync(1)
     expect(hasDelayedTooltip()).toBe(true)
   })
 
@@ -601,21 +612,19 @@ describe('Tooltip', () => {
     vi.useFakeTimers()
     mockInstantTooltipExit()
 
-    const screen = render(() => (
+    const screen = renderWithTheme(() => (
       <div>
-        <Tooltip text="First tooltip">
-          {(props) => (
-            <button {...props} type="button">
-              First
-            </button>
-          )}
+        <Tooltip>
+          <Tooltip.Trigger as="button" type="button">
+            First
+          </Tooltip.Trigger>
+          <Tooltip.Content text="First tooltip" />
         </Tooltip>
-        <Tooltip text="Second tooltip">
-          {(props) => (
-            <button {...props} type="button">
-              Second
-            </button>
-          )}
+        <Tooltip>
+          <Tooltip.Trigger as="button" type="button">
+            Second
+          </Tooltip.Trigger>
+          <Tooltip.Content text="Second tooltip" />
         </Tooltip>
       </div>
     ))
@@ -634,6 +643,7 @@ describe('Tooltip', () => {
     const activeTooltipClass = activeTooltip?.className
 
     expect(activeTooltipClass).toContain('data-expanded:animate-none')
+    expect(activeTooltip?.hasAttribute('data-instant-motion')).toBe(true)
 
     await vi.advanceTimersByTimeAsync(199)
 
@@ -644,8 +654,8 @@ describe('Tooltip', () => {
     const closingTooltip = document.body.querySelector('[role=tooltip]')
 
     expect(closingTooltip?.getAttribute('data-closed')).toBe('')
-    expect(closingTooltip?.className).toContain('data-closed:animate-tooltip-out')
-    expect(closingTooltip?.className).not.toContain('data-closed:animate-none')
+    expect(closingTooltip?.className).toContain('data-closed:animate-mo-exit')
+    expect(closingTooltip?.hasAttribute('data-instant-motion')).toBe(false)
   })
 
   test('does not skip delay when the previous trigger never opened', async () => {
@@ -653,19 +663,17 @@ describe('Tooltip', () => {
 
     const screen = render(() => (
       <div>
-        <Tooltip text="First tooltip">
-          {(props) => (
-            <button {...props} type="button">
-              First
-            </button>
-          )}
+        <Tooltip>
+          <Tooltip.Trigger as="button" type="button">
+            First
+          </Tooltip.Trigger>
+          <Tooltip.Content text="First tooltip" />
         </Tooltip>
-        <Tooltip text="Second tooltip">
-          {(props) => (
-            <button {...props} type="button">
-              Second
-            </button>
-          )}
+        <Tooltip>
+          <Tooltip.Trigger as="button" type="button">
+            Second
+          </Tooltip.Trigger>
+          <Tooltip.Content text="Second tooltip" />
         </Tooltip>
       </div>
     ))

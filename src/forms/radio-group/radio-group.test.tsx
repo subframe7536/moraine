@@ -1,16 +1,34 @@
 import { getInput, setInput } from '@formisch/solid'
-import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../shared/provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
+import { defaultTheme } from '../../theme/default-theme'
+import { createForm } from '../form'
 import { FormField } from '../form/form-field'
-import { createForm } from '../form/index'
 
 import { RadioGroup } from './radio-group'
 
+const render: typeof baseRender = (ui, options) =>
+  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
+
 describe('RadioGroup', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = baseRender(() => <RadioGroup items={['A', 'B']} />)
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.className).toBe('')
+  })
+
+  test('forwards root ref', () => {
+    let rootEl: HTMLDivElement | undefined
+    render(() => <RadioGroup ref={(el) => (rootEl = el)} items={['A', 'B']} />)
+    expect(rootEl).toBeInstanceOf(HTMLDivElement)
+    expect(rootEl?.getAttribute('data-slot')).toBe('root')
+  })
+
   test('renders radio options with form-field label and no legacy wrappers', () => {
     const screen = render(() => (
       <FormField label="Plan" description="Select one plan">
@@ -50,7 +68,7 @@ describe('RadioGroup', () => {
     expect(disabledControl?.getAttribute('data-required')).toBe('')
     expect(disabledControl?.getAttribute('data-disabled')).toBe('')
     expect(disabledItem?.getAttribute('data-disabled')).toBe('')
-    expect(disabledItem?.className).toContain('data-disabled:effect-dis')
+    expect(disabledItem?.className).toContain('data-disabled:opacity-64')
 
     disabledScreen.unmount()
 
@@ -376,10 +394,10 @@ describe('RadioGroup', () => {
     expect(firstItem?.className).toContain('p-4')
     expect(firstItem?.className).toContain('first-of-type:rounded-s-lg')
     expect(firstItem?.className).toContain('last-of-type:rounded-e-lg')
-    expect(firstItem?.className).toContain('not-first-of-type:-ms-px')
+    expect(firstItem?.className).toContain('[&:not(:first-of-type)]:-ms-px')
     expect(firstInput?.className).toContain('peer')
     expect(firstContainer?.className).toContain('h-6')
-    expect(firstBase?.className).toContain('peer-focus-visible:effect-fv-border')
+    expect(firstBase?.className).toContain('peer-focus-visible:ring-ring/50')
   })
 
   test('uses block labels for balanced list alignment', () => {
@@ -401,7 +419,7 @@ describe('RadioGroup', () => {
     expect(group.className).toContain('flex-col')
     expect(firstItem?.className).toContain('first-of-type:rounded-t-lg')
     expect(firstItem?.className).toContain('last-of-type:rounded-b-lg')
-    expect(firstItem?.className).toContain('not-first-of-type:-mt-px')
+    expect(firstItem?.className).toContain('[&:not(:first-of-type)]:-mt-px')
   })
 
   test.each(['card', 'table'] as const)(

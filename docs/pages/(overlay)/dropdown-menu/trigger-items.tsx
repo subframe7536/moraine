@@ -8,12 +8,11 @@ const ACTIONS = [
 
 export function TriggerItems() {
   return (
-    <DropdownMenu items={ACTIONS}>
-      {(props) => (
-        <Button {...props} variant="outline" trailing="i-lucide:chevron-down">
-          Account options
-        </Button>
-      )}
+    <DropdownMenu>
+      <DropdownMenu.Trigger as={Button} variant="outline" trailing="i-lucide:chevron-down">
+        Account options
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content items={ACTIONS} />
     </DropdownMenu>
   )
 }

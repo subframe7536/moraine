@@ -27,44 +27,47 @@ export function StateDismissal() {
         onOpenChange={setOpen}
         dismissible={dismissible()}
         onClosePrevent={() => setPreventedAttempts((c) => c + 1)}
-        title="Unsaved Configuration Changes"
-        description="Explicit confirmation is required before navigating away."
-        body={
-          <div class="py-2 space-y-3">
-            <p class="text-sm text-muted-foreground">
-              {dismissible()
-                ? 'Press Escape or click the backdrop to dismiss.'
-                : 'Clicking outside or pressing Escape is blocked. Use the action buttons below.'}
-            </p>
-            <Show when={preventedAttempts() > 0}>
-              <Badge variant="outline" class="text-destructive border-destructive">
-                Blocked {preventedAttempts()} outside dismissal attempt(s)
-              </Badge>
-            </Show>
-          </div>
-        }
-        footer={
-          <div class="flex gap-2 w-full justify-end">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setOpen(false)
-                setPreventedAttempts(0)
-              }}
-            >
-              Discard Changes
-            </Button>
-            <Button
-              onClick={() => {
-                setOpen(false)
-                setPreventedAttempts(0)
-              }}
-            >
-              Save & Apply
-            </Button>
-          </div>
-        }
-      />
+      >
+        <Dialog.Content
+          title="Unsaved Configuration Changes"
+          description="Explicit confirmation is required before navigating away."
+          body={
+            <div class="py-2 space-y-3">
+              <p class="text-sm text-muted-foreground">
+                {dismissible()
+                  ? 'Press Escape or click the backdrop to dismiss.'
+                  : 'Clicking outside or pressing Escape is blocked. Use the action buttons below.'}
+              </p>
+              <Show when={preventedAttempts() > 0}>
+                <Badge variant="outline" class="text-destructive border-destructive">
+                  Blocked {preventedAttempts()} outside dismissal attempt(s)
+                </Badge>
+              </Show>
+            </div>
+          }
+          footer={
+            <div class="flex gap-2 w-full justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setOpen(false)
+                  setPreventedAttempts(0)
+                }}
+              >
+                Discard Changes
+              </Button>
+              <Button
+                onClick={() => {
+                  setOpen(false)
+                  setPreventedAttempts(0)
+                }}
+              >
+                Save & Apply
+              </Button>
+            </div>
+          }
+        />
+      </Dialog>
     </div>
   )
 }

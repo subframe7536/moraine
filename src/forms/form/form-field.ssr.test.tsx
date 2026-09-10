@@ -4,7 +4,7 @@ import * as v from 'valibot'
 import { describe, expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-utils/ssr-test'
-import { Input } from '../input/index'
+import { Input } from '../input'
 
 import { createForm } from './form'
 

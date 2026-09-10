@@ -5,7 +5,8 @@
     "category": "navigation",
     "polymorphic": false,
     "description": "Page navigation component with configurable sibling count and edge display.",
-    "sourcePath": "src/navigation/pagination/pagination.tsx"
+    "sourcePath": "src/navigation/pagination/pagination.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -39,7 +40,14 @@
       "name": "item",
       "description": "Individual page control or ellipsis item.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-ellipsis",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": [
         {
           "name": "aria-hidden",
@@ -71,18 +79,6 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present when the component or async operation is loading."
-        },
-        {
-          "name": "data-size",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved size variant."
-        },
-        {
-          "name": "data-variant",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved visual variant."
         }
       ],
       "ariaAttributes": [
@@ -124,16 +120,10 @@
           "description": "Present when the component or async operation is loading."
         },
         {
-          "name": "data-size",
+          "name": "data-text",
           "required": false,
-          "type": "string",
-          "description": "Stores the resolved size variant."
-        },
-        {
-          "name": "data-variant",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved visual variant."
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
         }
       ],
       "ariaAttributes": [
@@ -169,16 +159,10 @@
           "description": "Present when the component or async operation is loading."
         },
         {
-          "name": "data-size",
+          "name": "data-text",
           "required": false,
-          "type": "string",
-          "description": "Stores the resolved size variant."
-        },
-        {
-          "name": "data-variant",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved visual variant."
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
         }
       ],
       "ariaAttributes": [
@@ -209,6 +193,13 @@
           "description": "Hides decorative content from assistive technology."
         }
       ]
+    },
+    {
+      "name": "controlLabel",
+      "description": "Label text for previous/next control buttons on larger screens.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "props": {
@@ -229,8 +220,7 @@
       {
         "name": "classes",
         "required": false,
-        "type": "PaginationT.Classes | undefined",
-        "description": "Slot-based class overrides."
+        "type": "PaginationT.Classes | undefined"
       },
       {
         "name": "controlVariant",
@@ -307,7 +297,8 @@
       {
         "name": "ref",
         "required": false,
-        "type": "JSX.HTMLElementTags[\"nav\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+        "type": "Ref<HTMLElement> | undefined",
+        "description": "Ref forwarded to the root `<nav>` element."
       },
       {
         "name": "showControls",
@@ -338,8 +329,7 @@
       {
         "name": "styles",
         "required": false,
-        "type": "PaginationT.Styles | undefined",
-        "description": "Slot-based style overrides."
+        "type": "PaginationT.Styles | undefined"
       },
       {
         "name": "to",

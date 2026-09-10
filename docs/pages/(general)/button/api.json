@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": true,
     "description": "Button component with polymorphic `as` support and loading state.",
-    "sourcePath": "src/elements/button/button.tsx"
+    "sourcePath": "src/elements/button/button.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -24,18 +25,6 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present when the component or async operation is loading."
-        },
-        {
-          "name": "data-size",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved size variant."
-        },
-        {
-          "name": "data-variant",
-          "required": false,
-          "type": "string",
-          "description": "Stores the resolved visual variant."
         }
       ],
       "ariaAttributes": [
@@ -152,47 +141,47 @@
       {
         "name": "onBlur",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, FocusEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, FocusEvent> | undefined"
       },
       {
         "name": "onClick",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, MouseEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, MouseEvent> | undefined"
       },
       {
         "name": "onContextMenu",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, MouseEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, MouseEvent> | undefined"
       },
       {
         "name": "onKeyDown",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, KeyboardEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, KeyboardEvent> | undefined"
       },
       {
         "name": "onKeyUp",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, KeyboardEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, KeyboardEvent> | undefined"
       },
       {
         "name": "onPointerCancel",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, PointerEvent> | undefined"
       },
       {
         "name": "onPointerDown",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, PointerEvent> | undefined"
       },
       {
         "name": "onPointerLeave",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, PointerEvent> | undefined"
       },
       {
         "name": "onPointerUp",
         "required": false,
-        "type": "JSX.EventHandlerUnion<ElementFor<\"button\">, PointerEvent> | undefined"
+        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, PointerEvent> | undefined"
       },
       {
         "name": "ref",
@@ -202,7 +191,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | undefined"
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | null | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "slotName",
@@ -235,7 +226,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined"
+        "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "default"
       }
     ],
     "inherited": []

@@ -1,5 +1,3 @@
-import 'solid-toaster/style.css'
-
 import { Button } from '@src'
 import { createSignal } from 'solid-js'
 import { toast } from 'solid-toaster'

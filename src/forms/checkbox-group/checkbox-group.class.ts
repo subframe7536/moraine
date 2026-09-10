@@ -1,40 +1,72 @@
-import type { VariantProps } from 'cls-variant'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import {
-  CARD_PADDING_SIZE_VARIANT,
-  FLEX_ORIENTATION_VARIANT,
-  REQUIRED_MARK_VARIANT,
-  TABLE_EDGE_ORIENTATION_VARIANT,
-  TEXT_SIZE_VARIANT,
-} from '../../shared/cva-common.class'
-import { cva } from '../../shared/utils'
+import type { CheckboxGroupT } from './checkbox-group.types'
 
-export const checkboxGroupFieldsetVariants = cva('flex', {
-  defaultVariants: {
+export const checkboxGroupRecipe = /* @__PURE__ */ slotRecipe<
+  CheckboxGroupT.Slot,
+  CheckboxGroupT.Variant
+>({
+  base: {
+    root: 'relative',
+    fieldset: 'flex',
+    legend:
+      "text-foreground font-medium mb-1.5 block data-required:after:(text-destructive ms-0.5 content-['*'])",
+    item: '',
+    container: '',
+    control: '',
+    indicator: '',
+    icon: '',
+    wrapper: '',
+    label: '',
+    description: '',
+  },
+  defaults: {
+    variant: 'list',
     orientation: 'vertical',
-  },
-  variants: {
-    orientation: FLEX_ORIENTATION_VARIANT,
-  },
-})
-
-export const checkboxGroupLegendVariants = cva('text-foreground font-medium mb-1.5 block', {
-  defaultVariants: {
     size: 'md',
   },
   variants: {
-    size: TEXT_SIZE_VARIANT,
-    required: REQUIRED_MARK_VARIANT,
+    orientation: {
+      horizontal: { fieldset: 'flex-row' },
+      vertical: { fieldset: 'flex-col' },
+    },
+    size: {
+      sm: { legend: 'text-xs' },
+      md: { legend: 'text-sm' },
+      lg: { legend: 'text-base' },
+    },
+    variant: {
+      card: { fieldset: 'gap-2' },
+      table: {
+        item: 'border border-muted rounded-none relative',
+      },
+      list: { fieldset: 'gap-2' },
+    },
   },
+  compoundVariants: [
+    {
+      variants: { variant: 'table', size: 'sm' },
+      class: { item: 'p-3' },
+    },
+    {
+      variants: { variant: 'table', size: 'md' },
+      class: { item: 'p-3.5' },
+    },
+    {
+      variants: { variant: 'table', size: 'lg' },
+      class: { item: 'p-4' },
+    },
+    {
+      variants: { variant: 'table', orientation: 'horizontal' },
+      class: {
+        item: 'first-of-type:rounded-s-lg last-of-type:rounded-e-lg [&:not(:first-of-type)]:-ms-px',
+      },
+    },
+    {
+      variants: { variant: 'table', orientation: 'vertical' },
+      class: {
+        item: 'first-of-type:rounded-t-lg last-of-type:rounded-b-lg [&:not(:first-of-type)]:-mt-px',
+      },
+    },
+  ],
 })
-
-export const checkboxGroupItemVariants = cva('', {
-  variants: {
-    tableSize: CARD_PADDING_SIZE_VARIANT,
-    tableOrientation: TABLE_EDGE_ORIENTATION_VARIANT,
-  },
-})
-export type CheckboxGroupVariantProps = VariantProps<typeof checkboxGroupFieldsetVariants> &
-  VariantProps<typeof checkboxGroupLegendVariants> & {
-    variant?: 'list' | 'card' | 'table'
-  }

@@ -2,7 +2,7 @@ import type { JSX, Setter } from 'solid-js'
 import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 
 import { useFormReset } from '../../shared/use-form-reset'
-import type { SliderVariantProps } from '../slider.class'
+import type { SliderT } from '../slider.types'
 import {
   clamp,
   getClosestValueIndex,
@@ -29,7 +29,7 @@ type UseSliderProps<TValue extends SliderValue> = {
   step?: number
   styles?: { divider?: JSX.CSSProperties }
   value?: TValue
-  variant?: SliderVariantProps['variant']
+  variant?: SliderT.Variant['variant']
 }
 
 type UseSliderOptions<TValue extends SliderValue> = {

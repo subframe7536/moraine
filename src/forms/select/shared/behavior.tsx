@@ -1,11 +1,12 @@
 import { Show, createSignal, onCleanup } from 'solid-js'
 import type { Accessor, JSX } from 'solid-js'
 
-import { Icon } from '../../../elements/icon/index'
+import { Icon } from '../../../elements/icon'
 import type { ComponentOrElement } from '../../../shared/render-prop'
 import { renderComponentOrElement } from '../../../shared/render-prop'
+import type { Cn } from '../../../shared/style/cn'
 import type { SlotClassValue, SlotStyleValue } from '../../../shared/types'
-import { cn, useId } from '../../../shared/utils'
+import { useId } from '../../../shared/utils'
 import { useFormField } from '../../form/form-context'
 import type { FormFieldSize, UseFormFieldReturn } from '../../form/form-context'
 
@@ -14,7 +15,7 @@ import type { BaseSelectItems, NormalizedGroup, NormalizedOption } from './types
 interface UseSelectFieldProps {
   id?: string
   name?: string
-  size?: FormFieldSize
+  size?: FormFieldSize | null
   disabled?: boolean
   required?: boolean
   initialValue: unknown
@@ -23,7 +24,7 @@ interface UseSelectFieldProps {
 interface RenderDefaultSelectOptionOptions<TItem> {
   option:
     | (TItem & {
-        icon?: import('../../../elements/icon/index').IconT.Name
+        icon?: import('../../../elements/icon').IconT.Name
         label?: string | JSX.Element
         description?: string | JSX.Element
         isSelected: boolean
@@ -64,7 +65,6 @@ export function useSelectField(props: () => UseSelectFieldProps): UseFormFieldRe
     () => ({
       bind: false,
       defaultId: generatedId(),
-      defaultSize: 'md',
       initialValue: props().initialValue,
     }),
   )
@@ -242,15 +242,12 @@ export function mapNormalizedListToRawValues<TRaw extends { value?: string | num
 
 export function renderDefaultSelectOption<TItem>(
   options: RenderDefaultSelectOptionOptions<TItem>,
+  cn: Cn,
 ): JSX.Element {
   const option = options.option
   if (!option) {
     return (
-      <div
-        data-slot="empty"
-        class={cn('text-sm text-muted-foreground p-2 text-center', options.classes?.empty)}
-        style={options.styles?.empty}
-      >
+      <div data-slot="empty" class={cn(options.classes?.empty)} style={options.styles?.empty}>
         No options
       </div>
     )
@@ -260,7 +257,7 @@ export function renderDefaultSelectOption<TItem>(
     <span
       data-slot="itemLabel"
       style={options.styles?.itemLabel}
-      class={cn('truncate', options.classes?.itemLabel)}
+      class={cn(options.classes?.itemLabel)}
     >
       <Show when={options.labelRender !== undefined} fallback={option.label}>
         {renderComponentOrElement(options.labelRender, { option })}
@@ -270,16 +267,16 @@ export function renderDefaultSelectOption<TItem>(
 
   return (
     <>
-      <span class="flex flex-1 gap-2 min-w-0 items-center">
-        <Show when={option.icon}>{(icon) => <Icon name={icon()} class="shrink-0" />}</Show>
-        <span class="flex-1 min-w-0">
+      <span data-option-wrapper>
+        <Show when={option.icon}>{(icon) => <Icon name={icon()} data-option-icon />}</Show>
+        <span data-option-text>
           {label()}
           <Show when={option.description}>
             {(description) => (
               <span
                 data-slot="itemDescription"
                 style={options.styles?.itemDescription}
-                class={cn('text-xs text-muted-foreground block', options.classes?.itemDescription)}
+                class={cn(options.classes?.itemDescription)}
               >
                 {description()}
               </span>
@@ -292,10 +289,7 @@ export function renderDefaultSelectOption<TItem>(
         <span
           data-slot="itemTrailing"
           style={options.styles?.itemTrailing}
-          class={cn(
-            'text-sm flex shrink-0 size-4 pointer-events-none items-center end-2 justify-center absolute',
-            options.classes?.itemTrailing,
-          )}
+          class={cn(options.classes?.itemTrailing)}
         >
           <Icon name="icon-check" />
         </span>

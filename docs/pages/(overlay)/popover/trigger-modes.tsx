@@ -3,8 +3,11 @@ import { Avatar, Badge, Button, Popover } from '@src'
 export function TriggerModes() {
   return (
     <div class="flex flex-wrap gap-4 items-center">
-      <Popover
-        content={
+      <Popover>
+        <Popover.Trigger as={Button} variant="outline" leading="i-lucide:sliders-horizontal">
+          Click to Filter
+        </Popover.Trigger>
+        <Popover.Content>
           <div class="p-3 w-64 space-y-2">
             <h4 class="text-xs text-foreground font-semibold">Filter Deployments</h4>
             <p class="text-xs text-muted-foreground">
@@ -22,20 +25,14 @@ export function TriggerModes() {
               </Badge>
             </div>
           </div>
-        }
-      >
-        {(props) => (
-          <Button {...props} variant="outline" leading="i-lucide:sliders-horizontal">
-            Click to Filter
-          </Button>
-        )}
+        </Popover.Content>
       </Popover>
 
-      <Popover
-        mode="hover"
-        openDelay={150}
-        closeDelay={100}
-        content={
+      <Popover mode="hover" openDelay={150} closeDelay={100}>
+        <Popover.Trigger as={Button} variant="ghost" leading="i-lucide:user">
+          Hover for Profile
+        </Popover.Trigger>
+        <Popover.Content>
           <div class="p-3 w-56 space-y-2">
             <div class="flex gap-2 items-center">
               <Avatar text="AR" size="sm" />
@@ -48,13 +45,7 @@ export function TriggerModes() {
               Hover-triggered info preview with automatic delay timers.
             </p>
           </div>
-        }
-      >
-        {(props) => (
-          <Button {...props} variant="ghost" leading="i-lucide:user">
-            Hover for Profile
-          </Button>
-        )}
+        </Popover.Content>
       </Popover>
     </div>
   )

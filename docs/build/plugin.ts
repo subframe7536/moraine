@@ -1,22 +1,16 @@
 import path from 'node:path'
 
+import { exactRegex } from '@rolldown/pluginutils'
 import type { Plugin } from 'vite'
 
 import { loadApiDocIndex } from './api-doc/load'
-import { getDocsExpressiveCodeAssets } from './core/expressive-code'
 import { ensureApiDocGeneration } from './plugins/api-doc-generator'
 import { createDocsTransformHandler, DOCS_TRANSFORM_FILTER } from './plugins/transform-docs'
 
 const VIRTUAL_API_DOC = 'virtual:api-doc'
 const RESOLVED_VIRTUAL_API_DOC = '\0moraine-api-doc'
-const VIRTUAL_EXPRESSIVE_CODE_CSS = 'virtual:docs-expressive-code.css'
-const RESOLVED_VIRTUAL_EXPRESSIVE_CODE_CSS = '\0moraine-docs-expressive-code.css'
-const VIRTUAL_EXPRESSIVE_CODE_CLIENT = 'virtual:docs-expressive-code-client'
-const RESOLVED_VIRTUAL_EXPRESSIVE_CODE_CLIENT = '\0moraine-docs-expressive-code-client'
-const VIRTUAL_DOCS_MODULE_FILTER =
-  /^(?:virtual:api-doc|virtual:docs-expressive-code(?:\.css|-client))$/
-const RESOLVED_VIRTUAL_DOCS_MODULE_FILTER =
-  /moraine-(?:api-doc|docs-expressive-code(?:\.css|-client))$/
+const VIRTUAL_API_DOC_FILTER = exactRegex(VIRTUAL_API_DOC)
+const RESOLVED_VIRTUAL_API_DOC_FILTER = /moraine-api-doc$/
 
 export interface DocsBuildPluginOptions {
   projectRoot?: string
@@ -49,33 +43,18 @@ export function docsBuildPlugin(options: DocsBuildPluginOptions = {}): Plugin {
 
     resolveId: {
       filter: {
-        id: VIRTUAL_DOCS_MODULE_FILTER,
+        id: VIRTUAL_API_DOC_FILTER,
       },
       handler(id) {
-        if (id === VIRTUAL_API_DOC) {
-          return RESOLVED_VIRTUAL_API_DOC
-        }
-        if (id === VIRTUAL_EXPRESSIVE_CODE_CSS) {
-          return RESOLVED_VIRTUAL_EXPRESSIVE_CODE_CSS
-        }
-        if (id === VIRTUAL_EXPRESSIVE_CODE_CLIENT) {
-          return RESOLVED_VIRTUAL_EXPRESSIVE_CODE_CLIENT
-        }
-        return null
+        return id === VIRTUAL_API_DOC ? RESOLVED_VIRTUAL_API_DOC : null
       },
     },
 
     load: {
       filter: {
-        id: RESOLVED_VIRTUAL_DOCS_MODULE_FILTER,
+        id: RESOLVED_VIRTUAL_API_DOC_FILTER,
       },
       async handler(id) {
-        if (id === RESOLVED_VIRTUAL_EXPRESSIVE_CODE_CSS) {
-          return (await getDocsExpressiveCodeAssets()).css
-        }
-        if (id === RESOLVED_VIRTUAL_EXPRESSIVE_CODE_CLIENT) {
-          return (await getDocsExpressiveCodeAssets()).js
-        }
         if (id === RESOLVED_VIRTUAL_API_DOC) {
           const indexDoc = loadApiDocIndex(projectRoot)
           if (indexDoc) {

@@ -1,4 +1,3 @@
-import type { Accessor } from 'solid-js'
 import { createContext, useContext } from 'solid-js'
 
 /**
@@ -46,11 +45,4 @@ export function createContextProvider<CtxValue>(
   }
 
   return [context.Provider, useContextHook]
-}
-
-/**
- * Type helper for context values with accessors (for reactive properties)
- */
-export type ContextAccessor<T> = {
-  [K in keyof T]: T[K] extends (...args: infer A) => infer R ? (...args: A) => R : Accessor<T[K]>
 }

@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Single checkbox control with card and list variants and custom true/false values.",
-    "sourcePath": "src/forms/checkbox/checkbox.tsx"
+    "sourcePath": "src/forms/checkbox/checkbox.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -142,7 +143,14 @@
       "name": "label",
       "description": "Primary checkbox label text.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field input is required."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -236,7 +244,15 @@
       {
         "name": "indicator",
         "required": false,
-        "type": "\"hidden\" | \"end\" | \"start\" | undefined"
+        "type": "\"hidden\" | \"end\" | \"start\" | undefined",
+        "description": "Placement of the selection indicator.",
+        "defaultValue": "start"
+      },
+      {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined",
+        "description": "Native input element ref."
       },
       {
         "name": "label",
@@ -284,7 +300,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",
@@ -313,7 +331,8 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"list\" | \"card\" | undefined"
+        "type": "\"card\" | \"list\" | undefined",
+        "description": "Visual treatment of the component."
       }
     ],
     "inherited": []

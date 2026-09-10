@@ -1,2 +1,3 @@
 export * from './slider'
-export * from './hook/index'
+export * from './hook'
+export * from './slider.types'

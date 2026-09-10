@@ -5,7 +5,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { hydrateFixture } from '../../test-utils/ssr-test'
 
 import { MultiSelect } from './multi-select'
-import type { MultiSelectT } from './multi-select'
+import type { MultiSelectT } from './multi-select.types'
 
 describe('MultiSelect SSR Hydration', () => {
   test('hydrates in place, removes a tag, and opens on the first ArrowDown', () => {

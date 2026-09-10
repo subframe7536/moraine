@@ -5,21 +5,15 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Determinate or indeterminate progress indicator with optional step labels.",
-    "sourcePath": "src/elements/progress/progress.tsx"
+    "sourcePath": "src/elements/progress/progress.tsx",
+    "kind": "single"
   },
   "slots": [
     {
       "name": "root",
       "description": "Progress container that owns track, indicator, labels, and step markers.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-orientation",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the rendered orientation (horizontal or vertical)."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": [
         {
           "name": "aria-valuemax",
@@ -85,7 +79,14 @@
       "name": "step",
       "description": "Individual step label or marker rendered along the progress scale.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-state",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
+        }
+      ],
       "ariaAttributes": []
     }
   ],
@@ -94,7 +95,9 @@
       {
         "name": "animation",
         "required": false,
-        "type": "\"carousel\" | \"reverse\" | \"swing\" | \"elastic\" | undefined"
+        "type": "\"carousel\" | \"reverse\" | \"swing\" | \"elastic\" | undefined",
+        "description": "Visual animation of the component.",
+        "defaultValue": "carousel"
       },
       {
         "name": "class",
@@ -123,7 +126,9 @@
       {
         "name": "orientation",
         "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined"
+        "type": "\"horizontal\" | \"vertical\" | undefined",
+        "description": "Visual layout direction.",
+        "defaultValue": "horizontal"
       },
       {
         "name": "ref",
@@ -133,7 +138,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "status",

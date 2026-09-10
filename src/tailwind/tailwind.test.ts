@@ -7,7 +7,8 @@ import { describe, expect, test } from 'vitest'
 
 import { DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons'
 
-import { moraineTailwind } from './index'
+import { moraineTailwind } from './'
+import type { MorainePluginOptions } from './'
 
 const THEME_CSS = readFileSync(
   resolve(__dirname, '../../node_modules/tailwindcss/theme.css'),
@@ -19,7 +20,7 @@ const UTILITIES_CSS = readFileSync(
 )
 const BASE_CSS = `${THEME_CSS}\n${UTILITIES_CSS}`
 
-function moraineLoadModule(options?: { icons?: boolean }) {
+function moraineLoadModule(options?: MorainePluginOptions) {
   return async (id: string) => ({
     path: id,
     base: '',
@@ -33,7 +34,7 @@ function moraineLoadModule(options?: { icons?: boolean }) {
  *   plugin 'moraine/tailwind';
  *   plugin '@iconify/tailwind' { collections: lucide; }
  */
-function combinedLoadModule(moraineOptions?: { icons?: boolean }) {
+function combinedLoadModule(moraineOptions?: MorainePluginOptions) {
   return async (id: string) => {
     if (id === 'virtual:moraine') {
       return { path: id, base: '', module: moraineTailwind(moraineOptions) }
@@ -45,30 +46,30 @@ function combinedLoadModule(moraineOptions?: { icons?: boolean }) {
   }
 }
 
-async function loadDesignSystem(options?: { icons?: boolean }) {
+async function loadDesignSystem(options?: MorainePluginOptions) {
   return __unstable__loadDesignSystem(`${BASE_CSS}\n@plugin "virtual:moraine"`, {
-    loadModule: moraineLoadModule(options),
+    loadModule: moraineLoadModule({ globalStyles: false, ...options }),
   })
 }
 
-async function compileCSS(candidates: string[], options?: { icons?: boolean }) {
+async function compileCSS(candidates: string[], options?: MorainePluginOptions) {
   const { build } = await compile(`${BASE_CSS}\n@plugin "virtual:moraine"`, {
-    loadModule: moraineLoadModule(options),
+    loadModule: moraineLoadModule({ globalStyles: false, ...options }),
   })
   return build(candidates)
 }
 
-async function loadDesignSystemWithIconify(moraineOptions?: { icons?: boolean }) {
+async function loadDesignSystemWithIconify(moraineOptions?: MorainePluginOptions) {
   const css = [BASE_CSS, '@plugin "virtual:moraine";', '@plugin "virtual:iconify";'].join('\n')
   return __unstable__loadDesignSystem(css, {
-    loadModule: combinedLoadModule(moraineOptions),
+    loadModule: combinedLoadModule({ globalStyles: false, ...moraineOptions }),
   })
 }
 
-async function compileCSSWithIconify(candidates: string[], moraineOptions?: { icons?: boolean }) {
+async function compileCSSWithIconify(candidates: string[], moraineOptions?: MorainePluginOptions) {
   const css = [BASE_CSS, '@plugin "virtual:moraine";', '@plugin "virtual:iconify";'].join('\n')
   const { build } = await compile(css, {
-    loadModule: combinedLoadModule(moraineOptions),
+    loadModule: combinedLoadModule({ globalStyles: false, ...moraineOptions }),
   })
   return build(candidates)
 }
@@ -83,12 +84,6 @@ describe('colors', () => {
       .bg-primary {
         background-color: var(--primary);
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
   })
@@ -99,12 +94,6 @@ describe('colors', () => {
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .text-foreground {
         color: var(--foreground);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -117,12 +106,6 @@ describe('colors', () => {
       .bg-background {
         background-color: var(--background);
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
   })
@@ -133,12 +116,6 @@ describe('colors', () => {
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .text-primary-foreground {
         color: var(--primary-foreground);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -154,12 +131,6 @@ describe('colors', () => {
       .text-secondary-foreground {
         color: var(--secondary-foreground);
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
   })
@@ -173,12 +144,6 @@ describe('colors', () => {
       }
       .text-card-foreground {
         color: var(--card-foreground);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -194,12 +159,6 @@ describe('colors', () => {
       .text-muted-foreground {
         color: var(--muted-foreground);
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
   })
@@ -214,12 +173,6 @@ describe('colors', () => {
       .text-accent-foreground {
         color: var(--accent-foreground);
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
   })
@@ -233,12 +186,6 @@ describe('colors', () => {
       }
       .text-destructive-foreground {
         color: var(--destructive-foreground);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -282,12 +229,6 @@ describe('colors', () => {
       .bg-secondary-hover {
         background-color: var(--secondary-hover, var(--secondary));
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
     expect(css).not.toContain('-focus')
@@ -306,12 +247,6 @@ describe('colors', () => {
       .ring-ring {
         --tw-ring-color: var(--ring);
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
   })
@@ -327,12 +262,6 @@ describe('border radius', () => {
       .rounded-lg {
         border-radius: var(--radius);
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
   })
@@ -343,12 +272,6 @@ describe('border radius', () => {
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .rounded-xl {
         border-radius: calc(var(--radius) * 1.4);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -361,12 +284,6 @@ describe('border radius', () => {
       .rounded-sm {
         border-radius: calc(var(--radius) * 0.6);
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
   })
@@ -377,12 +294,6 @@ describe('border radius', () => {
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .rounded-xs {
         border-radius: calc(var(--radius) * 0.5);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -401,12 +312,6 @@ describe('border radius', () => {
       .rounded-4xl {
         border-radius: calc(var(--radius) * 2.6);
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
   })
@@ -423,12 +328,6 @@ describe('shadows', () => {
       .shadow {
         --tw-shadow: var(--shadow);
         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       @property --tw-shadow {
         syntax: "*";
@@ -528,12 +427,6 @@ describe('shadows', () => {
         --tw-shadow: var(--shadow-sm);
         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       @property --tw-shadow {
         syntax: "*";
         inherits: false;
@@ -631,12 +524,6 @@ describe('shadows', () => {
       .shadow-lg {
         --tw-shadow: var(--shadow-lg);
         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       @property --tw-shadow {
         syntax: "*";
@@ -773,12 +660,6 @@ describe('shadows', () => {
         --tw-shadow: var(--shadow-xs);
         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       @property --tw-shadow {
         syntax: "*";
         inherits: false;
@@ -906,12 +787,6 @@ describe('z-index', () => {
       .z-sticky {
         z-index: 10;
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
   })
@@ -920,18 +795,24 @@ describe('z-index', () => {
 // ─── Animations ───────────────────────────────────────────────────────
 
 describe('animations', () => {
+  test('compiles compound disclosure and instant tooltip states', async () => {
+    const css = await compileCSS([
+      'data-transition:data-expanded:animate-accordion-down',
+      'data-instant-motion:data-expanded:animate-none',
+      'data-instant-motion:data-closed:animate-none',
+    ])
+    expect(css).toContain('[data-transition][data-expanded]')
+    expect(css).toContain('[data-instant-motion][data-expanded]')
+    expect(css).toContain('[data-instant-motion][data-closed]')
+    expect(css).toContain('animation: none')
+    expect(css).toContain('@keyframes accordion-down')
+  })
   test('animate-mo-enter uses CSS variable duration', async () => {
     const css = await compileCSS(['animate-mo-enter'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .animate-mo-enter {
         animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) cubic-bezier(0.16, 1, 0.3, 1) 1;
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       @keyframes mo-enter {
         from {
@@ -950,12 +831,6 @@ describe('animations', () => {
       .animate-mo-exit {
         animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) cubic-bezier(0.7, 0, 0.84, 0) 1;
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       @keyframes mo-exit {
         to {
           opacity: var(--mo-exit-opacity, 1);
@@ -973,12 +848,6 @@ describe('animations', () => {
       .animate-mo-enter {
         animation: mo-enter var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms)) cubic-bezier(0.16, 1, 0.3, 1) 1;
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       @keyframes mo-enter {
         from {
           opacity: var(--mo-enter-opacity, 1);
@@ -995,12 +864,6 @@ describe('animations', () => {
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .animate-mo-exit {
         animation: mo-exit var(--mo-anim-duration,var(--mo-anim-duration-exit,150ms)) cubic-bezier(0.7, 0, 0.84, 0) 1;
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       @keyframes mo-exit {
         to {
@@ -1024,12 +887,6 @@ describe('animations', () => {
       }
       .animate-swing {
         animation: swing var(--mo-anim-duration,var(--mo-anim-duration-loop,2s)) ease-in-out infinite;
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       @keyframes carousel {
         0% {
@@ -1069,12 +926,6 @@ describe('animations', () => {
       .animate-spin {
         animation: spin var(--mo-anim-duration,var(--mo-anim-duration-spin,1s)) linear infinite;
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       @keyframes spin {
         to {
           transform: rotate(360deg);
@@ -1089,7 +940,7 @@ describe('animations', () => {
     `)
   })
 
-  test('standard transition utilities use shared enter tokens', async () => {
+  test('standard transition utilities preserve Tailwind defaults', async () => {
     const css = await compileCSS([
       'transition',
       'transition-all',
@@ -1101,6 +952,10 @@ describe('animations', () => {
     ])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      :root, :host {
+        --default-transition-duration: 150ms;
+        --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      }
       .transition {
         transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
         transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
@@ -1126,16 +981,85 @@ describe('animations', () => {
         transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
         transition-duration: var(--tw-duration, var(--default-transition-duration));
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
     expect(css).not.toContain('.transition-mo-enter')
     expect(css).not.toContain('.transition-mo-exit')
+  })
+})
+
+describe('enter and exit animation utilities', () => {
+  test('enter-opacity and exit-opacity set CSS variables', async () => {
+    const css = await compileCSS(['enter-opacity-0', 'exit-opacity-0', 'enter-opacity-50'])
+    expect(css).toContain('.enter-opacity-0')
+    expect(css).toContain('--mo-enter-opacity: 0;')
+    expect(css).toContain('.exit-opacity-0')
+    expect(css).toContain('--mo-exit-opacity: 0;')
+    expect(css).toContain('.enter-opacity-50')
+    expect(css).toContain('--mo-enter-opacity: 0.5;')
+  })
+
+  test('enter-scale and exit-scale set CSS variables', async () => {
+    const css = await compileCSS(['enter-scale-95', 'exit-scale-95', 'enter-scale-[0.95]'])
+    expect(css).toContain('.enter-scale-95')
+    expect(css).toContain('--mo-enter-scale: .95;')
+    expect(css).toContain('.exit-scale-95')
+    expect(css).toContain('--mo-exit-scale: .95;')
+    expect(css).toContain('--mo-enter-scale: 0.95;')
+  })
+
+  test('enter-translate and exit-translate set positive and negative variables', async () => {
+    const css = await compileCSS([
+      'enter-translate-x-1',
+      '-enter-translate-x-1',
+      'exit-translate-x-1',
+      '-exit-translate-x-1',
+      'enter-translate-y-1',
+      '-enter-translate-y-1',
+      'enter-translate-y-10',
+      '-enter-translate-y-10',
+      'enter-translate-y-full',
+      '-enter-translate-y-full',
+    ])
+    expect(css).toContain('.enter-translate-x-1')
+    expect(css).toContain('--mo-enter-translate-x: 0.25rem;')
+    expect(css).toContain('.-enter-translate-x-1')
+    expect(css).toContain('--mo-enter-translate-x: calc(0.25rem * -1);')
+    expect(css).toContain('.exit-translate-x-1')
+    expect(css).toContain('--mo-exit-translate-x: 0.25rem;')
+    expect(css).toContain('.-exit-translate-x-1')
+    expect(css).toContain('--mo-exit-translate-x: calc(0.25rem * -1);')
+    expect(css).toContain('.enter-translate-y-10')
+    expect(css).toContain('--mo-enter-translate-y: 2.5rem;')
+    expect(css).toContain('.-enter-translate-y-10')
+    expect(css).toContain('--mo-enter-translate-y: calc(2.5rem * -1);')
+    expect(css).toContain('.enter-translate-y-full')
+    expect(css).toContain('--mo-enter-translate-y: 100%;')
+    expect(css).toContain('.-enter-translate-y-full')
+    expect(css).toContain('--mo-enter-translate-y: calc(100% * -1);')
+  })
+
+  test('enter-rotate and exit-rotate set angle variables', async () => {
+    const css = await compileCSS(['enter-rotate-45', '-enter-rotate-45', 'exit-rotate-45'])
+    expect(css).toContain('.enter-rotate-45')
+    expect(css).toContain('--mo-enter-rotate: 45deg;')
+    expect(css).toContain('.-enter-rotate-45')
+    expect(css).toContain('--mo-enter-rotate: calc(45deg * -1);')
+    expect(css).toContain('.exit-rotate-45')
+    expect(css).toContain('--mo-exit-rotate: 45deg;')
+  })
+
+  test('animation utilities work with data variants', async () => {
+    const css = await compileCSS([
+      'data-expanded:enter-opacity-0',
+      'data-closed:exit-opacity-0',
+      'data-expanded:enter-scale-95',
+      'data-closed:exit-scale-95',
+    ])
+    expect(css).toContain('.data-expanded\\:enter-opacity-0[data-expanded]')
+    expect(css).toContain('.data-closed\\:exit-opacity-0[data-closed]')
+    expect(css).toContain('.data-expanded\\:enter-scale-95[data-expanded]')
+    expect(css).toContain('.data-closed\\:exit-scale-95[data-closed]')
   })
 })
 
@@ -1214,12 +1138,6 @@ describe('font families', () => {
       .font-sans {
         font-family: var(--font-sans);
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
   })
@@ -1231,12 +1149,6 @@ describe('font families', () => {
       .font-mono {
         font-family: var(--font-mono);
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
   })
@@ -1247,12 +1159,6 @@ describe('font families', () => {
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .font-serif {
         font-family: var(--font-serif);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -1266,14 +1172,8 @@ describe('attribute variants', () => {
     const css = await compileCSS(['data-active:bg-primary'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      [data-active] .data-active\\:bg-primary {
+      .data-active\\:bg-primary[data-active] {
         background-color: var(--primary);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -1283,14 +1183,8 @@ describe('attribute variants', () => {
     const css = await compileCSS(['data-checked:text-foreground'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      [data-checked] .data-checked\\:text-foreground {
+      .data-checked\\:text-foreground[data-checked] {
         color: var(--foreground);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -1300,14 +1194,8 @@ describe('attribute variants', () => {
     const css = await compileCSS(['data-disabled:opacity-50'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      [data-disabled] .data-disabled\\:opacity-50 {
+      .data-disabled\\:opacity-50[data-disabled] {
         opacity: 50%;
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -1317,14 +1205,8 @@ describe('attribute variants', () => {
     const css = await compileCSS(['aria-busy:opacity-80'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      [aria-busy] .aria-busy\\:opacity-80 {
+      .aria-busy\\:opacity-80[aria-busy] {
         opacity: 80%;
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -1334,14 +1216,8 @@ describe('attribute variants', () => {
     const css = await compileCSS(['aria-checked:bg-accent'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      [aria-checked] .aria-checked\\:bg-accent {
+      .aria-checked\\:bg-accent[aria-checked] {
         background-color: var(--accent);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -1351,14 +1227,8 @@ describe('attribute variants', () => {
     const css = await compileCSS(['aria-disabled:pointer-events-none'])
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
-      [aria-disabled] .aria-disabled\\:pointer-events-none {
+      .aria-disabled\\:pointer-events-none[aria-disabled] {
         pointer-events: none;
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -1373,6 +1243,10 @@ describe('attribute variants', () => {
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       @layer properties;
+      :root, :host {
+        --default-transition-duration: 150ms;
+        --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      }
       .transition-all {
         transition-property: all;
         transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
@@ -1381,12 +1255,6 @@ describe('attribute variants', () => {
       .\\[\\&\\:active\\:not\\(\\[aria-haspopup\\]\\)\\]\\:translate-y-px:active:not([aria-haspopup]) {
         --tw-translate-y: 1px;
         translate: var(--tw-translate-x) var(--tw-translate-y);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       @property --tw-translate-x {
         syntax: "*";
@@ -1421,14 +1289,8 @@ describe('attribute variants', () => {
     expect(css).toMatchInlineSnapshot(`
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       @media (hover: hover) {
-        [data-active] .hover\\:data-active\\:bg-primary:hover {
+        .hover\\:data-active\\:bg-primary:hover[data-active] {
           background-color: var(--primary);
-        }
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
         }
       }
       "
@@ -1469,12 +1331,6 @@ describe('full compilation', () => {
       .shadow-md {
         --tw-shadow: var(--shadow-md);
         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       @property --tw-shadow {
         syntax: "*";
@@ -1580,12 +1436,6 @@ describe('full compilation', () => {
           background-color: var(--primary);
         }
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
   })
@@ -1596,12 +1446,6 @@ describe('full compilation', () => {
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .focus\\:ring-ring:focus {
         --tw-ring-color: var(--ring);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -1614,12 +1458,6 @@ describe('full compilation', () => {
       @media (width >= 48rem) {
         .md\\:bg-secondary {
           background-color: var(--secondary);
-        }
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
         }
       }
       "
@@ -1636,12 +1474,6 @@ describe('with @iconify/tailwind (docs config)', () => {
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .lucide--arrow-down {
         --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 5v14m7-7l-7 7l-7-7'/%3E%3C/svg%3E");
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -1663,12 +1495,6 @@ describe('with @iconify/tailwind (docs config)', () => {
         -webkit-mask-size: 100% 100%;
         mask-size: 100% 100%;
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
   })
@@ -1679,12 +1505,6 @@ describe('with @iconify/tailwind (docs config)', () => {
       "/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
       .lucide--check {
         --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M20 6L9 17l-5-5'/%3E%3C/svg%3E");
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       "
     `)
@@ -1702,12 +1522,6 @@ describe('with @iconify/tailwind (docs config)', () => {
       }
       .bg-primary {
         background-color: var(--primary);
-      }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
       }
       @keyframes mo-enter {
         from {
@@ -1790,13 +1604,24 @@ describe('with @iconify/tailwind (docs config)', () => {
           --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 5v14m7-7l-7 7l-7-7'/%3E%3C/svg%3E");
         }
       }
-      @layer base {
-        :root, :host {
-          --default-transition-duration: var(--mo-anim-duration,var(--mo-anim-duration-enter,250ms));
-          --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      }
       "
     `)
+  })
+})
+
+describe('global styles', () => {
+  test('emits default page colors in the base layer without utility candidates', async () => {
+    const { build } = await compile(`${BASE_CSS}\n@plugin "virtual:moraine"`, {
+      loadModule: moraineLoadModule(),
+    })
+    const css = build([])
+    expect(css).toMatch(
+      /@layer base\s*\{\s*html\s*\{\s*background-color: var\(--background\);\s*color: var\(--foreground\);/,
+    )
+  })
+
+  test('allows disabling the default page colors', async () => {
+    const css = await compileCSS([], { globalStyles: false })
+    expect(css).not.toMatch(/html\s*\{/)
   })
 })

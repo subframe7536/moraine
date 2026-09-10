@@ -2,15 +2,38 @@ import { render } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
+import { MoraineProvider } from '../../shared/provider'
+import { defaultTheme } from '../../theme/default-theme'
+
 import { Card } from './card'
 
 describe('Card', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = render(() => (
+      <Card header="Header" footer="Footer">
+        Body
+      </Card>
+    ))
+    const root = screen.container.querySelector('[data-slot="root"]')
+    expect(root?.className).toBe('')
+    const header = screen.container.querySelector('[data-slot="header"]')
+    expect(header?.className).toBe('')
+    const body = screen.container.querySelector('[data-slot="body"]')
+    expect(body?.className).toBe('')
+    const footer = screen.container.querySelector('[data-slot="footer"]')
+    expect(footer?.className).toBe('')
+  })
+
   test('renders root with the default outline appearance', () => {
-    const screen = render(() => <Card />)
+    const screen = render(() => (
+      <MoraineProvider theme={defaultTheme}>
+        <Card />
+      </MoraineProvider>
+    ))
     const root = screen.container.querySelector('[data-slot="root"]')
 
     expect(root?.className).toMatchInlineSnapshot(
-      `"text-card-foreground border border-border rounded-xl bg-card flex flex-col shadow-xs relative overflow-hidden not-dark:bg-clip-padding"`,
+      `"text-card-foreground border border-border rounded-xl bg-card flex flex-col shadow-xs relative overflow-hidden [html:not(.dark)_&]:bg-clip-padding"`,
     )
   })
 

@@ -5,7 +5,8 @@
     "category": "elements",
     "polymorphic": false,
     "description": "Group of overlapping avatars with optional overflow count.",
-    "sourcePath": "src/elements/avatar/avatar-group.tsx"
+    "sourcePath": "src/elements/avatar/avatar-group.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -153,7 +154,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",

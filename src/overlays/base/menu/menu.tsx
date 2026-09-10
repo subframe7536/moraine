@@ -1,5 +1,4 @@
 import type { ReferenceElement } from '@floating-ui/dom'
-import type { ClassValueArray } from 'cls-variant'
 import type { Accessor, JSX } from 'solid-js'
 import {
   For,
@@ -16,19 +15,19 @@ import {
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import { Icon } from '../../../elements/icon/index'
-import type { IconT } from '../../../elements/icon/index'
-import { KbdGroup } from '../../../elements/kbd/index'
-import { List } from '../../../elements/list/index'
-import type { ListProps } from '../../../elements/list/index'
-import { OVERLAY_POSITIONER_CLASS } from '../../../shared/cva-common.class'
-import type { ComponentOrElement } from '../../../shared/render-prop'
+import { Icon } from '../../../elements/icon'
+import { KbdGroup } from '../../../elements/kbd'
+import { List } from '../../../elements/list'
+import type { ListProps } from '../../../elements/list'
+import { createLazyMemo } from '../../../shared/create-lazy-memo'
+import { useCn } from '../../../shared/provider/cn-context'
 import { renderComponentOrElement } from '../../../shared/render-prop'
-import type { ElementProps } from '../../../shared/types'
+import type { Cn } from '../../../shared/style/cn'
+import type { ClassValue, ElementProps } from '../../../shared/types'
 import { useControllableValue } from '../../../shared/use-controllable-value'
 import { useEventListener } from '../../../shared/use-event-listener'
 import { useTransitionPresence } from '../../../shared/use-transition-presence'
-import { callHandler, cn, useId } from '../../../shared/utils'
+import { callHandler, useId } from '../../../shared/utils'
 import { useFloatingPosition } from '../floating'
 import { useOverlayInteraction } from '../interaction'
 import {
@@ -40,8 +39,6 @@ import {
   resolveOverlayMenuSide,
 } from '../utils'
 
-import { overlayMenuContentVariants, overlayMenuItemVariants } from './menu.class'
-import type { OverlayMenuItemVariantProps } from './menu.class'
 import {
   createPointerGraceIntent,
   createVirtualReference,
@@ -54,102 +51,17 @@ import {
   useOverlayMenuLayerState,
 } from './menu.utils'
 import type {
-  OverlayMenuAnchorRect,
   OverlayMenuCloseOptions,
   OverlayMenuFocusStrategy,
   OverlayMenuLayerState,
 } from './menu.utils'
 import type {
-  OverlayMenuSharedClasses,
+  OverlayMenuProps,
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderProps,
-  OverlayMenuContentSlot,
-  OverlayMenuPlacement,
-  OverlayMenuSharedStyles,
+  OverlayMenuSharedProps,
+  OverlayMenuSharedSlots,
 } from './types'
-
-export type { OverlayMenuAnchorRect, OverlayMenuFocusStrategy } from './menu.utils'
-
-/** Shared overlay menu props used by the shell, root wrappers, and layers. */
-interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TItem>> {
-  /** Unique base id used to derive trigger and content ids. */
-  id?: string
-
-  /**
-   * Icon used for checked checkbox items.
-   * @default 'icon-check'
-   */
-  checkedIcon?: IconT.Name
-
-  /** Slot class overrides for menu sections. */
-  classes?: OverlayMenuSharedClasses
-
-  /** Content rendered after the resolved item groups. */
-  contentBottom?: OverlayMenuContentSlot
-
-  /** Content rendered before the resolved item groups. */
-  contentTop?: OverlayMenuContentSlot
-
-  /**
-   * Gap between the anchor and the content.
-   * @default 0
-   */
-  gutter?: number
-
-  /**
-   * Cross-axis or alignment offset relative to the anchor.
-   * @default 0
-   */
-  shift?: number
-
-  /** Custom renderer for individual items. */
-  itemRender?: ComponentOrElement<OverlayMenuSharedItemRenderProps<TItem>>
-
-  /** Additional attributes for each menu layer content element. */
-  contentProps?: ElementProps<HTMLDivElement>
-
-  /** Additional attributes for an interactive menu item. */
-  itemProps?: (
-    context: OverlayMenuSharedItemRenderProps<TItem>,
-  ) => ElementProps<HTMLDivElement> | undefined
-
-  /** Items rendered in the menu body. */
-  items?: TItem[]
-
-  /**
-   * Padding applied to the overflow area when calculating the menu's position.
-   * @default 4
-   */
-  overflowPadding?: number
-
-  /**
-   * Preferred content placement relative to the trigger or anchor point.
-   */
-  placement?: OverlayMenuPlacement
-
-  /**
-   * Menu item size variant.
-   * @default 'md'
-   */
-  size?: NonNullable<OverlayMenuItemVariantProps['size']>
-
-  /** Slot style overrides for menu sections. */
-  styles?: OverlayMenuSharedStyles
-
-  /**
-   * Icon used for submenu trigger items.
-   * @default 'icon-chevron-right'
-   */
-  submenuIcon?: IconT.Name
-}
-
-interface OverlayMenuScrollLockProps {
-  /**
-   * Whether body scroll should be locked while the menu is open.
-   * @default true
-   */
-  preventScroll?: boolean
-}
 
 interface OverlayMenuResolvedGroup<TItem> {
   label?: JSX.Element
@@ -174,6 +86,23 @@ function callRef<T extends HTMLElement>(
   if (typeof ref === 'function') {
     ref(element)
   }
+}
+
+function resolveMenuSlot(
+  props: Pick<OverlayMenuSharedProps<never>, 'slotBinding' | 'classes' | 'styles'>,
+  slot: keyof OverlayMenuSharedSlots,
+  cn: Cn,
+) {
+  return (
+    props.slotBinding?.(slot) ?? {
+      get class() {
+        return cn(props.classes?.[slot])
+      },
+      get style() {
+        return props.styles?.[slot] ?? {}
+      },
+    }
+  )
 }
 
 interface OverlayMenuLayerProps<
@@ -201,64 +130,12 @@ interface OverlayMenuLayerProps<
   setPresenceElement: (element: HTMLElement | undefined) => void
 }
 
-export interface OverlayMenuProps<TItem extends OverlayMenuSharedItem<TItem>>
-  extends OverlayMenuSharedProps<TItem>, OverlayMenuScrollLockProps {
-  /**
-   * Strategy used to auto-focus the menu after it is positioned.
-   */
-  autoFocusStrategy?: OverlayMenuFocusStrategy
-
-  /**
-   * Resolve a virtual anchor rectangle when the menu is anchored to a point.
-   */
-  getAnchorRect?: (anchor?: HTMLElement) => OverlayMenuAnchorRect | undefined
-
-  /**
-   * Called after an auto-focus strategy has been handled.
-   */
-  onAutoFocusHandled?: () => void
-
-  /** Called when the overlay menu should close. */
-  onClose: () => void
-
-  /** Pointer down handler for the content wrapper. */
-  onContentPointerDown?: JSX.EventHandler<HTMLDivElement, PointerEvent>
-
-  /** Context menu handler for the content wrapper. */
-  onContentContextMenu?: JSX.EventHandler<HTMLDivElement, MouseEvent>
-
-  /** Whether the overlay menu content is open. */
-  open: boolean
-
-  /** Trigger element used as the position reference. */
-  triggerElement?: HTMLElement
-}
-
-export interface OverlayMenuRootProps<TItem extends OverlayMenuSharedItem<TItem>>
-  extends OverlayMenuSharedProps<TItem>, OverlayMenuScrollLockProps {
-  /** Controlled open state of the menu. */
-  open?: boolean
-
-  /**
-   * Initial open state when the component is uncontrolled.
-   * @default false
-   */
-  defaultOpen?: boolean
-
-  /** Called whenever the menu requests an open state change. */
-  onOpenChange?: (open: boolean) => void
-
-  /**
-   * Whether trigger interactions should be ignored.
-   * @default false
-   */
-  disabled?: boolean
-}
-
 function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   props: OverlayMenuLayerProps<TItem>,
 ): JSX.Element {
+  const cn = useCn()
   const layer = useOverlayMenuLayerState()
+  const resolveSlot = (slot: keyof OverlayMenuSharedSlots) => resolveMenuSlot(props, slot, cn)
   const resolvedPlacement = () => props.placement ?? 'bottom-start'
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>(
     undefined,
@@ -467,14 +344,16 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     })
   })
 
-  function getItemClass(item: TItem, ...cls: ClassValueArray): string {
-    return overlayMenuItemVariants(
-      {
-        size: props.size,
-        color: item.color,
+  function getItemSlot(itemAttrsStyle?: string | JSX.CSSProperties, itemAttrsClass?: ClassValue) {
+    const binding = resolveSlot('item')
+    return {
+      get class() {
+        return cn(binding.class, itemAttrsClass)
       },
-      ...cls,
-    )
+      get style() {
+        return { ...toStyleObject(itemAttrsStyle), ...binding.style }
+      },
+    }
   }
 
   function getItemRenderProps(
@@ -499,11 +378,15 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     isRadio: boolean
     item: TItem
   }): JSX.Element {
+    const itemRender = createLazyMemo(() => props.itemRender)
+    const label = createLazyMemo(() => contentProps.item.label)
+    const description = createLazyMemo(() => contentProps.item.description)
+    const kbds = createLazyMemo(() => contentProps.item.kbds)
     return (
       <Show
-        when={props.itemRender === undefined}
+        when={itemRender() === undefined}
         fallback={renderComponentOrElement(
-          props.itemRender,
+          itemRender(),
           getItemRenderProps(
             contentProps.item,
             contentProps.hasChildren,
@@ -513,84 +396,54 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         )}
       >
         <Show when={contentProps.item.icon}>
-          <span
-            data-slot="itemLeading"
-            style={props.styles?.itemLeading}
-            class={cn(
-              'inline-flex shrink-0 size-4 items-center justify-center [&_svg]:size-4',
-              props.classes?.itemLeading,
-            )}
-          >
+          <span data-slot="itemLeading" {...resolveSlot('itemLeading')}>
             <Icon name={contentProps.item.icon} />
           </span>
         </Show>
 
-        <Show when={contentProps.item.label || contentProps.item.description}>
-          <span
-            data-slot="itemWrapper"
-            style={props.styles?.itemWrapper}
-            class={cn('flex flex-1 flex-col gap-0.5 min-w-0', props.classes?.itemWrapper)}
-          >
-            <Show when={contentProps.item.label}>
-              <span
-                data-slot="itemLabel"
-                style={props.styles?.itemLabel}
-                class={cn('truncate', props.classes?.itemLabel)}
-              >
-                {contentProps.item.label}
+        <Show when={label() || description()}>
+          <span data-slot="itemWrapper" {...resolveSlot('itemWrapper')}>
+            <Show when={label()}>
+              <span data-slot="itemLabel" {...resolveSlot('itemLabel')}>
+                {label()}
               </span>
             </Show>
 
-            <Show when={contentProps.item.description}>
-              <span
-                data-slot="itemDescription"
-                style={props.styles?.itemDescription}
-                class={cn('text-xs text-muted-foreground truncate', props.classes?.itemDescription)}
-              >
-                {contentProps.item.description}
+            <Show when={description()}>
+              <span data-slot="itemDescription" {...resolveSlot('itemDescription')}>
+                {description()}
               </span>
             </Show>
           </span>
         </Show>
 
-        <span
-          data-slot="itemTrailing"
-          style={props.styles?.itemTrailing}
-          class={cn(
-            'text-sm ms-auto inline-flex gap-2 pointer-events-none items-center justify-end',
-            props.classes?.itemTrailing,
-          )}
-        >
+        <span data-slot="itemTrailing" {...resolveSlot('itemTrailing')}>
           <Show when={contentProps.hasChildren}>
-            <Icon name={props.submenuIcon} class={props.classes?.itemSub} />
+            <Icon name={props.submenuIcon} class={resolveSlot('itemSub').class} />
           </Show>
 
           <Show when={!contentProps.hasChildren}>
-            <Show when={contentProps.item.kbds?.length ? contentProps.item.kbds : undefined}>
+            <Show when={kbds()?.length ? kbds() : undefined}>
               {(value) => (
                 <KbdGroup
                   size="sm"
                   items={value()}
                   classes={{
-                    root: props.classes?.itemKbds,
+                    root: resolveSlot('itemKbds').class,
+                  }}
+                  styles={{
+                    root: resolveSlot('itemKbds').style,
                   }}
                 />
               )}
             </Show>
           </Show>
 
-          <Show
-            when={(contentProps.isCheckbox || contentProps.isRadio) && contentProps.checked?.()}
-          >
-            <span
-              data-slot="itemIndicator"
-              style={props.styles?.itemIndicator}
-              class={cn(
-                'flex size-4 pointer-events-none items-center end-2 justify-center absolute',
-                props.classes?.itemIndicator,
-              )}
-            >
-              <Icon name={props.checkedIcon} />
+          <Show when={contentProps.isCheckbox || contentProps.isRadio}>
+            <span data-slot="itemIndicator" {...resolveSlot('itemIndicator')}>
+              <Show when={contentProps.checked?.()}>
+                <Icon name={props.checkedIcon} />
+              </Show>
             </span>
           </Show>
         </span>
@@ -721,6 +574,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       <div
         id={itemId()}
         data-slot="item"
+        data-destructive={itemProps.item.color === 'destructive' ? '' : undefined}
         role="menuitem"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
@@ -731,11 +585,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           setElement(itemElement)
           callRef(itemAttributes()?.ref, itemElement)
         }}
-        style={{
-          ...props.styles?.item,
-          ...toStyleObject(itemAttributes()?.style),
-        }}
-        class={getItemClass(itemProps.item, props.classes?.item, itemAttributes()?.class)}
+        {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
         {...handlers}
       >
         <RenderItemContent
@@ -799,6 +649,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       <div
         id={itemId()}
         data-slot="item"
+        data-destructive={itemProps.item.color === 'destructive' ? '' : undefined}
         role="menuitemcheckbox"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
@@ -811,11 +662,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           setElement(itemElement)
           callRef(itemAttributes()?.ref, itemElement)
         }}
-        style={{
-          ...props.styles?.item,
-          ...toStyleObject(itemAttributes()?.style),
-        }}
-        class={getItemClass(itemProps.item, props.classes?.item, itemAttributes()?.class)}
+        {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
         {...handlers}
       >
         <RenderItemContent
@@ -896,6 +743,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       <div
         id={itemId()}
         data-slot="item"
+        data-destructive={itemProps.item.color === 'destructive' ? '' : undefined}
         role="menuitemradio"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
@@ -908,11 +756,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           setElement(itemElement)
           callRef(itemAttributes()?.ref, itemElement)
         }}
-        style={{
-          ...props.styles?.item,
-          ...toStyleObject(itemAttributes()?.style),
-        }}
-        class={getItemClass(itemProps.item, props.classes?.item, itemAttributes()?.class)}
+        {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
         {...handlers}
       >
         <RenderItemContent
@@ -1026,6 +870,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         <div
           id={submenuId()}
           data-slot="item"
+          data-destructive={itemProps.item.color === 'destructive' ? '' : undefined}
           role="menuitem"
           tabIndex={layer.highlightedItemId() === submenuId() ? 0 : -1}
           aria-haspopup="menu"
@@ -1040,16 +885,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             setTriggerElement(itemElement)
             callRef(itemAttributes()?.ref, itemElement)
           }}
-          style={{
-            ...props.styles?.item,
-            ...toStyleObject(itemAttributes()?.style),
-          }}
-          class={getItemClass(
-            itemProps.item,
-            'data-expanded:bg-muted',
-            props.classes?.item,
-            itemAttributes()?.class,
-          )}
+          {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
           onClick={(event) => {
             const { defaultPrevented } = callHandler(event, itemAttributes()?.onClick)
             if (defaultPrevented || itemProps.item.disabled) {
@@ -1189,6 +1025,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               items={itemProps.item.children}
               classes={props.classes}
               styles={props.styles}
+              slotBinding={props.slotBinding}
               size={props.size}
               checkedIcon={props.checkedIcon}
               submenuIcon={props.submenuIcon}
@@ -1254,19 +1091,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         data-slot="group"
         role="group"
         aria-labelledby={groupLabelId()}
-        style={props.styles?.group}
-        class={cn(props.classes?.group)}
+        {...resolveSlot('group')}
       >
         <Show when={groupLabel()}>
-          <div
-            id={groupLabelId()}
-            data-slot="label"
-            style={props.styles?.label}
-            class={cn(
-              'text-xs text-muted-foreground font-medium px-2 py-1.5 inline-flex',
-              props.classes?.label,
-            )}
-          >
+          <div id={groupLabelId()} data-slot="label" {...resolveSlot('label')}>
             {groupLabel()}
           </div>
         </Show>
@@ -1275,12 +1103,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           {(item) => (
             <Switch fallback={<LeafItem item={item} />}>
               <Match when={item.type === 'separator'}>
-                <div
-                  data-slot="separator"
-                  role="separator"
-                  style={props.styles?.separator}
-                  class={cn('my-1 bg-border h-px -mx-1', props.classes?.separator)}
-                />
+                <div data-slot="separator" role="separator" {...resolveSlot('separator')} />
               </Match>
 
               <Match when={item.type === 'checkbox'}>
@@ -1306,6 +1129,15 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       JSX.HTMLAttributes<HTMLDivElement>
   >
 
+  const contentSlot = () => ({
+    class: cn(resolveSlot('content').class, props.contentProps?.class),
+    style: {
+      '--mo-popper-content-transform-origin': undefined,
+      ...toStyleObject(props.contentProps?.style),
+      ...resolveSlot('content').style,
+    },
+  })
+
   return (
     <div
       ref={(element) => {
@@ -1320,7 +1152,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         }
       }}
       data-slot="positioner"
-      class={OVERLAY_POSITIONER_CLASS}
+      class={'left-0 top-0 absolute'}
     >
       <RuntimeList
         as="div"
@@ -1339,17 +1171,15 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           layer.setContentElement(element)
           props.setPresenceElement(element)
           callRef(props.contentProps?.ref, element)
+          onCleanup(() => {
+            const ref = props.contentProps?.ref
+            if (typeof ref === 'function') {
+              ;(ref as (element: HTMLDivElement | undefined) => void)(undefined)
+            }
+          })
         }}
-        style={{
-          '--mo-popper-content-transform-origin': undefined,
-          ...props.styles?.content,
-          ...toStyleObject(props.contentProps?.style),
-        }}
-        class={overlayMenuContentVariants(
-          { side: side() },
-          props.classes?.content,
-          props.contentProps?.class,
-        )}
+        class={contentSlot().class}
+        style={contentSlot().style}
         onPointerDown={(event) => {
           const { defaultPrevented } = callHandler(event, props.contentProps?.onPointerDown)
           if (!defaultPrevented) {
@@ -1403,11 +1233,9 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
   props: OverlayMenuProps<TItem>,
 ): JSX.Element {
+  const cn = useCn()
   const merged = mergeProps(
     {
-      gutter: 0,
-      overflowPadding: 4,
-      placement: 'bottom-start' as const,
       preventScroll: true,
     },
     props,
@@ -1556,11 +1384,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
     <Show when={contentPresence.present()}>
       <Portal>
         <Show when={merged.preventScroll}>
-          <div
-            data-slot="overlay"
-            style={merged.styles?.overlay}
-            class={cn('inset-0 fixed z-overlay', merged.classes?.overlay)}
-          />
+          <div data-slot="overlay" aria-hidden="true" {...resolveMenuSlot(merged, 'overlay', cn)} />
         </Show>
         <OverlayMenuLayer<TItem>
           id={contentId()}
@@ -1573,6 +1397,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           items={merged.items}
           classes={merged.classes}
           styles={merged.styles}
+          slotBinding={merged.slotBinding}
           size={merged.size}
           checkedIcon={merged.checkedIcon}
           submenuIcon={merged.submenuIcon}

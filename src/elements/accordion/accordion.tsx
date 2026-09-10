@@ -11,165 +11,19 @@ import {
   untrack,
 } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { createComponentStyles } from '../../shared/provider'
+import { useCn } from '../../shared/provider/cn-context'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useDisclosureState } from '../../shared/use-disclosure-state'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { callRef, cn, useId } from '../../shared/utils'
-import { Icon } from '../icon/index'
-import type { IconT } from '../icon/index'
+import { callRef, useId } from '../../shared/utils'
+import { Icon } from '../icon'
 
-import {
-  ACCORDION_CONTENT_CLASS,
-  ACCORDION_CONTENT_INNER_CLASS,
-  ACCORDION_HEADER_CLASS,
-  ACCORDION_ITEM_CLASS,
-  ACCORDION_LABEL_CLASS,
-  ACCORDION_LEADING_CLASS,
-  ACCORDION_ROOT_CLASS,
-  ACCORDION_TRAILING_CLASS,
-  ACCORDION_TRIGGER_CLASS,
-} from './accordion.class'
-
-export namespace AccordionT {
-  export interface Slot<T = unknown> {
-    /**
-     * Container that owns the accordion item collection and shared state attributes.
-     */
-    root?: T
-
-    /** Wrapper for one accordion entry, including its header trigger and collapsible panel. */
-    item?: T
-
-    /** Heading row that contains the interactive trigger for an item. */
-    header?: T
-
-    /** Button users activate to expand or collapse an item. */
-    trigger?: T
-
-    /** Optional icon or visual placed before the item label. */
-    leading?: T
-
-    /** Text label displayed inside the item trigger. */
-    label?: T
-
-    /** Optional icon placed after the label, commonly used for the disclosure indicator. */
-    trailing?: T
-
-    /** Panel that contains the item content when expanded. */
-    content?: T
-  }
-  export type Variant = never
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {
-    /**
-     * Header label for the accordion item.
-     */
-    label?: JSX.Element
-
-    /**
-     * Unique value for the accordion item.
-     */
-    value?: string
-
-    /**
-     * Whether the accordion item is disabled.
-     * @default false
-     */
-    disabled?: boolean
-
-    /**
-     * Leading icon name for the accordion item.
-     */
-    leading?: IconT.Name
-
-    /**
-     * Content to display when the accordion item is expanded.
-     */
-    content?: JSX.Element
-  }
-  /**
-   * Base props for the Accordion component.
-   */
-  export interface Base {
-    /**
-     * Unique identifier for the accordion root element.
-     */
-    id?: string
-
-    /**
-     * Controlled list of expanded item values.
-     */
-    value?: string[]
-
-    /**
-     * Default list of expanded item values for uncontrolled usage.
-     * @default []
-     */
-    defaultValue?: string[]
-
-    /**
-     * Whether multiple accordion items can be expanded at the same time.
-     * @default false
-     */
-    multiple?: boolean
-
-    /**
-     * Whether the last expanded item can be collapsed.
-     * @default true
-     */
-    collapsible?: boolean
-
-    /**
-     * Whether arrow-key focus wraps from the last trigger to the first and vice versa.
-     * @default true
-     */
-    loopFocus?: boolean
-
-    /**
-     * Callback when the expanded item values change.
-     */
-    onChange?: (value: string[]) => void
-
-    /**
-     * Array of accordion items to render.
-     */
-    items?: Item[]
-
-    /**
-     * Whether the entire accordion is disabled.
-     * @default false
-     */
-    disabled?: boolean
-
-    /**
-     * Whether to unmount accordion content when hidden.
-     * @default true
-     */
-    unmountOnHide?: boolean
-
-    /**
-     * Trailing icon name for all accordion items.
-     * @default 'icon-chevron-down'
-     */
-    trailing?: IconT.Name
-  }
-
-  /**
-   * Props for the Accordion component.
-   */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
-}
-
-/**
- * Props for the Accordion component.
- */
-export interface AccordionProps extends AccordionT.Props {}
+import type { AccordionProps } from './accordion.types'
 
 /** Stacked disclosure component with single or multiple expanded sections. */
 export function Accordion(props: AccordionProps): JSX.Element {
+  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'id',
     'value',
@@ -188,6 +42,8 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'style',
     'ref',
   ])
+  const resolved = createComponentStyles('accordion', local)
+
   const merged = mergeProps(
     {
       multiple: false,
@@ -364,13 +220,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       data-slot="root"
       data-disabled={merged.disabled ? '' : undefined}
       {...rest}
-      style={{ ...merged.styles?.root, ...merged.style }}
-      class={cn(
-        ACCORDION_ROOT_CLASS,
-        merged.disabled && 'effect-dis',
-        merged.classes?.root,
-        merged.class,
-      )}
+      {...resolved.root}
     >
       <For each={items()}>
         {(item) => {
@@ -409,7 +259,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
             return (
               <Show when={content()}>
-                {(value) => <div class={ACCORDION_CONTENT_INNER_CLASS}>{value()}</div>}
+                {(value) => <div {...resolved.slot('contentInner')}>{value()}</div>}
               </Show>
             )
           }
@@ -497,16 +347,11 @@ export function Accordion(props: AccordionProps): JSX.Element {
           return (
             <div
               data-slot="item"
-              style={merged.styles?.item}
-              class={cn(ACCORDION_ITEM_CLASS, merged.classes?.item)}
+              class={cn(resolved.slot('item').class, item.class)}
+              style={resolved.slot('item').style}
               {...itemDataAttrs()}
             >
-              <h3
-                data-slot="header"
-                style={merged.styles?.header}
-                class={cn(ACCORDION_HEADER_CLASS, merged.classes?.header)}
-                {...itemDataAttrs()}
-              >
+              <h3 data-slot="header" {...resolved.slot('header')} {...itemDataAttrs()}>
                 <button
                   id={triggerId()}
                   type="button"
@@ -514,8 +359,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   aria-expanded={expanded()}
                   disabled={disabled()}
                   data-slot="trigger"
-                  style={merged.styles?.trigger}
-                  class={cn(ACCORDION_TRIGGER_CLASS, merged.classes?.trigger)}
+                  {...resolved.slot('trigger')}
                   onClick={onTriggerClick}
                   onKeyDown={onTriggerKeyDown}
                   onKeyUp={onTriggerKeyUp}
@@ -530,34 +374,20 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 >
                   <Show when={leading()}>
                     {(value) => (
-                      <Icon
-                        name={value()}
-                        slotName="leading"
-                        style={merged.styles?.leading}
-                        class={cn(ACCORDION_LEADING_CLASS, merged.classes?.leading)}
-                      />
+                      <Icon name={value()} slotName="leading" {...resolved.slot('leading')} />
                     )}
                   </Show>
 
                   <Show when={label()}>
                     {(value) => (
-                      <span
-                        data-slot="label"
-                        style={merged.styles?.label}
-                        class={cn(ACCORDION_LABEL_CLASS, merged.classes?.label)}
-                      >
+                      <span data-slot="label" {...resolved.slot('label')}>
                         {value()}
                       </span>
                     )}
                   </Show>
 
                   <Show when={trailing()}>
-                    <Icon
-                      name={trailing()}
-                      slotName="trailing"
-                      style={merged.styles?.trailing}
-                      class={cn(ACCORDION_TRAILING_CLASS, merged.classes?.trailing)}
-                    />
+                    <Icon name={trailing()} slotName="trailing" {...resolved.slot('trailing')} />
                   </Show>
                 </button>
               </h3>
@@ -577,11 +407,11 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   role="region"
                   aria-labelledby={triggerId()}
                   data-slot="content"
+                  class={resolved.slot('content').class}
                   style={{
                     '--mo-collapsible-content-height': `${contentHeight()}px`,
-                    ...merged.styles?.content,
+                    ...resolved.slot('content').style,
                   }}
-                  class={cn(ACCORDION_CONTENT_CLASS, merged.classes?.content)}
                   {...contentDataAttrs()}
                 >
                   {renderContent()}

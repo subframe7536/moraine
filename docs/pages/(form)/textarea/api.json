@@ -5,7 +5,8 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Multi-line text input with autoresize support and form field integration.",
-    "sourcePath": "src/forms/textarea/textarea.tsx"
+    "sourcePath": "src/forms/textarea/textarea.tsx",
+    "kind": "single"
   },
   "slots": [
     {
@@ -30,7 +31,7 @@
       "ariaAttributes": []
     },
     {
-      "name": "input",
+      "name": "textarea",
       "description": "Native textarea control used for multi-line text entry.",
       "cssVariables": [],
       "dataAttributes": [],
@@ -59,11 +60,6 @@
         "type": "number | undefined",
         "description": "Delay in milliseconds before focusing the textarea.",
         "defaultValue": "0"
-      },
-      {
-        "name": "autoresize",
-        "required": false,
-        "type": "boolean | undefined"
       },
       {
         "name": "autoResize",
@@ -161,8 +157,8 @@
       {
         "name": "onChange",
         "required": false,
-        "type": "((value: ModifierValue<M>) => void) | undefined",
-        "description": "Callback when the textarea value change is committed."
+        "type": "JSX.EventHandlerUnion<HTMLTextAreaElement, Event> | undefined",
+        "description": "Native change event, after value synchronization and FormField notification."
       },
       {
         "name": "onFocus",
@@ -198,7 +194,8 @@
       {
         "name": "ref",
         "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+        "type": "Ref<HTMLDivElement> | undefined",
+        "description": "Optional inner textarea element ref."
       },
       {
         "name": "required",
@@ -217,7 +214,9 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined"
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
       },
       {
         "name": "style",
@@ -230,6 +229,12 @@
         "type": "TextareaT.Styles | undefined"
       },
       {
+        "name": "textareaRef",
+        "required": false,
+        "type": "Ref<HTMLTextAreaElement> | undefined",
+        "description": "Ref for the editable textarea element."
+      },
+      {
         "name": "value",
         "required": false,
         "type": "TextareaT.Value",
@@ -238,7 +243,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined"
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "outline"
       }
     ],
     "inherited": []

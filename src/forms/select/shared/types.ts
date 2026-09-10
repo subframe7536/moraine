@@ -9,17 +9,6 @@ export interface BaseSelectItems<TItems> {
 }
 
 export type SelectFilterMode = 'startsWith' | 'endsWith' | 'contains'
-
-export type SelectFilterOption<TRaw> =
-  | boolean
-  | SelectFilterMode
-  | ((inputValue: string, option: TRaw) => boolean)
-
-export interface SelectFilterableOption<TRaw> {
-  key: string
-  raw: TRaw
-}
-
 export interface NormalizedOption<TItems> {
   id: string
   value: string | number

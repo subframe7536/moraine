@@ -33,12 +33,11 @@ export function CheckboxRadio() {
 
   return (
     <div class="flex gap-3 items-center">
-      <DropdownMenu items={items()}>
-        {(triggerProps) => (
-          <Button {...triggerProps} variant="outline">
-            View options
-          </Button>
-        )}
+      <DropdownMenu>
+        <DropdownMenu.Trigger as={Button} variant="outline">
+          View options
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content items={items()} />
       </DropdownMenu>
       <p class="text-sm text-muted-foreground">
         {layout()} layout, archived: {String(showArchived())}

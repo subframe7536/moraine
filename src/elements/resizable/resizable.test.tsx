@@ -1,9 +1,68 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { For, Show, createSignal, splitProps } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { beforeAll, afterAll, describe, expect, test, vi } from 'vitest'
 
+import { MoraineProvider } from '../../shared/provider'
+import { defaultTheme } from '../../theme/default-theme'
+
+import type { ResizablePanelItem } from './hook'
 import { Resizable } from './resizable'
+import type { ResizableProps, ResizableT } from './resizable.types'
+
+interface ResizableFixtureProps extends Omit<ResizableProps, 'children'> {
+  items: ResizablePanelItem[]
+  handle?: boolean
+  handleChildren?: ResizableT.HandleBase['children']
+  action?: ResizableT.HandleBase['action']
+  intersection?: boolean
+}
+
+function ResizableFixture(props: ResizableFixtureProps): JSX.Element {
+  const [local, rest] = splitProps(props, [
+    'items',
+    'handle',
+    'handleChildren',
+    'action',
+    'intersection',
+  ])
+
+  return (
+    <Resizable {...rest}>
+      <For each={local.items}>
+        {(panel, index) => (
+          <>
+            <Resizable.Panel
+              id={panel.panelId}
+              size={panel.size}
+              defaultSize={panel.defaultSize}
+              min={panel.min}
+              max={panel.max}
+              resizable={panel.resizable}
+              collapsible={panel.collapsible}
+              collapsibleMin={panel.collapsibleMin}
+              onResize={panel.onResize}
+              onCollapse={panel.onCollapse}
+              onExpand={panel.onExpand}
+              class={panel.class}
+              style={panel.style}
+            >
+              {panel.content}
+            </Resizable.Panel>
+            <Show when={index() < local.items.length - 1}>
+              <Resizable.Handle
+                action={local.action}
+                intersection={local.intersection}
+                children={local.handle === false ? false : local.handleChildren}
+              />
+            </Show>
+          </>
+        )}
+      </For>
+    </Resizable>
+  )
+}
 
 type ResizeObserverCallback = (entries: ResizeObserverEntry[], observer: ResizeObserver) => void
 
@@ -114,14 +173,29 @@ afterAll(() => {
 })
 
 describe('Resizable', () => {
+  test('renders unstyled when provider is absent', () => {
+    const screen = render(() => (
+      <ResizableFixture items={[{ content: 'Left' }, { content: 'Right' }]} />
+    ))
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const divider = screen.container.querySelector('[data-slot="divider"]')
+    const handle = screen.container.querySelector('[data-slot="handle"]')
+    const panel = screen.container.querySelector('[data-slot="panel"]')
+
+    expect(root?.className).toBe('')
+    expect(divider?.className).toBe('')
+    expect(handle?.className).toBe('')
+    expect(panel?.className).toBe('')
+  })
+
   test('composes the root ref with internal layout measurement', async () => {
     let root: HTMLDivElement | undefined
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         ref={(element) => {
           root = element
         }}
-        panels={[{ content: 'Left' }, { content: 'Right' }]}
+        items={[{ content: 'Left' }, { content: 'Right' }]}
       />
     ))
 
@@ -133,12 +207,12 @@ describe('Resizable', () => {
     expectPanelGrow(panels[1] as HTMLDivElement, 50)
   })
 
-  test('accepts static JSX for handleRender', () => {
+  test('accepts static JSX for handleChildren', () => {
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         handle
-        handleRender={<span data-testid="handle-content">Resize</span>}
-        panels={[{ content: 'Left' }, { content: 'Right' }]}
+        handleChildren={<span data-testid="handle-content">Resize</span>}
+        items={[{ content: 'Left' }, { content: 'Right' }]}
       />
     ))
 
@@ -147,7 +221,9 @@ describe('Resizable', () => {
 
   test('renders panels and auto inserts handles between panels', () => {
     const screen = render(() => (
-      <Resizable panels={[{ content: 'Left' }, { content: 'Center' }, { content: 'Right' }]} />
+      <ResizableFixture
+        items={[{ content: 'Left' }, { content: 'Center' }, { content: 'Right' }]}
+      />
     ))
 
     const panels = screen.container.querySelectorAll('[data-slot="panel"]')
@@ -160,7 +236,7 @@ describe('Resizable', () => {
 
   test('keeps built-in handle content and hidden handle behavior stable', () => {
     const builtIn = render(() => (
-      <Resizable handle panels={[{ content: 'Left' }, { content: 'Right' }]} />
+      <ResizableFixture handle items={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
 
     expect(builtIn.container.querySelectorAll('[data-slot="divider"]')).toHaveLength(1)
@@ -169,7 +245,7 @@ describe('Resizable', () => {
     builtIn.unmount()
 
     const hidden = render(() => (
-      <Resizable handle={false} panels={[{ content: 'Left' }, { content: 'Right' }]} />
+      <ResizableFixture handle={false} items={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
 
     expect(hidden.container.querySelectorAll('[data-slot="divider"]')).toHaveLength(1)
@@ -178,22 +254,27 @@ describe('Resizable', () => {
 
   test('supports vertical orientation classes', () => {
     const screen = render(() => (
-      <Resizable orientation="vertical" panels={[{ content: 'Top' }, { content: 'Bottom' }]} />
+      <MoraineProvider theme={defaultTheme}>
+        <ResizableFixture
+          orientation="vertical"
+          items={[{ content: 'Top' }, { content: 'Bottom' }]}
+        />
+      </MoraineProvider>
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]')
     const handle = screen.container.querySelector('[data-slot="divider"]')
 
-    expect(root?.getAttribute('data-orientation')).toBe('vertical')
+    expect(root?.hasAttribute('data-orientation')).toBe(false)
     expect(root?.className).toContain('flex-col')
     expect(handle?.className).toContain('cursor-ns-resize')
   })
 
   test('allows callers to override the generated orientation attribute', () => {
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         data-orientation="caller-defined"
-        panels={[{ content: 'Left' }, { content: 'Right' }]}
+        items={[{ content: 'Left' }, { content: 'Right' }]}
       />
     ))
 
@@ -205,10 +286,10 @@ describe('Resizable', () => {
     const onResize = vi.fn()
 
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         disable
         onResize={onResize}
-        panels={[{ content: 'One' }, { content: 'Two' }, { content: 'Three' }]}
+        items={[{ content: 'One' }, { content: 'Two' }, { content: 'Three' }]}
       />
     ))
 
@@ -232,15 +313,17 @@ describe('Resizable', () => {
 
   test('applies class overrides and supports root-level custom handle rendering', () => {
     const screen = render(() => (
-      <Resizable
-        handleRender={() => <span data-slot="custom-handle-icon" class="i-lucide-grip-vertical" />}
+      <ResizableFixture
+        handleChildren={() => (
+          <span data-slot="custom-handle-icon" class="i-lucide-grip-vertical" />
+        )}
         classes={{
           root: 'root-override',
           panel: 'panel-override',
           divider: 'divider-override',
           handle: 'handle-override',
         }}
-        panels={[{ content: 'A', class: 'panel-a' }, { content: 'B' }, { content: 'C' }]}
+        items={[{ content: 'A', class: 'panel-a' }, { content: 'B' }, { content: 'C' }]}
       />
     ))
 
@@ -262,9 +345,9 @@ describe('Resizable', () => {
 
   test('supports function handle with state fields and interaction updates', async () => {
     const screen = render(() => (
-      <Resizable
-        handleAction="collapse"
-        handleRender={(state) => (
+      <ResizableFixture
+        action="collapse"
+        handleChildren={(state) => (
           <span
             data-slot="state-handle"
             data-action={state.action}
@@ -277,7 +360,7 @@ describe('Resizable', () => {
             state
           </span>
         )}
-        panels={[
+        items={[
           {
             content: 'Sidebar',
             defaultSize: '30%',
@@ -315,14 +398,14 @@ describe('Resizable', () => {
 
   test('updates function handle output when collapse state changes', async () => {
     const screen = render(() => (
-      <Resizable
-        handleAction="collapse"
-        handleRender={(state) => (
+      <ResizableFixture
+        action="collapse"
+        handleChildren={(state) => (
           <span data-slot="state-collapsed-label">
             {state.collapsed ? 'collapsed' : 'expanded'}
           </span>
         )}
-        panels={[
+        items={[
           {
             content: 'Sidebar',
             defaultSize: '30%',
@@ -348,13 +431,13 @@ describe('Resizable', () => {
 
   test('marks function handle state as disabled when root is disabled', () => {
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         disable
-        handleAction="collapse"
-        handleRender={(state) => (
+        action="collapse"
+        handleChildren={(state) => (
           <span data-slot="state-disabled-label">{state.disabled ? 'disabled' : 'enabled'}</span>
         )}
-        panels={[
+        items={[
           {
             content: 'Sidebar',
             defaultSize: '30%',
@@ -373,14 +456,14 @@ describe('Resizable', () => {
 
   test('applies styles overrides', () => {
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         styles={{
           root: { width: '200px' },
           panel: { width: '200px' },
           divider: { width: '200px' },
           handle: { width: '200px' },
         }}
-        panels={[{ content: 'A' }, { content: 'B' }, { content: 'C' }]}
+        items={[{ content: 'A' }, { content: 'B' }, { content: 'C' }]}
       />
     ))
 
@@ -402,14 +485,14 @@ describe('Resizable', () => {
       const [sizes, setSizes] = createSignal([500, 500])
 
       return (
-        <Resizable
+        <ResizableFixture
           onResizeStart={(nextSizes) => events.push({ type: 'start', sizes: nextSizes })}
           onResize={(nextSizes) => {
             events.push({ type: 'resize', sizes: nextSizes })
             setSizes(nextSizes)
           }}
           onResizeEnd={(nextSizes) => events.push({ type: 'end', sizes: nextSizes })}
-          panels={[
+          items={[
             { content: 'Left', min: '20%', size: sizes()[0] },
             { content: 'Right', min: '20%', size: sizes()[1] },
           ]}
@@ -437,12 +520,12 @@ describe('Resizable', () => {
     const onResizeEnd = vi.fn()
 
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         keyboardDelta={0}
         onResizeStart={onResizeStart}
         onResize={onResize}
         onResizeEnd={onResizeEnd}
-        panels={[
+        items={[
           { content: 'Left', min: '20%', size: 200 },
           { content: 'Right', min: '20%', size: 800 },
         ]}
@@ -464,14 +547,14 @@ describe('Resizable', () => {
       const [sizes, setSizes] = createSignal([400, 600])
 
       return (
-        <Resizable
+        <ResizableFixture
           onResizeStart={(nextSizes) => events.push({ type: 'start', sizes: nextSizes })}
           onResize={(nextSizes) => {
             events.push({ type: 'resize', sizes: nextSizes })
             setSizes(nextSizes)
           }}
           onResizeEnd={(nextSizes) => events.push({ type: 'end', sizes: nextSizes })}
-          panels={[
+          items={[
             { content: 'Left', min: '20%', size: sizes()[0] },
             { content: 'Right', min: '20%', size: sizes()[1] },
           ]}
@@ -502,12 +585,12 @@ describe('Resizable', () => {
       ])
 
       return (
-        <Resizable
+        <ResizableFixture
           onResize={(nextSizes) => {
             onResize(nextSizes)
             nextSizes.forEach((nextSize, index) => setPanels(index, 'size', nextSize))
           }}
-          panels={panels}
+          items={panels}
         />
       )
     })
@@ -525,8 +608,8 @@ describe('Resizable', () => {
 
   test('supports mixed controlled sizes with px numbers and percent strings', () => {
     const screen = render(() => (
-      <Resizable
-        panels={[{ content: 'A', size: 200 }, { content: 'B', size: '30%' }, { content: 'C' }]}
+      <ResizableFixture
+        items={[{ content: 'A', size: 200 }, { content: 'B', size: '30%' }, { content: 'C' }]}
       />
     ))
 
@@ -540,8 +623,8 @@ describe('Resizable', () => {
 
   test('uses defaultSize for uncontrolled items in mixed controlled mode and honors min/max', () => {
     const screen = render(() => (
-      <Resizable
-        panels={[
+      <ResizableFixture
+        items={[
           { content: 'A', size: 900, min: '10%', max: '50%' },
           { content: 'B', defaultSize: '40%', min: '30%', max: '45%' },
           { content: 'C', min: '20%', max: '35%' },
@@ -560,8 +643,8 @@ describe('Resizable', () => {
 
   test('does not render uncontrolled panels at 0% before defaults are applied', () => {
     const screen = render(() => (
-      <Resizable
-        panels={[
+      <ResizableFixture
+        items={[
           { content: 'Left', defaultSize: '30%' },
           { content: 'Right', defaultSize: '70%' },
         ]}
@@ -577,8 +660,8 @@ describe('Resizable', () => {
 
   test('uses defaultSize on first measured layout when px min and max are provided', async () => {
     const screen = render(() => (
-      <Resizable
-        panels={[
+      <ResizableFixture
+        items={[
           { content: 'Sidebar', defaultSize: '15%', min: 240, max: 400 },
           { content: 'Content' },
         ]}
@@ -597,8 +680,8 @@ describe('Resizable', () => {
 
   test('recomputes uncontrolled default percentage on container resize with px min/max', async () => {
     const screen = render(() => (
-      <Resizable
-        panels={[
+      <ResizableFixture
+        items={[
           { content: 'Sidebar', defaultSize: '15%', min: 240, max: 400 },
           { content: 'Content' },
         ]}
@@ -625,8 +708,8 @@ describe('Resizable', () => {
 
   test('keeps uncontrolled dragged sizes as percentages after container resize', async () => {
     const screen = render(() => (
-      <Resizable
-        panels={[
+      <ResizableFixture
+        items={[
           { content: 'Left', defaultSize: '30%' },
           { content: 'Right', defaultSize: '70%' },
         ]}
@@ -658,8 +741,8 @@ describe('Resizable', () => {
 
   test('renders panel sizing with flex grow/shrink/basis', () => {
     const screen = render(() => (
-      <Resizable
-        panels={[
+      <ResizableFixture
+        items={[
           { content: 'Left', defaultSize: '30%' },
           { content: 'Right', defaultSize: '70%' },
         ]}
@@ -682,9 +765,9 @@ describe('Resizable', () => {
     const onResize = vi.fn()
 
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         onResize={onResize}
-        panels={[
+        items={[
           {
             content: 'Sidebar',
             defaultSize: '30%',
@@ -712,9 +795,9 @@ describe('Resizable', () => {
     const onResize = vi.fn()
 
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         onResize={onResize}
-        panels={[
+        items={[
           {
             content: 'Sidebar',
             defaultSize: '30%',
@@ -741,9 +824,9 @@ describe('Resizable', () => {
 
   test('toggles nearest collapsible panel when clicking handle in collapse mode', async () => {
     const screen = render(() => (
-      <Resizable
-        handleAction="collapse"
-        panels={[
+      <ResizableFixture
+        action="collapse"
+        items={[
           {
             content: 'Sidebar',
             defaultSize: '30%',
@@ -777,9 +860,9 @@ describe('Resizable', () => {
 
   test('clears transitioning marker on flex-grow transition end', async () => {
     const screen = render(() => (
-      <Resizable
-        handleAction="collapse"
-        panels={[
+      <ResizableFixture
+        action="collapse"
+        items={[
           {
             content: 'Sidebar',
             defaultSize: '30%',
@@ -804,10 +887,10 @@ describe('Resizable', () => {
 
   test('keeps handle drag non-resize in collapse mode while divider drag still resizes', async () => {
     const screen = render(() => (
-      <Resizable
-        handleAction="collapse"
+      <ResizableFixture
+        action="collapse"
         handle
-        panels={[
+        items={[
           {
             content: 'Sidebar',
             defaultSize: '30%',
@@ -841,13 +924,15 @@ describe('Resizable', () => {
 
   test('uses pointer cursor for handle in collapse mode and keeps divider resize cursor', () => {
     const screen = render(() => (
-      <Resizable
-        handleAction="collapse"
-        panels={[
-          { content: 'Sidebar', defaultSize: '30%', collapsible: true, collapsibleMin: '10%' },
-          { content: 'Content', defaultSize: '70%' },
-        ]}
-      />
+      <MoraineProvider theme={defaultTheme}>
+        <ResizableFixture
+          action="collapse"
+          items={[
+            { content: 'Sidebar', defaultSize: '30%', collapsible: true, collapsibleMin: '10%' },
+            { content: 'Content', defaultSize: '70%' },
+          ]}
+        />
+      </MoraineProvider>
     ))
 
     const divider = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
@@ -882,9 +967,9 @@ describe('Resizable', () => {
             Toggle
           </button>
 
-          <Resizable
+          <ResizableFixture
             onResize={handleResize}
-            panels={[
+            items={[
               {
                 content: 'Sidebar',
                 size: sizes()[0],
@@ -920,9 +1005,9 @@ describe('Resizable', () => {
     const onHandleKeyDown = vi.fn()
 
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         onHandleKeyDown={onHandleKeyDown}
-        panels={[
+        items={[
           { content: 'Left', min: '20%', defaultSize: '50%' },
           { content: 'Right', min: '20%', defaultSize: '50%' },
         ]}
@@ -952,13 +1037,13 @@ describe('Resizable', () => {
 
   test('skips internal keyboard resize when onHandleKeyDown prevents default', async () => {
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         onHandleKeyDown={({ event }) => {
           if (event.key === 'ArrowRight') {
             event.preventDefault()
           }
         }}
-        panels={[
+        items={[
           { content: 'Left', min: '20%', size: 500 },
           { content: 'Right', min: '20%', size: 500 },
         ]}
@@ -978,7 +1063,7 @@ describe('Resizable', () => {
 
   test('supports dragging when pointer down starts on handle visual area', async () => {
     const screen = render(() => (
-      <Resizable handle panels={[{ content: 'Left' }, { content: 'Right' }]} />
+      <ResizableFixture handle items={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
 
     const handleVisual = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
@@ -999,9 +1084,9 @@ describe('Resizable', () => {
       const [sizes, setSizes] = createSignal([100, 900])
 
       return (
-        <Resizable
+        <ResizableFixture
           onResize={(nextSizes) => setSizes(nextSizes)}
-          panels={[
+          items={[
             {
               content: 'Left',
               size: sizes()[0],
@@ -1033,8 +1118,8 @@ describe('Resizable', () => {
 
   test('marks panel as collapsed when its size equals collapsibleMin', () => {
     const screen = render(() => (
-      <Resizable
-        panels={[
+      <ResizableFixture
+        items={[
           { content: 'Left', size: 100, min: '20%', collapsible: true, collapsibleMin: '10%' },
           { content: 'Right', size: 900, min: '20%' },
         ]}
@@ -1051,8 +1136,8 @@ describe('Resizable', () => {
 
   test('does not render built-in collapsible buttons', () => {
     const screen = render(() => (
-      <Resizable
-        panels={[
+      <ResizableFixture
+        items={[
           { content: 'Left', collapsible: true },
           { content: 'Center', collapsible: true },
           { content: 'Right' },
@@ -1065,19 +1150,21 @@ describe('Resizable', () => {
 
   test('enables transition when collapse or expand is triggered', async () => {
     const screen = render(() => (
-      <Resizable
-        handleAction="collapse"
-        panels={[
-          {
-            content: 'Sidebar',
-            defaultSize: '30%',
-            min: '20%',
-            collapsible: true,
-            collapsibleMin: '10%',
-          },
-          { content: 'Content', defaultSize: '70%', min: '20%' },
-        ]}
-      />
+      <MoraineProvider theme={defaultTheme}>
+        <ResizableFixture
+          action="collapse"
+          items={[
+            {
+              content: 'Sidebar',
+              defaultSize: '30%',
+              min: '20%',
+              collapsible: true,
+              collapsibleMin: '10%',
+            },
+            { content: 'Content', defaultSize: '70%', min: '20%' },
+          ]}
+        />
+      </MoraineProvider>
     ))
 
     const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
@@ -1109,8 +1196,8 @@ describe('Resizable', () => {
           <button type="button" data-slot="resize" onClick={resizeSidebar}>
             Resize
           </button>
-          <Resizable
-            panels={[
+          <ResizableFixture
+            items={[
               { content: 'Left', size: sizes()[0], collapsible: true },
               { content: 'Right', size: sizes()[1] },
             ]}
@@ -1134,18 +1221,18 @@ describe('Resizable', () => {
 
   test('supports nested resizable panels and root-level intersection config', async () => {
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         handle
         intersection
-        panels={[
+        items={[
           { content: 'Outer Left' },
           {
             content: (
-              <Resizable
+              <ResizableFixture
                 orientation="vertical"
                 handle
                 intersection
-                panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
+                items={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />
             ),
           },
@@ -1175,19 +1262,19 @@ describe('Resizable', () => {
 
   test('does not show cross targets when the root handle system is disabled', async () => {
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         disable
         handle
         intersection
-        panels={[
+        items={[
           { content: 'Outer Left' },
           {
             content: (
-              <Resizable
+              <ResizableFixture
                 orientation="vertical"
                 handle
                 intersection
-                panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
+                items={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />
             ),
           },
@@ -1210,18 +1297,18 @@ describe('Resizable', () => {
 
   test('marks all affected handles as active when hovering a cross-target', async () => {
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         handle
         intersection
-        panels={[
+        items={[
           { content: 'Outer Left' },
           {
             content: (
-              <Resizable
+              <ResizableFixture
                 orientation="vertical"
                 handle
                 intersection
-                panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
+                items={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />
             ),
           },
@@ -1282,12 +1369,12 @@ describe('Resizable', () => {
           >
             Shrink
           </button>
-          <Resizable
+          <ResizableFixture
             onResize={(nextSizes) => {
               onResize(nextSizes)
               setSizes(nextSizes)
             }}
-            panels={panels()}
+            items={panels()}
           />
         </div>
       )
@@ -1310,7 +1397,9 @@ describe('Resizable', () => {
   })
 
   test('updates data-active and data-dragging through hover and drag states', async () => {
-    const screen = render(() => <Resizable panels={[{ content: 'Left' }, { content: 'Right' }]} />)
+    const screen = render(() => (
+      <ResizableFixture items={[{ content: 'Left' }, { content: 'Right' }]} />
+    ))
 
     const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
     const panel = screen.container.querySelector('[data-slot="panel"]') as HTMLDivElement
@@ -1341,18 +1430,18 @@ describe('Resizable', () => {
 
   test('locks document text selection while dragging from cross target and restores afterwards', async () => {
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         handle
         intersection
-        panels={[
+        items={[
           { content: 'Outer Left' },
           {
             content: (
-              <Resizable
+              <ResizableFixture
                 orientation="vertical"
                 handle
                 intersection
-                panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
+                items={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />
             ),
           },
@@ -1381,18 +1470,18 @@ describe('Resizable', () => {
 
   test('keeps divider in cross-hovered state through press and release on cross target', async () => {
     const screen = render(() => (
-      <Resizable
+      <ResizableFixture
         handle
         intersection
-        panels={[
+        items={[
           { content: 'Outer Left' },
           {
             content: (
-              <Resizable
+              <ResizableFixture
                 orientation="vertical"
                 handle
                 intersection
-                panels={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
+                items={[{ content: 'Inner Top' }, { content: 'Inner Bottom' }]}
               />
             ),
           },
@@ -1433,10 +1522,10 @@ describe('Resizable', () => {
       const onResizeEnd = vi.fn()
 
       const screen = render(() => (
-        <Resizable
+        <ResizableFixture
           onResize={onResize}
           onResizeEnd={onResizeEnd}
-          panels={[{ content: 'Left' }, { content: 'Right' }]}
+          items={[{ content: 'Left' }, { content: 'Right' }]}
         />
       ))
 
@@ -1469,11 +1558,37 @@ describe('Resizable', () => {
       expect(handle.getAttribute('data-dragging')).toBeNull()
     })
 
+    test.each([1, -1])(
+      'keeps a constrained divider still until the pointer returns (%i)',
+      async (direction) => {
+        const onResize = vi.fn()
+        const screen = render(() => (
+          <ResizableFixture
+            onResize={onResize}
+            items={[
+              { content: 'Left', min: '20%', max: '80%' },
+              { content: 'Right', min: '20%', max: '80%' },
+            ]}
+          />
+        ))
+        await waitForLayoutInitialization()
+        const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+        fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
+        fireEvent.pointerMove(window, { pointerId: 1, clientX: direction * 500, clientY: 0 })
+        const callsAtLimit = onResize.mock.calls.length
+        fireEvent.pointerMove(window, { pointerId: 1, clientX: direction * 400, clientY: 0 })
+        expect(onResize).toHaveBeenCalledTimes(callsAtLimit)
+        fireEvent.pointerMove(window, { pointerId: 1, clientX: direction * 200, clientY: 0 })
+        expect(onResize.mock.calls.at(-1)?.[0][0]).toBeCloseTo(500 + direction * 200)
+        fireEvent.pointerUp(window, { pointerId: 1 })
+      },
+    )
+
     test('incremental moves accumulate correctly across multiple pointermove events', async () => {
       const onResize = vi.fn()
 
       const screen = render(() => (
-        <Resizable onResize={onResize} panels={[{ content: 'Left' }, { content: 'Right' }]} />
+        <ResizableFixture onResize={onResize} items={[{ content: 'Left' }, { content: 'Right' }]} />
       ))
 
       await waitForLayoutInitialization()
@@ -1491,6 +1606,67 @@ describe('Resizable', () => {
       const finalSizes = onResize.mock.calls.at(-1)?.[0] as number[] | undefined
       expect(finalSizes?.[0]).toBeCloseTo(650, 3)
       expect(finalSizes?.[1]).toBeCloseTo(350, 3)
+    })
+  })
+
+  describe('compound API', () => {
+    test('renders explicit panels and independently configured handles', () => {
+      const screen = render(() => (
+        <Resizable>
+          <Resizable.Panel id="first" data-testid="first" class="first-panel">
+            First
+          </Resizable.Panel>
+          <Resizable.Handle children={false} data-testid="plain-divider" />
+          <Resizable.Panel>Second</Resizable.Panel>
+          <Resizable.Handle action="collapse" data-testid="collapse-divider">
+            {(state) => <span data-disabled={state.disabled ? '' : undefined}>Collapse</span>}
+          </Resizable.Handle>
+          <Resizable.Panel collapsible>Third</Resizable.Panel>
+        </Resizable>
+      ))
+
+      expect(screen.container.querySelectorAll('[data-slot="panel"]')).toHaveLength(3)
+      expect(screen.container.querySelectorAll('[data-slot="divider"]')).toHaveLength(2)
+      expect(screen.container.querySelectorAll('[data-slot="handle"]')).toHaveLength(1)
+      expect(screen.getByTestId('first').id).toBe('first')
+      expect(screen.getByTestId('first').className).toContain('first-panel')
+      expect(screen.getByTestId('collapse-divider').getAttribute('data-testid')).toBe(
+        'collapse-divider',
+      )
+      expect(screen.getByText('Collapse')).toBeTruthy()
+    })
+
+    test('allows adjacent panels without a handle', () => {
+      const screen = render(() => (
+        <Resizable>
+          <Resizable.Panel>First</Resizable.Panel>
+          <Resizable.Panel>Second</Resizable.Panel>
+        </Resizable>
+      ))
+
+      expect(screen.container.querySelectorAll('[data-slot="panel"]')).toHaveLength(2)
+      expect(screen.container.querySelector('[data-slot="divider"]')).toBeNull()
+    })
+
+    test('rejects handles that are not between two panels', () => {
+      expect(() =>
+        render(() => (
+          <Resizable>
+            <Resizable.Handle />
+            <Resizable.Panel>Only panel</Resizable.Panel>
+          </Resizable>
+        )),
+      ).toThrow('Resizable.Handle must be placed between two Resizable.Panel children')
+    })
+
+    test('rejects unknown children', () => {
+      expect(() =>
+        render(() => (
+          <Resizable>
+            <div>Unknown</div>
+          </Resizable>
+        )),
+      ).toThrow('Resizable only accepts Resizable.Panel and Resizable.Handle children')
     })
   })
 })

@@ -9,41 +9,39 @@ export function ScrollableFullscreen() {
 
   return (
     <div class="flex flex-wrap gap-3 items-center">
-      <Dialog
-        scrollable
-        title="Release Notes"
-        description="Long content scrolls with the overlay."
-        body={
-          <div class="space-y-1">
-            <For each={SCROLLABLE_LINES}>
-              {(line) => <p class="text-sm text-foreground">{line}</p>}
-            </For>
-          </div>
-        }
-      >
-        {(props) => (
-          <Button {...props} variant="secondary">
-            Overlay scroll dialog
-          </Button>
-        )}
+      <Dialog>
+        <Dialog.Trigger as={Button} variant="secondary">
+          Overlay scroll dialog
+        </Dialog.Trigger>
+        <Dialog.Content
+          scrollable
+          title="Release Notes"
+          description="Long content scrolls with the overlay."
+          body={
+            <div class="space-y-1">
+              <For each={SCROLLABLE_LINES}>
+                {(line) => <p class="text-sm text-foreground">{line}</p>}
+              </For>
+            </div>
+          }
+        />
       </Dialog>
-      <Dialog
-        fullscreen
-        title="Release Notes"
-        description="Full screen dialog content."
-        body={
-          <div class="space-y-1">
-            <For each={SCROLLABLE_LINES}>
-              {(line) => <p class="text-sm text-foreground">{line}</p>}
-            </For>
-          </div>
-        }
-      >
-        {(props) => (
-          <Button {...props} variant="secondary">
-            Full screen dialog
-          </Button>
-        )}
+      <Dialog>
+        <Dialog.Trigger as={Button} variant="secondary">
+          Full screen dialog
+        </Dialog.Trigger>
+        <Dialog.Content
+          fullscreen
+          title="Release Notes"
+          description="Full screen dialog content."
+          body={
+            <div class="space-y-1">
+              <For each={SCROLLABLE_LINES}>
+                {(line) => <p class="text-sm text-foreground">{line}</p>}
+              </For>
+            </div>
+          }
+        />
       </Dialog>
     </div>
   )
