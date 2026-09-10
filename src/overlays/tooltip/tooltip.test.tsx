@@ -297,6 +297,31 @@ describe('Tooltip', () => {
     expect(document.body.querySelector('[role=tooltip]')?.textContent).toContain('Tooltip content')
   })
 
+  test('does not reopen when window focus returns to a trigger with a pending focus delay', async () => {
+    vi.useFakeTimers()
+    const screen = render(() => (
+      <Tooltip openDelay={50}>
+        <Tooltip.Trigger as="button" type="button">
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Content text="Tooltip content" />
+      </Tooltip>
+    ))
+    const trigger = screen.getByRole('button')
+
+    fireEvent.focus(trigger)
+    fireEvent.blur(window)
+    fireEvent.focus(trigger)
+    await vi.advanceTimersByTimeAsync(50)
+
+    expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
+
+    fireEvent.blur(trigger)
+    fireEvent.focus(trigger)
+    await vi.advanceTimersByTimeAsync(50)
+    expect(document.body.querySelector('[role="tooltip"]')).not.toBeNull()
+  })
+
   test('ignores touch and pen hover before accepting mouse hover', async () => {
     vi.useFakeTimers()
     const screen = render(() => (

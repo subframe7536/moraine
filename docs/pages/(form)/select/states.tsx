@@ -19,6 +19,7 @@ export function States() {
         defaultValue="banana"
         placeholder="An option can also be disabled"
       />
+      <Select options={FRUIT_OPTIONS} readOnly value="cherry" placeholder="Read-only selection" />
     </div>
   )
 }

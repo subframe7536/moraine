@@ -55,6 +55,7 @@ import type { MultiSelectT } from 'moraine'
       ],
     },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
     { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
   ]}
 >
@@ -76,6 +77,7 @@ import type { MultiSelectT } from 'moraine'
         variant={props.variant}
         size={props.size}
         disabled={props.disabled}
+        readOnly={props.readOnly}
         loading={props.loading}
         allowClear
       />
@@ -114,6 +116,10 @@ content
 The value is an array of selected option values. Control it with `value` and `onChange` when the application owns selection. Search state and creation behavior are separate from selection; token separators can turn pasted text into multiple values when the relevant options are enabled.
 
 <Preview path="./values-and-search" />
+
+### Read-only selection
+
+Use `readOnly` to keep tags and selected values available for focus, browsing, and native form submission while preventing option changes, tag removal, clear actions, and tag creation.
 
 ### Large option sets
 

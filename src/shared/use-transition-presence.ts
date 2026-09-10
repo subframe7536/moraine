@@ -115,6 +115,7 @@ export function useTransitionPresence(
   let exitTimeout: ReturnType<typeof setTimeout> | undefined
   let nextRegistrationId = 0
   let legacyRegistrationId: number | undefined
+  let disposed = false
 
   const clearPendingAnimations = (): void => {
     if (exitTimeout !== undefined) {
@@ -267,9 +268,19 @@ export function useTransitionPresence(
     setRegistrations(new Map())
   }
 
+  onCleanup(() => {
+    disposed = true
+    clearPendingAnimations()
+    for (const tracked of trackedElements.values()) {
+      tracked.cleanup()
+    }
+    trackedElements.clear()
+    animationNames.clear()
+  })
+
   createEffect(
     on([options.open, registrations], ([open, currentRegistrations]) => {
-      const currentElements = Array.from(currentRegistrations.values())
+      const currentElements = Array.from(new Set(currentRegistrations.values()))
 
       if (open) {
         clearPendingAnimations()
@@ -290,7 +301,7 @@ export function useTransitionPresence(
       let cancelled = false
 
       queueMicrotask(() => {
-        if (cancelled) {
+        if (cancelled || disposed) {
           return
         }
 
@@ -376,6 +387,14 @@ export function useTransitionPresence(
     },
     setElement(nextElement) {
       const previousRegistrationId = legacyRegistrationId
+
+      if (
+        nextElement &&
+        previousRegistrationId !== undefined &&
+        registrations().get(previousRegistrationId) === nextElement
+      ) {
+        return
+      }
 
       if (nextElement) {
         legacyRegistrationId = addRegistration(nextElement)

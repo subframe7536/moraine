@@ -60,6 +60,7 @@ interface PendingPointer {
 }
 
 export interface OutsidePressHandlers {
+  dispose: () => void
   pointerdown: (event: PointerEvent) => void
   pointermove: (event: PointerEvent) => void
   pointerup: (event: PointerEvent) => void
@@ -69,6 +70,7 @@ export interface OutsidePressHandlers {
 /** Delays coarse-pointer dismissal until a completed tap so scrolling cannot close an overlay. */
 export function createOutsidePressHandlers(options: OutsidePressOptions): OutsidePressHandlers {
   const pendingPointers = new Map<number, PendingPointer>()
+  let disposed = false
 
   const clearPointer = (event: PointerEvent): PendingPointer | undefined => {
     const pending = pendingPointers.get(event.pointerId)
@@ -80,7 +82,22 @@ export function createOutsidePressHandlers(options: OutsidePressOptions): Outsid
   }
 
   return {
+    dispose: () => {
+      if (disposed) {
+        return
+      }
+
+      disposed = true
+      for (const pending of pendingPointers.values()) {
+        clearTimeout(pending.timeoutId)
+      }
+      pendingPointers.clear()
+    },
     pointerdown: (event) => {
+      if (disposed) {
+        return
+      }
+
       const target = event.target
       if (
         event.button !== 0 ||
@@ -97,16 +114,21 @@ export function createOutsidePressHandlers(options: OutsidePressOptions): Outsid
         return
       }
 
+      clearPointer(event)
+      let pending: PendingPointer
       const timeoutId = setTimeout(() => {
-        pendingPointers.delete(event.pointerId)
+        if (pendingPointers.get(event.pointerId) === pending) {
+          pendingPointers.delete(event.pointerId)
+        }
       }, 1000)
-      pendingPointers.set(event.pointerId, {
+      pending = {
         event,
         startX: event.clientX,
         startY: event.clientY,
         timeoutId,
         valid: !event.defaultPrevented,
-      })
+      }
+      pendingPointers.set(event.pointerId, pending)
       if (pendingPointers.size > 1) {
         for (const pending of pendingPointers.values()) {
           pending.valid = false
@@ -114,6 +136,10 @@ export function createOutsidePressHandlers(options: OutsidePressOptions): Outsid
       }
     },
     pointermove: (event) => {
+      if (disposed) {
+        return
+      }
+
       const pending = pendingPointers.get(event.pointerId)
       if (
         pending &&
@@ -124,12 +150,20 @@ export function createOutsidePressHandlers(options: OutsidePressOptions): Outsid
       }
     },
     pointerup: (event) => {
+      if (disposed) {
+        return
+      }
+
       const pending = clearPointer(event)
       if (pending?.valid && pendingPointers.size === 0 && options.isEnabled()) {
         options.onPress(pending.event)
       }
     },
     pointercancel: (event) => {
+      if (disposed) {
+        return
+      }
+
       clearPointer(event)
     },
   }
@@ -418,34 +452,89 @@ export function focusTrigger(triggerElement: HTMLElement | undefined): boolean {
   return document.activeElement === target
 }
 
-export function resolveDirection(): 'ltr' | 'rtl' {
+export function resolveDirection(element?: Element): 'ltr' | 'rtl' {
   if (typeof document === 'undefined') {
     return 'ltr'
+  }
+
+  if (element && typeof getComputedStyle === 'function') {
+    const direction = getComputedStyle(element).direction
+    if (direction === 'ltr' || direction === 'rtl') {
+      return direction
+    }
   }
 
   return (document.dir || document.documentElement.dir || 'ltr') === 'rtl' ? 'rtl' : 'ltr'
 }
 
-export function getTransformOrigin(placement: Placement, direction: 'ltr' | 'rtl'): string {
+export interface TransformOriginOptions {
+  gutter?: number
+  overlap?: boolean
+  reference: { height: number; width: number; x: number; y: number }
+  shift?: { x?: number; y?: number }
+  x: number
+  y: number
+}
+
+export function getTransformOrigin(
+  placement: Placement,
+  direction: 'ltr' | 'rtl',
+  options?: TransformOriginOptions,
+): string {
   const [basePlacement, alignment] = placement.split('-') as [
     FloatingSide,
     'start' | 'end' | undefined,
   ]
   const reversePlacement = REVERSE_BASE_PLACEMENT[basePlacement]
 
-  if (!alignment) {
-    return `${reversePlacement} center`
+  if (!options) {
+    if (!alignment) {
+      return `${reversePlacement} center`
+    }
+
+    if (basePlacement === 'left' || basePlacement === 'right') {
+      return `${reversePlacement} ${alignment === 'start' ? 'top' : 'bottom'}`
+    }
+
+    if (alignment === 'start') {
+      return `${reversePlacement} ${direction === 'rtl' ? 'right' : 'left'}`
+    }
+
+    return `${reversePlacement} ${direction === 'rtl' ? 'left' : 'right'}`
   }
 
-  if (basePlacement === 'left' || basePlacement === 'right') {
-    return `${reversePlacement} ${alignment === 'start' ? 'top' : 'bottom'}`
+  const isVertical = basePlacement === 'top' || basePlacement === 'bottom'
+  const crossAxisShift = isVertical ? (options.shift?.x ?? 0) : (options.shift?.y ?? 0)
+  const mainAxisShift = isVertical ? (options.shift?.y ?? 0) : (options.shift?.x ?? 0)
+  const gutter = options.gutter ?? 0
+  const crossOrigin =
+    alignment && Math.abs(crossAxisShift) <= 1
+      ? (alignment === 'start') === (isVertical && direction === 'rtl')
+        ? '100%'
+        : '0%'
+      : `${
+          isVertical
+            ? options.reference.x + options.reference.width / 2 - options.x
+            : options.reference.y + options.reference.height / 2 - options.y
+        }px`
+  let sideOrigin =
+    basePlacement === 'top' || basePlacement === 'left'
+      ? `calc(100% + ${gutter}px)`
+      : `${-gutter}px`
+
+  if (options.overlap && Math.abs(mainAxisShift) > gutter) {
+    sideOrigin = `${
+      isVertical
+        ? options.reference.y + options.reference.height / 2 - options.y
+        : options.reference.x + options.reference.width / 2 - options.x
+    }px`
   }
 
-  if (alignment === 'start') {
-    return `${reversePlacement} ${direction === 'rtl' ? 'right' : 'left'}`
+  if (isVertical) {
+    return `${crossOrigin} ${sideOrigin}`
   }
 
-  return `${reversePlacement} ${direction === 'rtl' ? 'left' : 'right'}`
+  return `${sideOrigin} ${crossOrigin}`
 }
 
 export function trapFocusInContainer(

@@ -487,7 +487,7 @@ describe('Select - single mode', () => {
       const content = queryBody('[data-slot="content"]') as HTMLElement | null
       expect(content).not.toBeNull()
       expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
-        'top left',
+        '-4px -4px',
       )
     })
   })
@@ -1423,6 +1423,48 @@ describe('Select - form integration', () => {
     fireEvent.click(items[1]!)
 
     expect(new FormData(form).getAll('fruit')).toEqual(['banana'])
+  })
+
+  test('keeps a read-only selection focusable while blocking every write path', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <Select
+          name="fruit"
+          search
+          allowClear
+          defaultOpen
+          defaultValue="apple"
+          options={FRUITS}
+          readOnly
+          onChange={onChange}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    const nativeSelect = form.querySelector('select[name="fruit"]') as HTMLSelectElement
+
+    input.focus()
+    fireEvent.input(input, { target: { value: 'banana' } })
+    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+    const banana = Array.from(nativeSelect.options).find((option) => option.value === 'banana')!
+    banana.selected = true
+    fireEvent.change(nativeSelect)
+    fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
+
+    expect(document.activeElement).toBe(input)
+    expect(input.readOnly).toBe(true)
+    expect(input.getAttribute('aria-readonly')).toBe('true')
+    expect(
+      screen.container.querySelector('[data-slot="root"]')?.hasAttribute('data-readonly'),
+    ).toBe(true)
+    const clearButton = screen.container.querySelector(
+      '[data-slot="clear"]',
+    ) as HTMLButtonElement | null
+    expect(clearButton?.disabled).toBe(true)
+    expect(onChange).not.toHaveBeenCalled()
+    expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
   })
 
   test('serializes numeric selections and omits disabled fields', () => {

@@ -497,7 +497,7 @@ describe('Popper primitives', () => {
     await waitFor(() => {
       expect(document.body.querySelector('[data-testid="placement"]')?.textContent).toBe('top')
       expect(positioner.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
-        'bottom center',
+        '0px calc(100% + 0px)',
       )
     })
 
@@ -508,7 +508,7 @@ describe('Popper primitives', () => {
         'right-end',
       )
       expect(positioner.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
-        'left bottom',
+        '0px 100%',
       )
     })
   })

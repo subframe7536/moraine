@@ -6,6 +6,7 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import type {
   FormDisableOption,
   FormIdentityOptions,
+  FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
 } from '../shared/form-options'
@@ -131,7 +132,8 @@ export namespace MultiSelectT {
       FormIdentityOptions,
       FormValueOptions<TItem[]>,
       FormRequiredOption,
-      FormDisableOption {
+      FormDisableOption,
+      FormReadOnlyOption {
     /** Called when the selection changes. */
     onChange?: (value: NoInfer<TItem[]>) => void
     /** Renders flattened group labels and options through a virtualization layer. */

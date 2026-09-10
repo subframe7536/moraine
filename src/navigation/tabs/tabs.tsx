@@ -111,6 +111,12 @@ export function Tabs(props: TabsProps): JSX.Element {
   const triggerRefs = new Map<string, HTMLButtonElement>()
   const [highlightedKey, setHighlightedKey] = createSignal<string | undefined>()
   const [focusRecoveryRequested, setFocusRecoveryRequested] = createSignal(false)
+  let disposed = false
+  let focusRecoveryGeneration = 0
+
+  onCleanup(() => {
+    disposed = true
+  })
   const effectiveHighlighted = createMemo<string | undefined>(() => {
     const focused = highlightedKey()
 
@@ -225,12 +231,15 @@ export function Tabs(props: TabsProps): JSX.Element {
     }
 
     const recoveryKey = effectiveHighlighted()
+    const generation = ++focusRecoveryGeneration
 
     queueMicrotask(() => {
-      if (recoveryKey !== undefined) {
-        triggerRefs.get(recoveryKey)?.focus()
+      if (!disposed && generation === focusRecoveryGeneration) {
+        if (document.activeElement === document.body && recoveryKey !== undefined) {
+          triggerRefs.get(recoveryKey)?.focus()
+        }
+        setFocusRecoveryRequested(false)
       }
-      setFocusRecoveryRequested(false)
     })
   })
 

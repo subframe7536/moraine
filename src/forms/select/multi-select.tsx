@@ -14,11 +14,13 @@ import type { BaseSelectT } from './base-select'
 import type { MultiSelectProps, MultiSelectT } from './multi-select.types'
 import {
   createEmptyRenderer,
+  getSelectedValueKey,
   emitSelectValueChange,
   findNormalizedOptionByText,
   mapNormalizedListToRawValues,
   mapNormalizedToRawValue,
   renderDefaultSelectOption,
+  resolveSelectedOptions,
 } from './shared'
 import type { NormalizedOption } from './shared'
 
@@ -33,35 +35,39 @@ function disableUnselectedOptionsWhenAtMax<
     return items
   }
 
-  return items.map((item) => {
-    if (Array.isArray(item.children) && item.children.length > 0) {
+  const selectedKeys = new Set(selectedValues.map(getSelectedValueKey))
+  const disableItems = (currentItems: TItem[]): TItem[] =>
+    currentItems.map((item) => {
+      if (Array.isArray(item.children) && item.children.length > 0) {
+        return {
+          ...item,
+          children: disableItems(item.children),
+        }
+      }
+
+      if (item.disabled || selectedKeys.has(getSelectedValueKey(item.value ?? ''))) {
+        return item
+      }
+
       return {
         ...item,
-        children: disableUnselectedOptionsWhenAtMax(item.children, selectedValues, true),
+        disabled: true,
       }
-    }
+    })
 
-    if (
-      item.disabled ||
-      selectedValues.some((selectedValue) => Object.is(selectedValue, item.value ?? ''))
-    ) {
-      return item
-    }
-
-    return {
-      ...item,
-      disabled: true,
-    }
-  })
+  return disableItems(items)
 }
 
 function normalizeSelectedValues<TValue extends string | number>(
   values: readonly TValue[] | undefined,
 ): TValue[] {
   const result: TValue[] = []
+  const seenKeys = new Set<string>()
 
   for (const value of values ?? []) {
-    if (!result.some((current) => Object.is(current, value))) {
+    const key = getSelectedValueKey(value)
+    if (!seenKeys.has(key)) {
+      seenKeys.add(key)
       result.push(value)
     }
   }
@@ -160,16 +166,20 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       return disableUnselectedOptionsWhenAtMax(base, selected, atMax)
     }
 
-    const existingValues = base.flatMap((item) => {
-      if (Array.isArray(item.children)) {
-        return item.children.map((child) => child.value ?? '')
-      }
+    const existingValues = new Set(
+      base
+        .flatMap((item) => {
+          if (Array.isArray(item.children)) {
+            return item.children.map((child) => child.value ?? '')
+          }
 
-      return [item.value ?? '']
-    })
+          return [item.value ?? '']
+        })
+        .map(getSelectedValueKey),
+    )
 
     const newTags = createdTags()
-      .filter((tag) => !existingValues.some((existingValue) => Object.is(existingValue, tag.value)))
+      .filter((tag) => !existingValues.has(getSelectedValueKey(tag.value)))
       .map((tag) => tag.raw)
 
     return disableUnselectedOptionsWhenAtMax(newTags.concat(base), selected, atMax)
@@ -187,22 +197,18 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
             ),
           )
         : selectedValues()
-    const usedOptionIds = new Set<string>()
+    const resolution = resolveSelectedOptions(api.allFlatOptions(), values)
 
-    return values.map((value, index) => {
-      const option = api
-        .allFlatOptions()
-        .find((candidate) => !usedOptionIds.has(candidate.id) && Object.is(candidate.value, value))
-      if (option) {
-        usedOptionIds.add(option.id)
-        return option
+    return resolution.entries.map((entry, index) => {
+      if (entry.type === 'option') {
+        return entry.option
       }
 
-      const label = String(value)
-      const item = { label, value } as Item
+      const label = String(entry.value)
+      const item = { label, value: entry.value } as Item
       return {
-        id: `selected:${typeof value}:${encodeURIComponent(label)}:${index}`,
-        value,
+        id: `selected:${typeof entry.value}:${encodeURIComponent(label)}:${index}`,
+        value: entry.value,
         label,
         key: label,
         disabled: false,
@@ -216,6 +222,10 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
     options: NormalizedOption<Item>[],
     api: BaseSelectT.OptionSelectContext<Item>,
   ): void {
+    if (api.field.readOnly()) {
+      return
+    }
+
     const nextValue = normalizeSelectedValues(mapNormalizedListToRawValues(options) as TItem[])
     setSelectedValues(nextValue)
     emitSelectValueChange(api.field, nextValue, local.onChange)
@@ -248,6 +258,10 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
     text: string,
     api: BaseSelectT.OptionSelectContext<Item>,
   ): NormalizedOption<Item> | undefined {
+    if (api.field.readOnly()) {
+      return undefined
+    }
+
     const normalized = text.trim()
     if (!normalized) {
       return undefined
@@ -290,6 +304,10 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   }
 
   function clearSelection(api: BaseSelectT.StateApi<Item>): void {
+    if (api.field.readOnly()) {
+      return
+    }
+
     const nextValue: TItem[] = []
     setSelectedValues(nextValue)
     emitSelectValueChange(api.field, nextValue, local.onChange)
@@ -299,7 +317,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   }
 
   function createTag(value: string | undefined, api: BaseSelectT.StateApi<Item>): boolean {
-    if (!local.allowCreate) {
+    if (!local.allowCreate || api.field.readOnly()) {
       return false
     }
 
@@ -328,7 +346,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
     option: NormalizedOption<Item>,
     api: BaseSelectT.OptionSelectContext<Item>,
   ): void {
-    if (option.disabled) {
+    if (option.disabled || api.field.readOnly()) {
       return
     }
 
@@ -348,6 +366,10 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   }
 
   function handleInputChange(inputValue: string, api: BaseSelectT.StateApi<Item>): void {
+    if (api.field.readOnly()) {
+      return
+    }
+
     const separatorPattern = tokenSeparatorPattern()
     if (separatorPattern) {
       if (separatorPattern.split.test(inputValue)) {
@@ -389,7 +411,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
   }
 
   function handleEnterKey(event: KeyboardEvent, api: BaseSelectT.StateApi<Item>): void {
-    if (event.key !== 'Enter' || event.isComposing || isComposing()) {
+    if (event.key !== 'Enter' || event.isComposing || isComposing() || api.field.readOnly()) {
       return
     }
 
@@ -431,7 +453,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       return
     }
 
-    if (!api.isOpen()) {
+    if (!api.isOpen() || api.field.readOnly()) {
       return
     }
 
@@ -458,6 +480,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       event.key !== 'Backspace' ||
       !api.isSearchable() ||
       api.field.disabled() ||
+      api.field.readOnly() ||
       event.currentTarget.value !== '' ||
       event.currentTarget.selectionStart !== 0 ||
       event.currentTarget.selectionEnd !== 0
@@ -587,6 +610,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
             data-disabled={api.field.disabled() ? '' : undefined}
             data-invalid={api.field.invalid() ? '' : undefined}
             data-required={api.field.required() ? '' : undefined}
+            data-readonly={api.field.readOnly() ? '' : undefined}
             {...controlResolved.slot('control')}
             {...api.controlProps()}
           >
@@ -624,11 +648,11 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                           data-slot="tagRemove"
                           aria-label={`Remove ${option.key}`}
                           style={controlResolved.slot('tagRemove').style}
-                          disabled={api.field.disabled()}
+                          disabled={api.field.disabled() || api.field.readOnly()}
                           tabIndex={-1}
                           class={controlResolved.slot('tagRemove').class}
                           onPointerDown={(event) => {
-                            if (api.field.disabled()) {
+                            if (api.field.disabled() || api.field.readOnly()) {
                               return
                             }
                             event.preventDefault()
@@ -636,7 +660,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                             api.focusInput()
                           }}
                           onClick={(event) => {
-                            if (api.field.disabled()) {
+                            if (api.field.disabled() || api.field.readOnly()) {
                               return
                             }
                             event.stopPropagation()
@@ -667,10 +691,12 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                 {...controlResolved.slot('input')}
                 {...api.inputProps()}
                 placeholder={selectedOptions().length > 0 ? '' : local.placeholder}
-                readonly={!api.isSearchable() ? true : undefined}
+                readonly={!api.isSearchable() || api.field.readOnly() ? true : undefined}
                 tabIndex={api.isSearchable() ? undefined : -1}
                 onInput={(event) => {
-                  if (event.isComposing || isComposing()) {
+                  if (api.field.readOnly()) {
+                    event.currentTarget.value = api.inputValue()
+                  } else if (event.isComposing || isComposing()) {
                     api.setInputValue(event.currentTarget.value)
                   } else {
                     handleInputChange(event.currentTarget.value, api)
@@ -681,7 +707,9 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                 onCompositionStart={() => setIsComposing(true)}
                 onCompositionEnd={(event) => {
                   setIsComposing(false)
-                  handleInputChange(event.currentTarget.value, api)
+                  if (!api.field.readOnly()) {
+                    handleInputChange(event.currentTarget.value, api)
+                  }
                   event.currentTarget.value = api.inputValue()
                 }}
                 onKeyDown={(event) => {
@@ -716,9 +744,9 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                   ? controlResolved.slot('clear').style
                   : controlResolved.slot('trigger').style
               }
-              disabled={api.field.disabled() || isActionLoading()}
+              disabled={api.field.disabled() || api.field.readOnly() || isActionLoading()}
               onPointerDown={(event) => {
-                if (api.field.disabled() || isActionLoading()) {
+                if (api.field.disabled() || api.field.readOnly() || isActionLoading()) {
                   return
                 }
                 event.preventDefault()
@@ -728,7 +756,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               onClick={(event) => {
                 event.stopPropagation()
 
-                if (api.field.disabled() || isActionLoading()) {
+                if (api.field.disabled() || api.field.readOnly() || isActionLoading()) {
                   return
                 }
 

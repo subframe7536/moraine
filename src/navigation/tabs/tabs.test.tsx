@@ -491,6 +491,28 @@ describe('Tabs', () => {
     expect(screen.getByRole('tabpanel').textContent).toBe('Panel one')
   })
 
+  test('does not take focus back after a removed tab moves focus elsewhere', async () => {
+    const [items, setItems] = createSignal([
+      { label: 'One', value: 'one', content: 'One panel' },
+      { label: 'Two', value: 'two', content: 'Two panel' },
+    ])
+    const screen = render(() => (
+      <>
+        <Tabs defaultValue="two" items={items()} />
+        <button type="button">Outside</button>
+      </>
+    ))
+    const focusedTab = screen.getByRole('tab', { name: 'Two' })
+    const outside = screen.getByRole('button', { name: 'Outside' })
+
+    focusedTab.focus()
+    setItems([{ label: 'One', value: 'one', content: 'One panel' }])
+    outside.focus()
+    await Promise.resolve()
+
+    expect(document.activeElement).toBe(outside)
+  })
+
   test('renders and selects tabs when ResizeObserver is unavailable', async () => {
     const originalResizeObserver = globalThis.ResizeObserver
     delete (globalThis as { ResizeObserver?: typeof ResizeObserver }).ResizeObserver

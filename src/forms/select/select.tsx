@@ -110,6 +110,10 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
     option: NormalizedOption<Item> | null,
     api: BaseSelectT.OptionSelectContext<Item>,
   ): void {
+    if (api.field.readOnly()) {
+      return
+    }
+
     const value = option ? (mapNormalizedToRawValue(option) as TItem) : null
     const current = getCurrentValue(api)
 
@@ -174,6 +178,10 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
   }
 
   function clearSelection(api: BaseSelectT.StateApi<Item>): void {
+    if (api.field.readOnly()) {
+      return
+    }
+
     updateSelection(null, api)
     api.close()
     local.onClear?.()
@@ -243,6 +251,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
             data-disabled={api.field.disabled() ? '' : undefined}
             data-invalid={api.field.invalid() ? '' : undefined}
             data-required={api.field.required() ? '' : undefined}
+            data-readonly={api.field.readOnly() ? '' : undefined}
             {...controlResolved.slot('control')}
             {...api.controlProps()}
           >
@@ -274,7 +283,11 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                 placeholder={local.placeholder}
                 {...api.inputProps()}
                 onInput={(event) => {
-                  api.setInputValue(event.currentTarget.value)
+                  if (api.field.readOnly()) {
+                    event.currentTarget.value = api.inputValue()
+                  } else {
+                    api.setInputValue(event.currentTarget.value)
+                  }
                   api.onInput(event)
                 }}
               />
@@ -301,7 +314,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                 aria-label="Clear selection"
                 tabIndex={-1}
                 {...controlResolved.slot('clear')}
-                disabled={api.field.disabled()}
+                disabled={api.field.disabled() || api.field.readOnly()}
                 onPointerDown={(event) => {
                   event.preventDefault()
                   event.stopPropagation()
@@ -309,7 +322,7 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
                 }}
                 onClick={(event) => {
                   event.stopPropagation()
-                  if (api.field.disabled()) {
+                  if (api.field.disabled() || api.field.readOnly()) {
                     return
                   }
                   clearSelection(api)

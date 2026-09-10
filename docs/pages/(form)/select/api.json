@@ -27,6 +27,12 @@
           "description": "Present when the field or form has a validation error."
         },
         {
+          "name": "data-readonly",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is in read-only mode."
+        },
+        {
           "name": "data-required",
           "required": false,
           "type": "string | undefined",
@@ -164,7 +170,14 @@
       "description": "Group label or option label text, depending on context.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": []
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
     },
     {
       "name": "control",
@@ -182,6 +195,12 @@
           "required": false,
           "type": "string | undefined",
           "description": "Present when the field or form has a validation error."
+        },
+        {
+          "name": "data-readonly",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is in read-only mode."
         },
         {
           "name": "data-required",
@@ -517,6 +536,13 @@
         "type": "string | undefined",
         "description": "Placeholder text shown when no value is selected.",
         "defaultValue": ""
+      },
+      {
+        "name": "readOnly",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is read-only.",
+        "defaultValue": "false"
       },
       {
         "name": "ref",

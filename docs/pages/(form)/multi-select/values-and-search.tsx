@@ -23,6 +23,13 @@ export function ValuesAndSearch() {
         onChange={setSelected}
         allowClear
       />
+      <MultiSelect
+        readOnly
+        search
+        options={FRAMEWORKS}
+        value={selected()}
+        placeholder="Read-only framework selection"
+      />
       <p class="text-xs text-muted-foreground">
         Selected:{' '}
         <span class="text-foreground font-medium font-mono">{JSON.stringify(selected())}</span>

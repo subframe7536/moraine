@@ -87,7 +87,7 @@ const [TooltipProvider, useTooltipContext] = createContextProvider<{
   options: TooltipProps
   popper: ReturnType<typeof createPopper>
   instantMotion: Accessor<boolean>
-  scheduleOpen: () => void
+  scheduleOpen: (fromFocus?: boolean) => void
   scheduleClose: () => void
   dismiss: () => void
   resetPress: () => void
@@ -130,6 +130,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   let dismissedByPress = false
   let disabledInitialized = false
   let wasDisabled = false
+  let ignoreNextFocusAfterWindowBlur = false
 
   onCleanup(() => {
     ownerAlive = false
@@ -177,7 +178,16 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     popper.setOpen(true)
   }
 
-  function scheduleOpen(): void {
+  function scheduleOpen(fromFocus = false): void {
+    if (fromFocus && ignoreNextFocusAfterWindowBlur) {
+      ignoreNextFocusAfterWindowBlur = false
+      return
+    }
+
+    if (!fromFocus) {
+      ignoreNextFocusAfterWindowBlur = false
+    }
+
     if (merged.disabled || dismissedByPress) {
       return
     }
@@ -254,6 +264,15 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     disabledInitialized = true
   })
 
+  if (typeof window !== 'undefined') {
+    const onWindowBlur = (): void => {
+      ignoreNextFocusAfterWindowBlur = true
+      clearOpenTimer()
+    }
+    window.addEventListener('blur', onWindowBlur)
+    onCleanup(() => window.removeEventListener('blur', onWindowBlur))
+  }
+
   createEffect(() => {
     const isResolvedOpen = Boolean(open()) && !merged.disabled
 
@@ -308,7 +327,7 @@ function TooltipTrigger<T extends ValidComponent = 'button'>(
       {
         onPointerDown: context.dismiss,
         onClick: context.dismiss,
-        onFocus: context.scheduleOpen,
+        onFocus: () => context.scheduleOpen(true),
         onBlur: () => {
           context.resetPress()
           context.scheduleClose()

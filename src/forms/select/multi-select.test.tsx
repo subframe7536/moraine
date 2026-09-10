@@ -1118,6 +1118,50 @@ describe('MultiSelect', () => {
     expect(form.querySelectorAll('select[name="fruits"]')).toHaveLength(1)
   })
 
+  test('keeps a read-only multi-select focusable while blocking all mutations', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <form>
+        <MultiSelect
+          name="fruits"
+          search
+          allowClear
+          allowCreate
+          tokenSeparators={[',']}
+          defaultOpen
+          defaultValue={['apple']}
+          options={FRUITS}
+          readOnly
+          onChange={onChange}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form') as HTMLFormElement
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    const tagRemove = screen.getByRole<HTMLButtonElement>('button', { name: 'Remove Apple' })
+
+    input.focus()
+    fireEvent.input(input, { target: { value: 'banana,' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+    fireEvent.keyDown(input, { key: 'Backspace' })
+    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+    fireEvent.click(tagRemove)
+    fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
+
+    expect(document.activeElement).toBe(input)
+    expect(input.readOnly).toBe(true)
+    expect(input.getAttribute('aria-readonly')).toBe('true')
+    expect(
+      screen.container.querySelector('[data-slot="root"]')?.hasAttribute('data-readonly'),
+    ).toBe(true)
+    expect(tagRemove.disabled).toBe(true)
+    expect(
+      screen.getByRole<HTMLButtonElement>('button', { name: 'Clear selection' }).disabled,
+    ).toBe(true)
+    expect(onChange).not.toHaveBeenCalled()
+    expect(new FormData(form).getAll('fruits')).toEqual(['apple'])
+  })
+
   test('serializes matched, missing, numeric, and string values in public order', () => {
     const screen = render(() => (
       <form>

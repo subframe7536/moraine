@@ -9,6 +9,7 @@ import {
   DropdownMenu,
   Icon,
   Input,
+  MultiSelect,
   Textarea,
   Select,
   Kbd,
@@ -62,6 +63,11 @@ export type RecipeVariants = [
   Assert<'descriptionPosition' extends keyof CommandPaletteT.Item ? false : true>,
   Assert<'search' extends keyof SelectT.Variant ? true : false>,
   Assert<'search' extends keyof MultiSelectT.Variant ? true : false>,
+]
+
+export type ReadOnlyContracts = [
+  Assert<'readOnly' extends keyof SelectT.Props ? true : false>,
+  Assert<'readOnly' extends keyof MultiSelectT.Props ? true : false>,
 ]
 
 export type SlotContracts = [
@@ -292,11 +298,13 @@ createTheme({ button: { compoundVariants: [{ size: 'sm', class: { missing: 'p-4'
 />
 ;<Select
   options={[{ label: 'One', value: 1 }]}
+  readOnly
   onChange={(value) => {
     const selected: number | null = value
     void selected
   }}
 />
+;<MultiSelect options={[{ label: 'One', value: 1 }]} readOnly />
 // @ts-expect-error Unknown native props are rejected.
 ;<Input unknownNativeProp="invalid" />
 // @ts-expect-error Native change handlers receive events, not normalized strings.

@@ -18,6 +18,7 @@ interface UseSelectFieldProps {
   size?: FormFieldSize | null
   disabled?: boolean
   required?: boolean
+  readOnly?: boolean
   initialValue: unknown
 }
 
@@ -60,6 +61,7 @@ export function useSelectField(props: () => UseSelectFieldProps): UseFormFieldRe
         size: current.size,
         disabled: current.disabled,
         required: current.required,
+        readOnly: current.readOnly,
       }
     },
     () => ({
@@ -70,6 +72,67 @@ export function useSelectField(props: () => UseSelectFieldProps): UseFormFieldRe
   )
 
   return field
+}
+
+export function getSelectedValueKey(value: string | number): string {
+  if (typeof value === 'string') {
+    return `string:${value}`
+  }
+
+  if (Number.isNaN(value)) {
+    return 'number:NaN'
+  }
+
+  if (Object.is(value, -0)) {
+    return 'number:-0'
+  }
+
+  return `number:${value}`
+}
+
+export interface SelectedOptionResolution<TItem> {
+  entries: Array<
+    | { type: 'option'; option: NormalizedOption<TItem> }
+    | { type: 'unmatched'; value: string | number }
+  >
+  options: NormalizedOption<TItem>[]
+}
+
+/** Resolves selected values in linear time while preserving Object.is matching semantics. */
+export function resolveSelectedOptions<TItem>(
+  options: NormalizedOption<TItem>[],
+  values: Array<string | number>,
+): SelectedOptionResolution<TItem> {
+  const buckets = new Map<string, NormalizedOption<TItem>[]>()
+  for (const option of options) {
+    const key = getSelectedValueKey(option.value)
+    const bucket = buckets.get(key)
+    if (bucket) {
+      bucket.push(option)
+    } else {
+      buckets.set(key, [option])
+    }
+  }
+
+  const cursors = new Map<string, number>()
+  const entries: SelectedOptionResolution<TItem>['entries'] = []
+  const selectedOptions: NormalizedOption<TItem>[] = []
+  for (const value of values) {
+    const key = getSelectedValueKey(value)
+    const bucket = buckets.get(key)
+    const cursor = cursors.get(key) ?? 0
+    const option = bucket?.[cursor]
+    if (!option || !Object.is(option.value, value)) {
+      entries.push({ type: 'unmatched', value })
+      continue
+    }
+
+    cursors.set(key, cursor + 1)
+    selectedOptions.push(option)
+    entries.push({ type: 'option', option })
+  }
+
+  return { entries, options: selectedOptions }
 }
 
 /**

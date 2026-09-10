@@ -1568,6 +1568,7 @@ describe('DropdownMenu', () => {
 
     expect(label.id).not.toBe('')
     expect(group.getAttribute('aria-labelledby')).toBe(label.id)
+    expect(label.getAttribute('aria-hidden')).toBe('true')
     expect(item.id).not.toBe('')
   })
 

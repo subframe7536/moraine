@@ -366,6 +366,55 @@ describe('useTransitionPresence', () => {
     expect(vi.getTimerCount()).toBe(0)
   })
 
+  test('does not remeasure or replace a legacy registration for the same element', async () => {
+    const fixture = renderPresence()
+    let closed = false
+    let reads = 0
+    installComputedStyle(() => {
+      reads += 1
+      return {
+        animationDuration: '100ms',
+        animationName: closed ? 'mo-exit' : 'mo-enter',
+      }
+    })
+
+    fixture.setOpen(false)
+    closed = true
+    await flushExitDetection()
+    expect(reads).toBe(1)
+
+    fixture.presence.setElement(fixture.element)
+    await flushExitDetection()
+
+    expect(reads).toBe(1)
+  })
+
+  test('releases animation listeners when its owner is disposed during an exit', () => {
+    const removeEventListener = vi.spyOn(HTMLElement.prototype, 'removeEventListener')
+    let setOpen: ((open: boolean) => void) | undefined
+
+    const screen = render(() => {
+      const [open, updateOpen] = createSignal(true)
+      const presence = useTransitionPresence({ open })
+      setOpen = updateOpen
+
+      return (
+        <Show when={presence.present()}>
+          <div ref={presence.setElement} />
+        </Show>
+      )
+    })
+
+    setOpen?.(false)
+    screen.unmount()
+
+    const removedAnimationListeners = removeEventListener.mock.calls.filter(
+      ([type]) =>
+        type === 'animationstart' || type === 'animationend' || type === 'animationcancel',
+    )
+    expect(removedAnimationListeners).toHaveLength(3)
+  })
+
   test('ignores animation events from descendants', async () => {
     const fixture = renderPresence()
     const child = document.createElement('span')

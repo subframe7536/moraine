@@ -51,8 +51,19 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
       return
     }
 
-    const direction = resolveDirection()
+    const contentElement = options.contentElement?.()
+    const detachedPadding = options.detachedPadding?.()
+    const fitViewport = options.fitViewport?.()
     const flipOption = options.flip?.() ?? true
+    const gutter = options.gutter()
+    const hideWhenDetached = options.hideWhenDetached?.()
+    const overflowPadding = options.overflowPadding()
+    const overlap = options.overlap?.() ?? true
+    const placement = options.placement()
+    const sameWidth = options.sameWidth?.()
+    const crossAxisOffset = options.shift?.() ?? 0
+    const slide = options.slide?.() ?? true
+    const direction = resolveDirection(floatingElement)
     const fallbackPlacements = typeof flipOption === 'string' ? flipOption.split(' ') : undefined
     if (
       fallbackPlacements &&
@@ -64,14 +75,23 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
     }
     let positionedFrame: number | undefined
     let positionedTimeout: ReturnType<typeof setTimeout> | undefined
+    let active = true
+    let requestVersion = 0
 
-    const setPositioned = (): void => {
+    const setPositioned = (version: number): void => {
+      if (!active || version !== requestVersion) {
+        return
+      }
+
       if (!options.deferPositioned) {
         options.onPositionedChange(true)
         return
       }
 
       const markPositioned = (): void => {
+        if (!active || version !== requestVersion) {
+          return
+        }
         if (positionedFrame !== undefined && typeof cancelAnimationFrame === 'function') {
           cancelAnimationFrame(positionedFrame)
         }
@@ -83,11 +103,20 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
         options.onPositionedChange(true)
       }
 
-      if (typeof requestAnimationFrame === 'function') {
-        positionedFrame ??= requestAnimationFrame(markPositioned)
+      if (positionedFrame !== undefined && typeof cancelAnimationFrame === 'function') {
+        cancelAnimationFrame(positionedFrame)
+        positionedFrame = undefined
+      }
+      if (positionedTimeout !== undefined) {
+        clearTimeout(positionedTimeout)
+        positionedTimeout = undefined
       }
 
-      positionedTimeout ??= setTimeout(markPositioned, 16)
+      if (typeof requestAnimationFrame === 'function') {
+        positionedFrame = requestAnimationFrame(markPositioned)
+      }
+
+      positionedTimeout = setTimeout(markPositioned, 16)
     }
 
     const updatePosition = async (): Promise<void> => {
@@ -98,17 +127,24 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
         return
       }
 
-      const styleElement = options.contentElement?.() ?? floating
-      const overflowPadding = options.overflowPadding()
+      const version = ++requestVersion
+      const styleElement = contentElement ?? floating
+      let transformOrigin: Parameters<typeof getTransformOrigin>[2]
+      const isCurrent = (): boolean =>
+        active &&
+        version === requestVersion &&
+        options.open() &&
+        options.floatingElement() === floating &&
+        options.getReferenceElement() === reference &&
+        (options.contentElement?.() ?? floating) === styleElement
       const middleware: Middleware[] = [
         offset((state) => {
-          const crossAxis = options.shift?.() ?? 0
           const hasAlignment = Boolean(state.placement.split('-')[1])
 
           return {
-            alignmentAxis: crossAxis,
-            crossAxis: !hasAlignment ? crossAxis : undefined,
-            mainAxis: options.gutter(),
+            alignmentAxis: crossAxisOffset,
+            crossAxis: !hasAlignment ? crossAxisOffset : undefined,
+            mainAxis: gutter,
           }
         }),
       ]
@@ -122,8 +158,6 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
         )
       }
 
-      const slide = options.slide?.() ?? true
-      const overlap = options.overlap?.() ?? true
       if (slide || overlap) {
         middleware.push(
           shift({
@@ -138,6 +172,10 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
         size({
           padding: overflowPadding,
           apply({ availableHeight, availableWidth, rects }) {
+            if (!isCurrent()) {
+              return
+            }
+
             const referenceWidth = Math.round(rects.reference.width)
 
             styleElement.style.setProperty('--mo-popper-anchor-width', `${referenceWidth}px`)
@@ -153,11 +191,11 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
               '--mo-popper-content-overflow-padding',
               `${overflowPadding}px`,
             )
-            if (options.sameWidth?.()) {
+            if (sameWidth) {
               styleElement.style.width = `${referenceWidth}px`
             }
 
-            if (options.fitViewport?.()) {
+            if (fitViewport) {
               styleElement.style.maxWidth = `${Math.floor(availableWidth)}px`
               styleElement.style.maxHeight = `${Math.floor(availableHeight)}px`
             }
@@ -165,13 +203,28 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
         }),
       )
 
-      if (options.hideWhenDetached?.()) {
-        middleware.push(hide({ padding: options.detachedPadding?.() ?? 0 }))
+      if (hideWhenDetached) {
+        middleware.push(hide({ padding: detachedPadding ?? 0 }))
       }
+
+      middleware.push({
+        name: 'moraineTransformOrigin',
+        fn(state) {
+          transformOrigin = {
+            gutter,
+            overlap,
+            reference: state.rects.reference,
+            shift: state.middlewareData.shift,
+            x: state.x,
+            y: state.y,
+          }
+          return {}
+        },
+      })
 
       const position = await computePosition(reference, floating, {
         middleware,
-        placement: options.placement(),
+        placement,
         platform: {
           ...platform,
           isRTL: () => direction === 'rtl',
@@ -181,9 +234,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
       const referenceContext = 'contextElement' in reference ? reference.contextElement : undefined
 
       if (
-        !options.open() ||
-        options.floatingElement() !== floating ||
-        options.getReferenceElement() !== reference ||
+        !isCurrent() ||
         !floating.isConnected ||
         (reference instanceof Element && !reference.isConnected) ||
         (referenceContext instanceof Element && !referenceContext.isConnected)
@@ -194,7 +245,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
       options.onPlacementChange(position.placement)
       styleElement.style.setProperty(
         '--mo-popper-content-transform-origin',
-        getTransformOrigin(position.placement, direction),
+        getTransformOrigin(position.placement, direction, transformOrigin),
       )
 
       Object.assign(floating.style, {
@@ -203,11 +254,9 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
         top: '0',
         transform: `translate3d(${Math.round(position.x)}px, ${Math.round(position.y)}px, 0)`,
         visibility:
-          options.hideWhenDetached?.() && position.middlewareData.hide?.referenceHidden
-            ? 'hidden'
-            : 'visible',
+          hideWhenDetached && position.middlewareData.hide?.referenceHidden ? 'hidden' : 'visible',
       })
-      setPositioned()
+      setPositioned(version)
     }
 
     const cleanupAutoUpdate = autoUpdate(referenceElement, floatingElement, updatePosition, {
@@ -215,6 +264,8 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
     })
 
     onCleanup(() => {
+      active = false
+      requestVersion += 1
       cleanupAutoUpdate()
       if (positionedFrame !== undefined && typeof cancelAnimationFrame === 'function') {
         cancelAnimationFrame(positionedFrame)

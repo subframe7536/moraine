@@ -116,6 +116,7 @@ export function useOverlayInteraction(options: OverlayInteractionOptions): void 
     })
 
     onCleanup(() => {
+      outsidePress.dispose()
       options.onDeactivate?.(context)
       release()
     })

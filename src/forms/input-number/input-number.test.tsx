@@ -381,6 +381,35 @@ describe('InputNumber', () => {
     expect(spinbutton.value).toBe('5')
   })
 
+  test('ignores horizontal wheel noise and uses Shift with the large step', () => {
+    const screen = render(() => <InputNumber defaultValue={5} step={2} largeStep={10} wheel />)
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+    spinbutton.focus()
+
+    const horizontalEvent = new WheelEvent('wheel', {
+      bubbles: true,
+      cancelable: true,
+      deltaX: -100,
+      deltaY: 0,
+    })
+    spinbutton.dispatchEvent(horizontalEvent)
+
+    expect(spinbutton.value).toBe('5')
+    expect(horizontalEvent.defaultPrevented).toBe(false)
+
+    const shiftedHorizontalEvent = new WheelEvent('wheel', {
+      bubbles: true,
+      cancelable: true,
+      deltaX: -100,
+      deltaY: 0,
+      shiftKey: true,
+    })
+    spinbutton.dispatchEvent(shiftedHorizontalEvent)
+
+    expect(spinbutton.value).toBe('15')
+    expect(shiftedHorizontalEvent.defaultPrevented).toBe(true)
+  })
+
   test('exposes formatted spinbutton text and stepper relationships', () => {
     const screen = render(() => <InputNumber id="quantity" defaultValue={12.5} locale="de-DE" />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
@@ -609,7 +638,7 @@ describe('InputNumber', () => {
     try {
       const screen = render(() => <InputNumber defaultValue={0} />)
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
-      const incrementButton = screen.getByRole('button', { name: 'Increment' })
+      const incrementButton = screen.getByRole<HTMLButtonElement>('button', { name: 'Increment' })
 
       fireEvent.pointerDown(incrementButton, {
         button: 0,
@@ -632,6 +661,38 @@ describe('InputNumber', () => {
       await vi.advanceTimersByTimeAsync(240)
 
       expect(Number(spinbutton.value)).toBe(stoppedValue)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  test('ends an active hold as soon as its callback disables the control', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const [disabled, setDisabled] = createSignal(false)
+      const onRawValueChange = vi.fn(() => setDisabled(true))
+      const screen = render(() => (
+        <InputNumber defaultValue={0} disabled={disabled()} onRawValueChange={onRawValueChange} />
+      ))
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+      const incrementButton = screen.getByRole<HTMLButtonElement>('button', { name: 'Increment' })
+
+      fireEvent.pointerDown(incrementButton, {
+        button: 0,
+        pointerId: 91,
+        pointerType: 'mouse',
+      })
+      await vi.advanceTimersByTimeAsync(500)
+
+      expect(spinbutton.value).toBe('1')
+      expect(incrementButton.disabled).toBe(true)
+      expect(incrementButton.getAttribute('data-active')).toBeNull()
+
+      await vi.advanceTimersByTimeAsync(1_000)
+
+      expect(spinbutton.value).toBe('1')
+      expect(onRawValueChange).toHaveBeenCalledOnce()
     } finally {
       vi.useRealTimers()
     }

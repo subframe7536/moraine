@@ -32,12 +32,19 @@ import type { UseFormFieldReturn } from '../form/form-context'
 import type {
   FormDisableOption,
   FormIdentityOptions,
+  FormReadOnlyOption,
   FormRequiredOption,
 } from '../shared/form-options'
 import { useFormReset } from '../shared/use-form-reset'
 
 import type { SelectT } from './select.types'
-import { flattenOptions, normalizeOptions, useSelectField, useSelectMenuControl } from './shared'
+import {
+  flattenOptions,
+  normalizeOptions,
+  resolveSelectedOptions,
+  useSelectField,
+  useSelectMenuControl,
+} from './shared'
 import type { BaseSelectItems, NormalizedGroup, NormalizedOption, SelectFilterMode } from './shared'
 
 export namespace BaseSelectT {
@@ -161,7 +168,7 @@ export namespace BaseSelectT {
   export type Styles = Slot<SlotStyleValue>
 
   export interface Base<TItem extends Item>
-    extends FormIdentityOptions, FormRequiredOption, FormDisableOption {
+    extends FormIdentityOptions, FormRequiredOption, FormDisableOption, FormReadOnlyOption {
     /** Available options. */
     options?: TItem[]
     /** Controlled open state. */
@@ -289,39 +296,6 @@ function matchesFilter<TOption extends { key: string }>(
   const input = inputValue.toLowerCase()
   const text = option.key.toLowerCase()
   return (SELECT_FILTER_STRATEGIES[filter] ?? SELECT_FILTER_STRATEGIES.contains)(text, input)
-}
-
-function resolveSelectedOptions<TItem>(
-  options: NormalizedOption<TItem>[],
-  values: BaseSelectT.Value[],
-): {
-  entries: Array<
-    | { type: 'option'; option: NormalizedOption<TItem> }
-    | { type: 'unmatched'; value: BaseSelectT.Value }
-  >
-  options: NormalizedOption<TItem>[]
-} {
-  const selectedIds = new Set<string>()
-  const selectedOptions: NormalizedOption<TItem>[] = []
-  const entries: Array<
-    | { type: 'option'; option: NormalizedOption<TItem> }
-    | { type: 'unmatched'; value: BaseSelectT.Value }
-  > = []
-
-  for (const value of values) {
-    const option = options.find(
-      (candidate) => !selectedIds.has(candidate.id) && Object.is(candidate.value, value),
-    )
-    if (option) {
-      selectedIds.add(option.id)
-      selectedOptions.push(option)
-      entries.push({ type: 'option', option })
-    } else {
-      entries.push({ type: 'unmatched', value })
-    }
-  }
-
-  return { entries, options: selectedOptions }
 }
 
 function scrollHighlightedItemIntoView(listbox: HTMLElement | undefined): void {
@@ -502,6 +476,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     'name',
     'required',
     'disabled',
+    'readOnly',
     'size',
     '_styles',
     'variant',
@@ -575,6 +550,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     size: merged.size ?? undefined,
     disabled: merged.disabled,
     required: local.required,
+    readOnly: merged.readOnly,
     initialValue: merged.initialValue,
   }))
   const isSearchable = createMemo(() => Boolean(merged.search))
@@ -861,7 +837,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   }
 
   function selectOption(option: NormalizedOption<TItem>): void {
-    if (option.disabled) {
+    if (option.disabled || field.readOnly()) {
       return
     }
 
@@ -911,7 +887,10 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   }
 
   function handleInput(event: InputEvent): void {
-    if (!isSearchable()) {
+    if (!isSearchable() || field.readOnly()) {
+      if (field.readOnly()) {
+        ;(event.currentTarget as HTMLInputElement).value = currentInputText()
+      }
       return
     }
 
@@ -1070,6 +1049,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     'aria-autocomplete': 'list',
     'aria-activedescendant': activeDescendantId(),
     disabled: field.disabled(),
+    readonly: field.readOnly(),
     maxLength: merged.searchMaxLength,
     value: currentInputText(),
     onInput: handleInput,
@@ -1247,7 +1227,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
           class={cn(resolved.slot('group').class, virtualProps?.class)}
           style={{ ...toStyleObject(virtualProps?.style), ...resolved.slot('group').style }}
         >
-          <span id={labelId} data-slot="label" {...resolved.slot('label')}>
+          <span id={labelId} data-slot="label" aria-hidden="true" {...resolved.slot('label')}>
             {entry.label}
           </span>
         </div>
@@ -1296,7 +1276,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         aria-labelledby={groupLabelId}
         {...resolved.slot('group')}
       >
-        <span id={groupLabelId} data-slot="label" {...resolved.slot('label')}>
+        <span id={groupLabelId} data-slot="label" aria-hidden="true" {...resolved.slot('label')}>
           {option.label}
         </span>
         <For each={option.options}>{(item) => renderVisibleOption(item)}</For>
@@ -1311,6 +1291,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       data-disabled={field.disabled() ? '' : undefined}
       data-invalid={field.invalid() ? '' : undefined}
       data-required={field.required() ? '' : undefined}
+      data-readonly={field.readOnly() ? '' : undefined}
       {...rest}
       {...resolved.root}
     >
@@ -1326,7 +1307,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         required={field.required()}
         tabIndex={-1}
         onChange={(event) => {
-          if (field.disabled() || merged.multiple) {
+          if (field.disabled() || field.readOnly() || merged.multiple) {
             syncNativeSelectState()
             return
           }

@@ -62,7 +62,7 @@ describe('ContextMenu', () => {
       expect(content?.classList).toContain('data-[side=right]:-enter-translate-x-1')
       expectNoPlacementMotion(content)
       expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
-        'left top',
+        '-4px 0%',
       )
     })
 
@@ -78,7 +78,7 @@ describe('ContextMenu', () => {
       expect(content?.classList).toContain('data-[side=left]:enter-translate-x-1')
       expectNoPlacementMotion(content)
       expect(content?.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
-        'right top',
+        '-4px 0%',
       )
     })
   })
@@ -464,9 +464,7 @@ describe('ContextMenu', () => {
     expect(content.className).toContain('origin-(--mo-popper-content-transform-origin)')
 
     await waitFor(() => {
-      expect(content.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
-        'left top',
-      )
+      expect(content.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe('-4px 0%')
     })
   })
 
@@ -1095,7 +1093,7 @@ describe('ContextMenu', () => {
     expect(submenuContent.classList).toContain('data-[side=right]:-enter-translate-x-1')
     await waitFor(() => {
       expect(submenuContent.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
-        'left top',
+        '-4px -4px',
       )
     })
   })

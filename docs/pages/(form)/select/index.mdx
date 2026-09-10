@@ -59,6 +59,7 @@ import type { SelectT } from 'moraine'
       ],
     },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
     { kind: 'switch', prop: 'search', label: 'Search', defaultValue: false },
   ]}
 >
@@ -77,6 +78,7 @@ import type { SelectT } from 'moraine'
         variant={props.variant}
         size={props.size}
         disabled={props.disabled}
+        readOnly={props.readOnly}
         search={props.search}
         allowClear
         class="max-w-72 min-w-40 w-60%"
@@ -114,6 +116,10 @@ content
 Use `value` with `onChange` for controlled selection, or a default value for local state. Search, clear affordances, grouped options, and loading are separate concerns; provide the option collection and any incremental loading behavior from your application.
 
 <Preview path="./basic-select" />
+
+### Read-only selection
+
+Use `readOnly` when users should be able to focus, open, and browse a selection without changing it. The selected value remains part of native form submission.
 
 ### Large and remote collections
 

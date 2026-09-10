@@ -1094,7 +1094,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         {...resolveSlot('group')}
       >
         <Show when={groupLabel()}>
-          <div id={groupLabelId()} data-slot="label" {...resolveSlot('label')}>
+          <div id={groupLabelId()} data-slot="label" aria-hidden="true" {...resolveSlot('label')}>
             {groupLabel()}
           </div>
         </Show>

@@ -239,7 +239,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     return initialDefaultValue
   })
 
-  const readOnly = createMemo(() => Boolean(merged.readOnly))
   const generatedId = useId(() => merged.id, 'input-number')
   const field = useFormField(
     () => ({
@@ -248,13 +247,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       size: local.size,
       disabled: merged.disabled,
       required: local.required,
-      readOnly: readOnly(),
+      readOnly: merged.readOnly,
     }),
     () => ({
       defaultId: generatedId(),
       initialValue,
     }),
   )
+  const readOnly = field.readOnly
 
   let inputEl: HTMLInputElement | undefined
 
@@ -410,7 +410,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     return currentValue()
   }
 
-  function stepBy(amount: number): void {
+  function stepBy(amount: number): boolean {
     const wasDirty = hasDirtyInput()
     const nextValue = addDecimal(getStepBase(), amount)
     const boundedValue = clamp(nextValue, minValue(), maxValue())
@@ -419,20 +419,22 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     if (changed && Object.is(currentValue(), boundedValue)) {
       setHasDirtyInput(false)
       setInputText(formattedValue())
-      return
+      return true
     }
 
     if (!wasDirty) {
       setInputText(formattedValue())
     }
+
+    return false
   }
 
-  function incrementValue(amount = stepValue()): void {
-    stepBy(amount)
+  function incrementValue(amount = stepValue()): boolean {
+    return stepBy(amount)
   }
 
-  function decrementValue(amount = stepValue()): void {
-    stepBy(-amount)
+  function decrementValue(amount = stepValue()): boolean {
+    return stepBy(-amount)
   }
 
   const selectionState = {
@@ -534,11 +536,37 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     return merged.repeatPointerTypes === 'all' || merged.repeatPointerTypes === pointerType
   }
 
+  function isControlInteractive(kind: ControlKind): boolean {
+    const isIncrement = kind === 'increment'
+    return (
+      !field.disabled() &&
+      !readOnly() &&
+      (isIncrement ? showIncrement() : showDecrement()) &&
+      !(isIncrement
+        ? Boolean(merged.incrementDisabled) || currentValue() >= maxValue()
+        : Boolean(merged.decrementDisabled) || currentValue() <= minValue())
+    )
+  }
+
+  createEffect(() => {
+    for (const kind of ['increment', 'decrement'] as const) {
+      const state = pressStates[kind]
+      if (state.activePointerId !== null && !isControlInteractive(kind)) {
+        finishPress(kind, state, false)
+      }
+    }
+  })
+
   function getControlUserOnClick(kind: ControlKind) {
     return kind === 'increment' ? merged.onIncrementClick : merged.onDecrementClick
   }
 
-  function triggerControlClick(state: PressRepeatState): void {
+  function triggerControlClick(kind: ControlKind, state: PressRepeatState): void {
+    if (!isControlInteractive(kind)) {
+      finishPress(kind, state, false)
+      return
+    }
+
     const throttleMs = Math.max(0, merged.repeatThrottleMs ?? 0)
     const now = Date.now()
 
@@ -554,7 +582,12 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   }
 
   function onControlPointerDown(kind: ControlKind, event: PointerEvent): void {
-    if (!merged.holdRepeat || event.button !== 0 || !isAllowedPointerType(event.pointerType)) {
+    if (
+      !merged.holdRepeat ||
+      !isControlInteractive(kind) ||
+      event.button !== 0 ||
+      !isAllowedPointerType(event.pointerType)
+    ) {
       return
     }
 
@@ -585,14 +618,18 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         return
       }
 
-      triggerControlClick(state)
+      triggerControlClick(kind, state)
+
+      if (state.activePointerId === null) {
+        return
+      }
 
       state.repeatTimer = setInterval(() => {
         if (state.activePointerId === null) {
           return
         }
 
-        triggerControlClick(state)
+        triggerControlClick(kind, state)
       }, intervalMs)
     }, delayMs)
   }
@@ -653,10 +690,17 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   ): void {
     const state = pressStates[kind]
 
+    if (!isControlInteractive(kind)) {
+      if (state.activePointerId !== null) {
+        finishPress(kind, state, false)
+      }
+      return
+    }
+
     if (state.syntheticClicksPending > 0) {
       state.syntheticClicksPending -= 1
       callHandler(event, getControlUserOnClick(kind))
-      if (!event.defaultPrevented) {
+      if (!event.defaultPrevented && isControlInteractive(kind)) {
         if (kind === 'increment') {
           incrementValue()
         } else {
@@ -664,6 +708,9 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         }
 
         inputEl?.focus()
+      }
+      if (!isControlInteractive(kind) && state.activePointerId !== null) {
+        finishPress(kind, state, true)
       }
       return
     }
@@ -679,7 +726,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
     callHandler(event, getControlUserOnClick(kind))
 
-    if (!event.defaultPrevented) {
+    if (!event.defaultPrevented && isControlInteractive(kind)) {
       if (kind === 'increment') {
         incrementValue()
       } else {
@@ -687,6 +734,9 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       }
 
       inputEl?.focus()
+    }
+    if (!isControlInteractive(kind) && state.activePointerId !== null) {
+      finishPress(kind, state, false)
     }
   }
 
@@ -701,12 +751,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
   function resolveControlProps(kind: ControlKind): InputNumberControlProps {
     const isIncrement = kind === 'increment'
-    const isControlDisabled = (): boolean =>
-      field.disabled() ||
-      readOnly() ||
-      (isIncrement
-        ? Boolean(merged.incrementDisabled) || currentValue() >= maxValue()
-        : Boolean(merged.decrementDisabled) || currentValue() <= minValue())
+    const isControlDisabled = (): boolean => !isControlInteractive(kind)
 
     return {
       'data-slot': kind,
@@ -771,9 +816,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       document.activeElement !== inputEl ||
       field.disabled() ||
       readOnly() ||
-      event.ctrlKey ||
-      event.deltaY === 0
+      event.ctrlKey
     ) {
+      return
+    }
+
+    const isHorizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY)
+    const delta = event.shiftKey && isHorizontal ? event.deltaX : event.deltaY
+    if (delta === 0 || (!event.shiftKey && isHorizontal)) {
       return
     }
 
@@ -781,12 +831,12 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       event.preventDefault()
     }
 
-    if (event.deltaY < 0) {
-      incrementValue()
+    if (delta < 0) {
+      incrementValue(event.shiftKey ? largeStepValue() : stepValue())
       return
     }
 
-    decrementValue()
+    decrementValue(event.shiftKey ? largeStepValue() : stepValue())
   }
 
   let autofocusTimeoutId: ReturnType<typeof setTimeout> | undefined
