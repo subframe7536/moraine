@@ -48,6 +48,31 @@ describe('DropdownMenu', () => {
       })
     },
   )
+  test('samples scroll prevention when entering a presence cycle', async () => {
+    const [open, setOpen] = createSignal(true)
+    const [preventScroll, setPreventScroll] = createSignal(true)
+    const screen = render(() => (
+      <DropdownMenu open={open()} preventScroll={preventScroll()}>
+        <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Item' }]} />
+      </DropdownMenu>
+    ))
+    try {
+      await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
+      setPreventScroll(false)
+      await Promise.resolve()
+      expect(document.body.style.overflow).toBe('hidden')
+      setOpen(false)
+      await finishMenuExitMotion()
+      await waitFor(() => expect(document.body.style.overflow).toBe(''))
+      setOpen(true)
+      await Promise.resolve()
+      expect(document.body.style.overflow).toBe('')
+    } finally {
+      screen.unmount()
+    }
+  })
+
   test('applies top-level class and style to trigger', () => {
     renderWithTheme(() => (
       <DropdownMenu>
@@ -1508,29 +1533,32 @@ describe('DropdownMenu', () => {
 
   test('clears a controlled radio group when every item becomes unchecked', async () => {
     const [value, setValue] = createSignal<'compact' | 'comfortable' | undefined>('compact')
+    const items = [
+      {
+        type: 'radio' as const,
+        group: 'density',
+        value: 'compact',
+        label: 'Compact',
+        get checked() {
+          return value() === 'compact'
+        },
+      },
+      {
+        type: 'radio' as const,
+        group: 'density',
+        value: 'comfortable',
+        label: 'Comfortable',
+        get checked() {
+          return value() === 'comfortable'
+        },
+      },
+    ]
     render(() => (
       <DropdownMenu defaultOpen preventScroll={false}>
         <DropdownMenu.Trigger as="button" type="button">
           Actions
         </DropdownMenu.Trigger>
-        <DropdownMenu.Content
-          items={[
-            {
-              type: 'radio',
-              group: 'density',
-              value: 'compact',
-              label: 'Compact',
-              checked: value() === 'compact',
-            },
-            {
-              type: 'radio',
-              group: 'density',
-              value: 'comfortable',
-              label: 'Comfortable',
-              checked: value() === 'comfortable',
-            },
-          ]}
-        />
+        <DropdownMenu.Content items={items} />
       </DropdownMenu>
     ))
 
@@ -1653,6 +1681,26 @@ describe('DropdownMenu', () => {
       expect(document.body.textContent).not.toContain('Nested action')
     } finally {
       vi.useRealTimers()
+    }
+  })
+
+  test('menu restores expanded state after reopen and scroll', async () => {
+    const [open, setOpen] = createSignal(true)
+    const screen = render(() => (
+      <DropdownMenu open={open()} preventScroll={false}>
+        <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
+        <DropdownMenu.Content items={[{ label: 'Item' }]} />
+      </DropdownMenu>
+    ))
+    try {
+      const menu = document.body.querySelector('[role="menu"]')!
+      await waitFor(() => expect(menu.hasAttribute('data-expanded')).toBe(true))
+      setOpen(false)
+      setOpen(true)
+      fireEvent.scroll(window)
+      await waitFor(() => expect(menu.hasAttribute('data-expanded')).toBe(true))
+    } finally {
+      screen.unmount()
     }
   })
 })

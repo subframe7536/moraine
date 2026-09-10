@@ -111,7 +111,8 @@ const POINTER_GRACE_SHADOW_PADDING = 12
 
 export interface OverlayMenuLayerState {
   clearQueuedPointerEnter: (element?: HTMLElement) => void
-  closeSubmenus: (exceptId?: string) => void
+  closeSubmenus: (exceptId?: string, registeredSubmenus?: OverlayMenuRegisteredSubmenu[]) => void
+  submenus: Accessor<OverlayMenuRegisteredSubmenu[]>
   contentElement: Accessor<HTMLDivElement | undefined>
   currentPlacement: Accessor<Placement>
   focusContent: () => void
@@ -306,8 +307,8 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
       }
     | undefined
 
-  const closeSubmenus = (exceptId?: string): void => {
-    for (const submenu of [...submenus()].reverse()) {
+  const closeSubmenus = (exceptId?: string, registeredSubmenus = submenus()): void => {
+    for (const submenu of [...registeredSubmenus].reverse()) {
       if (submenu.id === exceptId) {
         continue
       }
@@ -463,6 +464,7 @@ export function useOverlayMenuLayerState(): OverlayMenuLayerState {
   return {
     clearQueuedPointerEnter,
     closeSubmenus,
+    submenus,
     contentElement,
     currentPlacement,
     focusContent,

@@ -1,4 +1,4 @@
-import { createEffect, createRoot, createSignal } from 'solid-js'
+import { createEffect, createRoot, createSignal, on } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import {
@@ -146,9 +146,11 @@ describe('useEventListener', () => {
     const lifecycle = createRoot((dispose) => {
       const [target, setTarget] = createSignal<HTMLElement | undefined>(firstTarget)
 
-      createEffect(() => {
-        useEventListener(target(), 'click', () => {})
-      })
+      createEffect(
+        on(target, (element) => {
+          useEventListener(element, 'click', () => {})
+        }),
+      )
 
       return { dispose, setTarget }
     })
@@ -203,9 +205,11 @@ describe('useEventListener', () => {
     const lifecycle = createRoot((dispose) => {
       const [capture, setCapture] = createSignal(false)
 
-      createEffect(() => {
-        useEventListener(target, 'click', () => {}, { capture: capture(), passive: true })
-      })
+      createEffect(
+        on(capture, (capture) => {
+          useEventListener(target, 'click', () => {}, { capture, passive: true })
+        }),
+      )
 
       return { dispose, setCapture }
     })

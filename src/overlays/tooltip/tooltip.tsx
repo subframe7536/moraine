@@ -7,6 +7,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  on,
   onCleanup,
   splitProps,
 } from 'solid-js'
@@ -248,21 +249,24 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     }, merged.closeDelay)
   }
 
-  createEffect(() => {
-    const disabled = Boolean(merged.disabled)
+  createEffect(
+    on(
+      () => Boolean(merged.disabled),
+      (disabled) => {
+        if (disabledInitialized && disabled && !wasDisabled) {
+          invalidateTimers()
+          setShouldUseInstantMotion(false)
 
-    if (disabledInitialized && disabled && !wasDisabled) {
-      invalidateTimers()
-      setShouldUseInstantMotion(false)
+          if (open()) {
+            requestOpen(false)
+          }
+        }
 
-      if (open()) {
-        requestOpen(false)
-      }
-    }
-
-    wasDisabled = disabled
-    disabledInitialized = true
-  })
+        wasDisabled = disabled
+        disabledInitialized = true
+      },
+    ),
+  )
 
   if (typeof window !== 'undefined') {
     const onWindowBlur = (): void => {
@@ -273,27 +277,31 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     onCleanup(() => window.removeEventListener('blur', onWindowBlur))
   }
 
-  createEffect(() => {
-    const isResolvedOpen = Boolean(open()) && !merged.disabled
+  createEffect(
+    on(
+      () => Boolean(open()) && !merged.disabled,
+      (isResolvedOpen) => {
+        const id = tooltipId()
+        if (isResolvedOpen) {
+          if (!wasResolvedOpen) {
+            setActiveTooltip({
+              id,
+              close: closeImmediately,
+            })
+          }
 
-    if (isResolvedOpen) {
-      if (!wasResolvedOpen) {
-        setActiveTooltip({
-          id: tooltipId(),
-          close: closeImmediately,
-        })
-      }
+          wasResolvedOpen = true
+          return
+        }
 
-      wasResolvedOpen = true
-      return
-    }
-
-    if (wasResolvedOpen) {
-      wasResolvedOpen = false
-      clearActiveTooltip(tooltipId())
-      startSkipDelay(tooltipId(), merged.instantOpenDelay)
-    }
-  })
+        if (wasResolvedOpen) {
+          wasResolvedOpen = false
+          clearActiveTooltip(id)
+          startSkipDelay(id, merged.instantOpenDelay)
+        }
+      },
+    ),
+  )
 
   const behavior: ReturnType<typeof useTooltipContext> = {
     options: merged,

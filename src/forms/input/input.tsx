@@ -94,6 +94,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     defaultValue: () => merged.defaultValue,
     getElement: () => inputEl,
     getFormValue: field.value,
+    getFormPath: field.path,
     modelModifiers,
     onValueChange: () => merged.onValueChange,
     setFormValue: field.setFormValue,

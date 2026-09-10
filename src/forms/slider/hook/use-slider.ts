@@ -1,5 +1,5 @@
 import type { JSX, Setter } from 'solid-js'
-import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
 
 import { useFormReset } from '../../shared/use-form-reset'
 import type { SliderT } from '../slider.types'
@@ -166,19 +166,35 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     }
   })
 
-  createEffect(() => {
-    const nextControlledValues = getControlledValues()
-    if (nextControlledValues !== undefined) {
-      setDisplayValues(nextControlledValues)
-      pendingValues = undefined
-      return
-    }
+  const controlledValueSnapshot = () => {
+    const value = merged.value
+    return Array.isArray(value) ? value.slice() : value
+  }
 
-    const nextDisplayValues = normalizeValues(displayValues()) ?? [merged.min]
-    if (!areValuesEqual(displayValues(), nextDisplayValues)) {
-      setDisplayValues(nextDisplayValues)
-    }
-  })
+  createEffect(
+    on([controlledValueSnapshot, () => merged.min, () => merged.max], ([value, min, max]) => {
+      const controlled = normalizeSliderValues(value, min, min, max)
+      if (controlled !== undefined) {
+        setDisplayValues(controlled)
+        pendingValues = undefined
+      }
+    }),
+  )
+
+  createEffect(
+    on(
+      [() => merged.value, displayValues, () => merged.min, () => merged.max],
+      ([value, displayed, min, max]) => {
+        if (value !== undefined) {
+          return
+        }
+        const normalized = normalizeSliderValues(displayed, min, min, max) ?? [min]
+        if (!areValuesEqual(displayed, normalized)) {
+          setDisplayValues(normalized)
+        }
+      },
+    ),
+  )
 
   onCleanup(() => {
     if (activePointerId !== undefined && activePointerTarget?.hasPointerCapture(activePointerId)) {

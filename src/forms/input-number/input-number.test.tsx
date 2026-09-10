@@ -698,6 +698,41 @@ describe('InputNumber', () => {
     }
   })
 
+  test.each(['disabled', 'readOnly'] as const)(
+    'releases an active hold immediately when %s changes',
+    async (property) => {
+      vi.useFakeTimers()
+      const previousUserSelect = document.body.style.getPropertyValue('user-select')
+      try {
+        const [inactive, setInactive] = createSignal(false)
+        const onRawValueChange = vi.fn()
+        const screen = render(() => (
+          <InputNumber
+            defaultValue={0}
+            disabled={property === 'disabled' && inactive()}
+            readOnly={property === 'readOnly' && inactive()}
+            onRawValueChange={onRawValueChange}
+          />
+        ))
+        const increment = screen.getByRole('button', { name: 'Increment' })
+        fireEvent.pointerDown(increment, { button: 0, pointerId: 92, pointerType: 'mouse' })
+        expect(increment.getAttribute('data-active')).toBe('')
+        expect(document.body.style.getPropertyValue('user-select')).toBe('none')
+
+        setInactive(true)
+
+        expect(increment.getAttribute('data-active')).toBeNull()
+        expect(document.body.style.getPropertyValue('user-select')).toBe(previousUserSelect)
+        await vi.advanceTimersByTimeAsync(1_000)
+        expect(onRawValueChange).not.toHaveBeenCalled()
+        screen.unmount()
+      } finally {
+        document.body.style.setProperty('user-select', previousUserSelect)
+        vi.useRealTimers()
+      }
+    },
+  )
+
   test('increments once on pointer press and release without hold repeat', async () => {
     const screen = render(() => <InputNumber defaultValue={0} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')

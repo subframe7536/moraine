@@ -4,6 +4,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  on,
   onCleanup,
   onMount,
   splitProps,
@@ -314,34 +315,36 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   }))
 
   // Explicit controlled props remain authoritative for FormField integrations.
-  createEffect(() => {
-    const value = explicitControlledValue()
-    if (value !== undefined) {
-      const boundedValue = clamp(value, minValue(), maxValue())
-      const formValue = toNumber(field.value() as string | number | undefined, 0, merged.locale)
-      if (!Object.is(formValue, boundedValue)) {
-        field.setFormValue(boundedValue)
-      }
-    }
-  })
+  createEffect(
+    on(
+      [explicitControlledValue, minValue, maxValue, field.value, () => merged.locale],
+      ([value, min, max, formValue, locale]) => {
+        if (value === undefined) {
+          return
+        }
+        const boundedValue = clamp(value, min, max)
+        if (
+          !Object.is(toNumber(formValue as string | number | undefined, 0, locale), boundedValue)
+        ) {
+          field.setFormValue(boundedValue)
+        }
+      },
+    ),
+  )
 
   // Sync external numeric or locale changes without clobbering accepted manual text.
-  createEffect(() => {
-    const value = currentValue()
-    const locale = merged.locale
-
-    untrack(() => {
+  createEffect(
+    on([currentValue, () => merged.locale], ([value, locale]) => {
       if (hasDirtyInput()) {
         const parsed = parseLocaleNumber(inputText(), locale)
         if (parsed !== undefined && Object.is(clamp(parsed, minValue(), maxValue()), value)) {
           return
         }
       }
-
       setHasDirtyInput(false)
       setInputText(formatLocaleNumber(value, locale))
-    })
-  })
+    }),
+  )
 
   const resolvedOrientation = createMemo(() => resolved.variants.orientation)
 
@@ -548,14 +551,19 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     )
   }
 
-  createEffect(() => {
-    for (const kind of ['increment', 'decrement'] as const) {
-      const state = pressStates[kind]
-      if (state.activePointerId !== null && !isControlInteractive(kind)) {
-        finishPress(kind, state, false)
-      }
-    }
-  })
+  createEffect(
+    on(
+      [() => isControlInteractive('increment'), () => isControlInteractive('decrement')],
+      ([increment, decrement]) => {
+        for (const kind of ['increment', 'decrement'] as const) {
+          const state = pressStates[kind]
+          if (state.activePointerId !== null && !(kind === 'increment' ? increment : decrement)) {
+            finishPress(kind, state, false)
+          }
+        }
+      },
+    ),
+  )
 
   function getControlUserOnClick(kind: ControlKind) {
     return kind === 'increment' ? merged.onIncrementClick : merged.onDecrementClick

@@ -121,6 +121,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     defaultValue: () => merged.defaultValue,
     getElement: () => textareaEl,
     getFormValue: field.value,
+    getFormPath: field.path,
     modelModifiers,
     onValueChange: () => merged.onValueChange,
     setFormValue: field.setFormValue,

@@ -5,6 +5,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  on,
   onMount,
   splitProps,
 } from 'solid-js'
@@ -120,11 +121,16 @@ function createDropdownMenu(props: DropdownMenuProps) {
     },
   } as OverlayTriggerProps
 
-  createEffect(() => {
-    if (props.disabled && isOpen()) {
-      commitOpen(false)
-    }
-  })
+  createEffect(
+    on(
+      () => Boolean(props.disabled) && isOpen(),
+      (shouldClose) => {
+        if (shouldClose) {
+          commitOpen(false)
+        }
+      },
+    ),
+  )
 
   function commitOpen(open: boolean): void {
     if (open && props.disabled) {

@@ -1,6 +1,6 @@
 import type { FieldStore, RequiredPath } from '@formisch/solid'
 import type { Accessor, JSX } from 'solid-js'
-import { createEffect, createMemo, onCleanup, onMount } from 'solid-js'
+import { createEffect, createMemo, on, onCleanup, onMount } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
 
@@ -48,6 +48,7 @@ export interface UseFormFieldOptions {
 }
 
 export interface UseFormFieldReturn {
+  path: Accessor<readonly (string | number)[] | undefined>
   id: Accessor<string>
   name: Accessor<string | undefined>
   value: Accessor<unknown>
@@ -91,6 +92,7 @@ export function useFormField(
   }
 
   const id = localId
+  const path = createMemo(() => formField?.field?.path?.slice())
   const name = createMemo(
     () => fieldProps().name ?? formField?.field?.props.name ?? formField?.name,
   )
@@ -106,17 +108,17 @@ export function useFormField(
     return error !== undefined && error !== null && error !== false && error !== ''
   })
 
-  createEffect(() => {
-    const field = formField?.field
-    if (!field || !bind()) {
-      return
-    }
-
-    const element = document.getElementById(id())
-    if (element) {
-      field.props.ref(element as HTMLInputElement)
-    }
-  })
+  createEffect(
+    on([path, bind, id, () => formField?.field?.props.ref], ([, bound, controlId, ref]) => {
+      if (!bound || !ref) {
+        return
+      }
+      const element = document.getElementById(controlId)
+      if (element) {
+        ref(element as HTMLInputElement)
+      }
+    }),
+  )
 
   onMount(() => {
     const field = formField?.field
@@ -186,6 +188,7 @@ export function useFormField(
   }
 
   return {
+    path,
     id,
     name,
     value,

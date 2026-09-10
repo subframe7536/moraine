@@ -4,6 +4,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  on,
   onCleanup,
   splitProps,
   untrack,
@@ -83,51 +84,52 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     untrack(() => local.onStatusChange)?.(nextStatus)
   }
 
-  createEffect(() => {
-    const currentSource = source()
-    let cancelled = false
+  createEffect(
+    on(source, (currentSource) => {
+      let cancelled = false
 
-    onCleanup(() => {
-      cancelled = true
-    })
+      onCleanup(() => {
+        cancelled = true
+      })
 
-    setResolvedSrc(undefined)
-
-    if (!currentSource || typeof window === 'undefined' || typeof window.Image !== 'function') {
-      setStatus('error')
-      return
-    }
-
-    setStatus('loading')
-    const loader = new window.Image()
-
-    loader.onload = () => {
-      if (cancelled) {
-        return
-      }
-      setResolvedSrc(currentSource)
-      setStatus('loaded')
-    }
-
-    loader.onerror = () => {
-      if (cancelled) {
-        return
-      }
       setResolvedSrc(undefined)
-      setStatus('error')
-    }
 
-    loader.src = currentSource
+      if (!currentSource || typeof window === 'undefined' || typeof window.Image !== 'function') {
+        setStatus('error')
+        return
+      }
 
-    if (loader.complete) {
-      if (loader.naturalWidth > 0) {
+      setStatus('loading')
+      const loader = new window.Image()
+
+      loader.onload = () => {
+        if (cancelled) {
+          return
+        }
         setResolvedSrc(currentSource)
         setStatus('loaded')
-      } else {
+      }
+
+      loader.onerror = () => {
+        if (cancelled) {
+          return
+        }
+        setResolvedSrc(undefined)
         setStatus('error')
       }
-    }
-  })
+
+      loader.src = currentSource
+
+      if (loader.complete) {
+        if (loader.naturalWidth > 0) {
+          setResolvedSrc(currentSource)
+          setStatus('loaded')
+        } else {
+          setStatus('error')
+        }
+      }
+    }),
+  )
 
   return (
     <span

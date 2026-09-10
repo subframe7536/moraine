@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, on, onCleanup, untrack } from 'solid-js'
 
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
@@ -51,65 +51,66 @@ export function Modal(props: ModalProps): JSX.Element {
     props.onOpenChange?.(nextOpen)
   }
 
-  createEffect(() => {
-    if (open()) {
-      if (contentMounted() && presence.present()) {
-        hadOpenContent = true
+  createEffect(
+    on([open, contentMounted, presence.present], ([isOpen, mounted, present]) => {
+      if (isOpen) {
+        if (mounted && present) {
+          hadOpenContent = true
+        }
+        closeCycleActive = false
+        return
       }
-      closeCycleActive = false
-      return
-    }
 
-    if (hadOpenContent) {
-      closeCycleActive = true
-    }
-
-    if (closeCycleActive && !presence.present()) {
-      closeCycleActive = false
-      hadOpenContent = false
-      props.onExitComplete?.()
-    }
-  })
-
-  createEffect(() => {
-    if (!isPresent() || typeof document === 'undefined') {
-      return
-    }
-
-    const currentContent = contentElement()
-    queueMicrotask(() => {
-      focusContent(currentContent)
-    })
-
-    const releaseScrollLock = props.preventScroll === false ? undefined : acquireBodyScrollLock()
-    onCleanup(() => {
-      releaseScrollLock?.()
-    })
-  })
-
-  createEffect(() => {
-    if (!isPresent() || typeof document === 'undefined') {
-      return
-    }
-
-    const currentContent = contentElement()
-    if (!currentContent) {
-      return
-    }
-
-    let active = true
-    let release: (() => void) | undefined
-    queueMicrotask(() => {
-      if (active && currentContent.isConnected) {
-        release = acquireAriaHideOutside(currentContent)
+      if (hadOpenContent) {
+        closeCycleActive = true
       }
-    })
 
-    onCleanup(() => {
-      active = false
-      release?.()
-    })
-  })
+      if (closeCycleActive && !present) {
+        closeCycleActive = false
+        hadOpenContent = false
+        props.onExitComplete?.()
+      }
+    }),
+  )
+
+  createEffect(
+    on(isPresent, (present) => {
+      if (!present || typeof document === 'undefined') {
+        return
+      }
+      const preventScroll = props.preventScroll
+
+      const releaseScrollLock = preventScroll === false ? undefined : acquireBodyScrollLock()
+      onCleanup(() => {
+        releaseScrollLock?.()
+      })
+    }),
+  )
+
+  createEffect(
+    on([isPresent, contentElement], ([present, currentContent]) => {
+      if (!present || typeof document === 'undefined') {
+        return
+      }
+      if (!currentContent) {
+        return
+      }
+
+      let active = true
+      let release: (() => void) | undefined
+      queueMicrotask(() => {
+        if (active && currentContent.isConnected) {
+          release = acquireAriaHideOutside(currentContent)
+          focusContent(currentContent)
+        }
+      })
+
+      onCleanup(() => {
+        active = false
+        release?.()
+      })
+    }),
+  )
 
   useOverlayInteraction({
     enabled: isPresent,

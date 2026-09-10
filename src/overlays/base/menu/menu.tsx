@@ -9,6 +9,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  on,
   onCleanup,
   onMount,
   untrack,
@@ -180,49 +181,66 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     }
   }
 
-  createEffect(() => {
-    layer.setCurrentPlacement(resolvedPlacement())
-  })
+  createEffect(
+    on(
+      () => props.placement,
+      (placement) => {
+        layer.setCurrentPlacement(placement ?? 'bottom-start')
+      },
+    ),
+  )
 
-  createEffect(() => {
-    const controlledGroups = new Set<string>()
-    const controlledValues: Record<string, string | undefined> = {}
+  const radioItemSnapshot = () =>
+    groups().map((group) =>
+      group.items.map((item) => ({
+        type: item.type,
+        group: item.group,
+        value: item.value,
+        checked: item.checked,
+      })),
+    )
 
-    for (const group of groups()) {
-      for (const item of group.items) {
-        if (
-          item.type !== 'radio' ||
-          !item.group ||
-          item.value === undefined ||
-          item.checked === undefined
-        ) {
-          continue
-        }
+  createEffect(
+    on(radioItemSnapshot, (groups) => {
+      const controlledGroups = new Set<string>()
+      const controlledValues: Record<string, string | undefined> = {}
 
-        controlledGroups.add(item.group)
-        if (item.checked) {
-          controlledValues[item.group] = item.value
+      for (const group of groups) {
+        for (const item of group) {
+          if (
+            item.type !== 'radio' ||
+            !item.group ||
+            item.value === undefined ||
+            item.checked === undefined
+          ) {
+            continue
+          }
+
+          controlledGroups.add(item.group)
+          if (item.checked) {
+            controlledValues[item.group] = item.value
+          }
         }
       }
-    }
 
-    if (controlledGroups.size === 0) {
-      return
-    }
-
-    setRadioGroupValues((currentValues) => {
-      const nextValues = { ...currentValues }
-
-      for (const group of controlledGroups) {
-        delete nextValues[group]
-        if (controlledValues[group] !== undefined) {
-          nextValues[group] = controlledValues[group]
-        }
+      if (controlledGroups.size === 0) {
+        return
       }
 
-      return nextValues
-    })
-  })
+      setRadioGroupValues((currentValues) => {
+        const nextValues = { ...currentValues }
+
+        for (const group of controlledGroups) {
+          delete nextValues[group]
+          if (controlledValues[group] !== undefined) {
+            nextValues[group] = controlledValues[group]
+          }
+        }
+
+        return nextValues
+      })
+    }),
+  )
 
   useFloatingPosition({
     contentElement: layer.contentElement,
@@ -238,15 +256,18 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     placement: resolvedPlacement,
   })
 
-  createEffect(() => {
-    const positioner = positionerElement()
+  createEffect(
+    on(
+      [positionerElement, () => props.open, () => props.present()],
+      ([positioner, open, present]) => {
+        if (!positioner || open || !present) {
+          return
+        }
 
-    if (!positioner || props.open || !props.present()) {
-      return
-    }
-
-    positioner.style.visibility = 'visible'
-  })
+        positioner.style.visibility = 'visible'
+      },
+    ),
+  )
 
   onMount(() => {
     const branchElement = positionerElement()
@@ -258,91 +279,93 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     onCleanup(registerLayerBranch(branchElement))
   })
 
-  createEffect(() => {
-    const positioner = positionerElement()
-    const content = layer.contentElement()
-
-    if (!positioner || !content) {
-      return
-    }
-
-    queueMicrotask(() => {
-      if (positioner.isConnected && content.isConnected) {
-        const contentZIndex = getComputedStyle(content).zIndex
-        if (contentZIndex && contentZIndex !== 'auto') {
-          positioner.style.zIndex = contentZIndex
-        }
+  createEffect(
+    on([positionerElement, layer.contentElement], ([positioner, content]) => {
+      if (!positioner || !content) {
+        return
       }
-    })
-  })
 
-  createEffect(() => {
-    props.refState?.(layer)
-
-    onCleanup(() => {
-      props.refState?.(undefined)
-    })
-  })
-
-  createEffect(() => {
-    const content = layer.contentElement()
-    if (!content) {
-      return
-    }
-
-    useEventListener(
-      content,
-      'keydown',
-      (event) => {
-        if (props.open && !event.defaultPrevented) {
-          layer.handleTypeaheadKeyDown(event)
+      queueMicrotask(() => {
+        if (positioner.isConnected && content.isConnected) {
+          const contentZIndex = getComputedStyle(content).zIndex
+          if (contentZIndex && contentZIndex !== 'auto') {
+            positioner.style.zIndex = contentZIndex
+          }
         }
+      })
+    }),
+  )
+
+  createEffect(
+    on(
+      () => props.refState,
+      (refState) => {
+        refState?.(layer)
+
+        onCleanup(() => {
+          props.refState?.(undefined)
+        })
       },
-      true,
-    )
-  })
+    ),
+  )
 
-  createEffect(() => {
-    if (!props.open) {
-      setIsPositioned(false)
-      layer.setHighlightedItemId(undefined)
-      layer.setPointerGraceIntent(null)
-      layer.resetTypeahead()
-      return
-    }
-
-    if (!isPositioned()) {
-      return
-    }
-
-    if (!props.autoFocusStrategy || props.autoFocusStrategy === 'none') {
-      return
-    }
-
-    const focusStrategy = props.autoFocusStrategy
-    const onAutoFocusHandled = props.onAutoFocusHandled
-    let frameId = 0
-
-    const runAutoFocus = () => {
-      focusLayerFromStrategy(layer, focusStrategy ?? 'none')
-      onAutoFocusHandled?.()
-    }
-
-    if (typeof window === 'undefined' || typeof window.requestAnimationFrame !== 'function') {
-      queueMicrotask(runAutoFocus)
-      return
-    }
-
-    frameId = window.requestAnimationFrame(() => {
-      runAutoFocus()
-    })
-
-    onCleanup(() => {
-      if (frameId !== 0) {
-        window.cancelAnimationFrame(frameId)
+  createEffect(
+    on(layer.contentElement, (content) => {
+      if (!content) {
+        return
       }
-    })
-  })
+
+      useEventListener(
+        content,
+        'keydown',
+        (event) => {
+          if (props.open && !event.defaultPrevented) {
+            layer.handleTypeaheadKeyDown(event)
+          }
+        },
+        true,
+      )
+    }),
+  )
+
+  createEffect(
+    on(
+      [() => props.open, isPositioned, () => props.autoFocusStrategy],
+      ([open, positioned, focusStrategy]) => {
+        if (!open) {
+          layer.setHighlightedItemId(undefined)
+          layer.setPointerGraceIntent(null)
+          layer.resetTypeahead()
+          return
+        }
+        if (!positioned || !focusStrategy || focusStrategy === 'none') {
+          return
+        }
+        const onAutoFocusHandled = props.onAutoFocusHandled
+        let frameId = 0
+
+        const runAutoFocus = () => {
+          focusLayerFromStrategy(layer, focusStrategy ?? 'none')
+          onAutoFocusHandled?.()
+        }
+
+        if (typeof window === 'undefined' || typeof window.requestAnimationFrame !== 'function') {
+          queueMicrotask(runAutoFocus)
+          return
+        }
+
+        frameId = window.requestAnimationFrame(() => {
+          runAutoFocus()
+        })
+
+        onCleanup(() => {
+          if (frameId !== 0) {
+            window.cancelAnimationFrame(frameId)
+          }
+        })
+      },
+    ),
+  )
 
   function getItemSlot(itemAttrsStyle?: string | JSX.CSSProperties, itemAttrsClass?: ClassValue) {
     const binding = resolveSlot('item')
@@ -834,14 +857,16 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       setOpenState(true)
     }
 
-    createEffect(() => {
-      if (contentPresence.present()) {
-        return
-      }
+    createEffect(
+      on(contentPresence.present, (present) => {
+        if (present) {
+          return
+        }
 
-      submenuLayerState = undefined
-      contentPresence.setElement(undefined)
-    })
+        submenuLayerState = undefined
+        contentPresence.setElement(undefined)
+      }),
+    )
 
     const onPointerMove = (): void => {
       layer.closeSubmenus(submenuId())
@@ -1251,67 +1276,76 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
     undefined,
   )
 
-  createEffect(() => {
-    if (contentPresence.present()) {
-      return
-    }
+  createEffect(
+    on(contentPresence.present, (present) => {
+      if (present) {
+        return
+      }
 
-    contentPresence.setElement(undefined)
-  })
+      contentPresence.setElement(undefined)
+    }),
+  )
 
-  createEffect(() => {
-    const pendingFocus = pendingFocusOnClose()
-    if (merged.open || !pendingFocus) {
-      return
-    }
-
-    const triggerElement = merged.triggerElement
-
-    queueMicrotask(() => {
-      untrack(() => {
-        if (merged.open || pendingFocusOnClose() !== pendingFocus) {
+  createEffect(
+    on(
+      [() => merged.open, pendingFocusOnClose, () => merged.triggerElement],
+      ([open, pendingFocus, triggerElement]) => {
+        if (open || !pendingFocus) {
           return
         }
 
-        if (pendingFocus === 'trigger') {
-          focusTrigger(triggerElement)
-        } else if (triggerElement) {
-          const focusableElements = getFocusableElements(document.body).filter(
-            (element) => ![...branches].some((branch) => branch.contains(element)),
-          )
-          const triggerIndexes = focusableElements.flatMap((element, index) =>
-            element === triggerElement || triggerElement.contains(element) ? [index] : [],
-          )
-          const triggerIndex = triggerIndexes[triggerIndexes.length - 1]
-          if (triggerIndex !== undefined) {
-            focusWithoutScrolling(focusableElements[triggerIndex + 1])
-          }
+        queueMicrotask(() => {
+          untrack(() => {
+            if (merged.open || pendingFocusOnClose() !== pendingFocus) {
+              return
+            }
+
+            if (pendingFocus === 'trigger') {
+              focusTrigger(triggerElement)
+            } else if (triggerElement) {
+              const focusableElements = getFocusableElements(document.body).filter(
+                (element) => ![...branches].some((branch) => branch.contains(element)),
+              )
+              const triggerIndexes = focusableElements.flatMap((element, index) =>
+                element === triggerElement || triggerElement.contains(element) ? [index] : [],
+              )
+              const triggerIndex = triggerIndexes[triggerIndexes.length - 1]
+              if (triggerIndex !== undefined) {
+                focusWithoutScrolling(focusableElements[triggerIndex + 1])
+              }
+            }
+
+            setPendingFocusOnClose(undefined)
+          })
+        })
+      },
+    ),
+  )
+
+  createEffect(
+    on(
+      [() => merged.open, rootLayerState, () => rootLayerState()?.submenus()],
+      ([open, layer, submenus]) => {
+        if (!open && layer) {
+          layer.closeSubmenus(undefined, submenus)
         }
+      },
+    ),
+  )
 
-        setPendingFocusOnClose(undefined)
+  createEffect(
+    on(contentPresence.present, (present) => {
+      if (!present || !merged.preventScroll) {
+        return
+      }
+
+      const releaseBodyScrollLock = acquireBodyScrollLock()
+
+      onCleanup(() => {
+        releaseBodyScrollLock?.()
       })
-    })
-  })
-
-  createEffect(() => {
-    if (merged.open) {
-      return
-    }
-
-    rootLayerState()?.closeSubmenus()
-  })
-
-  createEffect(() => {
-    if (!contentPresence.present()) {
-      return
-    }
-
-    const releaseBodyScrollLock = merged.preventScroll ? acquireBodyScrollLock() : undefined
-
-    onCleanup(() => {
-      releaseBodyScrollLock?.()
-    })
-  })
+    }),
+  )
 
   const containsTarget = (node: Node): boolean => {
     if (merged.triggerElement?.contains(node)) {

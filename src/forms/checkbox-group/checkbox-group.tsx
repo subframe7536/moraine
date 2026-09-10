@@ -6,6 +6,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  on,
   splitProps,
   untrack,
 } from 'solid-js'
@@ -168,13 +169,18 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     hasIndeterminateItem() ? merged.indeterminateIcon : undefined,
   )
 
-  createEffect(() => {
+  const controlledValueSnapshot = () => {
     const value = controlledValue()
+    return Array.isArray(value) ? value.slice() : value
+  }
 
-    if (value !== undefined) {
-      field.setFormValue(Array.isArray(value) ? value.slice() : [])
-    }
-  })
+  createEffect(
+    on([field.path, controlledValueSnapshot], ([, value]) => {
+      if (value !== undefined) {
+        field.setFormValue(Array.isArray(value) ? value : [])
+      }
+    }),
+  )
 
   function onItemCheckedChange(value: string, checked: boolean): void {
     const currentValues = selectedValues()

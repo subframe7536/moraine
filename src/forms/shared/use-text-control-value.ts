@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, untrack } from 'solid-js'
+import { createEffect, createMemo, on, untrack } from 'solid-js'
 
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
@@ -14,6 +14,7 @@ export interface UseTextControlValueOptions<
   defaultValue: Accessor<TValue>
   getElement: Accessor<TextControlElement | undefined>
   getFormValue: Accessor<unknown>
+  getFormPath?: Accessor<readonly (string | number)[] | undefined>
   modelModifiers: Accessor<M | undefined>
   onValueChange: Accessor<((value: ModifierValue<M>) => void) | undefined>
   setFormValue: (value: unknown) => void
@@ -29,13 +30,13 @@ export function useTextControlValue<
   const initialDefaultValue = untrack(options.defaultValue)
   const isLazy = createMemo(() => Boolean(options.modelModifiers()?.lazy))
 
-  createEffect(() => {
-    const value = options.value()
-
-    if (value !== undefined) {
-      options.setFormValue(value)
-    }
-  })
+  createEffect(
+    on([options.value, () => options.getFormPath?.()], ([value]) => {
+      if (value !== undefined) {
+        options.setFormValue(value)
+      }
+    }),
+  )
 
   const valueProps = createMemo<{
     value?: TValue

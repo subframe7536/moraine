@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
+import { Show, createEffect, createMemo, mergeProps, on, splitProps, untrack } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import { HiddenInput } from '../../shared/hidden-input'
@@ -113,17 +113,21 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     return value === merged.trueValue || (typeof value === 'boolean' && value)
   }
 
-  function normalizeFieldValue(value: unknown): unknown {
+  function normalizeFieldValue(
+    value: unknown,
+    trueValue: unknown = merged.trueValue,
+    falseValue: unknown = merged.falseValue,
+  ): unknown {
     if (value === undefined || value === 'indeterminate') {
       return value
     }
 
-    if (value === merged.trueValue || value === merged.falseValue) {
+    if (value === trueValue || value === falseValue) {
       return value
     }
 
     if (typeof value === 'boolean') {
-      return value ? merged.trueValue : merged.falseValue
+      return value ? trueValue : falseValue
     }
 
     return value
@@ -164,13 +168,22 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     indeterminate() ? merged.indeterminateIcon : merged.checkedIcon,
   )
 
-  createEffect(() => {
-    if (merged.formFieldBind === false || merged.checked === undefined) {
-      return
-    }
-
-    field.setFormValue(normalizeFieldValue(merged.checked))
-  })
+  createEffect(
+    on(
+      [
+        field.path,
+        () => merged.checked,
+        () => merged.formFieldBind,
+        () => merged.trueValue,
+        () => merged.falseValue,
+      ],
+      ([, value, bind, trueValue, falseValue]) => {
+        if (bind !== false && value !== undefined) {
+          field.setFormValue(normalizeFieldValue(value, trueValue, falseValue))
+        }
+      },
+    ),
+  )
 
   function onChange(nextChecked: boolean): void {
     const nextValue = toChangeValue(nextChecked)
@@ -204,12 +217,14 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     return attrs
   })
 
-  createEffect(() => {
-    if (inputEl) {
-      inputEl.checked = Boolean(resolvedChecked())
-      inputEl.indeterminate = indeterminate()
-    }
-  })
+  createEffect(
+    on([resolvedChecked, indeterminate], ([checked, isIndeterminate]) => {
+      if (inputEl) {
+        inputEl.checked = Boolean(checked)
+        inputEl.indeterminate = isIndeterminate
+      }
+    }),
+  )
 
   useFormReset(
     () => inputEl?.form,

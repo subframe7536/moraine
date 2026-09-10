@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { For, createEffect, createSignal } from 'solid-js'
+import { For, createEffect, createSignal, on } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { useListVirtualizer } from '../../virtualizer'
@@ -95,9 +95,14 @@ describe('List', () => {
   test('creates virtual content before mount and reactively exposes the scroll element', () => {
     let virtualScrollElement: HTMLElement | undefined
     const VirtualRender = vi.fn((props: ListT.VirtualRenderProps<string>) => {
-      createEffect(() => {
-        virtualScrollElement = props.scrollElement
-      })
+      createEffect(
+        on(
+          () => props.scrollElement,
+          (scrollElement) => {
+            virtualScrollElement = scrollElement
+          },
+        ),
+      )
 
       return (
         <For each={props.entries}>

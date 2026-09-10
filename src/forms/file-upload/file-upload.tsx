@@ -6,6 +6,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  on,
   onCleanup,
   splitProps,
 } from 'solid-js'
@@ -473,48 +474,52 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     )
   }
 
-  createEffect(() => {
-    const files = selectedFiles()
-    const previewsEnabled = preview()
+  createEffect(
+    on([selectedFiles, preview], ([files, previewsEnabled]) => {
+      setPreviewUrls((previous) => {
+        const next = new Map(previous)
 
-    setPreviewUrls((previous) => {
-      const next = new Map(previous)
-
-      for (const [file, url] of previous.entries()) {
-        if (!previewsEnabled || !files.includes(file) || !isImageFile(file)) {
-          revokeObjectUrl(url)
-          next.delete(file)
+        for (const [file, url] of previous.entries()) {
+          if (!previewsEnabled || !files.includes(file) || !isImageFile(file)) {
+            revokeObjectUrl(url)
+            next.delete(file)
+          }
         }
-      }
 
-      if (!previewsEnabled) {
+        if (!previewsEnabled) {
+          return next
+        }
+
+        for (const file of files) {
+          if (!isImageFile(file) || next.has(file)) {
+            continue
+          }
+
+          const url = createObjectUrl(file)
+          if (url) {
+            next.set(file, url)
+          }
+        }
+
         return next
-      }
+      })
+    }),
+  )
 
-      for (const file of files) {
-        if (!isImageFile(file) || next.has(file)) {
-          continue
+  createEffect(
+    on(
+      () => selectedFiles().length,
+      (count) => {
+        if (count > 0) {
+          return
         }
 
-        const url = createObjectUrl(file)
-        if (url) {
-          next.set(file, url)
+        if (hiddenInputEl) {
+          hiddenInputEl.value = ''
         }
-      }
-
-      return next
-    })
-  })
-
-  createEffect(() => {
-    if (selectedFiles().length > 0) {
-      return
-    }
-
-    if (hiddenInputEl) {
-      hiddenInputEl.value = ''
-    }
-  })
+      },
+    ),
+  )
 
   onCleanup(() => {
     for (const url of previewUrls().values()) {

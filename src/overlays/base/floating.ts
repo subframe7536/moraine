@@ -10,9 +10,11 @@ import {
 } from '@floating-ui/dom'
 import type { Middleware, Placement, ReferenceElement } from '@floating-ui/dom'
 import type { Accessor } from 'solid-js'
-import { createEffect, onCleanup } from 'solid-js'
+import { createEffect, on, onCleanup } from 'solid-js'
 
-import { getTransformOrigin, resolveDirection } from './utils'
+import { getTransformOrigin, resolveDirection } from './utils.ts'
+
+const PLACEMENT_PATTERN = /^(?:top|bottom|left|right)(?:-(?:start|end))?$/
 
 export interface FloatingPositionOptions {
   contentElement?: Accessor<HTMLElement | undefined>
@@ -37,246 +39,305 @@ export interface FloatingPositionOptions {
 
 /** Shared Floating UI pipeline for poppers, menus, and listboxes. */
 export function useFloatingPosition(options: FloatingPositionOptions): void {
-  createEffect(() => {
-    if (!options.open()) {
-      options.onPositionedChange(false)
-      return
+  let positioned: boolean | undefined
+  const publishPositioned = (value: boolean): void => {
+    if (positioned !== value) {
+      positioned = value
+      options.onPositionedChange(value)
     }
+  }
 
-    const floatingElement = options.floatingElement()
-    const referenceElement = options.getReferenceElement()
-
-    if (!floatingElement || !referenceElement) {
-      options.onPositionedChange(false)
-      return
-    }
-
-    const contentElement = options.contentElement?.()
-    const detachedPadding = options.detachedPadding?.()
-    const fitViewport = options.fitViewport?.()
-    const flipOption = options.flip?.() ?? true
-    const gutter = options.gutter()
-    const hideWhenDetached = options.hideWhenDetached?.()
-    const overflowPadding = options.overflowPadding()
-    const overlap = options.overlap?.() ?? true
-    const placement = options.placement()
-    const sameWidth = options.sameWidth?.()
-    const crossAxisOffset = options.shift?.() ?? 0
-    const slide = options.slide?.() ?? true
-    const direction = resolveDirection(floatingElement)
-    const fallbackPlacements = typeof flipOption === 'string' ? flipOption.split(' ') : undefined
-    if (
-      fallbackPlacements &&
-      !fallbackPlacements.every((placement) =>
-        /^(?:top|bottom|left|right)(?:-(?:start|end))?$/.test(placement),
-      )
-    ) {
-      throw new Error('`flip` expects a space-delimited list of placements')
-    }
-    let positionedFrame: number | undefined
-    let positionedTimeout: ReturnType<typeof setTimeout> | undefined
-    let active = true
-    let requestVersion = 0
-
-    const setPositioned = (version: number): void => {
-      if (!active || version !== requestVersion) {
-        return
-      }
-
-      if (!options.deferPositioned) {
-        options.onPositionedChange(true)
-        return
-      }
-
-      const markPositioned = (): void => {
-        if (!active || version !== requestVersion) {
+  createEffect(
+    on(
+      [options.open, options.floatingElement, options.getReferenceElement],
+      ([open, floating, reference]) => {
+        publishPositioned(false)
+        if (!open || !floating || !reference) {
           return
         }
-        if (positionedFrame !== undefined && typeof cancelAnimationFrame === 'function') {
-          cancelAnimationFrame(positionedFrame)
+        let active = true
+        let requestVersion = 0
+        let positionedFrame: number | undefined
+        let positionedTimeout: ReturnType<typeof setTimeout> | undefined
+        let cleanupAutoUpdate: (() => void) | undefined
+        let updatePosition: () => Promise<void>
+        let committed: (() => boolean) | undefined
+        const ownedStyles = new Map<
+          string,
+          { element: HTMLElement; value: string; priority: string; applied: string }
+        >()
+        const restoreStyle = (property: string): void => {
+          const saved = ownedStyles.get(property)
+          if (!saved) {
+            return
+          }
+          if (
+            saved.element.style.getPropertyValue(property) === saved.applied &&
+            saved.element.style.getPropertyPriority(property) === ''
+          ) {
+            saved.element.style.setProperty(property, saved.value, saved.priority)
+          }
+          ownedStyles.delete(property)
         }
-        positionedFrame = undefined
-        if (positionedTimeout !== undefined) {
-          clearTimeout(positionedTimeout)
+        const writeStyle = (element: HTMLElement, property: string, value: string): void => {
+          if (!ownedStyles.has(property)) {
+            ownedStyles.set(property, {
+              element,
+              value: element.style.getPropertyValue(property),
+              priority: element.style.getPropertyPriority(property),
+              applied: value,
+            })
+          }
+          element.style.setProperty(property, value)
+          ownedStyles.get(property)!.applied = element.style.getPropertyValue(property)
+        }
+        const cancelPositioned = (): void => {
+          if (positionedFrame !== undefined) {
+            cancelAnimationFrame(positionedFrame)
+          }
+          if (positionedTimeout !== undefined) {
+            clearTimeout(positionedTimeout)
+          }
+          positionedFrame = undefined
           positionedTimeout = undefined
         }
-        options.onPositionedChange(true)
-      }
-
-      if (positionedFrame !== undefined && typeof cancelAnimationFrame === 'function') {
-        cancelAnimationFrame(positionedFrame)
-        positionedFrame = undefined
-      }
-      if (positionedTimeout !== undefined) {
-        clearTimeout(positionedTimeout)
-        positionedTimeout = undefined
-      }
-
-      if (typeof requestAnimationFrame === 'function') {
-        positionedFrame = requestAnimationFrame(markPositioned)
-      }
-
-      positionedTimeout = setTimeout(markPositioned, 16)
-    }
-
-    const updatePosition = async (): Promise<void> => {
-      const floating = options.floatingElement()
-      const reference = options.getReferenceElement()
-
-      if (!floating || !reference) {
-        return
-      }
-
-      const version = ++requestVersion
-      const styleElement = contentElement ?? floating
-      let transformOrigin: Parameters<typeof getTransformOrigin>[2]
-      const isCurrent = (): boolean =>
-        active &&
-        version === requestVersion &&
-        options.open() &&
-        options.floatingElement() === floating &&
-        options.getReferenceElement() === reference &&
-        (options.contentElement?.() ?? floating) === styleElement
-      const middleware: Middleware[] = [
-        offset((state) => {
-          const hasAlignment = Boolean(state.placement.split('-')[1])
-
-          return {
-            alignmentAxis: crossAxisOffset,
-            crossAxis: !hasAlignment ? crossAxisOffset : undefined,
-            mainAxis: gutter,
+        const markPositioned = (): void => {
+          cancelPositioned()
+          if (committed?.()) {
+            publishPositioned(true)
           }
-        }),
-      ]
+        }
 
-      if (flipOption !== false) {
-        middleware.push(
-          flip({
-            fallbackPlacements: fallbackPlacements as Placement[] | undefined,
-            padding: overflowPadding,
-          }),
-        )
-      }
-
-      if (slide || overlap) {
-        middleware.push(
-          shift({
-            crossAxis: overlap,
-            mainAxis: slide,
-            padding: overflowPadding,
-          }),
-        )
-      }
-
-      middleware.push(
-        size({
-          padding: overflowPadding,
-          apply({ availableHeight, availableWidth, rects }) {
-            if (!isCurrent()) {
-              return
-            }
-
-            const referenceWidth = Math.round(rects.reference.width)
-
-            styleElement.style.setProperty('--mo-popper-anchor-width', `${referenceWidth}px`)
-            styleElement.style.setProperty(
-              '--mo-popper-content-available-width',
-              `${Math.floor(availableWidth)}px`,
-            )
-            styleElement.style.setProperty(
-              '--mo-popper-content-available-height',
-              `${Math.floor(availableHeight)}px`,
-            )
-            styleElement.style.setProperty(
-              '--mo-popper-content-overflow-padding',
-              `${overflowPadding}px`,
-            )
-            if (sameWidth) {
-              styleElement.style.width = `${referenceWidth}px`
-            }
-
-            if (fitViewport) {
-              styleElement.style.maxWidth = `${Math.floor(availableWidth)}px`
-              styleElement.style.maxHeight = `${Math.floor(availableHeight)}px`
-            }
-          },
-        }),
-      )
-
-      if (hideWhenDetached) {
-        middleware.push(hide({ padding: detachedPadding ?? 0 }))
-      }
-
-      middleware.push({
-        name: 'moraineTransformOrigin',
-        fn(state) {
-          transformOrigin = {
-            gutter,
-            overlap,
-            reference: state.rects.reference,
-            shift: state.middlewareData.shift,
-            x: state.x,
-            y: state.y,
+        Object.assign(floating.style, { position: 'absolute', left: '0', top: '0' })
+        onCleanup(() => {
+          active = false
+          committed = undefined
+          cleanupAutoUpdate?.()
+          cancelPositioned()
+          for (const property of ownedStyles.keys()) {
+            restoreStyle(property)
           }
-          return {}
-        },
-      })
+          floating.style.visibility = 'hidden'
+          publishPositioned(false)
+        })
 
-      const position = await computePosition(reference, floating, {
-        middleware,
-        placement,
-        platform: {
-          ...platform,
-          isRTL: () => direction === 'rtl',
-        },
-        strategy: 'absolute',
-      })
-      const referenceContext = 'contextElement' in reference ? reference.contextElement : undefined
+        createEffect(
+          on(
+            [
+              () => options.contentElement?.(),
+              () => options.detachedPadding?.(),
+              () => options.fitViewport?.(),
+              () => options.flip?.(),
+              options.gutter,
+              () => options.hideWhenDetached?.(),
+              options.overflowPadding,
+              () => options.overlap?.(),
+              options.placement,
+              () => options.sameWidth?.(),
+              () => options.shift?.(),
+              () => options.slide?.(),
+            ],
+            ([
+              contentElement,
+              detachedPadding,
+              fitViewport,
+              flipValue,
+              gutter,
+              hideWhenDetached,
+              overflowPadding,
+              overlapValue,
+              placement,
+              sameWidth,
+              shiftValue,
+              slideValue,
+            ]) => {
+              onCleanup(() => {
+                requestVersion += 1
+              })
+              const flipOption = flipValue ?? true
+              const overlap = overlapValue ?? true
+              const crossAxisOffset = shiftValue ?? 0
+              const slide = slideValue ?? true
+              const fallbackPlacements =
+                typeof flipOption === 'string' ? flipOption.split(' ') : undefined
+              if (
+                fallbackPlacements &&
+                !fallbackPlacements.every((placement) => PLACEMENT_PATTERN.test(placement))
+              ) {
+                throw new Error('`flip` expects a space-delimited list of placements')
+              }
+              updatePosition = async () => {
+                if (!active) {
+                  return
+                }
+                const version = ++requestVersion
+                const styleElement = contentElement ?? floating
+                for (const [property, saved] of ownedStyles) {
+                  if (
+                    saved.element !== styleElement ||
+                    !(property === 'width' ? sameWidth : fitViewport)
+                  ) {
+                    restoreStyle(property)
+                  }
+                }
+                const direction = resolveDirection(floating)
+                const dpr = floating.ownerDocument.defaultView?.devicePixelRatio || 1
+                const round = (value: number): number => Math.round(value * dpr) / dpr
+                const referenceContext =
+                  'contextElement' in reference ? reference.contextElement : undefined
+                const isCurrent = (): boolean =>
+                  active &&
+                  version === requestVersion &&
+                  floating.isConnected &&
+                  (!('isConnected' in reference) || reference.isConnected) &&
+                  (!referenceContext || referenceContext.isConnected)
+                const middleware: Middleware[] = [
+                  offset({
+                    mainAxis: gutter,
+                    crossAxis: crossAxisOffset,
+                    alignmentAxis: crossAxisOffset,
+                  }),
+                ]
 
-      if (
-        !isCurrent() ||
-        !floating.isConnected ||
-        (reference instanceof Element && !reference.isConnected) ||
-        (referenceContext instanceof Element && !referenceContext.isConnected)
-      ) {
-        return
-      }
+                if (flipOption !== false) {
+                  middleware.push(
+                    flip({
+                      fallbackPlacements: fallbackPlacements as Placement[] | undefined,
+                      padding: overflowPadding,
+                    }),
+                  )
+                }
 
-      options.onPlacementChange(position.placement)
-      styleElement.style.setProperty(
-        '--mo-popper-content-transform-origin',
-        getTransformOrigin(position.placement, direction, transformOrigin),
-      )
+                if (slide || overlap) {
+                  middleware.push(
+                    shift({
+                      crossAxis: overlap,
+                      mainAxis: slide,
+                      padding: overflowPadding,
+                    }),
+                  )
+                }
 
-      Object.assign(floating.style, {
-        left: '0',
-        position: 'absolute',
-        top: '0',
-        transform: `translate3d(${Math.round(position.x)}px, ${Math.round(position.y)}px, 0)`,
-        visibility:
-          hideWhenDetached && position.middlewareData.hide?.referenceHidden ? 'hidden' : 'visible',
-      })
-      setPositioned(version)
-    }
+                middleware.push(
+                  size({
+                    padding: overflowPadding,
+                    apply({ availableHeight, availableWidth, rects }) {
+                      if (!isCurrent()) {
+                        return
+                      }
 
-    const cleanupAutoUpdate = autoUpdate(referenceElement, floatingElement, updatePosition, {
-      elementResize: typeof ResizeObserver === 'function',
-    })
+                      const referenceWidth = round(rects.reference.width)
+                      const width = Math.max(0, Math.floor(availableWidth))
+                      const height = Math.max(0, Math.floor(availableHeight))
 
-    onCleanup(() => {
-      active = false
-      requestVersion += 1
-      cleanupAutoUpdate()
-      if (positionedFrame !== undefined && typeof cancelAnimationFrame === 'function') {
-        cancelAnimationFrame(positionedFrame)
-      }
-      if (positionedTimeout !== undefined) {
-        clearTimeout(positionedTimeout)
-      }
-      if (options.floatingElement() === floatingElement) {
-        options.onPositionedChange(false)
-        floatingElement.style.visibility = 'hidden'
-      }
-    })
-  })
+                      styleElement.style.setProperty(
+                        '--mo-popper-anchor-width',
+                        `${referenceWidth}px`,
+                      )
+                      styleElement.style.setProperty(
+                        '--mo-popper-content-available-width',
+                        `${width}px`,
+                      )
+                      styleElement.style.setProperty(
+                        '--mo-popper-content-available-height',
+                        `${height}px`,
+                      )
+                      styleElement.style.setProperty(
+                        '--mo-popper-content-overflow-padding',
+                        `${overflowPadding}px`,
+                      )
+                      if (sameWidth) {
+                        writeStyle(styleElement, 'width', `${referenceWidth}px`)
+                      }
+
+                      if (fitViewport) {
+                        writeStyle(styleElement, 'max-width', `${width}px`)
+                        writeStyle(styleElement, 'max-height', `${height}px`)
+                      }
+                    },
+                  }),
+                )
+
+                if (hideWhenDetached) {
+                  middleware.push(hide({ padding: detachedPadding ?? 0 }))
+                }
+
+                middleware.push({
+                  name: 'moraineTransformOrigin',
+                  fn(state) {
+                    return {
+                      data: {
+                        value: getTransformOrigin(state.placement, direction, {
+                          gutter,
+                          overlap,
+                          reference: state.rects.reference,
+                          shift: state.middlewareData.shift,
+                          x: state.x,
+                          y: state.y,
+                        }),
+                      },
+                    }
+                  },
+                })
+
+                const position = await computePosition(reference, floating, {
+                  middleware,
+                  placement,
+                  platform: {
+                    ...platform,
+                    isRTL: () => direction === 'rtl',
+                  },
+                  strategy: 'absolute',
+                })
+                if (!isCurrent()) {
+                  return
+                }
+
+                options.onPlacementChange(position.placement)
+                if (!isCurrent()) {
+                  return
+                }
+                styleElement.style.setProperty(
+                  '--mo-popper-content-transform-origin',
+                  position.middlewareData.moraineTransformOrigin.value,
+                )
+
+                Object.assign(floating.style, {
+                  transform: `translate3d(${round(position.x)}px, ${round(position.y)}px, 0)`,
+                  visibility:
+                    hideWhenDetached && position.middlewareData.hide?.referenceHidden
+                      ? 'hidden'
+                      : 'visible',
+                })
+                committed = isCurrent
+                if (!positioned) {
+                  if (!options.deferPositioned) {
+                    publishPositioned(true)
+                  } else if (positionedFrame === undefined && positionedTimeout === undefined) {
+                    if (typeof requestAnimationFrame === 'function') {
+                      positionedFrame = requestAnimationFrame(markPositioned)
+                    }
+                    positionedTimeout = setTimeout(markPositioned, 16)
+                  }
+                }
+              }
+
+              if (cleanupAutoUpdate) {
+                void updatePosition()
+              } else {
+                cleanupAutoUpdate = autoUpdate(
+                  reference,
+                  floating,
+                  () => {
+                    void updatePosition()
+                  },
+                  { elementResize: typeof ResizeObserver === 'function' },
+                )
+              }
+            },
+          ),
+        )
+      },
+    ),
+  )
 }

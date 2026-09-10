@@ -7,6 +7,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  on,
   splitProps,
   onCleanup,
   onMount,
@@ -325,25 +326,28 @@ export function Resizable(props: ResizableProps): JSX.Element {
       : normalizeWithCurrentState()
   })
 
-  createEffect(() => {
-    if (normalizedControlledSizes() !== undefined) {
-      return
-    }
+  createEffect(
+    on(
+      [normalizedControlledSizes, panelCount, rootSize, panelDefaultSizes],
+      ([controlledSizes, nextCount, measuredRootSize, defaultSizes]) => {
+        if (controlledSizes !== undefined) {
+          return
+        }
+        const hasMeasuredRootSize = measuredRootSize > EPSILON
+        const shouldResetToDefaultSizes = hasMeasuredRootSize && !initializedWithMeasuredRootSize
 
-    const nextCount = panelCount()
-    const hasMeasuredRootSize = rootSize() > EPSILON
-    const shouldResetToDefaultSizes = hasMeasuredRootSize && !initializedWithMeasuredRootSize
+        if (shouldResetToDefaultSizes) {
+          initializedWithMeasuredRootSize = true
+        }
 
-    if (shouldResetToDefaultSizes) {
-      initializedWithMeasuredRootSize = true
-    }
-
-    setUncontrolledSizes((prev) =>
-      prev.length === 0 || prev.length !== nextCount || shouldResetToDefaultSizes
-        ? [...panelDefaultSizes()]
-        : prev,
-    )
-  })
+        setUncontrolledSizes((prev) =>
+          prev.length === 0 || prev.length !== nextCount || shouldResetToDefaultSizes
+            ? [...defaultSizes]
+            : prev,
+        )
+      },
+    ),
+  )
 
   const updateSize = () => {
     const rect = rootRef!.getBoundingClientRect()
@@ -393,124 +397,130 @@ export function Resizable(props: ResizableProps): JSX.Element {
     }
   })
 
-  createEffect(() => {
-    const maxPanelIndex = panelCount() - 1
-    setTransitioningPanelIndexes((prev) => {
-      const next = prev.filter((index) => index >= 0 && index <= maxPanelIndex)
-      return next.length === prev.length ? prev : next
-    })
-  })
+  createEffect(
+    on(panelCount, (count) => {
+      const maxPanelIndex = count - 1
+      setTransitioningPanelIndexes((prev) => {
+        const next = prev.filter((index) => index >= 0 && index <= maxPanelIndex)
+        return next.length === prev.length ? prev : next
+      })
+    }),
+  )
 
   let prevSizes: number[] = []
   let prevCollapsed: boolean[] = []
 
-  createEffect(() => {
-    const panels = resolvedPanels()
-    const currentSizes = sizes()
+  createEffect(
+    on([resolvedPanels, sizes], ([panels, currentSizes]) => {
+      for (let i = 0; i < panels.length; i++) {
+        const panel = panels[i]
+        const size = currentSizes[i] ?? 0
+        const collapsed = panel ? isPanelCollapsed(size, panel) : false
 
-    for (let i = 0; i < panels.length; i++) {
-      const panel = panels[i]
-      const size = currentSizes[i] ?? 0
-      const collapsed = panel ? isPanelCollapsed(size, panel) : false
+        if (
+          panel &&
+          (prevSizes[i] === undefined || Math.abs((prevSizes[i] ?? 0) - size) > EPSILON)
+        ) {
+          panel.onResize?.(size)
+        }
 
-      if (panel && (prevSizes[i] === undefined || Math.abs((prevSizes[i] ?? 0) - size) > EPSILON)) {
-        panel.onResize?.(size)
-      }
-
-      if (panel && prevCollapsed[i] !== undefined && prevCollapsed[i] !== collapsed) {
-        if (collapsed) {
-          panel.onCollapse?.(size)
-        } else {
-          panel.onExpand?.(size)
+        if (panel && prevCollapsed[i] !== undefined && prevCollapsed[i] !== collapsed) {
+          if (collapsed) {
+            panel.onCollapse?.(size)
+          } else {
+            panel.onExpand?.(size)
+          }
         }
       }
-    }
 
-    prevSizes = [...currentSizes]
-    prevCollapsed = panels.map((p, i) => isPanelCollapsed(currentSizes[i] ?? 0, p))
-  })
+      prevSizes = [...currentSizes]
+      prevCollapsed = panels.map((p, i) => isPanelCollapsed(currentSizes[i] ?? 0, p))
+    }),
+  )
 
   const panelCollapsibleStates = createMemo(() => panelItems().map((p) => p.collapsible))
 
   let prevCollapsibleStates: Array<boolean | undefined> = []
   const lastExpandedSizes: Array<number | undefined> = []
 
-  createEffect(() => {
-    const panels = resolvedPanels()
-    const currentSizes = sizes()
+  createEffect(
+    on([resolvedPanels, sizes], ([panels, currentSizes]) => {
+      for (let index = 0; index < panels.length; index += 1) {
+        const panel = panels[index]
+        const size = currentSizes[index] ?? 0
+        const collapsed = panel ? isPanelCollapsed(size, panel) : false
 
-    for (let index = 0; index < panels.length; index += 1) {
-      const panel = panels[index]
-      const size = currentSizes[index] ?? 0
-      const collapsed = panel ? isPanelCollapsed(size, panel) : false
+        if (!panel || collapsed || size <= panel.collapsibleMin + EPSILON) {
+          continue
+        }
 
-      if (!panel || collapsed || size <= panel.collapsibleMin + EPSILON) {
-        continue
+        lastExpandedSizes[index] = size
       }
+    }),
+  )
 
-      lastExpandedSizes[index] = size
-    }
-  })
+  createEffect(
+    on(
+      [panelCollapsibleStates, resolvedPanels, sizes],
+      ([nextCollapsibleStates, panels, currentSizes]) => {
+        let nextSizes = currentSizes
+        let changed = false
+        const transitionPanelIndexes: number[] = []
 
-  createEffect(() => {
-    const nextCollapsibleStates = panelCollapsibleStates()
-    const panels = resolvedPanels()
-    let nextSizes = sizes()
-    let changed = false
-    const transitionPanelIndexes: number[] = []
+        for (let panelIndex = 0; panelIndex < nextCollapsibleStates.length; panelIndex += 1) {
+          const previous = prevCollapsibleStates[panelIndex]
+          const next = nextCollapsibleStates[panelIndex]
 
-    for (let panelIndex = 0; panelIndex < nextCollapsibleStates.length; panelIndex += 1) {
-      const previous = prevCollapsibleStates[panelIndex]
-      const next = nextCollapsibleStates[panelIndex]
+          if (previous === undefined || next === undefined || previous === next) {
+            continue
+          }
 
-      if (previous === undefined || next === undefined || previous === next) {
-        continue
-      }
+          const panel = panels[panelIndex]
+          if (!panel) {
+            continue
+          }
 
-      const panel = panels[panelIndex]
-      if (!panel) {
-        continue
-      }
+          const strategy =
+            panelIndex === panels.length - 1 ? RESIZE_FLAG_PRECEDING : RESIZE_FLAG_FOLLOWING
+          const togglePanels = panels.map((item, index) =>
+            index === panelIndex ? Object.assign({}, item, { collapsible: true }) : item,
+          )
 
-      const strategy =
-        panelIndex === panels.length - 1 ? RESIZE_FLAG_PRECEDING : RESIZE_FLAG_FOLLOWING
-      const togglePanels = panels.map((item, index) =>
-        index === panelIndex ? Object.assign({}, item, { collapsible: true }) : item,
-      )
+          const resized = normalizeSizes(
+            next
+              ? collapsePanel({
+                  panelIndex,
+                  strategy,
+                  initialSizes: nextSizes,
+                  panels: togglePanels,
+                })
+              : expandPanel({
+                  panelIndex,
+                  strategy,
+                  initialSizes: nextSizes,
+                  panels: togglePanels,
+                  expandedSize: lastExpandedSizes[panelIndex],
+                }),
+          )
 
-      const resized = normalizeSizes(
-        next
-          ? collapsePanel({
-              panelIndex,
-              strategy,
-              initialSizes: nextSizes,
-              panels: togglePanels,
-            })
-          : expandPanel({
-              panelIndex,
-              strategy,
-              initialSizes: nextSizes,
-              panels: togglePanels,
-              expandedSize: lastExpandedSizes[panelIndex],
-            }),
-      )
+          if (!hasSizeChange(nextSizes, resized)) {
+            continue
+          }
 
-      if (!hasSizeChange(nextSizes, resized)) {
-        continue
-      }
+          nextSizes = resized
+          transitionPanelIndexes.push(panelIndex)
+          changed = true
+        }
 
-      nextSizes = resized
-      transitionPanelIndexes.push(panelIndex)
-      changed = true
-    }
+        prevCollapsibleStates = [...nextCollapsibleStates]
 
-    prevCollapsibleStates = [...nextCollapsibleStates]
-
-    if (changed) {
-      markPanelsTransitioning(transitionPanelIndexes)
-      emitSizes(nextSizes)
-    }
-  })
+        if (changed) {
+          markPanelsTransitioning(transitionPanelIndexes)
+          emitSizes(nextSizes)
+        }
+      },
+    ),
+  )
 
   function hasSizeChange(previousSizes: number[], nextSizes: number[]): boolean {
     if (previousSizes.length !== nextSizes.length) {

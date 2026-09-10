@@ -2,7 +2,7 @@ import { useIsRouting, useLocation, useNavigate } from '@solidjs/router'
 import { createRoute } from 'solid-file-router'
 import { MDXProvider } from 'solid-file-router/mdx'
 import type { JSX } from 'solid-js'
-import { Show, Suspense, createEffect, createMemo, createSignal, untrack } from 'solid-js'
+import { Show, Suspense, createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
 
 import {
   Button,
@@ -41,29 +41,32 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   const navigationLoading = createMemo(() => isRouting() && location.pathname === routingFromPath())
   let renderedPage = untrack(committedPage)
 
-  createEffect(() => {
-    const page = activePage()
-    if (isRouting()) {
-      return
-    }
+  createEffect(
+    on([activePage, isRouting], ([page, routing]) => {
+      if (routing) {
+        return
+      }
 
-    if (page === renderedPage) {
-      return
-    }
+      if (page === renderedPage) {
+        return
+      }
 
-    renderedPage = page
-    mainEl()?.scrollTo({ top: 0 })
-    setCommittedPage(page)
-  })
+      renderedPage = page
+      mainEl()?.scrollTo({ top: 0 })
+      setCommittedPage(page)
+    }),
+  )
 
-  createEffect(() => {
-    if (!isRouting()) {
-      setRoutingFromPath(undefined)
-      return
-    }
+  createEffect(
+    on(isRouting, (routing) => {
+      if (!routing) {
+        setRoutingFromPath(undefined)
+        return
+      }
 
-    setRoutingFromPath((path) => path ?? untrack(() => location.pathname))
-  })
+      setRoutingFromPath((path) => path ?? untrack(() => location.pathname))
+    }),
+  )
 
   const navigateToPage = (key: string) => {
     const path = pages.find((page) => page.key === key)?.path

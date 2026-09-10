@@ -6,6 +6,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  on,
   onCleanup,
   splitProps,
   untrack,
@@ -181,30 +182,36 @@ export function Accordion(props: AccordionProps): JSX.Element {
     enabledTriggers[(nextIndex + enabledTriggers.length) % enabledTriggers.length]?.focus()
   }
 
-  createEffect(() => {
-    const enabledItemCount = items().filter((item) => !merged.disabled && !item.disabled).length
-    const version = ++focusRecoveryVersion
+  const itemDisabledSnapshot = () => items().map((item) => item.disabled)
 
-    queueMicrotask(() => {
-      if (version !== focusRecoveryVersion || !lastFocusedTrigger || enabledItemCount === 0) {
-        return
-      }
+  createEffect(
+    on([itemDisabledSnapshot, () => merged.disabled], ([disabledItems, disabled]) => {
+      const enabledItemCount = disabledItems.filter(
+        (itemDisabled) => !disabled && !itemDisabled,
+      ).length
+      const version = ++focusRecoveryVersion
 
-      const activeElement = document.activeElement
-      if (activeElement !== document.body && activeElement !== lastFocusedTrigger) {
-        return
-      }
+      queueMicrotask(() => {
+        if (version !== focusRecoveryVersion || !lastFocusedTrigger || enabledItemCount === 0) {
+          return
+        }
 
-      if (!lastFocusedTrigger.disabled && lastFocusedTrigger.isConnected) {
-        lastFocusedTrigger.focus()
-        return
-      }
+        const activeElement = document.activeElement
+        if (activeElement !== document.body && activeElement !== lastFocusedTrigger) {
+          return
+        }
 
-      const enabledTriggers = getEnabledTriggers()
-      const targetIndex = Math.min(lastFocusedIndex, enabledTriggers.length - 1)
-      enabledTriggers[Math.max(0, targetIndex)]?.focus()
-    })
-  })
+        if (!lastFocusedTrigger.disabled && lastFocusedTrigger.isConnected) {
+          lastFocusedTrigger.focus()
+          return
+        }
+
+        const enabledTriggers = getEnabledTriggers()
+        const targetIndex = Math.min(lastFocusedIndex, enabledTriggers.length - 1)
+        enabledTriggers[Math.max(0, targetIndex)]?.focus()
+      })
+    }),
+  )
 
   onCleanup(() => {
     focusRecoveryVersion += 1
@@ -264,32 +271,39 @@ export function Accordion(props: AccordionProps): JSX.Element {
             )
           }
 
-          function openContentElement(): void {
+          function openContentElement(isExpanded: boolean): void {
             if (!contentElement || contentExpanded()) {
               return
             }
 
             void contentElement.offsetHeight
 
-            if (expanded()) {
+            if (isExpanded) {
               setContentExpanded(true)
             }
           }
 
-          createEffect(() => {
-            if (!expanded()) {
-              setContentExpanded(false)
-              return
-            }
+          createEffect(
+            on(expanded, (isExpanded) => {
+              if (!isExpanded) {
+                setContentExpanded(false)
+                return
+              }
 
-            openContentElement()
-          })
+              openContentElement(isExpanded)
+            }),
+          )
 
-          createEffect(() => {
-            if (!contentPresence.present() && merged.unmountOnHide) {
-              contentElement = undefined
-            }
-          })
+          createEffect(
+            on(
+              () => !contentPresence.present() && merged.unmountOnHide,
+              (shouldUnmount) => {
+                if (shouldUnmount) {
+                  contentElement = undefined
+                }
+              },
+            ),
+          )
 
           function onTriggerClick(event: MouseEvent): void {
             spaceKeyDown = false
@@ -400,7 +414,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     contentPresence.setElement(element)
 
                     if (expanded() && !contentExpanded()) {
-                      openContentElement()
+                      openContentElement(expanded())
                     }
                   }}
                   id={contentId()}

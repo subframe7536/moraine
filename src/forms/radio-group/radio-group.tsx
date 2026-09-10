@@ -6,6 +6,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  on,
   onCleanup,
   onMount,
   splitProps,
@@ -179,12 +180,13 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     }
   }
 
-  createEffect(() => {
-    const value = controlledValue()
-    if (value !== undefined && field.value() !== value) {
-      field.setFormValue(value)
-    }
-  })
+  createEffect(
+    on([controlledValue, field.value], ([value, formValue]) => {
+      if (value !== undefined && formValue !== value) {
+        field.setFormValue(value)
+      }
+    }),
+  )
 
   function onChange(nextValue: string): void {
     if (field.disabled() || readOnly() || nextValue === selectedValue()) {

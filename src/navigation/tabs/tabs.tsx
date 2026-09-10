@@ -6,6 +6,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  on,
   onCleanup,
   onMount,
   splitProps,
@@ -172,9 +173,10 @@ export function Tabs(props: TabsProps): JSX.Element {
     merged.onChange?.(nextValue)
   }
 
-  function computeIndicatorStyle(): void {
-    const currentKey = selectedKey()
-
+  function computeIndicatorStyle(
+    currentKey: ReturnType<typeof selectedKey>,
+    orientation: typeof merged.orientation,
+  ): void {
     if (currentKey === undefined) {
       setIndicatorStyle({
         transform: undefined,
@@ -196,7 +198,7 @@ export function Tabs(props: TabsProps): JSX.Element {
       height: undefined,
     }
 
-    if (merged.orientation === 'vertical') {
+    if (orientation === 'vertical') {
       nextStyle.transform = `translateY(${selectedTrigger.offsetTop}px)`
       nextStyle.height = `${selectedTrigger.offsetHeight}px`
     } else {
@@ -217,59 +219,60 @@ export function Tabs(props: TabsProps): JSX.Element {
   }
 
   onMount(() => {
-    computeIndicatorStyle()
+    computeIndicatorStyle(selectedKey(), merged.orientation)
   })
 
-  createEffect(() => {
-    normalizedItems()
-    computeIndicatorStyle()
-  })
+  createEffect(
+    on([normalizedItems, selectedKey, () => merged.orientation], ([, key, orientation]) => {
+      computeIndicatorStyle(key, orientation)
+    }),
+  )
 
-  createEffect(() => {
-    if (!focusRecoveryRequested()) {
-      return
-    }
-
-    const recoveryKey = effectiveHighlighted()
-    const generation = ++focusRecoveryGeneration
-
-    queueMicrotask(() => {
-      if (!disposed && generation === focusRecoveryGeneration) {
-        if (document.activeElement === document.body && recoveryKey !== undefined) {
-          triggerRefs.get(recoveryKey)?.focus()
-        }
-        setFocusRecoveryRequested(false)
+  createEffect(
+    on([focusRecoveryRequested, effectiveHighlighted], ([recovery, recoveryKey]) => {
+      if (!recovery) {
+        return
       }
-    })
-  })
+      const generation = ++focusRecoveryGeneration
 
-  createEffect(() => {
-    const items = normalizedItems()
-    const currentKey = selectedKey()
-    const selectedTrigger = currentKey === undefined ? undefined : triggerRefs.get(currentKey)
+      queueMicrotask(() => {
+        if (!disposed && generation === focusRecoveryGeneration) {
+          if (document.activeElement === document.body && recoveryKey !== undefined) {
+            triggerRefs.get(recoveryKey)?.focus()
+          }
+          setFocusRecoveryRequested(false)
+        }
+      })
+    }),
+  )
 
-    if (
-      typeof ResizeObserver === 'undefined' ||
-      !selectedTrigger?.isConnected ||
-      !items.some((item) => item.instanceKey === currentKey)
-    ) {
-      return
-    }
+  createEffect(
+    on([normalizedItems, selectedKey], ([items, currentKey]) => {
+      const selectedTrigger = currentKey === undefined ? undefined : triggerRefs.get(currentKey)
 
-    const resizeObserver = new ResizeObserver(() => {
-      computeIndicatorStyle()
-    })
+      if (
+        typeof ResizeObserver === 'undefined' ||
+        !selectedTrigger?.isConnected ||
+        !items.some((item) => item.instanceKey === currentKey)
+      ) {
+        return
+      }
 
-    resizeObserver.observe(selectedTrigger)
+      const resizeObserver = new ResizeObserver(() => {
+        computeIndicatorStyle(selectedKey(), merged.orientation)
+      })
 
-    if (listRef) {
-      resizeObserver.observe(listRef)
-    }
+      resizeObserver.observe(selectedTrigger)
 
-    onCleanup(() => {
-      resizeObserver.disconnect()
-    })
-  })
+      if (listRef) {
+        resizeObserver.observe(listRef)
+      }
+
+      onCleanup(() => {
+        resizeObserver.disconnect()
+      })
+    }),
+  )
 
   return (
     <div id={rootId()} data-slot="root" {...resolved.root} {...rest}>

@@ -49,6 +49,47 @@ describe('Modal primitives', () => {
     },
   )
 
+  test('samples scroll prevention when entering a presence cycle', async () => {
+    const [open, setOpen] = createSignal(true)
+    const [preventScroll, setPreventScroll] = createSignal(true)
+    const screen = render(() => (
+      <Modal open={open()} preventScroll={preventScroll()}>
+        <Modal.Content>
+          <button type="button" data-testid="sample-first">
+            First
+          </button>
+          <button type="button" data-testid="sample-second">
+            Second
+          </button>
+        </Modal.Content>
+      </Modal>
+    ))
+    try {
+      await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
+      const second = document.body.querySelector<HTMLButtonElement>(
+        '[data-testid="sample-second"]',
+      )!
+      await waitFor(() =>
+        expect(document.activeElement).toBe(
+          document.body.querySelector<HTMLButtonElement>('[data-testid="sample-first"]')!,
+        ),
+      )
+      second.focus()
+      setPreventScroll(false)
+      await Promise.resolve()
+      expect(document.body.style.overflow).toBe('hidden')
+      expect(document.activeElement).toBe(second)
+      setOpen(false)
+      await finishExitMotion()
+      await waitFor(() => expect(document.body.style.overflow).toBe(''))
+      setOpen(true)
+      await Promise.resolve()
+      expect(document.body.style.overflow).toBe('')
+    } finally {
+      screen.unmount()
+    }
+  })
+
   test('keeps closed content lazy and resolves its JSX once when opened', () => {
     let reads = 0
     const screen = render(() => (
@@ -1263,5 +1304,35 @@ describe('Modal primitives', () => {
       expect(instances).toBe(1)
       expect(document.body.textContent).toContain('Content')
     })
+  })
+
+  test('modal retargets isolation when overlayScroll replaces content', async () => {
+    const [scroll, setScroll] = createSignal(false)
+    const screen = render(() => (
+      <Modal defaultOpen>
+        <Modal.Content overlay overlayScroll={scroll()}>
+          <button data-testid="content-action">Action</button>
+        </Modal.Content>
+      </Modal>
+    ))
+    try {
+      await waitFor(() =>
+        expect(document.activeElement).toBe(
+          document.body.querySelector<HTMLButtonElement>('[data-testid="content-action"]')!,
+        ),
+      )
+      const before = document.body.querySelector('[data-slot="content"]')
+      setScroll(true)
+      await Promise.resolve()
+      await Promise.resolve()
+      const after = document.body.querySelector<HTMLButtonElement>(
+        '[data-testid="content-action"]',
+      )!
+      expect(after.closest('[data-slot="content"]')).not.toBe(before)
+      expect(after.closest('[aria-hidden="true"]')).toBeNull()
+      expect(document.activeElement).toBe(after)
+    } finally {
+      screen.unmount()
+    }
   })
 })

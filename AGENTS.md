@@ -125,6 +125,12 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 
 ### SolidJS Best Practices
 
+- Always wrap `createEffect` callbacks with Solid's `on()` and declare their reactive dependencies explicitly. Keep dependency accessors free of side effects. Use `on([], callback)` for effects with no reactive dependencies. Reuse the dependency values passed to `on()` callbacks instead of reading the same dependencies again; retain fresh reads when asynchronous work or user callbacks require the latest state.
+
+- Effect dependencies must be signals, existing memos, direct property accessors, boolean condition accessors, or named accessors that snapshot raw nested fields. Prefer boolean accessors when the effect only needs an enabled/open/closed condition; reuse existing boolean helpers when available. Keep raw value and element dependencies when value changes or node replacement must rerun the effect. Keep filtering, lookups, normalization, comparisons, and defaults inside the effect callback unless they directly express its boolean condition. Do not construct conditional tuples, state wrapper objects, or synthetic `undefined` values to skip an effect. Optional properties may naturally be `undefined`. Raw snapshots may copy structure and fields to track in-place updates, but must not contain business logic.
+
+- The dependencies passed to `on()` describe when an effect must rerun, not every reactive value it uses. Read non-triggering state inside the callback, which is already untracked.
+
 - **Reactivity:** Never destructure props (e.g., `const { variant } = props` breaks reactivity).
 - **Control Flow:** Use `<Show>`, `<For>`, `<Switch>/<Match>` instead of ternary operators or `.map()`.
 - **Events:** Use UpperCase event names (`onClick`, `onInput`) on HTML elements.

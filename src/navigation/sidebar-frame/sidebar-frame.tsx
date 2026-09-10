@@ -173,10 +173,11 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
 
   const isMobile = createMemo(() => local.isMobile ?? internalIsMobile())
 
-  createEffect(() => {
-    const mobile = isMobile()
-    untrack(() => setOpen(!mobile))
-  })
+  createEffect(
+    on(isMobile, (mobile) => {
+      setOpen(!mobile)
+    }),
+  )
 
   const context = {
     resolved,

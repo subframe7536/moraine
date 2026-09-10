@@ -110,12 +110,9 @@ export function Popover(props: PopoverProps): JSX.Element {
   }
 
   createEffect(
-    on(
-      () => [merged.mode, merged.disabled] as const,
-      () => {
-        invalidateHoverTimers()
-      },
-    ),
+    on([() => merged.mode, () => merged.disabled], () => {
+      invalidateHoverTimers()
+    }),
   )
 
   onCleanup(() => {

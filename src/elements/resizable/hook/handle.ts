@@ -83,45 +83,47 @@ export function useResizableHandle(options: UseResizableHandleOptions): Resizabl
     }),
   )
 
-  createEffect(() => {
-    const currentElement = element()
-    if (!currentElement || disabled()) {
-      return
-    }
+  createEffect(
+    on([element, disabled], ([currentElement, isDisabled]) => {
+      if (!currentElement || isDisabled) {
+        return
+      }
 
-    registration = {
-      id: registrationId,
-      getElement: () => element(),
-      getRootElement: () =>
-        (element()?.closest('[data-resizable-root]') as HTMLDivElement | null) ?? undefined,
-      getOrientation: options.orientation,
-      getAltKeyMode: () => true,
-      getStartIntersectionEnabled: () => options.intersection() !== false,
-      getEndIntersectionEnabled: () => options.intersection() !== false,
-      getStartIntersection: startIntersection,
-      getEndIntersection: endIntersection,
-      setStartIntersection,
-      setEndIntersection,
-      setDragging: (nextDragging) => setInteractionStateFlag(HANDLE_STATE_DRAGGING, nextDragging),
-      setCrossHovered: (nextHovered) =>
-        setInteractionStateFlag(HANDLE_STATE_CROSS_HOVERED, nextHovered),
-      onDrag: (deltaPx, altKey) => options.onDrag(options.handleIndex(), deltaPx, altKey),
-      onDragEnd: () => {
-        options.onDragEnd()
-      },
-    }
+      registration = {
+        id: registrationId,
+        getElement: () => element(),
+        getRootElement: () =>
+          (element()?.closest('[data-resizable-root]') as HTMLDivElement | null) ?? undefined,
+        getOrientation: options.orientation,
+        getAltKeyMode: () => true,
+        getStartIntersectionEnabled: () => options.intersection() !== false,
+        getEndIntersectionEnabled: () => options.intersection() !== false,
+        getStartIntersection: startIntersection,
+        getEndIntersection: endIntersection,
+        setStartIntersection,
+        setEndIntersection,
+        setDragging: (nextDragging) => setInteractionStateFlag(HANDLE_STATE_DRAGGING, nextDragging),
+        setCrossHovered: (nextHovered) =>
+          setInteractionStateFlag(HANDLE_STATE_CROSS_HOVERED, nextHovered),
+        onDrag: (deltaPx, altKey) => options.onDrag(options.handleIndex(), deltaPx, altKey),
+        onDragEnd: () => {
+          options.onDragEnd()
+        },
+      }
 
-    const unregister = registerResizableHandle(registration)
-    onCleanup(() => {
-      unregister()
-      registration = null
-    })
-  })
+      const unregister = registerResizableHandle(registration)
+      onCleanup(() => {
+        unregister()
+        registration = null
+      })
+    }),
+  )
 
-  createEffect(() => {
-    void [options.orientation(), options.intersection()]
-    scheduleResizableHandleIntersectionsRefresh()
-  })
+  createEffect(
+    on([options.orientation, options.intersection], () => {
+      scheduleResizableHandleIntersectionsRefresh()
+    }),
+  )
 
   function onMouseEnter(): void {
     if (disabled()) {

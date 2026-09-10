@@ -1,5 +1,14 @@
 import type { Component, JSX } from 'solid-js'
-import { For, Show, createEffect, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
+import {
+  For,
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  on,
+  splitProps,
+} from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import { List } from '../../elements/list'
@@ -190,25 +199,27 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     merged.onSearchTermChange?.(value)
   }
 
-  createEffect(() => {
-    const input = inputElement()
-    if (!merged.autofocus || !input) {
-      return
-    }
-
-    queueMicrotask(() => {
-      if (input.isConnected && !input.closest('[role="dialog"]')) {
-        input.focus({ preventScroll: true })
+  createEffect(
+    on([inputElement, () => merged.autofocus], ([input, autofocus]) => {
+      if (!autofocus || !input) {
+        return
       }
-    })
-  })
 
-  createEffect(() => {
-    const input = inputElement()
-    if (merged.searchTerm !== undefined && input && input.value !== merged.searchTerm) {
-      input.value = merged.searchTerm
-    }
-  })
+      queueMicrotask(() => {
+        if (input.isConnected && !input.closest('[role="dialog"]')) {
+          input.focus({ preventScroll: true })
+        }
+      })
+    }),
+  )
+
+  createEffect(
+    on([inputElement, () => merged.searchTerm], ([input, searchTerm]) => {
+      if (searchTerm !== undefined && input && input.value !== searchTerm) {
+        input.value = searchTerm
+      }
+    }),
+  )
 
   const groups = createMemo<CommandPaletteT.Group<TItem>[]>(() => merged.groups ?? [])
 
@@ -273,42 +284,49 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     return entries
   })
 
-  createEffect(() => {
-    const items = visibleItems().filter((item) => !item.disabled)
-    const highlighted = activeKey()
-    if (highlighted && items.some((item) => item.key === highlighted)) {
-      return
-    }
-    setActiveKey(items[0]?.key)
-  })
+  const visibleItemSnapshot = () =>
+    visibleItems().map((item) => ({ key: item.key, disabled: item.disabled }))
 
-  createEffect(() => {
-    const key = activeKey()
-    if (!key) {
-      return
-    }
-
-    const item = visibleItemByKey().get(key)
-    if (!item) {
-      return
-    }
-
-    if (merged.virtualRender && merged.scrollToItem) {
-      const entryIndex = virtualEntries().findIndex(
-        (entry) => entry.type === 'item' && entry.key === key,
-      )
-      if (entryIndex >= 0) {
-        merged.scrollToItem(item.item, entryIndex)
+  createEffect(
+    on([visibleItemSnapshot, activeKey], ([visibleItems, highlighted]) => {
+      const items = visibleItems.filter((item) => !item.disabled)
+      if (highlighted && items.some((item) => item.key === highlighted)) {
         return
       }
-    }
+      setActiveKey(items[0]?.key)
+    }),
+  )
 
-    queueMicrotask(() => {
-      listboxElement
-        ?.querySelector<HTMLElement>('[data-slot="item"][data-highlighted]')
-        ?.scrollIntoView?.({ block: 'nearest' })
-    })
-  })
+  createEffect(
+    on(
+      [activeKey, visibleItemByKey, () => merged.virtualRender, virtualEntries],
+      ([key, items, virtual, virtualItems]) => {
+        if (!key) {
+          return
+        }
+        const item = items.get(key)
+        if (!item) {
+          return
+        }
+        const entries = virtual ? virtualItems : undefined
+        const scrollToItem = merged.scrollToItem
+        if (entries && scrollToItem) {
+          const entryIndex = entries.findIndex(
+            (entry) => entry.type === 'item' && entry.key === key,
+          )
+          if (entryIndex >= 0) {
+            scrollToItem(item.item, entryIndex)
+            return
+          }
+        }
+        queueMicrotask(() => {
+          listboxElement
+            ?.querySelector<HTMLElement>('[data-slot="item"][data-highlighted]')
+            ?.scrollIntoView?.({ block: 'nearest' })
+        })
+      },
+    ),
+  )
 
   const { onNavigationKeyDown } = useSelectableCollectionNavigation<NormalizedItem<TItem>, string>({
     items: () => visibleItems(),

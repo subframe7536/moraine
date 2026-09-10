@@ -1,7 +1,8 @@
-import { getInput } from '@formisch/solid'
+import { focus, getInput } from '@formisch/solid'
 import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
 import { For, createComponent, createSignal } from 'solid-js'
+import { createStore } from 'solid-js/store'
 import * as v from 'valibot'
 import { describe, expect, test } from 'vitest'
 
@@ -808,4 +809,143 @@ describe('FormField', () => {
     expect(container?.className).toContain('gap-1.5')
     expect(container?.className).not.toContain('mt-0')
   })
+
+  test('registers a moved field for imperative focus', () => {
+    const [name, setName] = createSignal<'first' | 'second'>('first')
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ first: v.string(), second: v.string() }),
+          initialInput: { first: 'First', second: 'Second' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name={name()} label="Value">
+            <Input />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    try {
+      const input = screen.getByLabelText('Value')
+      setName('second')
+      focus(form, { path: ['second'] })
+      expect(document.activeElement).toBe(input)
+    } finally {
+      screen.unmount()
+    }
+  })
+
+  test('updates controlled values and focus registration when an array path changes in place', () => {
+    const [state, setState] = createStore<{ path: ['first' | 'second'] }>({ path: ['first'] })
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ first: v.string(), second: v.string() }),
+          initialInput: { first: 'First', second: 'Second' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name={state.path} label="Value">
+            <Input value="Controlled" />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    try {
+      setState('path', 0, 'second')
+      expect(getInput(form).second).toBe('Controlled')
+      focus(form, { path: ['second'] })
+      expect(document.activeElement).toBe(screen.getByLabelText('Value'))
+    } finally {
+      screen.unmount()
+    }
+  })
+
+  test('resyncs a controlled checkbox group when the bound path changes', () => {
+    const [name, setName] = createSignal<'first' | 'second'>('first')
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ first: v.array(v.string()), second: v.array(v.string()) }),
+          initialInput: { first: [], second: [] },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name={name()}>
+            <CheckboxGroup
+              value={['selected']}
+              items={[{ label: 'Selected', value: 'selected' }]}
+            />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    try {
+      expect(getInput(form).first).toEqual(['selected'])
+      setName('second')
+      expect(getInput(form).second).toEqual(['selected'])
+    } finally {
+      screen.unmount()
+    }
+  })
+  test.each([
+    ['Input', Input],
+    ['Textarea', Textarea],
+  ] as const)('resyncs controlled text when the bound path changes (%s)', (_name, Control) => {
+    const [name, setName] = createSignal<'first' | 'second'>('first')
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ first: v.string(), second: v.string() }),
+          initialInput: { first: 'First', second: 'Second' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name={name()} label="Value">
+            <Control value="Controlled" />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    try {
+      expect(getInput(form).first).toBe('Controlled')
+      setName('second')
+      expect(screen.getByLabelText<HTMLInputElement>('Value').value).toBe('Controlled')
+      expect(getInput(form).second).toBe('Controlled')
+    } finally {
+      screen.unmount()
+    }
+  })
+
+  test.each([
+    ['Checkbox', Checkbox],
+    ['Switch', Switch],
+  ] as const)(
+    'resyncs controlled checked value when the bound path changes (%s)',
+    (_name, Control) => {
+      const [name, setName] = createSignal<'first' | 'second'>('first')
+      const { screen, value: form } = renderWithOwner(
+        () =>
+          createForm({
+            schema: v.object({ first: v.boolean(), second: v.boolean() }),
+            initialInput: { first: false, second: false },
+          }),
+        (form) => (
+          <form.Form>
+            <form.Field name={name()} label="Value">
+              <Control checked={true} />
+            </form.Field>
+          </form.Form>
+        ),
+      )
+      try {
+        expect(getInput(form).first).toBe(true)
+        setName('second')
+        expect(getInput(form).second).toBe(true)
+      } finally {
+        screen.unmount()
+      }
+    },
+  )
 })

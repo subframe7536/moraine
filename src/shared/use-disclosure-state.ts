@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
 
 export interface UseDisclosureStateOptions {
   disabled?: Accessor<boolean>
@@ -35,11 +35,11 @@ export function useDisclosureState(options: UseDisclosureStateOptions) {
     })
   }
 
-  createEffect(() => {
-    options.open()
-
-    queueContentHeightMeasurement()
-  })
+  createEffect(
+    on(options.open, () => {
+      queueContentHeightMeasurement()
+    }),
+  )
 
   function setContentElement(element: HTMLDivElement): void {
     resizeObserver?.disconnect()

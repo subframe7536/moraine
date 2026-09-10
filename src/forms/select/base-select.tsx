@@ -344,27 +344,35 @@ function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
     return options.visibleFlatOptions().find((option) => option.id === key)
   }
 
-  createEffect(() => {
-    if (!options.isPresent()) {
-      options.setHighlightedKey(undefined)
-      return
-    }
+  const visibleOptionSnapshot = () =>
+    options.visibleFlatOptions().map((option) => ({ id: option.id, disabled: option.disabled }))
 
-    if (!options.isOpen()) {
-      return
-    }
-
-    const highlighted = options.highlightedKey()
-    const enabledOptions = options.visibleFlatOptions().filter((option) => !option.disabled)
-    if (highlighted && enabledOptions.some((option) => option.id === highlighted)) {
-      return
-    }
-
-    const selectedIds = options.selectedOptionIds()
-    const selectedOption = enabledOptions.find((option) => selectedIds.has(option.id))
-
-    options.setHighlightedKey(selectedOption?.id ?? enabledOptions[0]?.id)
-  })
+  createEffect(
+    on(
+      [
+        options.isPresent,
+        options.isOpen,
+        options.highlightedKey,
+        visibleOptionSnapshot,
+        options.selectedOptionIds,
+      ],
+      ([present, open, highlighted, visibleOptions, selectedIds]) => {
+        if (!present) {
+          options.setHighlightedKey(undefined)
+          return
+        }
+        if (!open) {
+          return
+        }
+        const enabledIds = visibleOptions
+          .filter((option) => !option.disabled)
+          .map((option) => option.id)
+        if (!highlighted || !enabledIds.includes(highlighted)) {
+          options.setHighlightedKey(enabledIds.find((id) => selectedIds.has(id)) ?? enabledIds[0])
+        }
+      },
+    ),
+  )
 
   return {
     focusBoundaryItem: focusBoundary,
@@ -402,31 +410,33 @@ function useBaseSelectOverlay(options: {
     placement: () => 'bottom-start',
   })
 
-  createEffect(() => {
-    if (!options.contentPresence.present()) {
-      options.contentPresence.setElement(undefined)
-    }
-  })
+  createEffect(
+    on(options.contentPresence.present, (present) => {
+      if (!present) {
+        options.contentPresence.setElement(undefined)
+      }
+    }),
+  )
 
-  createEffect(() => {
-    const positioner = options.positionerElement()
-    const content = options.contentElement()
-    if (!positioner || !content) {
-      return
-    }
-
-    queueMicrotask(() => {
-      if (
-        disposed ||
-        options.positionerElement() !== positioner ||
-        options.contentElement() !== content
-      ) {
+  createEffect(
+    on([options.positionerElement, options.contentElement], ([positioner, content]) => {
+      if (!positioner || !content) {
         return
       }
 
-      positioner.style.zIndex = getComputedStyle(content).zIndex
-    })
-  })
+      queueMicrotask(() => {
+        if (
+          disposed ||
+          options.positionerElement() !== positioner ||
+          options.contentElement() !== content
+        ) {
+          return
+        }
+
+        positioner.style.zIndex = getComputedStyle(content).zIndex
+      })
+    }),
+  )
 
   useOverlayInteraction({
     containsTarget: (node) => {
@@ -587,24 +597,37 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     return typeof value === 'string' || typeof value === 'number' ? [value] : propSelectedValues()
   })
 
-  createEffect(() => {
-    if (!merged._isValueControlled) {
-      return
-    }
+  const formValueSnapshot = () => {
+    const value = field.value()
+    return Array.isArray(value) ? value.slice() : value
+  }
+  const propSelectedValuesSnapshot = () => propSelectedValues().slice()
 
-    const values = propSelectedValues()
-    const nextValue = merged.multiple ? [...values] : (values[0] ?? '')
-    const currentValue = field.value()
-    const isEqual = Array.isArray(nextValue)
-      ? Array.isArray(currentValue) &&
-        nextValue.length === currentValue.length &&
-        nextValue.every((value, index) => Object.is(value, currentValue[index]))
-      : Object.is(nextValue, currentValue)
+  createEffect(
+    on(
+      [
+        () => merged._isValueControlled,
+        propSelectedValuesSnapshot,
+        () => merged.multiple,
+        formValueSnapshot,
+      ],
+      ([controlled, values, multiple, currentValue]) => {
+        if (!controlled) {
+          return
+        }
+        const nextValue = multiple ? values : (values[0] ?? '')
+        const isEqual = Array.isArray(nextValue)
+          ? Array.isArray(currentValue) &&
+            nextValue.length === currentValue.length &&
+            nextValue.every((value, index) => Object.is(value, currentValue[index]))
+          : Object.is(nextValue, currentValue)
+        if (!isEqual) {
+          field.setFormValue(nextValue)
+        }
+      },
+    ),
+  )
 
-    if (!isEqual) {
-      field.setFormValue(nextValue)
-    }
-  })
   const selectedResolution = createMemo(() =>
     resolveSelectedOptions(allFlatOptions(), selectedValues()),
   )
@@ -667,24 +690,29 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     ),
   )
 
-  function syncNativeSelectState(): void {
+  function syncNativeSelectState(
+    selectedIds: Set<string>,
+    values: BaseSelectT.Value[],
+    multiple: boolean | undefined,
+  ): void {
     const select = nativeFormSelectRef
     if (!select) {
       return
     }
 
-    const selectedIds = selectedOptionIds()
     for (const option of select.options) {
       option.selected = option.hasAttribute('data-empty-option')
-        ? !merged.multiple && selectedValues().length === 0
+        ? !multiple && values.length === 0
         : option.hasAttribute('data-unmatched-option') ||
           selectedIds.has(option.dataset.optionId ?? '')
     }
   }
 
-  createEffect(() => {
-    syncNativeSelectState()
-  })
+  createEffect(
+    on([selectedOptionIds, selectedValues, () => merged.multiple], ([ids, values, multiple]) => {
+      syncNativeSelectState(ids, values, multiple)
+    }),
+  )
 
   const visibleOptions = createMemo<Array<NormalizedOption<TItem> | NormalizedGroup<TItem>>>(() => {
     const options = normalizedOptions()
@@ -871,7 +899,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         field,
         setInputValue,
       })
-      syncNativeSelectState()
+      syncNativeSelectState(selectedOptionIds(), selectedValues(), merged.multiple)
     },
   )
 
@@ -1074,44 +1102,46 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     positionerElement,
   })
 
-  createEffect(() => {
-    const key = highlightedKey()
-    if (!isOpen() || !key || !contentElement() || !listboxRef) {
-      return
-    }
+  createEffect(
+    on(
+      [highlightedKey, isOpen, contentElement, visibleOptionByKey, virtualRender, virtualEntries],
+      ([key, open, content, options, virtual, virtualItems]) => {
+        if (!key || !open || !content || !listboxRef) {
+          return
+        }
+        const option = options.get(key)
+        if (!option) {
+          return
+        }
+        const entries = virtual ? virtualItems : undefined
+        const scrollToItem = merged.scrollToItem
+        if (entries && scrollToItem) {
+          const entryIndex = entries.findIndex(
+            (entry) => entry.type === 'item' && entry.key === key,
+          )
+          if (entryIndex >= 0) {
+            scrollToItem(option.raw, entryIndex)
+            return
+          }
+        }
+        const listbox = listboxRef
+        // oxlint-disable-next-line subf/solid-reactivity -- Delayed scrolling must validate the latest highlight and popup state.
+        queueMicrotask(() => {
+          if (
+            disposed ||
+            !isOpen() ||
+            highlightedKey() !== key ||
+            listboxRef !== listbox ||
+            contentElement() !== content
+          ) {
+            return
+          }
 
-    const option = visibleOptionByKey().get(key)
-    if (!option) {
-      return
-    }
-
-    if (virtualRender() && merged.scrollToItem) {
-      const entryIndex = virtualEntries().findIndex(
-        (entry) => entry.type === 'item' && entry.key === key,
-      )
-      if (entryIndex >= 0) {
-        merged.scrollToItem(option.raw, entryIndex)
-        return
-      }
-    }
-
-    const listbox = listboxRef
-    const content = contentElement()
-    // oxlint-disable-next-line subf/solid-reactivity -- Delayed scrolling must validate the latest highlight and popup state.
-    queueMicrotask(() => {
-      if (
-        disposed ||
-        !isOpen() ||
-        highlightedKey() !== key ||
-        listboxRef !== listbox ||
-        contentElement() !== content
-      ) {
-        return
-      }
-
-      scrollHighlightedItemIntoView(listbox)
-    })
-  })
+          scrollHighlightedItemIntoView(listbox)
+        })
+      },
+    ),
+  )
 
   function handleListboxScroll(event: Event): void {
     const target = event.currentTarget as HTMLElement | null
@@ -1308,7 +1338,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         tabIndex={-1}
         onChange={(event) => {
           if (field.disabled() || field.readOnly() || merged.multiple) {
-            syncNativeSelectState()
+            syncNativeSelectState(selectedOptionIds(), selectedValues(), merged.multiple)
             return
           }
 
@@ -1319,7 +1349,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
             field,
             setInputValue,
           })
-          syncNativeSelectState()
+          syncNativeSelectState(selectedOptionIds(), selectedValues(), merged.multiple)
         }}
       >
         <Show when={!merged.multiple}>

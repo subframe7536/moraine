@@ -4,6 +4,7 @@ import { Show, createSignal, untrack } from 'solid-js'
 import type { JSX } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
+import { finishExitMotion } from '../../test-utils/overlay-test.ts'
 import { Popover } from '../popover/popover'
 import { Tooltip } from '../tooltip/tooltip'
 
@@ -413,6 +414,7 @@ describe('Popper primitives', () => {
 
   test('does not acquire global resources without a mounted content surface', async () => {
     const onEscapeKeyDown = vi.fn()
+    const [show, setShow] = createSignal(false)
     const screen = render(() => (
       <PopperFixture
         defaultOpen
@@ -421,7 +423,7 @@ describe('Popper primitives', () => {
             <PopperTrigger context={popper} type="button">
               Open
             </PopperTrigger>
-            <Show when={false}>
+            <Show when={show()}>
               <PopperContent context={popper} modal onEscapeKeyDown={onEscapeKeyDown}>
                 {(context) => <div {...context.contentProps}>Hidden content</div>}
               </PopperContent>
@@ -436,7 +438,82 @@ describe('Popper primitives', () => {
 
     expect(document.body.style.overflow).toBe('')
     expect(onEscapeKeyDown).not.toHaveBeenCalled()
+    setShow(true)
+    await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
     screen.unmount()
+    expect(document.body.style.overflow).toBe('')
+  })
+
+  test('samples modal resources per presence cycle without refocusing on configuration changes', async () => {
+    const [open, setOpen] = createSignal(true)
+    const [modal, setModal] = createSignal(true)
+    const [preventScroll, setPreventScroll] = createSignal(false)
+    const background = document.createElement('main')
+    document.body.append(background)
+    const screen = render(() => (
+      <PopperFixture
+        open={open()}
+        contentRender={(popper) => (
+          <>
+            <PopperTrigger context={popper}>Open</PopperTrigger>
+            <PopperContent
+              context={popper}
+              forceMount
+              modal={modal()}
+              preventScroll={preventScroll()}
+            >
+              {(context) => (
+                <div data-slot="content" {...context.contentProps}>
+                  <button type="button" data-testid="sample-first">
+                    First
+                  </button>
+                  <button type="button" data-testid="sample-second">
+                    Second
+                  </button>
+                </div>
+              )}
+            </PopperContent>
+          </>
+        )}
+      />
+    ))
+    try {
+      const second = document.body.querySelector<HTMLButtonElement>(
+        '[data-testid="sample-second"]',
+      )!
+      await waitFor(() =>
+        expect(
+          document.body.querySelector<HTMLElement>('[data-slot="positioner"]')?.style.visibility,
+        ).toBe('visible'),
+      )
+      second.focus()
+      setPreventScroll(true)
+      await Promise.resolve()
+      expect(document.activeElement).toBe(second)
+      setModal(false)
+      await Promise.resolve()
+      expect(background.getAttribute('aria-hidden')).toBe('true')
+      expect(document.body.style.overflow).toBe('hidden')
+
+      setOpen(false)
+      await finishExitMotion()
+      await waitFor(() => expect(document.body.style.overflow).toBe(''))
+      expect(background.hasAttribute('aria-hidden')).toBe(false)
+      setOpen(true)
+      await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
+      expect(background.hasAttribute('aria-hidden')).toBe(false)
+      setPreventScroll(false)
+      expect(document.body.style.overflow).toBe('hidden')
+      setOpen(false)
+      await finishExitMotion()
+      await waitFor(() => expect(document.body.style.overflow).toBe(''))
+      setOpen(true)
+      await Promise.resolve()
+      expect(document.body.style.overflow).toBe('')
+    } finally {
+      screen.unmount()
+      background.remove()
+    }
   })
 
   test('isolates background content while a modal popper is open', async () => {
@@ -905,4 +982,41 @@ describe('Floating component context isolation', () => {
       }
     },
   )
+
+  test('modal popper starts resources after delayed inner content', async () => {
+    const [show, setShow] = createSignal(false)
+    const [modal, setModal] = createSignal(true)
+    const screen = render(() => (
+      <PopperFixture
+        defaultOpen
+        contentRender={(popper) => (
+          <>
+            <PopperTrigger context={popper}>Open</PopperTrigger>
+            <PopperContent context={popper} modal={modal()}>
+              {(context) => (
+                <Show when={show()}>
+                  <div {...context.contentProps} data-testid="delayed-content">
+                    <button data-testid="content-action">Action</button>
+                  </div>
+                </Show>
+              )}
+            </PopperContent>
+          </>
+        )}
+      />
+    ))
+    try {
+      expect(document.body.style.overflow).toBe('')
+      setModal(false)
+      setShow(true)
+      await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
+      expect(
+        document.body
+          .querySelector('[data-testid="delayed-content"]')!
+          .contains(document.activeElement),
+      ).toBe(true)
+    } finally {
+      screen.unmount()
+    }
+  })
 })

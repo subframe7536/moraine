@@ -6,6 +6,7 @@ import {
   createMemo,
   createSignal,
   mergeProps,
+  on,
   splitProps,
   onCleanup,
   untrack,
@@ -236,18 +237,25 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     () => contentPresence.present() || (options.forceMount && !context.options.disabled),
   )
 
-  createEffect(() => {
-    setInternalCurrentPlacement(options.placement)
-  })
+  createEffect(
+    on(
+      () => options.placement,
+      (placement) => {
+        setInternalCurrentPlacement(placement)
+      },
+    ),
+  )
 
-  createEffect(() => {
-    if (!contentMounted()) {
-      setContentElement(undefined)
-      setPositionerElement(undefined)
-      setPositionerPositioned(false)
-      contentPresence.setElement(undefined)
-    }
-  })
+  createEffect(
+    on(contentMounted, (mounted) => {
+      if (!mounted) {
+        setContentElement(undefined)
+        setPositionerElement(undefined)
+        setPositionerPositioned(false)
+        contentPresence.setElement(undefined)
+      }
+    }),
+  )
 
   useFloatingPosition({
     detachedPadding: () => options.detachedPadding,
@@ -269,66 +277,63 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     slide: () => options.slide,
   })
 
-  createEffect(() => {
-    const positioner = positionerElement()
-    const content = contentElement()
+  createEffect(
+    on([positionerElement, contentElement], ([positioner, content]) => {
+      if (!positioner || !content) {
+        return
+      }
 
-    if (!positioner || !content) {
-      return
-    }
-
-    queueMicrotask(() => {
-      untrack(() => {
-        if (
-          positionerElement() === positioner &&
-          contentElement() === content &&
-          positioner.isConnected &&
-          content.isConnected
-        ) {
-          const contentZIndex = getComputedStyle(content).zIndex
-          if (contentZIndex && contentZIndex !== 'auto') {
-            positioner.style.zIndex = contentZIndex
+      queueMicrotask(() => {
+        untrack(() => {
+          if (
+            positionerElement() === positioner &&
+            contentElement() === content &&
+            positioner.isConnected &&
+            content.isConnected
+          ) {
+            const contentZIndex = getComputedStyle(content).zIndex
+            if (contentZIndex && contentZIndex !== 'auto') {
+              positioner.style.zIndex = contentZIndex
+            }
           }
-        }
+        })
       })
-    })
-  })
+    }),
+  )
 
-  createEffect(() => {
-    if (!contentPresence.present() || typeof document === 'undefined') {
-      return
-    }
+  createEffect(
+    on(contentPresence.present, (present) => {
+      if (!present || typeof document === 'undefined') {
+        return
+      }
+      const modal = options.modal
+      const preventScroll = options.preventScroll
 
-    const currentContent = contentElement()
-    const currentPositioner = positionerElement()
-    if (!currentContent || !currentPositioner) {
-      return
-    }
-
-    const releaseScrollLock =
-      options.modal || options.preventScroll ? acquireBodyScrollLock() : undefined
-    let active = true
-    let releaseAriaHide: (() => void) | undefined
-    if (options.modal) {
-      queueMicrotask(() => {
-        if (active && currentContent.isConnected) {
-          releaseAriaHide = acquireAriaHideOutside(currentContent)
-        }
-      })
-    }
-
-    if (options.modal) {
-      queueMicrotask(() => {
-        focusContent(currentContent)
-      })
-    }
-
-    onCleanup(() => {
-      active = false
-      releaseAriaHide?.()
-      releaseScrollLock?.()
-    })
-  })
+      createEffect(
+        on([contentElement, positionerElement], ([currentContent, currentPositioner]) => {
+          if (!currentContent || !currentPositioner) {
+            return
+          }
+          const releaseScrollLock = modal || preventScroll ? acquireBodyScrollLock() : undefined
+          let active = true
+          let releaseAriaHide: (() => void) | undefined
+          if (modal) {
+            queueMicrotask(() => {
+              if (active && currentContent.isConnected) {
+                releaseAriaHide = acquireAriaHideOutside(currentContent)
+                focusContent(currentContent)
+              }
+            })
+          }
+          onCleanup(() => {
+            active = false
+            releaseAriaHide?.()
+            releaseScrollLock?.()
+          })
+        }),
+      )
+    }),
+  )
 
   useOverlayInteraction({
     enabled: contentPresence.present,

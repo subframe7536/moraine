@@ -1,5 +1,5 @@
 import type { JSX, Ref } from 'solid-js'
-import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
+import { Show, createEffect, createMemo, mergeProps, on, splitProps, untrack } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
@@ -110,17 +110,21 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     return typeof value === 'boolean' ? value : false
   }
 
-  function normalizeFieldValue(value: unknown): unknown {
+  function normalizeFieldValue(
+    value: unknown,
+    trueValue: unknown = merged.trueValue,
+    falseValue: unknown = merged.falseValue,
+  ): unknown {
     if (value === undefined) {
       return value
     }
 
-    if (value === merged.trueValue || value === merged.falseValue) {
+    if (value === trueValue || value === falseValue) {
       return value
     }
 
     if (typeof value === 'boolean') {
-      return value ? merged.trueValue : merged.falseValue
+      return value ? trueValue : falseValue
     }
 
     return value
@@ -141,13 +145,16 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     defaultValue: () => Boolean(merged.defaultChecked),
   })
 
-  createEffect(() => {
-    if (merged.checked === undefined) {
-      return
-    }
-
-    field.setFormValue(normalizeFieldValue(merged.checked))
-  })
+  createEffect(
+    on(
+      [field.path, () => merged.checked, () => merged.trueValue, () => merged.falseValue],
+      ([, value, trueValue, falseValue]) => {
+        if (value !== undefined) {
+          field.setFormValue(normalizeFieldValue(value, trueValue, falseValue))
+        }
+      },
+    ),
+  )
 
   function onChange(nextChecked: boolean): void {
     const nextValue = nextChecked ? (merged.trueValue as TTrue) : (merged.falseValue as TFalse)
@@ -176,11 +183,13 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     return attrs
   })
 
-  createEffect(() => {
-    if (inputEl) {
-      inputEl.checked = Boolean(checked())
-    }
-  })
+  createEffect(
+    on(checked, (isChecked) => {
+      if (inputEl) {
+        inputEl.checked = Boolean(isChecked)
+      }
+    }),
+  )
 
   function toggle(): void {
     if (field.disabled() || readOnly()) {

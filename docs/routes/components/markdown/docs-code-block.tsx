@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js'
+import { Show, createEffect, createSignal, on, onCleanup, onMount } from 'solid-js'
 
 import { Button, cn, Icon } from '../../../../src'
 import type { IconT } from '../../../../src'
@@ -155,11 +155,13 @@ export function CodeBlock(props: CodeBlockProps) {
     return `${isExpanded() ? Math.min(EXPANDED_HEIGHT_PX, contentRef?.scrollHeight ?? EXPANDED_HEIGHT_PX) : COLLAPSED_HEIGHT_PX}px`
   }
 
-  createEffect(() => {
-    if (props.html !== undefined || props.code !== undefined) {
-      queueMicrotask(updateExpandable)
-    }
-  })
+  createEffect(
+    on([() => props.html, () => props.code], ([html, code]) => {
+      if (html !== undefined || code !== undefined) {
+        queueMicrotask(updateExpandable)
+      }
+    }),
+  )
 
   onMount(() => {
     if (typeof ResizeObserver === 'undefined') {
