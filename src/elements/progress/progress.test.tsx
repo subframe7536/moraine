@@ -228,14 +228,12 @@ describe('Progress', () => {
     }
   })
 
-  test('single-evaluates reactive normalization and renderer props', () => {
-    const reads = { max: 0, statusRender: 0, stepRender: 0, value: 0 }
+  test('preserves renderer instances while the normalized value updates', () => {
+    const [value, setValue] = createSignal(1)
+    const reads = { statusRender: 0, stepRender: 0 }
     const screen = render(() =>
       createComponent(Progress, {
-        get max() {
-          reads.max += 1
-          return ['One', 'Two', 'Three']
-        },
+        max: ['One', 'Two', 'Three'],
         get statusRender() {
           reads.statusRender += 1
           return (context: ProgressT.StatusRenderProps) => <span>Status {context.percent}</span>
@@ -245,14 +243,18 @@ describe('Progress', () => {
           return (context: ProgressT.StepRenderProps) => <span>{context.step}</span>
         },
         get value() {
-          reads.value += 1
-          return 1
+          return value()
         },
       }),
     )
 
-    expect(screen.getByRole('progressbar')).not.toBeNull()
-    expect(reads).toEqual({ max: 1, statusRender: 1, stepRender: 1, value: 1 })
+    const status = screen.getByText('Status 50')
+    const steps = Array.from(screen.container.querySelectorAll('[data-slot="step"]'))
+    setValue(2)
+    expect(screen.getByText('Status 100')).toBe(status)
+    expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('2')
+    expect(Array.from(screen.container.querySelectorAll('[data-slot="step"]'))).toEqual(steps)
+    expect(reads).toEqual({ statusRender: 1, stepRender: 1 })
   })
 
   test.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, -1])(

@@ -9,9 +9,15 @@ function FixtureContent() {
   return (
     <>
       <SidebarFrame.Sidebar>
+        <SidebarFrame.SidebarHeader>
+          <span>Header</span>
+        </SidebarFrame.SidebarHeader>
         <SidebarFrame.SidebarBody>
           <span>Navigation</span>
         </SidebarFrame.SidebarBody>
+        <SidebarFrame.SidebarFooter>
+          <span>Footer</span>
+        </SidebarFrame.SidebarFooter>
       </SidebarFrame.Sidebar>
       <SidebarFrame.Main data-open={frame.isOpen() ? '' : undefined}>
         <h1>Main content</h1>

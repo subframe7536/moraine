@@ -27,6 +27,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
 
   function renderContent(): JSX.Element {
     const resolvedChildren = resolveChildren(() => local.children)
+    // SSR elements are render objects; client Portal markers are text nodes.
     const childArray = createMemo(() =>
       resolvedChildren
         .toArray()
@@ -34,8 +35,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
           (child) =>
             typeof child === 'object' &&
             child !== null &&
-            'nodeType' in child &&
-            child.nodeType === 1,
+            (!('nodeType' in child) || child.nodeType === 1),
         ),
     )
 

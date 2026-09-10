@@ -865,7 +865,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         value={inputText()}
         required={field.required()}
         disabled={field.disabled()}
-        readOnly={readOnly()}
+        readonly={readOnly()}
         aria-valuemin={minValue()}
         aria-valuemax={maxValue()}
         aria-valuenow={currentValue()}

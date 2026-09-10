@@ -94,15 +94,13 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
             : explicitBody
         })
         const footer = createLazyMemo(() => merged.footer)
-        const hasCustomHeader = createLazyMemo(() => hasJsxContent(header()))
-        const titleId = createLazyMemo(() =>
-          !hasCustomHeader() && hasJsxContent(title()) ? `${context.contentId()}-title` : undefined,
-        )
-        const descriptionId = createLazyMemo(() =>
+        const hasCustomHeader = () => hasJsxContent(header())
+        const titleId = () =>
+          !hasCustomHeader() && hasJsxContent(title()) ? `${context.contentId()}-title` : undefined
+        const descriptionId = () =>
           !hasCustomHeader() && hasJsxContent(description())
             ? `${context.contentId()}-description`
-            : undefined,
-        )
+            : undefined
         const hasDefaultHeader = () =>
           hasJsxContent(title()) ||
           hasJsxContent(description()) ||

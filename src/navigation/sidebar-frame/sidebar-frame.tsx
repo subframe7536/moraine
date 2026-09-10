@@ -64,7 +64,6 @@ function SidebarFrameSidebarHeader(props: SidebarFrameT.SidebarHeaderProps): JSX
   const cn = useCn()
   const context = useSidebarFrameContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style'])
-  const content = resolveChildren(() => local.children)
 
   return (
     <div
@@ -73,7 +72,7 @@ function SidebarFrameSidebarHeader(props: SidebarFrameT.SidebarHeaderProps): JSX
       class={cn(context.resolved.slot('sidebarHeader').class, local.class)}
       style={{ ...context.resolved.slot('sidebarHeader').style, ...local.style }}
     >
-      {content()}
+      {local.children}
     </div>
   )
 }
@@ -82,7 +81,6 @@ function SidebarFrameSidebarBody(props: SidebarFrameT.SidebarBodyProps): JSX.Ele
   const cn = useCn()
   const context = useSidebarFrameContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style'])
-  const content = resolveChildren(() => local.children)
 
   return (
     <div
@@ -91,7 +89,7 @@ function SidebarFrameSidebarBody(props: SidebarFrameT.SidebarBodyProps): JSX.Ele
       class={cn(context.resolved.slot('sidebarBody').class, local.class)}
       style={{ ...context.resolved.slot('sidebarBody').style, ...local.style }}
     >
-      {content()}
+      {local.children}
     </div>
   )
 }
@@ -100,7 +98,6 @@ function SidebarFrameSidebarFooter(props: SidebarFrameT.SidebarFooterProps): JSX
   const cn = useCn()
   const context = useSidebarFrameContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style'])
-  const content = resolveChildren(() => local.children)
 
   return (
     <div
@@ -109,7 +106,7 @@ function SidebarFrameSidebarFooter(props: SidebarFrameT.SidebarFooterProps): JSX
       class={cn(context.resolved.slot('sidebarFooter').class, local.class)}
       style={{ ...context.resolved.slot('sidebarFooter').style, ...local.style }}
     >
-      {content()}
+      {local.children}
     </div>
   )
 }
@@ -118,7 +115,6 @@ function SidebarFrameMain(props: SidebarFrameT.MainProps): JSX.Element {
   const cn = useCn()
   const context = useSidebarFrameContext()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'onScroll'])
-  const content = resolveChildren(() => local.children)
 
   return (
     <div
@@ -133,7 +129,7 @@ function SidebarFrameMain(props: SidebarFrameT.MainProps): JSX.Element {
         }
       }}
     >
-      {content()}
+      {local.children}
     </div>
   )
 }

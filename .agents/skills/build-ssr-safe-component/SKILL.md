@@ -1,6 +1,6 @@
 ---
 name: build-ssr-safe-component
-description: Gate the design, implementation, tests, and production validation of every new SolidJS component in Moraine so JSX props are evaluated once and SSR/client hydration order stays identical. Use whenever creating a component, adding a component-level `children`, slot, icon, label, content, error, component, or render prop, or substantially changing how a component conditionally renders JSX.
+description: Design, review, and refactor Moraine SolidJS components for JSX ownership, reactive updates, and SSR hydration safety. Use when creating components, changing JSX slots or render props, or reviewing existing SSR adaptations.
 ---
 
 # Build an SSR-Safe Component
@@ -8,12 +8,20 @@ description: Gate the design, implementation, tests, and production validation o
 Validate JSX ownership, lazy mounting, and hydration behavior when creating or changing a component.
 Apply the gates relevant to the change; an example's syntax is not a universal implementation requirement.
 
+Match coverage to the requested scope. A full-library review includes public exports, attached
+components, bound components, and shared rendering infrastructure; a focused change follows only
+the affected rendering paths.
+
 ## Establish Runtime Evidence
 
 For a suspected regression, reproduce observable behavior before choosing a fix. Inspect the installed
 Solid runtime when ownership or evaluation timing is unclear. Use getter, mount, and cleanup counters
 as probes alongside DOM identity, reactive updates, and real SSR/hydration assertions. Remove a candidate
 change in isolation to establish whether it is necessary; restore temporary instrumentation afterward.
+
+Compare baseline and candidate behavior with the same probe. Verify that the candidate reached both
+server and client execution paths and that the relevant tests ran; unused transforms or skipped tests
+cannot establish that an adaptation is unnecessary.
 
 Do not infer a hydration bug from a getter-count assertion alone. Ordinary scalar props such as
 `orientation`, `disabled`, or numeric values may be read by multiple consumers. Do not add memos or
@@ -27,8 +35,8 @@ Before implementation, list every prop that can contain JSX, a component, or a r
 
 | Kind                     | Examples                                                                             | Resolution rule                                                                                                               |
 | ------------------------ | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| Actual children          | `children`                                                                           | Render directly if consumed once; use `children as resolveChildren` if inspected, normalized, or rendered from multiple paths |
-| Arbitrary JSX slot       | `title`, `header`, `footer`, `label`, `description`, `content`, `error`, `Icon.name` | Cache with `createMemo`; never pass to `children()`                                                                           |
+| Actual children          | `children`                                                                           | Render directly in a stable, single consumer; resolve when inspected, normalized, reused, or retained across a changing root |
+| Arbitrary JSX slot       | `title`, `header`, `footer`, `label`, `description`, `content`, `error`, `icon` | Cache repeated reads in the mounting scope; do not apply `children()` indiscriminately to component-capable values |
 | Component/render prop    | `itemRender`, `triggerRender`                                                        | Name with the `Render` suffix and preserve its component boundary                                                             |
 | Preconstructed item data | `items[].label`, `items[].content`                                                   | Do not resolve globally unless a reactive getter is repeatedly evaluated by the owning component                              |
 
@@ -57,6 +65,11 @@ const resolvedChildren = resolveChildren(() => props.children)
 ```
 
 Use the `Show` callback accessor so the resolved value is not re-resolved. Never read `props.children` or `local.children` again after creating the accessor.
+
+A single source-level rendering site can execute again when a polymorphic root changes. Retain
+children outside that replaceable root when their nodes and owned state must survive the change.
+Verify identity, reactive updates, and cleanup before removing a resolver. A stable native container
+can consume children directly when it neither inspects nor reuses them.
 
 For Moraine `ComponentOrElement` children, use two-stage resolution:
 
@@ -139,6 +152,28 @@ resolved value for every branch.
 Do not add DOM wrappers or helper components only to alter hydration order. Preserve existing owner
 and intentional `createComponent` boundaries.
 
+### Normalize server and client values consistently
+
+Child normalization must account for both server render values and client DOM nodes. DOM-only
+filters can discard valid SSR content, while Portal markers must not become rendered items.
+Verify fragments, conditional children, and Portals without parsing serialized HTML or depending
+on private render-object fields.
+
+### Keep reactive JSX accessors live
+
+A JSX accessor needs reactive insertion, while a component needs its component boundary. Invoking
+an accessor through an untracked component path can freeze its initial value. Distinguish these
+paths using the prop's contract and installed runtime semantics; function arity alone is insufficient
+because default parameters also produce zero-length functions. Preserve prop forwarding and verify
+conditional replacement, updates, mounting, and cleanup.
+
+### Verify native boolean attributes
+
+Use the renderer's native attribute spelling at the DOM boundary, including forwarded props.
+HTML boolean attributes are true whenever present, even with a string value of `"false"`.
+Check native properties on parsed SSR HTML, after hydration, and through true/false updates.
+For editable controls, verify browser typing as well as dispatched events.
+
 ## Gate 4: Control Conditional Trees
 
 For overlays and other presence-controlled components:
@@ -209,6 +244,14 @@ Add applicable coverage for:
 
 JSDOM can detect hydration-key mismatches when tests hydrate actual SSR output; client-only `render()` tests cannot. Production browser checks additionally cover build differences, layout, and visibility.
 
+Create fixture JSX in its render or hydration owner. Defer inactive content so constructing input
+data does not request hydration keys for nodes absent from the server output.
+
+Capture server elements and their parents before hydration, then assert reuse; post-hydration
+lookups and fixed key values cannot prove it. Isolate both bootstrap globals and runtime hydration
+state for each test, since prior events or failures can switch later tests to client rendering.
+Register cleanup before hydration, and keep version-specific state handling in test infrastructure.
+
 Hydration can silently remove a mismatched descendant without logging an error. For critical JSX,
 also assert in a production browser that the hydrated node still exists under its intended parent.
 
@@ -223,7 +266,13 @@ nub run test
 nub run docs:preview
 ```
 
-Use a real browser against the production preview. Listen for both uncaught exceptions and error-level console messages. Verify the new component's docs route and representative shared routes, at minimum `/`, `/button`, `/dialog`, and `/form` when shared component infrastructure changed.
+Use a real browser against the production preview. Listen for uncaught exceptions and error-level
+console messages. Verify the affected component routes and representative consumers of any changed
+shared rendering infrastructure.
+
+Identify which examples participate in SSR and which mount only on the client. Only server-rendered
+examples can prove hydration reuse. Capture their nodes before client scripts run, and distinguish
+expected post-mount responsive changes from missing or misplaced descendants.
 
 Reload at mobile, tablet, and desktop widths. Responsive branches can consume different hydration
 keys and expose a mismatch only at one breakpoint.
@@ -271,10 +320,14 @@ For the gates applicable to the change, verify:
 - `ComponentOrElement` children resolve Solid accessors before component/render-prop mounting.
 - No original prop is reread after resolution.
 - Server and client create the same nodes and component boundaries in the same order.
+- Server render objects survive child normalization, and Portal markers do not become controls.
+- Native boolean properties match the requested state before hydration, after hydration, and after updates; editable inputs accept browser text entry.
+- Polymorphic root changes preserve intentionally retained children and their owned state.
 - No helper component or DOM wrapper exists only to manipulate hydration keys.
 - No empty wrapper, visual variant branch, or leaf-element substitution masks key-order drift.
 - Closed/client-only branches do not create SSR-absent trees during hydration.
 - Getter-backed tests detect duplicate JSX instantiation; behavior tests prove scalar reactivity and DOM identity.
+- Every hydration test starts a fresh hydration session and compares nodes captured before mounting.
 - Stateful render props remain reactive without reinvocation.
 - Focused tests, QA, and relevant full tests pass or unrelated failures are recorded.
 - Production SSG has zero hydration console errors.

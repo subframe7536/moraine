@@ -26,8 +26,16 @@ export function Icon(props: IconProps): JSX.Element {
       return { component: 'div' }
     }
 
+    if (typeof value === 'function') {
+      return {
+        // Dynamic invokes components untracked; JSX accessors must stay reactive.
+        component:
+          value.length > 0 ? value : (props: Omit<IconProps, 'name'>) => <>{value(props)}</>,
+      }
+    }
+
     return {
-      component: typeof value === 'function' ? value : () => value,
+      component: () => value,
     }
   })
 

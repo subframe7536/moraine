@@ -352,7 +352,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                   checked={selected()}
                   required={field.required()}
                   disabled={disabled()}
-                  readOnly={readOnly()}
+                  readonly={readOnly()}
                   aria-required={field.required() || undefined}
                   aria-disabled={disabled() || undefined}
                   aria-readonly={readOnly() || undefined}

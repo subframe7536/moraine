@@ -691,7 +691,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         multiple={merged.multiple}
         required={field.required()}
         disabled={field.disabled()}
-        readOnly={readOnly()}
+        readonly={readOnly()}
         onChange={(event) => {
           const files = Array.from(event.currentTarget.files ?? [])
           processIncomingFiles(files)

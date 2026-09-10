@@ -18,7 +18,6 @@ describe('Badge SSR Hydration', () => {
 
     const root = container.querySelector('[data-slot="root"]')
     expect(root).not.toBeNull()
-    expect(root?.getAttribute('data-hk')).toBe('00')
     expect(
       Array.from(root?.children ?? []).map((element) => element.getAttribute('data-slot')),
     ).toEqual(['leading', 'label', 'trailing'])

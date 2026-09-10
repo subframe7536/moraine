@@ -1,11 +1,12 @@
 import { render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
 import { createTheme } from '../../theme'
 
 import { Icon } from './icon'
+import type { IconProps } from './icon.types.ts'
 
 describe('Icon', () => {
   test('renders unstyled when provider is absent', () => {
@@ -79,6 +80,37 @@ describe('Icon', () => {
     const screen = render(() => <Icon name={() => <span data-testid="fn-icon">R</span>} />)
 
     expect(screen.getByTestId('fn-icon').textContent).toBe('R')
+  })
+
+  test('preserves a zero-argument renderer and its cleanup while its JSX updates', () => {
+    const [label, setLabel] = createSignal('Before')
+    let mounts = 0
+    let cleanups = 0
+    const Glyph = () => {
+      mounts += 1
+      onCleanup(() => {
+        cleanups += 1
+      })
+      return <span>{label()}</span>
+    }
+    const screen = render(() => <Icon name={Glyph} />)
+    const glyph = screen.getByText('Before')
+    setLabel('After')
+    expect(screen.getByText('After')).toBe(glyph)
+    expect([mounts, cleanups]).toEqual([1, 0])
+    screen.unmount()
+    expect(cleanups).toBe(1)
+  })
+
+  test('forwards reactive attributes to renderers with default parameters', () => {
+    const [label, setLabel] = createSignal('Before')
+    const Glyph = (props: Omit<IconProps, 'name'> = {}) => <span aria-label={props['aria-label']} />
+    const screen = render(() => <Icon name={Glyph} aria-label={label()} />)
+    const glyph = screen.container.querySelector('span')!
+    expect(glyph.getAttribute('aria-label')).toBe('Before')
+    setLabel('After')
+    expect(glyph.getAttribute('aria-label')).toBe('After')
+    expect(screen.container.querySelector('span')).toBe(glyph)
   })
 
   test('passes through HTML attributes to the span element', () => {

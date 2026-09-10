@@ -6,6 +6,7 @@ import { describe, expect, test } from 'vitest'
 import { hydrateFixture, renderSsrFixture } from '../../test-utils/ssr-test'
 
 import { Tabs } from './tabs'
+import { createTabItems } from './tabs.ssr.fixture.tsx'
 
 describe('Tabs SSR Hydration', () => {
   test('keeps dynamic inactive panel content lazy through hydration and keyboard selection', () => {
@@ -62,19 +63,10 @@ describe('Tabs SSR Hydration', () => {
 
   test('hydrates empty-value JSX without replacing nodes and handles first keyboard activation', () => {
     const [value, setValue] = createSignal('')
-    const items = [
-      { label: 0, value: '', content: <span data-testid="empty-panel">Empty panel</span> },
-      {
-        label: 'Other',
-        value: 'other',
-        content: <span data-testid="other-panel">Other panel</span>,
-      },
-    ]
-
     const { container } = hydrateFixture(
       '/src/navigation/tabs/tabs.ssr.fixture.tsx',
       'renderTabsFixture',
-      () => <Tabs id="ssr-tabs" value={value()} onChange={setValue} items={items} />,
+      () => <Tabs id="ssr-tabs" value={value()} onChange={setValue} items={createTabItems()} />,
     )
 
     const root = container.querySelector('[data-slot="root"]')

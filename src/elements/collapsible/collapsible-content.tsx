@@ -55,11 +55,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
 
   return (
     <Show when={shouldRender()}>
-      {(visible) => {
-        if (!visible()) {
-          return null
-        }
-
+      {(_visible) => {
         const children = resolveChildren(() => local.children)
 
         const handleInnerRef = (element: HTMLElement | undefined) => {

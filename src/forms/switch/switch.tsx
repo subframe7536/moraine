@@ -262,7 +262,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         checked={Boolean(checked())}
         required={field.required()}
         disabled={field.disabled()}
-        readOnly={readOnly()}
+        readonly={readOnly()}
         tabIndex={-1}
         aria-hidden="true"
         class="peer"

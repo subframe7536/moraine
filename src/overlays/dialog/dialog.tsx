@@ -88,15 +88,13 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
         })
         const footer = createLazyMemo(() => merged.footer)
         const closeIcon = createLazyMemo(() => merged.closeIcon)
-        const hasCustomHeader = createLazyMemo(() => hasJsxContent(header()))
-        const titleId = createLazyMemo(() =>
-          !hasCustomHeader() && hasJsxContent(title()) ? `${context.contentId()}-title` : undefined,
-        )
-        const descriptionId = createLazyMemo(() =>
+        const hasCustomHeader = () => hasJsxContent(header())
+        const titleId = () =>
+          !hasCustomHeader() && hasJsxContent(title()) ? `${context.contentId()}-title` : undefined
+        const descriptionId = () =>
           !hasCustomHeader() && hasJsxContent(description())
             ? `${context.contentId()}-description`
-            : undefined,
-        )
+            : undefined
         const hasHeader = () =>
           hasCustomHeader() ||
           hasJsxContent(title()) ||

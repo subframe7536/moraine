@@ -15,6 +15,40 @@ import { Sheet } from '../sheet/sheet'
 import { Modal } from './modal'
 
 describe('Modal primitives', () => {
+  test.each(['Trigger', 'Close'] as const)(
+    'preserves %s children across polymorphic root replacement',
+    (part) => {
+      const Part = Modal[part]
+      const [tag, setTag] = createSignal<'button' | 'div'>('button')
+      const [value, setValue] = createSignal('Before')
+      let mounts = 0
+      let cleanups = 0
+      const Child = () => {
+        mounts += 1
+        onCleanup(() => {
+          cleanups += 1
+        })
+        return <span data-testid="persistent-child">{value()}</span>
+      }
+      const screen = render(() => (
+        <Modal>
+          <Part as={tag()}>
+            <Child />
+          </Part>
+        </Modal>
+      ))
+      const child = screen.getByTestId('persistent-child')
+      setTag('div')
+      setValue('After')
+      expect(screen.getByTestId('persistent-child')).toBe(child)
+      expect(child.parentElement?.tagName).toBe('DIV')
+      expect(child.textContent).toBe('After')
+      expect([mounts, cleanups]).toEqual([1, 0])
+      screen.unmount()
+      expect(cleanups).toBe(1)
+    },
+  )
+
   test('keeps closed content lazy and resolves its JSX once when opened', () => {
     let reads = 0
     const screen = render(() => (

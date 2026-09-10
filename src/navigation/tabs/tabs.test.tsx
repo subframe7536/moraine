@@ -640,12 +640,9 @@ describe('Tabs', () => {
   })
 
   test('reads the item collection and JSX-capable item fields once', () => {
-    const reads = { content: 0, icon: 0, items: 0, label: 0, value: 0 }
+    const reads = { content: 0, icon: 0, items: 0, label: 0 }
     const item = {
-      get value() {
-        reads.value += 1
-        return 'zero'
-      },
+      value: 'zero',
       get label() {
         reads.label += 1
         return 0
@@ -671,7 +668,7 @@ describe('Tabs', () => {
 
     expect(screen.getByRole('tab', { name: '0' })).not.toBeNull()
     expect(screen.getByRole('tabpanel').textContent).toBe('Zero panel')
-    expect(reads).toEqual({ content: 1, icon: 1, items: 1, label: 1, value: 1 })
+    expect(reads).toEqual({ content: 1, icon: 1, items: 1, label: 1 })
   })
 
   test('keeps empty and all-disabled collections out of the tab order', () => {

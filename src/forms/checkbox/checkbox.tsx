@@ -321,7 +321,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           checked={Boolean(resolvedChecked())}
           required={field.required()}
           disabled={field.disabled()}
-          readOnly={readOnly()}
+          readonly={readOnly()}
           tabIndex={-1}
           aria-hidden="true"
           class="peer"

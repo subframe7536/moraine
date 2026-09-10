@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { renderWithTheme } from '../../test-utils/theme-render'
@@ -8,6 +8,40 @@ import { SidebarFrame } from './sidebar-frame'
 import { useSidebarFrame } from './sidebar-frame-context'
 
 const originalMatchMedia = window.matchMedia
+
+test.each(['SidebarHeader', 'SidebarBody', 'SidebarFooter', 'Main'] as const)(
+  'preserves %s child ownership and reactive updates',
+  (part) => {
+    const [value, setValue] = createSignal('Before')
+    let reads = 0
+    let mounts = 0
+    let cleanups = 0
+    const Child = () => {
+      mounts += 1
+      onCleanup(() => {
+        cleanups += 1
+      })
+      return <span data-testid="persistent-child">{value()}</span>
+    }
+    const screen = render(() => (
+      <SidebarFrame isMobile={false}>
+        {createComponent(SidebarFrame[part], {
+          get children() {
+            reads += 1
+            return <Child />
+          },
+        })}
+      </SidebarFrame>
+    ))
+    const child = screen.getByTestId('persistent-child')
+    setValue('After')
+    expect(screen.getByTestId('persistent-child')).toBe(child)
+    expect(child.textContent).toBe('After')
+    expect([reads, mounts, cleanups]).toEqual([1, 1, 0])
+    screen.unmount()
+    expect(cleanups).toBe(1)
+  },
+)
 
 function createMatchMediaMock(matches = false) {
   return vi.fn().mockImplementation(() => ({

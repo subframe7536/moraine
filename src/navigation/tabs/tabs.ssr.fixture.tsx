@@ -2,10 +2,24 @@ import { renderToString, Dynamic } from 'solid-js/web'
 
 import { Tabs } from './tabs'
 
-const ITEMS = [
-  { label: 0, value: '', content: <span data-testid="empty-panel">Empty panel</span> },
-  { label: 'Other', value: 'other', content: <span data-testid="other-panel">Other panel</span> },
-]
+export function createTabItems() {
+  return [
+    {
+      label: 0,
+      value: '',
+      get content() {
+        return <span data-testid="empty-panel">Empty panel</span>
+      },
+    },
+    {
+      label: 'Other',
+      value: 'other',
+      get content() {
+        return <span data-testid="other-panel">Other panel</span>
+      },
+    },
+  ]
+}
 
 export function renderLazyTabsFixture(): string {
   return renderToString(() => (
@@ -32,11 +46,16 @@ export function renderLazyTabsFixture(): string {
 }
 
 export function renderTabsFixture(): string {
-  return renderToString(() => <Tabs id="ssr-tabs" defaultValue="" items={ITEMS} />)
+  return renderToString(() => <Tabs id="ssr-tabs" defaultValue="" items={createTabItems()} />)
 }
 
 export function renderVerticalTabsFixture(): string {
   return renderToString(() => (
-    <Tabs id="ssr-vertical-tabs" orientation="vertical" defaultValue="other" items={ITEMS} />
+    <Tabs
+      id="ssr-vertical-tabs"
+      orientation="vertical"
+      defaultValue="other"
+      items={createTabItems()}
+    />
   ))
 }

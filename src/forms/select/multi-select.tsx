@@ -667,7 +667,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                 {...controlResolved.slot('input')}
                 {...api.inputProps()}
                 placeholder={selectedOptions().length > 0 ? '' : local.placeholder}
-                readOnly={!api.isSearchable() ? true : undefined}
+                readonly={!api.isSearchable() ? true : undefined}
                 tabIndex={api.isSearchable() ? undefined : -1}
                 onInput={(event) => {
                   if (event.isComposing || isComposing()) {
