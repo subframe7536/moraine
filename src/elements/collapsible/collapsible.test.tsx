@@ -517,7 +517,12 @@ describe('Collapsible', () => {
 test('inherits Design slots and applies reactive root and child overrides in order', () => {
   const parent = createTheme({
     collapsible: {
-      base: { root: 'p-1', trigger: 'p-1 text-blue-500', contentWrapper: 'p-1', content: 'p-1' },
+      base: {
+        root: 'p-1',
+        trigger: 'p-1 text-blue-500',
+        contentWrapper: 'p-1',
+        content: 'p-1',
+      },
     },
   })
   const design = createTheme({

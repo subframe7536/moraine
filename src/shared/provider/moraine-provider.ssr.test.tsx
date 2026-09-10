@@ -58,7 +58,11 @@ test('hydrates Theme presentation once and preserves native nodes across replace
     input.value = 'Local edit'
     input.setSelectionRange(1, 4)
     textarea.value = 'Another edit'
-    setTheme(createTheme({ button: { defaults: { size: 'lg' }, base: { root: 'rounded-xl' } } }))
+    setTheme(
+      createTheme({
+        button: { defaults: { size: 'lg' }, base: { root: 'rounded-xl' } },
+      }),
+    )
     expect(container.querySelector('button')).toBe(button)
     expect(button.className).toContain('rounded-xl')
     expect(input.value).toBe('Local edit')

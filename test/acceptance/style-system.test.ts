@@ -21,7 +21,7 @@ describe('Theme architecture', () => {
     ])
     expect(createTheme()).toEqual(emptyTheme)
     expect(
-      defaultTheme.button?.recipes.map((recipe) => recipe({ size: 'sm' }).root).join(' '),
+      defaultTheme.button?.recipes.map((recipe) => recipe({ size: 'sm' }).classes.root).join(' '),
     ).toContain('h-7')
   })
 
@@ -58,12 +58,14 @@ describe('Theme architecture', () => {
     const theme = createTheme({
       button: {
         variants: { size: { sm: { label: 'text-sm' } } },
-        compoundVariants: [{ size: 'sm', class: { trailing: 'font-bold' } }],
+        compoundVariants: [{ variants: { size: 'sm' }, trailing: 'font-bold' }],
       },
     })
     expect(theme.button?.recipes.map((recipe) => recipe({ size: 'sm' }))).toEqual([
-      { label: 'text-sm', trailing: 'font-bold' },
+      { classes: { label: 'text-sm', trailing: 'font-bold' }, style: {} },
     ])
-    expect(theme.button?.recipes.map((recipe) => recipe({ size: null }))).toEqual([{}])
+    expect(theme.button?.recipes.map((recipe) => recipe({ size: null }))).toEqual([
+      { classes: {}, style: {} },
+    ])
   })
 })

@@ -58,11 +58,9 @@ export const formFieldRecipe = /* @__PURE__ */ slotRecipe<FormFieldT.Slot, FormF
   compoundVariants: [
     {
       variants: { orientation: 'horizontal' },
-      class: {
-        label:
-          "data-required:before:(text-destructive me-0.5 content-['*']) data-required:after:content-none",
-      },
+      label:
+        "data-required:before:(text-destructive me-0.5 content-['*']) data-required:after:content-none",
     },
-    { variants: { orientation: 'vertical' }, class: { container: 'data-has-text:mt-1.5' } },
+    { variants: { orientation: 'vertical' }, container: 'data-has-text:mt-1.5' },
   ],
 })

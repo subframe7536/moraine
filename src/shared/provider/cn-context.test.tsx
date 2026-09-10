@@ -107,7 +107,7 @@ describe('scoped cn', () => {
         base: { root: 'p-2 density-roomy' },
         defaults: { size: 'sm' },
         variants: { size: { sm: { root: 'p-4 density-compact' } } },
-        compoundVariants: [{ size: 'sm', class: { root: 'p-6' } }],
+        compoundVariants: [{ variants: { size: 'sm' }, root: 'p-6' }],
       },
     })
     const [config, setConfig] = createSignal<CnConfig>({})

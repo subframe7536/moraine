@@ -24,6 +24,11 @@ const CANDIDATES = [
   'animate-mo-exit',
   'z-floating',
   'bg-primary',
+  'h-(--s-size)',
+  'size-(--s-thumb-size)',
+  'size-(--st-size)',
+  'start-[calc(50%+var(--st-sep-x))]',
+  '[&:not([data-inverted])]:after:left-(--s-marker-position)',
 ]
 
 describe('isolated built-dist Tailwind v4 consumer', () => {
@@ -92,6 +97,12 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(css).toContain('z-index: 50')
     expect(css).toContain('opacity: 64%')
     expect(css).toContain('var(--primary)')
+    expect(css).toContain('height: var(--s-size)')
+    expect(css).toContain('var(--st-size)')
+    expect(css).toContain('var(--st-sep-x)')
+    expect(css).toContain('width: var(--s-thumb-size)')
+    expect(css).toContain('height: var(--s-thumb-size)')
+    expect(css).toContain('left: var(--s-marker-position)')
     expect(css).toMatch(
       /html\s*\{\s*background-color: var\(--background\);\s*color: var\(--foreground\);\s*\}/,
     )

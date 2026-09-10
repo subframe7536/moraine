@@ -1008,7 +1008,10 @@ describe('Button', () => {
             extends: defaultTheme,
             button: {
               defaults: { variant: 'outline', size: 'lg' },
-              base: { root: 'provider-slot-root text-blue-500 m-1', leading: 'provider-leading' },
+              base: {
+                root: 'provider-slot-root text-blue-500 m-1',
+                leading: 'provider-leading',
+              },
             },
             buttonGroup: {
               defaults: { size: 'sm' },

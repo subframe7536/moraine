@@ -57,7 +57,7 @@ export function createComponentStyles<Name extends ThemeName>(
     return {
       get class() {
         return cn(
-          ...outputs().map((output) => output[name]),
+          ...outputs().map((output) => output.classes[name]),
           options.groupStyles?.()?.classes?.[name],
           props.classes?.[name],
           name === rootSlot ? props.class : undefined,
@@ -65,6 +65,9 @@ export function createComponentStyles<Name extends ThemeName>(
       },
       get style() {
         return {
+          ...(name === rootSlot
+            ? Object.assign({}, ...outputs().map((output) => output.style))
+            : undefined),
           ...options.dynamicStyles?.()?.[name],
           ...options.groupStyles?.()?.styles?.[name],
           ...props.styles?.[name],

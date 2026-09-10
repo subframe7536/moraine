@@ -28,17 +28,20 @@ export const dialogRecipe = /* @__PURE__ */ slotRecipe<DialogT.Slot, DialogT.Var
     footer: DIALOG_FOOTER_CLASS,
   },
   variants: {
-    fullscreen: { true: { content: DIALOG_CONTENT_FULLSCREEN_CLASS }, false: {} },
+    fullscreen: {
+      true: { content: DIALOG_CONTENT_FULLSCREEN_CLASS },
+      false: {},
+    },
     scrollable: { true: {}, false: {} },
   },
   compoundVariants: [
     {
       variants: { fullscreen: false, scrollable: false },
-      class: { content: DIALOG_CONTENT_CLASS },
+      content: DIALOG_CONTENT_CLASS,
     },
     {
       variants: { fullscreen: false, scrollable: true },
-      class: { content: DIALOG_CONTENT_SCROLLABLE_CLASS },
+      content: DIALOG_CONTENT_SCROLLABLE_CLASS,
     },
   ],
   defaults: { fullscreen: false, scrollable: false },

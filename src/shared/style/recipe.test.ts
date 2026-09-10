@@ -217,16 +217,12 @@ describe('recipe', () => {
       compoundVariants: [
         {
           variants: { variant: 'ghost', bordered: true },
-          class: {
-            root: 'border-border',
-            content: 'italic',
-          },
+          root: 'border-border',
+          content: 'italic',
         },
         {
           variants: { variant: ['solid', 'ghost'], size: 'lg' },
-          class: {
-            footer: 'justify-end',
-          },
+          footer: 'justify-end',
         },
       ],
       defaults: {
@@ -237,28 +233,30 @@ describe('recipe', () => {
 
     test('applies defaults to multi-slot structure and resolves class strings', () => {
       const slots = card()
-      expect(slots.root).toBe('rounded-lg border border-border p-4 bg-muted')
-      expect(slots.header).toBe('font-semibold text-card-foreground mb-2')
-      expect(slots.content).toBe('text-card-foreground')
-      expect(slots.footer).toBe('mt-4 flex items-center')
-      expect(slots.icon).toBeUndefined()
+      expect(slots.classes.root).toBe('rounded-lg border border-border p-4 bg-muted')
+      expect(slots.classes.header).toBe('font-semibold text-card-foreground mb-2')
+      expect(slots.classes.content).toBe('text-card-foreground')
+      expect(slots.classes.footer).toBe('mt-4 flex items-center')
+      expect(slots.classes.icon).toBeUndefined()
     })
 
     test('uses defaults for undefined and suppresses them for null', () => {
       const slots = card({ variant: undefined })
-      expect(slots.root).toBe('rounded-lg border border-border p-4 bg-muted')
+      expect(slots.classes.root).toBe('rounded-lg border border-border p-4 bg-muted')
 
       const slotsNull = card({ variant: null })
-      expect(slotsNull.root).toBe('rounded-lg border border-border bg-card p-4')
+      expect(slotsNull.classes.root).toBe('rounded-lg border border-border bg-card p-4')
     })
 
     test('applies cross-slot compound variants and array matchers', () => {
       const slots = card({ variant: 'ghost', bordered: true, size: 'lg' })
       // ghost + bordered: true -> root gets border-2 and border-border, content gets italic
       // ghost + size: lg -> footer gets justify-end
-      expect(slots.root).toBe('rounded-lg bg-card shadow-none p-6 text-base border-2 border-border')
-      expect(slots.content).toBe('text-card-foreground italic')
-      expect(slots.footer).toBe('mt-4 flex items-center justify-end')
+      expect(slots.classes.root).toBe(
+        'rounded-lg bg-card shadow-none p-6 text-base border-2 border-border',
+      )
+      expect(slots.classes.content).toBe('text-card-foreground italic')
+      expect(slots.classes.footer).toBe('mt-4 flex items-center justify-end')
     })
 
     test('returns new instance on each call without caching', () => {
@@ -278,9 +276,9 @@ describe('recipe', () => {
       })
 
       const res = inferred()
-      expect(res.root).toBe('flex flex-col')
-      expect(res.header).toBe('p-4 border-b')
-      expect(res.body).toBe('p-4')
+      expect(res.classes.root).toBe('flex flex-col')
+      expect(res.classes.header).toBe('p-4 border-b')
+      expect(res.classes.body).toBe('p-4')
     })
 
     test('derives classes from reactive getter variants in caller memos', () => {
@@ -309,7 +307,7 @@ describe('recipe', () => {
               get variant() {
                 return slotVariant()
               },
-            }).root,
+            }).classes.root,
         )
 
         // oxlint-disable-next-line subf/solid-reactivity
@@ -333,13 +331,11 @@ describe('recipe', () => {
 test('matches sparse compound-only keys and preserves false, zero, empty string, and null', () => {
   const sparse = slotRecipe<RootSlot, SparseVariant>({
     defaults: { enabled: false, count: 0, label: '' },
-    compoundVariants: [
-      { variants: { enabled: false, count: 0, label: '' }, class: { root: 'p-2' } },
-    ],
+    compoundVariants: [{ variants: { enabled: false, count: 0, label: '' }, root: 'p-2' }],
   })
-  expect(sparse()).toEqual({ root: 'p-2' })
-  expect(sparse({ count: undefined })).toEqual({ root: 'p-2' })
-  expect(sparse({ count: null })).toEqual({})
+  expect(sparse()).toEqual({ classes: { root: 'p-2' }, style: {} })
+  expect(sparse({ count: undefined })).toEqual({ classes: { root: 'p-2' }, style: {} })
+  expect(sparse({ count: null })).toEqual({ classes: {}, style: {} })
 })
 
 test('resolves base, variant, compound, and extra classes with an explicit merger', async () => {
@@ -353,12 +349,76 @@ test('resolves base, variant, compound, and extra classes with an explicit merge
   const slots = slotRecipe<RootSlot, { active?: boolean }>({
     base: { root: 'p-2' },
     variants: { active: { true: { root: 'p-4' } } },
-    compoundVariants: [{ active: true, class: { root: 'p-6' } }],
+    compoundVariants: [{ variants: { active: true }, root: 'p-6' }],
   })
   expect(atomic({ active: true }, 'p-8')).toBe('p-8')
   expect(atomic.resolve({ active: true }, customCn, 'p-8')).toBe('p-2 p-4 p-6 p-8')
-  expect(slots({ active: true })).toEqual({ root: 'p-6' })
-  expect(slots.resolve({ active: true }, customCn)).toEqual({ root: 'p-2 p-4 p-6' })
+  expect(slots({ active: true })).toEqual({ classes: { root: 'p-6' }, style: {} })
+  expect(slots.resolve({ active: true }, customCn)).toEqual({
+    classes: { root: 'p-2 p-4 p-6' },
+    style: {},
+  })
   expect(slots.resolve({ active: true }, cn)).toEqual(slots({ active: true }))
   expect(slots.options.base).toEqual({ root: 'p-2' })
 })
+
+test('resolves classes and variables from the same matched branches', () => {
+  const recipe = slotRecipe<RootSlot, { size: 'sm' | 'lg'; enabled: boolean; count: 0 | 1 }>({
+    defaults: { size: 'sm', enabled: true, count: 1 },
+    base: {
+      root: 'p-2',
+      '--size': '4px',
+      '--retained': 'base',
+      '--empty': null,
+    },
+    variants: {
+      size: {
+        sm: { '--size': '8px' },
+        lg: { root: 'p-4', '--size': '16px' },
+      },
+      enabled: { false: { '--enabled': 0 } },
+      count: { 0: { '--count': 0 } },
+    },
+    compoundVariants: [
+      { variants: {}, '--unmatched': 1 },
+      {
+        variants: { size: ['lg'], enabled: false, count: 0 },
+        root: 'p-6',
+        '--size': '24px',
+        '--retained': undefined,
+      },
+    ],
+  })
+  let reads = 0
+  const result = recipe({
+    get size() {
+      reads++
+      return 'lg' as const
+    },
+    enabled: false,
+    count: 0,
+  })
+  expect(reads).toBe(1)
+  expect(result).toEqual({
+    classes: { root: 'p-6' },
+    style: { '--size': '24px', '--retained': 'base', '--enabled': 0, '--count': 0 },
+  })
+  expect(recipe({ size: undefined }).style['--size']).toBe('8px')
+  expect(recipe({ size: null }).style['--size']).toBe('4px')
+  expect(recipe()).not.toBe(recipe())
+})
+
+test('supports variable-only recipes and scoped merging without changing style output', async () => {
+  const { createCn } = await import('./cn.ts')
+  const recipe = slotRecipe<RootSlot, never>({
+    base: { '--zero': 0, '--length': '20px' },
+  })
+  expect(recipe()).toEqual({ classes: {}, style: { '--zero': 0, '--length': '20px' } })
+  expect(recipe.resolve(undefined, createCn({}))).toEqual(recipe())
+})
+
+const invalidVariable = slotRecipe<RootSlot, never>({
+  // @ts-expect-error Custom property names must start with --.
+  base: { size: '4px' },
+})
+void invalidVariable

@@ -46,27 +46,23 @@ export const checkboxGroupRecipe = /* @__PURE__ */ slotRecipe<
   compoundVariants: [
     {
       variants: { variant: 'table', size: 'sm' },
-      class: { item: 'p-3' },
+      item: 'p-3',
     },
     {
       variants: { variant: 'table', size: 'md' },
-      class: { item: 'p-3.5' },
+      item: 'p-3.5',
     },
     {
       variants: { variant: 'table', size: 'lg' },
-      class: { item: 'p-4' },
+      item: 'p-4',
     },
     {
       variants: { variant: 'table', orientation: 'horizontal' },
-      class: {
-        item: 'first-of-type:rounded-s-lg last-of-type:rounded-e-lg [&:not(:first-of-type)]:-ms-px',
-      },
+      item: 'first-of-type:rounded-s-lg last-of-type:rounded-e-lg [&:not(:first-of-type)]:-ms-px',
     },
     {
       variants: { variant: 'table', orientation: 'vertical' },
-      class: {
-        item: 'first-of-type:rounded-t-lg last-of-type:rounded-b-lg [&:not(:first-of-type)]:-mt-px',
-      },
+      item: 'first-of-type:rounded-t-lg last-of-type:rounded-b-lg [&:not(:first-of-type)]:-mt-px',
     },
   ],
 })

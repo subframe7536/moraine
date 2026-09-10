@@ -60,19 +60,19 @@ export const tabsRecipe = /* @__PURE__ */ slotRecipe<TabsT.Slot, TabsT.Variant>(
   compoundVariants: [
     {
       variants: { variant: 'pill', orientation: 'horizontal' },
-      class: { indicator: 'inset-y-1' },
+      indicator: 'inset-y-1',
     },
     {
       variants: { variant: 'pill', orientation: 'vertical' },
-      class: { indicator: 'inset-x-1' },
+      indicator: 'inset-x-1',
     },
     {
       variants: { variant: 'link', orientation: 'horizontal' },
-      class: { indicator: 'bottom-0 h-px rounded-full' },
+      indicator: 'bottom-0 h-px rounded-full',
     },
     {
       variants: { variant: 'link', orientation: 'vertical' },
-      class: { indicator: 'right-0 w-px rounded-full' },
+      indicator: 'right-0 w-px rounded-full',
     },
   ],
 })

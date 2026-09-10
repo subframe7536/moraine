@@ -16,7 +16,9 @@ export const tooltipRecipe = /* @__PURE__ */ slotRecipe<TooltipT.Slot, TooltipT.
   variants: {
     invert: {
       true: { content: 'text-background bg-foreground' },
-      false: { content: 'text-foreground border border-border bg-background shadow-sm' },
+      false: {
+        content: 'text-foreground border border-border bg-background shadow-sm',
+      },
     },
   },
 })

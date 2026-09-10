@@ -295,7 +295,7 @@ A merger cannot restore classes already removed by another merger. Use `useCn()`
 
 ### Recipes and defaults
 
-Component configurations accept `base`, `variants`, `compoundVariants`, and `defaults`. Class contributions target named slots.
+Component configurations accept `base`, `variants`, `compoundVariants`, and `defaults`. Each contribution maps slot names to classes and full `--` custom property names to root CSS variables.
 
 ```ts
 const theme = createTheme({
@@ -303,14 +303,14 @@ const theme = createTheme({
   button: {
     defaults: { size: 'sm' },
     variants: { size: { sm: { label: 'tracking-wide' } } },
-    compoundVariants: [{ size: 'sm', variant: 'outline', class: { root: 'border-2' } }],
+    compoundVariants: [{ variants: { size: 'sm', variant: 'outline' }, root: 'border-2' }],
   },
 })
 ```
 
 Visual values resolve from explicit instance props, inherited composition/FormField values, and finally the latest Theme default. Only `undefined` falls back. `null` suppresses the default and selects no branch; `false`, `0`, and `''` remain explicit values where the Variant type supports them. Every recipe for a component uses the same final visual values.
 
-For standalone recipe authoring, `slotRecipe` produces slot-class maps and `atomicRecipe` produces one class string. Both are exported from `moraine/theme`, accept `defaults`, and expose readonly `.options` metadata. Ordinary calls always use default `cn` rules. To supply an explicit merger, call `slotRecipeFn.resolve(variants, scopedCn)` or `atomicRecipeFn.resolve(variants, scopedCn, ...extraClasses)`. These pure calls preserve the usual slot-map or string output; one recipe can be shared across Providers.
+For standalone recipe authoring, `slotRecipe` produces `{ classes, style }` and `atomicRecipe` produces one class string. Both are exported from `moraine/theme`, accept `defaults`, and expose readonly `.options` metadata. Ordinary calls always use default `cn` rules. To supply an explicit merger, call `slotRecipeFn.resolve(variants, scopedCn)` or `atomicRecipeFn.resolve(variants, scopedCn, ...extraClasses)`. These pure calls return the same result shape as ordinary calls; one recipe can be shared across Providers.
 
 ### State selectors
 
@@ -326,6 +326,37 @@ const theme = createTheme({
 ```
 
 Measurements such as slider percentages and floating transform origins remain inline styles or CSS variables.
+
+### Theme CSS variables
+
+Each recipe branch can mix slot classes and root CSS variables in one flat object. Declare full custom property names so declarations and class references use the same spelling.
+
+```tsx
+import { createTheme, defaultTheme } from 'moraine/theme'
+
+const theme = createTheme({
+  extends: defaultTheme,
+  slider: {
+    variants: {
+      size: {
+        lg: { '--s-size': '8px' },
+      },
+    },
+    compoundVariants: [
+      {
+        variants: { size: 'lg', variant: 'bold' },
+        track: 'rounded-lg',
+        '--s-size': '32px',
+        '--s-len': '20px',
+      },
+    ],
+  },
+})
+```
+
+Classes and variables resolve together in base, selected variant, then matching compound order. Later non-null variable values override earlier values; numbers are passed through without units. Parent and child recipes receive the same resolved variants, with child variables overriding parent variables by property.
+
+Variables are applied to the component root's inline style before dynamic styles, group styles, `styles[rootSlot]`, and the instance `style`. Changing variants or removing the theme clears variables that no longer apply.
 
 ### Reactive replacement and native refs
 

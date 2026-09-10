@@ -11,7 +11,7 @@ describe('createTheme', () => {
       collapsible: { base: { content: 'overflow-hidden' } },
       button: undefined,
     })
-    expect(theme.collapsible?.recipes.flatMap((recipe) => recipe().content)).toEqual([
+    expect(theme.collapsible?.recipes.flatMap((recipe) => recipe().classes.content)).toEqual([
       'overflow-hidden',
     ])
     expect(theme.button).toBeUndefined()
@@ -27,10 +27,12 @@ describe('createTheme', () => {
       extends: parent,
       button: { base: { label: 'font-bold' }, defaults: { size: 'lg' } },
     })
-    expect(child.input?.recipes.flatMap((recipe) => recipe().root)).toEqual(['input-class'])
+    expect(child.input?.recipes.flatMap((recipe) => recipe().classes.root)).toEqual(['input-class'])
     expect(child.button?.defaults?.size).toBe('lg')
     expect(parent.button?.defaults?.size).toBe('sm')
-    expect(parent.button?.recipes.flatMap((recipe) => recipe().label).filter(Boolean)).toEqual([])
+    expect(
+      parent.button?.recipes.flatMap((recipe) => recipe().classes.label).filter(Boolean),
+    ).toEqual([])
     expect(config.button.defaults.size).toBe('sm')
     expect(Object.isFrozen(config.button)).toBe(false)
     expect(createTheme({ extends: child }).button?.defaults?.size).toBe('lg')
@@ -41,9 +43,12 @@ describe('createTheme', () => {
       button: {
         defaults: { size: 'sm', variant: 'outline' },
         variants: {
-          size: { sm: { root: 'p-2', label: 'text-sm' }, lg: { root: 'p-3', label: 'text-lg' } },
+          size: {
+            sm: { root: 'p-2', label: 'text-sm' },
+            lg: { root: 'p-3', label: 'text-lg' },
+          },
         },
-        compoundVariants: [{ size: 'lg', variant: 'outline', class: { label: 'font-bold' } }],
+        compoundVariants: [{ variants: { size: 'lg', variant: 'outline' }, label: 'font-bold' }],
       },
     })
     const child = createTheme({
@@ -52,15 +57,18 @@ describe('createTheme', () => {
         defaults: { size: 'lg', variant: undefined },
         base: { root: 'p-4', label: 'font-normal' },
         variants: { size: { lg: { label: 'italic' } } },
-        compoundVariants: [{ size: 'lg', class: { label: 'font-medium' } }],
+        compoundVariants: [{ variants: { size: 'lg' }, label: 'font-medium' }],
       },
     })
     const entry = child.button!
     const outputs = entry.recipes.map((recipe) => recipe(entry.defaults))
     expect(entry.defaults).toEqual({ size: 'lg', variant: 'outline' })
-    expect(cn(...outputs.map((output) => output.root))).toBe('p-4')
-    expect(cn(...outputs.map((output) => output.label))).toBe('text-lg italic font-medium')
-    const small = createTheme({ extends: parent, button: { base: { root: 'p-4' } } }).button!
-    expect(cn(...small.recipes.map((recipe) => recipe(small.defaults).root))).toBe('p-4')
+    expect(cn(...outputs.map((output) => output.classes.root))).toBe('p-4')
+    expect(cn(...outputs.map((output) => output.classes.label))).toBe('text-lg italic font-medium')
+    const small = createTheme({
+      extends: parent,
+      button: { base: { root: 'p-4' } },
+    }).button!
+    expect(cn(...small.recipes.map((recipe) => recipe(small.defaults).classes.root))).toBe('p-4')
   })
 })

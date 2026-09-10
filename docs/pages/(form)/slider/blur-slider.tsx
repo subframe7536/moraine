@@ -19,8 +19,9 @@ export function BlurSlider() {
         step={1}
         aria-label="Blur"
         class="h-12 max-w-md w-full isolate"
+        style={{ '--s-size': '48px', '--s-len': '28px', '--s-offset': '4px' }}
         classes={{
-          track: 'h-12 rounded-xl',
+          track: 'rounded-xl',
           thumb: 'rounded-xl',
         }}
       >

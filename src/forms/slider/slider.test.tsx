@@ -88,9 +88,9 @@ describe('Slider', () => {
     const horizontalTrack = horizontal.container.querySelector('[data-slot="track"]')
     const verticalTrack = vertical.container.querySelector('[data-slot="track"]')
 
-    expect(horizontalTrack?.className).toContain('h-1')
+    expect(horizontalTrack?.className).toContain('h-(--s-size)')
     expect(horizontalTrack?.className).toContain('w-full')
-    expect(verticalTrack?.className).toContain('w-1.5')
+    expect(verticalTrack?.className).toContain('w-(--s-size)')
     expect(verticalTrack?.className).toContain('h-full')
   })
 
@@ -740,7 +740,7 @@ describe('Slider', () => {
     const thumb = screen.container.querySelector('[data-slot="thumb"]')
 
     expect(track?.className).toContain('w-full')
-    expect(track?.className).toContain('h-6')
+    expect(track?.className).toContain('h-(--s-size)')
     expect(track?.className).toContain('rounded-sm')
     expect(track?.className).toContain('bg-input')
     expect(range?.className).toContain('rounded-[inherit]')
@@ -750,7 +750,7 @@ describe('Slider', () => {
     expect(divider?.className).toContain('h-1/3')
     expect(range?.className).toContain('after:')
     expect(thumb?.className).toContain('opacity-0')
-    expect(thumb?.className).toContain('w-6')
+    expect(thumb?.className).toContain('w-(--s-size)')
     expect(thumb?.className).toContain('h-full')
     expect(thumb?.className).toContain('top-0')
     expect(thumb?.className).toContain('z-control')
@@ -767,13 +767,13 @@ describe('Slider', () => {
     const mdTrack = md.container.querySelector('[data-slot="track"]')
     const lgTrack = lg.container.querySelector('[data-slot="track"]')
 
-    expect(smTrack?.className).toContain('h-5')
+    expect(smTrack?.className).toContain('h-(--s-size)')
     expect(smTrack?.className).toContain('rounded-xs')
 
-    expect(mdTrack?.className).toContain('h-6')
+    expect(mdTrack?.className).toContain('h-(--s-size)')
     expect(mdTrack?.className).toContain('rounded-sm')
 
-    expect(lgTrack?.className).toContain('h-7')
+    expect(lgTrack?.className).toContain('h-(--s-size)')
     expect(lgTrack?.className).toContain('rounded-md')
   })
 
@@ -1461,4 +1461,55 @@ describe('Slider', () => {
     fireEvent.pointerUp(track, { button: 0, pointerId: 1 })
     expect(root.hasAttribute('data-dragging')).toBe(false)
   })
+})
+
+test.each([
+  ['sm', '4px', '20px', '14px', '3px', '12px'],
+  ['md', '5px', '24px', '16px', '4px', '15px'],
+  ['lg', '6px', '28px', '18px', '5px', '18px'],
+] as const)(
+  'outputs theme dimensions on the root for %s',
+  (size, thickness, boldThickness, length, offset, thumbSize) => {
+    const [bold, setBold] = createSignal(false)
+    const screen = render(() => <Slider size={size} variant={bold() ? 'bold' : 'default'} />)
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
+    const track = screen.container.querySelector<HTMLElement>('[data-slot="track"]')!
+    expect(root.style.getPropertyValue('--s-size')).toBe(thickness)
+    expect(root.style.getPropertyValue('--s-thumb-size')).toBe(thumbSize)
+    expect(track.style.getPropertyValue('--s-size')).toBe('')
+    setBold(true)
+    expect(root.style.getPropertyValue('--s-size')).toBe(boldThickness)
+    expect(root.style.getPropertyValue('--s-len')).toBe(length)
+    expect(root.style.getPropertyValue('--s-offset')).toBe(offset)
+    expect(root.style.getPropertyValue('--s-marker-position')).toBe(
+      'max(var(--s-offset), calc(100% - 2 * var(--s-offset)))',
+    )
+    setBold(false)
+    expect(root.style.getPropertyValue('--s-len')).toBe('')
+    expect(root.style.getPropertyValue('--s-offset')).toBe('')
+    expect(root.style.getPropertyValue('--s-marker-position')).toBe('')
+  },
+)
+
+test('updates thumb dimensions with size and accepts an independent override', () => {
+  const [size, setSize] = createSignal<'sm' | 'md' | 'lg'>('sm')
+  const [thumbSize, setThumbSize] = createSignal<string>()
+  const screen = render(() => (
+    <Slider
+      size={size()}
+      style={{ '--s-size': '8px', ...(thumbSize() ? { '--s-thumb-size': thumbSize() } : {}) }}
+    />
+  ))
+  const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
+  expect(root.style.getPropertyValue('--s-thumb-size')).toBe('12px')
+  setSize('md')
+  expect(root.style.getPropertyValue('--s-thumb-size')).toBe('15px')
+  setSize('lg')
+  expect(root.style.getPropertyValue('--s-thumb-size')).toBe('18px')
+  setThumbSize('22px')
+  expect(root.style.getPropertyValue('--s-thumb-size')).toBe('22px')
+  expect(root.style.getPropertyValue('--s-size')).toBe('8px')
+  setThumbSize(undefined)
+  expect(root.style.getPropertyValue('--s-thumb-size')).toBe('18px')
+  expect(screen.container.querySelector('[data-slot="root"]')).toBe(root)
 })

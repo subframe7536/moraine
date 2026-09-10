@@ -29,6 +29,7 @@ import {
   useId,
 } from 'moraine'
 import type {
+  SliderT,
   Cn,
   CnConfig,
   AvatarGroupT,
@@ -234,9 +235,6 @@ void generatedId
 // @ts-expect-error Undefined inherits; null is not a reset value.
 ;<MoraineProvider theme={null} />
 
-// @ts-expect-error String defineStyleVars extra styles are rejected
-defineStyleVars({ base: { size: '1px' } })({}, 'color: red')
-
 const theme = createTheme({
   extends: defaultTheme,
   button: { base: { root: 'rounded-lg' }, defaults: { size: 'sm' } },
@@ -274,8 +272,10 @@ createTheme({ button: { styles: { root: { color: 'red' } } } })
 createTheme({ button: { classes: { root: 'p-4' } } })
 // @ts-expect-error Variant selectors are constrained.
 createTheme({ button: { variants: { size: { huge: { root: 'p-4' } } } } })
-// @ts-expect-error Compound slots are constrained.
-createTheme({ button: { compoundVariants: [{ size: 'sm', class: { missing: 'p-4' } }] } })
+createTheme({
+  // @ts-expect-error Compound slots are constrained.
+  button: { compoundVariants: [{ variants: { size: 'sm' }, missing: 'p-4' }] },
+})
 
 ;<Input
   form="checkout"
@@ -323,13 +323,13 @@ const mergedClass: string | undefined = cn(customCn('p-2'), scopedCn('p-4'))
 const atomic = atomicRecipe({ variants: { size: { sm: 'p-2' } } })
 const slots = slotRecipe<ButtonT.Slot, ButtonT.Variant>({ base: { root: 'p-2' } })
 const atomicResult: string | undefined = atomic.resolve({ size: 'sm' }, customCn, 'p-4')
-const slotResult: string | undefined = slots.resolve({ size: 'sm' }, customCn).root
+const slotResult: string | undefined = slots.resolve({ size: 'sm' }, customCn).classes.root
 const emptySlots = slotRecipe<{ root: unknown }, never>({ base: { root: 'p-2' } })
 emptySlots.resolve(undefined, customCn)
 // @ts-expect-error resolve preserves inferred variant values.
 atomic.resolve({ size: 'invalid' }, customCn)
 // @ts-expect-error resolve preserves slot names.
-void slots.resolve(undefined, customCn).unknown
+void slots.resolve(undefined, customCn).classes.unknown
 // @ts-expect-error Provider only accepts an extension object.
 ;<MoraineProvider cnConfig={customCn} />
 ;<MoraineProvider cnConfig={cnConfig}>
@@ -338,3 +338,17 @@ void slots.resolve(undefined, customCn).unknown
     {slotResult}
   </Button>
 </MoraineProvider>
+
+const sliderRecipe = slotRecipe<SliderT.Slot, SliderT.Variant>({
+  variants: { size: { sm: { '--s-size': '4px' }, lg: { '--s-size': '6px' } } },
+})
+sliderRecipe({ size: 'sm', variant: null })
+// @ts-expect-error Invalid component variant value.
+sliderRecipe({ size: 'huge' })
+// @ts-expect-error Invalid component variant dimension.
+sliderRecipe({ unknown: true })
+createTheme({ slider: sliderRecipe.options })
+slotRecipe<SliderT.Slot, SliderT.Variant>({
+  // @ts-expect-error Custom property names must start with --.
+  base: { size: '4px' },
+})

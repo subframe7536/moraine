@@ -249,8 +249,12 @@ describe('Stepper', () => {
     const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
     const separator = screen.container.querySelector('[data-slot="separator"]') as HTMLElement
 
-    expect(trigger?.className).toContain('size-10')
-    expect(separator?.className).toContain('top-11')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
+    expect(root.style.getPropertyValue('--st-size')).toBe('calc(var(--spacing)*10)')
+    expect(root.style.getPropertyValue('--st-sep-top')).toBe('calc(var(--spacing)*11)')
+    expect(root.style.getPropertyValue('--st-gap')).toBe('calc(var(--spacing)*3)')
+    expect(trigger?.className).toContain('size-(--st-size)')
+    expect(separator?.className).toContain('top-(--st-sep-top)')
     expect(separator?.className).toContain('-bottom-3')
   })
 

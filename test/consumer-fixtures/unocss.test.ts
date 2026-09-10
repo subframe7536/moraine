@@ -54,7 +54,9 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'bg-primary',
         'w-(--mo-popper-anchor-width)',
         'origin-(--mo-popper-content-transform-origin)',
-        'after:rounded-full',
+        'after:h-(--s-offset)',
+        'size-(--s-thumb-size)',
+        '[&:not([data-inverted])]:after:left-(--s-marker-position)',
         '-translate-x-1/2',
         'data-transition:h-(--mo-collapsible-content-height)',
         'data-[side=bottom]:mt-(--mo-popper-content-overflow-padding)',
@@ -88,6 +90,11 @@ describe('isolated built-dist UnoCSS consumer', () => {
       expect(css).toContain('width:var(--mo-popper-anchor-width)')
       expect(css).toContain('transform-origin:var(--mo-popper-content-transform-origin)')
       expect(css).toContain('height:var(--mo-collapsible-content-height)')
+      expect(css).toContain('height:var(--s-offset)')
+      expect(css).toContain('left:var(--s-marker-position)')
+      expect(css).toContain('var(--st-sep-x)')
+      expect(css).toContain('width:var(--s-thumb-size)')
+      expect(css).toContain('height:var(--s-thumb-size)')
     },
     15_000,
   )

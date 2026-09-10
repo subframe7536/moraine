@@ -20,8 +20,8 @@ import {
   createForm,
   useId,
 } from 'moraine'
-import type { ModalT } from 'moraine'
-import { createTheme } from 'moraine/theme'
+import type { ModalT, SliderT } from 'moraine'
+import { createTheme, slotRecipe } from 'moraine/theme'
 import type { Component, JSX } from 'solid-js'
 import * as v from 'valibot'
 
@@ -181,11 +181,22 @@ createTheme({
 // @ts-expect-error Collapsible has no Provider configuration.
 ;<MoraineProvider config={{ collapsible: {} }} />
 
-// @ts-expect-error String defineStyleVars extra styles are rejected
-defineStyleVars({ base: { size: '1px' } })({}, 'color: red')
-
 // @ts-expect-error String style values on MoraineProvider config are rejected
 ;<MoraineProvider config={{ button: { style: 'color: red' } }} />
 
 // @ts-expect-error String styles values on MoraineProvider config are rejected
 ;<MoraineProvider config={{ button: { styles: { root: 'color: red' } } }} />
+
+const sliderRecipe = slotRecipe<SliderT.Slot, SliderT.Variant>({
+  variants: { size: { sm: { '--s-size': '4px' }, lg: { '--s-size': '6px' } } },
+})
+sliderRecipe({ size: 'sm', variant: null })
+// @ts-expect-error Invalid component variant value.
+sliderRecipe({ size: 'huge' })
+// @ts-expect-error Invalid component variant dimension.
+sliderRecipe({ unknown: true })
+createTheme({ slider: sliderRecipe.options })
+slotRecipe<SliderT.Slot, SliderT.Variant>({
+  // @ts-expect-error Custom property names must start with --.
+  base: { size: '4px' },
+})

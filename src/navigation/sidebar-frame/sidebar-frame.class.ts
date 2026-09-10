@@ -45,15 +45,11 @@ export const sidebarFrameRecipe = /* @__PURE__ */ slotRecipe<
   compoundVariants: [
     {
       variants: { variant: 'default', side: 'left' },
-      class: {
-        sidebar: '[&:not([data-mobile])]:(border-r border-border)',
-      },
+      sidebar: '[&:not([data-mobile])]:(border-r border-border)',
     },
     {
       variants: { variant: 'default', side: 'right' },
-      class: {
-        sidebar: '[&:not([data-mobile])]:(border-l border-border)',
-      },
+      sidebar: '[&:not([data-mobile])]:(border-l border-border)',
     },
   ],
 })

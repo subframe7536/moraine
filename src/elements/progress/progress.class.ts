@@ -67,74 +67,56 @@ export const progressRecipe = /* @__PURE__ */ slotRecipe<ProgressT.Slot, Progres
         orientation: 'horizontal',
         animation: 'carousel',
       },
-      class: {
-        indicator:
-          'data-indeterminate:animate-carousel data-indeterminate:rtl:animate-carousel-rtl',
-      },
+      indicator: 'data-indeterminate:animate-carousel data-indeterminate:rtl:animate-carousel-rtl',
     },
     {
       variants: {
         orientation: 'vertical',
         animation: 'carousel',
       },
-      class: {
-        indicator: 'data-indeterminate:animate-carousel-vertical',
-      },
+      indicator: 'data-indeterminate:animate-carousel-vertical',
     },
     {
       variants: {
         orientation: 'horizontal',
         animation: 'reverse',
       },
-      class: {
-        indicator:
-          'data-indeterminate:animate-carousel-rtl data-indeterminate:rtl:animate-carousel',
-      },
+      indicator: 'data-indeterminate:animate-carousel-rtl data-indeterminate:rtl:animate-carousel',
     },
     {
       variants: {
         orientation: 'vertical',
         animation: 'reverse',
       },
-      class: {
-        indicator: 'data-indeterminate:(animate-carousel-vertical animate-direction-reverse)',
-      },
+      indicator: 'data-indeterminate:(animate-carousel-vertical animate-direction-reverse)',
     },
     {
       variants: {
         orientation: 'horizontal',
         animation: 'swing',
       },
-      class: {
-        indicator: 'data-indeterminate:animate-swing',
-      },
+      indicator: 'data-indeterminate:animate-swing',
     },
     {
       variants: {
         orientation: 'vertical',
         animation: 'swing',
       },
-      class: {
-        indicator: 'data-indeterminate:animate-swing-vertical',
-      },
+      indicator: 'data-indeterminate:animate-swing-vertical',
     },
     {
       variants: {
         orientation: 'horizontal',
         animation: 'elastic',
       },
-      class: {
-        indicator: 'data-indeterminate:animate-elastic',
-      },
+      indicator: 'data-indeterminate:animate-elastic',
     },
     {
       variants: {
         orientation: 'vertical',
         animation: 'elastic',
       },
-      class: {
-        indicator: 'data-indeterminate:animate-elastic-vertical',
-      },
+      indicator: 'data-indeterminate:animate-elastic-vertical',
     },
   ],
 })

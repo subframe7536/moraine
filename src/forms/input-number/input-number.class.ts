@@ -70,15 +70,18 @@ export const inputNumberRecipe = /* @__PURE__ */ slotRecipe<
   compoundVariants: [
     {
       variants: { orientation: 'horizontal', size: 'sm' },
-      class: { increment: 'w-7', decrement: 'w-7' },
+      increment: 'w-7',
+      decrement: 'w-7',
     },
     {
       variants: { orientation: 'horizontal', size: 'md' },
-      class: { increment: 'w-8', decrement: 'w-8' },
+      increment: 'w-8',
+      decrement: 'w-8',
     },
     {
       variants: { orientation: 'horizontal', size: 'lg' },
-      class: { increment: 'w-9', decrement: 'w-9' },
+      increment: 'w-9',
+      decrement: 'w-9',
     },
   ],
 })

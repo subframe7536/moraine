@@ -53,15 +53,15 @@ export const checkboxRecipe = /* @__PURE__ */ slotRecipe<CheckboxT.Slot, Checkbo
   compoundVariants: [
     {
       variants: { variant: 'card', size: 'sm' },
-      class: { root: 'p-3' },
+      root: 'p-3',
     },
     {
       variants: { variant: 'card', size: 'md' },
-      class: { root: 'p-3.5' },
+      root: 'p-3.5',
     },
     {
       variants: { variant: 'card', size: 'lg' },
-      class: { root: 'p-4' },
+      root: 'p-4',
     },
   ],
 })
