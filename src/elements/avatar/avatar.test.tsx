@@ -2,12 +2,12 @@ import { render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { createTheme } from '../../theme.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { createTheme } from '../../theme'
+import { defaultTheme } from '../../theme/default-theme'
 
-import { AvatarGroup } from './avatar-group.tsx'
-import { Avatar } from './avatar.tsx'
+import { Avatar } from './avatar'
+import { AvatarGroup } from './avatar-group'
 
 type MockImageOutcome = 'pending' | 'success' | 'error' | 'cached-success' | 'cached-error'
 

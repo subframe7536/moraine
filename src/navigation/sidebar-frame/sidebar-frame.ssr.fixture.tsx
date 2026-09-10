@@ -1,7 +1,7 @@
 import { renderToString } from 'solid-js/web'
 
-import { useSidebarFrame } from './sidebar-frame-context.ts'
-import { SidebarFrame } from './sidebar-frame.tsx'
+import { SidebarFrame } from './sidebar-frame'
+import { useSidebarFrame } from './sidebar-frame-context'
 
 function FixtureContent() {
   const frame = useSidebarFrame()

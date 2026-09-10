@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
-import { renderWithTheme } from '../../../../src/test-utils/theme-render.tsx'
+import { renderWithTheme } from '../../../../src/test-utils/theme-render'
 
 import { CodeTabs } from './docs-code-tabs'
 

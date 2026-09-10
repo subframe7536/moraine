@@ -2,13 +2,13 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, onMount, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { SlotClassValue } from '../../shared/types.ts'
-import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
-import { callRef } from '../../shared/utils.ts'
-import { validateOverlayTrigger } from '../base/trigger.ts'
+import type { SlotClassValue } from '../../shared/types'
+import { useButtonInteraction } from '../../shared/use-button-interaction'
+import { callRef } from '../../shared/utils'
+import { validateOverlayTrigger } from '../base/trigger'
 
-import { useModalContext } from './modal-context.ts'
-import type { ModalT } from './modal.types.ts'
+import { useModalContext } from './modal-context'
+import type { ModalT } from './modal.types'
 
 function useModalTriggerBinding(
   ref: () => ((element: HTMLElement | undefined) => void) | undefined,

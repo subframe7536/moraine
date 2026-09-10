@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { CardT } from './card.types.ts'
+import type { CardT } from './card.types'
 
 export const cardRecipe = /* @__PURE__ */ slotRecipe<CardT.Slot, CardT.Variant>({
   base: {

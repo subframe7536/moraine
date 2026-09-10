@@ -3,7 +3,7 @@ import type { Component, JSX } from 'solid-js'
 import { lazy, Show, createSignal, onMount, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Kbd } from '../../../../src/index'
+import { Kbd } from '../../../../src'
 
 import { CodeBlock } from './docs-code-block'
 import { CodeTabs } from './docs-code-tabs'

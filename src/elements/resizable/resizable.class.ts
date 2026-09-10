@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { ResizableT } from './resizable.types.ts'
+import type { ResizableT } from './resizable.types'
 
 export const resizableRecipe = /* @__PURE__ */ slotRecipe<ResizableT.Slot, ResizableT.Variant>({
   base: {

@@ -2,11 +2,11 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { createTheme } from '../../theme.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { createTheme } from '../../theme'
+import { defaultTheme } from '../../theme/default-theme'
 
-import { Tabs } from './tabs.tsx'
+import { Tabs } from './tabs'
 
 if (!(globalThis as Record<string, unknown>).ResizeObserver) {
   ;(globalThis as Record<string, unknown>).ResizeObserver = class {

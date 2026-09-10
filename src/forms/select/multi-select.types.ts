@@ -1,16 +1,16 @@
 import type { Component, Ref } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { IconT } from '../../elements/icon'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options.ts'
+} from '../shared/form-options'
 
-import type { BaseSelectT } from './base-select.tsx'
+import type { BaseSelectT } from './base-select'
 
 export namespace MultiSelectT {
   export type Kind = 'single'

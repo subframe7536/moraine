@@ -12,14 +12,14 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { useId } from '../../shared/utils.ts'
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
+import { createComponentStyles } from '../../shared/provider'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { useId } from '../../shared/utils'
 
-import type { FormFieldContextOptions } from './form-context.ts'
-import { FormFieldProvider } from './form-context.ts'
-import type { FormFieldProps, FormFieldT } from './form-field.types.ts'
+import type { FormFieldContextOptions } from './form-context'
+import { FormFieldProvider } from './form-context'
+import type { FormFieldProps, FormFieldT } from './form-field.types'
 
 type LooseUseField = (form: FormStore, config: () => { path: RequiredPath }) => FieldStore
 

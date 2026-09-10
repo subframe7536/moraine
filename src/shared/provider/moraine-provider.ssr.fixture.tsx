@@ -1,14 +1,14 @@
 import { renderToString } from 'solid-js/web'
 
-import { Button } from '../../elements/button/button.tsx'
-import { Input } from '../../forms/input/input.tsx'
-import { Textarea } from '../../forms/textarea/textarea.tsx'
-import { createTheme } from '../../theme/create-theme.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
-import type { MoraineTheme } from '../../theme/types.ts'
-import type { CnConfig } from '../style/cn.ts'
+import { Button } from '../../elements/button/button'
+import { Input } from '../../forms/input/input'
+import { Textarea } from '../../forms/textarea/textarea'
+import { createTheme } from '../../theme/create-theme'
+import { defaultTheme } from '../../theme/default-theme'
+import type { MoraineTheme } from '../../theme/types'
+import type { CnConfig } from '../style/cn'
 
-import { MoraineProvider } from './moraine-provider.tsx'
+import { MoraineProvider } from './moraine-provider'
 
 export const fixtureTheme = createTheme({
   extends: defaultTheme,

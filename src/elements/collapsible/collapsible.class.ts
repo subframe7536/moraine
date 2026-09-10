@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { CollapsibleT } from './collapsible.types.ts'
+import type { CollapsibleT } from './collapsible.types'
 
 export const COLLAPSIBLE_TRANSITION_CLASS =
   'data-transition:h-(--mo-collapsible-content-height) data-transition:overflow-hidden data-transition:data-expanded:animate-accordion-down data-transition:data-closed:(h-0 animate-accordion-up) data-transition:motion-reduce:animate-none'

@@ -11,21 +11,21 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createContextProvider } from '../../shared/create-context-provider.tsx'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { useEventListener } from '../../shared/use-event-listener.ts'
-import { useId } from '../../shared/utils.ts'
-import { OverlayMenu } from '../base/menu/index.ts'
-import type { OverlayMenuFocusStrategy } from '../base/menu/index.ts'
-import type { OverlayTriggerProps } from '../base/trigger.ts'
+import { createContextProvider } from '../../shared/create-context-provider'
+import { createComponentStyles } from '../../shared/provider'
+import { useEventListener } from '../../shared/use-event-listener'
+import { useId } from '../../shared/utils'
+import { OverlayMenu } from '../base/menu'
+import type { OverlayMenuFocusStrategy } from '../base/menu'
+import type { OverlayTriggerProps } from '../base/trigger'
 import {
   createOverlayTriggerRef,
   getOverlayTriggerAccessibility,
   mergeMenuTriggerProps,
   validateOverlayTrigger,
-} from '../base/trigger.ts'
+} from '../base/trigger'
 
-import type { ContextMenuProps, ContextMenuT } from './context-menu.types.ts'
+import type { ContextMenuProps, ContextMenuT } from './context-menu.types'
 
 const CONTEXT_MENU_LONG_PRESS_DELAY = 700
 const CONTEXT_MENU_LONG_PRESS_MOVE_TOLERANCE = 10

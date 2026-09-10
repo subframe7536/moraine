@@ -1,13 +1,13 @@
 import type { JSX, Ref } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { IconT } from '../../elements/icon'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../shared/form-options.ts'
+} from '../shared/form-options'
 
 export namespace InputNumberT {
   export type Kind = 'single'

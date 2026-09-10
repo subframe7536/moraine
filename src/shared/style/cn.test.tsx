@@ -1,7 +1,7 @@
 import { createCn as upstreamCreateCn } from 'cn/config'
 import { describe, expect, test, vi } from 'vitest'
 
-import { cn, createCn } from './cn.ts'
+import { cn, createCn } from './cn'
 
 vi.mock('cn/config', async (importOriginal) => {
   const original = await importOriginal<typeof import('cn/config')>()

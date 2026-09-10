@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { CommandPaletteT } from './command-palette.types.ts'
+import type { CommandPaletteT } from './command-palette.types'
 
 export const commandPaletteRecipe = /* @__PURE__ */ slotRecipe<
   CommandPaletteT.Slot,

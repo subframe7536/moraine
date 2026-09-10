@@ -1,6 +1,6 @@
 import type { Accessor, JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
 export namespace SidebarFrameT {
   export type Kind = 'composite'

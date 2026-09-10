@@ -1,11 +1,11 @@
 import type { JSX } from 'solid-js'
 import { createMemo, mergeProps } from 'solid-js'
 
-import type { ThemeName, ThemeSlots, ThemeVariants } from '../../theme/types.ts'
-import type { SlotClassValue } from '../types.ts'
+import type { ThemeName, ThemeSlots, ThemeVariants } from '../../theme/types'
+import type { SlotClassValue } from '../types'
 
-import { useCn } from './cn-context.ts'
-import { useTheme } from './theme-context.tsx'
+import { useCn } from './cn-context'
+import { useTheme } from './theme-context'
 
 const EMPTY_DEFAULTS = Object.freeze({})
 const EMPTY_OUTPUTS = Object.freeze([])

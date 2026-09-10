@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { CheckboxT } from './checkbox.types.ts'
+import type { CheckboxT } from './checkbox.types'
 
 export const checkboxRecipe = /* @__PURE__ */ slotRecipe<CheckboxT.Slot, CheckboxT.Variant>({
   base: {

@@ -1,3 +1,3 @@
-export * from './sidebar-frame.tsx'
-export * from './sidebar-frame.types.ts'
-export { useSidebarFrame } from './sidebar-frame-context.ts'
+export * from './sidebar-frame'
+export * from './sidebar-frame.types'
+export { useSidebarFrame } from './sidebar-frame-context'

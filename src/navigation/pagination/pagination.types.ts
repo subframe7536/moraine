@@ -1,8 +1,8 @@
 import type { Ref } from 'solid-js'
 
-import type { ButtonProps } from '../../elements/button/index.ts'
-import type { IconT } from '../../elements/icon/index.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { ButtonProps } from '../../elements/button'
+import type { IconT } from '../../elements/icon'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
 type PaginationVariant = ButtonProps['variant']
 

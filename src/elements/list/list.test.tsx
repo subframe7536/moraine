@@ -5,7 +5,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { useListVirtualizer } from '../../utils'
 
 import { List } from './list'
-import type { ListT } from './list.types.ts'
+import type { ListT } from './list.types'
 
 describe('List', () => {
   test('accepts static JSX for itemRender', () => {

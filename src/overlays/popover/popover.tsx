@@ -10,19 +10,14 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { createContextProvider } from '../../shared/create-context-provider.tsx'
-import { hasJsxContent } from '../../shared/jsx-content.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { resolveOverlayMenuSide } from '../base/index.ts'
-import {
-  createPopper,
-  PopperTrigger,
-  PopperContent,
-  mergePopperElementProps,
-} from '../base/popper.tsx'
-import type { PopperTriggerProps } from '../base/popper.types.ts'
+import { createContextProvider } from '../../shared/create-context-provider'
+import { hasJsxContent } from '../../shared/jsx-content'
+import { createComponentStyles } from '../../shared/provider'
+import { resolveOverlayMenuSide } from '../base'
+import { createPopper, PopperTrigger, PopperContent, mergePopperElementProps } from '../base/popper'
+import type { PopperTriggerProps } from '../base/popper.types'
 
-import type { PopoverProps, PopoverT } from './popover.types.ts'
+import type { PopoverProps, PopoverT } from './popover.types'
 
 const [PopoverProvider, usePopoverContext] = createContextProvider<{
   options: PopoverProps

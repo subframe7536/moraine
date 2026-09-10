@@ -2,12 +2,12 @@ import type { FieldStore } from '@formisch/solid'
 import { fireEvent, render } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { FormFieldProvider } from '../form/form-context.ts'
-import { FormField } from '../form/form-field.tsx'
-import { Input } from '../input/input.tsx'
-import { Textarea } from '../textarea/textarea.tsx'
+import { FormFieldProvider } from '../form/form-context'
+import { FormField } from '../form/form-field'
+import { Input } from '../input/input'
+import { Textarea } from '../textarea/textarea'
 
-import { mergeAriaTokens } from './merge-aria-tokens.ts'
+import { mergeAriaTokens } from './merge-aria-tokens'
 
 describe.each([Input, Textarea])('native text control: %s', (Control) => {
   test('owns native attributes, handlers and refs on the editable element', () => {

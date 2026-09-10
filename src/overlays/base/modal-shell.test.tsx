@@ -2,10 +2,10 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { createTheme } from '../../theme.ts'
-import { Dialog } from '../dialog/dialog.tsx'
-import { Sheet } from '../sheet/sheet.tsx'
+import { MoraineProvider } from '../../shared/provider'
+import { createTheme } from '../../theme'
+import { Dialog } from '../dialog/dialog'
+import { Sheet } from '../sheet/sheet'
 
 describe.each([
   { name: 'Dialog', Root: Dialog },

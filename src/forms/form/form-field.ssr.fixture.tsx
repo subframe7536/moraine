@@ -1,7 +1,7 @@
 import { renderToString } from 'solid-js/web'
 import * as v from 'valibot'
 
-import { Input } from '../input/index'
+import { Input } from '../input'
 
 import { createForm } from './form'
 

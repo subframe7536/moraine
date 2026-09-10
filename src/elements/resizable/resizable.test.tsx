@@ -4,12 +4,12 @@ import type { JSX } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { beforeAll, afterAll, describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { defaultTheme } from '../../theme/default-theme'
 
-import type { ResizablePanelItem } from './hook/index.ts'
-import { Resizable } from './resizable.tsx'
-import type { ResizableProps, ResizableT } from './resizable.types.ts'
+import type { ResizablePanelItem } from './hook'
+import { Resizable } from './resizable'
+import type { ResizableProps, ResizableT } from './resizable.types'
 
 interface ResizableFixtureProps extends Omit<ResizableProps, 'children'> {
   items: ResizablePanelItem[]

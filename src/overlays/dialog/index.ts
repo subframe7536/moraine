@@ -1,2 +1,2 @@
-export * from './dialog.tsx'
-export type { DialogProps, DialogT } from './dialog.types.ts'
+export * from './dialog'
+export type { DialogProps, DialogT } from './dialog.types'

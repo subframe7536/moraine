@@ -1,7 +1,7 @@
 import { createGenerator, presetWind3, presetWind4 } from '@subf/unocss'
 import { describe, expect, test, vi } from 'vitest'
 
-import { presetMoraine, resolvePresetThemeOptions } from './theme.ts'
+import { presetMoraine, resolvePresetThemeOptions } from './theme'
 
 async function generate(
   tokens: string[],

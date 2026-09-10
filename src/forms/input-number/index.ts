@@ -1,2 +1,2 @@
-export * from './input-number.tsx'
-export * from './input-number.types.ts'
+export * from './input-number'
+export * from './input-number.types'

@@ -1,7 +1,7 @@
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
-import type { KbdT } from './kbd.types.ts'
+import type { KbdT } from './kbd.types'
 
 export namespace KbdGroupT {
   export type Kind = 'single'

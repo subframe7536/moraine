@@ -2,13 +2,13 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithTheme } from '../../test-utils/theme-render.tsx'
-import { createTheme } from '../../theme.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
-import { setPopperTestPlacementAccessor } from '../base/popper.tsx'
+import { MoraineProvider } from '../../shared/provider'
+import { renderWithTheme } from '../../test-utils/theme-render'
+import { createTheme } from '../../theme'
+import { defaultTheme } from '../../theme/default-theme'
+import { setPopperTestPlacementAccessor } from '../base/popper'
 
-import { Tooltip } from './tooltip.tsx'
+import { Tooltip } from './tooltip'
 
 let getMockPlacement: () => string = () => 'top'
 let setMockPlacement: (value: string) => void = () => undefined

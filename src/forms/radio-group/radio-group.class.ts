@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { RadioGroupT } from './radio-group.types.ts'
+import type { RadioGroupT } from './radio-group.types'
 
 export const radioGroupRecipe = /* @__PURE__ */ slotRecipe<RadioGroupT.Slot, RadioGroupT.Variant>({
   base: {

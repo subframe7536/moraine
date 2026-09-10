@@ -1,8 +1,8 @@
 import { render } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
 
-import { MoraineProvider } from '../shared/provider/index.ts'
-import { defaultTheme } from '../theme/default-theme.ts'
+import { MoraineProvider } from '../shared/provider'
+import { defaultTheme } from '../theme/default-theme'
 
 /** Provides official presentation for component style assertions. */
 export function renderWithTheme(content: () => JSX.Element) {

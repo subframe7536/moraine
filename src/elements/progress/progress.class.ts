@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { ProgressT } from './progress.types.ts'
+import type { ProgressT } from './progress.types'
 
 export const progressRecipe = /* @__PURE__ */ slotRecipe<ProgressT.Slot, ProgressT.Variant>({
   base: {

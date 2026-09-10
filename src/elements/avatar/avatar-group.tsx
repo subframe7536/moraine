@@ -1,10 +1,10 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider'
 
-import type { AvatarGroupProps } from './avatar-group.types.ts'
-import { AvatarFace } from './avatar.tsx'
+import { AvatarFace } from './avatar'
+import type { AvatarGroupProps } from './avatar-group.types'
 
 function resolveMax(max: AvatarGroupProps['max']): number | undefined {
   if (typeof max === 'string') {

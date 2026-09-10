@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js'
 import { createContext } from 'solid-js'
 
-import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { SlotClassValue, SlotStyleValue } from '../../shared/types'
 
-import type { ButtonT } from './button.types.ts'
+import type { ButtonT } from './button.types'
 
 export interface ButtonGroupContextValue {
   readonly size?: ButtonT.Variant['size']

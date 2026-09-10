@@ -2,11 +2,11 @@ import { render } from '@solidjs/testing-library'
 import { ErrorBoundary, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { defaultTheme } from '../../theme/default-theme'
 
-import { Progress } from './progress.tsx'
-import type { ProgressT } from './progress.types.ts'
+import { Progress } from './progress'
+import type { ProgressT } from './progress.types'
 
 describe('Progress', () => {
   test('renders unstyled when provider is absent', () => {

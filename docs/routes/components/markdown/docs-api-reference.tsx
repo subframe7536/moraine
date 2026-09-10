@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, createSignal, For, Show } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Badge, Icon, Input, Select, cn } from '../../../../src/index'
+import { Badge, Icon, Input, Select, cn } from '../../../../src'
 import { createMediaQuery } from '../../../../src/shared/use-media-query'
 import { getApiReferenceTocEntries } from '../../../build/api-doc/reference-sections'
 import type { ApiAttributeDoc, ComponentDoc, PropDoc, SlotDoc } from '../../../build/api-doc/types'

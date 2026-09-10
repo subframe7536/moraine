@@ -2,12 +2,12 @@ import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { createTheme } from '../../theme.ts'
-import { ContextMenu } from '../context-menu/context-menu.tsx'
-import { DropdownMenu } from '../dropdown-menu/dropdown-menu.tsx'
-import { Popover } from '../popover/popover.tsx'
-import { Tooltip } from '../tooltip/tooltip.tsx'
+import { MoraineProvider } from '../../shared/provider'
+import { createTheme } from '../../theme'
+import { ContextMenu } from '../context-menu/context-menu'
+import { DropdownMenu } from '../dropdown-menu/dropdown-menu'
+import { Popover } from '../popover/popover'
+import { Tooltip } from '../tooltip/tooltip'
 
 describe.each([
   { name: 'Popover', Root: Popover },

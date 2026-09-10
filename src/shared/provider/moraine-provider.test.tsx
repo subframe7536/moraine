@@ -2,14 +2,14 @@ import { render } from '@solidjs/testing-library'
 import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { Button } from '../../elements/button/button.tsx'
-import { Input } from '../../forms/input/input.tsx'
-import { createTheme } from '../../theme/create-theme.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
-import { emptyTheme } from '../../theme/types.ts'
-import type { MoraineTheme } from '../../theme/types.ts'
+import { Button } from '../../elements/button/button'
+import { Input } from '../../forms/input/input'
+import { createTheme } from '../../theme/create-theme'
+import { defaultTheme } from '../../theme/default-theme'
+import { emptyTheme } from '../../theme/types'
+import type { MoraineTheme } from '../../theme/types'
 
-import { MoraineProvider } from './moraine-provider.tsx'
+import { MoraineProvider } from './moraine-provider'
 
 describe('MoraineProvider', () => {
   test('uses empty presentation at the root unless the official theme is supplied', () => {

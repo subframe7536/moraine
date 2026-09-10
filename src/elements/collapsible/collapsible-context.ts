@@ -1,9 +1,9 @@
 import type { Accessor } from 'solid-js'
 
-import { createContextProvider } from '../../shared/create-context-provider.tsx'
-import type { useTransitionPresence } from '../../shared/use-transition-presence.ts'
+import { createContextProvider } from '../../shared/create-context-provider'
+import type { useTransitionPresence } from '../../shared/use-transition-presence'
 
-import type { CollapsibleT } from './collapsible.types.ts'
+import type { CollapsibleT } from './collapsible.types'
 
 export interface CollapsibleContext {
   presentation: { readonly classes?: CollapsibleT.Classes; readonly styles?: CollapsibleT.Styles }

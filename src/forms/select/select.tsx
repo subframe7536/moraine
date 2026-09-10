@@ -1,24 +1,24 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, splitProps, untrack } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index.ts'
-import { useCn } from '../../shared/provider/cn-context.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callRef } from '../../shared/utils.ts'
-import { useFormFieldContext } from '../form/form-context.ts'
+import { Icon } from '../../elements/icon'
+import { createComponentStyles } from '../../shared/provider'
+import { useCn } from '../../shared/provider/cn-context'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { callRef } from '../../shared/utils'
+import { useFormFieldContext } from '../form/form-context'
 
-import { BaseSelect } from './base-select.tsx'
-import type { BaseSelectT } from './base-select.tsx'
-import type { SelectProps, SelectT } from './select.types.ts'
+import { BaseSelect } from './base-select'
+import type { BaseSelectT } from './base-select'
+import type { SelectProps, SelectT } from './select.types'
 import {
   createEmptyRenderer,
   findNormalizedOptionByValue,
   mapNormalizedToRawValue,
   renderDefaultSelectOption,
-} from './shared/index.ts'
-import type { NormalizedOption } from './shared/index.ts'
+} from './shared'
+import type { NormalizedOption } from './shared'
 
 /** Dropdown select component with search and custom item rendering. */
 export function Select<TItem extends SelectT.Value = SelectT.Value>(

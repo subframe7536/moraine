@@ -1,2 +1,2 @@
-export * from './card.types.ts'
-export * from './card.tsx'
+export * from './card.types'
+export * from './card'

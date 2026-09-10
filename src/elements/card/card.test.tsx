@@ -2,10 +2,10 @@ import { render } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { defaultTheme } from '../../theme/default-theme'
 
-import { Card } from './card.tsx'
+import { Card } from './card'
 
 describe('Card', () => {
   test('renders unstyled when provider is absent', () => {

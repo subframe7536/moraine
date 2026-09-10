@@ -1,5 +1,5 @@
 import { Kbd, MoraineProvider } from '@src'
-import { createTheme, defaultTheme } from '@src/theme.ts'
+import { createTheme, defaultTheme } from '@src/theme'
 
 const theme = createTheme({
   extends: defaultTheme,

@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { SeparatorT } from './separator.types.ts'
+import type { SeparatorT } from './separator.types'
 
 export const separatorRecipe = /* @__PURE__ */ slotRecipe<SeparatorT.Slot, SeparatorT.Variant>({
   base: {

@@ -4,12 +4,12 @@ import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { defaultTheme } from '../../theme/default-theme.ts'
-import { createForm } from '../form/index.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { defaultTheme } from '../../theme/default-theme'
+import { createForm } from '../form'
 
-import { Textarea } from './textarea.tsx'
+import { Textarea } from './textarea'
 
 const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)

@@ -13,15 +13,15 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { useCn } from '../../shared/provider/cn-context.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { callRef, useId } from '../../shared/utils.ts'
-import { useFormField, useFormFieldContext } from '../form/form-context.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
+import { HiddenInput } from '../../shared/hidden-input'
+import { createComponentStyles } from '../../shared/provider'
+import { useCn } from '../../shared/provider/cn-context'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
+import { callRef, useId } from '../../shared/utils'
+import { useFormField, useFormFieldContext } from '../form/form-context'
+import { useFormReset } from '../shared/use-form-reset'
 
-import type { RadioGroupProps } from './radio-group.types.ts'
+import type { RadioGroupProps } from './radio-group.types'
 
 interface NormalizedRadioGroupItem {
   id: string

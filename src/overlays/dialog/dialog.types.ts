@@ -1,8 +1,8 @@
 import type { JSX, ValidComponent } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/icon.types.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import type { ModalT } from '../modal/modal.types.ts'
+import type { IconT } from '../../elements/icon/icon.types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { ModalT } from '../modal/modal.types'
 
 export namespace DialogT {
   export type Kind = 'composite'

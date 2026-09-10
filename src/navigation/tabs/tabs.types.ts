@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/icon.types.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { IconT } from '../../elements/icon/icon.types'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
 export namespace TabsT {
   export type Kind = 'single'

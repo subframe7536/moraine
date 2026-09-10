@@ -12,10 +12,10 @@ import {
   onMount,
 } from 'solid-js'
 
-import { useCn } from '../../shared/provider/cn-context.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
+import { createComponentStyles } from '../../shared/provider'
+import { useCn } from '../../shared/provider/cn-context'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { callHandler, callRef, useId } from '../../shared/utils'
 
 import {
   collapsePanel,
@@ -36,9 +36,9 @@ import {
   resizePanelToSize,
   toggleHandleNearestPanel,
   useResizableHandle,
-} from './hook/index.ts'
-import type { ResizablePanelItem, ResizableSize } from './hook/index.ts'
-import type { ResizableProps, ResizableT } from './resizable.types.ts'
+} from './hook'
+import type { ResizablePanelItem, ResizableSize } from './hook'
+import type { ResizableProps, ResizableT } from './resizable.types'
 
 interface DragState {
   deltaPx: number

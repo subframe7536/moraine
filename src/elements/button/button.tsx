@@ -2,16 +2,16 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps, useContext } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { useCn } from '../../shared/provider/cn-context.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
-import { useLoadingAutoClick } from '../../shared/use-loading-auto.ts'
-import { Icon } from '../icon/index.ts'
-import type { IconT } from '../icon/index.ts'
+import { createComponentStyles } from '../../shared/provider'
+import { useCn } from '../../shared/provider/cn-context'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { useButtonInteraction } from '../../shared/use-button-interaction'
+import { useLoadingAutoClick } from '../../shared/use-loading-auto'
+import { Icon } from '../icon'
+import type { IconT } from '../icon'
 
-import { ButtonGroupContext } from './button-group-context.ts'
-import type { ButtonProps, ButtonT } from './button.types.ts'
+import { ButtonGroupContext } from './button-group-context'
+import type { ButtonProps, ButtonT } from './button.types'
 
 /**
  * Button component with polymorphic `as` support and loading state.

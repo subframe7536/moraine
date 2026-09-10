@@ -10,21 +10,21 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createContextProvider } from '../../shared/create-context-provider.tsx'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useId } from '../../shared/utils.ts'
-import { OverlayMenu } from '../base/menu/index.ts'
-import type { OverlayMenuFocusStrategy } from '../base/menu/index.ts'
-import type { OverlayTriggerProps } from '../base/trigger.ts'
+import { createContextProvider } from '../../shared/create-context-provider'
+import { createComponentStyles } from '../../shared/provider'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { useId } from '../../shared/utils'
+import { OverlayMenu } from '../base/menu'
+import type { OverlayMenuFocusStrategy } from '../base/menu'
+import type { OverlayTriggerProps } from '../base/trigger'
 import {
   createOverlayTriggerRef,
   getOverlayTriggerAccessibility,
   mergeMenuTriggerProps,
   validateOverlayTrigger,
-} from '../base/trigger.ts'
+} from '../base/trigger'
 
-import type { DropdownMenuProps, DropdownMenuT } from './dropdown-menu.types.ts'
+import type { DropdownMenuProps, DropdownMenuT } from './dropdown-menu.types'
 
 /**
  * Triggered action menu anchored to its child content.

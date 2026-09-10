@@ -1,14 +1,14 @@
 import type { JSX, ValidComponent } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type {
   OverlayMenuRootProps,
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderProps,
   OverlayMenuSharedSlots,
-} from '../base/menu/index.ts'
-import type { ModalT } from '../modal/modal.types.ts'
+} from '../base/menu'
+import type { ModalT } from '../modal/modal.types'
 
 export namespace ContextMenuT {
   export type Kind = 'composite'

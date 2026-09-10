@@ -3,14 +3,14 @@ import { For, createSignal } from 'solid-js'
 import type { JSX } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Dialog } from '../../overlays/dialog/index.ts'
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { finishExitMotion } from '../../test-utils/overlay-test.ts'
-import { createTheme } from '../../theme.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { Dialog } from '../../overlays/dialog'
+import { MoraineProvider } from '../../shared/provider'
+import { finishExitMotion } from '../../test-utils/overlay-test'
+import { createTheme } from '../../theme'
+import { defaultTheme } from '../../theme/default-theme'
 
-import { CommandPalette } from './command-palette.tsx'
-import type { CommandPaletteT } from './command-palette.types.ts'
+import { CommandPalette } from './command-palette'
+import type { CommandPaletteT } from './command-palette.types'
 
 function renderWithTheme(ui: () => JSX.Element) {
   return render(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>)

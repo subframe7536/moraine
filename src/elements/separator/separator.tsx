@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js'
 import { mergeProps, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider'
 
-import type { SeparatorProps } from './separator.types.ts'
+import type { SeparatorProps } from './separator.types'
 
 /** Visual divider with configurable orientation, style, and border type. */
 export function Separator(props: SeparatorProps): JSX.Element {

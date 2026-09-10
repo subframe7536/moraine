@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { Resizable } from './resizable.tsx'
+import { Resizable } from './resizable'
 
 test('hydrates compound panels and handles in the server order', () => {
   const { container } = hydrateFixture(

@@ -1,2 +1,2 @@
-export * from './stepper.tsx'
-export type { StepperProps, StepperT } from './stepper.types.ts'
+export * from './stepper'
+export type { StepperProps, StepperT } from './stepper.types'

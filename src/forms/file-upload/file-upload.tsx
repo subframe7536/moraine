@@ -11,14 +11,14 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Icon } from '../../elements/icon/index.ts'
-import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import { useFormField, useFormFieldContext } from '../form/form-context.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
+import { Icon } from '../../elements/icon'
+import { HiddenInput } from '../../shared/hidden-input'
+import { createComponentStyles } from '../../shared/provider'
+import { callHandler, callRef, useId } from '../../shared/utils'
+import { useFormField, useFormFieldContext } from '../form/form-context'
+import { useFormReset } from '../shared/use-form-reset'
 
-import type { FileUploadProps, FileUploadT } from './file-upload.types.ts'
+import type { FileUploadProps, FileUploadT } from './file-upload.types'
 
 function isImageFile(file: File): boolean {
   return file.type.startsWith('image/')

@@ -1,21 +1,21 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX, ValidComponent } from 'solid-js'
-import { Show, createComponent, createMemo, createSignal } from 'solid-js'
+import { Show, createComponent, createMemo, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from '../../elements/button/index.ts'
-import { CommandPalette } from '../../navigation/command-palette/index.ts'
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { finishExitMotion } from '../../test-utils/overlay-test.ts'
-import { renderWithTheme } from '../../test-utils/theme-render.tsx'
-import { createTheme } from '../../theme.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
-import type { OverlayTriggerProps } from '../base/trigger.ts'
-import { Modal } from '../modal/index.ts'
-import type { ModalT } from '../modal/modal.types.ts'
+import { Button } from '../../elements/button'
+import { CommandPalette } from '../../navigation/command-palette'
+import { MoraineProvider } from '../../shared/provider'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { finishExitMotion } from '../../test-utils/overlay-test'
+import { renderWithTheme } from '../../test-utils/theme-render'
+import { createTheme } from '../../theme'
+import { defaultTheme } from '../../theme/default-theme'
+import type { OverlayTriggerProps } from '../base/trigger'
+import { Modal } from '../modal'
+import type { ModalT } from '../modal/modal.types'
 
-import { Dialog } from './dialog.tsx'
+import { Dialog } from './dialog'
 
 interface TestModalProps {
   defaultOpen?: boolean
@@ -76,6 +76,44 @@ describe('Modal', () => {
     expect(triggerReads).toBe(1)
     expect(contentReads).toBe(1)
     expect(document.body.textContent).toContain('Cached content')
+  })
+
+  test('releases body slot content when closed and recreates it when reopened', async () => {
+    const [open, setOpen] = createSignal(false)
+    let mounts = 0
+    let cleanups = 0
+    const Body = () => {
+      mounts += 1
+      onCleanup(() => {
+        cleanups += 1
+      })
+      return <span>Lifecycle body</span>
+    }
+
+    const screen = render(() => (
+      <Dialog open={open()}>
+        <Dialog.Content body={<Body />} />
+      </Dialog>
+    ))
+
+    expect(mounts).toBe(0)
+    setOpen(true)
+    await waitFor(() => {
+      expect(mounts).toBe(1)
+    })
+
+    setOpen(false)
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(cleanups).toBe(1)
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    })
+
+    setOpen(true)
+    await waitFor(() => {
+      expect(mounts).toBe(2)
+    })
+    screen.unmount()
   })
 
   test('renders default shell with title, description, body, footer and close button', () => {

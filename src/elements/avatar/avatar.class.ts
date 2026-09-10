@@ -1,7 +1,7 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { AvatarGroupT } from './avatar-group.types.ts'
-import type { AvatarT } from './avatar.types.ts'
+import type { AvatarGroupT } from './avatar-group.types'
+import type { AvatarT } from './avatar.types'
 
 export const avatarRecipe = /* @__PURE__ */ slotRecipe<AvatarT.Slot, AvatarT.Variant>({
   base: {

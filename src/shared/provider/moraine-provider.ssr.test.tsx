@@ -2,16 +2,16 @@ import { createComponent, createSignal } from 'solid-js'
 import { hydrate } from 'solid-js/web'
 import { expect, test } from 'vitest'
 
-import { renderSsrFixture, installHydrationState } from '../../test-utils/ssr-test.ts'
-import { createTheme } from '../../theme/create-theme.ts'
-import type { CnConfig } from '../style/cn.ts'
+import { renderSsrFixture, installHydrationState } from '../../test-utils/ssr-test'
+import { createTheme } from '../../theme/create-theme'
+import type { CnConfig } from '../style/cn'
 
 import {
   CnHydrationFixture,
   fixtureCnConfig,
   ThemeHydrationFixture,
   fixtureTheme,
-} from './moraine-provider.ssr.fixture.tsx'
+} from './moraine-provider.ssr.fixture'
 
 test('hydrates Theme presentation once and preserves native nodes across replacement', () => {
   const container = document.createElement('div')

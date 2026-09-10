@@ -1,6 +1,6 @@
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
-import type { AvatarT } from './avatar.types.ts'
+import type { AvatarT } from './avatar.types'
 
 export namespace AvatarGroupT {
   export type Kind = 'single'

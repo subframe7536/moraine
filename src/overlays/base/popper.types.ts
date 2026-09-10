@@ -1,8 +1,8 @@
 import type { Placement as FloatingPlacement } from '@floating-ui/dom'
 import type { Accessor, JSX, ValidComponent } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import type { ModalT } from '../modal/modal.types.ts'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import type { ModalT } from '../modal/modal.types'
 
 export type PopperPlacement = FloatingPlacement
 export interface PopperInteractOutsideEvent {

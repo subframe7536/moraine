@@ -1,23 +1,23 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js'
 
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { useId } from '../../shared/utils.ts'
-import { useOverlayInteraction } from '../base/interaction.ts'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { useTransitionPresence } from '../../shared/use-transition-presence'
+import { useId } from '../../shared/utils'
+import { useOverlayInteraction } from '../base/interaction'
 import {
   acquireAriaHideOutside,
   acquireBodyScrollLock,
   focusContent,
   focusWithoutScrolling,
   focusTrigger,
-} from '../base/utils.ts'
+} from '../base/utils'
 
-import { ModalClose } from './modal-close.tsx'
-import { ModalContent } from './modal-content.tsx'
-import { ModalProvider } from './modal-context.ts'
-import { ModalTrigger } from './modal-trigger.tsx'
-import type { ModalProps } from './modal.types.ts'
+import { ModalClose } from './modal-close'
+import { ModalContent } from './modal-content'
+import { ModalProvider } from './modal-context'
+import { ModalTrigger } from './modal-trigger'
+import type { ModalProps } from './modal.types'
 
 /** Low-level modal primitives for composing custom dialog surfaces. */
 export function Modal(props: ModalProps): JSX.Element {

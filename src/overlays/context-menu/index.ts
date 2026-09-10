@@ -1,2 +1,2 @@
-export * from './context-menu.tsx'
-export type { ContextMenuProps, ContextMenuT } from './context-menu.types.ts'
+export * from './context-menu'
+export type { ContextMenuProps, ContextMenuT } from './context-menu.types'

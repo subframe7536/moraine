@@ -1,7 +1,7 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
-import { MODAL_CONTENT_CLASS, MODAL_OVERLAY_CLASS } from '../modal/modal.class.ts'
+import { slotRecipe } from '../../shared/style/recipe'
+import { MODAL_CONTENT_CLASS, MODAL_OVERLAY_CLASS } from '../modal/modal.class'
 
-import type { DialogT } from './dialog.types.ts'
+import type { DialogT } from './dialog.types'
 
 export const DIALOG_CONTENT_CLASS = `${MODAL_CONTENT_CLASS} text-popover-foreground border border-border shadow-md flex flex-col fixed left-1/2 top-1/2 w-[calc(100vw-2rem)] max-w-lg max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-4rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden`
 export const DIALOG_CONTENT_SCROLLABLE_CLASS = `${MODAL_CONTENT_CLASS} text-popover-foreground border border-border shadow-md flex flex-col relative mx-auto my-4 w-[calc(100vw-2rem)] max-w-lg`

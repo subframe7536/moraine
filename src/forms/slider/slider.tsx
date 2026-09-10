@@ -1,13 +1,13 @@
 import type { JSX, Ref } from 'solid-js'
 import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
-import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { callRef, useId } from '../../shared/utils.ts'
-import { useFormField, useFormFieldContext } from '../form/form-context.ts'
+import { HiddenInput } from '../../shared/hidden-input'
+import { createComponentStyles } from '../../shared/provider'
+import { callRef, useId } from '../../shared/utils'
+import { useFormField, useFormFieldContext } from '../form/form-context'
 
-import { useSlider } from './hook/index.ts'
-import type { SliderProps, SliderT } from './slider.types.ts'
+import { useSlider } from './hook'
+import type { SliderProps, SliderT } from './slider.types'
 
 type RootProps<TValue = SliderT.Value> = SliderProps<TValue> & {
   ref?: Ref<HTMLDivElement>

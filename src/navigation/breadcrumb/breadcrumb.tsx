@@ -2,14 +2,14 @@ import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Icon } from '../../elements/icon/index.ts'
-import type { IconT } from '../../elements/icon/index.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { callRef } from '../../shared/utils.ts'
+import { Icon } from '../../elements/icon'
+import type { IconT } from '../../elements/icon'
+import { createComponentStyles } from '../../shared/provider'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { callRef } from '../../shared/utils'
 
-import type { BreadcrumbProps, BreadcrumbT } from './breadcrumb.types.ts'
+import type { BreadcrumbProps, BreadcrumbT } from './breadcrumb.types'
 
 /** Breadcrumb navigation trail with separator icons and optional wrapping. */
 export function Breadcrumb(props: BreadcrumbProps): JSX.Element {

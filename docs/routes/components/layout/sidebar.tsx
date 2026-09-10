@@ -2,7 +2,7 @@ import type { Accessor } from 'solid-js'
 import { For, Show, createMemo } from 'solid-js'
 
 import packageMetadata from '../../../../package.json' with { type: 'json' }
-import { Badge, Button, cn, List } from '../../../../src/index'
+import { Badge, Button, cn, List } from '../../../../src'
 import type { DocsPageEntry } from '../../docs-route'
 
 const { version } = packageMetadata

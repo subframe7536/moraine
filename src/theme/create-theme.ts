@@ -1,7 +1,7 @@
-import { slotRecipe } from '../shared/style/recipe.ts'
-import type { ComponentRecipeConfig, SlotRecipeFn } from '../shared/style/recipe.ts'
+import { slotRecipe } from '../shared/style/recipe'
+import type { ComponentRecipeConfig, SlotRecipeFn } from '../shared/style/recipe'
 
-import type { ComponentThemeEntry, CreateThemeOptions, MoraineTheme, ThemeName } from './types.ts'
+import type { ComponentThemeEntry, CreateThemeOptions, MoraineTheme, ThemeName } from './types'
 
 export function toThemeEntry<S extends object, V>(
   recipe: SlotRecipeFn<S, V>,

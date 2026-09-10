@@ -1,2 +1,2 @@
-export * from './breadcrumb.tsx'
-export * from './breadcrumb.types.ts'
+export * from './breadcrumb'
+export * from './breadcrumb.types'

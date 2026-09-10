@@ -7,15 +7,15 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index.ts'
-import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
-import { hasJsxContent } from '../../shared/jsx-content.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { ModalSurface } from '../modal/modal-content.tsx'
-import { useModalContext } from '../modal/modal-context.ts'
-import { Modal } from '../modal/modal.tsx'
+import { Icon } from '../../elements/icon'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
+import { hasJsxContent } from '../../shared/jsx-content'
+import { createComponentStyles } from '../../shared/provider'
+import { Modal } from '../modal/modal'
+import { ModalSurface } from '../modal/modal-content'
+import { useModalContext } from '../modal/modal-context'
 
-import type { DialogProps, DialogT } from './dialog.types.ts'
+import type { DialogProps, DialogT } from './dialog.types'
 
 /** Dialog state and context. Trigger, Content, and Close own their respective DOM. */
 export function Dialog(props: DialogProps): JSX.Element {
@@ -67,26 +67,6 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
   const resolved = createComponentStyles('dialog', local, { rootSlot: 'content' })
   const overlayScroll = () =>
     Boolean(resolved.variants.scrollable && merged.overlay && !resolved.variants.fullscreen)
-  const title = createLazyMemo(() => merged.title)
-  const description = createLazyMemo(() => merged.description)
-  const header = createLazyMemo(() => merged.header)
-  const body = createLazyMemo(() => {
-    const explicitBody = merged.body
-    return explicitBody === undefined ? resolveChildren(() => merged.children)() : explicitBody
-  })
-  const footer = createLazyMemo(() => merged.footer)
-  const closeIcon = createLazyMemo(() => merged.closeIcon)
-  const hasCustomHeader = createLazyMemo(() => hasJsxContent(header()))
-  const titleId = createLazyMemo(() =>
-    !hasCustomHeader() && hasJsxContent(title()) ? `${context.contentId()}-title` : undefined,
-  )
-  const descriptionId = createLazyMemo(() =>
-    !hasCustomHeader() && hasJsxContent(description())
-      ? `${context.contentId()}-description`
-      : undefined,
-  )
-  const hasHeader = () =>
-    hasCustomHeader() || hasJsxContent(title()) || hasJsxContent(description()) || merged.close
 
   return (
     <ModalSurface
@@ -96,71 +76,100 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
       overlayClass={resolved.slot('overlay').class}
       overlayStyle={resolved.slot('overlay').style}
       {...resolved.root}
-      ariaLabel={merged.ariaLabel}
-      ariaLabelledBy={titleId()}
-      ariaDescribedBy={descriptionId()}
-    >
-      {() => (
-        <>
-          <Show when={hasHeader()}>
-            <div data-slot="header" {...resolved.slot('header')}>
-              <Show
-                when={hasCustomHeader()}
-                fallback={
-                  <>
-                    <Show when={hasJsxContent(title()) || hasJsxContent(description())}>
-                      <div
-                        data-slot="wrapper"
-                        data-close={merged.close ? '' : undefined}
-                        {...resolved.slot('wrapper')}
-                      >
-                        <Show when={hasJsxContent(title())}>
-                          <h2 id={titleId()} data-slot="title" {...resolved.slot('title')}>
-                            {title()}
-                          </h2>
-                        </Show>
-                        <Show when={hasJsxContent(description())}>
-                          <p
-                            id={descriptionId()}
-                            data-slot="description"
-                            {...resolved.slot('description')}
+      surfaceRender={() => {
+        const title = createLazyMemo(() => merged.title)
+        const description = createLazyMemo(() => merged.description)
+        const header = createLazyMemo(() => merged.header)
+        const body = createLazyMemo(() => {
+          const explicitBody = merged.body
+          return explicitBody === undefined
+            ? resolveChildren(() => merged.children)()
+            : explicitBody
+        })
+        const footer = createLazyMemo(() => merged.footer)
+        const closeIcon = createLazyMemo(() => merged.closeIcon)
+        const hasCustomHeader = createLazyMemo(() => hasJsxContent(header()))
+        const titleId = createLazyMemo(() =>
+          !hasCustomHeader() && hasJsxContent(title()) ? `${context.contentId()}-title` : undefined,
+        )
+        const descriptionId = createLazyMemo(() =>
+          !hasCustomHeader() && hasJsxContent(description())
+            ? `${context.contentId()}-description`
+            : undefined,
+        )
+        const hasHeader = () =>
+          hasCustomHeader() ||
+          hasJsxContent(title()) ||
+          hasJsxContent(description()) ||
+          merged.close
+
+        return {
+          ariaLabel: merged.ariaLabel,
+          ariaLabelledBy: titleId(),
+          ariaDescribedBy: descriptionId(),
+          children: () => (
+            <>
+              <Show when={hasHeader()}>
+                <div data-slot="header" {...resolved.slot('header')}>
+                  <Show
+                    when={hasCustomHeader()}
+                    fallback={
+                      <>
+                        <Show when={hasJsxContent(title()) || hasJsxContent(description())}>
+                          <div
+                            data-slot="wrapper"
+                            data-close={merged.close ? '' : undefined}
+                            {...resolved.slot('wrapper')}
                           >
-                            {description()}
-                          </p>
+                            <Show when={hasJsxContent(title())}>
+                              <h2 id={titleId()} data-slot="title" {...resolved.slot('title')}>
+                                {title()}
+                              </h2>
+                            </Show>
+                            <Show when={hasJsxContent(description())}>
+                              <p
+                                id={descriptionId()}
+                                data-slot="description"
+                                {...resolved.slot('description')}
+                              >
+                                {description()}
+                              </p>
+                            </Show>
+                          </div>
                         </Show>
-                      </div>
-                    </Show>
-                    <Show when={merged.close}>
-                      <Modal.Close aria-label="Close" {...resolved.slot('close')}>
-                        <Icon name={closeIcon()} />
-                      </Modal.Close>
-                    </Show>
-                  </>
-                }
-              >
-                {header()}
+                        <Show when={merged.close}>
+                          <Modal.Close aria-label="Close" {...resolved.slot('close')}>
+                            <Icon name={closeIcon()} />
+                          </Modal.Close>
+                        </Show>
+                      </>
+                    }
+                  >
+                    {header()}
+                  </Show>
+                </div>
               </Show>
-            </div>
-          </Show>
-          <Show when={hasJsxContent(body())}>
-            <div
-              data-slot="body"
-              data-scroll={overlayScroll() ? undefined : ''}
-              data-header={hasHeader() ? '' : undefined}
-              data-footer={hasJsxContent(footer()) ? '' : undefined}
-              {...resolved.slot('body')}
-            >
-              {body()}
-            </div>
-          </Show>
-          <Show when={hasJsxContent(footer())}>
-            <div data-slot="footer" {...resolved.slot('footer')}>
-              {footer()}
-            </div>
-          </Show>
-        </>
-      )}
-    </ModalSurface>
+              <Show when={hasJsxContent(body())}>
+                <div
+                  data-slot="body"
+                  data-scroll={overlayScroll() ? undefined : ''}
+                  data-header={hasHeader() ? '' : undefined}
+                  data-footer={hasJsxContent(footer()) ? '' : undefined}
+                  {...resolved.slot('body')}
+                >
+                  {body()}
+                </div>
+              </Show>
+              <Show when={hasJsxContent(footer())}>
+                <div data-slot="footer" {...resolved.slot('footer')}>
+                  {footer()}
+                </div>
+              </Show>
+            </>
+          ),
+        }
+      }}
+    />
   )
 }
 

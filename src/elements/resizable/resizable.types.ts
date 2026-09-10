@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
-import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook/index.ts'
+import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook'
 
 export namespace ResizableT {
   export type Kind = 'composite'

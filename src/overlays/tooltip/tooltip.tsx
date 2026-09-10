@@ -11,21 +11,16 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { KbdGroup } from '../../elements/kbd/index.ts'
-import { createContextProvider } from '../../shared/create-context-provider.tsx'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useId } from '../../shared/utils.ts'
-import { resolveOverlayMenuSide } from '../base/index.ts'
-import {
-  createPopper,
-  PopperTrigger,
-  PopperContent,
-  mergePopperElementProps,
-} from '../base/popper.tsx'
-import type { PopperTriggerProps } from '../base/popper.types.ts'
+import { KbdGroup } from '../../elements/kbd'
+import { createContextProvider } from '../../shared/create-context-provider'
+import { createComponentStyles } from '../../shared/provider'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { useId } from '../../shared/utils'
+import { resolveOverlayMenuSide } from '../base'
+import { createPopper, PopperTrigger, PopperContent, mergePopperElementProps } from '../base/popper'
+import type { PopperTriggerProps } from '../base/popper.types'
 
-import type { TooltipProps, TooltipT } from './tooltip.types.ts'
+import type { TooltipProps, TooltipT } from './tooltip.types'
 
 interface TooltipTimers {
   close?: ReturnType<typeof setTimeout>

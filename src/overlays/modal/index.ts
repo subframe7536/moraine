@@ -1,2 +1,2 @@
-export * from './modal.tsx'
-export type { ModalProps, ModalT } from './modal.types.ts'
+export * from './modal'
+export type { ModalProps, ModalT } from './modal.types'

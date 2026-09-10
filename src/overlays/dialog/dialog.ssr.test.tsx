@@ -1,8 +1,8 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
-import { Button } from '../../elements/button/button.tsx'
-import { Icon } from '../../elements/icon/icon.tsx'
+import { Button } from '../../elements/button/button'
+import { Icon } from '../../elements/icon/icon'
 import { finishExitMotion } from '../../test-utils/overlay-test'
 import { hydrateFixture } from '../../test-utils/ssr-test'
 

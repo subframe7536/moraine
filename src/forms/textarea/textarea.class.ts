@@ -1,7 +1,7 @@
-import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { INPUT_VARIANT } from '../../shared/recipe-common.class'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { TextareaT } from './textarea.types.ts'
+import type { TextareaT } from './textarea.types'
 
 export const textareaRecipe = /* @__PURE__ */ slotRecipe<TextareaT.Slot, TextareaT.Variant>({
   base: {

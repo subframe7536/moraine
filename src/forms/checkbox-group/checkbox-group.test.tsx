@@ -3,12 +3,12 @@ import { createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { defaultTheme } from '../../theme/default-theme.ts'
-import { createForm } from '../form/index.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { defaultTheme } from '../../theme/default-theme'
+import { createForm } from '../form'
 
-import { CheckboxGroup } from './checkbox-group.tsx'
+import { CheckboxGroup } from './checkbox-group'
 
 function expectCheckboxChecked(element: Element, checked: boolean | 'mixed'): void {
   expect(element.getAttribute('aria-checked')).toBe(checked === 'mixed' ? 'mixed' : String(checked))

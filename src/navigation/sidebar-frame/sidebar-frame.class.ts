@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { SidebarFrameT } from './sidebar-frame.types.ts'
+import type { SidebarFrameT } from './sidebar-frame.types'
 
 export const sidebarFrameRecipe = /* @__PURE__ */ slotRecipe<
   SidebarFrameT.Slot,

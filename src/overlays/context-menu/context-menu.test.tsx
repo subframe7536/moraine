@@ -2,10 +2,10 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { expectNoPlacementMotion, finishMenuExitMotion } from '../../test-utils/overlay-test.ts'
-import { renderWithTheme } from '../../test-utils/theme-render.tsx'
+import { expectNoPlacementMotion, finishMenuExitMotion } from '../../test-utils/overlay-test'
+import { renderWithTheme } from '../../test-utils/theme-render'
 
-import { ContextMenu } from './context-menu.tsx'
+import { ContextMenu } from './context-menu'
 
 describe('ContextMenu', () => {
   test('renders a div trigger root by default', () => {

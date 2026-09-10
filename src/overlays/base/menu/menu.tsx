@@ -15,21 +15,21 @@ import {
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import { Icon } from '../../../elements/icon/index.ts'
-import { KbdGroup } from '../../../elements/kbd/index.ts'
-import { List } from '../../../elements/list/index.ts'
-import type { ListProps } from '../../../elements/list/index.ts'
-import { createLazyMemo } from '../../../shared/create-lazy-memo.ts'
-import { useCn } from '../../../shared/provider/cn-context.ts'
-import { renderComponentOrElement } from '../../../shared/render-prop.ts'
-import type { Cn } from '../../../shared/style/cn.ts'
-import type { ClassValue, ElementProps } from '../../../shared/types.ts'
-import { useControllableValue } from '../../../shared/use-controllable-value.ts'
-import { useEventListener } from '../../../shared/use-event-listener.ts'
-import { useTransitionPresence } from '../../../shared/use-transition-presence.ts'
-import { callHandler, useId } from '../../../shared/utils.ts'
-import { useFloatingPosition } from '../floating.ts'
-import { useOverlayInteraction } from '../interaction.ts'
+import { Icon } from '../../../elements/icon'
+import { KbdGroup } from '../../../elements/kbd'
+import { List } from '../../../elements/list'
+import type { ListProps } from '../../../elements/list'
+import { createLazyMemo } from '../../../shared/create-lazy-memo'
+import { useCn } from '../../../shared/provider/cn-context'
+import { renderComponentOrElement } from '../../../shared/render-prop'
+import type { Cn } from '../../../shared/style/cn'
+import type { ClassValue, ElementProps } from '../../../shared/types'
+import { useControllableValue } from '../../../shared/use-controllable-value'
+import { useEventListener } from '../../../shared/use-event-listener'
+import { useTransitionPresence } from '../../../shared/use-transition-presence'
+import { callHandler, useId } from '../../../shared/utils'
+import { useFloatingPosition } from '../floating'
+import { useOverlayInteraction } from '../interaction'
 import {
   acquireBodyScrollLock,
   focusTrigger,
@@ -37,7 +37,7 @@ import {
   getFocusableElements,
   resolveDirection,
   resolveOverlayMenuSide,
-} from '../utils.ts'
+} from '../utils'
 
 import {
   createPointerGraceIntent,
@@ -61,7 +61,7 @@ import type {
   OverlayMenuSharedItemRenderProps,
   OverlayMenuSharedProps,
   OverlayMenuSharedSlots,
-} from './types.ts'
+} from './types'
 
 interface OverlayMenuResolvedGroup<TItem> {
   label?: JSX.Element

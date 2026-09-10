@@ -1,8 +1,8 @@
 import type { JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
-import type { ButtonT } from './button.types.ts'
+import type { ButtonT } from './button.types'
 
 export namespace ButtonGroupT {
   export type Kind = 'single'

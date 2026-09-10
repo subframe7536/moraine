@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { ButtonT } from './button.types.ts'
+import type { ButtonT } from './button.types'
 
 export const buttonRecipe = /* @__PURE__ */ slotRecipe<ButtonT.Slot, ButtonT.Variant>({
   base: {

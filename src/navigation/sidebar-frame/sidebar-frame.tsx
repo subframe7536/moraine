@@ -11,14 +11,14 @@ import {
   untrack,
 } from 'solid-js'
 
-import { Sheet } from '../../overlays/sheet/index.ts'
-import { useCn } from '../../shared/provider/cn-context.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { createMediaQuery } from '../../shared/use-media-query.ts'
-import { callHandler } from '../../shared/utils.ts'
+import { Sheet } from '../../overlays/sheet'
+import { createComponentStyles } from '../../shared/provider'
+import { useCn } from '../../shared/provider/cn-context'
+import { createMediaQuery } from '../../shared/use-media-query'
+import { callHandler } from '../../shared/utils'
 
-import { SidebarFrameProvider, useSidebarFrameContext } from './sidebar-frame-context.ts'
-import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types.ts'
+import { SidebarFrameProvider, useSidebarFrameContext } from './sidebar-frame-context'
+import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types'
 
 function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
   const cn = useCn()

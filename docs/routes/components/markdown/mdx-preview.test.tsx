@@ -3,7 +3,7 @@ import { Suspense, createComponent } from 'solid-js'
 import type { Component } from 'solid-js'
 import { expect, test, vi } from 'vitest'
 
-import { DOCS_MDX_COMPONENTS } from './mdx-components.tsx'
+import { DOCS_MDX_COMPONENTS } from './mdx-components'
 
 vi.mock('./intro-components', () => ({ IntroComponents: () => null }))
 vi.mock('./markdown', () => ({ Markdown: () => null }))

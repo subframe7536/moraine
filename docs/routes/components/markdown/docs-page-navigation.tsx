@@ -1,6 +1,6 @@
 import { Show, createMemo } from 'solid-js'
 
-import { Button, cn } from '../../../../src/index'
+import { Button, cn } from '../../../../src'
 import { getDocsPages } from '../../docs-route'
 import type { DocsPageEntry } from '../../docs-route'
 

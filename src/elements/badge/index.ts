@@ -1,2 +1,2 @@
-export * from './badge.types.ts'
-export * from './badge.tsx'
+export * from './badge.types'
+export * from './badge'

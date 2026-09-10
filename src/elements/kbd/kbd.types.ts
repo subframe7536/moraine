@@ -1,4 +1,4 @@
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
 export const KBD_KEY_ALIASES = {
   alt: { text: 'Alt', label: 'Alt' },

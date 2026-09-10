@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider'
 
-import type { CardProps } from './card.types.ts'
+import type { CardProps } from './card.types'
 
 /** Structured content container with optional header, body, footer, and action slots. */
 export function Card(props: CardProps): JSX.Element {

@@ -1,2 +1,2 @@
-export * from './pagination.types.ts'
-export * from './pagination.tsx'
+export * from './pagination.types'
+export * from './pagination'

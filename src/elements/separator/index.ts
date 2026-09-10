@@ -1,2 +1,2 @@
-export * from './separator.types.ts'
-export * from './separator.tsx'
+export * from './separator.types'
+export * from './separator'

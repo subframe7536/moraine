@@ -2,10 +2,10 @@ import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-libra
 import { createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { defaultTheme } from '../../theme/default-theme'
 
-import { Switch } from './switch.tsx'
+import { Switch } from './switch'
 
 const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)

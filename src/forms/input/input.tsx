@@ -1,19 +1,19 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index.ts'
-import { Icon } from '../../elements/icon/index.ts'
-import type { ModelModifiers } from '../../shared/input-modifiers.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import { useFormField, useFormFieldContext } from '../form/form-context.ts'
-import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
-import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
-import { useTextControlValue } from '../shared/use-text-control-value.ts'
+import type { IconT } from '../../elements/icon'
+import { Icon } from '../../elements/icon'
+import type { ModelModifiers } from '../../shared/input-modifiers'
+import { createComponentStyles } from '../../shared/provider'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { callHandler, callRef, useId } from '../../shared/utils'
+import { useFormField, useFormFieldContext } from '../form/form-context'
+import { isInteractiveTarget } from '../shared/is-interactive-target'
+import { mergeAriaTokens } from '../shared/merge-aria-tokens'
+import { useFormReset } from '../shared/use-form-reset'
+import { useTextControlValue } from '../shared/use-text-control-value'
 
-import type { InputProps, InputT } from './input.types.ts'
+import type { InputProps, InputT } from './input.types'
 
 /** Text input component with leading/trailing icon slots, loading state, and form field integration. */
 export function Input<M extends ModelModifiers | undefined = ModelModifiers | undefined>(

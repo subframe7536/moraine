@@ -1,8 +1,8 @@
 import { createMemo, createRoot, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import type { ComponentRecipeConfig } from './recipe.ts'
-import { atomicRecipe, slotRecipe } from './recipe.ts'
+import type { ComponentRecipeConfig } from './recipe'
+import { atomicRecipe, slotRecipe } from './recipe'
 
 interface RootSlot {
   root?: unknown
@@ -343,7 +343,7 @@ test('matches sparse compound-only keys and preserves false, zero, empty string,
 })
 
 test('resolves base, variant, compound, and extra classes with an explicit merger', async () => {
-  const { cn, createCn } = await import('./cn.ts')
+  const { cn, createCn } = await import('./cn')
   const customCn = createCn({ override: { classGroups: { p: [] } } })
   const atomic = atomicRecipe({
     base: 'p-2',

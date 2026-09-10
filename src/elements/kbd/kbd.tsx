@@ -1,10 +1,10 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider'
 
-import { KBD_KEY_ALIASES } from './kbd.types.ts'
-import type { KbdProps, KbdT } from './kbd.types.ts'
+import { KBD_KEY_ALIASES } from './kbd.types'
+import type { KbdProps, KbdT } from './kbd.types'
 
 /** Keyboard keycap component with configurable size, variant, and accessible label. */
 export function Kbd(props: KbdProps): JSX.Element {

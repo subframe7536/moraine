@@ -1,16 +1,16 @@
 import type { Component, JSX } from 'solid-js'
 import { For, Show, createEffect, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index.ts'
-import { List } from '../../elements/list/index.ts'
-import type { ListProps, ListT } from '../../elements/list/index.ts'
-import { useCn } from '../../shared/provider/cn-context.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
+import { Icon } from '../../elements/icon'
+import { List } from '../../elements/list'
+import type { ListProps, ListT } from '../../elements/list'
+import { createComponentStyles } from '../../shared/provider'
+import { useCn } from '../../shared/provider/cn-context'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
+import { callHandler, callRef, useId } from '../../shared/utils'
 
-import type { CommandPaletteProps, CommandPaletteT } from './command-palette.types.ts'
+import type { CommandPaletteProps, CommandPaletteT } from './command-palette.types'
 
 interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
   key: string

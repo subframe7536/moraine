@@ -1,8 +1,8 @@
 import type { Accessor } from 'solid-js'
 import { createContext, useContext } from 'solid-js'
 
-import type { Cn } from '../style/cn.ts'
-import { cn } from '../style/cn.ts'
+import type { Cn } from '../style/cn'
+import { cn } from '../style/cn'
 
 export const MoraineCnContext = createContext<Accessor<Cn>>(() => cn)
 

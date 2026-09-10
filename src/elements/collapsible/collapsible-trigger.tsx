@@ -2,12 +2,12 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
-import { callRef } from '../../shared/utils.ts'
+import { createComponentStyles } from '../../shared/provider'
+import { useButtonInteraction } from '../../shared/use-button-interaction'
+import { callRef } from '../../shared/utils'
 
-import { useCollapsibleContext } from './collapsible-context.ts'
-import type { CollapsibleT } from './collapsible.types.ts'
+import { useCollapsibleContext } from './collapsible-context'
+import type { CollapsibleT } from './collapsible.types'
 
 type CollapsibleTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[T]

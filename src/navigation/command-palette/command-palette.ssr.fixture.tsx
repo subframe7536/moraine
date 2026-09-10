@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { CommandPalette } from './command-palette.tsx'
+import { CommandPalette } from './command-palette'
 
 export function renderCommandPaletteFixture(): string {
   return renderToString(() => (

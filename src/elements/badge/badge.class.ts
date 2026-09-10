@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { BadgeT } from './badge.types.ts'
+import type { BadgeT } from './badge.types'
 
 export const badgeRecipe = /* @__PURE__ */ slotRecipe<BadgeT.Slot, BadgeT.Variant>({
   base: {

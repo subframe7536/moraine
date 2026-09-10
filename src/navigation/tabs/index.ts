@@ -1,2 +1,2 @@
-export * from './tabs.tsx'
-export type { TabsProps, TabsT } from './tabs.types.ts'
+export * from './tabs'
+export type { TabsProps, TabsT } from './tabs.types'

@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { PopoverT } from './popover.types.ts'
+import type { PopoverT } from './popover.types'
 
 export const popoverRecipe = /* @__PURE__ */ slotRecipe<PopoverT.Slot, PopoverT.Variant>({
   base: {

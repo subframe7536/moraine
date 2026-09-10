@@ -1,8 +1,8 @@
 import type { JSX, ValidComponent } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import type { IconT } from '../icon/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { IconT } from '../icon'
 
 type IsUnion<T, U = T> = T extends unknown ? ([U] extends [T] ? false : true) : never
 

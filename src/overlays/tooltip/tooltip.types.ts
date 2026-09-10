@@ -1,8 +1,8 @@
 import type { JSX, ValidComponent } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import type { PopperContentOptions, PopperPlacement, PopperProps } from '../base/popper.types.ts'
-import type { ModalT } from '../modal/modal.types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { PopperContentOptions, PopperPlacement, PopperProps } from '../base/popper.types'
+import type { ModalT } from '../modal/modal.types'
 
 export namespace TooltipT {
   export type Kind = 'composite'

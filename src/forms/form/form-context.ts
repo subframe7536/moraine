@@ -2,7 +2,7 @@ import type { FieldStore, RequiredPath } from '@formisch/solid'
 import type { Accessor, JSX } from 'solid-js'
 import { createEffect, createMemo, onCleanup, onMount } from 'solid-js'
 
-import { createContextProvider } from '../../shared/create-context-provider.tsx'
+import { createContextProvider } from '../../shared/create-context-provider'
 
 export interface FormFieldRuntimeState {
   touched: boolean

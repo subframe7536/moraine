@@ -1,13 +1,13 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import { createComponentStyles } from '../../shared/provider'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
 
-import type { KbdGroupProps, KbdGroupT } from './kbd-group.types.ts'
-import { Kbd } from './kbd.tsx'
-import type { KbdT } from './kbd.types.ts'
+import { Kbd } from './kbd'
+import type { KbdGroupProps, KbdGroupT } from './kbd-group.types'
+import type { KbdT } from './kbd.types'
 
 function resolveDivider(
   dividerRender: ComponentOrElement<KbdGroupT.DividerRenderProps>,

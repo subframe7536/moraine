@@ -4,15 +4,15 @@ import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from '../../elements/button/index.ts'
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { createTheme } from '../../theme.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
-import { Input } from '../input/index.ts'
-import { Switch } from '../switch/index.ts'
+import { Button } from '../../elements/button'
+import { MoraineProvider } from '../../shared/provider'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { createTheme } from '../../theme'
+import { defaultTheme } from '../../theme/default-theme'
+import { Input } from '../input'
+import { Switch } from '../switch'
 
-import { createForm } from './index.ts'
+import { createForm } from './'
 
 const Schema = v.object({
   email: v.pipe(v.string(), v.email('Enter a valid email.')),

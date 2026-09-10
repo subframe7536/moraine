@@ -1,17 +1,17 @@
 import type { JSX } from 'solid-js'
 import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index.ts'
-import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { useCn } from '../../shared/provider/cn-context.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import { useFormField, useFormFieldContext } from '../form/form-context.ts'
-import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
+import { Icon } from '../../elements/icon'
+import { HiddenInput } from '../../shared/hidden-input'
+import { createComponentStyles } from '../../shared/provider'
+import { useCn } from '../../shared/provider/cn-context'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { callHandler, callRef, useId } from '../../shared/utils'
+import { useFormField, useFormFieldContext } from '../form/form-context'
+import { isInteractiveTarget } from '../shared/is-interactive-target'
+import { useFormReset } from '../shared/use-form-reset'
 
-import type { CheckboxProps } from './checkbox.types.ts'
+import type { CheckboxProps } from './checkbox.types'
 
 /** Single checkbox control with card and list variants and custom true/false values. */
 export function Checkbox<TTrue = boolean, TFalse = boolean>(

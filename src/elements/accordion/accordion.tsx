@@ -11,15 +11,15 @@ import {
   untrack,
 } from 'solid-js'
 
-import { useCn } from '../../shared/provider/cn-context.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useDisclosureState } from '../../shared/use-disclosure-state.ts'
-import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { callRef, useId } from '../../shared/utils.ts'
-import { Icon } from '../icon/index.ts'
+import { createComponentStyles } from '../../shared/provider'
+import { useCn } from '../../shared/provider/cn-context'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { useDisclosureState } from '../../shared/use-disclosure-state'
+import { useTransitionPresence } from '../../shared/use-transition-presence'
+import { callRef, useId } from '../../shared/utils'
+import { Icon } from '../icon'
 
-import type { AccordionProps } from './accordion.types.ts'
+import type { AccordionProps } from './accordion.types'
 
 /** Stacked disclosure component with single or multiple expanded sections. */
 export function Accordion(props: AccordionProps): JSX.Element {

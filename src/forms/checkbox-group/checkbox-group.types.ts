@@ -1,14 +1,14 @@
 import type { JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import type { CheckboxProps } from '../checkbox/index.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { CheckboxProps } from '../checkbox'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options.ts'
+} from '../shared/form-options'
 
 export namespace CheckboxGroupT {
   export type Kind = 'single'

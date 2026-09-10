@@ -1,10 +1,10 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import { createComponentStyles } from '../../shared/provider'
+import { renderComponentOrElement } from '../../shared/render-prop'
 
-import type { ProgressProps, ProgressT } from './progress.types.ts'
+import type { ProgressProps, ProgressT } from './progress.types'
 
 function resolveMaxValue(max: ProgressProps['max']): number {
   if (Array.isArray(max)) {

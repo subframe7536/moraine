@@ -1,10 +1,10 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { Icon } from '../icon/index.ts'
+import { createComponentStyles } from '../../shared/provider'
+import { Icon } from '../icon'
 
-import type { BadgeProps } from './badge.types.ts'
+import type { BadgeProps } from './badge.types'
 
 /** Compact label component with leading/trailing icon slots and variant styles. */
 export function Badge(props: BadgeProps): JSX.Element {

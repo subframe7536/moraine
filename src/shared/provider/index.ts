@@ -1,3 +1,3 @@
-export * from './moraine-provider.tsx'
-export { createComponentStyles } from './create-component-styles.ts'
-export { useCn } from './cn-context.ts'
+export * from './moraine-provider'
+export { createComponentStyles } from './create-component-styles'
+export { useCn } from './cn-context'

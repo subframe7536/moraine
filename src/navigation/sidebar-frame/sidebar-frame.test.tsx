@@ -2,10 +2,10 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { renderWithTheme } from '../../test-utils/theme-render.tsx'
+import { renderWithTheme } from '../../test-utils/theme-render'
 
-import { useSidebarFrame } from './sidebar-frame-context.ts'
-import { SidebarFrame } from './sidebar-frame.tsx'
+import { SidebarFrame } from './sidebar-frame'
+import { useSidebarFrame } from './sidebar-frame-context'
 
 const originalMatchMedia = window.matchMedia
 

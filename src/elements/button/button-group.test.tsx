@@ -2,13 +2,13 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { DropdownMenu } from '../../overlays/dropdown-menu/index.ts'
-import { Popover } from '../../overlays/popover/index.ts'
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { DropdownMenu } from '../../overlays/dropdown-menu'
+import { Popover } from '../../overlays/popover'
+import { MoraineProvider } from '../../shared/provider'
+import { defaultTheme } from '../../theme/default-theme'
 
-import { ButtonGroup } from './button-group.tsx'
-import { Button } from './button.tsx'
+import { Button } from './button'
+import { ButtonGroup } from './button-group'
 
 describe('ButtonGroup', () => {
   test('renders unstyled when provider is absent', () => {

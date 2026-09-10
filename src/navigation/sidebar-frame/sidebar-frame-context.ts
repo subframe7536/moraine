@@ -1,9 +1,9 @@
 import type { Accessor } from 'solid-js'
 
-import { createContextProvider } from '../../shared/create-context-provider.tsx'
-import type { createComponentStyles } from '../../shared/provider/index.ts'
+import { createContextProvider } from '../../shared/create-context-provider'
+import type { createComponentStyles } from '../../shared/provider'
 
-import type { SidebarFrameT } from './sidebar-frame.types.ts'
+import type { SidebarFrameT } from './sidebar-frame.types'
 
 export interface SidebarFrameContext extends SidebarFrameT.Context {
   resolved: ReturnType<typeof createComponentStyles<'sidebarFrame'>>

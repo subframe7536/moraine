@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { FormFieldT } from './form-field.types.ts'
+import type { FormFieldT } from './form-field.types'
 
 export const formFieldRecipe = /* @__PURE__ */ slotRecipe<FormFieldT.Slot, FormFieldT.Variant>({
   base: {

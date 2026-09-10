@@ -13,8 +13,8 @@ import {
   Switch,
   cn,
   useSidebarFrame,
-} from '../../src/index.ts'
-import { defaultTheme } from '../../src/theme.ts'
+} from '../../src'
+import { defaultTheme } from '../../src/theme'
 
 import { DocsCommandPalette } from './components/layout/docs-command-palette'
 import { Sidebar, SidebarHeader } from './components/layout/sidebar'

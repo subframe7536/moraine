@@ -1,2 +1,2 @@
-export * from './progress.types.ts'
-export * from './progress.tsx'
+export * from './progress.types'
+export * from './progress'

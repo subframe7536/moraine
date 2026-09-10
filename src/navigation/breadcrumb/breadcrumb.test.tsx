@@ -4,11 +4,11 @@ import type { JSX } from 'solid-js'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { defaultTheme } from '../../theme/default-theme'
 
-import { Breadcrumb } from './breadcrumb.tsx'
-import type { BreadcrumbT } from './breadcrumb.types.ts'
+import { Breadcrumb } from './breadcrumb'
+import type { BreadcrumbT } from './breadcrumb.types'
 
 function renderWithTheme(ui: () => JSX.Element) {
   return render(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>)

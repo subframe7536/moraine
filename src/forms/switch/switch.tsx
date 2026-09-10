@@ -1,17 +1,17 @@
 import type { JSX, Ref } from 'solid-js'
 import { Show, createEffect, createMemo, mergeProps, splitProps, untrack } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index.ts'
-import { Icon } from '../../elements/icon/index.ts'
-import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import { useFormField, useFormFieldContext } from '../form/form-context.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
+import type { IconT } from '../../elements/icon'
+import { Icon } from '../../elements/icon'
+import { HiddenInput } from '../../shared/hidden-input'
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
+import { createComponentStyles } from '../../shared/provider'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { callHandler, callRef, useId } from '../../shared/utils'
+import { useFormField, useFormFieldContext } from '../form/form-context'
+import { useFormReset } from '../shared/use-form-reset'
 
-import type { SwitchProps } from './switch.types.ts'
+import type { SwitchProps } from './switch.types'
 
 /** Toggle switch control with icon slots and loading state. */
 export function Switch<TTrue = boolean, TFalse = boolean>(

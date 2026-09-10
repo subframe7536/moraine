@@ -2,8 +2,8 @@ import { useNavigate } from '@solidjs/router'
 import type { Accessor, JSX } from 'solid-js'
 import { Show, createMemo, createSignal, onCleanup, onMount, splitProps } from 'solid-js'
 
-import { Button, CommandPalette, Dialog, Icon, KbdGroup } from '../../../../src/index'
-import type { CommandPaletteT, DialogT } from '../../../../src/index'
+import { Button, CommandPalette, Dialog, Icon, KbdGroup } from '../../../../src'
+import type { CommandPaletteT, DialogT } from '../../../../src'
 
 import type { SidebarPage } from './sidebar'
 

@@ -1,7 +1,7 @@
 import type { JSX, ValidComponent } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue } from '../../shared/types.ts'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, SlotClassValue } from '../../shared/types'
 
 export namespace ModalT {
   export type Kind = 'composite'

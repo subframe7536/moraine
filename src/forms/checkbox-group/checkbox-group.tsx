@@ -10,14 +10,14 @@ import {
   untrack,
 } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { useId } from '../../shared/utils.ts'
-import type { CheckboxProps } from '../checkbox/checkbox.types.ts'
-import { Checkbox } from '../checkbox/index.ts'
-import { useFormField, useFormFieldContext } from '../form/form-context.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
+import { createComponentStyles } from '../../shared/provider'
+import { useId } from '../../shared/utils'
+import { Checkbox } from '../checkbox'
+import type { CheckboxProps } from '../checkbox/checkbox.types'
+import { useFormField, useFormFieldContext } from '../form/form-context'
+import { useFormReset } from '../shared/use-form-reset'
 
-import type { CheckboxGroupProps, CheckboxGroupT } from './checkbox-group.types.ts'
+import type { CheckboxGroupProps, CheckboxGroupT } from './checkbox-group.types'
 
 interface NormalizedCheckboxGroupItem<TTrue = boolean, TFalse = boolean> {
   value: string

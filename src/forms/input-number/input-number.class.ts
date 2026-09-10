@@ -1,7 +1,7 @@
-import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { INPUT_VARIANT } from '../../shared/recipe-common.class'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { InputNumberT } from './input-number.types.ts'
+import type { InputNumberT } from './input-number.types'
 
 export const inputNumberRecipe = /* @__PURE__ */ slotRecipe<
   InputNumberT.Slot,

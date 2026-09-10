@@ -2,10 +2,10 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { defaultTheme } from '../../theme/default-theme'
 
-import { Stepper } from './stepper.tsx'
+import { Stepper } from './stepper'
 
 test('reads JSX fields once and delays the inactive panel', () => {
   const reads = { title: 0, description: 0, content: 0 }

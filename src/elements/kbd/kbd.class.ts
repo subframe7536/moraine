@@ -1,7 +1,7 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { KbdGroupT } from './kbd-group.types.ts'
-import type { KbdT } from './kbd.types.ts'
+import type { KbdGroupT } from './kbd-group.types'
+import type { KbdT } from './kbd.types'
 
 export const kbdRecipe = /* @__PURE__ */ slotRecipe<KbdT.Slot, KbdT.Variant>({
   base: {

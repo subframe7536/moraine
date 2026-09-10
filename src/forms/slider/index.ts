@@ -1,3 +1,3 @@
-export * from './slider.tsx'
-export * from './hook/index.ts'
-export * from './slider.types.ts'
+export * from './slider'
+export * from './hook'
+export * from './slider.types'

@@ -2,11 +2,11 @@ import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { createTheme } from '../../theme.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { createTheme } from '../../theme'
+import { defaultTheme } from '../../theme/default-theme'
 
-import { Separator } from './separator.tsx'
+import { Separator } from './separator'
 
 describe('Separator', () => {
   test('renders unstyled when provider is absent', () => {

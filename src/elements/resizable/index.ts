@@ -1,2 +1,2 @@
-export * from './resizable.types.ts'
-export * from './resizable.tsx'
+export * from './resizable.types'
+export * from './resizable'

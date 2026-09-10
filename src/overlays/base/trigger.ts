@@ -2,7 +2,7 @@ import type { Accessor } from 'solid-js'
 import { createSignal, mergeProps, onCleanup } from 'solid-js'
 
 import type { ElementProps, SlotStyleValue } from '../../shared/types'
-import { callHandler, callRef } from '../../shared/utils.ts'
+import { callHandler, callRef } from '../../shared/utils'
 
 /** Props that an overlay render prop must forward to its trigger root. */
 export type OverlayTriggerProps = Omit<

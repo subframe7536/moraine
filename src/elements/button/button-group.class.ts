@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { ButtonGroupT } from './button-group.types.ts'
+import type { ButtonGroupT } from './button-group.types'
 
 export const buttonGroupRecipe = /* @__PURE__ */ slotRecipe<
   ButtonGroupT.Slot,

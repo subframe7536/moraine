@@ -1,10 +1,10 @@
 import { waitFor } from '@solidjs/testing-library'
 import { afterEach, expect, test, vi } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { useSidebarFrame } from './sidebar-frame-context.ts'
-import { SidebarFrame } from './sidebar-frame.tsx'
+import { SidebarFrame } from './sidebar-frame'
+import { useSidebarFrame } from './sidebar-frame-context'
 
 function FixtureContent() {
   const frame = useSidebarFrame()

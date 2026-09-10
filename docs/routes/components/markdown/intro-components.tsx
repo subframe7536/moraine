@@ -1,7 +1,7 @@
 import { For, createSignal } from 'solid-js'
 import apiIndex from 'virtual:api-doc'
 
-import { Badge, Button, Checkbox, Dialog, Tabs } from '../../../../src/index'
+import { Badge, Button, Checkbox, Dialog, Tabs } from '../../../../src'
 
 const COMPONENT_CATEGORY_LABELS = new Map<string, string>([
   ['elements', 'Elements'],

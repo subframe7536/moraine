@@ -1,2 +1,2 @@
-export * from './list.types.ts'
-export * from './list.tsx'
+export * from './list.types'
+export * from './list'

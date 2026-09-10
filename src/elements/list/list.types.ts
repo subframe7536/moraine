@@ -1,11 +1,11 @@
 import type { Component, ValidComponent } from 'solid-js'
 
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps } from '../../shared/types.ts'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps } from '../../shared/types'
 import type {
   RowProps as BaseRowProps,
   VirtualRenderProps as BaseVirtualRenderProps,
-} from '../../shared/use-list-virtualizer.tsx'
+} from '../../shared/use-list-virtualizer'
 
 export namespace ListT {
   export type Kind = 'single'

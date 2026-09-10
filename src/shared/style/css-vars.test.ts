@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { defineStyleVars, formatCssVars } from './css-vars.ts'
+import { defineStyleVars, formatCssVars } from './css-vars'
 
 describe('formatCssVars', () => {
   test('prefixes keys with -- and handles custom prefix', () => {

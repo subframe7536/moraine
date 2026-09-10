@@ -1,9 +1,9 @@
 import type { Component, JSX, Ref } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index.ts'
-import type { ListT } from '../../elements/list/index.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { IconT } from '../../elements/icon'
+import type { ListT } from '../../elements/list'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
 export namespace CommandPaletteT {
   export type Kind = 'single'

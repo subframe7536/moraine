@@ -7,11 +7,11 @@ import {
 import type { JSX, ValidComponent } from 'solid-js'
 import { createComponent, mergeProps, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { callHandler } from '../../shared/utils.ts'
+import { createComponentStyles } from '../../shared/provider'
+import { callHandler } from '../../shared/utils'
 
-import { FormField } from './form-field.tsx'
-import type { FormProps, FormT } from './form.types.ts'
+import { FormField } from './form-field'
+import type { FormProps, FormT } from './form.types'
 
 interface InternalFormProps<TSchema extends FormSchema> extends FormProps<TSchema> {
   of: FormStore<TSchema>

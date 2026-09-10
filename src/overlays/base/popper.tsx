@@ -12,30 +12,30 @@ import {
 } from 'solid-js'
 import { Dynamic, Portal } from 'solid-js/web'
 
-import { useCn } from '../../shared/provider/cn-context.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
+import { useCn } from '../../shared/provider/cn-context'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { useButtonInteraction } from '../../shared/use-button-interaction'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { useTransitionPresence } from '../../shared/use-transition-presence'
+import { callHandler, callRef, useId } from '../../shared/utils'
 
-import { useFloatingPosition } from './floating.ts'
-import { useOverlayInteraction } from './interaction.ts'
+import { useFloatingPosition } from './floating'
+import { useOverlayInteraction } from './interaction'
 import type {
   PopperProps,
   PopperContentAttributes,
   PopperContentProps,
   PopperInteractOutsideEvent,
   PopperTriggerProps,
-} from './popper.types.ts'
+} from './popper.types'
 import {
   acquireAriaHideOutside,
   acquireBodyScrollLock,
   focusContent,
   focusTrigger,
   trapFocusInContainer,
-} from './utils.ts'
-export type * from './popper.types.ts'
+} from './utils'
+export type * from './popper.types'
 
 let popperTestPlacementAccessor: Accessor<string> | undefined
 

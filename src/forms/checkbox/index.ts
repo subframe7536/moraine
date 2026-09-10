@@ -1,2 +1,2 @@
-export * from './checkbox.types.ts'
-export * from './checkbox.tsx'
+export * from './checkbox.types'
+export * from './checkbox'

@@ -11,17 +11,17 @@ import {
   splitProps,
 } from 'solid-js'
 
-import type { ModelModifiers } from '../../shared/input-modifiers.ts'
-import { hasNonEmptyJsxContent } from '../../shared/jsx-content.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import { useFormField, useFormFieldContext } from '../form/form-context.ts'
-import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
-import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
-import { useTextControlValue } from '../shared/use-text-control-value.ts'
+import type { ModelModifiers } from '../../shared/input-modifiers'
+import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
+import { createComponentStyles } from '../../shared/provider'
+import { callHandler, callRef, useId } from '../../shared/utils'
+import { useFormField, useFormFieldContext } from '../form/form-context'
+import { isInteractiveTarget } from '../shared/is-interactive-target'
+import { mergeAriaTokens } from '../shared/merge-aria-tokens'
+import { useFormReset } from '../shared/use-form-reset'
+import { useTextControlValue } from '../shared/use-text-control-value'
 
-import type { TextareaProps, TextareaT } from './textarea.types.ts'
+import type { TextareaProps, TextareaT } from './textarea.types'
 
 // --- Autosize helpers ---
 function getVerticalPadding(styles: CSSStyleDeclaration): number {

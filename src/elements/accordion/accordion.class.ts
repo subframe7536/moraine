@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { AccordionT } from './accordion.types.ts'
+import type { AccordionT } from './accordion.types'
 
 export const accordionRecipe = /* @__PURE__ */ slotRecipe<AccordionT.Slot, AccordionT.Variant>({
   base: {

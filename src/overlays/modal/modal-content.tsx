@@ -2,15 +2,23 @@ import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, onCleanup, splitProps } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
-import { useCn } from '../../shared/provider/cn-context.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { callHandler, callRef } from '../../shared/utils.ts'
-import { trapFocusInContainer } from '../base/utils.ts'
+import { createComponentStyles } from '../../shared/provider'
+import { useCn } from '../../shared/provider/cn-context'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { callHandler, callRef } from '../../shared/utils'
+import { trapFocusInContainer } from '../base/utils'
 
-import { useModalContext } from './modal-context.ts'
-import type { ModalT } from './modal.types.ts'
+import { useModalContext } from './modal-context'
+import type { ModalT } from './modal.types'
+
+type SurfaceContent = Pick<
+  ModalT.ContentBase,
+  'ariaDescribedBy' | 'ariaLabel' | 'ariaLabelledBy' | 'children'
+>
+type ModalSurfaceProps = Omit<ModalT.ContentProps, 'children'> & {
+  children?: ModalT.ContentBase['children']
+  surfaceRender?: () => SurfaceContent
+}
 
 /** Standalone Modal presentation; composed overlays use the same unstyled surface. */
 export function ModalContent(props: ModalT.ContentProps): JSX.Element {
@@ -36,9 +44,10 @@ export function ModalContent(props: ModalT.ContentProps): JSX.Element {
 }
 
 /** Shared modal DOM, presence, and focus behavior without a default visual layer. */
-export function ModalSurface(props: ModalT.ContentProps): JSX.Element {
+export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
   const cn = useCn()
   type RuntimeProps = ModalT.ContentBase & {
+    surfaceRender?: () => SurfaceContent
     class?: ModalT.Classes['content']
     style?: JSX.CSSProperties
     classes?: Partial<ModalT.Classes>
@@ -63,9 +72,9 @@ export function ModalSurface(props: ModalT.ContentProps): JSX.Element {
     'classes',
     'styles',
     'onKeyDown',
+    'surfaceRender',
   ])
   const context = useModalContext()
-  const children = createLazyMemo(() => local.children)
   const overlayScroll = createMemo(() => Boolean(local.overlayScroll && local.overlay))
   const renderOutsideOverlay = createMemo(() => !overlayScroll())
   const hasOverlay = createMemo(() => Boolean(props.overlay))
@@ -101,56 +110,63 @@ export function ModalSurface(props: ModalT.ContentProps): JSX.Element {
     </div>
   )
 
-  const renderContent = (): JSX.Element => (
-    <div
-      {...rest}
-      {...presence.dataAttrs()}
-      ref={(element) => {
-        const unregister = presence.registerElement(element)
-        context.setContentElement(element)
-        callRef(local.ref, element)
-        onCleanup(() => {
-          unregister()
-          if (context.contentElement() === element) {
-            context.setContentElement(undefined)
-            callRef(local.ref, undefined)
-          }
-        })
-      }}
-      id={context.contentId()}
-      role="dialog"
-      aria-modal="true"
-      aria-label={local.ariaLabel}
-      aria-labelledby={local.ariaLabelledBy}
-      aria-describedby={local.ariaDescribedBy}
-      tabIndex={-1}
-      data-slot="content"
-      class={cn(local.classes?.content, local.class)}
-      style={{ ...local.styles?.content, ...local.style }}
-      onKeyDown={onContentKeyDown}
-    >
-      {(() => {
-        const body = resolveChildren(() => children() as JSX.Element)
-        return renderComponentOrElement(body() as ModalT.ContentBase['children'], {
+  const renderContent = (surface?: SurfaceContent): JSX.Element => {
+    const body = resolveChildren(() => (surface?.children ?? local.children) as JSX.Element)
+
+    return (
+      <div
+        {...rest}
+        {...presence.dataAttrs()}
+        ref={(element) => {
+          const unregister = presence.registerElement(element)
+          context.setContentElement(element)
+          callRef(local.ref, element)
+          onCleanup(() => {
+            unregister()
+            if (context.contentElement() === element) {
+              context.setContentElement(undefined)
+              callRef(local.ref, undefined)
+            }
+          })
+        }}
+        id={context.contentId()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={surface?.ariaLabel ?? local.ariaLabel}
+        aria-labelledby={surface?.ariaLabelledBy ?? local.ariaLabelledBy}
+        aria-describedby={surface?.ariaDescribedBy ?? local.ariaDescribedBy}
+        tabIndex={-1}
+        data-slot="content"
+        class={cn(local.classes?.content, local.class)}
+        style={{ ...local.styles?.content, ...local.style }}
+        onKeyDown={onContentKeyDown}
+      >
+        {renderComponentOrElement(body() as ModalT.ContentBase['children'], {
           close: () => context.updateOpen(false),
-        })
-      })()}
-    </div>
-  )
+        })}
+      </div>
+    )
+  }
 
   return (
     <Show when={presence.present()}>
-      <Portal>
-        <Show when={overlayScroll()}>{(_value) => renderOverlay(renderContent())}</Show>
-        <Show when={renderOutsideOverlay()}>
-          {(_value) => (
-            <>
-              <Show when={hasOverlay()}>{(_value) => renderOverlay()}</Show>
-              {renderContent()}
-            </>
-          )}
-        </Show>
-      </Portal>
+      {(_present) => {
+        const surface = local.surfaceRender?.()
+
+        return (
+          <Portal>
+            <Show when={overlayScroll()}>{(_value) => renderOverlay(renderContent(surface))}</Show>
+            <Show when={renderOutsideOverlay()}>
+              {(_value) => (
+                <>
+                  <Show when={hasOverlay()}>{(_value) => renderOverlay()}</Show>
+                  {renderContent(surface)}
+                </>
+              )}
+            </Show>
+          </Portal>
+        )
+      }}
     </Show>
   )
 }

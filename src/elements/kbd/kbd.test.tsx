@@ -2,12 +2,12 @@ import { render, screen } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { createTheme } from '../../theme.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { createTheme } from '../../theme'
+import { defaultTheme } from '../../theme/default-theme'
 
-import { KbdGroup } from './kbd-group.tsx'
-import { Kbd } from './kbd.tsx'
+import { Kbd } from './kbd'
+import { KbdGroup } from './kbd-group'
 
 describe('Kbd', () => {
   test('renders unstyled when provider is absent', () => {

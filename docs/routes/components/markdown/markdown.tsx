@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createMemo, createSignal, onMount, Show, untrack } from 'solid-js'
 
-import { Button } from '../../../../src/index'
+import { Button } from '../../../../src'
 import type { ComponentDoc } from '../../../build/api-doc/types'
 import type { DocsRouteMetadata, FrontmatterData } from '../../../build/markdown/types'
 import type { OnThisPageEntry } from '../../hooks/use-table-of-contents'

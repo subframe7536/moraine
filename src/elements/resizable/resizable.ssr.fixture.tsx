@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Resizable } from './resizable.tsx'
+import { Resizable } from './resizable'
 
 export function renderResizableFixture(): string {
   return renderToString(() => (

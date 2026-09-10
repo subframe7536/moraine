@@ -1,2 +1,2 @@
-export * from './accordion.types.ts'
-export * from './accordion.tsx'
+export * from './accordion.types'
+export * from './accordion'

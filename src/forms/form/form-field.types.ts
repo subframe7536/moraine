@@ -2,8 +2,8 @@ import type { FormSchema, FormStore, RequiredPath } from '@formisch/solid'
 import type { JSX, ValidComponent } from 'solid-js'
 import type { InferInput } from 'valibot'
 
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
 export namespace FormFieldT {
   export type Kind = 'single'

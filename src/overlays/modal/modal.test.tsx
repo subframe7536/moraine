@@ -1,17 +1,18 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { Show, createComponent, createSignal } from 'solid-js'
+import { Show, createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { Button } from '../../elements/button/index.ts'
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithTheme } from '../../test-utils/theme-render.tsx'
-import { createTheme } from '../../theme.ts'
-import { pushOverlayLayer } from '../base/overlay-stack.ts'
-import { getFocusableElements } from '../base/utils.ts'
-import { Dialog } from '../dialog/dialog.tsx'
-import { Sheet } from '../sheet/sheet.tsx'
+import { Button } from '../../elements/button'
+import { MoraineProvider } from '../../shared/provider'
+import { finishExitMotion } from '../../test-utils/overlay-test'
+import { renderWithTheme } from '../../test-utils/theme-render'
+import { createTheme } from '../../theme'
+import { pushOverlayLayer } from '../base/overlay-stack'
+import { getFocusableElements } from '../base/utils'
+import { Dialog } from '../dialog/dialog'
+import { Sheet } from '../sheet/sheet'
 
-import { Modal } from './modal.tsx'
+import { Modal } from './modal'
 
 describe('Modal primitives', () => {
   test('keeps closed content lazy and resolves its JSX once when opened', () => {
@@ -31,6 +32,46 @@ describe('Modal primitives', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Open lazy content' }))
     expect(reads).toBe(1)
     expect(document.body.querySelector('[role="dialog"]')?.textContent).toBe('Lazy content')
+  })
+
+  test('releases closed content and creates a fresh instance when reopened', async () => {
+    const [open, setOpen] = createSignal(false)
+    let mounts = 0
+    let cleanups = 0
+    const Content = () => {
+      mounts += 1
+      onCleanup(() => {
+        cleanups += 1
+      })
+      return <span>Lifecycle content</span>
+    }
+
+    const screen = render(() => (
+      <Modal open={open()}>
+        <Modal.Content>
+          <Content />
+        </Modal.Content>
+      </Modal>
+    ))
+
+    expect(mounts).toBe(0)
+    setOpen(true)
+    await waitFor(() => {
+      expect(mounts).toBe(1)
+    })
+
+    setOpen(false)
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(cleanups).toBe(1)
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    })
+
+    setOpen(true)
+    await waitFor(() => {
+      expect(mounts).toBe(2)
+    })
+    screen.unmount()
   })
 
   test('leaves modal surfaces unstyled without a provider', () => {

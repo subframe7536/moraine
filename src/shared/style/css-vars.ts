@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 
-import type { VariantMatch, VariantSchema, VariantSelection } from './recipe.ts'
+import type { VariantMatch, VariantSchema, VariantSelection } from './recipe'
 
 export type StyleVarValue = string | number | undefined | null
 export type StyleVarRecord = Record<string, StyleVarValue>

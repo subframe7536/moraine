@@ -1,5 +1,5 @@
 import { Button, Input, MoraineProvider } from '@src'
-import { createTheme, defaultTheme } from '@src/theme.ts'
+import { createTheme, defaultTheme } from '@src/theme'
 import { createSignal } from 'solid-js'
 
 const roundedTheme = defaultTheme

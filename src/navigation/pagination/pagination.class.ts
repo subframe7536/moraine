@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { PaginationT } from './pagination.types.ts'
+import type { PaginationT } from './pagination.types'
 
 export const PAGINATION_CONTROL_LABEL_CLASS = 'hidden sm:block'
 

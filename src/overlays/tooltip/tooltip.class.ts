@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { TooltipT } from './tooltip.types.ts'
+import type { TooltipT } from './tooltip.types'
 
 export const tooltipRecipe = /* @__PURE__ */ slotRecipe<TooltipT.Slot, TooltipT.Variant>({
   base: {

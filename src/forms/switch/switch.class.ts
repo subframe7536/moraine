@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { SwitchT } from './switch.types.ts'
+import type { SwitchT } from './switch.types'
 
 export const switchRecipe = /* @__PURE__ */ slotRecipe<SwitchT.Slot, SwitchT.Variant>({
   base: {

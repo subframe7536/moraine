@@ -1,8 +1,8 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js'
 
-import { Button, cn, Icon } from '../../../../src/index'
-import type { IconT } from '../../../../src/index'
+import { Button, cn, Icon } from '../../../../src'
+import type { IconT } from '../../../../src'
 
 const COLLAPSED_HEIGHT_PX = 150
 const EXPANDED_HEIGHT_PX = 400

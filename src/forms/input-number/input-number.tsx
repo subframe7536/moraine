@@ -11,15 +11,15 @@ import {
   untrack,
 } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index.ts'
-import { Icon } from '../../elements/icon/index.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import { useFormField, useFormFieldContext } from '../form/form-context.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
+import type { IconT } from '../../elements/icon'
+import { Icon } from '../../elements/icon'
+import { createComponentStyles } from '../../shared/provider'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { callHandler, callRef, useId } from '../../shared/utils'
+import { useFormField, useFormFieldContext } from '../form/form-context'
+import { useFormReset } from '../shared/use-form-reset'
 
-import type { InputNumberProps } from './input-number.types.ts'
+import type { InputNumberProps } from './input-number.types'
 
 type ControlKind = 'increment' | 'decrement'
 type InputNumberControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {

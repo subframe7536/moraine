@@ -1,8 +1,8 @@
 import type { JSX, Setter } from 'solid-js'
 import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 
-import { useFormReset } from '../../shared/use-form-reset.ts'
-import type { SliderT } from '../slider.types.ts'
+import { useFormReset } from '../../shared/use-form-reset'
+import type { SliderT } from '../slider.types'
 import {
   clamp,
   getClosestValueIndex,
@@ -13,8 +13,8 @@ import {
   normalizeSliderValues,
   resolveSliderEdges,
   snapValueToStep,
-} from '../utils.ts'
-import type { SliderValue } from '../utils.ts'
+} from '../utils'
+import type { SliderValue } from '../utils'
 
 type UseSliderProps<TValue extends SliderValue> = {
   allowThumbCrossing: boolean

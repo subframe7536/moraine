@@ -1,7 +1,7 @@
-import type { ClassValue, Cn } from './cn.ts'
-import { cn } from './cn.ts'
+import type { ClassValue, Cn } from './cn'
+import { cn } from './cn'
 
-export type { ClassValue } from './cn.ts'
+export type { ClassValue } from './cn'
 
 type SlotKey<S extends object> = Extract<keyof S, string>
 

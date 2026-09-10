@@ -7,9 +7,9 @@ import type {
 } from '@formisch/solid'
 import type { JSX, ValidComponent } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
-import type { FormFieldProps } from './form-field.types.ts'
+import type { FormFieldProps } from './form-field.types'
 
 export namespace FormT {
   export type Kind = 'single'

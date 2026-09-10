@@ -2,11 +2,11 @@ import type { Component, JSX, ValidComponent } from 'solid-js'
 import { For, Show, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { useCn } from '../../shared/provider/cn-context.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import type { RowProps as BaseRowProps } from '../../shared/use-list-virtualizer.tsx'
+import { useCn } from '../../shared/provider/cn-context'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import type { RowProps as BaseRowProps } from '../../shared/use-list-virtualizer'
 
-import type { ListProps, ListT } from './list.types.ts'
+import type { ListProps, ListT } from './list.types'
 
 /** Headless polymorphic list with optional caller-controlled virtualization. */
 export function List<

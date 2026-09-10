@@ -1,7 +1,7 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
-import { MODAL_OVERLAY_CLASS } from '../modal/modal.class.ts'
+import { slotRecipe } from '../../shared/style/recipe'
+import { MODAL_OVERLAY_CLASS } from '../modal/modal.class'
 
-import type { SheetT } from './sheet.types.ts'
+import type { SheetT } from './sheet.types'
 
 export const sheetRecipe = /* @__PURE__ */ slotRecipe<SheetT.Slot, SheetT.Variant>({
   base: {

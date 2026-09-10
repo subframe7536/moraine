@@ -1,11 +1,11 @@
 import type { JSX } from 'solid-js'
 
-import type { IconT } from '../../../elements/icon/index.ts'
-import type { SlotBinding as ComponentSlotBinding } from '../../../shared/provider/create-component-styles.ts'
-import type { ComponentOrElement } from '../../../shared/render-prop.ts'
-import type { SlotClassValue, SlotStyleValue, ElementProps } from '../../../shared/types.ts'
+import type { IconT } from '../../../elements/icon'
+import type { SlotBinding as ComponentSlotBinding } from '../../../shared/provider/create-component-styles'
+import type { ComponentOrElement } from '../../../shared/render-prop'
+import type { SlotClassValue, SlotStyleValue, ElementProps } from '../../../shared/types'
 
-import type { OverlayMenuFocusStrategy, OverlayMenuAnchorRect } from './menu.utils.ts'
+import type { OverlayMenuFocusStrategy, OverlayMenuAnchorRect } from './menu.utils'
 
 export interface OverlayMenuItemVariantProps {
   color?: 'default' | 'destructive'

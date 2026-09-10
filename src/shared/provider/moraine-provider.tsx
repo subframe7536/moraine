@@ -1,12 +1,12 @@
 import type { JSX } from 'solid-js'
 import { createMemo, useContext } from 'solid-js'
 
-import type { MoraineTheme } from '../../theme/types.ts'
-import type { CnConfig } from '../style/cn.ts'
-import { createCn } from '../style/cn.ts'
+import type { MoraineTheme } from '../../theme/types'
+import type { CnConfig } from '../style/cn'
+import { createCn } from '../style/cn'
 
-import { MoraineCnContext } from './cn-context.ts'
-import { MoraineThemeContext } from './theme-context.tsx'
+import { MoraineCnContext } from './cn-context'
+import { MoraineThemeContext } from './theme-context'
 
 export interface MoraineProviderProps {
   /** Replaces inherited presentation. Undefined inherits the parent Theme; emptyTheme clears it. */

@@ -4,13 +4,13 @@ import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, expectTypeOf, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { defaultTheme } from '../../theme/default-theme.ts'
-import { createForm } from '../form/index.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { defaultTheme } from '../../theme/default-theme'
+import { createForm } from '../form'
 
-import { InputNumber } from './input-number.tsx'
-import type { InputNumberT } from './input-number.types.ts'
+import { InputNumber } from './input-number'
+import type { InputNumberT } from './input-number.types'
 
 const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)

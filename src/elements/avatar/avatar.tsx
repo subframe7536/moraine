@@ -9,11 +9,11 @@ import {
   untrack,
 } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import type { SlotClassValue } from '../../shared/types.ts'
-import { Icon } from '../icon/index.ts'
+import { createComponentStyles } from '../../shared/provider'
+import type { SlotClassValue } from '../../shared/types'
+import { Icon } from '../icon'
 
-import type { AvatarProps, AvatarT } from './avatar.types.ts'
+import type { AvatarProps, AvatarT } from './avatar.types'
 
 function resolveFallbackText(text: string | undefined, alt: string | undefined): string {
   const preferredText = text?.trim()

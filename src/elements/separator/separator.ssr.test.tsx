@@ -1,11 +1,11 @@
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { hydrateFixture } from '../../test-utils/ssr-test'
+import { defaultTheme } from '../../theme/default-theme'
 
-import { Separator } from './separator.tsx'
+import { Separator } from './separator'
 
 describe('Separator SSR Hydration', () => {
   test('hydrates the single separator root without reordering nodes', () => {

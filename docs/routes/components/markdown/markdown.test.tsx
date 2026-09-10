@@ -4,7 +4,7 @@ import { expect, test, vi } from 'vitest'
 
 import type { ComponentDoc } from '../../../build/api-doc/types'
 
-import { Markdown } from './markdown.tsx'
+import { Markdown } from './markdown'
 
 vi.mock('./docs-page-navigation', () => ({ DocsPageNavigation: () => null }))
 vi.mock('./on-this-page', () => ({ OnThisPage: () => null }))

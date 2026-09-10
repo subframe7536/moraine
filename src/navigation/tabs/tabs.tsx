@@ -11,14 +11,14 @@ import {
   splitProps,
 } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index.ts'
-import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { useId } from '../../shared/utils.ts'
+import { Icon } from '../../elements/icon'
+import { createLazyMemo } from '../../shared/create-lazy-memo'
+import { createComponentStyles } from '../../shared/provider'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
+import { useId } from '../../shared/utils'
 
-import type { TabsProps, TabsT } from './tabs.types.ts'
+import type { TabsProps, TabsT } from './tabs.types'
 
 interface NormalizedTabItem extends TabsT.Item {
   instanceKey: string

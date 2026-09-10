@@ -1,16 +1,16 @@
 import { Show, createSignal, onCleanup } from 'solid-js'
 import type { Accessor, JSX } from 'solid-js'
 
-import { Icon } from '../../../elements/icon/index.ts'
-import type { ComponentOrElement } from '../../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../../shared/render-prop.ts'
-import type { Cn } from '../../../shared/style/cn.ts'
-import type { SlotClassValue, SlotStyleValue } from '../../../shared/types.ts'
-import { useId } from '../../../shared/utils.ts'
-import { useFormField } from '../../form/form-context.ts'
-import type { FormFieldSize, UseFormFieldReturn } from '../../form/form-context.ts'
+import { Icon } from '../../../elements/icon'
+import type { ComponentOrElement } from '../../../shared/render-prop'
+import { renderComponentOrElement } from '../../../shared/render-prop'
+import type { Cn } from '../../../shared/style/cn'
+import type { SlotClassValue, SlotStyleValue } from '../../../shared/types'
+import { useId } from '../../../shared/utils'
+import { useFormField } from '../../form/form-context'
+import type { FormFieldSize, UseFormFieldReturn } from '../../form/form-context'
 
-import type { BaseSelectItems, NormalizedGroup, NormalizedOption } from './types.ts'
+import type { BaseSelectItems, NormalizedGroup, NormalizedOption } from './types'
 
 interface UseSelectFieldProps {
   id?: string
@@ -24,7 +24,7 @@ interface UseSelectFieldProps {
 interface RenderDefaultSelectOptionOptions<TItem> {
   option:
     | (TItem & {
-        icon?: import('../../../elements/icon/index').IconT.Name
+        icon?: import('../../../elements/icon').IconT.Name
         label?: string | JSX.Element
         description?: string | JSX.Element
         isSelected: boolean

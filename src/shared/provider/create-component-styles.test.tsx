@@ -2,11 +2,11 @@ import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import type { ButtonT } from '../../elements/button/button.types.ts'
-import { createTheme } from '../../theme/create-theme.ts'
+import type { ButtonT } from '../../elements/button/button.types'
+import { createTheme } from '../../theme/create-theme'
 
-import { createComponentStyles } from './create-component-styles.ts'
-import { MoraineThemeContext } from './theme-context.tsx'
+import { createComponentStyles } from './create-component-styles'
+import { MoraineThemeContext } from './theme-context'
 
 describe('createComponentStyles', () => {
   test('keeps undefined-only precedence reactive and preserves node identity', () => {

@@ -1,6 +1,6 @@
-import type { ComponentRecipeConfig } from '../../../shared/style/recipe.ts'
+import type { ComponentRecipeConfig } from '../../../shared/style/recipe'
 
-import type { OverlayMenuItemVariantProps, OverlayMenuSharedSlots } from './types.ts'
+import type { OverlayMenuItemVariantProps, OverlayMenuSharedSlots } from './types'
 
 export const overlayMenuRecipeOptions = {
   base: {

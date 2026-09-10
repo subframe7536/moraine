@@ -1,15 +1,15 @@
 import type { JSX, Ref } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/index.ts'
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { IconT } from '../../elements/icon'
+import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options.ts'
+} from '../shared/form-options'
 
 export namespace InputT {
   export type Kind = 'single'

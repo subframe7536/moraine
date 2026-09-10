@@ -1,14 +1,14 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { finishExitMotion } from '../../test-utils/overlay-test.ts'
-import { renderWithTheme } from '../../test-utils/theme-render.tsx'
-import { createTheme } from '../../theme.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { finishExitMotion } from '../../test-utils/overlay-test'
+import { renderWithTheme } from '../../test-utils/theme-render'
+import { createTheme } from '../../theme'
+import { defaultTheme } from '../../theme/default-theme'
 
-import { Sheet } from './sheet.tsx'
+import { Sheet } from './sheet'
 
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {
@@ -43,6 +43,44 @@ describe('Sheet', () => {
     expect(content?.className).toContain('data-transition:data-expanded:animate-mo-enter')
     expect(content?.className).toContain('data-transition:data-closed:animate-mo-exit')
     expect(content?.className).toContain(sideClass)
+  })
+
+  test('releases body slot content when closed and recreates it when reopened', async () => {
+    const [open, setOpen] = createSignal(false)
+    let mounts = 0
+    let cleanups = 0
+    const Body = () => {
+      mounts += 1
+      onCleanup(() => {
+        cleanups += 1
+      })
+      return <span>Lifecycle body</span>
+    }
+
+    const screen = render(() => (
+      <Sheet open={open()}>
+        <Sheet.Content body={<Body />} />
+      </Sheet>
+    ))
+
+    expect(mounts).toBe(0)
+    setOpen(true)
+    await waitFor(() => {
+      expect(mounts).toBe(1)
+    })
+
+    setOpen(false)
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(cleanups).toBe(1)
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    })
+
+    setOpen(true)
+    await waitFor(() => {
+      expect(mounts).toBe(2)
+    })
+    screen.unmount()
   })
 
   test('applies inset without transition state', () => {

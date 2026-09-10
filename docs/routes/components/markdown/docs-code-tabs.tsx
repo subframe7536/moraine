@@ -1,7 +1,7 @@
 import type { Accessor, JSX } from 'solid-js'
 import { children, createMemo, createSignal } from 'solid-js'
 
-import { Tabs, cn } from '../../../../src/index'
+import { Tabs, cn } from '../../../../src'
 
 import { CodeBlock } from './docs-code-block'
 

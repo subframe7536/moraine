@@ -5,7 +5,7 @@ import { describe, expect, test } from 'vitest'
 import { hydrateFixture } from '../../test-utils/ssr-test'
 
 import { Select } from './select'
-import type { SelectT } from './select.types.ts'
+import type { SelectT } from './select.types'
 
 describe('Select SSR Hydration', () => {
   test('hydrates the closed control in place and opens on the first keyboard action', () => {

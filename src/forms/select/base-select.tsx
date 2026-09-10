@@ -13,42 +13,32 @@ import {
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import type { IconT } from '../../elements/icon/index.ts'
-import { List } from '../../elements/list/index.ts'
-import type { ListProps, ListT } from '../../elements/list/index.ts'
-import { useFloatingPosition } from '../../overlays/base/floating.ts'
-import { useOverlayInteraction } from '../../overlays/base/interaction.ts'
-import { useCn } from '../../shared/provider/cn-context.ts'
-import type { createComponentStyles } from '../../shared/provider/create-component-styles.ts'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
-import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { createTypeahead } from '../../shared/typeahead.ts'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
-import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
-import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
-import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import type { UseFormFieldReturn } from '../form/form-context.ts'
+import type { IconT } from '../../elements/icon'
+import { List } from '../../elements/list'
+import type { ListProps, ListT } from '../../elements/list'
+import { useFloatingPosition } from '../../overlays/base/floating'
+import { useOverlayInteraction } from '../../overlays/base/interaction'
+import { useCn } from '../../shared/provider/cn-context'
+import type { createComponentStyles } from '../../shared/provider/create-component-styles'
+import type { ComponentOrElement } from '../../shared/render-prop'
+import { renderComponentOrElement } from '../../shared/render-prop'
+import { createTypeahead } from '../../shared/typeahead'
+import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import { useControllableValue } from '../../shared/use-controllable-value'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
+import { useTransitionPresence } from '../../shared/use-transition-presence'
+import { callHandler, callRef, useId } from '../../shared/utils'
+import type { UseFormFieldReturn } from '../form/form-context'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormRequiredOption,
-} from '../shared/form-options.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
+} from '../shared/form-options'
+import { useFormReset } from '../shared/use-form-reset'
 
-import type { SelectT } from './select.types.ts'
-import {
-  flattenOptions,
-  normalizeOptions,
-  useSelectField,
-  useSelectMenuControl,
-} from './shared/index.ts'
-import type {
-  BaseSelectItems,
-  NormalizedGroup,
-  NormalizedOption,
-  SelectFilterMode,
-} from './shared/index.ts'
+import type { SelectT } from './select.types'
+import { flattenOptions, normalizeOptions, useSelectField, useSelectMenuControl } from './shared'
+import type { BaseSelectItems, NormalizedGroup, NormalizedOption, SelectFilterMode } from './shared'
 
 export namespace BaseSelectT {
   export type Value = string | number

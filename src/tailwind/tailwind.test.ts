@@ -5,10 +5,10 @@ import { addIconSelectors } from '@iconify/tailwind'
 import { __unstable__loadDesignSystem, compile } from 'tailwindcss'
 import { describe, expect, test } from 'vitest'
 
-import { DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons.ts'
+import { DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons'
 
-import { moraineTailwind } from './index.ts'
-import type { MorainePluginOptions } from './index.ts'
+import { moraineTailwind } from './'
+import type { MorainePluginOptions } from './'
 
 const THEME_CSS = readFileSync(
   resolve(__dirname, '../../node_modules/tailwindcss/theme.css'),

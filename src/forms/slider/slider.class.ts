@@ -1,6 +1,6 @@
-import { slotRecipe } from '../../shared/style/recipe.ts'
+import { slotRecipe } from '../../shared/style/recipe'
 
-import type { SliderT } from './slider.types.ts'
+import type { SliderT } from './slider.types'
 
 export const sliderRecipe = /* @__PURE__ */ slotRecipe<SliderT.Slot, SliderT.Variant>({
   base: {

@@ -1,13 +1,13 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
 
-import { Button } from '../../elements/button/index.ts'
-import type { ButtonProps } from '../../elements/button/index.ts'
-import { Icon } from '../../elements/icon/index.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
-import { callRef } from '../../shared/utils.ts'
+import { Button } from '../../elements/button'
+import type { ButtonProps } from '../../elements/button'
+import { Icon } from '../../elements/icon'
+import { createComponentStyles } from '../../shared/provider'
+import { callRef } from '../../shared/utils'
 
-import type { PaginationProps } from './pagination.types.ts'
+import type { PaginationProps } from './pagination.types'
 
 const MAX_SIBLING_COUNT = 100
 

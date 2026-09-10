@@ -4,14 +4,14 @@ import { For, createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { createTheme } from '../../theme.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
-import { createForm } from '../form/index.ts'
+import { MoraineProvider } from '../../shared/provider'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { createTheme } from '../../theme'
+import { defaultTheme } from '../../theme/default-theme'
+import { createForm } from '../form'
 
-import { MultiSelect } from './multi-select.tsx'
-import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
+import { MultiSelect } from './multi-select'
+import type { MultiSelectProps, MultiSelectT } from './multi-select.types'
 
 const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)

@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test.ts'
+import { hydrateFixture } from '../../test-utils/ssr-test'
 
-import { CommandPalette } from './command-palette.tsx'
+import { CommandPalette } from './command-palette'
 
 describe('CommandPalette SSR Hydration', () => {
   test('hydrates trailing descriptions under their labels', () => {

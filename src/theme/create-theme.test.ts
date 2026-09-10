@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { cn } from '../shared/utils.ts'
+import { cn } from '../shared/utils'
 
-import { createTheme } from './create-theme.ts'
+import { createTheme } from './create-theme'
 
 describe('createTheme', () => {
   test('supports empty themes and components without variants', () => {

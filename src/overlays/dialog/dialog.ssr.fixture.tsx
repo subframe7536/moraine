@@ -1,7 +1,7 @@
 import { renderToString } from 'solid-js/web'
 
-import { Button } from '../../elements/button/button.tsx'
-import { Icon } from '../../elements/icon/icon.tsx'
+import { Button } from '../../elements/button/button'
+import { Icon } from '../../elements/icon/icon'
 
 import { Dialog } from './dialog'
 

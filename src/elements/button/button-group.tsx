@@ -1,10 +1,10 @@
 import type { JSX } from 'solid-js'
 import { For, Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider/index.ts'
+import { createComponentStyles } from '../../shared/provider'
 
-import { ButtonGroupContext } from './button-group-context.ts'
-import type { ButtonGroupProps } from './button-group.types.ts'
+import { ButtonGroupContext } from './button-group-context'
+import type { ButtonGroupProps } from './button-group.types'
 
 /** Joins related buttons and provides shared size and visual variant defaults. */
 export function ButtonGroup(props: ButtonGroupProps): JSX.Element {

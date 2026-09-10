@@ -1,2 +1,2 @@
-export * from './collapsible.types.ts'
-export * from './collapsible.tsx'
+export * from './collapsible.types'
+export * from './collapsible'

@@ -2,11 +2,11 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { children as resolveChildren, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { useCn } from '../../shared/provider/cn-context.ts'
-import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
+import { useCn } from '../../shared/provider/cn-context'
+import { useButtonInteraction } from '../../shared/use-button-interaction'
 
-import { useModalContext } from './modal-context.ts'
-import type { ModalT } from './modal.types.ts'
+import { useModalContext } from './modal-context'
+import type { ModalT } from './modal.types'
 
 /** Closes the current modal without registering another trigger or focus target. */
 export function ModalClose<T extends ValidComponent = 'button'>(
