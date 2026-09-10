@@ -6,7 +6,7 @@ export const fileUploadRecipe = /* @__PURE__ */ slotRecipe<FileUploadT.Slot, Fil
   base: {
     root: 'relative flex min-w-0 flex-col data-disabled:(pointer-events-none opacity-64)',
     control:
-      'relative inline-flex max-w-full cursor-pointer items-center justify-center self-start rounded-md border border-input bg-background text-left shadow-xs outline-none transition-[colors,box-shadow] hover:bg-muted focus-visible:(border-ring ring-3 ring-ring/50) data-dropzone:(w-full self-stretch rounded-lg border-dashed shadow-none text-center) data-dragging:(border-primary bg-muted) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:bg-input/30 dark:data-invalid:(border-destructive/50 ring-destructive/40) aria-readonly:(cursor-default hover:bg-background) dark:aria-readonly:hover:bg-input/30',
+      'relative inline-flex max-w-full cursor-pointer items-center justify-center self-start rounded-md border-2 border-input bg-background text-left shadow-xs outline-none transition-[colors,box-shadow] hover:bg-accent/50 focus-visible:(border-ring ring-3 ring-ring/50) data-dropzone:(w-full self-stretch rounded-lg border-dashed shadow-none text-center) data-dragging:(border-primary bg-muted) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:bg-input/30 dark:data-invalid:(border-destructive/50 ring-destructive/40) aria-readonly:(cursor-default hover:bg-background) dark:aria-readonly:hover:bg-input/30',
     wrapper:
       'pointer-events-none grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 data-dropzone:(flex flex-col justify-center text-center)',
     icon: 'row-span-2 shrink-0 text-muted-foreground',

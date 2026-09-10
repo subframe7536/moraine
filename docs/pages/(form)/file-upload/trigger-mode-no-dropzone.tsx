@@ -14,7 +14,7 @@ export function TriggerModeNoDropzone() {
   }
 
   return (
-    <div class="p-4 b-(1 border) rounded-xl max-w-md space-y-3">
+    <div class="max-w-md space-y-3">
       <FileUpload
         dropzone={false}
         label="Attach files"
