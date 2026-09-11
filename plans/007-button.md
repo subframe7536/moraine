@@ -1,8 +1,6 @@
-# Plan 007: Add host rendering without changing Button behavior
+# Plan 007: Validate host composition through Button without changing behavior
 
-> Executor: read this entire file, execute only when selected, follow each verification gate, and stop on the conditions below. This is a standalone handoff; reading the umbrella plan or other plan bodies is not required. Update this plan's row in `plans/README.md` when finished. Creating this plan did not authorize implementation.
->
-> Drift check: `git diff --stat 7d9633ca405c2bcf256481298486c7daee3e1456..HEAD -- src/elements/button 'docs/pages/(general)/button' src/shared/type-test/default/index.tsx src/shared/type-test/autocomplete/index.tsx src/shared/provider/cn-context.test.tsx src/shared/provider/moraine-provider.ssr.fixture.tsx src/shared/provider/moraine-provider.test.tsx src/navigation/pagination/pagination.tsx src/forms/form/form.test.tsx src/forms/form/form.ssr.test.tsx src/forms/form/form.ssr.fixture.tsx docs/routes/_app.tsx docs/routes/components/markdown/docs-code-block.tsx docs/routes/components/markdown/docs-page-navigation.tsx docs/routes/components/markdown/markdown.tsx docs/routes/components/markdown/docs-playground.tsx docs/routes/components/markdown/intro-components.tsx docs/routes/components/layout/docs-command-palette.tsx docs/routes/components/layout/sidebar.tsx docs/pages/styling/theme-replacement.tsx 'docs/pages/(navigation)/tabs/controlled-disabled-items.tsx' 'docs/pages/(navigation)/stepper/controlled-non-linear.tsx' 'docs/pages/(navigation)/stepper/linear-usage.tsx' 'docs/pages/(navigation)/sidebar-frame/responsive-usage.tsx' 'docs/pages/(navigation)/sidebar-frame/forced-mobile.tsx' 'docs/pages/(navigation)/command-palette/sub-navigation.tsx' 'docs/pages/(overlay)/toast/promise-scoped-instances.tsx' 'docs/pages/(overlay)/toast/basic-toasts.tsx' 'docs/pages/(overlay)/toast/prevent-duplicate.tsx' 'docs/pages/(overlay)/toast/calls-usage.tsx' 'docs/pages/(overlay)/toast/setup-usage.tsx' 'docs/pages/(overlay)/context-menu/file-actions.tsx' 'docs/pages/(overlay)/dialog/state-dismissal.tsx' 'docs/pages/(overlay)/dialog/structure-lifecycle.tsx' 'docs/pages/(overlay)/dialog/basic.tsx' 'docs/pages/(overlay)/dialog/controlled-lifecycle.tsx' 'docs/pages/(overlay)/popover/hover-mode.tsx' 'docs/pages/(overlay)/modal/controlled.tsx' 'docs/pages/(overlay)/modal/modal-lifecycle.tsx' 'docs/pages/(overlay)/modal/basic.tsx' 'docs/pages/(overlay)/modal/exit-lifecycle.tsx' 'docs/pages/(overlay)/modal/modal-composition.tsx' 'docs/pages/(overlay)/modal/no-overlay.tsx' 'docs/pages/(overlay)/sheet/state-usage.tsx' 'docs/pages/(overlay)/sheet/drawer-usage.tsx' 'docs/pages/(overlay)/sheet/sides.tsx' 'docs/pages/(overlay)/sheet/dismiss-control.tsx' 'docs/pages/(general)/card/with-image.tsx' 'docs/pages/(general)/card/header-action.tsx' 'docs/pages/(general)/card/card-structure.tsx' 'docs/pages/(general)/progress/determinate.tsx' 'docs/pages/(general)/progress/step-mode.tsx' 'docs/pages/(general)/collapsible/controlled.tsx' 'docs/pages/(general)/collapsible/state-ownership.tsx' 'docs/pages/(general)/button-group/vertical.tsx' 'docs/pages/(general)/button-group/button-popover.tsx' 'docs/pages/(general)/button-group/separator.tsx' 'docs/pages/(general)/button-group/group-composition.tsx' 'docs/pages/(general)/button-group/button-dropdown.tsx' 'docs/pages/(form)/form/nested-path.tsx' 'docs/pages/(form)/form/render-context.tsx' 'docs/pages/(form)/form/reset.tsx' 'docs/pages/(form)/form/manual-error.tsx' 'docs/pages/(form)/form/async-submit.tsx' 'docs/pages/(form)/form/basic-form.tsx' 'docs/pages/(form)/form/submission-reset.tsx' 'docs/pages/(form)/form/mixed-fields.tsx' 'docs/pages/(form)/form/validation.tsx' 'docs/pages/(form)/input-number/form-integration.tsx' 'docs/pages/(form)/input/composed-controls.tsx' 'docs/pages/(form)/input/form-integration.tsx' 'docs/pages/(form)/input/input-with-icons.tsx' 'docs/pages/(form)/input/input-states.tsx' 'docs/pages/(form)/multi-select/create-new-tags.tsx' 'docs/pages/(form)/multi-select/form-integration.tsx' 'docs/pages/(form)/checkbox/form-integration.tsx' 'docs/pages/(form)/slider/controlled-single.tsx' 'docs/pages/(form)/slider/form-integration.tsx' 'docs/pages/(form)/textarea/header-footer.tsx' 'docs/pages/(form)/textarea/composition.tsx' 'docs/pages/(form)/textarea/form-integration.tsx' 'docs/pages/(form)/file-upload/form-integration.tsx' 'docs/pages/(form)/switch/form-integration.tsx' 'docs/pages/(form)/radio-group/form-integration.tsx' 'docs/pages/(form)/checkbox-group/form-integration.tsx' 'docs/pages/(form)/select/form-integration.tsx'`. Also inspect `git status --short` and `git diff -- src/elements/button 'docs/pages/(general)/button' src/shared/type-test/default/index.tsx src/shared/type-test/autocomplete/index.tsx src/shared/provider/cn-context.test.tsx src/shared/provider/moraine-provider.ssr.fixture.tsx src/shared/provider/moraine-provider.test.tsx src/navigation/pagination/pagination.tsx src/forms/form/form.test.tsx src/forms/form/form.ssr.test.tsx src/forms/form/form.ssr.fixture.tsx docs/routes/_app.tsx docs/routes/components/markdown/docs-code-block.tsx docs/routes/components/markdown/docs-page-navigation.tsx docs/routes/components/markdown/markdown.tsx docs/routes/components/markdown/docs-playground.tsx docs/routes/components/markdown/intro-components.tsx docs/routes/components/layout/docs-command-palette.tsx docs/routes/components/layout/sidebar.tsx docs/pages/styling/theme-replacement.tsx 'docs/pages/(navigation)/tabs/controlled-disabled-items.tsx' 'docs/pages/(navigation)/stepper/controlled-non-linear.tsx' 'docs/pages/(navigation)/stepper/linear-usage.tsx' 'docs/pages/(navigation)/sidebar-frame/responsive-usage.tsx' 'docs/pages/(navigation)/sidebar-frame/forced-mobile.tsx' 'docs/pages/(navigation)/command-palette/sub-navigation.tsx' 'docs/pages/(overlay)/toast/promise-scoped-instances.tsx' 'docs/pages/(overlay)/toast/basic-toasts.tsx' 'docs/pages/(overlay)/toast/prevent-duplicate.tsx' 'docs/pages/(overlay)/toast/calls-usage.tsx' 'docs/pages/(overlay)/toast/setup-usage.tsx' 'docs/pages/(overlay)/context-menu/file-actions.tsx' 'docs/pages/(overlay)/dialog/state-dismissal.tsx' 'docs/pages/(overlay)/dialog/structure-lifecycle.tsx' 'docs/pages/(overlay)/dialog/basic.tsx' 'docs/pages/(overlay)/dialog/controlled-lifecycle.tsx' 'docs/pages/(overlay)/popover/hover-mode.tsx' 'docs/pages/(overlay)/modal/controlled.tsx' 'docs/pages/(overlay)/modal/modal-lifecycle.tsx' 'docs/pages/(overlay)/modal/basic.tsx' 'docs/pages/(overlay)/modal/exit-lifecycle.tsx' 'docs/pages/(overlay)/modal/modal-composition.tsx' 'docs/pages/(overlay)/modal/no-overlay.tsx' 'docs/pages/(overlay)/sheet/state-usage.tsx' 'docs/pages/(overlay)/sheet/drawer-usage.tsx' 'docs/pages/(overlay)/sheet/sides.tsx' 'docs/pages/(overlay)/sheet/dismiss-control.tsx' 'docs/pages/(general)/card/with-image.tsx' 'docs/pages/(general)/card/header-action.tsx' 'docs/pages/(general)/card/card-structure.tsx' 'docs/pages/(general)/progress/determinate.tsx' 'docs/pages/(general)/progress/step-mode.tsx' 'docs/pages/(general)/collapsible/controlled.tsx' 'docs/pages/(general)/collapsible/state-ownership.tsx' 'docs/pages/(general)/button-group/vertical.tsx' 'docs/pages/(general)/button-group/button-popover.tsx' 'docs/pages/(general)/button-group/separator.tsx' 'docs/pages/(general)/button-group/group-composition.tsx' 'docs/pages/(general)/button-group/button-dropdown.tsx' 'docs/pages/(form)/form/nested-path.tsx' 'docs/pages/(form)/form/render-context.tsx' 'docs/pages/(form)/form/reset.tsx' 'docs/pages/(form)/form/manual-error.tsx' 'docs/pages/(form)/form/async-submit.tsx' 'docs/pages/(form)/form/basic-form.tsx' 'docs/pages/(form)/form/submission-reset.tsx' 'docs/pages/(form)/form/mixed-fields.tsx' 'docs/pages/(form)/form/validation.tsx' 'docs/pages/(form)/input-number/form-integration.tsx' 'docs/pages/(form)/input/composed-controls.tsx' 'docs/pages/(form)/input/form-integration.tsx' 'docs/pages/(form)/input/input-with-icons.tsx' 'docs/pages/(form)/input/input-states.tsx' 'docs/pages/(form)/multi-select/create-new-tags.tsx' 'docs/pages/(form)/multi-select/form-integration.tsx' 'docs/pages/(form)/checkbox/form-integration.tsx' 'docs/pages/(form)/slider/controlled-single.tsx' 'docs/pages/(form)/slider/form-integration.tsx' 'docs/pages/(form)/textarea/header-footer.tsx' 'docs/pages/(form)/textarea/composition.tsx' 'docs/pages/(form)/textarea/form-integration.tsx' 'docs/pages/(form)/file-upload/form-integration.tsx' 'docs/pages/(form)/switch/form-integration.tsx' 'docs/pages/(form)/radio-group/form-integration.tsx' 'docs/pages/(form)/checkbox-group/form-integration.tsx' 'docs/pages/(form)/select/form-integration.tsx'` for uncommitted work. Expected prerequisite edits must be reconciled against the contract below and recorded before proceeding; unexplained drift is a STOP condition. Never overwrite existing user changes.
+> Executor: read this file plus `plans/README.md` and plan 003. This is a consumer-validation plan for the shared host-render protocol.
 
 ## Status
 
@@ -11,236 +9,89 @@
 - **Risk**: MED
 - **Depends on**: [003-host-render.md](003-host-render.md)
 - **Category**: dx
-- **Planned at**: commit `7d9633ca405c2bcf256481298486c7daee3e1456`, 2026-09-11
 - **State**: TODO
 
 ## Why this matters
 
-Integrate the shared host-render protocol into Button while preserving as inference, native type/submit behavior, disabled/loading protection and loadingAuto return/Promise semantics. Keep Button a leaf with Kind single. ButtonGroup, ButtonGroupT and the buttonGroup recipe remain standalone and unchanged. Content and leading/trailing renderers retain their existing meaning.
+Integrate the shared host-render protocol into Button while preserving native submit/type behavior, disabled/loading protection, `loadingAuto`, leading/trailing/content renderers and existing theme overrides.
 
-The delivery boundary is this component or shared capability, including its own regressions, public types and necessary consumer/docs migration. A larger public surface is not a success metric; remove any proposed part that has no demonstrated structural or semantic use.
+Button remains a leaf. ButtonGroup stays standalone.
 
-## Anatomy
+The purpose is not merely to support `<Button render={(p) => <button {...p} />}>`; it is to prove that Moraine can safely compose a Button host with another custom/Moraine component while keeping refs, events and behavior intact.
 
-Target usage after this plan; these examples describe the planned API, not an implementation already available. Candidate examples remain deferred with their plan.
-
-Button remains a leaf. The custom host forwards all supplied DOM props and refs; ButtonGroup stays a separate component.
-
-```jsx
-<>
-  <Button type="submit">Save</Button>
-  <Button render={(domProps) => <button {...domProps} />}>Save</Button>
-  <ButtonGroup>
-    <Button>Previous</Button>
-    <Button>Next</Button>
-  </ButtonGroup>
-</>
-```
-
-## Current state
-
-`src/elements/button/button.types.ts:16` anchors the current implementation contract:
+## Target anatomy
 
 ```tsx
-export namespace ButtonT {
-  export type Kind = 'single'
+<Button type="submit">Save</Button>
 
-  export type ElementFor<T extends ValidComponent> = ButtonElementFor<T>
-
-  export interface Slot<T = unknown> {
-    /**
-     * Interactive button element, or the polymorphic element provided through `as`.
+<Button
+  render={(domProps) => (
+    <CustomButtonShell {...domProps} data-app-button="save" />
+  )}
+>
+  Save
+</Button>
 ```
 
-The implementation entry is `src/elements/button/button.tsx`. The component implementation, types, classes, tests and SSR fixtures are colocated in `src/elements/button`. The existing component tests are the test-structure exemplar; inspect them before adding regression cases.
+Also validate Button as the host of another behavior part through plan 003's contract, for example the later equivalent of:
 
-The existing style entry point provides reactive theme defaults; match this pattern from `src/shared/provider/create-component-styles.ts:41`:
-
-```ts
-) {
-  const cn = useCn()
-  const theme = useTheme()
-  const entry = createMemo(() => theme()[name])
-  const variants = mergeProps(
-    // oxlint-disable-next-line subf/solid-reactivity -- mergeProps tracks function sources on property reads.
-    () => entry()?.defaults ?? EMPTY_DEFAULTS,
-    () => options.inheritedVariants?.() ?? EMPTY_DEFAULTS,
-    props,
-  )
-  const outputs = createMemo(
+```tsx
+<Dialog.Trigger
+  render={(domProps) => (
+    <Button {...domProps} variant="outline">Edit</Button>
+  )}
+/>
 ```
 
-Use SolidJS 1.9, reactive props without destructuring, `createEffect(on(...))`, `Show`/`For`, callback refs and owner-scoped cleanup. New relative imports use `.ts`/`.tsx`. Reuse `createComponentStyles`; capture `useCn()` during initialization. No Provider means empty presentation; undefined theme inherits, an explicit theme replaces, emptyTheme clears. `cnConfig` undefined inherits, `{}` resets application rules, and an explicit object replaces parent application rules. Behavior geometry must survive emptyTheme.
+## Contract
 
-Keep callable roots and public types inside `XT`, with only matching component Props aliases exported at top level. Use Kind composite only for actual attached components; no runtime namespace registry, `.Root` aliases or `Extend` types. Preserve standalone ButtonGroup/AvatarGroup/KbdGroup names, type namespaces and theme keys. Keep all existing callback names unless this plan explicitly changes one. Docs/code are English. No Solid 2 migration, provider redesign, new public primitive package or global API sweep.
+- Preserve `as` for straightforward polymorphic hosts where current inference is useful.
+- `render` is function-only and mutually exclusive with `as`.
+- Button internal disabled/loading protections must survive forwarded user/custom-component handlers.
+- User cancellation semantics must match plan 003; mandatory disabled/loading invariants are not cancellable.
+- Ref and `currentTarget` types must remain useful; no `any` escape hatch.
+- Do not add Button namespace parts or fold ButtonGroup into Button.
+- Keep Provider/theme, `classes/styles` and part-local overrides unchanged.
 
-For default-capable components, distinguish omitted children from explicit children without eagerly evaluating JSX or rebuilding the default tree when `Show` is temporarily empty. For logical collections, data normalization must not evaluate label/content JSX. If implementing parts, default assembly and custom assembly share one behavior owner. Local class/style overrides apply within the nearest visual Provider scope.
+## Acceptance tests
 
-`docs/README.md` states: “Component API reference sections render automatically from colocated `api.json`.” Regenerate API metadata with the docs build, never create a competing manual schema. `docs/DESIGN.md` states: “Use the semantic variables configured in `docs/unocss.config.ts`; no raw documentation color palette is allowed.” Keep the existing docs shell and author-selected previews.
+Cover:
+
+- native button default/type=submit behavior;
+- `as="a"` or other existing supported host inference;
+- disabled and loading protection through custom host composition;
+- `loadingAuto` sync/Promise behavior;
+- user handler + internal handler ordering/cancellation;
+- custom component that adds its own event and ref while forwarding supplied props;
+- nested Moraine behavior host composition;
+- declaration tests for `as/render` exclusivity and event/ref targets;
+- default, replacement and empty themes;
+- SSR/hydration does not duplicate the interactive element.
 
 ## Scope
 
-Only these source/consumer paths may be modified, plus this plan and its index status:
-
 - `src/elements/button`
-- `docs/pages/(general)/button`
-- `src/shared/type-test/default/index.tsx`
-- `src/shared/type-test/autocomplete/index.tsx`
-- `src/shared/provider/cn-context.test.tsx`
-- `src/shared/provider/moraine-provider.ssr.fixture.tsx`
-- `src/shared/provider/moraine-provider.test.tsx`
-- `src/navigation/pagination/pagination.tsx`
-- `src/forms/form/form.test.tsx`
-- `src/forms/form/form.ssr.test.tsx`
-- `src/forms/form/form.ssr.fixture.tsx`
-- `docs/routes/_app.tsx`
-- `docs/routes/components/markdown/docs-code-block.tsx`
-- `docs/routes/components/markdown/docs-page-navigation.tsx`
-- `docs/routes/components/markdown/markdown.tsx`
-- `docs/routes/components/markdown/docs-playground.tsx`
-- `docs/routes/components/markdown/intro-components.tsx`
-- `docs/routes/components/layout/docs-command-palette.tsx`
-- `docs/routes/components/layout/sidebar.tsx`
-- `docs/pages/styling/theme-replacement.tsx`
-- `docs/pages/(navigation)/tabs/controlled-disabled-items.tsx`
-- `docs/pages/(navigation)/stepper/controlled-non-linear.tsx`
-- `docs/pages/(navigation)/stepper/linear-usage.tsx`
-- `docs/pages/(navigation)/sidebar-frame/responsive-usage.tsx`
-- `docs/pages/(navigation)/sidebar-frame/forced-mobile.tsx`
-- `docs/pages/(navigation)/command-palette/sub-navigation.tsx`
-- `docs/pages/(overlay)/toast/promise-scoped-instances.tsx`
-- `docs/pages/(overlay)/toast/basic-toasts.tsx`
-- `docs/pages/(overlay)/toast/prevent-duplicate.tsx`
-- `docs/pages/(overlay)/toast/calls-usage.tsx`
-- `docs/pages/(overlay)/toast/setup-usage.tsx`
-- `docs/pages/(overlay)/context-menu/file-actions.tsx`
-- `docs/pages/(overlay)/dialog/state-dismissal.tsx`
-- `docs/pages/(overlay)/dialog/structure-lifecycle.tsx`
-- `docs/pages/(overlay)/dialog/basic.tsx`
-- `docs/pages/(overlay)/dialog/controlled-lifecycle.tsx`
-- `docs/pages/(overlay)/popover/hover-mode.tsx`
-- `docs/pages/(overlay)/modal/controlled.tsx`
-- `docs/pages/(overlay)/modal/modal-lifecycle.tsx`
-- `docs/pages/(overlay)/modal/basic.tsx`
-- `docs/pages/(overlay)/modal/exit-lifecycle.tsx`
-- `docs/pages/(overlay)/modal/modal-composition.tsx`
-- `docs/pages/(overlay)/modal/no-overlay.tsx`
-- `docs/pages/(overlay)/sheet/state-usage.tsx`
-- `docs/pages/(overlay)/sheet/drawer-usage.tsx`
-- `docs/pages/(overlay)/sheet/sides.tsx`
-- `docs/pages/(overlay)/sheet/dismiss-control.tsx`
-- `docs/pages/(general)/card/with-image.tsx`
-- `docs/pages/(general)/card/header-action.tsx`
-- `docs/pages/(general)/card/card-structure.tsx`
-- `docs/pages/(general)/progress/determinate.tsx`
-- `docs/pages/(general)/progress/step-mode.tsx`
-- `docs/pages/(general)/collapsible/controlled.tsx`
-- `docs/pages/(general)/collapsible/state-ownership.tsx`
-- `docs/pages/(general)/button-group/vertical.tsx`
-- `docs/pages/(general)/button-group/button-popover.tsx`
-- `docs/pages/(general)/button-group/separator.tsx`
-- `docs/pages/(general)/button-group/group-composition.tsx`
-- `docs/pages/(general)/button-group/button-dropdown.tsx`
-- `docs/pages/(form)/form/nested-path.tsx`
-- `docs/pages/(form)/form/render-context.tsx`
-- `docs/pages/(form)/form/reset.tsx`
-- `docs/pages/(form)/form/manual-error.tsx`
-- `docs/pages/(form)/form/async-submit.tsx`
-- `docs/pages/(form)/form/basic-form.tsx`
-- `docs/pages/(form)/form/submission-reset.tsx`
-- `docs/pages/(form)/form/mixed-fields.tsx`
-- `docs/pages/(form)/form/validation.tsx`
-- `docs/pages/(form)/input-number/form-integration.tsx`
-- `docs/pages/(form)/input/composed-controls.tsx`
-- `docs/pages/(form)/input/form-integration.tsx`
-- `docs/pages/(form)/input/input-with-icons.tsx`
-- `docs/pages/(form)/input/input-states.tsx`
-- `docs/pages/(form)/multi-select/create-new-tags.tsx`
-- `docs/pages/(form)/multi-select/form-integration.tsx`
-- `docs/pages/(form)/checkbox/form-integration.tsx`
-- `docs/pages/(form)/slider/controlled-single.tsx`
-- `docs/pages/(form)/slider/form-integration.tsx`
-- `docs/pages/(form)/textarea/header-footer.tsx`
-- `docs/pages/(form)/textarea/composition.tsx`
-- `docs/pages/(form)/textarea/form-integration.tsx`
-- `docs/pages/(form)/file-upload/form-integration.tsx`
-- `docs/pages/(form)/switch/form-integration.tsx`
-- `docs/pages/(form)/radio-group/form-integration.tsx`
-- `docs/pages/(form)/checkbox-group/form-integration.tsx`
-- `docs/pages/(form)/select/form-integration.tsx`
+- Button docs/API metadata/type tests
+- direct consumers required to validate or migrate the render protocol
 
-Shared directories listed in scope permit only the minimum integration needed by this family. Preserve unselected public APIs and old facades that still have consumers. Direct caller files permit migration edits only, not redesign of the consumer.
+Do not refactor unrelated Button consumers or rename ButtonGroup.
 
-Out of scope: all unrelated components, Stepper product/semantic redesign, Group renaming, blanket import cleanup, new package subpath exports, release automation, dependency upgrades unrelated to this task, and changes to the umbrella plan. Generated `dist` artifacts are produced by verification and must not be hand-edited or committed. If generation changes unrelated tracked API metadata, report it rather than folding it into this component.
+## Verification
 
-## Commands you will need
-
-Run from the repository root using the installed nub toolchain. These existing package scripts were read during planning; no test results are claimed by this document.
-
-| Purpose | Command | Expected result |
-| --- | --- | --- |
-| Focused regression | `nub run test src/elements/button` | Exit 0, matching tests executed and passing |
-| Source types | `nub run typecheck` | Exit 0, no errors |
-| Published declarations | `nub run test:types` | Build succeeds; default and autocomplete type projects pass |
-| Docs and generated API | `nub run docs:build` | Exit 0; previews compile and SSG completes |
-| Full regression | `nub run test` | Exit 0, no new skipped cases masking failures |
-| Pre-commit quality | `nub run qa` | Exit 0; inspect formatter/linter mutations for scope |
-| Diff hygiene | `git diff --check` | Exit 0 |
-
-`test` and `test:types` already build the library. `qa` runs fixing tools; inspect its diff and do not absorb unrelated edits.
-
-## Git workflow
-
-Use `codex/button` if creating an isolated branch. Keep commits scoped, for example `refactor(button): add host rendering without changing button behavior`. Run the repository QA gate before any requested commit. Do not push, open a PR or publish without operator instruction.
-
-## Steps
-
-### 1. Reconcile the baseline and reduce scope
-
-Inspect the scoped implementations, tests and direct callers. Record the existing default behavior and the smallest real customization/reproduction described below. Remove speculative wrapper parts, duplicate state and abstractions with only one trivial use before changing code. For a DEFERRED plan, first require selection of this family; do not infer it from completion of dependencies.
-
-**Verify:** `git status --short` and the drift command above → every existing change is attributed; all prerequisites are completed or their equivalent contracts verified. Run `nub run test src/elements/button` → baseline passes, or pre-existing failures are recorded and the task is stopped before behavior changes.
-
-### 2. Add the observable acceptance cases
-
-Test native and keyboard activation exactly once, cancelled user actions, submit/type, loadingAuto resolve/reject, custom same-element render, ref/currentTarget inference, reactive disabled/theme and ButtonGroup inheritance. Repeat the baseline Button consumer bundle comparison.
-
-Use existing colocated tests and `.ssr.fixture.tsx` / `.ssr.test.tsx` conventions. Add new assertions to the family's tests, and geometry/focus/scroll cases to `test/browser` when in scope. The server markup must be checked before hydration; reuse `hydrateFixture` to verify that hydration preserves nodes and parents.
-
-**Verify:** `nub run test src/elements/button` → existing cases still pass; new regression failures identify exactly the intended missing contract, not environment failures. For baseline-only work, record results instead of introducing behavior tests. For infrastructure harness work, a deliberately failing assertion must produce a nonzero exit before restoring it.
-
-### 3. Implement only the stated contract
-
-Apply the contract in “Why this matters” within the listed paths. Keep one authoritative behavior implementation, reuse existing state/navigation/form adapters, preserve lazy content ownership, and migrate only this family's direct consumers. Do not delete a shared facade until no unselected consumer needs it. For the baseline-only plan, this step writes the evidence report instead of implementing source changes.
-
-**Verify:** `nub run test src/elements/button` and `nub run typecheck` → exit 0, including the new acceptance cases.
-
-### 4. Complete this unit's types, documentation and delivery evidence
-
-For public API changes, add positive/negative cases to both declaration test projects as appropriate, update namespace Kind/part JSDoc, and update the scoped component page with minimum usage, a real structural customization and one necessary boundary example. Keep content-only customization examples short. Regenerate metadata through the docs build. Record any measured consumer bundle change against baseline, platform coverage, and deferred parts in this plan. Internal-only work documents behavior boundaries in the implementation where useful, without inventing public API changes.
-
-**Verify:** `nub run test:types`, `nub run docs:build`, `nub run test`, `nub run qa`, and `git diff --check` → all exit 0. `git status --short` → no unreviewed out-of-scope modifications. Update `plans/README.md` status only after these gates pass.
-
-## Test plan
-
-Test native and keyboard activation exactly once, cancelled user actions, submit/type, loadingAuto resolve/reject, custom same-element render, ref/currentTarget inference, reactive disabled/theme and ButtonGroup inheritance. Repeat the baseline Button consumer bundle comparison.
-
-Use the family's existing regression suite as the structural pattern. For public structure changes also assert default/empty/custom themes, reactive variants and local class/style overrides, callable root exports and part types. Do not add snapshots that only mirror implementation. The documented test commands must execute tests, not merely discover zero files.
+```sh
+nub run test src/elements/button
+nub run typecheck
+nub run test:types
+nub run docs:build
+nub run test
+nub run qa
+git diff --check
+```
 
 ## Done criteria
 
-- [ ] Focused tests execute and pass, including the cases listed above.
-- [ ] `nub run typecheck` and `nub run test:types` exit 0.
-- [ ] `nub run docs:build`, `nub run test` and `nub run qa` exit 0.
-- [ ] `git diff --check` exits 0; changed tracked paths are within Scope.
-- [ ] Any browser-dependent cases pass under `nub run test:browser` after that script exists; engine and command results are recorded.
-- [ ] Public default behavior and the smallest customization compile; removed API cases are negative declaration tests when relevant.
-- [ ] Index status and this plan's delivery evidence reflect actual results, not assumed success.
-
-## STOP conditions
-
-Stop and report if unexplained source drift invalidates the excerpts, required tests fail twice after a reasonable fix, an out-of-scope source change is needed, or a prerequisite is missing. Stop if first-render correctness requires scanning/evaluating JSX twice, if refs/types must be erased to make the target API compile, or if a candidate part cannot demonstrate a real customization benefit. Do not use a new metadata registry or global factory to hide these problems. For browser-dependent changes, unavailable browser execution blocks acceptance; jsdom is not a substitute for geometry or real focus evidence.
-
-## Maintenance notes
-
-Review state ownership, consumer migration and precise cleanup more closely than file movement. Keep the public contract and focused acceptance cases together for future changes. Unselected family work remains deferred, even if shared infrastructure is now available. Record upstream license obligations if implementation directly adapts source. This plan intentionally does not redesign the whole library.
+- [ ] Button validates the shared real-composition protocol.
+- [ ] Existing behavior and styling semantics remain intact.
+- [ ] No new namespace structure was added to Button.
+- [ ] Docs include one real custom-component composition example, not only native host replacement.
+- [ ] Type, SSR and full regression gates pass.
