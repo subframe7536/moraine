@@ -1,7 +1,7 @@
 import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
 import { createGenerator, presetWind3 } from '@subf/unocss'
-import { For, createComponent, createSignal } from 'solid-js'
+import { For, Show, createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -1970,26 +1970,68 @@ describe.each([
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'auto'
     const [open, setOpen] = createSignal(false)
-    const view = baseRender(() => <Component options={FRUITS} open={open()} />)
+    const view = baseRender(() => (
+      <div data-testid="outer-scroll" style={{ overflow: 'auto' }}>
+        <div data-testid="inner-scroll" style={{ 'overflow-y': 'scroll' }}>
+          <Component
+            options={FRUITS}
+            open={open()}
+            listboxProps={{ style: { 'overflow-y': 'auto' } }}
+          />
+        </div>
+      </div>
+    ))
+    const outer = view.getByTestId('outer-scroll')
+    const inner = view.getByTestId('inner-scroll')
     try {
       expect(document.body.style.overflow).toBe('auto')
       setOpen(true)
       await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
+      expect(outer.style.overflow).toBe('hidden')
+      expect(inner.style.overflow).toBe('hidden')
       await waitFor(() =>
         expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull(),
       )
+      expect(getComputedStyle(queryBody('[role="listbox"]')!).overflowY).toBe('auto')
       setOpen(false)
       await Promise.resolve()
       await finishSelectExitMotion()
       await waitFor(() => expect(document.body.style.overflow).toBe('auto'))
+      expect(outer.style.overflow).toBe('auto')
+      expect(inner.style.overflowY).toBe('scroll')
       setOpen(true)
       await waitFor(() => expect(document.body.style.overflow).toBe('hidden'))
       view.unmount()
       expect(document.body.style.overflow).toBe('auto')
+      expect(outer.style.overflow).toBe('auto')
+      expect(inner.style.overflowY).toBe('scroll')
     } finally {
       view.unmount()
       document.body.style.overflow = previousOverflow
     }
+  })
+
+  test('keeps shared scroll ancestors locked until all panels unmount', async () => {
+    const [first, setFirst] = createSignal(true)
+    const [second, setSecond] = createSignal(true)
+    const view = baseRender(() => (
+      <div data-testid="scroll" style="overflow-y: auto !important">
+        <Show when={first()}>
+          <Component options={FRUITS} open />
+        </Show>
+        <Show when={second()}>
+          <Component options={FRUITS} open />
+        </Show>
+      </div>
+    ))
+    const container = view.getByTestId('scroll')
+    await waitFor(() => expect(container.style.overflow).toBe('hidden'))
+    setFirst(false)
+    await Promise.resolve()
+    expect(container.style.overflow).toBe('hidden')
+    setSecond(false)
+    await waitFor(() => expect(container.style.overflowY).toBe('auto'))
+    expect(container.style.getPropertyPriority('overflow-y')).toBe('important')
   })
 
   test('aligns the option icon and label in a flex row', async () => {

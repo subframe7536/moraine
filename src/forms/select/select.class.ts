@@ -24,7 +24,7 @@ const SELECT_BASE_CLASSES = {
   root: 'inline-flex h-fit w-full relative',
   content: SELECT_CONTENT_CLASS,
   listbox: 'm-0 p-1 outline-none max-h-(--mo-popper-content-available-height) overflow-y-auto',
-  item: 'px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between relative data-highlighted:bg-muted data-disabled:(opacity-64 pointer-events-none)',
+  item: 'px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center relative data-highlighted:bg-muted data-disabled:(opacity-64 pointer-events-none)',
   group: '[&:not(:first-child)]:mt-1.5',
   label: 'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
   leading: SELECT_LEADING_ICON_CLASS,

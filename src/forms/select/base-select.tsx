@@ -419,7 +419,7 @@ function useBaseSelectOverlay(options: {
         return
       }
 
-      onCleanup(acquireBodyScrollLock())
+      onCleanup(acquireBodyScrollLock(options.getControlElement()))
     }),
   )
 

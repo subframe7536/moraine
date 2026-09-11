@@ -178,9 +178,13 @@ const REVERSE_BASE_PLACEMENT: Record<FloatingSide, FloatingSide> = {
   left: 'right',
 }
 
-let scrollLockDepth = 0
-let previousBodyOverflow = ''
-let previousBodyPaddingRight = ''
+const scrollLocks = new WeakMap<
+  HTMLElement,
+  {
+    count: number
+    styles: Array<{ property: string; value: string; priority: string }>
+  }
+>()
 
 interface AriaHiddenState {
   count: number
@@ -327,31 +331,61 @@ export function acquireAriaHideOutside(
   }
 }
 
-export function acquireBodyScrollLock(): () => void {
+/** Locks the body and, when supplied, the reference element's scrollable ancestors. */
+export function acquireBodyScrollLock(referenceElement?: HTMLElement): () => void {
   if (typeof document === 'undefined') {
     return () => undefined
   }
 
-  if (scrollLockDepth === 0) {
-    previousBodyOverflow = document.body.style.overflow
-    previousBodyPaddingRight = document.body.style.paddingRight
-    const view = document.defaultView
-    const scrollbarWidth = Math.max(
-      0,
-      (view?.innerWidth ?? document.documentElement.clientWidth) -
-        document.documentElement.clientWidth,
-    )
-
-    if (scrollbarWidth > 0) {
-      const currentPadding = Number.parseFloat(
-        view?.getComputedStyle(document.body).paddingRight ?? '0',
-      )
-      document.body.style.paddingRight = `${(Number.isNaN(currentPadding) ? 0 : currentPadding) + scrollbarWidth}px`
+  const elements = [document.body]
+  for (
+    let element = referenceElement?.parentElement;
+    element && element !== document.body;
+    element = element.parentElement
+  ) {
+    const style = getComputedStyle(element)
+    if (
+      scrollLocks.has(element) ||
+      /(auto|scroll|overlay)/.test(`${style.overflow} ${style.overflowX} ${style.overflowY}`)
+    ) {
+      elements.push(element)
     }
-    document.body.style.overflow = 'hidden'
   }
 
-  scrollLockDepth += 1
+  for (const element of elements) {
+    const existing = scrollLocks.get(element)
+    if (existing) {
+      existing.count += 1
+      continue
+    }
+    const properties = ['overflow', 'overflow-x', 'overflow-y']
+    if (element === document.body) {
+      properties.push('padding-right')
+    }
+    scrollLocks.set(element, {
+      count: 1,
+      styles: properties.map((property) => ({
+        property,
+        value: element.style.getPropertyValue(property),
+        priority: element.style.getPropertyPriority(property),
+      })),
+    })
+    if (element === document.body) {
+      const view = document.defaultView
+      const scrollbarWidth = Math.max(
+        0,
+        (view?.innerWidth ?? document.documentElement.clientWidth) -
+          document.documentElement.clientWidth,
+      )
+      if (scrollbarWidth > 0) {
+        const currentPadding = Number.parseFloat(
+          view?.getComputedStyle(element).paddingRight ?? '0',
+        )
+        element.style.paddingRight = `${(Number.isNaN(currentPadding) ? 0 : currentPadding) + scrollbarWidth}px`
+      }
+    }
+    element.style.setProperty('overflow', 'hidden', 'important')
+  }
 
   let released = false
 
@@ -361,13 +395,21 @@ export function acquireBodyScrollLock(): () => void {
     }
 
     released = true
-    scrollLockDepth = Math.max(0, scrollLockDepth - 1)
-
-    if (scrollLockDepth === 0) {
-      document.body.style.overflow = previousBodyOverflow
-      document.body.style.paddingRight = previousBodyPaddingRight
-      previousBodyOverflow = ''
-      previousBodyPaddingRight = ''
+    for (const element of elements) {
+      const state = scrollLocks.get(element)!
+      state.count -= 1
+      if (state.count > 0) {
+        continue
+      }
+      for (const { property } of state.styles) {
+        element.style.removeProperty(property)
+      }
+      for (const { property, value, priority } of state.styles) {
+        if (value) {
+          element.style.setProperty(property, value, priority)
+        }
+      }
+      scrollLocks.delete(element)
     }
   }
 }
