@@ -23,7 +23,7 @@ import type { StepperT } from 'moraine'
 - **Horizontal & Vertical Layouts**: Orientation changes both visual layout and arrow-key navigation direction.
 - **Active-Step Content**: An item's `content` renders as the selected tab panel.
 - **State Metadata**: Items are marked `inactive`, `active`, or `completed` according to their position relative to the active step. Moraine does not replace completed icons automatically; provide the icon you want in each item.
-- **Tab Semantics**: The header uses `role="tablist"`, triggers use `role="tab"`, and active content uses `role="tabpanel"` with ID associations.
+- **Tab Semantics**: The list uses `role="tablist"`, triggers use `role="tab"`, and active content uses `role="tabpanel"` with ID associations.
 
 ## Playground
 
@@ -68,18 +68,20 @@ import type { StepperT } from 'moraine'
 
 Use a `content` getter for JSX step panels so inactive panels remain uninstantiated during SSR and hydration.
 
-```text
-root
-├── header (role="tablist")
-│   └── item (×n)
-│       ├── container
-│       │   ├── trigger (role="tab")
-│       │   └── separator (except last)
-│       └── wrapper
-│           ├── title
-│           └── description
-└── content (active role="tabpanel", optional)
-```
+| Slot                   | Purpose                                             |
+| ---------------------- | --------------------------------------------------- |
+| `root`                 | Contains the step list and active panel.            |
+| `list`                 | Tab list containing the step items.                 |
+| `item`                 | Contains one trigger and its separator.             |
+| `trigger`              | Button containing the indicator and text body.      |
+| `indicator`            | Step number or custom icon.                         |
+| `body`                 | Contains the title and description.                 |
+| `title`, `description` | Accessible name and supporting text.                |
+| `separator`            | Connector to the next item; omitted after the last. |
+| `content`              | Active tab panel, when content is provided.         |
+
+The title and description are part of the button's click target and focus outline.
+`Item.class` applies to the step item. Use `classes.content` or `styles.content` to customize the panel, and `classes.indicator` to style the step marker.
 
 ## Usage
 

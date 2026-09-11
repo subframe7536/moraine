@@ -2,10 +2,10 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
-import { defaultTheme } from '../../theme/default-theme'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
-import { Stepper } from './stepper'
+import { Stepper } from './stepper.tsx'
 
 test('reads JSX fields once and delays the inactive panel', () => {
   const reads = { title: 0, description: 0, content: 0 }
@@ -226,35 +226,38 @@ describe('Stepper', () => {
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]')
-    const container = screen.container.querySelector('[data-slot="container"]')
+    const list = screen.getByRole('tablist')
     const trigger = screen.container.querySelector('[data-slot="trigger"]')
     const separator = screen.container.querySelector('[data-slot="separator"]')
     const content = screen.container.querySelector('[data-slot="content"]')
 
     expect(root?.className).toContain('flex-row')
-    expect(container?.className).toContain('self-stretch')
+    expect(list.className).toContain('flex-col')
     expect(root?.className).toContain('root-override')
     expect(trigger?.className).toContain('trigger-override')
     expect(separator?.className).toContain('-bottom-3')
     expect(content?.className).toContain('content-override')
   })
 
-  test('applies stepper size and separator layout classes', () => {
+  test.each([
+    ['sm', '8', '2'],
+    ['md', '9', '2.5'],
+    ['lg', '10', '3'],
+  ] as const)('applies %s sizing and separator layout', (size, diameter, gap) => {
     const screen = render(() => (
       <MoraineProvider theme={defaultTheme}>
-        <Stepper items={ITEMS} size="lg" orientation="vertical" />
+        <Stepper items={ITEMS} size={size} orientation="vertical" />
       </MoraineProvider>
     ))
 
-    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
+    const indicator = screen.container.querySelector('[data-slot="indicator"]') as HTMLElement
     const separator = screen.container.querySelector('[data-slot="separator"]') as HTMLElement
 
     const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
-    expect(root.style.getPropertyValue('--st-size')).toBe('calc(var(--spacing)*10)')
-    expect(root.style.getPropertyValue('--st-sep-top')).toBe('calc(var(--spacing)*11)')
-    expect(root.style.getPropertyValue('--st-gap')).toBe('calc(var(--spacing)*3)')
-    expect(trigger?.className).toContain('size-(--st-size)')
-    expect(separator?.className).toContain('top-(--st-sep-top)')
+    expect(root.style.getPropertyValue('--st-size')).toBe(`calc(var(--spacing)*${diameter})`)
+    expect(root.style.getPropertyValue('--st-gap')).toBe(`calc(var(--spacing)*${gap})`)
+    expect(indicator?.className).toContain('size-(--st-size)')
+    expect(separator?.className).toContain('top-[calc(var(--st-size)+var(--spacing))]')
     expect(separator?.className).toContain('-bottom-3')
   })
 
@@ -329,4 +332,122 @@ describe('Stepper', () => {
     expect(trigger?.style.width).toBe('200px')
     expect(content?.style.width).toBe('200px')
   })
+})
+
+test.each(['horizontal', 'vertical'] as const)(
+  'renders semantic %s steps with full trigger targets',
+  (orientation) => {
+    const view = render(() => (
+      <Stepper
+        orientation={orientation}
+        clickable
+        linear={false}
+        items={[
+          {
+            title: 'First',
+            description: 'First detail',
+            content: 'First panel',
+            class: 'custom-step',
+          },
+          { title: 'Second', description: 'Second detail', content: 'Second panel' },
+        ]}
+      />
+    ))
+    const list = view.getByRole('tablist')
+    expect(list.getAttribute('data-slot')).toBe('list')
+    expect(list.getAttribute('aria-orientation')).toBe(orientation)
+    const items = list.querySelectorAll('[data-slot="item"]')
+    expect(items).toHaveLength(2)
+    for (const item of items) {
+      const trigger = item.querySelector('[role="tab"]')!
+      expect(trigger.parentElement).toBe(item)
+      expect(trigger.querySelector(':scope > [data-slot="indicator"]')).not.toBeNull()
+      const body = trigger.querySelector(':scope > [data-slot="body"]')!
+      expect(body.querySelector('[data-slot="title"]')).not.toBeNull()
+      expect(body.querySelector('[data-slot="description"]')).not.toBeNull()
+    }
+    expect(items[0]!.querySelector(':scope > [data-slot="separator"]')).not.toBeNull()
+    expect(items[1]!.querySelector('[data-slot="separator"]')).toBeNull()
+    expect(
+      list.querySelector('[data-slot="header"], [data-slot="container"], [data-slot="wrapper"]'),
+    ).toBeNull()
+    expect(items[0]!.classList.contains('custom-step')).toBe(true)
+    expect(view.getByRole('tabpanel').classList.contains('custom-step')).toBe(false)
+    fireEvent.click(view.getByText('Second'))
+    expect(view.getAllByRole('tabpanel')).toHaveLength(1)
+    expect(view.getByRole('tabpanel').textContent).toBe('Second panel')
+    expect(view.queryByText('First panel')).toBeNull()
+    fireEvent.click(view.getByText('First detail'))
+    expect(view.getByRole('tabpanel').textContent).toBe('First panel')
+  },
+)
+
+test('updates reactive item fields without replacing the items', () => {
+  const [text, setText] = createSignal('Before')
+  const view = render(() => (
+    <Stepper
+      items={[
+        {
+          get title() {
+            return `${text()} title`
+          },
+          get description() {
+            return `${text()} description`
+          },
+          get icon() {
+            return `icon-${text()}`
+          },
+          get content() {
+            return <span>{text()} panel</span>
+          },
+        },
+      ]}
+    />
+  ))
+  setText('After')
+  const trigger = view.getByRole('tab', { name: 'After title' })
+  expect(trigger.getAttribute('aria-describedby')).toBe(view.getByText('After description').id)
+  expect(trigger.querySelector('.icon-After')).not.toBeNull()
+  expect(view.getByRole('tabpanel').textContent).toBe('After panel')
+})
+
+test.each(['horizontal', 'vertical'] as const)(
+  'skips disabled steps with %s arrow keys',
+  (orientation) => {
+    const view = render(() => (
+      <Stepper
+        orientation={orientation}
+        clickable
+        linear={false}
+        items={[{ title: 'First' }, { title: 'Disabled', disabled: true }, { title: 'Last' }]}
+      />
+    ))
+    const first = view.getByRole('tab', { name: 'First' })
+    const last = view.getByRole('tab', { name: 'Last' })
+    first.focus()
+    fireEvent.keyDown(first, { key: orientation === 'horizontal' ? 'ArrowRight' : 'ArrowDown' })
+    expect(document.activeElement).toBe(last)
+    expect(last.getAttribute('aria-selected')).toBe('true')
+    fireEvent.keyDown(last, { key: orientation === 'horizontal' ? 'ArrowLeft' : 'ArrowUp' })
+    expect(document.activeElement).toBe(first)
+    expect(first.getAttribute('aria-selected')).toBe('true')
+  },
+)
+
+test('disables every trigger when the root is disabled', () => {
+  const onChange = vi.fn()
+  const view = render(() => (
+    <Stepper
+      disabled
+      clickable
+      linear={false}
+      onChange={onChange}
+      items={[{ title: 'First' }, { title: 'Second', description: 'Detail' }]}
+    />
+  ))
+  for (const tab of view.getAllByRole('tab')) {
+    expect((tab as HTMLButtonElement).disabled).toBe(true)
+  }
+  fireEvent.click(view.getByText('Detail'))
+  expect(onChange).not.toHaveBeenCalled()
 })

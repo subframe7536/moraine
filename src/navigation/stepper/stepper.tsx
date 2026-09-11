@@ -1,15 +1,14 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import { Icon } from '../../elements/icon'
-import { createLazyMemo } from '../../shared/create-lazy-memo'
-import { createComponentStyles } from '../../shared/provider'
-import { useCn } from '../../shared/provider/cn-context'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { useId } from '../../shared/utils'
+import { Icon } from '../../elements/icon/index.ts'
+import { useCn } from '../../shared/provider/cn-context.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
+import { useId } from '../../shared/utils.ts'
 
-import type { StepperProps, StepperT } from './stepper.types'
+import type { StepperProps, StepperT } from './stepper.types.ts'
 
 type StepperState = 'inactive' | 'active' | 'completed'
 
@@ -62,31 +61,11 @@ export function Stepper(props: StepperProps): JSX.Element {
   const triggerRefs = new Map<StepperT.Value, HTMLButtonElement>()
 
   const normalizedItems = createMemo<NormalizedStepperItem[]>(() =>
-    (merged.items ?? []).map((item, index) => {
-      const title = createLazyMemo(() => item.title)
-      const description = createLazyMemo(() => item.description)
-      const icon = createLazyMemo(() => item.icon)
-      const content = createLazyMemo(() => item.content)
-      const mergedItem = mergeProps(item, {
-        get title() {
-          return title()
-        },
-        get description() {
-          return description()
-        },
-        get icon() {
-          return icon()
-        },
-        get content() {
-          return content()
-        },
-      })
-      return {
-        item: mergedItem,
-        index,
-        value: item.value ?? String(index),
-      }
-    }),
+    (merged.items ?? []).map((item, index) => ({
+      item,
+      index,
+      value: item.value ?? String(index),
+    })),
   )
 
   const resolvedValue = createMemo(() => {
@@ -112,6 +91,7 @@ export function Stepper(props: StepperProps): JSX.Element {
     const value = resolvedValue()
     return normalizedItems().findIndex((item) => item.value === value)
   })
+  const activeEntry = createMemo(() => normalizedItems()[currentIndex()])
   const { onNavigationKeyDown } = useSelectableCollectionNavigation<
     NormalizedStepperItem,
     StepperT.Value
@@ -179,23 +159,29 @@ export function Stepper(props: StepperProps): JSX.Element {
     return `${id()}-${value}-content`
   }
 
+  function getTitleId(entry: NormalizedStepperItem): string {
+    return `${getContentId(entry.value)}-step-${entry.index}-title`
+  }
+
+  function getDescriptionId(entry: NormalizedStepperItem): string {
+    return `${getContentId(entry.value)}-step-${entry.index}-description`
+  }
+
   return (
     <div id={id()} data-slot="root" {...resolved.root} {...rest}>
       <div
         role="tablist"
         aria-orientation={merged.orientation ?? undefined}
-        data-slot="header"
-        {...resolved.slot('header')}
+        data-slot="list"
+        {...resolved.slot('list')}
       >
         <For each={normalizedItems()}>
           {(entry) => {
-            const state = createMemo(() => getItemState(entry.index))
-            const disabled = createMemo(() => isItemDisabled(entry))
-            const triggerId = createMemo(() => getTriggerId(entry.value))
-            const contentId = createMemo(() => getContentId(entry.value))
-            const titleId = createMemo(() => `${contentId()}-step-${entry.index}-title`)
-            const descriptionId = createMemo(() => `${contentId()}-step-${entry.index}-description`)
-            const selected = createMemo(() => resolvedValue() === entry.value)
+            const state = () => getItemState(entry.index)
+            const disabled = () => isItemDisabled(entry)
+            const selected = () => resolvedValue() === entry.value
+            const title = createMemo(() => entry.item.title)
+            const description = createMemo(() => entry.item.description)
 
             return (
               <div
@@ -205,90 +191,85 @@ export function Stepper(props: StepperProps): JSX.Element {
                 class={cn(resolved.slot('item').class, entry.item.class)}
                 style={resolved.slot('item').style}
               >
-                <div data-slot="container" {...resolved.slot('container')}>
-                  <button
-                    id={triggerId()}
-                    ref={(element) => {
-                      triggerRefs.set(entry.value, element)
-                    }}
-                    type="button"
-                    role="tab"
-                    tabIndex={selected() ? 0 : -1}
-                    aria-controls={contentId()}
-                    aria-selected={selected()}
-                    data-selected={selected() ? '' : undefined}
-                    data-slot="trigger"
+                <button
+                  id={getTriggerId(entry.value)}
+                  ref={(element) => {
+                    triggerRefs.set(entry.value, element)
+                  }}
+                  type="button"
+                  role="tab"
+                  tabIndex={selected() ? 0 : -1}
+                  aria-controls={getContentId(entry.value)}
+                  aria-selected={selected()}
+                  data-selected={selected() ? '' : undefined}
+                  data-slot="trigger"
+                  data-clickable={merged.clickable ? '' : undefined}
+                  disabled={disabled()}
+                  aria-labelledby={title() ? getTitleId(entry) : undefined}
+                  aria-describedby={description() ? getDescriptionId(entry) : undefined}
+                  {...resolved.slot('trigger')}
+                  onClick={() => selectStep(entry.value)}
+                  onKeyDown={(event) => {
+                    onNavigationKeyDown(event, entry.value, merged.orientation ?? 'horizontal')
+                  }}
+                >
+                  <span data-slot="indicator" data-state={state()} {...resolved.slot('indicator')}>
+                    <Icon name={entry.item.icon || (() => entry.index + 1)} />
+                  </span>
+                  <span data-slot="body" {...resolved.slot('body')}>
+                    <Show when={title()}>
+                      {(title) => (
+                        <span data-slot="title" id={getTitleId(entry)} {...resolved.slot('title')}>
+                          {title()}
+                        </span>
+                      )}
+                    </Show>
+                    <Show when={description()}>
+                      {(description) => (
+                        <span
+                          data-slot="description"
+                          id={getDescriptionId(entry)}
+                          {...resolved.slot('description')}
+                        >
+                          {description()}
+                        </span>
+                      )}
+                    </Show>
+                  </span>
+                </button>
+                <Show when={entry.index < normalizedItems().length - 1}>
+                  <span
+                    aria-hidden="true"
+                    data-slot="separator"
                     data-state={state()}
-                    data-clickable={merged.clickable ? '' : undefined}
-                    disabled={disabled()}
-                    aria-labelledby={entry.item.title ? titleId() : undefined}
-                    aria-describedby={entry.item.description ? descriptionId() : undefined}
-                    {...resolved.slot('trigger')}
-                    onClick={() => selectStep(entry.value)}
-                    onKeyDown={(event) => {
-                      onNavigationKeyDown(event, entry.value, merged.orientation ?? 'horizontal')
-                    }}
-                  >
-                    <span data-slot="indicator" {...resolved.slot('indicator')}>
-                      <Icon
-                        name={entry.item.icon || (() => entry.index + 1)}
-                        class={resolved.slot('icon').class}
-                        style={resolved.slot('icon').style}
-                      />
-                    </span>
-                  </button>
-
-                  <Show when={entry.index < normalizedItems().length - 1}>
-                    <div
-                      data-slot="separator"
-                      data-state={state()}
-                      data-disabled={disabled() ? '' : undefined}
-                      {...resolved.slot('separator')}
-                    />
-                  </Show>
-                </div>
-
-                <div data-slot="wrapper" {...resolved.slot('wrapper')}>
-                  <Show when={entry.item.title}>
-                    <div data-slot="title" id={titleId()} {...resolved.slot('title')}>
-                      {entry.item.title}
-                    </div>
-                  </Show>
-
-                  <Show when={entry.item.description}>
-                    <div
-                      data-slot="description"
-                      id={descriptionId()}
-                      {...resolved.slot('description')}
-                    >
-                      {entry.item.description}
-                    </div>
-                  </Show>
-                </div>
+                    data-disabled={disabled() ? '' : undefined}
+                    {...resolved.slot('separator')}
+                  />
+                </Show>
               </div>
             )
           }}
         </For>
       </div>
-
-      <For each={normalizedItems()}>
+      <Show when={activeEntry()} keyed>
         {(entry) => (
-          <Show when={resolvedValue() === entry.value && entry.item.content}>
-            <div
-              id={getContentId(entry.value)}
-              role="tabpanel"
-              tabIndex={0}
-              aria-labelledby={getTriggerId(entry.value)}
-              data-selected=""
-              data-slot="content"
-              class={cn(resolved.slot('content').class, entry.item.class)}
-              style={resolved.slot('content').style}
-            >
-              {entry.item.content}
-            </div>
+          <Show when={entry.item.content}>
+            {(content) => (
+              <div
+                id={getContentId(entry.value)}
+                role="tabpanel"
+                tabIndex={0}
+                aria-labelledby={getTriggerId(entry.value)}
+                data-selected=""
+                data-slot="content"
+                {...resolved.slot('content')}
+              >
+                {content()}
+              </div>
+            )}
           </Show>
         )}
-      </For>
+      </Show>
     </div>
   )
 }

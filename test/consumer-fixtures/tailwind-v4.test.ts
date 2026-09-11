@@ -27,7 +27,9 @@ const CANDIDATES = [
   'h-(--s-size)',
   'size-(--s-thumb-size)',
   'size-(--st-size)',
-  'start-[calc(50%+var(--st-sep-x))]',
+  'top-[calc(var(--st-size)/2)]',
+  'start-[calc(var(--st-size)/2-var(--spacing)*0.75)]',
+  'top-[calc(var(--st-size)+var(--spacing))]',
   '[&:not([data-inverted])]:after:left-(--s-marker-position)',
 ]
 
@@ -99,7 +101,9 @@ describe('isolated built-dist Tailwind v4 consumer', () => {
     expect(css).toContain('var(--primary)')
     expect(css).toContain('height: var(--s-size)')
     expect(css).toContain('var(--st-size)')
-    expect(css).toContain('var(--st-sep-x)')
+    expect(css).toContain('top: calc(var(--st-size) / 2)')
+    expect(css).toContain('inset-inline-start: calc(var(--st-size) / 2 - var(--spacing) * 0.75)')
+    expect(css).toContain('top: calc(var(--st-size) + var(--spacing))')
     expect(css).toContain('width: var(--s-thumb-size)')
     expect(css).toContain('height: var(--s-thumb-size)')
     expect(css).toContain('left: var(--s-marker-position)')
