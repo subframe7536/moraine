@@ -1115,7 +1115,7 @@ describe('MultiSelect', () => {
     fireEvent.click(items[0]!)
 
     expect(new FormData(form).getAll('fruits')).toEqual(['banana', 'apple'])
-    expect(form.querySelectorAll('select[name="fruits"]')).toHaveLength(1)
+    expect(form.querySelectorAll('input[type="hidden"][name="fruits"]')).toHaveLength(2)
   })
 
   test('keeps a read-only multi-select focusable while blocking all mutations', () => {
@@ -1194,10 +1194,7 @@ describe('MultiSelect', () => {
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
     const input = screen.getByRole<HTMLInputElement>('combobox')
-    const nativeSelect = form.querySelector('select[name="fruits"]') as HTMLSelectElement
-
-    expect(nativeSelect.multiple).toBe(true)
-    expect(Array.from(nativeSelect.selectedOptions)).toHaveLength(0)
+    expect(new FormData(form).getAll('fruits')).toEqual([])
     expect(form.checkValidity()).toBe(false)
     expect(input.name).toBe('')
     expect(input.required).toBe(false)

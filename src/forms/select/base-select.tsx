@@ -18,6 +18,8 @@ import { List } from '../../elements/list'
 import type { ListProps, ListT } from '../../elements/list'
 import { useFloatingPosition } from '../../overlays/base/floating'
 import { useOverlayInteraction } from '../../overlays/base/interaction'
+import { acquireBodyScrollLock } from '../../overlays/base/utils.ts'
+import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { useCn } from '../../shared/provider/cn-context'
 import type { createComponentStyles } from '../../shared/provider/create-component-styles'
 import type { ComponentOrElement } from '../../shared/render-prop'
@@ -414,7 +416,10 @@ function useBaseSelectOverlay(options: {
     on(options.contentPresence.present, (present) => {
       if (!present) {
         options.contentPresence.setElement(undefined)
+        return
       }
+
+      onCleanup(acquireBodyScrollLock())
     }),
   )
 
@@ -633,21 +638,24 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   )
   const selectedOptions = createMemo(() => selectedResolution().options)
   const selectedOptionIds = createMemo(() => new Set(selectedOptions().map((option) => option.id)))
-  const nativeFormEntries = createMemo<
-    Array<
-      | { type: 'option'; option: NormalizedOption<TItem> }
-      | { type: 'unmatched'; value: BaseSelectT.Value }
-    >
-  >(() => {
-    const selectedIds = selectedOptionIds()
-
-    return [
-      ...selectedResolution().entries,
-      ...allFlatOptions()
-        .filter((option) => !selectedIds.has(option.id))
-        .map((option) => ({ type: 'option' as const, option })),
-    ]
+  const formValues = createMemo(() => {
+    if (!merged.multiple && selectedValues().length === 0) {
+      return ['']
+    }
+    return selectedResolution().entries.flatMap((entry) =>
+      entry.type === 'unmatched'
+        ? [String(entry.value)]
+        : entry.option.disabled
+          ? []
+          : [String(entry.option.value)],
+    )
   })
+  // A text input participates in required validation; hidden inputs only serialize values.
+  const validationValue = () => {
+    const values = selectedValues()
+    const hasValue = merged.multiple ? values.length > 0 : String(values[0] ?? '') !== ''
+    return hasValue ? 'selected' : ''
+  }
 
   const [openState, setOpenState] = useControllableValue<boolean>({
     value: () => merged.open,
@@ -658,7 +666,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   let controlRef: HTMLDivElement | undefined
   let comboboxRef: HTMLElement | undefined
   let listboxRef: HTMLDivElement | undefined
-  let nativeFormSelectRef: HTMLSelectElement | undefined
+  let validationInputRef: HTMLInputElement | undefined
   let hasReachedScrollBottom = false
   let disposed = false
 
@@ -688,30 +696,6 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         setCurrentInputText(searchValue)
       },
     ),
-  )
-
-  function syncNativeSelectState(
-    selectedIds: Set<string>,
-    values: BaseSelectT.Value[],
-    multiple: boolean | undefined,
-  ): void {
-    const select = nativeFormSelectRef
-    if (!select) {
-      return
-    }
-
-    for (const option of select.options) {
-      option.selected = option.hasAttribute('data-empty-option')
-        ? !multiple && values.length === 0
-        : option.hasAttribute('data-unmatched-option') ||
-          selectedIds.has(option.dataset.optionId ?? '')
-    }
-  }
-
-  createEffect(
-    on([selectedOptionIds, selectedValues, () => merged.multiple], ([ids, values, multiple]) => {
-      syncNativeSelectState(ids, values, multiple)
-    }),
   )
 
   const visibleOptions = createMemo<Array<NormalizedOption<TItem> | NormalizedGroup<TItem>>>(() => {
@@ -888,7 +872,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   }
 
   useFormReset(
-    () => nativeFormSelectRef?.form,
+    () => validationInputRef?.form,
     () => {
       if (disposed) {
         return
@@ -899,7 +883,9 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         field,
         setInputValue,
       })
-      syncNativeSelectState(selectedOptionIds(), selectedValues(), merged.multiple)
+      if (validationInputRef) {
+        validationInputRef.value = validationValue()
+      }
     },
   )
 
@@ -1325,59 +1311,39 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       {...rest}
       {...resolved.root}
     >
-      <select
+      <HiddenInput
         ref={(element) => {
-          nativeFormSelectRef = element
+          validationInputRef = element
         }}
+        type="text"
         aria-hidden="true"
-        class="sr-only"
+        autocomplete="off"
         disabled={field.disabled()}
-        multiple={merged.multiple}
-        name={field.name()}
         required={field.required()}
         tabIndex={-1}
-        onChange={(event) => {
-          if (field.disabled() || field.readOnly() || merged.multiple) {
-            syncNativeSelectState(selectedOptionIds(), selectedValues(), merged.multiple)
-            return
-          }
-
-          const optionId = event.currentTarget.selectedOptions[0]?.dataset.optionId
-          const option = allFlatOptions().find((candidate) => candidate.id === optionId) ?? null
-          merged.onOptionSelect(option, {
-            allFlatOptions,
-            field,
-            setInputValue,
-          })
-          syncNativeSelectState(selectedOptionIds(), selectedValues(), merged.multiple)
+        value={validationValue()}
+        onInput={(event) => {
+          event.currentTarget.value = validationValue()
         }}
-      >
-        <Show when={!merged.multiple}>
-          <option data-empty-option value="" selected={selectedValues().length === 0} />
-        </Show>
-        <For each={nativeFormEntries()}>
-          {(entry) => {
-            if (entry.type === 'unmatched') {
-              return (
-                <option data-unmatched-option value={entry.value} selected>
-                  {String(entry.value)}
-                </option>
-              )
-            }
-
-            return (
-              <option
-                value={entry.option.value}
-                data-option-id={entry.option.id}
-                disabled={entry.option.disabled}
-                selected={selectedOptionIds().has(entry.option.id)}
-              >
-                {entry.option.key}
-              </option>
-            )
-          }}
-        </For>
-      </select>
+        onChange={(event) => {
+          event.currentTarget.value = validationValue()
+        }}
+        onInvalid={(event) => {
+          event.preventDefault()
+          comboboxRef?.focus()
+        }}
+      />
+      <For each={formValues()}>
+        {(value) => (
+          <HiddenInput
+            type="hidden"
+            visuallyHidden={false}
+            name={field.name()}
+            value={value}
+            disabled={field.disabled()}
+          />
+        )}
+      </For>
 
       {childrenRender()({
         ...stateApi,

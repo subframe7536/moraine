@@ -161,12 +161,14 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
         option,
         classes: {
           empty: resolved.slot('empty').class,
+          itemLeading: resolved.slot('itemLeading').class,
           itemLabel: resolved.slot('itemLabel').class,
           itemDescription: resolved.slot('itemDescription').class,
           itemTrailing: resolved.slot('itemTrailing').class,
         },
         styles: {
           empty: resolved.slot('empty').style,
+          itemLeading: resolved.slot('itemLeading').style,
           itemLabel: resolved.slot('itemLabel').style,
           itemDescription: resolved.slot('itemDescription').style,
           itemTrailing: resolved.slot('itemTrailing').style,

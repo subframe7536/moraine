@@ -282,8 +282,22 @@
       "ariaAttributes": []
     },
     {
+      "name": "itemLeading",
+      "description": "Leading icon inside an option row.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
+    },
+    {
       "name": "itemLabel",
-      "description": "Primary label text inside an option row.",
+      "description": "Text region containing the primary label and optional description.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []

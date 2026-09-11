@@ -135,7 +135,7 @@ export interface DemoProps { title: string }
     expect(result?.componentDocs.size).toBeGreaterThan(0)
     expect(result?.componentDocs.has('button')).toBe(true)
     expect(result?.componentDocs.get('button')?.slots).toHaveLength(5)
-    expect(result?.componentDocs.get('select')?.slots).toHaveLength(15)
+    expect(result?.componentDocs.get('select')?.slots).toHaveLength(16)
     expect(resultProps(result, 'select').map((prop) => prop.name)).toContain('onChange')
     expect(resultProps(result, 'dialog').map((prop) => prop.name)).toContain('open')
     expect(

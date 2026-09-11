@@ -32,10 +32,16 @@ interface RenderDefaultSelectOptionOptions<TItem> {
       })
     | null
   classes?: Partial<
-    Record<'empty' | 'itemDescription' | 'itemLabel' | 'itemTrailing', SlotClassValue>
+    Record<
+      'empty' | 'itemLeading' | 'itemDescription' | 'itemLabel' | 'itemTrailing',
+      SlotClassValue
+    >
   >
   styles?: Partial<
-    Record<'empty' | 'itemDescription' | 'itemLabel' | 'itemTrailing', SlotStyleValue>
+    Record<
+      'empty' | 'itemLeading' | 'itemDescription' | 'itemLabel' | 'itemTrailing',
+      SlotStyleValue
+    >
   >
   labelRender?: ComponentOrElement<{ option: TItem }>
 }
@@ -316,36 +322,37 @@ export function renderDefaultSelectOption<TItem>(
     )
   }
 
-  const label = (): JSX.Element => (
-    <span
-      data-slot="itemLabel"
-      style={options.styles?.itemLabel}
-      class={cn(options.classes?.itemLabel)}
-    >
-      <Show when={options.labelRender !== undefined} fallback={option.label}>
-        {renderComponentOrElement(options.labelRender, { option })}
-      </Show>
-    </span>
-  )
-
   return (
     <>
-      <span data-option-wrapper>
-        <Show when={option.icon}>{(icon) => <Icon name={icon()} data-option-icon />}</Show>
-        <span data-option-text>
-          {label()}
-          <Show when={option.description}>
-            {(description) => (
-              <span
-                data-slot="itemDescription"
-                style={options.styles?.itemDescription}
-                class={cn(options.classes?.itemDescription)}
-              >
-                {description()}
-              </span>
-            )}
-          </Show>
-        </span>
+      <Show when={option.icon}>
+        {(icon) => (
+          <Icon
+            name={icon()}
+            slotName="itemLeading"
+            class={cn(options.classes?.itemLeading)}
+            style={options.styles?.itemLeading}
+          />
+        )}
+      </Show>
+      <span
+        data-slot="itemLabel"
+        style={options.styles?.itemLabel}
+        class={cn(options.classes?.itemLabel)}
+      >
+        <Show when={options.labelRender !== undefined} fallback={option.label}>
+          {renderComponentOrElement(options.labelRender, { option })}
+        </Show>
+        <Show when={option.description}>
+          {(description) => (
+            <span
+              data-slot="itemDescription"
+              style={options.styles?.itemDescription}
+              class={cn(options.classes?.itemDescription)}
+            >
+              {description()}
+            </span>
+          )}
+        </Show>
       </span>
 
       <Show when={option.isSelected}>

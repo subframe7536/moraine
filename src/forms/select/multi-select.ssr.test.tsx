@@ -99,13 +99,16 @@ describe('MultiSelect SSR Hydration', () => {
     const root = container.querySelector('[data-slot="root"]')
     const control = container.querySelector('[data-slot="control"]')
     const tag = container.querySelector('[data-slot="tag"]')
-    const nativeSelect = container.querySelector('select[name="fruits"]')
+    const formInput = container.querySelector<HTMLInputElement>(
+      'input[type="hidden"][name="fruits"]',
+    )
     const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!
 
     expect(root).not.toBeNull()
     expect(control).not.toBeNull()
     expect(tag).not.toBeNull()
-    expect(nativeSelect).not.toBeNull()
+    expect(formInput?.value).toBe('apple')
+    expect(container.querySelector('select, option')).toBeNull()
     expect(input.getAttribute('aria-expanded')).toBe('false')
     expect(reads).toEqual({
       options: 1,

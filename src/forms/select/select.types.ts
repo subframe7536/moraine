@@ -40,7 +40,9 @@ export namespace SelectT {
   export interface OptionSlot<T = unknown> {
     /** Message shown when filtering leaves no selectable options. */
     empty?: T
-    /** Primary label text inside an option row. */
+    /** Leading icon inside an option row. */
+    itemLeading?: T
+    /** Text region containing the primary label and optional description. */
     itemLabel?: T
     /** Supporting description text inside an option row. */
     itemDescription?: T

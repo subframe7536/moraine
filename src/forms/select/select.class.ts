@@ -24,16 +24,16 @@ const SELECT_BASE_CLASSES = {
   root: 'inline-flex h-fit w-full relative',
   content: SELECT_CONTENT_CLASS,
   listbox: 'm-0 p-1 outline-none max-h-(--mo-popper-content-available-height) overflow-y-auto',
-  item: '[&_[data-option-wrapper]]:(flex flex-1 gap-2 min-w-0 items-center) [&_[data-option-icon]]:shrink-0 [&_[data-option-text]]:(flex-1 min-w-0) px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between relative data-highlighted:bg-muted data-disabled:(opacity-64 pointer-events-none)',
+  item: 'px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center justify-between relative data-highlighted:bg-muted data-disabled:(opacity-64 pointer-events-none)',
   group: '[&:not(:first-child)]:mt-1.5',
   label: 'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
   leading: SELECT_LEADING_ICON_CLASS,
   clear: `${SELECT_CLEAR_ACTION_CLASS} border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center`,
   empty: 'text-sm text-muted-foreground p-2 text-center',
-  itemLabel: 'truncate',
+  itemLeading: 'shrink-0',
+  itemLabel: 'flex-1 min-w-0 truncate',
   itemDescription: 'text-xs text-muted-foreground block',
-  itemTrailing:
-    'text-sm flex shrink-0 size-4 pointer-events-none items-center end-2 justify-center absolute',
+  itemTrailing: 'text-sm flex shrink-0 size-4 pointer-events-none items-center justify-center',
 } as const
 
 const SELECT_DEFAULTS = {
