@@ -612,7 +612,7 @@ function AttributesSection(props: { section: PropsTableSection }): JSX.Element {
         <Show when={activeSlot()}>
           {(slot) => {
             const hasData = () => filteredSlotMatchCount() > 0
-            const attributes = filteredSlotAttributes()
+            const attributes = filteredSlotAttributes
 
             return (
               <div class="pt-1 space-y-4">
@@ -651,34 +651,34 @@ function AttributesSection(props: { section: PropsTableSection }): JSX.Element {
                   }
                 >
                   <div class="space-y-4">
-                    <Show when={attributes.css.length > 0}>
+                    <Show when={attributes().css.length > 0}>
                       <AttributeCategoryTable
                         kind="css"
                         title="CSS Variables"
                         nameColumn="CSS Variable"
-                        attributes={attributes.css}
+                        attributes={attributes().css}
                         copiedKey={copiedKey()}
                         onCopy={handleCopy}
                       />
                     </Show>
 
-                    <Show when={attributes.data.length > 0}>
+                    <Show when={attributes().data.length > 0}>
                       <AttributeCategoryTable
                         kind="data"
                         title="Data Attributes"
                         nameColumn="Data Attribute"
-                        attributes={attributes.data}
+                        attributes={attributes().data}
                         copiedKey={copiedKey()}
                         onCopy={handleCopy}
                       />
                     </Show>
 
-                    <Show when={attributes.aria.length > 0}>
+                    <Show when={attributes().aria.length > 0}>
                       <AttributeCategoryTable
                         kind="aria"
                         title="ARIA Attributes"
                         nameColumn="ARIA Attribute"
-                        attributes={attributes.aria}
+                        attributes={attributes().aria}
                         copiedKey={copiedKey()}
                         onCopy={handleCopy}
                       />
