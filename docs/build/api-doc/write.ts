@@ -27,6 +27,11 @@ async function removeStaleApiJson(pagesRoot: string): Promise<void> {
 export async function writeJsonFiles(pagesRoot: string, result: GenerationResult): Promise<void> {
   const projectRoot = path.dirname(path.dirname(pagesRoot))
   const pageDirectoryByKey = getPageDirectoryByKey(pagesRoot)
+  const embeddedComponentKeys = new Set(
+    [...result.componentDocs.values()]
+      .filter((doc) => pageDirectoryByKey.has(doc.component.key))
+      .flatMap((doc) => doc.primitives?.map((primitive) => primitive.component.key) ?? []),
+  )
   const apiIndexDoc = {
     components: result.indexDoc.components.filter((component) =>
       pageDirectoryByKey.has(component.key),
@@ -44,7 +49,9 @@ export async function writeJsonFiles(pagesRoot: string, result: GenerationResult
   const writes = [...result.componentDocs.entries()].flatMap(([key, doc]) => {
     const pageDirectory = pageDirectoryByKey.get(key)
     if (!pageDirectory) {
-      console.warn(`[api-doc] No docs page found for "${key}", skipping colocated api.json`)
+      if (!embeddedComponentKeys.has(key)) {
+        console.warn(`[api-doc] No docs page found for "${key}", skipping colocated api.json`)
+      }
       return []
     }
     return [

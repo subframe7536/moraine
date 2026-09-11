@@ -144,6 +144,14 @@ export function createDocsApiReferenceModel(
   }
 
   for (const primitive of apiDoc.primitives ?? []) {
+    if (primitive.slots.length > 0) {
+      sections.push({
+        id: `api-${primitive.component.key}-attributes`,
+        heading: `${primitive.component.name} Attributes`,
+        slots: primitive.slots,
+        props: [],
+      })
+    }
     sections.push({
       id: `api-${primitive.component.key}`,
       heading: primitive.component.name,

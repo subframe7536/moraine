@@ -33,6 +33,13 @@ export function getApiReferenceTocEntries(
   }
 
   for (const primitive of apiDoc.primitives ?? []) {
+    if (primitive.slots.length > 0) {
+      sections.push({
+        id: `api-${primitive.component.key}-attributes`,
+        label: `${primitive.component.name} Attributes`,
+        level: 2,
+      })
+    }
     sections.push({
       id: `api-${primitive.component.key}`,
       label: primitive.component.name,
