@@ -38,7 +38,7 @@
     },
     {
       "name": "item",
-      "description": "Wrapper for one step trigger.",
+      "description": "One step trigger and its connector.",
       "cssVariables": [],
       "dataAttributes": [
         {
@@ -54,13 +54,6 @@
           "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
         }
       ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "container",
-      "description": "Text column inside a step trigger.",
-      "cssVariables": [],
-      "dataAttributes": [],
       "ariaAttributes": []
     },
     {
@@ -124,7 +117,14 @@
       "name": "indicator",
       "description": "Step marker that communicates index, active state, or completion.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-state",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -159,11 +159,18 @@
           "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
         }
       ],
-      "ariaAttributes": []
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
     },
     {
       "name": "wrapper",
-      "description": "Inner layout wrapper for a single step trigger.",
+      "description": "Optional title and description column inside the trigger.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []

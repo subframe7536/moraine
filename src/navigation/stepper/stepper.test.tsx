@@ -226,36 +226,71 @@ describe('Stepper', () => {
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]')
-    const container = screen.container.querySelector('[data-slot="container"]')
     const trigger = screen.container.querySelector('[data-slot="trigger"]')
     const separator = screen.container.querySelector('[data-slot="separator"]')
     const content = screen.container.querySelector('[data-slot="content"]')
 
     expect(root?.className).toContain('flex-row')
-    expect(container?.className).toContain('self-stretch')
     expect(root?.className).toContain('root-override')
     expect(trigger?.className).toContain('trigger-override')
-    expect(separator?.className).toContain('-bottom-3')
+    expect(separator?.className).toContain('bottom-1')
     expect(content?.className).toContain('content-override')
   })
 
-  test('applies stepper size and separator layout classes', () => {
+  test.each([
+    ['sm', 'size-8', 'start-4', 'top-9'],
+    ['md', 'size-9', 'start-4.5', 'top-10'],
+    ['lg', 'size-10', 'start-5', 'top-11'],
+  ] as const)('applies %s sizing and reactive orientation', (size, markerSize, start, top) => {
+    const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
     const screen = render(() => (
       <MoraineProvider theme={defaultTheme}>
-        <Stepper items={ITEMS} size="lg" orientation="vertical" />
+        <Stepper items={ITEMS} size={size} orientation={orientation()} />
       </MoraineProvider>
     ))
-
-    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
-    const separator = screen.container.querySelector('[data-slot="separator"]') as HTMLElement
-
+    const indicator = screen.container.querySelector<HTMLElement>('[data-slot="indicator"]')!
+    const separator = screen.container.querySelector<HTMLElement>('[data-slot="separator"]')!
     const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
-    expect(root.style.getPropertyValue('--st-size')).toBe('calc(var(--spacing)*10)')
-    expect(root.style.getPropertyValue('--st-sep-top')).toBe('calc(var(--spacing)*11)')
-    expect(root.style.getPropertyValue('--st-gap')).toBe('calc(var(--spacing)*3)')
-    expect(trigger?.className).toContain('size-(--st-size)')
-    expect(separator?.className).toContain('top-(--st-sep-top)')
-    expect(separator?.className).toContain('-bottom-3')
+    expect(indicator.className).toContain(markerSize)
+    expect(root.getAttribute('style')).toBeNull()
+    expect(separator.classList.contains(start)).toBe(false)
+    expect(separator.classList.contains(top)).toBe(false)
+    expect(separator.className).toContain('flex-1')
+    setOrientation('vertical')
+    expect(separator.className).toContain('absolute')
+    expect(separator.classList.contains(start)).toBe(true)
+    expect(separator.classList.contains(top)).toBe(true)
+    expect(separator.className).not.toContain('flex-1')
+    expect(screen.container.querySelector('[data-slot="indicator"]')).toBe(indicator)
+  })
+
+  test('selects through the title and description and updates indicator state', () => {
+    const screen = render(() => <Stepper items={ITEMS} clickable />)
+    const triggers = screen.getAllByRole('tab')
+    const title = screen.getByText('Shipping')
+    const description = screen.getByText('Confirm your order')
+    expect(triggers[1]!.contains(title)).toBe(true)
+    expect(triggers[2]!.contains(description)).toBe(true)
+    fireEvent.click(title)
+    expect(triggers[1]!.getAttribute('aria-selected')).toBe('true')
+    fireEvent.click(description)
+    expect(triggers[2]!.getAttribute('aria-selected')).toBe('true')
+    const states = Array.from(screen.container.querySelectorAll('[data-slot="indicator"]')).map(
+      (element) => element.getAttribute('data-state'),
+    )
+    expect(states).toEqual(['completed', 'completed', 'active'])
+    expect(screen.container.querySelector('[data-slot="container"]')).toBeNull()
+    const separators = screen.container.querySelectorAll('[data-slot="separator"]')
+    expect(separators).toHaveLength(2)
+    expect(separators[0]!.getAttribute('aria-hidden')).toBe('true')
+    expect(separators[0]!.parentElement).toBe(triggers[0]!.parentElement)
+  })
+
+  test('omits empty text wrappers and the connector for a single step', () => {
+    const screen = render(() => <Stepper items={[{}]} />)
+    expect(screen.container.querySelector('[data-slot="wrapper"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="separator"]')).toBeNull()
+    expect(screen.getByRole('tab').textContent).toBe('1')
   })
 
   test('omits default visual styles without a provider and preserves activation', () => {

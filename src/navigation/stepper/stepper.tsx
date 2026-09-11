@@ -1,15 +1,15 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import { Icon } from '../../elements/icon'
-import { createLazyMemo } from '../../shared/create-lazy-memo'
-import { createComponentStyles } from '../../shared/provider'
-import { useCn } from '../../shared/provider/cn-context'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { useId } from '../../shared/utils'
+import { Icon } from '../../elements/icon/index.ts'
+import { createLazyMemo } from '../../shared/create-lazy-memo.ts'
+import { useCn } from '../../shared/provider/cn-context.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
+import { useId } from '../../shared/utils.ts'
 
-import type { StepperProps, StepperT } from './stepper.types'
+import type { StepperProps, StepperT } from './stepper.types.ts'
 
 type StepperState = 'inactive' | 'active' | 'completed'
 
@@ -205,66 +205,66 @@ export function Stepper(props: StepperProps): JSX.Element {
                 class={cn(resolved.slot('item').class, entry.item.class)}
                 style={resolved.slot('item').style}
               >
-                <div data-slot="container" {...resolved.slot('container')}>
-                  <button
-                    id={triggerId()}
-                    ref={(element) => {
-                      triggerRefs.set(entry.value, element)
-                    }}
-                    type="button"
-                    role="tab"
-                    tabIndex={selected() ? 0 : -1}
-                    aria-controls={contentId()}
-                    aria-selected={selected()}
-                    data-selected={selected() ? '' : undefined}
-                    data-slot="trigger"
-                    data-state={state()}
-                    data-clickable={merged.clickable ? '' : undefined}
-                    disabled={disabled()}
-                    aria-labelledby={entry.item.title ? titleId() : undefined}
-                    aria-describedby={entry.item.description ? descriptionId() : undefined}
-                    {...resolved.slot('trigger')}
-                    onClick={() => selectStep(entry.value)}
-                    onKeyDown={(event) => {
-                      onNavigationKeyDown(event, entry.value, merged.orientation ?? 'horizontal')
-                    }}
-                  >
-                    <span data-slot="indicator" {...resolved.slot('indicator')}>
-                      <Icon
-                        name={entry.item.icon || (() => entry.index + 1)}
-                        class={resolved.slot('icon').class}
-                        style={resolved.slot('icon').style}
-                      />
-                    </span>
-                  </button>
-
-                  <Show when={entry.index < normalizedItems().length - 1}>
-                    <div
-                      data-slot="separator"
-                      data-state={state()}
-                      data-disabled={disabled() ? '' : undefined}
-                      {...resolved.slot('separator')}
+                <button
+                  id={triggerId()}
+                  ref={(element) => {
+                    triggerRefs.set(entry.value, element)
+                  }}
+                  type="button"
+                  role="tab"
+                  tabIndex={selected() ? 0 : -1}
+                  aria-controls={contentId()}
+                  aria-selected={selected()}
+                  data-selected={selected() ? '' : undefined}
+                  data-slot="trigger"
+                  data-state={state()}
+                  data-clickable={merged.clickable ? '' : undefined}
+                  disabled={disabled()}
+                  aria-labelledby={entry.item.title ? titleId() : undefined}
+                  aria-describedby={entry.item.description ? descriptionId() : undefined}
+                  {...resolved.slot('trigger')}
+                  onClick={() => selectStep(entry.value)}
+                  onKeyDown={(event) => {
+                    onNavigationKeyDown(event, entry.value, merged.orientation ?? 'horizontal')
+                  }}
+                >
+                  <span data-state={state()} data-slot="indicator" {...resolved.slot('indicator')}>
+                    <Icon
+                      name={entry.item.icon || (() => entry.index + 1)}
+                      class={resolved.slot('icon').class}
+                      style={resolved.slot('icon').style}
                     />
-                  </Show>
-                </div>
+                  </span>
 
-                <div data-slot="wrapper" {...resolved.slot('wrapper')}>
-                  <Show when={entry.item.title}>
-                    <div data-slot="title" id={titleId()} {...resolved.slot('title')}>
-                      {entry.item.title}
-                    </div>
-                  </Show>
+                  <Show when={entry.item.title || entry.item.description}>
+                    <span data-slot="wrapper" {...resolved.slot('wrapper')}>
+                      <Show when={entry.item.title}>
+                        <span data-slot="title" id={titleId()} {...resolved.slot('title')}>
+                          {entry.item.title}
+                        </span>
+                      </Show>
 
-                  <Show when={entry.item.description}>
-                    <div
-                      data-slot="description"
-                      id={descriptionId()}
-                      {...resolved.slot('description')}
-                    >
-                      {entry.item.description}
-                    </div>
+                      <Show when={entry.item.description}>
+                        <span
+                          data-slot="description"
+                          id={descriptionId()}
+                          {...resolved.slot('description')}
+                        >
+                          {entry.item.description}
+                        </span>
+                      </Show>
+                    </span>
                   </Show>
-                </div>
+                </button>
+                <Show when={entry.index < normalizedItems().length - 1}>
+                  <div
+                    aria-hidden="true"
+                    data-slot="separator"
+                    data-state={state()}
+                    data-disabled={disabled() ? '' : undefined}
+                    {...resolved.slot('separator')}
+                  />
+                </Show>
               </div>
             )
           }}

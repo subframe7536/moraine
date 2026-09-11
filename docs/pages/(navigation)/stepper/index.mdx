@@ -66,18 +66,19 @@ import type { StepperT } from 'moraine'
 
 ## Anatomy
 
-Use a `content` getter for JSX step panels so inactive panels remain uninstantiated during SSR and hydration.
+Use a `content` getter for JSX step panels so inactive panels remain uninstantiated during SSR and hydration. The indicator, title, and description share one trigger. Horizontal navigation scrolls when the steps cannot fit.
 
 ```text
 root
 ├── header (role="tablist")
 │   └── item (×n)
-│       ├── container
-│       │   ├── trigger (role="tab")
-│       │   └── separator (except last)
-│       └── wrapper
-│           ├── title
-│           └── description
+│       ├── trigger (role="tab")
+│       │   ├── indicator
+│       │   │   └── icon
+│       │   └── wrapper (optional)
+│       │       ├── title
+│       │       └── description
+│       └── separator (except last)
 └── content (active role="tabpanel", optional)
 ```
 

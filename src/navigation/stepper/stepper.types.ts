@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 
-import type { IconT } from '../../elements/icon/icon.types'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { IconT } from '../../elements/icon/icon.types.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
 export namespace StepperT {
   export type Kind = 'single'
@@ -17,11 +17,8 @@ export namespace StepperT {
     /** Step navigation header that contains all step triggers. */
     header?: T
 
-    /** Wrapper for one step trigger. */
+    /** One step trigger and its connector. */
     item?: T
-
-    /** Text column inside a step trigger. */
-    container?: T
 
     /** Interactive step control users activate to select a step. */
     trigger?: T
@@ -35,7 +32,7 @@ export namespace StepperT {
     /** Connector line between adjacent steps. */
     separator?: T
 
-    /** Inner layout wrapper for a single step trigger. */
+    /** Optional title and description column inside the trigger. */
     wrapper?: T
 
     /** Primary title text for a step. */

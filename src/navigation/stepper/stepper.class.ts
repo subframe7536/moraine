@@ -5,19 +5,19 @@ import type { StepperT } from './stepper.types.ts'
 export const stepperRecipe = /* @__PURE__ */ slotRecipe<StepperT.Slot, StepperT.Variant>({
   base: {
     root: 'flex gap-2',
-    header: 'flex',
+    header: 'flex min-w-0',
     item: 'min-w-0 relative data-disabled:(opacity-64 pointer-events-none)',
-    container: 'flex items-center relative',
     trigger:
-      'rounded-full inline-flex size-(--st-size) transition-colors items-center justify-center focus-visible:(outline-none ring-3 ring-ring/50) data-clickable:cursor-pointer data-[state=inactive]:(text-muted-foreground border-input bg-background shadow-xs) data-[state=active]:(text-primary-foreground border-primary bg-primary) data-[state=completed]:(text-primary-foreground border-primary bg-primary)',
-    indicator: 'inline-flex items-center justify-center size-full',
+      'rounded-md inline-flex min-w-0 items-center text-start focus-visible:(outline-none ring-3 ring-ring/50) data-clickable:cursor-pointer',
+    indicator:
+      'inline-flex shrink-0 items-center justify-center rounded-full transition-colors data-[state=inactive]:(text-muted-foreground border-input bg-background shadow-xs) data-[state=active]:(text-primary-foreground border-primary bg-primary) data-[state=completed]:(text-primary-foreground border-primary bg-primary)',
     icon: '',
     separator:
-      'rounded-full bg-border transition-colors absolute data-[state=completed]:bg-primary data-disabled:opacity-75',
-    wrapper: 'min-w-0',
+      'rounded-full bg-border transition-colors data-[state=completed]:bg-primary data-disabled:opacity-75',
+    wrapper: 'flex flex-col min-w-0',
     title: 'text-foreground leading-snug font-medium',
     description: 'text-muted-foreground leading-normal text-wrap',
-    content: 'w-full',
+    content: 'w-full min-w-0',
   },
   defaults: {
     orientation: 'horizontal',
@@ -27,53 +27,51 @@ export const stepperRecipe = /* @__PURE__ */ slotRecipe<StepperT.Slot, StepperT.
     orientation: {
       horizontal: {
         root: 'flex-col w-full',
-        header: 'w-full',
-        item: 'text-center flex-1 w-full',
-        container: 'justify-center',
-        separator:
-          'h-1.5 end-[calc(-50%+var(--st-sep-x))] start-[calc(50%+var(--st-sep-x))] top-1/2 -translate-y-1/2',
-        wrapper: 'mt-(--st-gap) text-center w-full',
+        header: 'w-full gap-3 overflow-x-auto p-1',
+        item: 'flex flex-1 min-w-min items-center gap-3 last:flex-none',
+        separator: 'h-px min-w-4 flex-1',
       },
       vertical: {
         root: 'flex-row gap-6 w-full items-start',
-        header: 'flex-col gap-4 min-w-0',
-        item: 'text-start flex gap-(--st-gap) items-start',
-        container: 'shrink-0 flex-col self-stretch',
-        separator: 'w-1.5 left-1/2 top-(--st-sep-top) -translate-x-1/2 -bottom-3',
-        wrapper: 'pt-(--st-pt) text-start',
+        header: 'flex-col',
+        item: 'not-last:pb-6',
+        trigger: 'items-start',
+        separator: 'absolute w-px bottom-1 -translate-x-1/2 rtl:translate-x-1/2',
       },
     },
     size: {
       sm: {
-        '--st-size': 'calc(var(--spacing)*8)',
-        '--st-sep-x': 'calc(var(--spacing)*6)',
-        '--st-sep-top': 'calc(var(--spacing)*9)',
-        '--st-gap': 'calc(var(--spacing)*2)',
-        '--st-pt': 'calc(var(--spacing)*0.5)',
-        trigger: 'text-xs',
+        trigger: 'gap-2',
+        indicator: 'size-8 text-xs',
         title: 'text-xs',
         description: 'text-xs',
       },
       md: {
-        '--st-size': 'calc(var(--spacing)*9)',
-        '--st-sep-x': 'calc(var(--spacing)*7)',
-        '--st-sep-top': 'calc(var(--spacing)*10)',
-        '--st-gap': 'calc(var(--spacing)*2.5)',
-        '--st-pt': 'var(--spacing)',
-        trigger: 'text-sm',
+        trigger: 'gap-2.5',
+        indicator: 'size-9 text-sm',
         title: 'text-sm',
         description: 'text-sm',
       },
       lg: {
-        '--st-size': 'calc(var(--spacing)*10)',
-        '--st-sep-x': 'calc(var(--spacing)*8)',
-        '--st-sep-top': 'calc(var(--spacing)*11)',
-        '--st-gap': 'calc(var(--spacing)*3)',
-        '--st-pt': 'var(--spacing)',
-        trigger: 'text-base',
+        trigger: 'gap-3',
+        indicator: 'size-10 text-base',
         title: 'text-base',
         description: 'text-base',
       },
     },
   },
+  compoundVariants: [
+    {
+      variants: { orientation: 'vertical', size: 'sm' },
+      separator: 'start-4 top-9',
+    },
+    {
+      variants: { orientation: 'vertical', size: 'md' },
+      separator: 'start-4.5 top-10',
+    },
+    {
+      variants: { orientation: 'vertical', size: 'lg' },
+      separator: 'start-5 top-11',
+    },
+  ],
 })

@@ -92,7 +92,7 @@ describe('isolated built-dist UnoCSS consumer', () => {
       expect(css).toContain('height:var(--mo-collapsible-content-height)')
       expect(css).toContain('height:var(--s-offset)')
       expect(css).toContain('left:var(--s-marker-position)')
-      expect(css).toContain('var(--st-sep-x)')
+      expect(css).not.toContain('--st-')
       expect(css).toContain('width:var(--s-thumb-size)')
       expect(css).toContain('height:var(--s-thumb-size)')
     },
