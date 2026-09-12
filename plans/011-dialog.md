@@ -1,6 +1,6 @@
 # Plan 011: Make Dialog.Content the primary styled composition surface
 
-> Executor: read this file plus `plans/README.md` before implementation. This plan replaces the previous Panel-versus-raw-Content dual-path design.
+> Executor: read this file plus `plans/README.md` before implementation. This plan replaces the previous Panel-versus-raw-Content dual-path design and uses plan 003's `as` polymorphism for host replacement.
 
 ## Status
 
@@ -25,11 +25,9 @@ Share one private dialog behavior implementation with Modal/Sheet facades; style
 
 ```tsx
 <Dialog>
-  <Dialog.Trigger
-    render={(domProps) => (
-      <Button {...domProps} variant="outline">Edit project</Button>
-    )}
-  />
+  <Dialog.Trigger as={Button} variant="outline">
+    Edit project
+  </Dialog.Trigger>
 
   <Dialog.Content>
     <Dialog.Header>
@@ -46,7 +44,7 @@ Share one private dialog behavior implementation with Modal/Sheet facades; style
 </Dialog>
 ```
 
-The content tree is user-owned. Do not reintroduce title/description/body/footer convenience props that secretly assemble a second structure path.
+The content tree is user-owned. `Dialog.Trigger` selects Button as its host through `as`; its children remain the actual Button content. Do not reintroduce a host-level `render` callback or title/description/body/footer convenience props that secretly assemble a second structure path.
 
 ## Public contract
 
@@ -58,9 +56,12 @@ The content tree is user-owned. Do not reintroduce title/description/body/footer
 
 ### Trigger / Close
 
-- use the shared plan-003 host-render protocol;
-- real composition with Button/custom hosts must be tested;
-- preserve refs, user handlers and disabled semantics.
+- use plan 003's `as` polymorphism for intrinsic/custom host replacement;
+- default host semantics remain valid when `as` is omitted;
+- `children` remains content passed to the selected host;
+- composition such as `Dialog.Trigger as={Button}` must preserve Dialog's required ARIA/events/ref plus Button's own props and behavior;
+- preserve refs, user handlers and disabled semantics;
+- do not expose a second host-level `render` prop.
 
 ### Content
 
@@ -69,7 +70,8 @@ The content tree is user-owned. Do not reintroduce title/description/body/footer
 - children are arbitrary structure;
 - creates/uses the correct visual Provider scope once;
 - supports accessible labelling through Title/Description and explicit aria-label/aria-labelledby where appropriate;
-- must not depend on Header/Body/Footer being present.
+- must not depend on Header/Body/Footer being present;
+- may use `as` only where changing the Content host is semantically safe and demonstrably useful; do not add polymorphism solely for namespace symmetry.
 
 ### Header / Body / Footer
 
@@ -87,7 +89,8 @@ Before exposing them, prove an actual customization need. If public:
 
 - they remain attached parts of Dialog rather than a new public primitives package;
 - Overlay outside Content resolves its own nearest visual Provider styles;
-- custom portal/overlay composition cannot create a second focus/dismiss authority.
+- custom portal/overlay composition cannot create a second focus/dismiss authority;
+- any polymorphic visual host follows the same `as` contract rather than adding `render`.
 
 ## Styling
 
@@ -101,6 +104,14 @@ Before exposing them, prove an actual customization need. If public:
 
 The old assembled Content API migrates to explicit children under `Dialog.Content`.
 
+Any prior host-level `render` examples migrate to `as`:
+
+```tsx
+<Dialog.Trigger as={Button} variant="outline">
+  Edit project
+</Dialog.Trigger>
+```
+
 Do not create a long-lived `Dialog.Panel` alias solely to preserve the previous plan. If compatibility with already-released public props is required, keep a temporary deprecated facade only when real external consumers exist and record its removal path.
 
 Docs must include a before/after migration for any old `title`, `description`, `header`, `body`, `footer`, `close` convenience props whose semantics change.
@@ -110,7 +121,11 @@ Docs must include a before/after migration for any old `title`, `description`, `
 Cover:
 
 - Trigger -> Content -> Close basic composition;
-- Trigger rendered through Button/custom component;
+- `Trigger as={Button}` and another custom-component target;
+- Trigger children arrive as selected-host content;
+- required Dialog ARIA/event/ref props survive custom host composition;
+- Button/custom target-specific props remain type-checkable;
+- negative type test for host-level `render`;
 - keyboard open/close, escape, outside dismissal, focus restore and focus containment;
 - controlled/uncontrolled open state;
 - reopen during exit/presence transition;
@@ -149,7 +164,8 @@ git diff --check
 
 - [ ] Dialog has one primary public Content anatomy.
 - [ ] Content accepts arbitrary structure without a competing hidden assembly path.
-- [ ] Host composition works with Button/custom triggers.
+- [ ] Trigger/Close custom hosts use `as`; host-level `render` is absent.
+- [ ] `Dialog.Trigger as={Button}` preserves both behavior and Button props/content.
 - [ ] Accessibility IDs are correct in initial SSR and after conditional changes.
 - [ ] Styling override semantics remain Moraine-owned and composable.
 - [ ] Dialog/Modal share one behavior implementation.
@@ -157,4 +173,4 @@ git diff --check
 
 ## STOP conditions
 
-Stop if Content and a convenience surface require separate open/focus/dismiss state, if accessibility can only be repaired after client mount, if custom hosts require type erasure, or if public Portal/Overlay parts are being added without a demonstrated customization need.
+Stop if Content and a convenience surface require separate open/focus/dismiss state, if accessibility can only be repaired after client mount, if custom `as` hosts require type erasure/wrappers/JSX inspection, or if public Portal/Overlay parts are being added without a demonstrated customization need.
