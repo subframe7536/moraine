@@ -1,6 +1,6 @@
-# Plan 026: Align MultiSelect composition with Select without weakening array semantics
+# Plan 026: Align MultiSelect namespace composition with Select
 
-> Executor: activate this DEFERRED plan only when the MultiSelect family is explicitly selected. Read `plans/README.md`, plan 012 and plan 013 first.
+> Executor: activate this DEFERRED plan only when MultiSelect is selected. Read `plans/README.md`, plan 012 and plan 013 first.
 
 ## Status
 
@@ -13,17 +13,13 @@
 
 ## Why this matters
 
-MultiSelect should reuse the validated Select composition and optional-collection model while keeping one array-valued selection/form authority.
-
-`options` is optional complete-collection metadata, not mandatory structure. Declarative `Item` parts can register mounted option metadata when no complete collection is supplied. Search/virtualization over unmounted entries still require explicit complete metadata.
-
-Add MultiSelect-specific selected-value presentation only where it has real structural value: `Value`, `Tag` and `TagRemove`. Do not fork the Select popup/query/navigation behavior.
+MultiSelect reuses Select's renderer-free composition and optional metadata model while keeping one array-valued selection/form authority. Visible structure is expressed only through namespace parts and children; remove `optionRender`, `tagRender`, `labelRender`, `emptyRender` and `virtualRender`.
 
 ## Target anatomy
 
 ```tsx
 <MultiSelect value={teams()} onChange={setTeams} options={teamOptions}>
-  <div class="flex flex-wrap gap-1">
+  <MultiSelect.Tags>
     <For each={teams()}>
       {(value) => (
         <MultiSelect.Tag value={value}>
@@ -32,7 +28,7 @@ Add MultiSelect-specific selected-value presentation only where it has real stru
         </MultiSelect.Tag>
       )}
     </For>
-  </div>
+  </MultiSelect.Tags>
 
   <MultiSelect.Trigger>
     <MultiSelect.Value placeholder="Choose teams" />
@@ -44,7 +40,7 @@ Add MultiSelect-specific selected-value presentation only where it has real stru
       <For each={teamOptions}>
         {(option) => (
           <MultiSelect.Item value={option.value}>
-            {option.label}
+            <MultiSelect.ItemLabel>{option.label}</MultiSelect.ItemLabel>
           </MultiSelect.Item>
         )}
       </For>
@@ -58,48 +54,27 @@ Do not add `MultiSelect.Items` merely to wrap `<For>`.
 
 ## Contract
 
-- Root value is always array-valued and remains the only selection/form serialization authority.
-- Mounted tags and items are presentation/metadata registrations, never complete selected state.
-- Optional `options` follows the same complete-data rules as Select for search, virtualization and label lookup.
-- Tag removal updates root array state without toggling the popup or breaking IME/focus behavior.
-- `TagRemove` must not create invalid nested interactive controls. Its documented placement should avoid nesting a button inside Trigger/button hosts.
-- Selected labels may come from complete option metadata, explicit Tag children or a deterministic raw-value fallback.
-- Preserve current form reset/required/readOnly/disabled semantics and existing renderer behavior only under the precedence rules established in plan 013.
-- Reuse Select popup/query/highlight/navigation internals; do not create a MultiSelect-specific fork.
-
-## Styling
-
-- Reuse Moraine theme/Provider/`classes/styles` behavior.
-- Tags, Value, Content, List, Item, Empty and Search receive default Moraine styling when composed manually.
-- Local part `class/style` remains the narrowest override.
-- `emptyTheme` must preserve interaction geometry and removable-tag semantics.
+- Root array value remains the only selection/form serialization authority.
+- `options` is behavior/complete-collection metadata, not a rendering API.
+- `Tags`, `Tag`, `TagLabel`, `TagRemove` render selected-value presentation.
+- Select's `ItemLeading`, `ItemLabel`, `ItemDescription`, `ItemTrailing`, `Value`, `Empty`, `Search`, `List` and `Content` concepts are reused rather than callback renderers.
+- Remove `optionRender`, `tagRender`, `labelRender`, `emptyRender`, `virtualRender` and their public renderer-prop types.
+- Tag removal updates root array state without toggling the popup.
+- `TagRemove` must not create invalid nested interactive controls.
+- Selected labels come from explicit Tag/Value children, complete metadata, or deterministic raw-value fallback.
+- Renderer-free virtualization follows plan 013; no MultiSelect-specific JSX renderer fork.
+- Host replacement, where valid, uses `as`; children remains content.
 
 ## Acceptance tests
 
-Cover:
-
-- declarative items without root options;
-- complete options with search/virtualization;
-- controlled/uncontrolled arrays and form serialization;
-- reset/required/readOnly/disabled;
-- Tag/TagRemove from selected values;
-- removing a tag does not open/toggle popup;
-- IME/search behavior;
-- labels before popup mount with and without metadata;
-- duplicate/unknown values and actionable diagnostics;
-- selected item unmount does not silently remove controlled value;
-- renderer/explicit-part precedence inherited from Select;
-- SSR/hydration and nested overlay behavior;
-- theme replacement, emptyTheme and local overrides.
+Cover declarative items without options, complete metadata search/virtualization, controlled/uncontrolled arrays, form serialization/reset/required/readOnly/disabled, Tag/TagRemove behavior, IME/search, labels before popup mount, duplicate/unknown values, SSR/hydration, themes, and negative declaration tests for all removed `*Render` props.
 
 ## Scope
 
-- `src/forms/select` MultiSelect public implementation/types/tests
+- `src/forms/select` MultiSelect implementation/types/tests
 - MultiSelect docs/API metadata
 - direct Form consumers
-- browser/type tests as needed
-
-Do not change single Select semantics in this plan except for shared fixes proven necessary by the MultiSelect reuse contract.
+- browser/type tests
 
 ## Verification
 
@@ -116,10 +91,13 @@ git diff --check
 
 ## Done criteria
 
-- [ ] MultiSelect uses the same composition/data model as Select.
+- [ ] MultiSelect visible structure is namespace-rendered.
+- [ ] All public MultiSelect `*Render` props are removed.
 - [ ] Array/form state has one authority.
-- [ ] Tags are presentation, not a parallel selected-state store.
-- [ ] `options` is optional except where complete logical data is genuinely required.
 - [ ] Search/virtualization/label lookup boundaries match Select.
-- [ ] No `MultiSelect.Items` assembler or duplicated behavior kernel was introduced.
+- [ ] No `MultiSelect.Items` assembler or duplicated behavior kernel exists.
 - [ ] Full regression gates pass.
+
+## STOP conditions
+
+Stop if renderer removal requires a parallel selected-state store, JSX scanning, or virtualization taking ownership of JSX rendering.
