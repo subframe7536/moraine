@@ -1,6 +1,6 @@
-# Plan 013: Make Select composition-first with optional collection data
+# Plan 013: Make Select composition-first with namespace-rendered content
 
-> Executor: read this file plus `plans/README.md` and plan 012 before implementation. This plan replaces the previous mandatory-root-options structural path and follows plan 003's `as`-only host polymorphism.
+> Executor: read this file plus `plans/README.md` and plan 012 before implementation. This plan follows plan 003's `as`-only host polymorphism and the repository-wide rule that public `*Render` props are removed in favor of namespace components.
 
 ## Status
 
@@ -13,17 +13,13 @@
 
 ## Why this matters
 
-Select should expose one shadcn-style composition model while keeping Moraine styling and behavior. `options` becomes optional complete-collection metadata, not a mandatory duplicate of the rendered item tree.
+Select should expose one composition model while keeping Moraine styling and behavior. `options` is optional complete-collection metadata, not a rendering API. All visible Select structure is rendered by namespace components and their children.
 
-Expose the smallest useful anatomy: `Trigger`, `Value`, `Content`, `List`, `Item`, `Empty` and `Search` where search is enabled. Add Group/GroupLabel or lower-level Portal/Positioner only when a demonstrated customization requires them.
+Expose `Trigger`, `Value`, `Content`, `List`, `Item`, `ItemLeading`, `ItemLabel`, `ItemDescription`, `ItemTrailing`, `Empty` and `Search` where search is enabled. Add Group/GroupLabel or lower-level Portal/Positioner only when a demonstrated customization requires them.
 
-Do not add `Select.Items` merely to hide an application `<For>` loop. Do not maintain a second "complete default widget" implementation selected by whether children exists.
-
-For host replacement on parts such as Trigger, use `as`; do not introduce host-level `render`. `children` remains the part's actual content.
+Remove public `optionRender`, `labelRender`, `emptyRender` and `virtualRender`. Do not replace them with differently named callback renderers. Do not add `Select.Items` merely to hide an application `<For>` loop.
 
 ## Target anatomy
-
-Static composition without root options:
 
 ```tsx
 <Select defaultValue="design">
@@ -32,19 +28,25 @@ Static composition without root options:
   </Select.Trigger>
   <Select.Content>
     <Select.List>
-      <Select.Item value="design">Design</Select.Item>
-      <Select.Item value="engineering">Engineering</Select.Item>
+      <Select.Item value="design">
+        <Select.ItemLeading><DesignIcon /></Select.ItemLeading>
+        <Select.ItemLabel>Design</Select.ItemLabel>
+        <Select.ItemDescription>Product and visual design</Select.ItemDescription>
+      </Select.Item>
+      <Select.Item value="engineering">
+        <Select.ItemLabel>Engineering</Select.ItemLabel>
+      </Select.Item>
     </Select.List>
     <Select.Empty>No teams available</Select.Empty>
   </Select.Content>
 </Select>
 ```
 
-Dynamic composition from application data:
+Dynamic application data:
 
 ```tsx
 <Select options={teams} value={team()} onChange={setTeam}>
-  <Select.Trigger>
+  <Select.Trigger as={Button} variant="outline">
     <Select.Value placeholder="Choose a team" />
   </Select.Trigger>
   <Select.Content>
@@ -53,7 +55,7 @@ Dynamic composition from application data:
       <For each={teams}>
         {(team) => (
           <Select.Item value={team.value} disabled={team.disabled}>
-            {team.label}
+            <Select.ItemLabel>{team.label}</Select.ItemLabel>
           </Select.Item>
         )}
       </For>
@@ -63,124 +65,59 @@ Dynamic composition from application data:
 </Select>
 ```
 
-Custom Trigger host:
-
-```tsx
-<Select options={teams} value={team()} onChange={setTeam}>
-  <Select.Trigger as={Button} variant="outline">
-    <Select.Value placeholder="Choose a team" />
-  </Select.Trigger>
-  <Select.Content>
-    <Select.List>
-      <For each={teams}>
-        {(team) => <Select.Item value={team.value}>{team.label}</Select.Item>}
-      </For>
-    </Select.List>
-  </Select.Content>
-</Select>
-```
-
-`options` may power complete-dataset search, virtualization and selected-label lookup, but it must not replace the explicit structure.
-
 ## Public contract
 
-### Root
+### Root / metadata
 
-- owns value/open/query/highlight/form behavior through plan 012;
-- `options` is optional complete-collection metadata;
-- readonly option arrays should be accepted where practical;
-- root generic inference must survive attaching static parts;
-- no hidden default structure is selected by omitted children.
+- Root owns value/open/query/highlight/form behavior through plan 012.
+- `options` is optional complete-collection metadata for features that need unmounted entries: complete-dataset search, selected-label lookup and virtualization.
+- Metadata never renders JSX. It may carry explicit text/search/display metadata, but namespace parts own visible structure.
+- No hidden default structure is selected by omitted children.
 
 ### Trigger
 
-- is the interactive opener and uses plan 003 `as` polymorphism where host replacement is needed;
-- Trigger children define trigger structure/content and are passed to the selected host;
-- target-component-specific props remain type-checkable for `as={CustomComponent}`;
-- required Select ARIA/state/events/ref must survive `as={Button}` / custom hosts;
-- disabled/readOnly/form semantics remain root behavior, not local copies;
-- no host-level `render` prop.
+- Trigger is the interactive opener and uses `as` for valid intrinsic/custom host replacement.
+- Trigger children are actual selected-host content.
+- Required Select ARIA/state/events/ref survive `as={Button}` / custom hosts.
+- No host-level `render` prop.
 
 ### Value
 
-- renders selected display content from explicit children, content-rendering APIs, or resolved option metadata according to one documented precedence;
-- when `options` supplies label metadata, Value may resolve a label before Content mounts;
-- when no label metadata exists, use a documented deterministic fallback (for example raw value or explicit Value children) rather than mounting Content invisibly;
-- placeholder behavior remains explicit;
-- any legacy content renderer remains a content API, not a host factory.
-
-### Content
-
-- is the primary styled popup surface and owns the stable portal/positioning assembly internally unless lower-level parts are required by real customizations;
-- arbitrary heading/search/list/empty structure is allowed inside Content;
-- Content does not own a second selection/query state;
-- if Content host polymorphism is later justified, it must use the same `as` contract rather than another render mechanism.
-
-### Search
-
-- is the one visible search input for built-in search behavior;
-- there is no hidden competing Search control;
-- with complete `options`, built-in filtering may cover unmounted entries;
-- without complete metadata, search/typeahead operates only on explicitly registered searchable metadata and must document that boundary;
-- IME behavior, query reset and keyboard focus movement must remain correct.
+- `Select.Value` is the only selected-value presentation part.
+- Explicit children win when supplied.
+- Otherwise it may resolve display text from complete option metadata; when unavailable use a documented deterministic fallback such as raw value/placeholder.
+- Remove `labelRender`; custom selected-value structure belongs inside `Select.Value` children or another explicit namespace part if a demonstrated need exists.
 
 ### List / Item
 
-- Item `value` is required in declarative mode;
-- Item may declare disabled/search text/display metadata without requiring root `options`;
-- mounted registration informs behavior but is not the selected-value authority;
-- ordinary dynamic rendering uses application `<For>`;
-- do not infer a parent generic from a static child Item through unsupported TypeScript magic. Keep Item value types useful and document the boundary;
-- any semantically valid Item/List host replacement uses `as`; children stays row/list content.
+- `Item value` is required in declarative mode.
+- `Item` registers semantic metadata but its children/attached parts render the row.
+- `ItemLeading`, `ItemLabel`, `ItemDescription`, `ItemTrailing` replace option/label render callbacks and existing visual slots.
+- Dynamic application data uses `<For>`.
+- No `optionRender` or equivalent callback.
 
 ### Empty
 
-- one visible empty-state path only;
-- if legacy `emptyRender` remains for compatibility, define precedence against explicit `Select.Empty` and never render both;
-- prefer explicit part composition for the new API.
+- `Select.Empty` is the one empty-state presentation path.
+- Remove `emptyRender`; consumers customize by composing children in `Select.Empty`.
 
-## Legacy renderer precedence
+### Search / virtualization
 
-Existing `optionRender`, `labelRender`, `emptyRender`, `virtualRender` and `scrollToItem` behavior must either be preserved with a single documented precedence or intentionally migrated/deprecated.
+- Search is one visible namespace part backed by root query behavior.
+- Complete-dataset search/virtualization may require `options` because unmounted entries cannot be inferred from JSX.
+- Remove `virtualRender`. Virtualization internals expose visible logical entries/geometry/state to the namespace-rendered list path; they do not accept a JSX renderer callback.
+- If the current virtualization architecture cannot preserve explicit `Select.Item` rendering without a render callback, refactor the virtualization boundary rather than retaining `virtualRender`.
+- `scrollToItem` may remain only if it is an imperative behavior hook and not JSX rendering; prefer internal/default scrolling when possible.
 
-These are **content/data rendering APIs**, not substitutes for `as` host polymorphism.
+## Migration map
 
-Required rule: explicit structural parts must not accidentally double-render legacy renderer output.
+- `optionRender` → `Select.Item` + `ItemLeading` / `ItemLabel` / `ItemDescription` / `ItemTrailing`.
+- `labelRender` → `Select.Value` children and/or `Select.ItemLabel` metadata.
+- `emptyRender` → `Select.Empty` children.
+- `virtualRender` → renderer-free virtualization behavior + ordinary namespace item rendering.
+- host-level `render` → `as`.
 
-Before implementation, record a table for:
-
-- explicit Item children vs `optionRender`;
-- Value children vs `labelRender` / option metadata;
-- explicit Empty vs `emptyRender`;
-- virtualized row renderer vs explicit Item composition.
-
-If a renderer has no coherent role in the composition-first API, deprecate it with a migration path rather than maintaining two competing content-rendering systems forever.
-
-## Search / virtualization boundary
-
-Complete-dataset search and virtualization inherently need logical entries that may not be mounted. Therefore:
-
-- permit/require `options` for those capabilities when necessary;
-- do not derive virtual/search data by traversing child JSX or mounted DOM;
-- manual structure may still add headings/toolbars around List without reimplementing search, keyboard navigation, clear behavior or form synchronization.
-
-A key acceptance case is: **add one heading to Content while retaining all existing Select functionality**.
-
-## Styling
-
-- Reuse existing Select theme slots and `createComponentStyles`.
-- Every public part receives normal Moraine styling when composed manually.
-- Root `classes/styles` and part-local `class/style` preserve documented precedence.
-- Content internal portal/positioning mechanics must survive `emptyTheme`.
-- Custom structure must not require copying Moraine's default class list.
-
-## SSR boundary
-
-- A selected label required in first server HTML needs complete metadata or explicit Value content.
-- Do not open/mount hidden popup content during SSR solely to resolve a label.
-- Trigger/Value ARIA references must be valid on first HTML and remain stable through hydration.
-- Declarative Item registration after mount must not rewrite a controlled value.
-- `as` must not create an extra wrapper or duplicate trigger node during SSR/hydration.
+Do not keep deprecated renderer props unless a released compatibility requirement is explicitly proven. The target API and declaration tests must reject them.
 
 ## Acceptance tests
 
@@ -189,47 +126,30 @@ Cover:
 - static Select with no `options`;
 - dynamic `<For>` rendering;
 - readonly `options` and root generic inference;
-- selected Value before Content has mounted, both with and without metadata;
-- search with complete options and search in registered-only mode;
+- Item visual subparts and arbitrary children;
+- selected Value before Content mounts, with/without metadata;
+- custom Value children;
+- Search with complete options and registered-only mode;
+- renderer-free virtualization with complete logical data;
 - IME and keyboard navigation;
-- explicit heading added inside Content without rebuilding infrastructure;
 - form submit/reset/required/readOnly/disabled;
 - controlled value rejection and serialization;
 - unknown/duplicate Item values with actionable diagnostics;
-- renderer/part precedence with no duplicate content;
-- virtualization with complete logical data;
 - SSR/hydration and nested overlays;
 - theme replacement, emptyTheme and local overrides;
-- `Trigger as={Button}` and a custom target with target-specific props;
-- Trigger children remain actual selected-host content;
-- negative declaration test for host-level `render`.
-
-MultiSelect's existing behavior must continue passing while shared internals change.
+- `Trigger as={Button}` and custom target props;
+- negative declaration tests for `optionRender`, `labelRender`, `emptyRender`, `virtualRender` and host-level `render`.
 
 ## Scope
 
 - `src/forms/select`
 - Select docs/API/type tests
 - relevant Form consumers
+- renderer-free shared List/virtualization integration
 - overlay base only for required integration
 - browser tests
 
-Do not redesign MultiSelect public anatomy in this unit; plan 026 follows this contract.
-
-## Migration
-
-Remove the requirement that every structural Select duplicate its options in the root. Existing data-driven callers may keep `options`, especially for search/virtualization/label metadata.
-
-Any host-level `render` prototype/examples must migrate to `as={...}`; children remain the part content.
-
-Docs should teach:
-
-1. static composed Select without options;
-2. dynamic data with `<For>`;
-3. searchable data with `options` metadata;
-4. localized structural customization;
-5. `Trigger as={Button}`;
-6. selected-label/SSR boundary.
+MultiSelect public anatomy follows in plan 026.
 
 ## Verification
 
@@ -246,15 +166,14 @@ git diff --check
 
 ## Done criteria
 
-- [ ] Select works composition-first without mandatory `options`.
-- [ ] Optional `options` metadata uses the same behavior authority.
-- [ ] Host replacement uses `as`; children remains content.
-- [ ] Search, selected labels and virtualization have explicit complete-data boundaries.
-- [ ] No `Select.Items` convenience assembler was introduced.
-- [ ] Explicit parts and legacy content renderers have one documented precedence with no double rendering.
-- [ ] Existing styling overrides work in composed structure.
-- [ ] Form, browser, SSR, declaration and full regression gates pass.
+- [ ] Visible Select content is rendered by namespace parts/children.
+- [ ] `optionRender`, `labelRender`, `emptyRender`, `virtualRender` are removed from the public API.
+- [ ] Host replacement uses `as` only.
+- [ ] Optional `options` metadata feeds behavior, not JSX rendering.
+- [ ] Search/virtualization preserve the namespace rendering model.
+- [ ] No `Select.Items` convenience assembler is introduced.
+- [ ] Form/browser/SSR/declaration/full regression gates pass.
 
 ## STOP conditions
 
-Stop if implementation requires scanning/evaluating JSX as data, if mounted items become the selected/form value authority, if selected labels require hidden popup mounting, if custom structure loses built-in search/form behavior, if `as` requires wrappers/type erasure/JSX inspection, or if legacy content renderers and explicit parts cannot be given an unambiguous precedence.
+Stop if implementation requires scanning/evaluating JSX as data, if mounted items become selected/form value authority, if selected labels require hidden popup mounting, if virtualization can only work by owning JSX rendering, or if removed renderer props are reintroduced under aliases.
