@@ -26,7 +26,9 @@ The [PR #37 experiment](pr37-prototype-findings.md) reused Modal/ModalSurface su
 
 Use plan 002's failing reproduction to establish an SSR-capable surface/portal contract within the existing shared owner. Document server placement and hydration placement before implementation; verify the actual server surface, initial accessible name/description, and preserved node identity and parentage through hydration. Cover default-open/controlled-open and conditional content. Do not silently downgrade the requirement to client-only rendering or count mount-time ARIA repair as SSR correctness.
 
-Plan 011 cannot complete until this prerequisite passes. If resolving portal placement requires changing the agreed hydration identity/parentage contract or an out-of-scope platform API, stop and revise that contract explicitly before implementing it. Keep one presence/focus/dismiss authority and preserve existing Modal/Popover/Tooltip consumers.
+[Round two](pr37-prototype-round2-findings.md) reproduced the equivalent omission through PopperContent for default-open Select. Cover both modal and non-modal server surfaces in this shared prerequisite; a closed selected-value label is not evidence for an open listbox. Add a listbox fixture under the existing test/browser or SSR harness scope, leaving Select public anatomy to plan 013.
+
+Plans 011 and 013 cannot complete their SSR acceptance until this prerequisite passes. If resolving portal placement requires changing the agreed hydration identity/parentage contract or an out-of-scope platform API, stop and revise that contract explicitly before implementing it. Keep one presence/focus/dismiss authority and preserve existing Modal/Popover/Tooltip consumers.
 
 ## Current state
 
@@ -140,7 +142,7 @@ Use the family's existing regression suite as the structural pattern. For public
 
 ## Done criteria
 
-- [ ] Server-open surface and initial label relationships render before hydration, and the plan 002 identity/parentage reproduction passes.
+- [ ] Server-open Modal and Popper surfaces render with initial label/role relationships; both plan 002 identity/parentage reproductions pass.
 - [ ] Focused tests execute and pass, including the cases listed above.
 - [ ] `nub run typecheck` and `nub run test:types` exit 0.
 - [ ] `nub run docs:build`, `nub run test` and `nub run qa` exit 0.

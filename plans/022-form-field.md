@@ -2,21 +2,21 @@
 
 > Executor: read this entire file, execute only when selected, follow each verification gate, and stop on the conditions below. This is a standalone handoff; reading the umbrella plan or other plan bodies is not required. Update this plan's row in `plans/README.md` when finished. Creating this plan did not authorize implementation.
 >
-> Drift check: `git diff --stat 7d9633ca405c2bcf256481298486c7daee3e1456..HEAD -- src/forms/form 'docs/pages/(form)/form' src/shared/type-test/default/index.tsx src/shared/type-test/autocomplete/index.tsx src/forms/shared/native-text-control.test.tsx src/forms/radio-group/radio-group.test.tsx src/forms/shared`. Also inspect `git status --short` and `git diff -- src/forms/form 'docs/pages/(form)/form' src/shared/type-test/default/index.tsx src/shared/type-test/autocomplete/index.tsx src/forms/shared/native-text-control.test.tsx src/forms/radio-group/radio-group.test.tsx src/forms/shared` for uncommitted work. Expected prerequisite edits must be reconciled against the contract below and recorded before proceeding; unexplained drift is a STOP condition. Never overwrite existing user changes.
+> Drift check: `git diff --stat 7d9633ca405c2bcf256481298486c7daee3e1456..HEAD -- src/forms/form 'docs/pages/(form)/form' src/shared/type-test/default/index.tsx src/shared/type-test/autocomplete/index.tsx src/forms/shared/native-text-control.test.tsx src/forms/radio-group/radio-group.test.tsx src/forms/shared src/forms/input src/forms/textarea src/forms/select test/browser`. Also inspect `git status --short` and `git diff -- src/forms/form 'docs/pages/(form)/form' src/shared/type-test/default/index.tsx src/shared/type-test/autocomplete/index.tsx src/forms/shared/native-text-control.test.tsx src/forms/radio-group/radio-group.test.tsx src/forms/shared src/forms/input src/forms/textarea src/forms/select test/browser` for uncommitted work. Expected prerequisite edits must be reconciled against the contract below and recorded before proceeding; unexplained drift is a STOP condition. Never overwrite existing user changes.
 
 ## Status
 
 - **Priority**: P2
 - **Effort**: L
 - **Risk**: HIGH
-- **Depends on**: [003-host-render.md](003-host-render.md), [010-tabs.md](010-tabs.md)
+- **Depends on**: [003-host-render.md](003-host-render.md), [008-input.md](008-input.md), [010-tabs.md](010-tabs.md), [013-select-parts.md](013-select-parts.md)
 - **Category**: dx
 - **Planned at**: commit `7d9633ca405c2bcf256481298486c7daee3e1456`, 2026-09-11
 - **State**: DEFERRED — candidate; activate only when this family is selected
 
 ## Why this matters
 
-Keep default label/description/help and RenderContext children. Add family-local composition="manual" with Label/Description/Hint/Help/Error/Content/Layout. Layout only assembles parts and must never call useField a second time. Preserve createForm returning bound form.Form/form.Field and schema/path inference; no global Form runtime. FormT.Kind stays single, FormFieldT.Kind becomes composite only when parts ship. Preserve error={false}, explicit errors and field-error priority plus control registration and dynamic associations.
+Preserve the existing default label/description/help layout with ordinary JSX children. Add family-local composition="manual" with demonstrated namespace parts. Remove public RenderContext JSX callbacks in accordance with the index; data/behavior callbacks remain separate. Start with Label/Description/Error/Content; add Hint/Help/Layout only for demonstrated needs. Layout parts must never call useField a second time. Preserve createForm returning bound form.Form/form.Field and schema/path inference; no global Form runtime. FormT.Kind stays single, FormFieldT.Kind becomes composite only when parts ship. Preserve error={false}, explicit errors and field-error priority plus control registration and dynamic associations.
 
 The delivery boundary is this component or shared capability, including its own regressions, public types and necessary consumer/docs migration. A larger public surface is not a success metric; remove any proposed part that has no demonstrated structural or semantic use.
 
@@ -32,16 +32,26 @@ Here form is the result of createForm with a schema containing displayName. Boun
   <Input />
 </form.Field>
 
-// Manual field layout; no second field binding inside the parts.
-<form.Field name="displayName" composition="manual">
+// Manual field layout; candidate explicit description-ID contract, one field binding.
+<form.Field name="displayName" composition="manual" describedBy="display-name-description">
   <FormField.Label>Display name</FormField.Label>
-  <FormField.Description>Your public name.</FormField.Description>
+  <FormField.Description id="display-name-description">Your public name.</FormField.Description>
   <FormField.Content><Input /></FormField.Content>
-  <FormField.Hint>Use a recognizable name.</FormField.Hint>
-  <FormField.Help>This appears on your profile.</FormField.Help>
   <FormField.Error />
 </form.Field>
 ```
+
+## Round-two evidence and association contract
+
+The [second prototype](pr37-prototype-round2-findings.md) reused the existing createForm store, Form root, submission and reset bridge, replacing only the bound field layout. Its manual parts preserved nested schema-path types and called useField once per field root. The prototype has no default/manual compatibility facade: sharing one binding across those production layouts still needs verification. This plan remains DEFERRED until its production migration is selected.
+
+Establish a stable primary control ID at field setup, consumed by the native Input/Textarea or Select Trigger. Native Label for must work even when Label renders after Content on the server; do not rely on client-only registration order. When an editing control overrides its ID, keep the field target aligned through an explicit controlId contract or an equivalently tested design. Restrict control-adapter changes to this association.
+
+The pilot used explicit describedBy IDs and rendered/removed the description target in the same reactive branch. Decide and document that manual-ID contract or prove an equivalent first-server-safe mechanism; do not infer Description/Error presence by evaluating children. Validate label and description targets in server HTML before hydration, including labels after controls, missing/conditional descriptions and ID overrides. Multiple editing targets per field and path/field-array changes remain unverified.
+
+Preserve schema-error priority, explicit error overrides and error={false}. Layout changes must preserve the editing node and field lifecycle. Test nested field output, FormData names, native/reset cancellation, and Select's controlled rejection/reset reconciliation against the same store. Bound native names retain Formisch JSON paths such as `["profile","name"]`; do not introduce a second serialization format.
+
+Use the minimal Label/Description/Content/Error anatomy as the first passing slice. Keep default/manual behavior, additional layout parts and dynamic field lifecycles as separate acceptance cases instead of treating the manual prototype as complete coverage.
 
 ## Current state
 
@@ -95,6 +105,8 @@ Only these source/consumer paths may be modified, plus this plan and its index s
 - `src/forms/shared/native-text-control.test.tsx`
 - `src/forms/radio-group/radio-group.test.tsx`
 - `src/forms/shared`
+- `src/forms/input`, `src/forms/textarea`, `src/forms/select` only for the stable field/control association and its focused regressions
+- `test/browser` only for field label/focus, submit/reset and Select integration regressions
 
 Shared directories listed in scope permit only the minimum integration needed by this family. Preserve unselected public APIs and old facades that still have consumers. Direct caller files permit migration edits only, not redesign of the consumer.
 
@@ -130,7 +142,7 @@ Inspect the scoped implementations, tests and direct callers. Record the existin
 
 ### 2. Add the observable acceptance cases
 
-Test default/manual/bound form.Field useField lifecycle and submit/reset, typed schema paths, lazy RenderContext, suppressed/explicit errors, absent labels/help/error, dynamic IDs and SSR associations with the actual editing control.
+Test default/manual/bound form.Field useField lifecycle and submit/reset, typed schema paths, ordinary lazy JSX children and negative tests for removed RenderContext callbacks, suppressed/explicit errors, absent labels/help/error, dynamic IDs and SSR associations with the actual editing control.
 
 Use existing colocated tests and `.ssr.fixture.tsx` / `.ssr.test.tsx` conventions. Add new assertions to the family's tests, and geometry/focus/scroll cases to `test/browser` when in scope. The server markup must be checked before hydration; reuse `hydrateFixture` to verify that hydration preserves nodes and parents.
 
@@ -150,12 +162,15 @@ For public API changes, add positive/negative cases to both declaration test pro
 
 ## Test plan
 
-Test default/manual/bound form.Field useField lifecycle and submit/reset, typed schema paths, lazy RenderContext, suppressed/explicit errors, absent labels/help/error, dynamic IDs and SSR associations with the actual editing control.
+Test default/manual/bound form.Field useField lifecycle and submit/reset, typed schema paths, ordinary lazy JSX children and negative tests for removed RenderContext callbacks, suppressed/explicit errors, absent labels/help/error, dynamic IDs and SSR associations with the actual editing control.
 
 Use the family's existing regression suite as the structural pattern. For public structure changes also assert default/empty/custom themes, reactive variants and local class/style overrides, callable root exports and part types. Do not add snapshots that only mirror implementation. The documented test commands must execute tests, not merely discover zero files.
 
 ## Done criteria
 
+- [ ] Manual/default layouts reuse one bound field/store and preserve nested schema-path inference.
+- [ ] Native label targets and explicit description IDs are valid before hydration, including labels after controls.
+- [ ] Select/native FormData, controlled rejection and ordinary/cancelled reset stay consistent with the field store.
 - [ ] Focused tests execute and pass, including the cases listed above.
 - [ ] `nub run typecheck` and `nub run test:types` exit 0.
 - [ ] `nub run docs:build`, `nub run test` and `nub run qa` exit 0.

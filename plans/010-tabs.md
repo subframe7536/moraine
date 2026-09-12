@@ -122,7 +122,11 @@ Therefore:
 
 The [prototype](pr37-prototype-findings.md) established static/For composition, readonly metadata, paired-shell SSR/hydration and measured Chromium navigation/indicator behavior. The existing controllable-value hook remained the selection authority; mounted registration supplied navigation/geometry, with keyboard order read from current DOM order rather than registration time.
 
-Production must additionally cover duplicate values after reactive identity changes, unknown metadata/part mismatches, invalid default values, independently conditional pairs and removed/disabled selected values. Specify controlled-value preservation separately from uncontrolled fallback and focus recovery. Do not reset controlled state from a mounted registry. Test wrappers plus For reordering so registration order cannot silently replace visual DOM order.
+[Round two](pr37-prototype-round2-findings.md) added passing regressions for reactive duplicate trigger identities, controlled selected-trigger removal, local disabled overrides during uncontrolled fallback, explicit counterpart absence and bordered/scrolled indicator geometry on both axes. Port these cases; they do not complete the remaining metadata/default-value and platform matrix.
+
+When a controlled selected trigger disappears, preserve the controlled value and avoid an unsolicited onChange, while leaving one enabled mounted trigger in the tab order. Keep focused identity, selected identity and uncontrolled fallback distinct. For an uncontrolled value, a locally disabled mounted trigger must not stay selected just because root metadata still marks it enabled. Retain root-wide disabled behavior and DOM-order navigation through wrappers/For reordering.
+
+The pilot's `hasContent` / `hasTrigger` flags explicitly suppressed absent counterpart IDREFs and passed first-server/hydration checks. Decide whether production supports that anatomy with explicit metadata or instead requires paired declarations. Do not automatically adopt the flag names or claim arbitrary missing-panel Tabs are accessible from IDREF tests alone. Remaining gates include metadata/part mismatches, invalid defaults, duplicate Content identities and unsupported-pair diagnostics.
 
 ## Styling
 
@@ -182,6 +186,7 @@ git diff --check
 
 - [ ] Tabs works composition-first without root `items`.
 - [ ] Optional `items` metadata uses the same behavior authority.
+- [ ] Controlled removal retains a keyboard entry point without mutating value; uncontrolled fallback respects mounted disabled overrides.
 - [ ] SSR paired-shell/lazy-body and independently absent counterpart rules are documented and tested without hidden JSX discovery.
 - [ ] Indicator layering, pointer behavior and settled geometry pass with real CSS, RTL, scrolling and theme changes.
 - [ ] Dynamic application data is demonstrated with `<For>`, not `Tabs.Items`.

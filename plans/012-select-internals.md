@@ -53,6 +53,18 @@ Virtualization requires a complete logical collection independent of mounted DOM
 
 Behavior modules contain no recipe output, FormField layout, styled List nodes, `ComponentOrElement` renderer props or renderer-specific public context. BaseSelect may remain a private JSX integration layer only if it does not become a second public anatomy or require callback rendering.
 
+## Round-two implementation constraints
+
+The [second prototype](pr37-prototype-round2-findings.md) established string-value selection, complete/registered search, closed selected-label fallback, Form binding and a fixed-height virtual window. It is evidence for the separation above, not a drop-in replacement for numeric values, MultiSelect, grouped data or all existing filtering/virtualizer behavior.
+
+1. Complete logical options must not depend on mounted virtual rows. The pilot initially merged registrations back into complete options, recreating row identities until the worker exhausted its heap. Keep filtering/order/window inputs stable across row registration; mounted entries supply DOM targets and local overrides without rebuilding the complete collection. Registered-only mode still needs explicit searchable text, including while a row is filtered out.
+2. Preserve one value authority: explicit controlled value, otherwise the bound field store, otherwise standalone state. Reconcile the controlled value with the bound store before submission and after reset; rejected changes never reach native serialization. Preserve Formisch's existing bound JSON-path names and standalone native names.
+3. Give native constraint validation and submission an explicit adapter. A visually hidden native select is a tested candidate; ensure exactly one successful value entry, disabled exclusion, required validity and invalid-focus routing. Do not add it alongside a duplicate named hidden input. If choosing another adapter, demonstrate equivalent behavior.
+4. Synchronize native selection after option DOM updates. The pilot's cancelled-reset case displayed a selected value but submitted none because select.value was assigned before the new option value existed. Verify both immediate FormData and cancelled/ordinary reset; do not repair it by changing the controlled value or emitting extra changes.
+5. For keyboard movement outside the virtual window, reveal/mount the target before emitting its active-descendant ID. Dispose list/search refs and reveal/scroll callbacks with their owning content. Test repeated opening, filtering to an unmounted entry and local disabled overrides without reintroducing a logical-data feedback loop.
+
+The pilot used 1,000 entries with fewer than 15 mounted rows. Keep that bounded regression, then close variable-height/grouped/asynchronous-data gaps required by existing consumers. Do not remove existing capabilities based on the fixed-height result.
+
 ## Acceptance tests
 
 Cover complete options, declarative registrations, controlled rejection, reset/hidden-input behavior, search/query/highlight distinctions, registered-only typeahead, complete-data filtering, selected value before popup mount, missing display metadata, renderer-free virtual logical entries, mount/unmount stability, duplicate/inconsistent metadata diagnostics, and no behavior-layer JSX renderer callbacks.
@@ -78,7 +90,9 @@ git diff --check
 
 ## Done criteria
 
-- [ ] Selection/form state has one authority.
+- [ ] Selection/form state has one authority, including controlled rejection and reset reconciliation.
+- [ ] Native validation/serialization has one successful control and survives option-update timing and cancelled reset.
+- [ ] Complete logical options stay stable through virtual row registration; off-window keyboard targets publish valid IDs.
 - [ ] Complete metadata and declarative registration feed one model.
 - [ ] No JSX scanning/eager label evaluation is used.
 - [ ] Behavior/virtualization internals do not require JSX renderer callbacks.

@@ -1,4 +1,6 @@
-# PR #37 prototype findings — 2026-09-12
+# PR #37 prototype findings — round one, 2026-09-12
+
+This is the round-one record at `eb8e482`. [Round two](pr37-prototype-round2-findings.md) supersedes its untested-coverage statements for the tested Select, Form, Tabs and Stepper paths. Results below retain their original revision and scope.
 
 ## Decision and provenance
 

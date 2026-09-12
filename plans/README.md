@@ -2,7 +2,7 @@
 
 Split from `moraine-namespace-optimization-codex-plan-v2.md` on 2026-09-11 at commit `7d9633ca405c2bcf256481298486c7daee3e1456`. This directory is the execution index. The original plans were authored without implementation. A bounded prototype was executed on 2026-09-12; this revision incorporates its findings into the production handoffs.
 
-There are 37 bounded plans. TODO identifies selected work; DEFERRED requires explicit family selection before execution.
+There are 38 bounded plans, including the deferred Stepper decision and migration plan. TODO identifies selected work; DEFERRED requires explicit family selection before execution.
 
 ## Public API direction
 
@@ -95,8 +95,11 @@ The [PR #37 experiment record](pr37-prototype-findings.md) supports the tested c
 - Plans 003/007 must preserve a concrete default-host type contract through nested `as`, and forward custom Button `type`/`disabled` correctly.
 - Plan 008 must add a typed `inputGroup` theme entry and an explicit native-control/slot migration map; prototype schema assertions are not a production solution.
 - Plan 010 uses paired semantic panel shells for its initial SSR contract. Independent conditional counterparts still need an explicit rule and tests. Indicator geometry and layering require real CSS and browser assertions.
-- Plans 002/005 must resolve the inherited server-open ModalSurface/Portal gap before plan 011 can pass SSR acceptance. Client focus/label tests do not establish server rendering.
-- Select filtering, labels for unmounted options and virtualization remain unvalidated by this experiment; plans 012/013 retain their own gates.
+- Plans 002/005 must resolve the inherited server-open ModalSurface and Popper/Portal gaps before plans 011/013 can pass SSR acceptance. Client focus/label tests and a closed Select label do not establish popup server rendering.
+- [Round two](pr37-prototype-round2-findings.md) validates Select search, unmounted selected labels and a fixed-height 1,000-option window. Plans 012/013 must prevent registration-driven rebuild loops and synchronize native serialization after option DOM updates; broader virtualization remains unverified.
+- Plan 022 carries the manual FormField evidence: one field binding, stable native label targets, explicit description IDs, nested schema paths and controlled-value reconciliation through reset. Production implementation remains DEFERRED.
+- Plan 010 must preserve a keyboard entry point when a controlled selection disappears. Explicit counterpart metadata worked for tested IDREFs but is not a settled production anatomy.
+- Plan 038 records the workflow Stepper candidate and the required semantic/default decisions. Experimenting with it does not select its production migration.
 
 Execution remains 001 → shared prerequisites → component pilots. Validate Button's concrete host forwarding before accepting Dialog's nested Button integration. Do not mark a unit DONE using the prototype's test counts.
 
@@ -116,7 +119,7 @@ Execution remains 001 → shared prerequisites → component pilots. Validate Bu
 | [010 Tabs](010-tabs.md) | P1 | 002, 003 | TODO |
 | [011 Dialog](011-dialog.md) | P1 | 002, 003, 005, 006, 007 | TODO |
 | [012 Select internals](012-select-internals.md) | P1 | 005, 006 | TODO |
-| [013 Select parts](013-select-parts.md) | P1 | 003, 012 | TODO |
+| [013 Select parts](013-select-parts.md) | P1 | 003, 007, 012 | TODO |
 | [014 Modal](014-modal.md) | P2 | 011 | DEFERRED |
 | [015 Sheet](015-sheet.md) | P2 | 011 | DEFERRED |
 | [016 Popover](016-popover.md) | P2 | 003, 005, 006 | DEFERRED |
@@ -125,7 +128,7 @@ Execution remains 001 → shared prerequisites → component pilots. Validate Bu
 | [019 ContextMenu](019-context-menu.md) | P2 | 018 | DEFERRED |
 | [020 Accordion](020-accordion.md) | P2 | 010 | DEFERRED |
 | [021 Collapsible](021-collapsible.md) | P2 | 003 | DEFERRED |
-| [022 FormField](022-form-field.md) | P2 | 003, 010 | DEFERRED |
+| [022 FormField](022-form-field.md) | P2 | 003, 008, 010, 013 | DEFERRED |
 | [023 CheckboxGroup](023-checkbox-group.md) | P2 | 003 | DEFERRED |
 | [024 RadioGroup](024-radio-group.md) | P2 | 003 | DEFERRED |
 | [025 CommandPalette](025-command-palette.md) | P2 | 012, 003, 035 | DEFERRED |
@@ -141,6 +144,7 @@ Execution remains 001 → shared prerequisites → component pilots. Validate Bu
 | [035 List](035-list.md) | P2 | 003 | DEFERRED |
 | [036 Progress](036-progress.md) | P2 | 003 | DEFERRED |
 | [037 KbdGroup](037-kbd-group.md) | P2 | 003 | DEFERRED |
+| [038 Stepper decision and migration](038-stepper.md) | P2 | 002, 010; semantic decision | DEFERRED |
 
 Statuses: TODO, DEFERRED, IN PROGRESS, DONE, BLOCKED (reason), REJECTED (reason).
 
@@ -153,6 +157,7 @@ Statuses: TODO, DEFERRED, IN PROGRESS, DONE, BLOCKED (reason), REJECTED (reason)
 - Select internals establish one behavior authority; Select parts then remove renderer props and expose namespace presentation.
 - List 035 defines renderer-free generic collection/virtualization boundaries used by CommandPalette and applicable shared internals.
 - MultiSelect follows Select's renderer-free contract.
+- Stepper 038 owns workflow semantics and migration; Tabs 010 shares navigation only. FormField 022 and Stepper 038 remain deferred despite prototype evidence.
 - Candidate families remain independently selectable; completing a dependency does not automatically activate them.
 
 ## Component coverage
@@ -185,7 +190,7 @@ Statuses: TODO, DEFERRED, IN PROGRESS, DONE, BLOCKED (reason), REJECTED (reason)
 | `src/navigation/command-palette` | 025 |
 | `src/navigation/pagination` | 032 |
 | `src/navigation/sidebar-frame` | 033 |
-| `src/navigation/stepper` | independent future design task |
+| `src/navigation/stepper` | 038; semantic decision required before production migration |
 | `src/navigation/tabs` | 010 |
 | `src/overlays/context-menu` | 019 |
 | `src/overlays/dialog` | 011 |
@@ -210,4 +215,4 @@ Statuses: TODO, DEFERRED, IN PROGRESS, DONE, BLOCKED (reason), REJECTED (reason)
 
 ## Verification baseline
 
-Actual prototype and baseline results, including pre-existing failures and unverified coverage, are recorded in [pr37-prototype-findings.md](pr37-prototype-findings.md). `nub run test:browser` is still owned by plan 002; the temporary prototype runner does not complete that prerequisite. Production checks and generated API changes belong to implementation execution. When upstream source is directly adapted, record exact source revision and license obligations.
+Actual prototype and baseline results, including pre-existing failures and unverified coverage, are recorded in [round one](pr37-prototype-findings.md) and [round two](pr37-prototype-round2-findings.md). `nub run test:browser` is still owned by plan 002; the temporary prototype runner does not complete that prerequisite. Production checks and generated API changes belong to implementation execution. When upstream source is directly adapted, record exact source revision and license obligations.

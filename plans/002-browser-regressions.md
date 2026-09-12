@@ -28,6 +28,12 @@ Add Button custom-host form submission, Tabs indicator layering/hit testing and 
 
 A server-open Dialog using the current ModalSurface emitted no dialog/title because the unconditional Portal path omits the surface on the server. Preserve a true-server reproduction that expects a rendered, labelled surface and verifies hydration identity. Track it explicitly as a known failing prerequisite for plan 005; a passing assertion that the surface is absent is diagnostic evidence only, never SSR acceptance. Plan 002 owns the reproduction/harness and plan 005 owns the shared implementation fix.
 
+### Round-two regressions to retain
+
+[Round two](pr37-prototype-round2-findings.md) passed 11 Chromium checks. Port the relevant fixtures as component plans land: Select closed-label/lazy-content behavior, keyboard search and actual listbox IDREFs, a 1,000-option window with an End target outside the initial DOM, native serialization/reset, bound Form validation and manual labels, horizontal/vertical bordered and scrolled Tabs indicators, and Stepper completion/focus semantics if plan 038 is selected. Wait for CSS animations/transitions before comparing geometry or screenshots.
+
+Add a second known-failing true-server reproduction for a default-open Select using PopperContent. Require actual listbox/options HTML and hydration identity; a selected label/native form target in a closed fixture proves neither. Plan 005 owns the shared surface fix. Keep this reproduction separate from the independently passing Form/closed-Select/Stepper/Tabs hydration cases.
+
 ## Current state
 
 `src/test-utils/ssr-test.ts:20` anchors the current implementation contract:
