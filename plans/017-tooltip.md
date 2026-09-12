@@ -47,6 +47,16 @@ The default path is Trigger plus Panel. The raw alternative remains descriptive 
 </>
 ```
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Raw Portal/Positioner/Content retains focus-triggered descriptive semantics and existing root timing behavior; browser aria-describedby targets the visible tooltip.
+
+**Production acceptance:** Complete timer, hover transit, disabled-host and touch coverage; do not turn a descriptive tooltip into an interactive dialog. Raw/default positioning option parity, Arrow and server-open output remain unverified.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Current state
 
 `src/overlays/tooltip/tooltip.types.ts:7` anchors the current implementation contract:

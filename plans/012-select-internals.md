@@ -77,6 +77,12 @@ Cover complete options, declarative registrations, controlled rejection, reset/h
 - form adapters
 - no public parts implementation until plan 013
 
+## Round-three experiment constraints
+
+[Round-three evidence](pr37-prototype-round3-findings.md), 2026-09-12. The round-two metadata/registration/query/highlight calculation was factored into a shared createSelectCollection consumed by Select and the round-three MultiSelect candidate. All prior prototype tests still pass. Keep value/form serialization separate from collection state. This is reuse evidence for string/non-virtual MultiSelect, not completion of grouped/async/variable-height/numeric coverage or production extraction.
+
+Prototype execution does not complete this prerequisite or change its production status.
+
 ## Verification
 
 ```sh

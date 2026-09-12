@@ -40,6 +40,16 @@ The existing regions keep their names. Trigger consumes the root toggle state, a
 </SidebarFrame>
 ```
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Trigger consumes the existing root context and toggles once. Chromium switches the explicit breakpoint signal between desktop and mobile, closes via Escape and verifies a single native control.
+
+**Production acceptance:** An explicit breakpoint signal is not a real media-query/touch matrix. Verify actual resize/SSR breakpoint reconciliation, focus and node identity across mobile remounts, nested traps, scroll lock and controlled rejection. One-node count does not prove identity preservation.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Current state
 
 `src/navigation/sidebar-frame/sidebar-frame.types.ts:5` anchors the current implementation contract:

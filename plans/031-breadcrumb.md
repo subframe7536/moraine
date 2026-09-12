@@ -56,6 +56,16 @@ A convenience `items` prop may remain only for the canonical default assembly if
 
 Cover manual and dynamic `<For>` structure, optional default items convenience, href/to priority, target/rel/current/disabled semantics, custom routing host forwarding, separators/ellipsis, SSR accessible navigation, themes, and negative declaration tests for `itemRender`/renderer-only types.
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Explicit List/Item/Link/Separator supports router-host props and current-page semantics without root item data. First-server markup and hydration identity pass.
+
+**Production acceptance:** Retain native navigation and avoid intercepting modified anchor clicks. Complete custom-host ref/currentTarget types, separator accessibility and default/manual style parity.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Verification
 
 ```sh

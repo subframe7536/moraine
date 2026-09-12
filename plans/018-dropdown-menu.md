@@ -61,6 +61,16 @@ Stable Portal/Positioner plumbing may remain internal if public parts are not re
 
 Cover keyboard navigation/typeahead, disabled items, user cancellation, submenu/Escape/pointer transitions, dynamic `<For>` items, custom item subparts, no double generation, focus restore, SSR, themes, and negative declaration tests for removed renderer APIs.
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Explicit rows reuse menu layer state, with independent Sub/SubTrigger/SubContent owners. Browser checks pass cancellation, disabled rows, typeahead and Escape closing only the innermost submenu.
+
+**Production acceptance:** Consume handled key events at the owning layer; global and local Escape handlers must not both dismiss it. Instantiate browser-only layer state inside the mounted surface, not a closed SSR root. Pointer grace, checkable/radio items, Tab and full submenu parity remain gates.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Verification
 
 ```sh

@@ -1,6 +1,6 @@
 # Component architecture plans
 
-Split from `moraine-namespace-optimization-codex-plan-v2.md` on 2026-09-11 at commit `7d9633ca405c2bcf256481298486c7daee3e1456`. This directory is the execution index. The original plans were authored without implementation. A bounded prototype was executed on 2026-09-12; this revision incorporates its findings into the production handoffs.
+Split from `moraine-namespace-optimization-codex-plan-v2.md` on 2026-09-11 at commit `7d9633ca405c2bcf256481298486c7daee3e1456`. This directory is the execution index. The original plans were authored without implementation. Three bounded prototype rounds were executed on 2026-09-12; this revision incorporates its findings into the production handoffs.
 
 There are 38 bounded plans, including the deferred Stepper decision and migration plan. TODO identifies selected work; DEFERRED requires explicit family selection before execution.
 
@@ -100,6 +100,14 @@ The [PR #37 experiment record](pr37-prototype-findings.md) supports the tested c
 - Plan 022 carries the manual FormField evidence: one field binding, stable native label targets, explicit description IDs, nested schema paths and controlled-value reconciliation through reset. Production implementation remains DEFERRED.
 - Plan 010 must preserve a keyboard entry point when a controlled selection disappears. Explicit counterpart metadata worked for tested IDREFs but is not a settled production anatomy.
 - Plan 038 records the workflow Stepper candidate and the required semantic/default decisions. Experimenting with it does not select its production migration.
+
+[Round three](pr37-prototype-round3-findings.md) covers all 24 remaining component-plan families. The evidence table separates tested paths from incomplete behavior; no TODO/DEFERRED status changes. In particular:
+
+- Plans 020/032 remove conflicting Items assemblers; plan 034 replaces JSX descriptors and content callbacks with actual parts and a constraint contract, increasing its effort/risk.
+- Plan 029 is blocked on a reproduced native reset serialization mismatch; plan 024 still needs a first-server keyboard entry contract.
+- Plans 014–019 retain server-open and broader interaction gates even where selected client paths pass.
+- Plans 025/026 need broader grouped/virtualized behavior; plan 035 must decide its typed theme contract from a baseline that has no list recipe.
+- Default/manual composition must not eagerly evaluate children. Preserve owner placement, one field/value owner, layer event boundaries and actual CSS measurement in the permanent regressions.
 
 Execution remains 001 → shared prerequisites → component pilots. Validate Button's concrete host forwarding before accepting Dialog's nested Button integration. Do not mark a unit DONE using the prototype's test counts.
 
@@ -215,4 +223,4 @@ Statuses: TODO, DEFERRED, IN PROGRESS, DONE, BLOCKED (reason), REJECTED (reason)
 
 ## Verification baseline
 
-Actual prototype and baseline results, including pre-existing failures and unverified coverage, are recorded in [round one](pr37-prototype-findings.md) and [round two](pr37-prototype-round2-findings.md). `nub run test:browser` is still owned by plan 002; the temporary prototype runner does not complete that prerequisite. Production checks and generated API changes belong to implementation execution. When upstream source is directly adapted, record exact source revision and license obligations.
+Actual prototype and baseline results, including pre-existing failures and unverified coverage, are recorded in [round one](pr37-prototype-findings.md), [round two](pr37-prototype-round2-findings.md) and [round three](pr37-prototype-round3-findings.md). `nub run test:browser` is still owned by plan 002; the temporary prototype runner does not complete that prerequisite. Production checks and generated API changes belong to implementation execution. When upstream source is directly adapted, record exact source revision and license obligations.

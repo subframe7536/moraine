@@ -53,6 +53,12 @@ Preserve schema-error priority, explicit error overrides and error={false}. Layo
 
 Use the minimal Label/Description/Content/Error anatomy as the first passing slice. Keep default/manual behavior, additional layout parts and dynamic field lifecycles as separate acceptance cases instead of treating the manual prototype as complete coverage.
 
+## Round-three experiment constraints
+
+[Round-three evidence](pr37-prototype-round3-findings.md), 2026-09-12. Native group and numeric prototypes reinforce one field binding per root. Checkbox required validity needs one group authority and SSR semantics; RadioGroup registration cannot be the sole source of the first-server tab stop. Slider native FormData after reset diverges from semantic state despite passing jsdom reset cases. Add actual browser submit/reset checks when migrating these controls, without a second FormField store.
+
+Prototype execution does not complete this prerequisite or change its production status.
+
 ## Current state
 
 `src/forms/form/form-field.types.ts:7` anchors the current implementation contract:

@@ -39,6 +39,16 @@ The default path accepts items. Manual Item content does not require a duplicate
 </>
 ```
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** One group field binding with native Item inputs supports array serialization, controlled rejection, required validation and removal of the enabled selected item. Manual Items need no duplicate root data.
+
+**Production acceptance:** Do not read children to detect default assembly: it eagerly constructs and duplicates registrations. The prototype uses property presence, including explicit undefined as manual. Settle group validity ownership and first-server validation semantics; verify every disabled/readOnly/form reset path.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Current state
 
 `src/forms/checkbox-group/checkbox-group.types.ts:13` anchors the current implementation contract:

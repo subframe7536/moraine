@@ -16,7 +16,7 @@
 
 ## Why this matters
 
-Expose Item/Header/Trigger/Indicator/Content/Items. Root items remains complete for default and manual paths; manual items have stable explicit value. Items creates repeated Item structures only. Preserve string[] expansion values, multiple/collapsible, disabled/loopFocus/unmountOnHide. Inherit label/content/disabled from root instead of duplicate part state; keep content lazy and reuse existing presence/navigation.
+Expose Item/Header/Trigger/Indicator/Content. Manual items have stable explicit values and render their own content; root items are not mandatory. Optional complete metadata must provide a real behavior capability. Use application For for repeated items; do not add Accordion.Items. Preserve string[] expansion values, multiple/collapsible, disabled/loopFocus/unmountOnHide. Keep root expansion authoritative and inherit behavior defaults without discovering label/content JSX; keep content lazy and reuse existing presence/navigation.
 
 The delivery boundary is this component or shared capability, including its own regressions, public types and necessary consumer/docs migration. A larger public surface is not a success metric; remove any proposed part that has no demonstrated structural or semantic use.
 
@@ -24,33 +24,32 @@ The delivery boundary is this component or shared capability, including its own 
 
 Target usage after this plan; these examples describe the planned API, not an implementation already available. Candidate examples remain deferred with their plan.
 
-Root items remain the complete logical collection. Items supplies default repeated rows; a manually placed Item associates with root data by stable value.
+Manual structure does not need a duplicate root array. Dynamic data uses ordinary Solid `For`; each Item supplies its own semantic value and content. Preserve an items-driven default facade only through the same behavior owner.
 
-```jsx
-const items = [
-  { value: 'details', label: 'Details', content: 'Project details' },
-  { value: 'history', label: 'History', content: 'Project history' },
-]
-
-<>
-  <Accordion items={items} />
-
-  <Accordion items={items} defaultValue={['details']}>
-    <Accordion.Item value="details">
-      <Accordion.Header>
-        <Accordion.Trigger>Details<Accordion.Indicator /></Accordion.Trigger>
-      </Accordion.Header>
-      <Accordion.Content />
-    </Accordion.Item>
-    <Accordion.Item value="history">
-      <Accordion.Header><Accordion.Trigger /></Accordion.Header>
-      <Accordion.Content />
-    </Accordion.Item>
-  </Accordion>
-
-  <Accordion items={items}><Accordion.Items /></Accordion>
-</>
+```tsx
+<Accordion defaultValue={['details']}>
+  <Accordion.Item value="details">
+    <Accordion.Header>
+      <Accordion.Trigger>Details<Accordion.Indicator /></Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Content>Project details</Accordion.Content>
+  </Accordion.Item>
+  <Accordion.Item value="history">
+    <Accordion.Header><Accordion.Trigger>History</Accordion.Trigger></Accordion.Header>
+    <Accordion.Content>Project history</Accordion.Content>
+  </Accordion.Item>
+</Accordion>
 ```
+
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Manual Item/Header/Trigger/Indicator/Content works without root items or an Items assembler. Root array expansion reuses Collapsible presence; multiple expansion and independent lazy content pass.
+
+**Production acceptance:** Place height-constrained Accordion styling on Collapsible contentWrapper, leaving the measured inner content at natural height. Complete keyboard loop, reorder/removal, disabled and controlled rejection parity; never inspect children to reconstruct metadata.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
 
 ## Current state
 

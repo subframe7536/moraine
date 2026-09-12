@@ -15,7 +15,7 @@
 
 The current List API is driven by `itemRender` and optional `virtualRender`. That conflicts with the library-wide composition contract: structure should be JSX expressed through namespace components, not callbacks passed to the root.
 
-Make List a small styled collection container with explicit `List.Item`. Application data is rendered with Solid `<For>`. Virtualization provides visible entries/geometry, but the visible rows are still ordinary `List.Item` components.
+Make List a small collection container with explicit `List.Item`. Decide the typed styling contract from the actual baseline; no list theme entry currently exists. Application data is rendered with Solid `<For>`. Virtualization provides visible entries/geometry, but the visible rows are still ordinary `List.Item` components.
 
 ## Target anatomy
 
@@ -49,7 +49,7 @@ The exact virtualizer API remains application-owned unless Moraine has a demonst
 ## Public contract
 
 - `List` is the root container and may keep `as` polymorphism where useful.
-- `List.Item` is the row component and owns the existing row slot/default presentation.
+- `List.Item` is the row component and preserves native class/style/ref forwarding. There is no existing List recipe/row slot to inherit; any new typed theme entry requires an explicit migration decision.
 - `children` is the list structure/content.
 - Remove public `itemRender`, `virtualRender`, `ItemRenderProps`, `VirtualRenderProps` and renderer-only type plumbing.
 - Do not add `List.Items` merely to hide `<For>`.
@@ -77,6 +77,16 @@ Cover:
 - shared virtualization consumers only where required to migrate away from renderer callbacks
 
 Do not redesign Select or CommandPalette public APIs here; their plans consume the renderer-free List contract.
+
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** A small root/Item candidate preserves keyed nodes, custom-host props and externally supplied virtual positioning. It owns no row renderer; first-server markup/hydration pass.
+
+**Production acceptance:** There is no current list entry in MoraineThemeSchema and no ListT.Classes/Styles recipe contract. Decide whether to preserve the present unstyled container or introduce a real typed theme entry; do not invent an existing default row recipe or use schema assertions. Variable-height virtualization is not proven by external positioning props.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
 
 ## Verification
 

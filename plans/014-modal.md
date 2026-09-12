@@ -46,6 +46,16 @@ Panel provides the default portal/backdrop/surface assembly. The raw alternative
 </>
 ```
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Explicit Portal/Overlay/Content and the Panel facade reuse Modal state. Browser checks verify one dialog, focus trap, Escape and trigger restoration.
+
+**Production acceptance:** Server-open content is still absent through inherited Portal behavior. Plans 002/005 must fix and verify actual server surface HTML before SSR acceptance. Complete custom hosts, transitions and default/manual slot parity.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Current state
 
 `src/overlays/modal/modal.types.ts:6` anchors the current implementation contract:

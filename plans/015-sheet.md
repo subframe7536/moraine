@@ -50,6 +50,16 @@ Panel retains the default Sheet layout. In the manual alternative, side stays on
 </>
 ```
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Manual Portal/Overlay/Content uses Modal behavior with the Sheet recipe; browser checks cover the right side, explicit title association and close. The existing Panel facade remains available.
+
+**Production acceptance:** Keep side/placement geometry separate from visual theme replacement. Explicit labelledBy/describedBy is only the tested association candidate. Server-open output, all sides, nested traps and controlled presence remain gates.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Current state
 
 `src/overlays/sheet/sheet.types.ts:6` anchors the current implementation contract:

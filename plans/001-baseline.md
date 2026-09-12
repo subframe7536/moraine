@@ -26,6 +26,12 @@ The [2026-09-12 experiment](pr37-prototype-findings.md) already recorded baselin
 
 Use this as historical evidence, then record the execution HEAD and any relevant drift. Ensure both `nub` and the `nubx` child-process command resolve before rerunning consumers. Do not infer an all-green full suite from targeted reruns. Inventory, direct callers, licenses where applicable, and Button/Tabs preserved-JSX and compiled-ESM bundle comparisons remain required; none was completed by the prototype.
 
+## Round-three experiment constraints
+
+[Round-three evidence](pr37-prototype-round3-findings.md), 2026-09-12. All 24 remaining numbered component families now have bounded experiment entries. This completes prototype inventory coverage, not production migration or the baseline inventory/bundle/license deliverables. Separate 188 retargeted existing compatibility cases from the 33 newly authored round-three cases. Preserve the two existing FormField Select/MultiSelect required-label failures as baseline evidence.
+
+Prototype execution does not complete this prerequisite or change its production status.
+
 ## Current state
 
 `src/test-utils/ssr-test.ts:20` anchors the current implementation contract:

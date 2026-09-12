@@ -75,6 +75,16 @@ Cover:
 - Progress docs/API/type tests
 - direct Progress callers required for migration
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Track/Indicator/Status/Steps/Step shares the retained numeric state derivation. Determinate, zero-range, indeterminate and reordered index-driven steps pass without rebuilding Status children.
+
+**Production acceptance:** Numeric max is the tested candidate; migrate overloaded array max consumers explicitly. Validate orientation, reduced motion and visual animation, accessible value text and all slot overrides. Step index must follow application order rather than stay captured after reorder.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Verification
 
 ```sh

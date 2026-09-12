@@ -76,6 +76,16 @@ Cover declarative items without options, complete metadata search/virtualization
 - direct Form consumers
 - browser/type tests
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** The round-two Select collection calculation is reused by an array-value candidate. Explicit labels work before popup mount; separate tag removal buttons avoid nested buttons and do not reopen the popup. Native array serialization passed in Chromium.
+
+**Production acceptance:** Keep collection metadata separate from the sole controlled/form value owner. This candidate is string-only and non-virtual: grouped/async/variable-height data, numeric values, IME, autofill and server-open content remain gates. Carry the existing shared required/label baseline failures separately.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Verification
 
 ```sh

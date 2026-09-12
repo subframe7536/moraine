@@ -39,6 +39,16 @@ Manual Item content inherits the root name, selection and form behavior without 
 </>
 ```
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Native manual Items use one scalar authority and DOM-order keyboard navigation; disabled skipping, controlled rejection, cancelled reset and one submitted value pass.
+
+**Production acceptance:** Prevent eager children evaluation and disconnected duplicate registrations. Prototype initial server tabIndex still depends on client registration; define an SSR-safe entry/selected tab stop and test it explicitly. IDREF/hydration tests do not cover this missing keyboard contract.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Current state
 
 `src/forms/radio-group/radio-group.types.ts:12` anchors the current implementation contract:

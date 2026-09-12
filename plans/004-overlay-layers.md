@@ -20,6 +20,12 @@ Replace module-global layer ordering as an ancestry proxy with document-local re
 
 The delivery boundary is this component or shared capability, including its own regressions, public types and necessary consumer/docs migration. A larger public surface is not a success metric; remove any proposed part that has no demonstrated structural or semantic use.
 
+## Round-three experiment constraints
+
+[Round-three evidence](pr37-prototype-round3-findings.md), 2026-09-12. Nested menu Escape initially dismissed both submenu and parent. The candidate consumes handled local events and keeps the global handler from handling an already-consumed event or an event owned by that layer. Port the real two-menu/one-menu/closed assertions. Complete pointer grace, checkable/radio rows, Tab behavior and nested modal/menu combinations before extraction acceptance.
+
+Prototype execution does not complete this prerequisite or change its production status.
+
 ## Current state
 
 `src/overlays/base/overlay-stack.ts:16` anchors the current implementation contract:

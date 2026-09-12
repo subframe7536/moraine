@@ -20,6 +20,12 @@ Keep useFloatingPosition responsible for reference/positioner geometry, middlewa
 
 The delivery boundary is this component or shared capability, including its own regressions, public types and necessary consumer/docs migration. A larger public surface is not a success metric; remove any proposed part that has no demonstrated structural or semantic use.
 
+## Round-three experiment constraints
+
+[Round-three evidence](pr37-prototype-round3-findings.md), 2026-09-12. A positioner can expose one binding context to a separate styled Content without adding an implicit Portal/body. Evaluate Content children under that provider; resolving children earlier loses context. Preserve the existing Panel option matrix when exposing raw Positioner/Content; candidate basic placement is not full Anchor/Arrow/collision/interaction parity. ContextMenu coordinate positioning passed in Chromium, while real touch and long-press remain unverified.
+
+Prototype execution does not complete this prerequisite or change its production status.
+
 ## Current state
 
 `src/overlays/base/floating.ts:41` anchors the current implementation contract:

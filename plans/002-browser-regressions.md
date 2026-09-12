@@ -34,6 +34,12 @@ A server-open Dialog using the current ModalSurface emitted no dialog/title beca
 
 Add a second known-failing true-server reproduction for a default-open Select using PopperContent. Require actual listbox/options HTML and hydration identity; a selected label/native form target in a closed fixture proves neither. Plan 005 owns the shared surface fix. Keep this reproduction separate from the independently passing Form/closed-Select/Stepper/Tabs hydration cases.
 
+## Round-three experiment constraints
+
+[Round-three evidence](pr37-prototype-round3-findings.md), 2026-09-12. Port the 18 Chromium checks and the separately failed Slider native-reset diagnostic. Slider semantic values [20,80] can submit [40,60] after an actual reset-button click; assert native FormData, not only signals/ARIA. Capture browser console errors as well as page errors: a ResizeObserver notification-loop error occurred during one run and remains unresolved. Preserve the production variant-group separator configuration when generating fixture CSS; expanding h-(--size) as a group erased behavior dimensions. True-server open-surface omissions remain failing acceptance targets, not passing SSR claims.
+
+Prototype execution does not complete this prerequisite or change its production status.
+
 ## Current state
 
 `src/test-utils/ssr-test.ts:20` anchors the current implementation contract:

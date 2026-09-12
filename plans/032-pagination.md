@@ -16,7 +16,7 @@
 
 ## Why this matters
 
-Expose List/Item/Link/Prev/Next/Ellipsis/Items while retaining the default full navigation. Preserve page/defaultPage/onPageChange, total/itemsPerPage and siblingCount. Link page derives href from root to and active state; Prev/Next derive target, boundary disabled and default label. Items generates only page/ellipsis rows inside List. Do not rename page to value or require duplicated href/active.
+Expose List/Item/Link/Prev/Next/Ellipsis while retaining the default full navigation. Preserve page/defaultPage/onPageChange, total/itemsPerPage and siblingCount. Link page derives href from root to and active state; Prev/Next derive target, boundary disabled and default label. Expose page/ellipsis data to an application For inside List; do not add Pagination.Items. Do not rename page to value or require duplicated href/active.
 
 The delivery boundary is this component or shared capability, including its own regressions, public types and necessary consumer/docs migration. A larger public surface is not a success metric; remove any proposed part that has no demonstrated structural or semantic use.
 
@@ -24,21 +24,44 @@ The delivery boundary is this component or shared capability, including its own 
 
 Target usage after this plan; these examples describe the planned API, not an implementation already available. Candidate examples remain deferred with their plan.
 
-Root page data determines targets, disabled boundaries and current-page state. Items emits page/ellipsis entries only; Prev/Next keep their default labels.
+Root page data determines targets, disabled boundaries and current-page state. Application For renders page/ellipsis entries from root-derived data; Prev/Next keep their default labels.
 
-```jsx
+The following application helper reads root-derived data under Pagination. The accessor name is provisional; the tested data uses positive page numbers and -1 for an ellipsis. It returns data and does not render JSX.
+
+```tsx
+function PageEntries() {
+  const pages = Pagination.usePages()
+  return <For each={pages()}>{(page) => (
+    <Pagination.Item>
+      <Show when={page > 0} fallback={<Pagination.Ellipsis />}>
+        <Pagination.Link page={page} />
+      </Show>
+    </Pagination.Item>
+  )}</For>
+}
+
 <>
   <Pagination total={100} itemsPerPage={10} />
 
   <Pagination total={100} itemsPerPage={10} to={(page) => `/projects?page=${page}`}>
     <Pagination.List>
       <Pagination.Item><Pagination.Prev /></Pagination.Item>
-      <Pagination.Items />
+      <PageEntries />
       <Pagination.Item><Pagination.Next /></Pagination.Item>
     </Pagination.List>
   </Pagination>
 </>
 ```
+
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** List/Item/Link/Prev/Next/Ellipsis consumes the existing range calculation and one page owner. Controlled rejection, boundary targets, default labels and browser next-page updates pass. usePages exposes data for application For.
+
+**Production acceptance:** Remove the conflicting Pagination.Items proposal. Preserve page/defaultPage/onPageChange and root to-derived hrefs; cover changed totals, empty/one page and router/custom-host navigation. The accessor name is a candidate, not a mandatory public API.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
 
 ## Current state
 

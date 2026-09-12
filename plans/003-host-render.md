@@ -157,6 +157,12 @@ Keep implementation small. Do not add a public merge utility, metadata registry,
 
 Move the existing Popper merger consumer to the shared prop-merging helper when doing so reduces duplication without forcing unrelated polymorphic APIs onto Popper.
 
+## Round-three experiment constraints
+
+[Round-three evidence](pr37-prototype-round3-findings.md), 2026-09-12. Default/manual facade selection must not read props.children: doing so eagerly constructed Items before their owning context and produced duplicate/disconnected registrations. A property-presence check worked in the experiment, with explicit children={undefined} selecting manual composition; settle and type-test that contract including spread props and empty Show. Round-three source/emitted fixtures add 24 negative cases but do not certify every custom-host ref/currentTarget or namespace type.
+
+Prototype execution does not complete this prerequisite or change its production status.
+
 ## Verification
 
 ```sh

@@ -160,6 +160,12 @@ Cover:
 
 MultiSelect public anatomy follows in plan 026.
 
+## Round-three experiment constraints
+
+[Round-three evidence](pr37-prototype-round3-findings.md), 2026-09-12. Round-three MultiSelect reuses the same collection calculation with its own array value owner. Retain the round-two Select regressions when extracting it. The existing Select and MultiSelect shared required-label failures remain outside the prototype and must be resolved against the production baseline before family acceptance.
+
+Prototype execution does not complete this prerequisite or change its production status.
+
 ## Verification
 
 ```sh

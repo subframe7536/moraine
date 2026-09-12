@@ -1,12 +1,12 @@
-# Plan 034: Improve Resizable host customization without renaming parts
+# Plan 034: Replace Resizable JSX descriptors with actual Panel/Handle parts
 
 > Executor: read this entire file and `plans/README.md` before implementation. Update this plan's row in `plans/README.md` when finished. Creating this plan did not authorize implementation.
 
 ## Status
 
 - **Priority**: P2
-- **Effort**: M
-- **Risk**: MED
+- **Effort**: L
+- **Risk**: HIGH
 - **Depends on**: [002-browser-regressions.md](002-browser-regressions.md), [003-host-render.md](003-host-render.md)
 - **Category**: dx
 - **Planned at**: commit `7d9633ca405c2bcf256481298486c7daee3e1456`, 2026-09-11
@@ -14,22 +14,24 @@
 
 ## Why this matters
 
-Keep Panel/Handle, existing disable naming, resize/collapse action and the existing Handle content/state callback where still useful. Add plan 003 `as` polymorphism only where a demonstrated custom Handle host needs it. Preserve root-owned measurements, constraints, keyboard/pointer behavior and nested panel ownership; do not expose internal `crossTarget` or add wrapper parts.
+Keep Panel/Handle, existing disable naming and resize/collapse actions. Migrate JSX descriptor scanning to actual parts with one explicit constraint/measurement owner. Remove JSX content/state callbacks; state needed by custom content comes from a scoped accessor or state attributes. Add plan 003 `as` polymorphism only where a demonstrated custom Handle host needs it. Preserve root-owned measurements, constraints, keyboard/pointer behavior and nested panel ownership; do not expose internal `crossTarget` or add wrapper parts.
 
 Host replacement and content rendering are separate concerns:
 
 - `as` selects the Handle element/custom component;
 - `children` remains Handle content;
-- if the existing children state callback is retained, it is a **content render-prop**, not a host factory;
+- children is ordinary JSX; state accessors return data and never take ownership of rendering;
 - there is no host-level `render` prop.
 
 ## Anatomy
+
+This is the intended content/host shape, not a completed constraint API. Before implementation, decide how default sizes and constraints reach the root on the first server render without scanning these children. The prototype uses explicit root metadata instead.
 
 ```tsx
 <Resizable>
   <Resizable.Panel defaultSize="35%">Navigation</Resizable.Panel>
   <Resizable.Handle action="resize" as={CustomResizeHandle}>
-    {(state) => <span>{state.active ? 'Resizing' : 'Resize panels'}</span>}
+    <span>Resize panels</span>
   </Resizable.Handle>
   <Resizable.Panel>Editor</Resizable.Panel>
 </Resizable>
@@ -42,15 +44,25 @@ Host replacement and content rendering are separate concerns:
 - Root remains the single measurement/constraint authority.
 - Panel/Handle keep their canonical names.
 - `Handle as={...}` may select a valid intrinsic or custom Solid component.
-- Handle `children` is rendered as content inside the selected host. The optional state callback, if preserved, only computes that content.
+- Handle `children` is rendered as content inside the selected host. Remove the existing JSX state callback rather than renaming it.
 - Required separator/resize semantics, keyboard handlers, pointer capture and refs survive custom hosts.
 - Custom target-specific props remain type-checkable where the selected component type exposes them.
 - Do not introduce host-level `render`.
 - Keep existing Moraine styling slots, theme replacement and local overrides.
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Actual Panel/Handle DOM parts with explicit root constraint metadata reuse resolvePanels/resizeFromHandle/useResizableHandle. Wrapped composition, pointer measurement, keyboard resizing and behavior geometry under emptyTheme pass.
+
+**Production acceptance:** The current production Panel returns descriptors and the root scans JSX; adding as alone cannot meet the composition contract. Replace that path without rendering children as data. Prototype panels metadata is a bounded candidate, not a settled required API. Controlled/dynamic sizes, collapse/action callbacks, nested/intersection geometry and pointer cleanup remain gates.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Current state
 
-Inspect `src/elements/resizable`, colocated type/tests/SSR fixtures and direct SidebarFrame consumers before implementation. Preserve existing resize/collapse behavior and content callback semantics unless this plan explicitly migrates them.
+Inspect `src/elements/resizable`, colocated type/tests/SSR fixtures and direct SidebarFrame consumers before implementation. Preserve existing resize/collapse behavior while explicitly migrating descriptor and JSX callback consumers. Decide the minimal SSR-safe constraint metadata/registration contract before implementation; the prototype's required panels array is not yet the public contract.
 
 ## Scope
 
@@ -67,7 +79,7 @@ Do not redesign all layout primitives or expose internal measurement targets.
 
 ### 1. Reconcile baseline and actual customization need
 
-Confirm which Handle host customization is required and whether intrinsic/custom-component `as` is sufficient. Do not add polymorphism to Panel merely for symmetry.
+First replace the current descriptor/JSX scanner with a settled constraint metadata contract and actual rendered parts. Then confirm which Handle host customization requires intrinsic/custom-component `as`. Do not add polymorphism to Panel merely for symmetry.
 
 ### 2. Add acceptance cases
 
@@ -76,7 +88,9 @@ Test:
 - default Handle host;
 - intrinsic/custom `as` Handle;
 - custom target props;
-- Handle children/content callback rendered inside selected host;
+- ordinary Handle children rendered inside selected host, with negative JSX callback tests;
+- wrapped/conditional/reordered Panel composition without child scanning;
+- SSR-safe constraints, duplicate IDs and dynamic panel removal;
 - negative type test for host-level `render`;
 - required role/ARIA/state/event/ref forwarding;
 - keyboard resize/collapse;
@@ -93,7 +107,7 @@ Reuse existing root measurements and behavior. `as` must not introduce a second 
 
 ### 4. Complete docs/types/migration evidence
 
-Update any existing `render` host examples to `as`. Make the distinction between host selection (`as`) and stateful content children explicit in API docs.
+Update any existing `render` host examples to `as`. Document host selection (`as`), ordinary content children and data-only state access separately. Migrate direct SidebarFrame consumers of descriptor behavior in the same selected family.
 
 ## Verification
 
@@ -111,7 +125,8 @@ git diff --check
 ## Done criteria
 
 - [ ] Handle host customization uses `as`, not host-level `render`.
-- [ ] Existing stateful children remain content-only if retained.
+- [ ] Panel/Handle render actual DOM, without JSX descriptor scanning or JSX callback props.
+- [ ] The constraint metadata contract is documented and SSR-safe.
 - [ ] Root measurements/constraints remain authoritative.
 - [ ] Keyboard/pointer/ref/ARIA behavior survives custom targets.
 - [ ] Browser/type/SSR/full regression gates pass.

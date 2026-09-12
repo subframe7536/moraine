@@ -66,6 +66,16 @@ Cover native selection/drop, single/multiple/required/name, rejection, original 
 - FileUpload docs/API/type tests
 - direct Form consumers
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Explicit Trigger/Dropzone/List/Item/Preview/Meta/Name/Size/Remove retains file validation and native input ownership. Tests verify File identity, preview URL release and cleanup; Chromium verifies selection/removal/same-file reselection.
+
+**Production acceptance:** Complete native drop/paste, directory/multiple limits, controlled rejection and reset. Manual label/description parts or explicit associations must replace convenience IDs that otherwise have no rendered target. Preserve original filenames and URL lifecycle; do not duplicate the native file input.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Verification
 
 ```sh

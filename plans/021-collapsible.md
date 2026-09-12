@@ -44,6 +44,16 @@ Do not add a host-level `render` callback just to render a custom button or tag.
 - Indicator remains deferred unless a concrete API need justifies it.
 - Keep existing Moraine theme slots and local style overrides.
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** A concrete Trigger host wrapping the existing behavior supports nested Button, disabled state and cancelled click; browser Enter/Space activation and content presence pass.
+
+**Production acceptance:** Preserve the existing presence owner and measurement target. Full height transitions, interrupted animation, controlled rejection, custom refs and emptyTheme geometry still need family acceptance.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Current state
 
 Inspect `src/elements/collapsible/collapsible.types.ts`, `collapsible.tsx`, colocated tests and SSR fixtures before implementation. Preserve existing public callbacks and presence behavior unless this plan explicitly changes them.

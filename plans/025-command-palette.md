@@ -63,6 +63,16 @@ The implementation may expose reactive filtered/virtual state to attached parts 
 
 Cover search/ranking, IME, disabled/group rows, item selection/close, explicit leading/trailing/description content, Empty/Footer, renderer-free virtualization, SSR, data changes, controlled query, themes, and negative declaration tests for every removed `*Render` prop.
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** A bounded flat-metadata candidate exposes Input/List/Item and layout parts with filtering, disabled skipping, IME guard, selection and mounted active-descendant targets.
+
+**Production acceptance:** Flat items in the experiment do not replace the planned groups contract. Preserve production ranking/custom filtering, grouped and async data, controlled query and renderer-free virtualization. Complete these against existing behavior before treating the collection engine as proven.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Verification
 
 ```sh

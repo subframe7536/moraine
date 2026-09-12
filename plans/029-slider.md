@@ -38,6 +38,16 @@ Thumb index identifies a stable slot in the root value array. Parts inherit rang
 </>
 ```
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Track/Range/indexed Thumb reuse useSlider. Manual live/commit callbacks, crossing constraints and Chromium keyboard/pointer geometry pass; existing default Slider cases also pass.
+
+**Production acceptance:** BLOCKING: Chromium native reset leaves FormData(range) = [40,60] while aria-valuenow = [20,80]. The runner records this as a failed diagnostic, not an acceptance pass. Resolve native reset/default-value timing and verify actual submit values for controlled/uncontrolled multi-thumb sliders; jsdom reset passes are insufficient.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Current state
 
 `src/forms/slider/slider.types.ts:12` anchors the current implementation contract:

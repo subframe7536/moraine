@@ -20,15 +20,15 @@ KbdGroup currently exposes `dividerRender` and `sequenceDividerRender`. Replace 
 ```tsx
 <KbdGroup>
   <KbdGroup.Chord>
-    <Kbd>Ctrl</Kbd>
+    <Kbd value="Ctrl" />
     <KbdGroup.Divider>+</KbdGroup.Divider>
-    <Kbd>K</Kbd>
+    <Kbd value="K" />
   </KbdGroup.Chord>
   <KbdGroup.SequenceDivider>then</KbdGroup.SequenceDivider>
   <KbdGroup.Chord>
-    <Kbd>Ctrl</Kbd>
+    <Kbd value="Ctrl" />
     <KbdGroup.Divider>+</KbdGroup.Divider>
-    <Kbd>S</Kbd>
+    <Kbd value="S" />
   </KbdGroup.Chord>
 </KbdGroup>
 ```
@@ -46,6 +46,16 @@ Application data may use `<For>` to construct the same parts. Do not add another
 ## Acceptance tests
 
 Cover default convenience rendering, manual structure, dynamic `<For>`, custom divider children, no duplicate separators, theme overrides, SSR/hydration and negative declaration tests for removed renderer props.
+
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Explicit Chord/Divider/SequenceDivider renders custom delimiters once and reuses standalone Kbd. SSR/hydration and browser semantic key markup pass.
+
+**Production acceptance:** Existing Kbd takes value, not text children; correct planned examples accordingly. Prototype only validates manual structure; decide and test items/sequence default convenience compatibility and responsive/platform key labels before migration.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
 
 ## Verification
 

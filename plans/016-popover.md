@@ -51,6 +51,16 @@ Custom Panel children retain positioning assembly. Use the raw alternative only 
 </>
 ```
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Portal/Positioner/Content can share existing Popper positioning and interaction ownership without an implicit body. Browser checks verify one measured surface and close.
+
+**Production acceptance:** Create children under the surface context provider; resolving them first loses the binding. Preserve every existing Panel positioning/interaction option in raw parts, and verify Anchor/Arrow, nested interaction and server-open output.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Current state
 
 `src/overlays/popover/popover.types.ts:7` anchors the current implementation contract:

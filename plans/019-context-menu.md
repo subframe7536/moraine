@@ -57,6 +57,16 @@ Do not add `ContextMenu.Items` merely to hide `<For>`.
 
 Cover contextmenu coordinates, long-press cancellation, touch/mouse differences, keyboard opening, dynamic namespace items, submenu ownership, dismissal/focus restore, scroll/RTL, virtual positioning, SSR, themes, and negative declaration tests for removed renderer APIs.
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Existing coordinate/keyboard trigger logic works with renderer-free menu rows. Chromium verifies the virtual anchor near the pointer and Shift+F10 opening.
+
+**Production acceptance:** Reuse plan 018 item/layer behavior and its Escape fix. Long-press logic was retained but real touch/pen cancellation, scrolling, nested submenus and server-open behavior were not validated.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Verification
 
 ```sh

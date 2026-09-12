@@ -39,6 +39,16 @@ Card has one manual structure. Card.Content supplies body spacing; native elemen
 </Card>
 ```
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Manual Header/Title/Description/Body/Footer and raw media preserve native title forwarding and reactive theme/local Body overrides; first HTML and hydration identity were checked.
+
+**Production acceptance:** Keep raw media outside padded Body. Finalize the slot migration map and all public part types; verify default/manual parity and nested Provider overrides.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Current state
 
 `src/elements/card/card.types.ts:5` anchors the current implementation contract:

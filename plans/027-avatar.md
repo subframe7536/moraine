@@ -39,6 +39,16 @@ Image/Fallback inherit source, alternative text, fallback text and load state fr
 </>
 ```
 
+## Round-three prototype evidence and required follow-up
+
+[Round-three experiment record](pr37-prototype-round3-findings.md), 2026-09-12. This is bounded prototype evidence; the production status above is unchanged.
+
+**Observed:** Manual Image/Fallback shares the retained loader/status owner and rejects stale requests. All 31 existing Avatar cases were retargeted to the candidate and passed, in addition to the new manual composition case.
+
+**Production acceptance:** Use one load owner and preserve default badge/fallback behavior. Browser coverage checked fallback, while network race assertions were mocked; verify real image/decode timing and complete manual/default style and namespace type parity.
+
+Port the relevant experiment regressions before migration. The shared test totals are not a per-family coverage claim; default behavior, public types, docs and the untested boundaries still require this plan's gates.
+
 ## Current state
 
 `src/elements/avatar/avatar.types.ts:4` anchors the current implementation contract:

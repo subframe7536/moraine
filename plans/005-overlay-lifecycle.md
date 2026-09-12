@@ -30,6 +30,12 @@ Use plan 002's failing reproduction to establish an SSR-capable surface/portal c
 
 Plans 011 and 013 cannot complete their SSR acceptance until this prerequisite passes. If resolving portal placement requires changing the agreed hydration identity/parentage contract or an out-of-scope platform API, stop and revise that contract explicitly before implementing it. Keep one presence/focus/dismiss authority and preserve existing Modal/Popover/Tooltip consumers.
 
+## Round-three experiment constraints
+
+[Round-three evidence](pr37-prototype-round3-findings.md), 2026-09-12. The raw Modal/Sheet/Popover/Tooltip split reuses existing lifecycle and passes selected client checks. True-server default-open fixtures still omit content. Existing menu layer cleanup also references window; create browser-only layer ownership inside mounted Portal content rather than at a closed server root, and still resolve the open-server contract. Add shared SSR/client boundary tests before migrating each family.
+
+Prototype execution does not complete this prerequisite or change its production status.
+
 ## Current state
 
 `src/overlays/base/popper.tsx:44` anchors the current implementation contract:
