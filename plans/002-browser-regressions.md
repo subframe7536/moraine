@@ -20,6 +20,14 @@ Reuse hydrateFixture and the existing server fixture pipeline. Add a dedicated b
 
 The delivery boundary is this component or shared capability, including its own regressions, public types and necessary consumer/docs migration. A larger public surface is not a success metric; remove any proposed part that has no demonstrated structural or semantic use.
 
+## Prototype findings to carry into the harness
+
+The [prototype](pr37-prototype-findings.md) passed eight Chromium checks but did not create the permanent `test:browser` gate. Its CSS was generated from the actual docs UnoCSS configuration and source recipes. The harness must assert that semantic variables and computed presentation exist before claiming theme/geometry coverage; class strings alone are insufficient. Use default, replacement and empty themes, with settled measurements after transition/resize/theme changes.
+
+Add Button custom-host form submission, Tabs indicator layering/hit testing and RTL/reorder/scroll/border geometry, and Dialog keyboard activation, conditional labels, trap and restore to the browser fixtures. Keep the broader overlay matrix below; these pilot checks did not cover it.
+
+A server-open Dialog using the current ModalSurface emitted no dialog/title because the unconditional Portal path omits the surface on the server. Preserve a true-server reproduction that expects a rendered, labelled surface and verifies hydration identity. Track it explicitly as a known failing prerequisite for plan 005; a passing assertion that the surface is absent is diagnostic evidence only, never SSR acceptance. Plan 002 owns the reproduction/harness and plan 005 owns the shared implementation fix.
+
 ## Current state
 
 `src/test-utils/ssr-test.ts:20` anchors the current implementation contract:

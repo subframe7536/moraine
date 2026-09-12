@@ -20,6 +20,14 @@ Extract behavior from public JSX into existing or small private composable helpe
 
 The delivery boundary is this component or shared capability, including its own regressions, public types and necessary consumer/docs migration. A larger public surface is not a success metric; remove any proposed part that has no demonstrated structural or semantic use.
 
+## Server-open surface prerequisite from the prototype
+
+The [PR #37 experiment](pr37-prototype-findings.md) reused Modal/ModalSurface successfully for client open/focus/dismiss behavior, but the existing unconditional Solid Portal path emitted no dialog or title in server-open HTML. This is an inherited topology gap, not a Title registration fix. Explicit `aria-label` cannot label a surface that never renders.
+
+Use plan 002's failing reproduction to establish an SSR-capable surface/portal contract within the existing shared owner. Document server placement and hydration placement before implementation; verify the actual server surface, initial accessible name/description, and preserved node identity and parentage through hydration. Cover default-open/controlled-open and conditional content. Do not silently downgrade the requirement to client-only rendering or count mount-time ARIA repair as SSR correctness.
+
+Plan 011 cannot complete until this prerequisite passes. If resolving portal placement requires changing the agreed hydration identity/parentage contract or an out-of-scope platform API, stop and revise that contract explicitly before implementing it. Keep one presence/focus/dismiss authority and preserve existing Modal/Popover/Tooltip consumers.
+
 ## Current state
 
 `src/overlays/base/popper.tsx:44` anchors the current implementation contract:
@@ -132,6 +140,7 @@ Use the family's existing regression suite as the structural pattern. For public
 
 ## Done criteria
 
+- [ ] Server-open surface and initial label relationships render before hydration, and the plan 002 identity/parentage reproduction passes.
 - [ ] Focused tests execute and pass, including the cases listed above.
 - [ ] `nub run typecheck` and `nub run test:types` exit 0.
 - [ ] `nub run docs:build`, `nub run test` and `nub run qa` exit 0.

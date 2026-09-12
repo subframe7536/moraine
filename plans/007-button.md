@@ -13,7 +13,7 @@
 
 ## Why this matters
 
-Integrate the shared `as` polymorphism protocol into Button while preserving native submit/type behavior, disabled/loading protection, `loadingAuto`, leading/trailing/content renderers and existing theme overrides.
+Integrate the shared `as` polymorphism protocol into Button while preserving native submit/type behavior, disabled/loading protection, `loadingAuto`, leading/trailing presentation, content and existing theme overrides. Public JSX renderer callbacks migrate to explicit content according to the index.
 
 Button remains a leaf. ButtonGroup stays standalone.
 
@@ -57,7 +57,15 @@ The selected component receives the behavior/ARIA/event/ref props that Dialog.Tr
 - Ref and `currentTarget` types must remain useful for intrinsic hosts and must not claim unsupported precision for arbitrary custom targets.
 - Do not add Button namespace parts or fold ButtonGroup into Button.
 - Keep Provider/theme, `classes/styles` and part-local overrides unchanged.
-- Existing children/content render-prop semantics, if retained, are content rendering only and are not a host factory.
+- Remove public JSX renderer callbacks rather than retaining a competing content assembly path.
+
+## Prototype regression that must land with this plan
+
+The [prototype](pr37-prototype-findings.md) reproduced an unintended form submit: Button consumed `type` but did not forward it to a custom component rendering `<button {...props} />`. Its minimal fix forwarded custom-host `type` and native `disabled`, defaulting a custom button host without `href` to `type="button"`.
+
+Add a real form regression before migration: omitted type does not submit, explicit `type="submit"` submits exactly once, and disabled/loading custom buttons remain inert. Preserve explicit target props and custom-link semantics; do not force button-only attributes onto links or replace disabled activation guards with native `disabled` alone. Test event/ref/ARIA forwarding together with the native attributes.
+
+Retain plan 003's concrete default-host type contract. A positive `Dialog.Trigger as={Button}` call is insufficient: invalid nested `variant` and invalid target props must fail against emitted declarations. Coordinate the actual Dialog integration test with plan 011.
 
 ## Acceptance tests
 
@@ -102,6 +110,7 @@ git diff --check
 - [ ] Button validates intrinsic and custom-component `as` polymorphism.
 - [ ] Host-level `render` is not part of Button's public API.
 - [ ] Children remains the actual rendered content.
+- [ ] Custom hosts preserve default button type, explicit single submit, disabled/loading protection and link behavior.
 - [ ] Existing behavior and styling semantics remain intact.
 - [ ] No new namespace structure was added to Button.
 - [ ] Docs include one real custom-component `as` example.

@@ -20,6 +20,12 @@ Record current exports, component scope statuses, direct callers, theme slot map
 
 The delivery boundary is this component or shared capability, including its own regressions, public types and necessary consumer/docs migration. A larger public surface is not a success metric; remove any proposed part that has no demonstrated structural or semantic use.
 
+## Prototype evidence to reconcile
+
+The [2026-09-12 experiment](pr37-prototype-findings.md) already recorded baseline typecheck, published-type and docs-build passes at PR head `2e0f0cc972e476c18c22faae6303fc154832e8df`. Its full baseline run had 1933 passes and four failures. Two consumer-export failures came from missing `nubx`; targeted reruns passed after toolchain repair. The remaining two FormField Select/MultiSelect required/shared-labelling failures are pre-existing and must remain visible.
+
+Use this as historical evidence, then record the execution HEAD and any relevant drift. Ensure both `nub` and the `nubx` child-process command resolve before rerunning consumers. Do not infer an all-green full suite from targeted reruns. Inventory, direct callers, licenses where applicable, and Button/Tabs preserved-JSX and compiled-ESM bundle comparisons remain required; none was completed by the prototype.
+
 ## Current state
 
 `src/test-utils/ssr-test.ts:20` anchors the current implementation contract:
@@ -84,7 +90,7 @@ Run from the repository root using the installed nub toolchain. These existing p
 | Full regression | `nub run test` | Exit 0, no new skipped cases masking failures |
 | Diff hygiene | `git diff --check` | Exit 0 |
 
-`test` and `test:types` already build the library. Do not run fixing tools in this evidence-only unit.
+`test` and `test:types` already build the library. Do not use fixing tools to repair baseline behavior. Before a commit, run the AGENTS-required QA gate, inspect its mutations and discard only unrelated generated/formatting changes from this task.
 
 ## Git workflow
 
@@ -94,7 +100,7 @@ Use `codex/baseline` if creating an isolated branch. Keep commits scoped, for ex
 
 ### 1. Record scope and current health
 
-Create `plans/baseline/report.md` with HEAD, working-tree status, the 36-directory inventory, direct consumer paths, current public exports and selected/deferred statuses. Run `nub run typecheck`, `nub run test:types`, `nub run test` and `nub run docs:build`; record command, exit code and specific pre-existing failures. Do not fix production code to obtain a green baseline. Do not run the mutating QA script for this evidence-only task.
+Create `plans/baseline/report.md` with HEAD, working-tree status, the 36-directory inventory, direct consumer paths, current public exports and selected/deferred statuses. Run `nub run typecheck`, `nub run test:types`, `nub run test` and `nub run docs:build`; record command, exit code and specific pre-existing failures. Do not fix production code to obtain a green baseline. Keep baseline measurements separate from the required pre-commit QA run; QA must not silently change the behavior being measured.
 
 **Verify:** `git diff --check` → exit 0; `git status --short` → only baseline reports and normal generated/ignored artifacts differ from the starting state. Every executed gate has an actual result in the report.
 

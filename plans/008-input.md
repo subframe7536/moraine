@@ -110,6 +110,25 @@ InputGroup must not:
 - Migrate old wrapper slots intentionally to InputGroup slots; keep compatible control-facing slot names when their semantic target remains valid.
 - `emptyTheme` may remove presentation but must not break required group geometry or native focusability.
 
+## Prototype migration constraints
+
+The [prototype](pr37-prototype-findings.md) validated native targeting and presentation-only grouping using existing text value/form/reset hooks. Production must share one native control implementation between standalone and grouped exports; temporary copied components are not a maintainable second path. Complete the existing validation, FormField and Textarea autoresize matrix rather than treating the pilot's trim/reset cases as exhaustive.
+
+Add `inputGroup` to `MoraineThemeSchema` and the default theme, with typed slots/defaults and public namespace/Props exports. The prototype used two temporary schema assertions around `createComponentStyles`; remove that bridge in production. No Provider rewrite is required.
+
+Use this tested migration direction when inventorying consumers:
+
+| Old target                                                      | New target and precedence                                                              |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Input/Textarea wrapper ref; `inputRef`/`textareaRef` on control | Leaf `ref` is native; layout ref belongs to InputGroup                                 |
+| Standalone root and input/textarea slots                        | Combine on the native control; root override wins on conflicts, then local class/style |
+| Leading/trailing regions                                        | InputGroup.Addon with inline alignment                                                 |
+| Header/footer regions                                           | InputGroup.Addon with block alignment                                                  |
+| Group root `classes/styles.input` or `.textarea`                | Corresponding native grouped control slot                                              |
+| Grouped control `classes/styles.root`, local class/style        | Native control; part overrides narrowest                                               |
+
+Record any incompatible legacy slot removal explicitly in the migration docs. Resolve group presentation directly instead of applying and undoing standalone border/radius styles. Test replacement themes, reactive variants, cnConfig and root/part overrides with the real typed theme entry.
+
 ## Scope
 
 Primary implementation scope:
@@ -117,6 +136,8 @@ Primary implementation scope:
 - `src/forms/input`
 - `src/forms/textarea`
 - `src/forms/input-group` (create)
+- `src/theme/types.ts`, `src/theme/default-theme.ts` and focused theme tests for the new group entry
+- `src/index.ts` and the existing theme export surface only for required InputGroup exports
 - their docs pages and generated API metadata
 - shared native text-control helpers/tests
 - declaration tests
@@ -188,6 +209,8 @@ Inspect formatter/linter mutations and reject unrelated changes.
 - [ ] Input and Textarea public DOM props/ref target native elements.
 - [ ] Wrapper composition has moved to InputGroup.
 - [ ] InputGroup owns presentation only, not value/form state.
+- [ ] InputGroup has a typed theme-schema/default-theme entry with no schema bridge assertions.
+- [ ] Standalone and grouped controls share one native behavior implementation, including validation/reset/autoresize coverage.
 - [ ] Existing normalized value/form behavior is preserved.
 - [ ] Theme replacement, emptyTheme and local overrides work for standalone and grouped controls.
 - [ ] Direct consumers and docs are migrated with an explicit compatibility map.

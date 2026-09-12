@@ -1,6 +1,6 @@
 # Component architecture plans
 
-Split from `moraine-namespace-optimization-codex-plan-v2.md` on 2026-09-11 at commit `7d9633ca405c2bcf256481298486c7daee3e1456`. This directory is the execution index. No implementation or test execution was performed while authoring/revising these plans.
+Split from `moraine-namespace-optimization-codex-plan-v2.md` on 2026-09-11 at commit `7d9633ca405c2bcf256481298486c7daee3e1456`. This directory is the execution index. The original plans were authored without implementation. A bounded prototype was executed on 2026-09-12; this revision incorporates its findings into the production handoffs.
 
 There are 37 bounded plans. TODO identifies selected work; DEFERRED requires explicit family selection before execution.
 
@@ -88,6 +88,18 @@ dividerRender                -> KbdGroup.Divider / SequenceDivider
 
 Show, in order: minimum anatomy; dynamic `<For>` where relevant; localized structural customization; one boundary case such as SSR/virtualization/`as` composition. Do not teach renderer props in new docs.
 
+## Prototype findings and execution constraints
+
+The [PR #37 experiment record](pr37-prototype-findings.md) supports the tested composition direction for Button, native Input/Textarea, InputGroup, Tabs and client-rendered Dialog. Production plans remain TODO: the experiment did not complete the baseline inventory/bundle comparison, shared protocol extraction or component migrations.
+
+- Plans 003/007 must preserve a concrete default-host type contract through nested `as`, and forward custom Button `type`/`disabled` correctly.
+- Plan 008 must add a typed `inputGroup` theme entry and an explicit native-control/slot migration map; prototype schema assertions are not a production solution.
+- Plan 010 uses paired semantic panel shells for its initial SSR contract. Independent conditional counterparts still need an explicit rule and tests. Indicator geometry and layering require real CSS and browser assertions.
+- Plans 002/005 must resolve the inherited server-open ModalSurface/Portal gap before plan 011 can pass SSR acceptance. Client focus/label tests do not establish server rendering.
+- Select filtering, labels for unmounted options and virtualization remain unvalidated by this experiment; plans 012/013 retain their own gates.
+
+Execution remains 001 → shared prerequisites → component pilots. Validate Button's concrete host forwarding before accepting Dialog's nested Button integration. Do not mark a unit DONE using the prototype's test counts.
+
 ## Execution order and status
 
 | Plan | Priority | Depends on | Status |
@@ -102,7 +114,7 @@ Show, in order: minimum anatomy; dynamic `<For>` where relevant; localized struc
 | [008 Input/Textarea/InputGroup](008-input.md) | P1 | 003 | TODO |
 | [009 Card](009-card.md) | P2 | 001 | TODO |
 | [010 Tabs](010-tabs.md) | P1 | 002, 003 | TODO |
-| [011 Dialog](011-dialog.md) | P1 | 002, 003, 005, 006 | TODO |
+| [011 Dialog](011-dialog.md) | P1 | 002, 003, 005, 006, 007 | TODO |
 | [012 Select internals](012-select-internals.md) | P1 | 005, 006 | TODO |
 | [013 Select parts](013-select-parts.md) | P1 | 003, 012 | TODO |
 | [014 Modal](014-modal.md) | P2 | 011 | DEFERRED |
@@ -198,4 +210,4 @@ Statuses: TODO, DEFERRED, IN PROGRESS, DONE, BLOCKED (reason), REJECTED (reason)
 
 ## Verification baseline
 
-Package scripts and existing test infrastructure were inspected, not executed while revising these plans. `nub run test:browser` is owned by plan 002. Production checks and generated API changes belong to implementation execution. When upstream source is directly adapted, record exact source revision and license obligations.
+Actual prototype and baseline results, including pre-existing failures and unverified coverage, are recorded in [pr37-prototype-findings.md](pr37-prototype-findings.md). `nub run test:browser` is still owned by plan 002; the temporary prototype runner does not complete that prerequisite. Production checks and generated API changes belong to implementation execution. When upstream source is directly adapted, record exact source revision and license obligations.

@@ -15,7 +15,7 @@
 
 Moraine needs one internal protocol for selecting an intrinsic/custom host and merging behavior props, user props and refs without duplicating subtle event/ref logic in every component.
 
-Extract the existing Popper prop merger into a private `mergeElementProps` implementation and add only the minimum private polymorphic-host helper needed by consumers. Keep content rendering (`renderComponentOrElement`, `optionRender`, render-prop children and similar content APIs) separate from host selection.
+Extract the existing Popper prop merger into a private `mergeElementProps` implementation and add only the minimum private polymorphic-host helper needed by consumers. Private rendering helpers remain separate from host selection. Selected component migrations remove public JSX renderer callbacks according to the index; this helper extraction does not preserve them as another public composition path.
 
 The public composition model is intentionally single-path:
 
@@ -64,7 +64,7 @@ The exact Button/Dialog integration lands in later plans; this plan must make th
 - `children` remains the selected host's content channel.
 - Replacing the host must not require rebuilding the element in a callback.
 - Do not evaluate children merely to discover the selected host or recover props.
-- Existing stateful/content render-prop APIs remain content APIs when they are still part of a component's contract; they must never become a second host factory.
+- Public JSX renderer callbacks are removed by the owning component migrations; data/behavior callbacks may remain. This plan does not add a callback-based content or host path.
 
 ### Prop ownership and forwarding
 
@@ -105,6 +105,14 @@ Moraine must not:
 - claim a ref/currentTarget type that cannot be known from the target type.
 
 When a custom component cannot accept a required ref or host prop, declaration tests should expose that incompatibility rather than hiding it with casts.
+
+## Prototype type constraints
+
+The [prototype](pr37-prototype-findings.md) initially accepted an invalid Button variant inside `Dialog.Trigger as={Button}` even though direct Button calls were checked. A generic call signature alone did not preserve useful `ComponentProps<typeof Button>` extraction. A generic overload followed by a concrete default-button overload, with `NoInfer` on inherited target props, passed both source and emitted-declaration fixtures. Preserve this observable contract with that pattern or an equivalently checked design; do not mandate an abstraction larger than the consumers need.
+
+Test positive and negative nested compositions against emitted package declarations as well as source: Button variants, intrinsic props, required custom props, native ref/event types, and missing required host refs. Where focus behavior needs a ref, a custom target must accept it; types cannot prove that its implementation actually forwards it, so retain runtime tests. The pilot's private legacy/schema assertions do not establish universal compatibility with arbitrary generic third-party hosts.
+
+The shared `mergeElementProps` extraction is still outstanding. Port observable cancellation, tuple-handler, mandatory disabled-guard and ref ownership cases before consolidating existing mergers.
 
 ## Scope
 

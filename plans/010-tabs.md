@@ -17,7 +17,7 @@ Tabs should use explicit, shadcn-style composition as the primary public API. `i
 
 Expose `Tabs.List`, `Tabs.Trigger`, `Tabs.Content` and `Tabs.Indicator`. Do not add `Tabs.Items`; normal dynamic rendering should use Solid `<For>`.
 
-Without `items`, declared Trigger/Content parts establish the relevant collection metadata. With `items`, the root may know disabled/order/labels/content for entries that have not mounted yet. Both paths must share one selection/navigation behavior authority.
+Without `items`, declared Trigger/Content parts establish the relevant collection metadata. With `items`, the root may know logical values, disabled defaults and initial logical order for entries that have not mounted yet. Label/content JSX remains on the parts; metadata does not render it. Both paths must share one selection/navigation behavior authority.
 
 Preserve activation mode, controlled/uncontrolled value, RTL, keyboard loop, indicator behavior, theme overrides and SSR/hydration guarantees.
 
@@ -88,7 +88,7 @@ Optional complete metadata:
 
 - `value` is required in declarative mode.
 - label/children and disabled state may be declared directly on the part.
-- When root metadata exists, explicit part props win only where the documented precedence allows; define this precedence once and test it.
+- Root metadata supplies disabled defaults; an explicit Trigger disabled prop overrides that default. Root-wide disabled behavior remains authoritative. Test this precedence and define diagnostics for conflicting identities.
 - Trigger registration must not become a second selection authority.
 
 ### Content
@@ -101,6 +101,8 @@ Optional complete metadata:
 
 - Uses mounted Trigger geometry only.
 - Must tolerate conditional/unmounted triggers and real-browser resizing without stale measurements.
+- An Indicator rendered last in List must paint below labels and never intercept pointer activation. Use a positioned, isolated List context or an equivalently tested arrangement.
+- Measure in the List coordinate space, accounting for borders and scroll offsets. Test horizontal/vertical orientation, RTL, reordering, resize and theme restoration; cancel stale measurement work and verify settled geometry. Required positioning/hit behavior must survive emptyTheme.
 
 ## SSR boundary
 
@@ -112,6 +114,15 @@ Therefore:
 - Do not render/scan child JSX twice to infer the first enabled item.
 - First server HTML must contain valid `role=tab`, panel associations and non-dangling IDREFs for the parts actually rendered.
 - Hydration must preserve node identity and parentage.
+- Keep each declared Content's semantic panel shell mounted, hiding inactive shells; treat lazy body mounting as a separate policy. This was sufficient for the prototype's paired Trigger/Content ID relationships.
+- Without explicit selection or complete metadata, leave server selection unset; select the first enabled mounted trigger on the client only after mount. Do not claim server-selected content for this case.
+- Define and test what happens when a Trigger or its Content is independently absent, including first-server IDREFs. Paired-shell evidence does not prove arbitrary conditional counterparts. If the contract requires paired declarations, document and diagnose violations; do not fabricate hidden panels by scanning JSX.
+
+## Prototype limits to close
+
+The [prototype](pr37-prototype-findings.md) established static/For composition, readonly metadata, paired-shell SSR/hydration and measured Chromium navigation/indicator behavior. The existing controllable-value hook remained the selection authority; mounted registration supplied navigation/geometry, with keyboard order read from current DOM order rather than registration time.
+
+Production must additionally cover duplicate values after reactive identity changes, unknown metadata/part mismatches, invalid default values, independently conditional pairs and removed/disabled selected values. Specify controlled-value preservation separately from uncontrolled fallback and focus recovery. Do not reset controlled state from a mounted registry. Test wrappers plus For reordering so registration order cannot silently replace visual DOM order.
 
 ## Styling
 
@@ -171,7 +182,8 @@ git diff --check
 
 - [ ] Tabs works composition-first without root `items`.
 - [ ] Optional `items` metadata uses the same behavior authority.
-- [ ] SSR behavior does not depend on hidden JSX discovery.
+- [ ] SSR paired-shell/lazy-body and independently absent counterpart rules are documented and tested without hidden JSX discovery.
+- [ ] Indicator layering, pointer behavior and settled geometry pass with real CSS, RTL, scrolling and theme changes.
 - [ ] Dynamic application data is demonstrated with `<For>`, not `Tabs.Items`.
 - [ ] Existing styling override semantics are preserved.
 - [ ] Browser, declaration, SSR and full regression gates pass.

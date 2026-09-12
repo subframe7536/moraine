@@ -7,7 +7,7 @@
 - **Priority**: P1
 - **Effort**: L
 - **Risk**: HIGH
-- **Depends on**: [002-browser-regressions.md](002-browser-regressions.md), [003-host-render.md](003-host-render.md), [005-overlay-lifecycle.md](005-overlay-lifecycle.md), [006-floating-bindings.md](006-floating-bindings.md)
+- **Depends on**: [002-browser-regressions.md](002-browser-regressions.md), [003-host-render.md](003-host-render.md), [005-overlay-lifecycle.md](005-overlay-lifecycle.md), [006-floating-bindings.md](006-floating-bindings.md), [007-button.md](007-button.md)
 - **Category**: dx
 - **State**: TODO
 
@@ -20,6 +20,14 @@ Expose `Trigger`, `Content`, `Header`, `Title`, `Description`, `Body`, `Footer`,
 Stable plumbing such as portal ownership, focus trap, dismissal lifecycle and presence should remain internal by default. Expose `Portal` / `Overlay` only if existing customization requirements cannot be expressed through Content/root props and style slots without them.
 
 Share one private dialog behavior implementation with Modal/Sheet facades; styled surfaces must not own a duplicate behavior kernel.
+
+## Prototype result and blocking prerequisite
+
+The [prototype](pr37-prototype-findings.md) validated client composition using the existing Modal/ModalSurface behavior owner, including keyboard open/close, focus containment/restore and conditional description cleanup. It did not validate server-open Dialog: the inherited Portal path emitted no dialog/title surface.
+
+Plan 002 must retain the true-server reproduction and plan 005 must resolve the shared surface/portal contract before this plan can pass SSR acceptance. Neither explicit names nor a client registration effect fixes an absent server surface. Keep this plan TODO until selected, and report it BLOCKED if that prerequisite is still unresolved at execution; do not mark it complete from the client pilot.
+
+The preview used `Dialog.Close as={Button}` in its footer. Native Close slot remapping, one-active-surface enforcement, reopen during exit, nested layers and other-document lifecycles remain production acceptance work.
 
 ## Target anatomy
 
@@ -81,7 +89,8 @@ The content tree is user-owned. `Dialog.Trigger` selects Button as its host thro
 ### Title / Description
 
 - provide accessible semantics and IDs when rendered;
-- conditional/missing parts must not leave dangling aria-labelledby / aria-describedby references on first server HTML or after hydration.
+- conditional/missing parts must not leave dangling aria-labelledby / aria-describedby references on first server HTML or after hydration;
+- client registration must track current IDs and unregister conditional parts. This cleanup is separate from initial-server correctness; do not infer server label presence from a client-only registry.
 
 ### Portal / Overlay
 
@@ -99,6 +108,7 @@ Before exposing them, prove an actual customization need. If public:
 - `classes/styles` on the appropriate public owner and part-local `class/style` remain supported.
 - `emptyTheme` must keep behavior geometry, focusability and dismissal hit areas valid.
 - If old `content` slot meant the assembled panel, document any slot remapping caused by this refactor.
+- Map Close presentation explicitly: a footer action must not inherit absolute-positioned corner-icon styling accidentally. Test the default native Close and `Close as={Button}` with root slots, local overrides and emptyTheme; the latter alone does not validate native Close.
 
 ## Migration
 
@@ -166,7 +176,9 @@ git diff --check
 - [ ] Content accepts arbitrary structure without a competing hidden assembly path.
 - [ ] Trigger/Close custom hosts use `as`; host-level `render` is absent.
 - [ ] `Dialog.Trigger as={Button}` preserves both behavior and Button props/content.
+- [ ] Plan 005 resolves server-open surface rendering; actual surface nodes and parents survive hydration.
 - [ ] Accessibility IDs are correct in initial SSR and after conditional changes.
+- [ ] Native and Button-hosted Close styling, one active surface and reopen-during-exit behavior are verified.
 - [ ] Styling override semantics remain Moraine-owned and composable.
 - [ ] Dialog/Modal share one behavior implementation.
 - [ ] Browser, declaration, SSR and full regression gates pass.
