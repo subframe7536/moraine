@@ -1,6 +1,6 @@
-# Plan 012: Separate Select behavior from optional collection metadata and presentation
+# Plan 012: Separate Select behavior from metadata and namespace presentation
 
-> Executor: read this file plus `plans/README.md` before implementation. This plan is internal-only groundwork for the composition-first Select API in plan 013.
+> Executor: read this file plus `plans/README.md` before implementation. This is internal groundwork for the renderer-free composition-first Select API in plan 013.
 
 ## Status
 
@@ -13,99 +13,57 @@
 
 ## Why this matters
 
-The Select behavior layer must no longer assume that root `options` is always the only collection source, but it also must not fall back to scanning JSX.
+Select behavior must accept complete root metadata or declarative Item registration without scanning JSX, while presentation remains entirely owned by namespace components in plan 013.
 
-Separate:
+Separate one authoritative model into:
 
 1. selection/open/highlight/query state;
-2. form adaptation and serialization;
+2. form adaptation/serialization;
 3. collection metadata;
-4. filtered/virtual views;
-5. styled rendering.
+4. filtered/virtual logical views;
+5. namespace presentation consumers.
 
-A single behavior authority must be able to consume either:
+Metadata sources are not competing selection states and do not contain JSX renderer callbacks.
 
-- an explicit complete `options` collection supplied by the root; or
-- declarative item registrations from mounted `Select.Item` parts when no complete collection is supplied.
-
-Those are metadata sources, not competing selection states.
-
-## Required behavior boundaries
+## Required boundaries
 
 ### Value authority
 
-Identify one authority for controlled/uncontrolled/form-bound value. Rejected controlled changes must not serialize prematurely. Mounted item registration must never become the canonical value source.
-
-Preserve:
-
-- controlled/uncontrolled value contracts;
-- required/form/readOnly/disabled behavior;
-- hidden input serialization;
-- reset behavior;
-- current callback semantics.
+Keep one controlled/uncontrolled/form-bound value authority. Rejected controlled changes do not serialize prematurely. Mounted Item registration never becomes canonical value state.
 
 ### Collection metadata
 
-Define one internal interface for semantic option metadata such as:
+Define semantic metadata such as value, disabled, searchable text, optional display text and deterministic ordering. Root `options` may supply a complete collection; mounted Items may register metadata when it is absent.
 
-- value;
-- disabled;
-- text/search value;
-- display label metadata when explicitly available;
-- ordering/index information where deterministically known.
-
-A root `options` prop supplies a complete collection. Declarative items supply registrations for parts that actually mount.
-
-Do not evaluate item JSX to derive metadata. Labels/content may remain lazy render values separate from searchable text metadata.
+Do not evaluate Item JSX to derive metadata. Visible labels/content belong to namespace parts.
 
 ### Search/filter/typeahead
 
-Search and filtering over a complete dataset require a complete data source. When `options` is absent:
-
-- typeahead/search may operate only on explicitly registered searchable metadata;
-- virtualized/unmounted entries cannot be invented;
-- public plan 013 must document when complete `options` is required for built-in filtering/virtualization.
-
-Do not create a hidden Search input or a second query state.
+Complete-dataset filtering requires complete metadata. Without it, search/typeahead operates on registered searchable metadata only. There is one query state and one visible `Select.Search` consumer.
 
 ### Selected label
 
-A selected value may exist before popup items mount. The behavior layer must distinguish the raw selected value from optional display metadata.
-
-If root metadata cannot resolve a label, public `Select.Value` must have a deterministic fallback or accept explicit children/rendering. Do not mount popup content solely to discover a label.
+Distinguish raw selected value from optional display metadata. If complete metadata cannot resolve display text, `Select.Value` uses explicit children or a deterministic fallback. Never mount hidden popup content to discover a label.
 
 ### Virtualization
 
-Virtualization requires a complete logical collection independent of mounted DOM nodes. Keep virtual entries distinct from mounted item registrations and filtered metadata.
+Virtualization requires a complete logical collection independent of mounted DOM. Its internal boundary exposes visible entries, indices, measurement/scroll information and state — **not JSX render callbacks**. Plan 013 removes public `virtualRender`; namespace Item parts remain the presentation model.
 
 ### Presentation
 
-Remove styled List nodes, recipe output and FormField objects from the reusable behavior interface. BaseSelect may remain an internal JSX composition layer only if it does not become a second public anatomy or behavior owner.
+Behavior modules contain no recipe output, FormField layout, styled List nodes, `ComponentOrElement` renderer props or renderer-specific public context. BaseSelect may remain a private JSX integration layer only if it does not become a second public anatomy or require callback rendering.
+
+## Acceptance tests
+
+Cover complete options, declarative registrations, controlled rejection, reset/hidden-input behavior, search/query/highlight distinctions, registered-only typeahead, complete-data filtering, selected value before popup mount, missing display metadata, renderer-free virtual logical entries, mount/unmount stability, duplicate/inconsistent metadata diagnostics, and no behavior-layer JSX renderer callbacks.
 
 ## Scope
 
 - `src/forms/select` internal behavior modules
-- shared selectable/typeahead utilities only where multiple consumers justify them
-- Select/MultiSelect focused regression tests
-- form adapter tests
-- no public parts API changes in this unit
-
-## Acceptance tests
-
-Cover both metadata modes:
-
-- complete root options with unmounted entries;
-- declarative registered items without root options;
-- controlled rejection does not serialize;
-- reset and hidden-input behavior;
-- search/query/highlight distinctions;
-- typeahead over registered metadata;
-- complete-data filtering;
-- selected value before popup mount;
-- missing display metadata does not force popup mount;
-- virtualization uses complete logical data rather than DOM registrations;
-- item mount/unmount does not clear a controlled selected value;
-- duplicate values and inconsistent root-vs-registration metadata produce actionable development diagnostics.
+- shared selectable/typeahead/virtualization utilities only where genuinely reusable
+- Select/MultiSelect focused regressions
+- form adapters
+- no public parts implementation until plan 013
 
 ## Verification
 
@@ -121,12 +79,12 @@ git diff --check
 ## Done criteria
 
 - [ ] Selection/form state has one authority.
-- [ ] Complete root metadata and declarative item registration feed one behavior model.
-- [ ] No JSX scanning/eager label evaluation is used for collection discovery.
-- [ ] Search/virtualization boundaries are explicit and tested.
-- [ ] Selected-label resolution does not require mounting popup content.
-- [ ] Public Select/MultiSelect APIs remain unchanged until their respective structure plans.
+- [ ] Complete metadata and declarative registration feed one model.
+- [ ] No JSX scanning/eager label evaluation is used.
+- [ ] Behavior/virtualization internals do not require JSX renderer callbacks.
+- [ ] Selected-label resolution does not require popup mounting.
+- [ ] Plan 013 can remove all Select public `*Render` APIs cleanly.
 
 ## STOP conditions
 
-Stop if declarative mode requires scanning child JSX, if mounted items become the source of controlled/form value truth, if virtualization is implemented from mounted DOM registrations, or if selected-label correctness requires hidden popup mounting.
+Stop if declarative mode requires scanning children, mounted items become controlled/form truth, virtualization depends on a JSX renderer callback, or selected-label correctness requires hidden popup mounting.
