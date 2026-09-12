@@ -1,0 +1,198 @@
+# Plan 010: Make Tabs composition-first with optional collection data
+
+> Executor: read this file plus `plans/README.md` before implementation. This plan replaces the previous mandatory-root-items design.
+
+## Status
+
+- **Priority**: P1
+- **Effort**: L
+- **Risk**: HIGH
+- **Depends on**: [002-browser-regressions.md](002-browser-regressions.md), [003-host-render.md](003-host-render.md)
+- **Category**: dx
+- **State**: TODO
+
+## Why this matters
+
+Tabs should use explicit, shadcn-style composition as the primary public API. `items` becomes optional metadata rather than a required structure source.
+
+Expose `Tabs.List`, `Tabs.Trigger`, `Tabs.Content` and `Tabs.Indicator`. Do not add `Tabs.Items`; normal dynamic rendering should use Solid `<For>`.
+
+Without `items`, declared Trigger/Content parts establish the relevant collection metadata. With `items`, the root may know logical values, disabled defaults and initial logical order for entries that have not mounted yet. Label/content JSX remains on the parts; metadata does not render it. Both paths must share one selection/navigation behavior authority.
+
+Preserve activation mode, controlled/uncontrolled value, RTL, keyboard loop, indicator behavior, theme overrides and SSR/hydration guarantees.
+
+## Target anatomy
+
+Static composition:
+
+```tsx
+<Tabs defaultValue="overview">
+  <Tabs.List>
+    <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
+    <Tabs.Trigger value="activity">Activity</Tabs.Trigger>
+    <Tabs.Indicator />
+  </Tabs.List>
+
+  <Tabs.Content value="overview">
+    <ProjectOverview />
+  </Tabs.Content>
+  <Tabs.Content value="activity">
+    <ProjectActivity />
+  </Tabs.Content>
+</Tabs>
+```
+
+Dynamic composition:
+
+```tsx
+<Tabs defaultValue="overview">
+  <Tabs.List>
+    <For each={tabs}>
+      {(tab) => (
+        <Tabs.Trigger value={tab.value} disabled={tab.disabled}>
+          {tab.label}
+        </Tabs.Trigger>
+      )}
+    </For>
+    <Tabs.Indicator />
+  </Tabs.List>
+
+  <For each={tabs}>
+    {(tab) => (
+      <Tabs.Content value={tab.value}>{tab.content}</Tabs.Content>
+    )}
+  </For>
+</Tabs>
+```
+
+Optional complete metadata:
+
+```tsx
+<Tabs items={tabs} defaultValue="overview">
+  {/* explicit parts may still be rendered from the same data */}
+</Tabs>
+```
+
+`items` must not silently switch the component into a second hidden widget implementation.
+
+## Public contract
+
+### Root
+
+- `value`, `defaultValue`, `onChange`, `activationMode`, `orientation`, `disabled` and keyboard behavior remain root-owned.
+- `items` is optional complete-collection metadata.
+- Accept readonly data where practical so `as const` / `satisfies` usage does not require copying arrays.
+- Do not derive a complete collection by scanning/evaluating JSX.
+
+### Trigger
+
+- `value` is required in declarative mode.
+- label/children and disabled state may be declared directly on the part.
+- Root metadata supplies disabled defaults; an explicit Trigger disabled prop overrides that default. Root-wide disabled behavior remains authoritative. Test this precedence and define diagnostics for conflicting identities.
+- Trigger registration must not become a second selection authority.
+
+### Content
+
+- `value` is required in declarative mode.
+- children are the panel content; there is no hidden inherited-content mode that depends on whether children is omitted.
+- Root metadata may be used by convenience consumers, but Content should not need to materialize root data to render explicit children.
+
+### Indicator
+
+- Uses mounted Trigger geometry only.
+- Must tolerate conditional/unmounted triggers and real-browser resizing without stale measurements.
+- An Indicator rendered last in List must paint below labels and never intercept pointer activation. Use a positioned, isolated List context or an equivalently tested arrangement.
+- Measure in the List coordinate space, accounting for borders and scroll offsets. Test horizontal/vertical orientation, RTL, reordering, resize and theme restoration; cancel stale measurement work and verify settled geometry. Required positioning/hit behavior must survive emptyTheme.
+
+## SSR boundary
+
+Without a complete root collection, the server cannot reliably discover "the first enabled Trigger" from future/conditional JSX without evaluating children as data.
+
+Therefore:
+
+- SSR examples should provide `value` or a valid `defaultValue` when initial selection must be deterministic.
+- Do not render/scan child JSX twice to infer the first enabled item.
+- First server HTML must contain valid `role=tab`, panel associations and non-dangling IDREFs for the parts actually rendered.
+- Hydration must preserve node identity and parentage.
+- Keep each declared Content's semantic panel shell mounted, hiding inactive shells; treat lazy body mounting as a separate policy. This was sufficient for the prototype's paired Trigger/Content ID relationships.
+- Without explicit selection or complete metadata, leave server selection unset; select the first enabled mounted trigger on the client only after mount. Do not claim server-selected content for this case.
+- Define and test what happens when a Trigger or its Content is independently absent, including first-server IDREFs. Paired-shell evidence does not prove arbitrary conditional counterparts. If the contract requires paired declarations, document and diagnose violations; do not fabricate hidden panels by scanning JSX.
+
+## Prototype limits to close
+
+The [prototype](pr37-prototype-findings.md) established static/For composition, readonly metadata, paired-shell SSR/hydration and measured Chromium navigation/indicator behavior. The existing controllable-value hook remained the selection authority; mounted registration supplied navigation/geometry, with keyboard order read from current DOM order rather than registration time.
+
+[Round two](pr37-prototype-round2-findings.md) added passing regressions for reactive duplicate trigger identities, controlled selected-trigger removal, local disabled overrides during uncontrolled fallback, explicit counterpart absence and bordered/scrolled indicator geometry on both axes. Port these cases; they do not complete the remaining metadata/default-value and platform matrix.
+
+When a controlled selected trigger disappears, preserve the controlled value and avoid an unsolicited onChange, while leaving one enabled mounted trigger in the tab order. Keep focused identity, selected identity and uncontrolled fallback distinct. For an uncontrolled value, a locally disabled mounted trigger must not stay selected just because root metadata still marks it enabled. Retain root-wide disabled behavior and DOM-order navigation through wrappers/For reordering.
+
+The pilot's `hasContent` / `hasTrigger` flags explicitly suppressed absent counterpart IDREFs and passed first-server/hydration checks. Decide whether production supports that anatomy with explicit metadata or instead requires paired declarations. Do not automatically adopt the flag names or claim arbitrary missing-panel Tabs are accessible from IDREF tests alone. Remaining gates include metadata/part mismatches, invalid defaults, duplicate Content identities and unsupported-pair diagnostics.
+
+## Styling
+
+- Retain current Tabs recipe/theme slots and `createComponentStyles` behavior.
+- Parts receive default Moraine styling when composed manually.
+- Root `classes/styles` continue to override named slots; part-local `class/style` is the narrowest override.
+- `emptyTheme` removes presentation without breaking semantic/focus/indicator geometry requirements.
+
+## Scope
+
+- `src/navigation/tabs`
+- Tabs docs/API/type tests
+- shared selectable-collection navigation only where genuinely reusable
+- browser tests for keyboard/focus/indicator geometry
+- direct docs/consumer migrations
+
+Do not redesign Stepper while sharing navigation utilities.
+
+## Acceptance tests
+
+Cover:
+
+- static parts with no `items`;
+- dynamic `<For>` parts with no `items`;
+- readonly `items` metadata;
+- controlled and uncontrolled values;
+- explicit valid defaultValue for SSR;
+- disabled first trigger and invalid default diagnostics;
+- trigger deletion/reordering/conditional mounting;
+- duplicate values and unknown metadata/part mismatches;
+- keyboard activation/focus, RTL and looping;
+- server ID/ARIA correctness and hydration identity;
+- indicator browser geometry;
+- theme replacement, emptyTheme and local overrides;
+- root generic/signature stability after attaching parts.
+
+## Migration
+
+Remove the previous requirement that manual Tabs must duplicate every trigger/content value in root `items`. Existing data-driven callers may keep `items`, but docs should prefer direct composition for static structure and application `<For>` loops for dynamic structure.
+
+Do not introduce `Tabs.Items` as a migration helper.
+
+## Verification
+
+```sh
+nub run test src/navigation/tabs
+nub run test:browser
+nub run typecheck
+nub run test:types
+nub run docs:build
+nub run test
+nub run qa
+git diff --check
+```
+
+## Done criteria
+
+- [ ] Tabs works composition-first without root `items`.
+- [ ] Optional `items` metadata uses the same behavior authority.
+- [ ] Controlled removal retains a keyboard entry point without mutating value; uncontrolled fallback respects mounted disabled overrides.
+- [ ] SSR paired-shell/lazy-body and independently absent counterpart rules are documented and tested without hidden JSX discovery.
+- [ ] Indicator layering, pointer behavior and settled geometry pass with real CSS, RTL, scrolling and theme changes.
+- [ ] Dynamic application data is demonstrated with `<For>`, not `Tabs.Items`.
+- [ ] Existing styling override semantics are preserved.
+- [ ] Browser, declaration, SSR and full regression gates pass.
+
+## STOP conditions
+
+Stop if implementation requires scanning/evaluating child JSX twice, if mounted registrations become the canonical controlled value source, if `items` and declarative parts create competing selection state, or if SSR correctness depends on client-only discovery.
