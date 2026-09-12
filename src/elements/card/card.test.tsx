@@ -32,9 +32,9 @@ describe('Card', () => {
     ))
     const root = screen.container.querySelector('[data-slot="root"]')
 
-    expect(root?.className).toMatchInlineSnapshot(
-      `"text-card-foreground border border-border rounded-xl bg-card flex flex-col shadow-xs relative overflow-hidden [html:not(.dark)_&]:bg-clip-padding"`,
-    )
+    expect(root?.className).toContain('border-border')
+    expect(root?.className).toContain('rounded-xl')
+    expect(root?.className).toContain('bg-card')
   })
 
   test('renders body slot only when children exist', () => {

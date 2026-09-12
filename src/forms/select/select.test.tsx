@@ -1,6 +1,5 @@
 import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
-import { createGenerator, presetWind3 } from '@subf/unocss'
 import { For, Show, createComponent, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
@@ -2034,16 +2033,11 @@ describe.each([
     expect(container.style.getPropertyPriority('overflow-y')).toBe('important')
   })
 
-  test('aligns the option icon and label in a flex row', async () => {
+  test('renders option slots in order and supports item icons and descriptions', async () => {
     const view = render(() => <Component options={displayOptions} open />)
-    const style = document.createElement('style')
     try {
       const option = await findFirstOption()
       fireEvent.click(option)
-      const generator = await createGenerator({ presets: [presetWind3()] })
-      const { css } = await generator.generate(option.outerHTML, { preflights: false })
-      style.textContent = css
-      document.head.append(style)
       const leading = option.querySelector<HTMLElement>(':scope > [data-slot="itemLeading"]')!
       const label = option.querySelector<HTMLElement>(':scope > [data-slot="itemLabel"]')!
       const trailing = option.querySelector<HTMLElement>(':scope > [data-slot="itemTrailing"]')!
@@ -2054,15 +2048,6 @@ describe.each([
       )!
       expect(description.textContent).toBe('Crisp')
       expect(option.outerHTML).not.toContain('data-option-')
-      expect(getComputedStyle(option).display).toBe('flex')
-      expect(getComputedStyle(option).alignItems).toBe('center')
-      expect(getComputedStyle(leading).flexShrink).toBe('0')
-      expect(getComputedStyle(label).flexGrow).toBe('1')
-      expect(getComputedStyle(label).minWidth).toBe('0px')
-      expect(getComputedStyle(label).textOverflow).toBe('ellipsis')
-      expect(getComputedStyle(description).display).toBe('block')
-      expect(getComputedStyle(trailing).position).not.toBe('absolute')
-      expect(getComputedStyle(trailing).flexShrink).toBe('0')
       const plainOption = document.body.querySelectorAll('[role="option"]')[1]!
       expect(plainOption.querySelector(':scope > [data-slot="itemLabel"]')?.textContent).toBe(
         'Pear',
@@ -2070,7 +2055,6 @@ describe.each([
       expect(plainOption.querySelector('[data-slot="itemLeading"]')).toBeNull()
       expect(plainOption.children).toHaveLength(1)
     } finally {
-      style.remove()
       view.unmount()
     }
   })

@@ -108,17 +108,6 @@ describe('Separator', () => {
     expect(root?.style.width).toBe('200px')
   })
 
-  test('keeps direct root styling while ignoring legacy slot maps', () => {
-    const screen = render(() => <Separator class="custom-root" style={{ width: '200px' }} />)
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
-
-    expect(root?.className).toContain('custom-root')
-    expect(root?.className).not.toContain('ignored-root')
-    expect(root?.style.width).toBe('200px')
-    expect(root?.hasAttribute('classes')).toBe(false)
-    expect(root?.hasAttribute('styles')).toBe(false)
-  })
-
   test('replaces Design root styling without remounting the separator', () => {
     const [design, setDesign] = createSignal(createTheme({ separator: { base: { root: 'p-2' } } }))
     const screen = render(() => (

@@ -512,92 +512,92 @@ describe('Collapsible', () => {
     expect(wrapper.className).toContain('custom-content-class')
     expect(wrapper.style.padding).toBe('30px')
   })
-})
 
-test('inherits Design slots and applies reactive root and child overrides in order', () => {
-  const parent = createTheme({
-    collapsible: {
-      base: {
-        root: 'p-1',
-        trigger: 'p-1 text-blue-500',
-        contentWrapper: 'p-1',
-        content: 'p-1',
+  test('inherits Design slots and applies reactive root and child overrides in order', () => {
+    const parent = createTheme({
+      collapsible: {
+        base: {
+          root: 'p-1',
+          trigger: 'p-1 text-blue-500',
+          contentWrapper: 'p-1',
+          content: 'p-1',
+        },
       },
-    },
-  })
-  const design = createTheme({
-    extends: parent,
-    collapsible: { base: { trigger: 'text-red-500' } },
-  })
-  const [padding, setPadding] = createSignal('p-3')
-  const screen = render(() => (
-    <MoraineProvider theme={design}>
-      <Collapsible
-        defaultOpen
-        class="p-4"
-        classes={{ root: 'p-2', trigger: 'p-2 font-bold', contentWrapper: 'p-2', content: 'p-2' }}
-        styles={{
-          root: { color: 'red' },
-          trigger: { color: 'red', 'background-color': 'black' },
-          contentWrapper: { color: 'red' },
-          content: { color: 'red' },
-        }}
-        style={{ color: 'blue' }}
-      >
-        <Collapsible.Trigger class={padding()} style={{ color: 'blue' }}>
-          Toggle styled
-        </Collapsible.Trigger>
-        <Collapsible.Content
-          class={padding()}
+    })
+    const design = createTheme({
+      extends: parent,
+      collapsible: { base: { trigger: 'text-red-500' } },
+    })
+    const [padding, setPadding] = createSignal('p-3')
+    const screen = render(() => (
+      <MoraineProvider theme={design}>
+        <Collapsible
+          defaultOpen
+          class="p-4"
+          classes={{ root: 'p-2', trigger: 'p-2 font-bold', contentWrapper: 'p-2', content: 'p-2' }}
+          styles={{
+            root: { color: 'red' },
+            trigger: { color: 'red', 'background-color': 'black' },
+            contentWrapper: { color: 'red' },
+            content: { color: 'red' },
+          }}
           style={{ color: 'blue' }}
-          wrapperClass={padding()}
-          wrapperStyle={{ color: 'blue' }}
         >
-          Styled content
-        </Collapsible.Content>
-      </Collapsible>
-    </MoraineProvider>
-  ))
-  const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
-  const trigger = screen.getByRole('button')
-  const wrapper = screen.container.querySelector<HTMLElement>('[data-slot="content-wrapper"]')!
-  const content = screen.getByText('Styled content')
-  expect(root.className).toBe('p-4')
-  expect(trigger.className).toContain('font-bold')
-  expect(trigger.style.backgroundColor).toBe('black')
-  expect(trigger.className).toContain('text-red-500')
-  expect(trigger.className).not.toContain('text-blue-500')
-  for (const element of [root, trigger, wrapper, content]) {
-    expect(element.style.color).toBe('blue')
-    expect(element.hasAttribute('classes')).toBe(false)
-    expect(element.hasAttribute('styles')).toBe(false)
-  }
-  for (const element of [trigger, wrapper, content]) {
-    expect(element.className).toContain('p-3')
-    expect(element.className).not.toContain('p-2')
-  }
-  setPadding('p-5')
-  for (const element of [trigger, wrapper, content]) {
-    expect(element.className).toContain('p-5')
-  }
-})
+          <Collapsible.Trigger class={padding()} style={{ color: 'blue' }}>
+            Toggle styled
+          </Collapsible.Trigger>
+          <Collapsible.Content
+            class={padding()}
+            style={{ color: 'blue' }}
+            wrapperClass={padding()}
+            wrapperStyle={{ color: 'blue' }}
+          >
+            Styled content
+          </Collapsible.Content>
+        </Collapsible>
+      </MoraineProvider>
+    ))
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
+    const trigger = screen.getByRole('button')
+    const wrapper = screen.container.querySelector<HTMLElement>('[data-slot="content-wrapper"]')!
+    const content = screen.getByText('Styled content')
+    expect(root.className).toBe('p-4')
+    expect(trigger.className).toContain('font-bold')
+    expect(trigger.style.backgroundColor).toBe('black')
+    expect(trigger.className).toContain('text-red-500')
+    expect(trigger.className).not.toContain('text-blue-500')
+    for (const element of [root, trigger, wrapper, content]) {
+      expect(element.style.color).toBe('blue')
+      expect(element.hasAttribute('classes')).toBe(false)
+      expect(element.hasAttribute('styles')).toBe(false)
+    }
+    for (const element of [trigger, wrapper, content]) {
+      expect(element.className).toContain('p-3')
+      expect(element.className).not.toContain('p-2')
+    }
+    setPadding('p-5')
+    for (const element of [trigger, wrapper, content]) {
+      expect(element.className).toContain('p-5')
+    }
+  })
 
-test('keeps an unstyled disclosure functional with transition state exposed', () => {
-  const design = createTheme({})
-  const screen = render(() => (
-    <MoraineProvider theme={design}>
-      <Collapsible defaultOpen transition>
-        <Collapsible.Trigger>Toggle empty</Collapsible.Trigger>
-        <Collapsible.Content>Empty preset content</Collapsible.Content>
-      </Collapsible>
-    </MoraineProvider>
-  ))
-  expect(screen.getByRole('button').className).toBe('')
-  expect(screen.getByText('Empty preset content').className).toBe('')
-  expect(screen.container.querySelector('[data-slot="content-wrapper"]')?.className).toBe('')
-  expect(
-    screen.container
-      .querySelector('[data-slot="content-wrapper"]')
-      ?.hasAttribute('data-transition'),
-  ).toBe(true)
+  test('keeps an unstyled disclosure functional with transition state exposed', () => {
+    const design = createTheme({})
+    const screen = render(() => (
+      <MoraineProvider theme={design}>
+        <Collapsible defaultOpen transition>
+          <Collapsible.Trigger>Toggle empty</Collapsible.Trigger>
+          <Collapsible.Content>Empty preset content</Collapsible.Content>
+        </Collapsible>
+      </MoraineProvider>
+    ))
+    expect(screen.getByRole('button').className).toBe('')
+    expect(screen.getByText('Empty preset content').className).toBe('')
+    expect(screen.container.querySelector('[data-slot="content-wrapper"]')?.className).toBe('')
+    expect(
+      screen.container
+        .querySelector('[data-slot="content-wrapper"]')
+        ?.hasAttribute('data-transition'),
+    ).toBe(true)
+  })
 })

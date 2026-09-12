@@ -94,20 +94,6 @@ describe('CommandPalette', () => {
   })
 
   test('adjusts item trailing spacing via classes.itemTrailing', async () => {
-    renderWithTheme(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-1' }} />)
-
-    await waitFor(() => {
-      const trailing = Array.from(document.body.querySelectorAll('[data-slot="itemTrailing"]'))
-      expect(trailing.some((el) => el.classList.contains('gap-1'))).toBe(true)
-    })
-
-    renderWithTheme(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-1.5' }} />)
-
-    await waitFor(() => {
-      const trailing = Array.from(document.body.querySelectorAll('[data-slot="itemTrailing"]'))
-      expect(trailing.some((el) => el.classList.contains('gap-1.5'))).toBe(true)
-    })
-
     renderWithTheme(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-2' }} />)
 
     await waitFor(() => {

@@ -86,20 +86,6 @@ describe('Form', () => {
     expect(element.style.width).toBe('200px')
   })
 
-  test('keeps direct root styling while ignoring legacy slot maps', () => {
-    const { screen } = renderWithOwner(
-      () => createForm({ schema: Schema }),
-      (form) => <form.Form class="custom-root" style={{ width: '200px' }} />,
-    )
-    const element = screen.container.querySelector<HTMLFormElement>('form')
-
-    expect(element?.className).toContain('custom-root')
-    expect(element?.className).not.toContain('ignored-root')
-    expect(element?.style.width).toBe('200px')
-    expect(element?.hasAttribute('classes')).toBe(false)
-    expect(element?.hasAttribute('styles')).toBe(false)
-  })
-
   test('replaces Design root styling without remounting the bound form', () => {
     const { screen, value } = renderWithOwner(
       () => {

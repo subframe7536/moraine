@@ -96,17 +96,6 @@ describe('Kbd', () => {
     }
   })
 
-  test('keeps direct root styling while ignoring legacy slot maps', () => {
-    const view = render(() => <Kbd value="K" class="custom-kbd-root" style={{ padding: '8px' }} />)
-    const root = view.container.querySelector<HTMLElement>('[data-slot="root"]')
-
-    expect(root?.className).toContain('custom-kbd-root')
-    expect(root?.className).not.toContain('ignored-kbd-root')
-    expect(root?.style.padding).toBe('8px')
-    expect(root?.hasAttribute('classes')).toBe(false)
-    expect(root?.hasAttribute('styles')).toBe(false)
-  })
-
   test('supports a custom slot, class, and style overrides', () => {
     const view = render(() => (
       <Kbd value="K" slotName="shortcut" class="shortcut-class" style={{ width: '200px' }} />

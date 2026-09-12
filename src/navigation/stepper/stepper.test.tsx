@@ -7,38 +7,6 @@ import { defaultTheme } from '../../theme/default-theme'
 
 import { Stepper } from './stepper'
 
-test('reads JSX fields once and delays the inactive panel', () => {
-  const reads = { title: 0, description: 0, content: 0 }
-  const [value, setValue] = createSignal('first')
-  const view = render(() => (
-    <Stepper
-      value={value()}
-      items={[
-        { value: 'first', title: 'First' },
-        {
-          value: 'second',
-          get title() {
-            reads.title++
-            return <span>Second</span>
-          },
-          get description() {
-            reads.description++
-            return <span>Description</span>
-          },
-          get content() {
-            reads.content++
-            return <span>Panel</span>
-          },
-        },
-      ]}
-    />
-  ))
-  expect(reads).toEqual({ title: 1, description: 1, content: 0 })
-  setValue('second')
-  expect(view.getByRole('tabpanel').textContent).toBe('Panel')
-  expect(reads).toEqual({ title: 1, description: 1, content: 1 })
-})
-
 if (!(globalThis as Record<string, unknown>).ResizeObserver) {
   ;(globalThis as Record<string, unknown>).ResizeObserver = class {
     // oxlint-disable-next-line class-methods-use-this
@@ -51,6 +19,38 @@ if (!(globalThis as Record<string, unknown>).ResizeObserver) {
 }
 
 describe('Stepper', () => {
+  test('reads JSX fields once and delays the inactive panel', () => {
+    const reads = { title: 0, description: 0, content: 0 }
+    const [value, setValue] = createSignal('first')
+    const view = render(() => (
+      <Stepper
+        value={value()}
+        items={[
+          { value: 'first', title: 'First' },
+          {
+            value: 'second',
+            get title() {
+              reads.title++
+              return <span>Second</span>
+            },
+            get description() {
+              reads.description++
+              return <span>Description</span>
+            },
+            get content() {
+              reads.content++
+              return <span>Panel</span>
+            },
+          },
+        ]}
+      />
+    ))
+    expect(reads).toEqual({ title: 1, description: 1, content: 0 })
+    setValue('second')
+    expect(view.getByRole('tabpanel').textContent).toBe('Panel')
+    expect(reads).toEqual({ title: 1, description: 1, content: 1 })
+  })
+
   const ITEMS = [
     {
       title: 'Address',
