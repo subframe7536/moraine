@@ -6,7 +6,7 @@ There are 34 bounded plans: six shared/evidence prerequisites and 28 component u
 
 ## Public API direction
 
-The target API is **composition-first, shadcn-style anatomy with Moraine-owned styling**.
+The target API is **composition-first, shadcn-style anatomy with Moraine-owned styling**, with **Kobalte-style `as` polymorphism** for replacing the element/component rendered by a part.
 
 This is a normative contract for every component plan in this directory. If an older Anatomy example conflicts with these rules, the executor must update that plan before implementation rather than preserving the conflicting shape.
 
@@ -14,7 +14,8 @@ This is a normative contract for every component plan in this directory. If an o
 
 - Callable roots own behavior and shared state. Named parts describe structure.
 - Do not add `.Root` aliases, namespace factories, runtime part registries or public `Extend` types.
-- `children` describes the rendered structure. Do not use presence/absence of `children` as a hidden switch between a complete auto-assembled widget and a different manual implementation.
+- `children` describes the actual rendered content/structure. It is not a host-element factory and must not be repurposed to select a second implementation path.
+- Do not use presence/absence of `children` as a hidden switch between a complete auto-assembled widget and a different manual implementation.
 - Prefer the public granularity used by shadcn-style components: expose meaningful visual/semantic parts, while keeping stable technical infrastructure such as focus management, positioning plumbing and form adapters internal unless a real customization requires a public part.
 - Convenience data props may reduce repeated metadata, but they do not define or replace the component tree.
 
@@ -50,12 +51,32 @@ The structural change does **not** turn Moraine into an unstyled primitive libra
 - Wrapper composition moves to `InputGroup`; do not make a leaf input secretly own an extra layout wrapper.
 - `InputGroup` owns group layout/presentation only. It must not introduce a second value/form state authority.
 
-### 6. Host rendering is for real composition
+### 6. Polymorphism uses `as`; `children` remains content
 
-- `as` covers straightforward host/component replacement where useful inference can be retained.
-- function-only `render` covers explicit component composition and must forward supplied DOM/behavior props and refs into exactly one interactive subtree.
-- Acceptance tests must include composition with another Moraine/custom component, not only `render={(props) => <button {...props} />}`.
-- Preserve user-first cancellable events, disabled/lifecycle invariants, Solid tuple handlers, lazy getters, `classList`, function ref composition and precise `currentTarget` types. Do not erase types to make composition compile.
+Moraine uses one host-replacement model, modeled after Kobalte's polymorphic components.
+
+- `as` is the **only public host replacement/composition prop**. Do not add a second host-level `render` API.
+- `as` accepts the default intrinsic element, another intrinsic tag where semantically valid, or a custom Solid component.
+- `children` remains the actual content passed to the selected host/component. Replacing the host must not require recreating the element tree in a callback.
+- Component-specific behavior options are consumed by Moraine and must not leak to the DOM as invalid attributes.
+- Forwardable common props (`id`, `class`, `style`, `classList`, `data-*`, `aria-*`, events and refs) and target-specific props are passed to the selected `as` component with useful TypeScript inference.
+- Props that Moraine must own for behavioral/accessibility correctness (`role`, required `aria-*`, state data attributes, disabled/tab-index semantics where applicable) remain authoritative after prop merging. Document any intentionally user-overridable exceptions.
+- User event handlers run before internal cancellable behavior. `preventDefault()` only cancels behavior explicitly defined as cancellable; disabled/lifecycle invariants remain protected.
+- A custom component supplied to `as` is responsible for forwarding the received host/ARIA/event/ref props to one appropriate DOM host. Moraine must not render a wrapper merely to compensate for a component that does not forward them.
+- Keep precise `currentTarget` and ref types wherever the selected host type makes them knowable. Do not erase types to `any` merely to support custom components.
+- Existing **content** renderer APIs such as `optionRender`, `itemRender`, `virtualRender`, or stateful render-prop children are a separate concept. Removing host-level `render` does not automatically remove those APIs.
+
+Representative composition:
+
+```tsx
+<Button as="a" href="/projects">Projects</Button>
+
+<Dialog.Trigger as={Button} variant="outline">
+  Edit project
+</Dialog.Trigger>
+```
+
+When an application needs a preconfigured target, it should use an ordinary Solid component and pass that component through `as` rather than receiving a Moraine-owned element factory callback.
 
 ### 7. Documentation should teach progressive composition
 
@@ -64,7 +85,7 @@ For public structure changes, documentation should show in this order:
 1. the minimum anatomy;
 2. data-driven/dynamic rendering with `<For>` when relevant;
 3. one localized structural customization;
-4. one boundary case such as SSR metadata, search/virtualization or custom host composition.
+4. one boundary case such as SSR metadata, search/virtualization or `as`-based custom-host composition.
 
 Do not make users read a complete low-level primitive anatomy to add one heading, icon or action.
 
@@ -74,11 +95,11 @@ Do not make users read a complete low-level primitive anatomy to add one heading
 | --- | --- | --- | --- |
 | [001 Record the execution baseline and consumer boundaries](001-baseline.md) | P1 | — | TODO |
 | [002 Add real-browser overlay and hydration regression coverage](002-browser-regressions.md) | P1 | 001 | TODO |
-| [003 Extract one host-render and DOM-props merge protocol](003-host-render.md) | P1 | 001 | TODO |
+| [003 Extract one polymorphic host and DOM-props merge protocol](003-host-render.md) | P1 | 001 | TODO |
 | [004 Separate overlay ancestry from activation order per document](004-overlay-layers.md) | P1 | 002 | TODO |
 | [005 Separate overlay focus, dismissal and resource lifecycles](005-overlay-lifecycle.md) | P1 | 004 | TODO |
 | [006 Separate floating geometry from surface animation](006-floating-bindings.md) | P1 | 002 | TODO |
-| [007 Validate host composition through Button without changing behavior](007-button.md) | P2 | 003 | TODO |
+| [007 Validate `as` polymorphism through Button without changing behavior](007-button.md) | P2 | 003 | TODO |
 | [008 Make Input/Textarea native controls and extract InputGroup](008-input.md) | P1 | 003 | TODO |
 | [009 Make Card a manually assembled styled container](009-card.md) | P2 | 001 | TODO |
 | [010 Make Tabs composition-first with optional collection data](010-tabs.md) | P1 | 002, 003 | TODO |
@@ -111,11 +132,11 @@ Statuses: TODO, DEFERRED, IN PROGRESS, DONE, BLOCKED (reason), REJECTED (reason)
 
 ## Dependency notes
 
-- Start with 001. Shared host rendering (003) does not need the browser harness; Card (009) needs neither host rendering nor overlays.
+- Start with 001. Shared polymorphic-host support (003) does not need the browser harness; Card (009) needs neither polymorphism nor overlays.
 - Overlay ancestry (004) precedes lifecycle extraction (005); floating bindings (006) can proceed independently after the browser harness.
-- Button (007) validates real custom-host composition. Input/Textarea/InputGroup (008) validates native-control targets and grouped presentation.
+- Button (007) validates native-tag and custom-component `as` inference plus behavior/ref/event forwarding. Input/Textarea/InputGroup (008) validates native-control targets and grouped presentation.
 - Tabs (010) validates declarative collection registration plus optional root metadata and SSR boundaries.
-- Dialog (011) validates a single primary styled Content anatomy over the shared overlay behavior.
+- Dialog (011) validates a single primary styled Content anatomy and `Dialog.Trigger as={Button}` over the shared overlay behavior.
 - Select internals (012) establish one behavior model that can consume either complete root metadata or declarative item registration; Select parts (013) then expose the composition-first public API.
 - Candidate families can be selected individually. MultiSelect (026) follows Select so it reuses the same collection/composition rules.
 - Shared base files and declaration fixtures are conflict hotspots. Execute overlapping edits serially or reconcile them before the next unit.
@@ -172,10 +193,11 @@ The matrix still covers every original public component directory; plan 008 addi
 - Reject `Tabs.Items` and equivalent collection assemblers whose only job is to hide a normal `<For>` loop.
 - Reject keeping an Input/Textarea layout wrapper merely to preserve old ref/class targets. Group composition belongs in InputGroup; leaf control props target the native element.
 - Reject Dialog `Panel` versus raw `Content` as two primary composition modes. `Dialog.Content` is the documented styled surface; stable portal/overlay/focus plumbing remains internal or configurable through actual public needs.
+- Reject a second host-level `render` prop. Host replacement belongs to `as`; `children` stays the content channel.
 - Preserve independent ButtonGroup/AvatarGroup/KbdGroup exports and theme keys; do not introduce parent aliases just for visual namespace symmetry.
 - Card remains explicit manual structure; no mode prop, automatic body wrapping or duplicate convenience assembly.
 - FileUpload.Name/Size remain unnecessary; native markup inside the item rendering path is sufficient.
-- Reject a universal collection abstraction, public primitive package, global environment/provider rewrite, broad callback rename and blanket host-render rollout.
+- Reject a universal collection abstraction, public primitive package, global environment/provider rewrite, broad callback rename and blanket polymorphic retrofit.
 - New Stepper design remains deferred.
 - Existing SSR infrastructure, stale-positioning protection, theme replacement and API extraction are retained.
 
