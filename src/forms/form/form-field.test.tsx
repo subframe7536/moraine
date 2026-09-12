@@ -135,7 +135,7 @@ const CONSUMER_CASES: ConsumerCase[] = [
     createControl: (required) => (
       <Select required={required} options={[{ label: 'A', value: 'a' }]} />
     ),
-    requiredSelector: 'select',
+    requiredSelector: 'input[type="text"][aria-hidden="true"]',
     requiredAriaSelector: '[role="combobox"]',
     labelledSelector: '[role="combobox"]',
   },
@@ -145,7 +145,7 @@ const CONSUMER_CASES: ConsumerCase[] = [
     createControl: (required) => (
       <MultiSelect required={required} options={[{ label: 'A', value: 'a' }]} />
     ),
-    requiredSelector: 'select',
+    requiredSelector: 'input[type="text"][aria-hidden="true"]',
     requiredAriaSelector: '[role="combobox"]',
     labelledSelector: '[role="combobox"]',
   },

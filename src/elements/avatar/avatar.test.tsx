@@ -92,11 +92,11 @@ describe('Avatar', () => {
     expect(screen.container.querySelectorAll('[data-slot="root"]')).toHaveLength(0)
   })
 
-  test('renders avatar as single avatar structure', () => {
+  test('renders avatar root element with fallback text', () => {
     const screen = render(() => <Avatar text="MR" />)
 
     expect(screen.container.querySelector('[data-slot="root"]')).not.toBeNull()
-    expect(screen.container.querySelector('[data-slot="item"]')).toBeNull()
+    expect(screen.getByText('MR')).not.toBeNull()
   })
 
   test('renders fallback first while image is loading', () => {

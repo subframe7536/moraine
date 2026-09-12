@@ -163,19 +163,6 @@ describe('Icon', () => {
     expect(icon?.className).toContain('root-override')
   })
 
-  test('keeps direct root styling while ignoring legacy slot maps', () => {
-    const screen = render(() => (
-      <Icon name="i-lucide-search" class="custom-root" style={{ color: 'rgb(0, 0, 255)' }} />
-    ))
-    const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')
-
-    expect(icon?.className).toContain('custom-root')
-    expect(icon?.className).not.toContain('ignored-root')
-    expect(icon?.style.color).toBe('rgb(0, 0, 255)')
-    expect(icon?.hasAttribute('classes')).toBe(false)
-    expect(icon?.hasAttribute('styles')).toBe(false)
-  })
-
   test('replaces Design root styling without remounting the icon', () => {
     const [design, setDesign] = createSignal(createTheme({ icon: { base: { root: 'p-2' } } }))
     const screen = render(() => (

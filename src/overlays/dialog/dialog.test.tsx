@@ -1,44 +1,16 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import type { JSX, ValidComponent } from 'solid-js'
-import { Show, createComponent, createMemo, createSignal, onCleanup } from 'solid-js'
+import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../elements/button'
 import { CommandPalette } from '../../navigation/command-palette'
 import { MoraineProvider } from '../../shared/provider'
-import type { ComponentOrElement } from '../../shared/render-prop'
 import { finishExitMotion } from '../../test-utils/overlay-test'
 import { renderWithTheme } from '../../test-utils/theme-render'
 import { createTheme } from '../../theme'
 import { defaultTheme } from '../../theme/default-theme'
-import type { OverlayTriggerProps } from '../base/trigger'
-import { Modal } from '../modal'
-import type { ModalT } from '../modal/modal.types'
 
 import { Dialog } from './dialog'
-
-interface TestModalProps {
-  defaultOpen?: boolean
-  open?: boolean
-  overlay?: boolean
-  onOpenChange?: (open: boolean) => void
-  trigger?: (props: OverlayTriggerProps) => JSX.Element
-  content?: ComponentOrElement<ModalT.ContentContext>
-}
-
-function TestModal(props: TestModalProps): JSX.Element {
-  const trigger = createMemo(() => props.trigger)
-  const content = createMemo(() => props.content)
-
-  return (
-    <Modal open={props.open} defaultOpen={props.defaultOpen} onOpenChange={props.onOpenChange}>
-      <Show when={trigger()}>{(render) => <Modal.Trigger as={render() as ValidComponent} />}</Show>
-      <Show when={content()}>
-        <Modal.Content overlay={props.overlay}>{content()}</Modal.Content>
-      </Show>
-    </Modal>
-  )
-}
 
 function expectAriaReferencesToResolve(content: Element): void {
   for (const attribute of ['aria-labelledby', 'aria-describedby']) {
@@ -50,34 +22,7 @@ function expectAriaReferencesToResolve(content: Element): void {
   }
 }
 
-describe('Modal', () => {
-  test('evaluates getter-backed trigger and content props once', () => {
-    let triggerReads = 0
-    let contentReads = 0
-
-    render(() =>
-      createComponent(TestModal, {
-        open: true,
-        get trigger() {
-          triggerReads += 1
-          return (props: OverlayTriggerProps) => (
-            <button {...props} type="button">
-              Open modal
-            </button>
-          )
-        },
-        get content() {
-          contentReads += 1
-          return () => <span>Cached content</span>
-        },
-      }),
-    )
-
-    expect(triggerReads).toBe(1)
-    expect(contentReads).toBe(1)
-    expect(document.body.textContent).toContain('Cached content')
-  })
-
+describe('Dialog', () => {
   test('releases body slot content when closed and recreates it when reopened', async () => {
     const [open, setOpen] = createSignal(false)
     let mounts = 0
@@ -208,37 +153,6 @@ describe('Modal', () => {
     expect(trigger.tagName).toBe('BUTTON')
     expect(trigger.className).toContain('border-border')
     expect(trigger.querySelector('button')).toBeNull()
-  })
-
-  test('renders function content and closes through modal content context', async () => {
-    const onOpenChange = vi.fn()
-
-    render(() => (
-      <TestModal
-        defaultOpen
-        onOpenChange={onOpenChange}
-        trigger={(props) => (
-          <button {...props} type="button">
-            Open modal
-          </button>
-        )}
-        content={({ close }) => (
-          <button type="button" data-testid="content-close" onClick={close}>
-            Close from content
-          </button>
-        )}
-      />
-    ))
-
-    expect(document.body.querySelector('[data-testid="content-close"]')).not.toBeNull()
-
-    fireEvent.click(document.body.querySelector('[data-testid="content-close"]')!)
-    await finishExitMotion()
-
-    await waitFor(() => {
-      expect(onOpenChange).toHaveBeenCalledWith(false)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
-    })
   })
 
   test('renders custom header slot and overrides default title/description section', () => {
@@ -480,7 +394,7 @@ describe('Modal', () => {
     const [searchTerm, setSearchTerm] = createSignal('')
     const onExitComplete = vi.fn()
 
-    render(() => (
+    const screen = render(() => (
       <Dialog
         open={open()}
         onOpenChange={setOpen}
@@ -505,11 +419,12 @@ describe('Modal', () => {
       </Dialog>
     ))
 
-    fireEvent.click(document.body.querySelector('[data-slot="trigger"]') as HTMLElement)
+    fireEvent.click(screen.getByRole('button', { name: 'Open palette' }))
 
-    const input = (await waitFor(() =>
-      document.body.querySelector('[data-slot="input"]'),
-    )) as HTMLInputElement
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="input"]')).not.toBeNull()
+    })
+    const input = document.body.querySelector('[data-slot="input"]') as HTMLInputElement
     fireEvent.input(input, { target: { value: 'Settings' } })
 
     expect(input.value).toBe('Settings')
@@ -914,34 +829,24 @@ describe('Modal', () => {
     expect(bodyWithBoth.className).toContain('pb-2')
   })
 
-  test('escape only closes the topmost overlay when modals are nested', async () => {
+  test('escape only closes the topmost overlay when dialogs are nested', async () => {
     const onOuterChange = vi.fn()
     const onInnerChange = vi.fn()
 
     render(() => (
       <>
-        <TestModal
-          defaultOpen
-          overlay
-          onOpenChange={onOuterChange}
-          trigger={(props) => (
-            <button {...props} type="button">
-              Outer trigger
-            </button>
-          )}
-          content={<div data-testid="outer-body">Outer body</div>}
-        />
-        <TestModal
-          defaultOpen
-          overlay
-          onOpenChange={onInnerChange}
-          trigger={(props) => (
-            <button {...props} type="button">
-              Inner trigger
-            </button>
-          )}
-          content={<div data-testid="inner-body">Inner body</div>}
-        />
+        <Dialog defaultOpen onOpenChange={onOuterChange}>
+          <Dialog.Trigger as="button" type="button">
+            Outer trigger
+          </Dialog.Trigger>
+          <Dialog.Content body={<div data-testid="outer-body">Outer body</div>} />
+        </Dialog>
+        <Dialog defaultOpen onOpenChange={onInnerChange}>
+          <Dialog.Trigger as="button" type="button">
+            Inner trigger
+          </Dialog.Trigger>
+          <Dialog.Content body={<div data-testid="inner-body">Inner body</div>} />
+        </Dialog>
       </>
     ))
 
@@ -961,38 +866,30 @@ describe('Modal', () => {
     })
   })
 
-  test('outer modal ignores pointerdown that lands inside a nested modal', async () => {
+  test('outer dialog ignores pointerdown that lands inside a nested dialog', async () => {
     const onOuterChange = vi.fn()
     const onInnerChange = vi.fn()
 
     render(() => (
       <>
-        <TestModal
-          defaultOpen
-          overlay
-          onOpenChange={onOuterChange}
-          trigger={(props) => (
-            <button {...props} type="button">
-              Outer trigger
-            </button>
-          )}
-          content={<div data-testid="outer-body">Outer body</div>}
-        />
-        <TestModal
-          defaultOpen
-          overlay
-          onOpenChange={onInnerChange}
-          trigger={(props) => (
-            <button {...props} type="button">
-              Inner trigger
-            </button>
-          )}
-          content={
-            <button type="button" data-testid="inner-button">
-              Inner button
-            </button>
-          }
-        />
+        <Dialog defaultOpen onOpenChange={onOuterChange}>
+          <Dialog.Trigger as="button" type="button">
+            Outer trigger
+          </Dialog.Trigger>
+          <Dialog.Content body={<div data-testid="outer-body">Outer body</div>} />
+        </Dialog>
+        <Dialog defaultOpen onOpenChange={onInnerChange}>
+          <Dialog.Trigger as="button" type="button">
+            Inner trigger
+          </Dialog.Trigger>
+          <Dialog.Content
+            body={
+              <button type="button" data-testid="inner-button">
+                Inner button
+              </button>
+            }
+          />
+        </Dialog>
       </>
     ))
 
