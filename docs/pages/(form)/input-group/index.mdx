@@ -78,74 +78,80 @@ Place zero or more `Leading` parts first, then one `Input` or `Textarea`, then z
   )}
 </Playground>
 
-## Direction and orientation
+## Usage
+
+### Direction and orientation
 
 `Leading` renders at the logical start when horizontal and above the control when vertical. `Trailing` renders at the logical end when horizontal and below the control when vertical. Horizontal positions follow the document's writing direction. Configure the orientation default or styles through `inputGroup.defaults.orientation` and `inputGroup.variants.orientation` in your theme.
 
 <Preview path="./alignment" />
 
-## Icon
+### Compact
+
+Set `compact` on a `Leading` or `Trailing` part when its content should sit directly beside the control text. The part keeps its outer-edge padding while removing only the padding on the side that faces the control. This is useful for URL protocols, domain suffixes, currency symbols, and similar inline text.
+
+<Preview path="./compact" />
+
+## Examples
+
+### Icon
 
 Place one or more icons in either horizontal part.
 
 <Preview path="./icons" />
 
-## Text
+### Text
 
 Supporting content accepts plain text and JSX without a dedicated text component.
 
 <Preview path="./text" />
 
-## Button
+### Button
 
 Use the existing `Button` component for copy, toggle, and submit actions. Keep each button's state and disabled behavior explicit.
 
 <Preview path="./actions" />
 
-## Kbd
+### Kbd
 
 Use `Kbd` to show a shortcut without changing the input's keyboard behavior.
 
 <Preview path="./kbd" />
 
-## Dropdown
+### Dropdown
 
 `DropdownMenu.Trigger` can render as a button inside either horizontal part.
 
 <Preview path="./dropdown" />
 
-## Spinner
+### Spinner
 
 Render a loading icon explicitly wherever progress needs to appear.
 
 <Preview path="./spinner" />
 
-## Textarea
+### Textarea
 
 Set `orientation="vertical"` to form a toolbar and status bar around the independent `Textarea`.
 
 <Preview path="./textarea-editor" />
 
-## Auto-resize
+#### Auto-resize
 
 `Textarea` keeps its own value, ref, native attributes, and autoresize behavior. The same group can provide header and footer regions.
 
 <Preview path="./composer" />
 
-## RTL
+### RTL
 
 Horizontal Leading and Trailing positions follow the inherited `dir`; vertical positions remain above and below the control.
 
 <Preview path="./rtl" />
 
-## Styling and forms
+### Styling and forms
 
 `InputGroup` owns the shared border, background, radius, and focus/invalid/disabled appearance. Set its `size` and `variant` to style the group. The native control's `variant` applies when it is outside a group.
 
 Size precedence is the control's explicit size, group size, FormField size, then theme defaults. `classes.leading`, `classes.trailing`, and their style equivalents set group-wide presentation; each part's `class` and `style` override it.
 
 Keep `name`, `value`, `onValueChange`, `required`, `disabled`, `readOnly`, and ARIA attributes on the control. InputGroup does not register a form field. Clicking non-interactive group space focuses the native control; buttons and links retain their own focus behavior.
-
-## Migration
-
-Replace the former Input `leading` and `trailing` shortcuts with `InputGroup.Leading` and `InputGroup.Trailing`. Replace Textarea `header` and `footer` with an `InputGroup orientation="vertical"`. Replace `loading` and `loadingIcon` with explicit conditional content. Move wrapper refs and styles to InputGroup; use the control's `ref` instead of `inputRef` or `textareaRef`. Input and Textarea each expose only a native `root` slot and do not accept children.
