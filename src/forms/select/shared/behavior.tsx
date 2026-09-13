@@ -376,3 +376,9 @@ export function createEmptyRenderer<TContext, TProps extends Record<string, unkn
   }
   return (context) => renderComponentOrElement(options.emptyRender, options.buildProps(context))
 }
+
+export function toStyleObject(
+  style: string | JSX.CSSProperties | undefined,
+): JSX.CSSProperties | undefined {
+  return typeof style === 'object' ? style : undefined
+}

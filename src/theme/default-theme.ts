@@ -19,6 +19,7 @@ import { inputGroupRecipe } from '../forms/input-group/input-group.class.ts'
 import { inputNumberRecipe } from '../forms/input-number/input-number.class'
 import { inputRecipe } from '../forms/input/input.class'
 import { radioGroupRecipe } from '../forms/radio-group/radio-group.class'
+import { baseSelectRecipe } from '../forms/select/base-select.class'
 import { multiSelectRecipe, selectRecipe } from '../forms/select/select.class'
 import { sliderRecipe } from '../forms/slider/slider.class'
 import { switchRecipe } from '../forms/switch/switch.class'
@@ -46,6 +47,7 @@ export const defaultTheme: MoraineTheme = /* @__PURE__ */ Object.freeze({
   avatar: toThemeEntry(avatarRecipe),
   avatarGroup: toThemeEntry(avatarGroupRecipe),
   badge: toThemeEntry(badgeRecipe),
+  baseSelect: toThemeEntry(baseSelectRecipe),
   breadcrumb: toThemeEntry(breadcrumbRecipe),
   button: toThemeEntry(buttonRecipe),
   buttonGroup: toThemeEntry(buttonGroupRecipe),

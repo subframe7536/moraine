@@ -1,4 +1,7 @@
 export { Select } from './select'
 export { MultiSelect } from './multi-select'
+export { BaseSelect } from './base-select'
+export { useBaseSelectContext as useBaseSelect } from './base-select-context'
 export type { SelectT, SelectProps } from './select.types'
 export type { MultiSelectT, MultiSelectProps } from './multi-select.types'
+export type { BaseSelectT, BaseSelectProps } from './base-select.types'

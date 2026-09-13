@@ -529,11 +529,11 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
       ref={local.ref}
       search={resolved.variants.search ?? false}
 
-      _styles={resolved}
+      resolvedStyles={resolved}
 
       options={options()}
       initialValue={initialDefaultValues}
-      _isValueControlled={local.value !== undefined}
+      isValueControlled={local.value !== undefined}
       multiple
       selectedValues={selectedValues()}
       closeOnSelect={false}
@@ -542,7 +542,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
           toggleOption(option, api)
         }
       }}
-      _onFormReset={(api) => {
+      onFormReset={(api) => {
         const value =
           local.value === undefined
             ? [...initialDefaultValues]
@@ -553,258 +553,210 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
         api.field.setFormValue(value)
       }}
       onInputKeyDown={handleEnterKey}
-      emptyRender={createEmptyRenderer({
-        emptyRender: emptyRender(),
-        buildProps: (ctx: BaseSelectT.StateApi<Item>) => ({
-          get inputValue() {
-            return ctx.inputValue()
-          },
-          get hasMatches() {
-            return ctx.visibleFlatOptions().length > 0
-          },
-          get selectedValues() {
-            return getSelectedOptions(ctx).map((option) => mapNormalizedToRawValue(option) as TItem)
-          },
-          get isAtMaxCount() {
-            return isAtMaxCount()
-          },
-          create: (value?: string) => createTag(value, ctx),
-          close: ctx.close,
-        }),
-      })}
-      optionRender={(renderProps) => (
-        <Show
-          when={optionRender() !== undefined}
-          fallback={renderDefaultOption(renderProps.option)}
-        >
-          {renderComponentOrElement(optionRender(), {
-            get option() {
-              return renderProps.option
-            },
-          })}
-        </Show>
-      )}
     >
-      {(api) => {
-        const selectedOptions = createMemo(() => getSelectedOptions(api))
-        const visibleTagOptions = createMemo(() => {
-          const currentSelectedOptions = selectedOptions()
-          if (local.maxTagCount === undefined) {
-            return currentSelectedOptions
-          }
-          return currentSelectedOptions.slice(0, local.maxTagCount)
-        })
-        const hiddenTagCount = createMemo(() =>
-          local.maxTagCount === undefined
-            ? 0
-            : Math.max(0, selectedOptions().length - local.maxTagCount),
-        )
-        const isActionLoading = createMemo(() => Boolean(local.loading))
-        const isClearAction = createMemo(() =>
-          Boolean(!isActionLoading() && local.allowClear && selectedOptions().length > 0),
-        )
+      <BaseSelect.Control<Item> data-tags={selectedValues().length > 0 ? '' : undefined}>
+        {(api: BaseSelectT.ControlApi<Item>) => {
+          const selectedOptions = createMemo(() => getSelectedOptions(api))
+          const visibleTagOptions = createMemo(() => {
+            const currentSelectedOptions = selectedOptions()
+            if (local.maxTagCount === undefined) {
+              return currentSelectedOptions
+            }
+            return currentSelectedOptions.slice(0, local.maxTagCount)
+          })
+          const hiddenTagCount = createMemo(() =>
+            local.maxTagCount === undefined
+              ? 0
+              : Math.max(0, selectedOptions().length - local.maxTagCount),
+          )
+          const isActionLoading = createMemo(() => Boolean(local.loading))
+          const isClearAction = createMemo(() =>
+            Boolean(!isActionLoading() && local.allowClear && selectedOptions().length > 0),
+          )
 
-        const controlResolved = resolved
-
-        return (
-          <div
-            data-slot="control"
-            data-disabled={api.field.disabled() ? '' : undefined}
-            data-invalid={api.field.invalid() ? '' : undefined}
-            data-required={api.field.required() ? '' : undefined}
-            data-readonly={api.field.readOnly() ? '' : undefined}
-            data-tags={selectedValues().length > 0 ? '' : undefined}
-            {...controlResolved.slot('control')}
-            {...api.controlProps()}
-          >
-            <Show when={leadingIcon()}>
-              {(icon) => (
-                <Icon name={icon()} slotName="leading" {...controlResolved.slot('leading')} />
-              )}
-            </Show>
-
-            <div data-slot="tagsContainer" {...controlResolved.slot('tagsContainer')}>
-              <For each={visibleTagOptions()}>
-                {(option) => {
-                  const onClose = () => toggleOption(option, api)
-                  return (
-                    <Show
-                      when={tagRender() === undefined}
-                      fallback={renderComponentOrElement(tagRender(), {
-                        option: option.raw,
-                        onClose,
-                      })}
-                    >
-                      <span
-                        data-slot="tag"
-                        title={option.key}
-                        {...controlResolved.slot('tag')}
-                        onPointerDown={(event: PointerEvent) => {
-                          event.preventDefault()
-                          api.focusInput()
-                        }}
-                      >
-                        <span data-slot="label" {...controlResolved.slot('tagLabel')}>
-                          {option.label}
-                        </span>
-
-                        <button
-                          type="button"
-                          data-slot="tagRemove"
-                          aria-label={`Remove ${option.key}`}
-                          style={controlResolved.slot('tagRemove').style}
-                          disabled={api.field.disabled() || api.field.readOnly()}
-                          tabIndex={-1}
-                          class={controlResolved.slot('tagRemove').class}
-                          onPointerDown={(event) => {
-                            if (api.field.disabled() || api.field.readOnly()) {
-                              return
-                            }
-                            event.preventDefault()
-                            event.stopPropagation()
-                            api.focusInput()
-                          }}
-                          onClick={(event) => {
-                            if (api.field.disabled() || api.field.readOnly()) {
-                              return
-                            }
-                            event.stopPropagation()
-                            onClose()
-                          }}
-                        >
-                          <Icon name={closeIcon()} />
-                        </button>
-                      </span>
-                    </Show>
-                  )
-                }}
-              </For>
-
-              <Show when={hiddenTagCount() > 0}>
-                <span data-slot="tagOverflow" {...controlResolved.slot('tagOverflow')}>
-                  +{hiddenTagCount()}
-                </span>
+          return (
+            <>
+              <Show when={leadingIcon()}>
+                {(icon) => <Icon name={icon()} slotName="leading" {...resolved.slot('leading')} />}
               </Show>
 
-              <input
-                ref={(element) => {
-                  callRef(api.inputProps().ref, element)
-                  callRef(local.inputRef, element)
-                }}
-                data-slot="input"
-                data-searchable={api.isSearchable() ? '' : undefined}
-                {...controlResolved.slot('input')}
-                {...api.inputProps()}
-                placeholder={selectedOptions().length > 0 ? '' : local.placeholder}
-                readonly={!api.isSearchable() || api.field.readOnly() ? true : undefined}
-                tabIndex={api.isSearchable() ? undefined : -1}
-                onInput={(event) => {
-                  if (api.field.readOnly()) {
-                    event.currentTarget.value = api.inputValue()
-                  } else if (event.isComposing || isComposing()) {
-                    api.setInputValue(event.currentTarget.value)
-                  } else {
-                    handleInputChange(event.currentTarget.value, api)
-                  }
-                  event.currentTarget.value = api.inputValue()
-                  api.onInput(event)
-                }}
-                onCompositionStart={() => setIsComposing(true)}
-                onCompositionEnd={(event) => {
-                  setIsComposing(false)
-                  if (!api.field.readOnly()) {
-                    handleInputChange(event.currentTarget.value, api)
-                  }
-                  event.currentTarget.value = api.inputValue()
-                }}
-                onKeyDown={(event) => {
-                  handleTagRemovalKey(event, api)
-                  if (event.key === ' ' || event.key === 'Spacebar') {
-                    event.stopPropagation()
-                  }
-                  handleSpaceKey(event, api)
-                  if (!event.defaultPrevented) {
-                    api.onKeyDown(event)
-                  }
-                }}
-              />
-            </div>
+              <div data-slot="tagsContainer" {...resolved.slot('tagsContainer')}>
+                <For each={visibleTagOptions()}>
+                  {(option) => {
+                    const onClose = () => toggleOption(option, api)
+                    return (
+                      <Show
+                        when={tagRender() === undefined}
+                        fallback={renderComponentOrElement(tagRender(), {
+                          option: option.raw,
+                          onClose,
+                        })}
+                      >
+                        <span
+                          data-slot="tag"
+                          title={option.key}
+                          {...resolved.slot('tag')}
+                          onPointerDown={(event: PointerEvent) => {
+                            event.preventDefault()
+                            api.focusInput()
+                          }}
+                        >
+                          <span data-slot="label" {...resolved.slot('tagLabel')}>
+                            {option.label}
+                          </span>
 
-            <Show
-              when={isClearAction()}
-              fallback={
-                <button
-                  type="button"
-                  data-slot="trigger"
-                  aria-label={isActionLoading() ? 'Loading' : 'Open dropdown menu'}
-                  aria-busy={isActionLoading() || undefined}
-                  data-loading={isActionLoading() ? '' : undefined}
-                  tabIndex={-1}
-                  class={controlResolved.slot('trigger').class}
-                  style={controlResolved.slot('trigger').style}
-                  disabled={api.field.disabled() || api.field.readOnly() || isActionLoading()}
-                  onPointerDown={(event) => {
-                    if (api.field.disabled() || api.field.readOnly() || isActionLoading()) {
-                      return
-                    }
-                    event.preventDefault()
-                    event.stopPropagation()
-                    api.focusInput()
+                          <button
+                            type="button"
+                            data-slot="tagRemove"
+                            aria-label={`Remove ${option.key}`}
+                            style={resolved.slot('tagRemove').style}
+                            disabled={api.field.disabled() || api.field.readOnly()}
+                            tabIndex={-1}
+                            class={resolved.slot('tagRemove').class}
+                            onPointerDown={(event) => {
+                              if (api.field.disabled() || api.field.readOnly()) {
+                                return
+                              }
+                              event.preventDefault()
+                              event.stopPropagation()
+                              api.focusInput()
+                            }}
+                            onClick={(event) => {
+                              if (api.field.disabled() || api.field.readOnly()) {
+                                return
+                              }
+                              event.stopPropagation()
+                              onClose()
+                            }}
+                          >
+                            <Icon name={closeIcon()} />
+                          </button>
+                        </span>
+                      </Show>
+                    )
                   }}
-                  onClick={(event) => {
-                    event.stopPropagation()
+                </For>
 
-                    if (api.field.disabled() || api.field.readOnly() || isActionLoading()) {
-                      return
+                <Show when={hiddenTagCount() > 0}>
+                  <span data-slot="tagOverflow" {...resolved.slot('tagOverflow')}>
+                    +{hiddenTagCount()}
+                  </span>
+                </Show>
+
+                <input
+                  data-slot="input"
+                  data-searchable={api.isSearchable() ? '' : undefined}
+                  {...resolved.slot('input')}
+                  {...api.inputProps()}
+                  ref={(element) => {
+                    callRef(api.inputProps().ref, element)
+                    callRef(local.inputRef, element)
+                  }}
+                  placeholder={selectedOptions().length > 0 ? '' : local.placeholder}
+                  readonly={!api.isSearchable() || api.field.readOnly() ? true : undefined}
+                  tabIndex={api.isSearchable() ? undefined : -1}
+                  onInput={(event) => {
+                    if (api.field.readOnly()) {
+                      event.currentTarget.value = api.inputValue()
+                    } else if (event.isComposing || isComposing()) {
+                      api.setInputValue(event.currentTarget.value)
+                    } else {
+                      handleInputChange(event.currentTarget.value, api)
                     }
+                    event.currentTarget.value = api.inputValue()
+                    api.onInput(event)
+                  }}
+                  onCompositionStart={() => setIsComposing(true)}
+                  onCompositionEnd={(event) => {
+                    setIsComposing(false)
+                    if (!api.field.readOnly()) {
+                      handleInputChange(event.currentTarget.value, api)
+                    }
+                    event.currentTarget.value = api.inputValue()
+                  }}
+                  onKeyDown={(event) => {
+                    handleTagRemovalKey(event, api)
+                    if (event.key === ' ' || event.key === 'Spacebar') {
+                      event.stopPropagation()
+                    }
+                    handleSpaceKey(event, api)
+                    if (!event.defaultPrevented) {
+                      api.onKeyDown(event)
+                    }
+                  }}
+                />
+              </div>
 
-                    api.toggle()
+              <Show
+                when={isClearAction()}
+                fallback={
+                  <BaseSelect.Trigger
+                    aria-label={isActionLoading() ? 'Loading' : 'Open dropdown menu'}
+                    aria-busy={isActionLoading() || undefined}
+                    data-loading={isActionLoading() ? '' : undefined}
+                    disabled={isActionLoading()}
+                  >
+                    <Icon
+                      name={
+                        isActionLoading()
+                          ? (loadingIcon() ?? 'icon-loading')
+                          : (trailingIcon() ?? 'icon-chevron-down')
+                      }
+                      data-loading={isActionLoading() ? '' : undefined}
+                      class="data-loading:animate-spin"
+                    />
+                  </BaseSelect.Trigger>
+                }
+              >
+                <BaseSelect.Clear
+                  onClick={() => {
+                    clearSelection(api)
                   }}
                 >
-                  <Icon
-                    name={
-                      isActionLoading()
-                        ? (loadingIcon() ?? 'icon-loading')
-                        : (trailingIcon() ?? 'icon-chevron-down')
-                    }
-                    data-loading={isActionLoading() ? '' : undefined}
-                    class="data-loading:animate-spin"
-                  />
-                </button>
-              }
+                  <Icon name={closeIcon() ?? 'icon-close'} />
+                </BaseSelect.Clear>
+              </Show>
+            </>
+          )
+        }}
+      </BaseSelect.Control>
+      <BaseSelect.Content>
+        <BaseSelect.Listbox
+          itemRender={(renderProps) => (
+            <Show
+              when={optionRender() !== undefined}
+              fallback={renderDefaultOption(renderProps.option)}
             >
-              <button
-                type="button"
-                data-slot="clear"
-                aria-label="Clear selection"
-                tabIndex={-1}
-                class={controlResolved.slot('clear').class}
-                style={controlResolved.slot('clear').style}
-                disabled={api.field.disabled() || api.field.readOnly()}
-                onPointerDown={(event) => {
-                  if (api.field.disabled() || api.field.readOnly()) {
-                    return
-                  }
-                  event.preventDefault()
-                  event.stopPropagation()
-                  api.focusInput()
-                }}
-                onClick={(event) => {
-                  event.stopPropagation()
-
-                  if (api.field.disabled() || api.field.readOnly()) {
-                    return
-                  }
-
-                  clearSelection(api)
-                }}
-              >
-                <Icon name={closeIcon() ?? 'icon-close'} />
-              </button>
+              {renderComponentOrElement(optionRender(), {
+                get option() {
+                  return renderProps.option
+                },
+              })}
             </Show>
-          </div>
-        )
-      }}
+          )}
+          emptyRender={createEmptyRenderer({
+            emptyRender: emptyRender(),
+            buildProps: (ctx: BaseSelectT.StateApi<Item>) => ({
+              get inputValue() {
+                return ctx.inputValue()
+              },
+              get hasMatches() {
+                return ctx.visibleFlatOptions().length > 0
+              },
+              get selectedValues() {
+                return getSelectedOptions(ctx).map(
+                  (option) => mapNormalizedToRawValue(option) as TItem,
+                )
+              },
+              get isAtMaxCount() {
+                return isAtMaxCount()
+              },
+              create: (value?: string) => createTag(value, ctx),
+              close: ctx.close,
+            }),
+          })}
+        />
+      </BaseSelect.Content>
     </BaseSelect>
   )
 }

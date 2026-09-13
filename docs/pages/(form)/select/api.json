@@ -42,6 +42,101 @@
       "ariaAttributes": []
     },
     {
+      "name": "control",
+      "description": "Trigger surface that users interact with to open the dropdown.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component, slot, or item is disabled."
+        },
+        {
+          "name": "data-invalid",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field or form has a validation error."
+        },
+        {
+          "name": "data-readonly",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is in read-only mode."
+        },
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field input is required."
+        }
+      ],
+      "ariaAttributes": []
+    },
+    {
+      "name": "input",
+      "description": "Input element for searching or displaying current value.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-placeholder",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
+      "ariaAttributes": []
+    },
+    {
+      "name": "clear",
+      "description": "Clear action button.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        }
+      ]
+    },
+    {
+      "name": "trigger",
+      "description": "Trailing indicator/chevron icon.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-loading",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or async operation is loading."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "leading",
+      "description": "Leading icon or adornment.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
+    },
+    {
       "name": "content",
       "description": "Popup panel that contains search input, options, groups, and empty state.",
       "cssVariables": [
@@ -180,103 +275,15 @@
       ]
     },
     {
-      "name": "control",
-      "description": "Closed select control that displays the current value and opens the popup.",
-      "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-disabled",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component, slot, or item is disabled."
-        },
-        {
-          "name": "data-invalid",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field or form has a validation error."
-        },
-        {
-          "name": "data-readonly",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field is in read-only mode."
-        },
-        {
-          "name": "data-required",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field input is required."
-        }
-      ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "input",
-      "description": "Search input or value text field inside the control.",
-      "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-placeholder",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
-        }
-      ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "leading",
-      "description": "Icon shown before the select input or value.",
+      "name": "separator",
+      "description": "Visual separator between options or groups.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        }
-      ]
-    },
-    {
-      "name": "trigger",
-      "description": "Button region that toggles the select popup.",
-      "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-loading",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component or async operation is loading."
-        }
-      ],
-      "ariaAttributes": [
-        {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        }
-      ]
-    },
-    {
-      "name": "clear",
-      "description": "Button used to clear the selected value.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-label",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
-        }
-      ]
+      "ariaAttributes": []
     },
     {
       "name": "empty",
-      "description": "Message shown when filtering leaves no selectable options.",
+      "description": "Empty state placeholder inside listbox when no options match.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
@@ -335,7 +342,7 @@
         "name": "disabled",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Whether the option is disabled."
+        "description": "Whether the option cannot be selected."
       },
       {
         "name": "icon",
@@ -356,10 +363,16 @@
         "description": "Label to display for the option, or the option group title."
       },
       {
+        "name": "leading",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Leading icon or adornment."
+      },
+      {
         "name": "value",
         "required": false,
         "type": "SelectT.Value | undefined",
-        "description": "Value of the option."
+        "description": "Unique item value. Required for selectable options, omitted for group headings."
       }
     ]
   },
@@ -449,7 +462,7 @@
       {
         "name": "itemProps",
         "required": false,
-        "type": "((option: SelectT.Item<TItem> & BaseSelectT.OptionRenderState) => ElementProps<HTMLDivElement> | undefined) | undefined",
+        "type": "((option: SelectT.Item<TItem> & BaseSelectT.ItemState) => ElementProps<HTMLDivElement> | undefined) | undefined",
         "description": "Additional attributes for an option row."
       },
       {
@@ -511,7 +524,7 @@
         "name": "onScrollBottom",
         "required": false,
         "type": "(() => void) | undefined",
-        "description": "Called when the listbox is scrolled to bottom. Useful for infinite loading scenarios. Make sure to set `overflowPadding` and `scrollBottomThreshold` appropriately to ensure the callback is triggered at the right time."
+        "description": "Called when the listbox is scrolled to bottom. Useful for infinite loading scenarios."
       },
       {
         "name": "onSearch",
@@ -586,8 +599,8 @@
       {
         "name": "search",
         "required": false,
-        "type": "boolean | null | undefined",
-        "description": "Whether the control accepts searchable input.",
+        "type": "boolean & boolean | null | undefined",
+        "description": "Whether search filtering is enabled.",
         "defaultValue": "false"
       },
       {

@@ -1,4 +1,4 @@
-import type { Accessor, Component, JSX, Ref } from 'solid-js'
+import type { Accessor, Component, JSX } from 'solid-js'
 import {
   For,
   Show,
@@ -11,267 +11,47 @@ import {
   splitProps,
   untrack,
 } from 'solid-js'
-import { Portal } from 'solid-js/web'
 
-import type { IconT } from '../../elements/icon'
 import { List } from '../../elements/list'
 import type { ListProps, ListT } from '../../elements/list'
 import { useFloatingPosition } from '../../overlays/base/floating'
 import { useOverlayInteraction } from '../../overlays/base/interaction'
 import { acquireBodyScrollLock } from '../../overlays/base/utils.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { useCn } from '../../shared/provider/cn-context'
-import type { createComponentStyles } from '../../shared/provider/create-component-styles'
-import type { ComponentOrElement } from '../../shared/render-prop'
+import { createComponentStyles, useCn } from '../../shared/provider'
 import { renderComponentOrElement } from '../../shared/render-prop'
+import type { ComponentOrElement } from '../../shared/render-prop'
 import { createTypeahead } from '../../shared/typeahead'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
 import { callHandler, callRef, useId } from '../../shared/utils'
-import type { UseFormFieldReturn } from '../form/form-context'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-} from '../shared/form-options'
 import { useFormReset } from '../shared/use-form-reset'
 
-import type { SelectT } from './select.types'
+import { BaseSelectClear } from './base-select-clear'
+import { BaseSelectContent } from './base-select-content'
+import { BaseSelectProvider } from './base-select-context'
+import { BaseSelectControl } from './base-select-control'
+import { BaseSelectEmpty } from './base-select-empty'
+import { BaseSelectGroup } from './base-select-group'
+import { BaseSelectInput } from './base-select-input'
+import { BaseSelectItem } from './base-select-item'
+import { BaseSelectGroupLabel, BaseSelectLabel } from './base-select-label'
+import { BaseSelectListbox } from './base-select-listbox'
+import { BaseSelectSeparator } from './base-select-separator'
+import { BaseSelectTrigger } from './base-select-trigger'
+import type { BaseSelectProps, BaseSelectT } from './base-select.types'
 import {
   flattenOptions,
+  mapNormalizedToRawValue,
   normalizeOptions,
   resolveSelectedOptions,
   useSelectField,
   useSelectMenuControl,
 } from './shared'
-import type { BaseSelectItems, NormalizedGroup, NormalizedOption, SelectFilterMode } from './shared'
+import type { NormalizedGroup, NormalizedOption, SelectFilterMode } from './shared'
 
-export namespace BaseSelectT {
-  export type Value = string | number
-
-  export interface OptionRenderState {
-    /** Whether the option is currently selected. */
-    isSelected: boolean
-    /** Whether the option is currently highlighted/focused. */
-    isHighlighted: boolean
-    /** Whether the option is disabled. */
-    isDisabled: boolean
-  }
-
-  export interface OptionRenderProps<TItem extends Item> {
-    /** Option and interaction state, or null when no option matches. */
-    option: (TItem & OptionRenderState) | null
-  }
-
-  export interface Item<Val extends Value = Value> extends BaseSelectItems<Item<Val>> {
-    /** Label to display for the option, or the option group title. */
-    label?: string | JSX.Element
-    /** Text key used for filtering and matching; set this when `label` is not a string. */
-    key?: string
-    /** Value of the option. */
-    value?: Val
-    /** Whether the option is disabled. */
-    disabled?: boolean
-    /** Description shown below the label. */
-    description?: string | JSX.Element
-    /** Icon shown next to the label. */
-    icon?: IconT.Name
-    /** One-layer child options for grouped select. */
-    children?: Omit<Item<Val>, 'children'>[]
-  }
-
-  export interface StateApi<TItem extends Item> {
-    allFlatOptions: Accessor<NormalizedOption<TItem>[]>
-    close: () => void
-    field: UseFormFieldReturn
-    highlightedKey: Accessor<string | undefined>
-    inputValue: Accessor<string>
-    isOpen: Accessor<boolean>
-    setInputValue: (value: string) => void
-    visibleFlatOptions: Accessor<NormalizedOption<TItem>[]>
-  }
-
-  export type EmptyRenderProps<TItem extends Item> = StateApi<TItem>
-
-  export interface ControlApi<TItem extends Item> extends StateApi<TItem> {
-    controlProps: Accessor<JSX.HTMLAttributes<HTMLDivElement>>
-    focusInput: () => void
-    inputProps: Accessor<JSX.InputHTMLAttributes<HTMLInputElement>>
-    isSearchable: Accessor<boolean>
-    onInput: (event: InputEvent) => void
-    onKeyDown: (event: KeyboardEvent) => void
-    toggle: () => void
-    resolved: ReturnType<typeof createComponentStyles<'select'>>
-  }
-
-  export interface OptionSelectContext<TItem extends Item> {
-    allFlatOptions: Accessor<NormalizedOption<TItem>[]>
-    field: UseFormFieldReturn
-    setInputValue: (value: string) => void
-  }
-
-  export interface VirtualLabelEntry {
-    /** Structural entry rendered before a grouped option collection. */
-    type: 'label'
-    /** Stable key used by a virtualizer. */
-    key: string
-    /** Group label content. */
-    label: JSX.Element
-    /** Normalized option keys owned by this group. */
-    optionKeys: string[]
-  }
-
-  export interface VirtualItemEntry<TItem extends Item> {
-    /** Selectable option entry. */
-    type: 'item'
-    /** Stable normalized option key. */
-    key: string
-    /** Source option passed to Select or MultiSelect. */
-    item: TItem
-    /** Whether the option cannot be selected. */
-    disabled: boolean
-  }
-
-  export type VirtualEntry<TItem extends Item> = VirtualLabelEntry | VirtualItemEntry<TItem>
-
-  export type VirtualRenderProps<TItem extends Item> = ListT.VirtualRenderProps<
-    VirtualEntry<TItem>,
-    HTMLDivElement,
-    HTMLDivElement
-  >
-
-  export interface Slot<T = unknown> {
-    /**
-     * Select root that owns open state, value display, and popup positioning.
-     */
-    root?: T
-
-    /** Popup panel that contains search input, options, groups, and empty state. */
-    content?: T
-
-    /** ARIA listbox that contains selectable options. */
-    listbox?: T
-
-    /** Selectable option row inside the listbox. */
-    item?: T
-
-    /** Option group wrapper inside the listbox. */
-    group?: T
-
-    /** Group label or option label text, depending on context. */
-    label?: T
-  }
-
-  export type Variant = SelectT.Variant
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Base<TItem extends Item>
-    extends FormIdentityOptions, FormRequiredOption, FormDisableOption, FormReadOnlyOption {
-    /** Available options. */
-    options?: TItem[]
-    /** Controlled open state. */
-    open?: boolean
-    /**
-     * Initial open state.
-     * @default false
-     */
-    defaultOpen?: boolean
-    /** Called whenever the popup open state changes. */
-    onOpenChange?: (open: boolean) => void
-    /** Renders flattened group labels and options through a caller-provided virtualization layer. */
-    virtualRender?: Component<VirtualRenderProps<TItem>>
-    /** Scrolls a highlighted raw option into view using its flattened entry index. */
-    scrollToItem?: (item: TItem, entryIndex: number) => void
-    /** Additional attributes for the listbox element. */
-    listboxProps?: ElementProps<HTMLDivElement>
-    /** Additional attributes for an option row. */
-    itemProps?: (option: TItem & OptionRenderState) => ElementProps<HTMLDivElement> | undefined
-    /** Controlled search value. */
-    searchValue?: string
-    /**
-     * Default search value.
-     * @default ''
-     */
-    defaultSearchValue?: string
-    /** Called when the search input changes. */
-    onSearch?: (value: string) => void
-    /** Maximum search text length applied on final commit. */
-    searchMaxLength?: number
-    /**
-     * Filter function or boolean. `false` disables filtering.
-     * @default true
-     */
-    filterOption?:
-      | boolean
-      | 'startsWith'
-      | 'endsWith'
-      | 'contains'
-      | ((inputValue: string, option: TItem) => boolean)
-    /**
-     * Current selected values used only to derive selected option state.
-     * @default []
-     */
-    selectedValues?: Value[]
-    /** Internal flag that selects native single or multiple form semantics. */
-    multiple?: boolean
-    /** Form value used when the field initializes. */
-    initialValue?: unknown
-    /** Render the trigger/control surface. */
-    children: (api: ControlApi<TItem>) => JSX.Element
-    /** Renderer for each option in the dropdown. Receives `null` when no option matches. */
-    optionRender: ComponentOrElement<OptionRenderProps<TItem>>
-    /** Custom rendered empty state. */
-    emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
-    /** Called when an option is selected by pointer or keyboard. */
-    onOptionSelect: (
-      option: NormalizedOption<TItem> | null,
-      context: OptionSelectContext<TItem>,
-    ) => void
-    /** Internal reset bridge used by Select and MultiSelect wrappers. */
-    _onFormReset?: (context: OptionSelectContext<TItem>) => void
-    /** Whether the wrapper has an explicit controlled value. */
-    _isValueControlled?: boolean
-    /**
-     * Called on option item keydown. Can be used to intercept keys for custom behavior.
-     */
-    onInputKeyDown?: (event: KeyboardEvent, context: StateApi<TItem>) => void
-    /**
-     * Called when the listbox is scrolled to bottom. Useful for infinite loading scenarios. Make sure to set `overflowPadding` and `scrollBottomThreshold` appropriately to ensure the callback is triggered at the right time.
-     */
-    onScrollBottom?: () => void
-    /**
-     * Distance (px) from the bottom at which onScrollBottom fires.
-     * @default 20
-     */
-    scrollBottomThreshold?: number
-    /**
-     * Padding (px) used when calculating popup overflow and viewport collision.
-     * @default 4
-     */
-    overflowPadding?: number
-    /**
-     * Gap (px) between the control and popup content.
-     * @default 0
-     */
-    gutter?: number
-    /**
-     * Whether the select closes after selection.
-     * @default true
-     */
-    closeOnSelect?: boolean
-  }
-
-  export type Props<TItem extends Item> = BaseProps<'div', Base<TItem>, Variant, Classes, Styles>
-}
-
-export interface BaseSelectProps<TItem extends BaseSelectT.Item> extends BaseSelectT.Props<TItem> {
-  ref?: Ref<HTMLDivElement>
-  _styles: ReturnType<typeof createComponentStyles<'select'>>
-}
+export type { BaseSelectT, BaseSelectProps } from './base-select.types'
 
 const SELECT_FILTER_STRATEGIES: Record<SelectFilterMode, (text: string, input: string) => boolean> =
   {
@@ -387,7 +167,7 @@ function useBaseSelectOverlay(options: {
   closeMenu: () => void
   contentElement: Accessor<HTMLDivElement | undefined>
   contentPresence: ReturnType<typeof useTransitionPresence>
-  getControlElement: () => HTMLDivElement | undefined
+  getControlElement: () => HTMLElement | undefined
   gutter: Accessor<number>
   isOpen: Accessor<boolean>
   menuControl: ReturnType<typeof useSelectMenuControl>
@@ -481,7 +261,11 @@ function useBaseSelectOverlay(options: {
   })
 }
 
-export function BaseSelect<TItem extends BaseSelectT.Item>(
+// ---------------------------------------------------------------------------
+// Main Component
+// ---------------------------------------------------------------------------
+
+export function BaseSelect<TItem extends BaseSelectT.Item = BaseSelectT.Item>(
   props: BaseSelectProps<TItem>,
 ): JSX.Element {
   const cn = useCn()
@@ -493,7 +277,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     'disabled',
     'readOnly',
     'size',
-    '_styles',
+    'resolvedStyles',
     'variant',
     'classes',
     'styles',
@@ -517,11 +301,9 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     'multiple',
     'initialValue',
     'children',
-    'optionRender',
-    'emptyRender',
     'onOptionSelect',
-    '_onFormReset',
-    '_isValueControlled',
+    'onFormReset',
+    'isValueControlled',
     'onInputKeyDown',
     'onScrollBottom',
     'scrollBottomThreshold',
@@ -552,9 +334,6 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     },
     local as BaseSelectProps<TItem>,
   )
-  const childrenRender = createMemo(() => merged.children)
-  const optionRender = createMemo(() => merged.optionRender)
-  const emptyRender = createMemo(() => merged.emptyRender)
   const virtualRender = createMemo(() => merged.virtualRender)
   const listboxId = useId(() => merged.id && `${merged.id}-listbox`, 'base-select-listbox')
   const getOptionId = (key: string): string => `${listboxId()}-${encodeURIComponent(key)}`
@@ -569,19 +348,22 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     initialValue: merged.initialValue,
   }))
   const isSearchable = createMemo(() => Boolean(merged.search))
+  const [registeredItems, setRegisteredItems] = createSignal<Accessor<TItem>[]>([])
+  const hasRegisteredItems = createMemo(() => registeredItems().length > 0)
 
   const normalizedOptions = createMemo<Array<NormalizedOption<TItem> | NormalizedGroup<TItem>>>(
     () =>
-      normalizeOptions(merged.options as never) as Array<
-        NormalizedOption<TItem> | NormalizedGroup<TItem>
-      >,
+      normalizeOptions(
+        (hasRegisteredItems() ? registeredItems().map((item) => item()) : merged.options) as never,
+      ) as Array<NormalizedOption<TItem> | NormalizedGroup<TItem>>,
   )
   const allFlatOptions = createMemo<NormalizedOption<TItem>[]>(() =>
     flattenOptions(normalizedOptions()),
   )
   const propSelectedValues = createMemo(() => merged.selectedValues ?? [])
+  const [hasClearedSelection, setHasClearedSelection] = createSignal(false)
   const selectedValues = createMemo<BaseSelectT.Value[]>(() => {
-    if (merged._isValueControlled) {
+    if (merged.isValueControlled) {
       return propSelectedValues()
     }
 
@@ -592,14 +374,20 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
             (item): item is BaseSelectT.Value =>
               typeof item === 'string' || typeof item === 'number',
           )
-        : propSelectedValues()
+        : hasClearedSelection()
+          ? []
+          : propSelectedValues()
     }
 
     if (value === null) {
       return []
     }
 
-    return typeof value === 'string' || typeof value === 'number' ? [value] : propSelectedValues()
+    return typeof value === 'string' || typeof value === 'number'
+      ? [value]
+      : hasClearedSelection()
+        ? []
+        : propSelectedValues()
   })
 
   const formValueSnapshot = () => {
@@ -611,7 +399,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   createEffect(
     on(
       [
-        () => merged._isValueControlled,
+        () => merged.isValueControlled,
         propSelectedValuesSnapshot,
         () => merged.multiple,
         formValueSnapshot,
@@ -637,6 +425,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     resolveSelectedOptions(allFlatOptions(), selectedValues()),
   )
   const selectedOptions = createMemo(() => selectedResolution().options)
+  const [selectedOptionCache, setSelectedOptionCache] = createSignal<NormalizedOption<TItem>[]>([])
   const selectedOptionIds = createMemo(() => new Set(selectedOptions().map((option) => option.id)))
   const formValues = createMemo(() => {
     if (!merged.multiple && selectedValues().length === 0) {
@@ -663,7 +452,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   })
   const isOpen = createMemo(() => Boolean(openState()))
 
-  let controlRef: HTMLDivElement | undefined
+  let controlRef: HTMLElement | undefined
   let comboboxRef: HTMLElement | undefined
   let listboxRef: HTMLDivElement | undefined
   let validationInputRef: HTMLInputElement | undefined
@@ -677,10 +466,21 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   const [currentInputText, setCurrentInputText] = createSignal(merged.defaultSearchValue ?? '')
   const [highlightedKey, setHighlightedKey] = createSignal<string | undefined>()
   const [contentSide, setContentSide] = createSignal<'top' | 'bottom'>('bottom')
-  const resolved = untrack(() => local._styles)
+  const resolved = untrack(
+    () =>
+      local.resolvedStyles ??
+      createComponentStyles('baseSelect', props, {
+        inheritedVariants: () => ({ size: field.size() ?? undefined }),
+      }),
+  )
 
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
+  const [contentRegistrations, setContentRegistrations] = createSignal(0)
+  const hasCustomContent = createMemo(() => contentRegistrations() > 0)
+  const [controlRegistrations, setControlRegistrations] = createSignal(0)
+  const hasRegisteredControl = createMemo(() => controlRegistrations() > 0)
+
   const contentPresence = useTransitionPresence({
     open: isOpen,
   })
@@ -853,11 +653,30 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
       return
     }
 
-    merged.onOptionSelect(option, {
-      allFlatOptions,
-      field,
-      setInputValue,
-    })
+    if (!merged.multiple) {
+      setSelectedOptionCache([option])
+    }
+
+    if (merged.onOptionSelect) {
+      merged.onOptionSelect(option, {
+        allFlatOptions,
+        field,
+        setInputValue,
+      })
+    } else {
+      const rawVal = mapNormalizedToRawValue(option)
+      if (merged.multiple) {
+        const current = selectedValues()
+        const valStr = option.value
+        const next = current.includes(valStr)
+          ? current.filter((v) => v !== valStr)
+          : [...current, valStr]
+        field.setFormValue(next)
+      } else {
+        field.setFormValue(rawVal ?? '')
+        setInputValue(option.key ?? '')
+      }
+    }
 
     if (merged.closeOnSelect && isOpen()) {
       closeMenu()
@@ -871,6 +690,26 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     }
   }
 
+  function clear(): void {
+    if (field.readOnly() || field.disabled()) {
+      return
+    }
+
+    if (merged.onOptionSelect) {
+      merged.onOptionSelect(null, {
+        allFlatOptions,
+        field,
+        setInputValue,
+      })
+    } else {
+      field.setFormValue(merged.multiple ? [] : '')
+      setHasClearedSelection(true)
+    }
+    setSelectedOptionCache([])
+    setInputValue('')
+    closeMenu()
+  }
+
   useFormReset(
     () => validationInputRef?.form,
     () => {
@@ -878,7 +717,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         return
       }
 
-      merged._onFormReset?.({
+      merged.onFormReset?.({
         allFlatOptions,
         field,
         setInputValue,
@@ -1152,6 +991,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
   function renderVisibleOption(
     option: NormalizedOption<TItem>,
     virtualProps?: ListT.RowProps<HTMLDivElement>,
+    itemRender?: ComponentOrElement<BaseSelectT.ListboxItemRenderProps<TItem>>,
   ): JSX.Element {
     const isSelected = createMemo(() => selectedOptionIds().has(option.id))
     const renderContext = createMemo(() => ({
@@ -1216,11 +1056,13 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
           selectOption(option)
         }}
       >
-        {renderComponentOrElement(optionRender(), {
-          get option() {
-            return renderContext()
-          },
-        })}
+        <Show when={itemRender !== undefined} fallback={option.label ?? option.key}>
+          {renderComponentOrElement(itemRender, {
+            get option() {
+              return renderContext()
+            },
+          })}
+        </Show>
       </div>
     )
   }
@@ -1229,6 +1071,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     entry: BaseSelectT.VirtualEntry<TItem>,
     _index: number,
     virtualProps?: ListT.RowProps<HTMLDivElement>,
+    itemRender?: ComponentOrElement<BaseSelectT.ListboxItemRenderProps<TItem>>,
   ): JSX.Element {
     if (entry.type === 'label') {
       const labelId = `${listboxId()}-${entry.key}-label`
@@ -1252,7 +1095,7 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
 
     return (
       <Show when={visibleOptionByKey().get(entry.key)}>
-        {(option) => renderVisibleOption(option(), virtualProps)}
+        {(option) => renderVisibleOption(option(), virtualProps, itemRender)}
       </Show>
     )
   }
@@ -1273,14 +1116,20 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
     entry: SelectListEntry,
     index: number,
     rowProps?: ListT.RowProps<HTMLDivElement>,
+    itemRender?: ComponentOrElement<BaseSelectT.ListboxItemRenderProps<TItem>>,
   ): JSX.Element {
     if (virtualRender()) {
-      return renderVirtualEntry(entry as BaseSelectT.VirtualEntry<TItem>, index, rowProps)
+      return renderVirtualEntry(
+        entry as BaseSelectT.VirtualEntry<TItem>,
+        index,
+        rowProps,
+        itemRender,
+      )
     }
 
     const option = entry as NormalizedOption<TItem> | NormalizedGroup<TItem>
     if (!option.isGroup) {
-      return renderVisibleOption(option)
+      return renderVisibleOption(option, undefined, itemRender)
     }
 
     const groupLabelId = `${listboxId()}-group-${index}-label`
@@ -1295,142 +1144,243 @@ export function BaseSelect<TItem extends BaseSelectT.Item>(
         <span id={groupLabelId} data-slot="label" aria-hidden="true" {...resolved.slot('label')}>
           {option.label}
         </span>
-        <For each={option.options}>{(item) => renderVisibleOption(item)}</For>
+        <For each={option.options}>
+          {(item) => renderVisibleOption(item, undefined, itemRender)}
+        </For>
       </div>
     )
   }
 
-  return (
-    <div
-      ref={(element) => callRef(local.ref, element)}
-      data-slot="root"
-      data-disabled={field.disabled() ? '' : undefined}
-      data-invalid={field.invalid() ? '' : undefined}
-      data-required={field.required() ? '' : undefined}
-      data-readonly={field.readOnly() ? '' : undefined}
-      {...rest}
-      {...resolved.root}
-    >
-      <HiddenInput
-        ref={(element) => {
-          validationInputRef = element
-        }}
-        type="text"
-        aria-hidden="true"
-        autocomplete="off"
-        disabled={field.disabled()}
-        required={field.required()}
-        tabIndex={-1}
-        value={validationValue()}
-        onInput={(event) => {
-          event.currentTarget.value = validationValue()
-        }}
-        onChange={(event) => {
-          event.currentTarget.value = validationValue()
-        }}
-        onInvalid={(event) => {
-          event.preventDefault()
-          comboboxRef?.focus()
-        }}
-      />
-      <For each={formValues()}>
-        {(value) => (
-          <HiddenInput
-            type="hidden"
-            visuallyHidden={false}
-            name={field.name()}
-            value={value}
-            disabled={field.disabled()}
-          />
-        )}
-      </For>
+  function displayValue(): JSX.Element {
+    const selected = selectedOptions()
+    const displayedSelected = selected.length > 0 ? selected : selectedOptionCache()
+    if (displayedSelected.length === 1) {
+      return displayedSelected[0]?.label ?? displayedSelected[0]?.key
+    }
+    if (displayedSelected.length > 1) {
+      return displayedSelected
+        .map((s) => (typeof s.label === 'string' || typeof s.label === 'number' ? s.label : s.key))
+        .join(', ')
+    }
+    return undefined
+  }
 
-      {childrenRender()({
-        ...stateApi,
-        controlProps,
-        focusInput: () => comboboxRef?.focus(),
-        inputProps,
-        isSearchable,
-        onInput: handleInput,
-        onKeyDown: handleKeyDown,
-        toggle: menuControl.toggleMenu,
-        resolved,
-      })}
+  const controlApi: BaseSelectT.ControlApi<TItem> = {
+    ...stateApi,
+    controlProps,
+    focusInput: () => comboboxRef?.focus(),
+    inputProps,
+    isSearchable,
+    onInput: handleInput,
+    onKeyDown: handleKeyDown,
+    toggle: menuControl.toggleMenu,
+    resolved,
+  }
 
-      <Show when={contentPresence.present()}>
-        <Portal>
-          <div
-            ref={(element) => {
-              setPositionerElement(element)
-              if (element) {
-                element.style.position = 'absolute'
-                element.style.visibility = 'hidden'
-              }
-            }}
-            data-slot="positioner"
-            class={'left-0 top-0 absolute'}
-          >
-            <div
-              {...contentPresence.dataAttrs()}
-              ref={(element) => {
-                setContentElement(element)
-                contentPresence.setElement(element)
-              }}
-              data-slot="content"
-              data-side={contentSide()}
-              class={resolved.slot('content').class}
-              style={{
-                '--mo-popper-content-transform-origin': undefined,
-                ...resolved.slot('content').style,
-              }}
-            >
-              <Show
-                when={visibleFlatOptions().length > 0}
-                fallback={
-                  emptyRender() !== undefined
-                    ? renderComponentOrElement(emptyRender(), stateApi)
-                    : renderComponentOrElement(optionRender(), { option: null })
-                }
-              >
-                <RuntimeList
-                  as="div"
-                  items={listEntries()}
-                  itemRender={(context) =>
-                    renderListEntry(context.item, context.index, context.props)
-                  }
-                  virtualRender={
-                    virtualRender() as
-                      | Component<
-                          ListT.VirtualRenderProps<SelectListEntry, HTMLElement, HTMLDivElement>
-                        >
-                      | undefined
-                  }
-                  id={listboxId()}
-                  role="listbox"
-                  aria-multiselectable={merged.multiple || undefined}
-                  data-slot="listbox"
-                  {...merged.listboxProps}
-                  ref={(element: HTMLDivElement) => {
-                    listboxRef = element
-                    callRef(merged.listboxProps?.ref, element)
-                  }}
-                  class={cn(resolved.slot('listbox').class, merged.listboxProps?.class)}
-                  style={{
-                    ...toStyleObject(merged.listboxProps?.style),
-                    ...resolved.slot('listbox').style,
-                  }}
-                  onScroll={(event: Event) => {
-                    const { defaultPrevented } = callHandler(event, merged.listboxProps?.onScroll)
-                    if (!defaultPrevented) {
-                      handleListboxScroll(event)
-                    }
-                  }}
-                />
-              </Show>
+  function renderDefaultListbox(listboxProps?: BaseSelectT.ListboxProps<TItem>): JSX.Element {
+    const [lbLocal, lbRest] = splitProps(listboxProps ?? {}, [
+      'class',
+      'style',
+      'ref',
+      'itemRender',
+      'emptyRender',
+    ])
+    const itemRender = () => lbLocal.itemRender
+    const emptyRender = () => lbLocal.emptyRender
+
+    return (
+      <Show
+        when={visibleFlatOptions().length > 0}
+        fallback={
+          emptyRender() !== undefined ? (
+            renderComponentOrElement(emptyRender(), stateApi)
+          ) : itemRender() !== undefined ? (
+            renderComponentOrElement(itemRender(), { option: null })
+          ) : (
+            <div data-slot="empty" {...resolved.slot('empty')}>
+              No data
             </div>
-          </div>
-        </Portal>
+          )
+        }
+      >
+        <RuntimeList
+          as="div"
+          items={listEntries()}
+          itemRender={(context) =>
+            renderListEntry(context.item, context.index, context.props, itemRender())
+          }
+          virtualRender={
+            virtualRender() as
+              | Component<ListT.VirtualRenderProps<SelectListEntry, HTMLElement, HTMLDivElement>>
+              | undefined
+          }
+          id={listboxId()}
+          role="listbox"
+          aria-multiselectable={merged.multiple || undefined}
+          data-slot="listbox"
+          {...merged.listboxProps}
+          {...lbRest}
+          ref={(element: HTMLDivElement) => {
+            listboxRef = element
+            callRef(merged.listboxProps?.ref, element)
+            callRef(lbLocal.ref, element)
+          }}
+          class={cn(resolved.slot('listbox').class, merged.listboxProps?.class, lbLocal.class)}
+          style={{
+            ...toStyleObject(merged.listboxProps?.style),
+            ...resolved.slot('listbox').style,
+            ...toStyleObject(lbLocal.style),
+          }}
+          onScroll={(event: Event) => {
+            const { defaultPrevented } = callHandler(event, merged.listboxProps?.onScroll)
+            if (!defaultPrevented) {
+              handleListboxScroll(event)
+            }
+          }}
+        />
       </Show>
-    </div>
+    )
+  }
+
+  const contextValue = {
+    isOpen,
+    setOpen: setOpenState,
+    close: closeMenu,
+    toggle: menuControl.toggleMenu,
+    highlightedKey,
+    setHighlightedKey,
+    inputValue: currentInputText,
+    setInputValue,
+    isSearchable,
+    field,
+    selectedValues,
+    selectedOptions,
+    selectedOptionIds,
+    visibleOptions,
+    visibleFlatOptions,
+    allFlatOptions,
+    listboxId,
+    getOptionId,
+    controlProps,
+    inputProps,
+    onInput: handleInput,
+    onKeyDown: handleKeyDown,
+    selectOption,
+    clear,
+    focusInput: () => comboboxRef?.focus(),
+    resolved,
+    contentPresence,
+    contentSide,
+    setPositionerElement,
+    setContentElement,
+    setControlRef: (el: HTMLElement | undefined) => {
+      controlRef = el
+      if (!isSearchable() && (!comboboxRef || comboboxRef === controlRef)) {
+        comboboxRef = el
+      }
+    },
+    hasControlRef: hasRegisteredControl,
+    registerControl: () => {
+      setControlRegistrations((count) => count + 1)
+      return () => setControlRegistrations((count) => Math.max(0, count - 1))
+    },
+    setComboboxRef: (el: HTMLElement | undefined) => {
+      comboboxRef = el
+    },
+    setListboxRef: (el: HTMLDivElement | undefined) => {
+      listboxRef = el
+    },
+    registerContent: () => {
+      setContentRegistrations((prev) => prev + 1)
+      return () => setContentRegistrations((prev) => Math.max(0, prev - 1))
+    },
+    hasCustomContent,
+    registerItem: (item: Accessor<TItem>) => {
+      setRegisteredItems((items) => [...items, item])
+      return () => setRegisteredItems((items) => items.filter((entry) => entry !== item))
+    },
+    getRegisteredOption: (item: Accessor<TItem>) => {
+      const registration = (item() as TItem & { __baseSelectRegistration?: object })
+        .__baseSelectRegistration
+      return allFlatOptions().find(
+        (option) =>
+          (option.raw as TItem & { __baseSelectRegistration?: object }).__baseSelectRegistration ===
+          registration,
+      )
+    },
+    displayValue,
+    renderDefaultListbox,
+    multiple: () => merged.multiple,
+    handleListboxScroll,
+    stateApi,
+    controlApi,
+  }
+
+  return (
+    <BaseSelectProvider value={contextValue}>
+      <div
+        ref={(element) => callRef(local.ref, element)}
+        data-slot="root"
+        data-disabled={field.disabled() ? '' : undefined}
+        data-invalid={field.invalid() ? '' : undefined}
+        data-required={field.required() ? '' : undefined}
+        data-readonly={field.readOnly() ? '' : undefined}
+        {...rest}
+        {...resolved.root}
+      >
+        <HiddenInput
+          ref={(element) => {
+            validationInputRef = element
+          }}
+          type="text"
+          aria-hidden="true"
+          autocomplete="off"
+          disabled={field.disabled()}
+          required={field.required()}
+          tabIndex={-1}
+          value={validationValue()}
+          onInput={(event) => {
+            event.currentTarget.value = validationValue()
+          }}
+          onChange={(event) => {
+            event.currentTarget.value = validationValue()
+          }}
+          onInvalid={(event) => {
+            event.preventDefault()
+            comboboxRef?.focus()
+          }}
+        />
+        <For each={formValues()}>
+          {(value) => (
+            <HiddenInput
+              type="hidden"
+              visuallyHidden={false}
+              name={field.name()}
+              value={value}
+              disabled={field.disabled()}
+            />
+          )}
+        </For>
+
+        {(() => {
+          const content = local.children
+          return typeof content === 'function' ? (content as any)(controlApi) : content
+        })()}
+      </div>
+    </BaseSelectProvider>
   )
 }
+
+BaseSelect.Root = BaseSelect
+BaseSelect.Control = BaseSelectControl
+BaseSelect.Input = BaseSelectInput
+BaseSelect.Clear = BaseSelectClear
+BaseSelect.Trigger = BaseSelectTrigger
+BaseSelect.Content = BaseSelectContent
+BaseSelect.Listbox = BaseSelectListbox
+BaseSelect.Item = BaseSelectItem
+BaseSelect.Group = BaseSelectGroup
+BaseSelect.GroupLabel = BaseSelectGroupLabel
+BaseSelect.Label = BaseSelectLabel
+BaseSelect.Separator = BaseSelectSeparator
+BaseSelect.Empty = BaseSelectEmpty

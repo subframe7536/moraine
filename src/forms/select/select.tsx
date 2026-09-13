@@ -195,147 +195,101 @@ export function Select<TItem extends SelectT.Value = SelectT.Value>(
       ref={local.ref}
       search={resolved.variants.search ?? false}
 
-      _styles={resolved}
+      resolvedStyles={resolved}
 
       initialValue={getInitialValue()}
-      _isValueControlled={local.value !== undefined}
+      isValueControlled={local.value !== undefined}
       multiple={false}
       selectedValues={getSelectedValues()}
       onOptionSelect={(option, api) => updateSelection(option, api)}
-      _onFormReset={(api) => {
+      onFormReset={(api) => {
         const value = local.value !== undefined ? local.value : initialDefaultValue
         setSelectedValue(initialDefaultValue)
         api.setInputValue('')
         api.field.setFormValue(value ?? '')
       }}
-      emptyRender={createEmptyRenderer({
-        emptyRender: emptyRender(),
-        buildProps: (api: BaseSelectT.StateApi<Item>) => {
-          return {
-            get inputValue() {
-              return api.inputValue()
-            },
-            get hasMatches() {
-              return api.visibleFlatOptions().length > 0
-            },
-            get selectedValue() {
-              const selected = findSelectedOption(api)
-              return selected ? (mapNormalizedToRawValue(selected) as TItem) : null
-            },
-            close: api.close,
-          }
-        },
-      })}
-      optionRender={(renderProps) => (
-        <Show
-          when={optionRender() !== undefined}
-          fallback={renderDefaultOption(renderProps.option)}
-        >
-          {renderComponentOrElement(optionRender(), {
-            get option() {
-              return renderProps.option
+    >
+      <BaseSelect.Control<Item>>
+        {(api: BaseSelectT.ControlApi<Item>) => {
+          const isActionLoading = createMemo(() => Boolean(local.loading))
+          const isClearAction = createMemo(() =>
+            Boolean(!isActionLoading() && local.allowClear && getCurrentValue(api) !== null),
+          )
+
+          return (
+            <>
+              <Show when={leadingIcon()}>
+                {(icon) => <Icon name={icon()} slotName="leading" {...resolved.slot('leading')} />}
+              </Show>
+
+              <BaseSelect.Input
+                ref={(element: HTMLInputElement) => callRef(local.inputRef, element)}
+                placeholder={local.placeholder}
+              >
+                {displayValue(api)}
+              </BaseSelect.Input>
+
+              <Show
+                when={isClearAction()}
+                fallback={
+                  <Icon
+                    name={
+                      isActionLoading()
+                        ? (loadingIcon() ?? 'icon-loading')
+                        : (trailingIcon() ?? 'icon-chevron-down')
+                    }
+                    slotName="trigger"
+                    data-loading={isActionLoading() ? '' : undefined}
+                    {...resolved.slot('trigger')}
+                  />
+                }
+              >
+                <BaseSelect.Clear
+                  onClick={() => {
+                    clearSelection(api)
+                  }}
+                >
+                  <Icon name={closeIcon() ?? 'icon-close'} />
+                </BaseSelect.Clear>
+              </Show>
+            </>
+          )
+        }}
+      </BaseSelect.Control>
+      <BaseSelect.Content>
+        <BaseSelect.Listbox
+          itemRender={(renderProps) => (
+            <Show
+              when={optionRender() !== undefined}
+              fallback={renderDefaultOption(renderProps.option)}
+            >
+              {renderComponentOrElement(optionRender(), {
+                get option() {
+                  return renderProps.option
+                },
+              })}
+            </Show>
+          )}
+          emptyRender={createEmptyRenderer({
+            emptyRender: emptyRender(),
+            buildProps: (api: BaseSelectT.StateApi<Item>) => {
+              return {
+                get inputValue() {
+                  return api.inputValue()
+                },
+                get hasMatches() {
+                  return api.visibleFlatOptions().length > 0
+                },
+                get selectedValue() {
+                  const selected = findSelectedOption(api)
+                  return selected ? (mapNormalizedToRawValue(selected) as TItem) : null
+                },
+                close: api.close,
+              }
             },
           })}
-        </Show>
-      )}
-    >
-      {(api) => {
-        const isActionLoading = createMemo(() => Boolean(local.loading))
-        const isClearAction = createMemo(() =>
-          Boolean(!isActionLoading() && local.allowClear && getCurrentValue(api) !== null),
-        )
-
-        const controlResolved = api.resolved
-
-        return (
-          <div
-            data-slot="control"
-            data-disabled={api.field.disabled() ? '' : undefined}
-            data-invalid={api.field.invalid() ? '' : undefined}
-            data-required={api.field.required() ? '' : undefined}
-            data-readonly={api.field.readOnly() ? '' : undefined}
-            {...controlResolved.slot('control')}
-            {...api.controlProps()}
-          >
-            <Show when={leadingIcon()}>
-              {(icon) => (
-                <Icon name={icon()} slotName="leading" {...controlResolved.slot('leading')} />
-              )}
-            </Show>
-
-            <Show
-              when={api.isSearchable()}
-              fallback={
-                <span
-                  data-slot="input"
-                  data-placeholder={getCurrentValue(api) === null ? '' : undefined}
-                  {...controlResolved.slot('input')}
-                >
-                  {displayValue(api)}
-                </span>
-              }
-            >
-              <input
-                ref={(element) => {
-                  callRef(api.inputProps().ref, element)
-                  callRef(local.inputRef, element)
-                }}
-                data-slot="input"
-                {...controlResolved.slot('input')}
-                placeholder={local.placeholder}
-                {...api.inputProps()}
-                onInput={(event) => {
-                  if (api.field.readOnly()) {
-                    event.currentTarget.value = api.inputValue()
-                  } else {
-                    api.setInputValue(event.currentTarget.value)
-                  }
-                  api.onInput(event)
-                }}
-              />
-            </Show>
-
-            <Show
-              when={isClearAction()}
-              fallback={
-                <Icon
-                  name={
-                    isActionLoading()
-                      ? (loadingIcon() ?? 'icon-loading')
-                      : (trailingIcon() ?? 'icon-chevron-down')
-                  }
-                  slotName="trigger"
-                  data-loading={isActionLoading() ? '' : undefined}
-                  {...controlResolved.slot('trigger')}
-                />
-              }
-            >
-              <button
-                type="button"
-                data-slot="clear"
-                aria-label="Clear selection"
-                tabIndex={-1}
-                {...controlResolved.slot('clear')}
-                disabled={api.field.disabled() || api.field.readOnly()}
-                onPointerDown={(event) => {
-                  event.preventDefault()
-                  event.stopPropagation()
-                  api.focusInput()
-                }}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  if (api.field.disabled() || api.field.readOnly()) {
-                    return
-                  }
-                  clearSelection(api)
-                }}
-              >
-                <Icon name={closeIcon() ?? 'icon-close'} />
-              </button>
-            </Show>
-          </div>
-        )
-      }}
+        />
+      </BaseSelect.Content>
     </BaseSelect>
   )
 }

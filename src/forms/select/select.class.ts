@@ -4,7 +4,7 @@ import { slotRecipe } from '../../shared/style/recipe'
 import type { MultiSelectT } from './multi-select.types'
 import type { SelectT } from './select.types'
 
-const SELECT_CONTENT_CLASS =
+export const SELECT_CONTENT_CLASS =
   'text-popover-foreground p-0 outline-none rounded-md bg-popover flex flex-col min-w-36 max-w-(--mo-popper-content-available-width) min-w-(--mo-popper-anchor-width) w-(--mo-popper-anchor-width) origin-(--mo-popper-content-transform-origin) z-floating motion-reduce:animate-none border border-border shadow-md data-closed:(animate-mo-exit exit-opacity-0 exit-scale-95) data-expanded:(animate-mo-enter enter-opacity-0 enter-scale-95) data-[side=bottom]:mt-(--mo-popper-content-overflow-padding) data-[side=bottom]:-enter-translate-y-1 data-[side=bottom]:-exit-translate-y-1 data-[side=top]:mb-(--mo-popper-content-overflow-padding) data-[side=top]:enter-translate-y-1 data-[side=top]:exit-translate-y-1'
 
 const SELECT_CONTROL_CLASS =
@@ -20,7 +20,7 @@ export const SELECT_LEADING_ICON_CLASS = 'text-muted-foreground shrink-0'
 export const SELECT_CLEAR_ACTION_CLASS =
   'text-muted-foreground opacity-80 disabled:pointer-events-none data-loading:cursor-wait transition-colors hover:(bg-muted-hover text-foreground opacity-100) active:bg-muted-active'
 
-const SELECT_BASE_CLASSES = {
+export const SELECT_BASE_CLASSES = {
   root: 'inline-flex h-fit w-full relative',
   content: SELECT_CONTENT_CLASS,
   control: SELECT_CONTROL_CLASS,
@@ -28,6 +28,7 @@ const SELECT_BASE_CLASSES = {
   item: 'px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center relative data-highlighted:bg-muted data-disabled:(opacity-64 pointer-events-none)',
   group: '[&:not(:first-child)]:mt-1.5',
   label: 'text-xs text-muted-foreground font-medium px-2 py-1.5 block',
+  separator: '-mx-1 my-1 h-px bg-border',
   leading: SELECT_LEADING_ICON_CLASS,
   clear: `${SELECT_CLEAR_ACTION_CLASS} border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center`,
   empty: 'text-sm text-muted-foreground p-2 text-center',

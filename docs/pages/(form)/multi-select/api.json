@@ -42,6 +42,112 @@
       "ariaAttributes": []
     },
     {
+      "name": "control",
+      "description": "Trigger surface that users interact with to open the dropdown.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component, slot, or item is disabled."
+        },
+        {
+          "name": "data-invalid",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field or form has a validation error."
+        },
+        {
+          "name": "data-readonly",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is in read-only mode."
+        },
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field input is required."
+        }
+      ],
+      "ariaAttributes": []
+    },
+    {
+      "name": "input",
+      "description": "Input element for searching or displaying current value.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-searchable",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
+      "ariaAttributes": []
+    },
+    {
+      "name": "clear",
+      "description": "Clear action button.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        }
+      ]
+    },
+    {
+      "name": "trigger",
+      "description": "Trailing indicator/chevron icon.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-activedescendant",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-controls",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the controlled element while the related content is mounted."
+        },
+        {
+          "name": "aria-expanded",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates whether the controlled content is expanded."
+        },
+        {
+          "name": "aria-haspopup",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        }
+      ]
+    },
+    {
+      "name": "leading",
+      "description": "Leading icon or adornment.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
+    },
+    {
       "name": "content",
       "description": "Popup panel that contains search input, options, groups, and empty state.",
       "cssVariables": [
@@ -180,111 +286,18 @@
       ]
     },
     {
-      "name": "control",
-      "description": "Multi-select control that displays selected tags and opens the popup.",
+      "name": "separator",
+      "description": "Visual separator between options or groups.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-disabled",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component, slot, or item is disabled."
-        },
-        {
-          "name": "data-invalid",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field or form has a validation error."
-        },
-        {
-          "name": "data-readonly",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field is in read-only mode."
-        },
-        {
-          "name": "data-required",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field input is required."
-        },
-        {
-          "name": "data-tags",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": []
     },
     {
-      "name": "input",
-      "description": "Search input used to filter or add selections.",
+      "name": "empty",
+      "description": "Empty state placeholder inside listbox when no options match.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-searchable",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": []
-    },
-    {
-      "name": "leading",
-      "description": "Icon shown before the selected tags and search input.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        }
-      ]
-    },
-    {
-      "name": "trigger",
-      "description": "Button region that toggles the multi-select popup.",
-      "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-loading",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component or async operation is loading."
-        }
-      ],
-      "ariaAttributes": [
-        {
-          "name": "aria-busy",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Accessibility attribute forwarded by the rendered component."
-        },
-        {
-          "name": "aria-label",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
-        }
-      ]
-    },
-    {
-      "name": "clear",
-      "description": "Button used to clear all selected values.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-label",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
-        }
-      ]
     },
     {
       "name": "tagsContainer",
@@ -324,13 +337,6 @@
     {
       "name": "tagOverflow",
       "description": "Counter shown when selected tags exceed the visible limit.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "empty",
-      "description": "Message shown when filtering leaves no selectable options.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
@@ -389,7 +395,7 @@
         "name": "disabled",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Whether the option is disabled."
+        "description": "Whether the option cannot be selected."
       },
       {
         "name": "icon",
@@ -410,10 +416,16 @@
         "description": "Label to display for the option, or the option group title."
       },
       {
+        "name": "leading",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Leading icon or adornment."
+      },
+      {
         "name": "value",
         "required": false,
         "type": "MultiSelectT.Value | undefined",
-        "description": "Value of the option."
+        "description": "Unique item value. Required for selectable options, omitted for group headings."
       }
     ]
   },
@@ -510,7 +522,7 @@
       {
         "name": "itemProps",
         "required": false,
-        "type": "((option: MultiSelectT.Item<TItem> & BaseSelectT.OptionRenderState) => ElementProps<HTMLDivElement> | undefined) | undefined",
+        "type": "((option: MultiSelectT.Item<TItem> & BaseSelectT.ItemState) => ElementProps<HTMLDivElement> | undefined) | undefined",
         "description": "Additional attributes for an option row."
       },
       {
@@ -584,7 +596,7 @@
         "name": "onScrollBottom",
         "required": false,
         "type": "(() => void) | undefined",
-        "description": "Called when the listbox is scrolled to bottom. Useful for infinite loading scenarios. Make sure to set `overflowPadding` and `scrollBottomThreshold` appropriately to ensure the callback is triggered at the right time."
+        "description": "Called when the listbox is scrolled to bottom. Useful for infinite loading scenarios."
       },
       {
         "name": "onSearch",
@@ -659,8 +671,8 @@
       {
         "name": "search",
         "required": false,
-        "type": "boolean | null | undefined",
-        "description": "Whether the control accepts searchable input.",
+        "type": "boolean & boolean | null | undefined",
+        "description": "Whether search filtering is enabled.",
         "defaultValue": "false"
       },
       {
