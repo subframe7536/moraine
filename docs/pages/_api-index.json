@@ -166,9 +166,18 @@
       "name": "Input",
       "category": "forms",
       "polymorphic": false,
-      "description": "Text input component with leading/trailing icon slots, loading state, and form field integration.",
+      "description": "Native text input with value modifiers and form field integration.",
       "sourcePath": "src/forms/input/input.tsx",
       "kind": "single"
+    },
+    {
+      "key": "input-group",
+      "name": "InputGroup",
+      "category": "forms",
+      "polymorphic": false,
+      "description": "Shared frame for one independently exported Input or Textarea and supporting content.",
+      "sourcePath": "src/forms/input-group/input-group.tsx",
+      "kind": "composite"
     },
     {
       "key": "input-number",

@@ -184,7 +184,7 @@ describe('scoped cn', () => {
     expect(screen.getByRole('textbox')).toBe(input)
     expect(document.querySelector<HTMLElement>('[role=dialog]')!).toBe(surface)
     expect(surface.className).toBe('p-2 p-4')
-    expect(input.parentElement?.className).toBe('p-2 p-4')
+    expect(input.className).toBe('p-2 p-4')
     expect(input.value).toBe('draft')
     expect(document.activeElement).toBe(input)
     expect([input.selectionStart, input.selectionEnd]).toEqual([1, 3])

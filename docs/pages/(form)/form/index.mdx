@@ -20,7 +20,7 @@ search:
     ]
 ---
 
-import { Button, createForm, Input, Select, Switch, Textarea } from '@src'
+import { Button, createForm, Input, Select, Switch, Textarea, InputGroup, Icon } from '@src'
 import { Show, createSignal, createComponent } from 'solid-js'
 import * as v from 'valibot'
 
@@ -49,7 +49,12 @@ export function NotificationForm() {
   return (
     <form.Form onSubmit={(output) => console.log(output)}>
       <form.Field name="email" label="Email Address">
-        <Input leading="i-lucide:mail" />
+        <InputGroup>
+          <InputGroup.Leading>
+            <Icon name="i-lucide:mail" />
+          </InputGroup.Leading>
+          <Input />
+        </InputGroup>
       </form.Field>
       <form.Field name="enabled" label="Enable Notifications">
         <Switch />
@@ -158,11 +163,10 @@ export function NotificationForm() {
                 },
                 get children() {
                   return (
-                    <Input
-                      placeholder="alex_dev"
-                      disabled={props.disabled}
-                      leading="i-lucide:user"
-                    />
+                    <InputGroup>
+                      <InputGroup.Leading><Icon name="i-lucide:user" /></InputGroup.Leading>
+                      <Input placeholder="alex_dev" disabled={props.disabled} />
+                    </InputGroup>
                   )
                 },
               }),

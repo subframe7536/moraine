@@ -1,4 +1,4 @@
-import { Button, createForm, Input } from '@src'
+import { Button, createForm, Input, InputGroup, Icon } from '@src'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 
@@ -21,7 +21,12 @@ export function FormIntegration() {
           description="We will send your verification link here."
           required
         >
-          <Input type="email" placeholder="alex@company.com" leading="i-lucide:mail" />
+          <InputGroup>
+            <InputGroup.Leading>
+              <Icon name="i-lucide:mail" />
+            </InputGroup.Leading>
+            <Input type="email" placeholder="alex@company.com" />
+          </InputGroup>
         </form.Field>
         <div class="flex gap-3 items-center">
           <Button type="submit" variant="secondary" size="sm">

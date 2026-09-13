@@ -59,9 +59,9 @@ const CONSUMER_CASES: ConsumerCase[] = [
     name: 'Input',
     bound: true,
     createControl: (required) => <Input required={required} />,
-    requiredSelector: 'input[data-slot="input"]',
-    requiredAriaSelector: 'input[data-slot="input"]',
-    labelledSelector: 'input[data-slot="input"]',
+    requiredSelector: 'input[data-slot="root"]',
+    requiredAriaSelector: 'input[data-slot="root"]',
+    labelledSelector: 'input[data-slot="root"]',
   },
   {
     name: 'Textarea',
@@ -327,7 +327,7 @@ describe('FormField', () => {
 
       const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
       const inputRoot = screen.container.querySelector('[data-slot="root"] [data-slot="root"]')
-      const input = screen.container.querySelector('[data-slot="input"]')
+      const input = screen.container.querySelector('input[data-slot="root"]')
       const description = screen.container.querySelector('[data-slot="description"]')
       const help = screen.container.querySelector('[data-slot="help"]')
 
@@ -749,9 +749,7 @@ describe('FormField', () => {
     expect(errorInput.getAttribute('aria-describedby')).toBe(errorMessage.id)
     expect(errorInput.getAttribute('aria-invalid')).toBe('true')
     expect(
-      errorScreen.container
-        .querySelector('[data-slot="input"]')
-        ?.parentElement?.getAttribute('data-invalid'),
+      errorScreen.container.querySelector('input[data-slot="root"]')?.getAttribute('data-invalid'),
     ).toBe('')
   })
 

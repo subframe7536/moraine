@@ -11,37 +11,16 @@
   "slots": [
     {
       "name": "root",
-      "description": "Textarea wrapper that owns header, textarea, footer, and autoresize state.",
+      "description": "Native textarea element.",
       "cssVariables": [],
       "dataAttributes": [
         {
-          "name": "data-focused",
+          "name": "data-autoresize",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the element holds keyboard focus."
+          "description": "State or slot attribute exposed for styling hooks and selectors."
         }
       ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "header",
-      "description": "Optional content rendered above the textarea.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "textarea",
-      "description": "Native textarea control used for multi-line text entry.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "footer",
-      "description": "Optional content rendered below the textarea.",
-      "cssVariables": [],
-      "dataAttributes": [],
       "ariaAttributes": []
     }
   ],
@@ -78,8 +57,8 @@
       {
         "name": "children",
         "required": false,
-        "type": "JSX.Element",
-        "description": "Children elements, rendered inside the root below the textarea."
+        "type": "never | undefined",
+        "description": "Native controls do not accept child content."
       },
       {
         "name": "class",
@@ -104,18 +83,6 @@
         "type": "boolean | undefined",
         "description": "Whether the input is disabled.",
         "defaultValue": "false"
-      },
-      {
-        "name": "footer",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Element to render below the textarea."
-      },
-      {
-        "name": "header",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Element to render above the textarea."
       },
       {
         "name": "id",
@@ -194,8 +161,8 @@
       {
         "name": "ref",
         "required": false,
-        "type": "Ref<HTMLDivElement> | undefined",
-        "description": "Optional inner textarea element ref."
+        "type": "Ref<HTMLTextAreaElement> | undefined",
+        "description": "Ref for the native textarea element."
       },
       {
         "name": "required",
@@ -227,12 +194,6 @@
         "name": "styles",
         "required": false,
         "type": "TextareaT.Styles | undefined"
-      },
-      {
-        "name": "textareaRef",
-        "required": false,
-        "type": "Ref<HTMLTextAreaElement> | undefined",
-        "description": "Ref for the editable textarea element."
       },
       {
         "name": "value",

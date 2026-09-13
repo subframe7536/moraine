@@ -1,0 +1,151 @@
+---
+title: InputGroup
+description: Compose icons, text, loading indicators, and actions around an independent Input or Textarea.
+sidebar:
+  order: 2
+search:
+  tags: [input group, prefix, suffix, textarea, loading, composer]
+---
+
+import { Icon, Input, InputGroup } from '@src'
+
+## Import
+
+```tsx
+import { Input, InputGroup, Textarea } from 'moraine'
+import type { InputGroupT } from 'moraine'
+```
+
+## Anatomy
+
+```text
+InputGroup (root)
+├── InputGroup.Leading (leading slot, repeat as needed)
+├── Input or Textarea (independent native control, root slot)
+└── InputGroup.Trailing (trailing slot, repeat as needed)
+```
+
+Place zero or more `Leading` parts first, then one `Input` or `Textarea`, then zero or more `Trailing` parts. `orientation` belongs to `InputGroup` and determines whether all parts sit beside or above/below the control. `Leading` and `Trailing` accept `compact` to remove the gap beside the control. Both parts accept ordinary JSX, including `Icon`, `Button`, and `Kbd`.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'orientation',
+      label: 'Orientation',
+      defaultValue: 'horizontal',
+      options: [
+        { label: 'Horizontal', value: 'horizontal' },
+        { label: 'Vertical', value: 'vertical' },
+      ],
+    },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'invalid', label: 'Invalid', defaultValue: false },
+  ]}
+>
+  {(props) => (
+    <InputGroup
+      class="max-w-md"
+      size={props.size}
+      orientation={props.orientation}
+      aria-label="Account name"
+    >
+      <InputGroup.Leading>
+        <Icon name="i-lucide:at-sign" />
+      </InputGroup.Leading>
+      <Input
+        id="account-name"
+        aria-label="Account name"
+        placeholder="your-name"
+        disabled={props.disabled}
+        aria-invalid={props.invalid}
+      />
+      <InputGroup.Trailing>@example.com</InputGroup.Trailing>
+    </InputGroup>
+  )}
+</Playground>
+
+## Direction and orientation
+
+`Leading` renders at the logical start when horizontal and above the control when vertical. `Trailing` renders at the logical end when horizontal and below the control when vertical. Horizontal positions follow the document's writing direction. Configure the orientation default or styles through `inputGroup.defaults.orientation` and `inputGroup.variants.orientation` in your theme.
+
+<Preview path="./alignment" />
+
+## Icon
+
+Place one or more icons in either horizontal part.
+
+<Preview path="./icons" />
+
+## Text
+
+Supporting content accepts plain text and JSX without a dedicated text component.
+
+<Preview path="./text" />
+
+## Button
+
+Use the existing `Button` component for copy, toggle, and submit actions. Keep each button's state and disabled behavior explicit.
+
+<Preview path="./actions" />
+
+## Kbd
+
+Use `Kbd` to show a shortcut without changing the input's keyboard behavior.
+
+<Preview path="./kbd" />
+
+## Dropdown
+
+`DropdownMenu.Trigger` can render as a button inside either horizontal part.
+
+<Preview path="./dropdown" />
+
+## Spinner
+
+Render a loading icon explicitly wherever progress needs to appear.
+
+<Preview path="./spinner" />
+
+## Textarea
+
+Set `orientation="vertical"` to form a toolbar and status bar around the independent `Textarea`.
+
+<Preview path="./textarea-editor" />
+
+## Auto-resize
+
+`Textarea` keeps its own value, ref, native attributes, and autoresize behavior. The same group can provide header and footer regions.
+
+<Preview path="./composer" />
+
+## RTL
+
+Horizontal Leading and Trailing positions follow the inherited `dir`; vertical positions remain above and below the control.
+
+<Preview path="./rtl" />
+
+## Styling and forms
+
+`InputGroup` owns the shared border, background, radius, and focus/invalid/disabled appearance. Set its `size` and `variant` to style the group. The native control's `variant` applies when it is outside a group.
+
+Size precedence is the control's explicit size, group size, FormField size, then theme defaults. `classes.leading`, `classes.trailing`, and their style equivalents set group-wide presentation; each part's `class` and `style` override it.
+
+Keep `name`, `value`, `onValueChange`, `required`, `disabled`, `readOnly`, and ARIA attributes on the control. InputGroup does not register a form field. Clicking non-interactive group space focuses the native control; buttons and links retain their own focus behavior.
+
+## Migration
+
+Replace the former Input `leading` and `trailing` shortcuts with `InputGroup.Leading` and `InputGroup.Trailing`. Replace Textarea `header` and `footer` with an `InputGroup orientation="vertical"`. Replace `loading` and `loadingIcon` with explicit conditional content. Move wrapper refs and styles to InputGroup; use the control's `ref` instead of `inputRef` or `textareaRef`. Input and Textarea each expose only a native `root` slot and do not accept children.

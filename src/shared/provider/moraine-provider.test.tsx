@@ -119,13 +119,13 @@ describe('MoraineProvider', () => {
       </MoraineProvider>
     ))
     const input = screen.getByRole('textbox') as HTMLInputElement
-    const root = input.parentElement
+    const root = input
     input.focus()
     input.value = 'draft'
     input.setSelectionRange(1, 3)
     setTheme(createTheme({ input: { base: { root: 'p-4' }, defaults: { size: 'lg' } } }))
     expect(screen.getByRole('textbox')).toBe(input)
-    expect(input.parentElement).toBe(root)
+    expect(input).toBe(root)
     expect(root?.className).toContain('p-4')
     expect(input.value).toBe('draft')
     expect(document.activeElement).toBe(input)

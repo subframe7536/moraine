@@ -1,0 +1,202 @@
+{
+  "component": {
+    "key": "input-group",
+    "name": "InputGroup",
+    "category": "forms",
+    "polymorphic": false,
+    "description": "Shared frame for one independently exported Input or Textarea and supporting content.",
+    "sourcePath": "src/forms/input-group/input-group.tsx",
+    "kind": "composite"
+  },
+  "slots": [
+    {
+      "name": "root",
+      "description": "Shared frame around one Input or Textarea and its supporting content.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-input-group",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        },
+        {
+          "name": "data-orientation",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation (horizontal or vertical)."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "leading",
+      "description": "Content at the logical start or above the control.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "trailing",
+      "description": "Content at the logical end or below the control.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    }
+  ],
+  "props": {
+    "own": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Place the control before supporting content in DOM order."
+      },
+      {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "InputGroupT.Classes | undefined"
+      },
+      {
+        "name": "orientation",
+        "required": false,
+        "type": "\"horizontal\" | \"vertical\" | undefined",
+        "description": "Axis shared by the group and its supporting parts.",
+        "defaultValue": "horizontal"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "SlotStyleValue | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "InputGroupT.Styles | undefined"
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "outline"
+      }
+    ],
+    "inherited": []
+  },
+  "primitives": [
+    {
+      "component": {
+        "key": "input-group-leading",
+        "name": "InputGroup.Leading",
+        "category": "forms",
+        "polymorphic": false,
+        "sourcePath": "src/forms/input-group/input-group-parts.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Icons, text, buttons, or other caller-owned content."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "compact",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Removes the padding between this part and the adjacent control.",
+            "defaultValue": "false"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "input-group-trailing",
+        "name": "InputGroup.Trailing",
+        "category": "forms",
+        "polymorphic": false,
+        "sourcePath": "src/forms/input-group/input-group-parts.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Icons, text, buttons, or other caller-owned content."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "compact",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Removes the padding between this part and the adjacent control.",
+            "defaultValue": "false"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    }
+  ]
+}

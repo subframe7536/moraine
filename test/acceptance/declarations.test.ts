@@ -35,7 +35,7 @@ describe('published declarations', () => {
     const input = namespace('InputT')
     expect(input).toContain('Omit<JSX.InputHTMLAttributes<HTMLInputElement>')
     expect(input).toContain('The delay in milliseconds before automatically focusing the input.')
-    expect(input).toContain('inputRef?: Ref<HTMLInputElement>')
+    expect(input).toContain('ref?: Ref<HTMLInputElement>')
     expect(input).toContain('onChange?: JSX.EventHandlerUnion<HTMLInputElement, Event>')
     expect(namespace('SelectT')).toContain('onChange?: (value: NoInfer<TItem | null>) => void')
     expect(namespace('SelectT')).toContain('options')

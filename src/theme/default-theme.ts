@@ -15,6 +15,7 @@ import { checkboxRecipe } from '../forms/checkbox/checkbox.class'
 import { fileUploadRecipe } from '../forms/file-upload/file-upload.class'
 import { formFieldRecipe } from '../forms/form/form-field.class'
 import { formRecipe } from '../forms/form/form.class'
+import { inputGroupRecipe } from '../forms/input-group/input-group.class.ts'
 import { inputNumberRecipe } from '../forms/input-number/input-number.class'
 import { inputRecipe } from '../forms/input/input.class'
 import { radioGroupRecipe } from '../forms/radio-group/radio-group.class'
@@ -59,6 +60,7 @@ export const defaultTheme: MoraineTheme = /* @__PURE__ */ Object.freeze({
   form: toThemeEntry(formRecipe),
   formField: toThemeEntry(formFieldRecipe),
   icon: toThemeEntry(iconRecipe),
+  inputGroup: toThemeEntry(inputGroupRecipe),
   input: toThemeEntry(inputRecipe),
   inputNumber: toThemeEntry(inputNumberRecipe),
   kbd: toThemeEntry(kbdRecipe),

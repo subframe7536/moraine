@@ -1,6 +1,6 @@
 import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render as baseRender } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
@@ -23,26 +23,18 @@ describe('Textarea', () => {
   test('renders unstyled when provider is absent', () => {
     const screen = baseRender(() => <Textarea />)
     const root = screen.container.querySelector('[data-slot="root"]')
-    const input = screen.container.querySelector('[data-slot="input"]')
+    const input = screen.container.querySelector('[data-slot="root"]')
     expect(root?.className).toBe('')
     expect(input?.className).toBe('')
   })
 
-  test('forwards root ref and inner textareaRef', () => {
-    let rootEl: HTMLDivElement | undefined
-    let textareaEl: HTMLTextAreaElement | undefined
-
-    render(() => (
-      <Textarea
-        ref={(el) => (rootEl = el)}
-        textareaRef={(el) => (textareaEl = el)}
-        placeholder="ref test"
-      />
-    ))
-
-    expect(rootEl).toBeInstanceOf(HTMLDivElement)
-    expect(textareaEl).toBeInstanceOf(HTMLTextAreaElement)
-    expect(textareaEl?.placeholder).toBe('ref test')
+  test('forwards ref to its only native element', () => {
+    let control: HTMLTextAreaElement | undefined
+    const screen = render(() => <Textarea ref={(el) => (control = el)} placeholder="ref test" />)
+    expect(control).toBeInstanceOf(HTMLTextAreaElement)
+    expect(screen.container.firstElementChild).toBe(control)
+    expect(control?.getAttribute('data-slot')).toBe('root')
+    expect(control?.placeholder).toBe('ref test')
   })
 
   test('renders base attributes', () => {
@@ -82,104 +74,9 @@ describe('Textarea', () => {
     ['lg', 'text-base', 'leading-6', 'px-2.5', 'py-2'],
   ] as const)('uses the input density scale for %s textareas', (size, ...classes) => {
     const screen = render(() => <Textarea size={size} />)
-    const textarea = screen.container.querySelector('[data-slot="input"]') as HTMLElement
+    const textarea = screen.container.querySelector('[data-slot="root"]') as HTMLElement
 
     classes.forEach((className) => expect(textarea.className).toContain(className))
-  })
-
-  test('keeps header and footer slots absent by default', () => {
-    const screen = render(() => <Textarea />)
-
-    expect(screen.container.querySelector('[data-slot="header"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="footer"]')).toBeNull()
-  })
-
-  test('renders header and footer slots in expected order', () => {
-    const screen = render(() => (
-      <Textarea
-        header={<span data-testid="header-content">Header</span>}
-        footer={<span data-testid="footer-content">Footer</span>}
-      >
-        <span data-testid="child-content">Child</span>
-      </Textarea>
-    ))
-
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const header = screen.container.querySelector('[data-slot="header"]') as HTMLElement | null
-    const base = screen.container.querySelector('textarea[data-slot="input"]') as HTMLElement | null
-    const child = screen.getByTestId('child-content')
-    const footer = screen.container.querySelector('[data-slot="footer"]') as HTMLElement | null
-
-    expect(root?.children[0]).toBe(header)
-    expect(root?.children[1]).toBe(base)
-    expect(root?.children[2]).toBe(child)
-    expect(root?.children[3]).toBe(footer)
-    expect(screen.getByTestId('header-content').textContent).toBe('Header')
-    expect(screen.getByTestId('footer-content').textContent).toBe('Footer')
-  })
-
-  test('focuses textarea when clicking non-interactive header or footer area', async () => {
-    const screen = render(() => (
-      <Textarea header={<span>Header content</span>} footer={<span>Footer content</span>} />
-    ))
-
-    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
-    const focusSpy = vi.spyOn(textarea, 'focus')
-
-    fireEvent.pointerDown(screen.getByText('Header content'), { button: 0 })
-    fireEvent.pointerDown(screen.getByText('Footer content'), { button: 0 })
-
-    expect(focusSpy).toHaveBeenCalledTimes(2)
-  })
-
-  test('does not steal focus from interactive header and footer controls', async () => {
-    const screen = render(() => (
-      <Textarea
-        header={
-          <button type="button" data-testid="header-button">
-            Header Action
-          </button>
-        }
-        footer={
-          <button type="button" data-testid="footer-button">
-            Footer Action
-          </button>
-        }
-      />
-    ))
-
-    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
-    const focusSpy = vi.spyOn(textarea, 'focus')
-
-    fireEvent.pointerDown(screen.getByTestId('header-button'), { button: 0 })
-    fireEvent.pointerDown(screen.getByTestId('footer-button'), { button: 0 })
-
-    expect(focusSpy).toHaveBeenCalledTimes(0)
-  })
-
-  test('shows root focus state only while the textarea is focused', () => {
-    const screen = render(() => (
-      <Textarea
-        header={<button type="button">Header Action</button>}
-        footer={<button type="button">Footer Action</button>}
-      >
-        <button type="button">Child Action</button>
-      </Textarea>
-    ))
-
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
-    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
-    const controls = screen.getAllByRole('button') as HTMLButtonElement[]
-
-    expect(root.getAttribute('data-focused')).toBeNull()
-
-    for (const control of controls) {
-      textarea.focus()
-      expect(root.getAttribute('data-focused')).toBe('')
-
-      control.focus()
-      expect(root.getAttribute('data-focused')).toBeNull()
-    }
   })
 
   test('applies trim, number, lazy and empty value strategy modifiers', async () => {
@@ -296,8 +193,7 @@ describe('Textarea', () => {
     const screen = render(() => <Textarea classes={{ root: 'root-override' }} />)
     const root = screen.container.querySelector('[data-slot="root"]')
 
-    expect(root?.className).toContain('data-focused:ring-ring/50')
-    expect(root?.className).not.toContain('focus-within:ring-ring/50')
+    expect(root?.className).toContain('focus:ring-ring/50')
     expect(root?.className).toContain('data-invalid:border-destructive')
     expect(root?.className).toContain('root-override')
   })
@@ -307,36 +203,6 @@ describe('Textarea', () => {
     const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
 
     expect(root?.style.width).toBe('200px')
-  })
-
-  test('applies classes.header and classes.footer overrides', () => {
-    const screen = render(() => (
-      <Textarea
-        header={<span>Header</span>}
-        footer={<span>Footer</span>}
-        classes={{ header: 'header-override', footer: 'footer-override' }}
-      />
-    ))
-    const header = screen.container.querySelector('[data-slot="header"]')
-    const footer = screen.container.querySelector('[data-slot="footer"]')
-
-    expect(header?.className).toContain('header-override')
-    expect(footer?.className).toContain('footer-override')
-  })
-
-  test('applies styles.header and styles.footer overrides', () => {
-    const screen = render(() => (
-      <Textarea
-        header={<span>Header</span>}
-        footer={<span>Footer</span>}
-        styles={{ header: { width: '200px' }, footer: { width: '200px' } }}
-      />
-    ))
-    const header = screen.container.querySelector('[data-slot="header"]') as HTMLElement | null
-    const footer = screen.container.querySelector('[data-slot="footer"]') as HTMLElement | null
-
-    expect(header?.style.width).toBe('200px')
-    expect(footer?.style.width).toBe('200px')
   })
 
   test('keeps the DOM and FormField aligned when a controlled edit is rejected', async () => {
@@ -440,33 +306,5 @@ describe('Textarea', () => {
 
     expect(focus).not.toHaveBeenCalled()
     expect(getComputedStyle).not.toHaveBeenCalled()
-  })
-
-  test('single-evaluates conditional slots, children, and modifier config', () => {
-    const reads = { children: 0, footer: 0, header: 0, modelModifiers: 0 }
-    const screen = render(() =>
-      createComponent(Textarea, {
-        get children() {
-          reads.children += 1
-          return <span>Child</span>
-        },
-        get footer() {
-          reads.footer += 1
-          return 0
-        },
-        get header() {
-          reads.header += 1
-          return 0
-        },
-        get modelModifiers() {
-          reads.modelModifiers += 1
-          return { trim: true }
-        },
-      }),
-    )
-
-    expect(screen.getAllByText('0')).toHaveLength(2)
-    expect(screen.getByText('Child')).not.toBeNull()
-    expect(reads).toEqual({ children: 1, footer: 1, header: 1, modelModifiers: 1 })
   })
 })

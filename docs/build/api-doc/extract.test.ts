@@ -144,6 +144,23 @@ export interface DemoProps { title: string }
     expect(
       result?.componentDocs.get('collapsible')?.primitives?.map((doc) => doc.component.name),
     ).toEqual(['Collapsible.Trigger', 'Collapsible.Content'])
+    expect(result?.componentDocs.get('input')?.slots.map((slot) => slot.name)).toEqual(['root'])
+    expect(result?.componentDocs.get('textarea')?.slots.map((slot) => slot.name)).toEqual(['root'])
+    const inputGroup = result?.componentDocs.get('input-group')
+    expect(inputGroup?.slots.map((slot) => slot.name)).toEqual(['root', 'leading', 'trailing'])
+    expect(inputGroup?.props.own.find((prop) => prop.name === 'orientation')?.defaultValue).toBe(
+      'horizontal',
+    )
+    expect(inputGroup?.primitives?.map((doc) => doc.component.name)).toEqual([
+      'InputGroup.Leading',
+      'InputGroup.Trailing',
+    ])
+    for (const primitive of inputGroup?.primitives ?? []) {
+      expect(primitive.props.own.find((prop) => prop.name === 'orientation')).toBeUndefined()
+      expect(primitive.props.own.find((prop) => prop.name === 'compact')?.defaultValue).toBe(
+        'false',
+      )
+    }
     expect(result?.componentDocs.get('form')?.component.kind).toBe('single')
     expect(resultProps(result, 'form').map((prop) => prop.name)).toContain('onSubmit')
     expect(result?.componentDocs.get('form')?.primitives?.[0]?.component.name).toBe('form.Field')
@@ -154,6 +171,7 @@ export interface DemoProps { title: string }
       await readFile(path.join(projectRoot, 'docs/pages/_api-index.json'), 'utf8'),
     ) as IndexDoc
     const composites = new Set([
+      'input-group',
       'collapsible',
       'resizable',
       'sidebar-frame',

@@ -49,13 +49,13 @@ Lowercase event aliases and Solid directive prefixes are excluded from ordinary 
 
 ### Input and Textarea native ownership
 
-Native attributes such as `form`, `list`, `enterkeyhint`, and `aria-label`, together with clipboard, composition, keyboard, and validation handlers, go to the editable element. Root `class`, `style`, and `ref` belong to the wrapper. Use `inputRef` or `textareaRef` for a native control ref.
+Native attributes such as `form`, `list`, `enterkeyhint`, and `aria-label`, together with clipboard, composition, keyboard, and validation handlers, go to the editable element. `class`, `style`, and `ref` also target the native control. Use `InputGroup` for a shared wrapper with leading and trailing content.
 
 ```tsx
 <Input
   form="checkout"
   list="cities"
-  inputRef={(input) => input.select()}
+  ref={(input) => input.select()}
   onChange={(event) => console.log(event.currentTarget.value)}
   onValueChange={(value) => console.log(value)}
 />

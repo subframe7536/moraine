@@ -1,4 +1,4 @@
-import { Button, Icon, Input } from '@src'
+import { Button, Icon, Input, InputGroup } from '@src'
 import { createSignal } from 'solid-js'
 
 export function ComposedControls() {
@@ -6,11 +6,12 @@ export function ComposedControls() {
 
   return (
     <div class="max-w-md w-full space-y-4">
-      <Input
-        type={showPassword() ? 'text' : 'password'}
-        placeholder="Enter secret token"
-        leading="i-lucide:key-round"
-        trailing={
+      <InputGroup>
+        <InputGroup.Leading>
+          <Icon name="i-lucide:key-round" />
+        </InputGroup.Leading>
+        <Input type={showPassword() ? 'text' : 'password'} placeholder="Enter secret token" />
+        <InputGroup.Trailing>
           <Button
             variant="ghost"
             size="icon-xs"
@@ -19,8 +20,8 @@ export function ComposedControls() {
           >
             <Icon name={showPassword() ? 'i-lucide:eye-off' : 'i-lucide:eye'} />
           </Button>
-        }
-      />
+        </InputGroup.Trailing>
+      </InputGroup>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { getInput, setInput } from '@formisch/solid'
 import { fireEvent, render as baseRender } from '@solidjs/testing-library'
-import { createComponent, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -21,18 +21,13 @@ describe('Input', () => {
     expect(root?.className).toBe('')
   })
 
-  test('forwards root ref and inner inputRef', () => {
-    let rootEl: HTMLDivElement | undefined
-    let inputEl: HTMLInputElement | undefined
-
-    render(() => (
-      <Input ref={(el) => (rootEl = el)} inputRef={(el) => (inputEl = el)} placeholder="ref test" />
-    ))
-
-    expect(rootEl).toBeInstanceOf(HTMLDivElement)
-    expect(rootEl?.getAttribute('data-slot')).toBe('root')
-    expect(inputEl).toBeInstanceOf(HTMLInputElement)
-    expect(inputEl?.placeholder).toBe('ref test')
+  test('forwards ref to its only native element', () => {
+    let control: HTMLInputElement | undefined
+    const screen = render(() => <Input ref={(el) => (control = el)} placeholder="ref test" />)
+    expect(control).toBeInstanceOf(HTMLInputElement)
+    expect(screen.container.firstElementChild).toBe(control)
+    expect(control?.getAttribute('data-slot')).toBe('root')
+    expect(control?.placeholder).toBe('ref test')
   })
 
   test('renders base attributes', () => {
@@ -112,108 +107,6 @@ describe('Input', () => {
         expect(inputClasses[index]).toContain(className)
       })
     })
-  })
-
-  test('lets icons inherit the input font size', () => {
-    const screen = render(() => (
-      <>
-        <Input size="sm" leading="icon-search" />
-        <Input size="md" leading="icon-search" />
-        <Input size="lg" leading="icon-search" />
-      </>
-    ))
-
-    const icons = Array.from(
-      screen.container.querySelectorAll('[data-slot="leading"] [data-slot="icon"]'),
-    )
-
-    icons.forEach((icon) => {
-      expect(icon.className).not.toMatch(/(?:^|\s)size-/)
-      expect(icon.getAttribute('style')).toBeNull()
-    })
-  })
-
-  test('renders leading and trailing slots through Icon', () => {
-    const screen = render(() => (
-      <>
-        <Input leading="i-lucide-search" trailing="i-lucide-at-sign" />
-        <Input
-          leading={<span data-testid="leading-node">L</span>}
-          trailing={<span data-testid="trailing-node">T</span>}
-        />
-      </>
-    ))
-
-    const leadingIcon = screen.container.querySelector('[data-slot="leading"] [data-slot="icon"]')
-    const trailingIcon = screen.container.querySelector('[data-slot="trailing"] [data-slot="icon"]')
-
-    expect(leadingIcon?.className).toContain('i-lucide-search')
-    expect(trailingIcon?.className).toContain('i-lucide-at-sign')
-    expect(leadingIcon?.getAttribute('aria-hidden')).toBe('true')
-    expect(trailingIcon?.getAttribute('aria-hidden')).toBe('true')
-    expect(screen.getByTestId('leading-node').textContent).toBe('L')
-    expect(screen.getByTestId('trailing-node').textContent).toBe('T')
-    expect(screen.container.querySelector('[data-slot="leadingIcon"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="trailingIcon"]')).toBeNull()
-  })
-
-  test('keeps interactive custom adornments accessible and clickable', () => {
-    const onClick = vi.fn()
-    const screen = render(() => (
-      <Input
-        leading={<button type="button" aria-label="Choose prefix" onClick={onClick} />}
-        trailing={<button type="button" aria-label="Toggle value" onClick={onClick} />}
-      />
-    ))
-
-    const button = screen.getByRole('button', { name: 'Toggle value' })
-
-    expect(button.getAttribute('aria-hidden')).toBeNull()
-    fireEvent.click(button)
-    expect(onClick).toHaveBeenCalledTimes(1)
-  })
-
-  test('applies loading icon override rules for leading and trailing slots', () => {
-    const screen = render(() => (
-      <>
-        <Input loading />
-        <Input loading trailing="i-lucide-at-sign" />
-        <Input loading leading="i-lucide-user" trailing="i-lucide-mail" />
-      </>
-    ))
-
-    const roots = screen.container.querySelectorAll('[data-slot="root"]')
-
-    const firstLeading = roots[0]?.querySelector(
-      '[data-slot="leading"] [data-slot="icon"]',
-    ) as HTMLElement | null
-    const secondTrailing = roots[1]?.querySelector(
-      '[data-slot="trailing"] [data-slot="icon"]',
-    ) as HTMLElement | null
-    const thirdLeading = roots[2]?.querySelector(
-      '[data-slot="leading"] [data-slot="icon"]',
-    ) as HTMLElement | null
-    const thirdTrailing = roots[2]?.querySelector(
-      '[data-slot="trailing"] [data-slot="icon"]',
-    ) as HTMLElement | null
-
-    expect(firstLeading?.className).toContain('icon-loading')
-    expect(firstLeading?.hasAttribute('data-loading')).toBe(true)
-    expect(roots[0]?.querySelector('[data-slot="trailing"]')).toBeNull()
-
-    expect(secondTrailing?.className).toContain('icon-loading')
-    expect(secondTrailing?.hasAttribute('data-loading')).toBe(true)
-    expect(secondTrailing?.className).not.toContain('i-lucide-at-sign')
-    expect(roots[1]?.querySelector('[data-slot="leading"]')).toBeNull()
-
-    expect(thirdLeading?.className).toContain('icon-loading')
-    expect(thirdLeading?.hasAttribute('data-loading')).toBe(true)
-    expect(thirdLeading?.className).not.toContain('i-lucide-user')
-    expect(thirdTrailing?.className).toContain('i-lucide-mail')
-    expect(thirdTrailing?.hasAttribute('data-loading')).toBe(false)
-
-    expect(screen.container.querySelector('[data-slot="leadingIcon"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="trailingIcon"]')).toBeNull()
   })
 
   test('applies trim modifier', async () => {
@@ -405,37 +298,6 @@ describe('Input', () => {
     expect(input.value).toBe('Accepted')
   })
 
-  test('focuses from wrapper text without stealing nested interactive pointers', async () => {
-    const screen = render(() => (
-      <Input>
-        <span data-testid="plain-text">Text</span>
-        <button type="button" data-testid="nested-button">
-          Button
-        </button>
-        <a href="#target" data-testid="nested-link">
-          Link
-        </a>
-        <input data-testid="nested-input" />
-      </Input>
-    ))
-    const root = screen.container.querySelector('[data-slot="root"]')!
-    const input = screen.container.querySelector('[data-slot="input"]') as HTMLInputElement
-    const focus = vi.spyOn(input, 'focus')
-
-    fireEvent.pointerDown(root, { button: 0 })
-    fireEvent.pointerDown(screen.getByTestId('plain-text'), { button: 0 })
-    expect(focus).toHaveBeenCalledTimes(2)
-
-    fireEvent.pointerDown(input, { button: 0 })
-
-    for (const testId of ['nested-button', 'nested-link', 'nested-input']) {
-      fireEvent.pointerDown(screen.getByTestId(testId), { button: 0 })
-    }
-    fireEvent.pointerDown(root, { button: 1 })
-
-    expect(focus).toHaveBeenCalledTimes(2)
-  })
-
   test('cancels delayed autofocus on unmount and rechecks disabled state', () => {
     vi.useFakeTimers()
 
@@ -586,44 +448,6 @@ describe('Input', () => {
     expect(onValueChange).not.toHaveBeenCalled()
   })
 
-  test('single-evaluates conditional slots, children, and modifier config', () => {
-    const reads = { children: 0, leading: 0, loadingIcon: 0, modelModifiers: 0, trailing: 0 }
-    const screen = render(() =>
-      createComponent(Input, {
-        loading: true,
-        get leading() {
-          reads.leading += 1
-          return 'i-lucide-search'
-        },
-        get trailing() {
-          reads.trailing += 1
-          return 'i-lucide-at-sign'
-        },
-        get loadingIcon() {
-          reads.loadingIcon += 1
-          return 'icon-loading'
-        },
-        get modelModifiers() {
-          reads.modelModifiers += 1
-          return { trim: true }
-        },
-        get children() {
-          reads.children += 1
-          return <button type="button">Action</button>
-        },
-      }),
-    )
-
-    expect(screen.getByRole('button', { name: 'Action' })).not.toBeNull()
-    expect(reads).toEqual({
-      children: 1,
-      leading: 1,
-      loadingIcon: 1,
-      modelModifiers: 1,
-      trailing: 1,
-    })
-  })
-
   test('uses the latest reactive modifier configuration', async () => {
     const [number, setNumber] = createSignal(false)
     const onValueChange = vi.fn()
@@ -650,9 +474,9 @@ describe('Input', () => {
     const screen = render(() => <Input classes={{ root: 'root-override' }} />)
     const root = screen.container.querySelector('[data-slot="root"]')
 
-    expect(root?.className).toContain('focus-within:ring-ring/50')
+    expect(root?.className).toContain('focus:ring-ring/50')
     expect(root?.className).toContain('data-invalid:border-destructive')
-    expect(root?.className).toContain('focus-within:data-invalid:border-destructive')
+    expect(root?.className).toContain('focus:data-invalid:border-destructive')
     expect(root?.className).toContain('root-override')
   })
 

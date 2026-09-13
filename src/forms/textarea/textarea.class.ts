@@ -1,46 +1,56 @@
-import { INPUT_VARIANT } from '../../shared/recipe-common.class'
-import { slotRecipe } from '../../shared/style/recipe'
+import { slotRecipe } from '../../shared/style/recipe.ts'
+import {
+  TEXT_CONTROL_CLASS,
+  TEXT_CONTROL_GROUPED,
+  TEXT_CONTROL_VARIANT,
+} from '../shared/text-control.class.ts'
+import type { TextControlStyleVariant } from '../shared/text-control.class.ts'
 
-import type { TextareaT } from './textarea.types'
+import type { TextareaT } from './textarea.types.ts'
 
-export const textareaRecipe = /* @__PURE__ */ slotRecipe<TextareaT.Slot, TextareaT.Variant>({
-  base: {
-    root: 'rounded-md flex flex-col w-full transition-[colors,box-shadow] overflow-hidden data-focused:(outline-none border-ring ring-3 ring-ring/50) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:data-invalid:(border-destructive/50 ring-destructive/40) data-disabled:(opacity-64 pointer-events-none) data-focused:data-invalid:(border-destructive ring-3 ring-destructive/20) dark:data-focused:data-invalid:(border-destructive/50 ring-destructive/40)',
-    header: 'text-muted-foreground font-medium flex gap-2 w-full items-center',
-    textarea:
-      'text-foreground outline-none bg-transparent flex-1 min-w-0 placeholder:text-muted-foreground resize-y data-autoresize:resize-none',
-    footer: 'text-muted-foreground font-medium flex gap-2 w-full items-center',
-  },
-  defaults: {
-    size: 'md',
-    variant: 'outline',
-  },
+type TextareaStyleVariant = TextareaT.Variant & TextControlStyleVariant
+
+export const textareaRecipe = /* @__PURE__ */ slotRecipe<TextareaT.Slot, TextareaStyleVariant>({
+  base: { root: `${TEXT_CONTROL_CLASS} rounded-md resize-y data-autoresize:resize-none` },
+  defaults: { size: 'md', variant: 'outline', grouped: false },
   variants: {
     size: {
-      sm: {
-        root: 'text-xs',
-        textarea: 'text-xs leading-4 px-1.5 py-1 min-h-14',
-        header: 'text-xs px-2.5 pb-1 pt-2',
-        footer: 'text-xs p-1.5',
-      },
-      md: {
-        root: 'text-sm',
-        textarea: 'text-sm leading-5 px-2 py-1.5 min-h-16',
-        header: 'text-sm px-2.5 pb-1.5 pt-2',
-        footer: 'text-sm p-1.5',
-      },
-      lg: {
-        root: 'text-base',
-        textarea: 'text-base leading-6 px-2.5 py-2 min-h-18',
-        header: 'text-sm px-3 pb-1.5 pt-2.5',
-        footer: 'text-sm p-2',
-      },
+      sm: { root: 'text-xs leading-4 px-1.5 py-1 min-h-14' },
+      md: { root: 'text-sm leading-5 px-2 py-1.5 min-h-16' },
+      lg: { root: 'text-base leading-6 px-2.5 py-2 min-h-18' },
     },
-    variant: {
-      outline: { root: INPUT_VARIANT.outline },
-      subtle: { root: INPUT_VARIANT.subtle },
-      ghost: { root: INPUT_VARIANT.ghost },
-      none: { root: INPUT_VARIANT.none },
-    },
+    variant: { outline: {}, subtle: {}, ghost: {}, none: {} },
+    grouped: TEXT_CONTROL_GROUPED,
+    groupedOrientation: { horizontal: {}, vertical: {} },
   },
+  compoundVariants: [
+    { variants: { grouped: false, variant: 'outline' }, ...TEXT_CONTROL_VARIANT.outline },
+    { variants: { grouped: false, variant: 'subtle' }, ...TEXT_CONTROL_VARIANT.subtle },
+    { variants: { grouped: false, variant: 'ghost' }, ...TEXT_CONTROL_VARIANT.ghost },
+    { variants: { grouped: false, variant: 'none' }, ...TEXT_CONTROL_VARIANT.none },
+    {
+      variants: { grouped: true, groupedOrientation: 'horizontal', size: 'sm' },
+      root: 'ps-0 pe-0 first:ps-1.5 last:pe-1.5',
+    },
+    {
+      variants: { grouped: true, groupedOrientation: 'horizontal', size: 'md' },
+      root: 'ps-0 pe-0 first:ps-2 last:pe-2',
+    },
+    {
+      variants: { grouped: true, groupedOrientation: 'horizontal', size: 'lg' },
+      root: 'ps-0 pe-0 first:ps-2.5 last:pe-2.5',
+    },
+    {
+      variants: { grouped: true, groupedOrientation: 'vertical', size: 'sm' },
+      root: 'flex-none w-full pt-0 pb-0 first:pt-1 last:pb-1',
+    },
+    {
+      variants: { grouped: true, groupedOrientation: 'vertical', size: 'md' },
+      root: 'flex-none w-full pt-0 pb-0 first:pt-1.5 last:pb-1.5',
+    },
+    {
+      variants: { grouped: true, groupedOrientation: 'vertical', size: 'lg' },
+      root: 'flex-none w-full pt-0 pb-0 first:pt-2 last:pb-2',
+    },
+  ],
 })

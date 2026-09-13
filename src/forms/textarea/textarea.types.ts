@@ -1,14 +1,14 @@
 import type { JSX, Ref } from 'solid-js'
 
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options'
+} from '../shared/form-options.ts'
 
 export namespace TextareaT {
   export type Kind = 'single'
@@ -16,19 +16,8 @@ export namespace TextareaT {
   export type Value = string | number | undefined
 
   export interface Slot<T = unknown> {
-    /**
-     * Textarea wrapper that owns header, textarea, footer, and autoresize state.
-     */
+    /** Native textarea element. */
     root?: T
-
-    /** Optional content rendered above the textarea. */
-    header?: T
-
-    /** Native textarea control used for multi-line text entry. */
-    textarea?: T
-
-    /** Optional content rendered below the textarea. */
-    footer?: T
   }
 
   export interface Variant {
@@ -61,6 +50,9 @@ export namespace TextareaT {
       FormRequiredOption,
       FormReadOnlyOption,
       FormDisableOption {
+    /** Native controls do not accept child content. */
+    children?: never
+
     /**
      * Placeholder text for the textarea.
      */
@@ -108,27 +100,14 @@ export namespace TextareaT {
     maxRows?: number
 
     /**
-     * Element to render above the textarea.
-     */
-    header?: JSX.Element
-
-    /**
-     * Element to render below the textarea.
-     */
-    footer?: JSX.Element
-
-    /**
      * Modifiers for input processing (e.g., lazy, trim, number).
      */
     modelModifiers?: M
 
     /**
-     * Optional inner textarea element ref.
+     * Ref for the native textarea element.
      */
-    ref?: Ref<HTMLDivElement>
-
-    /** Ref for the editable textarea element. */
-    textareaRef?: Ref<HTMLTextAreaElement>
+    ref?: Ref<HTMLTextAreaElement>
 
     /**
      * Callback when the textarea value changes during input.
@@ -154,11 +133,6 @@ export namespace TextareaT {
      * Native focus event handler.
      */
     onFocus?: JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>
-
-    /**
-     * Children elements, rendered inside the root below the textarea.
-     */
-    children?: JSX.Element
   }
 
   /**

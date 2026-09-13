@@ -9,6 +9,7 @@ import {
   DropdownMenu,
   Icon,
   Input,
+  InputGroup,
   MultiSelect,
   Textarea,
   Select,
@@ -30,6 +31,9 @@ import {
 } from 'moraine'
 import type {
   SliderT,
+  InputT,
+  TextareaT,
+  InputGroupT,
   Cn,
   CnConfig,
   AvatarGroupT,
@@ -281,15 +285,14 @@ createTheme({
   form="checkout"
   list="cities"
   enterkeyhint="next"
-  ref={(element) => element.align}
-  inputRef={(element) => element.select()}
+  ref={(element) => element.select()}
   onChange={(event) => event.currentTarget.select()}
   onPaste={(event) => event.currentTarget.checkValidity()}
 />
 ;<Textarea
   form="checkout"
   wrap="soft"
-  textareaRef={(element) => element.rows}
+  ref={(element) => element.rows}
   onChange={(event) => event.currentTarget.rows}
   onValueChange={(value) => {
     const text: string = value
@@ -352,3 +355,64 @@ slotRecipe<SliderT.Slot, SliderT.Variant>({
   // @ts-expect-error Custom property names must start with --.
   base: { size: '4px' },
 })
+
+export type NativeTextSlots = [
+  Assert<'orientation' extends keyof InputGroupT.Variant ? true : false>,
+  Assert<'orientation' extends keyof InputGroupT.PartVariant ? false : true>,
+  Assert<'compact' extends keyof InputGroupT.PartVariant ? true : false>,
+  Assert<'align' extends keyof InputGroupT.PartVariant ? false : true>,
+  Assert<'orientation' extends keyof InputGroupT.PartBase ? false : true>,
+  Assert<keyof InputT.Slot extends 'root' ? true : false>,
+  Assert<keyof TextareaT.Slot extends 'root' ? true : false>,
+  Assert<InputGroupT.Kind extends 'composite' ? true : false>,
+]
+
+;<Input
+  ref={(element) => {
+    const input: HTMLInputElement = element
+    void input
+  }}
+/>
+;<Textarea
+  ref={(element) => {
+    const textarea: HTMLTextAreaElement = element
+    void textarea
+  }}
+/>
+;<InputGroup orientation="vertical">
+  <InputGroup.Leading compact>Header</InputGroup.Leading>
+  <Input />
+  <InputGroup.Trailing>Suffix</InputGroup.Trailing>
+</InputGroup>
+// @ts-expect-error Input has no adornment shortcuts.
+;<Input leading="icon-search" />
+// @ts-expect-error Loading is composed explicitly in InputGroup.Leading.
+;<Input loading loadingIcon="icon-loading" />
+// @ts-expect-error Native refs use ref.
+;<Input inputRef={() => undefined} />
+// @ts-expect-error Textarea has no header shortcut.
+;<Textarea header="Header" />
+// @ts-expect-error Native refs use ref.
+;<Textarea textareaRef={() => undefined} />
+// @ts-expect-error Native controls do not accept addon children.
+;<Input children={<span>Addon</span>} />
+// @ts-expect-error Native controls do not accept addon children.
+;<Textarea children={<span>Addon</span>} />
+// @ts-expect-error Group membership is derived from InputGroup context.
+;<Input grouped />
+// @ts-expect-error Group membership is derived from InputGroup context.
+;<Textarea grouped />
+// @ts-expect-error Input only has a root slot.
+;<Input classes={{ input: 'p-2' }} />
+// @ts-expect-error Textarea only has a root slot.
+;<Textarea styles={{ footer: { color: 'red' } }} />
+// @ts-expect-error Controls remain independently exported.
+;<InputGroup.Input />
+// @ts-expect-error The removed Addon API has no compatibility layer.
+;<InputGroup.Addon />
+// @ts-expect-error Position comes from the component and orientation.
+;<InputGroup.Leading align="left" />
+// @ts-expect-error Orientation belongs to InputGroup, not a part.
+;<InputGroup.Trailing orientation="vertical" />
+// @ts-expect-error Orientation supports the two layout axes only.
+;<InputGroup orientation="inline" />

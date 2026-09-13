@@ -1,6 +1,6 @@
 ---
 title: Input
-description: A text input with leading and trailing adornments, loading indication, model modifiers, and FormField integration.
+description: A native text input with model modifiers, visual variants, and FormField integration.
 sidebar:
   order: 3
 search:
@@ -18,10 +18,8 @@ import type { InputT } from 'moraine'
 
 ## Features
 
-- **Leading & Trailing Adornments**: Render icon names or custom content before or after the native input.
 - **Visual Variants**: Supports `outline`, `subtle`, `ghost`, and `none` styling modes.
-- **Loading Indicator**: `loading` replaces one adornment position with `loadingIcon`; it does not manage an asynchronous operation itself.
-- **Composable Actions**: Add password visibility, clear, copy, or shortcut controls as caller-owned children or adjacent controls when needed.
+- **Composable Actions**: Use [InputGroup](/input-group) and its Leading and Trailing parts to place icons, loading indicators, text, and buttons around the input.
 - **FormField Integration**: Inherits field identity and state and applies generated validation/accessibility metadata to the native input.
 - **Model Modifiers**: Supports value modifiers such as `trim`, `lazy`, and `number` through `modelModifiers`.
 
@@ -59,7 +57,6 @@ import type { InputT } from 'moraine'
       ],
     },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
   ]}
 >
   {(props) => (
@@ -68,8 +65,6 @@ import type { InputT } from 'moraine'
       variant={props.variant}
       size={props.size}
       disabled={props.disabled}
-      loading={props.loading}
-      leading="i-lucide:search"
     />
   )}
 </Playground>
@@ -77,16 +72,10 @@ import type { InputT } from 'moraine'
 ## Anatomy
 
 ```text
-root
-├── leading (optional)
-├── input (native <input>)
-├── children (optional caller content)
-└── trailing (optional)
+root (native <input>)
 ```
 
-- `root`: Styled wrapper; pointer interaction on non-interactive wrapper space focuses the input.
-- `input`: Native form control that owns text entry and focus.
-- `leading` / `trailing`: Adornment slots; a loading icon can replace one of them.
+`ref`, `class`, `style`, `classes.root`, and `styles.root` target the native input. Put container styling and refs on `InputGroup` when composing supporting content.
 
 ## Usage
 
@@ -98,7 +87,7 @@ root
 
 ### Composed controls
 
-Use leading and trailing content for static context such as an icon or unit. Password visibility, clearing, copying, and loading ownership remain application behavior: compose buttons into the slots and provide their labels and handlers.
+Use `InputGroup.Leading` and `InputGroup.Trailing` for static context such as an icon or unit. Password visibility, clearing, copying, and loading remain application behavior: compose buttons and icons into these parts and provide their labels and handlers.
 
 <Preview path="./composed-controls" />
 

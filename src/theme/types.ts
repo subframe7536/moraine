@@ -15,9 +15,11 @@ import type { CheckboxGroupT } from '../forms/checkbox-group'
 import type { FileUploadT } from '../forms/file-upload'
 import type { FormFieldT, FormT } from '../forms/form'
 import type { InputT } from '../forms/input'
+import type { InputGroupT } from '../forms/input-group/index.ts'
 import type { InputNumberT } from '../forms/input-number'
 import type { RadioGroupT } from '../forms/radio-group'
 import type { MultiSelectT, SelectT } from '../forms/select'
+import type { TextControlStyleVariant } from '../forms/shared/text-control.class.ts'
 import type { SliderT } from '../forms/slider'
 import type { SwitchT } from '../forms/switch'
 import type { TextareaT } from '../forms/textarea'
@@ -57,7 +59,8 @@ export interface MoraineThemeSchema {
   form: { slots: FormT.Slot; variants: FormT.Variant }
   formField: { slots: FormFieldT.Slot; variants: FormFieldT.Variant }
   icon: { slots: IconT.Slot; variants: IconT.Variant }
-  input: { slots: InputT.Slot; variants: InputT.Variant }
+  inputGroup: { slots: InputGroupT.Slot; variants: InputGroupT.Variant & InputGroupT.PartVariant }
+  input: { slots: InputT.Slot; variants: InputT.Variant & TextControlStyleVariant }
   inputNumber: { slots: InputNumberT.Slot; variants: InputNumberT.Variant }
   kbd: { slots: KbdT.Slot; variants: KbdT.Variant }
   kbdGroup: { slots: KbdGroupT.Slot; variants: KbdGroupT.Variant }
@@ -76,7 +79,7 @@ export interface MoraineThemeSchema {
   stepper: { slots: StepperT.Slot; variants: StepperT.Variant }
   switch: { slots: SwitchT.Slot; variants: SwitchT.Variant }
   tabs: { slots: TabsT.Slot; variants: TabsT.Variant }
-  textarea: { slots: TextareaT.Slot; variants: TextareaT.Variant }
+  textarea: { slots: TextareaT.Slot; variants: TextareaT.Variant & TextControlStyleVariant }
   tooltip: { slots: TooltipT.Slot; variants: TooltipT.Variant }
 }
 

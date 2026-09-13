@@ -1,27 +1,23 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
+import { createMemo, mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
 
-import type { IconT } from '../../elements/icon'
-import { Icon } from '../../elements/icon'
-import type { ModelModifiers } from '../../shared/input-modifiers'
-import { createComponentStyles } from '../../shared/provider'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import { callHandler, callRef, useId } from '../../shared/utils'
-import { useFormField, useFormFieldContext } from '../form/form-context'
-import { isInteractiveTarget } from '../shared/is-interactive-target'
-import { mergeAriaTokens } from '../shared/merge-aria-tokens'
-import { useFormReset } from '../shared/use-form-reset'
-import { useTextControlValue } from '../shared/use-text-control-value'
+import type { ModelModifiers } from '../../shared/input-modifiers.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
+import { useFormField, useFormFieldContext } from '../form/form-context.ts'
+import { useInputGroupContext } from '../input-group/input-group-context.ts'
+import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
+import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
-import type { InputProps, InputT } from './input.types'
+import type { InputProps, InputT } from './input.types.ts'
 
-/** Text input component with leading/trailing icon slots, loading state, and form field integration. */
+/** Native text input with value modifiers and form field integration. */
 export function Input<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
   props: InputProps<M>,
 ): JSX.Element {
   const [local, rest] = splitProps(props, [
     'ref',
-    'inputRef',
     'id',
     'name',
     'value',
@@ -34,17 +30,12 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     'autocomplete',
     'autofocus',
     'autofocusDelay',
-    'leading',
-    'trailing',
-    'loading',
-    'loadingIcon',
     'modelModifiers',
     'onValueChange',
     'onChange',
     'onInput',
     'onBlur',
     'onFocus',
-    'children',
     'variant',
     'classes',
     'styles',
@@ -52,8 +43,13 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     'style',
   ])
   const themeField = useFormFieldContext()
+  const group = useInputGroupContext()
   const resolved = createComponentStyles('input', local, {
-    inheritedVariants: () => ({ size: themeField?.size }),
+    inheritedVariants: () => ({
+      grouped: Boolean(group),
+      groupedOrientation: group?.orientation,
+      size: group?.size ?? themeField?.size,
+    }),
   })
 
   const merged = mergeProps(
@@ -61,15 +57,10 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       type: 'text',
       autocomplete: 'off',
       autofocusDelay: 0,
-
-      loadingIcon: 'icon-loading' as const,
     },
 
     local,
   )
-  const leading = createMemo(() => merged.leading)
-  const trailing = createMemo(() => merged.trailing)
-  const loadingIcon = createMemo(() => merged.loadingIcon)
   const modelModifiers = createMemo(() => merged.modelModifiers)
 
   const generatedId = useId(() => merged.id, 'input')
@@ -102,39 +93,6 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     value: () => merged.value,
   })
   const isLazy = textControl.isLazy
-  const loadingTarget = createMemo<'leading' | 'trailing'>(() => {
-    if (leading()) {
-      return 'leading'
-    }
-
-    if (trailing()) {
-      return 'trailing'
-    }
-
-    return 'leading'
-  })
-
-  const resolvedLeading = createMemo<IconT.Name | undefined>(() => {
-    if (merged.loading && loadingTarget() === 'leading') {
-      return loadingIcon()
-    }
-
-    return leading()
-  })
-  const resolvedTrailing = createMemo<IconT.Name | undefined>(() => {
-    if (merged.loading && loadingTarget() === 'trailing') {
-      return loadingIcon()
-    }
-
-    return trailing()
-  })
-
-  const isLeadingLoading = createMemo(() =>
-    Boolean(merged.loading && loadingTarget() === 'leading'),
-  )
-  const isTrailingLoading = createMemo(() =>
-    Boolean(merged.loading && loadingTarget() === 'trailing'),
-  )
   const dataAttrs = createMemo(() => ({
     'data-invalid': field.invalid() ? '' : undefined,
     'data-disabled': field.disabled() ? '' : undefined,
@@ -196,19 +154,6 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     callHandler(event, merged.onFocus)
   }
 
-  const onRootPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
-    if (
-      event.button !== 0 ||
-      event.defaultPrevented ||
-      event.target === inputEl ||
-      isInteractiveTarget(event.target)
-    ) {
-      return
-    }
-
-    inputEl?.focus()
-  }
-
   let autofocusTimer: ReturnType<typeof setTimeout> | undefined
 
   onCleanup(() => {
@@ -236,66 +181,29 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     }, merged.autofocusDelay ?? 0)
   })
 
-  function RenderAdornment(props: { value: IconT.Name; loading: boolean }) {
-    return (
-      <Show
-        when={typeof props.value !== 'string'}
-        fallback={<Icon name={props.value} data-loading={props.loading ? '' : undefined} />}
-      >
-        {renderComponentOrElement(props.value, {})}
-      </Show>
-    )
-  }
-
   return (
-    <div
-      ref={(element) => callRef(local.ref, element)}
+    <input
+      {...rest}
+      id={field.id()}
+      type={merged.type}
+      name={field.name()}
+      required={field.required()}
+      disabled={field.disabled()}
+      readonly={field.readOnly()}
+      autocomplete={merged.autocomplete}
       data-slot="root"
-      onPointerDown={onRootPointerDown}
       {...dataAttrs()}
+      {...ariaAttrs()}
+      {...textControl.valueProps()}
+      ref={(element) => {
+        inputEl = element
+        callRef(local.ref, element)
+      }}
       {...resolved.root}
-    >
-      <Show when={resolvedLeading()}>
-        {(adornment) => (
-          <span data-slot="leading" {...resolved.slot('leading')}>
-            <RenderAdornment value={adornment()} loading={isLeadingLoading()} />
-          </span>
-        )}
-      </Show>
-
-      <input
-        {...rest}
-        id={field.id()}
-        type={merged.type}
-        name={field.name()}
-        required={field.required()}
-        disabled={field.disabled()}
-        readonly={field.readOnly()}
-        autocomplete={merged.autocomplete}
-        data-slot="input"
-        {...dataAttrs()}
-        {...ariaAttrs()}
-        {...textControl.valueProps()}
-        ref={(element) => {
-          inputEl = element
-          callRef(local.inputRef, element)
-        }}
-        {...resolved.slot('input')}
-        onInput={onInput}
-        onChange={onChange}
-        onBlur={onBlur}
-        onFocus={onFocus}
-      />
-
-      {merged.children}
-
-      <Show when={resolvedTrailing()}>
-        {(adornment) => (
-          <span data-slot="trailing" {...resolved.slot('trailing')}>
-            <RenderAdornment value={adornment()} loading={isTrailingLoading()} />
-          </span>
-        )}
-      </Show>
-    </div>
+      onInput={onInput}
+      onChange={onChange}
+      onBlur={onBlur}
+      onFocus={onFocus}
+    />
   )
 }

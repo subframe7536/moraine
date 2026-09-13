@@ -360,7 +360,7 @@ Variables are applied to the component root's inline style before dynamic styles
 
 ### Reactive replacement and native refs
 
-Changing a Provider's `theme` updates classes without remounting component DOM. Input and Textarea keep their values, focus, selection, and refs. Their ordinary `ref` targets the wrapper; callback `inputRef` and `textareaRef` target the editable native control.
+Changing a Provider's `theme` updates classes without remounting component DOM. Input and Textarea keep their values, focus, selection, and refs. Their `ref` targets the editable native control. Use `InputGroup` for a shared wrapper and its ref.
 
 <Preview path="./styling/theme-replacement" />
 

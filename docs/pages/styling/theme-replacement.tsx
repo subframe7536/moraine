@@ -22,7 +22,7 @@ export function ThemeReplacement() {
         <Input
           id="theme-workspace-name"
           defaultValue="Workspace"
-          inputRef={(element) => (input = element)}
+          ref={(element) => (input = element)}
         />
         <Button onClick={() => input?.focus()}>Focus native input</Button>
       </MoraineProvider>

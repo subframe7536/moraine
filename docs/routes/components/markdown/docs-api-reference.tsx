@@ -3,6 +3,7 @@ import { createMemo, createSignal, For, Show } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Badge, Icon, Input, Select, cn } from '../../../../src'
+import { InputGroup } from '../../../../src/forms/input-group/index.ts'
 import { createMediaQuery } from '../../../../src/shared/use-media-query'
 import { getApiReferenceTocEntries } from '../../../build/api-doc/reference-sections'
 import type { ApiAttributeDoc, ComponentDoc, PropDoc, SlotDoc } from '../../../build/api-doc/types'
@@ -492,14 +493,16 @@ function AttributesSection(props: { section: PropsTableSection }): JSX.Element {
       {/* Control Bar: Search & View Mode Toggle */}
       <div class="flex flex-col gap-2.5 sm:(flex-row items-center justify-between)">
         <div class="flex-1 max-w-sm relative">
-          <Input
-            size="sm"
-            placeholder="Filter attributes & slots..."
-            leading="i-lucide:search"
-            value={searchQuery()}
-            onInput={(e) => setSearchQuery(e.currentTarget.value)}
-            class="text-xs w-full"
-          />
+          <InputGroup size="sm" class="text-xs w-full">
+            <InputGroup.Leading>
+              <Icon name="i-lucide:search" />
+            </InputGroup.Leading>
+            <Input
+              placeholder="Filter attributes & slots..."
+              value={searchQuery()}
+              onInput={(e) => setSearchQuery(e.currentTarget.value)}
+            />
+          </InputGroup>
           <Show when={searchQuery()}>
             <button
               type="button"

@@ -1,4 +1,4 @@
-import { Button, Input, Modal } from '@src'
+import { Button, Input, Modal, InputGroup, Icon } from '@src'
 
 export function Basic() {
   return (
@@ -18,7 +18,12 @@ export function Basic() {
 
             <div class="space-y-1">
               <label class="text-xs text-muted-foreground font-medium">Colleague Email</label>
-              <Input placeholder="colleague@company.com" leading="i-lucide:mail" />
+              <InputGroup>
+                <InputGroup.Leading>
+                  <Icon name="i-lucide:mail" />
+                </InputGroup.Leading>
+                <Input placeholder="colleague@company.com" />
+              </InputGroup>
             </div>
 
             <div class="pt-2 border-t border-border flex gap-2 justify-end">

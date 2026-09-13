@@ -1,4 +1,4 @@
-import { Button, Dialog, Input, Textarea } from '@src'
+import { Button, Dialog, Input, Textarea, InputGroup, Icon } from '@src'
 
 export function Basic() {
   return (
@@ -18,7 +18,12 @@ export function Basic() {
               </div>
               <div class="space-y-1.5">
                 <label class="text-sm font-medium">Public Handle</label>
-                <Input defaultValue="alex.morgan" leading="@" />
+                <InputGroup>
+                  <InputGroup.Leading>
+                    <Icon name="@" />
+                  </InputGroup.Leading>
+                  <Input defaultValue="alex.morgan" />
+                </InputGroup>
               </div>
               <div class="space-y-1.5">
                 <label class="text-sm font-medium">Bio</label>

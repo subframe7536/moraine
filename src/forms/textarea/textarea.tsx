@@ -1,27 +1,16 @@
 import type { JSX } from 'solid-js'
-import {
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  mergeProps,
-  on,
-  onCleanup,
-  onMount,
-  splitProps,
-} from 'solid-js'
+import { createEffect, createMemo, mergeProps, on, onCleanup, onMount, splitProps } from 'solid-js'
 
-import type { ModelModifiers } from '../../shared/input-modifiers'
-import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import { createComponentStyles } from '../../shared/provider'
-import { callHandler, callRef, useId } from '../../shared/utils'
-import { useFormField, useFormFieldContext } from '../form/form-context'
-import { isInteractiveTarget } from '../shared/is-interactive-target'
-import { mergeAriaTokens } from '../shared/merge-aria-tokens'
-import { useFormReset } from '../shared/use-form-reset'
-import { useTextControlValue } from '../shared/use-text-control-value'
+import type { ModelModifiers } from '../../shared/input-modifiers.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
+import { useFormField, useFormFieldContext } from '../form/form-context.ts'
+import { useInputGroupContext } from '../input-group/input-group-context.ts'
+import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
+import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
-import type { TextareaProps, TextareaT } from './textarea.types'
+import type { TextareaProps, TextareaT } from './textarea.types.ts'
 
 // --- Autosize helpers ---
 function getVerticalPadding(styles: CSSStyleDeclaration): number {
@@ -45,7 +34,6 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
 ): JSX.Element {
   const [local, rest] = splitProps(props, [
     'ref',
-    'textareaRef',
     'id',
     'name',
     'value',
@@ -61,23 +49,25 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     'autoResizeDelay',
     'rows',
     'maxRows',
-    'header',
-    'footer',
     'modelModifiers',
     'onValueChange',
     'onChange',
     'onInput',
     'onBlur',
     'onFocus',
-    'children',
     'classes',
     'styles',
     'class',
     'style',
   ])
   const themeField = useFormFieldContext()
+  const group = useInputGroupContext()
   const resolved = createComponentStyles('textarea', local, {
-    inheritedVariants: () => ({ size: themeField?.size }),
+    inheritedVariants: () => ({
+      grouped: Boolean(group),
+      groupedOrientation: group?.orientation,
+      size: group?.size ?? themeField?.size,
+    }),
   })
 
   const merged = mergeProps(
@@ -92,10 +82,6 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
 
     local,
   )
-  const header = createMemo(() => merged.header)
-  const footer = createMemo(() => merged.footer)
-  const showHeader = createMemo(() => hasNonEmptyJsxContent(header()))
-  const showFooter = createMemo(() => hasNonEmptyJsxContent(footer()))
   const modelModifiers = createMemo(() => merged.modelModifiers)
 
   const generatedId = useId(() => merged.id, 'textarea')
@@ -115,7 +101,6 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   )
 
   let textareaEl: HTMLTextAreaElement | undefined
-  const [isFocused, setIsFocused] = createSignal(false)
 
   const textControl = useTextControlValue<TextareaT.Value, M>({
     defaultValue: () => merged.defaultValue,
@@ -221,28 +206,13 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
-    setIsFocused(false)
     field.emit('blur', event)
     callHandler(event, merged.onBlur)
   }
 
   const onFocus: JSX.FocusEventHandler<HTMLTextAreaElement, FocusEvent> = (event) => {
-    setIsFocused(true)
     field.emit('focus', event)
     callHandler(event, merged.onFocus)
-  }
-
-  const onRootPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
-    if (
-      event.button !== 0 ||
-      event.defaultPrevented ||
-      event.target === textareaEl ||
-      isInteractiveTarget(event.target)
-    ) {
-      return
-    }
-
-    textareaEl?.focus()
   }
 
   createEffect(
@@ -299,51 +269,28 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   })
 
   return (
-    <div
-      ref={(el) => callRef(local.ref, el)}
+    <textarea
+      {...rest}
+      id={field.id()}
+      name={field.name()}
+      rows={merged.rows ?? 3}
+      required={field.required()}
+      disabled={field.disabled()}
+      readonly={field.readOnly()}
       data-slot="root"
-      {...resolved.root}
-      onPointerDown={onRootPointerDown}
-      data-focused={isFocused() ? '' : undefined}
+      data-autoresize={merged.autoResize ? '' : undefined}
       {...dataAttrs()}
-    >
-      <Show when={showHeader()}>
-        <div data-slot="header" {...resolved.slot('header')}>
-          {header()}
-        </div>
-      </Show>
-
-      <textarea
-        {...rest}
-        id={field.id()}
-        name={field.name()}
-        rows={merged.rows ?? 3}
-        required={field.required()}
-        disabled={field.disabled()}
-        readonly={field.readOnly()}
-        data-slot="input"
-        data-autoresize={merged.autoResize ? '' : undefined}
-        {...dataAttrs()}
-        {...ariaAttrs()}
-        {...textControl.valueProps()}
-        ref={(element) => {
-          textareaEl = element
-          callRef(local.textareaRef, element)
-        }}
-        {...resolved.slot('textarea')}
-        onInput={onInput}
-        onChange={onChange}
-        onBlur={onBlur}
-        onFocus={onFocus}
-      />
-
-      {merged.children}
-
-      <Show when={showFooter()}>
-        <div data-slot="footer" {...resolved.slot('footer')}>
-          {footer()}
-        </div>
-      </Show>
-    </div>
+      {...ariaAttrs()}
+      {...textControl.valueProps()}
+      ref={(element) => {
+        textareaEl = element
+        callRef(local.ref, element)
+      }}
+      {...resolved.root}
+      onInput={onInput}
+      onChange={onChange}
+      onBlur={onBlur}
+      onFocus={onFocus}
+    />
   )
 }

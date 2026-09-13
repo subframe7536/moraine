@@ -1,6 +1,6 @@
 ---
 title: Textarea
-description: A multi-line text input with optional auto-resizing, row limits, header and footer content, and FormField integration.
+description: A multi-line text input with optional auto-resizing, row limits, and FormField integration.
 sidebar:
   order: 4
 search:
@@ -20,7 +20,7 @@ import type { TextareaT } from 'moraine'
 
 - **Auto Resize**: `autoResize` grows the textarea with its content instead of keeping a fixed-height internal scroll area.
 - **Row Limits**: Use `rows` and `maxRows` to bound auto-resized height.
-- **Header & Footer Content**: Compose formatting controls, counters, badges, or action buttons around the native textarea.
+- **Composition**: Use [InputGroup](/input-group) parts for formatting controls, counters, badges, and action buttons.
 - **Visual Variants**: Supports `outline`, `subtle`, `ghost`, and `none`.
 - **FormField Integration**: Uses the field context for identity, disabled/required state, validation metadata, and label/error associations.
 
@@ -76,11 +76,10 @@ import type { TextareaT } from 'moraine'
 ## Anatomy
 
 ```text
-root
-├── header (optional)
-├── input (native <textarea>)
-└── footer (optional)
+root (native <textarea>)
 ```
+
+`ref`, `class`, `style`, `classes.root`, and `styles.root` target the native textarea. Put container styling and refs on `InputGroup` when composing supporting content.
 
 ## Usage
 
@@ -92,7 +91,7 @@ root
 
 ### Size and composition
 
-Enable autoresize and constrain it with `rows` and `maxRows`. Header and footer regions are composition slots; counters, submit buttons, and keyboard shortcuts remain application-owned behavior.
+Enable autoresize and constrain it with `rows` and `maxRows`. Use `InputGroup orientation="vertical"` with `Leading` and `Trailing` for header and footer regions. Counters, submit buttons, and keyboard shortcuts remain application-owned behavior.
 
 <Preview path="./composition" />
 

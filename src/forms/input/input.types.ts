@@ -1,15 +1,14 @@
 import type { JSX, Ref } from 'solid-js'
 
-import type { IconT } from '../../elements/icon'
-import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options'
+} from '../shared/form-options.ts'
 
 export namespace InputT {
   export type Kind = 'single'
@@ -17,19 +16,8 @@ export namespace InputT {
   export type Value = string | number | undefined
 
   export interface Slot<T = unknown> {
-    /**
-     * Input wrapper that positions icons, loading state, and the native input.
-     */
-    root?: T
-
     /** Native text input element. */
-    input?: T
-
-    /** Icon or loading indicator rendered before the input value. */
-    leading?: T
-
-    /** Icon or loading indicator rendered after the input value. */
-    trailing?: T
+    root?: T
   }
 
   export interface Variant {
@@ -59,6 +47,9 @@ export namespace InputT {
       FormRequiredOption,
       FormReadOnlyOption,
       FormDisableOption {
+    /** Native controls do not accept child content. */
+    children?: never
+
     /**
      * The type of the input element.
      * @default 'text'
@@ -94,39 +85,14 @@ export namespace InputT {
     maxLength?: number | string
 
     /**
-     * Leading icon name or custom content.
-     */
-    leading?: IconT.Name
-
-    /**
-     * Trailing icon name or custom content.
-     */
-    trailing?: IconT.Name
-
-    /**
-     * Whether the input is in a loading state.
-     * @default false
-     */
-    loading?: boolean
-
-    /**
-     * The icon to show when the input is in a loading state.
-     * @default 'icon-loading'
-     */
-    loadingIcon?: IconT.Name
-
-    /**
      * Modifiers for the input value (e.g., trim, lazy, number).
      */
     modelModifiers?: M
 
     /**
-     * Optional inner input element ref.
+     * Ref for the native input element.
      */
-    ref?: Ref<HTMLDivElement>
-
-    /** Ref for the editable input element. */
-    inputRef?: Ref<HTMLInputElement>
+    ref?: Ref<HTMLInputElement>
 
     /**
      * Callback when the input value changes during input.
@@ -152,11 +118,6 @@ export namespace InputT {
      * Event handler for the focus event.
      */
     onFocus?: JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>
-
-    /**
-     * Additional content to render inside the input container.
-     */
-    children?: JSX.Element
   }
 
   /**

@@ -1,5 +1,5 @@
-import { Button, Icon, Input } from '@src'
-import { createSignal } from 'solid-js'
+import { Button, Icon, Input, InputGroup } from '@src'
+import { createSignal, Show } from 'solid-js'
 
 export function InputWithIcons() {
   const [showPassword, setShowPassword] = createSignal(false)
@@ -7,11 +7,16 @@ export function InputWithIcons() {
 
   return (
     <div class="gap-4 grid max-w-2xl sm:grid-cols-2">
-      <Input
-        type={showPassword() ? 'text' : 'password'}
-        defaultValue="my_super_secret_token_123"
-        leading="i-lucide:lock"
-        trailing={
+      <InputGroup>
+        <InputGroup.Leading>
+          <Icon name="i-lucide:lock" />
+        </InputGroup.Leading>
+        <Input
+          type={showPassword() ? 'text' : 'password'}
+          defaultValue="my_super_secret_token_123"
+          placeholder="Enter password"
+        />
+        <InputGroup.Trailing>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -20,16 +25,20 @@ export function InputWithIcons() {
           >
             <Icon name={showPassword() ? 'i-lucide:eye-off' : 'i-lucide:eye'} />
           </Button>
-        }
-        placeholder="Enter password"
-      />
+        </InputGroup.Trailing>
+      </InputGroup>
 
-      <Input
-        value={query()}
-        onInput={(e) => setQuery(e.currentTarget.value)}
-        leading="i-lucide:search"
-        trailing={
-          query() ? (
+      <InputGroup>
+        <InputGroup.Leading>
+          <Icon name="i-lucide:search" />
+        </InputGroup.Leading>
+        <Input
+          value={query()}
+          onInput={(e) => setQuery(e.currentTarget.value)}
+          placeholder="Search documents..."
+        />
+        <InputGroup.Trailing>
+          <Show when={query()}>
             <Button
               variant="ghost"
               size="icon-sm"
@@ -38,31 +47,32 @@ export function InputWithIcons() {
             >
               <Icon name="i-lucide:x" />
             </Button>
-          ) : undefined
-        }
-        placeholder="Search documents..."
-      />
+          </Show>
+        </InputGroup.Trailing>
+      </InputGroup>
 
-      <Input
-        leading={
+      <InputGroup>
+        <InputGroup.Leading compact>
           <div class="text-xs text-muted-foreground font-mono flex gap-1 items-center">
             <Icon name="i-lucide:globe" class="size-3.5" />
             https://
           </div>
-        }
-        trailing={<span class="text-xs text-muted-foreground font-mono">.moraine.dev</span>}
-        classes={{
-          input: 'ps-0',
-        }}
-        placeholder="project-slug"
-      />
+        </InputGroup.Leading>
+        <Input placeholder="project-slug" />
+        <InputGroup.Trailing compact>
+          <span class="text-xs text-muted-foreground font-mono">.moraine.dev</span>
+        </InputGroup.Trailing>
+      </InputGroup>
 
-      <Input
-        leading={<span class="text-xs text-muted-foreground font-semibold">$</span>}
-        trailing={<span class="text-xs text-muted-foreground">USD / mo</span>}
-        defaultValue="49.00"
-        placeholder="0.00"
-      />
+      <InputGroup>
+        <InputGroup.Leading>
+          <span class="text-xs text-muted-foreground font-semibold">$</span>
+        </InputGroup.Leading>
+        <Input defaultValue="49.00" placeholder="0.00" />
+        <InputGroup.Trailing>
+          <span class="text-xs text-muted-foreground">USD / mo</span>
+        </InputGroup.Trailing>
+      </InputGroup>
     </div>
   )
 }

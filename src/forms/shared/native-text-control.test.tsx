@@ -13,25 +13,13 @@ import { useTextControlValue } from './use-text-control-value.ts'
 
 describe.each([Input, Textarea])('native text control: %s', (Control) => {
   test('owns native attributes, handlers and refs on the editable element', () => {
-    let wrapper: HTMLDivElement | undefined
     let input: HTMLInputElement | HTMLTextAreaElement | undefined
     const native = vi.fn()
     const screen = render(() => (
       <Control
-        ref={(element) => {
-          wrapper = element
+        ref={(element: HTMLInputElement | HTMLTextAreaElement) => {
+          input = element
         }}
-        {...(Control === Input
-          ? {
-              inputRef: (element: HTMLInputElement) => {
-                input = element
-              },
-            }
-          : {
-              textareaRef: (element: HTMLTextAreaElement) => {
-                input = element
-              },
-            })}
         form="external-form"
         enterkeyhint="send"
         aria-label="Message"
@@ -41,15 +29,15 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
         onKeyDown={native}
         onInvalid={native}
         onPointerDown={native}
-        class="wrapper"
+        class="control"
         style={{ color: 'red' }}
       />
     ))
     const editable = screen.getByRole('textbox')
     expect(input).toBe(editable)
-    expect(wrapper).toBe(editable.parentElement)
-    expect(wrapper?.className).toBe('wrapper')
-    expect(wrapper?.style.color).toBe('red')
+    expect(screen.container.firstElementChild).toBe(editable)
+    expect(input?.className).toBe('control')
+    expect(input?.style.color).toBe('red')
     for (const [name, value] of [
       ['form', 'external-form'],
       ['enterkeyhint', 'send'],
@@ -57,15 +45,12 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
       ['data-custom', 'native'],
     ]) {
       expect(editable.getAttribute(name!)).toBe(value)
-      expect(wrapper?.hasAttribute(name!)).toBe(false)
     }
     for (const type of ['copy', 'compositionstart', 'keydown', 'invalid', 'pointerdown']) {
       fireEvent(editable, new Event(type, { bubbles: true }))
     }
     expect(native).toHaveBeenCalledTimes(5)
     expect(native.mock.calls.every(([event]) => event.target === editable)).toBe(true)
-    fireEvent(wrapper!, new Event('pointerdown', { bubbles: true }))
-    expect(native).toHaveBeenCalledTimes(5)
   })
 
   test('merges ARIA IDs and lets explicit false state override the field', () => {
@@ -156,7 +141,7 @@ test('ARIA tokens retain caller order and omit empty values', () => {
 test('Input forwards list association to the native input', () => {
   const screen = render(() => <Input list="suggestions" />)
   expect(screen.getByRole('combobox').getAttribute('list')).toBe('suggestions')
-  expect(screen.container.firstElementChild?.hasAttribute('list')).toBe(false)
+  expect(screen.container.firstElementChild).toBe(screen.getByRole('combobox'))
 })
 
 test('text value synchronization ignores unrelated reads in form callbacks', () => {

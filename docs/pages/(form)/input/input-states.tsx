@@ -1,4 +1,4 @@
-import { Button, Icon, Input } from '@src'
+import { Button, Icon, Input, InputGroup } from '@src'
 import { createSignal } from 'solid-js'
 
 export function InputStates() {
@@ -15,7 +15,12 @@ export function InputStates() {
     <div class="gap-4 grid max-w-2xl sm:grid-cols-2">
       <div class="space-y-1">
         <label class="text-xs text-muted-foreground">Checking availability...</label>
-        <Input loading placeholder="Checking domain..." defaultValue="moraine-ui.dev" />
+        <InputGroup>
+          <InputGroup.Leading>
+            <Icon name="icon-loading" class="animate-spin" />
+          </InputGroup.Leading>
+          <Input placeholder="Checking domain..." defaultValue="moraine-ui.dev" />
+        </InputGroup>
       </div>
 
       <div class="space-y-1">
@@ -35,10 +40,12 @@ export function InputStates() {
 
       <div class="space-y-1">
         <label class="text-xs text-muted-foreground">Validated username</label>
-        <Input
-          defaultValue="subframe7536"
-          trailing={<Icon name="i-lucide:circle-check" class="text-primary size-4" />}
-        />
+        <InputGroup>
+          <Input defaultValue="subframe7536" />
+          <InputGroup.Trailing>
+            <Icon name="i-lucide:circle-check" class="text-primary size-4" />
+          </InputGroup.Trailing>
+        </InputGroup>
       </div>
     </div>
   )
