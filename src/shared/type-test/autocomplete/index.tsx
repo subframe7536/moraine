@@ -64,9 +64,8 @@ modalContentContext.close()
 ;<Button as={CustomRoot} required="yes" />
 ;<Button as="input" type="checkbox" />
 ;<Modal defaultOpen>
-  <Modal.Content overlay ariaLabel="Type fixture">
-    Modal content
-  </Modal.Content>
+  <Modal.Overlay />
+  <Modal.Content ariaLabel="Type fixture">Modal content</Modal.Content>
 </Modal>
 ;<Dialog>
   <Dialog.Trigger as="a" data-testid="dialog-trigger" hidden href="/dialog">

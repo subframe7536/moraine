@@ -152,7 +152,8 @@ describe('Modal primitives', () => {
   test('leaves modal surfaces unstyled without a provider', () => {
     render(() => (
       <Modal defaultOpen>
-        <Modal.Content overlay>Unstyled</Modal.Content>
+        <Modal.Overlay />
+        <Modal.Content>Unstyled</Modal.Content>
       </Modal>
     ))
     expect(document.querySelector('[data-slot="overlay"]')?.className).toBe('')
@@ -168,7 +169,8 @@ describe('Modal primitives', () => {
     render(() => (
       <MoraineProvider theme={design()}>
         <Modal defaultOpen>
-          <Modal.Content overlay>Content</Modal.Content>
+          <Modal.Overlay />
+          <Modal.Content>Content</Modal.Content>
         </Modal>
       </MoraineProvider>
     ))
@@ -431,11 +433,12 @@ describe('Modal primitives', () => {
     document.body.style.overflow = ''
   })
 
-  test('lets content overlay activate the modal runtime', async () => {
+  test('lets overlay activate the modal runtime', async () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <Modal defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Content overlay>
+        <Modal.Overlay />
+        <Modal.Content>
           <span>Content</span>
         </Modal.Content>
       </Modal>
@@ -453,7 +456,8 @@ describe('Modal primitives', () => {
   test('applies the shared dialog overlay classes by default', () => {
     renderWithTheme(() => (
       <Modal defaultOpen>
-        <Modal.Content overlay>
+        <Modal.Overlay />
+        <Modal.Content>
           <span>Content</span>
         </Modal.Content>
       </Modal>
@@ -507,7 +511,8 @@ describe('Modal primitives', () => {
     const onExitComplete = vi.fn()
     const screen = render(() => (
       <Modal open={open()} onOpenChange={setOpen} onExitComplete={onExitComplete}>
-        <Modal.Content overlay>
+        <Modal.Overlay />
+        <Modal.Content>
           <span>Content</span>
         </Modal.Content>
       </Modal>
@@ -569,19 +574,14 @@ describe('Modal primitives', () => {
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
   })
 
-  test('renders overlay and content as siblings in one portal and forwards refs', () => {
+  test('renders overlay and content and forwards refs', () => {
     const overlayRef = vi.fn()
     const contentRef = vi.fn()
 
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content
-          overlay
-          overlayRef={overlayRef}
-          overlayClass="custom-overlay"
-          overlayStyle={{ opacity: '0.4' }}
-          ref={contentRef}
-        >
+        <Modal.Overlay ref={overlayRef} class="custom-overlay" style={{ opacity: '0.4' }} />
+        <Modal.Content ref={contentRef}>
           <span>Content</span>
         </Modal.Content>
       </Modal>
@@ -592,8 +592,6 @@ describe('Modal primitives', () => {
 
     expect(overlay).not.toBeNull()
     expect(content).not.toBeNull()
-    expect(overlay?.parentElement).toBe(content?.parentElement)
-    expect(overlay?.nextElementSibling).toBe(content)
     expect(overlay?.className).toBe('custom-overlay')
     expect(overlay?.className).not.toContain('fixed')
     expect(overlay?.getAttribute('style')).toContain('opacity: 0.4')
@@ -608,9 +606,11 @@ describe('Modal primitives', () => {
   test('can contain the content inside a scrolling overlay', () => {
     renderWithTheme(() => (
       <Modal defaultOpen>
-        <Modal.Content overlay overlayScroll>
-          <span>Content</span>
-        </Modal.Content>
+        <Modal.Overlay scrollable>
+          <Modal.Content>
+            <span>Content</span>
+          </Modal.Content>
+        </Modal.Overlay>
       </Modal>
     ))
 
@@ -1206,7 +1206,8 @@ describe('Modal primitives', () => {
     const screen = render(() => (
       <Modal open={open()} onOpenChange={setOpen} onExitComplete={onExitComplete}>
         <Modal.Trigger data-testid="rapid-trigger">Open</Modal.Trigger>
-        <Modal.Content overlay>
+        <Modal.Overlay />
+        <Modal.Content>
           {(context) => (
             <button type="button" data-testid="rapid-close" onClick={context.close}>
               Close
@@ -1310,9 +1311,23 @@ describe('Modal primitives', () => {
     const [scroll, setScroll] = createSignal(false)
     const screen = render(() => (
       <Modal defaultOpen>
-        <Modal.Content overlay overlayScroll={scroll()}>
-          <button data-testid="content-action">Action</button>
-        </Modal.Content>
+        <Show
+          when={scroll()}
+          fallback={
+            <>
+              <Modal.Overlay />
+              <Modal.Content>
+                <button data-testid="content-action">Action</button>
+              </Modal.Content>
+            </>
+          }
+        >
+          <Modal.Overlay scrollable>
+            <Modal.Content>
+              <button data-testid="content-action">Action</button>
+            </Modal.Content>
+          </Modal.Overlay>
+        </Show>
       </Modal>
     ))
     try {

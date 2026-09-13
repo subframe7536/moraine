@@ -7,6 +7,7 @@ search:
   tags: [modal, primitive, overlay, focus trap, dialog primitive]
 ---
 
+import { Show } from 'solid-js'
 import { Button, Modal } from '@src'
 
 ## Import
@@ -18,10 +19,10 @@ import type { ModalT } from 'moraine'
 
 ## Features
 
-- **Composable Primitives**: `Modal`, `Modal.Trigger`, and `Modal.Content` separate state, trigger, and portaled content responsibilities.
-- **Overridable Defaults**: `Modal.Content` and the overlay provide default layout, surface, and transition classes. Supplying a custom content `class` replaces the default content class set.
+- **Composable Primitives**: `Modal`, `Modal.Trigger`, `Modal.Overlay`, and `Modal.Content` separate state, trigger, backdrop overlay, and content responsibilities.
+- **Overridable Defaults**: `Modal.Overlay` and `Modal.Content` provide default layout, surface, and transition classes. Supplying a custom content `class` replaces the default content class set.
 - **Focus Management**: Keeps focus within the active modal surface and restores focus when it closes.
-- **Scroll Lock & Portal Rendering**: Portals modal content and prevents background body scrolling while open.
+- **Scroll Lock & Portal Rendering**: Portals modal overlay and content, and prevents background body scrolling while open.
 - **Dismissal & Overlay Control**: Configure outside/Escape dismissal and optional overlay rendering.
 - **Dialog Semantics**: Supports `ariaLabel`, `ariaLabelledBy`, and the dialog role on the content surface.
 
@@ -40,7 +41,10 @@ import type { ModalT } from 'moraine'
         <Modal.Trigger as={Button} variant="outline">
           Open Modal
         </Modal.Trigger>
-        <Modal.Content overlay={props.overlay} ariaLabel={props.ariaLabel}>
+        <Show when={props.overlay}>
+          <Modal.Overlay />
+        </Show>
+        <Modal.Content ariaLabel={props.ariaLabel}>
           {(context) => (
             <div class="p-5 gap-4 grid">
               <div>
@@ -68,21 +72,21 @@ import type { ModalT } from 'moraine'
 ```text
 Modal (state provider)
 ├── Modal.Trigger
-└── Modal.Content (portal)
-    ├── overlay (optional)
-    └── content
-        └── children ({ close })
+├── Modal.Overlay (portal backdrop)
+└── Modal.Content (portal surface)
+    └── children ({ close })
 ```
 
 - `Modal`: Coordinates open state and dismissal behavior; it does not render a DOM root of its own.
 - `Modal.Trigger`: Polymorphic element that opens the modal.
-- `Modal.Content`: Portaled overlay and content surface.
+- `Modal.Overlay`: Portaled backdrop layer with entry/exit motion.
+- `Modal.Content`: Portaled dialog content surface.
 
 ## Usage
 
 ### Composition
 
-`Modal` is a state provider, not a DOM root. Compose `Modal.Trigger` with `Modal.Content`; the content is portaled and owns the optional overlay plus focus and scroll behavior. Use `Dialog` or `Sheet` when their structured shell is a closer fit.
+`Modal` is a state provider, not a DOM root. Compose `Modal.Trigger` with `Modal.Overlay` and `Modal.Content`; the overlay and content are portaled and coordinate exit motion and focus behavior. Use `Dialog` or `Sheet` when their structured shell is a closer fit.
 
 <Preview path="./modal-composition" />
 

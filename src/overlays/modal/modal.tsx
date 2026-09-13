@@ -16,6 +16,7 @@ import {
 import { ModalClose } from './modal-close'
 import { ModalContent } from './modal-content'
 import { ModalProvider } from './modal-context'
+import { ModalOverlay } from './modal-overlay'
 import { ModalTrigger } from './modal-trigger'
 import type { ModalProps } from './modal.types'
 
@@ -261,5 +262,6 @@ export function Modal(props: ModalProps): JSX.Element {
 }
 
 Modal.Content = ModalContent
+Modal.Overlay = ModalOverlay
 Modal.Trigger = ModalTrigger
 Modal.Close = ModalClose

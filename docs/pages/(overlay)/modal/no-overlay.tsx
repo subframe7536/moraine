@@ -10,7 +10,7 @@ export function NoOverlay() {
         {(context) => (
           <div class="p-4 gap-4 grid">
             <p class="text-sm text-foreground">
-              Set overlay to false when the host surface provides context.
+              Omit Modal.Overlay when the host surface provides context.
             </p>
             <Button class="justify-self-end" onClick={context.close}>
               Close

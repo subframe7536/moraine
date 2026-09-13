@@ -5,7 +5,7 @@
 - [x] cleanup ssr adaption
 - [x] restore bound Switch initial state after a native Form reset
 - [x] slider & stepper recipe structure refactor
-- [ ] split overlay from content in modal
+- [x] split overlay from content in modal
 - [ ] base select should be a namespaced component and export
 - [ ] unify context-menu and dropdown-menu menu styles
 - [ ] verify auto completion ability on `as={Button}`

@@ -100,22 +100,20 @@ export namespace ModalT {
     never
   >
 
-  export interface ContentBase {
-    /** Whether to render the modal overlay element. */
-    overlay?: boolean
-
-    /** Whether the overlay should contain and scroll the modal content. */
-    overlayScroll?: boolean
-
+  export interface OverlayBase {
     /** Receives the mounted overlay element and `undefined` when it unmounts. */
-    overlayRef?: (element: HTMLDivElement | undefined) => void
+    ref?: (element: HTMLDivElement | undefined) => void
 
-    /** Class applied to the modal overlay element. */
-    overlayClass?: string
+    /** Whether the overlay should scroll its content. */
+    scrollable?: boolean
 
-    /** Style applied to the modal overlay element. */
-    overlayStyle?: JSX.CSSProperties
+    /** Optional elements rendered inside the overlay. */
+    children?: JSX.Element
+  }
 
+  export type OverlayProps = BaseProps<'div', OverlayBase, Variant, Classes, Styles>
+
+  export interface ContentBase {
     /** Component or element rendered inside the modal content surface. */
     children: ComponentOrElement<ContentContext>
 

@@ -6,7 +6,8 @@ export function Basic() {
       <Modal.Trigger as={Button} leading="i-lucide:user-plus">
         Invite Teammate
       </Modal.Trigger>
-      <Modal.Content overlay ariaLabel="Invite Teammate">
+      <Modal.Overlay />
+      <Modal.Content ariaLabel="Invite Teammate">
         {(context) => (
           <div class="p-6 b-(1 border) rounded-2xl bg-card flex flex-col gap-4 max-w-md w-full shadow-xl">
             <div>

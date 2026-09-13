@@ -9,38 +9,30 @@ import { callHandler, callRef } from '../../shared/utils'
 import { trapFocusInContainer } from '../base/utils'
 
 import { useModalContext } from './modal-context'
+import { useModalOverlayContext } from './modal-overlay'
 import type { ModalT } from './modal.types'
 
-type SurfaceContent = Pick<
+export type SurfaceContent = Pick<
   ModalT.ContentBase,
   'ariaDescribedBy' | 'ariaLabel' | 'ariaLabelledBy' | 'children'
 >
-type ModalSurfaceProps = Omit<ModalT.ContentProps, 'children'> & {
+export type ModalSurfaceProps = Omit<ModalT.ContentProps, 'children'> & {
   children?: ModalT.ContentBase['children']
   surfaceRender?: () => SurfaceContent
+  /** Internal overlay support for composed overlays (Dialog, Sheet). */
+  overlay?: boolean
+  overlayScroll?: boolean
+  overlayRef?: (element: HTMLDivElement | undefined) => void
+  overlayClass?: string
+  overlayStyle?: JSX.CSSProperties
 }
 
 /** Standalone Modal presentation; composed overlays use the same unstyled surface. */
 export function ModalContent(props: ModalT.ContentProps): JSX.Element {
-  const cn = useCn()
-  const [local, rest] = splitProps(props, [
-    'class',
-    'style',
-    'classes',
-    'styles',
-    'overlayClass',
-    'overlayStyle',
-  ])
+  const [local, rest] = splitProps(props, ['class', 'style', 'classes', 'styles'])
 
   const resolved = createComponentStyles('modal', local, { rootSlot: 'content' })
-  return (
-    <ModalSurface
-      {...rest}
-      {...resolved.root}
-      overlayClass={cn(resolved.slot('overlay').class, local.overlayClass)}
-      overlayStyle={{ ...resolved.slot('overlay').style, ...local.overlayStyle }}
-    />
-  )
+  return <ModalSurface {...rest} {...resolved.root} />
 }
 
 /** Shared modal DOM, presence, and focus behavior without a default visual layer. */
@@ -54,6 +46,11 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     styles?: Partial<ModalT.Styles>
     ref?: (element: HTMLDivElement | undefined) => void
     onKeyDown?: JSX.EventHandlerUnion<HTMLDivElement, KeyboardEvent>
+    overlay?: boolean
+    overlayScroll?: boolean
+    overlayRef?: (element: HTMLDivElement | undefined) => void
+    overlayClass?: string
+    overlayStyle?: JSX.CSSProperties
   } & Record<string, unknown>
 
   const [local, rest] = splitProps(props as RuntimeProps, [
@@ -75,6 +72,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     'surfaceRender',
   ])
   const context = useModalContext()
+  const isInsideOverlay = useModalOverlayContext()
   const overlayScroll = createMemo(() => Boolean(local.overlayScroll && local.overlay))
   const renderOutsideOverlay = createMemo(() => !overlayScroll())
   const hasOverlay = createMemo(() => Boolean(props.overlay))
@@ -154,17 +152,26 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
         const surface = local.surfaceRender?.()
 
         return (
-          <Portal>
-            <Show when={overlayScroll()}>{(_value) => renderOverlay(renderContent(surface))}</Show>
-            <Show when={renderOutsideOverlay()}>
-              {(_value) => (
-                <>
-                  <Show when={hasOverlay()}>{(_value) => renderOverlay()}</Show>
-                  {renderContent(surface)}
-                </>
-              )}
-            </Show>
-          </Portal>
+          <Show
+            when={isInsideOverlay}
+            fallback={
+              <Portal>
+                <Show when={overlayScroll()}>
+                  {(_value) => renderOverlay(renderContent(surface))}
+                </Show>
+                <Show when={renderOutsideOverlay()}>
+                  {(_value) => (
+                    <>
+                      <Show when={hasOverlay()}>{(_value) => renderOverlay()}</Show>
+                      {renderContent(surface)}
+                    </>
+                  )}
+                </Show>
+              </Portal>
+            }
+          >
+            {renderContent(surface)}
+          </Show>
         )
       }}
     </Show>

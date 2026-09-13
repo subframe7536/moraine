@@ -10,7 +10,8 @@ export function Controlled() {
         Open controlled modal
       </Button>
       <Modal open={open()} onOpenChange={setOpen}>
-        <Modal.Content overlay ariaLabel="Controlled modal">
+        <Modal.Overlay />
+        <Modal.Content ariaLabel="Controlled modal">
           {(context) => (
             <div class="p-4 gap-4 grid">
               <p class="text-sm text-foreground">

@@ -135,39 +135,64 @@
             "type": "ModalT.Classes | undefined"
           },
           {
-            "name": "overlay",
+            "name": "ref",
             "required": false,
-            "type": "boolean | undefined",
-            "description": "Whether to render the modal overlay element."
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
           },
           {
-            "name": "overlayClass",
+            "name": "style",
             "required": false,
-            "type": "string | undefined",
-            "description": "Class applied to the modal overlay element."
+            "type": "SlotStyleValue | undefined"
           },
           {
-            "name": "overlayRef",
+            "name": "styles",
+            "required": false,
+            "type": "ModalT.Styles | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "modal-overlay",
+        "name": "Modal.Overlay",
+        "category": "overlays",
+        "polymorphic": false,
+        "description": "Backdrop layer for modal dialogs.",
+        "sourcePath": "src/overlays/modal/modal-overlay.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Optional elements rendered inside the overlay."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "classes",
+            "required": false,
+            "type": "ModalT.Classes | undefined"
+          },
+          {
+            "name": "ref",
             "required": false,
             "type": "((element: HTMLDivElement | undefined) => void) | undefined",
             "description": "Receives the mounted overlay element and `undefined` when it unmounts."
           },
           {
-            "name": "overlayScroll",
+            "name": "scrollable",
             "required": false,
             "type": "boolean | undefined",
-            "description": "Whether the overlay should contain and scroll the modal content."
-          },
-          {
-            "name": "overlayStyle",
-            "required": false,
-            "type": "JSX.CSSProperties | undefined",
-            "description": "Style applied to the modal overlay element."
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+            "description": "Whether the overlay should scroll its content."
           },
           {
             "name": "style",
