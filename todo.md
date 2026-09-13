@@ -6,7 +6,7 @@
 - [x] restore bound Switch initial state after a native Form reset
 - [x] slider & stepper recipe structure refactor
 - [x] split overlay from content in modal
-- [ ] verify auto completion ability on `as={Button}`
+- [x] verify auto completion ability on `as={Button}`
 - [ ] base select should be a namespaced component and export
 - [ ] unify context-menu and dropdown-menu menu styles
 - [ ] correct/verify button group separator

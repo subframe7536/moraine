@@ -37,7 +37,9 @@ The `src` directory is organized by component role and shared infrastructure:
 ```text
 src/
 ├── index.ts             # Public package entry point; re-exports all components and utilities.
+├── theme.ts             # Public theme entry point; re-exports theme creators and tokens.
 ├── utils.ts              # Public utility entry point.
+├── virtualizer.ts        # Public virtual list entry point.
 ├── elements/             # Basic, non-form UI elements.
 │   ├── accordion/         # Accordion primitives.
 │   ├── avatar/            # Avatar and fallback display.
@@ -57,6 +59,7 @@ src/
 │   ├── file-upload/       # File upload control and dropzone behavior.
 │   ├── form/              # Form root, field wrapper, submission, and context.
 │   ├── input/             # Text input control.
+│   ├── input-group/       # Compound input layout with addons and triggers.
 │   ├── input-number/      # Numeric input control.
 │   ├── radio-group/       # Radio group control.
 │   ├── select/             # Select, multi-select, and shared select behavior.
@@ -81,12 +84,12 @@ src/
 │   ├── sheet/              # Side or bottom sheet.
 │   └── tooltip/            # Tooltip.
 ├── shared/                # Reusable internals that are not public components.
-│   ├── style/              # Shared style tokens, animations, and icon styles.
-│   ├── testing/            # Shared testing helpers.
-│   └── type-test/           # Type-level compatibility tests.
+│   ├── provider/          # Shared context providers (theme, cn class combiner context).
+│   └── style/             # Shared style tokens, recipe definitions, and cn utilities.
+├── tailwind/               # Tailwind integration and generated style helpers.
 ├── test-utils/             # SSR, owner, overlay, and global test utilities.
-├── unocss/                 # UnoCSS integration and preset helpers.
-└── tailwind/               # Tailwind integration and generated style helpers.
+├── theme/                  # Default theme configuration, types, and theme creation primitives.
+└── unocss/                 # UnoCSS integration and preset helpers.
 ```
 
 Component directories normally contain the implementation (`{component}.tsx`), styles (`{component}.class.ts`), tests, and an `index.ts` barrel. Keep component-specific behavior inside its role directory; move logic to `shared` only when it is reused by multiple component families. `base` directories provide internal primitives for higher-level components and are not automatically public API.

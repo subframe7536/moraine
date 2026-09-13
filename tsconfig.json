@@ -26,5 +26,5 @@
     "types": ["vite/client", "solid-file-router/client", "node"]
   },
   "include": ["src", "docs", "*.config.ts"],
-  "exclude": ["**/dist", "**/node_modules", "docs/routes.d.ts", "src/shared/type-test"]
+  "exclude": ["**/dist", "**/node_modules", "docs/routes.d.ts"]
 }

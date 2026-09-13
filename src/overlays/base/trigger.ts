@@ -30,10 +30,11 @@ function isNativeButtonTrigger(element: HTMLElement | undefined): element is HTM
 }
 
 /** Compose consumer events before menu behavior, retaining canceled pointer-up cleanup. */
-export function mergeMenuTriggerProps(
-  user: Partial<OverlayTriggerProps>,
+export function mergeMenuTriggerProps<T extends object>(
+  user: T,
   internal: OverlayTriggerProps,
-): OverlayTriggerProps {
+): OverlayTriggerProps & T {
+  const userHandlers = user as Record<string, unknown>
   const handlers: Record<string, unknown> = {}
   for (const key of [
     'onClick',
@@ -45,8 +46,8 @@ export function mergeMenuTriggerProps(
     'onPointerCancel',
   ] as const) {
     handlers[key] = (event: Event) => {
-      callHandler(event, user[key])
-      if (user.disabled) {
+      callHandler(event, userHandlers[key])
+      if (userHandlers.disabled) {
         event.preventDefault()
       }
       callHandler(event, internal[key])
@@ -55,12 +56,12 @@ export function mergeMenuTriggerProps(
   const triggerProps = mergeProps(internal, user, handlers, {
     ref: (element: HTMLElement | undefined) => {
       internal.ref(element)
-      callRef(user.ref, element)
+      callRef(userHandlers.ref, element)
       if (element) {
-        onCleanup(() => callRef(user.ref, undefined))
+        onCleanup(() => callRef(userHandlers.ref, undefined))
       }
     },
-  }) as OverlayTriggerProps
+  }) as OverlayTriggerProps & T
   return triggerProps
 }
 
