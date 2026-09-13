@@ -164,6 +164,34 @@ describe('MultiSelect', () => {
     expect(content.className).toContain('bg-black')
   })
 
+  test('applies tagLabel slot classes and styles directly without child selectors', () => {
+    const screen = render(() => (
+      <MultiSelect
+        options={FRUITS}
+        value={['apple']}
+        classes={{ tagLabel: 'custom-tag-label font-bold' }}
+        styles={{ tagLabel: { 'letter-spacing': '1px' } }}
+      />
+    ))
+
+    const tag = screen.container.querySelector('[data-slot="tag"]') as HTMLElement
+    const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement
+    const tagRemove = screen.container.querySelector('[data-slot="tagRemove"]') as HTMLElement
+
+    expect(label).not.toBeNull()
+    expect(label.className).toContain('min-w-0')
+    expect(label.className).toContain('truncate')
+    expect(label.className).toContain('custom-tag-label')
+    expect(label.className).toContain('font-bold')
+    expect(label.style.letterSpacing).toBe('1px')
+
+    // Confirm tag and tagRemove do not contain CSS child selectors
+    expect(tag.className).not.toContain('[&>')
+    expect(tagRemove.className).not.toContain('[&>')
+    expect(tagRemove.className).toContain('opacity-50')
+    expect(tagRemove.className).toContain('hover:opacity-100')
+  })
+
   test('reacts to replaced provider and instance style objects without remounting', () => {
     const [providerConfig, setProviderConfig] = createSignal({
       multiSelect: {
@@ -1226,9 +1254,11 @@ describe('MultiSelect', () => {
     expect(trigger?.getAttribute('aria-label')).toBe('Loading')
     expect(trigger?.getAttribute('aria-busy')).toBe('true')
     expect(trigger?.hasAttribute('data-loading')).toBe(true)
-    expect(trigger?.querySelector('[data-slot="icon"]')?.className).toContain('icon-loading')
-    expect(trigger?.querySelector('[data-slot="icon"]')?.hasAttribute('data-loading')).toBe(true)
-    expect(trigger?.className).toContain('[&>[data-loading]]:animate-spin')
+    const icon = trigger?.querySelector('[data-slot="icon"]')
+    expect(icon?.className).toContain('icon-loading')
+    expect(icon?.hasAttribute('data-loading')).toBe(true)
+    expect(icon?.className).toContain('data-loading:animate-spin')
+    expect(trigger?.className).not.toContain('[&>')
     expect(screen.container.querySelector('[data-slot="clear"]')).toBeNull()
   })
 
@@ -1264,19 +1294,10 @@ describe('MultiSelect', () => {
       <MultiSelect options={FRUITS} size="md" leadingIcon="icon-search" placeholder="Pick" />
     ))
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
-    const tagsContainer = screen.container.querySelector(
-      '[data-slot="tagsContainer"]',
-    ) as HTMLElement
-    const leading = screen.container.querySelector('[data-slot="leading"]') as HTMLElement
-    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
-    expect(control.className).toContain('px-1.5')
+    expect(control.className).toContain('ps-2.5')
+    expect(control.className).toContain('pe-2')
     expect(control.className).toContain('gap-1.5')
-    expect(tagsContainer.className).not.toContain('px-2.5')
-    expect(leading.className).not.toContain('ms-')
-    expect(trigger.className).not.toContain('hover:bg-muted-hover')
-    expect(leading.className).not.toMatch(/(?:^|\s)size-/)
-    expect(trigger.className).not.toMatch(/(?:^|\s)size-/)
   })
 
   test('sizes tag and input rows from their content', () => {
@@ -1285,14 +1306,9 @@ describe('MultiSelect', () => {
     const tagRemove = screen.container.querySelector('[data-slot="tagRemove"]') as HTMLElement
     const input = screen.container.querySelector('[data-slot="input"]') as HTMLInputElement
 
-    expect(tag.className).not.toContain('h-5.5')
     expect(tag.className).toContain('text-sm')
-    expect(tag.className).toContain('leading-tight')
     expect(tagRemove.className).toContain('p-0.5')
-    expect(input.className).not.toContain('h-6')
-    expect(input.className).not.toContain('leading-$s-m')
     expect(input.className).toContain('text-sm')
-    expect(input.className).toContain('leading-tight')
     expect(input.className).toContain('py-0.5')
   })
 

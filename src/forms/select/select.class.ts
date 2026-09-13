@@ -18,11 +18,12 @@ export const SELECT_TRIGGER_ICON_CLASS =
 export const SELECT_LEADING_ICON_CLASS = 'text-muted-foreground shrink-0'
 
 export const SELECT_CLEAR_ACTION_CLASS =
-  '[&>[data-slot=icon]]:(text-muted-foreground opacity-80) [&>[data-loading]]:animate-spin disabled:pointer-events-none data-loading:cursor-wait transition-colors hover:bg-muted-hover active:bg-muted-active'
+  'text-muted-foreground opacity-80 disabled:pointer-events-none data-loading:cursor-wait transition-colors hover:(bg-muted-hover text-foreground opacity-100) active:bg-muted-active'
 
 const SELECT_BASE_CLASSES = {
   root: 'inline-flex h-fit w-full relative',
   content: SELECT_CONTENT_CLASS,
+  control: SELECT_CONTROL_CLASS,
   listbox: 'm-0 p-1 outline-none max-h-(--mo-popper-content-available-height) overflow-y-auto',
   item: 'px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center relative data-highlighted:bg-muted data-disabled:(opacity-64 pointer-events-none)',
   group: '[&:not(:first-child)]:mt-1.5',
@@ -63,17 +64,17 @@ const SELECT_VARIANTS = {
 
 const SELECT_SIZE_VARIANTS = {
   sm: {
-    control: 'text-xs',
+    control: 'text-xs pe-1.5 ps-2',
     input: 'text-xs',
     item: 'text-xs min-h-7',
   },
   md: {
-    control: 'text-sm',
+    control: 'text-sm pe-2 ps-2.5',
     input: 'text-sm',
     item: 'text-sm min-h-8',
   },
   lg: {
-    control: 'text-base',
+    control: 'text-base pe-2.5 ps-3',
     input: 'text-base',
     item: 'text-base min-h-9',
   },
@@ -89,20 +90,7 @@ export const selectRecipe = /* @__PURE__ */ slotRecipe<SelectT.Slot, SelectT.Var
   defaults: SELECT_DEFAULTS,
   variants: {
     ...SELECT_VARIANTS,
-    size: {
-      sm: {
-        ...SELECT_SIZE_VARIANTS.sm,
-        control: `${SELECT_SIZE_VARIANTS.sm.control} pe-1.5 ps-2`,
-      },
-      md: {
-        ...SELECT_SIZE_VARIANTS.md,
-        control: `${SELECT_SIZE_VARIANTS.md.control} pe-2 ps-2.5`,
-      },
-      lg: {
-        ...SELECT_SIZE_VARIANTS.lg,
-        control: `${SELECT_SIZE_VARIANTS.lg.control} pe-2.5 ps-3`,
-      },
-    },
+    size: SELECT_SIZE_VARIANTS,
   },
 } as const)
 
@@ -112,15 +100,16 @@ export const multiSelectRecipe = /* @__PURE__ */ slotRecipe<
 >({
   base: {
     ...SELECT_BASE_CLASSES,
-    control: `${SELECT_CONTROL_CLASS} px-1.5`,
-    input: `${SELECT_INPUT_CLASS} leading-tight px-0.5 py-0.5 min-w-12`,
+    control: `${SELECT_CONTROL_CLASS} data-tags:ps-1`,
+    input: `${SELECT_INPUT_CLASS} min-w-12 py-0.5`,
     trigger:
-      'outline-none shrink-0 cursor-pointer disabled:pointer-events-none data-loading:cursor-wait [&>[data-slot=icon]]:(text-muted-foreground opacity-80) [&>[data-loading]]:animate-spin',
-    tagsContainer: 'py-1.5 bg-transparent flex flex-1 flex-wrap gap-1 max-w-full select-none',
-    tag: '[&>[data-slot=label]]:(min-w-0 truncate) text-foreground leading-tight px-1.5 pe-0 border-0 rounded-sm bg-muted inline-flex gap-1 max-w-50% w-fit whitespace-nowrap items-center justify-center',
+      'text-muted-foreground opacity-80 outline-none shrink-0 cursor-pointer disabled:pointer-events-none data-loading:cursor-wait',
+    tagsContainer: 'py-1 bg-transparent flex flex-1 flex-wrap gap-1 max-w-full select-none',
+    tag: 'text-foreground leading-tight leading-tight px-1.5 pe-0 border-0 rounded-sm bg-muted inline-flex gap-1 max-w-50% w-fit whitespace-nowrap items-center justify-center',
+    tagLabel: 'min-w-0 truncate',
     tagRemove:
-      'p-0.5 appearance-none flex shrink-0 items-center justify-center -ms-1 cursor-pointer disabled:pointer-events-none [&>[data-slot=icon]]:opacity-50 [&:not(:disabled)>[data-slot=icon]:hover]:opacity-100',
-    tagOverflow: 'text-muted-foreground leading-tight px-1 flex items-center',
+      'p-0.5 appearance-none flex shrink-0 items-center justify-center -ms-1 cursor-pointer transition-opacity opacity-50 hover:opacity-100 disabled:(pointer-events-none opacity-50)',
+    tagOverflow: 'text-muted-foreground px-1 flex items-center',
   },
   defaults: SELECT_DEFAULTS,
   variants: {
@@ -128,24 +117,21 @@ export const multiSelectRecipe = /* @__PURE__ */ slotRecipe<
     size: {
       sm: {
         ...SELECT_SIZE_VARIANTS.sm,
-        input: `${SELECT_SIZE_VARIANTS.sm.input} leading-tight`,
         tagsContainer: 'text-xs',
-        tag: 'text-xs leading-tight',
-        tagOverflow: 'text-xs leading-tight',
+        tag: 'text-xs',
+        tagOverflow: 'text-xs',
       },
       md: {
         ...SELECT_SIZE_VARIANTS.md,
-        input: `${SELECT_SIZE_VARIANTS.md.input} leading-tight`,
         tagsContainer: 'text-sm',
-        tag: 'text-sm leading-tight',
-        tagOverflow: 'text-sm leading-tight',
+        tag: 'text-sm',
+        tagOverflow: 'text-sm',
       },
       lg: {
         ...SELECT_SIZE_VARIANTS.lg,
-        input: `${SELECT_SIZE_VARIANTS.lg.input} leading-tight`,
         tagsContainer: 'text-base',
-        tag: 'text-base leading-tight',
-        tagOverflow: 'text-base leading-tight',
+        tag: 'text-base',
+        tagOverflow: 'text-base',
       },
     },
   },

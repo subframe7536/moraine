@@ -39,6 +39,8 @@ export namespace MultiSelectT {
     tagsContainer?: T
     /** Selected value tag. */
     tag?: T
+    /** Text label inside a selected value tag. */
+    tagLabel?: T
     /** Button used to remove one selected value. */
     tagRemove?: T
     /** Counter shown when selected tags exceed the visible limit. */

@@ -613,6 +613,7 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
             data-invalid={api.field.invalid() ? '' : undefined}
             data-required={api.field.required() ? '' : undefined}
             data-readonly={api.field.readOnly() ? '' : undefined}
+            data-tags={selectedValues().length > 0 ? '' : undefined}
             {...controlResolved.slot('control')}
             {...api.controlProps()}
           >
@@ -643,7 +644,9 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
                           api.focusInput()
                         }}
                       >
-                        <span data-slot="label">{option.label}</span>
+                        <span data-slot="label" {...controlResolved.slot('tagLabel')}>
+                          {option.label}
+                        </span>
 
                         <button
                           type="button"
@@ -727,60 +730,78 @@ export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Valu
               />
             </div>
 
-            <button
-              type="button"
-              data-slot={isClearAction() ? 'clear' : 'trigger'}
-              aria-label={
-                isActionLoading()
-                  ? 'Loading'
-                  : isClearAction()
-                    ? 'Clear selection'
-                    : 'Open dropdown menu'
+            <Show
+              when={isClearAction()}
+              fallback={
+                <button
+                  type="button"
+                  data-slot="trigger"
+                  aria-label={isActionLoading() ? 'Loading' : 'Open dropdown menu'}
+                  aria-busy={isActionLoading() || undefined}
+                  data-loading={isActionLoading() ? '' : undefined}
+                  tabIndex={-1}
+                  class={controlResolved.slot('trigger').class}
+                  style={controlResolved.slot('trigger').style}
+                  disabled={api.field.disabled() || api.field.readOnly() || isActionLoading()}
+                  onPointerDown={(event) => {
+                    if (api.field.disabled() || api.field.readOnly() || isActionLoading()) {
+                      return
+                    }
+                    event.preventDefault()
+                    event.stopPropagation()
+                    api.focusInput()
+                  }}
+                  onClick={(event) => {
+                    event.stopPropagation()
+
+                    if (api.field.disabled() || api.field.readOnly() || isActionLoading()) {
+                      return
+                    }
+
+                    api.toggle()
+                  }}
+                >
+                  <Icon
+                    name={
+                      isActionLoading()
+                        ? (loadingIcon() ?? 'icon-loading')
+                        : (trailingIcon() ?? 'icon-chevron-down')
+                    }
+                    data-loading={isActionLoading() ? '' : undefined}
+                    class="data-loading:animate-spin"
+                  />
+                </button>
               }
-              aria-busy={isActionLoading() || undefined}
-              data-loading={isActionLoading() ? '' : undefined}
-              tabIndex={-1}
-              class={controlResolved.slot(isClearAction() ? 'clear' : 'trigger').class}
-              style={
-                isClearAction()
-                  ? controlResolved.slot('clear').style
-                  : controlResolved.slot('trigger').style
-              }
-              disabled={api.field.disabled() || api.field.readOnly() || isActionLoading()}
-              onPointerDown={(event) => {
-                if (api.field.disabled() || api.field.readOnly() || isActionLoading()) {
-                  return
-                }
-                event.preventDefault()
-                event.stopPropagation()
-                api.focusInput()
-              }}
-              onClick={(event) => {
-                event.stopPropagation()
-
-                if (api.field.disabled() || api.field.readOnly() || isActionLoading()) {
-                  return
-                }
-
-                if (isClearAction()) {
-                  clearSelection(api)
-                  return
-                }
-
-                api.toggle()
-              }}
             >
-              <Icon
-                name={
-                  isActionLoading()
-                    ? (loadingIcon() ?? 'icon-loading')
-                    : isClearAction()
-                      ? (closeIcon() ?? 'icon-close')
-                      : (trailingIcon() ?? 'icon-chevron-down')
-                }
-                data-loading={isActionLoading() ? '' : undefined}
-              />
-            </button>
+              <button
+                type="button"
+                data-slot="clear"
+                aria-label="Clear selection"
+                tabIndex={-1}
+                class={controlResolved.slot('clear').class}
+                style={controlResolved.slot('clear').style}
+                disabled={api.field.disabled() || api.field.readOnly()}
+                onPointerDown={(event) => {
+                  if (api.field.disabled() || api.field.readOnly()) {
+                    return
+                  }
+                  event.preventDefault()
+                  event.stopPropagation()
+                  api.focusInput()
+                }}
+                onClick={(event) => {
+                  event.stopPropagation()
+
+                  if (api.field.disabled() || api.field.readOnly()) {
+                    return
+                  }
+
+                  clearSelection(api)
+                }}
+              >
+                <Icon name={closeIcon() ?? 'icon-close'} />
+              </button>
+            </Show>
           </div>
         )
       }}

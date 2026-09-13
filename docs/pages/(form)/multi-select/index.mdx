@@ -67,12 +67,9 @@ import type { MultiSelectT } from 'moraine'
       { label: 'Product', value: 'product', icon: 'i-lucide:layers' },
       { label: 'Research', value: 'research', icon: 'i-lucide:search' },
     ]
-    const [selected, setSelected] = createSignal(['design', 'dev'])
     return (
       <MultiSelect
         options={TAG_OPTIONS}
-        value={selected()}
-        onChange={setSelected}
         placeholder={props.placeholder}
         variant={props.variant}
         size={props.size}
