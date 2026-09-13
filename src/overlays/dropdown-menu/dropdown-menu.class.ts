@@ -8,8 +8,4 @@ export const dropdownMenuRecipe = /* @__PURE__ */ slotRecipe<
   DropdownMenuT.Variant
 >({
   ...overlayMenuRecipeOptions,
-  base: {
-    ...overlayMenuRecipeOptions.base,
-    content: `${overlayMenuRecipeOptions.base.content} min-w-32`,
-  },
 })
