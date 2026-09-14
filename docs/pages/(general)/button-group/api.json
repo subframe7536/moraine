@@ -22,20 +22,6 @@
           "description": "Defines the semantic role exposed to assistive technology."
         }
       ]
-    },
-    {
-      "name": "separator",
-      "description": "Separator element between buttons.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        }
-      ]
     }
   ],
   "props": {
@@ -80,12 +66,6 @@
         "required": false,
         "type": "| \"alert\" | \"alertdialog\" | \"application\" | \"article\" | \"banner\" | \"button\" | \"cell\" | \"checkbox\" | \"columnheader\" | \"combobox\" | \"complementary\" | \"contentinfo\" | \"definition\" | \"dialog\" | \"directory\" | \"document\" | \"feed\" | \"figure\" | \"form\" | \"grid\" | \"gridcell\" | \"group\" | \"heading\" | \"img\" | \"link\" | \"list\" | \"listbox\" | \"listitem\" | \"log\" | \"main\" | \"marquee\" | \"math\" | \"menu\" | \"menubar\" | \"menuitem\" | \"menuitemcheckbox\" | \"menuitemradio\" | \"meter\" | \"navigation\" | \"none\" | \"note\" | \"option\" | \"presentation\" | \"progressbar\" | \"radio\" | \"radiogroup\" | \"region\" | \"row\" | \"rowgroup\" | \"rowheader\" | \"scrollbar\" | \"search\" | \"searchbox\" | \"separator\" | \"slider\" | \"spinbutton\" | \"status\" | \"switch\" | \"tab\" | \"table\" | \"tablist\" | \"tabpanel\" | \"term\" | \"textbox\" | \"timer\" | \"toolbar\" | \"tooltip\" | \"tree\" | \"treegrid\" | \"treeitem\" | undefined",
         "description": "ARIA role for the group root."
-      },
-      {
-        "name": "separator",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to render a decorative separator between adjacent controls."
       },
       {
         "name": "size",
