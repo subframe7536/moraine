@@ -16,64 +16,17 @@ import {
   BASE_SELECT_FORWARD_PROP_KEYS,
   BASE_SELECT_SHARED_SLOTS,
   isFormFieldInvalid,
+  MULTI_SELECT_LOCAL_PROP_KEYS,
 } from './shared/props.ts'
 import { useSelectSearch } from './shared/search.ts'
 
-const MULTI_SELECT_LOCAL_PROP_KEYS = [
-  'classes',
-  'styles',
-  'class',
-  'style',
-  'size',
-  'variant',
-  'search',
-  'searchValue',
-  'defaultSearchValue',
-  'onSearch',
-  'searchMaxLength',
-  'filterItem',
-  'itemRender',
-  'itemProps',
-  'listboxProps',
-  'virtualRender',
-  'scrollToItem',
-  'onScrollBottom',
-  'scrollBottomThreshold',
-  'gutter',
-  'overflowPadding',
-  'emptyRender',
-  'placeholder',
-  'allowClear',
-  'onClear',
-  'loading',
-  'leadingIcon',
-  'loadingIcon',
-  'trailingIcon',
-  'closeIcon',
-  'ref',
-  'inputRef',
-  'tagRender',
-  'allowCreate',
-  'maxCount',
-  'maxTagCount',
-  'tokenSeparators',
-] as const
-
 /** Multiple selection with tags, search, and optional item creation. */
 export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
-  incoming: MultiSelectProps<V>,
+  props: MultiSelectProps<V>,
 ): JSX.Element {
-  return <MultiSelectContent incoming={incoming} />
-}
-
-function MultiSelectContent<V extends MultiSelectT.Value = MultiSelectT.Value>(props: {
-  incoming: MultiSelectProps<V>
-}): JSX.Element {
-  // oxlint-disable-next-line subf/solid-reactivity -- The incoming props object has stable identity and preserves its getters.
-  const incoming = props.incoming
   type Item = MultiSelectT.Item<V>
   const [local, baseSelectProps, rootProps] = splitProps(
-    incoming,
+    props,
     MULTI_SELECT_LOCAL_PROP_KEYS,
     BASE_SELECT_FORWARD_PROP_KEYS,
   )
@@ -85,7 +38,7 @@ function MultiSelectContent<V extends MultiSelectT.Value = MultiSelectT.Value>(p
   const closeIcon = createMemo(() => local.closeIcon)
   const tagRender = createMemo(() => local.tagRender)
   const field = useFormFieldContext()
-  const styles = createComponentStyles('multiSelect', incoming, {
+  const styles = createComponentStyles('multiSelect', props, {
     inheritedVariants: () => ({ size: field?.size }),
   })
   const sharedClasses = createMemo(() =>

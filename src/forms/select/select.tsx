@@ -1,5 +1,6 @@
 import type { JSX } from 'solid-js'
 import { splitProps, createMemo, Show } from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../elements/icon/index.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
@@ -14,69 +15,27 @@ import {
   BASE_SELECT_FORWARD_PROP_KEYS,
   BASE_SELECT_SHARED_SLOTS,
   isFormFieldInvalid,
+  SELECT_LOCAL_PROP_KEYS,
 } from './shared/props.ts'
 import { useSelectSearch } from './shared/search.ts'
 
-const SELECT_LOCAL_PROP_KEYS = [
-  'classes',
-  'styles',
-  'class',
-  'style',
-  'size',
-  'variant',
-  'search',
-  'searchValue',
-  'defaultSearchValue',
-  'onSearch',
-  'searchMaxLength',
-  'filterItem',
-  'itemRender',
-  'itemProps',
-  'listboxProps',
-  'virtualRender',
-  'scrollToItem',
-  'onScrollBottom',
-  'scrollBottomThreshold',
-  'gutter',
-  'overflowPadding',
-  'emptyRender',
-  'placeholder',
-  'allowClear',
-  'onClear',
-  'loading',
-  'leadingIcon',
-  'loadingIcon',
-  'trailingIcon',
-  'closeIcon',
-  'ref',
-  'inputRef',
-] as const
-
 /** Single selection with optional search and standard item presentation. */
 export function Select<V extends SelectT.Value = SelectT.Value>(
-  incoming: SelectProps<V>,
+  props: SelectProps<V>,
 ): JSX.Element {
-  return <SelectContent incoming={incoming} />
-}
-
-function SelectContent<V extends SelectT.Value = SelectT.Value>(props: {
-  incoming: SelectProps<V>
-}): JSX.Element {
-  // oxlint-disable-next-line subf/solid-reactivity -- The incoming props object has stable identity and preserves its getters.
-  const incoming = props.incoming
   const [local, baseSelectProps, rootProps] = splitProps(
-    incoming,
+    props,
     SELECT_LOCAL_PROP_KEYS,
     BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const itemRender = createMemo(() => local.itemRender)
   const emptyRender = createMemo(() => local.emptyRender)
   const leadingIcon = createMemo(() => local.leadingIcon)
-  const loadingIcon = createMemo(() => local.loadingIcon)
-  const trailingIcon = createMemo(() => local.trailingIcon)
-  const closeIcon = createMemo(() => local.closeIcon)
+  const loadingIcon = createMemo(() => local.loadingIcon ?? 'icon-loading')
+  const trailingIcon = createMemo(() => local.trailingIcon ?? 'icon-chevron-down')
+  const closeIcon = createMemo(() => local.closeIcon ?? 'icon-close')
   const field = useFormFieldContext()
-  const styles = createComponentStyles('select', incoming, {
+  const styles = createComponentStyles('select', props, {
     inheritedVariants: () => ({ size: field?.size }),
   })
   const sharedClasses = createMemo(() =>
@@ -85,13 +44,13 @@ function SelectContent<V extends SelectT.Value = SelectT.Value>(props: {
   const sharedStyles = createMemo(() =>
     Object.fromEntries(BASE_SELECT_SHARED_SLOTS.map((slot) => [slot, styles.slot(slot).style])),
   )
+  const searchable = () => Boolean(styles.variants.search)
+
   function Control(): JSX.Element {
     const state = useSelectState<SelectT.Item<V>>()
-    const searchable = () => Boolean(styles.variants.search)
     const search = useSelectSearch(local, searchable)
     const hasValue = () => state.value() !== null
-    const label = () =>
-      state.selectedItems()[0]?.label ?? (hasValue() ? String(state.value()) : local.placeholder)
+
     const clear = () => {
       if (state.locked()) {
         return
@@ -100,120 +59,95 @@ function SelectContent<V extends SelectT.Value = SelectT.Value>(props: {
       search.setQuery('')
       local.onClear?.()
     }
-    const actionLoading = createMemo(() => Boolean(local.loading))
-    const contents = () => (
-      <>
-        <Show when={leadingIcon()}>
-          {(icon) => <Icon name={icon()} slotName="leading" {...styles.slot('leading')} />}
-        </Show>
-        <Show
-          when={searchable()}
-          fallback={
-            <span
-              data-slot="input"
-              data-placeholder={!hasValue() ? '' : undefined}
-              {...styles.slot('input')}
-            >
-              {label()}
-            </span>
-          }
-        >
-          <input
-            {...search.binding}
-            {...state.field.ariaAttrs()}
-            data-slot="input"
-            {...styles.slot('input')}
-            placeholder={local.placeholder}
-            ref={(element) => {
-              search.binding.ref(element)
-              callRef(local.inputRef, element)
-            }}
-          />
-        </Show>
-        <Show
-          when={!actionLoading() && local.allowClear && hasValue()}
-          fallback={
-            <Icon
-              name={
-                actionLoading()
-                  ? (loadingIcon() ?? 'icon-loading')
-                  : (trailingIcon() ?? 'icon-chevron-down')
-              }
-              slotName="trigger"
-              data-loading={actionLoading() ? '' : undefined}
-              {...styles.slot('trigger')}
-            />
-          }
-        >
-          <button
-            type="button"
-            data-slot="clear"
-            aria-label="Clear selection"
-            tabIndex={-1}
-            {...styles.slot('clear')}
-            disabled={state.locked()}
-            onPointerDown={(event) => {
-              event.preventDefault()
-              event.stopPropagation()
-              state.control()?.focus()
-            }}
-            onClick={(event) => {
-              event.stopPropagation()
-              clear()
-            }}
-          >
-            <Icon name={closeIcon() ?? 'icon-close'} />
-          </button>
-        </Show>
-      </>
-    )
     return (
       <>
-        <Show
-          when={searchable()}
-          fallback={
-            <BaseSelect.Trigger
-              as="div"
-              data-slot="control"
-              {...styles.slot('control')}
-              data-disabled={state.field.disabled() ? '' : undefined}
-              data-readonly={state.field.readOnly() ? '' : undefined}
-              data-required={state.field.required() ? '' : undefined}
-              data-invalid={state.field.invalid() ? '' : undefined}
-            >
-              {contents()}
-            </BaseSelect.Trigger>
-          }
+        <Dynamic
+          component={searchable() ? 'div' : BaseSelect.Trigger}
+          as={searchable() ? undefined : 'div'}
+          data-slot="control"
+          {...styles.slot('control')}
+          data-disabled={state.field.disabled() ? '' : undefined}
+          data-readonly={state.field.readOnly() ? '' : undefined}
+          data-required={state.field.required() ? '' : undefined}
+          data-invalid={state.field.invalid() ? '' : undefined}
+          ref={state.setAnchor}
+          onPointerDown={(event: PointerEvent) => {
+            if (
+              !(event.target instanceof HTMLInputElement) &&
+              event.pointerType !== 'touch' &&
+              event.pointerType !== 'pen'
+            ) {
+              event.preventDefault()
+              state.control()?.focus()
+            }
+          }}
+          onClick={(event: MouseEvent) => {
+            state.control()?.focus()
+            if (searchable()) {
+              state.setOpen(event.target instanceof HTMLInputElement ? true : !state.open())
+            }
+          }}
         >
-          <div
-            data-slot="control"
-            {...styles.slot('control')}
-            data-disabled={state.field.disabled() ? '' : undefined}
-            data-readonly={state.field.readOnly() ? '' : undefined}
-            data-required={state.field.required() ? '' : undefined}
-            data-invalid={state.field.invalid() ? '' : undefined}
-            ref={state.setAnchor}
-            onPointerDown={(event: PointerEvent) => {
-              if (
-                !(event.target instanceof HTMLInputElement) &&
-                event.pointerType !== 'touch' &&
-                event.pointerType !== 'pen'
-              ) {
-                event.preventDefault()
-                state.control()?.focus()
-              }
-            }}
-            onClick={(event: MouseEvent) => {
-              if (event.target instanceof HTMLInputElement) {
-                state.setOpen(true)
-                return
-              }
-              state.setOpen(!state.open())
-            }}
+          <Show when={leadingIcon()}>
+            {(icon) => <Icon name={icon()} slotName="leading" {...styles.slot('leading')} />}
+          </Show>
+          <Show
+            when={searchable()}
+            fallback={
+              <span
+                data-slot="input"
+                data-placeholder={!hasValue() ? '' : undefined}
+                {...styles.slot('input')}
+              >
+                {state.selectedItems()[0]?.label ??
+                  (hasValue() ? String(state.value()) : local.placeholder)}
+              </span>
+            }
           >
-            {contents()}
-          </div>
-        </Show>
+            <input
+              {...search.binding}
+              {...state.field.ariaAttrs()}
+              data-slot="input"
+              {...styles.slot('input')}
+              placeholder={local.placeholder}
+              ref={(element) => {
+                search.binding.ref(element)
+                callRef(local.inputRef, element)
+              }}
+            />
+          </Show>
+          <Show
+            when={!local.loading && local.allowClear && hasValue()}
+            fallback={
+              <Icon
+                name={local.loading ? loadingIcon() : trailingIcon()}
+                slotName="trigger"
+                data-loading={local.loading ? '' : undefined}
+                {...styles.slot('trigger')}
+              />
+            }
+          >
+            <button
+              type="button"
+              data-slot="clear"
+              aria-label="Clear selection"
+              tabIndex={-1}
+              {...styles.slot('clear')}
+              disabled={state.locked()}
+              onPointerDown={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
+                state.control()?.focus()
+              }}
+              onClick={(event) => {
+                event.stopPropagation()
+                clear()
+              }}
+            >
+              <Icon name={closeIcon()} />
+            </button>
+          </Show>
+        </Dynamic>
         <DefaultSelectContent
           itemRender={itemRender()}
           itemProps={local.itemProps}

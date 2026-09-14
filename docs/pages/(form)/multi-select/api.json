@@ -1,2 +1,705 @@
-/bin/bash: -c: line 1: syntax error near unexpected token `('
-/bin/bash: -c: line 1: `git show f29ab047b5507543faf4ae8c40f6d9d61fe7830a:docs/pages/(form)/multi-select/api.json'
+{
+  "component": {
+    "key": "multi-select",
+    "name": "MultiSelect",
+    "category": "forms",
+    "polymorphic": false,
+    "description": "Multiple selection with tags, search, and optional item creation.",
+    "sourcePath": "src/forms/select/multi-select.tsx",
+    "kind": "single"
+  },
+  "slots": [
+    {
+      "name": "content",
+      "description": "Floating popup panel.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-side",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Stores the resolved floating or drawer content side."
+        }
+      ],
+      "ariaAttributes": []
+    },
+    {
+      "name": "listbox",
+      "description": "Scrollable listbox.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-multiselectable",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "item",
+      "description": "Selectable row.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component, slot, or item is disabled."
+        },
+        {
+          "name": "data-highlighted",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item is highlighted by pointer or keyboard navigation."
+        },
+        {
+          "name": "data-selected",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the item or tab is selected."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-disabled",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates that the control is disabled."
+        },
+        {
+          "name": "aria-selected",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates the currently selected option or tab."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "group",
+      "description": "Group container.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-labelledby",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the element that labels the control or region."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "groupLabel",
+      "description": "Group heading.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "separator",
+      "description": "Decorative divider.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "empty",
+      "description": "Empty collection message.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "control",
+      "description": "Multi-select control that displays selected tags and opens the popup.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component, slot, or item is disabled."
+        },
+        {
+          "name": "data-invalid",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field or form has a validation error."
+        },
+        {
+          "name": "data-readonly",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is in read-only mode."
+        },
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field input is required."
+        },
+        {
+          "name": "data-tags",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
+      "ariaAttributes": []
+    },
+    {
+      "name": "input",
+      "description": "Search input used to filter or add selections.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "leading",
+      "description": "Icon shown before the selected tags and search input.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "trigger",
+      "description": "Button region that toggles the multi-select popup.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-loading",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component or async operation is loading."
+        }
+      ],
+      "ariaAttributes": [
+        {
+          "name": "aria-busy",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        }
+      ]
+    },
+    {
+      "name": "clear",
+      "description": "Button used to clear all selected values.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        }
+      ]
+    },
+    {
+      "name": "tagsContainer",
+      "description": "Wrapper that lays out selected value tags inside the control.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "tag",
+      "description": "Selected value tag.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "tagLabel",
+      "description": "Text label inside a selected value tag.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "tagRemove",
+      "description": "Button used to remove one selected value.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-label",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Provides an accessible label when visible text is not sufficient."
+        }
+      ]
+    },
+    {
+      "name": "tagOverflow",
+      "description": "Counter shown when selected tags exceed the visible limit.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "itemLeading",
+      "description": "Leading icon inside an item row.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
+    },
+    {
+      "name": "itemLabel",
+      "description": "Text region containing the primary label and optional description.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "itemDescription",
+      "description": "Supporting description text inside an item row.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "itemTrailing",
+      "description": "Trailing region inside an item row, usually for selection state or custom content.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "root",
+      "description": "Visual control wrapper.",
+      "cssVariables": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component, slot, or item is disabled."
+        },
+        {
+          "name": "data-invalid",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field or form has a validation error."
+        },
+        {
+          "name": "data-readonly",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is in read-only mode."
+        },
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field input is required."
+        }
+      ],
+      "ariaAttributes": []
+    }
+  ],
+  "item": {
+    "props": [
+      {
+        "name": "description",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Secondary item description."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether this item cannot be selected."
+      },
+      {
+        "name": "icon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Leading item icon."
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Visual label."
+      },
+      {
+        "name": "value",
+        "required": true,
+        "type": "MultiSelectT.Value",
+        "description": "Unique selection and form value."
+      }
+    ]
+  },
+  "props": {
+    "own": [
+      {
+        "name": "allowClear",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Show a clear button when a value is selected.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "allowCreate",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Allow creating new tags on Enter when no match is found."
+      },
+      {
+        "name": "class",
+        "required": false,
+        "type": "SlotClassValue",
+        "description": "Class applied to the component root or trigger element."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "MultiSelectT.Classes | undefined"
+      },
+      {
+        "name": "closeIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon used when the action button clears the selection.\nTag remove buttons keep using this icon as well."
+      },
+      {
+        "name": "closeOnSelect",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Close after selection. Defaults to true for single, false for multiple."
+      },
+      {
+        "name": "defaultOpen",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Initial popup state.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "defaultSearchValue",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Initial search text.",
+        "defaultValue": ""
+      },
+      {
+        "name": "defaultValue",
+        "required": false,
+        "type": "V[] | undefined",
+        "description": "The default value of the input (uncontrolled)."
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "emptyRender",
+        "required": false,
+        "type": "ComponentOrElement<MultiSelectT.EmptyRenderProps<V>>",
+        "description": "Custom renderer for the empty state when current filtered result has no matches."
+      },
+      {
+        "name": "filterItem",
+        "required": false,
+        "type": "boolean | \"startsWith\" | \"endsWith\" | \"contains\" | ((query: string, item: MultiSelectT.Item<V>) => boolean) | undefined",
+        "description": "Filtering strategy or predicate receiving the raw item.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "gutter",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Anchor gap in pixels.",
+        "defaultValue": "0"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The ID of the input element."
+      },
+      {
+        "name": "inputRef",
+        "required": false,
+        "type": "Ref<HTMLInputElement> | undefined"
+      },
+      {
+        "name": "itemProps",
+        "required": false,
+        "type": "((state: BaseSelectT.ItemState<MultiSelectT.Item<V>>) => ElementProps<HTMLDivElement> | undefined) | undefined",
+        "description": "Additional row attributes."
+      },
+      {
+        "name": "itemRender",
+        "required": false,
+        "type": "ComponentOrElement<BaseSelectT.ItemState<MultiSelectT.Item<V>>>",
+        "description": "Custom item presentation."
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "BaseSelectT.Entry<MultiSelectT.Item<V>>[] | undefined",
+        "description": "Complete canonical collection, including currently hidden items."
+      },
+      {
+        "name": "itemToLabelString",
+        "required": false,
+        "type": "((item: MultiSelectT.Item<V>) => string) | undefined",
+        "description": "Machine-readable text for matching; does not change visual labels."
+      },
+      {
+        "name": "leadingIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon shown before the input/value area."
+      },
+      {
+        "name": "listboxProps",
+        "required": false,
+        "type": "ElementProps<HTMLDivElement> | undefined",
+        "description": "Additional listbox attributes."
+      },
+      {
+        "name": "loading",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the select is in a loading state."
+      },
+      {
+        "name": "loadingIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon shown during loading state.",
+        "defaultValue": "icon-loading"
+      },
+      {
+        "name": "maxCount",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Maximum number of selected values (multiple/tags)."
+      },
+      {
+        "name": "maxTagCount",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Maximum visible tags before showing +N (visual only)."
+      },
+      {
+        "name": "name",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The name of the input element, used for form submission."
+      },
+      {
+        "name": "onChange",
+        "required": false,
+        "type": "((value: NoInfer<V[]>) => void) | undefined",
+        "description": "Called when the selection changes."
+      },
+      {
+        "name": "onClear",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Called when clear is triggered."
+      },
+      {
+        "name": "onOpenChange",
+        "required": false,
+        "type": "((open: boolean) => void) | undefined",
+        "description": "Called when popup state changes."
+      },
+      {
+        "name": "onScrollBottom",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Called once when scrolling reaches the bottom."
+      },
+      {
+        "name": "onSearch",
+        "required": false,
+        "type": "((value: string) => void) | undefined",
+        "description": "Called when search text changes."
+      },
+      {
+        "name": "open",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled popup state."
+      },
+      {
+        "name": "overflowPadding",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Collision padding in pixels.",
+        "defaultValue": "4"
+      },
+      {
+        "name": "placeholder",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Placeholder text shown when no value is selected.",
+        "defaultValue": ""
+      },
+      {
+        "name": "readOnly",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is read-only.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "ref",
+        "required": false,
+        "type": "Ref<HTMLDivElement> | undefined"
+      },
+      {
+        "name": "required",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is required.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "scrollBottomThreshold",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Bottom threshold in pixels.",
+        "defaultValue": "20"
+      },
+      {
+        "name": "scrollToItem",
+        "required": false,
+        "type": "((item: MultiSelectT.Item<V>, entryIndex: number) => void) | undefined",
+        "description": "Scrolls a highlighted item into view using its flattened entry index."
+      },
+      {
+        "name": "search",
+        "required": false,
+        "type": "boolean | null | undefined",
+        "description": "Whether the control accepts searchable input.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "searchMaxLength",
+        "required": false,
+        "type": "number | undefined",
+        "description": "Maximum committed search length."
+      },
+      {
+        "name": "searchValue",
+        "required": false,
+        "type": "string | undefined",
+        "description": "Controlled search text."
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "description": "Visual size of the component.",
+        "defaultValue": "md"
+      },
+      {
+        "name": "style",
+        "required": false,
+        "type": "SlotStyleValue | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "MultiSelectT.Styles | undefined"
+      },
+      {
+        "name": "tagRender",
+        "required": false,
+        "type": "ComponentOrElement<MultiSelectT.TagRenderProps<V>>",
+        "description": "Custom renderer for each selected tag."
+      },
+      {
+        "name": "tokenSeparators",
+        "required": false,
+        "type": "string[] | undefined",
+        "description": "Characters that split input into tokens and immediately select them."
+      },
+      {
+        "name": "trailingIcon",
+        "required": false,
+        "type": "IconT.Name",
+        "description": "Icon used when the action button opens the dropdown.",
+        "defaultValue": "icon-chevron-down"
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "V[] | undefined",
+        "description": "The current value of the input (controlled)."
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined",
+        "description": "Visual treatment of the component.",
+        "defaultValue": "outline"
+      },
+      {
+        "name": "virtualRender",
+        "required": false,
+        "type": "Component<MultiSelectT.VirtualRenderProps<V>> | undefined",
+        "description": "Renders flattened group labels and items through a virtualization layer."
+      }
+    ],
+    "inherited": []
+  }
+}

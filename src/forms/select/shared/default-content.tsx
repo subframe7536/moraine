@@ -92,13 +92,10 @@ export function DefaultSelectContent<T extends SelectItem>(
           rowProps?.ref?.(element)
         }}
         class={cn(attributes()?.class, rowProps?.class)}
-        style={(() => {
-          const style = attributes()?.style
-          return {
-            ...(typeof style === 'object' ? style : {}),
-            ...(typeof rowProps?.style === 'object' ? rowProps.style : {}),
-          }
-        })()}
+        style={{
+          ...attributes()?.style,
+          ...rowProps?.style,
+        }}
         onClick={(event) => {
           callHandler(event, attributes()?.onClick)
           callHandler(event, rowProps?.onClick)
