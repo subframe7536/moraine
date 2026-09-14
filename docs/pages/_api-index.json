@@ -41,7 +41,7 @@
       "name": "BaseSelect",
       "category": "forms",
       "polymorphic": false,
-      "description": "Public selection primitive with a canonical collection and form ownership.",
+      "description": "Public selection primitive for a flat navigation collection.",
       "sourcePath": "src/forms/select/base-select.tsx",
       "kind": "composite"
     },

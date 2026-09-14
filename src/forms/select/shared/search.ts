@@ -1,32 +1,24 @@
-import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
+import { createMemo, createSignal } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 import { useControllableValue } from '../../../shared/use-controllable-value.ts'
 import { useSelectState } from '../base-select.tsx'
 import type { BaseSelectT } from '../base-select.types.ts'
 
-import { isGroup, labelString } from './collection.ts'
-import type { SearchProps } from './types.ts'
+import { filterView, labelString } from './collection.ts'
+import type { SearchProps, SelectView } from './types.ts'
 
 export function useSelectSearch<T extends BaseSelectT.Item>(
   props: SearchProps<T>,
   enabled: Accessor<boolean>,
+  source: Accessor<SelectView<T>>,
+  resolve: Accessor<((item: T) => string) | undefined>,
 ) {
-  const state = useSelectState<T>()
   const [text, setText] = useControllableValue<string>({
     value: () => props.searchValue,
-    defaultValue: () => {
-      if (props.defaultSearchValue !== undefined) {
-        return props.defaultSearchValue
-      }
-      const initialItem = !state.props.multiple ? state.selectedItems()[0] : undefined
-      return initialItem ? labelString(initialItem, state.props.itemToLabelString) : ''
-    },
+    defaultValue: () => props.defaultSearchValue ?? '',
   })
   const query = () => text() ?? ''
-  const [composing, setComposing] = createSignal(false)
-  const [draft, setDraft] = createSignal('')
-  let pendingSelectionQuery: string | undefined
   function setQuery(value: string) {
     const next = props.searchMaxLength === undefined ? value : value.slice(0, props.searchMaxLength)
     if (next === query()) {
@@ -36,33 +28,16 @@ export function useSelectSearch<T extends BaseSelectT.Item>(
     props.onSearch?.(next)
     return next
   }
-  function commit(value: string) {
-    const next = setQuery(value)
-    if (value.trim()) {
-      state.setOpen(true)
-    }
-    return next
-  }
   const view = createMemo(() => {
-    const entries = state.collection().entries
     if (!enabled() || props.filterItem === false || !query()) {
-      return entries
-    }
-    const selectedItem = !state.props.multiple ? state.selectedItems()[0] : undefined
-    if (
-      selectedItem &&
-      query() === labelString(selectedItem, state.props.itemToLabelString) &&
-      !props.searchValue &&
-      !props.defaultSearchValue
-    ) {
-      return entries
+      return source()
     }
     const input = query().toLowerCase()
-    const matches = (item: T) => {
+    return filterView(source(), (item) => {
       if (typeof props.filterItem === 'function') {
         return props.filterItem(query(), item)
       }
-      const text = labelString(item, state.props.itemToLabelString).toLowerCase()
+      const text = labelString(item, resolve()).toLowerCase()
       if (props.filterItem === 'startsWith') {
         return text.startsWith(input)
       }
@@ -70,70 +45,33 @@ export function useSelectSearch<T extends BaseSelectT.Item>(
         return text.endsWith(input)
       }
       return text.includes(input)
-    }
-    return entries.flatMap<BaseSelectT.Entry<T>>((entry) => {
-      if (!isGroup(entry)) {
-        return matches(entry) ? [entry] : []
-      }
-      const items = entry.items.filter(matches)
-      return items.length ? [{ ...entry, items }] : []
     })
   })
-  state.setViewSource(() => view)
-  onCleanup(() => state.setViewSource(undefined))
-  state.setSelectAction((item) => {
-    const next = state.props.multiple ? '' : labelString(item, state.props.itemToLabelString)
-    if (!state.props.multiple && !state.open() && state.contentPresent()) {
-      pendingSelectionQuery = next
-      return
+  return { query, setQuery, view }
+}
+
+/** Input interaction stays inside the control owner; query and filtering live above BaseSelect. */
+export function useSelectSearchInput<T extends BaseSelectT.Item>(
+  props: SearchProps<T>,
+  enabled: Accessor<boolean>,
+  search: Pick<ReturnType<typeof useSelectSearch<T>>, 'query' | 'setQuery'>,
+  display: Accessor<string> = search.query,
+) {
+  const state = useSelectState<T>()
+  const { query, setQuery } = search
+  const [composing, setComposing] = createSignal(false)
+  const [draft, setDraft] = createSignal('')
+  function commit(value: string) {
+    const next = setQuery(value)
+    if (value.trim()) {
+      state.setOpen(true)
     }
-    pendingSelectionQuery = undefined
-    setQuery(next)
-  })
-  onCleanup(() => state.setSelectAction(undefined))
-  createEffect(
-    on(
-      [state.resetVersion, () => (!state.props.multiple ? state.selectedItems()[0] : undefined)],
-      ([, item]) => {
-        const next = state.props.multiple
-          ? ''
-          : item
-            ? labelString(item, state.props.itemToLabelString)
-            : ''
-        if (!state.props.multiple && !state.open() && state.contentPresent()) {
-          pendingSelectionQuery = next
-          return
-        }
-        pendingSelectionQuery = undefined
-        setQuery(next)
-      },
-      { defer: true },
-    ),
-  )
-  createEffect(
-    on(state.contentPresent, (present) => {
-      if (!present && pendingSelectionQuery !== undefined) {
-        const next = pendingSelectionQuery
-        pendingSelectionQuery = undefined
-        setQuery(next)
-      }
-    }),
-  )
-  createEffect(
-    on(
-      state.open,
-      (open) => {
-        if (!open && state.visibleItems().length === 0) {
-          setQuery('')
-        }
-      },
-      { defer: true },
-    ),
-  )
+    return next
+  }
   function input(event: InputEvent) {
     const target = event.currentTarget as HTMLInputElement
     if (state.locked()) {
-      target.value = query()
+      target.value = display()
       return
     }
     if (composing() || event.isComposing) {
@@ -172,8 +110,8 @@ export function useSelectSearch<T extends BaseSelectT.Item>(
       'aria-haspopup': 'listbox' as const,
       'aria-autocomplete': 'list' as const,
       get 'aria-activedescendant'() {
-        return state.open() && state.highlight()
-          ? `${state.listboxId()}-${encodeURIComponent(state.highlight()!)}`
+        return state.open() && state.highlightedValue() !== undefined
+          ? state.itemId(state.highlightedValue()!)
           : undefined
       },
       get disabled() {
@@ -186,7 +124,7 @@ export function useSelectSearch<T extends BaseSelectT.Item>(
         return props.searchMaxLength
       },
       get value() {
-        return composing() ? draft() : query()
+        return composing() ? draft() : display()
       },
       ref(element: HTMLInputElement) {
         state.setControl(element)

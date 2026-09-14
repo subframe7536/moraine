@@ -117,6 +117,32 @@ Use `value` with `onChange` for controlled selection, or a default value for loc
 
 <Preview path="./basic-select" />
 
+`searchValue` is the actual query, and `onSearch` reports only query changes. A searchable Select displays the selected item's label string while closed and the query while open. Closing preserves the filtered options throughout the exit animation; the query resets to `''` only after exit completes. Selecting an item never publishes its label through `onSearch`.
+
+Select owns source items, grouping, filtering, and canonical value lookup. Its value API remains `TItem['value'] | null`. Missing selected items display `String(value)` until the canonical item arrives.
+
+### Complete item types
+
+The generic parameter is the full item type. Custom fields remain available to filtering, rendering, text resolution, and virtualization:
+
+```tsx
+interface UserItem extends SelectT.Item<string> {
+  department: string
+}
+
+;<Select<UserItem>
+  items={users}
+  filterItem={(query, item) => item.department.includes(query)}
+  itemRender={({ item }) => (
+    <span>
+      {item.label} — {item.department}
+    </span>
+  )}
+/>
+```
+
+Grouped input keeps the `{ type: 'group', label, items }` discriminator. `SelectT.Group<UserItem>` and `SelectT.Entry<UserItem>` preserve the full item type. Normal and virtual content share `SelectT.Row<UserItem>`; virtual `scrollToItem` receives the original item and its row index.
+
 ### Read-only selection
 
 Use `readOnly` when users should be able to focus, open, and browse a selection without changing it. The selected value remains part of native form submission.

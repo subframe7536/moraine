@@ -10,6 +10,7 @@ import { useFormFieldContext } from '../form/form-context.ts'
 
 import { BaseSelect, useSelectState } from './base-select.tsx'
 import type { SelectProps, SelectT } from './select.types.ts'
+import { createSource, labelString } from './shared/collection.ts'
 import { DefaultSelectContent } from './shared/default-content.tsx'
 import {
   BASE_SELECT_FORWARD_PROP_KEYS,
@@ -17,21 +18,19 @@ import {
   isFormFieldInvalid,
   SELECT_LOCAL_PROP_KEYS,
 } from './shared/props.ts'
-import { useSelectSearch } from './shared/search.ts'
+import { useSelectSearch, useSelectSearchInput } from './shared/search.ts'
 
 /** Single selection with optional search and standard item presentation. */
-export function Select<V extends SelectT.Value = SelectT.Value>(
-  props: SelectProps<V>,
-): JSX.Element {
+export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps<T>): JSX.Element {
   const [local, baseSelectProps, rootProps] = splitProps(
     props,
     SELECT_LOCAL_PROP_KEYS,
     BASE_SELECT_FORWARD_PROP_KEYS,
   )
-  const leadingIcon = createMemo(() => local.leadingIcon)
-  const loadingIcon = createMemo(() => local.loadingIcon ?? 'icon-loading')
-  const trailingIcon = createMemo(() => local.trailingIcon ?? 'icon-chevron-down')
-  const closeIcon = createMemo(() => local.closeIcon ?? 'icon-close')
+  const leadingIcon = () => local.leadingIcon
+  const loadingIcon = () => local.loadingIcon ?? 'icon-loading'
+  const trailingIcon = () => local.trailingIcon ?? 'icon-chevron-down'
+  const closeIcon = () => local.closeIcon ?? 'icon-close'
   const field = useFormFieldContext()
   const styles = createComponentStyles('select', props, {
     inheritedVariants: () => ({ size: field?.size }),
@@ -44,16 +43,39 @@ export function Select<V extends SelectT.Value = SelectT.Value>(
   )
   const searchable = () => Boolean(styles.variants.search)
 
+  const source = createMemo(() => createSource(local.items ?? []))
+  const search = useSelectSearch(
+    local,
+    searchable,
+    () => source(),
+    () => baseSelectProps.itemToLabelString,
+  )
+  const selection = createMemo(() =>
+    local.value === undefined ? undefined : local.value === null ? [] : [local.value],
+  )
+  const defaultSelection = () =>
+    local.defaultValue === undefined || local.defaultValue === null ? [] : [local.defaultValue]
   function Control(): JSX.Element {
-    const state = useSelectState<SelectT.Item<V>>()
-    const search = useSelectSearch(local, searchable)
-    const hasValue = () => state.value() !== null
+    const state = useSelectState<T>()
+    const selectedItem = () => source().byValue.get(state.value()[0]!)
+    const selectedLabel = () => {
+      const item = selectedItem()
+      return item
+        ? labelString(item, baseSelectProps.itemToLabelString)
+        : state.value().length
+          ? String(state.value()[0])
+          : ''
+    }
+    const input = useSelectSearchInput(local, searchable, search, () =>
+      state.open() ? search.query() : selectedLabel(),
+    )
+    const hasValue = () => state.value().length > 0
 
     const clear = () => {
       if (state.locked()) {
         return
       }
-      state.change(null)
+      state.change([])
       search.setQuery('')
       local.onClear?.()
     }
@@ -97,19 +119,19 @@ export function Select<V extends SelectT.Value = SelectT.Value>(
                 data-placeholder={!hasValue() ? '' : undefined}
                 {...styles.slot('input')}
               >
-                {state.selectedItems()[0]?.label ??
-                  (hasValue() ? String(state.value()) : local.placeholder)}
+                {selectedItem()?.label ??
+                  (hasValue() ? String(state.value()[0]) : local.placeholder)}
               </span>
             }
           >
             <input
-              {...search.binding}
+              {...input.binding}
               {...state.field.ariaAttrs()}
               data-slot="input"
               {...styles.slot('input')}
               placeholder={local.placeholder}
               ref={(element) => {
-                search.binding.ref(element)
+                input.binding.ref(element)
                 callRef(local.inputRef, element)
               }}
             />
@@ -147,6 +169,8 @@ export function Select<V extends SelectT.Value = SelectT.Value>(
           </Show>
         </Dynamic>
         <DefaultSelectContent
+          view={search.view()}
+          onExitComplete={() => search.setQuery('')}
           itemRender={local.itemRender}
           itemProps={local.itemProps}
           listboxProps={local.listboxProps}
@@ -164,10 +188,10 @@ export function Select<V extends SelectT.Value = SelectT.Value>(
                     return search.query()
                   },
                   get hasMatches() {
-                    return state.visibleItems().length > 0
+                    return state.items().length > 0
                   },
                   get selectedValue() {
-                    return state.value() as V | null
+                    return state.value()[0] ?? null
                   },
                   close: () => state.setOpen(false),
                 })
@@ -188,8 +212,19 @@ export function Select<V extends SelectT.Value = SelectT.Value>(
       data-invalid={isFormFieldInvalid(field) ? '' : undefined}
       {...styles.root}
     >
-      <BaseSelect<SelectT.Item<V>>
+      <BaseSelect<T>
         {...baseSelectProps}
+        items={search.view().items}
+        serializeValue={(value) =>
+          source().byValue.get(value)?.disabled ? undefined : String(value)
+        }
+        value={selection()}
+        defaultValue={defaultSelection()}
+        onChange={(values) => local.onChange?.(values[0] ?? null)}
+        onReset={() => {
+          search.setQuery('')
+          local.onReset?.()
+        }}
         multiple={false}
         size={styles.variants.size ?? undefined}
         classes={sharedClasses()}

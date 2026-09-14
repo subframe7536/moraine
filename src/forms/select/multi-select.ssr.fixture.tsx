@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { MultiSelect } from './multi-select'
+import { MultiSelect } from './multi-select.tsx'
 
 export function renderMultiSelectFixture(): string {
   return renderToString(() => (

@@ -22,7 +22,7 @@ export function CreateNewTags() {
         items={FRUIT_OPTIONS}
         value={createTagValues()}
         onChange={setCreateTagValues}
-        allowCreate
+        createItem={(input) => ({ value: input, label: input })}
         placeholder="Type to create tags..."
         emptyRender={(ctx) => (
           <div class="p-2 text-center">

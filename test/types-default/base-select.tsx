@@ -1,16 +1,16 @@
 import { BaseSelect, Button, MultiSelect, Select } from 'moraine'
-import type { BaseSelectT } from 'moraine'
+import type { BaseSelectT, SelectT } from 'moraine'
 
 interface UserItem extends BaseSelectT.Item<number> {
   email: string
 }
 const items: UserItem[] = [{ value: 1, label: 'One', email: 'one@example.com' }]
-const group: BaseSelectT.Group<UserItem> = { type: 'group', label: 'Users', items }
+const group: SelectT.Group<UserItem> = { type: 'group', label: 'Users', items }
 ;<BaseSelect<UserItem>
-  items={[group]}
+  items={items}
   onChange={(value) => {
-    const number: number | null = value
-    void number
+    const numbers: number[] = value
+    void numbers
   }}
   itemToLabelString={(item) => item.email}
 />
@@ -23,9 +23,7 @@ const group: BaseSelectT.Group<UserItem> = { type: 'group', label: 'Users', item
   }}
 />
 ;<BaseSelect.Item item={items[0]}>{(state) => state.item.email}</BaseSelect.Item>
-;<BaseSelect.Trigger<'button', UserItem>>
-  {(state) => state.selectedItems[0]?.email}
-</BaseSelect.Trigger>
+;<BaseSelect.Trigger<'button', UserItem>>{(state) => state.value.join(',')}</BaseSelect.Trigger>
 ;<BaseSelect.Trigger as={Button} loading>
   Choose
 </BaseSelect.Trigger>
@@ -42,8 +40,7 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
 ;<BaseSelect<UserItem> items={items} value="one" />
 // @ts-expect-error Multiple selection requires an array.
 ;<BaseSelect<UserItem> multiple value={1} />
-// @ts-expect-error Single selection cannot receive an array.
-;<BaseSelect<UserItem> value={[1]} />
+;<BaseSelect<UserItem> value={[1, 2]} />
 // @ts-expect-error The root does not own a layout element.
 ;<BaseSelect items={items} class="root" />
 // @ts-expect-error Search belongs to the high-level controls.
@@ -78,3 +75,70 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
 ;<MultiSelect filterOption={false} />
 // @ts-expect-error Old label renderer is removed.
 ;<MultiSelect labelRender={() => null} />
+
+;<Select<UserItem>
+  items={[group]}
+  value={1}
+  itemRender={({ item }) => item.email}
+  itemProps={({ item }) => ({ title: item.email })}
+  filterItem={(query, item) => item.email.includes(query)}
+  itemToLabelString={(item) => item.email}
+  scrollToItem={(item) => {
+    const email: string = item.email
+    void email
+  }}
+  virtualRender={(props) => {
+    for (const row of props.entries) {
+      if (row.type === 'item') {
+        const email: string = row.item.email
+        void email
+      }
+    }
+    return null
+  }}
+  onChange={(value) => {
+    const number: number | null = value
+    void number
+  }}
+/>
+;<MultiSelect<UserItem>
+  items={[group]}
+  createItem={(input) => ({ value: input.length, label: input, email: input })}
+  itemRender={({ item }) => item.email}
+  filterItem={(query, item) => item.email.includes(query)}
+  itemToLabelString={(item) => item.email}
+  scrollToItem={(item) => {
+    const email: string = item.email
+    void email
+  }}
+  virtualRender={(props) => {
+    for (const row of props.entries) {
+      if (row.type === 'item') {
+        const email: string = row.item.email
+        void email
+      }
+    }
+    return null
+  }}
+  tagRender={(props) => {
+    const item: UserItem | undefined = props.item
+    const number: number = props.value
+    void number
+    return item?.email ?? props.label
+  }}
+/>
+// @ts-expect-error A factory must supply every required consumer field.
+;<MultiSelect<UserItem> createItem={(input) => ({ value: input.length, label: input })} />
+// @ts-expect-error BaseSelect accepts only flat navigation items.
+;<BaseSelect<UserItem> items={[group]} />
+;<BaseSelect.Trigger<'button', UserItem>>
+  {(state) => {
+    // @ts-expect-error Canonical selected items belong to high-level controls.
+    return state.selectedItems
+  }}
+</BaseSelect.Trigger>
+;<BaseSelect<UserItem>
+  isItemDisabled={(item, values) => item.email.length > 0 && values.includes(item.value)}
+  onReset={() => {}}
+/>
+;<BaseSelect.Content onExitComplete={() => {}} />

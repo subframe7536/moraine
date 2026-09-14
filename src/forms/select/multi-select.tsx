@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { splitProps, createMemo, createSignal, For, Show, createEffect, on } from 'solid-js'
+import { splitProps, createMemo, createSignal, For, Show } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../elements/icon/index.ts'
@@ -10,7 +10,7 @@ import { useFormFieldContext } from '../form/form-context.ts'
 
 import { BaseSelect, useSelectState } from './base-select.tsx'
 import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
-import { flattenItems, itemKey, labelString } from './shared/collection.ts'
+import { createSource, labelString, sameValue } from './shared/collection.ts'
 import { DefaultSelectContent } from './shared/default-content.tsx'
 import {
   BASE_SELECT_FORWARD_PROP_KEYS,
@@ -18,22 +18,23 @@ import {
   isFormFieldInvalid,
   MULTI_SELECT_LOCAL_PROP_KEYS,
 } from './shared/props.ts'
-import { useSelectSearch } from './shared/search.ts'
+import { useSelectSearch, useSelectSearchInput } from './shared/search.ts'
 
 /** Multiple selection with tags, search, and optional item creation. */
-export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
-  props: MultiSelectProps<V>,
+export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
+  props: MultiSelectProps<T>,
 ): JSX.Element {
-  type Item = MultiSelectT.Item<V>
+  type Item = T
+  type V = T['value']
   const [local, baseSelectProps, rootProps] = splitProps(
     props,
     MULTI_SELECT_LOCAL_PROP_KEYS,
     BASE_SELECT_FORWARD_PROP_KEYS,
   )
-  const leadingIcon = createMemo(() => local.leadingIcon)
-  const loadingIcon = createMemo(() => local.loadingIcon)
-  const trailingIcon = createMemo(() => local.trailingIcon)
-  const closeIcon = createMemo(() => local.closeIcon)
+  const leadingIcon = () => local.leadingIcon
+  const loadingIcon = () => local.loadingIcon
+  const trailingIcon = () => local.trailingIcon
+  const closeIcon = () => local.closeIcon
   const tagRender = createMemo(() => local.tagRender)
   const field = useFormFieldContext()
   const styles = createComponentStyles('multiSelect', props, {
@@ -46,37 +47,41 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
     Object.fromEntries(BASE_SELECT_SHARED_SLOTS.map((slot) => [slot, styles.slot(slot).style])),
   )
   const [created, setCreated] = createSignal<Item[]>([])
-  const items = createMemo(() => {
-    const entries = baseSelectProps.items ?? []
-    const existing = new Set(flattenItems(entries).map((item) => itemKey(item.value)))
-    return [...created().filter((item) => !existing.has(itemKey(item.value))), ...entries]
-  })
+  const source = createMemo(() => createSource(local.items ?? [], created()))
+  const searchable = () =>
+    Boolean(styles.variants.search || local.createItem || local.tokenSeparators?.length)
+  const search = useSelectSearch(
+    local,
+    searchable,
+    () => source(),
+    () => baseSelectProps.itemToLabelString,
+  )
+  let committingTokens = false
   function Control(): JSX.Element {
     const state = useSelectState<Item>()
-    const searchable = () =>
-      Boolean(styles.variants.search || local.allowCreate || local.tokenSeparators?.length)
-    const search = useSelectSearch(local, searchable)
-    const atMax = () => local.maxCount !== undefined && state.values().length >= local.maxCount
-    state.setDisabledPolicy(
-      // oxlint-disable-next-line subf/solid-reactivity -- The signal stores this predicate; BaseSelect evaluates it in tracked scopes.
-      () => (item: Item) => atMax() && !state.selectedKeys().has(itemKey(item.value)),
-    )
+    const input = useSelectSearchInput(local, searchable, search)
+    const atMax = () => local.maxCount !== undefined && state.value().length >= local.maxCount
     const tags = createMemo(() =>
-      state
-        .values()
-        .map(
-          (value) =>
-            state.collection().byValue.get(itemKey(value)) ?? { value, label: String(value) },
-        ),
+      state.value().map((value) => {
+        const item = source().byValue.get(value)
+        const label = item?.label ?? String(value)
+        const title =
+          item && baseSelectProps.itemToLabelString
+            ? baseSelectProps.itemToLabelString(item)
+            : typeof label === 'string'
+              ? label
+              : String(value)
+        return { value, item, label, title }
+      }),
     )
     const visibleTags = createMemo(() =>
       local.maxTagCount === undefined ? tags() : tags().slice(0, local.maxTagCount),
     )
-    function remove(item: Item) {
-      if (state.locked() || item.disabled) {
+    function remove(item: { value: V; item: Item | undefined }) {
+      if (state.locked() || item.item?.disabled) {
         return
       }
-      state.change(state.values().filter((value) => !Object.is(value, item.value)))
+      state.change(state.value().filter((value) => !sameValue(value, item.value)))
     }
     const clear = () => {
       if (state.locked()) {
@@ -86,7 +91,7 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
       search.setQuery('')
       local.onClear?.()
     }
-    function addText(text: string, allowCreate: boolean, batch?: V[]): boolean {
+    function addText(text: string, batch?: V[]): boolean {
       if (state.locked()) {
         return false
       }
@@ -94,40 +99,48 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
       if (!normalized) {
         return false
       }
-      let item = state
-        .collection()
-        .items.find(
-          (item) =>
-            labelString(item, baseSelectProps.itemToLabelString).toLowerCase() ===
-              normalized.toLowerCase() ||
-            String(item.value).toLowerCase() === normalized.toLowerCase(),
-        )
-      const current = batch ?? state.values()
-      if (item && current.some((value) => Object.is(value, item!.value))) {
+      let item = source().items.find(
+        (item) =>
+          labelString(item, baseSelectProps.itemToLabelString).toLowerCase() ===
+            normalized.toLowerCase() ||
+          String(item.value).toLowerCase() === normalized.toLowerCase(),
+      )
+      const current = batch ?? state.value()
+      if (item && current.some((value) => sameValue(value, item!.value))) {
         return true
       }
-      if ((local.maxCount !== undefined && current.length >= local.maxCount) || item?.disabled) {
+      if (
+        (local.maxCount !== undefined && current.length >= local.maxCount) ||
+        (item && (item.disabled || baseSelectProps.isItemDisabled?.(item, current)))
+      ) {
         return false
       }
       if (!item) {
-        if (!allowCreate) {
+        if (!local.createItem) {
           return false
         }
-        item = { value: normalized as V, label: normalized }
+        item = local.createItem(normalized)
+        const existing = source().byValue.get(item.value)
+        if (existing) {
+          item = existing
+        }
+        if (item.disabled || baseSelectProps.isItemDisabled?.(item, current)) {
+          return false
+        }
+        if (current.includes(item.value)) {
+          return true
+        }
         setCreated((previous) => [...previous, item!])
       }
       if (batch) {
         batch.push(item.value)
       } else {
-        state.change([...state.values(), item.value])
+        state.change([...state.value(), item.value])
       }
       return true
     }
     const create = (value?: string) => {
-      if (!local.allowCreate) {
-        return false
-      }
-      const added = addText(value ?? search.query(), true)
+      const added = addText(value ?? search.query())
       if (added) {
         search.setQuery('')
       }
@@ -143,9 +156,9 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
         return search.query()
       }
       if (!separators().length) {
-        return search.commit(text)
+        return input.commit(text)
       }
-      const batch = [...state.values()]
+      const batch = [...state.value()]
       let remaining = text
       let consumed = false
       for (;;) {
@@ -163,15 +176,20 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
         }
         const token = remaining.slice(0, index)
         if (token.trim()) {
-          addText(token, true, batch)
+          addText(token, batch)
         }
         remaining = remaining.slice(index + separator.length)
         consumed = true
       }
       if (consumed) {
-        state.change(batch)
+        committingTokens = true
+        try {
+          state.change(batch)
+        } finally {
+          committingTokens = false
+        }
       }
-      return search.commit(consumed ? remaining : text)
+      return input.commit(consumed ? remaining : text)
     }
     function processInput(event: InputEvent) {
       const target = event.currentTarget as HTMLInputElement
@@ -179,22 +197,12 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
         target.value = search.query()
         return
       }
-      if (search.composing() || event.isComposing) {
-        search.setDraft(target.value)
+      if (input.composing() || event.isComposing) {
+        input.setDraft(target.value)
         return
       }
       target.value = processText(target.value)
     }
-    createEffect(
-      on(
-        state.resetVersion,
-        () =>
-          setCreated((previous) =>
-            previous.filter((item) => state.selectedKeys().has(itemKey(item.value))),
-          ),
-        { defer: true },
-      ),
-    )
     return (
       <>
         <Dynamic
@@ -234,24 +242,16 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
                 <Show
                   when={tagRender() !== undefined}
                   fallback={
-                    <span
-                      title={labelString(item, baseSelectProps.itemToLabelString)}
-                      data-slot="tag"
-                      {...styles.slot('tag')}
-                    >
-                      <span
-                        title={labelString(item, baseSelectProps.itemToLabelString)}
-                        data-slot="label"
-                        {...styles.slot('tagLabel')}
-                      >
+                    <span title={item.title} data-slot="tag" {...styles.slot('tag')}>
+                      <span title={item.title} data-slot="label" {...styles.slot('tagLabel')}>
                         {item.label}
                       </span>
                       <button
                         type="button"
                         data-slot="tagRemove"
-                        aria-label={`Remove ${labelString(item, baseSelectProps.itemToLabelString)}`}
+                        aria-label={`Remove ${item.title}`}
                         tabIndex={-1}
-                        disabled={state.locked() || item.disabled}
+                        disabled={state.locked() || item.item?.disabled}
                         {...styles.slot('tagRemove')}
                         onClick={(event) => {
                           event.stopPropagation()
@@ -263,7 +263,7 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
                     </span>
                   }
                 >
-                  {renderComponentOrElement(tagRender(), { item, onClose: () => remove(item) })}
+                  {renderComponentOrElement(tagRender(), { ...item, onClose: () => remove(item) })}
                 </Show>
               )}
             </For>
@@ -273,7 +273,7 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
               </span>
             </Show>
             <input
-              {...(searchable() ? search.binding : { readOnly: true, value: '' })}
+              {...(searchable() ? input.binding : { readOnly: true, value: '' })}
               {...state.field.ariaAttrs()}
               role={searchable() ? 'combobox' : undefined}
               id={searchable() ? state.field.id() : undefined}
@@ -283,24 +283,24 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
               placeholder={tags().length ? '' : local.placeholder}
               ref={(element) => {
                 if (searchable()) {
-                  search.binding.ref(element)
+                  input.binding.ref(element)
                 }
                 callRef(local.inputRef, element)
               }}
               onInput={processInput}
               onCompositionEnd={(event) => {
                 const target = event.currentTarget
-                const committed = search.endComposition(target.value)
+                const committed = input.endComposition(target.value)
                 target.value = committed
                 target.value = processText(committed)
               }}
               onKeyDown={(event) => {
-                if (search.composing() || event.isComposing || state.locked()) {
+                if (input.composing() || event.isComposing || state.locked()) {
                   return
                 }
                 if (event.key === 'Backspace' && !search.query()) {
                   const item = tags().at(-1)
-                  if (item && !item.disabled) {
+                  if (item && !item.item?.disabled) {
                     event.preventDefault()
                     remove(item)
                   }
@@ -308,28 +308,28 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
                 }
                 if (
                   event.key === 'Enter' &&
-                  local.allowCreate &&
+                  local.createItem &&
                   search.query() &&
-                  !state.visibleItems().some((item) => !item.disabled)
+                  !state.items().some((item) => !item.disabled)
                 ) {
                   event.preventDefault()
                   create()
                   return
                 }
                 const highlighted = state
-                  .visibleItems()
-                  .find((item) => itemKey(item.value) === state.highlight())
+                  .items()
+                  .find((item) => sameValue(item.value, state.highlightedValue()))
                 if (
                   (event.key === 'Enter' || (!searchable() && event.key === ' ')) &&
                   state.open() &&
                   atMax() &&
                   highlighted &&
-                  !state.selectedKeys().has(itemKey(highlighted.value))
+                  !state.value().includes(highlighted.value)
                 ) {
                   event.preventDefault()
                   return
                 }
-                search.binding.onKeyDown(event)
+                input.binding.onKeyDown(event)
               }}
             />
           </div>
@@ -375,6 +375,7 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
           </Show>
         </Dynamic>
         <DefaultSelectContent
+          view={search.view()}
           itemRender={local.itemRender}
           itemProps={local.itemProps}
           listboxProps={local.listboxProps}
@@ -392,10 +393,10 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
                     return search.query()
                   },
                   get hasMatches() {
-                    return state.visibleItems().length > 0
+                    return state.items().length > 0
                   },
                   get selectedValues() {
-                    return state.values()
+                    return state.value()
                   },
                   get isAtMaxCount() {
                     return atMax()
@@ -422,7 +423,29 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
     >
       <BaseSelect<Item>
         {...baseSelectProps}
-        items={items()}
+        items={search.view().items}
+        serializeValue={(value) =>
+          source().byValue.get(value)?.disabled ? undefined : String(value)
+        }
+        value={local.value}
+        defaultValue={local.defaultValue}
+        onChange={(values) => {
+          if (!committingTokens) {
+            search.setQuery('')
+          }
+          local.onChange?.(values)
+        }}
+        onReset={() => {
+          search.setQuery('')
+          setCreated([])
+          local.onReset?.()
+        }}
+        isItemDisabled={(item, values) =>
+          baseSelectProps.isItemDisabled?.(item, values) === true ||
+          (local.maxCount !== undefined &&
+            values.length >= local.maxCount &&
+            !values.includes(item.value))
+        }
         multiple
         size={styles.variants.size ?? undefined}
         classes={sharedClasses()}

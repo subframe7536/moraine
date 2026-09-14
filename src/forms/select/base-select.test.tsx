@@ -8,10 +8,9 @@ import { Button } from '../../elements/button/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { createForm } from '../form/index.ts'
 
-import { useSelectState, BaseSelect } from './base-select.tsx'
+import { BaseSelect } from './base-select.tsx'
 import { MultiSelect } from './multi-select.tsx'
 import { Select } from './select.tsx'
-import { useSelectSearch } from './shared/search.ts'
 
 const items = [
   { value: 1, label: 'Alpha', extra: 'first' },
@@ -22,7 +21,9 @@ function Parts() {
   return (
     <>
       <BaseSelect.Trigger>
-        {(state) => state.selectedItems[0]?.label ?? 'Choose'}
+        {(state) => (
+          <span>{items.find((item) => item.value === state.value[0])?.label ?? 'Choose'}</span>
+        )}
       </BaseSelect.Trigger>
       <BaseSelect.Content>
         <BaseSelect.Listbox>
@@ -58,7 +59,7 @@ describe('BaseSelect selection and form', () => {
       ),
     )
     fireEvent.click(within(document.body).getAllByRole('option', { hidden: true })[0]!)
-    expect(change).toHaveBeenLastCalledWith(multiple ? [1] : 1)
+    expect(change).toHaveBeenLastCalledWith([1])
     expect(new FormData(screen.container.querySelector('form')!).getAll('choice')).toEqual(['1'])
     expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe(String(multiple))
     if (multiple) {
@@ -74,13 +75,13 @@ describe('BaseSelect selection and form', () => {
           <Parts />
         </BaseSelect>
       ) : (
-        <BaseSelect items={items} value={1} defaultOpen onChange={change}>
+        <BaseSelect items={items} value={[1]} defaultOpen onChange={change}>
           <Parts />
         </BaseSelect>
       ),
     )
     fireEvent.click(within(document.body).getAllByRole('option', { hidden: true })[1]!)
-    expect(change).toHaveBeenLastCalledWith(multiple ? [1, 2] : 2)
+    expect(change).toHaveBeenLastCalledWith(multiple ? [1, 2] : [2])
     expect(screen.getByRole('combobox').textContent).toBe('Alpha')
   })
   test.each(['disabled', 'readOnly'] as const)('blocks root %s mutations', (key) => {
@@ -111,7 +112,7 @@ describe('BaseSelect selection and form', () => {
   })
   test('resolves unknown controlled values without inventing raw items', () => {
     const screen = render(() => (
-      <BaseSelect items={items} value={99}>
+      <BaseSelect items={items} value={[99]}>
         <Parts />
       </BaseSelect>
     ))
@@ -136,7 +137,7 @@ describe('BaseSelect selection and form', () => {
         <BaseSelect
           items={items}
           name="choice"
-          defaultValue={1}
+          defaultValue={[1]}
           defaultOpen
           disabled={disabled()}
           closeOnSelect={false}
@@ -183,7 +184,7 @@ describe('BaseSelect composition', () => {
   })
   test('listbox is composition-only and empty groups do not suppress Empty', () => {
     const screen = render(() => (
-      <BaseSelect items={[{ type: 'group', label: 'Empty group', items: [] }]} defaultOpen>
+      <BaseSelect items={[]} defaultOpen>
         <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
         <BaseSelect.Content>
           <BaseSelect.Listbox />
@@ -278,7 +279,7 @@ describe('BaseSelect composition', () => {
       </BaseSelect>
     ))
     fireEvent.keyDown(screen.getByRole('combobox'), { key: 's' })
-    expect(change).toHaveBeenCalledWith(2)
+    expect(change).toHaveBeenCalledWith([2])
   })
 })
 describe('canonical collection and search view', () => {
@@ -310,42 +311,6 @@ describe('canonical collection and search view', () => {
       expect(new FormData(screen.container.querySelector('form')!).getAll('choice')).toEqual(['1'])
     },
   )
-})
-
-test('canonical raw selectedItems survive an independently filtered view', () => {
-  function SearchView() {
-    const search = useSelectSearch({ defaultSearchValue: 'Beta' }, () => true)
-    const state = useSelectState<(typeof items)[number]>()
-    return (
-      <>
-        <BaseSelect.Trigger<'button', (typeof items)[number]>>
-          {(presentation) => presentation.selectedItems[0]?.extra}
-        </BaseSelect.Trigger>
-        <BaseSelect.Content>
-          <BaseSelect.Listbox>
-            <For each={state.visibleItems()}>{(item) => <BaseSelect.Item item={item} />}</For>
-          </BaseSelect.Listbox>
-          <BaseSelect.Empty>No matches</BaseSelect.Empty>
-        </BaseSelect.Content>
-        <button onClick={() => search.setQuery('missing')}>Filter all</button>
-      </>
-    )
-  }
-  const screen = render(() => (
-    <form>
-      <BaseSelect items={items} name="selected" defaultValue={1} defaultOpen>
-        <SearchView />
-      </BaseSelect>
-    </form>
-  ))
-  expect(screen.getByRole('combobox').textContent).toBe('first')
-  expect(within(document.body).getAllByRole('option', { hidden: true })).toHaveLength(1)
-  expect(within(document.body).getByRole('option', { hidden: true }).textContent).toBe('Beta')
-  expect(new FormData(screen.container.querySelector('form')!).get('selected')).toBe('1')
-  fireEvent.click(screen.getByText('Filter all'))
-  expect(screen.getByRole('combobox').textContent).toBe('first')
-  expect(within(document.body).getByText('No matches')).not.toBeNull()
-  expect(new FormData(screen.container.querySelector('form')!).get('selected')).toBe('1')
 })
 
 test('virtual rows remain a small view of canonical selection and compose both refs', () => {
@@ -412,7 +377,7 @@ test('owns Form context synchronization and treats an unmatched empty field as n
   expect(screen.getByRole('combobox').textContent).toBe('Choose')
   fireEvent.click(within(document.body).getAllByRole('option', { hidden: true })[1]!)
   expect(getInput(form)).toEqual({ choice: 2 })
-  expect(change).toHaveBeenCalledWith(2)
+  expect(change).toHaveBeenCalledWith([2])
   setInput(form, { path: ['choice'], input: '' })
   expect(screen.getByRole('combobox').textContent).toBe('Choose')
   expect(change).toHaveBeenCalledOnce()

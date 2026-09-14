@@ -578,7 +578,7 @@ describe('Select - single mode', () => {
   test('keeps numeric and string values distinct when option keys are duplicated', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <Select<string | number>
+      <Select
         items={[
           { label: 'Numeric one', value: 1 },
           { label: 'String one', value: '1' },
@@ -679,8 +679,8 @@ describe('Select - single mode', () => {
   })
 
   test('keeps a controlled value until the parent accepts clear', async () => {
-    const [value, setValue] = createSignal<SelectT.Value | null>('apple')
-    const onChange = vi.fn((nextValue: SelectT.Value | null) => setValue(nextValue))
+    const [value, setValue] = createSignal<string | null>('apple')
+    const onChange = vi.fn((nextValue: string | null) => setValue(nextValue))
     const screen = render(() => (
       <Select items={FRUITS} value={value()} allowClear onChange={onChange} placeholder="Pick" />
     ))
@@ -1504,7 +1504,7 @@ describe('Select - form integration', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <form>
-        <Select<string | number>
+        <Select
           name="choice"
           items={[
             { label: 'Numeric one', value: 1 },
@@ -1840,7 +1840,7 @@ describe('Select - popup behavior', () => {
     })
   })
 
-  test('applies the selected search label after the closing panel has exited', async () => {
+  test('preserves the filtered query until exit while displaying the selected label when closed', async () => {
     const screen = render(() => <Select items={FRUITS} search defaultOpen placeholder="Pick" />)
     const input = screen.getByRole<HTMLInputElement>('combobox')
 
@@ -1853,7 +1853,7 @@ describe('Select - popup behavior', () => {
 
     await waitFor(() => {
       expect(queryBody('[data-slot="content"]')?.getAttribute('data-closed')).toBe('')
-      expect(input.value).toBe('a')
+      expect(input.value).toBe('Apple')
       expect(queryAllBody('[data-slot="item"]')).toHaveLength(2)
     })
 

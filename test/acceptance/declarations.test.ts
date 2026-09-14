@@ -39,9 +39,11 @@ describe('published declarations', () => {
     expect(input).toContain('The delay in milliseconds before automatically focusing the input.')
     expect(input).toContain('ref?: Ref<HTMLInputElement>')
     expect(input).toContain('onChange?: JSX.EventHandlerUnion<HTMLInputElement, Event>')
-    expect(namespace('SelectT')).toContain('onChange?: (value: NoInfer<TItem | null>) => void')
+    expect(namespace('SelectT')).toContain(
+      "onChange?: (value: NoInfer<TItem['value'] | null>) => void",
+    )
     expect(readFileSync(resolve(dist, 'forms/select/base-select.types.d.mts'), 'utf8')).toContain(
-      'items?: Entry<TItem>[]',
+      'items?: readonly TItem[]',
     )
   })
 })

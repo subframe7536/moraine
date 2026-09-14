@@ -2,7 +2,7 @@ import { Select } from '@src'
 import type { SelectT } from '@src'
 import { createSignal } from 'solid-js'
 
-const REGIONS: SelectT.Entry<string>[] = [
+const REGIONS: SelectT.Entry<SelectT.Item<string>>[] = [
   {
     label: 'North America',
     type: 'group' as const,
@@ -37,7 +37,7 @@ export function Collections() {
 
   return (
     <div class="max-w-sm w-full">
-      <Select<string>
+      <Select<SelectT.Item<string>>
         search
         items={REGIONS}
         value={region()}

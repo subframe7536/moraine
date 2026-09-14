@@ -9,7 +9,7 @@ const OPTIONS: MultiSelectT.Item<string>[] = Array.from({ length: 10_000 }, (_, 
 
 export function Virtualization() {
   const virtualizer = useListVirtualizer<
-    MultiSelectT.VirtualEntry<string>,
+    MultiSelectT.Row<MultiSelectT.Item<string>>,
     HTMLDivElement,
     HTMLDivElement
   >({

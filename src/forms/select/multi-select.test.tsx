@@ -297,7 +297,7 @@ describe('MultiSelect', () => {
   test('deduplicates typed values with Object.is identity at every ingress', () => {
     const screen = render(() => (
       <form>
-        <MultiSelect<string | number>
+        <MultiSelect
           name="choices"
           items={[
             { label: 'Numeric one', value: 1 },
@@ -659,6 +659,7 @@ describe('MultiSelect', () => {
       <MultiSelect
         search
         items={FRUITS}
+        createItem={(input) => ({ value: input, label: input })}
         tokenSeparators={[',']}
         onChange={onChange}
         placeholder="Type..."
@@ -705,6 +706,7 @@ describe('MultiSelect', () => {
       <MultiSelect
         search
         items={FRUITS}
+        createItem={(input) => ({ value: input, label: input })}
         tokenSeparators={['::']}
         onChange={onChange}
         onSearch={onSearch}
@@ -728,6 +730,7 @@ describe('MultiSelect', () => {
       <MultiSelect
         search
         items={FRUITS}
+        createItem={(input) => ({ value: input, label: input })}
         tokenSeparators={[',']}
         onChange={onChange}
         onSearch={onSearch}
@@ -790,10 +793,16 @@ describe('MultiSelect', () => {
     })
   })
 
-  test('creates tag on Enter when allowCreate is true', async () => {
+  test('creates tag on Enter when createItem is provided', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect search items={FRUITS} defaultOpen allowCreate onChange={onChange} />
+      <MultiSelect
+        search
+        items={FRUITS}
+        defaultOpen
+        createItem={(input) => ({ value: input, label: input })}
+        onChange={onChange}
+      />
     ))
 
     const input = screen.getByRole<HTMLInputElement>('combobox')
@@ -811,7 +820,7 @@ describe('MultiSelect', () => {
         search
         items={FRUITS}
         defaultOpen
-        allowCreate
+        createItem={(input) => ({ value: input, label: input })}
         defaultValue={['apple']}
         maxCount={1}
         onChange={onChange}
@@ -826,7 +835,7 @@ describe('MultiSelect', () => {
     expect(input.value).toBe('Dragonfruit')
   })
 
-  test('does not create tag on Enter when allowCreate is false', async () => {
+  test('does not create tag on Enter when createItem is absent', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <MultiSelect search items={FRUITS} defaultOpen onChange={onChange} />
@@ -1120,7 +1129,7 @@ describe('MultiSelect', () => {
         value={['apple']}
         tagRender={(props) => (
           <span data-testid="custom-tag">
-            {props.item.label}
+            {props.label}
             <button onClick={props.onClose}>x</button>
           </span>
         )}
@@ -1137,9 +1146,9 @@ describe('MultiSelect', () => {
         value={['locked']}
         items={[{ value: 'locked', label: 'Locked', disabled: true }]}
         onChange={onChange}
-        tagRender={({ item, onClose }) => (
+        tagRender={({ label, onClose }) => (
           <span data-testid="locked-tag">
-            {item.label}
+            {label}
             <button onClick={onClose}>Remove</button>
           </span>
         )}
@@ -1157,10 +1166,6 @@ describe('MultiSelect', () => {
       itemRender: 0,
       tagRender: 0,
       emptyRender: 0,
-      leadingIcon: 0,
-      loadingIcon: 0,
-      trailingIcon: 0,
-      closeIcon: 0,
     }
     const instances = { option: 0, tag: 0, empty: 0 }
     const screen = render(() =>
@@ -1179,7 +1184,7 @@ describe('MultiSelect', () => {
           reads.tagRender += 1
           return (props: MultiSelectT.TagRenderProps) => {
             instances.tag += 1
-            return <span data-testid="getter-tag">{props.item.label}</span>
+            return <span data-testid="getter-tag">{props.label}</span>
           }
         },
         get emptyRender() {
@@ -1190,32 +1195,28 @@ describe('MultiSelect', () => {
           }
         },
         get leadingIcon() {
-          reads.leadingIcon += 1
           return 'icon-search' as const
         },
         get loadingIcon() {
-          reads.loadingIcon += 1
           return 'icon-loading' as const
         },
         get trailingIcon() {
-          reads.trailingIcon += 1
           return 'icon-chevron-down' as const
         },
         get closeIcon() {
-          reads.closeIcon += 1
           return 'icon-close' as const
         },
       }),
     )
 
     expect(instances).toEqual({ option: 0, tag: 1, empty: 0 })
-    expect(Object.values(reads)).toEqual([0, 1, 0, 1, 1, 1, 1])
+    expect(Object.values(reads)).toEqual([0, 1, 0])
 
     fireEvent.click(screen.container.querySelector('[data-slot="control"]')!)
 
     expect(queryAllBody('[data-slot="item"]')).toHaveLength(3)
     expect(instances).toEqual({ option: 3, tag: 1, empty: 0 })
-    expect(Object.values(reads)).toEqual([1, 1, 0, 1, 1, 1, 1])
+    expect(Object.values(reads)).toEqual([1, 1, 0])
   })
 
   test('types onChange payload as array', () => {
@@ -1251,7 +1252,7 @@ describe('MultiSelect', () => {
           name="fruits"
           search
           allowClear
-          allowCreate
+          createItem={(input) => ({ value: input, label: input })}
           tokenSeparators={[',']}
           defaultOpen
           defaultValue={['apple']}
@@ -1290,7 +1291,7 @@ describe('MultiSelect', () => {
   test('serializes matched, missing, numeric, and string values in public order', () => {
     const screen = render(() => (
       <form>
-        <MultiSelect<string | number>
+        <MultiSelect
           name="choices"
           items={[
             { label: 'Numeric one', value: 1 },
@@ -1314,7 +1315,13 @@ describe('MultiSelect', () => {
   test('uses selected values for required validity and serializes created tags', async () => {
     const screen = render(() => (
       <form>
-        <MultiSelect name="fruits" items={FRUITS} required search allowCreate />
+        <MultiSelect
+          name="fruits"
+          items={FRUITS}
+          required
+          search
+          createItem={(input) => ({ value: input, label: input })}
+        />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -1551,7 +1558,7 @@ describe('MultiSelect', () => {
           items={FRUITS}
           defaultOpen
           defaultValue={defaultValue()}
-          allowCreate
+          createItem={(input) => ({ value: input, label: input })}
           onChange={onChange}
         />
       </form>

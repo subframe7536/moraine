@@ -4,7 +4,7 @@
     "name": "BaseSelect",
     "category": "forms",
     "polymorphic": false,
-    "description": "Public selection primitive with a canonical collection and form ownership.",
+    "description": "Public selection primitive for a flat navigation collection.",
     "sourcePath": "src/forms/select/base-select.tsx",
     "kind": "composite"
   },
@@ -111,9 +111,9 @@
       {
         "name": "defaultValue",
         "required": false,
-        "type": "BaseSelectT.ItemValue<T> | null | BaseSelectT.ItemValue<T>[] | undefined",
-        "description": "Initial single value (`null` when unselected), or array of values when `multiple`.",
-        "defaultValue": "null"
+        "type": "readonly BaseSelectT.ItemValue<T>[] | undefined",
+        "description": "Initial selection.",
+        "defaultValue": "[]"
       },
       {
         "name": "disabled",
@@ -129,10 +129,16 @@
         "description": "The ID of the input element."
       },
       {
+        "name": "isItemDisabled",
+        "required": false,
+        "type": "((item: T, values: readonly T[\"value\"][]) => boolean) | undefined",
+        "description": "Additional disabled policy evaluated against the current selection."
+      },
+      {
         "name": "items",
         "required": false,
-        "type": "BaseSelectT.Entry<T>[] | undefined",
-        "description": "Complete canonical collection, including currently hidden items."
+        "type": "readonly T[] | undefined",
+        "description": "Current flat navigation collection."
       },
       {
         "name": "itemToLabelString",
@@ -144,7 +150,7 @@
         "name": "multiple",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Single selection mode (`false`) or multiple selection mode (`true`)."
+        "description": "Whether selecting an item toggles multiple values."
       },
       {
         "name": "name",
@@ -155,14 +161,20 @@
       {
         "name": "onChange",
         "required": false,
-        "type": "(((value: BaseSelectT.ItemValue<T> | null) => void) | ((value: BaseSelectT.ItemValue<T>[]) => void)) | undefined",
-        "description": "Called when single value changes, or array of values when `multiple`."
+        "type": "((value: BaseSelectT.ItemValue<T>[]) => void) | undefined",
+        "description": "Called when selection changes."
       },
       {
         "name": "onOpenChange",
         "required": false,
         "type": "((open: boolean) => void) | undefined",
         "description": "Called when popup state changes."
+      },
+      {
+        "name": "onReset",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Post-reset notification after an unprevented native form reset."
       },
       {
         "name": "open",
@@ -185,6 +197,12 @@
         "defaultValue": "false"
       },
       {
+        "name": "serializeValue",
+        "required": false,
+        "type": "((value: T[\"value\"]) => string | undefined) | undefined",
+        "description": "Native form value; return undefined to omit a selected value from submission."
+      },
+      {
         "name": "size",
         "required": false,
         "type": "\"sm\" | \"md\" | \"lg\" | undefined",
@@ -200,8 +218,8 @@
       {
         "name": "value",
         "required": false,
-        "type": "BaseSelectT.ItemValue<T> | null | BaseSelectT.ItemValue<T>[] | undefined",
-        "description": "Controlled single value (`null` when unselected), or array of values when `multiple`."
+        "type": "readonly BaseSelectT.ItemValue<T>[] | undefined",
+        "description": "Controlled selection. Single mode uses at most the first value."
       }
     ],
     "inherited": []
@@ -326,6 +344,12 @@
             "defaultValue": "0"
           },
           {
+            "name": "onExitComplete",
+            "required": false,
+            "type": "(() => void) | undefined",
+            "description": "Called once after an open popup completes its exit."
+          },
+          {
             "name": "overflowPadding",
             "required": false,
             "type": "number | undefined",
@@ -382,7 +406,7 @@
             "name": "item",
             "required": true,
             "type": "T",
-            "description": "Raw item belonging to the canonical collection."
+            "description": "Raw item belonging to the current navigation collection."
           },
           {
             "name": "style",

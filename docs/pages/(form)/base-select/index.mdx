@@ -14,7 +14,7 @@ import { BaseSelect } from 'moraine'
 import type { BaseSelectT } from 'moraine'
 ```
 
-BaseSelect is the callable root. It renders its children and lightweight hidden form inputs without a layout wrapper. Supply the complete canonical `items` collection even when composing only a subset of rows. Each leaf requires a unique `value` and a visual `label`; custom fields stay available in item and trigger presentation state.
+BaseSelect is the callable root. It renders its children and lightweight hidden form inputs without a layout wrapper. Supply `items` as the current flat navigation collection. Filter and resolve source data in the owning component before passing navigation items to BaseSelect. Each item requires a unique `value` and a visual `label`; custom fields stay available in item presentation state. The root owns array selection, disclosure, navigation, form integration, and anchor/control references.
 
 ## Composition
 
@@ -34,7 +34,7 @@ const items = [
 
 <BaseSelect items={items} multiple defaultValue={['solid']} name="frameworks">
   <BaseSelect.Trigger>
-    {(state) => `${state.selectedItems.length} selected`}
+    {(state) => <span>{state.value.length} selected</span>}
   </BaseSelect.Trigger>
   <BaseSelect.Content>
     <BaseSelect.Listbox>
@@ -45,15 +45,21 @@ const items = [
 </BaseSelect>
 ```
 
-Single selection uses `TItem['value'] | null`; multiple selection uses `TItem['value'][]`. Single selection closes on selection by default, while multiple selection stays open. Override this with `closeOnSelect`.
+Both modes use array-shaped `value`, `defaultValue`, and `onChange`. Single selection uses `[]` or `[value]`; a controlled array containing more than one value is normalized to its first value. `multiple` changes selection behavior only. Trigger state exposes `value`, `open`, `disabled`, and `readOnly`. Single selection closes on selection by default, while multiple selection stays open. Override this with `closeOnSelect`.
 
 ## Forms and text matching
 
-Use `name`, `required`, `disabled`, and `readOnly` directly on BaseSelect. Form reset restores the initial uncontrolled value; controlled values remain authoritative. Multiple selection serializes one hidden input per value.
+Use `name`, `required`, `disabled`, and `readOnly` directly on BaseSelect. Form reset restores the initial uncontrolled value; controlled values remain authoritative. Multiple selection serializes one hidden input per value. `serializeValue(value)` can return a string or `undefined` to omit a value. High-level Select/MultiSelect use this boundary to preserve canonical disabled-item submission rules even when those items are filtered out of navigation.
 
 `itemToLabelString` supplies machine-readable text for typeahead. Without it, BaseSelect uses a string label or `String(item.value)`. Visual rendering always uses `item.label` or the part's children.
 
-Search and default item rendering are available through `Select` and `MultiSelect`. BaseSelect does not own a query or filter its canonical collection.
+Search and default item rendering are available through `Select` and `MultiSelect`. BaseSelect receives only the current navigation items. Group data belongs to Select/MultiSelect; `BaseSelect.Group` and `GroupLabel` remain available as accessible composition primitives.
+
+`isItemDisabled(item, values)` adds a dynamic policy to the item's own `disabled` flag. Values retain JavaScript Map/Set identity, so numeric and string values are distinct.
+
+`onReset()` runs after an unprevented native form reset restores uncontrolled selection. It receives no event; controlled selection remains controlled. Use it to reset auxiliary state.
+
+`Content.onExitComplete()` runs once after a real open-to-closed transition finishes its exit presence lifecycle. It does not run for initial absent content or an exit interrupted by reopening.
 
 ## Styling
 

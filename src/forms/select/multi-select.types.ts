@@ -1,22 +1,18 @@
-import type { Component, Ref } from 'solid-js'
+import type { Ref } from 'solid-js'
 
-import type { IconT } from '../../elements/icon'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form-options'
+import type { IconT } from '../../elements/icon/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { FormValueOptions } from '../shared/form-options.ts'
 
 import type { BaseSelectT } from './base-select.types.ts'
 import type {
   SelectItem,
   SearchProps,
   ContentProps,
-  SelectVirtualEntry,
+  SelectRow,
+  SelectGroup,
+  SelectEntry,
   SelectVirtualRenderProps,
 } from './shared/types.ts'
 
@@ -26,13 +22,11 @@ export namespace MultiSelectT {
   export type Value = string | number
 
   export type ItemRenderState = Omit<BaseSelectT.ItemState, 'item'>
-  export type ItemRenderProps<TValue extends Value = Value> = BaseSelectT.ItemState<Item<TValue>>
-  export type VirtualEntry<TValue extends Value = Value> = SelectVirtualEntry<Item<TValue>>
-  export type VirtualRenderProps<TValue extends Value = Value> = SelectVirtualRenderProps<
-    Item<TValue>
-  >
-  export type Group<TValue extends Value = Value> = BaseSelectT.Group<Item<TValue>>
-  export type Entry<TValue extends Value = Value> = BaseSelectT.Entry<Item<TValue>>
+  export type ItemRenderProps<TItem extends Item = Item> = BaseSelectT.ItemState<TItem>
+  export type Row<TItem extends Item = Item> = SelectRow<TItem>
+  export type VirtualRenderProps<TItem extends Item = Item> = SelectVirtualRenderProps<TItem>
+  export type Group<TItem extends Item = Item> = SelectGroup<TItem>
+  export type Entry<TItem extends Item = Item> = SelectEntry<TItem>
 
   export interface ControlSlot<T = unknown> {
     /** Multi-select control that displays selected tags and opens the popup. */
@@ -70,23 +64,27 @@ export namespace MultiSelectT {
     itemTrailing?: T
   }
 
-  export interface TagRenderProps<TItem extends Value = Value> {
+  export interface TagRenderProps<TItem extends Item = Item> {
     /** Selected item represented by the tag. */
-    item: Item<TItem>
+    item: TItem | undefined
+    /** Original selected value, including unresolved values. */
+    value: TItem['value']
+    /** Visual label, or String(value) when unresolved. */
+    label: import('solid-js').JSX.Element
     /** Removes this item from the selection. */
     onClose: () => void
   }
 
-  export interface EmptyRenderProps<TItem extends Value = Value> {
+  export interface EmptyRenderProps<TItem extends Item = Item> {
     /** Current input/search text. */
     inputValue: string
     /** Whether the current filter has any matches. */
     hasMatches: boolean
     /** Currently selected values. */
-    selectedValues: TItem[]
+    selectedValues: readonly TItem['value'][]
     /** Whether the maximum selection count has been reached. */
     isAtMaxCount: boolean
-    /** Create a new tag (requires `allowCreate`). Returns true if successfully created. */
+    /** Create a new tag (requires `createItem`). Returns true if successfully created. */
     create: (value?: string) => boolean
     /** Close the dropdown menu. */
     close: () => void
@@ -116,22 +114,19 @@ export namespace MultiSelectT {
   export type Styles = Slot<SlotStyleValue>
   export interface Item<Val extends Value = Value> extends SelectItem<Val> {}
 
-  export interface Base<TItem extends Value = Value>
+  export interface Base<TItem extends Item = Item>
     extends
-      Omit<BaseSelectT.Base<Item<TItem>>, 'children' | 'classes' | 'styles' | 'size'>,
-      SearchProps<Item<TItem>>,
-      ContentProps<Item<TItem>>,
-      FormIdentityOptions,
-      FormValueOptions<TItem[]>,
-      FormRequiredOption,
-      FormDisableOption,
-      FormReadOnlyOption {
+      Omit<
+        BaseSelectT.Base<TItem>,
+        'children' | 'classes' | 'styles' | 'size' | 'items' | 'serializeValue'
+      >,
+      SearchProps<TItem>,
+      ContentProps<TItem>,
+      FormValueOptions<TItem['value'][]> {
+    /** Source items, optionally grouped. */
+    items?: Entry<TItem>[]
     /** Called when the selection changes. */
-    onChange?: (value: NoInfer<TItem[]>) => void
-    /** Renders flattened group labels and items through a virtualization layer. */
-    virtualRender?: Component<VirtualRenderProps<TItem>>
-    /** Scrolls a highlighted item into view using its flattened entry index. */
-    scrollToItem?: (item: Item<TItem>, entryIndex: number) => void
+    onChange?: (value: NoInfer<TItem['value'][]>) => void
     /**
      * Show a clear button when a value is selected.
      * @default false
@@ -141,8 +136,8 @@ export namespace MultiSelectT {
     onClear?: () => void
     /** Characters that split input into tokens and immediately select them. */
     tokenSeparators?: string[]
-    /** Allow creating new tags on Enter when no match is found. */
-    allowCreate?: boolean
+    /** Factory used by every unmatched free-text creation path. */
+    createItem?: (input: string) => TItem
     /** Maximum number of selected values (multiple/tags). */
     maxCount?: number
     /** Maximum visible tags before showing +N (visual only). */
@@ -177,7 +172,7 @@ export namespace MultiSelectT {
     closeIcon?: IconT.Name
   }
 
-  export type Props<TItem extends Value = Value> = BaseProps<
+  export type Props<TItem extends Item = Item> = BaseProps<
     'div',
     Base<TItem>,
     Variant,
@@ -187,7 +182,7 @@ export namespace MultiSelectT {
 }
 
 export interface MultiSelectProps<
-  TItem extends MultiSelectT.Value = MultiSelectT.Value,
+  TItem extends MultiSelectT.Item = MultiSelectT.Item,
 > extends MultiSelectT.Props<TItem> {
   ref?: Ref<HTMLDivElement>
   inputRef?: Ref<HTMLInputElement>

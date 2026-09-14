@@ -374,7 +374,7 @@
       {
         "name": "defaultValue",
         "required": false,
-        "type": "V | null | undefined",
+        "type": "T[\"value\"] | null | undefined",
         "description": "The default value of the input (uncontrolled)."
       },
       {
@@ -387,13 +387,13 @@
       {
         "name": "emptyRender",
         "required": false,
-        "type": "ComponentOrElement<SelectT.EmptyRenderProps<V>>",
+        "type": "ComponentOrElement<SelectT.EmptyRenderProps<T>>",
         "description": "Custom renderer for the empty state when current filtered result has no matches."
       },
       {
         "name": "filterItem",
         "required": false,
-        "type": "boolean | \"startsWith\" | \"endsWith\" | \"contains\" | ((query: string, item: SelectT.Item<V>) => boolean) | undefined",
+        "type": "boolean | \"startsWith\" | \"endsWith\" | \"contains\" | ((query: string, item: T) => boolean) | undefined",
         "description": "Filtering strategy or predicate receiving the raw item.",
         "defaultValue": "true"
       },
@@ -416,27 +416,33 @@
         "type": "Ref<HTMLInputElement> | undefined"
       },
       {
+        "name": "isItemDisabled",
+        "required": false,
+        "type": "((item: T, values: readonly T[\"value\"][]) => boolean) | undefined",
+        "description": "Additional disabled policy evaluated against the current selection."
+      },
+      {
         "name": "itemProps",
         "required": false,
-        "type": "((state: BaseSelectT.ItemState<SelectT.Item<V>>) => ElementProps<HTMLDivElement> | undefined) | undefined",
+        "type": "((state: BaseSelectT.ItemState<T>) => ElementProps<HTMLDivElement> | undefined) | undefined",
         "description": "Additional row attributes."
       },
       {
         "name": "itemRender",
         "required": false,
-        "type": "ComponentOrElement<BaseSelectT.ItemState<SelectT.Item<V>>>",
+        "type": "ComponentOrElement<BaseSelectT.ItemState<T>>",
         "description": "Custom item presentation."
       },
       {
         "name": "items",
         "required": false,
-        "type": "BaseSelectT.Entry<SelectT.Item<V>>[] | undefined",
-        "description": "Complete canonical collection, including currently hidden items."
+        "type": "SelectT.Entry<T>[] | undefined",
+        "description": "Source items, optionally grouped."
       },
       {
         "name": "itemToLabelString",
         "required": false,
-        "type": "((item: SelectT.Item<V>) => string) | undefined",
+        "type": "((item: T) => string) | undefined",
         "description": "Machine-readable text for matching; does not change visual labels."
       },
       {
@@ -473,7 +479,7 @@
       {
         "name": "onChange",
         "required": false,
-        "type": "((value: NoInfer<V | null>) => void) | undefined",
+        "type": "((value: NoInfer<T[\"value\"] | null>) => void) | undefined",
         "description": "Called when the selection changes."
       },
       {
@@ -487,6 +493,12 @@
         "required": false,
         "type": "((open: boolean) => void) | undefined",
         "description": "Called when popup state changes."
+      },
+      {
+        "name": "onReset",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Post-reset notification after an unprevented native form reset."
       },
       {
         "name": "onScrollBottom",
@@ -549,8 +561,8 @@
       {
         "name": "scrollToItem",
         "required": false,
-        "type": "((item: SelectT.Item<V>, entryIndex: number) => void) | undefined",
-        "description": "Scrolls a highlighted item into view using its flattened entry index."
+        "type": "((item: T, entryIndex: number) => void) | undefined",
+        "description": "Scroll a highlighted item to its logical entry index."
       },
       {
         "name": "search",
@@ -598,7 +610,7 @@
       {
         "name": "value",
         "required": false,
-        "type": "V | null | undefined",
+        "type": "T[\"value\"] | null | undefined",
         "description": "The current value of the input (controlled)."
       },
       {
@@ -611,8 +623,8 @@
       {
         "name": "virtualRender",
         "required": false,
-        "type": "Component<SelectT.VirtualRenderProps<V>> | undefined",
-        "description": "Renders flattened group labels and items through a virtualization layer."
+        "type": "Component<SelectVirtualRenderProps<T>> | undefined",
+        "description": "Virtual rendering adapter."
       }
     ],
     "inherited": []

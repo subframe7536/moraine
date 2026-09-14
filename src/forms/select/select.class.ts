@@ -1,8 +1,8 @@
-import { INPUT_VARIANT } from '../../shared/recipe-common.class'
-import { slotRecipe } from '../../shared/style/recipe'
+import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
+import { slotRecipe } from '../../shared/style/recipe.ts'
 
-import type { MultiSelectT } from './multi-select.types'
-import type { SelectT } from './select.types'
+import type { MultiSelectT } from './multi-select.types.ts'
+import type { SelectT } from './select.types.ts'
 
 const SELECT_CONTROL_CLASS =
   'text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] items-center data-invalid:(border-destructive ring-3 ring-destructive/20) data-disabled:(opacity-64 pointer-events-none) dark:data-invalid:(border-destructive/50 ring-destructive/40)'

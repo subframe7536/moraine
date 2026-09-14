@@ -20,7 +20,7 @@ import type { MultiSelectT } from 'moraine'
 ## Features
 
 - **Removable Tags**: Selected values render as tags with individual removal controls; Backspace removes the last tag when the text input is empty.
-- **Search & Creation**: Filter items as you type and enable `allowCreate` when user-entered values should become new selections.
+- **Search & Creation**: Filter items as you type and provide `createItem` when user-entered values should become new selections.
 - **Token Separators**: Configured delimiter keys can convert typed text into selections.
 - **Selection & Display Limits**: `maxCount` limits selected values while `maxTagCount` limits visible tags and renders an overflow summary.
 - **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured rendering of larger item sets.
@@ -124,16 +124,42 @@ Use groups to organize items and virtualization when rendering a large, stable l
 
 <Preview path="./large-collections" />
 
+### Search, creation, and unresolved values
+
+`searchValue` contains query text only. Closing with Escape or an outside interaction preserves the query and its filtered view. Selecting or deselecting an item clears the query. Token commits consume their matched input and retain the trailing query. Native form reset clears the query and runtime-created items; controlled values remain authoritative.
+
+Provide a typed factory to enable creation. Every free-form path (Enter, empty-state `create()`, and token separators) uses it. Existing text matches select the canonical item without invoking the factory. Without a factory, unmatched text never produces a synthetic item.
+
+```tsx
+interface UserItem extends MultiSelectT.Item<string> {
+  department: string
+}
+
+;<MultiSelect<UserItem>
+  items={users}
+  createItem={(input) => ({ value: input, label: input, department: 'unknown' })}
+  tagRender={({ value, label, item, onClose }) => (
+    <button onClick={onClose} title={item?.department ?? String(value)}>
+      {label}
+    </button>
+  )}
+/>
+```
+
+The generic parameter is the complete item type, including in groups, filters, renderers, tags, text resolution, scrolling, and virtual rows. Group input remains `{ type: 'group', label, items }`; use `MultiSelectT.Row<UserItem>` for shared normal/virtual rows.
+
+Unresolved values remain selected. Default tags display `String(value)`; custom `tagRender` receives `{ value, label, item: undefined, onClose }`. When source data arrives, `item` resolves to the original canonical object. Removing source data does not remove controlled values.
+
 ### Keyboard interaction
 
-| Key                              | Description                                                                |
-| -------------------------------- | -------------------------------------------------------------------------- |
-| <kbd>ArrowDown</kbd>             | Opens the listbox or moves to the next option.                             |
-| <kbd>ArrowUp</kbd>               | Moves to the previous option.                                              |
-| <kbd>Enter</kbd>                 | Toggles the active option or creates a value when `allowCreate` allows it. |
-| <kbd>Backspace</kbd>             | Removes the last selected tag when the text input is empty.                |
-| <kbd>Escape</kbd>                | Closes the listbox.                                                        |
-| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available option.                               |
+| Key                              | Description                                                                 |
+| -------------------------------- | --------------------------------------------------------------------------- |
+| <kbd>ArrowDown</kbd>             | Opens the listbox or moves to the next option.                              |
+| <kbd>ArrowUp</kbd>               | Moves to the previous option.                                               |
+| <kbd>Enter</kbd>                 | Toggles the active option or creates a value when `createItem` is provided. |
+| <kbd>Backspace</kbd>             | Removes the last selected tag when the text input is empty.                 |
+| <kbd>Escape</kbd>                | Closes the listbox.                                                         |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available option.                                |
 
 ## Examples
 

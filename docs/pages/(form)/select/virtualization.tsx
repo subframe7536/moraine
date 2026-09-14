@@ -9,7 +9,7 @@ const OPTIONS: SelectT.Item<string>[] = Array.from({ length: 10_000 }, (_, index
 
 export function Virtualization() {
   const virtualizer = useListVirtualizer<
-    SelectT.VirtualEntry<string>,
+    SelectT.Row<SelectT.Item<string>>,
     HTMLDivElement,
     HTMLDivElement
   >({

@@ -21,15 +21,6 @@ export namespace BaseSelectT {
     disabled?: boolean
   }
   export type ItemValue<TItem extends Item> = TItem['value']
-  export interface Group<TItem extends Item> {
-    /** Identifies a structural group. Reserved for groups. */
-    type: 'group'
-    /** Group heading. */
-    label: JSX.Element
-    /** One level of leaf items. */
-    items: TItem[]
-  }
-  export type Entry<TItem extends Item> = TItem | Group<TItem>
   export interface Slot<T = unknown> {
     /** Floating popup panel. */
     content?: T
@@ -59,10 +50,16 @@ export namespace BaseSelectT {
       FormReadOnlyOption,
       FormRequiredOption,
       Variant {
-    /** Complete canonical collection, including currently hidden items. */
-    items?: Entry<TItem>[]
+    /** Current flat navigation collection. */
+    items?: readonly TItem[]
     /** Machine-readable text for matching; does not change visual labels. */
     itemToLabelString?: (item: TItem) => string
+    /** Additional disabled policy evaluated against the current selection. */
+    isItemDisabled?: (item: TItem, values: readonly TItem['value'][]) => boolean
+    /** Native form value; return undefined to omit a selected value from submission. */
+    serializeValue?: (value: TItem['value']) => string | undefined
+    /** Post-reset notification after an unprevented native form reset. */
+    onReset?: () => void
     /** Controlled popup state. */
     open?: boolean
     /** Initial popup state. @default false */
@@ -78,35 +75,22 @@ export namespace BaseSelectT {
     /** Composed trigger and popup parts. */
     children?: JSX.Element
   }
-  export type Selection<TValue extends Value> =
-    | {
-        /** Single selection mode (`false`) or multiple selection mode (`true`). */
-        multiple?: false
-        /** Controlled single value (`null` when unselected), or array of values when `multiple`. */
-        value?: TValue | null
-        /** Initial single value (`null` when unselected), or array of values when `multiple`. @default null */
-        defaultValue?: TValue | null
-        /** Called when single value changes, or array of values when `multiple`. */
-        onChange?: (value: TValue | null) => void
-      }
-    | {
-        /** Single selection mode (`false`) or multiple selection mode (`true`). */
-        multiple: true
-        /** Controlled array of values when `multiple`, or single value (`null` when unselected). */
-        value?: TValue[]
-        /** Initial array of values when `multiple`, or single value. @default [] */
-        defaultValue?: TValue[]
-        /** Called when array of values changes when `multiple`, or single value. */
-        onChange?: (value: TValue[]) => void
-      }
+  export interface Selection<TValue extends Value> {
+    /** Whether selecting an item toggles multiple values. */
+    multiple?: boolean
+    /** Controlled selection. Single mode uses at most the first value. */
+    value?: readonly TValue[]
+    /** Initial selection. @default [] */
+    defaultValue?: readonly TValue[]
+    /** Called when selection changes. */
+    onChange?: (value: TValue[]) => void
+  }
   export type Props<TItem extends Item = Item> = Base<TItem> & Selection<ItemValue<TItem>>
   export interface TriggerState<TItem extends Item = Item> {
     /** Whether the popup is open. */
     open: boolean
     /** Current selected value or values. */
-    value: ItemValue<TItem> | ItemValue<TItem>[] | null
-    /** Canonical raw selected items, preserving consumer fields. */
-    selectedItems: TItem[]
+    value: readonly ItemValue<TItem>[]
     /** Whether the control is disabled. */
     disabled: boolean
     /** Whether selection is read-only. */
@@ -131,13 +115,15 @@ export namespace BaseSelectT {
   }
   export type PartProps = ElementProps<HTMLDivElement>
   export type ContentProps = PartProps & {
+    /** Called once after an open popup completes its exit. */
+    onExitComplete?: () => void
     /** Gap between anchor and popup. @default 0 */
     gutter?: number
     /** Viewport collision padding. @default 4 */
     overflowPadding?: number
   }
   export type ItemProps<TItem extends Item = Item> = Omit<PartProps, 'children'> & {
-    /** Raw item belonging to the canonical collection. */
+    /** Raw item belonging to the current navigation collection. */
     item: TItem
     /** Visual content or reactive row presentation. */
     children?: JSX.Element | ((state: ItemState<TItem>) => JSX.Element)

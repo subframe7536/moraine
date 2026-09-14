@@ -9,20 +9,22 @@ const frameworks: FrameworkItem[] = [
   { value: 'solid', label: 'Solid', description: 'Fine-grained reactive UI' },
   { value: 'react', label: 'React', description: 'Component-based UI' },
 ]
-const entries: BaseSelectT.Entry<FrameworkItem>[] = [
-  { type: 'group', label: 'Frontend', items: frameworks },
-]
 export default function Example() {
   return (
     <form class="flex gap-3 items-center">
       <BaseSelect<FrameworkItem>
-        items={entries}
+        items={frameworks}
         name="framework"
-        defaultValue="solid"
+        defaultValue={['solid']}
         itemToLabelString={(item) => `${item.value} ${item.description}`}
       >
         <BaseSelect.Trigger as={Button}>
-          {(state) => state.selectedItems[0]?.label ?? 'Select framework'}
+          {(state) => (
+            <span>
+              {frameworks.find((item) => item.value === state.value[0])?.label ??
+                'Select framework'}
+            </span>
+          )}
         </BaseSelect.Trigger>
         <BaseSelect.Content>
           <BaseSelect.Listbox>

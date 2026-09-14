@@ -14,16 +14,22 @@ export interface SelectItem<
   /** Secondary item description. */
   description?: JSX.Element
 }
-export type SelectVirtualEntry<T extends BaseSelectT.Item> =
-  | {
-      type: 'label'
-      key: string
-      label: JSX.Element
-      itemKeys: string[]
-    }
-  | { type: 'item'; key: string; item: T; disabled: boolean }
+export interface SelectGroup<T extends BaseSelectT.Item> {
+  /** Reserved group discriminator. */
+  type: 'group'
+  label: JSX.Element
+  items: T[]
+}
+export type SelectEntry<T extends BaseSelectT.Item> = T | SelectGroup<T>
+export type SelectRow<T extends BaseSelectT.Item> =
+  | { type: 'label'; key: string; label: JSX.Element; values: T['value'][] }
+  | { type: 'item'; key: T['value']; item: T }
+export interface SelectView<T extends BaseSelectT.Item> {
+  items: T[]
+  rows: SelectRow<T>[]
+}
 export type SelectVirtualRenderProps<T extends BaseSelectT.Item> = ListT.VirtualRenderProps<
-  SelectVirtualEntry<T>,
+  SelectRow<T>,
   HTMLDivElement,
   HTMLDivElement
 >

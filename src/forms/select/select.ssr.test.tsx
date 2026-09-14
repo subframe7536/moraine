@@ -14,9 +14,6 @@ describe('Select SSR Hydration', () => {
       label: 0,
       description: 0,
       itemRender: 0,
-      leadingIcon: 0,
-      trailingIcon: 0,
-      closeIcon: 0,
     }
 
     const { container } = hydrateFixture(
@@ -60,15 +57,12 @@ describe('Select SSR Hydration', () => {
             return (props: SelectT.ItemRenderProps) => <span>{props.item?.label}</span>
           },
           get leadingIcon() {
-            reads.leadingIcon += 1
             return 'icon-search' as const
           },
           get trailingIcon() {
-            reads.trailingIcon += 1
             return 'icon-chevron-down' as const
           },
           get closeIcon() {
-            reads.closeIcon += 1
             return 'icon-close' as const
           },
         }),
@@ -90,12 +84,9 @@ describe('Select SSR Hydration', () => {
     expect(combobox.getAttribute('aria-expanded')).toBe('false')
     expect(reads).toEqual({
       items: 1,
-      label: 2,
+      label: 1,
       description: 0,
       itemRender: 0,
-      leadingIcon: 1,
-      trailingIcon: 1,
-      closeIcon: 1,
     })
 
     fireEvent.keyDown(combobox, { key: 'ArrowDown' })

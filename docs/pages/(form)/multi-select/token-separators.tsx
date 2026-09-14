@@ -22,6 +22,7 @@ export function TokenSeparators() {
         value={tagValues()}
         onChange={setTagValues}
         tokenSeparators={[' ']}
+        createItem={(input) => ({ value: input, label: input })}
         placeholder="Type text and press Space..."
       />
       <p class="text-xs text-muted-foreground">Tags: {tagValues().join(', ') || 'none'}</p>

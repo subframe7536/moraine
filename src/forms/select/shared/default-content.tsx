@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createMemo, For, Show, on } from 'solid-js'
+import { createEffect, createMemo, createSignal, For, Show, on } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../../elements/icon/index.ts'
@@ -11,10 +11,12 @@ import { callHandler, callRef } from '../../../shared/utils.ts'
 import { BaseSelect, useSelectState } from '../base-select.tsx'
 import type { BaseSelectT } from '../base-select.types.ts'
 
-import { isGroup, itemKey } from './collection.ts'
-import type { ContentProps, SelectItem, SelectVirtualEntry } from './types.ts'
+import { sameValue } from './collection.ts'
+import type { ContentProps, SelectItem, SelectRow, SelectView } from './types.ts'
 
 export interface DefaultSelectContentProps<T extends SelectItem> extends ContentProps<T> {
+  view: SelectView<T>
+  onExitComplete?: () => void
   empty?: JSX.Element
   renderEmpty?: () => JSX.Element
   slot: (name: 'itemLeading' | 'itemLabel' | 'itemDescription' | 'itemTrailing') => SlotBinding
@@ -26,48 +28,24 @@ function DefaultSelectContentBody<T extends SelectItem>(
   const state = useSelectState<T>()
   const cn = useCn()
   const itemRender = createMemo(() => props.itemRender)
-  const entries = createMemo<SelectVirtualEntry<T>[]>(() => {
-    if (!props.virtualRender) {
-      return []
-    }
-    return state.view().flatMap((entry, index) => {
-      const row = (item: T): SelectVirtualEntry<T> => ({
-        type: 'item',
-        key: itemKey(item.value),
-        item,
-        disabled: state.itemDisabled(item),
-      })
-      if (!isGroup(entry)) {
-        return [row(entry)]
-      }
-      const rows: SelectVirtualEntry<T>[] = [
-        {
-          type: 'label',
-          key: `group-${index}`,
-          label: entry.label,
-          itemKeys: entry.items.map((item) => itemKey(item.value)),
-        },
-      ]
-      for (const item of entry.items) {
-        rows.push(row(item))
-      }
-      return rows
-    })
-  })
-  const positions = createMemo(() => {
-    if (!props.virtualRender) {
-      return new Map<string, number>()
-    }
-    return new Map(state.visibleItems().map((item, index) => [itemKey(item.value), index + 1]))
-  })
+  const [listbox, setListbox] = createSignal<HTMLDivElement>()
+  const positions = createMemo(
+    () => new Map(props.view.items.map((item, index) => [item.value, index + 1])),
+  )
   createEffect(
     on(
-      [state.highlight, state.open, state.listbox, entries, () => props.virtualRender],
+      [
+        state.highlightedValue,
+        state.open,
+        listbox,
+        () => props.view.rows,
+        () => props.virtualRender,
+      ],
       ([key, open, listbox, rows, virtual]) => {
-        if (!key || !open || !listbox) {
+        if (key === undefined || !open || !listbox) {
           return
         }
-        const index = rows.findIndex((row) => row.type === 'item' && row.key === key)
+        const index = rows.findIndex((row) => row.type === 'item' && sameValue(row.item.value, key))
         const row = rows[index]
         if (virtual && row?.type === 'item' && props.scrollToItem) {
           props.scrollToItem(row.item, index)
@@ -82,10 +60,10 @@ function DefaultSelectContentBody<T extends SelectItem>(
         return item
       },
       get selected() {
-        return state.selectedKeys().has(itemKey(item.value))
+        return state.value().includes(item.value)
       },
       get highlighted() {
-        return state.highlight() === itemKey(item.value)
+        return sameValue(state.highlightedValue(), item.value)
       },
       get disabled() {
         return state.itemDisabled(item)
@@ -118,8 +96,8 @@ function DefaultSelectContentBody<T extends SelectItem>(
           callHandler(event, attributes()?.onPointerDown)
           callHandler(event, rowProps?.onPointerDown)
         }}
-        aria-posinset={props.virtualRender ? positions().get(itemKey(item.value)) : undefined}
-        aria-setsize={props.virtualRender ? state.visibleItems().length : undefined}
+        aria-posinset={props.virtualRender ? positions().get(item.value) : undefined}
+        aria-setsize={props.virtualRender ? props.view.items.length : undefined}
       >
         {(itemState) => (
           <Show
@@ -155,8 +133,8 @@ function DefaultSelectContentBody<T extends SelectItem>(
       </BaseSelect.Item>
     )
   }
-  function renderVirtual(
-    entry: SelectVirtualEntry<T>,
+  function renderRow(
+    entry: SelectRow<T>,
     _index: number,
     rowProps?: ListT.RowProps<HTMLDivElement>,
   ) {
@@ -164,12 +142,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
       return renderItem(entry.item, rowProps)
     }
     return (
-      <BaseSelect.Group
-        {...rowProps}
-        aria-owns={entry.itemKeys
-          .map((key) => `${state.listboxId()}-${encodeURIComponent(key)}`)
-          .join(' ')}
-      >
+      <BaseSelect.Group {...rowProps} aria-owns={entry.values.map(state.itemId).join(' ')}>
         <BaseSelect.GroupLabel>{entry.label}</BaseSelect.GroupLabel>
       </BaseSelect.Group>
     )
@@ -178,6 +151,10 @@ function DefaultSelectContentBody<T extends SelectItem>(
     <>
       <BaseSelect.Listbox
         {...props.listboxProps}
+        ref={(element) => {
+          setListbox(element)
+          callRef(props.listboxProps?.ref, element)
+        }}
         onScroll={(event) => {
           callHandler(event, props.listboxProps?.onScroll)
           if (event.defaultPrevented) {
@@ -195,28 +172,14 @@ function DefaultSelectContentBody<T extends SelectItem>(
       >
         <Show
           when={props.virtualRender}
-          fallback={
-            <For each={state.view()}>
-              {(entry) => {
-                if (!isGroup(entry)) {
-                  return renderItem(entry)
-                }
-                return (
-                  <BaseSelect.Group>
-                    <BaseSelect.GroupLabel>{entry.label}</BaseSelect.GroupLabel>
-                    <For each={entry.items}>{(item) => renderItem(item)}</For>
-                  </BaseSelect.Group>
-                )
-              }}
-            </For>
-          }
+          fallback={<For each={props.view.rows}>{(row) => renderRow(row, 0)}</For>}
         >
           {(renderer) => (
             <Dynamic
               component={renderer()}
-              entries={entries()}
-              scrollElement={state.listbox()}
-              render={renderVirtual}
+              entries={props.view.rows}
+              scrollElement={listbox()}
+              render={renderRow}
             />
           )}
         </Show>
@@ -230,7 +193,11 @@ export function DefaultSelectContent<T extends SelectItem>(
   props: DefaultSelectContentProps<T>,
 ): JSX.Element {
   return (
-    <BaseSelect.Content gutter={props.gutter} overflowPadding={props.overflowPadding}>
+    <BaseSelect.Content
+      onExitComplete={props.onExitComplete}
+      gutter={props.gutter}
+      overflowPadding={props.overflowPadding}
+    >
       <DefaultSelectContentBody {...props} />
     </BaseSelect.Content>
   )

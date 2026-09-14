@@ -34,87 +34,57 @@ import { useFormField } from '../form/form-context.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { BaseSelectProps, BaseSelectT } from './base-select.types.ts'
-import { createCollection, flattenItems, itemKey, labelString } from './shared/collection.ts'
+import { labelString, sameValue } from './shared/collection.ts'
 
 function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>) {
-  type Value = T['value'] | T['value'][] | null
-  const id = useId(() => props.id, 'base-select')
-  const initial = untrack(() => {
-    const value = props.defaultValue
-    return Array.isArray(value) ? [...value] : (value ?? (props.multiple ? [] : null))
-  })
+  type Value = readonly T['value'][]
+  const normalize = (values: Value): T['value'][] =>
+    props.multiple ? [...new Set(values)] : values.slice(0, 1)
+  const id = useId(() => props.id, 'select')
+  const initial = untrack(() => normalize(props.defaultValue ?? []))
   const field = useFormField(
     () => props,
-    () => ({ defaultId: id(), bind: false, initialValue: initial ?? '' }),
+    () => ({
+      defaultId: id(),
+      bind: false,
+      initialValue: props.multiple ? initial : (initial[0] ?? ''),
+    }),
   )
-  const collection = createMemo(() => createCollection(props.items ?? []))
-  const [disabledPolicy, setDisabledPolicy] = createSignal<(item: T) => boolean>()
-  const itemDisabled = (item: T) => Boolean(item.disabled || disabledPolicy()?.(item))
-  const [viewSource, setViewSource] = createSignal<Accessor<BaseSelectT.Entry<T>[]> | undefined>()
-  const view = createMemo(() => viewSource()?.() ?? collection().entries)
-  const visibleItems = createMemo(() => flattenItems(view()))
-  const [storedValue, setStoredValue] = useControllableValue<Value>({
+  const items = () => props.items ?? []
+  const [selection, setSelection] = useControllableValue<Value>({
     value: () => {
       if (props.value !== undefined) {
         return props.value
       }
       const value = field.value()
-      if (props.multiple && Array.isArray(value)) {
-        return value as T['value'][]
+      if (Array.isArray(value)) {
+        return value
       }
-      if (
-        !props.multiple &&
-        (value === null || typeof value === 'number' || typeof value === 'string')
-      ) {
-        return value === '' && !collection().byValue.has(itemKey(value)) ? null : value
+      if (!props.multiple && (typeof value === 'string' || typeof value === 'number')) {
+        return value === '' && !items().some((item) => item.value === value) ? [] : [value]
       }
       return undefined
     },
     defaultValue: () => initial,
   })
-  const value = createMemo(() => storedValue() ?? (props.multiple ? [] : null))
-  const values = createMemo<T['value'][]>(() => {
-    const current = value()
-    return Array.isArray(current)
-      ? [...new Map(current.map((value) => [itemKey(value), value])).values()]
-      : current === null
-        ? []
-        : [current]
-  })
-  const selectedKeys = createMemo(() => new Set(values().map(itemKey)))
-  const selectedItems = createMemo(() =>
-    values().flatMap((value) => {
-      const item = collection().byValue.get(itemKey(value))
-      return item ? [item] : []
-    }),
-  )
+  const value = createMemo(() => normalize(selection() ?? []))
+  const itemDisabled = (item: T) => Boolean(item.disabled || props.isItemDisabled?.(item, value()))
   const [openValue, setOpenValue] = useControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
   })
   const open = () => openValue() ?? false
-  const [highlight, setHighlight] = createSignal<string>()
+  const [highlightedValue, setHighlightedValue] = createSignal<T['value']>()
   const [anchor, setAnchor] = createSignal<HTMLElement>()
   const [control, setControl] = createSignal<HTMLElement>()
-  const [listbox, setListbox] = createSignal<HTMLDivElement>()
-  const [contentPresent, setContentPresent] = createSignal(false)
-  const [resetVersion, setResetVersion] = createSignal(0)
-  let selectAction: ((item: T) => void) | undefined
-  function setSelectAction(action: ((item: T) => void) | undefined) {
-    selectAction = action
-  }
   const listboxId = () => `${field.id()}-listbox`
   const itemId = (value: BaseSelectT.Value) =>
-    `${listboxId()}-${encodeURIComponent(itemKey(value))}`
+    `${listboxId()}-${encodeURIComponent(`${typeof value}:${String(value)}`)}`
   const styles = createComponentStyles('baseSelect', props, {
     inheritedVariants: () => ({ size: field.size() ?? undefined }),
   })
   const locked = () => field.disabled() || field.readOnly()
   let validationInput: HTMLInputElement | undefined
-  let disposed = false
-  onCleanup(() => {
-    disposed = true
-  })
 
   function setOpen(next: boolean) {
     if (next && field.disabled()) {
@@ -130,22 +100,18 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     if (locked()) {
       return
     }
-    const before = values()
-    const after = Array.isArray(next) ? next : next === null ? [] : [next]
-    if (before.length === after.length && before.every((value, i) => Object.is(value, after[i]))) {
+    const before = value()
+    const after = normalize(next)
+    if (before.length === after.length && before.every((value, i) => sameValue(value, after[i]))) {
       return
     }
-    setStoredValue(next)
+    setSelection(after)
     if (props.value === undefined) {
-      field.setFormValue(next ?? '')
+      field.setFormValue(props.multiple ? after : (after[0] ?? ''))
     }
-    if (props.multiple) {
-      props.onChange?.(after)
-    } else {
-      props.onChange?.(Array.isArray(next) ? (next[0] ?? null) : next)
-    }
+    props.onChange?.(after)
     if (props.value !== undefined) {
-      field.setFormValue(props.value ?? '')
+      field.setFormValue(props.multiple ? normalize(props.value) : (props.value[0] ?? ''))
     }
     field.emit('change')
     field.emit('input')
@@ -154,8 +120,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     if (locked() || itemDisabled(item)) {
       return
     }
-    const key = itemKey(item.value)
-    if (!collection().byValue.has(key)) {
+    if (!items().some((candidate) => sameValue(candidate.value, item.value))) {
       return
     }
     batch(() => {
@@ -164,46 +129,45 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
       }
       change(
         props.multiple
-          ? selectedKeys().has(key)
-            ? values().filter((value) => itemKey(value) !== key)
-            : [...values(), item.value]
-          : item.value,
+          ? value().includes(item.value)
+            ? value().filter((value) => !sameValue(value, item.value))
+            : [...value(), item.value]
+          : [item.value],
       )
-      selectAction?.(item)
     })
     if (props.closeOnSelect ?? !props.multiple) {
       const target = control()
       // oxlint-disable-next-line subf/solid-reactivity -- Delayed focus validates the current control and open state.
       queueMicrotask(() => {
-        if (!disposed && !open() && target === control() && target?.isConnected) {
+        if (!open() && target === control() && target?.isConnected) {
           target.focus()
         }
       })
     }
   }
-  const enabled = createMemo(() => visibleItems().filter((item) => !itemDisabled(item)))
+  const enabled = createMemo(() => items().filter((item) => !itemDisabled(item)))
   createEffect(
-    on([open, enabled, highlight, selectedKeys], ([isOpen, items, current, selected]) => {
+    on([open, enabled, highlightedValue, value], ([isOpen, items, current, selected]) => {
       if (!isOpen) {
         return
       }
-      if (!items.some((item) => itemKey(item.value) === current && !itemDisabled(item))) {
+      if (!items.some((item) => sameValue(item.value, current) && !itemDisabled(item))) {
         const next =
-          items.find((item) => !itemDisabled(item) && selected.has(itemKey(item.value))) ??
+          items.find((item) => !itemDisabled(item) && selected.includes(item.value)) ??
           items.find((item) => !itemDisabled(item))
-        setHighlight(next ? itemKey(next.value) : undefined)
+        setHighlightedValue(next ? next.value : undefined)
       }
     }),
   )
   const typeahead = createTypeahead({
-    getItems: visibleItems,
+    getItems: items,
     getStartIndex: () =>
-      visibleItems().findIndex((item) =>
-        open() ? itemKey(item.value) === highlight() : selectedKeys().has(itemKey(item.value)),
+      items().findIndex((item) =>
+        open() ? sameValue(item.value, highlightedValue()) : value().includes(item.value),
       ),
     getText: (item) => labelString(item, props.itemToLabelString),
     isDisabled: (item) => itemDisabled(item),
-    onMatch: (item) => (open() ? setHighlight(itemKey(item.value)) : select(item)),
+    onMatch: (item) => (open() ? setHighlightedValue(item.value) : select(item)),
   })
   function keyDown(event: KeyboardEvent, textInput = false) {
     if (event.defaultPrevented || field.disabled() || event.isComposing) {
@@ -228,7 +192,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
       event.preventDefault()
       setOpen(true)
       const items = enabled()
-      const current = items.findIndex((item) => itemKey(item.value) === highlight())
+      const current = items.findIndex((item) => sameValue(item.value, highlightedValue()))
       const index =
         key === 'Home'
           ? 0
@@ -239,7 +203,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
                 ? items.length - 1
                 : 0
               : (current + (key === 'ArrowUp' ? -1 : 1) + items.length) % items.length
-      setHighlight(items[index] ? itemKey(items[index].value) : undefined)
+      setHighlightedValue(items[index] ? items[index].value : undefined)
       return
     }
     if (key === 'Enter' || (!textInput && (key === ' ' || key === 'Spacebar'))) {
@@ -248,7 +212,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
         setOpen(true)
         return
       }
-      const item = visibleItems().find((item) => itemKey(item.value) === highlight())
+      const item = items().find((item) => sameValue(item.value, highlightedValue()))
       if (item) {
         select(item)
       }
@@ -256,32 +220,38 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   }
   createEffect(
     on([() => props.value, field.value], ([current, formValue]) => {
-      if (current !== undefined && !Object.is(current ?? '', formValue)) {
-        field.setFormValue(current ?? '')
+      const next = props.multiple ? current : (current?.[0] ?? '')
+      if (current !== undefined && !Object.is(next, formValue)) {
+        field.setFormValue(next)
       }
     }),
   )
-  const serialized = createMemo(() =>
-    !props.multiple && value() === null
-      ? ['']
-      : values()
-          .filter((value) => !collection().byValue.get(itemKey(value))?.disabled)
-          .map(String),
-  )
+  const serialized = createMemo(() => {
+    const selected = value()
+    if (!props.multiple && !selected.length) {
+      return ['']
+    }
+    return selected.flatMap((value) => {
+      const serialized = props.serializeValue
+        ? props.serializeValue(value)
+        : items().find((item) => sameValue(item.value, value))?.disabled
+          ? undefined
+          : String(value)
+      return serialized === undefined ? [] : [serialized]
+    })
+  })
   const validationValue = () =>
-    props.multiple ? (values().length ? 'selected' : '') : value() === null ? '' : String(value())
+    props.multiple ? (value().length ? 'selected' : '') : String(value()[0] ?? '')
   useFormReset(
     () => validationInput?.form,
     () => {
-      if (disposed) {
-        return
-      }
-      setStoredValue(initial)
-      field.setFormValue((props.value !== undefined ? props.value : initial) ?? '')
-      setResetVersion((version) => version + 1)
+      setSelection(initial)
+      const next = props.value !== undefined ? normalize(props.value) : initial
+      field.setFormValue(props.multiple ? next : (next[0] ?? ''))
       if (validationInput) {
         validationInput.value = validationValue()
       }
+      props.onReset?.()
     },
   )
   const presentation: BaseSelectT.TriggerState<T> = {
@@ -290,9 +260,6 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     },
     get value() {
       return value()
-    },
-    get selectedItems() {
-      return selectedItems()
     },
     get disabled() {
       return field.disabled()
@@ -303,26 +270,16 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   }
   return {
     props,
-    collection,
-    view,
-    visibleItems,
-    setViewSource,
+    items,
     value,
-    values,
-    selectedKeys,
-    selectedItems,
     open,
     setOpen,
-    highlight,
-    setHighlight,
+    highlightedValue,
+    setHighlightedValue,
     anchor,
     setAnchor,
     control,
     setControl,
-    listbox,
-    setListbox,
-    contentPresent,
-    setContentPresent,
     listboxId,
     itemId,
     field,
@@ -331,11 +288,8 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     change,
     select,
     keyDown,
-    resetVersion,
-    setSelectAction,
     presentation,
     itemDisabled,
-    setDisabledPolicy,
     formControls: () => (
       <>
         <HiddenInput
@@ -384,10 +338,11 @@ export function useSelectState<T extends BaseSelectT.Item = BaseSelectT.Item>():
   if (!context) {
     throw new Error('[Moraine BaseSelect] Parts must be used within BaseSelect.')
   }
+  // Solid context erases the item generic; the root and its parts share the same T.
   return context as unknown as SelectState<T>
 }
 
-/** Public selection primitive with a canonical collection and form ownership. */
+/** Public selection primitive for a flat navigation collection. */
 export function BaseSelect<T extends BaseSelectT.Item = BaseSelectT.Item>(
   props: BaseSelectProps<T>,
 ): JSX.Element {
@@ -470,8 +425,8 @@ function BaseSelectTrigger<
       aria-controls={state.listboxId()}
       aria-expanded={state.open() ? 'true' : 'false'}
       aria-activedescendant={
-        state.open() && state.highlight()
-          ? `${state.listboxId()}-${encodeURIComponent(state.highlight()!)}`
+        state.open() && state.highlightedValue() !== undefined
+          ? state.itemId(state.highlightedValue()!)
           : undefined
       }
       class={cn(local.class)}
@@ -506,8 +461,12 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
     'style',
     'gutter',
     'overflowPadding',
+    'onExitComplete',
   ])
-  const presence = useTransitionPresence({ open: state.open })
+  const presence = useTransitionPresence({
+    open: state.open,
+    onExitComplete: () => local.onExitComplete?.(),
+  })
   const [content, setContent] = createSignal<HTMLDivElement>()
   const [positioner, setPositioner] = createSignal<HTMLDivElement>()
   const [side, setSide] = createSignal('bottom')
@@ -522,8 +481,6 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
     overflowPadding: () => local.overflowPadding ?? 4,
     placement: () => 'bottom-start',
   })
-  createEffect(on(presence.present, (present) => state.setContentPresent(present)))
-  onCleanup(() => state.setContentPresent(false))
   createEffect(
     on(presence.present, (present) => {
       if (present) {
@@ -589,7 +546,6 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
             data-side={side()}
             ref={(element) => {
               setContent(element)
-              state.setContentPresent(true)
               presence.setElement(element)
               callRef(local.ref, element)
             }}
@@ -610,25 +566,19 @@ function BaseSelectListbox(props: BaseSelectT.PartProps): JSX.Element {
   const state = useSelectState()
   const cn = useCn()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
+  const [listbox, setListbox] = createSignal<HTMLDivElement>()
   createEffect(
-    on(
-      () => local.ref,
-      () => undefined,
-    ),
-  )
-  createEffect(
-    on([state.highlight, state.open, state.listbox], ([key, open, listbox]) => {
-      if (!key || !open || !listbox) {
+    on([state.highlightedValue, state.open, listbox], ([key, open, element]) => {
+      if (key === undefined || !open || !element) {
         return
       }
+      // oxlint-disable-next-line subf/solid-reactivity -- Scroll only if the same node and highlight remain active in this microtask.
       queueMicrotask(() => {
-        if (state.listbox() !== listbox || !state.open() || state.highlight() !== key) {
+        if (listbox() !== element || !state.open() || !sameValue(state.highlightedValue(), key)) {
           return
         }
-        const item = listbox.ownerDocument.getElementById(
-          `${state.listboxId()}-${encodeURIComponent(key)}`,
-        )
-        if (item && listbox.contains(item)) {
+        const item = element.ownerDocument.getElementById(state.itemId(key))
+        if (item && element.contains(item)) {
           item.scrollIntoView?.({ block: 'nearest' })
         }
       })
@@ -643,11 +593,11 @@ function BaseSelectListbox(props: BaseSelectT.PartProps): JSX.Element {
       data-slot="listbox"
       aria-multiselectable={state.props.multiple ? 'true' : undefined}
       ref={(element) => {
-        state.setListbox(element)
+        setListbox(element)
         callRef(local.ref, element)
         onCleanup(() => {
-          if (state.listbox() === element) {
-            state.setListbox(undefined)
+          if (listbox() === element) {
+            setListbox(undefined)
           }
         })
       }}
@@ -675,17 +625,9 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
     'onPointerDown',
   ])
   const child = resolveChildren(() => local.children as JSX.Element)
-  const item = createMemo(() => {
-    const canonical = state.collection().byValue.get(itemKey(local.item.value))
-    if (!canonical) {
-      throw new Error(
-        `[Moraine BaseSelect] Item value ${String(local.item.value)} is not in the canonical collection.`,
-      )
-    }
-    return canonical
-  })
-  const selected = () => state.selectedKeys().has(itemKey(item().value))
-  const highlighted = () => state.highlight() === itemKey(item().value)
+  const item = () => local.item
+  const selected = () => state.value().includes(item().value)
+  const highlighted = () => sameValue(state.highlightedValue(), item().value)
   const disabled = () => state.itemDisabled(item())
   const presentation: BaseSelectT.ItemState<T> = {
     get item() {
@@ -737,7 +679,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
           !disabled() &&
           !state.locked()
         ) {
-          state.setHighlight(itemKey(item().value))
+          state.setHighlightedValue(item().value)
         }
       }}
       onPointerDown={(event) => {
@@ -753,7 +695,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       onClick={(event) => {
         callHandler(event, local.onClick)
         if (!event.defaultPrevented && !disabled() && !state.locked()) {
-          state.setHighlight(itemKey(item().value))
+          state.setHighlightedValue(item().value)
           state.select(item())
         }
       }}
@@ -792,7 +734,7 @@ function BaseSelectGroupLabel(props: BaseSelectT.PartProps): JSX.Element {
   const state = useSelectState()
   const cn = useCn()
   const group = useContext(GroupContext)
-  const id = useId(() => props.id, 'base-select-group-label')
+  const id = useId(() => props.id, 'select-group-label')
   createEffect(
     on(id, (value) => {
       group?.setLabelId(value)
@@ -835,7 +777,7 @@ function BaseSelectEmpty(props: BaseSelectT.PartProps): JSX.Element {
   const state = useSelectState()
   const cn = useCn()
   return (
-    <Show when={state.visibleItems().length === 0}>
+    <Show when={state.items().length === 0}>
       <div
         {...props}
         data-slot="empty"

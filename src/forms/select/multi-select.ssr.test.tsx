@@ -16,10 +16,6 @@ describe('MultiSelect SSR Hydration', () => {
       itemRender: 0,
       tagRender: 0,
       emptyRender: 0,
-      leadingIcon: 0,
-      loadingIcon: 0,
-      trailingIcon: 0,
-      closeIcon: 0,
     }
     const onChange = vi.fn()
 
@@ -73,19 +69,15 @@ describe('MultiSelect SSR Hydration', () => {
             return undefined
           },
           get leadingIcon() {
-            reads.leadingIcon += 1
             return 'icon-search' as const
           },
           get loadingIcon() {
-            reads.loadingIcon += 1
             return 'icon-loading' as const
           },
           get trailingIcon() {
-            reads.trailingIcon += 1
             return 'icon-chevron-down' as const
           },
           get closeIcon() {
-            reads.closeIcon += 1
             return 'icon-close' as const
           },
         }),
@@ -107,15 +99,11 @@ describe('MultiSelect SSR Hydration', () => {
     expect(input.getAttribute('aria-expanded')).toBe('false')
     expect(reads).toEqual({
       items: 1,
-      label: 4,
+      label: 1,
       description: 0,
       itemRender: 0,
       tagRender: 1,
       emptyRender: 0,
-      leadingIcon: 1,
-      loadingIcon: 1,
-      trailingIcon: 1,
-      closeIcon: 1,
     })
 
     fireEvent.click(container.querySelector('[aria-label="Remove Apple"]')!)
@@ -131,6 +119,6 @@ describe('MultiSelect SSR Hydration', () => {
     expect(
       document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
     ).toContain('Banana')
-    expect(Object.values(reads)).toEqual([1, 6, 0, 1, 1, 0, 1, 1, 1, 1])
+    expect(Object.values(reads)).toEqual([1, 3, 0, 1, 1, 0])
   })
 })
