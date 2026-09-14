@@ -23,32 +23,14 @@ export default defineConfig({
   },
   plugins: [variantGroupPlugin(), solid({ hot: false, solid: { hydratable: true } })],
   test: {
-    projects: [
-      {
-        extends: true,
-        test: {
-          name: 'main',
-          globalSetup: ['./src/test-utils/ssr-global-setup.ts'],
-          include: [
-            'src/**/*.{test,spec}.?(c|m)[jt]s?(x)',
-            'docs/**/*.{test,spec}.?(c|m)[jt]s?(x)',
-            'test/**/*.{test,spec}.?(c|m)[jt]s?(x)',
-          ],
-          exclude: [...configDefaults.exclude, 'test/acceptance/docs-preview.test.ts'],
-          sequence: { groupOrder: 0 },
-        },
-      },
-      {
-        extends: true,
-        test: {
-          name: 'docs-preview',
-          include: ['test/acceptance/docs-preview.test.ts'],
-          environment: 'node',
-          // The preview rebuilds dist, so it must run after tests consuming the build.
-          sequence: { groupOrder: 1 },
-        },
-      },
+    globalSetup: ['./src/test-utils/ssr-global-setup.ts'],
+    include: [
+      'src/**/*.{test,spec}.?(c|m)[jt]s?(x)',
+      'docs/**/*.{test,spec}.?(c|m)[jt]s?(x)',
+      'test/**/*.{test,spec}.?(c|m)[jt]s?(x)',
     ],
+    exclude: [...configDefaults.exclude, 'test/acceptance/docs-preview.test.ts'],
+    sequence: { groupOrder: 0 },
     environment: 'jsdom',
     globals: true,
     server: {
