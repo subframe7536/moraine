@@ -1,7 +1,7 @@
 import type { JSX, ValidComponent } from 'solid-js'
 
 import type { ModalT } from '../../overlays/modal/modal.types.ts'
-import type { SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import type {
   FormIdentityOptions,
   FormDisableOption,
@@ -80,23 +80,23 @@ export namespace BaseSelectT {
   }
   export type Selection<TValue extends Value> =
     | {
-        /** Single selection mode. */
+        /** Single selection mode (`false`) or multiple selection mode (`true`). */
         multiple?: false
-        /** Controlled value. */
+        /** Controlled single value (`null` when unselected), or array of values when `multiple`. */
         value?: TValue | null
-        /** Initial value. @default null */
+        /** Initial single value (`null` when unselected), or array of values when `multiple`. @default null */
         defaultValue?: TValue | null
-        /** Called when the selection changes. */
+        /** Called when single value changes, or array of values when `multiple`. */
         onChange?: (value: TValue | null) => void
       }
     | {
-        /** Multiple selection mode. */
+        /** Single selection mode (`false`) or multiple selection mode (`true`). */
         multiple: true
-        /** Controlled values. */
+        /** Controlled array of values when `multiple`, or single value (`null` when unselected). */
         value?: TValue[]
-        /** Initial values. @default [] */
+        /** Initial array of values when `multiple`, or single value. @default [] */
         defaultValue?: TValue[]
-        /** Called when the selection changes. */
+        /** Called when array of values changes when `multiple`, or single value. */
         onChange?: (value: TValue[]) => void
       }
   export type Props<TItem extends Item = Item> = Base<TItem> & Selection<ItemValue<TItem>>
@@ -129,7 +129,7 @@ export namespace BaseSelectT {
     /** Whether disabled. */
     disabled: boolean
   }
-  export type PartProps = JSX.HTMLAttributes<HTMLDivElement>
+  export type PartProps = ElementProps<HTMLDivElement>
   export type ContentProps = PartProps & {
     /** Gap between anchor and popup. @default 0 */
     gutter?: number

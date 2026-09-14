@@ -111,8 +111,8 @@
       {
         "name": "defaultValue",
         "required": false,
-        "type": "BaseSelectT.ItemValue<T> | null & BaseSelectT.ItemValue<T>[] | undefined",
-        "description": "Initial value.",
+        "type": "BaseSelectT.ItemValue<T> | null | BaseSelectT.ItemValue<T>[] | undefined",
+        "description": "Initial single value (`null` when unselected), or array of values when `multiple`.",
         "defaultValue": "null"
       },
       {
@@ -143,8 +143,8 @@
       {
         "name": "multiple",
         "required": false,
-        "type": "(false & true) | undefined",
-        "description": "Single selection mode."
+        "type": "boolean | undefined",
+        "description": "Single selection mode (`false`) or multiple selection mode (`true`)."
       },
       {
         "name": "name",
@@ -155,8 +155,8 @@
       {
         "name": "onChange",
         "required": false,
-        "type": "((value: BaseSelectT.ItemValue<T> | null) => void & (value: BaseSelectT.ItemValue<T>[]) => void) | undefined",
-        "description": "Called when the selection changes."
+        "type": "(((value: BaseSelectT.ItemValue<T> | null) => void) | ((value: BaseSelectT.ItemValue<T>[]) => void)) | undefined",
+        "description": "Called when single value changes, or array of values when `multiple`."
       },
       {
         "name": "onOpenChange",
@@ -200,8 +200,8 @@
       {
         "name": "value",
         "required": false,
-        "type": "BaseSelectT.ItemValue<T> | null & BaseSelectT.ItemValue<T>[] | undefined",
-        "description": "Controlled value."
+        "type": "BaseSelectT.ItemValue<T> | null | BaseSelectT.ItemValue<T>[] | undefined",
+        "description": "Controlled single value (`null` when unselected), or array of values when `multiple`."
       }
     ],
     "inherited": []
@@ -331,6 +331,11 @@
             "type": "number | undefined",
             "description": "Viewport collision padding.",
             "defaultValue": "4"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
           }
         ],
         "inherited": []
@@ -346,7 +351,13 @@
       },
       "slots": [],
       "props": {
-        "own": [],
+        "own": [
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
+          }
+        ],
         "inherited": []
       }
     },
@@ -372,6 +383,11 @@
             "required": true,
             "type": "T",
             "description": "Raw item belonging to the canonical collection."
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
           }
         ],
         "inherited": []
@@ -387,7 +403,13 @@
       },
       "slots": [],
       "props": {
-        "own": [],
+        "own": [
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
+          }
+        ],
         "inherited": []
       }
     },
@@ -401,7 +423,13 @@
       },
       "slots": [],
       "props": {
-        "own": [],
+        "own": [
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
+          }
+        ],
         "inherited": []
       }
     },
@@ -415,7 +443,13 @@
       },
       "slots": [],
       "props": {
-        "own": [],
+        "own": [
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
+          }
+        ],
         "inherited": []
       }
     },
@@ -429,7 +463,13 @@
       },
       "slots": [],
       "props": {
-        "own": [],
+        "own": [
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
+          }
+        ],
         "inherited": []
       }
     }

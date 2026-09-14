@@ -109,9 +109,9 @@ describe('MultiSelect SSR Hydration', () => {
       items: 1,
       label: 4,
       description: 0,
-      itemRender: 1,
+      itemRender: 0,
       tagRender: 1,
-      emptyRender: 1,
+      emptyRender: 0,
       leadingIcon: 1,
       loadingIcon: 1,
       trailingIcon: 1,
@@ -131,6 +131,6 @@ describe('MultiSelect SSR Hydration', () => {
     expect(
       document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
     ).toContain('Banana')
-    expect(Object.values(reads)).toEqual([1, 6, 0, 1, 1, 1, 1, 1, 1, 1])
+    expect(Object.values(reads)).toEqual([1, 6, 0, 1, 1, 0, 1, 1, 1, 1])
   })
 })

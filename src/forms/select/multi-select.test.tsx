@@ -13,8 +13,8 @@ import { createForm } from '../form'
 import { MultiSelect } from './multi-select'
 import type { MultiSelectProps, MultiSelectT } from './multi-select.types'
 
-const render: typeof baseRender = (ui, items) =>
-  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, items)
+const render: typeof baseRender = (ui, options) =>
+  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
 
 const FRUITS: MultiSelectT.Item[] = [
   { label: 'Apple', value: 'apple' },
@@ -1209,13 +1209,13 @@ describe('MultiSelect', () => {
     )
 
     expect(instances).toEqual({ option: 0, tag: 1, empty: 0 })
-    expect(Object.values(reads)).toEqual([1, 1, 1, 1, 1, 1, 1])
+    expect(Object.values(reads)).toEqual([0, 1, 0, 1, 1, 1, 1])
 
     fireEvent.click(screen.container.querySelector('[data-slot="control"]')!)
 
     expect(queryAllBody('[data-slot="item"]')).toHaveLength(3)
     expect(instances).toEqual({ option: 3, tag: 1, empty: 0 })
-    expect(Object.values(reads)).toEqual([1, 1, 1, 1, 1, 1, 1])
+    expect(Object.values(reads)).toEqual([1, 1, 0, 1, 1, 1, 1])
   })
 
   test('types onChange payload as array', () => {

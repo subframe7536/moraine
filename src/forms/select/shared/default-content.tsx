@@ -14,16 +14,23 @@ import type { BaseSelectT } from '../base-select.types.ts'
 import { isGroup, itemKey } from './collection.ts'
 import type { ContentProps, SelectItem, SelectVirtualEntry } from './types.ts'
 
-export function DefaultSelectContent<T extends SelectItem>(
-  props: ContentProps<T> & {
-    empty: JSX.Element
-    slot: (name: 'itemLeading' | 'itemLabel' | 'itemDescription' | 'itemTrailing') => SlotBinding
-  },
+export interface DefaultSelectContentProps<T extends SelectItem> extends ContentProps<T> {
+  empty?: JSX.Element
+  renderEmpty?: () => JSX.Element
+  slot: (name: 'itemLeading' | 'itemLabel' | 'itemDescription' | 'itemTrailing') => SlotBinding
+}
+
+function DefaultSelectContentBody<T extends SelectItem>(
+  props: DefaultSelectContentProps<T>,
 ): JSX.Element {
   const state = useSelectState<T>()
   const cn = useCn()
-  const entries = createMemo<SelectVirtualEntry<T>[]>(() =>
-    state.view().flatMap((entry, index) => {
+  const itemRender = createMemo(() => props.itemRender)
+  const entries = createMemo<SelectVirtualEntry<T>[]>(() => {
+    if (!props.virtualRender) {
+      return []
+    }
+    return state.view().flatMap((entry, index) => {
       const row = (item: T): SelectVirtualEntry<T> => ({
         type: 'item',
         key: itemKey(item.value),
@@ -45,11 +52,14 @@ export function DefaultSelectContent<T extends SelectItem>(
         rows.push(row(item))
       }
       return rows
-    }),
-  )
-  const positions = createMemo(
-    () => new Map(state.visibleItems().map((item, index) => [itemKey(item.value), index + 1])),
-  )
+    })
+  })
+  const positions = createMemo(() => {
+    if (!props.virtualRender) {
+      return new Map<string, number>()
+    }
+    return new Map(state.visibleItems().map((item, index) => [itemKey(item.value), index + 1]))
+  })
   createEffect(
     on(
       [state.highlight, state.open, state.listbox, entries, () => props.virtualRender],
@@ -113,7 +123,7 @@ export function DefaultSelectContent<T extends SelectItem>(
       >
         {(itemState) => (
           <Show
-            when={props.itemRender !== undefined}
+            when={itemRender() !== undefined}
             fallback={
               <>
                 <Show when={item.icon}>
@@ -139,7 +149,7 @@ export function DefaultSelectContent<T extends SelectItem>(
               </>
             }
           >
-            {renderComponentOrElement(props.itemRender, itemState)}
+            {renderComponentOrElement(itemRender(), itemState)}
           </Show>
         )}
       </BaseSelect.Item>
@@ -165,7 +175,7 @@ export function DefaultSelectContent<T extends SelectItem>(
     )
   }
   return (
-    <BaseSelect.Content gutter={props.gutter} overflowPadding={props.overflowPadding}>
+    <>
       <BaseSelect.Listbox
         {...props.listboxProps}
         onScroll={(event) => {
@@ -211,7 +221,17 @@ export function DefaultSelectContent<T extends SelectItem>(
           )}
         </Show>
       </BaseSelect.Listbox>
-      <BaseSelect.Empty>{props.empty}</BaseSelect.Empty>
+      <BaseSelect.Empty>{props.renderEmpty ? props.renderEmpty() : props.empty}</BaseSelect.Empty>
+    </>
+  )
+}
+
+export function DefaultSelectContent<T extends SelectItem>(
+  props: DefaultSelectContentProps<T>,
+): JSX.Element {
+  return (
+    <BaseSelect.Content gutter={props.gutter} overflowPadding={props.overflowPadding}>
+      <DefaultSelectContentBody {...props} />
     </BaseSelect.Content>
   )
 }

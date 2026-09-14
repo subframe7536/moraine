@@ -15,7 +15,13 @@ export function useSelectSearch<T extends BaseSelectT.Item>(
   const state = useSelectState<T>()
   const [text, setText] = useControllableValue<string>({
     value: () => props.searchValue,
-    defaultValue: () => props.defaultSearchValue ?? '',
+    defaultValue: () => {
+      if (props.defaultSearchValue !== undefined) {
+        return props.defaultSearchValue
+      }
+      const initialItem = !state.props.multiple ? state.selectedItems()[0] : undefined
+      return initialItem ? labelString(initialItem, state.props.itemToLabelString) : ''
+    },
   })
   const query = () => text() ?? ''
   const [composing, setComposing] = createSignal(false)
@@ -42,6 +48,15 @@ export function useSelectSearch<T extends BaseSelectT.Item>(
     if (!enabled() || props.filterItem === false || !query()) {
       return entries
     }
+    const selectedItem = !state.props.multiple ? state.selectedItems()[0] : undefined
+    if (
+      selectedItem &&
+      query() === labelString(selectedItem, state.props.itemToLabelString) &&
+      !props.searchValue &&
+      !props.defaultSearchValue
+    ) {
+      return entries
+    }
     const input = query().toLowerCase()
     const matches = (item: T) => {
       if (typeof props.filterItem === 'function') {
@@ -66,12 +81,20 @@ export function useSelectSearch<T extends BaseSelectT.Item>(
   })
   state.setViewSource(() => view)
   onCleanup(() => state.setViewSource(undefined))
-  createEffect(on(state.resetVersion, () => setQuery(''), { defer: true }))
+  state.setSelectAction((item) => {
+    const next = state.props.multiple ? '' : labelString(item, state.props.itemToLabelString)
+    if (!state.props.multiple && !state.open() && state.contentPresent()) {
+      pendingSelectionQuery = next
+      return
+    }
+    pendingSelectionQuery = undefined
+    setQuery(next)
+  })
+  onCleanup(() => state.setSelectAction(undefined))
   createEffect(
     on(
-      state.selectionVersion,
-      () => {
-        const item = state.selectedItems()[0]
+      [state.resetVersion, () => (!state.props.multiple ? state.selectedItems()[0] : undefined)],
+      ([, item]) => {
         const next = state.props.multiple
           ? ''
           : item

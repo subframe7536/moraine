@@ -1,5 +1,7 @@
 import type { Accessor, JSX, ValidComponent } from 'solid-js'
 import {
+  batch,
+  children as resolveChildren,
   createContext,
   createEffect,
   createMemo,
@@ -21,6 +23,8 @@ import { acquireBodyScrollLock } from '../../overlays/base/utils.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { useCn } from '../../shared/provider/cn-context.ts'
 import { createComponentStyles } from '../../shared/provider/create-component-styles.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { createTypeahead } from '../../shared/typeahead.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
@@ -95,7 +99,10 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   const [listbox, setListbox] = createSignal<HTMLDivElement>()
   const [contentPresent, setContentPresent] = createSignal(false)
   const [resetVersion, setResetVersion] = createSignal(0)
-  const [selectionVersion, setSelectionVersion] = createSignal(0)
+  let selectAction: ((item: T) => void) | undefined
+  function setSelectAction(action: ((item: T) => void) | undefined) {
+    selectAction = action
+  }
   const listboxId = () => `${field.id()}-listbox`
   const itemId = (value: BaseSelectT.Value) =>
     `${listboxId()}-${encodeURIComponent(itemKey(value))}`
@@ -151,15 +158,20 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     if (!collection().byValue.has(key)) {
       return
     }
-    change(
-      props.multiple
-        ? selectedKeys().has(key)
-          ? values().filter((value) => itemKey(value) !== key)
-          : [...values(), item.value]
-        : item.value,
-    )
+    batch(() => {
+      if (props.closeOnSelect ?? !props.multiple) {
+        setOpen(false)
+      }
+      change(
+        props.multiple
+          ? selectedKeys().has(key)
+            ? values().filter((value) => itemKey(value) !== key)
+            : [...values(), item.value]
+          : item.value,
+      )
+      selectAction?.(item)
+    })
     if (props.closeOnSelect ?? !props.multiple) {
-      setOpen(false)
       const target = control()
       // oxlint-disable-next-line subf/solid-reactivity -- Delayed focus validates the current control and open state.
       queueMicrotask(() => {
@@ -168,7 +180,6 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
         }
       })
     }
-    setSelectionVersion((version) => version + 1)
   }
   const enabled = createMemo(() => visibleItems().filter((item) => !itemDisabled(item)))
   createEffect(
@@ -321,7 +332,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     select,
     keyDown,
     resetVersion,
-    selectionVersion,
+    setSelectAction,
     presentation,
     itemDisabled,
     setDisabledPolicy,
@@ -396,7 +407,13 @@ function BaseSelectTrigger<
   const state = useSelectState<TItem>()
   const cn = useCn()
   const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style', 'type', 'disabled'])
-  const children = createMemo(() => local.children)
+  const child = resolveChildren(() => local.children)
+  const resolvedChildren = createMemo(() =>
+    renderComponentOrElement(
+      child() as ComponentOrElement<BaseSelectT.TriggerState<TItem>>,
+      state.presentation,
+    ),
+  )
   const tag = () => local.as ?? 'button'
   const eventProps = mergeProps(rest, {
     onPointerDown(event: PointerEvent) {
@@ -474,11 +491,7 @@ function BaseSelectTrigger<
         })
       }}
     >
-      {typeof children() === 'function'
-        ? (children() as (state: BaseSelectT.TriggerState<TItem>) => JSX.Element)(
-            state.presentation,
-          )
-        : children()}
+      {resolvedChildren()}
     </Dynamic>
   )
 }
@@ -583,7 +596,7 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
             class={cn(state.styles.slot('content').class, local.class)}
             style={{
               ...state.styles.slot('content').style,
-              ...(typeof local.style === 'object' ? local.style : {}),
+              ...local.style,
             }}
           >
             {local.children}
@@ -597,6 +610,12 @@ function BaseSelectListbox(props: BaseSelectT.PartProps): JSX.Element {
   const state = useSelectState()
   const cn = useCn()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
+  createEffect(
+    on(
+      () => local.ref,
+      () => undefined,
+    ),
+  )
   createEffect(
     on([state.highlight, state.open, state.listbox], ([key, open, listbox]) => {
       if (!key || !open || !listbox) {
@@ -620,8 +639,9 @@ function BaseSelectListbox(props: BaseSelectT.PartProps): JSX.Element {
       {...rest}
       id={state.listboxId()}
       role="listbox"
-      aria-multiselectable={state.props.multiple || undefined}
+      tabIndex={-1}
       data-slot="listbox"
+      aria-multiselectable={state.props.multiple ? 'true' : undefined}
       ref={(element) => {
         state.setListbox(element)
         callRef(local.ref, element)
@@ -634,7 +654,7 @@ function BaseSelectListbox(props: BaseSelectT.PartProps): JSX.Element {
       class={cn(state.styles.slot('listbox').class, local.class)}
       style={{
         ...state.styles.slot('listbox').style,
-        ...(typeof local.style === 'object' ? local.style : {}),
+        ...local.style,
       }}
     >
       {local.children}
@@ -654,7 +674,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
     'onPointerMove',
     'onPointerDown',
   ])
-  const children = createMemo(() => local.children)
+  const child = resolveChildren(() => local.children as JSX.Element)
   const item = createMemo(() => {
     const canonical = state.collection().byValue.get(itemKey(local.item.value))
     if (!canonical) {
@@ -681,6 +701,16 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       return disabled()
     },
   }
+  const resolvedChildren = createMemo(() => {
+    const value = child()
+    if (value === undefined) {
+      return item().label
+    }
+    return renderComponentOrElement(
+      value as ComponentOrElement<BaseSelectT.ItemState<T>>,
+      presentation,
+    )
+  })
   return (
     <div
       {...rest}
@@ -697,7 +727,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       class={cn(state.styles.slot('item').class, local.class)}
       style={{
         ...state.styles.slot('item').style,
-        ...(typeof local.style === 'object' ? local.style : {}),
+        ...local.style,
       }}
       onPointerMove={(event) => {
         callHandler(event, local.onPointerMove)
@@ -728,9 +758,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
         }
       }}
     >
-      {typeof children() === 'function'
-        ? (children() as (state: BaseSelectT.ItemState<T>) => JSX.Element)(presentation)
-        : ((children() as JSX.Element) ?? item().label)}
+      {resolvedChildren()}
     </div>
   )
 }
@@ -752,7 +780,7 @@ function BaseSelectGroup(props: BaseSelectT.PartProps): JSX.Element {
         class={cn(state.styles.slot('group').class, props.class)}
         style={{
           ...state.styles.slot('group').style,
-          ...(typeof props.style === 'object' ? props.style : {}),
+          ...props.style,
         }}
       >
         {props.children}
@@ -779,7 +807,7 @@ function BaseSelectGroupLabel(props: BaseSelectT.PartProps): JSX.Element {
       class={cn(state.styles.slot('groupLabel').class, props.class)}
       style={{
         ...state.styles.slot('groupLabel').style,
-        ...(typeof props.style === 'object' ? props.style : {}),
+        ...props.style,
       }}
     >
       {props.children}
@@ -798,7 +826,7 @@ function BaseSelectSeparator(props: BaseSelectT.PartProps): JSX.Element {
       class={cn(state.styles.slot('separator').class, props.class)}
       style={{
         ...state.styles.slot('separator').style,
-        ...(typeof props.style === 'object' ? props.style : {}),
+        ...props.style,
       }}
     />
   )
@@ -814,7 +842,7 @@ function BaseSelectEmpty(props: BaseSelectT.PartProps): JSX.Element {
         class={cn(state.styles.slot('empty').class, props.class)}
         style={{
           ...state.styles.slot('empty').style,
-          ...(typeof props.style === 'object' ? props.style : {}),
+          ...props.style,
         }}
       >
         {props.children}

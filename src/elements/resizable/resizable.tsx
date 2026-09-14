@@ -849,7 +849,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                   'flex-shrink': 1,
                   'flex-basis': '0px',
                   ...resolved.slot('panel').style,
-                  ...(panelItem().style as JSX.CSSProperties),
+                  ...panelItem().style,
                 }}
                 onTransitionEnd={(event) => {
                   const result = callHandler(event, panelPart()!.local.onTransitionEnd)
@@ -979,7 +979,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       class={cn(resolved.slot('divider').class, handlePart().local.class)}
                       style={{
                         ...resolved.slot('divider').style,
-                        ...(handlePart().local.style as JSX.CSSProperties),
+                        ...handlePart().local.style,
                       }}
                       onMouseEnter={(event) =>
                         callHandleEvent(

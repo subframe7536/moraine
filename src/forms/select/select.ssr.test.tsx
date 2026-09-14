@@ -90,9 +90,9 @@ describe('Select SSR Hydration', () => {
     expect(combobox.getAttribute('aria-expanded')).toBe('false')
     expect(reads).toEqual({
       items: 1,
-      label: 1,
+      label: 2,
       description: 0,
-      itemRender: 1,
+      itemRender: 0,
       leadingIcon: 1,
       trailingIcon: 1,
       closeIcon: 1,

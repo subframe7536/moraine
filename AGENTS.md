@@ -146,6 +146,7 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 - **Utility First:** Use utility classes for 99% of styling.
 - **Class Prop:** Always use `class` (not `className`).
 - **Consistency:** Use `cn` to merge classes and `recipe` to define variants.
+- **Style Prop:** Style prop must always be typed as `JSX.CSSProperties` (object). String style (`string | JSX.CSSProperties`) is strictly forbidden across all component props, slots, and element wrappers. Narrow native HTML element props using `ElementProps` or `Omit<JSX.HTMLAttributes<...>, 'style'> & { style?: JSX.CSSProperties }`. Do not write defensive runtime guards like `typeof style === 'object'` or `toStyleObject()` assuming style could be a string.
 
 ### Error Handling
 

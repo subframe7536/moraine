@@ -30,8 +30,6 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
     MULTI_SELECT_LOCAL_PROP_KEYS,
     BASE_SELECT_FORWARD_PROP_KEYS,
   )
-  const itemRender = createMemo(() => local.itemRender)
-  const emptyRender = createMemo(() => local.emptyRender)
   const leadingIcon = createMemo(() => local.leadingIcon)
   const loadingIcon = createMemo(() => local.loadingIcon)
   const trailingIcon = createMemo(() => local.trailingIcon)
@@ -345,7 +343,7 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
                 aria-label={local.loading ? 'Loading' : 'Toggle selection'}
                 aria-busy={local.loading ? 'true' : undefined}
                 data-loading={local.loading ? '' : undefined}
-                disabled={state.locked()}
+                disabled={state.locked() || Boolean(local.loading)}
                 {...styles.slot('trigger')}
               >
                 <Icon
@@ -377,7 +375,7 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
           </Show>
         </Dynamic>
         <DefaultSelectContent
-          itemRender={itemRender()}
+          itemRender={local.itemRender}
           itemProps={local.itemProps}
           listboxProps={local.listboxProps}
           virtualRender={local.virtualRender}
@@ -387,9 +385,9 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
           gutter={local.gutter}
           overflowPadding={local.overflowPadding}
           slot={styles.slot}
-          empty={
-            emptyRender() !== undefined
-              ? renderComponentOrElement(emptyRender(), {
+          renderEmpty={() =>
+            local.emptyRender !== undefined
+              ? renderComponentOrElement(local.emptyRender, {
                   get inputValue() {
                     return search.query()
                   },

@@ -28,8 +28,6 @@ export function Select<V extends SelectT.Value = SelectT.Value>(
     SELECT_LOCAL_PROP_KEYS,
     BASE_SELECT_FORWARD_PROP_KEYS,
   )
-  const itemRender = createMemo(() => local.itemRender)
-  const emptyRender = createMemo(() => local.emptyRender)
   const leadingIcon = createMemo(() => local.leadingIcon)
   const loadingIcon = createMemo(() => local.loadingIcon ?? 'icon-loading')
   const trailingIcon = createMemo(() => local.trailingIcon ?? 'icon-chevron-down')
@@ -149,7 +147,7 @@ export function Select<V extends SelectT.Value = SelectT.Value>(
           </Show>
         </Dynamic>
         <DefaultSelectContent
-          itemRender={itemRender()}
+          itemRender={local.itemRender}
           itemProps={local.itemProps}
           listboxProps={local.listboxProps}
           virtualRender={local.virtualRender}
@@ -159,9 +157,9 @@ export function Select<V extends SelectT.Value = SelectT.Value>(
           gutter={local.gutter}
           overflowPadding={local.overflowPadding}
           slot={styles.slot}
-          empty={
-            emptyRender() !== undefined
-              ? renderComponentOrElement(emptyRender(), {
+          renderEmpty={() =>
+            local.emptyRender !== undefined
+              ? renderComponentOrElement(local.emptyRender, {
                   get inputValue() {
                     return search.query()
                   },

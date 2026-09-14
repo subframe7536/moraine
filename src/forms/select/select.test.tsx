@@ -1038,7 +1038,7 @@ describe('Select - render hooks', () => {
 
     expect(queryBody('[data-slot="item"]')).toBeNull()
     expect(instances.option).toBe(0)
-    expect(reads).toEqual({ itemRender: 1 })
+    expect(reads).toEqual({ itemRender: 0 })
 
     fireEvent.click(screen.getByRole('combobox'))
 
