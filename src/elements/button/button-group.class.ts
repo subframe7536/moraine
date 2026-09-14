@@ -8,7 +8,6 @@ export const buttonGroupRecipe = /* @__PURE__ */ slotRecipe<
 >({
   base: {
     root: 'inline-flex w-fit items-stretch *:focus-visible:(relative z-sticky)',
-    separator: 'bg-input shrink-0 self-stretch',
   },
   defaults: {
     orientation: 'horizontal',
@@ -16,12 +15,10 @@ export const buttonGroupRecipe = /* @__PURE__ */ slotRecipe<
   variants: {
     orientation: {
       horizontal: {
-        root: 'flex-row [&>[data-slot=separator]]:mx-px [&>*:not(:first-child)]:(border-s-0 rounded-s-none) [&>*:not(:last-child)]:rounded-e-none',
-        separator: 'h-full w-px',
+        root: 'flex-row -[&>*:not(:last-child)]:me-px [&>*:not(:first-child)]:rounded-s-none [&>*:not(:last-child)]:rounded-e-none',
       },
       vertical: {
-        root: 'flex-col [&>[data-slot=separator]]:my-px [&>*:not(:first-child)]:(border-t-0 rounded-t-none) [&>*:not(:last-child)]:rounded-b-none',
-        separator: 'h-px w-full',
+        root: 'flex-col -[&>*:not(:last-child)]:mb-px [&>*:not(:first-child)]:rounded-t-none [&>*:not(:last-child)]:rounded-b-none',
       },
     },
   },

@@ -10,8 +10,6 @@ export namespace ButtonGroupT {
   export interface Slot<T = unknown> {
     /** Container that joins the edges of its direct button children. */
     root?: T
-    /** Separator element between buttons. */
-    separator?: T
   }
   export interface Variant extends ButtonT.Variant {
     /** Visual layout direction.
@@ -33,8 +31,6 @@ export namespace ButtonGroupT {
     role?: JSX.AriaAttributes['role']
     /** Buttons or compatible controls rendered as a cohesive group. */
     children?: JSX.Element
-    /** Whether to render a decorative separator between adjacent controls. */
-    separator?: boolean
   }
 
   /** Props for the ButtonGroup component. */
