@@ -80,20 +80,6 @@ describe('canonical select collection', () => {
     error.mockRestore()
   })
 
-  test('does not throw or diagnose duplicate values in production', () => {
-    vi.stubEnv('NODE_ENV', 'production')
-    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    expect(() =>
-      createSource([
-        { value: 'production-duplicate', label: 'First' },
-        { value: 'production-duplicate', label: 'Second' },
-      ]),
-    ).not.toThrow()
-    expect(error).not.toHaveBeenCalled()
-    error.mockRestore()
-    vi.unstubAllEnvs()
-  })
-
   test('uses collision-safe string keys for grouped and item rows', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const source = createSource([

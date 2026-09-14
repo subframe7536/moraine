@@ -385,6 +385,27 @@ test('owns Form context synchronization and treats an unmatched empty field as n
   expect(change).toHaveBeenCalledOnce()
 })
 
+test('uses raw BaseSelect items to recognize an empty-string Form.Field value', () => {
+  const { screen } = renderWithOwner(
+    () =>
+      createForm({
+        schema: v.object({ choice: v.string() }),
+        initialInput: { choice: '' },
+      }),
+    (form) => (
+      <form.Form>
+        <form.Field name="choice" label="Choice">
+          <BaseSelect items={[{ value: '', label: 'Empty value' }]}>
+            <BaseSelect.Trigger>{(state) => state.value.length}</BaseSelect.Trigger>
+          </BaseSelect>
+        </form.Field>
+      </form.Form>
+    ),
+  )
+
+  expect(screen.getByRole('combobox').textContent).toBe('1')
+})
+
 test('normalizes controlled multiple values before synchronizing Form.Field', () => {
   const [controlled, setControlled] = createSignal<readonly string[]>(['a', 'a'], {
     equals: false,

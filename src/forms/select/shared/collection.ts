@@ -1,3 +1,5 @@
+import { DEV } from 'solid-js'
+
 import type { BaseSelectT } from '../base-select.types.ts'
 
 import type { SelectEntry, SelectGroup, SelectView, SelectRow } from './types.ts'
@@ -20,7 +22,7 @@ export function diagnoseDuplicateValue(
   owner: 'BaseSelect' | 'Select',
   value: BaseSelectT.Value,
 ): void {
-  if (process.env.NODE_ENV === 'production') {
+  if (!DEV) {
     return
   }
   let warned = warnedDuplicateValues.get(owner)
@@ -40,6 +42,9 @@ export function diagnoseDuplicateValue(
 }
 
 export function diagnoseDuplicateItems(items: readonly BaseSelectT.Item[]): void {
+  if (!DEV) {
+    return
+  }
   const values = new Set<BaseSelectT.Value>()
   for (const item of items) {
     if (values.has(item.value)) {

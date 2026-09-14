@@ -340,6 +340,33 @@ describe('empty-string Form.Field decoding', () => {
     )
     expect(screen.getByRole('combobox').textContent).toBe('Choose')
   })
+
+  test('keeps an empty-string MultiSelect Form.Field value without canonical context', () => {
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choices: v.array(v.string()) }),
+          initialInput: { choices: [''] },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="choices" label="Choices">
+            <MultiSelect
+              items={countries}
+              tagRender={({ value }) => (
+                <span data-testid="empty-value-tag" data-value={value}>
+                  Selected value
+                </span>
+              )}
+            />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    expect(getInput(form)).toEqual({ choices: [''] })
+    expect(screen.getByTestId('empty-value-tag').getAttribute('data-value')).toBe('')
+  })
 })
 
 describe('complete items and unresolved values', () => {

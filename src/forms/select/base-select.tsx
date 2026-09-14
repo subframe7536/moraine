@@ -41,16 +41,11 @@ import {
   sameValue,
   selectionEqual,
 } from './shared/collection.ts'
-
-export const INTERNAL_FORM_VALUE_EXISTS = '__formValueExists' as const
-
-type InternalBaseSelectProps<T extends BaseSelectT.Item> = BaseSelectProps<T> & {
-  [INTERNAL_FORM_VALUE_EXISTS]?: (value: T['value']) => boolean
-}
+import { FormValueExistsContext } from './shared/form-value-context.ts'
 
 function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>) {
   type Value = readonly T['value'][]
-  const internalProps = props as InternalBaseSelectProps<T>
+  const canonicalValueExists = useContext(FormValueExistsContext)
   const normalize = (values: Value): T['value'][] =>
     normalizeSelection(values, props.multiple === true)
   const id = useId(() => props.id, 'select')
@@ -65,8 +60,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   )
   const items = () => props.items ?? []
   const formValueExists = (value: T['value']) =>
-    internalProps[INTERNAL_FORM_VALUE_EXISTS]?.(value) ??
-    items().some((item) => sameValue(item.value, value))
+    canonicalValueExists?.(value) ?? items().some((item) => sameValue(item.value, value))
   createEffect(on(items, diagnoseDuplicateItems))
   const [selection, setSelection] = useControllableValue<Value>({
     value: () => {

@@ -8,7 +8,7 @@ import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callRef } from '../../shared/utils.ts'
 import { useFormFieldContext } from '../form/form-context.ts'
 
-import { BaseSelect, INTERNAL_FORM_VALUE_EXISTS, useSelectState } from './base-select.tsx'
+import { BaseSelect, useSelectState } from './base-select.tsx'
 import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
 import { createSource, labelString, sameValue } from './shared/collection.ts'
 import { DefaultSelectContent } from './shared/default-content.tsx'
@@ -437,7 +437,6 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     >
       <BaseSelect<Item>
         {...baseSelectProps}
-        {...{ [INTERNAL_FORM_VALUE_EXISTS]: (value: V) => source().byValue.has(value) }}
         items={search.view().items}
         serializeValue={(value) =>
           source().byValue.get(value)?.disabled ? undefined : String(value)

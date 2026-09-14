@@ -8,10 +8,12 @@ import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callRef } from '../../shared/utils.ts'
 import { useFormFieldContext } from '../form/form-context.ts'
 
-import { BaseSelect, INTERNAL_FORM_VALUE_EXISTS, useSelectState } from './base-select.tsx'
+import { BaseSelect, useSelectState } from './base-select.tsx'
+import type { BaseSelectT } from './base-select.types.ts'
 import type { SelectProps, SelectT } from './select.types.ts'
 import { createSource, labelString } from './shared/collection.ts'
 import { DefaultSelectContent } from './shared/default-content.tsx'
+import { FormValueExistsContext } from './shared/form-value-context.ts'
 import {
   BASE_SELECT_FORWARD_PROP_KEYS,
   BASE_SELECT_SHARED_SLOTS,
@@ -213,27 +215,30 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
       data-invalid={isFormFieldInvalid(field) ? '' : undefined}
       {...styles.root}
     >
-      <BaseSelect<T>
-        {...baseSelectProps}
-        {...{ [INTERNAL_FORM_VALUE_EXISTS]: (value: T['value']) => source().byValue.has(value) }}
-        items={search.view().items}
-        serializeValue={(value) =>
-          source().byValue.get(value)?.disabled ? undefined : String(value)
-        }
-        value={selection()}
-        defaultValue={defaultSelection()}
-        onChange={(values) => local.onChange?.(values[0] ?? null)}
-        onReset={() => {
-          search.setQuery('')
-          local.onReset?.()
-        }}
-        multiple={false}
-        size={styles.variants.size ?? undefined}
-        classes={sharedClasses()}
-        styles={sharedStyles()}
+      <FormValueExistsContext.Provider
+        value={(value: BaseSelectT.Value) => source().byValue.has(value)}
       >
-        <Control />
-      </BaseSelect>
+        <BaseSelect<T>
+          {...baseSelectProps}
+          items={search.view().items}
+          serializeValue={(value) =>
+            source().byValue.get(value)?.disabled ? undefined : String(value)
+          }
+          value={selection()}
+          defaultValue={defaultSelection()}
+          onChange={(values) => local.onChange?.(values[0] ?? null)}
+          onReset={() => {
+            search.setQuery('')
+            local.onReset?.()
+          }}
+          multiple={false}
+          size={styles.variants.size ?? undefined}
+          classes={sharedClasses()}
+          styles={sharedStyles()}
+        >
+          <Control />
+        </BaseSelect>
+      </FormValueExistsContext.Provider>
     </div>
   )
 }
