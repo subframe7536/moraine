@@ -5,7 +5,7 @@ import { createSignal } from 'solid-js'
 const REGIONS: SelectT.Entry<SelectT.Item<string>>[] = [
   {
     label: 'North America',
-    type: 'group' as const,
+    type: 'group',
     items: [
       { label: 'US East (N. Virginia)', value: 'us-east-1' },
       { label: 'US West (Oregon)', value: 'us-west-2' },
@@ -14,7 +14,7 @@ const REGIONS: SelectT.Entry<SelectT.Item<string>>[] = [
   },
   {
     label: 'Europe',
-    type: 'group' as const,
+    type: 'group',
     items: [
       { label: 'EU (Frankfurt)', value: 'eu-central-1' },
       { label: 'EU (Ireland)', value: 'eu-west-1' },
@@ -23,7 +23,7 @@ const REGIONS: SelectT.Entry<SelectT.Item<string>>[] = [
   },
   {
     label: 'Asia Pacific',
-    type: 'group' as const,
+    type: 'group',
     items: [
       { label: 'Asia (Tokyo)', value: 'ap-northeast-1' },
       { label: 'Asia (Singapore)', value: 'ap-southeast-1' },

@@ -5,7 +5,7 @@ export function GroupedOptions() {
   const REGION_OPTIONS: SelectT.Entry[] = [
     {
       label: 'Americas',
-      type: 'group' as const,
+      type: 'group',
       items: [
         { label: 'America/New_York (UTC-5)', value: 'America/New_York' },
         { label: 'America/Chicago (UTC-6)', value: 'America/Chicago' },
@@ -15,7 +15,7 @@ export function GroupedOptions() {
     },
     {
       label: 'Europe',
-      type: 'group' as const,
+      type: 'group',
       items: [
         { label: 'Europe/London (UTC+0)', value: 'Europe/London' },
         { label: 'Europe/Frankfurt (UTC+1)', value: 'Europe/Frankfurt' },
@@ -24,7 +24,7 @@ export function GroupedOptions() {
     },
     {
       label: 'Asia Pacific',
-      type: 'group' as const,
+      type: 'group',
       items: [
         { label: 'Asia/Tokyo (UTC+9)', value: 'Asia/Tokyo' },
         { label: 'Asia/Singapore (UTC+8)', value: 'Asia/Singapore' },

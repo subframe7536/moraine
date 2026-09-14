@@ -5,7 +5,7 @@ import { createSignal } from 'solid-js'
 const TECH_GROUPS: MultiSelectT.Entry[] = [
   {
     label: 'Frontend Frameworks',
-    type: 'group' as const,
+    type: 'group',
     items: [
       { label: 'TypeScript', value: 'ts' },
       { label: 'SolidJS', value: 'solid' },
@@ -14,7 +14,7 @@ const TECH_GROUPS: MultiSelectT.Entry[] = [
   },
   {
     label: 'Backend & Systems',
-    type: 'group' as const,
+    type: 'group',
     items: [
       { label: 'Rust', value: 'rust' },
       { label: 'Go', value: 'go' },

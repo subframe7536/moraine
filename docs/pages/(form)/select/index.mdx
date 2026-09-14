@@ -132,15 +132,19 @@ interface UserItem extends SelectT.Item<string> {
   department: string
 }
 
-;<Select<UserItem>
-  items={users}
-  filterItem={(query, item) => item.department.includes(query)}
-  itemRender={({ item }) => (
-    <span>
-      {item.label} — {item.department}
-    </span>
-  )}
-/>
+function User() {
+  return (
+    <Select<UserItem>
+      items={users}
+      filterItem={(query, item) => item.department.includes(query)}
+      itemRender={({ item }) => (
+        <span>
+          {item.label} — {item.department}
+        </span>
+      )}
+    />
+  )
+}
 ```
 
 Grouped input keeps the `{ type: 'group', label, items }` discriminator. `SelectT.Group<UserItem>` and `SelectT.Entry<UserItem>` preserve the full item type. Normal and virtual content share `SelectT.Row<UserItem>`; virtual `scrollToItem` receives the original item and its row index.
@@ -182,6 +186,8 @@ Virtualization is appropriate for large, stable option lists. Infinite loading s
 <Preview path="./infinite-scroll" />
 
 ### Virtualization
+
+make sure `@tanstack/virtual-core` installed
 
 <Preview path="./virtualization" />
 
