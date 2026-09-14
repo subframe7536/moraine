@@ -8,7 +8,7 @@ import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callRef } from '../../shared/utils.ts'
 import { useFormFieldContext } from '../form/form-context.ts'
 
-import { BaseSelect, useSelectState } from './base-select.tsx'
+import { BaseSelect, INTERNAL_FORM_VALUE_EXISTS, useSelectState } from './base-select.tsx'
 import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
 import { createSource, labelString, sameValue } from './shared/collection.ts'
 import { DefaultSelectContent } from './shared/default-content.tsx'
@@ -77,8 +77,10 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     const visibleTags = createMemo(() =>
       local.maxTagCount === undefined ? tags() : tags().slice(0, local.maxTagCount),
     )
+    const canRemove = (item: { item: Item | undefined }) =>
+      !state.locked() && (!item.item || !state.itemDisabled(item.item))
     function remove(item: { value: V; item: Item | undefined }) {
-      if (state.locked() || item.item?.disabled) {
+      if (!canRemove(item)) {
         return
       }
       state.change(state.value().filter((value) => !sameValue(value, item.value)))
@@ -87,6 +89,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       if (state.locked()) {
         return
       }
+      input.discardComposition()
       state.change([])
       search.setQuery('')
       local.onClear?.()
@@ -127,10 +130,17 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
         if (item.disabled || baseSelectProps.isItemDisabled?.(item, current)) {
           return false
         }
-        if (current.includes(item.value)) {
+        if (!existing) {
+          const createdItem = item
+          setCreated((previous) =>
+            previous.some((candidate) => sameValue(candidate.value, createdItem.value))
+              ? previous
+              : [...previous, createdItem],
+          )
+        }
+        if (current.some((value) => sameValue(value, item!.value))) {
           return true
         }
-        setCreated((previous) => [...previous, item!])
       }
       if (batch) {
         batch.push(item.value)
@@ -251,7 +261,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                         data-slot="tagRemove"
                         aria-label={`Remove ${item.title}`}
                         tabIndex={-1}
-                        disabled={state.locked() || item.item?.disabled}
+                        disabled={!canRemove(item)}
                         {...styles.slot('tagRemove')}
                         onClick={(event) => {
                           event.stopPropagation()
@@ -291,6 +301,10 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               onCompositionEnd={(event) => {
                 const target = event.currentTarget
                 const committed = input.endComposition(target.value)
+                if (committed === undefined) {
+                  target.value = search.query()
+                  return
+                }
                 target.value = committed
                 target.value = processText(committed)
               }}
@@ -300,7 +314,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 }
                 if (event.key === 'Backspace' && !search.query()) {
                   const item = tags().at(-1)
-                  if (item && !item.item?.disabled) {
+                  if (item && canRemove(item)) {
                     event.preventDefault()
                     remove(item)
                   }
@@ -423,6 +437,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     >
       <BaseSelect<Item>
         {...baseSelectProps}
+        {...{ [INTERNAL_FORM_VALUE_EXISTS]: (value: V) => source().byValue.has(value) }}
         items={search.view().items}
         serializeValue={(value) =>
           source().byValue.get(value)?.disabled ? undefined : String(value)

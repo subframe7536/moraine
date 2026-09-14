@@ -148,6 +148,8 @@ interface UserItem extends MultiSelectT.Item<string> {
 
 The generic parameter is the complete item type, including in groups, filters, renderers, tags, text resolution, scrolling, and virtual rows. Group input remains `{ type: 'group', label, items }`; use `MultiSelectT.Row<UserItem>` for shared normal/virtual rows.
 
+Item values must be unique within a Select collection. Duplicate values are invalid consumer input.
+
 Unresolved values remain selected. Default tags display `String(value)`; custom `tagRender` receives `{ value, label, item: undefined, onClose }`. When source data arrives, `item` resolves to the original canonical object. Removing source data does not remove controlled values.
 
 ### Keyboard interaction

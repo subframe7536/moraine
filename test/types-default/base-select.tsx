@@ -4,6 +4,10 @@ import type { BaseSelectT, SelectT } from 'moraine'
 interface UserItem extends BaseSelectT.Item<number> {
   email: string
 }
+interface BusinessItem extends BaseSelectT.Item<string> {
+  type: 'group'
+  department: string
+}
 const items: UserItem[] = [{ value: 1, label: 'One', email: 'one@example.com' }]
 const group: SelectT.Group<UserItem> = { type: 'group', label: 'Users', items }
 ;<BaseSelect<UserItem>
@@ -59,6 +63,17 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
   filterItem={(_, item) => item.value === 1}
 />
 ;<MultiSelect items={items} />
+;<Select<BusinessItem>
+  items={[
+    { type: 'group', value: 'business', label: 'Business', department: 'sales' },
+    {
+      type: 'group',
+      label: 'Departments',
+      items: [{ type: 'group', value: 'engineering', label: 'Engineering', department: 'dev' }],
+    },
+  ]}
+  itemRender={({ item }) => item.department}
+/>
 // @ts-expect-error Old collection terminology is removed.
 ;<Select options={items} />
 // @ts-expect-error Old collection terminology is removed.

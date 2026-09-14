@@ -498,7 +498,7 @@
         "name": "items",
         "required": false,
         "type": "MultiSelectT.Entry<T>[] | undefined",
-        "description": "Source items, optionally grouped."
+        "description": "Source items, optionally grouped. Item values must be unique within the collection."
       },
       {
         "name": "itemToLabelString",

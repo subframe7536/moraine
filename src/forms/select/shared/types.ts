@@ -15,15 +15,16 @@ export interface SelectItem<
   description?: JSX.Element
 }
 export interface SelectGroup<T extends BaseSelectT.Item> {
-  /** Reserved group discriminator. */
+  /** Structural group discriminator. */
   type: 'group'
+  value?: never
   label: JSX.Element
   items: T[]
 }
 export type SelectEntry<T extends BaseSelectT.Item> = T | SelectGroup<T>
 export type SelectRow<T extends BaseSelectT.Item> =
   | { type: 'label'; key: string; label: JSX.Element; values: T['value'][] }
-  | { type: 'item'; key: T['value']; item: T }
+  | { type: 'item'; key: string; item: T }
 export interface SelectView<T extends BaseSelectT.Item> {
   items: T[]
   rows: SelectRow<T>[]

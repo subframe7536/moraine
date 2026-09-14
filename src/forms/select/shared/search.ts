@@ -1,4 +1,4 @@
-import { createMemo, createSignal } from 'solid-js'
+import { createEffect, createMemo, createSignal, on } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 import { useControllableValue } from '../../../shared/use-controllable-value.ts'
@@ -85,9 +85,27 @@ export function useSelectSearchInput<T extends BaseSelectT.Item>(
     setComposing(true)
   }
   function endComposition(value: string) {
+    if (!composing()) {
+      return undefined
+    }
     setComposing(false)
     return value
   }
+  function discardComposition() {
+    if (!composing()) {
+      return
+    }
+    setComposing(false)
+    setDraft('')
+  }
+  createEffect(on([], () => state.registerCompositionDiscarder(discardComposition)))
+  createEffect(
+    on(query, (current, previous) => {
+      if (previous !== undefined && current !== previous) {
+        discardComposition()
+      }
+    }),
+  )
   return {
     query,
     setQuery,
@@ -95,6 +113,7 @@ export function useSelectSearchInput<T extends BaseSelectT.Item>(
     composing,
     setDraft,
     endComposition,
+    discardComposition,
     input,
     binding: {
       get id() {
@@ -136,6 +155,10 @@ export function useSelectSearchInput<T extends BaseSelectT.Item>(
       onCompositionEnd(event: CompositionEvent) {
         const target = event.currentTarget as HTMLInputElement
         const committed = endComposition(target.value)
+        if (committed === undefined) {
+          target.value = display()
+          return
+        }
         target.value = committed
         commit(committed)
       },

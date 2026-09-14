@@ -34,12 +34,25 @@ import { useFormField } from '../form/form-context.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import type { BaseSelectProps, BaseSelectT } from './base-select.types.ts'
-import { labelString, sameValue } from './shared/collection.ts'
+import {
+  diagnoseDuplicateItems,
+  labelString,
+  normalizeSelection,
+  sameValue,
+  selectionEqual,
+} from './shared/collection.ts'
+
+export const INTERNAL_FORM_VALUE_EXISTS = '__formValueExists' as const
+
+type InternalBaseSelectProps<T extends BaseSelectT.Item> = BaseSelectProps<T> & {
+  [INTERNAL_FORM_VALUE_EXISTS]?: (value: T['value']) => boolean
+}
 
 function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>) {
   type Value = readonly T['value'][]
+  const internalProps = props as InternalBaseSelectProps<T>
   const normalize = (values: Value): T['value'][] =>
-    props.multiple ? [...new Set(values)] : values.slice(0, 1)
+    normalizeSelection(values, props.multiple === true)
   const id = useId(() => props.id, 'select')
   const initial = untrack(() => normalize(props.defaultValue ?? []))
   const field = useFormField(
@@ -51,6 +64,10 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     }),
   )
   const items = () => props.items ?? []
+  const formValueExists = (value: T['value']) =>
+    internalProps[INTERNAL_FORM_VALUE_EXISTS]?.(value) ??
+    items().some((item) => sameValue(item.value, value))
+  createEffect(on(items, diagnoseDuplicateItems))
   const [selection, setSelection] = useControllableValue<Value>({
     value: () => {
       if (props.value !== undefined) {
@@ -61,7 +78,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
         return value
       }
       if (!props.multiple && (typeof value === 'string' || typeof value === 'number')) {
-        return value === '' && !items().some((item) => item.value === value) ? [] : [value]
+        return value === '' && !formValueExists(value) ? [] : [value]
       }
       return undefined
     },
@@ -102,7 +119,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     }
     const before = value()
     const after = normalize(next)
-    if (before.length === after.length && before.every((value, i) => sameValue(value, after[i]))) {
+    if (selectionEqual(before, after)) {
       return
     }
     setSelection(after)
@@ -123,6 +140,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     if (!items().some((candidate) => sameValue(candidate.value, item.value))) {
       return
     }
+    discardComposition()
     batch(() => {
       if (props.closeOnSelect ?? !props.multiple) {
         setOpen(false)
@@ -219,10 +237,38 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     }
   }
   createEffect(
-    on([() => props.value, field.value], ([current, formValue]) => {
-      const next = props.multiple ? current : (current?.[0] ?? '')
-      if (current !== undefined && !Object.is(next, formValue)) {
-        field.setFormValue(next)
+    on(
+      [value, field.value, () => props.value !== undefined],
+      ([current, formValue, controlled]) => {
+        if (!controlled) {
+          return
+        }
+        if (props.multiple) {
+          if (!Array.isArray(formValue) || !selectionEqual(current, formValue as T['value'][])) {
+            field.setFormValue(current)
+          }
+        } else if (!sameValue(current[0] ?? '', formValue as T['value'] | undefined)) {
+          field.setFormValue(current[0] ?? '')
+        }
+      },
+    ),
+  )
+  let compositionDiscarder: (() => void) | undefined
+  function registerCompositionDiscarder(discard: () => void) {
+    compositionDiscarder = discard
+    onCleanup(() => {
+      if (compositionDiscarder === discard) {
+        compositionDiscarder = undefined
+      }
+    })
+  }
+  function discardComposition() {
+    compositionDiscarder?.()
+  }
+  createEffect(
+    on(value, (current, previous) => {
+      if (previous !== undefined && !selectionEqual(current, previous)) {
+        discardComposition()
       }
     }),
   )
@@ -245,6 +291,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   useFormReset(
     () => validationInput?.form,
     () => {
+      discardComposition()
       setSelection(initial)
       const next = props.value !== undefined ? normalize(props.value) : initial
       field.setFormValue(props.multiple ? next : (next[0] ?? ''))
@@ -290,6 +337,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     keyDown,
     presentation,
     itemDisabled,
+    registerCompositionDiscarder,
     formControls: () => (
       <>
         <HiddenInput

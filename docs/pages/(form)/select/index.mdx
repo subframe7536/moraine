@@ -121,6 +121,8 @@ Use `value` with `onChange` for controlled selection, or a default value for loc
 
 Select owns source items, grouping, filtering, and canonical value lookup. Its value API remains `TItem['value'] | null`. Missing selected items display `String(value)` until the canonical item arrives.
 
+Item values must be unique within a Select collection. Duplicate values are invalid consumer input.
+
 ### Complete item types
 
 The generic parameter is the full item type. Custom fields remain available to filtering, rendering, text resolution, and virtualization:

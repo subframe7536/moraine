@@ -97,7 +97,7 @@ export namespace SelectT {
       SearchProps<TItem>,
       ContentProps<TItem>,
       FormValueOptions<TItem['value'] | null> {
-    /** Source items, optionally grouped. */
+    /** Source items, optionally grouped. Item values must be unique within the collection. */
     items?: Entry<TItem>[]
     /** Called when the selection changes. */
     onChange?: (value: NoInfer<TItem['value'] | null>) => void

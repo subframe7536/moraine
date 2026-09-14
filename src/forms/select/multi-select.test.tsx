@@ -359,6 +359,75 @@ describe('MultiSelect', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
+  test('uses the effective disabled policy for remove buttons and Backspace', () => {
+    const [blocked, setBlocked] = createSignal(true)
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        search
+        items={FRUITS}
+        defaultValue={['missing', 'apple']}
+        isItemDisabled={(item) => blocked() && item.value === 'apple'}
+        onChange={onChange}
+      />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    const removeApple = screen.getByRole<HTMLButtonElement>('button', { name: 'Remove Apple' })
+
+    expect(removeApple.disabled).toBe(true)
+    fireEvent.click(removeApple)
+    fireEvent.keyDown(input, { key: 'Backspace' })
+    expect(onChange).not.toHaveBeenCalled()
+
+    setBlocked(false)
+    expect(removeApple.disabled).toBe(false)
+    fireEvent.keyDown(input, { key: 'Backspace' })
+    expect(onChange).toHaveBeenLastCalledWith(['missing'])
+
+    fireEvent.keyDown(input, { key: 'Backspace' })
+    expect(onChange).toHaveBeenLastCalledWith([])
+  })
+
+  test('guards custom tag removal with the dynamic disabled policy', () => {
+    const [blocked, setBlocked] = createSignal(true)
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        items={FRUITS}
+        defaultValue={['apple']}
+        isItemDisabled={(item) => blocked() && item.value === 'apple'}
+        onChange={onChange}
+        tagRender={({ label, onClose }) => <button onClick={onClose}>Remove {label}</button>}
+      />
+    ))
+    const remove = screen.getByRole('button', { name: 'Remove Apple' })
+
+    fireEvent.click(remove)
+    expect(onChange).not.toHaveBeenCalled()
+    setBlocked(false)
+    fireEvent.click(remove)
+    expect(onChange).toHaveBeenCalledWith([])
+  })
+
+  test('lets Clear All bypass the effective item disabled policy', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        items={FRUITS}
+        defaultValue={['apple']}
+        allowClear
+        isItemDisabled={(item) => item.value === 'apple'}
+        onChange={onChange}
+      />
+    ))
+
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Remove Apple' }).disabled).toBe(
+      true,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
+    expect(onChange).toHaveBeenCalledWith([])
+  })
+
   test('preserves tag remove button layout and classes when toggling disabled', () => {
     const [isDisabled, setIsDisabled] = createSignal(false)
     const screen = render(() => (

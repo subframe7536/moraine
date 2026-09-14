@@ -1,4 +1,5 @@
 import { getInput, setInput } from '@formisch/solid'
+import type { FieldStore } from '@formisch/solid'
 import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
 import { createSignal, For, Show } from 'solid-js'
 import * as v from 'valibot'
@@ -6,6 +7,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../elements/button/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { FormFieldProvider } from '../form/form-context.ts'
 import { createForm } from '../form/index.ts'
 
 import { BaseSelect } from './base-select.tsx'
@@ -381,4 +383,79 @@ test('owns Form context synchronization and treats an unmatched empty field as n
   setInput(form, { path: ['choice'], input: '' })
   expect(screen.getByRole('combobox').textContent).toBe('Choose')
   expect(change).toHaveBeenCalledOnce()
+})
+
+test('normalizes controlled multiple values before synchronizing Form.Field', () => {
+  const [controlled, setControlled] = createSignal<readonly string[]>(['a', 'a'], {
+    equals: false,
+  })
+  const [fieldValue, setFieldValue] = createSignal<unknown>(['a', 'a'])
+  const onInput = vi.fn((value: unknown) => setFieldValue(value))
+  const field = {
+    get input() {
+      return fieldValue()
+    },
+    onInput,
+    props: {
+      name: 'choices',
+      ref: () => undefined,
+      onBlur: () => undefined,
+      onChange: () => undefined,
+      onFocus: () => undefined,
+    },
+  } as unknown as FieldStore
+  const screen = render(() => (
+    <FormFieldProvider value={{ ariaId: 'choices', field }}>
+      <BaseSelect
+        multiple
+        items={[
+          { value: 'a', label: 'A' },
+          { value: 'b', label: 'B' },
+        ]}
+        value={controlled()}
+      >
+        <BaseSelect.Trigger>{(state) => state.value.join(',')}</BaseSelect.Trigger>
+      </BaseSelect>
+    </FormFieldProvider>
+  ))
+
+  expect(screen.getByRole('combobox').textContent).toBe('a')
+  expect(onInput).toHaveBeenCalledExactlyOnceWith(['a'])
+  onInput.mockClear()
+
+  setControlled(['a', 'a'])
+  setControlled(['a'])
+  expect(onInput).not.toHaveBeenCalled()
+
+  setControlled(['a', 'b'])
+  expect(onInput).toHaveBeenCalledExactlyOnceWith(['a', 'b'])
+  onInput.mockClear()
+
+  setControlled(['b', 'a'])
+  expect(onInput).toHaveBeenCalledExactlyOnceWith(['b', 'a'])
+})
+
+test('diagnoses raw BaseSelect duplicate values once without filtering or throwing', () => {
+  const duplicate = { value: 'raw-base-duplicate', label: 'Duplicate' }
+  const [source, setSource] = createSignal([duplicate, { ...duplicate }], { equals: false })
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+  expect(() => {
+    render(() => (
+      <BaseSelect items={source()} defaultOpen>
+        <BaseSelect.Content>
+          <BaseSelect.Listbox>
+            <For each={source()}>{(item) => <BaseSelect.Item item={item} />}</For>
+          </BaseSelect.Listbox>
+        </BaseSelect.Content>
+      </BaseSelect>
+    ))
+  }).not.toThrow()
+  expect(within(document.body).getAllByRole('option', { hidden: true })).toHaveLength(2)
+  expect(error).toHaveBeenCalledOnce()
+  expect(error).toHaveBeenCalledWith(expect.stringContaining('invalid consumer input'))
+
+  setSource([duplicate, { ...duplicate }])
+  expect(error).toHaveBeenCalledOnce()
+  error.mockRestore()
 })

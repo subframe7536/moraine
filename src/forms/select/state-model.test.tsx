@@ -1,6 +1,11 @@
+import { getInput } from '@formisch/solid'
 import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
 import { createSignal, For } from 'solid-js'
+import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
+
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { createForm } from '../form/index.ts'
 
 import { BaseSelect, useSelectState } from './base-select.tsx'
 import { MultiSelect } from './multi-select.tsx'
@@ -228,6 +233,115 @@ describe('query ownership', () => {
   )
 })
 
+describe('search composition replacement', () => {
+  test('discards an active single-select IME preview when pointer selection closes the popup', () => {
+    const change = vi.fn()
+    const screen = render(() => <Select items={countries} search defaultOpen onChange={change} />)
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+
+    fireEvent.compositionStart(input)
+    fireEvent.input(input, { target: { value: '未確定' }, isComposing: true })
+    expect(input.value).toBe('未確定')
+
+    fireEvent.click(options()[0]!)
+    expect(change).toHaveBeenCalledWith('US')
+    expect(input.value).toBe('United States')
+    expect(input.getAttribute('aria-expanded')).toBe('false')
+
+    fireEvent.input(input, { target: { value: 'king' } })
+    expect(input.value).toBe('king')
+  })
+
+  test('discards an IME preview when reselecting the current single value', () => {
+    const change = vi.fn()
+    const screen = render(() => (
+      <Select items={countries} search defaultOpen defaultValue="US" onChange={change} />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.compositionStart(input)
+    fireEvent.input(input, { target: { value: '未確定' }, isComposing: true })
+
+    fireEvent.click(options()[0]!)
+
+    expect(change).not.toHaveBeenCalled()
+    expect(input.value).toBe('United States')
+    expect(input.getAttribute('aria-expanded')).toBe('false')
+  })
+
+  test('discards an active multi-select IME preview while selection keeps the popup open', () => {
+    const screen = render(() => <MultiSelect items={countries} search defaultOpen />)
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+
+    fireEvent.compositionStart(input)
+    fireEvent.input(input, { target: { value: '未確定' }, isComposing: true })
+    fireEvent.click(options()[0]!)
+
+    expect(input.value).toBe('')
+    expect(input.getAttribute('aria-expanded')).toBe('true')
+    expect(screen.container.querySelector('[data-slot="tag"]')?.textContent).toBe('United States')
+
+    fireEvent.input(input, { target: { value: 'king' } })
+    expect(input.value).toBe('king')
+    expect(options()).toHaveLength(1)
+  })
+})
+
+describe('empty-string Form.Field decoding', () => {
+  test('uses the full searchable source while the empty-valued item is filtered out', async () => {
+    const source = [
+      { value: '', label: 'Empty value' },
+      { value: 'foo', label: 'Foo' },
+    ]
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choice: v.string() }),
+          initialInput: { choice: '' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="choice" label="Choice">
+            <Select items={source} search defaultOpen placeholder="Choose" />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    expect(options()[0]?.getAttribute('aria-selected')).toBe('true')
+
+    fireEvent.input(input, { target: { value: 'foo' } })
+    expect(options()).toHaveLength(1)
+    expect(getInput(form)).toEqual({ choice: '' })
+
+    fireEvent.keyDown(input, { key: 'Escape' })
+    await waitFor(() => expect(input.value).toBe('Empty value'))
+    expect(getInput(form)).toEqual({ choice: '' })
+    await finishExit()
+
+    fireEvent.click(input)
+    expect(options()).toHaveLength(2)
+    expect(options()[0]?.getAttribute('aria-selected')).toBe('true')
+  })
+
+  test('treats an empty Form.Field as unselected when no canonical empty value exists', () => {
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choice: v.string() }),
+          initialInput: { choice: '' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="choice" label="Choice">
+            <Select items={countries} placeholder="Choose" />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    expect(screen.getByRole('combobox').textContent).toBe('Choose')
+  })
+})
+
 describe('complete items and unresolved values', () => {
   test('unresolved tags retain original value and later resolve to canonical objects', () => {
     type Item = (typeof countries)[number]
@@ -326,6 +440,60 @@ describe('complete items and unresolved values', () => {
     expect(options()[1]?.getAttribute('aria-disabled')).toBe('true')
     fireEvent.click(options()[0]!)
     expect(options()[1]?.getAttribute('aria-disabled')).toBeNull()
+  })
+
+  test('resolves an already-selected unresolved value through createItem without appending it', () => {
+    const factory = vi.fn(() => ({
+      value: 'remote',
+      label: 'Created remote',
+      department: 'Custom',
+    }))
+    const change = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        items={countries}
+        value={['remote']}
+        createItem={factory}
+        onChange={change}
+        tagRender={(props) => (
+          <span data-testid="remote-tag">{props.item?.label ?? props.label}</span>
+        )}
+      />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+
+    fireEvent.input(input, { target: { value: 'create remote' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+
+    expect(factory).toHaveBeenCalledOnce()
+    expect(change).not.toHaveBeenCalled()
+    expect(screen.getByTestId('remote-tag').textContent).toBe('Created remote')
+    expect(input.value).toBe('')
+    expect(options().filter((item) => item.textContent?.includes('Created remote'))).toHaveLength(1)
+
+    fireEvent.input(input, { target: { value: 'create again' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(change).not.toHaveBeenCalled()
+    expect(options().filter((item) => item.textContent?.includes('Created remote'))).toHaveLength(1)
+  })
+
+  test('keeps canonical metadata when createItem returns an existing selected value', () => {
+    const factory = vi.fn(() => ({ value: 'US', label: 'Created duplicate', department: 'Custom' }))
+    const screen = render(() => (
+      <MultiSelect
+        items={countries}
+        value={['US']}
+        createItem={factory}
+        tagRender={(props) => <span data-testid="canonical-tag">{props.item?.label}</span>}
+      />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    fireEvent.input(input, { target: { value: 'other label' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+
+    expect(factory).toHaveBeenCalledOnce()
+    expect(screen.getByTestId('canonical-tag').textContent).toBe('United States')
+    expect(options().filter((item) => item.textContent?.includes('United States'))).toHaveLength(1)
   })
 })
 

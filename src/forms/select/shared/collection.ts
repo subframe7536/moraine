@@ -5,7 +5,53 @@ import type { SelectEntry, SelectGroup, SelectView, SelectRow } from './types.ts
 export function isGroup<T extends BaseSelectT.Item>(
   entry: SelectEntry<T>,
 ): entry is SelectGroup<T> {
-  return 'type' in entry && entry.type === 'group'
+  return (
+    'type' in entry &&
+    entry.type === 'group' &&
+    !('value' in entry) &&
+    'items' in entry &&
+    Array.isArray(entry.items)
+  )
+}
+
+const warnedDuplicateValues = new Map<string, Set<BaseSelectT.Value>>()
+
+export function diagnoseDuplicateValue(
+  owner: 'BaseSelect' | 'Select',
+  value: BaseSelectT.Value,
+): void {
+  if (process.env.NODE_ENV === 'production') {
+    return
+  }
+  let warned = warnedDuplicateValues.get(owner)
+  if (!warned) {
+    warned = new Set()
+    warnedDuplicateValues.set(owner, warned)
+  }
+  if (warned.has(value)) {
+    return
+  }
+  warned.add(value)
+  console.error(
+    owner === 'Select'
+      ? `[Moraine Select] Item values must be unique. Ignoring duplicate value ${JSON.stringify(value)}; the first occurrence wins.`
+      : `[Moraine BaseSelect] Item values must be unique. Duplicate value ${JSON.stringify(value)} is invalid consumer input.`,
+  )
+}
+
+export function diagnoseDuplicateItems(items: readonly BaseSelectT.Item[]): void {
+  const values = new Set<BaseSelectT.Value>()
+  for (const item of items) {
+    if (values.has(item.value)) {
+      diagnoseDuplicateValue('BaseSelect', item.value)
+    } else {
+      values.add(item.value)
+    }
+  }
+}
+
+export function itemRowKey(value: BaseSelectT.Value): string {
+  return `item:${typeof value}:${encodeURIComponent(String(value))}`
 }
 
 /** Normalize source data once; the same rows serve normal and virtual rendering. */
@@ -15,38 +61,57 @@ export function createSource<T extends BaseSelectT.Item>(
 ) {
   const view: SelectView<T> = { items: [], rows: [] }
   const byValue = new Map<T['value'], T>()
-  function append(item: T) {
+  function accept(item: T): boolean {
     if (byValue.has(item.value)) {
-      throw new Error(`[Moraine Select] Duplicate item value: ${String(item.value)}.`)
+      diagnoseDuplicateValue('Select', item.value)
+      return false
     }
     byValue.set(item.value, item)
-    view.items.push(item)
-    view.rows.push({ type: 'item', key: item.value, item })
+    return true
+  }
+  function append(item: T) {
+    if (accept(item)) {
+      view.items.push(item)
+      view.rows.push({ type: 'item', key: itemRowKey(item.value), item })
+    }
   }
   entries.forEach((entry, index) => {
     if (isGroup(entry)) {
-      const items = entry.items
-      if (items.length) {
+      const items = entry.items.filter(accept)
+      if (items.length > 0) {
+        view.items.push(...items)
         view.rows.push({
           type: 'label',
-          key: `group-${index}`,
+          key: `group:${index}`,
           label: entry.label,
           values: items.map((item) => item.value),
         })
-        items.forEach(append)
+        view.rows.push(
+          ...items.map((item): SelectRow<T> => ({
+            type: 'item',
+            key: itemRowKey(item.value),
+            item,
+          })),
+        )
       }
     } else {
       append(entry)
     }
   })
-  const additions = created.filter((item) => !byValue.has(item.value))
-  for (const item of additions) {
-    byValue.set(item.value, item)
+  const additions: T[] = []
+  for (const item of created) {
+    if (accept(item)) {
+      additions.push(item)
+    }
   }
   if (additions.length) {
     view.items.unshift(...additions)
     view.rows.unshift(
-      ...additions.map((item): SelectRow<T> => ({ type: 'item', key: item.value, item })),
+      ...additions.map((item): SelectRow<T> => ({
+        type: 'item',
+        key: itemRowKey(item.value),
+        item,
+      })),
     )
   }
   return { ...view, byValue }
@@ -87,4 +152,29 @@ export function sameValue(
   b: BaseSelectT.Value | undefined,
 ): boolean {
   return a === b || Object.is(a, b)
+}
+
+export function normalizeSelection<T extends BaseSelectT.Value>(
+  values: readonly T[],
+  multiple: boolean,
+): T[] {
+  if (!multiple) {
+    return values.slice(0, 1)
+  }
+  const normalized: T[] = []
+  for (const value of values) {
+    if (!normalized.some((candidate) => sameValue(candidate, value))) {
+      normalized.push(value)
+    }
+  }
+  return normalized
+}
+
+export function selectionEqual<T extends BaseSelectT.Value>(
+  left: readonly T[],
+  right: readonly T[],
+): boolean {
+  return (
+    left.length === right.length && left.every((value, index) => sameValue(value, right[index]))
+  )
 }

@@ -8,7 +8,7 @@ import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callRef } from '../../shared/utils.ts'
 import { useFormFieldContext } from '../form/form-context.ts'
 
-import { BaseSelect, useSelectState } from './base-select.tsx'
+import { BaseSelect, INTERNAL_FORM_VALUE_EXISTS, useSelectState } from './base-select.tsx'
 import type { SelectProps, SelectT } from './select.types.ts'
 import { createSource, labelString } from './shared/collection.ts'
 import { DefaultSelectContent } from './shared/default-content.tsx'
@@ -75,6 +75,7 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
       if (state.locked()) {
         return
       }
+      input.discardComposition()
       state.change([])
       search.setQuery('')
       local.onClear?.()
@@ -214,6 +215,7 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
     >
       <BaseSelect<T>
         {...baseSelectProps}
+        {...{ [INTERNAL_FORM_VALUE_EXISTS]: (value: T['value']) => source().byValue.has(value) }}
         items={search.view().items}
         serializeValue={(value) =>
           source().byValue.get(value)?.disabled ? undefined : String(value)

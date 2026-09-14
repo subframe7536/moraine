@@ -5,6 +5,7 @@ import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
+import { useListVirtualizer } from '../../shared/use-list-virtualizer.tsx'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { createTheme } from '../../theme'
 import { defaultTheme } from '../../theme/default-theme'
@@ -605,17 +606,23 @@ describe('Select - single mode', () => {
     expect(combobox.textContent).toBe('String one')
   })
 
-  test('rejects duplicate canonical values', () => {
+  test('keeps the first duplicate canonical value without throwing', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     expect(() =>
       render(() => (
         <Select
           items={[
-            { value: 'same', label: 'First' },
-            { value: 'same', label: 'Second' },
+            { value: 'component-duplicate', label: 'First' },
+            { value: 'component-duplicate', label: 'Second' },
           ]}
+          defaultOpen
         />
       )),
-    ).toThrow('Duplicate item value')
+    ).not.toThrow()
+    expect(queryAllBody('[data-slot="item"]')).toHaveLength(1)
+    expect(queryBody('[data-slot="item"]')?.textContent).toContain('First')
+    expect(error).toHaveBeenCalledOnce()
+    error.mockRestore()
   })
 
   test('renders a plain trigger icon', () => {
@@ -849,6 +856,90 @@ describe('Select - groups', () => {
       expect(label?.id).not.toBe('')
       expect(group.getAttribute('aria-labelledby')).toBe(label?.id)
     }
+  })
+
+  test('filters and selects a valued business item whose type field is group', () => {
+    interface BusinessItem extends SelectT.Item<string> {
+      type: 'group'
+      department: string
+    }
+    const business = {
+      type: 'group' as const,
+      value: 'business',
+      label: 'Business leaf',
+      department: 'sales',
+    }
+    const engineering = {
+      type: 'group' as const,
+      value: 'engineering',
+      label: 'Engineering leaf',
+      department: 'development',
+    }
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Select<BusinessItem>
+        items={[business, { type: 'group', label: 'Department group', items: [engineering] }]}
+        search
+        defaultOpen
+        onChange={onChange}
+        filterItem={(query, item) => item.department.includes(query)}
+        itemRender={({ item }) => (
+          <>
+            {item.label}:{item.department}
+          </>
+        )}
+      />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+
+    fireEvent.input(input, { target: { value: 'sales' } })
+    expect(queryAllBody('[data-slot="item"]')).toHaveLength(1)
+    expect(queryBody('[data-slot="item"]')?.textContent).toBe('Business leaf:sales')
+    fireEvent.click(queryBody('[data-slot="item"]')!)
+    expect(onChange).toHaveBeenCalledWith('business')
+  })
+
+  test('passes collision-safe row keys through the list virtualizer', async () => {
+    type CollisionItem = SelectT.Item<string | number>
+    const keys: string[] = []
+    function VirtualizedSelect() {
+      const virtualizer = useListVirtualizer<
+        SelectT.Row<CollisionItem>,
+        HTMLDivElement,
+        HTMLDivElement
+      >({
+        estimateSize: () => 32,
+        getItemKey: (entry) => {
+          keys.push(entry.key)
+          return entry.key
+        },
+      })
+      return (
+        <Select<CollisionItem>
+          items={[
+            {
+              type: 'group',
+              label: 'Collisions',
+              items: [
+                { value: 'group-0', label: 'Dash group' },
+                { value: 'group:0', label: 'Colon group' },
+                { value: 'item:string:x', label: 'Item namespace' },
+                { value: '1', label: 'String one' },
+                { value: 1, label: 'Number one' },
+              ],
+            },
+          ]}
+          defaultOpen
+          virtualRender={virtualizer.virtualRender}
+        />
+      )
+    }
+    render(() => <VirtualizedSelect />)
+
+    await waitFor(() => expect(keys.length).toBeGreaterThanOrEqual(6))
+    const firstPass = keys.slice(0, 6)
+    expect(new Set(firstPass).size).toBe(firstPass.length)
+    expect(firstPass.every((key) => typeof key === 'string')).toBe(true)
   })
 
   test('forwards listbox and item props and lets item events prevent selection', async () => {

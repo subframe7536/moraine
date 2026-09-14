@@ -123,7 +123,7 @@ export namespace MultiSelectT {
       SearchProps<TItem>,
       ContentProps<TItem>,
       FormValueOptions<TItem['value'][]> {
-    /** Source items, optionally grouped. */
+    /** Source items, optionally grouped. Item values must be unique within the collection. */
     items?: Entry<TItem>[]
     /** Called when the selection changes. */
     onChange?: (value: NoInfer<TItem['value'][]>) => void
