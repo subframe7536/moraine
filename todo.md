@@ -7,7 +7,7 @@
 - [x] slider & stepper recipe structure refactor
 - [x] split overlay from content in modal
 - [x] verify auto completion ability on `as={Button}`
-- [ ] base select should be a namespaced component and export
+- [x] base select should be a namespaced component and export
 - [x] unify context-menu and dropdown-menu menu styles
 - [ ] correct/verify button group separator
 - [ ] badge variants config / padding refresh, maybe similar to button?

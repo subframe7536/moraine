@@ -602,7 +602,6 @@ function BaseSelectListbox(props: BaseSelectT.PartProps): JSX.Element {
       if (!key || !open || !listbox) {
         return
       }
-      // oxlint-disable-next-line subf/solid-reactivity -- Wait for row attributes to update, then verify the current listbox.
       queueMicrotask(() => {
         if (state.listbox() !== listbox || !state.open() || state.highlight() !== key) {
           return
