@@ -20,6 +20,7 @@ export function useSelectSearch<T extends BaseSelectT.Item>(
   const query = () => text() ?? ''
   const [composing, setComposing] = createSignal(false)
   const [draft, setDraft] = createSignal('')
+  let pendingSelectionQuery: string | undefined
   function setQuery(value: string) {
     const next = props.searchMaxLength === undefined ? value : value.slice(0, props.searchMaxLength)
     if (next === query()) {
@@ -63,12 +64,29 @@ export function useSelectSearch<T extends BaseSelectT.Item>(
       state.selectionVersion,
       () => {
         const item = state.selectedItems()[0]
-        setQuery(
-          state.props.multiple ? '' : item ? labelString(item, state.props.itemToLabelString) : '',
-        )
+        const next = state.props.multiple
+          ? ''
+          : item
+            ? labelString(item, state.props.itemToLabelString)
+            : ''
+        if (!state.props.multiple && !state.open() && state.contentPresent()) {
+          pendingSelectionQuery = next
+          return
+        }
+        pendingSelectionQuery = undefined
+        setQuery(next)
       },
       { defer: true },
     ),
+  )
+  createEffect(
+    on(state.contentPresent, (present) => {
+      if (!present && pendingSelectionQuery !== undefined) {
+        const next = pendingSelectionQuery
+        pendingSelectionQuery = undefined
+        setQuery(next)
+      }
+    }),
   )
   createEffect(
     on(

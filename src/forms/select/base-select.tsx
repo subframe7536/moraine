@@ -93,6 +93,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   const [anchor, setAnchor] = createSignal<HTMLElement>()
   const [control, setControl] = createSignal<HTMLElement>()
   const [listbox, setListbox] = createSignal<HTMLDivElement>()
+  const [contentPresent, setContentPresent] = createSignal(false)
   const [resetVersion, setResetVersion] = createSignal(0)
   const [selectionVersion, setSelectionVersion] = createSignal(0)
   const listboxId = () => `${field.id()}-listbox`
@@ -157,7 +158,6 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
           : [...values(), item.value]
         : item.value,
     )
-    setSelectionVersion((version) => version + 1)
     if (props.closeOnSelect ?? !props.multiple) {
       setOpen(false)
       const target = control()
@@ -168,6 +168,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
         }
       })
     }
+    setSelectionVersion((version) => version + 1)
   }
   const enabled = createMemo(() => visibleItems().filter((item) => !itemDisabled(item)))
   createEffect(
@@ -309,6 +310,8 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     setControl,
     listbox,
     setListbox,
+    contentPresent,
+    setContentPresent,
     listboxId,
     itemId,
     field,
@@ -506,6 +509,8 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
     overflowPadding: () => local.overflowPadding ?? 4,
     placement: () => 'bottom-start',
   })
+  createEffect(on(presence.present, (present) => state.setContentPresent(present)))
+  onCleanup(() => state.setContentPresent(false))
   createEffect(
     on(presence.present, (present) => {
       if (present) {
@@ -571,6 +576,7 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
             data-side={side()}
             ref={(element) => {
               setContent(element)
+              state.setContentPresent(true)
               presence.setElement(element)
               callRef(local.ref, element)
             }}

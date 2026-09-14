@@ -23,12 +23,16 @@ const FRUITS = [
   { label: 'Cherry', value: 'cherry', disabled: true },
 ]
 
-test('replaces the search query on selection and clears it with the selection', () => {
+test('replaces the search query after selection closes and clears it with the selection', async () => {
   const screen = render(() => <Select search allowClear defaultOpen items={FRUITS} />)
   const input = screen.container.querySelector<HTMLInputElement>('input[data-slot="input"]')!
   fireEvent.input(input, { target: { value: 'ba' } })
   fireEvent.click(queryAllBody('[data-slot="item"]')[0]!)
-  expect(input.value).toBe('Banana')
+  await waitFor(() =>
+    expect(queryBody('[data-slot="content"]')?.getAttribute('data-closed')).toBe(''),
+  )
+  await finishSelectExitMotion()
+  await waitFor(() => expect(input.value).toBe('Banana'))
   fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
   expect(input.value).toBe('')
 })
@@ -1797,6 +1801,31 @@ describe('Select - popup behavior', () => {
 
     await waitFor(() => {
       expect(queryBody('[data-slot="content"]')).toBeNull()
+    })
+  })
+
+  test('applies the selected search label after the closing panel has exited', async () => {
+    const screen = render(() => <Select items={FRUITS} search defaultOpen placeholder="Pick" />)
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+
+    fireEvent.input(input, { target: { value: 'a' } })
+    await waitFor(() => {
+      expect(queryAllBody('[data-slot="item"]')).toHaveLength(2)
+    })
+
+    fireEvent.click(queryAllBody('[data-slot="item"]')[0]!)
+
+    await waitFor(() => {
+      expect(queryBody('[data-slot="content"]')?.getAttribute('data-closed')).toBe('')
+      expect(input.value).toBe('a')
+      expect(queryAllBody('[data-slot="item"]')).toHaveLength(2)
+    })
+
+    await finishSelectExitMotion()
+
+    await waitFor(() => {
+      expect(queryBody('[data-slot="content"]')).toBeNull()
+      expect(input.value).toBe('Apple')
     })
   })
 
