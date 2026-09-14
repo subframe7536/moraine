@@ -736,21 +736,19 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
   )
 }
 const GroupContext = createContext<{
-  id: Accessor<string>
   labelId: Accessor<string | undefined>
   setLabelId: (id: string | undefined) => void
 }>()
 function BaseSelectGroup(props: BaseSelectT.PartProps): JSX.Element {
   const state = useSelectState()
   const cn = useCn()
-  const id = useId(undefined, 'base-select-group-label')
   const [labelId, setLabelId] = createSignal<string>()
   return (
-    <GroupContext.Provider value={{ id, labelId, setLabelId }}>
+    <GroupContext.Provider value={{ labelId, setLabelId }}>
       <div
         {...props}
         role="group"
-        aria-labelledby={labelId() ?? id()}
+        aria-labelledby={labelId() ?? props['aria-labelledby']}
         data-slot="group"
         class={cn(state.styles.slot('group').class, props.class)}
         style={{
@@ -767,7 +765,7 @@ function BaseSelectGroupLabel(props: BaseSelectT.PartProps): JSX.Element {
   const state = useSelectState()
   const cn = useCn()
   const group = useContext(GroupContext)
-  const id = useId(() => props.id ?? group?.id(), 'base-select-group-label')
+  const id = useId(() => props.id, 'base-select-group-label')
   createEffect(
     on(id, (value) => {
       group?.setLabelId(value)

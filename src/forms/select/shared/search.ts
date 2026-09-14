@@ -24,10 +24,18 @@ export function useSelectSearch<T extends BaseSelectT.Item>(
   function setQuery(value: string) {
     const next = props.searchMaxLength === undefined ? value : value.slice(0, props.searchMaxLength)
     if (next === query()) {
-      return
+      return next
     }
     setText(next)
     props.onSearch?.(next)
+    return next
+  }
+  function commit(value: string) {
+    const next = setQuery(value)
+    if (value.trim()) {
+      state.setOpen(true)
+    }
+    return next
   }
   const view = createMemo(() => {
     const entries = state.collection().entries
@@ -109,15 +117,23 @@ export function useSelectSearch<T extends BaseSelectT.Item>(
       setDraft(target.value)
       return
     }
-    setQuery(target.value)
-    if (target.value.trim()) {
-      state.setOpen(true)
-    }
+    commit(target.value)
+  }
+  function startComposition(value: string) {
+    setDraft(value)
+    setComposing(true)
+  }
+  function endComposition(value: string) {
+    setComposing(false)
+    return value
   }
   return {
     query,
     setQuery,
+    commit,
     composing,
+    setDraft,
+    endComposition,
     input,
     binding: {
       get id() {
@@ -154,15 +170,13 @@ export function useSelectSearch<T extends BaseSelectT.Item>(
       },
       onInput: input,
       onCompositionStart(event: CompositionEvent) {
-        setDraft((event.currentTarget as HTMLInputElement).value)
-        setComposing(true)
+        startComposition((event.currentTarget as HTMLInputElement).value)
       },
       onCompositionEnd(event: CompositionEvent) {
         const target = event.currentTarget as HTMLInputElement
-        const committed = target.value
-        setComposing(false)
+        const committed = endComposition(target.value)
         target.value = committed
-        input(event as unknown as InputEvent)
+        commit(committed)
       },
       onKeyDown(event: KeyboardEvent) {
         if (!composing()) {

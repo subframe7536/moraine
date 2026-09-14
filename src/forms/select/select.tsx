@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { mergeProps, splitProps, createMemo, Show } from 'solid-js'
+import { splitProps, createMemo, Show } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
@@ -10,126 +10,100 @@ import { useFormFieldContext } from '../form/form-context.ts'
 import { BaseSelect, useSelectState } from './base-select.tsx'
 import type { SelectProps, SelectT } from './select.types.ts'
 import { DefaultSelectContent } from './shared/default-content.tsx'
+import {
+  BASE_SELECT_FORWARD_PROP_KEYS,
+  BASE_SELECT_SHARED_SLOTS,
+  isFormFieldInvalid,
+} from './shared/props.ts'
 import { useSelectSearch } from './shared/search.ts'
+
+const SELECT_LOCAL_PROP_KEYS = [
+  'classes',
+  'styles',
+  'class',
+  'style',
+  'size',
+  'variant',
+  'search',
+  'searchValue',
+  'defaultSearchValue',
+  'onSearch',
+  'searchMaxLength',
+  'filterItem',
+  'itemRender',
+  'itemProps',
+  'listboxProps',
+  'virtualRender',
+  'scrollToItem',
+  'onScrollBottom',
+  'scrollBottomThreshold',
+  'gutter',
+  'overflowPadding',
+  'emptyRender',
+  'placeholder',
+  'allowClear',
+  'onClear',
+  'loading',
+  'leadingIcon',
+  'loadingIcon',
+  'trailingIcon',
+  'closeIcon',
+  'ref',
+  'inputRef',
+] as const
 
 /** Single selection with optional search and standard item presentation. */
 export function Select<V extends SelectT.Value = SelectT.Value>(
   incoming: SelectProps<V>,
 ): JSX.Element {
-  const [, remainingProps] = splitProps(incoming, [
-    'itemRender',
-    'emptyRender',
-    'leadingIcon',
-    'loadingIcon',
-    'trailingIcon',
-    'closeIcon',
-  ])
-  const itemRender = createMemo(() => incoming.itemRender)
-  const emptyRender = createMemo(() => incoming.emptyRender)
-  const leadingIcon = createMemo(() => incoming.leadingIcon)
-  const loadingIcon = createMemo(() => incoming.loadingIcon)
-  const trailingIcon = createMemo(() => incoming.trailingIcon)
-  const closeIcon = createMemo(() => incoming.closeIcon)
-  const props = mergeProps(remainingProps, {
-    get itemRender() {
-      return itemRender()
-    },
-    get emptyRender() {
-      return emptyRender()
-    },
-    get leadingIcon() {
-      return leadingIcon()
-    },
-    get loadingIcon() {
-      return loadingIcon()
-    },
-    get trailingIcon() {
-      return trailingIcon()
-    },
-    get closeIcon() {
-      return closeIcon()
-    },
-  })
-  const [, rootAttrs] = splitProps(props, [
-    'items',
-    'itemToLabelString',
-    'id',
-    'name',
-    'required',
-    'disabled',
-    'readOnly',
-    'value',
-    'defaultValue',
-    'onChange',
-    'open',
-    'defaultOpen',
-    'onOpenChange',
-    'closeOnSelect',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'size',
-    'variant',
-    'search',
-    'searchValue',
-    'defaultSearchValue',
-    'onSearch',
-    'searchMaxLength',
-    'filterItem',
-    'itemRender',
-    'itemProps',
-    'listboxProps',
-    'virtualRender',
-    'scrollToItem',
-    'onScrollBottom',
-    'scrollBottomThreshold',
-    'gutter',
-    'overflowPadding',
-    'emptyRender',
-    'placeholder',
-    'allowClear',
-    'onClear',
-    'loading',
-    'leadingIcon',
-    'loadingIcon',
-    'trailingIcon',
-    'closeIcon',
-    'ref',
-    'inputRef',
-  ])
-  const sharedSlots = [
-    'content',
-    'listbox',
-    'item',
-    'group',
-    'groupLabel',
-    'separator',
-    'empty',
-  ] as const
+  return <SelectContent incoming={incoming} />
+}
+
+function SelectContent<V extends SelectT.Value = SelectT.Value>(props: {
+  incoming: SelectProps<V>
+}): JSX.Element {
+  // oxlint-disable-next-line subf/solid-reactivity -- The incoming props object has stable identity and preserves its getters.
+  const incoming = props.incoming
+  const [local, baseSelectProps, rootProps] = splitProps(
+    incoming,
+    SELECT_LOCAL_PROP_KEYS,
+    BASE_SELECT_FORWARD_PROP_KEYS,
+  )
+  const itemRender = createMemo(() => local.itemRender)
+  const emptyRender = createMemo(() => local.emptyRender)
+  const leadingIcon = createMemo(() => local.leadingIcon)
+  const loadingIcon = createMemo(() => local.loadingIcon)
+  const trailingIcon = createMemo(() => local.trailingIcon)
+  const closeIcon = createMemo(() => local.closeIcon)
   const field = useFormFieldContext()
-  const styles = createComponentStyles('select', props, {
+  const styles = createComponentStyles('select', incoming, {
     inheritedVariants: () => ({ size: field?.size }),
   })
+  const sharedClasses = createMemo(() =>
+    Object.fromEntries(BASE_SELECT_SHARED_SLOTS.map((slot) => [slot, styles.slot(slot).class])),
+  )
+  const sharedStyles = createMemo(() =>
+    Object.fromEntries(BASE_SELECT_SHARED_SLOTS.map((slot) => [slot, styles.slot(slot).style])),
+  )
   function Control(): JSX.Element {
     const state = useSelectState<SelectT.Item<V>>()
     const searchable = () => Boolean(styles.variants.search)
-    const search = useSelectSearch(props, searchable)
+    const search = useSelectSearch(local, searchable)
     const hasValue = () => state.value() !== null
     const label = () =>
-      state.selectedItems()[0]?.label ?? (hasValue() ? String(state.value()) : props.placeholder)
+      state.selectedItems()[0]?.label ?? (hasValue() ? String(state.value()) : local.placeholder)
     const clear = () => {
       if (state.locked()) {
         return
       }
       state.change(null)
       search.setQuery('')
-      props.onClear?.()
+      local.onClear?.()
     }
-    const actionLoading = createMemo(() => Boolean(props.loading))
+    const actionLoading = createMemo(() => Boolean(local.loading))
     const contents = () => (
       <>
-        <Show when={props.leadingIcon}>
+        <Show when={leadingIcon()}>
           {(icon) => <Icon name={icon()} slotName="leading" {...styles.slot('leading')} />}
         </Show>
         <Show
@@ -149,21 +123,21 @@ export function Select<V extends SelectT.Value = SelectT.Value>(
             {...state.field.ariaAttrs()}
             data-slot="input"
             {...styles.slot('input')}
-            placeholder={props.placeholder}
+            placeholder={local.placeholder}
             ref={(element) => {
               search.binding.ref(element)
-              callRef(props.inputRef, element)
+              callRef(local.inputRef, element)
             }}
           />
         </Show>
         <Show
-          when={!actionLoading() && props.allowClear && hasValue()}
+          when={!actionLoading() && local.allowClear && hasValue()}
           fallback={
             <Icon
               name={
                 actionLoading()
-                  ? (props.loadingIcon ?? 'icon-loading')
-                  : (props.trailingIcon ?? 'icon-chevron-down')
+                  ? (loadingIcon() ?? 'icon-loading')
+                  : (trailingIcon() ?? 'icon-chevron-down')
               }
               slotName="trigger"
               data-loading={actionLoading() ? '' : undefined}
@@ -188,7 +162,7 @@ export function Select<V extends SelectT.Value = SelectT.Value>(
               clear()
             }}
           >
-            <Icon name={props.closeIcon ?? 'icon-close'} />
+            <Icon name={closeIcon() ?? 'icon-close'} />
           </button>
         </Show>
       </>
@@ -241,11 +215,19 @@ export function Select<V extends SelectT.Value = SelectT.Value>(
           </div>
         </Show>
         <DefaultSelectContent
-          {...props}
+          itemRender={itemRender()}
+          itemProps={local.itemProps}
+          listboxProps={local.listboxProps}
+          virtualRender={local.virtualRender}
+          scrollToItem={local.scrollToItem}
+          onScrollBottom={local.onScrollBottom}
+          scrollBottomThreshold={local.scrollBottomThreshold}
+          gutter={local.gutter}
+          overflowPadding={local.overflowPadding}
           slot={styles.slot}
           empty={
-            props.emptyRender !== undefined
-              ? renderComponentOrElement(props.emptyRender, {
+            emptyRender() !== undefined
+              ? renderComponentOrElement(emptyRender(), {
                   get inputValue() {
                     return search.query()
                   },
@@ -265,20 +247,21 @@ export function Select<V extends SelectT.Value = SelectT.Value>(
   }
   return (
     <div
-      {...rootAttrs}
-      ref={props.ref}
+      {...rootProps}
+      ref={local.ref}
       data-slot="root"
-      data-disabled={(props.disabled ?? field?.disabled) ? '' : undefined}
-      data-readonly={(props.readOnly ?? field?.readOnly) ? '' : undefined}
-      data-required={(props.required ?? field?.required) ? '' : undefined}
+      data-disabled={(baseSelectProps.disabled ?? field?.disabled) ? '' : undefined}
+      data-readonly={(baseSelectProps.readOnly ?? field?.readOnly) ? '' : undefined}
+      data-required={(baseSelectProps.required ?? field?.required) ? '' : undefined}
+      data-invalid={isFormFieldInvalid(field) ? '' : undefined}
       {...styles.root}
     >
       <BaseSelect<SelectT.Item<V>>
-        {...props}
+        {...baseSelectProps}
         multiple={false}
         size={styles.variants.size ?? undefined}
-        classes={Object.fromEntries(sharedSlots.map((slot) => [slot, styles.slot(slot).class]))}
-        styles={Object.fromEntries(sharedSlots.map((slot) => [slot, styles.slot(slot).style]))}
+        classes={sharedClasses()}
+        styles={sharedStyles()}
       >
         <Control />
       </BaseSelect>

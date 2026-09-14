@@ -62,6 +62,42 @@ test('validates a committed selection in change mode', async () => {
   await waitFor(() => expect(screen.getByText('Choose apple')).toBeTruthy())
 })
 
+test('mirrors Form.Field invalid state on the visual root, control, and combobox', async () => {
+  const { screen } = renderWithOwner(
+    () =>
+      createForm({
+        schema: v.object({
+          fruit: v.pipe(
+            v.string(),
+            v.check((value) => value === 'apple', 'Choose apple'),
+          ),
+        }),
+        initialInput: { fruit: 'apple' },
+        validate: 'change',
+      }),
+    (form) => (
+      <form.Form>
+        <form.Field name="fruit">
+          <Select search defaultOpen items={FRUITS} />
+        </form.Field>
+      </form.Form>
+    ),
+  )
+
+  fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+
+  await waitFor(() => expect(screen.getByText('Choose apple')).toBeTruthy())
+  expect(
+    screen.container
+      .querySelector('[data-slot="container"] > [data-slot="root"]')
+      ?.hasAttribute('data-invalid'),
+  ).toBe(true)
+  expect(
+    screen.container.querySelector('[data-slot="control"]')?.hasAttribute('data-invalid'),
+  ).toBe(true)
+  expect(screen.getByRole('combobox').getAttribute('aria-invalid')).toBe('true')
+})
+
 test('does not publish a change when reselecting NaN', () => {
   const onChange = vi.fn()
   render(() => (

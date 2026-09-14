@@ -483,6 +483,42 @@ describe('MultiSelect', () => {
     expect(onChange).toHaveBeenLastCalledWith(['apple'])
   })
 
+  test('mirrors Form.Field invalid state on the visual root, control, and combobox', async () => {
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({
+            fruits: v.pipe(
+              v.array(v.string()),
+              v.check((value) => value.length === 1, 'Choose one fruit'),
+            ),
+          }),
+          initialInput: { fruits: ['apple'] },
+          validate: 'change',
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="fruits">
+            <MultiSelect search defaultOpen items={FRUITS} />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
+
+    await waitFor(() => expect(screen.getByText('Choose one fruit')).toBeTruthy())
+    expect(
+      screen.container
+        .querySelector('[data-slot="container"] > [data-slot="root"]')
+        ?.hasAttribute('data-invalid'),
+    ).toBe(true)
+    expect(
+      screen.container.querySelector('[data-slot="control"]')?.hasAttribute('data-invalid'),
+    ).toBe(true)
+    expect(screen.getByRole('combobox').getAttribute('aria-invalid')).toBe('true')
+  })
+
   test('restores rejected controlled arrays in tags, FormField, and native state', async () => {
     const onChange = vi.fn()
     const { screen, value: form } = renderWithOwner(
@@ -655,7 +691,8 @@ describe('MultiSelect', () => {
     fireEvent.input(input, { target: { value: 'Apple,ba' } })
 
     expect(onChange).toHaveBeenCalledWith(['apple'])
-    expect(onSearch).toHaveBeenLastCalledWith('ba')
+    expect(onSearch).toHaveBeenCalledOnce()
+    expect(onSearch).toHaveBeenCalledWith('ba')
     await waitFor(() => {
       expect(input.value).toBe('ba')
     })
@@ -679,14 +716,22 @@ describe('MultiSelect', () => {
 
     expect(onChange).toHaveBeenCalledOnce()
     expect(onChange).toHaveBeenCalledWith(['custom:value', 'apple'])
-    expect(onSearch).toHaveBeenLastCalledWith('tail')
+    expect(onSearch).toHaveBeenCalledOnce()
+    expect(onSearch).toHaveBeenCalledWith('tail')
     expect(input.value).toBe('tail')
   })
 
   test('defers token commits until IME composition ends', async () => {
     const onChange = vi.fn()
+    const onSearch = vi.fn()
     const screen = render(() => (
-      <MultiSelect search items={FRUITS} tokenSeparators={[',']} onChange={onChange} />
+      <MultiSelect
+        search
+        items={FRUITS}
+        tokenSeparators={[',']}
+        onChange={onChange}
+        onSearch={onSearch}
+      />
     ))
     const input = screen.getByRole<HTMLInputElement>('combobox')
 
@@ -700,7 +745,27 @@ describe('MultiSelect', () => {
 
     expect(onChange).toHaveBeenCalledOnce()
     expect(onChange).toHaveBeenCalledWith(['custom'])
+    expect(onSearch).not.toHaveBeenCalled()
     expect(input.value).toBe('')
+  })
+
+  test('commits only the final token remainder when searchValue is controlled', () => {
+    const onSearch = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        search
+        items={FRUITS}
+        searchValue="seed"
+        tokenSeparators={[',']}
+        onSearch={onSearch}
+      />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+
+    fireEvent.input(input, { target: { value: 'Apple,ba' } })
+
+    expect(onSearch).toHaveBeenCalledOnce()
+    expect(onSearch).toHaveBeenCalledWith('ba')
   })
 
   test('respects maxCount when processing token separators', async () => {
@@ -1063,6 +1128,28 @@ describe('MultiSelect', () => {
     ))
 
     expect(screen.getByTestId('custom-tag')).not.toBeNull()
+  })
+
+  test('does not let custom tagRender remove a disabled item', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        value={['locked']}
+        items={[{ value: 'locked', label: 'Locked', disabled: true }]}
+        onChange={onChange}
+        tagRender={({ item, onClose }) => (
+          <span data-testid="locked-tag">
+            {item.label}
+            <button onClick={onClose}>Remove</button>
+          </span>
+        )}
+      />
+    ))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remove' }))
+
+    expect(onChange).not.toHaveBeenCalled()
+    expect(screen.getByTestId('locked-tag')).not.toBeNull()
   })
 
   test('resolves JSX-capable getters once and keeps closed popup trees lazy', async () => {

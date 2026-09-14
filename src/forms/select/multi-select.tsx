@@ -1,14 +1,5 @@
 import type { JSX } from 'solid-js'
-import {
-  mergeProps,
-  splitProps,
-  createMemo,
-  createSignal,
-  For,
-  Show,
-  createEffect,
-  on,
-} from 'solid-js'
+import { splitProps, createMemo, createSignal, For, Show, createEffect, on } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../elements/icon/index.ts'
@@ -21,130 +12,100 @@ import { BaseSelect, useSelectState } from './base-select.tsx'
 import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
 import { flattenItems, itemKey, labelString } from './shared/collection.ts'
 import { DefaultSelectContent } from './shared/default-content.tsx'
+import {
+  BASE_SELECT_FORWARD_PROP_KEYS,
+  BASE_SELECT_SHARED_SLOTS,
+  isFormFieldInvalid,
+} from './shared/props.ts'
 import { useSelectSearch } from './shared/search.ts'
+
+const MULTI_SELECT_LOCAL_PROP_KEYS = [
+  'classes',
+  'styles',
+  'class',
+  'style',
+  'size',
+  'variant',
+  'search',
+  'searchValue',
+  'defaultSearchValue',
+  'onSearch',
+  'searchMaxLength',
+  'filterItem',
+  'itemRender',
+  'itemProps',
+  'listboxProps',
+  'virtualRender',
+  'scrollToItem',
+  'onScrollBottom',
+  'scrollBottomThreshold',
+  'gutter',
+  'overflowPadding',
+  'emptyRender',
+  'placeholder',
+  'allowClear',
+  'onClear',
+  'loading',
+  'leadingIcon',
+  'loadingIcon',
+  'trailingIcon',
+  'closeIcon',
+  'ref',
+  'inputRef',
+  'tagRender',
+  'allowCreate',
+  'maxCount',
+  'maxTagCount',
+  'tokenSeparators',
+] as const
 
 /** Multiple selection with tags, search, and optional item creation. */
 export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
   incoming: MultiSelectProps<V>,
 ): JSX.Element {
+  return <MultiSelectContent incoming={incoming} />
+}
+
+function MultiSelectContent<V extends MultiSelectT.Value = MultiSelectT.Value>(props: {
+  incoming: MultiSelectProps<V>
+}): JSX.Element {
+  // oxlint-disable-next-line subf/solid-reactivity -- The incoming props object has stable identity and preserves its getters.
+  const incoming = props.incoming
   type Item = MultiSelectT.Item<V>
-  const [, remainingProps] = splitProps(incoming, [
-    'itemRender',
-    'emptyRender',
-    'leadingIcon',
-    'loadingIcon',
-    'trailingIcon',
-    'closeIcon',
-    'tagRender',
-  ])
-  const itemRender = createMemo(() => incoming.itemRender)
-  const emptyRender = createMemo(() => incoming.emptyRender)
-  const leadingIcon = createMemo(() => incoming.leadingIcon)
-  const loadingIcon = createMemo(() => incoming.loadingIcon)
-  const trailingIcon = createMemo(() => incoming.trailingIcon)
-  const closeIcon = createMemo(() => incoming.closeIcon)
-  const tagRender = createMemo(() => incoming.tagRender)
-  const props = mergeProps(remainingProps, {
-    get itemRender() {
-      return itemRender()
-    },
-    get emptyRender() {
-      return emptyRender()
-    },
-    get leadingIcon() {
-      return leadingIcon()
-    },
-    get loadingIcon() {
-      return loadingIcon()
-    },
-    get trailingIcon() {
-      return trailingIcon()
-    },
-    get closeIcon() {
-      return closeIcon()
-    },
-    get tagRender() {
-      return tagRender()
-    },
-  })
-  const [, rootAttrs] = splitProps(props, [
-    'items',
-    'itemToLabelString',
-    'id',
-    'name',
-    'required',
-    'disabled',
-    'readOnly',
-    'value',
-    'defaultValue',
-    'onChange',
-    'open',
-    'defaultOpen',
-    'onOpenChange',
-    'closeOnSelect',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'size',
-    'variant',
-    'search',
-    'searchValue',
-    'defaultSearchValue',
-    'onSearch',
-    'searchMaxLength',
-    'filterItem',
-    'itemRender',
-    'itemProps',
-    'listboxProps',
-    'virtualRender',
-    'scrollToItem',
-    'onScrollBottom',
-    'scrollBottomThreshold',
-    'gutter',
-    'overflowPadding',
-    'emptyRender',
-    'placeholder',
-    'allowClear',
-    'onClear',
-    'loading',
-    'leadingIcon',
-    'loadingIcon',
-    'trailingIcon',
-    'closeIcon',
-    'ref',
-    'inputRef',
-    'tagRender',
-    'allowCreate',
-    'maxCount',
-    'maxTagCount',
-    'tokenSeparators',
-  ])
-  const sharedSlots = [
-    'content',
-    'listbox',
-    'item',
-    'group',
-    'groupLabel',
-    'separator',
-    'empty',
-  ] as const
+  const [local, baseSelectProps, rootProps] = splitProps(
+    incoming,
+    MULTI_SELECT_LOCAL_PROP_KEYS,
+    BASE_SELECT_FORWARD_PROP_KEYS,
+  )
+  const itemRender = createMemo(() => local.itemRender)
+  const emptyRender = createMemo(() => local.emptyRender)
+  const leadingIcon = createMemo(() => local.leadingIcon)
+  const loadingIcon = createMemo(() => local.loadingIcon)
+  const trailingIcon = createMemo(() => local.trailingIcon)
+  const closeIcon = createMemo(() => local.closeIcon)
+  const tagRender = createMemo(() => local.tagRender)
   const field = useFormFieldContext()
-  const styles = createComponentStyles('multiSelect', props, {
+  const styles = createComponentStyles('multiSelect', incoming, {
     inheritedVariants: () => ({ size: field?.size }),
   })
+  const sharedClasses = createMemo(() =>
+    Object.fromEntries(BASE_SELECT_SHARED_SLOTS.map((slot) => [slot, styles.slot(slot).class])),
+  )
+  const sharedStyles = createMemo(() =>
+    Object.fromEntries(BASE_SELECT_SHARED_SLOTS.map((slot) => [slot, styles.slot(slot).style])),
+  )
   const [created, setCreated] = createSignal<Item[]>([])
   const items = createMemo(() => {
-    const entries = props.items ?? []
+    const entries = baseSelectProps.items ?? []
     const existing = new Set(flattenItems(entries).map((item) => itemKey(item.value)))
     return [...created().filter((item) => !existing.has(itemKey(item.value))), ...entries]
   })
   function Control(): JSX.Element {
     const state = useSelectState<Item>()
     const searchable = () =>
-      Boolean(styles.variants.search || props.allowCreate || props.tokenSeparators?.length)
-    const search = useSelectSearch(props, searchable)
-    const atMax = () => props.maxCount !== undefined && state.values().length >= props.maxCount
+      Boolean(styles.variants.search || local.allowCreate || local.tokenSeparators?.length)
+    const search = useSelectSearch(local, searchable)
+    const atMax = () => local.maxCount !== undefined && state.values().length >= local.maxCount
     state.setDisabledPolicy(
       // oxlint-disable-next-line subf/solid-reactivity -- The signal stores this predicate; BaseSelect evaluates it in tracked scopes.
       () => (item: Item) => atMax() && !state.selectedKeys().has(itemKey(item.value)),
@@ -158,17 +119,21 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
         ),
     )
     const visibleTags = createMemo(() =>
-      props.maxTagCount === undefined ? tags() : tags().slice(0, props.maxTagCount),
+      local.maxTagCount === undefined ? tags() : tags().slice(0, local.maxTagCount),
     )
-    const remove = (item: Item) =>
+    function remove(item: Item) {
+      if (state.locked() || item.disabled) {
+        return
+      }
       state.change(state.values().filter((value) => !Object.is(value, item.value)))
+    }
     const clear = () => {
       if (state.locked()) {
         return
       }
       state.change([])
       search.setQuery('')
-      props.onClear?.()
+      local.onClear?.()
     }
     function addText(text: string, allowCreate: boolean, batch?: V[]): boolean {
       if (state.locked()) {
@@ -182,14 +147,15 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
         .collection()
         .items.find(
           (item) =>
-            labelString(item, props.itemToLabelString).toLowerCase() === normalized.toLowerCase() ||
+            labelString(item, baseSelectProps.itemToLabelString).toLowerCase() ===
+              normalized.toLowerCase() ||
             String(item.value).toLowerCase() === normalized.toLowerCase(),
         )
       const current = batch ?? state.values()
       if (item && current.some((value) => Object.is(value, item!.value))) {
         return true
       }
-      if ((props.maxCount !== undefined && current.length >= props.maxCount) || item?.disabled) {
+      if ((local.maxCount !== undefined && current.length >= local.maxCount) || item?.disabled) {
         return false
       }
       if (!item) {
@@ -207,7 +173,7 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
       return true
     }
     const create = (value?: string) => {
-      if (!props.allowCreate) {
+      if (!local.allowCreate) {
         return false
       }
       const added = addText(value ?? search.query(), true)
@@ -217,17 +183,17 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
       return added
     }
     const separators = createMemo(() =>
-      [...new Set(props.tokenSeparators?.filter(Boolean) ?? [])].sort(
+      [...new Set(local.tokenSeparators?.filter(Boolean) ?? [])].sort(
         (a, b) => b.length - a.length,
       ),
     )
-    function processInput(event: InputEvent) {
-      const original = (event.currentTarget as HTMLInputElement).value
-      search.input(event)
-      if (search.composing() || event.isComposing || state.locked() || !separators().length) {
-        return
+    function processText(text: string): string {
+      if (state.locked()) {
+        return search.query()
       }
-      const text = original
+      if (!separators().length) {
+        return search.commit(text)
+      }
       const batch = [...state.values()]
       let remaining = text
       let consumed = false
@@ -253,8 +219,20 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
       }
       if (consumed) {
         state.change(batch)
-        search.setQuery(remaining)
       }
+      return search.commit(consumed ? remaining : text)
+    }
+    function processInput(event: InputEvent) {
+      const target = event.currentTarget as HTMLInputElement
+      if (state.locked()) {
+        target.value = search.query()
+        return
+      }
+      if (search.composing() || event.isComposing) {
+        search.setDraft(target.value)
+        return
+      }
+      target.value = processText(target.value)
     }
     createEffect(
       on(
@@ -296,22 +274,22 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
             }
           }}
         >
-          <Show when={props.leadingIcon}>
+          <Show when={leadingIcon()}>
             {(icon) => <Icon name={icon()} slotName="leading" {...styles.slot('leading')} />}
           </Show>
           <div data-slot="tagsContainer" {...styles.slot('tagsContainer')}>
             <For each={visibleTags()}>
               {(item) => (
                 <Show
-                  when={props.tagRender !== undefined}
+                  when={tagRender() !== undefined}
                   fallback={
                     <span
-                      title={labelString(item, props.itemToLabelString)}
+                      title={labelString(item, baseSelectProps.itemToLabelString)}
                       data-slot="tag"
                       {...styles.slot('tag')}
                     >
                       <span
-                        title={labelString(item, props.itemToLabelString)}
+                        title={labelString(item, baseSelectProps.itemToLabelString)}
                         data-slot="label"
                         {...styles.slot('tagLabel')}
                       >
@@ -320,23 +298,21 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
                       <button
                         type="button"
                         data-slot="tagRemove"
-                        aria-label={`Remove ${labelString(item, props.itemToLabelString)}`}
+                        aria-label={`Remove ${labelString(item, baseSelectProps.itemToLabelString)}`}
                         tabIndex={-1}
                         disabled={state.locked() || item.disabled}
                         {...styles.slot('tagRemove')}
                         onClick={(event) => {
                           event.stopPropagation()
-                          if (!item.disabled) {
-                            remove(item)
-                          }
+                          remove(item)
                         }}
                       >
-                        <Icon name={props.closeIcon ?? 'icon-close'} />
+                        <Icon name={closeIcon() ?? 'icon-close'} />
                       </button>
                     </span>
                   }
                 >
-                  {renderComponentOrElement(props.tagRender, { item, onClose: () => remove(item) })}
+                  {renderComponentOrElement(tagRender(), { item, onClose: () => remove(item) })}
                 </Show>
               )}
             </For>
@@ -353,17 +329,19 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
               tabIndex={searchable() ? undefined : -1}
               data-slot="input"
               {...styles.slot('input')}
-              placeholder={tags().length ? '' : props.placeholder}
+              placeholder={tags().length ? '' : local.placeholder}
               ref={(element) => {
                 if (searchable()) {
                   search.binding.ref(element)
                 }
-                callRef(props.inputRef, element)
+                callRef(local.inputRef, element)
               }}
               onInput={processInput}
               onCompositionEnd={(event) => {
-                search.binding.onCompositionEnd(event)
-                processInput(event as unknown as InputEvent)
+                const target = event.currentTarget
+                const committed = search.endComposition(target.value)
+                target.value = committed
+                target.value = processText(committed)
               }}
               onKeyDown={(event) => {
                 if (search.composing() || event.isComposing || state.locked()) {
@@ -379,7 +357,7 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
                 }
                 if (
                   event.key === 'Enter' &&
-                  props.allowCreate &&
+                  local.allowCreate &&
                   search.query() &&
                   !state.visibleItems().some((item) => !item.disabled)
                 ) {
@@ -405,25 +383,25 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
             />
           </div>
           <Show
-            when={!props.loading && props.allowClear && tags().length}
+            when={!local.loading && local.allowClear && tags().length}
             fallback={
               <button
                 type="button"
                 tabIndex={-1}
                 data-slot="trigger"
-                aria-label={props.loading ? 'Loading' : 'Toggle selection'}
-                aria-busy={props.loading ? 'true' : undefined}
-                data-loading={props.loading ? '' : undefined}
+                aria-label={local.loading ? 'Loading' : 'Toggle selection'}
+                aria-busy={local.loading ? 'true' : undefined}
+                data-loading={local.loading ? '' : undefined}
                 disabled={state.locked()}
                 {...styles.slot('trigger')}
               >
                 <Icon
-                  data-loading={props.loading ? '' : undefined}
+                  data-loading={local.loading ? '' : undefined}
                   class="data-loading:animate-spin"
                   name={
-                    props.loading
-                      ? (props.loadingIcon ?? 'icon-loading')
-                      : (props.trailingIcon ?? 'icon-chevron-down')
+                    local.loading
+                      ? (loadingIcon() ?? 'icon-loading')
+                      : (trailingIcon() ?? 'icon-chevron-down')
                   }
                 />
               </button>
@@ -441,16 +419,24 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
                 clear()
               }}
             >
-              <Icon name={props.closeIcon ?? 'icon-close'} />
+              <Icon name={closeIcon() ?? 'icon-close'} />
             </button>
           </Show>
         </Dynamic>
         <DefaultSelectContent
-          {...props}
+          itemRender={itemRender()}
+          itemProps={local.itemProps}
+          listboxProps={local.listboxProps}
+          virtualRender={local.virtualRender}
+          scrollToItem={local.scrollToItem}
+          onScrollBottom={local.onScrollBottom}
+          scrollBottomThreshold={local.scrollBottomThreshold}
+          gutter={local.gutter}
+          overflowPadding={local.overflowPadding}
           slot={styles.slot}
           empty={
-            props.emptyRender !== undefined
-              ? renderComponentOrElement(props.emptyRender, {
+            emptyRender() !== undefined
+              ? renderComponentOrElement(emptyRender(), {
                   get inputValue() {
                     return search.query()
                   },
@@ -474,21 +460,22 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
   }
   return (
     <div
-      {...rootAttrs}
-      ref={props.ref}
+      {...rootProps}
+      ref={local.ref}
       data-slot="root"
-      data-disabled={(props.disabled ?? field?.disabled) ? '' : undefined}
-      data-readonly={(props.readOnly ?? field?.readOnly) ? '' : undefined}
-      data-required={(props.required ?? field?.required) ? '' : undefined}
+      data-disabled={(baseSelectProps.disabled ?? field?.disabled) ? '' : undefined}
+      data-readonly={(baseSelectProps.readOnly ?? field?.readOnly) ? '' : undefined}
+      data-required={(baseSelectProps.required ?? field?.required) ? '' : undefined}
+      data-invalid={isFormFieldInvalid(field) ? '' : undefined}
       {...styles.root}
     >
       <BaseSelect<Item>
-        {...props}
+        {...baseSelectProps}
         items={items()}
         multiple
         size={styles.variants.size ?? undefined}
-        classes={Object.fromEntries(sharedSlots.map((slot) => [slot, styles.slot(slot).class]))}
-        styles={Object.fromEntries(sharedSlots.map((slot) => [slot, styles.slot(slot).style]))}
+        classes={sharedClasses()}
+        styles={sharedStyles()}
       >
         <Control />
       </BaseSelect>

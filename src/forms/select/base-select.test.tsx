@@ -229,6 +229,36 @@ describe('BaseSelect composition', () => {
         ?.textContent,
     ).toBe('Beta')
   })
+  test('only associates groups with an existing nested label and preserves explicit labels', () => {
+    render(() => (
+      <BaseSelect items={items} defaultOpen>
+        <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
+        <BaseSelect.Content>
+          <BaseSelect.Listbox>
+            <BaseSelect.Group data-testid="nested-group" aria-labelledby="consumer-label">
+              <BaseSelect.GroupLabel>Nested label</BaseSelect.GroupLabel>
+            </BaseSelect.Group>
+            <BaseSelect.Group data-testid="unlabelled-group" />
+            <BaseSelect.Group data-testid="consumer-group" aria-labelledby="consumer-label" />
+            <BaseSelect.Group data-testid="named-group" aria-label="Named options" />
+          </BaseSelect.Listbox>
+        </BaseSelect.Content>
+      </BaseSelect>
+    ))
+
+    const nested = within(document.body).getByTestId('nested-group')
+    const nestedLabel = within(nested).getByText('Nested label')
+    expect(nested.getAttribute('aria-labelledby')).toBe(nestedLabel.id)
+    expect(
+      within(document.body).getByTestId('unlabelled-group').hasAttribute('aria-labelledby'),
+    ).toBe(false)
+    expect(
+      within(document.body).getByTestId('consumer-group').getAttribute('aria-labelledby'),
+    ).toBe('consumer-label')
+    const named = within(document.body).getByTestId('named-group')
+    expect(named.getAttribute('aria-label')).toBe('Named options')
+    expect(named.hasAttribute('aria-labelledby')).toBe(false)
+  })
   test.each(['ArrowDown', 'ArrowUp', 'Enter', ' '])('%s opens the trigger', (key) => {
     const screen = render(() => (
       <BaseSelect items={items}>
