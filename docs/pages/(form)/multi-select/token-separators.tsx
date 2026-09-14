@@ -18,7 +18,7 @@ export function TokenSeparators() {
     <div class="w-80 space-y-2">
       <MultiSelect
         search
-        options={FRUIT_OPTIONS}
+        items={FRUIT_OPTIONS}
         value={tagValues()}
         onChange={setTagValues}
         tokenSeparators={[' ']}

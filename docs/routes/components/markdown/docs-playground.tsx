@@ -257,7 +257,7 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
         <Select
           id={controlId}
           size="sm"
-          options={[...control.options]}
+          items={[...control.options]}
           search={false}
           value={values[control.prop] as string | number}
           onChange={(value) => {

@@ -10,10 +10,10 @@ import type { SelectT } from './select.types'
 describe('Select SSR Hydration', () => {
   test('hydrates the closed control in place and opens on the first keyboard action', () => {
     const reads = {
-      options: 0,
+      items: 0,
       label: 0,
       description: 0,
-      optionRender: 0,
+      itemRender: 0,
       leadingIcon: 0,
       trailingIcon: 0,
       closeIcon: 0,
@@ -28,8 +28,8 @@ describe('Select SSR Hydration', () => {
           name: 'fruit',
           value: 'banana',
           allowClear: true,
-          get options() {
-            reads.options += 1
+          get items() {
+            reads.items += 1
             return [
               {
                 value: 'apple',
@@ -55,9 +55,9 @@ describe('Select SSR Hydration', () => {
               },
             ]
           },
-          get optionRender() {
-            reads.optionRender += 1
-            return (props: SelectT.OptionRenderProps) => <span>{props.option?.label}</span>
+          get itemRender() {
+            reads.itemRender += 1
+            return (props: SelectT.ItemRenderProps) => <span>{props.item?.label}</span>
           },
           get leadingIcon() {
             reads.leadingIcon += 1
@@ -89,10 +89,10 @@ describe('Select SSR Hydration', () => {
     expect(container.querySelector('select, option')).toBeNull()
     expect(combobox.getAttribute('aria-expanded')).toBe('false')
     expect(reads).toEqual({
-      options: 1,
-      label: 2,
-      description: 2,
-      optionRender: 1,
+      items: 1,
+      label: 1,
+      description: 0,
+      itemRender: 1,
       leadingIcon: 1,
       trailingIcon: 1,
       closeIcon: 1,
@@ -102,7 +102,7 @@ describe('Select SSR Hydration', () => {
 
     expect(combobox.getAttribute('aria-expanded')).toBe('true')
     expect(document.body.querySelectorAll('[data-slot="item"]')).toHaveLength(2)
-    expect(reads.optionRender).toBe(1)
+    expect(reads.itemRender).toBe(1)
     expect(
       document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
     ).toContain('Apple')

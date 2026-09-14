@@ -13,13 +13,13 @@ export function States() {
 
   return (
     <div class="max-w-sm space-y-3">
-      <Select options={FRUIT_OPTIONS} disabled value="apple" placeholder="Disabled selection" />
+      <Select items={FRUIT_OPTIONS} disabled value="apple" placeholder="Disabled selection" />
       <Select
-        options={FRUIT_OPTIONS}
+        items={FRUIT_OPTIONS}
         defaultValue="banana"
         placeholder="An option can also be disabled"
       />
-      <Select options={FRUIT_OPTIONS} readOnly value="cherry" placeholder="Read-only selection" />
+      <Select items={FRUIT_OPTIONS} readOnly value="cherry" placeholder="Read-only selection" />
     </div>
   )
 }

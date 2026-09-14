@@ -29,7 +29,7 @@ export function FormIntegration() {
           description="Used for tax calculation and regional billing."
           required
         >
-          <Select options={COUNTRIES} placeholder="Select a country..." />
+          <Select items={COUNTRIES} placeholder="Select a country..." />
         </form.Field>
         <div class="flex gap-3 items-center">
           <Button type="submit" variant="secondary" size="sm">

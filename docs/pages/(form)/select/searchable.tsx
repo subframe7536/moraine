@@ -18,7 +18,7 @@ export function Searchable() {
         Billing Country & Currency
       </label>
       <Select
-        options={COUNTRIES}
+        items={COUNTRIES}
         search
         leadingIcon="i-lucide-search"
         placeholder="Search country or currency..."

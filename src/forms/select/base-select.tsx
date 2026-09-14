@@ -1,1436 +1,829 @@
-import type { Accessor, Component, JSX, Ref } from 'solid-js'
+import type { Accessor, JSX, ValidComponent } from 'solid-js'
 import {
-  For,
-  Show,
+  createContext,
   createEffect,
   createMemo,
   createSignal,
+  For,
+  Show,
   mergeProps,
   on,
   onCleanup,
   splitProps,
   untrack,
+  useContext,
 } from 'solid-js'
-import { Portal } from 'solid-js/web'
+import { Dynamic, Portal } from 'solid-js/web'
 
-import type { IconT } from '../../elements/icon'
-import { List } from '../../elements/list'
-import type { ListProps, ListT } from '../../elements/list'
-import { useFloatingPosition } from '../../overlays/base/floating'
-import { useOverlayInteraction } from '../../overlays/base/interaction'
+import { useFloatingPosition } from '../../overlays/base/floating.ts'
+import { useOverlayInteraction } from '../../overlays/base/interaction.ts'
 import { acquireBodyScrollLock } from '../../overlays/base/utils.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
-import { useCn } from '../../shared/provider/cn-context'
-import type { createComponentStyles } from '../../shared/provider/create-component-styles'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import { createTypeahead } from '../../shared/typeahead'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { useTransitionPresence } from '../../shared/use-transition-presence'
-import { callHandler, callRef, useId } from '../../shared/utils'
-import type { UseFormFieldReturn } from '../form/form-context'
-import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-} from '../shared/form-options'
-import { useFormReset } from '../shared/use-form-reset'
+import { useCn } from '../../shared/provider/cn-context.ts'
+import { createComponentStyles } from '../../shared/provider/create-component-styles.ts'
+import { createTypeahead } from '../../shared/typeahead.ts'
+import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
+import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
+import { callHandler, callRef, useId } from '../../shared/utils.ts'
+import { useFormField } from '../form/form-context.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
-import type { SelectT } from './select.types'
-import {
-  flattenOptions,
-  normalizeOptions,
-  resolveSelectedOptions,
-  useSelectField,
-  useSelectMenuControl,
-} from './shared'
-import type { BaseSelectItems, NormalizedGroup, NormalizedOption, SelectFilterMode } from './shared'
+import type { BaseSelectProps, BaseSelectT } from './base-select.types.ts'
+import { createCollection, flattenItems, itemKey, labelString } from './shared/collection.ts'
 
-export namespace BaseSelectT {
-  export type Value = string | number
-
-  export interface OptionRenderState {
-    /** Whether the option is currently selected. */
-    isSelected: boolean
-    /** Whether the option is currently highlighted/focused. */
-    isHighlighted: boolean
-    /** Whether the option is disabled. */
-    isDisabled: boolean
-  }
-
-  export interface OptionRenderProps<TItem extends Item> {
-    /** Option and interaction state, or null when no option matches. */
-    option: (TItem & OptionRenderState) | null
-  }
-
-  export interface Item<Val extends Value = Value> extends BaseSelectItems<Item<Val>> {
-    /** Label to display for the option, or the option group title. */
-    label?: string | JSX.Element
-    /** Text key used for filtering and matching; set this when `label` is not a string. */
-    key?: string
-    /** Value of the option. */
-    value?: Val
-    /** Whether the option is disabled. */
-    disabled?: boolean
-    /** Description shown below the label. */
-    description?: string | JSX.Element
-    /** Icon shown next to the label. */
-    icon?: IconT.Name
-    /** One-layer child options for grouped select. */
-    children?: Omit<Item<Val>, 'children'>[]
-  }
-
-  export interface StateApi<TItem extends Item> {
-    allFlatOptions: Accessor<NormalizedOption<TItem>[]>
-    close: () => void
-    field: UseFormFieldReturn
-    highlightedKey: Accessor<string | undefined>
-    inputValue: Accessor<string>
-    isOpen: Accessor<boolean>
-    setInputValue: (value: string) => void
-    visibleFlatOptions: Accessor<NormalizedOption<TItem>[]>
-  }
-
-  export type EmptyRenderProps<TItem extends Item> = StateApi<TItem>
-
-  export interface ControlApi<TItem extends Item> extends StateApi<TItem> {
-    controlProps: Accessor<JSX.HTMLAttributes<HTMLDivElement>>
-    focusInput: () => void
-    inputProps: Accessor<JSX.InputHTMLAttributes<HTMLInputElement>>
-    isSearchable: Accessor<boolean>
-    onInput: (event: InputEvent) => void
-    onKeyDown: (event: KeyboardEvent) => void
-    toggle: () => void
-    resolved: ReturnType<typeof createComponentStyles<'select'>>
-  }
-
-  export interface OptionSelectContext<TItem extends Item> {
-    allFlatOptions: Accessor<NormalizedOption<TItem>[]>
-    field: UseFormFieldReturn
-    setInputValue: (value: string) => void
-  }
-
-  export interface VirtualLabelEntry {
-    /** Structural entry rendered before a grouped option collection. */
-    type: 'label'
-    /** Stable key used by a virtualizer. */
-    key: string
-    /** Group label content. */
-    label: JSX.Element
-    /** Normalized option keys owned by this group. */
-    optionKeys: string[]
-  }
-
-  export interface VirtualItemEntry<TItem extends Item> {
-    /** Selectable option entry. */
-    type: 'item'
-    /** Stable normalized option key. */
-    key: string
-    /** Source option passed to Select or MultiSelect. */
-    item: TItem
-    /** Whether the option cannot be selected. */
-    disabled: boolean
-  }
-
-  export type VirtualEntry<TItem extends Item> = VirtualLabelEntry | VirtualItemEntry<TItem>
-
-  export type VirtualRenderProps<TItem extends Item> = ListT.VirtualRenderProps<
-    VirtualEntry<TItem>,
-    HTMLDivElement,
-    HTMLDivElement
-  >
-
-  export interface Slot<T = unknown> {
-    /**
-     * Select root that owns open state, value display, and popup positioning.
-     */
-    root?: T
-
-    /** Popup panel that contains search input, options, groups, and empty state. */
-    content?: T
-
-    /** ARIA listbox that contains selectable options. */
-    listbox?: T
-
-    /** Selectable option row inside the listbox. */
-    item?: T
-
-    /** Option group wrapper inside the listbox. */
-    group?: T
-
-    /** Group label or option label text, depending on context. */
-    label?: T
-  }
-
-  export type Variant = SelectT.Variant
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Base<TItem extends Item>
-    extends FormIdentityOptions, FormRequiredOption, FormDisableOption, FormReadOnlyOption {
-    /** Available options. */
-    options?: TItem[]
-    /** Controlled open state. */
-    open?: boolean
-    /**
-     * Initial open state.
-     * @default false
-     */
-    defaultOpen?: boolean
-    /** Called whenever the popup open state changes. */
-    onOpenChange?: (open: boolean) => void
-    /** Renders flattened group labels and options through a caller-provided virtualization layer. */
-    virtualRender?: Component<VirtualRenderProps<TItem>>
-    /** Scrolls a highlighted raw option into view using its flattened entry index. */
-    scrollToItem?: (item: TItem, entryIndex: number) => void
-    /** Additional attributes for the listbox element. */
-    listboxProps?: ElementProps<HTMLDivElement>
-    /** Additional attributes for an option row. */
-    itemProps?: (option: TItem & OptionRenderState) => ElementProps<HTMLDivElement> | undefined
-    /** Controlled search value. */
-    searchValue?: string
-    /**
-     * Default search value.
-     * @default ''
-     */
-    defaultSearchValue?: string
-    /** Called when the search input changes. */
-    onSearch?: (value: string) => void
-    /** Maximum search text length applied on final commit. */
-    searchMaxLength?: number
-    /**
-     * Filter function or boolean. `false` disables filtering.
-     * @default true
-     */
-    filterOption?:
-      | boolean
-      | 'startsWith'
-      | 'endsWith'
-      | 'contains'
-      | ((inputValue: string, option: TItem) => boolean)
-    /**
-     * Current selected values used only to derive selected option state.
-     * @default []
-     */
-    selectedValues?: Value[]
-    /** Internal flag that selects native single or multiple form semantics. */
-    multiple?: boolean
-    /** Form value used when the field initializes. */
-    initialValue?: unknown
-    /** Render the trigger/control surface. */
-    children: (api: ControlApi<TItem>) => JSX.Element
-    /** Renderer for each option in the dropdown. Receives `null` when no option matches. */
-    optionRender: ComponentOrElement<OptionRenderProps<TItem>>
-    /** Custom rendered empty state. */
-    emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
-    /** Called when an option is selected by pointer or keyboard. */
-    onOptionSelect: (
-      option: NormalizedOption<TItem> | null,
-      context: OptionSelectContext<TItem>,
-    ) => void
-    /** Internal reset bridge used by Select and MultiSelect wrappers. */
-    _onFormReset?: (context: OptionSelectContext<TItem>) => void
-    /** Whether the wrapper has an explicit controlled value. */
-    _isValueControlled?: boolean
-    /**
-     * Called on option item keydown. Can be used to intercept keys for custom behavior.
-     */
-    onInputKeyDown?: (event: KeyboardEvent, context: StateApi<TItem>) => void
-    /**
-     * Called when the listbox is scrolled to bottom. Useful for infinite loading scenarios. Make sure to set `overflowPadding` and `scrollBottomThreshold` appropriately to ensure the callback is triggered at the right time.
-     */
-    onScrollBottom?: () => void
-    /**
-     * Distance (px) from the bottom at which onScrollBottom fires.
-     * @default 20
-     */
-    scrollBottomThreshold?: number
-    /**
-     * Padding (px) used when calculating popup overflow and viewport collision.
-     * @default 4
-     */
-    overflowPadding?: number
-    /**
-     * Gap (px) between the control and popup content.
-     * @default 0
-     */
-    gutter?: number
-    /**
-     * Whether the select closes after selection.
-     * @default true
-     */
-    closeOnSelect?: boolean
-  }
-
-  export type Props<TItem extends Item> = BaseProps<'div', Base<TItem>, Variant, Classes, Styles>
-}
-
-export interface BaseSelectProps<TItem extends BaseSelectT.Item> extends BaseSelectT.Props<TItem> {
-  ref?: Ref<HTMLDivElement>
-  _styles: ReturnType<typeof createComponentStyles<'select'>>
-}
-
-const SELECT_FILTER_STRATEGIES: Record<SelectFilterMode, (text: string, input: string) => boolean> =
-  {
-    startsWith: (text, input) => text.startsWith(input),
-    endsWith: (text, input) => text.endsWith(input),
-    contains: (text, input) => text.includes(input),
-  }
-
-function resolveSelectContentSide(placement: string): 'top' | 'bottom' {
-  const [side] = placement.split('-')
-
-  return side === 'top' ? 'top' : 'bottom'
-}
-
-function matchesFilter<TOption extends { key: string }>(
-  option: TOption,
-  inputValue: string,
-  filter: SelectFilterMode | ((option: TOption, inputValue: string) => boolean),
-): boolean {
-  if (typeof filter === 'function') {
-    return filter(option, inputValue)
-  }
-
-  const input = inputValue.toLowerCase()
-  const text = option.key.toLowerCase()
-  return (SELECT_FILTER_STRATEGIES[filter] ?? SELECT_FILTER_STRATEGIES.contains)(text, input)
-}
-
-function scrollHighlightedItemIntoView(listbox: HTMLElement | undefined): void {
-  const highlightedItem = listbox?.querySelector<HTMLElement>(
-    '[data-slot="item"][data-highlighted]',
-  )
-
-  highlightedItem?.scrollIntoView?.({ block: 'nearest' })
-}
-
-function toStyleObject(
-  style: string | JSX.CSSProperties | undefined,
-): JSX.CSSProperties | undefined {
-  return typeof style === 'object' ? style : undefined
-}
-
-function useSelectNavigation<TItem extends BaseSelectT.Item>(options: {
-  highlightedKey: Accessor<string | undefined>
-  isOpen: Accessor<boolean>
-  isPresent: Accessor<boolean>
-  selectedOptionIds: Accessor<Set<string>>
-  setHighlightedKey: (key: string | undefined) => void
-  visibleFlatOptions: Accessor<NormalizedOption<TItem>[]>
-}) {
-  const { focusBoundary, focusByOffset } = useSelectableCollectionNavigation<
-    NormalizedOption<TItem>,
-    string
-  >({
-    items: options.visibleFlatOptions,
-    getValue: (option) => option.id,
-    isDisabled: (option) => option.disabled,
-    activationMode: () => 'manual',
-    focusValue: options.setHighlightedKey,
-    onSelect: () => undefined,
-    loop: () => true,
+function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>) {
+  type Value = T['value'] | T['value'][] | null
+  const id = useId(() => props.id, 'base-select')
+  const initial = untrack(() => {
+    const value = props.defaultValue
+    return Array.isArray(value) ? [...value] : (value ?? (props.multiple ? [] : null))
   })
-
-  function getFocusedOption(): NormalizedOption<TItem> | undefined {
-    const key =
-      options.highlightedKey() ??
-      options.visibleFlatOptions().find((option) => !option.disabled)?.id
-    if (!key) {
+  const field = useFormField(
+    () => props,
+    () => ({ defaultId: id(), bind: false, initialValue: initial ?? '' }),
+  )
+  const collection = createMemo(() => createCollection(props.items ?? []))
+  const [disabledPolicy, setDisabledPolicy] = createSignal<(item: T) => boolean>()
+  const itemDisabled = (item: T) => Boolean(item.disabled || disabledPolicy()?.(item))
+  const [viewSource, setViewSource] = createSignal<Accessor<BaseSelectT.Entry<T>[]> | undefined>()
+  const view = createMemo(() => viewSource()?.() ?? collection().entries)
+  const visibleItems = createMemo(() => flattenItems(view()))
+  const [storedValue, setStoredValue] = useControllableValue<Value>({
+    value: () => {
+      if (props.value !== undefined) {
+        return props.value
+      }
+      const value = field.value()
+      if (props.multiple && Array.isArray(value)) {
+        return value as T['value'][]
+      }
+      if (
+        !props.multiple &&
+        (value === null || typeof value === 'number' || typeof value === 'string')
+      ) {
+        return value === '' && !collection().byValue.has(itemKey(value)) ? null : value
+      }
       return undefined
-    }
-
-    return options.visibleFlatOptions().find((option) => option.id === key)
-  }
-
-  const visibleOptionSnapshot = () =>
-    options.visibleFlatOptions().map((option) => ({ id: option.id, disabled: option.disabled }))
-
-  createEffect(
-    on(
-      [
-        options.isPresent,
-        options.isOpen,
-        options.highlightedKey,
-        visibleOptionSnapshot,
-        options.selectedOptionIds,
-      ],
-      ([present, open, highlighted, visibleOptions, selectedIds]) => {
-        if (!present) {
-          options.setHighlightedKey(undefined)
-          return
-        }
-        if (!open) {
-          return
-        }
-        const enabledIds = visibleOptions
-          .filter((option) => !option.disabled)
-          .map((option) => option.id)
-        if (!highlighted || !enabledIds.includes(highlighted)) {
-          options.setHighlightedKey(enabledIds.find((id) => selectedIds.has(id)) ?? enabledIds[0])
-        }
-      },
-    ),
+    },
+    defaultValue: () => initial,
+  })
+  const value = createMemo(() => storedValue() ?? (props.multiple ? [] : null))
+  const values = createMemo<T['value'][]>(() => {
+    const current = value()
+    return Array.isArray(current)
+      ? [...new Map(current.map((value) => [itemKey(value), value])).values()]
+      : current === null
+        ? []
+        : [current]
+  })
+  const selectedKeys = createMemo(() => new Set(values().map(itemKey)))
+  const selectedItems = createMemo(() =>
+    values().flatMap((value) => {
+      const item = collection().byValue.get(itemKey(value))
+      return item ? [item] : []
+    }),
   )
-
-  return {
-    focusBoundaryItem: focusBoundary,
-    focusItemByOffset: (delta: number) => focusByOffset(options.highlightedKey(), delta),
-    getFocusedOption,
-  }
-}
-
-function useBaseSelectOverlay(options: {
-  closeMenu: () => void
-  contentElement: Accessor<HTMLDivElement | undefined>
-  contentPresence: ReturnType<typeof useTransitionPresence>
-  getControlElement: () => HTMLDivElement | undefined
-  gutter: Accessor<number>
-  isOpen: Accessor<boolean>
-  menuControl: ReturnType<typeof useSelectMenuControl>
-  onPlacementChange: (placement: `${'top' | 'right' | 'bottom' | 'left'}${string}`) => void
-  overflowPadding: Accessor<number>
-  positionerElement: Accessor<HTMLDivElement | undefined>
-}) {
+  const [openValue, setOpenValue] = useControllableValue<boolean>({
+    value: () => props.open,
+    defaultValue: () => props.defaultOpen ?? false,
+  })
+  const open = () => openValue() ?? false
+  const [highlight, setHighlight] = createSignal<string>()
+  const [anchor, setAnchor] = createSignal<HTMLElement>()
+  const [control, setControl] = createSignal<HTMLElement>()
+  const [listbox, setListbox] = createSignal<HTMLDivElement>()
+  const [resetVersion, setResetVersion] = createSignal(0)
+  const [selectionVersion, setSelectionVersion] = createSignal(0)
+  const listboxId = () => `${field.id()}-listbox`
+  const itemId = (value: BaseSelectT.Value) =>
+    `${listboxId()}-${encodeURIComponent(itemKey(value))}`
+  const styles = createComponentStyles('baseSelect', props, {
+    inheritedVariants: () => ({ size: field.size() ?? undefined }),
+  })
+  const locked = () => field.disabled() || field.readOnly()
+  let validationInput: HTMLInputElement | undefined
   let disposed = false
   onCleanup(() => {
     disposed = true
   })
 
-  useFloatingPosition({
-    contentElement: options.contentElement,
-    floatingElement: options.positionerElement,
-    getReferenceElement: options.getControlElement,
-    gutter: options.gutter,
-    onPositionedChange: () => undefined,
-    onPlacementChange: options.onPlacementChange,
-    open: options.contentPresence.present,
-    overflowPadding: options.overflowPadding,
-    placement: () => 'bottom-start',
-  })
-
-  createEffect(
-    on(options.contentPresence.present, (present) => {
-      if (!present) {
-        options.contentPresence.setElement(undefined)
-        return
-      }
-
-      onCleanup(acquireBodyScrollLock(options.getControlElement()))
-    }),
-  )
-
-  createEffect(
-    on([options.positionerElement, options.contentElement], ([positioner, content]) => {
-      if (!positioner || !content) {
-        return
-      }
-
-      queueMicrotask(() => {
-        if (
-          disposed ||
-          options.positionerElement() !== positioner ||
-          options.contentElement() !== content
-        ) {
-          return
-        }
-
-        positioner.style.zIndex = getComputedStyle(content).zIndex
-      })
-    }),
-  )
-
-  useOverlayInteraction({
-    containsTarget: (node) => {
-      const positioner = options.positionerElement()
-      return Boolean(options.getControlElement()?.contains(node) || positioner?.contains(node))
-    },
-    onPointerOutside: (event) => {
-      if (event.defaultPrevented) {
-        return
-      }
-
-      options.menuControl.onContentInteractOutside()
-      options.closeMenu()
-    },
-    onFocusOutside: (event) => {
-      if (event.defaultPrevented) {
-        return
-      }
-
-      options.menuControl.onContentInteractOutside()
-      options.closeMenu()
-    },
-    onEscape: (event, context) => {
-      const target = event.target
-      if ((target instanceof Node && context.isInside(target)) || event.defaultPrevented) {
-        return
-      }
-
-      event.preventDefault()
-      options.closeMenu()
-    },
-    contentElement: options.contentElement,
-    enabled: options.isOpen,
-    outsidePressEvent: 'pointerdown',
-    requireContent: true,
-    triggerElement: options.getControlElement,
-  })
-}
-
-export function BaseSelect<TItem extends BaseSelectT.Item>(
-  props: BaseSelectProps<TItem>,
-): JSX.Element {
-  const cn = useCn()
-  const [local, rest] = splitProps(props as BaseSelectProps<TItem> & Record<string, unknown>, [
-    'ref',
-    'id',
-    'name',
-    'required',
-    'disabled',
-    'readOnly',
-    'size',
-    '_styles',
-    'variant',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'options',
-    'open',
-    'defaultOpen',
-    'onOpenChange',
-    'virtualRender',
-    'scrollToItem',
-    'listboxProps',
-    'itemProps',
-    'search',
-    'searchValue',
-    'defaultSearchValue',
-    'onSearch',
-    'searchMaxLength',
-    'filterOption',
-    'selectedValues',
-    'multiple',
-    'initialValue',
-    'children',
-    'optionRender',
-    'emptyRender',
-    'onOptionSelect',
-    '_onFormReset',
-    '_isValueControlled',
-    'onInputKeyDown',
-    'onScrollBottom',
-    'scrollBottomThreshold',
-    'overflowPadding',
-    'gutter',
-    'closeOnSelect',
-    'value',
-    'defaultValue',
-    'onChange',
-    'placeholder',
-    'loading',
-    'loadingIcon',
-    'leadingIcon',
-    'trailingIcon',
-    'closeIcon',
-    'labelRender',
-    'tagRender',
-    'allowClear',
-    'onClear',
-    'tokenSeparators',
-    'allowCreate',
-    'maxCount',
-    'maxTagCount',
-  ])
-  const merged = mergeProps(
-    {
-      closeOnSelect: true,
-    },
-    local as BaseSelectProps<TItem>,
-  )
-  const childrenRender = createMemo(() => merged.children)
-  const optionRender = createMemo(() => merged.optionRender)
-  const emptyRender = createMemo(() => merged.emptyRender)
-  const virtualRender = createMemo(() => merged.virtualRender)
-  const listboxId = useId(() => merged.id && `${merged.id}-listbox`, 'base-select-listbox')
-  const getOptionId = (key: string): string => `${listboxId()}-${encodeURIComponent(key)}`
-
-  const field = useSelectField(() => ({
-    id: merged.id,
-    name: merged.name,
-    size: merged.size ?? undefined,
-    disabled: merged.disabled,
-    required: local.required,
-    readOnly: merged.readOnly,
-    initialValue: merged.initialValue,
-  }))
-  const isSearchable = createMemo(() => Boolean(merged.search))
-
-  const normalizedOptions = createMemo<Array<NormalizedOption<TItem> | NormalizedGroup<TItem>>>(
-    () =>
-      normalizeOptions(merged.options as never) as Array<
-        NormalizedOption<TItem> | NormalizedGroup<TItem>
-      >,
-  )
-  const allFlatOptions = createMemo<NormalizedOption<TItem>[]>(() =>
-    flattenOptions(normalizedOptions()),
-  )
-  const propSelectedValues = createMemo(() => merged.selectedValues ?? [])
-  const selectedValues = createMemo<BaseSelectT.Value[]>(() => {
-    if (merged._isValueControlled) {
-      return propSelectedValues()
+  function setOpen(next: boolean) {
+    if (next && field.disabled()) {
+      return
     }
-
-    const value = field.value()
-    if (merged.multiple) {
-      return Array.isArray(value)
-        ? value.filter(
-            (item): item is BaseSelectT.Value =>
-              typeof item === 'string' || typeof item === 'number',
-          )
-        : propSelectedValues()
+    if (next === open()) {
+      return
     }
-
-    if (value === null) {
-      return []
-    }
-
-    return typeof value === 'string' || typeof value === 'number' ? [value] : propSelectedValues()
-  })
-
-  const formValueSnapshot = () => {
-    const value = field.value()
-    return Array.isArray(value) ? value.slice() : value
+    setOpenValue(next)
+    props.onOpenChange?.(next)
   }
-  const propSelectedValuesSnapshot = () => propSelectedValues().slice()
-
-  createEffect(
-    on(
-      [
-        () => merged._isValueControlled,
-        propSelectedValuesSnapshot,
-        () => merged.multiple,
-        formValueSnapshot,
-      ],
-      ([controlled, values, multiple, currentValue]) => {
-        if (!controlled) {
-          return
-        }
-        const nextValue = multiple ? values : (values[0] ?? '')
-        const isEqual = Array.isArray(nextValue)
-          ? Array.isArray(currentValue) &&
-            nextValue.length === currentValue.length &&
-            nextValue.every((value, index) => Object.is(value, currentValue[index]))
-          : Object.is(nextValue, currentValue)
-        if (!isEqual) {
-          field.setFormValue(nextValue)
-        }
-      },
-    ),
-  )
-
-  const selectedResolution = createMemo(() =>
-    resolveSelectedOptions(allFlatOptions(), selectedValues()),
-  )
-  const selectedOptions = createMemo(() => selectedResolution().options)
-  const selectedOptionIds = createMemo(() => new Set(selectedOptions().map((option) => option.id)))
-  const formValues = createMemo(() => {
-    if (!merged.multiple && selectedValues().length === 0) {
-      return ['']
+  function change(next: Value) {
+    if (locked()) {
+      return
     }
-    return selectedResolution().entries.flatMap((entry) =>
-      entry.type === 'unmatched'
-        ? [String(entry.value)]
-        : entry.option.disabled
-          ? []
-          : [String(entry.option.value)],
+    const before = values()
+    const after = Array.isArray(next) ? next : next === null ? [] : [next]
+    if (before.length === after.length && before.every((value, i) => Object.is(value, after[i]))) {
+      return
+    }
+    setStoredValue(next)
+    if (props.value === undefined) {
+      field.setFormValue(next ?? '')
+    }
+    if (props.multiple) {
+      props.onChange?.(after)
+    } else {
+      props.onChange?.(Array.isArray(next) ? (next[0] ?? null) : next)
+    }
+    if (props.value !== undefined) {
+      field.setFormValue(props.value ?? '')
+    }
+    field.emit('change')
+    field.emit('input')
+  }
+  function select(item: T) {
+    if (locked() || itemDisabled(item)) {
+      return
+    }
+    const key = itemKey(item.value)
+    if (!collection().byValue.has(key)) {
+      return
+    }
+    change(
+      props.multiple
+        ? selectedKeys().has(key)
+          ? values().filter((value) => itemKey(value) !== key)
+          : [...values(), item.value]
+        : item.value,
     )
-  })
-  // A text input participates in required validation; hidden inputs only serialize values.
-  const validationValue = () => {
-    const values = selectedValues()
-    const hasValue = merged.multiple ? values.length > 0 : String(values[0] ?? '') !== ''
-    return hasValue ? 'selected' : ''
-  }
-
-  const [openState, setOpenState] = useControllableValue<boolean>({
-    value: () => merged.open,
-    defaultValue: () => merged.defaultOpen ?? false,
-  })
-  const isOpen = createMemo(() => Boolean(openState()))
-
-  let controlRef: HTMLDivElement | undefined
-  let comboboxRef: HTMLElement | undefined
-  let listboxRef: HTMLDivElement | undefined
-  let validationInputRef: HTMLInputElement | undefined
-  let hasReachedScrollBottom = false
-  let disposed = false
-
-  onCleanup(() => {
-    disposed = true
-  })
-
-  const [currentInputText, setCurrentInputText] = createSignal(merged.defaultSearchValue ?? '')
-  const [highlightedKey, setHighlightedKey] = createSignal<string | undefined>()
-  const [contentSide, setContentSide] = createSignal<'top' | 'bottom'>('bottom')
-  const resolved = untrack(() => local._styles)
-
-  const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>()
-  const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
-  const contentPresence = useTransitionPresence({
-    open: isOpen,
-  })
-
-  createEffect(
-    on(
-      () => merged.searchValue,
-      (searchValue) => {
-        if (searchValue === undefined) {
-          return
+    setSelectionVersion((version) => version + 1)
+    if (props.closeOnSelect ?? !props.multiple) {
+      setOpen(false)
+      const target = control()
+      // oxlint-disable-next-line subf/solid-reactivity -- Delayed focus validates the current control and open state.
+      queueMicrotask(() => {
+        if (!disposed && !open() && target === control() && target?.isConnected) {
+          target.focus()
         }
-
-        setCurrentInputText(searchValue)
-      },
-    ),
-  )
-
-  const visibleOptions = createMemo<Array<NormalizedOption<TItem> | NormalizedGroup<TItem>>>(() => {
-    const options = normalizedOptions()
-    const inputValue = currentInputText()
-    const filterOption = merged.filterOption
-
-    if (!isSearchable() || filterOption === false || inputValue.trim() === '') {
-      return options
-    }
-
-    const filter:
-      | boolean
-      | 'startsWith'
-      | 'endsWith'
-      | 'contains'
-      | ((option: NormalizedOption<TItem>, inputValue: string) => boolean) =
-      typeof filterOption === 'function'
-        ? (option, value) => filterOption(value, option.raw)
-        : filterOption === true || filterOption === undefined
-          ? 'contains'
-          : filterOption
-
-    const result: Array<NormalizedOption<TItem> | NormalizedGroup<TItem>> = []
-
-    for (const item of options) {
-      if (item.isGroup) {
-        const options = item.options.filter((option) => matchesFilter(option, inputValue, filter))
-        if (options.length > 0) {
-          result.push({ ...item, options })
-        }
-        continue
-      }
-
-      if (matchesFilter(item, inputValue, filter)) {
-        result.push(item)
-      }
-    }
-
-    return result
-  })
-
-  const visibleFlatOptions = createMemo<NormalizedOption<TItem>[]>(() =>
-    flattenOptions(visibleOptions()),
-  )
-  const visibleOptionByKey = createMemo(
-    () => new Map(visibleFlatOptions().map((option) => [option.id, option])),
-  )
-  const visibleOptionPositionByKey = createMemo(
-    () => new Map(visibleFlatOptions().map((option, index) => [option.id, index + 1])),
-  )
-  const virtualEntries = createMemo<BaseSelectT.VirtualEntry<TItem>[]>(() => {
-    const entries: BaseSelectT.VirtualEntry<TItem>[] = []
-
-    for (const [index, item] of visibleOptions().entries()) {
-      if (!item.isGroup) {
-        entries.push({
-          type: 'item',
-          key: item.id,
-          item: item.raw,
-          disabled: item.disabled,
-        })
-        continue
-      }
-
-      entries.push({
-        type: 'label',
-        key: `group-${index}`,
-        label: item.label,
-        optionKeys: item.options.map((option) => option.id),
       })
-
-      for (const option of item.options) {
-        entries.push({
-          type: 'item',
-          key: option.id,
-          item: option.raw,
-          disabled: option.disabled,
-        })
-      }
     }
-
-    return entries
-  })
-
-  function setMenuOpen(nextOpen: boolean): void {
-    if (field.disabled()) {
-      return
-    }
-
-    setOpenState(nextOpen)
-    merged.onOpenChange?.(nextOpen)
   }
-
-  function closeMenu(): void {
-    if (isSearchable() && visibleFlatOptions().length === 0) {
-      setCurrentInputText('')
-      merged.onSearch?.('')
-    }
-
-    setMenuOpen(false)
-  }
-
-  const menuControl = useSelectMenuControl({
-    close: closeMenu,
-    isOpen,
-    open: () => setMenuOpen(true),
-  })
-  const navigation = useSelectNavigation({
-    highlightedKey,
-    isOpen,
-    isPresent: contentPresence.present,
-    selectedOptionIds,
-    setHighlightedKey,
-    visibleFlatOptions,
-  })
-  const typeahead = createTypeahead({
-    getItems: visibleFlatOptions,
-    getStartIndex: () => {
-      const options = visibleFlatOptions()
-      return isOpen()
-        ? options.findIndex((option) => option.id === highlightedKey())
-        : options.findIndex((option) => selectedOptionIds().has(option.id))
-    },
-    getText: (option) => option.key,
-    isDisabled: (option) => option.disabled,
-    onMatch: (option) => {
-      if (isOpen()) {
-        setHighlightedKey(option.id)
+  const enabled = createMemo(() => visibleItems().filter((item) => !itemDisabled(item)))
+  createEffect(
+    on([open, enabled, highlight, selectedKeys], ([isOpen, items, current, selected]) => {
+      if (!isOpen) {
         return
       }
-
-      selectOption(option)
-    },
+      if (!items.some((item) => itemKey(item.value) === current && !itemDisabled(item))) {
+        const next =
+          items.find((item) => !itemDisabled(item) && selected.has(itemKey(item.value))) ??
+          items.find((item) => !itemDisabled(item))
+        setHighlight(next ? itemKey(next.value) : undefined)
+      }
+    }),
+  )
+  const typeahead = createTypeahead({
+    getItems: visibleItems,
+    getStartIndex: () =>
+      visibleItems().findIndex((item) =>
+        open() ? itemKey(item.value) === highlight() : selectedKeys().has(itemKey(item.value)),
+      ),
+    getText: (item) => labelString(item, props.itemToLabelString),
+    isDisabled: (item) => itemDisabled(item),
+    onMatch: (item) => (open() ? setHighlight(itemKey(item.value)) : select(item)),
   })
-
-  function handleTypeaheadKeyDown(event: KeyboardEvent): boolean {
-    if (isSearchable() || merged.multiple || event.ctrlKey || event.metaKey || event.altKey) {
-      return false
-    }
-
-    return typeahead.handleKeyDown(event)
-  }
-
-  function setInputValue(inputValue: string): void {
-    if (!menuControl.isDismissing()) {
-      setCurrentInputText(inputValue)
-    }
-
-    merged.onSearch?.(inputValue)
-  }
-
-  function selectOption(option: NormalizedOption<TItem>): void {
-    if (option.disabled || field.readOnly()) {
+  function keyDown(event: KeyboardEvent, textInput = false) {
+    if (event.defaultPrevented || field.disabled() || event.isComposing) {
       return
     }
-
-    merged.onOptionSelect(option, {
-      allFlatOptions,
-      field,
-      setInputValue,
-    })
-
-    if (merged.closeOnSelect && isOpen()) {
-      closeMenu()
-      const focusTarget = comboboxRef
-      // oxlint-disable-next-line subf/solid-reactivity -- Delayed focus must validate the latest open state.
-      queueMicrotask(() => {
-        if (!disposed && !isOpen() && comboboxRef === focusTarget && focusTarget?.isConnected) {
-          focusTarget.focus()
-        }
-      })
+    if (!textInput && typeahead.handleKeyDown(event)) {
+      return
+    }
+    const key = event.key
+    if (key === 'Tab') {
+      setOpen(false)
+      return
+    }
+    if (key === 'Escape') {
+      if (open()) {
+        event.preventDefault()
+        setOpen(false)
+      }
+      return
+    }
+    if (key === 'ArrowDown' || key === 'ArrowUp' || (open() && (key === 'Home' || key === 'End'))) {
+      event.preventDefault()
+      setOpen(true)
+      const items = enabled()
+      const current = items.findIndex((item) => itemKey(item.value) === highlight())
+      const index =
+        key === 'Home'
+          ? 0
+          : key === 'End'
+            ? items.length - 1
+            : current < 0
+              ? key === 'ArrowUp'
+                ? items.length - 1
+                : 0
+              : (current + (key === 'ArrowUp' ? -1 : 1) + items.length) % items.length
+      setHighlight(items[index] ? itemKey(items[index].value) : undefined)
+      return
+    }
+    if (key === 'Enter' || (!textInput && (key === ' ' || key === 'Spacebar'))) {
+      event.preventDefault()
+      if (!open()) {
+        setOpen(true)
+        return
+      }
+      const item = visibleItems().find((item) => itemKey(item.value) === highlight())
+      if (item) {
+        select(item)
+      }
     }
   }
-
+  createEffect(
+    on([() => props.value, field.value], ([current, formValue]) => {
+      if (current !== undefined && !Object.is(current ?? '', formValue)) {
+        field.setFormValue(current ?? '')
+      }
+    }),
+  )
+  const serialized = createMemo(() =>
+    !props.multiple && value() === null
+      ? ['']
+      : values()
+          .filter((value) => !collection().byValue.get(itemKey(value))?.disabled)
+          .map(String),
+  )
+  const validationValue = () =>
+    props.multiple ? (values().length ? 'selected' : '') : value() === null ? '' : String(value())
   useFormReset(
-    () => validationInputRef?.form,
+    () => validationInput?.form,
     () => {
       if (disposed) {
         return
       }
-
-      merged._onFormReset?.({
-        allFlatOptions,
-        field,
-        setInputValue,
-      })
-      if (validationInputRef) {
-        validationInputRef.value = validationValue()
+      setStoredValue(initial)
+      field.setFormValue((props.value !== undefined ? props.value : initial) ?? '')
+      setResetVersion((version) => version + 1)
+      if (validationInput) {
+        validationInput.value = validationValue()
       }
     },
   )
-
-  const stateApi: BaseSelectT.StateApi<TItem> = {
-    allFlatOptions,
-    close: closeMenu,
+  const presentation: BaseSelectT.TriggerState<T> = {
+    get open() {
+      return open()
+    },
+    get value() {
+      return value()
+    },
+    get selectedItems() {
+      return selectedItems()
+    },
+    get disabled() {
+      return field.disabled()
+    },
+    get readOnly() {
+      return field.readOnly()
+    },
+  }
+  return {
+    props,
+    collection,
+    view,
+    visibleItems,
+    setViewSource,
+    value,
+    values,
+    selectedKeys,
+    selectedItems,
+    open,
+    setOpen,
+    highlight,
+    setHighlight,
+    anchor,
+    setAnchor,
+    control,
+    setControl,
+    listbox,
+    setListbox,
+    listboxId,
+    itemId,
     field,
-    highlightedKey,
-    inputValue: currentInputText,
-    isOpen,
-    setInputValue,
-    visibleFlatOptions,
-  }
-
-  function handleInput(event: InputEvent): void {
-    if (!isSearchable() || field.readOnly()) {
-      if (field.readOnly()) {
-        ;(event.currentTarget as HTMLInputElement).value = currentInputText()
-      }
-      return
-    }
-
-    const nextValue = (event.currentTarget as HTMLInputElement).value
-    if (nextValue.trim() !== '') {
-      menuControl.openMenu()
-    }
-  }
-
-  function handleKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Escape' || (event.key === 'Tab' && isOpen())) {
-      menuControl.markDismissing()
-    }
-
-    if (event.key === 'Tab') {
-      return
-    }
-
-    merged.onInputKeyDown?.(event, stateApi)
-    if (event.defaultPrevented) {
-      return
-    }
-
-    if (handleTypeaheadKeyDown(event)) {
-      return
-    }
-
-    if ((event.key === ' ' || event.key === 'Spacebar') && !isSearchable()) {
-      event.preventDefault()
-
-      if (!isOpen()) {
-        setMenuOpen(true)
-        return
-      }
-
-      const option = navigation.getFocusedOption()
-      if (option && !option.disabled) {
-        selectOption(option)
-      }
-      return
-    }
-
-    if (event.key === 'ArrowDown') {
-      event.preventDefault()
-      if (!isOpen()) {
-        setMenuOpen(true)
-      }
-      navigation.focusItemByOffset(1)
-      return
-    }
-
-    if (event.key === 'ArrowUp') {
-      event.preventDefault()
-      if (!isOpen()) {
-        setMenuOpen(true)
-      }
-      navigation.focusItemByOffset(-1)
-      return
-    }
-
-    if (event.key === 'Home') {
-      if (!isOpen()) {
-        return
-      }
-
-      event.preventDefault()
-      navigation.focusBoundaryItem('first')
-      return
-    }
-
-    if (event.key === 'End') {
-      if (!isOpen()) {
-        return
-      }
-
-      event.preventDefault()
-      navigation.focusBoundaryItem('last')
-      return
-    }
-
-    if (event.key === 'Enter') {
-      if (!isOpen()) {
-        setMenuOpen(true)
-        return
-      }
-
-      const option = navigation.getFocusedOption()
-      if (!option || option.disabled) {
-        return
-      }
-
-      event.preventDefault()
-      selectOption(option)
-      return
-    }
-
-    if (event.key === 'Escape' && isOpen()) {
-      event.preventDefault()
-      closeMenu()
-    }
-  }
-
-  const activeDescendantId = createMemo(() => {
-    const key = highlightedKey()
-    return key ? getOptionId(key) : undefined
-  })
-
-  const controlProps = createMemo<JSX.HTMLAttributes<HTMLDivElement>>(() => {
-    const sharedProps: JSX.HTMLAttributes<HTMLDivElement> = {
-      ref: (element: HTMLDivElement | undefined) => {
-        controlRef = element
-        if (!isSearchable()) {
-          comboboxRef = element
-        }
-      },
-      onPointerDown: (event: PointerEvent) => {
-        if (event.pointerType !== 'touch' && event.pointerType !== 'pen') {
-          event.preventDefault()
-          comboboxRef?.focus()
-        }
-      },
-      onClick: menuControl.toggleMenu,
-    }
-
-    if (isSearchable()) {
-      return sharedProps
-    }
-
-    return {
-      ...sharedProps,
-      id: field.id(),
-      role: 'combobox',
-      'aria-controls': listboxId(),
-      'aria-expanded': isOpen() ? 'true' : 'false',
-      'aria-haspopup': 'listbox',
-      'aria-activedescendant': activeDescendantId(),
-      tabIndex: field.disabled() ? undefined : 0,
-      onKeyDown: handleKeyDown,
-      onFocus: (event) => field.emit('focus', event),
-      onBlur: (event) => field.emit('blur', event),
-      ...field.ariaAttrs(),
-    }
-  })
-
-  const inputProps = createMemo<JSX.InputHTMLAttributes<HTMLInputElement>>(() => ({
-    ref: (element: HTMLInputElement | undefined) => {
-      if (element) {
-        comboboxRef = element
-      }
-    },
-    id: field.id(),
-    role: 'combobox',
-    'aria-controls': listboxId(),
-    'aria-expanded': isOpen() ? 'true' : 'false',
-    'aria-haspopup': 'listbox',
-    'aria-autocomplete': 'list',
-    'aria-activedescendant': activeDescendantId(),
-    disabled: field.disabled(),
-    readonly: field.readOnly(),
-    maxLength: merged.searchMaxLength,
-    value: currentInputText(),
-    onInput: handleInput,
-    onKeyDown: handleKeyDown,
-    onFocus: (event) => field.emit('focus', event),
-    onBlur: (event) => field.emit('blur', event),
-    ...field.ariaAttrs(),
-  }))
-
-  useBaseSelectOverlay({
-    closeMenu,
-    contentElement,
-    contentPresence,
-    getControlElement: () => controlRef,
-    gutter: () => merged.gutter ?? 0,
-    isOpen,
-    menuControl,
-    onPlacementChange: (placement) => {
-      setContentSide(resolveSelectContentSide(placement))
-    },
-    overflowPadding: () => merged.overflowPadding ?? 4,
-    positionerElement,
-  })
-
-  createEffect(
-    on(
-      [highlightedKey, isOpen, contentElement, visibleOptionByKey, virtualRender, virtualEntries],
-      ([key, open, content, options, virtual, virtualItems]) => {
-        if (!key || !open || !content || !listboxRef) {
-          return
-        }
-        const option = options.get(key)
-        if (!option) {
-          return
-        }
-        const entries = virtual ? virtualItems : undefined
-        const scrollToItem = merged.scrollToItem
-        if (entries && scrollToItem) {
-          const entryIndex = entries.findIndex(
-            (entry) => entry.type === 'item' && entry.key === key,
-          )
-          if (entryIndex >= 0) {
-            scrollToItem(option.raw, entryIndex)
-            return
-          }
-        }
-        const listbox = listboxRef
-        // oxlint-disable-next-line subf/solid-reactivity -- Delayed scrolling must validate the latest highlight and popup state.
-        queueMicrotask(() => {
-          if (
-            disposed ||
-            !isOpen() ||
-            highlightedKey() !== key ||
-            listboxRef !== listbox ||
-            contentElement() !== content
-          ) {
-            return
-          }
-
-          scrollHighlightedItemIntoView(listbox)
-        })
-      },
-    ),
-  )
-
-  function handleListboxScroll(event: Event): void {
-    const target = event.currentTarget as HTMLElement | null
-    if (!target) {
-      return
-    }
-
-    const threshold = merged.scrollBottomThreshold ?? 20
-    const isAtBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - threshold
-    if (isAtBottom) {
-      if (hasReachedScrollBottom) {
-        return
-      }
-      hasReachedScrollBottom = true
-      merged.onScrollBottom?.()
-      return
-    }
-
-    hasReachedScrollBottom = false
-  }
-
-  function renderVisibleOption(
-    option: NormalizedOption<TItem>,
-    virtualProps?: ListT.RowProps<HTMLDivElement>,
-  ): JSX.Element {
-    const isSelected = createMemo(() => selectedOptionIds().has(option.id))
-    const renderContext = createMemo(() => ({
-      ...option.renderItem,
-      isSelected: isSelected(),
-      isHighlighted: highlightedKey() === option.id,
-      isDisabled: option.disabled,
-    }))
-    const itemAttributes = createMemo(() => merged.itemProps?.(renderContext()))
-
-    return (
-      <div
-        id={getOptionId(option.id)}
-        role="option"
-        tabIndex={-1}
-        data-slot="item"
-        data-disabled={option.disabled ? '' : undefined}
-        data-highlighted={highlightedKey() === option.id ? '' : undefined}
-        data-selected={isSelected() ? '' : undefined}
-        aria-disabled={option.disabled || undefined}
-        aria-selected={isSelected() ? 'true' : 'false'}
-        aria-posinset={virtualRender() ? visibleOptionPositionByKey().get(option.id) : undefined}
-        aria-setsize={virtualRender() ? visibleFlatOptions().length : undefined}
-        {...itemAttributes()}
-        {...virtualProps}
-        ref={(element) => {
-          callRef(itemAttributes()?.ref, element)
-          virtualProps?.ref?.(element)
-        }}
-        class={cn(resolved.slot('item').class, [itemAttributes()?.class, virtualProps?.class])}
-        style={{
-          ...toStyleObject(itemAttributes()?.style),
-          ...toStyleObject(virtualProps?.style),
-          ...resolved.slot('item').style,
-        }}
-        onPointerMove={(event) => {
-          callHandler(event, itemAttributes()?.onPointerMove)
-          callHandler(event, virtualProps?.onPointerMove)
-          if (!event.defaultPrevented && event.pointerType === 'mouse' && !option.disabled) {
-            setHighlightedKey(option.id)
-          }
-        }}
-        onPointerDown={(event) => {
-          callHandler(event, itemAttributes()?.onPointerDown)
-          callHandler(event, virtualProps?.onPointerDown)
-          if (
-            !event.defaultPrevented &&
-            event.pointerType !== 'touch' &&
-            event.pointerType !== 'pen'
-          ) {
+    styles,
+    locked,
+    change,
+    select,
+    keyDown,
+    resetVersion,
+    selectionVersion,
+    presentation,
+    itemDisabled,
+    setDisabledPolicy,
+    formControls: () => (
+      <>
+        <HiddenInput
+          ref={(element) => {
+            validationInput = element
+          }}
+          type="text"
+          aria-hidden="true"
+          autocomplete="off"
+          disabled={field.disabled()}
+          required={field.required()}
+          tabIndex={-1}
+          value={validationValue()}
+          onInput={(event) => {
+            event.currentTarget.value = validationValue()
+          }}
+          onChange={(event) => {
+            event.currentTarget.value = validationValue()
+          }}
+          onInvalid={(event) => {
             event.preventDefault()
-          }
-        }}
-        onClick={(event) => {
-          callHandler(event, itemAttributes()?.onClick)
-          callHandler(event, virtualProps?.onClick)
-          if (event.defaultPrevented || option.disabled) {
-            return
-          }
-
-          setHighlightedKey(option.id)
-          selectOption(option)
-        }}
-      >
-        {renderComponentOrElement(optionRender(), {
-          get option() {
-            return renderContext()
-          },
-        })}
-      </div>
-    )
+            control()?.focus()
+          }}
+        />
+        <For each={serialized()}>
+          {(value) => (
+            <HiddenInput
+              type="hidden"
+              visuallyHidden={false}
+              name={field.name()}
+              value={value}
+              disabled={field.disabled()}
+            />
+          )}
+        </For>
+      </>
+    ),
   }
+}
 
-  function renderVirtualEntry(
-    entry: BaseSelectT.VirtualEntry<TItem>,
-    _index: number,
-    virtualProps?: ListT.RowProps<HTMLDivElement>,
-  ): JSX.Element {
-    if (entry.type === 'label') {
-      const labelId = `${listboxId()}-${entry.key}-label`
-
-      return (
-        <div
-          role="group"
-          aria-labelledby={labelId}
-          aria-owns={entry.optionKeys.map(getOptionId).join(' ') || undefined}
-          data-slot="group"
-          {...virtualProps}
-          class={cn(resolved.slot('group').class, virtualProps?.class)}
-          style={{ ...toStyleObject(virtualProps?.style), ...resolved.slot('group').style }}
-        >
-          <span id={labelId} data-slot="label" aria-hidden="true" {...resolved.slot('label')}>
-            {entry.label}
-          </span>
-        </div>
-      )
-    }
-
-    return (
-      <Show when={visibleOptionByKey().get(entry.key)}>
-        {(option) => renderVisibleOption(option(), virtualProps)}
-      </Show>
-    )
+type SelectState<T extends BaseSelectT.Item> = ReturnType<typeof createSelectState<T>>
+const SelectContext = createContext<SelectState<BaseSelectT.Item>>()
+/** Internal state access for the high-level controls and renderer. */
+export function useSelectState<T extends BaseSelectT.Item = BaseSelectT.Item>(): SelectState<T> {
+  const context = useContext(SelectContext)
+  if (!context) {
+    throw new Error('[Moraine BaseSelect] Parts must be used within BaseSelect.')
   }
+  return context as unknown as SelectState<T>
+}
 
-  type SelectListEntry =
-    | BaseSelectT.VirtualEntry<TItem>
-    | NormalizedOption<TItem>
-    | NormalizedGroup<TItem>
-
-  const listEntries = createMemo<readonly SelectListEntry[]>(() =>
-    virtualRender() ? virtualEntries() : visibleOptions(),
+/** Public selection primitive with a canonical collection and form ownership. */
+export function BaseSelect<T extends BaseSelectT.Item = BaseSelectT.Item>(
+  props: BaseSelectProps<T>,
+): JSX.Element {
+  const state = createSelectState(props)
+  return (
+    <SelectContext.Provider value={state as unknown as SelectState<BaseSelectT.Item>}>
+      {state.formControls()}
+      {props.children}
+    </SelectContext.Provider>
   )
-  const RuntimeList = List as unknown as Component<
-    ListProps<SelectListEntry, 'div', HTMLDivElement> & JSX.HTMLAttributes<HTMLDivElement>
-  >
+}
 
-  function renderListEntry(
-    entry: SelectListEntry,
-    index: number,
-    rowProps?: ListT.RowProps<HTMLDivElement>,
-  ): JSX.Element {
-    if (virtualRender()) {
-      return renderVirtualEntry(entry as BaseSelectT.VirtualEntry<TItem>, index, rowProps)
-    }
+function BaseSelectTrigger<
+  T extends ValidComponent = 'button',
+  TItem extends BaseSelectT.Item = BaseSelectT.Item,
+>(props: BaseSelectT.TriggerProps<T, TItem>): JSX.Element {
+  const state = useSelectState<TItem>()
+  const cn = useCn()
+  const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style', 'type', 'disabled'])
+  const children = createMemo(() => local.children)
+  const tag = () => local.as ?? 'button'
+  const eventProps = mergeProps(rest, {
+    onPointerDown(event: PointerEvent) {
+      callHandler(event, rest.onPointerDown)
+      if (
+        !event.defaultPrevented &&
+        !state.field.disabled() &&
+        event.pointerType !== 'touch' &&
+        event.pointerType !== 'pen'
+      ) {
+        event.preventDefault()
+        state.control()?.focus()
+      }
+    },
+    onKeyDown(event: KeyboardEvent) {
+      callHandler(event, rest.onKeyDown)
+      state.keyDown(event)
+    },
+    onFocus(event: FocusEvent) {
+      callHandler(event, rest.onFocus)
+      if (!event.defaultPrevented) {
+        state.field.emit('focus', event)
+      }
+    },
+    onBlur(event: FocusEvent) {
+      callHandler(event, rest.onBlur)
+      if (!event.defaultPrevented) {
+        state.field.emit('blur', event)
+      }
+    },
+  })
+  const binding = useButtonInteraction(
+    {
+      tag,
+      type: () => local.type ?? 'button',
+      typeForComponent: true,
+      disabledForComponent: true,
+      disabled: () => state.field.disabled() || Boolean(local.disabled),
+      onPress: () => () => {
+        state.control()?.focus()
+        state.setOpen(!state.open())
+      },
+    },
+    eventProps,
+  )
+  return (
+    <Dynamic
+      {...binding}
+      component={tag()}
+      {...state.field.ariaAttrs()}
+      id={state.field.id()}
+      role="combobox"
+      aria-haspopup="listbox"
+      aria-controls={state.listboxId()}
+      aria-expanded={state.open() ? 'true' : 'false'}
+      aria-activedescendant={
+        state.open() && state.highlight()
+          ? `${state.listboxId()}-${encodeURIComponent(state.highlight()!)}`
+          : undefined
+      }
+      class={cn(local.class)}
+      style={local.style}
+      ref={(element: HTMLElement) => {
+        state.setAnchor(element)
+        state.setControl(element)
+        callRef(rest.ref, element)
+        onCleanup(() => {
+          if (state.control() === element) {
+            state.setControl(undefined)
+          }
+          if (state.anchor() === element) {
+            state.setAnchor(undefined)
+          }
+          callRef(rest.ref, undefined)
+        })
+      }}
+    >
+      {typeof children() === 'function'
+        ? (children() as (state: BaseSelectT.TriggerState<TItem>) => JSX.Element)(
+            state.presentation,
+          )
+        : children()}
+    </Dynamic>
+  )
+}
 
-    const option = entry as NormalizedOption<TItem> | NormalizedGroup<TItem>
-    if (!option.isGroup) {
-      return renderVisibleOption(option)
-    }
-
-    const groupLabelId = `${listboxId()}-group-${index}-label`
-
-    return (
-      <div
-        data-slot="group"
-        role="group"
-        aria-labelledby={groupLabelId}
-        {...resolved.slot('group')}
-      >
-        <span id={groupLabelId} data-slot="label" aria-hidden="true" {...resolved.slot('label')}>
-          {option.label}
-        </span>
-        <For each={option.options}>{(item) => renderVisibleOption(item)}</For>
-      </div>
-    )
-  }
-
+function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
+  const state = useSelectState()
+  const cn = useCn()
+  const [local, rest] = splitProps(props, [
+    'children',
+    'ref',
+    'class',
+    'style',
+    'gutter',
+    'overflowPadding',
+  ])
+  const presence = useTransitionPresence({ open: state.open })
+  const [content, setContent] = createSignal<HTMLDivElement>()
+  const [positioner, setPositioner] = createSignal<HTMLDivElement>()
+  const [side, setSide] = createSignal('bottom')
+  useFloatingPosition({
+    contentElement: content,
+    floatingElement: positioner,
+    getReferenceElement: state.anchor,
+    gutter: () => local.gutter ?? 0,
+    onPositionedChange: () => undefined,
+    onPlacementChange: (placement) => setSide(placement.split('-')[0] ?? 'bottom'),
+    open: presence.present,
+    overflowPadding: () => local.overflowPadding ?? 4,
+    placement: () => 'bottom-start',
+  })
+  createEffect(
+    on(presence.present, (present) => {
+      if (present) {
+        onCleanup(acquireBodyScrollLock(state.anchor()))
+      } else {
+        presence.setElement(undefined)
+      }
+    }),
+  )
+  createEffect(
+    on([content, positioner], ([element, wrapper]) => {
+      if (element && wrapper) {
+        // oxlint-disable-next-line subf/solid-reactivity -- Positioning checks the currently mounted popup elements.
+        queueMicrotask(() => {
+          if (content() === element && positioner() === wrapper) {
+            wrapper.style.zIndex = getComputedStyle(element).zIndex
+          }
+        })
+      }
+    }),
+  )
+  useOverlayInteraction({
+    containsTarget: (node) =>
+      Boolean(state.anchor()?.contains(node) || positioner()?.contains(node)),
+    onPointerOutside: (event) => {
+      if (!event.defaultPrevented) {
+        state.setOpen(false)
+      }
+    },
+    onFocusOutside: (event) => {
+      if (!event.defaultPrevented) {
+        state.setOpen(false)
+      }
+    },
+    onEscape: (event) => {
+      if (!event.defaultPrevented) {
+        event.preventDefault()
+        state.setOpen(false)
+      }
+    },
+    contentElement: content,
+    enabled: state.open,
+    outsidePressEvent: 'pointerdown',
+    requireContent: true,
+    triggerElement: state.anchor,
+  })
+  return (
+    <Show when={presence.present()}>
+      <Portal>
+        <div
+          data-slot="positioner"
+          ref={(element) => {
+            setPositioner(element)
+            element.style.position = 'absolute'
+            element.style.visibility = 'hidden'
+          }}
+          class="left-0 top-0 absolute"
+        >
+          <div
+            {...rest}
+            {...presence.dataAttrs()}
+            data-slot="content"
+            data-side={side()}
+            ref={(element) => {
+              setContent(element)
+              presence.setElement(element)
+              callRef(local.ref, element)
+            }}
+            class={cn(state.styles.slot('content').class, local.class)}
+            style={{
+              ...state.styles.slot('content').style,
+              ...(typeof local.style === 'object' ? local.style : {}),
+            }}
+          >
+            {local.children}
+          </div>
+        </div>
+      </Portal>
+    </Show>
+  )
+}
+function BaseSelectListbox(props: BaseSelectT.PartProps): JSX.Element {
+  const state = useSelectState()
+  const cn = useCn()
+  const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
+  createEffect(
+    on([state.highlight, state.open, state.listbox], ([key, open, listbox]) => {
+      if (!key || !open || !listbox) {
+        return
+      }
+      // oxlint-disable-next-line subf/solid-reactivity -- Wait for row attributes to update, then verify the current listbox.
+      queueMicrotask(() => {
+        if (state.listbox() !== listbox || !state.open() || state.highlight() !== key) {
+          return
+        }
+        const item = listbox.ownerDocument.getElementById(
+          `${state.listboxId()}-${encodeURIComponent(key)}`,
+        )
+        if (item && listbox.contains(item)) {
+          item.scrollIntoView?.({ block: 'nearest' })
+        }
+      })
+    }),
+  )
   return (
     <div
-      ref={(element) => callRef(local.ref, element)}
-      data-slot="root"
-      data-disabled={field.disabled() ? '' : undefined}
-      data-invalid={field.invalid() ? '' : undefined}
-      data-required={field.required() ? '' : undefined}
-      data-readonly={field.readOnly() ? '' : undefined}
       {...rest}
-      {...resolved.root}
+      id={state.listboxId()}
+      role="listbox"
+      aria-multiselectable={state.props.multiple || undefined}
+      data-slot="listbox"
+      ref={(element) => {
+        state.setListbox(element)
+        callRef(local.ref, element)
+        onCleanup(() => {
+          if (state.listbox() === element) {
+            state.setListbox(undefined)
+          }
+        })
+      }}
+      class={cn(state.styles.slot('listbox').class, local.class)}
+      style={{
+        ...state.styles.slot('listbox').style,
+        ...(typeof local.style === 'object' ? local.style : {}),
+      }}
     >
-      <HiddenInput
-        ref={(element) => {
-          validationInputRef = element
-        }}
-        type="text"
-        aria-hidden="true"
-        autocomplete="off"
-        disabled={field.disabled()}
-        required={field.required()}
-        tabIndex={-1}
-        value={validationValue()}
-        onInput={(event) => {
-          event.currentTarget.value = validationValue()
-        }}
-        onChange={(event) => {
-          event.currentTarget.value = validationValue()
-        }}
-        onInvalid={(event) => {
-          event.preventDefault()
-          comboboxRef?.focus()
-        }}
-      />
-      <For each={formValues()}>
-        {(value) => (
-          <HiddenInput
-            type="hidden"
-            visuallyHidden={false}
-            name={field.name()}
-            value={value}
-            disabled={field.disabled()}
-          />
-        )}
-      </For>
-
-      {childrenRender()({
-        ...stateApi,
-        controlProps,
-        focusInput: () => comboboxRef?.focus(),
-        inputProps,
-        isSearchable,
-        onInput: handleInput,
-        onKeyDown: handleKeyDown,
-        toggle: menuControl.toggleMenu,
-        resolved,
-      })}
-
-      <Show when={contentPresence.present()}>
-        <Portal>
-          <div
-            ref={(element) => {
-              setPositionerElement(element)
-              if (element) {
-                element.style.position = 'absolute'
-                element.style.visibility = 'hidden'
-              }
-            }}
-            data-slot="positioner"
-            class={'left-0 top-0 absolute'}
-          >
-            <div
-              {...contentPresence.dataAttrs()}
-              ref={(element) => {
-                setContentElement(element)
-                contentPresence.setElement(element)
-              }}
-              data-slot="content"
-              data-side={contentSide()}
-              class={resolved.slot('content').class}
-              style={{
-                '--mo-popper-content-transform-origin': undefined,
-                ...resolved.slot('content').style,
-              }}
-            >
-              <Show
-                when={visibleFlatOptions().length > 0}
-                fallback={
-                  emptyRender() !== undefined
-                    ? renderComponentOrElement(emptyRender(), stateApi)
-                    : renderComponentOrElement(optionRender(), { option: null })
-                }
-              >
-                <RuntimeList
-                  as="div"
-                  items={listEntries()}
-                  itemRender={(context) =>
-                    renderListEntry(context.item, context.index, context.props)
-                  }
-                  virtualRender={
-                    virtualRender() as
-                      | Component<
-                          ListT.VirtualRenderProps<SelectListEntry, HTMLElement, HTMLDivElement>
-                        >
-                      | undefined
-                  }
-                  id={listboxId()}
-                  role="listbox"
-                  aria-multiselectable={merged.multiple || undefined}
-                  data-slot="listbox"
-                  {...merged.listboxProps}
-                  ref={(element: HTMLDivElement) => {
-                    listboxRef = element
-                    callRef(merged.listboxProps?.ref, element)
-                  }}
-                  class={cn(resolved.slot('listbox').class, merged.listboxProps?.class)}
-                  style={{
-                    ...toStyleObject(merged.listboxProps?.style),
-                    ...resolved.slot('listbox').style,
-                  }}
-                  onScroll={(event: Event) => {
-                    const { defaultPrevented } = callHandler(event, merged.listboxProps?.onScroll)
-                    if (!defaultPrevented) {
-                      handleListboxScroll(event)
-                    }
-                  }}
-                />
-              </Show>
-            </div>
-          </div>
-        </Portal>
-      </Show>
+      {local.children}
     </div>
   )
 }
+function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps<T>): JSX.Element {
+  const state = useSelectState<T>()
+  const cn = useCn()
+  const [local, rest] = splitProps(props, [
+    'item',
+    'children',
+    'class',
+    'style',
+    'ref',
+    'onClick',
+    'onPointerMove',
+    'onPointerDown',
+  ])
+  const children = createMemo(() => local.children)
+  const item = createMemo(() => {
+    const canonical = state.collection().byValue.get(itemKey(local.item.value))
+    if (!canonical) {
+      throw new Error(
+        `[Moraine BaseSelect] Item value ${String(local.item.value)} is not in the canonical collection.`,
+      )
+    }
+    return canonical
+  })
+  const selected = () => state.selectedKeys().has(itemKey(item().value))
+  const highlighted = () => state.highlight() === itemKey(item().value)
+  const disabled = () => state.itemDisabled(item())
+  const presentation: BaseSelectT.ItemState<T> = {
+    get item() {
+      return item()
+    },
+    get selected() {
+      return selected()
+    },
+    get highlighted() {
+      return highlighted()
+    },
+    get disabled() {
+      return disabled()
+    },
+  }
+  return (
+    <div
+      {...rest}
+      ref={(element) => callRef(local.ref, element)}
+      id={state.itemId(item().value)}
+      role="option"
+      tabIndex={-1}
+      data-slot="item"
+      aria-selected={selected() ? 'true' : 'false'}
+      aria-disabled={disabled() || undefined}
+      data-selected={selected() ? '' : undefined}
+      data-highlighted={highlighted() ? '' : undefined}
+      data-disabled={disabled() ? '' : undefined}
+      class={cn(state.styles.slot('item').class, local.class)}
+      style={{
+        ...state.styles.slot('item').style,
+        ...(typeof local.style === 'object' ? local.style : {}),
+      }}
+      onPointerMove={(event) => {
+        callHandler(event, local.onPointerMove)
+        if (
+          !event.defaultPrevented &&
+          event.pointerType === 'mouse' &&
+          !disabled() &&
+          !state.locked()
+        ) {
+          state.setHighlight(itemKey(item().value))
+        }
+      }}
+      onPointerDown={(event) => {
+        callHandler(event, local.onPointerDown)
+        if (
+          !event.defaultPrevented &&
+          event.pointerType !== 'touch' &&
+          event.pointerType !== 'pen'
+        ) {
+          event.preventDefault()
+        }
+      }}
+      onClick={(event) => {
+        callHandler(event, local.onClick)
+        if (!event.defaultPrevented && !disabled() && !state.locked()) {
+          state.setHighlight(itemKey(item().value))
+          state.select(item())
+        }
+      }}
+    >
+      {typeof children() === 'function'
+        ? (children() as (state: BaseSelectT.ItemState<T>) => JSX.Element)(presentation)
+        : ((children() as JSX.Element) ?? item().label)}
+    </div>
+  )
+}
+const GroupContext = createContext<{
+  id: Accessor<string>
+  labelId: Accessor<string | undefined>
+  setLabelId: (id: string | undefined) => void
+}>()
+function BaseSelectGroup(props: BaseSelectT.PartProps): JSX.Element {
+  const state = useSelectState()
+  const cn = useCn()
+  const id = useId(undefined, 'base-select-group-label')
+  const [labelId, setLabelId] = createSignal<string>()
+  return (
+    <GroupContext.Provider value={{ id, labelId, setLabelId }}>
+      <div
+        {...props}
+        role="group"
+        aria-labelledby={labelId() ?? id()}
+        data-slot="group"
+        class={cn(state.styles.slot('group').class, props.class)}
+        style={{
+          ...state.styles.slot('group').style,
+          ...(typeof props.style === 'object' ? props.style : {}),
+        }}
+      >
+        {props.children}
+      </div>
+    </GroupContext.Provider>
+  )
+}
+function BaseSelectGroupLabel(props: BaseSelectT.PartProps): JSX.Element {
+  const state = useSelectState()
+  const cn = useCn()
+  const group = useContext(GroupContext)
+  const id = useId(() => props.id ?? group?.id(), 'base-select-group-label')
+  createEffect(
+    on(id, (value) => {
+      group?.setLabelId(value)
+      onCleanup(() => group?.setLabelId(undefined))
+    }),
+  )
+  return (
+    <div
+      {...props}
+      id={id()}
+      data-slot="groupLabel"
+      class={cn(state.styles.slot('groupLabel').class, props.class)}
+      style={{
+        ...state.styles.slot('groupLabel').style,
+        ...(typeof props.style === 'object' ? props.style : {}),
+      }}
+    >
+      {props.children}
+    </div>
+  )
+}
+function BaseSelectSeparator(props: BaseSelectT.PartProps): JSX.Element {
+  const state = useSelectState()
+  const cn = useCn()
+  return (
+    <div
+      {...props}
+      role="presentation"
+      aria-hidden="true"
+      data-slot="separator"
+      class={cn(state.styles.slot('separator').class, props.class)}
+      style={{
+        ...state.styles.slot('separator').style,
+        ...(typeof props.style === 'object' ? props.style : {}),
+      }}
+    />
+  )
+}
+function BaseSelectEmpty(props: BaseSelectT.PartProps): JSX.Element {
+  const state = useSelectState()
+  const cn = useCn()
+  return (
+    <Show when={state.visibleItems().length === 0}>
+      <div
+        {...props}
+        data-slot="empty"
+        class={cn(state.styles.slot('empty').class, props.class)}
+        style={{
+          ...state.styles.slot('empty').style,
+          ...(typeof props.style === 'object' ? props.style : {}),
+        }}
+      >
+        {props.children}
+      </div>
+    </Show>
+  )
+}
+BaseSelect.Trigger = BaseSelectTrigger
+BaseSelect.Content = BaseSelectContent
+BaseSelect.Listbox = BaseSelectListbox
+BaseSelect.Item = BaseSelectItem
+BaseSelect.Group = BaseSelectGroup
+BaseSelect.GroupLabel = BaseSelectGroupLabel
+BaseSelect.Separator = BaseSelectSeparator
+BaseSelect.Empty = BaseSelectEmpty

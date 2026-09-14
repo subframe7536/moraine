@@ -37,6 +37,15 @@
       "kind": "single"
     },
     {
+      "key": "base-select",
+      "name": "BaseSelect",
+      "category": "forms",
+      "polymorphic": false,
+      "description": "Public selection primitive with a canonical collection and form ownership.",
+      "sourcePath": "src/forms/select/base-select.tsx",
+      "kind": "composite"
+    },
+    {
       "key": "breadcrumb",
       "name": "Breadcrumb",
       "category": "navigation",
@@ -229,7 +238,7 @@
       "name": "MultiSelect",
       "category": "forms",
       "polymorphic": false,
-      "description": "Dropdown select component with search, multi-select, and custom item rendering.",
+      "description": "Multiple selection with tags, search, and optional item creation.",
       "sourcePath": "src/forms/select/multi-select.tsx",
       "kind": "single"
     },
@@ -283,7 +292,7 @@
       "name": "Select",
       "category": "forms",
       "polymorphic": false,
-      "description": "Dropdown select component with search and custom item rendering.",
+      "description": "Single selection with optional search and standard item presentation.",
       "sourcePath": "src/forms/select/select.tsx",
       "kind": "single"
     },

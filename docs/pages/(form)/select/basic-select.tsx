@@ -18,7 +18,7 @@ export function BasicSelect() {
       <Select
         search
         placeholder="Select a country..."
-        options={COUNTRIES}
+        items={COUNTRIES}
         value={selected()}
         onChange={setSelected}
         allowClear

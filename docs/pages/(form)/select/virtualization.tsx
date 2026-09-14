@@ -21,8 +21,8 @@ export function Virtualization() {
   return (
     <div class="w-80">
       <Select
-        options={OPTIONS}
-        placeholder="Pick one of 10,000 options..."
+        items={OPTIONS}
+        placeholder="Pick one of 10,000 items..."
         virtualRender={virtualizer.virtualRender}
         scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
         classes={{ listbox: 'h-80 max-h-80' }}

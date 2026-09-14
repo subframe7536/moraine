@@ -9,7 +9,7 @@ export function renderMultiSelectFixture(): string {
       name="fruits"
       search
       defaultValue={['apple']}
-      options={[
+      items={[
         { value: 'apple', label: 'Apple', description: 'Crisp' },
         { value: 'banana', label: 'Banana', description: 'Sweet' },
       ]}

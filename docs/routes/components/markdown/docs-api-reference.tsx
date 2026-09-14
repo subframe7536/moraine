@@ -592,7 +592,7 @@ function AttributesSection(props: { section: PropsTableSection }): JSX.Element {
           }
         >
           <Select
-            options={slotOptions().map((slot) => ({
+            items={slotOptions().map((slot) => ({
               label: `${slot.name} (${getSlotMetadataCount(slot)})`,
               value: slot.name,
             }))}

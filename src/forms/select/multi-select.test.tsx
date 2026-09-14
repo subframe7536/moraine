@@ -13,8 +13,8 @@ import { createForm } from '../form'
 import { MultiSelect } from './multi-select'
 import type { MultiSelectProps, MultiSelectT } from './multi-select.types'
 
-const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
+const render: typeof baseRender = (ui, items) =>
+  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, items)
 
 const FRUITS: MultiSelectT.Item[] = [
   { label: 'Apple', value: 'apple' },
@@ -43,7 +43,7 @@ async function finishSelectExitMotion(): Promise<void> {
 
 describe('MultiSelect', () => {
   test('renders unstyled when provider is absent', () => {
-    const screen = baseRender(() => <MultiSelect options={FRUITS} placeholder="Unstyled" />)
+    const screen = baseRender(() => <MultiSelect items={FRUITS} placeholder="Unstyled" />)
     const root = screen.container.querySelector('[data-slot="root"]')
     const control = screen.container.querySelector('[data-slot="control"]')
     expect(root?.className).toBe('')
@@ -58,7 +58,7 @@ describe('MultiSelect', () => {
       <MultiSelect
         ref={(el) => (rootEl = el)}
         inputRef={(el) => (inputEl = el)}
-        options={FRUITS}
+        items={FRUITS}
         placeholder="Ref test"
       />
     ))
@@ -72,7 +72,7 @@ describe('MultiSelect', () => {
       <MoraineProvider
         theme={createTheme({ extends: defaultTheme, multiSelect: { defaults: { size: 'lg' } } })}
       >
-        <MultiSelect options={FRUITS} />
+        <MultiSelect items={FRUITS} />
       </MoraineProvider>
     ))
 
@@ -86,7 +86,7 @@ describe('MultiSelect', () => {
       <MoraineProvider
         theme={createTheme({ extends: defaultTheme, multiSelect: { defaults: { search: true } } })}
       >
-        <MultiSelect options={FRUITS} placeholder="Search fruits" />
+        <MultiSelect items={FRUITS} placeholder="Search fruits" />
       </MoraineProvider>
     ))
 
@@ -109,7 +109,7 @@ describe('MultiSelect', () => {
       >
         <MultiSelect
           data-testid="multi-select-root"
-          options={FRUITS}
+          items={FRUITS}
           classes={{ root: 'w-32 px-2 instance-root' }}
           class="final-root w-48"
           styles={{ root: { width: '200px', background: 'blue' } }}
@@ -145,7 +145,7 @@ describe('MultiSelect', () => {
         })}
       >
         <MultiSelect
-          options={FRUITS}
+          items={FRUITS}
           defaultOpen
           classes={{ content: 'p-4 w-48 instance-content' }}
           styles={{ content: { color: 'blue' } }}
@@ -167,7 +167,7 @@ describe('MultiSelect', () => {
   test('applies tagLabel slot classes and styles directly without child selectors', () => {
     const screen = render(() => (
       <MultiSelect
-        options={FRUITS}
+        items={FRUITS}
         value={['apple']}
         classes={{ tagLabel: 'custom-tag-label font-bold' }}
         styles={{ tagLabel: { 'letter-spacing': '1px' } }}
@@ -205,7 +205,7 @@ describe('MultiSelect', () => {
       <MoraineProvider theme={createTheme({ extends: defaultTheme, ...providerConfig() })}>
         <MultiSelect
           data-testid="reactive-multi-select"
-          options={FRUITS}
+          items={FRUITS}
           classes={instanceClasses()}
           styles={instanceStyles()}
         />
@@ -239,17 +239,17 @@ describe('MultiSelect', () => {
   })
 
   test('renders tags for selected values', () => {
-    const screen = render(() => <MultiSelect options={FRUITS} value={['apple', 'banana']} />)
+    const screen = render(() => <MultiSelect items={FRUITS} value={['apple', 'banana']} />)
 
     const tags = screen.container.querySelectorAll('[data-slot="tag"]')
     expect(tags.length).toBe(2)
   })
 
-  test('keeps tag and FormData order stable when options reorder', () => {
-    const [options, setOptions] = createSignal(FRUITS)
+  test('keeps tag and FormData order stable when items reorder', () => {
+    const [items, setOptions] = createSignal(FRUITS)
     const screen = render(() => (
       <form>
-        <MultiSelect name="fruits" options={options()} value={['banana', 'apple']} />
+        <MultiSelect name="fruits" items={items()} value={['banana', 'apple']} />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -273,7 +273,7 @@ describe('MultiSelect', () => {
       <form>
         <MultiSelect
           name="fruits"
-          options={FRUITS}
+          items={FRUITS}
           defaultValue={['apple', 'dragonfruit']}
           defaultOpen
           onChange={onChange}
@@ -299,7 +299,7 @@ describe('MultiSelect', () => {
       <form>
         <MultiSelect<string | number>
           name="choices"
-          options={[
+          items={[
             { label: 'Numeric one', value: 1 },
             { label: 'String one', value: '1' },
             { label: 'Numeric two', value: 2 },
@@ -326,7 +326,7 @@ describe('MultiSelect', () => {
   test('labels tag removal, preserves input focus, and removes once', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect search options={FRUITS} value={['apple']} onChange={onChange} />
+      <MultiSelect search items={FRUITS} value={['apple']} onChange={onChange} />
     ))
     const input = screen.getByRole('combobox')
     const remove = screen.getByRole('button', { name: 'Remove Apple' })
@@ -345,7 +345,7 @@ describe('MultiSelect', () => {
   test('keeps tag removal inert when the multi-select is disabled', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect options={FRUITS} value={['apple']} disabled onChange={onChange} />
+      <MultiSelect items={FRUITS} value={['apple']} disabled onChange={onChange} />
     ))
     const tag = screen.container.querySelector('[data-slot="tag"]')!
     const removeButton = tag.querySelector('button[data-slot="tagRemove"]') as HTMLButtonElement
@@ -362,7 +362,7 @@ describe('MultiSelect', () => {
   test('preserves tag remove button layout and classes when toggling disabled', () => {
     const [isDisabled, setIsDisabled] = createSignal(false)
     const screen = render(() => (
-      <MultiSelect options={FRUITS} value={['apple']} disabled={isDisabled()} />
+      <MultiSelect items={FRUITS} value={['apple']} disabled={isDisabled()} />
     ))
     const tag = screen.container.querySelector('[data-slot="tag"]')!
     const removeButton = () =>
@@ -382,7 +382,7 @@ describe('MultiSelect', () => {
   })
 
   test('focuses the input when the selected tag label is pressed', () => {
-    const screen = render(() => <MultiSelect search options={FRUITS} value={['apple']} />)
+    const screen = render(() => <MultiSelect search items={FRUITS} value={['apple']} />)
     const input = screen.getByRole<HTMLInputElement>('combobox')
     const label = screen.container.querySelector('[data-slot="tag"] [data-slot="label"]')!
 
@@ -394,7 +394,7 @@ describe('MultiSelect', () => {
   test('removes the last selected value with Backspace from an empty input', () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect search options={FRUITS} defaultValue={['apple', 'banana']} onChange={onChange} />
+      <MultiSelect search items={FRUITS} defaultValue={['apple', 'banana']} onChange={onChange} />
     ))
     const input = screen.getByRole<HTMLInputElement>('combobox')
     input.focus()
@@ -421,7 +421,7 @@ describe('MultiSelect', () => {
   test('does not remove tags for text edits, ranges, Delete, or disabled input', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect search options={FRUITS} defaultValue={['apple', 'banana']} onChange={onChange} />
+      <MultiSelect search items={FRUITS} defaultValue={['apple', 'banana']} onChange={onChange} />
     ))
     const input = screen.getByRole<HTMLInputElement>('combobox')
 
@@ -440,7 +440,7 @@ describe('MultiSelect', () => {
       <MultiSelect
         search
         disabled
-        options={FRUITS}
+        items={FRUITS}
         defaultValue={['apple', 'banana']}
         onChange={disabledOnChange}
       />
@@ -457,7 +457,7 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect
         search
-        options={FRUITS}
+        items={FRUITS}
         defaultValue={['apple', 'dragonfruit']}
         onChange={onChange}
       />
@@ -474,7 +474,7 @@ describe('MultiSelect', () => {
 
   test('calls onChange with array of values', async () => {
     const onChange = vi.fn()
-    render(() => <MultiSelect options={FRUITS} defaultOpen onChange={onChange} />)
+    render(() => <MultiSelect items={FRUITS} defaultOpen onChange={onChange} />)
 
     const items = queryAllBody('[data-slot="item"]')
     fireEvent.click(items[0]!)
@@ -494,7 +494,7 @@ describe('MultiSelect', () => {
       (form) => (
         <form.Form>
           <form.Field name="fruits" label="Fruits">
-            <MultiSelect options={FRUITS} value={['apple']} defaultOpen onChange={onChange} />
+            <MultiSelect items={FRUITS} value={['apple']} defaultOpen onChange={onChange} />
           </form.Field>
         </form.Form>
       ),
@@ -516,7 +516,7 @@ describe('MultiSelect', () => {
     const [value, setValue] = createSignal<Array<string | number>>(['apple'])
     const onChange = vi.fn((nextValue: Array<string | number>) => setValue(nextValue))
     const screen = render(() => (
-      <MultiSelect options={FRUITS} value={value()} defaultOpen onChange={onChange} />
+      <MultiSelect items={FRUITS} value={value()} defaultOpen onChange={onChange} />
     ))
 
     fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
@@ -541,7 +541,7 @@ describe('MultiSelect', () => {
       (form) => (
         <form.Form>
           <form.Field name="fruits" label="Fruits">
-            <MultiSelect options={FRUITS} onChange={onChange} />
+            <MultiSelect items={FRUITS} onChange={onChange} />
           </form.Field>
         </form.Form>
       ),
@@ -562,7 +562,7 @@ describe('MultiSelect', () => {
     const scrollToItem = vi.fn()
     const screen = render(() => (
       <MultiSelect
-        options={FRUITS}
+        items={FRUITS}
         defaultOpen
         scrollToItem={(item, index) => {
           scrollToItem(item, index)
@@ -594,7 +594,7 @@ describe('MultiSelect', () => {
     const onChange = vi.fn()
     render(() => (
       <MultiSelect
-        options={FRUITS}
+        items={FRUITS}
         defaultValue={['apple']}
         defaultOpen
         onChange={onChange}
@@ -608,8 +608,8 @@ describe('MultiSelect', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('disables non-selected options when maxCount is reached', () => {
-    render(() => <MultiSelect options={FRUITS} defaultOpen defaultValue={['apple']} maxCount={1} />)
+  test('disables non-selected items when maxCount is reached', () => {
+    render(() => <MultiSelect items={FRUITS} defaultOpen defaultValue={['apple']} maxCount={1} />)
 
     const items = queryAllBody('[data-slot="item"]')
     expect(items[0]?.getAttribute('aria-disabled')).toBeNull()
@@ -622,7 +622,7 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect
         search
-        options={FRUITS}
+        items={FRUITS}
         tokenSeparators={[',']}
         onChange={onChange}
         placeholder="Type..."
@@ -644,7 +644,7 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect
         search
-        options={FRUITS}
+        items={FRUITS}
         tokenSeparators={[',']}
         onChange={onChange}
         onSearch={onSearch}
@@ -667,7 +667,7 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect
         search
-        options={FRUITS}
+        items={FRUITS}
         tokenSeparators={['::']}
         onChange={onChange}
         onSearch={onSearch}
@@ -686,7 +686,7 @@ describe('MultiSelect', () => {
   test('defers token commits until IME composition ends', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect search options={FRUITS} tokenSeparators={[',']} onChange={onChange} />
+      <MultiSelect search items={FRUITS} tokenSeparators={[',']} onChange={onChange} />
     ))
     const input = screen.getByRole<HTMLInputElement>('combobox')
 
@@ -708,7 +708,7 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect
         search
-        options={FRUITS}
+        items={FRUITS}
         tokenSeparators={[',']}
         defaultValue={['apple']}
         maxCount={1}
@@ -728,7 +728,7 @@ describe('MultiSelect', () => {
   test('creates tag on Enter when allowCreate is true', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect search options={FRUITS} defaultOpen allowCreate onChange={onChange} />
+      <MultiSelect search items={FRUITS} defaultOpen allowCreate onChange={onChange} />
     ))
 
     const input = screen.getByRole<HTMLInputElement>('combobox')
@@ -744,7 +744,7 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect
         search
-        options={FRUITS}
+        items={FRUITS}
         defaultOpen
         allowCreate
         defaultValue={['apple']}
@@ -764,7 +764,7 @@ describe('MultiSelect', () => {
   test('does not create tag on Enter when allowCreate is false', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect search options={FRUITS} defaultOpen onChange={onChange} />
+      <MultiSelect search items={FRUITS} defaultOpen onChange={onChange} />
     ))
 
     const input = screen.getByRole<HTMLInputElement>('combobox')
@@ -780,7 +780,7 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect
         search
-        options={FRUITS}
+        items={FRUITS}
         defaultOpen
         defaultValue={['apple']}
         maxCount={1}
@@ -799,7 +799,7 @@ describe('MultiSelect', () => {
   test('does not select disabled option on Enter', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect search options={FRUITS} defaultOpen onChange={onChange} />
+      <MultiSelect search items={FRUITS} defaultOpen onChange={onChange} />
     ))
 
     const input = screen.getByRole<HTMLInputElement>('combobox')
@@ -812,7 +812,7 @@ describe('MultiSelect', () => {
 
   test('shows +N overflow when maxTagCount is reached', () => {
     const screen = render(() => (
-      <MultiSelect options={FRUITS} value={['apple', 'banana']} maxTagCount={1} />
+      <MultiSelect items={FRUITS} value={['apple', 'banana']} maxTagCount={1} />
     ))
 
     const tags = screen.container.querySelectorAll('[data-slot="tag"]')
@@ -822,9 +822,9 @@ describe('MultiSelect', () => {
   })
 
   test('opens dropdown and focuses combobox when control shell is clicked', async () => {
-    const screen = render(() => <MultiSelect options={FRUITS} placeholder="Pick fruits" />)
+    const screen = render(() => <MultiSelect items={FRUITS} placeholder="Pick fruits" />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
-    const combobox = screen.container.querySelector('input[role="combobox"]') as HTMLElement
+    const combobox = screen.getByRole('combobox')
 
     fireEvent.pointerDown(control, { button: 0 })
     fireEvent.click(control)
@@ -837,7 +837,7 @@ describe('MultiSelect', () => {
   })
 
   test('non-search control does not show focus ring on pointer click', async () => {
-    const screen = render(() => <MultiSelect options={FRUITS} placeholder="Pick fruits" />)
+    const screen = render(() => <MultiSelect items={FRUITS} placeholder="Pick fruits" />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
     fireEvent.pointerDown(control, { button: 0 })
@@ -850,7 +850,7 @@ describe('MultiSelect', () => {
   })
 
   test('non-search control uses focus-visible ring styling for keyboard focus', () => {
-    const screen = render(() => <MultiSelect options={FRUITS} placeholder="Pick fruits" />)
+    const screen = render(() => <MultiSelect items={FRUITS} placeholder="Pick fruits" />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
     control.focus()
@@ -860,7 +860,7 @@ describe('MultiSelect', () => {
   })
 
   test('searchable control keeps focus-within ring styling', () => {
-    const screen = render(() => <MultiSelect options={FRUITS} search placeholder="Pick fruits" />)
+    const screen = render(() => <MultiSelect items={FRUITS} search placeholder="Pick fruits" />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
     expect(control.className).toContain('focus-within:ring-ring/50')
@@ -869,7 +869,7 @@ describe('MultiSelect', () => {
 
   test('after trigger click, ArrowDown selects the first option', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <MultiSelect options={FRUITS} onChange={onChange} />)
+    const screen = render(() => <MultiSelect items={FRUITS} onChange={onChange} />)
     const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
     fireEvent.click(trigger)
@@ -885,7 +885,7 @@ describe('MultiSelect', () => {
   })
 
   test('renders non-search placeholder as presentation-only text', () => {
-    const screen = render(() => <MultiSelect options={FRUITS} placeholder="Pick fruits" />)
+    const screen = render(() => <MultiSelect items={FRUITS} placeholder="Pick fruits" />)
 
     const input = screen.container.querySelector('[data-slot="input"]') as HTMLElement
     expect(input.tagName).toBe('INPUT')
@@ -896,7 +896,7 @@ describe('MultiSelect', () => {
 
   test('when menu is open, Tab toggles focused item', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <MultiSelect options={FRUITS} search onChange={onChange} />)
+    const screen = render(() => <MultiSelect items={FRUITS} search onChange={onChange} />)
     const input = screen.getByRole<HTMLInputElement>('combobox')
 
     input.focus()
@@ -922,7 +922,7 @@ describe('MultiSelect', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <>
-        <MultiSelect options={FRUITS} onChange={onChange} />
+        <MultiSelect items={FRUITS} onChange={onChange} />
         <button type="button">Next</button>
       </>
     ))
@@ -951,7 +951,7 @@ describe('MultiSelect', () => {
 
   test('space toggles the highlighted option when menu is open', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <MultiSelect options={FRUITS} onChange={onChange} />)
+    const screen = render(() => <MultiSelect items={FRUITS} onChange={onChange} />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
     fireEvent.click(control)
@@ -967,13 +967,7 @@ describe('MultiSelect', () => {
 
   test('keeps the highlighted option until exit motion finishes', async () => {
     const screen = render(() => (
-      <MultiSelect
-        options={FRUITS}
-        search
-        defaultOpen
-        defaultValue={['banana']}
-        placeholder="Pick"
-      />
+      <MultiSelect items={FRUITS} search defaultOpen defaultValue={['banana']} placeholder="Pick" />
     ))
     const input = screen.getByRole<HTMLInputElement>('combobox')
 
@@ -995,15 +989,16 @@ describe('MultiSelect', () => {
     })
   })
 
-  test('passes null to optionRender for empty state', async () => {
+  test('renders empty state separately from non-null items', async () => {
     let receivedEmptyOption = false
     const screen = render(() => (
       <MultiSelect
         search
-        options={FRUITS}
+        items={FRUITS}
         defaultOpen
-        optionRender={(props) => {
-          receivedEmptyOption = props.option === null
+        emptyRender={() => <div data-testid="empty">Empty</div>}
+        itemRender={(props) => {
+          receivedEmptyOption ||= props.item === null
           return <div data-testid="empty">Empty</div>
         }}
       />
@@ -1013,14 +1008,14 @@ describe('MultiSelect', () => {
     fireEvent.input(input, { target: { value: 'xyznonexistent' } })
 
     await waitFor(() => {
-      expect(receivedEmptyOption).toBe(true)
+      expect(receivedEmptyOption).toBe(false)
       expect(queryBody('[data-testid="empty"]')).not.toBeNull()
     })
   })
 
-  test('renders default "No options" fallback when search has no matches', async () => {
+  test('renders default "No items" fallback when search has no matches', async () => {
     const screen = render(() => (
-      <MultiSelect search options={FRUITS} defaultOpen placeholder="Search..." />
+      <MultiSelect search items={FRUITS} defaultOpen placeholder="Search..." />
     ))
 
     const input = screen.getByRole<HTMLInputElement>('combobox')
@@ -1029,18 +1024,18 @@ describe('MultiSelect', () => {
     await waitFor(() => {
       const emptyNode = queryBody('[data-slot="empty"]')
       expect(emptyNode).not.toBeNull()
-      expect(emptyNode?.textContent).toBe('No options')
+      expect(emptyNode?.textContent).toBe('No items')
     })
   })
 
   test('uses tagRender for custom tag rendering', () => {
     const screen = render(() => (
       <MultiSelect
-        options={FRUITS}
+        items={FRUITS}
         value={['apple']}
         tagRender={(props) => (
           <span data-testid="custom-tag">
-            {props.option.label}
+            {props.item.label}
             <button onClick={props.onClose}>x</button>
           </span>
         )}
@@ -1052,9 +1047,8 @@ describe('MultiSelect', () => {
 
   test('resolves JSX-capable getters once and keeps closed popup trees lazy', async () => {
     const reads = {
-      optionRender: 0,
+      itemRender: 0,
       tagRender: 0,
-      labelRender: 0,
       emptyRender: 0,
       leadingIcon: 0,
       loadingIcon: 0,
@@ -1064,26 +1058,22 @@ describe('MultiSelect', () => {
     const instances = { option: 0, tag: 0, empty: 0 }
     const screen = render(() =>
       createComponent(MultiSelect, {
-        options: FRUITS,
+        items: FRUITS,
         defaultValue: ['apple'],
         loading: true,
-        get optionRender() {
-          reads.optionRender += 1
-          return (props: MultiSelectT.OptionRenderProps) => {
+        get itemRender() {
+          reads.itemRender += 1
+          return (props: MultiSelectT.ItemRenderProps) => {
             instances.option += 1
-            return <span>{props.option?.label}</span>
+            return <span>{props.item?.label}</span>
           }
         },
         get tagRender() {
           reads.tagRender += 1
           return (props: MultiSelectT.TagRenderProps) => {
             instances.tag += 1
-            return <span data-testid="getter-tag">{props.option.label}</span>
+            return <span data-testid="getter-tag">{props.item.label}</span>
           }
-        },
-        get labelRender() {
-          reads.labelRender += 1
-          return (props: MultiSelectT.LabelRenderProps) => <span>{props.option.label}</span>
         },
         get emptyRender() {
           reads.emptyRender += 1
@@ -1112,13 +1102,13 @@ describe('MultiSelect', () => {
     )
 
     expect(instances).toEqual({ option: 0, tag: 1, empty: 0 })
-    expect(Object.values(reads)).toEqual([1, 1, 1, 1, 1, 1, 1, 1])
+    expect(Object.values(reads)).toEqual([1, 1, 1, 1, 1, 1, 1])
 
     fireEvent.click(screen.container.querySelector('[data-slot="control"]')!)
 
     expect(queryAllBody('[data-slot="item"]')).toHaveLength(3)
     expect(instances).toEqual({ option: 3, tag: 1, empty: 0 })
-    expect(Object.values(reads)).toEqual([1, 1, 1, 1, 1, 1, 1, 1])
+    expect(Object.values(reads)).toEqual([1, 1, 1, 1, 1, 1, 1])
   })
 
   test('types onChange payload as array', () => {
@@ -1133,7 +1123,7 @@ describe('MultiSelect', () => {
   test('serializes selected values as repeated same-name entries in selection order', async () => {
     const screen = render(() => (
       <form>
-        <MultiSelect name="fruits" options={FRUITS} defaultOpen />
+        <MultiSelect name="fruits" items={FRUITS} defaultOpen />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -1158,7 +1148,7 @@ describe('MultiSelect', () => {
           tokenSeparators={[',']}
           defaultOpen
           defaultValue={['apple']}
-          options={FRUITS}
+          items={FRUITS}
           readOnly
           onChange={onChange}
         />
@@ -1195,7 +1185,7 @@ describe('MultiSelect', () => {
       <form>
         <MultiSelect<string | number>
           name="choices"
-          options={[
+          items={[
             { label: 'Numeric one', value: 1 },
             { label: 'String one', value: '1' },
             { label: 'Numeric two', value: 2 },
@@ -1217,7 +1207,7 @@ describe('MultiSelect', () => {
   test('uses selected values for required validity and serializes created tags', async () => {
     const screen = render(() => (
       <form>
-        <MultiSelect name="fruits" options={FRUITS} required search allowCreate />
+        <MultiSelect name="fruits" items={FRUITS} required search allowCreate />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -1236,7 +1226,7 @@ describe('MultiSelect', () => {
   test('omits disabled fields from native form data', () => {
     const screen = render(() => (
       <form>
-        <MultiSelect name="fruits" options={FRUITS} defaultValue={['apple']} disabled />
+        <MultiSelect name="fruits" items={FRUITS} defaultValue={['apple']} disabled />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -1246,7 +1236,7 @@ describe('MultiSelect', () => {
 
   test('shows loading icon when loading is true even if selection is not empty and allowClear is true', () => {
     const screen = render(() => (
-      <MultiSelect options={FRUITS} value={['apple']} loading allowClear placeholder="Pick" />
+      <MultiSelect items={FRUITS} value={['apple']} loading allowClear placeholder="Pick" />
     ))
 
     const trigger = screen.container.querySelector('[data-slot="trigger"]')
@@ -1266,7 +1256,7 @@ describe('MultiSelect', () => {
     const [isLoading, setIsLoading] = createSignal(true)
     const screen = render(() => (
       <MultiSelect
-        options={FRUITS}
+        items={FRUITS}
         value={['apple']}
         loading={isLoading()}
         allowClear
@@ -1291,7 +1281,7 @@ describe('MultiSelect', () => {
 
   test('aligns control padding with the tag gap and removes trigger hover background', () => {
     const screen = render(() => (
-      <MultiSelect options={FRUITS} size="md" leadingIcon="icon-search" placeholder="Pick" />
+      <MultiSelect items={FRUITS} size="md" leadingIcon="icon-search" placeholder="Pick" />
     ))
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
@@ -1301,7 +1291,7 @@ describe('MultiSelect', () => {
   })
 
   test('sizes tag and input rows from their content', () => {
-    const screen = render(() => <MultiSelect options={FRUITS} value={['apple', 'banana']} />)
+    const screen = render(() => <MultiSelect items={FRUITS} value={['apple', 'banana']} />)
     const tag = screen.container.querySelector('[data-slot="tag"]') as HTMLElement
     const tagRemove = screen.container.querySelector('[data-slot="tagRemove"]') as HTMLElement
     const input = screen.container.querySelector('[data-slot="input"]') as HTMLInputElement
@@ -1315,9 +1305,9 @@ describe('MultiSelect', () => {
   test('scales tags and inputs by size', () => {
     const screen = render(() => (
       <>
-        <MultiSelect options={FRUITS} size="sm" value={['apple']} />
-        <MultiSelect options={FRUITS} size="md" value={['apple']} />
-        <MultiSelect options={FRUITS} size="lg" value={['apple']} />
+        <MultiSelect items={FRUITS} size="sm" value={['apple']} />
+        <MultiSelect items={FRUITS} size="md" value={['apple']} />
+        <MultiSelect items={FRUITS} size="lg" value={['apple']} />
       </>
     ))
     const tags = Array.from(screen.container.querySelectorAll('[data-slot="tag"]'))
@@ -1338,7 +1328,7 @@ describe('MultiSelect', () => {
       <form>
         <MultiSelect
           name="fruits"
-          options={FRUITS}
+          items={FRUITS}
           search
           defaultOpen
           defaultValue={['apple']}
@@ -1370,7 +1360,7 @@ describe('MultiSelect', () => {
       <form>
         <MultiSelect
           name="fruits"
-          options={FRUITS}
+          items={FRUITS}
           value={['apple']}
           allowClear
           onChange={onChange}
@@ -1395,7 +1385,7 @@ describe('MultiSelect', () => {
     const onClear = vi.fn()
     const screen = render(() => (
       <MultiSelect
-        options={FRUITS}
+        items={FRUITS}
         value={value()}
         allowClear
         onChange={onChange}
@@ -1416,7 +1406,7 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect
         search
-        options={FRUITS}
+        items={FRUITS}
         defaultValue={['apple']}
         tokenSeparators={[',']}
         onChange={onChange}
@@ -1433,7 +1423,7 @@ describe('MultiSelect', () => {
   test('keeps tokenization inert while disabled', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect search disabled options={FRUITS} tokenSeparators={[',']} onChange={onChange} />
+      <MultiSelect search disabled items={FRUITS} tokenSeparators={[',']} onChange={onChange} />
     ))
     const input = screen.getByRole<HTMLInputElement>('combobox')
 
@@ -1451,7 +1441,7 @@ describe('MultiSelect', () => {
         <MultiSelect
           name="fruits"
           search
-          options={FRUITS}
+          items={FRUITS}
           defaultOpen
           defaultValue={defaultValue()}
           allowCreate
@@ -1488,7 +1478,7 @@ describe('MultiSelect', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <form>
-        <MultiSelect name="fruits" options={FRUITS} value={value()} onChange={onChange} />
+        <MultiSelect name="fruits" items={FRUITS} value={value()} onChange={onChange} />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -1512,7 +1502,7 @@ describe('MultiSelect', () => {
       <form onReset={(event) => event.preventDefault()}>
         <MultiSelect
           name="fruits"
-          options={FRUITS}
+          items={FRUITS}
           defaultValue={['apple']}
           defaultOpen
           onChange={onChange}

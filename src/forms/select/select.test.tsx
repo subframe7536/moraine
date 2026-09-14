@@ -14,8 +14,8 @@ import { MultiSelect } from './multi-select.tsx'
 import { Select } from './select'
 import type { SelectT } from './select.types'
 
-const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
+const render: typeof baseRender = (ui, items) =>
+  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, items)
 
 const FRUITS = [
   { label: 'Apple', value: 'apple' },
@@ -24,7 +24,7 @@ const FRUITS = [
 ]
 
 test('replaces the search query on selection and clears it with the selection', () => {
-  const screen = render(() => <Select search allowClear defaultOpen options={FRUITS} />)
+  const screen = render(() => <Select search allowClear defaultOpen items={FRUITS} />)
   const input = screen.container.querySelector<HTMLInputElement>('input[data-slot="input"]')!
   fireEvent.input(input, { target: { value: 'ba' } })
   fireEvent.click(queryAllBody('[data-slot="item"]')[0]!)
@@ -49,7 +49,7 @@ test('validates a committed selection in change mode', async () => {
     (form) => (
       <form.Form>
         <form.Field name="fruit">
-          <Select options={FRUITS} defaultOpen />
+          <Select items={FRUITS} defaultOpen />
         </form.Field>
       </form.Form>
     ),
@@ -62,7 +62,7 @@ test('does not publish a change when reselecting NaN', () => {
   const onChange = vi.fn()
   render(() => (
     <Select
-      options={[{ label: 'Unknown', value: Number.NaN }]}
+      items={[{ label: 'Unknown', value: Number.NaN }]}
       defaultValue={Number.NaN}
       defaultOpen
       onChange={onChange}
@@ -75,14 +75,16 @@ test('does not publish a change when reselecting NaN', () => {
 const GROUPED_OPTIONS = [
   {
     label: 'Fruits',
-    children: [
+    type: 'group' as const,
+    items: [
       { label: 'Apple', value: 'apple' },
       { label: 'Banana', value: 'banana' },
     ],
   },
   {
     label: 'Vegetables',
-    children: [
+    type: 'group' as const,
+    items: [
       { label: 'Carrot', value: 'carrot' },
       { label: 'Daikon', value: 'daikon' },
     ],
@@ -110,7 +112,7 @@ async function finishSelectExitMotion(): Promise<void> {
 }
 
 test('renders unstyled when provider is absent', () => {
-  const screen = baseRender(() => <Select options={FRUITS} placeholder="Unstyled" />)
+  const screen = baseRender(() => <Select items={FRUITS} placeholder="Unstyled" />)
   const root = screen.container.querySelector('[data-slot="root"]')
   const control = screen.container.querySelector('[data-slot="control"]')
   expect(root?.className).toBe('')
@@ -126,7 +128,7 @@ test('forwards root ref and inner inputRef when searchable', () => {
       ref={(el) => (rootEl = el)}
       inputRef={(el) => (inputEl = el)}
       search
-      options={FRUITS}
+      items={FRUITS}
       placeholder="Ref test"
     />
   ))
@@ -137,7 +139,7 @@ test('forwards root ref and inner inputRef when searchable', () => {
 })
 
 test('uses input sizing classes in single mode', () => {
-  const single = render(() => <Select options={FRUITS} size="sm" placeholder="SM" />)
+  const single = render(() => <Select items={FRUITS} size="sm" placeholder="SM" />)
   const singleInput = single.container.querySelector('[data-slot="input"]')
 
   expect(singleInput?.className).toContain('min-w-0')
@@ -150,7 +152,7 @@ test('uses the provider size as the field default', () => {
     <MoraineProvider
       theme={createTheme({ extends: defaultTheme, select: { defaults: { size: 'lg' } } })}
     >
-      <Select options={FRUITS} placeholder="Provider size" />
+      <Select items={FRUITS} placeholder="Provider size" />
     </MoraineProvider>
   ))
 
@@ -162,7 +164,7 @@ test('uses the provider search default for behavior and styles', () => {
     <MoraineProvider
       theme={createTheme({ extends: defaultTheme, select: { defaults: { search: true } } })}
     >
-      <Select options={FRUITS} placeholder="Search fruit" />
+      <Select items={FRUITS} placeholder="Search fruit" />
     </MoraineProvider>
   ))
 
@@ -175,7 +177,7 @@ test('uses the provider search default for behavior and styles', () => {
 
 test('keeps control spacing on the control instead of its icons and input', () => {
   const screen = render(() => (
-    <Select options={FRUITS} size="md" leadingIcon="icon-search" placeholder="Pick" />
+    <Select items={FRUITS} size="md" leadingIcon="icon-search" placeholder="Pick" />
   ))
   const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
   const input = screen.container.querySelector('[data-slot="input"]') as HTMLElement
@@ -196,7 +198,7 @@ describe('Select - single mode', () => {
   test('accepts static JSX for the empty state', () => {
     render(() => (
       <Select
-        options={[]}
+        items={[]}
         defaultOpen
         emptyRender={<span data-testid="static-empty">Nothing available</span>}
       />
@@ -210,8 +212,8 @@ describe('Select - single mode', () => {
   test('supports the compact form size scale', () => {
     const screen = render(() => (
       <>
-        <Select options={FRUITS} size="sm" placeholder="SM" />
-        <Select options={FRUITS} size="lg" placeholder="LG" />
+        <Select items={FRUITS} size="sm" placeholder="SM" />
+        <Select items={FRUITS} size="lg" placeholder="LG" />
       </>
     ))
 
@@ -222,7 +224,7 @@ describe('Select - single mode', () => {
 
   test('applies classes.root override', () => {
     const screen = render(() => (
-      <Select options={FRUITS} placeholder="Pick a fruit" classes={{ root: 'root-override' }} />
+      <Select items={FRUITS} placeholder="Pick a fruit" classes={{ root: 'root-override' }} />
     ))
 
     const root = screen.container.firstElementChild as HTMLElement | null
@@ -231,7 +233,7 @@ describe('Select - single mode', () => {
 
   test('applies styles.root override', () => {
     const screen = render(() => (
-      <Select options={FRUITS} placeholder="Pick a fruit" styles={{ root: { width: '200px' } }} />
+      <Select items={FRUITS} placeholder="Pick a fruit" styles={{ root: { width: '200px' } }} />
     ))
 
     const root = screen.container.firstElementChild as HTMLElement | null
@@ -250,7 +252,7 @@ describe('Select - single mode', () => {
       >
         <Select
           data-testid="select-root"
-          options={FRUITS}
+          items={FRUITS}
           placeholder="Pick a fruit"
           classes={{ root: 'w-32 px-2 instance-root' }}
           class="final-root w-48"
@@ -287,7 +289,7 @@ describe('Select - single mode', () => {
         })}
       >
         <Select
-          options={FRUITS}
+          items={FRUITS}
           defaultOpen
           classes={{ content: 'p-4 w-48 instance-content' }}
           styles={{ content: { color: 'blue' } }}
@@ -319,7 +321,7 @@ describe('Select - single mode', () => {
       <MoraineProvider theme={createTheme({ extends: defaultTheme, ...providerConfig() })}>
         <Select
           data-testid="reactive-select"
-          options={FRUITS}
+          items={FRUITS}
           classes={instanceClasses()}
           styles={instanceStyles()}
         />
@@ -353,7 +355,7 @@ describe('Select - single mode', () => {
   })
 
   test('renders with placeholder', () => {
-    const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
+    const screen = render(() => <Select items={FRUITS} placeholder="Pick a fruit" />)
 
     const trigger = screen.getByRole('combobox')
     expect(trigger).not.toBeNull()
@@ -361,7 +363,7 @@ describe('Select - single mode', () => {
   })
 
   test('renders non-search placeholder as presentation-only text', () => {
-    const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
+    const screen = render(() => <Select items={FRUITS} placeholder="Pick a fruit" />)
 
     const placeholder = screen.container.querySelector('[data-slot="input"]') as HTMLElement
     expect(placeholder.tagName).toBe('SPAN')
@@ -373,7 +375,7 @@ describe('Select - single mode', () => {
   })
 
   test('opens dropdown when combobox input is clicked', async () => {
-    const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
+    const screen = render(() => <Select items={FRUITS} placeholder="Pick a fruit" />)
     const input = screen.getByRole('combobox')
 
     expect(queryBody('[data-slot="content"]')).toBeNull()
@@ -386,7 +388,7 @@ describe('Select - single mode', () => {
   })
 
   test('non-search control does not show focus ring on pointer click', async () => {
-    const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
+    const screen = render(() => <Select items={FRUITS} placeholder="Pick a fruit" />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
     fireEvent.pointerDown(control, { button: 0 })
@@ -399,7 +401,7 @@ describe('Select - single mode', () => {
   })
 
   test('prevents mouse pointerdown but preserves touch and pen defaults', () => {
-    const screen = render(() => <Select options={FRUITS} defaultOpen placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} defaultOpen placeholder="Pick" />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
     const item = queryBody('[data-slot="item"]') as HTMLElement
 
@@ -415,7 +417,7 @@ describe('Select - single mode', () => {
   })
 
   test('non-search control uses focus-visible ring styling for keyboard focus', () => {
-    const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
+    const screen = render(() => <Select items={FRUITS} placeholder="Pick a fruit" />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
     control.focus()
@@ -425,7 +427,7 @@ describe('Select - single mode', () => {
   })
 
   test('searchable control keeps focus-within ring styling', () => {
-    const screen = render(() => <Select options={FRUITS} search placeholder="Pick a fruit" />)
+    const screen = render(() => <Select items={FRUITS} search placeholder="Pick a fruit" />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
 
     expect(control.className).toContain('focus-within:ring-ring/50')
@@ -433,7 +435,7 @@ describe('Select - single mode', () => {
   })
 
   test('opens dropdown and focuses combobox when control shell is clicked', async () => {
-    const screen = render(() => <Select options={FRUITS} />)
+    const screen = render(() => <Select items={FRUITS} />)
     const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
     const combobox = screen.getByRole('combobox')
 
@@ -448,7 +450,7 @@ describe('Select - single mode', () => {
   })
 
   test('opens dropdown when trigger icon is clicked', async () => {
-    const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
+    const screen = render(() => <Select items={FRUITS} placeholder="Pick a fruit" />)
     const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
     expect(queryBody('[data-slot="content"]')).toBeNull()
@@ -461,7 +463,7 @@ describe('Select - single mode', () => {
   })
 
   test('popup content width follows the trigger width', async () => {
-    const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
+    const screen = render(() => <Select items={FRUITS} placeholder="Pick a fruit" />)
     const input = screen.getByRole('combobox')
 
     fireEvent.click(input)
@@ -479,7 +481,7 @@ describe('Select - single mode', () => {
   })
 
   test('popup animation origin follows the resolved placement alignment', async () => {
-    const screen = render(() => <Select options={FRUITS} placeholder="Pick a fruit" />)
+    const screen = render(() => <Select items={FRUITS} placeholder="Pick a fruit" />)
     const input = screen.getByRole('combobox')
 
     fireEvent.click(input)
@@ -493,40 +495,40 @@ describe('Select - single mode', () => {
     })
   })
 
-  test('shows options when opened', () => {
-    render(() => <Select options={FRUITS} defaultOpen defaultValue="apple" placeholder="Pick" />)
+  test('shows items when opened', () => {
+    render(() => <Select items={FRUITS} defaultOpen defaultValue="apple" placeholder="Pick" />)
 
     const listbox = queryBody('[data-slot="listbox"]')
     expect(listbox).not.toBeNull()
 
-    const options = queryAllBody('[data-slot="item"]')
-    expect(options.length).toBe(3)
-    expect(options[0]?.hasAttribute('data-selected')).toBe(true)
-    expect(options[1]?.hasAttribute('data-selected')).toBe(false)
-    expect(options[0]?.className).toContain('data-highlighted:bg-muted')
-    expect(options[0]?.className).not.toContain('bg-accent-active')
+    const items = queryAllBody('[data-slot="item"]')
+    expect(items.length).toBe(3)
+    expect(items[0]?.hasAttribute('data-selected')).toBe(true)
+    expect(items[1]?.hasAttribute('data-selected')).toBe(false)
+    expect(items[0]?.className).toContain('data-highlighted:bg-muted')
+    expect(items[0]?.className).not.toContain('bg-accent-active')
   })
 
   test('selects an option and calls onChange', async () => {
     const onChange = vi.fn()
-    render(() => <Select options={FRUITS} defaultOpen onChange={onChange} placeholder="Pick" />)
+    render(() => <Select items={FRUITS} defaultOpen onChange={onChange} placeholder="Pick" />)
 
-    const options = queryAllBody('[data-slot="item"]')
-    fireEvent.click(options[0]!)
+    const items = queryAllBody('[data-slot="item"]')
+    fireEvent.click(items[0]!)
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenLastCalledWith('apple')
   })
 
   test('keeps controlled value until parent updates', () => {
-    const screen = render(() => <Select options={FRUITS} value="apple" placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} value="apple" placeholder="Pick" />)
 
     const trigger = screen.getByRole('combobox')
     expect(trigger.textContent).toBe('Apple')
   })
 
-  test('marks disabled options with aria-disabled', () => {
-    render(() => <Select options={FRUITS} defaultOpen placeholder="Pick" />)
+  test('marks disabled items with aria-disabled', () => {
+    render(() => <Select items={FRUITS} defaultOpen placeholder="Pick" />)
 
     const items = queryAllBody('[data-slot="item"]')
     const cherryItem = items[2]
@@ -537,10 +539,10 @@ describe('Select - single mode', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <Select<string | number>
-        options={[
-          { label: 'Numeric one', key: 'duplicate', value: 1 },
-          { label: 'String one', key: 'duplicate', value: '1' },
-          { label: 'Another string', key: 'duplicate', value: 'another' },
+        items={[
+          { label: 'Numeric one', value: 1 },
+          { label: 'String one', value: '1' },
+          { label: 'Another string', value: 'another' },
         ]}
         defaultValue={1}
         defaultOpen
@@ -563,39 +565,21 @@ describe('Select - single mode', () => {
     expect(combobox.textContent).toBe('String one')
   })
 
-  test('canonicalizes duplicate typed values to the first option without publishing no-op changes', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <form>
+  test('rejects duplicate canonical values', () => {
+    expect(() =>
+      render(() => (
         <Select
-          name="choice"
-          options={[
-            { label: 'First', value: 'same' },
-            { label: 'Second', value: 'same' },
+          items={[
+            { value: 'same', label: 'First' },
+            { value: 'same', label: 'Second' },
           ]}
-          defaultValue="same"
-          defaultOpen
-          onChange={onChange}
         />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-    const items = Array.from(queryAllBody('[data-slot="item"]'))
-
-    expect(new Set(items.map((item) => item.id)).size).toBe(2)
-    expect(items.map((item) => item.getAttribute('aria-selected'))).toEqual(['true', 'false'])
-    expect(new FormData(form).getAll('choice')).toEqual(['same'])
-
-    fireEvent.click(items[1]!)
-
-    expect(screen.getByRole('combobox').textContent).toBe('First')
-    expect(items.map((item) => item.getAttribute('aria-selected'))).toEqual(['true', 'false'])
-    expect(new FormData(form).getAll('choice')).toEqual(['same'])
-    expect(onChange).not.toHaveBeenCalled()
+      )),
+    ).toThrow('Duplicate item value')
   })
 
   test('renders a plain trigger icon', () => {
-    const screen = render(() => <Select options={FRUITS} placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} placeholder="Pick" />)
     const trigger = screen.container.querySelector('[data-slot="trigger"]')
 
     expect(trigger?.className).toContain('icon-chevron-down')
@@ -608,7 +592,7 @@ describe('Select - single mode', () => {
       <form>
         <Select
           name="fruit"
-          options={FRUITS}
+          items={FRUITS}
           search
           defaultOpen
           defaultValue="apple"
@@ -643,7 +627,7 @@ describe('Select - single mode', () => {
 
   test('shows loading icon when loading is true even if selection is not empty and allowClear is true', () => {
     const screen = render(() => (
-      <Select options={FRUITS} defaultValue="apple" loading allowClear placeholder="Pick" />
+      <Select items={FRUITS} defaultValue="apple" loading allowClear placeholder="Pick" />
     ))
 
     const trigger = screen.container.querySelector('[data-slot="trigger"]')
@@ -658,7 +642,7 @@ describe('Select - single mode', () => {
     const [value, setValue] = createSignal<SelectT.Value | null>('apple')
     const onChange = vi.fn((nextValue: SelectT.Value | null) => setValue(nextValue))
     const screen = render(() => (
-      <Select options={FRUITS} value={value()} allowClear onChange={onChange} placeholder="Pick" />
+      <Select items={FRUITS} value={value()} allowClear onChange={onChange} placeholder="Pick" />
     ))
 
     fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
@@ -670,7 +654,7 @@ describe('Select - single mode', () => {
   test('does not clear a disabled Select', async () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <Select options={FRUITS} value="apple" allowClear disabled onChange={onChange} />
+      <Select items={FRUITS} value="apple" allowClear disabled onChange={onChange} />
     ))
     const action = screen.getByRole<HTMLButtonElement>('button', { name: 'Clear selection' })
 
@@ -684,14 +668,14 @@ describe('Select - single mode', () => {
 
 describe('Select - search', () => {
   test('does not render input when showSearch is false', () => {
-    const screen = render(() => <Select options={FRUITS} search={false} placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} search={false} placeholder="Pick" />)
 
     expect(screen.getByRole('combobox')).not.toBeNull()
     expect(screen.container.querySelector('input[data-slot="input"]')).toBeNull()
   })
 
   test('input is editable when showSearch is true', () => {
-    const screen = render(() => <Select options={FRUITS} search placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} search placeholder="Pick" />)
 
     const input = screen.getByRole('combobox')
     expect(input.hasAttribute('readonly')).toBe(false)
@@ -699,7 +683,7 @@ describe('Select - search', () => {
 
   test('leaves Space available for searchable text input', () => {
     const onChange = vi.fn()
-    const screen = render(() => <Select options={FRUITS} search onChange={onChange} />)
+    const screen = render(() => <Select items={FRUITS} search onChange={onChange} />)
     const input = screen.getByRole('combobox')
     const event = new KeyboardEvent('keydown', {
       key: ' ',
@@ -715,7 +699,7 @@ describe('Select - search', () => {
   })
 
   test('opens menu when searchable input is clicked in control mode', async () => {
-    const screen = render(() => <Select options={FRUITS} search placeholder="Search..." />)
+    const screen = render(() => <Select items={FRUITS} search placeholder="Search..." />)
 
     const input = screen.getByRole('combobox')
 
@@ -727,7 +711,7 @@ describe('Select - search', () => {
   })
 
   test('dismisses menu when searchable input is clicked again in control mode', async () => {
-    const screen = render(() => <Select options={FRUITS} search placeholder="Search..." />)
+    const screen = render(() => <Select items={FRUITS} search placeholder="Search..." />)
     const input = screen.getByRole('combobox')
 
     fireEvent.click(input)
@@ -744,7 +728,7 @@ describe('Select - search', () => {
   test('calls onSearch with input value', async () => {
     const onSearch = vi.fn()
     const screen = render(() => (
-      <Select options={FRUITS} search onSearch={onSearch} placeholder="Search..." />
+      <Select items={FRUITS} search onSearch={onSearch} placeholder="Search..." />
     ))
 
     const input = screen.getByRole('combobox')
@@ -753,15 +737,9 @@ describe('Select - search', () => {
     expect(onSearch).toHaveBeenCalledWith('app')
   })
 
-  test('filters options with startsWith mode', async () => {
+  test('filters items with startsWith mode', async () => {
     const screen = render(() => (
-      <Select
-        options={FRUITS}
-        search
-        defaultOpen
-        filterOption="startsWith"
-        placeholder="Search..."
-      />
+      <Select items={FRUITS} search defaultOpen filterItem="startsWith" placeholder="Search..." />
     ))
 
     const input = screen.getByRole('combobox')
@@ -774,9 +752,9 @@ describe('Select - search', () => {
     })
   })
 
-  test('filters options with endsWith mode', async () => {
+  test('filters items with endsWith mode', async () => {
     const screen = render(() => (
-      <Select options={FRUITS} search defaultOpen filterOption="endsWith" placeholder="Search..." />
+      <Select items={FRUITS} search defaultOpen filterItem="endsWith" placeholder="Search..." />
     ))
 
     const input = screen.getByRole('combobox')
@@ -792,29 +770,29 @@ describe('Select - search', () => {
 
 describe('Select - groups', () => {
   test('renders group labels when open', () => {
-    render(() => <Select options={GROUPED_OPTIONS} defaultOpen placeholder="Pick" />)
+    render(() => <Select items={GROUPED_OPTIONS} defaultOpen placeholder="Pick" />)
 
-    const sectionLabels = queryAllBody('[data-slot="label"]')
+    const sectionLabels = queryAllBody('[data-slot="groupLabel"]')
     expect(sectionLabels.length).toBe(2)
     expect(sectionLabels[0]?.textContent).toBe('Fruits')
     expect(sectionLabels[1]?.textContent).toBe('Vegetables')
   })
 
-  test('renders options within groups', () => {
-    render(() => <Select options={GROUPED_OPTIONS} defaultOpen placeholder="Pick" />)
+  test('renders items within groups', () => {
+    render(() => <Select items={GROUPED_OPTIONS} defaultOpen placeholder="Pick" />)
 
     const items = queryAllBody('[data-slot="item"]')
     expect(items.length).toBe(4)
   })
 
   test('associates every non-virtual option group with its visible label', () => {
-    render(() => <Select options={GROUPED_OPTIONS} defaultOpen placeholder="Pick" />)
+    render(() => <Select items={GROUPED_OPTIONS} defaultOpen placeholder="Pick" />)
 
     const groups = queryAllBody('[data-slot="group"][role="group"]')
     expect(groups).toHaveLength(2)
 
     for (const group of groups) {
-      const label = group.querySelector('[data-slot="label"]')
+      const label = group.querySelector('[data-slot="groupLabel"]')
       expect(label?.id).not.toBe('')
       expect(group.getAttribute('aria-labelledby')).toBe(label?.id)
     }
@@ -826,19 +804,19 @@ describe('Select - groups', () => {
     const onChange = vi.fn()
     render(() => (
       <Select
-        options={FRUITS}
+        items={FRUITS}
         defaultOpen
         onChange={onChange}
         listboxProps={{
           ref: listboxRef,
-          'aria-label': 'Fruit options',
+          'aria-label': 'Fruit items',
           'data-track': 'fruit-list',
           class: 'listbox-prop',
           style: { width: '240px' },
         }}
         itemProps={(option) => ({
-          ref: option.value === 'apple' ? itemRef : undefined,
-          'data-value': option.value,
+          ref: option.item.value === 'apple' ? itemRef : undefined,
+          'data-value': option.item.value,
           class: 'item-prop',
           style: { height: '40px' },
           onClick: (event) => event.preventDefault(),
@@ -863,7 +841,7 @@ describe('Select - groups', () => {
 
   test('does not select from pointer movement or cancellation alone', () => {
     const onChange = vi.fn()
-    render(() => <Select options={FRUITS} defaultOpen onChange={onChange} />)
+    render(() => <Select items={FRUITS} defaultOpen onChange={onChange} />)
     const item = queryAllBody('[data-slot="item"]')[0]!
 
     fireEvent.pointerDown(item, { pointerType: 'touch' })
@@ -875,7 +853,7 @@ describe('Select - groups', () => {
   })
 
   test('does not add virtual ARIA metadata without virtualRender', () => {
-    render(() => <Select options={GROUPED_OPTIONS} defaultOpen placeholder="Pick" />)
+    render(() => <Select items={GROUPED_OPTIONS} defaultOpen placeholder="Pick" />)
 
     const items = queryAllBody('[data-slot="item"]')
     expect(items.length).toBe(4)
@@ -883,10 +861,10 @@ describe('Select - groups', () => {
     expect(items[0]?.getAttribute('aria-setsize')).toBeNull()
   })
 
-  test('renders grouped options through virtualRender when provided', () => {
+  test('renders grouped items through virtualRender when provided', () => {
     render(() => (
       <Select
-        options={GROUPED_OPTIONS}
+        items={GROUPED_OPTIONS}
         defaultOpen
         placeholder="Pick"
         virtualRender={(context) => (
@@ -897,7 +875,7 @@ describe('Select - groups', () => {
       />
     ))
 
-    const sectionLabels = queryAllBody('[data-slot="label"]')
+    const sectionLabels = queryAllBody('[data-slot="groupLabel"]')
     const items = queryAllBody('[data-slot="item"]')
 
     expect(sectionLabels.length).toBe(2)
@@ -906,10 +884,10 @@ describe('Select - groups', () => {
     expect(items[0]?.getAttribute('aria-setsize')).toBe('4')
   })
 
-  test('associates virtual groups with their labels and owned options', () => {
+  test('associates virtual groups with their labels and owned items', () => {
     render(() => (
       <Select
-        options={GROUPED_OPTIONS}
+        items={GROUPED_OPTIONS}
         defaultOpen
         virtualRender={(context) => (
           <For each={context.entries}>
@@ -923,7 +901,7 @@ describe('Select - groups', () => {
     expect(groups).toHaveLength(2)
 
     for (const group of groups) {
-      const label = group.querySelector('[data-slot="label"]')
+      const label = group.querySelector('[data-slot="groupLabel"]')
       const ownedIds = group.getAttribute('aria-owns')?.split(' ') ?? []
       expect(group.getAttribute('aria-labelledby')).toBe(label?.id)
       expect(ownedIds).toHaveLength(2)
@@ -938,7 +916,7 @@ describe('Select - groups', () => {
     const scrollToItem = vi.fn()
     const screen = render(() => (
       <Select
-        options={GROUPED_OPTIONS}
+        items={GROUPED_OPTIONS}
         defaultOpen
         scrollToItem={(item, index) => {
           scrollToItem(item, index)
@@ -969,18 +947,18 @@ describe('Select - groups', () => {
       expect(combobox.getAttribute('aria-activedescendant')).toBe(item?.id)
     })
     expect(document.activeElement).toBe(combobox)
-    expect(scrollToItem).toHaveBeenLastCalledWith(GROUPED_OPTIONS[0]?.children?.[1], 2)
+    expect(scrollToItem).toHaveBeenLastCalledWith(GROUPED_OPTIONS[0]?.items?.[1], 2)
   })
 
   test('treats empty children as a normal option', () => {
-    const options = [
-      { label: 'Standalone', value: 'standalone', children: [] },
+    const sourceItems = [
+      { label: 'Standalone', value: 'standalone', unused: [] },
       { label: 'Plain', value: 'plain' },
     ]
 
-    render(() => <Select options={options} defaultOpen placeholder="Pick" />)
+    render(() => <Select items={sourceItems} defaultOpen placeholder="Pick" />)
 
-    const sectionLabels = queryAllBody('[data-slot="label"]')
+    const sectionLabels = queryAllBody('[data-slot="groupLabel"]')
     const items = queryAllBody('[data-slot="item"]')
 
     expect(sectionLabels.length).toBe(0)
@@ -990,34 +968,30 @@ describe('Select - groups', () => {
 
 describe('Select - render hooks', () => {
   test('keeps closed option render trees lazy and resolves render getters once when opened', async () => {
-    const reads = { optionRender: 0, labelRender: 0 }
+    const reads = { itemRender: 0 }
     const instances = { option: 0 }
     const screen = render(() =>
       createComponent(Select, {
-        options: FRUITS,
-        get optionRender() {
-          reads.optionRender += 1
-          return (props: SelectT.OptionRenderProps) => {
+        items: FRUITS,
+        get itemRender() {
+          reads.itemRender += 1
+          return (props: SelectT.ItemRenderProps) => {
             instances.option += 1
-            return <span>{props.option?.label}</span>
+            return <span>{props.item?.label}</span>
           }
-        },
-        get labelRender() {
-          reads.labelRender += 1
-          return (props: SelectT.LabelRenderProps) => <span>{props.option.label}</span>
         },
       }),
     )
 
     expect(queryBody('[data-slot="item"]')).toBeNull()
     expect(instances.option).toBe(0)
-    expect(reads).toEqual({ optionRender: 1, labelRender: 1 })
+    expect(reads).toEqual({ itemRender: 1 })
 
     fireEvent.click(screen.getByRole('combobox'))
 
     expect(queryAllBody('[data-slot="item"]')).toHaveLength(3)
     expect(instances.option).toBe(3)
-    expect(reads).toEqual({ optionRender: 1, labelRender: 1 })
+    expect(reads).toEqual({ itemRender: 1 })
   })
 
   test('renders JSX label without string normalization', () => {
@@ -1026,19 +1000,17 @@ describe('Select - render hooks', () => {
       { label: 'Banana', value: 'banana' },
     ]
 
-    render(() => <Select options={jsxOptions} defaultOpen placeholder="Pick" />)
+    render(() => <Select items={jsxOptions} defaultOpen placeholder="Pick" />)
 
     expect(queryBody('[data-testid="apple-label"]')).not.toBeNull()
   })
 
   test('uses option key for search when label is JSX', async () => {
     const jsxOptions = [
-      { label: <span>Fancy Apple</span>, key: 'Apple', value: 'apple' },
+      { label: <span>Fancy Apple</span>, value: 'apple' },
       { label: 'Banana', value: 'banana' },
     ]
-    const screen = render(() => (
-      <Select options={jsxOptions} search defaultOpen placeholder="Pick" />
-    ))
+    const screen = render(() => <Select items={jsxOptions} search defaultOpen placeholder="Pick" />)
     const input = screen.getByRole('combobox')
 
     fireEvent.input(input, { target: { value: 'app' } })
@@ -1048,15 +1020,13 @@ describe('Select - render hooks', () => {
     })
   })
 
-  test('uses labelRender for item label rendering', () => {
+  test('uses itemRender for item label rendering', () => {
     render(() => (
       <Select
-        options={FRUITS}
+        items={FRUITS}
         defaultOpen
-        labelRender={(props) => (
-          <span data-testid={`custom-label-${String(props.option.value)}`}>
-            {props.option.label}
-          </span>
+        itemRender={(props) => (
+          <span data-testid={`custom-label-${props.item.value}`}>{props.item.label}</span>
         )}
         placeholder="Pick"
       />
@@ -1066,13 +1036,13 @@ describe('Select - render hooks', () => {
     expect(queryBody('[data-testid="custom-label-banana"]')).not.toBeNull()
   })
 
-  test('uses optionRender for custom item rendering', () => {
+  test('uses itemRender for custom item rendering', () => {
     render(() => (
       <Select
-        options={FRUITS}
+        items={FRUITS}
         defaultOpen
-        optionRender={(props) => (
-          <span data-testid="custom-option">{props.option?.label} (custom)</span>
+        itemRender={(props) => (
+          <span data-testid="custom-option">{props.item?.label} (custom)</span>
         )}
         placeholder="Pick"
       />
@@ -1082,31 +1052,31 @@ describe('Select - render hooks', () => {
     expect(customOptions.length).toBeGreaterThan(0)
   })
 
-  test('passes selected state for normal items to optionRender', () => {
-    const renderCalls: SelectT.OptionRenderProps[] = []
+  test('passes selected state for normal items to itemRender', () => {
+    const renderCalls: SelectT.ItemRenderProps[] = []
 
     render(() => (
       <Select
-        options={FRUITS}
+        items={FRUITS}
         value="apple"
         defaultOpen
-        optionRender={(props) => {
+        itemRender={(props) => {
           renderCalls.push(props)
-          return <span data-testid="custom-option">{props.option?.label}</span>
+          return <span data-testid="custom-option">{props.item?.label}</span>
         }}
         placeholder="Pick"
       />
     ))
 
-    const appleState = renderCalls.find((call) => call.option?.value === 'apple')
-    expect(appleState?.option?.isSelected).toBe(true)
-    expect(appleState?.option?.label).toBe('Apple')
+    const appleState = renderCalls.find((call) => call.item?.value === 'apple')
+    expect(appleState?.selected).toBe(true)
+    expect(appleState?.item?.label).toBe('Apple')
   })
 })
 
 describe('Select - keyboard and ARIA', () => {
   test('trigger icon is not interactive', () => {
-    const screen = render(() => <Select options={FRUITS} placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} placeholder="Pick" />)
     const trigger = screen.container.querySelector('[data-slot="trigger"]')
 
     expect(trigger?.getAttribute('aria-hidden')).toBe('true')
@@ -1114,7 +1084,7 @@ describe('Select - keyboard and ARIA', () => {
 
   test('opens a closed non-search Select with Space without changing selection', async () => {
     const onChange = vi.fn()
-    const screen = render(() => <Select options={FRUITS} onChange={onChange} placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} onChange={onChange} placeholder="Pick" />)
     const combobox = screen.getByRole('combobox')
     const event = new KeyboardEvent('keydown', {
       key: ' ',
@@ -1132,7 +1102,7 @@ describe('Select - keyboard and ARIA', () => {
   })
 
   test.each(['Home', 'End'])('leaves a closed Select unchanged for %s', (key) => {
-    const screen = render(() => <Select options={FRUITS} placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} placeholder="Pick" />)
     const combobox = screen.getByRole('combobox')
     const event = new KeyboardEvent('keydown', {
       key,
@@ -1150,7 +1120,7 @@ describe('Select - keyboard and ARIA', () => {
   test('commits printable-key typeahead while a non-search Select stays closed', () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <Select options={FRUITS} defaultValue="apple" onChange={onChange} placeholder="Pick" />
+      <Select items={FRUITS} defaultValue="apple" onChange={onChange} placeholder="Pick" />
     ))
     const combobox = screen.getByRole('combobox')
     const event = new KeyboardEvent('keydown', {
@@ -1168,11 +1138,11 @@ describe('Select - keyboard and ARIA', () => {
     expect(onChange).toHaveBeenCalledWith('banana')
   })
 
-  test('cycles repeated typeahead characters while skipping disabled options', () => {
+  test('cycles repeated typeahead characters while skipping disabled items', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <Select
-        options={[
+        items={[
           { label: 'Alpha', value: 'alpha' },
           { label: 'Alpine', value: 'alpine', disabled: true },
           { label: 'Atom', value: 'atom' },
@@ -1194,7 +1164,7 @@ describe('Select - keyboard and ARIA', () => {
   test('treats Space as typeahead text until the search timeout expires', () => {
     vi.useFakeTimers()
     const onChange = vi.fn()
-    const screen = render(() => <Select options={FRUITS} onChange={onChange} placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} onChange={onChange} placeholder="Pick" />)
     const combobox = screen.getByRole('combobox')
 
     try {
@@ -1225,7 +1195,7 @@ describe('Select - keyboard and ARIA', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <>
-        <Select options={FRUITS} onChange={onChange} placeholder="Pick" />
+        <Select items={FRUITS} onChange={onChange} placeholder="Pick" />
         <button type="button">Next</button>
       </>
     ))
@@ -1251,7 +1221,7 @@ describe('Select - keyboard and ARIA', () => {
 
   test('does not run queued focus work after selection unmounts', async () => {
     const focus = vi.spyOn(HTMLElement.prototype, 'focus')
-    const screen = render(() => <Select options={FRUITS} defaultOpen placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} defaultOpen placeholder="Pick" />)
     const item = queryAllBody('[data-slot="item"]')[0]!
 
     focus.mockClear()
@@ -1264,7 +1234,7 @@ describe('Select - keyboard and ARIA', () => {
   })
 
   test('opens with the selected option highlighted', async () => {
-    const screen = render(() => <Select options={FRUITS} value="banana" placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} value="banana" placeholder="Pick" />)
     const input = screen.getByRole('combobox')
 
     fireEvent.click(input)
@@ -1273,13 +1243,13 @@ describe('Select - keyboard and ARIA', () => {
       expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Banana')
     })
 
-    expect(input.getAttribute('aria-activedescendant')).toContain('Banana')
+    expect(input.getAttribute('aria-activedescendant')).toContain('banana')
   })
 
   test('keeps selected highlight metadata when virtually rendered', async () => {
     const screen = render(() => (
       <Select
-        options={GROUPED_OPTIONS}
+        items={GROUPED_OPTIONS}
         value="daikon"
         placeholder="Pick"
         virtualRender={(context) => (
@@ -1312,7 +1282,7 @@ describe('Select - keyboard and ARIA', () => {
     HTMLElement.prototype.scrollIntoView = scrollIntoView
 
     try {
-      const screen = render(() => <Select options={FRUITS} value="banana" placeholder="Pick" />)
+      const screen = render(() => <Select items={FRUITS} value="banana" placeholder="Pick" />)
       const input = screen.getByRole('combobox')
 
       fireEvent.click(input)
@@ -1332,7 +1302,7 @@ describe('Select - keyboard and ARIA', () => {
     HTMLElement.prototype.scrollIntoView = scrollIntoView
 
     try {
-      const screen = render(() => <Select options={FRUITS} defaultOpen placeholder="Pick" />)
+      const screen = render(() => <Select items={FRUITS} defaultOpen placeholder="Pick" />)
       const input = screen.getByRole('combobox')
       await Promise.resolve()
       scrollIntoView.mockClear()
@@ -1348,7 +1318,7 @@ describe('Select - keyboard and ARIA', () => {
   })
 
   test('does not prevent Tab when menu is closed', () => {
-    const screen = render(() => <Select options={FRUITS} placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} placeholder="Pick" />)
     const input = screen.getByRole('combobox')
 
     const tabEvent = new KeyboardEvent('keydown', {
@@ -1362,27 +1332,27 @@ describe('Select - keyboard and ARIA', () => {
   })
 
   test('has correct combobox role', () => {
-    const screen = render(() => <Select options={FRUITS} placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} placeholder="Pick" />)
 
     expect(screen.getByRole('combobox')).not.toBeNull()
   })
 
   test('has aria-expanded false by default', () => {
-    const screen = render(() => <Select options={FRUITS} placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} placeholder="Pick" />)
 
     const input = screen.getByRole('combobox')
     expect(input.getAttribute('aria-expanded')).toBe('false')
   })
 
   test('has aria-expanded true when open', () => {
-    const screen = render(() => <Select options={FRUITS} defaultOpen placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} defaultOpen placeholder="Pick" />)
 
     const input = screen.getByRole('combobox')
     expect(input.getAttribute('aria-expanded')).toBe('true')
   })
 
   test('input has combobox aria attributes when searchable', () => {
-    const screen = render(() => <Select options={FRUITS} search placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} search placeholder="Pick" />)
 
     const input = screen.getByRole('combobox')
     expect(input.getAttribute('aria-haspopup')).toBe('listbox')
@@ -1391,7 +1361,7 @@ describe('Select - keyboard and ARIA', () => {
 
   test('propagates required and disabled state to root, control, and combobox', () => {
     const screen = render(() => (
-      <Select options={FRUITS} required disabled placeholder="Pick a fruit" />
+      <Select items={FRUITS} required disabled placeholder="Pick a fruit" />
     ))
 
     const root = screen.container.querySelector('[data-slot="root"]')
@@ -1411,7 +1381,7 @@ describe('Select - form integration', () => {
   test('serializes the selected scalar value through native form semantics', async () => {
     const screen = render(() => (
       <form>
-        <Select name="fruit" options={FRUITS} defaultValue="apple" defaultOpen />
+        <Select name="fruit" items={FRUITS} defaultValue="apple" defaultOpen />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -1435,7 +1405,7 @@ describe('Select - form integration', () => {
           allowClear
           defaultOpen
           defaultValue="apple"
-          options={FRUITS}
+          items={FRUITS}
           readOnly
           onChange={onChange}
         />
@@ -1466,8 +1436,8 @@ describe('Select - form integration', () => {
   test('serializes numeric selections and omits disabled fields', () => {
     const screen = render(() => (
       <form>
-        <Select name="count" options={[{ label: 'One', value: 1 }]} defaultValue={1} />
-        <Select name="disabledFruit" options={FRUITS} defaultValue="apple" disabled />
+        <Select name="count" items={[{ label: 'One', value: 1 }]} defaultValue={1} />
+        <Select name="disabledFruit" items={FRUITS} defaultValue="apple" disabled />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -1483,7 +1453,7 @@ describe('Select - form integration', () => {
       <form>
         <Select<string | number>
           name="choice"
-          options={[
+          items={[
             { label: 'Numeric one', value: 1 },
             { label: 'String one', value: '1' },
           ]}
@@ -1504,7 +1474,7 @@ describe('Select - form integration', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <form>
-        <Select name="fruit" options={FRUITS} value="apple" defaultOpen onChange={onChange} />
+        <Select name="fruit" items={FRUITS} value="apple" defaultOpen onChange={onChange} />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -1525,7 +1495,7 @@ describe('Select - form integration', () => {
     })
     const screen = render(() => (
       <form>
-        <Select name="fruit" options={FRUITS} value={value()} onChange={onChange} defaultOpen />
+        <Select name="fruit" items={FRUITS} value={value()} onChange={onChange} defaultOpen />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -1550,7 +1520,7 @@ describe('Select - form integration', () => {
       (form) => (
         <form.Form>
           <form.Field name="fruit" label="Fruit">
-            <Select options={FRUITS} value={value()} onChange={onChange} defaultOpen />
+            <Select items={FRUITS} value={value()} onChange={onChange} defaultOpen />
           </form.Field>
         </form.Form>
       ),
@@ -1581,7 +1551,7 @@ describe('Select - form integration', () => {
       (form) => (
         <form.Form>
           <form.Field name="fruit" label="Fruit">
-            <Select options={FRUITS} onChange={onChange} />
+            <Select items={FRUITS} onChange={onChange} />
           </form.Field>
         </form.Form>
       ),
@@ -1600,7 +1570,7 @@ describe('Select - form integration', () => {
       <form>
         <Select
           name="fruit"
-          options={FRUITS}
+          items={FRUITS}
           defaultValue={defaultValue()}
           defaultOpen
           onChange={onChange}
@@ -1627,7 +1597,7 @@ describe('Select - form integration', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <form>
-        <Select name="fruit" options={FRUITS} value={value()} onChange={onChange} />
+        <Select name="fruit" items={FRUITS} value={value()} onChange={onChange} />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -1645,13 +1615,7 @@ describe('Select - form integration', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <form onReset={(event) => event.preventDefault()}>
-        <Select
-          name="fruit"
-          options={FRUITS}
-          defaultValue="apple"
-          defaultOpen
-          onChange={onChange}
-        />
+        <Select name="fruit" items={FRUITS} defaultValue="apple" defaultOpen onChange={onChange} />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -1671,7 +1635,7 @@ describe('Select - form integration', () => {
       <form>
         <Select
           name="fruit"
-          options={FRUITS}
+          items={FRUITS}
           defaultValue="apple"
           placeholder="Pick"
           allowClear
@@ -1691,7 +1655,7 @@ describe('Select - form integration', () => {
   test('displays and serializes an unmatched controlled value', () => {
     const screen = render(() => (
       <form>
-        <Select name="fruit" options={FRUITS} value="dragonfruit" required placeholder="Pick" />
+        <Select name="fruit" items={FRUITS} value="dragonfruit" required placeholder="Pick" />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -1702,10 +1666,10 @@ describe('Select - form integration', () => {
   })
 
   test('resolves an unmatched controlled value when its option arrives', () => {
-    const [options, setOptions] = createSignal(FRUITS)
+    const [items, setOptions] = createSignal(FRUITS)
     const screen = render(() => (
       <form>
-        <Select name="fruit" options={options()} value="dragonfruit" />
+        <Select name="fruit" items={items()} value="dragonfruit" />
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
@@ -1721,21 +1685,14 @@ describe('Select - form integration', () => {
 })
 
 describe('Select - empty state', () => {
-  test('renders optionRender null as empty state', async () => {
+  test('renders emptyRender independently of itemRender', async () => {
     const screen = render(() => (
       <Select
-        options={FRUITS}
+        items={FRUITS}
         search
         defaultOpen
-        optionRender={(props) =>
-          props.option ? (
-            <span>{props.option.label}</span>
-          ) : (
-            <div data-slot="empty" data-testid="custom-empty">
-              Nothing here!
-            </div>
-          )
-        }
+        itemRender={(props) => <span>{props.item.label}</span>}
+        emptyRender={() => <div data-testid="custom-empty">Nothing here!</div>}
         placeholder="Search..."
       />
     ))
@@ -1750,9 +1707,9 @@ describe('Select - empty state', () => {
     })
   })
 
-  test('renders default "No options" text when optionRender does not handle empty state', async () => {
+  test('renders default "No items" text when itemRender does not handle empty state', async () => {
     const screen = render(() => (
-      <Select options={FRUITS} search defaultOpen placeholder="Search..." />
+      <Select items={FRUITS} search defaultOpen placeholder="Search..." />
     ))
 
     const input = screen.getByRole<HTMLInputElement>('combobox')
@@ -1761,12 +1718,12 @@ describe('Select - empty state', () => {
     await waitFor(() => {
       const emptyEl = queryBody('[data-slot="empty"]')
       expect(emptyEl).not.toBeNull()
-      expect(emptyEl?.textContent).toBe('No options')
+      expect(emptyEl?.textContent).toBe('No items')
     })
   })
   test('clears unmatched searchable input when dismissed', async () => {
     const screen = render(() => (
-      <Select search options={FRUITS} defaultOpen placeholder="Search..." />
+      <Select search items={FRUITS} defaultOpen placeholder="Search..." />
     ))
 
     const input = screen.getByRole<HTMLInputElement>('combobox')
@@ -1782,7 +1739,7 @@ describe('Select - empty state', () => {
 
 describe('Select - popup behavior', () => {
   test('keeps content mounted with closed data attrs until exit motion finishes', async () => {
-    const screen = render(() => <Select options={FRUITS} search defaultOpen placeholder="Pick" />)
+    const screen = render(() => <Select items={FRUITS} search defaultOpen placeholder="Pick" />)
     const input = screen.getByRole('combobox')
 
     await waitFor(() => {
@@ -1808,7 +1765,7 @@ describe('Select - popup behavior', () => {
 
   test('keeps the highlighted option until exit motion finishes', async () => {
     const screen = render(() => (
-      <Select options={FRUITS} search defaultOpen defaultValue="banana" placeholder="Pick" />
+      <Select items={FRUITS} search defaultOpen defaultValue="banana" placeholder="Pick" />
     ))
     const input = screen.getByRole('combobox')
 
@@ -1832,7 +1789,7 @@ describe('Select - popup behavior', () => {
 
   test('uses primitive menu transition classes and configurable overflow padding', async () => {
     render(() => (
-      <Select options={FRUITS} defaultOpen gutter={6} overflowPadding={12} placeholder="Pick" />
+      <Select items={FRUITS} defaultOpen gutter={6} overflowPadding={12} placeholder="Pick" />
     ))
 
     await waitFor(() => {
@@ -1853,7 +1810,7 @@ describe('Select - popup behavior', () => {
   test('syncs positioner z-index from popup content style', async () => {
     render(() => (
       <Select
-        options={FRUITS}
+        items={FRUITS}
         defaultOpen
         styles={{ content: { 'z-index': 70 } }}
         placeholder="Pick"
@@ -1876,7 +1833,7 @@ describe('Select - scroll bottom', () => {
 
     render(() => (
       <Select
-        options={FRUITS}
+        items={FRUITS}
         defaultOpen
         onScrollBottom={onScrollBottom}
         scrollBottomThreshold={30}
@@ -1932,7 +1889,7 @@ describe.each([
     const onSubmit = vi.fn((event: SubmitEvent) => event.preventDefault())
     const view = baseRender(() => (
       <form onSubmit={onSubmit}>
-        <Component name="fruit" options={FRUITS} required search />
+        <Component name="fruit" items={FRUITS} required search />
         <button type="submit">Submit</button>
       </form>
     ))
@@ -1973,7 +1930,7 @@ describe.each([
       <div data-testid="outer-scroll" style={{ overflow: 'auto' }}>
         <div data-testid="inner-scroll" style={{ 'overflow-y': 'scroll' }}>
           <Component
-            options={FRUITS}
+            items={FRUITS}
             open={open()}
             listboxProps={{ style: { 'overflow-y': 'auto' } }}
           />
@@ -2016,10 +1973,10 @@ describe.each([
     const view = baseRender(() => (
       <div data-testid="scroll" style="overflow-y: auto !important">
         <Show when={first()}>
-          <Component options={FRUITS} open />
+          <Component items={FRUITS} open />
         </Show>
         <Show when={second()}>
-          <Component options={FRUITS} open />
+          <Component items={FRUITS} open />
         </Show>
       </div>
     ))
@@ -2034,7 +1991,7 @@ describe.each([
   })
 
   test('renders option slots in order and supports item icons and descriptions', async () => {
-    const view = render(() => <Component options={displayOptions} open />)
+    const view = render(() => <Component items={displayOptions} open />)
     try {
       const option = await findFirstOption()
       fireEvent.click(option)
@@ -2059,12 +2016,21 @@ describe.each([
     }
   })
 
-  test('applies reactive option slot overrides and labelRender', async () => {
+  test('applies reactive item slot overrides and raw JSX labels', async () => {
     const [color, setColor] = createSignal('red')
     const [label, setLabel] = createSignal('Custom label')
     const view = render(() => (
       <Component
-        options={displayOptions}
+        items={displayOptions.map((item, index) =>
+          index === 0
+            ? {
+                ...item,
+                get label() {
+                  return <strong>{label()}</strong>
+                },
+              }
+            : item,
+        )}
         open
         classes={{
           itemLeading: `leading-${color()}`,
@@ -2078,7 +2044,6 @@ describe.each([
           itemDescription: { color: color() },
           itemTrailing: { color: color() },
         }}
-        labelRender={() => <strong>{label()}</strong>}
       />
     ))
     try {
@@ -2118,7 +2083,7 @@ describe.each([
   })
 
   test('leaves option layout unstyled without a theme', async () => {
-    const view = baseRender(() => <Component options={displayOptions} open />)
+    const view = baseRender(() => <Component items={displayOptions} open />)
     try {
       const option = await findFirstOption()
       fireEvent.click(option)
@@ -2134,7 +2099,7 @@ describe.each([
 })
 
 describe('Select and MultiSelect - form bridge', () => {
-  const options = [
+  const items = [
     { label: 'Apple', value: 'apple' },
     { label: 'Empty', value: '' },
   ]
@@ -2142,8 +2107,8 @@ describe('Select and MultiSelect - form bridge', () => {
     const [disabled, setDisabled] = createSignal(false)
     const view = render(() => (
       <form>
-        <Select name="single" options={options} value="" required readOnly disabled={disabled()} />
-        <MultiSelect name="multiple" options={options} value={['']} required readOnly />
+        <Select name="single" items={items} value="" required readOnly disabled={disabled()} />
+        <MultiSelect name="multiple" items={items} value={['']} required readOnly />
       </form>
     ))
     const form = view.container.querySelector('form')!
@@ -2157,19 +2122,19 @@ describe('Select and MultiSelect - form bridge', () => {
     expect(new FormData(form).has('single')).toBe(false)
   })
 
-  test('omits disabled options from submission without discarding selection or required validity', () => {
+  test('omits disabled items from submission without discarding selection or required validity', () => {
     const [disabled, setDisabled] = createSignal(true)
     const view = render(() => (
       <form>
         <Select
           name="single"
-          options={[{ value: 'apple', disabled: disabled() }]}
+          items={[{ value: 'apple', label: 'apple', disabled: disabled() }]}
           value="apple"
           required
         />
         <MultiSelect
           name="multiple"
-          options={[{ value: 'apple', disabled: disabled() }]}
+          items={[{ value: 'apple', label: 'apple', disabled: disabled() }]}
           value={['apple', 'missing']}
           required
         />
@@ -2186,10 +2151,10 @@ describe('Select and MultiSelect - form bridge', () => {
 
   test('keeps bridge nodes proportional to selections and updates their names', () => {
     const [name, setName] = createSignal('fruit')
-    const options = Array.from({ length: 100 }, (_, value) => ({ value }))
+    const items = Array.from({ length: 100 }, (_, value) => ({ value, label: String(value) }))
     const view = render(() => (
       <form>
-        <MultiSelect name={name()} options={options} value={[2, 1]} />
+        <MultiSelect name={name()} items={items} value={[2, 1]} />
       </form>
     ))
     const form = view.container.querySelector('form')!

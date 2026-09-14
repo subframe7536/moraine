@@ -2,10 +2,11 @@ import { MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
 import { createSignal } from 'solid-js'
 
-const TECH_GROUPS: MultiSelectT.Item[] = [
+const TECH_GROUPS: MultiSelectT.Entry[] = [
   {
     label: 'Frontend Frameworks',
-    children: [
+    type: 'group' as const,
+    items: [
       { label: 'TypeScript', value: 'ts' },
       { label: 'SolidJS', value: 'solid' },
       { label: 'Tailwind CSS', value: 'tailwind' },
@@ -13,7 +14,8 @@ const TECH_GROUPS: MultiSelectT.Item[] = [
   },
   {
     label: 'Backend & Systems',
-    children: [
+    type: 'group' as const,
+    items: [
       { label: 'Rust', value: 'rust' },
       { label: 'Go', value: 'go' },
       { label: 'Node.js', value: 'node' },
@@ -28,7 +30,7 @@ export function LargeCollections() {
     <div class="max-w-md w-full">
       <MultiSelect
         placeholder="Choose technologies..."
-        options={TECH_GROUPS}
+        items={TECH_GROUPS}
         value={selected()}
         onChange={setSelected}
         allowClear

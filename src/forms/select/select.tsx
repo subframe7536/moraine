@@ -1,341 +1,278 @@
 import type { JSX } from 'solid-js'
-import { Show, createMemo, splitProps, untrack } from 'solid-js'
+import { mergeProps, splitProps, createMemo, Show } from 'solid-js'
 
-import { Icon } from '../../elements/icon'
-import { createComponentStyles } from '../../shared/provider'
-import { useCn } from '../../shared/provider/cn-context'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { callRef } from '../../shared/utils'
-import { useFormFieldContext } from '../form/form-context'
+import { Icon } from '../../elements/icon/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import { callRef } from '../../shared/utils.ts'
+import { useFormFieldContext } from '../form/form-context.ts'
 
-import { BaseSelect } from './base-select'
-import type { BaseSelectT } from './base-select'
-import type { SelectProps, SelectT } from './select.types'
-import {
-  createEmptyRenderer,
-  findNormalizedOptionByValue,
-  mapNormalizedToRawValue,
-  renderDefaultSelectOption,
-} from './shared'
-import type { NormalizedOption } from './shared'
+import { BaseSelect, useSelectState } from './base-select.tsx'
+import type { SelectProps, SelectT } from './select.types.ts'
+import { DefaultSelectContent } from './shared/default-content.tsx'
+import { useSelectSearch } from './shared/search.ts'
 
-/** Dropdown select component with search and custom item rendering. */
-export function Select<TItem extends SelectT.Value = SelectT.Value>(
-  props: SelectProps<TItem>,
+/** Single selection with optional search and standard item presentation. */
+export function Select<V extends SelectT.Value = SelectT.Value>(
+  incoming: SelectProps<V>,
 ): JSX.Element {
-  const cn = useCn()
-  type Item = SelectT.Item<TItem>
-
-  const [local, rest] = splitProps(props, [
-    'ref',
-    'inputRef',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'variant',
-    'search',
-    'placeholder',
-    'allowClear',
-    'loading',
-    'value',
-    'defaultValue',
-    'onChange',
-    'onClear',
-    'optionRender',
-    'labelRender',
+  const [, remainingProps] = splitProps(incoming, [
+    'itemRender',
     'emptyRender',
     'leadingIcon',
     'loadingIcon',
     'trailingIcon',
     'closeIcon',
   ])
-  const themeField = useFormFieldContext()
-  const resolved = createComponentStyles('select', props, {
-    inheritedVariants: () => ({ size: themeField?.size }),
+  const itemRender = createMemo(() => incoming.itemRender)
+  const emptyRender = createMemo(() => incoming.emptyRender)
+  const leadingIcon = createMemo(() => incoming.leadingIcon)
+  const loadingIcon = createMemo(() => incoming.loadingIcon)
+  const trailingIcon = createMemo(() => incoming.trailingIcon)
+  const closeIcon = createMemo(() => incoming.closeIcon)
+  const props = mergeProps(remainingProps, {
+    get itemRender() {
+      return itemRender()
+    },
+    get emptyRender() {
+      return emptyRender()
+    },
+    get leadingIcon() {
+      return leadingIcon()
+    },
+    get loadingIcon() {
+      return loadingIcon()
+    },
+    get trailingIcon() {
+      return trailingIcon()
+    },
+    get closeIcon() {
+      return closeIcon()
+    },
   })
-
-  const initialDefaultValue = untrack(() => local.defaultValue ?? null)
-  const optionRender = createMemo(() => local.optionRender)
-  const labelRender = createMemo(() => local.labelRender)
-  const emptyRender = createMemo(() => local.emptyRender)
-  const leadingIcon = createMemo(() => local.leadingIcon)
-  const loadingIcon = createMemo(() => local.loadingIcon)
-  const trailingIcon = createMemo(() => local.trailingIcon)
-  const closeIcon = createMemo(() => local.closeIcon)
-  const [selectedValue, setSelectedValue] = useControllableValue<TItem | null>({
-    value: () => local.value,
-    defaultValue: () => initialDefaultValue,
+  const [, rootAttrs] = splitProps(props, [
+    'items',
+    'itemToLabelString',
+    'id',
+    'name',
+    'required',
+    'disabled',
+    'readOnly',
+    'value',
+    'defaultValue',
+    'onChange',
+    'open',
+    'defaultOpen',
+    'onOpenChange',
+    'closeOnSelect',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'size',
+    'variant',
+    'search',
+    'searchValue',
+    'defaultSearchValue',
+    'onSearch',
+    'searchMaxLength',
+    'filterItem',
+    'itemRender',
+    'itemProps',
+    'listboxProps',
+    'virtualRender',
+    'scrollToItem',
+    'onScrollBottom',
+    'scrollBottomThreshold',
+    'gutter',
+    'overflowPadding',
+    'emptyRender',
+    'placeholder',
+    'allowClear',
+    'onClear',
+    'loading',
+    'leadingIcon',
+    'loadingIcon',
+    'trailingIcon',
+    'closeIcon',
+    'ref',
+    'inputRef',
+  ])
+  const sharedSlots = [
+    'content',
+    'listbox',
+    'item',
+    'group',
+    'groupLabel',
+    'separator',
+    'empty',
+  ] as const
+  const field = useFormFieldContext()
+  const styles = createComponentStyles('select', props, {
+    inheritedVariants: () => ({ size: field?.size }),
   })
-
-  function getInitialValue(): TItem | '' {
-    return initialDefaultValue ?? ''
-  }
-
-  function getSelectedValues(): TItem[] {
-    const value = selectedValue()
-    return value === null || value === undefined ? [] : [value]
-  }
-
-  function getCurrentValue(
-    api: Pick<BaseSelectT.StateApi<Item>, 'allFlatOptions' | 'field'>,
-  ): TItem | null {
-    if (local.value !== undefined) {
-      return local.value
-    }
-
-    const fieldValue = api.field.value()
-    if (fieldValue === null) {
-      return null
-    }
-
-    if (typeof fieldValue === 'string' || typeof fieldValue === 'number') {
-      if (fieldValue !== '' || findNormalizedOptionByValue(api.allFlatOptions(), fieldValue)) {
-        return fieldValue as TItem
+  function Control(): JSX.Element {
+    const state = useSelectState<SelectT.Item<V>>()
+    const searchable = () => Boolean(styles.variants.search)
+    const search = useSelectSearch(props, searchable)
+    const hasValue = () => state.value() !== null
+    const label = () =>
+      state.selectedItems()[0]?.label ?? (hasValue() ? String(state.value()) : props.placeholder)
+    const clear = () => {
+      if (state.locked()) {
+        return
       }
+      state.change(null)
+      search.setQuery('')
+      state.setOpen(false)
+      props.onClear?.()
     }
-
-    return selectedValue() ?? null
-  }
-
-  function findSelectedOption(
-    api: Pick<BaseSelectT.StateApi<Item>, 'allFlatOptions' | 'field'>,
-  ): NormalizedOption<Item> | null {
-    const value = getCurrentValue(api)
-    return findNormalizedOptionByValue(api.allFlatOptions(), value) ?? null
-  }
-
-  function updateSelection(
-    option: NormalizedOption<Item> | null,
-    api: BaseSelectT.OptionSelectContext<Item>,
-  ): void {
-    if (api.field.readOnly()) {
-      return
-    }
-
-    const value = option ? (mapNormalizedToRawValue(option) as TItem) : null
-    const current = getCurrentValue(api)
-
-    if (Object.is(current, value)) {
-      return
-    }
-
-    if (local.value === undefined) {
-      setSelectedValue(value)
-      api.field.setFormValue(value ?? '')
-    }
-
-    api.setInputValue(option?.key ?? '')
-    local.onChange?.(value)
-    if (local.value !== undefined) {
-      api.field.setFormValue(local.value ?? '')
-    }
-    api.field.emit('change')
-    api.field.emit('input')
-  }
-
-  function displayValue(
-    api: Pick<BaseSelectT.StateApi<Item>, 'allFlatOptions' | 'field'>,
-  ): JSX.Element {
-    const selected = findSelectedOption(api)
-    if (selected) {
-      if (labelRender()) {
-        return renderComponentOrElement(labelRender(), {
-          get option() {
-            return selected.raw
-          },
-        })
-      }
-
-      return selected.label ?? selected.key
-    }
-
-    const value = getCurrentValue(api)
-    return value === null || value === undefined ? local.placeholder : String(value)
-  }
-
-  function renderDefaultOption(option: (Item & SelectT.OptionRenderState) | null): JSX.Element {
-    return renderDefaultSelectOption(
-      {
-        option,
-        classes: {
-          empty: resolved.slot('empty').class,
-          itemLeading: resolved.slot('itemLeading').class,
-          itemLabel: resolved.slot('itemLabel').class,
-          itemDescription: resolved.slot('itemDescription').class,
-          itemTrailing: resolved.slot('itemTrailing').class,
-        },
-        styles: {
-          empty: resolved.slot('empty').style,
-          itemLeading: resolved.slot('itemLeading').style,
-          itemLabel: resolved.slot('itemLabel').style,
-          itemDescription: resolved.slot('itemDescription').style,
-          itemTrailing: resolved.slot('itemTrailing').style,
-        },
-        labelRender: labelRender(),
-      },
-      cn,
-    )
-  }
-
-  function clearSelection(api: BaseSelectT.StateApi<Item>): void {
-    if (api.field.readOnly()) {
-      return
-    }
-
-    updateSelection(null, api)
-    api.close()
-    local.onClear?.()
-  }
-
-  return (
-    <BaseSelect<Item>
-      {...rest}
-      ref={local.ref}
-      search={resolved.variants.search ?? false}
-
-      _styles={resolved}
-
-      initialValue={getInitialValue()}
-      _isValueControlled={local.value !== undefined}
-      multiple={false}
-      selectedValues={getSelectedValues()}
-      onOptionSelect={(option, api) => updateSelection(option, api)}
-      _onFormReset={(api) => {
-        const value = local.value !== undefined ? local.value : initialDefaultValue
-        setSelectedValue(initialDefaultValue)
-        api.setInputValue('')
-        api.field.setFormValue(value ?? '')
-      }}
-      emptyRender={createEmptyRenderer({
-        emptyRender: emptyRender(),
-        buildProps: (api: BaseSelectT.StateApi<Item>) => {
-          return {
-            get inputValue() {
-              return api.inputValue()
-            },
-            get hasMatches() {
-              return api.visibleFlatOptions().length > 0
-            },
-            get selectedValue() {
-              const selected = findSelectedOption(api)
-              return selected ? (mapNormalizedToRawValue(selected) as TItem) : null
-            },
-            close: api.close,
-          }
-        },
-      })}
-      optionRender={(renderProps) => (
-        <Show
-          when={optionRender() !== undefined}
-          fallback={renderDefaultOption(renderProps.option)}
-        >
-          {renderComponentOrElement(optionRender(), {
-            get option() {
-              return renderProps.option
-            },
-          })}
+    const actionLoading = createMemo(() => Boolean(props.loading))
+    const contents = () => (
+      <>
+        <Show when={props.leadingIcon}>
+          {(icon) => <Icon name={icon()} slotName="leading" {...styles.slot('leading')} />}
         </Show>
-      )}
-    >
-      {(api) => {
-        const isActionLoading = createMemo(() => Boolean(local.loading))
-        const isClearAction = createMemo(() =>
-          Boolean(!isActionLoading() && local.allowClear && getCurrentValue(api) !== null),
-        )
-
-        const controlResolved = api.resolved
-
-        return (
+        <Show
+          when={searchable()}
+          fallback={
+            <span
+              data-slot="input"
+              data-placeholder={!hasValue() ? '' : undefined}
+              {...styles.slot('input')}
+            >
+              {label()}
+            </span>
+          }
+        >
+          <input
+            {...search.binding}
+            {...state.field.ariaAttrs()}
+            data-slot="input"
+            {...styles.slot('input')}
+            placeholder={props.placeholder}
+            ref={(element) => {
+              search.binding.ref(element)
+              callRef(props.inputRef, element)
+            }}
+          />
+        </Show>
+        <Show
+          when={!actionLoading() && props.allowClear && hasValue()}
+          fallback={
+            <Icon
+              name={
+                actionLoading()
+                  ? (props.loadingIcon ?? 'icon-loading')
+                  : (props.trailingIcon ?? 'icon-chevron-down')
+              }
+              slotName="trigger"
+              data-loading={actionLoading() ? '' : undefined}
+              {...styles.slot('trigger')}
+            />
+          }
+        >
+          <button
+            type="button"
+            data-slot="clear"
+            aria-label="Clear selection"
+            tabIndex={-1}
+            {...styles.slot('clear')}
+            disabled={state.locked()}
+            onPointerDown={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              state.control()?.focus()
+            }}
+            onClick={(event) => {
+              event.stopPropagation()
+              clear()
+            }}
+          >
+            <Icon name={props.closeIcon ?? 'icon-close'} />
+          </button>
+        </Show>
+      </>
+    )
+    return (
+      <>
+        <Show
+          when={searchable()}
+          fallback={
+            <BaseSelect.Trigger
+              as="div"
+              data-slot="control"
+              {...styles.slot('control')}
+              data-disabled={state.field.disabled() ? '' : undefined}
+              data-readonly={state.field.readOnly() ? '' : undefined}
+              data-required={state.field.required() ? '' : undefined}
+              data-invalid={state.field.invalid() ? '' : undefined}
+            >
+              {contents()}
+            </BaseSelect.Trigger>
+          }
+        >
           <div
             data-slot="control"
-            data-disabled={api.field.disabled() ? '' : undefined}
-            data-invalid={api.field.invalid() ? '' : undefined}
-            data-required={api.field.required() ? '' : undefined}
-            data-readonly={api.field.readOnly() ? '' : undefined}
-            {...controlResolved.slot('control')}
-            {...api.controlProps()}
+            {...styles.slot('control')}
+            data-disabled={state.field.disabled() ? '' : undefined}
+            data-readonly={state.field.readOnly() ? '' : undefined}
+            data-required={state.field.required() ? '' : undefined}
+            data-invalid={state.field.invalid() ? '' : undefined}
+            ref={state.setAnchor}
+            onPointerDown={(event: PointerEvent) => {
+              if (event.pointerType !== 'touch' && event.pointerType !== 'pen') {
+                event.preventDefault()
+                state.control()?.focus()
+              }
+            }}
+            onClick={() => state.setOpen(!state.open())}
           >
-            <Show when={leadingIcon()}>
-              {(icon) => (
-                <Icon name={icon()} slotName="leading" {...controlResolved.slot('leading')} />
-              )}
-            </Show>
-
-            <Show
-              when={api.isSearchable()}
-              fallback={
-                <span
-                  data-slot="input"
-                  data-placeholder={getCurrentValue(api) === null ? '' : undefined}
-                  {...controlResolved.slot('input')}
-                >
-                  {displayValue(api)}
-                </span>
-              }
-            >
-              <input
-                ref={(element) => {
-                  callRef(api.inputProps().ref, element)
-                  callRef(local.inputRef, element)
-                }}
-                data-slot="input"
-                {...controlResolved.slot('input')}
-                placeholder={local.placeholder}
-                {...api.inputProps()}
-                onInput={(event) => {
-                  if (api.field.readOnly()) {
-                    event.currentTarget.value = api.inputValue()
-                  } else {
-                    api.setInputValue(event.currentTarget.value)
-                  }
-                  api.onInput(event)
-                }}
-              />
-            </Show>
-
-            <Show
-              when={isClearAction()}
-              fallback={
-                <Icon
-                  name={
-                    isActionLoading()
-                      ? (loadingIcon() ?? 'icon-loading')
-                      : (trailingIcon() ?? 'icon-chevron-down')
-                  }
-                  slotName="trigger"
-                  data-loading={isActionLoading() ? '' : undefined}
-                  {...controlResolved.slot('trigger')}
-                />
-              }
-            >
-              <button
-                type="button"
-                data-slot="clear"
-                aria-label="Clear selection"
-                tabIndex={-1}
-                {...controlResolved.slot('clear')}
-                disabled={api.field.disabled() || api.field.readOnly()}
-                onPointerDown={(event) => {
-                  event.preventDefault()
-                  event.stopPropagation()
-                  api.focusInput()
-                }}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  if (api.field.disabled() || api.field.readOnly()) {
-                    return
-                  }
-                  clearSelection(api)
-                }}
-              >
-                <Icon name={closeIcon() ?? 'icon-close'} />
-              </button>
-            </Show>
+            {contents()}
           </div>
-        )
-      }}
-    </BaseSelect>
+        </Show>
+        <DefaultSelectContent
+          {...props}
+          slot={styles.slot}
+          empty={
+            props.emptyRender !== undefined
+              ? renderComponentOrElement(props.emptyRender, {
+                  get inputValue() {
+                    return search.query()
+                  },
+                  get hasMatches() {
+                    return state.visibleItems().length > 0
+                  },
+                  get selectedValue() {
+                    return state.value() as V | null
+                  },
+                  close: () => state.setOpen(false),
+                })
+              : 'No items'
+          }
+        />
+      </>
+    )
+  }
+  return (
+    <div
+      {...rootAttrs}
+      ref={props.ref}
+      data-slot="root"
+      data-disabled={(props.disabled ?? field?.disabled) ? '' : undefined}
+      data-readonly={(props.readOnly ?? field?.readOnly) ? '' : undefined}
+      data-required={(props.required ?? field?.required) ? '' : undefined}
+      {...styles.root}
+    >
+      <BaseSelect<SelectT.Item<V>>
+        {...props}
+        multiple={false}
+        size={styles.variants.size ?? undefined}
+        classes={Object.fromEntries(sharedSlots.map((slot) => [slot, styles.slot(slot).class]))}
+        styles={Object.fromEntries(sharedSlots.map((slot) => [slot, styles.slot(slot).style]))}
+      >
+        <Control />
+      </BaseSelect>
+    </div>
   )
 }

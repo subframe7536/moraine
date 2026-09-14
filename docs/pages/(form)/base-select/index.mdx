@@ -1,0 +1,60 @@
+---
+title: BaseSelect
+description: Compose a select from an unstyled trigger and accessible popup parts, with generic items and built-in selection and form state.
+search:
+  tags: [select, primitive, composition]
+sidebar:
+  order: 14
+---
+
+## Import
+
+```tsx
+import { BaseSelect } from 'moraine'
+import type { BaseSelectT } from 'moraine'
+```
+
+BaseSelect is the callable root. It renders its children and lightweight hidden form inputs without a layout wrapper. Supply the complete canonical `items` collection even when composing only a subset of rows. Each leaf requires a unique `value` and a visual `label`; custom fields stay available in item and trigger presentation state.
+
+## Composition
+
+<Preview path="./composition" />
+
+`Trigger` defaults to an unstyled button with `type="button"`. Use `as` to render a custom component. It is the only polymorphic part. `Content` provides positioning, presence, dismissal, and a portal; `Listbox` renders exactly its children. `GroupLabel` automatically labels its enclosing `Group`.
+
+`Separator` is decorative and has no effect on keyboard navigation. Place `Empty` beside `Listbox` inside `Content`; the listbox stays mounted when empty.
+
+## Multiple selection
+
+```tsx
+const items = [
+  { value: 'solid', label: 'Solid' },
+  { value: 'react', label: 'React' },
+]
+
+<BaseSelect items={items} multiple defaultValue={['solid']} name="frameworks">
+  <BaseSelect.Trigger>
+    {(state) => `${state.selectedItems.length} selected`}
+  </BaseSelect.Trigger>
+  <BaseSelect.Content>
+    <BaseSelect.Listbox>
+      <For each={items}>{(item) => <BaseSelect.Item item={item} />}</For>
+    </BaseSelect.Listbox>
+    <BaseSelect.Empty>No frameworks</BaseSelect.Empty>
+  </BaseSelect.Content>
+</BaseSelect>
+```
+
+Single selection uses `TItem['value'] | null`; multiple selection uses `TItem['value'][]`. Single selection closes on selection by default, while multiple selection stays open. Override this with `closeOnSelect`.
+
+## Forms and text matching
+
+Use `name`, `required`, `disabled`, and `readOnly` directly on BaseSelect. Form reset restores the initial uncontrolled value; controlled values remain authoritative. Multiple selection serializes one hidden input per value.
+
+`itemToLabelString` supplies machine-readable text for typeahead. Without it, BaseSelect uses a string label or `String(item.value)`. Visual rendering always uses `item.label` or the part's children.
+
+Search and default item rendering are available through `Select` and `MultiSelect`. BaseSelect does not own a query or filter its canonical collection.
+
+## Styling
+
+Configure `defaultTheme.baseSelect` or root `classes` / `styles` for `content`, `listbox`, `item`, `group`, `groupLabel`, `separator`, and `empty`. Part-local class and style overrides have final precedence. The shared `size` dimension supports `sm`, `md`, and `lg`.

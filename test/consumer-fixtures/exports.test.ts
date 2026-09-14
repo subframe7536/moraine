@@ -74,7 +74,7 @@ test.each(['Bundler', 'NodeNext'] as const)(
       export const row: ListT.RowProps<HTMLLIElement> = { 'data-index': 0 }
       export const button = <Button as="a" href="/">Save</Button>
       export const dialog = <Dialog><Dialog.Trigger>Open</Dialog.Trigger><Dialog.Content /></Dialog>
-      export const select = <Select options={[{ value: 1, label: 'One' }]} onChange={value => value?.toFixed()} />
+      export const select = <Select items={[{ value: 1, label: 'One' }]} onChange={value => value?.toFixed()} />
       // @ts-expect-error Component-specific subpaths are not public.
       type ButtonPath = typeof import('moraine/button')
       // @ts-expect-error Internal helpers are not public components.

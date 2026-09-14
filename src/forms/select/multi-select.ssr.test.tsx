@@ -10,12 +10,11 @@ import type { MultiSelectT } from './multi-select.types'
 describe('MultiSelect SSR Hydration', () => {
   test('hydrates in place, removes a tag, and opens on the first ArrowDown', () => {
     const reads = {
-      options: 0,
+      items: 0,
       label: 0,
       description: 0,
-      optionRender: 0,
+      itemRender: 0,
       tagRender: 0,
-      labelRender: 0,
       emptyRender: 0,
       leadingIcon: 0,
       loadingIcon: 0,
@@ -34,8 +33,8 @@ describe('MultiSelect SSR Hydration', () => {
           search: true,
           defaultValue: ['apple'],
           onChange,
-          get options() {
-            reads.options += 1
+          get items() {
+            reads.items += 1
             return [
               {
                 value: 'apple',
@@ -61,16 +60,12 @@ describe('MultiSelect SSR Hydration', () => {
               },
             ]
           },
-          get optionRender() {
-            reads.optionRender += 1
-            return (props: MultiSelectT.OptionRenderProps) => <span>{props.option?.label}</span>
+          get itemRender() {
+            reads.itemRender += 1
+            return (props: MultiSelectT.ItemRenderProps) => <span>{props.item?.label}</span>
           },
           get tagRender() {
             reads.tagRender += 1
-            return undefined
-          },
-          get labelRender() {
-            reads.labelRender += 1
             return undefined
           },
           get emptyRender() {
@@ -111,12 +106,11 @@ describe('MultiSelect SSR Hydration', () => {
     expect(container.querySelector('select, option')).toBeNull()
     expect(input.getAttribute('aria-expanded')).toBe('false')
     expect(reads).toEqual({
-      options: 1,
-      label: 2,
-      description: 2,
-      optionRender: 1,
+      items: 1,
+      label: 4,
+      description: 0,
+      itemRender: 1,
       tagRender: 1,
-      labelRender: 1,
       emptyRender: 1,
       leadingIcon: 1,
       loadingIcon: 1,
@@ -137,6 +131,6 @@ describe('MultiSelect SSR Hydration', () => {
     expect(
       document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
     ).toContain('Banana')
-    expect(Object.values(reads)).toEqual([1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1])
+    expect(Object.values(reads)).toEqual([1, 6, 0, 1, 1, 1, 1, 1, 1, 1])
   })
 })

@@ -18,7 +18,7 @@ import type { InputT } from '../forms/input'
 import type { InputGroupT } from '../forms/input-group/index.ts'
 import type { InputNumberT } from '../forms/input-number'
 import type { RadioGroupT } from '../forms/radio-group'
-import type { MultiSelectT, SelectT } from '../forms/select'
+import type { BaseSelectT, MultiSelectT, SelectT } from '../forms/select'
 import type { TextControlStyleVariant } from '../forms/shared/text-control.class.ts'
 import type { SliderT } from '../forms/slider'
 import type { SwitchT } from '../forms/switch'
@@ -40,6 +40,7 @@ import type { ComponentRecipeConfig, SlotRecipeFn } from '../shared/style/recipe
 
 /** Component families and their locally declared presentation contracts. */
 export interface MoraineThemeSchema {
+  baseSelect: { slots: BaseSelectT.Slot; variants: BaseSelectT.Variant }
   accordion: { slots: AccordionT.Slot; variants: AccordionT.Variant }
   avatar: { slots: AvatarT.Slot; variants: AvatarT.Variant }
   avatarGroup: { slots: AvatarGroupT.Slot; variants: AvatarGroupT.Variant }

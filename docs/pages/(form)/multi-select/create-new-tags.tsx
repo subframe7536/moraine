@@ -19,7 +19,7 @@ export function CreateNewTags() {
       <MultiSelect
         search
         loading
-        options={FRUIT_OPTIONS}
+        items={FRUIT_OPTIONS}
         value={createTagValues()}
         onChange={setCreateTagValues}
         allowCreate

@@ -1,10 +1,10 @@
 ---
 title: Select
-description: A single-selection combobox/listbox with optional search, grouped options, incremental loading, and virtualized rendering.
+description: A single-selection combobox/listbox with optional search, grouped items, incremental loading, and virtualized rendering.
 sidebar:
   order: 10
 search:
-  tags: [combobox, dropdown, options, searchable, select listbox, filter]
+  tags: [combobox, dropdown, items, searchable, select listbox, filter]
 ---
 
 import { Select } from '@src'
@@ -19,9 +19,9 @@ import type { SelectT } from 'moraine'
 ## Features
 
 - **Optional Search**: Enable `search` to use the combobox input for filtering and typeahead interaction.
-- **Grouped Options**: Options can be organized into labeled, non-selectable groups.
-- **Incremental Loading**: Use the listbox loading hooks to append options as the user reaches the end of the list.
-- **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured virtual rendering of larger option sets.
+- **Grouped items**: Items can be organized into labeled, non-selectable groups.
+- **Incremental Loading**: Use the listbox loading hooks to append items as the user reaches the end of the list.
+- **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured virtual rendering of larger item sets.
 - **Clearable Selection**: `allowClear` adds a clear action when a value is selected.
 - **Combobox/Listbox Semantics**: Exposes combobox/listbox roles, expanded state, active option metadata, and keyboard navigation appropriate to the current mode.
 
@@ -64,7 +64,7 @@ import type { SelectT } from 'moraine'
   ]}
 >
   {(props) => {
-    const TECH_OPTIONS = [
+    const TECH_ITEMS = [
       { label: 'SolidJS', value: 'solid', icon: 'i-lucide:atom' },
       { label: 'Vue.js', value: 'vue', icon: 'i-lucide:sparkles' },
       { label: 'React', value: 'react', icon: 'i-lucide:box' },
@@ -73,7 +73,7 @@ import type { SelectT } from 'moraine'
     ]
     return (
       <Select
-        options={TECH_OPTIONS}
+        items={TECH_ITEMS}
         placeholder={props.placeholder}
         variant={props.variant}
         size={props.size}
@@ -106,14 +106,14 @@ content
 └── listbox
     ├── item (×n)
     ├── group (optional ×n)
-    └── empty (optional)
+└── empty (optional)
 ```
 
 ## Usage
 
 ### Value and search state
 
-Use `value` with `onChange` for controlled selection, or a default value for local state. Search, clear affordances, grouped options, and loading are separate concerns; provide the option collection and any incremental loading behavior from your application.
+Use `value` with `onChange` for controlled selection, or a default value for local state. Search, clear affordances, grouped items, and loading are separate concerns; provide the item collection and any incremental loading behavior from your application.
 
 <Preview path="./basic-select" />
 
@@ -141,13 +141,13 @@ Virtualization is appropriate for large, stable option lists. Infinite loading s
 
 ## Examples
 
-### Searchable options
+### Searchable items
 
 <Preview path="./searchable" />
 
-### Grouped options
+### Grouped items
 
-<Preview path="./grouped-options" />
+<Preview path="./grouped-items" />
 
 ### Incremental loading
 

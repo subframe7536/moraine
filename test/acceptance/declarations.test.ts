@@ -27,7 +27,9 @@ describe('published declarations', () => {
       'Interactive button element, or the polymorphic element provided through `as`.',
     )
     expect(namespace('InputT')).toContain('Native text input element.')
-    expect(namespace('SelectT')).toContain('Custom renderer for each option in the dropdown.')
+    expect(readFileSync(resolve(dist, 'forms/select/shared/types.d.mts'), 'utf8')).toContain(
+      'Custom item presentation.',
+    )
     expect(namespace('SelectT')).toMatch(/interface Slot<T = unknown>/)
   })
 
@@ -38,6 +40,8 @@ describe('published declarations', () => {
     expect(input).toContain('ref?: Ref<HTMLInputElement>')
     expect(input).toContain('onChange?: JSX.EventHandlerUnion<HTMLInputElement, Event>')
     expect(namespace('SelectT')).toContain('onChange?: (value: NoInfer<TItem | null>) => void')
-    expect(namespace('SelectT')).toContain('options')
+    expect(readFileSync(resolve(dist, 'forms/select/base-select.types.d.mts'), 'utf8')).toContain(
+      'items?: Entry<TItem>[]',
+    )
   })
 })

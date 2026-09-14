@@ -1,3 +1,5 @@
+import './base-select'
+
 import {
   Avatar,
   AvatarGroup,
@@ -313,14 +315,14 @@ const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
 ;<Textarea textareaRef={() => undefined} />
 
 ;<Select
-  options={[{ label: 'One', value: 1 }]}
+  items={[{ label: 'One', value: 1 }]}
   readOnly
   onChange={(value) => {
     const selected: number | null = value
     void selected
   }}
 />
-;<MultiSelect options={[{ label: 'One', value: 1 }]} readOnly />
+;<MultiSelect items={[{ label: 'One', value: 1 }]} readOnly />
 
 export type NativeTextSlots = [
   Assert<'orientation' extends keyof InputGroupT.Variant ? true : false>,

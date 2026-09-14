@@ -1,810 +1,494 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, createSignal, splitProps, untrack } from 'solid-js'
-
-import { Icon } from '../../elements/icon'
-import { createComponentStyles } from '../../shared/provider'
-import { useCn } from '../../shared/provider/cn-context'
-import { renderComponentOrElement } from '../../shared/render-prop'
-import { useControllableValue } from '../../shared/use-controllable-value'
-import { callRef } from '../../shared/utils'
-import { useFormFieldContext } from '../form/form-context'
-
-import { BaseSelect } from './base-select'
-import type { BaseSelectT } from './base-select'
-import type { MultiSelectProps, MultiSelectT } from './multi-select.types'
 import {
-  createEmptyRenderer,
-  getSelectedValueKey,
-  emitSelectValueChange,
-  findNormalizedOptionByText,
-  mapNormalizedListToRawValues,
-  mapNormalizedToRawValue,
-  renderDefaultSelectOption,
-  resolveSelectedOptions,
-} from './shared'
-import type { NormalizedOption } from './shared'
+  mergeProps,
+  splitProps,
+  createMemo,
+  createSignal,
+  For,
+  Show,
+  createEffect,
+  on,
+} from 'solid-js'
+import { Dynamic } from 'solid-js/web'
 
-function disableUnselectedOptionsWhenAtMax<
-  TItem extends {
-    value?: string | number
-    disabled?: boolean
-    children?: TItem[]
-  },
->(items: TItem[], selectedValues: Array<string | number>, isAtMaxCount: boolean): TItem[] {
-  if (!isAtMaxCount) {
-    return items
-  }
+import { Icon } from '../../elements/icon/index.ts'
+import { createComponentStyles } from '../../shared/provider/index.ts'
+import { renderComponentOrElement } from '../../shared/render-prop.ts'
+import { callRef } from '../../shared/utils.ts'
+import { useFormFieldContext } from '../form/form-context.ts'
 
-  const selectedKeys = new Set(selectedValues.map(getSelectedValueKey))
-  const disableItems = (currentItems: TItem[]): TItem[] =>
-    currentItems.map((item) => {
-      if (Array.isArray(item.children) && item.children.length > 0) {
-        return {
-          ...item,
-          children: disableItems(item.children),
-        }
-      }
+import { BaseSelect, useSelectState } from './base-select.tsx'
+import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
+import { flattenItems, itemKey, labelString } from './shared/collection.ts'
+import { DefaultSelectContent } from './shared/default-content.tsx'
+import { useSelectSearch } from './shared/search.ts'
 
-      if (item.disabled || selectedKeys.has(getSelectedValueKey(item.value ?? ''))) {
-        return item
-      }
-
-      return {
-        ...item,
-        disabled: true,
-      }
-    })
-
-  return disableItems(items)
-}
-
-function normalizeSelectedValues<TValue extends string | number>(
-  values: readonly TValue[] | undefined,
-): TValue[] {
-  const result: TValue[] = []
-  const seenKeys = new Set<string>()
-
-  for (const value of values ?? []) {
-    const key = getSelectedValueKey(value)
-    if (!seenKeys.has(key)) {
-      seenKeys.add(key)
-      result.push(value)
-    }
-  }
-
-  return result
-}
-
-function escapeRegex(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
-
-/** Dropdown select component with search, multi-select, and custom item rendering. */
-export function MultiSelect<TItem extends MultiSelectT.Value = MultiSelectT.Value>(
-  props: MultiSelectProps<TItem>,
+/** Multiple selection with tags, search, and optional item creation. */
+export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
+  incoming: MultiSelectProps<V>,
 ): JSX.Element {
-  const cn = useCn()
-  type Item = MultiSelectT.Item<TItem>
-
-  const [local, rest] = splitProps(props, [
-    'ref',
-    'inputRef',
-    'classes',
-    'styles',
-    'class',
-    'style',
-    'variant',
-    'search',
-    'placeholder',
-    'allowClear',
-    'loading',
-    'value',
-    'defaultValue',
-    'onChange',
-    'onClear',
-    'optionRender',
-    'tagRender',
-    'labelRender',
+  type Item = MultiSelectT.Item<V>
+  const [, remainingProps] = splitProps(incoming, [
+    'itemRender',
     'emptyRender',
     'leadingIcon',
     'loadingIcon',
     'trailingIcon',
     'closeIcon',
+    'tagRender',
+  ])
+  const itemRender = createMemo(() => incoming.itemRender)
+  const emptyRender = createMemo(() => incoming.emptyRender)
+  const leadingIcon = createMemo(() => incoming.leadingIcon)
+  const loadingIcon = createMemo(() => incoming.loadingIcon)
+  const trailingIcon = createMemo(() => incoming.trailingIcon)
+  const closeIcon = createMemo(() => incoming.closeIcon)
+  const tagRender = createMemo(() => incoming.tagRender)
+  const props = mergeProps(remainingProps, {
+    get itemRender() {
+      return itemRender()
+    },
+    get emptyRender() {
+      return emptyRender()
+    },
+    get leadingIcon() {
+      return leadingIcon()
+    },
+    get loadingIcon() {
+      return loadingIcon()
+    },
+    get trailingIcon() {
+      return trailingIcon()
+    },
+    get closeIcon() {
+      return closeIcon()
+    },
+    get tagRender() {
+      return tagRender()
+    },
+  })
+  const [, rootAttrs] = splitProps(props, [
+    'items',
+    'itemToLabelString',
+    'id',
+    'name',
+    'required',
+    'disabled',
+    'readOnly',
+    'value',
+    'defaultValue',
+    'onChange',
+    'open',
+    'defaultOpen',
+    'onOpenChange',
+    'closeOnSelect',
+    'classes',
+    'styles',
+    'class',
+    'style',
+    'size',
+    'variant',
+    'search',
+    'searchValue',
+    'defaultSearchValue',
+    'onSearch',
+    'searchMaxLength',
+    'filterItem',
+    'itemRender',
+    'itemProps',
+    'listboxProps',
+    'virtualRender',
+    'scrollToItem',
+    'onScrollBottom',
+    'scrollBottomThreshold',
+    'gutter',
+    'overflowPadding',
+    'emptyRender',
+    'placeholder',
+    'allowClear',
+    'onClear',
+    'loading',
+    'leadingIcon',
+    'loadingIcon',
+    'trailingIcon',
+    'closeIcon',
+    'ref',
+    'inputRef',
+    'tagRender',
+    'allowCreate',
     'maxCount',
     'maxTagCount',
     'tokenSeparators',
-    'allowCreate',
-    'options',
   ])
-  const themeField = useFormFieldContext()
-  const resolved = createComponentStyles('multiSelect', props, {
-    inheritedVariants: () => ({ size: themeField?.size }),
+  const sharedSlots = [
+    'content',
+    'listbox',
+    'item',
+    'group',
+    'groupLabel',
+    'separator',
+    'empty',
+  ] as const
+  const field = useFormFieldContext()
+  const styles = createComponentStyles('multiSelect', props, {
+    inheritedVariants: () => ({ size: field?.size }),
   })
-
-  const initialDefaultValues = untrack(() => normalizeSelectedValues(local.defaultValue))
-  const optionRender = createMemo(() => local.optionRender)
-  const tagRender = createMemo(() => local.tagRender)
-  const labelRender = createMemo(() => local.labelRender)
-  const emptyRender = createMemo(() => local.emptyRender)
-  const leadingIcon = createMemo(() => local.leadingIcon)
-  const loadingIcon = createMemo(() => local.loadingIcon)
-  const trailingIcon = createMemo(() => local.trailingIcon)
-  const closeIcon = createMemo(() => local.closeIcon || 'icon-close')
-  const rawOptions = createMemo(() => local.options ?? [])
-  const [rawSelectedValues, setSelectedValues] = useControllableValue<TItem[]>({
-    value: () => local.value,
-    defaultValue: () => initialDefaultValues,
+  const [created, setCreated] = createSignal<Item[]>([])
+  const items = createMemo(() => {
+    const entries = props.items ?? []
+    const existing = new Set(flattenItems(entries).map((item) => itemKey(item.value)))
+    return [...created().filter((item) => !existing.has(itemKey(item.value))), ...entries]
   })
-  const [createdTags, setCreatedTags] = createSignal<NormalizedOption<Item>[]>([])
-  const [isComposing, setIsComposing] = createSignal(false)
-  const selectedValues = createMemo(() => normalizeSelectedValues(rawSelectedValues() ?? []))
-
-  const isAtMaxCount = createMemo(() =>
-    local.maxCount === undefined ? false : selectedValues().length >= local.maxCount,
-  )
-  const tokenSeparatorPattern = createMemo(() => {
-    const separators = [
-      ...new Set(local.tokenSeparators?.filter((separator) => separator.length > 0) ?? []),
-    ].sort((left, right) => right.length - left.length)
-    if (separators.length === 0) {
-      return undefined
-    }
-
-    const source = separators.map(escapeRegex).join('|')
-    return {
-      split: new RegExp(source),
-      trailing: new RegExp(`(?:${source})$`),
-    }
-  })
-
-  const options = createMemo<Item[]>(() => {
-    const base = rawOptions()
-    const selected = selectedValues()
-    const atMax = isAtMaxCount()
-
-    if (!local.allowCreate && !local.tokenSeparators?.length) {
-      return disableUnselectedOptionsWhenAtMax(base, selected, atMax)
-    }
-
-    const existingValues = new Set(
-      base
-        .flatMap((item) => {
-          if (Array.isArray(item.children)) {
-            return item.children.map((child) => child.value ?? '')
-          }
-
-          return [item.value ?? '']
-        })
-        .map(getSelectedValueKey),
+  function Control(): JSX.Element {
+    const state = useSelectState<Item>()
+    const searchable = () =>
+      Boolean(styles.variants.search || props.allowCreate || props.tokenSeparators?.length)
+    const search = useSelectSearch(props, searchable)
+    const atMax = () => props.maxCount !== undefined && state.values().length >= props.maxCount
+    state.setDisabledPolicy(
+      // oxlint-disable-next-line subf/solid-reactivity -- The signal stores this predicate; BaseSelect evaluates it in tracked scopes.
+      () => (item: Item) => atMax() && !state.selectedKeys().has(itemKey(item.value)),
     )
-
-    const newTags = createdTags()
-      .filter((tag) => !existingValues.has(getSelectedValueKey(tag.value)))
-      .map((tag) => tag.raw)
-
-    return disableUnselectedOptionsWhenAtMax(newTags.concat(base), selected, atMax)
-  })
-
-  function getSelectedOptions(
-    api: BaseSelectT.OptionSelectContext<Item>,
-  ): NormalizedOption<Item>[] {
-    const fieldValue = api.field.value()
-    const values =
-      local.value === undefined && Array.isArray(fieldValue)
-        ? normalizeSelectedValues(
-            fieldValue.filter(
-              (value): value is TItem => typeof value === 'string' || typeof value === 'number',
-            ),
-          )
-        : selectedValues()
-    const resolution = resolveSelectedOptions(api.allFlatOptions(), values)
-
-    return resolution.entries.map((entry, index) => {
-      if (entry.type === 'option') {
-        return entry.option
+    const tags = createMemo(() =>
+      state
+        .values()
+        .map(
+          (value) =>
+            state.collection().byValue.get(itemKey(value)) ?? { value, label: String(value) },
+        ),
+    )
+    const visibleTags = createMemo(() =>
+      props.maxTagCount === undefined ? tags() : tags().slice(0, props.maxTagCount),
+    )
+    const remove = (item: Item) =>
+      state.change(state.values().filter((value) => !Object.is(value, item.value)))
+    const clear = () => {
+      if (state.locked()) {
+        return
       }
-
-      const label = String(entry.value)
-      const item = { label, value: entry.value } as Item
-      return {
-        id: `selected:${typeof entry.value}:${encodeURIComponent(label)}:${index}`,
-        value: entry.value,
-        label,
-        key: label,
-        disabled: false,
-        raw: item,
-        renderItem: item,
+      state.change([])
+      search.setQuery('')
+      state.setOpen(false)
+      props.onClear?.()
+    }
+    function addText(text: string, allowCreate: boolean, batch?: V[]): boolean {
+      if (state.locked()) {
+        return false
       }
-    })
-  }
-
-  function handleMultipleChange(
-    options: NormalizedOption<Item>[],
-    api: BaseSelectT.OptionSelectContext<Item>,
-  ): void {
-    if (api.field.readOnly()) {
-      return
-    }
-
-    const nextValue = normalizeSelectedValues(mapNormalizedListToRawValues(options) as TItem[])
-    setSelectedValues(nextValue)
-    emitSelectValueChange(api.field, nextValue, local.onChange)
-  }
-
-  function appendOptionIfAllowed(
-    current: NormalizedOption<Item>[],
-    option: NormalizedOption<Item>,
-  ): {
-    next: NormalizedOption<Item>[]
-    appended: boolean
-    blockedByMaxCount: boolean
-  } {
-    if (current.some((item) => Object.is(item.value, option.value)) || option.disabled) {
-      return { next: current, appended: false, blockedByMaxCount: false }
-    }
-
-    if (local.maxCount !== undefined && current.length >= local.maxCount) {
-      return { next: current, appended: false, blockedByMaxCount: true }
-    }
-
-    return {
-      next: [...current, option],
-      appended: true,
-      blockedByMaxCount: false,
-    }
-  }
-
-  function addTag(
-    text: string,
-    api: BaseSelectT.OptionSelectContext<Item>,
-  ): NormalizedOption<Item> | undefined {
-    if (api.field.readOnly()) {
-      return undefined
-    }
-
-    const normalized = text.trim()
-    if (!normalized) {
-      return undefined
-    }
-
-    const exists = findNormalizedOptionByText(api.allFlatOptions(), normalized)
-    if (exists) {
-      return exists
-    }
-
-    const option: NormalizedOption<Item> = {
-      id: `created:${encodeURIComponent(normalized)}`,
-      value: normalized,
-      label: normalized,
-      key: normalized,
-      disabled: false,
-      raw: { label: normalized, value: normalized as TItem },
-      renderItem: { label: normalized, value: normalized as TItem },
-    }
-
-    setCreatedTags((prev) => [...prev, option])
-    return option
-  }
-
-  function resolveOptionForInput(
-    text: string,
-    current: NormalizedOption<Item>[],
-    api: BaseSelectT.OptionSelectContext<Item>,
-  ): { option?: NormalizedOption<Item>; blockedByMaxCount: boolean } {
-    const existing = findNormalizedOptionByText(api.allFlatOptions(), text)
-    if (existing) {
-      return { option: existing, blockedByMaxCount: false }
-    }
-
-    if (local.maxCount !== undefined && current.length >= local.maxCount) {
-      return { blockedByMaxCount: true }
-    }
-
-    return { option: addTag(text, api), blockedByMaxCount: false }
-  }
-
-  function clearSelection(api: BaseSelectT.StateApi<Item>): void {
-    if (api.field.readOnly()) {
-      return
-    }
-
-    const nextValue: TItem[] = []
-    setSelectedValues(nextValue)
-    emitSelectValueChange(api.field, nextValue, local.onChange)
-    api.setInputValue('')
-    api.close()
-    local.onClear?.()
-  }
-
-  function createTag(value: string | undefined, api: BaseSelectT.StateApi<Item>): boolean {
-    if (!local.allowCreate || api.field.readOnly()) {
-      return false
-    }
-
-    const text = (value ?? api.inputValue()).trim()
-    if (!text) {
-      return false
-    }
-
-    const current = getSelectedOptions(api)
-    const resolved = resolveOptionForInput(text, current, api)
-    if (resolved.blockedByMaxCount || !resolved.option) {
-      return false
-    }
-
-    const appendResult = appendOptionIfAllowed(current, resolved.option)
-    if (!appendResult.appended) {
-      return false
-    }
-
-    handleMultipleChange(appendResult.next, api)
-    api.setInputValue('')
-    return true
-  }
-
-  function toggleOption(
-    option: NormalizedOption<Item>,
-    api: BaseSelectT.OptionSelectContext<Item>,
-  ): void {
-    if (option.disabled || api.field.readOnly()) {
-      return
-    }
-
-    const current = getSelectedOptions(api)
-    if (current.some((item) => Object.is(item.value, option.value))) {
-      handleMultipleChange(
-        current.filter((item) => !Object.is(item.value, option.value)),
-        api,
-      )
-      return
-    }
-
-    const appendResult = appendOptionIfAllowed(current, option)
-    if (appendResult.appended) {
-      handleMultipleChange(appendResult.next, api)
-    }
-  }
-
-  function handleInputChange(inputValue: string, api: BaseSelectT.StateApi<Item>): void {
-    if (api.field.readOnly()) {
-      return
-    }
-
-    const separatorPattern = tokenSeparatorPattern()
-    if (separatorPattern) {
-      if (separatorPattern.split.test(inputValue)) {
-        const currentSelected = getSelectedOptions(api)
-        const splitInput = inputValue.split(separatorPattern.split)
-        const trailingInput = splitInput.at(-1) ?? ''
-        const isTrailingTokenCompleted = separatorPattern.trailing.test(inputValue)
-        const remainder = isTrailingTokenCompleted ? '' : trailingInput
-        const tokens = (isTrailingTokenCompleted ? splitInput : splitInput.slice(0, -1)).filter(
-          (token) => token.trim(),
+      const normalized = text.trim()
+      if (!normalized) {
+        return false
+      }
+      let item = state
+        .collection()
+        .items.find(
+          (item) =>
+            labelString(item, props.itemToLabelString).toLowerCase() === normalized.toLowerCase() ||
+            String(item.value).toLowerCase() === normalized.toLowerCase(),
         )
-
-        let nextSelected = [...currentSelected]
-        for (const token of tokens) {
-          const resolved = resolveOptionForInput(token.trim(), nextSelected, api)
-          if (resolved.blockedByMaxCount || !resolved.option) {
-            break
-          }
-
-          const appendResult = appendOptionIfAllowed(nextSelected, resolved.option)
-          if (appendResult.blockedByMaxCount) {
-            break
-          }
-          if (appendResult.appended) {
-            nextSelected = appendResult.next
-          }
-        }
-
-        if (nextSelected.length !== currentSelected.length) {
-          handleMultipleChange(nextSelected, api)
-        }
-
-        api.setInputValue(remainder)
-        return
+      const current = batch ?? state.values()
+      if (item && current.some((value) => Object.is(value, item!.value))) {
+        return true
       }
-    }
-
-    api.setInputValue(inputValue)
-  }
-
-  function handleEnterKey(event: KeyboardEvent, api: BaseSelectT.StateApi<Item>): void {
-    if (event.key !== 'Enter' || event.isComposing || isComposing() || api.field.readOnly()) {
-      return
-    }
-
-    const text = api.inputValue().trim()
-    if (text) {
-      const match = findNormalizedOptionByText(api.allFlatOptions(), text)
-      if (match) {
-        const current = getSelectedOptions(api)
-        const isSelected = current.some((option) => Object.is(option.value, match.value))
-
-        if (isSelected) {
-          handleMultipleChange(
-            current.filter((option) => !Object.is(option.value, match.value)),
-            api,
-          )
-          api.setInputValue('')
-          event.preventDefault()
-          return
-        }
-
-        const appendResult = appendOptionIfAllowed(current, match)
-        if (appendResult.appended) {
-          handleMultipleChange(appendResult.next, api)
-          api.setInputValue('')
-        }
-        event.preventDefault()
-        return
+      if ((props.maxCount !== undefined && current.length >= props.maxCount) || item?.disabled) {
+        return false
       }
-
-      if (local.allowCreate) {
-        createTag(text, api)
-        event.preventDefault()
+      if (!item) {
+        if (!allowCreate) {
+          return false
+        }
+        item = { value: normalized as V, label: normalized }
+        setCreated((previous) => [...previous, item!])
       }
+      if (batch) {
+        batch.push(item.value)
+      } else {
+        state.change([...state.values(), item.value])
+      }
+      return true
     }
-  }
-
-  function handleSpaceKey(event: KeyboardEvent, api: BaseSelectT.StateApi<Item>): void {
-    if (event.key !== ' ' && event.key !== 'Spacebar') {
-      return
+    const create = (value?: string) => {
+      if (!props.allowCreate) {
+        return false
+      }
+      const added = addText(value ?? search.query(), true)
+      if (added) {
+        search.setQuery('')
+      }
+      return added
     }
-
-    if (!api.isOpen() || api.field.readOnly()) {
-      return
-    }
-
-    const key =
-      api.highlightedKey() ?? api.visibleFlatOptions().find((option) => !option.disabled)?.id
-    if (!key) {
-      return
-    }
-
-    const option = api.visibleFlatOptions().find((item) => item.id === key)
-    if (!option || option.disabled) {
-      return
-    }
-
-    event.preventDefault()
-    toggleOption(option, api)
-  }
-
-  function handleTagRemovalKey(
-    event: KeyboardEvent & { currentTarget: HTMLInputElement },
-    api: BaseSelectT.ControlApi<Item>,
-  ): void {
-    if (
-      event.key !== 'Backspace' ||
-      !api.isSearchable() ||
-      api.field.disabled() ||
-      api.field.readOnly() ||
-      event.currentTarget.value !== '' ||
-      event.currentTarget.selectionStart !== 0 ||
-      event.currentTarget.selectionEnd !== 0
-    ) {
-      return
-    }
-
-    const current = getSelectedOptions(api)
-    if (current.length === 0) {
-      return
-    }
-
-    event.preventDefault()
-    handleMultipleChange(current.slice(0, -1), api)
-  }
-
-  function renderDefaultOption(
-    option: (Item & MultiSelectT.OptionRenderState) | null,
-  ): JSX.Element {
-    return renderDefaultSelectOption(
-      {
-        option,
-        classes: {
-          empty: resolved.slot('empty').class,
-          itemLeading: resolved.slot('itemLeading').class,
-          itemLabel: resolved.slot('itemLabel').class,
-          itemDescription: resolved.slot('itemDescription').class,
-          itemTrailing: resolved.slot('itemTrailing').class,
-        },
-        styles: {
-          empty: resolved.slot('empty').style,
-          itemLeading: resolved.slot('itemLeading').style,
-          itemLabel: resolved.slot('itemLabel').style,
-          itemDescription: resolved.slot('itemDescription').style,
-          itemTrailing: resolved.slot('itemTrailing').style,
-        },
-        labelRender: labelRender(),
-      },
-      cn,
+    const separators = createMemo(() =>
+      [...new Set(props.tokenSeparators?.filter(Boolean) ?? [])].sort(
+        (a, b) => b.length - a.length,
+      ),
     )
-  }
-
-  return (
-    <BaseSelect<Item>
-      {...rest}
-      ref={local.ref}
-      search={resolved.variants.search ?? false}
-
-      _styles={resolved}
-
-      options={options()}
-      initialValue={initialDefaultValues}
-      _isValueControlled={local.value !== undefined}
-      multiple
-      selectedValues={selectedValues()}
-      closeOnSelect={false}
-      onOptionSelect={(option, api) => {
-        if (option) {
-          toggleOption(option, api)
+    function processInput(event: InputEvent) {
+      const original = (event.currentTarget as HTMLInputElement).value
+      search.input(event)
+      if (search.composing() || event.isComposing || state.locked() || !separators().length) {
+        return
+      }
+      const text = original
+      const batch = [...state.values()]
+      let remaining = text
+      let consumed = false
+      for (;;) {
+        let index = -1
+        let separator = ''
+        for (const token of separators()) {
+          const found = remaining.indexOf(token)
+          if (found >= 0 && (index < 0 || found < index)) {
+            index = found
+            separator = token
+          }
         }
-      }}
-      _onFormReset={(api) => {
-        const value =
-          local.value === undefined
-            ? [...initialDefaultValues]
-            : normalizeSelectedValues(local.value)
-        setSelectedValues(value)
-        setCreatedTags([])
-        api.setInputValue('')
-        api.field.setFormValue(value)
-      }}
-      onInputKeyDown={handleEnterKey}
-      emptyRender={createEmptyRenderer({
-        emptyRender: emptyRender(),
-        buildProps: (ctx: BaseSelectT.StateApi<Item>) => ({
-          get inputValue() {
-            return ctx.inputValue()
-          },
-          get hasMatches() {
-            return ctx.visibleFlatOptions().length > 0
-          },
-          get selectedValues() {
-            return getSelectedOptions(ctx).map((option) => mapNormalizedToRawValue(option) as TItem)
-          },
-          get isAtMaxCount() {
-            return isAtMaxCount()
-          },
-          create: (value?: string) => createTag(value, ctx),
-          close: ctx.close,
-        }),
-      })}
-      optionRender={(renderProps) => (
-        <Show
-          when={optionRender() !== undefined}
-          fallback={renderDefaultOption(renderProps.option)}
+        if (index < 0) {
+          break
+        }
+        const token = remaining.slice(0, index)
+        if (token.trim()) {
+          addText(token, true, batch)
+        }
+        remaining = remaining.slice(index + separator.length)
+        consumed = true
+      }
+      if (consumed) {
+        state.change(batch)
+        search.setQuery(remaining)
+      }
+    }
+    createEffect(
+      on(
+        state.resetVersion,
+        () =>
+          setCreated((previous) =>
+            previous.filter((item) => state.selectedKeys().has(itemKey(item.value))),
+          ),
+        { defer: true },
+      ),
+    )
+    return (
+      <>
+        <Dynamic
+          component={searchable() ? 'div' : BaseSelect.Trigger}
+          as={searchable() ? undefined : 'div'}
+          data-slot="control"
+          {...styles.slot('control')}
+          data-tags={tags().length ? '' : undefined}
+          data-disabled={state.field.disabled() ? '' : undefined}
+          data-readonly={state.field.readOnly() ? '' : undefined}
+          data-required={state.field.required() ? '' : undefined}
+          data-invalid={state.field.invalid() ? '' : undefined}
+          ref={state.setAnchor}
+          onPointerDown={(event: PointerEvent) => {
+            if (event.pointerType !== 'touch' && event.pointerType !== 'pen') {
+              event.preventDefault()
+              state.control()?.focus()
+            }
+          }}
+          onClick={() => {
+            state.control()?.focus()
+            if (searchable()) {
+              state.setOpen(!state.open())
+            }
+          }}
         >
-          {renderComponentOrElement(optionRender(), {
-            get option() {
-              return renderProps.option
-            },
-          })}
-        </Show>
-      )}
-    >
-      {(api) => {
-        const selectedOptions = createMemo(() => getSelectedOptions(api))
-        const visibleTagOptions = createMemo(() => {
-          const currentSelectedOptions = selectedOptions()
-          if (local.maxTagCount === undefined) {
-            return currentSelectedOptions
-          }
-          return currentSelectedOptions.slice(0, local.maxTagCount)
-        })
-        const hiddenTagCount = createMemo(() =>
-          local.maxTagCount === undefined
-            ? 0
-            : Math.max(0, selectedOptions().length - local.maxTagCount),
-        )
-        const isActionLoading = createMemo(() => Boolean(local.loading))
-        const isClearAction = createMemo(() =>
-          Boolean(!isActionLoading() && local.allowClear && selectedOptions().length > 0),
-        )
-
-        const controlResolved = resolved
-
-        return (
-          <div
-            data-slot="control"
-            data-disabled={api.field.disabled() ? '' : undefined}
-            data-invalid={api.field.invalid() ? '' : undefined}
-            data-required={api.field.required() ? '' : undefined}
-            data-readonly={api.field.readOnly() ? '' : undefined}
-            data-tags={selectedValues().length > 0 ? '' : undefined}
-            {...controlResolved.slot('control')}
-            {...api.controlProps()}
-          >
-            <Show when={leadingIcon()}>
-              {(icon) => (
-                <Icon name={icon()} slotName="leading" {...controlResolved.slot('leading')} />
-              )}
-            </Show>
-
-            <div data-slot="tagsContainer" {...controlResolved.slot('tagsContainer')}>
-              <For each={visibleTagOptions()}>
-                {(option) => {
-                  const onClose = () => toggleOption(option, api)
-                  return (
-                    <Show
-                      when={tagRender() === undefined}
-                      fallback={renderComponentOrElement(tagRender(), {
-                        option: option.raw,
-                        onClose,
-                      })}
+          <Show when={props.leadingIcon}>
+            {(icon) => <Icon name={icon()} slotName="leading" {...styles.slot('leading')} />}
+          </Show>
+          <div data-slot="tagsContainer" {...styles.slot('tagsContainer')}>
+            <For each={visibleTags()}>
+              {(item) => (
+                <Show
+                  when={props.tagRender !== undefined}
+                  fallback={
+                    <span
+                      title={labelString(item, props.itemToLabelString)}
+                      data-slot="tag"
+                      {...styles.slot('tag')}
                     >
                       <span
-                        data-slot="tag"
-                        title={option.key}
-                        {...controlResolved.slot('tag')}
-                        onPointerDown={(event: PointerEvent) => {
-                          event.preventDefault()
-                          api.focusInput()
+                        title={labelString(item, props.itemToLabelString)}
+                        data-slot="label"
+                        {...styles.slot('tagLabel')}
+                      >
+                        {item.label}
+                      </span>
+                      <button
+                        type="button"
+                        data-slot="tagRemove"
+                        aria-label={`Remove ${labelString(item, props.itemToLabelString)}`}
+                        tabIndex={-1}
+                        disabled={state.locked() || item.disabled}
+                        {...styles.slot('tagRemove')}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          if (!item.disabled) {
+                            remove(item)
+                          }
                         }}
                       >
-                        <span data-slot="label" {...controlResolved.slot('tagLabel')}>
-                          {option.label}
-                        </span>
-
-                        <button
-                          type="button"
-                          data-slot="tagRemove"
-                          aria-label={`Remove ${option.key}`}
-                          style={controlResolved.slot('tagRemove').style}
-                          disabled={api.field.disabled() || api.field.readOnly()}
-                          tabIndex={-1}
-                          class={controlResolved.slot('tagRemove').class}
-                          onPointerDown={(event) => {
-                            if (api.field.disabled() || api.field.readOnly()) {
-                              return
-                            }
-                            event.preventDefault()
-                            event.stopPropagation()
-                            api.focusInput()
-                          }}
-                          onClick={(event) => {
-                            if (api.field.disabled() || api.field.readOnly()) {
-                              return
-                            }
-                            event.stopPropagation()
-                            onClose()
-                          }}
-                        >
-                          <Icon name={closeIcon()} />
-                        </button>
-                      </span>
-                    </Show>
-                  )
-                }}
-              </For>
-
-              <Show when={hiddenTagCount() > 0}>
-                <span data-slot="tagOverflow" {...controlResolved.slot('tagOverflow')}>
-                  +{hiddenTagCount()}
-                </span>
-              </Show>
-
-              <input
-                ref={(element) => {
-                  callRef(api.inputProps().ref, element)
-                  callRef(local.inputRef, element)
-                }}
-                data-slot="input"
-                data-searchable={api.isSearchable() ? '' : undefined}
-                {...controlResolved.slot('input')}
-                {...api.inputProps()}
-                placeholder={selectedOptions().length > 0 ? '' : local.placeholder}
-                readonly={!api.isSearchable() || api.field.readOnly() ? true : undefined}
-                tabIndex={api.isSearchable() ? undefined : -1}
-                onInput={(event) => {
-                  if (api.field.readOnly()) {
-                    event.currentTarget.value = api.inputValue()
-                  } else if (event.isComposing || isComposing()) {
-                    api.setInputValue(event.currentTarget.value)
-                  } else {
-                    handleInputChange(event.currentTarget.value, api)
+                        <Icon name={props.closeIcon ?? 'icon-close'} />
+                      </button>
+                    </span>
                   }
-                  event.currentTarget.value = api.inputValue()
-                  api.onInput(event)
-                }}
-                onCompositionStart={() => setIsComposing(true)}
-                onCompositionEnd={(event) => {
-                  setIsComposing(false)
-                  if (!api.field.readOnly()) {
-                    handleInputChange(event.currentTarget.value, api)
-                  }
-                  event.currentTarget.value = api.inputValue()
-                }}
-                onKeyDown={(event) => {
-                  handleTagRemovalKey(event, api)
-                  if (event.key === ' ' || event.key === 'Spacebar') {
-                    event.stopPropagation()
-                  }
-                  handleSpaceKey(event, api)
-                  if (!event.defaultPrevented) {
-                    api.onKeyDown(event)
-                  }
-                }}
-              />
-            </div>
-
-            <Show
-              when={isClearAction()}
-              fallback={
-                <button
-                  type="button"
-                  data-slot="trigger"
-                  aria-label={isActionLoading() ? 'Loading' : 'Open dropdown menu'}
-                  aria-busy={isActionLoading() || undefined}
-                  data-loading={isActionLoading() ? '' : undefined}
-                  tabIndex={-1}
-                  class={controlResolved.slot('trigger').class}
-                  style={controlResolved.slot('trigger').style}
-                  disabled={api.field.disabled() || api.field.readOnly() || isActionLoading()}
-                  onPointerDown={(event) => {
-                    if (api.field.disabled() || api.field.readOnly() || isActionLoading()) {
-                      return
-                    }
-                    event.preventDefault()
-                    event.stopPropagation()
-                    api.focusInput()
-                  }}
-                  onClick={(event) => {
-                    event.stopPropagation()
-
-                    if (api.field.disabled() || api.field.readOnly() || isActionLoading()) {
-                      return
-                    }
-
-                    api.toggle()
-                  }}
                 >
-                  <Icon
-                    name={
-                      isActionLoading()
-                        ? (loadingIcon() ?? 'icon-loading')
-                        : (trailingIcon() ?? 'icon-chevron-down')
-                    }
-                    data-loading={isActionLoading() ? '' : undefined}
-                    class="data-loading:animate-spin"
-                  />
-                </button>
-              }
-            >
+                  {renderComponentOrElement(props.tagRender, { item, onClose: () => remove(item) })}
+                </Show>
+              )}
+            </For>
+            <Show when={tags().length > visibleTags().length}>
+              <span data-slot="tagOverflow" {...styles.slot('tagOverflow')}>
+                +{tags().length - visibleTags().length}
+              </span>
+            </Show>
+            <input
+              {...(searchable() ? search.binding : { readOnly: true, value: '' })}
+              {...state.field.ariaAttrs()}
+              role={searchable() ? 'combobox' : undefined}
+              id={searchable() ? state.field.id() : undefined}
+              tabIndex={searchable() ? undefined : -1}
+              data-slot="input"
+              {...styles.slot('input')}
+              placeholder={props.placeholder}
+              ref={(element) => {
+                if (searchable()) {
+                  search.binding.ref(element)
+                }
+                callRef(props.inputRef, element)
+              }}
+              onInput={processInput}
+              onCompositionEnd={(event) => {
+                search.binding.onCompositionEnd(event)
+                processInput(event as unknown as InputEvent)
+              }}
+              onKeyDown={(event) => {
+                if (search.composing() || event.isComposing || state.locked()) {
+                  return
+                }
+                if (event.key === 'Backspace' && !search.query()) {
+                  const item = tags().at(-1)
+                  if (item && !item.disabled) {
+                    event.preventDefault()
+                    remove(item)
+                  }
+                  return
+                }
+                if (
+                  event.key === 'Enter' &&
+                  props.allowCreate &&
+                  search.query() &&
+                  !state.visibleItems().some((item) => !item.disabled)
+                ) {
+                  event.preventDefault()
+                  create()
+                  return
+                }
+                const highlighted = state
+                  .visibleItems()
+                  .find((item) => itemKey(item.value) === state.highlight())
+                if (
+                  (event.key === 'Enter' || (!searchable() && event.key === ' ')) &&
+                  state.open() &&
+                  atMax() &&
+                  highlighted &&
+                  !state.selectedKeys().has(itemKey(highlighted.value))
+                ) {
+                  event.preventDefault()
+                  return
+                }
+                search.binding.onKeyDown(event)
+              }}
+            />
+          </div>
+          <Show
+            when={!props.loading && props.allowClear && tags().length}
+            fallback={
               <button
                 type="button"
-                data-slot="clear"
-                aria-label="Clear selection"
                 tabIndex={-1}
-                class={controlResolved.slot('clear').class}
-                style={controlResolved.slot('clear').style}
-                disabled={api.field.disabled() || api.field.readOnly()}
-                onPointerDown={(event) => {
-                  if (api.field.disabled() || api.field.readOnly()) {
-                    return
-                  }
-                  event.preventDefault()
-                  event.stopPropagation()
-                  api.focusInput()
-                }}
-                onClick={(event) => {
-                  event.stopPropagation()
-
-                  if (api.field.disabled() || api.field.readOnly()) {
-                    return
-                  }
-
-                  clearSelection(api)
-                }}
+                data-slot="trigger"
+                aria-label={props.loading ? 'Loading' : 'Toggle selection'}
+                aria-busy={props.loading ? 'true' : undefined}
+                data-loading={props.loading ? '' : undefined}
+                disabled={state.locked()}
+                {...styles.slot('trigger')}
               >
-                <Icon name={closeIcon() ?? 'icon-close'} />
+                <Icon
+                  data-loading={props.loading ? '' : undefined}
+                  class="data-loading:animate-spin"
+                  name={
+                    props.loading
+                      ? (props.loadingIcon ?? 'icon-loading')
+                      : (props.trailingIcon ?? 'icon-chevron-down')
+                  }
+                />
               </button>
-            </Show>
-          </div>
-        )
-      }}
-    </BaseSelect>
+            }
+          >
+            <button
+              type="button"
+              tabIndex={-1}
+              data-slot="clear"
+              aria-label="Clear selection"
+              disabled={state.locked()}
+              {...styles.slot('clear')}
+              onClick={(event) => {
+                event.stopPropagation()
+                clear()
+              }}
+            >
+              <Icon name={props.closeIcon ?? 'icon-close'} />
+            </button>
+          </Show>
+        </Dynamic>
+        <DefaultSelectContent
+          {...props}
+          slot={styles.slot}
+          empty={
+            props.emptyRender !== undefined
+              ? renderComponentOrElement(props.emptyRender, {
+                  get inputValue() {
+                    return search.query()
+                  },
+                  get hasMatches() {
+                    return state.visibleItems().length > 0
+                  },
+                  get selectedValues() {
+                    return state.values()
+                  },
+                  get isAtMaxCount() {
+                    return atMax()
+                  },
+                  create,
+                  close: () => state.setOpen(false),
+                })
+              : 'No items'
+          }
+        />
+      </>
+    )
+  }
+  return (
+    <div
+      {...rootAttrs}
+      ref={props.ref}
+      data-slot="root"
+      data-disabled={(props.disabled ?? field?.disabled) ? '' : undefined}
+      data-readonly={(props.readOnly ?? field?.readOnly) ? '' : undefined}
+      data-required={(props.required ?? field?.required) ? '' : undefined}
+      {...styles.root}
+    >
+      <BaseSelect<Item>
+        {...props}
+        items={items()}
+        multiple
+        size={styles.variants.size ?? undefined}
+        classes={Object.fromEntries(sharedSlots.map((slot) => [slot, styles.slot(slot).class]))}
+        styles={Object.fromEntries(sharedSlots.map((slot) => [slot, styles.slot(slot).style]))}
+      >
+        <Control />
+      </BaseSelect>
+    </div>
   )
 }

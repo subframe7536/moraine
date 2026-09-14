@@ -18,7 +18,7 @@ export function MaxCountMaxTagCount() {
           Primary competencies (Max 2 selections)
         </label>
         <MultiSelect
-          options={TECH_STACK}
+          items={TECH_STACK}
           maxCount={2}
           placeholder="Select up to 2 skills..."
           defaultValue={['solid']}
@@ -31,7 +31,7 @@ export function MaxCountMaxTagCount() {
           Project tags (Compact overflow +2)
         </label>
         <MultiSelect
-          options={TECH_STACK}
+          items={TECH_STACK}
           defaultValue={['solid', 'ts', 'tailwind']}
           maxTagCount={1}
           placeholder="Select tags..."

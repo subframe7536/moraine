@@ -135,7 +135,7 @@ export interface DemoProps { title: string }
     expect(result?.componentDocs.size).toBeGreaterThan(0)
     expect(result?.componentDocs.has('button')).toBe(true)
     expect(result?.componentDocs.get('button')?.slots).toHaveLength(5)
-    expect(result?.componentDocs.get('select')?.slots).toHaveLength(16)
+    expect(result?.componentDocs.get('select')?.slots).toHaveLength(17)
     expect(resultProps(result, 'select').map((prop) => prop.name)).toContain('onChange')
     expect(resultProps(result, 'dialog').map((prop) => prop.name)).toContain('open')
     expect(
@@ -171,6 +171,7 @@ export interface DemoProps { title: string }
       await readFile(path.join(projectRoot, 'docs/pages/_api-index.json'), 'utf8'),
     ) as IndexDoc
     const composites = new Set([
+      'base-select',
       'input-group',
       'collapsible',
       'resizable',

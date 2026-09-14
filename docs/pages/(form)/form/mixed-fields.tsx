@@ -27,7 +27,7 @@ export function MixedFields() {
       <form.Field name="visibility" label="Visibility" required>
         <Select
           placeholder="Select visibility"
-          options={[
+          items={[
             { label: 'Private', value: 'private' },
             { label: 'Team', value: 'team' },
           ]}

@@ -11,18 +11,28 @@ import type {
   FormValueOptions,
 } from '../shared/form-options'
 
-import type { BaseSelectT } from './base-select'
+import type { BaseSelectT } from './base-select.types.ts'
+import type {
+  SelectItem,
+  SearchProps,
+  ContentProps,
+  SelectVirtualEntry,
+  SelectVirtualRenderProps,
+} from './shared/types.ts'
 
 export namespace MultiSelectT {
   export type Kind = 'single'
 
   export type Value = string | number
 
-  export type OptionRenderState = BaseSelectT.OptionRenderState
-  export type VirtualEntry<TItem extends Value = Value> = BaseSelectT.VirtualEntry<Item<TItem>>
-  export type VirtualRenderProps<TItem extends Value = Value> = BaseSelectT.VirtualRenderProps<
-    Item<TItem>
+  export type ItemRenderState = Omit<BaseSelectT.ItemState, 'item'>
+  export type ItemRenderProps<TValue extends Value = Value> = BaseSelectT.ItemState<Item<TValue>>
+  export type VirtualEntry<TValue extends Value = Value> = SelectVirtualEntry<Item<TValue>>
+  export type VirtualRenderProps<TValue extends Value = Value> = SelectVirtualRenderProps<
+    Item<TValue>
   >
+  export type Group<TValue extends Value = Value> = BaseSelectT.Group<Item<TValue>>
+  export type Entry<TValue extends Value = Value> = BaseSelectT.Entry<Item<TValue>>
 
   export interface ControlSlot<T = unknown> {
     /** Multi-select control that displays selected tags and opens the popup. */
@@ -47,33 +57,23 @@ export namespace MultiSelectT {
     tagOverflow?: T
   }
 
-  export interface OptionSlot<T = unknown> {
-    /** Message shown when filtering leaves no selectable options. */
+  export interface ItemSlot<T = unknown> {
+    /** Message shown when filtering leaves no selectable items. */
     empty?: T
-    /** Leading icon inside an option row. */
+    /** Leading icon inside an item row. */
     itemLeading?: T
     /** Text region containing the primary label and optional description. */
     itemLabel?: T
-    /** Supporting description text inside an option row. */
+    /** Supporting description text inside an item row. */
     itemDescription?: T
-    /** Trailing region inside an option row, usually for selection state or custom content. */
+    /** Trailing region inside an item row, usually for selection state or custom content. */
     itemTrailing?: T
   }
 
-  export interface OptionRenderProps<TItem extends Value = Value> {
-    /** Option and interaction state, or null when no option matches. */
-    option: (Item<TItem> & OptionRenderState) | null
-  }
-
-  export interface LabelRenderProps<TItem extends Value = Value> {
-    /** Option whose label is being rendered. */
-    option: Item<TItem>
-  }
-
   export interface TagRenderProps<TItem extends Value = Value> {
-    /** Selected option represented by the tag. */
-    option: Item<TItem>
-    /** Removes this option from the selection. */
+    /** Selected item represented by the tag. */
+    item: Item<TItem>
+    /** Removes this item from the selection. */
     onClose: () => void
   }
 
@@ -92,7 +92,10 @@ export namespace MultiSelectT {
     close: () => void
   }
 
-  export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, OptionSlot<T> {}
+  export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, ItemSlot<T> {
+    /** Visual control wrapper. */
+    root?: T
+  }
 
   export interface Variant {
     /** Visual treatment of the component.
@@ -111,28 +114,13 @@ export namespace MultiSelectT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export interface Item<Val extends Value = Value> extends BaseSelectT.Item<Val> {}
+  export interface Item<Val extends Value = Value> extends SelectItem<Val> {}
 
   export interface Base<TItem extends Value = Value>
     extends
-      Omit<
-        BaseSelectT.Base<Item<TItem>>,
-        | 'children'
-        | 'closeOnSelect'
-        | 'emptyRender'
-        | 'initialValue'
-        | 'onInputKeyDown'
-        | '_onFormReset'
-        | '_isValueControlled'
-        | '_styles'
-        | 'onOptionSelect'
-        | 'optionRender'
-        | 'selectedValues'
-        | 'multiple'
-        | 'tabSelectionBehavior'
-        | 'virtualRender'
-        | 'scrollToItem'
-      >,
+      Omit<BaseSelectT.Base<Item<TItem>>, 'children' | 'classes' | 'styles' | 'size'>,
+      SearchProps<Item<TItem>>,
+      ContentProps<Item<TItem>>,
       FormIdentityOptions,
       FormValueOptions<TItem[]>,
       FormRequiredOption,
@@ -140,9 +128,9 @@ export namespace MultiSelectT {
       FormReadOnlyOption {
     /** Called when the selection changes. */
     onChange?: (value: NoInfer<TItem[]>) => void
-    /** Renders flattened group labels and options through a virtualization layer. */
+    /** Renders flattened group labels and items through a virtualization layer. */
     virtualRender?: Component<VirtualRenderProps<TItem>>
-    /** Scrolls a highlighted option into view using its flattened entry index. */
+    /** Scrolls a highlighted item into view using its flattened entry index. */
     scrollToItem?: (item: Item<TItem>, entryIndex: number) => void
     /**
      * Show a clear button when a value is selected.
@@ -159,12 +147,8 @@ export namespace MultiSelectT {
     maxCount?: number
     /** Maximum visible tags before showing +N (visual only). */
     maxTagCount?: number
-    /** Custom renderer for each option in the dropdown. Passes `null` for empty state. */
-    optionRender?: ComponentOrElement<OptionRenderProps<TItem>>
-    /** Custom renderer for each selected tag (multiple/tags). */
+    /** Custom renderer for each selected tag. */
     tagRender?: ComponentOrElement<TagRenderProps<TItem>>
-    /** Custom renderer for the option label text. */
-    labelRender?: ComponentOrElement<LabelRenderProps<TItem>>
     /** Custom renderer for the empty state when current filtered result has no matches. */
     emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
     /**

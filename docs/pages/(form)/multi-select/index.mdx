@@ -4,7 +4,7 @@ description: A multi-value combobox with removable tags, search, optional value 
 sidebar:
   order: 11
 search:
-  tags: [combobox, multiple selection, tags, options, multi-select, chips, tag input]
+  tags: [combobox, multiple selection, tags, items, multi-select, chips, tag input]
 ---
 
 import { MultiSelect } from '@src'
@@ -20,10 +20,10 @@ import type { MultiSelectT } from 'moraine'
 ## Features
 
 - **Removable Tags**: Selected values render as tags with individual removal controls; Backspace removes the last tag when the text input is empty.
-- **Search & Creation**: Filter options as you type and enable `creatable` when user-entered values should become new selections.
+- **Search & Creation**: Filter items as you type and enable `allowCreate` when user-entered values should become new selections.
 - **Token Separators**: Configured delimiter keys can convert typed text into selections.
 - **Selection & Display Limits**: `maxCount` limits selected values while `maxTagCount` limits visible tags and renders an overflow summary.
-- **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured rendering of larger option sets.
+- **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured rendering of larger item sets.
 - **Floating UI Positioning**: The listbox is positioned with Floating UI.
 
 ## Playground
@@ -69,7 +69,7 @@ import type { MultiSelectT } from 'moraine'
     ]
     return (
       <MultiSelect
-        options={TAG_OPTIONS}
+        items={TAG_OPTIONS}
         placeholder={props.placeholder}
         variant={props.variant}
         size={props.size}
@@ -103,37 +103,37 @@ content
 └── listbox
     ├── item (×n)
     ├── group (optional ×n)
-    └── empty (optional)
+└── empty (optional)
 ```
 
 ## Usage
 
 ### Values, search, and creation
 
-The value is an array of selected option values. Control it with `value` and `onChange` when the application owns selection. Search state and creation behavior are separate from selection; token separators can turn pasted text into multiple values when the relevant options are enabled.
+The value is an array of selected option values. Control it with `value` and `onChange` when the application owns selection. Search state and creation behavior are separate from selection; token separators can turn pasted text into multiple values when the relevant items are enabled.
 
 <Preview path="./values-and-search" />
 
 ### Read-only selection
 
-Use `readOnly` to keep tags and selected values available for focus, browsing, and native form submission while preventing option changes, tag removal, clear actions, and tag creation.
+Use `readOnly` to keep tags and selected values available for focus, browsing, and native form submission while preventing item changes, tag removal, clear actions, and tag creation.
 
-### Large option sets
+### Large item sets
 
-Use groups to organize options and virtualization when rendering a large, stable list. Limits such as maximum selected values and displayed tags constrain selection or presentation; see the API reference for the individual limit props.
+Use groups to organize items and virtualization when rendering a large, stable list. Limits such as maximum selected values and displayed tags constrain selection or presentation; see the API reference for the individual limit props.
 
 <Preview path="./large-collections" />
 
 ### Keyboard interaction
 
-| Key                              | Description                                                              |
-| -------------------------------- | ------------------------------------------------------------------------ |
-| <kbd>ArrowDown</kbd>             | Opens the listbox or moves to the next option.                           |
-| <kbd>ArrowUp</kbd>               | Moves to the previous option.                                            |
-| <kbd>Enter</kbd>                 | Toggles the active option or creates a value when `creatable` allows it. |
-| <kbd>Backspace</kbd>             | Removes the last selected tag when the text input is empty.              |
-| <kbd>Escape</kbd>                | Closes the listbox.                                                      |
-| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available option.                             |
+| Key                              | Description                                                                |
+| -------------------------------- | -------------------------------------------------------------------------- |
+| <kbd>ArrowDown</kbd>             | Opens the listbox or moves to the next option.                             |
+| <kbd>ArrowUp</kbd>               | Moves to the previous option.                                              |
+| <kbd>Enter</kbd>                 | Toggles the active option or creates a value when `allowCreate` allows it. |
+| <kbd>Backspace</kbd>             | Removes the last selected tag when the text input is empty.                |
+| <kbd>Escape</kbd>                | Closes the listbox.                                                        |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available option.                               |
 
 ## Examples
 
