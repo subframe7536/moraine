@@ -1,6 +1,6 @@
 import { BaseSelect, Button } from '@src'
 import type { BaseSelectT } from '@src'
-import { For, Show, createSignal } from 'solid-js'
+import { For, Show } from 'solid-js'
 
 interface FrameworkItem extends BaseSelectT.Item<string> {
   description: string
@@ -13,14 +13,12 @@ const entries: BaseSelectT.Entry<FrameworkItem>[] = [
   { type: 'group', label: 'Frontend', items: frameworks },
 ]
 export default function Example() {
-  const [value, setValue] = createSignal<string | null>(null)
   return (
     <form class="flex gap-3 items-center">
       <BaseSelect<FrameworkItem>
         items={entries}
         name="framework"
-        value={value()}
-        onChange={setValue}
+        defaultValue="solid"
         itemToLabelString={(item) => `${item.value} ${item.description}`}
       >
         <BaseSelect.Trigger as={Button}>

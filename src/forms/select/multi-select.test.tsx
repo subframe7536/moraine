@@ -867,6 +867,26 @@ describe('MultiSelect', () => {
     expect(control.className).not.toContain('focus:ring-ring/50')
   })
 
+  test('keeps the searchable panel open and allows native pointer selection in its input', () => {
+    const screen = render(() => <MultiSelect items={FRUITS} search defaultOpen />)
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    const pointerDown = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
+
+    input.dispatchEvent(pointerDown)
+    fireEvent.click(input)
+
+    expect(pointerDown.defaultPrevented).toBe(false)
+    expect(input.getAttribute('aria-expanded')).toBe('true')
+  })
+
+  test('hides the placeholder after a value is selected', () => {
+    const screen = render(() => (
+      <MultiSelect items={FRUITS} defaultValue={['apple']} placeholder="Pick fruits" />
+    ))
+
+    expect(screen.getByRole<HTMLInputElement>('textbox').placeholder).toBe('')
+  })
+
   test('after trigger click, ArrowDown selects the first option', async () => {
     const onChange = vi.fn()
     const screen = render(() => <MultiSelect items={FRUITS} onChange={onChange} />)
@@ -1346,7 +1366,7 @@ describe('MultiSelect', () => {
 
     expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(0)
     expect(input.value).toBe('')
-    expect(input.getAttribute('aria-expanded')).toBe('false')
+    expect(input.getAttribute('aria-expanded')).toBe('true')
     expect(new FormData(form).getAll('fruits')).toEqual([])
     expect(onChange).toHaveBeenCalledOnce()
     expect(onChange).toHaveBeenCalledWith([])

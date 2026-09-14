@@ -618,7 +618,7 @@ describe('Select - single mode', () => {
     expect(pointerDown.defaultPrevented).toBe(true)
     expect(document.activeElement).toBe(input)
     expect(input.value).toBe('')
-    expect(input.getAttribute('aria-expanded')).toBe('false')
+    expect(input.getAttribute('aria-expanded')).toBe('true')
     expect(new FormData(form).getAll('fruit')).toEqual([''])
     expect(onChange).toHaveBeenCalledOnce()
     expect(onChange).toHaveBeenCalledWith(null)
@@ -710,7 +710,7 @@ describe('Select - search', () => {
     })
   })
 
-  test('dismisses menu when searchable input is clicked again in control mode', async () => {
+  test('keeps the menu open when searchable input is clicked again', async () => {
     const screen = render(() => <Select items={FRUITS} search placeholder="Search..." />)
     const input = screen.getByRole('combobox')
 
@@ -721,8 +721,21 @@ describe('Select - search', () => {
 
     fireEvent.click(input)
     await waitFor(() => {
-      expect(input.getAttribute('aria-expanded')).toBe('false')
+      expect(input.getAttribute('aria-expanded')).toBe('true')
     })
+  })
+
+  test('does not prevent native pointer selection in the searchable input', () => {
+    const screen = render(() => (
+      <Select items={FRUITS} search defaultOpen placeholder="Search..." />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
+
+    input.dispatchEvent(event)
+
+    expect(event.defaultPrevented).toBe(false)
+    expect(input.getAttribute('aria-expanded')).toBe('true')
   })
 
   test('calls onSearch with input value', async () => {

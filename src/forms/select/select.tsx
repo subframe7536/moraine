@@ -124,7 +124,6 @@ export function Select<V extends SelectT.Value = SelectT.Value>(
       }
       state.change(null)
       search.setQuery('')
-      state.setOpen(false)
       props.onClear?.()
     }
     const actionLoading = createMemo(() => Boolean(props.loading))
@@ -221,12 +220,22 @@ export function Select<V extends SelectT.Value = SelectT.Value>(
             data-invalid={state.field.invalid() ? '' : undefined}
             ref={state.setAnchor}
             onPointerDown={(event: PointerEvent) => {
-              if (event.pointerType !== 'touch' && event.pointerType !== 'pen') {
+              if (
+                !(event.target instanceof HTMLInputElement) &&
+                event.pointerType !== 'touch' &&
+                event.pointerType !== 'pen'
+              ) {
                 event.preventDefault()
                 state.control()?.focus()
               }
             }}
-            onClick={() => state.setOpen(!state.open())}
+            onClick={(event: MouseEvent) => {
+              if (event.target instanceof HTMLInputElement) {
+                state.setOpen(true)
+                return
+              }
+              state.setOpen(!state.open())
+            }}
           >
             {contents()}
           </div>

@@ -168,7 +168,6 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
       }
       state.change([])
       search.setQuery('')
-      state.setOpen(false)
       props.onClear?.()
     }
     function addText(text: string, allowCreate: boolean, batch?: V[]): boolean {
@@ -281,15 +280,19 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
           data-invalid={state.field.invalid() ? '' : undefined}
           ref={state.setAnchor}
           onPointerDown={(event: PointerEvent) => {
-            if (event.pointerType !== 'touch' && event.pointerType !== 'pen') {
+            if (
+              !(event.target instanceof HTMLInputElement) &&
+              event.pointerType !== 'touch' &&
+              event.pointerType !== 'pen'
+            ) {
               event.preventDefault()
               state.control()?.focus()
             }
           }}
-          onClick={() => {
+          onClick={(event: MouseEvent) => {
             state.control()?.focus()
             if (searchable()) {
-              state.setOpen(!state.open())
+              state.setOpen(event.target instanceof HTMLInputElement ? true : !state.open())
             }
           }}
         >
@@ -350,7 +353,7 @@ export function MultiSelect<V extends MultiSelectT.Value = MultiSelectT.Value>(
               tabIndex={searchable() ? undefined : -1}
               data-slot="input"
               {...styles.slot('input')}
-              placeholder={props.placeholder}
+              placeholder={tags().length ? '' : props.placeholder}
               ref={(element) => {
                 if (searchable()) {
                   search.binding.ref(element)
