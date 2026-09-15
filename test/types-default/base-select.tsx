@@ -1,4 +1,4 @@
-import { BaseSelect, Button, MultiSelect, Select } from 'moraine'
+import { BaseSelect, Button, Combobox, MultiSelect, Select } from 'moraine'
 import type { BaseSelectT, SelectT } from 'moraine'
 
 interface UserItem extends BaseSelectT.Item<number> {
@@ -57,7 +57,7 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
 ;<BaseSelect.Item as="li" item={items[0]} />
 // @ts-expect-error Only Trigger is polymorphic.
 ;<BaseSelect.GroupLabel as="span" />
-;<Select
+;<Combobox
   items={items}
   itemRender={(state) => state.item.label}
   filterItem={(_, item) => item.value === 1}
@@ -97,7 +97,7 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
 // @ts-expect-error Old label renderer is removed.
 ;<MultiSelect labelRender={() => null} />
 
-;<Select<UserItem>
+;<Combobox<UserItem>
   items={[group]}
   value={1}
   itemRender={({ item }) => item.email}

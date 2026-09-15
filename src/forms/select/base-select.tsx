@@ -6,6 +6,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  DEV,
   For,
   Show,
   mergeProps,
@@ -41,6 +42,8 @@ import {
   sameValue,
   selectionEqual,
 } from './shared/collection.ts'
+
+const FORM_VALUE_EXISTS = DEV ? 'moraine:selection-exists' : '1'
 
 function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>) {
   type Value = readonly T['value'][]
@@ -86,7 +89,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   const open = () => openValue() ?? false
   const [highlightedValue, setHighlightedValue] = createSignal<T['value']>()
   const [anchor, setAnchor] = createSignal<HTMLElement>()
-  const [control, setControl] = createSignal<HTMLElement>()
+  const [focusOwner, setFocusOwner] = createSignal<HTMLElement>()
   const listboxId = () => `${field.id()}-listbox`
   const itemId = (value: BaseSelectT.Value) =>
     `${listboxId()}-${encodeURIComponent(`${typeof value}:${String(value)}`)}`
@@ -147,10 +150,10 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
       )
     })
     if (props.closeOnSelect ?? !props.multiple) {
-      const target = control()
+      const target = focusOwner()
       // oxlint-disable-next-line subf/solid-reactivity -- Delayed focus validates the current control and open state.
       queueMicrotask(() => {
-        if (!open() && target === control() && target?.isConnected) {
+        if (!open() && target === focusOwner() && target?.isConnected) {
           target.focus()
         }
       })
@@ -279,8 +282,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
       return serialized === undefined ? [] : [serialized]
     })
   })
-  const validationValue = () =>
-    props.multiple ? (value().length ? 'selected' : '') : String(value()[0] ?? '')
+  const validationValue = () => (value().length ? FORM_VALUE_EXISTS : '')
   useFormReset(
     () => validationInput?.form,
     () => {
@@ -318,8 +320,8 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     setHighlightedValue,
     anchor,
     setAnchor,
-    control,
-    setControl,
+    focusOwner,
+    setFocusOwner,
     listboxId,
     itemId,
     field,
@@ -352,7 +354,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
           }}
           onInvalid={(event) => {
             event.preventDefault()
-            control()?.focus()
+            focusOwner()?.focus()
           }}
         />
         <For each={serialized()}>
@@ -396,6 +398,34 @@ export function BaseSelect<T extends BaseSelectT.Item = BaseSelectT.Item>(
   )
 }
 
+function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
+  const state = useSelectState()
+  const cn = useCn()
+  const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
+  return (
+    <div
+      {...rest}
+      data-slot="control"
+      ref={(element) => {
+        state.setAnchor(element)
+        callRef(local.ref, element)
+        onCleanup(() => {
+          if (state.anchor() === element) {
+            state.setAnchor(undefined)
+          }
+        })
+      }}
+      class={cn(state.styles.slot('control').class, local.class)}
+      style={{
+        ...state.styles.slot('control').style,
+        ...local.style,
+      }}
+    >
+      {local.children}
+    </div>
+  )
+}
+
 function BaseSelectTrigger<
   T extends ValidComponent = 'button',
   TItem extends BaseSelectT.Item = BaseSelectT.Item,
@@ -421,7 +451,7 @@ function BaseSelectTrigger<
         event.pointerType !== 'pen'
       ) {
         event.preventDefault()
-        state.control()?.focus()
+        state.focusOwner()?.focus()
       }
     },
     onKeyDown(event: KeyboardEvent) {
@@ -449,7 +479,7 @@ function BaseSelectTrigger<
       disabledForComponent: true,
       disabled: () => state.field.disabled() || Boolean(local.disabled),
       onPress: () => () => {
-        state.control()?.focus()
+        state.focusOwner()?.focus()
         state.setOpen(!state.open())
       },
     },
@@ -471,18 +501,17 @@ function BaseSelectTrigger<
           ? state.itemId(state.highlightedValue()!)
           : undefined
       }
-      class={cn(local.class)}
-      style={local.style}
+      class={cn(state.styles.slot('trigger').class, local.class)}
+      style={{
+        ...state.styles.slot('trigger').style,
+        ...local.style,
+      }}
       ref={(element: HTMLElement) => {
-        state.setAnchor(element)
-        state.setControl(element)
+        state.setFocusOwner(element)
         callRef(rest.ref, element)
         onCleanup(() => {
-          if (state.control() === element) {
-            state.setControl(undefined)
-          }
-          if (state.anchor() === element) {
-            state.setAnchor(undefined)
+          if (state.focusOwner() === element) {
+            state.setFocusOwner(undefined)
           }
           callRef(rest.ref, undefined)
         })
@@ -518,7 +547,7 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   useFloatingPosition({
     contentElement: content,
     floatingElement: positioner,
-    getReferenceElement: state.anchor,
+    getReferenceElement: () => state.anchor() ?? state.focusOwner(),
     gutter: () => local.gutter ?? 0,
     onPositionedChange: () => undefined,
     onPlacementChange: (placement) => setSide(placement.split('-')[0] ?? 'bottom'),
@@ -529,7 +558,7 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   createEffect(
     on(presence.present, (present) => {
       if (present) {
-        onCleanup(acquireBodyScrollLock(state.anchor()))
+        onCleanup(acquireBodyScrollLock(state.anchor() ?? state.focusOwner()))
       } else {
         presence.setElement(undefined)
       }
@@ -537,7 +566,11 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   )
   useOverlayInteraction({
     containsTarget: (node) =>
-      Boolean(state.anchor()?.contains(node) || positioner()?.contains(node)),
+      Boolean(
+        state.anchor()?.contains(node) ||
+        state.focusOwner()?.contains(node) ||
+        positioner()?.contains(node),
+      ),
     onPointerOutside: (event) => {
       if (!event.defaultPrevented) {
         state.setOpen(false)
@@ -558,7 +591,7 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
     enabled: state.open,
     outsidePressEvent: 'pointerdown',
     requireContent: true,
-    triggerElement: state.anchor,
+    triggerElement: () => state.anchor() ?? state.focusOwner(),
   })
   return (
     <Show when={presence.present()}>
@@ -817,6 +850,7 @@ function BaseSelectEmpty(props: BaseSelectT.PartProps): JSX.Element {
     </Show>
   )
 }
+BaseSelect.Control = BaseSelectControl
 BaseSelect.Trigger = BaseSelectTrigger
 BaseSelect.Content = BaseSelectContent
 BaseSelect.Listbox = BaseSelectListbox

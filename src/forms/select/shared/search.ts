@@ -7,7 +7,7 @@ import { useSearchValue } from '../utils.ts'
 import { filterView, labelString } from './collection.ts'
 import type { SearchProps, SelectView } from './types.ts'
 
-export function useSelectSearch<T extends BaseSelectT.Item>(
+export function useComboboxSearch<T extends BaseSelectT.Item>(
   props: SearchProps<T>,
   enabled: Accessor<boolean>,
   source: Accessor<SelectView<T>>,

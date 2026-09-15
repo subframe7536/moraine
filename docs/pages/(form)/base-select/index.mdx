@@ -1,59 +1,62 @@
 ---
 title: BaseSelect
-description: Compose a select from an unstyled trigger and accessible popup parts, with generic items and built-in selection and form state.
+description: Compose custom single or multiple collection selection controls from accessible primitives.
 search:
   tags: [select, primitive, composition]
 sidebar:
-  order: 13
+  order: 14
 ---
 
 ## Import
 
 ```tsx
 import { BaseSelect, useSelectState } from 'moraine'
-import type { BaseSelectT } from 'moraine'
+import { useBaseSelectSearchInput, useSearchValue } from 'moraine/utils'
 ```
 
-BaseSelect is the callable root. It renders its children and lightweight hidden form inputs without a layout wrapper. Supply `items` as the current flat navigation collection. Filter and resolve source data in the owning component before passing navigation items to BaseSelect. Each item requires a unique `value` and a visual `label`; custom fields stay available in item presentation state. The root owns array selection, disclosure, navigation, form integration, and anchor/control references.
+BaseSelect owns array selection, disclosure, highlighted navigation, typeahead, listbox primitives,
+and form integration. Collection grouping, filtering, query state, tags, and item creation belong to
+the composing control.
 
-## Anatomy
+## Standard anatomy
 
-```text
-BaseSelect
-├── Trigger
-└── Content
-    ├── Listbox
-    │   ├── Group (optional)
-    │   │   ├── GroupLabel
-    │   │   └── Item (×n)
-    │   └── Separator (optional)
-    └── Empty (optional)
+```tsx
+<BaseSelect items={items}>
+  <BaseSelect.Control>
+    <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
+  </BaseSelect.Control>
+  <BaseSelect.Content>
+    <BaseSelect.Listbox>{/* items */}</BaseSelect.Listbox>
+  </BaseSelect.Content>
+</BaseSelect>
 ```
 
-`Trigger` defaults to an unstyled button with `type="button"`. Use `as` to render a custom component. It is the only polymorphic part. `Content` provides positioning, presence, dismissal, and a portal; `Listbox` renders exactly its children. `GroupLabel` automatically labels its enclosing `Group`.
+Control is an optional, non-interactive layout container and floating anchor. It does not toggle,
+own keyboard navigation, become a tab stop, or receive role="combobox". Trigger is the primary
+select-like focus owner and activator.
 
-`Separator` is decorative and has no effect on keyboard navigation. Place `Empty` beside `Listbox` inside `Content`; the listbox stays mounted when empty.
+## Custom searchable composition
 
-## Examples
+```tsx
+function SearchField() {
+  const state = useSelectState()
+  const query = useSearchValue()
+  const input = useBaseSelectSearchInput(state, {}, () => true, query)
+  return (
+    <BaseSelect.Control>
+      <input {...input.binding} />
+      <button type="button" tabIndex={-1} onClick={() => state.setOpen(!state.open())}>
+        Toggle
+      </button>
+    </BaseSelect.Control>
+  )
+}
+```
 
-### Multiple selection
-
-Both modes use array-shaped `value`, `defaultValue`, and `onChange`. Single selection uses `[]` or `[value]`; a controlled array containing more than one value is normalized to its first value. `multiple` changes selection behavior only. Trigger state exposes `value`, `open`, `disabled`, and `readOnly`. Single selection closes on selection by default, while multiple selection stays open. Override this with `closeOnSelect`.
-
-### Forms and text matching
-
-- Use `name`, `required`, `disabled`, and `readOnly` directly on BaseSelect. Form reset restores the initial uncontrolled value; controlled values remain authoritative. Multiple selection serializes one hidden input per value. `serializeValue(value)` can return a string or `undefined` to omit a value. High-level Select/MultiSelect use this boundary to preserve canonical disabled-item submission rules even when those items are filtered out of navigation.
-
-- `itemToLabelString` supplies machine-readable text for typeahead. Without it, BaseSelect uses a string label or `String(item.value)`. Visual rendering always uses `item.label` or the part's children.
-
-- `Select` and `MultiSelect` provide the standard search control and item rendering. Custom BaseSelect compositions can use the exported query and input hooks when they need different presentation; BaseSelect receives only the current navigation items. Group data belongs to Select/MultiSelect; `BaseSelect.Group` and `GroupLabel` remain available as accessible composition primitives.
-
-- `isItemDisabled(item, values)` adds a dynamic policy to the item's own `disabled` flag. Values retain JavaScript Map/Set identity, so numeric and string values are distinct.
-
-- `onReset()` runs after an unprevented native form reset restores uncontrolled selection. It receives no event; controlled selection remains controlled. Use it to reset auxiliary state.
-
-- `Content.onExitComplete()` runs once after a real open-to-closed transition finishes its exit presence lifecycle. It does not run for initial absent content or an exit interrupted by reopening.
+The input helper registers focusOwner; it never becomes the floating anchor. When Control is
+omitted, Content falls back to the registered focus owner for resilient custom compositions.
 
 ## Styling
 
-Configure `defaultTheme.baseSelect` or root `classes` / `styles` for `content`, `listbox`, `item`, `group`, `groupLabel`, `separator`, and `empty`. Part-local class and style overrides have final precedence. The shared `size` dimension supports `sm`, `md`, and `lg`.
+BaseSelect exposes control, trigger, content, listbox, item, group, groupLabel, separator, and
+empty. Part-local class and style values have final precedence.

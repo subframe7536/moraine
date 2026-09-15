@@ -8,7 +8,6 @@ import type { FormValueOptions } from '../shared/form-options.ts'
 import type { BaseSelectT } from './base-select.types.ts'
 import type {
   SelectItem,
-  SearchProps,
   ContentProps,
   SelectRow,
   SelectGroup,
@@ -29,13 +28,13 @@ export namespace SelectT {
   export type Entry<TItem extends Item = Item> = SelectEntry<TItem>
 
   export interface ControlSlot<T = unknown> {
-    /** Closed select control that displays the current value and opens the popup. */
+    /** Outer visual field and floating anchor. */
     control?: T
-    /** Search input or value text field inside the control. */
-    input?: T
+    /** Text presentation of the selected value. */
+    value?: T
     /** Icon shown before the select input or value. */
     leading?: T
-    /** Button region that toggles the select popup. */
+    /** Primary interactive button that toggles the popup. */
     trigger?: T
     /** Button used to clear the selected value. */
     clear?: T
@@ -55,9 +54,7 @@ export namespace SelectT {
   }
 
   export interface EmptyRenderProps<TItem extends Item = Item> {
-    /** Current input/search text. */
-    inputValue: string
-    /** Whether the current filter has any matches. */
+    /** Whether the collection has any selectable items. */
     hasMatches: boolean
     /** Currently selected value. */
     selectedValue: TItem['value'] | null
@@ -75,10 +72,6 @@ export namespace SelectT {
      * @default 'md'
      */
     size?: 'sm' | 'md' | 'lg'
-    /** Whether the control accepts searchable input.
-     * @default false
-     */
-    search?: boolean | null
   }
 
   export type Classes = Slot<SlotClassValue>
@@ -91,7 +84,6 @@ export namespace SelectT {
         BaseSelectT.Base<TItem>,
         'children' | 'classes' | 'styles' | 'size' | 'items' | 'serializeValue'
       >,
-      SearchProps<TItem>,
       ContentProps<TItem>,
       FormValueOptions<TItem['value'] | null> {
     /** Source items, optionally grouped. Item values must be unique within the collection. */
@@ -140,5 +132,4 @@ export interface SelectProps<
   TItem extends SelectT.Item = SelectT.Item,
 > extends SelectT.Props<TItem> {
   ref?: Ref<HTMLDivElement>
-  inputRef?: Ref<HTMLInputElement>
 }

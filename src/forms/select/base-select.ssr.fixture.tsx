@@ -10,9 +10,11 @@ export function renderBaseSelectFixture(): string {
       items={[{ value: 1, label: 'One' }]}
       defaultValue={[1]}
     >
-      <BaseSelect.Trigger>
-        {(state) => <Show when={state.value[0] === 1}>One</Show>}
-      </BaseSelect.Trigger>
+      <BaseSelect.Control>
+        <BaseSelect.Trigger>
+          {(state) => <Show when={state.value[0] === 1}>One</Show>}
+        </BaseSelect.Trigger>
+      </BaseSelect.Control>
       <BaseSelect.Content>
         <BaseSelect.Listbox>
           <BaseSelect.Item item={{ value: 1, label: 'One' }} />

@@ -258,7 +258,6 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
           id={controlId}
           size="sm"
           items={[...control.options]}
-          search={false}
           value={values[control.prop] as string | number}
           onChange={(value) => {
             if (value !== null) {

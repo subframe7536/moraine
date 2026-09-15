@@ -38,7 +38,6 @@ export function Collections() {
   return (
     <div class="max-w-sm w-full">
       <Select<SelectT.Item<string>>
-        search
         items={REGIONS}
         value={region()}
         onChange={(val) => val && setRegion(val)}

@@ -10,6 +10,20 @@
   },
   "slots": [
     {
+      "name": "control",
+      "description": "Optional non-interactive layout container and floating anchor.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "trigger",
+      "description": "Primary select-like popup activator.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
       "name": "content",
       "description": "Floating popup panel.",
       "cssVariables": [],
@@ -225,6 +239,26 @@
     "inherited": []
   },
   "primitives": [
+    {
+      "component": {
+        "key": "base-select-control",
+        "name": "BaseSelect.Control",
+        "category": "forms",
+        "polymorphic": false,
+        "sourcePath": "src/forms/select/base-select.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
     {
       "component": {
         "key": "base-select-trigger",

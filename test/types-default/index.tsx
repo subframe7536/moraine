@@ -6,6 +6,7 @@ import {
   Badge,
   Button,
   Card,
+  Combobox,
   ContextMenu,
   Dialog,
   DropdownMenu,
@@ -23,6 +24,7 @@ import {
   Separator,
   Sheet,
   SidebarFrame,
+  TagsInput,
   Textarea,
   Tooltip,
   cn,
@@ -35,6 +37,7 @@ import type {
   Cn,
   CnConfig,
   CommandPaletteT,
+  ComboboxT,
   DialogT,
   FormT,
   InputGroupT,
@@ -44,6 +47,7 @@ import type {
   SelectT,
   SidebarFrameT,
   SliderT,
+  TagsInputT,
   TextareaT,
 } from 'moraine'
 import { atomicRecipe, createTheme, defaultTheme, emptyTheme, slotRecipe } from 'moraine/theme'
@@ -56,6 +60,8 @@ export type ComponentKinds = [
   Assert<DialogT.Kind extends 'composite' ? true : false>,
   Assert<SidebarFrameT.Kind extends 'composite' ? true : false>,
   Assert<SelectT.Kind extends 'single' ? true : false>,
+  Assert<ComboboxT.Kind extends 'single' ? true : false>,
+  Assert<TagsInputT.Kind extends 'single' ? true : false>,
   Assert<FormT.Kind extends 'single' ? true : false>,
   Assert<'kind' extends keyof ButtonT.Props ? false : true>,
   Assert<'kind' extends keyof DialogT.Props ? false : true>,
@@ -64,8 +70,9 @@ export type ComponentKinds = [
 export type RecipeVariants = [
   Assert<'descriptionPosition' extends keyof CommandPaletteT.Variant ? true : false>,
   Assert<'descriptionPosition' extends keyof CommandPaletteT.Item ? false : true>,
-  Assert<'search' extends keyof SelectT.Variant ? true : false>,
-  Assert<'search' extends keyof MultiSelectT.Variant ? true : false>,
+  Assert<'search' extends keyof SelectT.Variant ? false : true>,
+  Assert<'search' extends keyof ComboboxT.Variant ? false : true>,
+  Assert<'search' extends keyof MultiSelectT.Variant ? false : true>,
 ]
 
 export type ReadOnlyContracts = [
@@ -323,6 +330,8 @@ const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
   }}
 />
 ;<MultiSelect items={[{ label: 'One', value: 1 }]} readOnly />
+;<Combobox items={[{ label: 'One', value: 1 }]} openOnControlClick={false} />
+;<TagsInput tokenSeparators={[',', ';']} />
 
 export type NativeTextSlots = [
   Assert<'orientation' extends keyof InputGroupT.Variant ? true : false>,
@@ -361,8 +370,10 @@ const theme = createTheme({
   icon: { base: { root: 'size-4' } },
   kbd: { base: { root: 'px-1' } },
   modal: { base: { content: 'p-4' } },
-  multiSelect: { defaults: { search: true } },
-  select: { defaults: { search: true } },
+  combobox: { base: { control: 'min-w-48' } },
+  multiSelect: { defaults: { size: 'sm' } },
+  select: { defaults: { size: 'sm' } },
+  tagsInput: { base: { control: 'min-w-48' } },
   separator: {
     base: { root: 'border-t' },
     variants: { orientation: { vertical: { root: 'h-full' } } },

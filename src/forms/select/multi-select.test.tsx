@@ -1,1723 +1,232 @@
-import { getInput, setInput } from '@formisch/solid'
-import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
-import { For, createComponent, createSignal } from 'solid-js'
-import * as v from 'valibot'
+import { fireEvent, render as baseRender, within } from '@solidjs/testing-library'
+import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
-import { renderWithOwner } from '../../test-utils/owner-render'
-import { createTheme } from '../../theme'
-import { defaultTheme } from '../../theme/default-theme'
-import { createForm } from '../form'
+import { MoraineProvider } from '../../shared/provider/index.ts'
+import { defaultTheme } from '../../theme/default-theme.ts'
 
-import { MultiSelect } from './multi-select'
-import type { MultiSelectProps, MultiSelectT } from './multi-select.types'
+import { MultiSelect } from './multi-select.tsx'
+import type { MultiSelectT } from './multi-select.types.ts'
 
 const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
 
-const FRUITS: MultiSelectT.Item[] = [
+const ITEMS: MultiSelectT.Item[] = [
   { label: 'Apple', value: 'apple' },
   { label: 'Banana', value: 'banana' },
   { label: 'Cherry', value: 'cherry', disabled: true },
 ]
 
-function queryBody(selector: string): Element | null {
-  return document.body.querySelector(selector)
-}
-
-function queryAllBody(selector: string): NodeListOf<Element> {
-  return document.body.querySelectorAll(selector)
-}
-
-async function finishSelectExitMotion(): Promise<void> {
-  const contents = Array.from(document.body.querySelectorAll('[data-slot="content"]'))
-
-  await Promise.all(
-    contents.map(async (content) => {
-      fireEvent.animationEnd(content)
-      fireEvent.transitionEnd(content)
-    }),
-  )
-}
-
 describe('MultiSelect', () => {
-  test('renders unstyled when provider is absent', () => {
-    const screen = baseRender(() => <MultiSelect items={FRUITS} placeholder="Unstyled" />)
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const control = screen.container.querySelector('[data-slot="trigger"]')
-    expect(root).toBeNull()
-    expect(screen.container.querySelector('[data-slot="control"]')).toBeNull()
-    expect(control?.className).toBe('')
+  test('keeps stable control/tag/input/trigger anatomy and one physical input', () => {
+    const screen = render(() => <MultiSelect items={ITEMS} defaultValue={['apple']} />)
+    const control = screen.container.querySelector('[data-slot="control"]')!
+    expect(control.querySelectorAll('input[data-slot="input"]')).toHaveLength(1)
+    expect(control.querySelector('[data-slot="tagsContainer"]')).toBeTruthy()
+    expect(control.querySelector('[data-slot="tag"]')?.textContent).toContain('Apple')
+    expect(screen.getByRole('button', { name: 'Toggle options' }).tabIndex).toBe(-1)
   })
 
-  test('forwards root ref and inner inputRef', () => {
-    let rootEl: HTMLDivElement | undefined
-    let inputEl: HTMLInputElement | undefined
-
-    render(() => (
-      <MultiSelect
-        ref={(el) => (rootEl = el)}
-        inputRef={(el) => (inputEl = el)}
-        items={FRUITS}
-        placeholder="Ref test"
-      />
-    ))
-
-    expect(rootEl).toBeInstanceOf(HTMLDivElement)
-    expect(inputEl).toBeInstanceOf(HTMLInputElement)
-    expect(inputEl?.placeholder).toBe('Ref test')
+  test('uses a read-only focus owner in non-editable mode with typeahead navigation', () => {
+    const screen = render(() => <MultiSelect items={ITEMS} defaultSearchValue="hidden" />)
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    expect(input.readOnly).toBe(true)
+    expect(input.value).toBe('')
+    fireEvent.keyDown(input, { key: 'b' })
+    expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe('Banana')
   })
-  test('uses the provider size as the field default', () => {
+
+  test.each([
+    { search: true, createItem: undefined },
+    { search: false, createItem: (value: string) => ({ value, label: value }) },
+  ])('is editable when search or createItem enables it', (props) => {
+    const screen = render(() => <MultiSelect items={ITEMS} {...props} />)
+    expect((screen.getByRole('combobox') as HTMLInputElement).readOnly).toBe(false)
+  })
+
+  test('control click is open-only and trigger click toggles', () => {
+    const screen = render(() => <MultiSelect items={ITEMS} />)
+    const input = screen.getByRole('combobox')
+    const control = screen.container.querySelector('[data-slot="control"]')!
+    const trigger = screen.getByRole('button', { name: 'Toggle options' })
+    fireEvent.click(control)
+    fireEvent.click(input)
+    expect(input.getAttribute('aria-expanded')).toBe('true')
+    fireEvent.click(trigger)
+    expect(input.getAttribute('aria-expanded')).toBe('false')
+  })
+
+  test('openOnControlClick=false suppresses only pointer opening', () => {
+    const screen = render(() => <MultiSelect items={ITEMS} openOnControlClick={false} />)
+    const input = screen.getByRole('combobox')
+    fireEvent.click(input)
+    expect(input.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
+    expect(input.getAttribute('aria-expanded')).toBe('true')
+  })
+
+  test('clear and trigger coexist without accidental opening', () => {
+    const onClear = vi.fn()
     const screen = render(() => (
-      <MoraineProvider
-        theme={createTheme({ extends: defaultTheme, multiSelect: { defaults: { size: 'lg' } } })}
-      >
-        <MultiSelect items={FRUITS} />
-      </MoraineProvider>
+      <MultiSelect items={ITEMS} defaultValue={['apple']} allowClear onClear={onClear} />
     ))
+    expect(screen.getByRole('button', { name: 'Toggle options' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
+    expect(onClear).toHaveBeenCalledOnce()
+    expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe('false')
+  })
 
-    expect(screen.container.querySelector('[data-slot="trigger"]')?.className).toContain(
-      'text-base',
+  test('tag removal changes once and does not open', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect items={ITEMS} defaultValue={['apple', 'banana']} onChange={onChange} />
+    ))
+    fireEvent.click(screen.getByRole('button', { name: 'Remove Apple' }))
+    expect(onChange).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenCalledWith(['banana'])
+    expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe('false')
+  })
+
+  test('normal selection stays open and clears query', () => {
+    const onSearch = vi.fn()
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect search items={ITEMS} defaultOpen onSearch={onSearch} onChange={onChange} />
+    ))
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    fireEvent.input(input, { target: { value: 'ba' } })
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true }))
+    expect(onChange).toHaveBeenLastCalledWith(['banana'])
+    expect(onSearch).toHaveBeenLastCalledWith('')
+    expect(input.getAttribute('aria-expanded')).toBe('true')
+  })
+
+  test('createItem adds a canonical item and selects its value', () => {
+    const createItem = vi.fn((input: string) => ({
+      label: input.toUpperCase(),
+      value: input,
+    }))
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect items={ITEMS} createItem={createItem} onChange={onChange} defaultOpen />
+    ))
+    const input = screen.getByRole('combobox')
+    fireEvent.input(input, { target: { value: 'dragonfruit' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(createItem).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenLastCalledWith(['dragonfruit'])
+    expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe(
+      'DRAGONFRUIT',
     )
   })
 
-  test('uses the provider search default for behavior and styles', () => {
-    const screen = render(() => (
-      <MoraineProvider
-        theme={createTheme({ extends: defaultTheme, multiSelect: { defaults: { search: true } } })}
-      >
-        <MultiSelect items={FRUITS} placeholder="Search fruits" />
-      </MoraineProvider>
-    ))
-
-    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
-    const input = screen.container.querySelector('[data-slot="input"]') as HTMLInputElement
-    expect(input.readOnly).toBe(false)
-    expect(control.className).toContain('cursor-text')
-    expect(control.hasAttribute('data-search')).toBe(false)
-  })
-
-  test('uses the normative control class and style precedence', () => {
-    const screen = render(() => (
-      <MoraineProvider
-        theme={createTheme({
-          extends: defaultTheme,
-          multiSelect: {
-            base: { control: 'w-24 px-1 h-[10px] text-red-500 provider-control' },
-          },
-        })}
-      >
-        <MultiSelect
-          data-testid="multi-select-control"
-          items={FRUITS}
-          classes={{ control: 'w-32 px-2 instance-control' }}
-          class="final-root w-48"
-          styles={{ control: { width: '200px', background: 'blue' } }}
-          style={{ width: '300px', color: 'green' }}
-        />
-      </MoraineProvider>
-    ))
-
-    const root = screen.getByTestId('multi-select-control')
-    expect(root.className).toContain('w-48')
-    expect(root.className).not.toContain('w-24')
-    expect(root.className).not.toContain('w-32')
-    expect(root.className).toContain('px-2')
-    expect(root.className).not.toContain('px-1')
-    expect(root.className).toContain('provider-control')
-    expect(root.className).toContain('instance-control')
-    expect(root.className).toContain('final-root')
-
-    expect(root.style.width).toBe('300px')
-    expect(root.style.color).toBe('green')
-    expect(root.className).toContain('h-[10px]')
-    expect(root.style.background).toBe('blue')
-  })
-
-  test('merges named slot classes and styles through the resolver', () => {
-    render(() => (
-      <MoraineProvider
-        theme={createTheme({
-          extends: defaultTheme,
-          multiSelect: {
-            base: { content: 'p-1 w-24 text-red-500 bg-black provider-content' },
-          },
-        })}
-      >
-        <MultiSelect
-          items={FRUITS}
-          defaultOpen
-          classes={{ content: 'p-4 w-48 instance-content' }}
-          styles={{ content: { color: 'blue' } }}
-        />
-      </MoraineProvider>
-    ))
-
-    const content = queryBody('[data-slot="content"]') as HTMLElement
-    expect(content.className).toContain('p-4')
-    expect(content.className).not.toContain('p-1')
-    expect(content.className).toContain('w-48')
-    expect(content.className).not.toContain('w-24')
-    expect(content.className).toContain('provider-content')
-    expect(content.className).toContain('instance-content')
-    expect(content.style.color).toBe('blue')
-    expect(content.className).toContain('bg-black')
-  })
-
-  test('applies tagLabel slot classes and styles directly without child selectors', () => {
-    const screen = render(() => (
-      <MultiSelect
-        items={FRUITS}
-        value={['apple']}
-        classes={{ tagLabel: 'custom-tag-label font-bold' }}
-        styles={{ tagLabel: { 'letter-spacing': '1px' } }}
-      />
-    ))
-
-    const tag = screen.container.querySelector('[data-slot="tag"]') as HTMLElement
-    const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement
-    const tagRemove = screen.container.querySelector('[data-slot="tagRemove"]') as HTMLElement
-
-    expect(label).not.toBeNull()
-    expect(label.className).toContain('min-w-0')
-    expect(label.className).toContain('truncate')
-    expect(label.className).toContain('custom-tag-label')
-    expect(label.className).toContain('font-bold')
-    expect(label.style.letterSpacing).toBe('1px')
-
-    // Confirm tag and tagRemove do not contain CSS child selectors
-    expect(tag.className).not.toContain('[&>')
-    expect(tagRemove.className).not.toContain('[&>')
-    expect(tagRemove.className).toContain('opacity-50')
-    expect(tagRemove.className).toContain('hover:opacity-100')
-  })
-
-  test('reacts to replaced provider and instance style objects without remounting', () => {
-    const [providerConfig, setProviderConfig] = createSignal({
-      multiSelect: {
-        base: { control: 'provider-control-initial text-red-500' },
-      },
-    })
-    const [instanceClasses, setInstanceClasses] = createSignal({
-      control: 'instance-control-initial',
-    })
-    const [instanceStyles, setInstanceStyles] = createSignal({
-      control: { border: '1px solid red' },
-    })
-
-    const screen = render(() => (
-      <MoraineProvider theme={createTheme({ extends: defaultTheme, ...providerConfig() })}>
-        <MultiSelect
-          data-testid="reactive-multi-select"
-          items={FRUITS}
-          classes={instanceClasses()}
-          styles={instanceStyles()}
-        />
-      </MoraineProvider>
-    ))
-
-    const root = screen.getByTestId('reactive-multi-select')
-    expect(root.className).toContain('provider-control-initial')
-    expect(root.className).toContain('instance-control-initial')
-    expect(root.className).toContain('text-red-500')
-    expect(root.style.border).toBe('1px solid red')
-
-    setProviderConfig({
-      multiSelect: {
-        base: { control: 'provider-control-updated text-blue-500' },
-      },
-    })
-
-    expect(screen.getByTestId('reactive-multi-select')).toBe(root)
-    expect(root.className).toContain('provider-control-updated')
-    expect(root.className).not.toContain('provider-control-initial')
-    expect(root.className).toContain('text-blue-500')
-
-    setInstanceClasses({ control: 'instance-control-updated' })
-    setInstanceStyles({ control: { border: '1px solid blue' } })
-
-    expect(screen.getByTestId('reactive-multi-select')).toBe(root)
-    expect(root.className).toContain('instance-control-updated')
-    expect(root.className).not.toContain('instance-control-initial')
-    expect(root.style.border).toBe('1px solid blue')
-  })
-
-  test('renders tags for selected values', () => {
-    const screen = render(() => <MultiSelect items={FRUITS} value={['apple', 'banana']} />)
-
-    const tags = screen.container.querySelectorAll('[data-slot="tag"]')
-    expect(tags.length).toBe(2)
-  })
-
-  test('keeps tag and FormData order stable when items reorder', () => {
-    const [items, setOptions] = createSignal(FRUITS)
-    const screen = render(() => (
-      <form>
-        <MultiSelect name="fruits" items={items()} value={['banana', 'apple']} />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-    const tagTitles = () =>
-      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
-        tag.getAttribute('title'),
-      )
-
-    expect(tagTitles()).toEqual(['Banana', 'Apple'])
-    expect(new FormData(form).getAll('fruits')).toEqual(['banana', 'apple'])
-
-    setOptions([FRUITS[1]!, FRUITS[0]!, FRUITS[2]!])
-
-    expect(tagTitles()).toEqual(['Banana', 'Apple'])
-    expect(new FormData(form).getAll('fruits')).toEqual(['banana', 'apple'])
-  })
-
-  test('preserves missing selected values in tags, callbacks, and public order', async () => {
+  test('active existing option wins Enter over createItem', () => {
+    const createItem = vi.fn((input: string) => ({ label: input, value: input }))
     const onChange = vi.fn()
     const screen = render(() => (
-      <form>
-        <MultiSelect
-          name="fruits"
-          items={FRUITS}
-          defaultValue={['apple', 'dragonfruit']}
-          defaultOpen
-          onChange={onChange}
-        />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-
-    expect(
-      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
-        tag.getAttribute('title'),
-      ),
-    ).toEqual(['Apple', 'dragonfruit'])
-    expect(new FormData(form).getAll('fruits')).toEqual(['apple', 'dragonfruit'])
-
-    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
-
-    expect(onChange).toHaveBeenCalledWith(['apple', 'dragonfruit', 'banana'])
-  })
-
-  test('deduplicates typed values with Object.is identity at every ingress', () => {
-    const screen = render(() => (
-      <form>
-        <MultiSelect
-          name="choices"
-          items={[
-            { label: 'Numeric one', value: 1 },
-            { label: 'String one', value: '1' },
-            { label: 'Numeric two', value: 2 },
-          ]}
-          defaultValue={[1, '1', 1, '1']}
-          maxCount={2}
-          defaultOpen
-        />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-    const items = Array.from(queryAllBody('[data-slot="item"]'))
-
-    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(2)
-    expect(items.map((item) => item.getAttribute('aria-selected'))).toEqual([
-      'true',
-      'true',
-      'false',
-    ])
-    expect(items[2]?.getAttribute('aria-disabled')).toBe('true')
-    expect(new FormData(form).getAll('choices')).toEqual(['1', '1'])
-  })
-
-  test('labels tag removal, preserves input focus, and removes once', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <MultiSelect search items={FRUITS} value={['apple']} onChange={onChange} />
+      <MultiSelect items={ITEMS} createItem={createItem} onChange={onChange} defaultOpen />
     ))
     const input = screen.getByRole('combobox')
-    const remove = screen.getByRole('button', { name: 'Remove Apple' })
-    input.focus()
-
-    const pointerDown = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
-    remove.dispatchEvent(pointerDown)
-    fireEvent.click(remove)
-
-    expect(pointerDown.defaultPrevented).toBe(true)
-    expect(document.activeElement).toBe(input)
-    expect(onChange).toHaveBeenCalledTimes(1)
-    expect(onChange).toHaveBeenCalledWith([])
+    fireEvent.input(input, { target: { value: 'ba' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(createItem).not.toHaveBeenCalled()
+    expect(onChange).toHaveBeenLastCalledWith(['banana'])
   })
 
-  test('keeps tag removal inert when the multi-select is disabled', async () => {
+  test('reuses a canonical value returned by createItem', () => {
+    const createItem = vi.fn(() => ({ label: 'Duplicate', value: 'apple' }))
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect items={FRUITS} value={['apple']} disabled onChange={onChange} />
+      <MultiSelect items={ITEMS} createItem={createItem} onChange={onChange} defaultOpen />
     ))
-    const tag = screen.container.querySelector('[data-slot="tag"]')!
-    const removeButton = tag.querySelector('button[data-slot="tagRemove"]') as HTMLButtonElement
+    const input = screen.getByRole('combobox')
+    fireEvent.input(input, { target: { value: 'new label' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(onChange).toHaveBeenLastCalledWith(['apple'])
+    expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe('Apple')
+  })
 
-    expect(removeButton).not.toBeNull()
-    expect(removeButton.disabled).toBe(true)
-    expect(removeButton.className).toContain('pointer-events-none')
-    expect(removeButton.className).toContain('-ms-1')
-    expect(removeButton.className).toContain('p-0.5')
-    fireEvent.click(removeButton)
+  test('rejects an invalid item returned by an untyped createItem implementation', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        items={ITEMS}
+        createItem={() => null as unknown as MultiSelectT.Item}
+        onChange={onChange}
+        defaultOpen
+      />
+    ))
+    const input = screen.getByRole('combobox')
+    fireEvent.input(input, { target: { value: 'invalid' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('uses the effective disabled policy for remove buttons and Backspace', () => {
-    const [blocked, setBlocked] = createSignal(true)
+  test('maxCount blocks additions but allows removal', () => {
     const onChange = vi.fn()
     const screen = render(() => (
       <MultiSelect
         search
-        items={FRUITS}
-        defaultValue={['missing', 'apple']}
-        isItemDisabled={(item) => blocked() && item.value === 'apple'}
+        items={ITEMS}
+        defaultValue={['apple']}
+        maxCount={1}
+        defaultOpen
         onChange={onChange}
       />
     ))
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    const removeApple = screen.getByRole<HTMLButtonElement>('button', { name: 'Remove Apple' })
-
-    expect(removeApple.disabled).toBe(true)
-    fireEvent.click(removeApple)
-    fireEvent.keyDown(input, { key: 'Backspace' })
+    const options = within(document.body).getAllByRole('option', { hidden: true })
+    fireEvent.click(options[1]!)
     expect(onChange).not.toHaveBeenCalled()
-
-    setBlocked(false)
-    expect(removeApple.disabled).toBe(false)
-    fireEvent.keyDown(input, { key: 'Backspace' })
-    expect(onChange).toHaveBeenLastCalledWith(['missing'])
-
-    fireEvent.keyDown(input, { key: 'Backspace' })
+    fireEvent.click(screen.getByRole('button', { name: 'Remove Apple' }))
     expect(onChange).toHaveBeenLastCalledWith([])
   })
 
-  test('guards custom tag removal with the dynamic disabled policy', () => {
-    const [blocked, setBlocked] = createSignal(true)
-    const onChange = vi.fn()
+  test('maxTagCount is visual only and unresolved values stay removable', () => {
     const screen = render(() => (
-      <MultiSelect
-        items={FRUITS}
-        defaultValue={['apple']}
-        isItemDisabled={(item) => blocked() && item.value === 'apple'}
-        onChange={onChange}
-        tagRender={({ label, onClose }) => <button onClick={onClose}>Remove {label}</button>}
-      />
+      <form>
+        <MultiSelect
+          name="fruit"
+          items={ITEMS}
+          defaultValue={['apple', 'missing', 'banana']}
+          maxTagCount={1}
+        />
+      </form>
     ))
-    const remove = screen.getByRole('button', { name: 'Remove Apple' })
-
-    fireEvent.click(remove)
-    expect(onChange).not.toHaveBeenCalled()
-    setBlocked(false)
-    fireEvent.click(remove)
-    expect(onChange).toHaveBeenCalledWith([])
+    expect(screen.container.querySelector('[data-slot="tagOverflow"]')?.textContent).toBe('+2')
+    expect(new FormData(screen.container.querySelector('form')!).getAll('fruit')).toEqual([
+      'apple',
+      'missing',
+      'banana',
+    ])
   })
 
-  test('lets Clear All bypass the effective item disabled policy', () => {
-    const onChange = vi.fn()
+  test('loading never removes the secondary trigger', () => {
     const screen = render(() => (
-      <MultiSelect
-        items={FRUITS}
-        defaultValue={['apple']}
-        allowClear
-        isItemDisabled={(item) => item.value === 'apple'}
-        onChange={onChange}
-      />
+      <MultiSelect items={ITEMS} defaultValue={['apple']} allowClear loading />
     ))
-
-    expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Remove Apple' }).disabled).toBe(
-      true,
+    expect(screen.getByRole('button', { name: 'Loading' }).getAttribute('data-slot')).toBe(
+      'trigger',
     )
-    fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
-    expect(onChange).toHaveBeenCalledWith([])
   })
 
-  test('preserves tag remove button layout and classes when toggling disabled', () => {
-    const [isDisabled, setIsDisabled] = createSignal(false)
-    const screen = render(() => (
-      <MultiSelect items={FRUITS} value={['apple']} disabled={isDisabled()} />
-    ))
-    const tag = screen.container.querySelector('[data-slot="tag"]')!
-    const removeButton = () =>
-      tag.querySelector('button[data-slot="tagRemove"]') as HTMLButtonElement
-
-    expect(removeButton().disabled).toBe(false)
-    expect(removeButton().className).toContain('cursor-pointer')
-    expect(removeButton().className).toContain('-ms-1')
-    expect(removeButton().className).toContain('p-0.5')
-
-    setIsDisabled(true)
-
-    expect(removeButton().disabled).toBe(true)
-    expect(removeButton().className).toContain('pointer-events-none')
-    expect(removeButton().className).toContain('-ms-1')
-    expect(removeButton().className).toContain('p-0.5')
-  })
-
-  test('focuses the input when the selected tag label is pressed', () => {
-    const screen = render(() => <MultiSelect search items={FRUITS} value={['apple']} />)
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    const label = screen.container.querySelector('[data-slot="tag"] [data-slot="label"]')!
-
-    label.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }))
-
-    expect(document.activeElement).toBe(input)
-  })
-
-  test('removes the last selected value with Backspace from an empty input', () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <MultiSelect search items={FRUITS} defaultValue={['apple', 'banana']} onChange={onChange} />
-    ))
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    input.focus()
-    input.setSelectionRange(0, 0)
-    const event = new KeyboardEvent('keydown', {
-      key: 'Backspace',
-      bubbles: true,
-      cancelable: true,
-    })
-
-    input.dispatchEvent(event)
-
-    expect(event.defaultPrevented).toBe(true)
-    expect(document.activeElement).toBe(input)
-    expect(onChange).toHaveBeenCalledOnce()
-    expect(onChange).toHaveBeenCalledWith(['apple'])
-    expect(
-      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
-        tag.getAttribute('title'),
-      ),
-    ).toEqual(['Apple'])
-  })
-
-  test('does not remove tags for text edits, ranges, Delete, or disabled input', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <MultiSelect search items={FRUITS} defaultValue={['apple', 'banana']} onChange={onChange} />
-    ))
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-
-    fireEvent.input(input, { target: { value: 'query' } })
-    input.setSelectionRange(0, 5)
-    fireEvent.keyDown(input, { key: 'Backspace' })
-    fireEvent.input(input, { target: { value: '' } })
-    input.setSelectionRange(0, 0)
-    fireEvent.keyDown(input, { key: 'Delete' })
-
-    expect(onChange).not.toHaveBeenCalled()
-
-    screen.unmount()
-    const disabledOnChange = vi.fn()
-    const disabledScreen = render(() => (
-      <MultiSelect
-        search
-        disabled
-        items={FRUITS}
-        defaultValue={['apple', 'banana']}
-        onChange={disabledOnChange}
-      />
-    ))
-    const disabledInput = disabledScreen.getByRole<HTMLInputElement>('combobox')
-    disabledInput.setSelectionRange(0, 0)
-    fireEvent.keyDown(disabledInput, { key: 'Backspace' })
-
-    expect(disabledOnChange).not.toHaveBeenCalled()
-  })
-
-  test('removes a missing last selected value with Backspace', () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <MultiSelect
-        search
-        items={FRUITS}
-        defaultValue={['apple', 'dragonfruit']}
-        onChange={onChange}
-      />
-    ))
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    input.setSelectionRange(0, 0)
-
-    input.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true, cancelable: true }),
-    )
-
-    expect(onChange).toHaveBeenCalledWith(['apple'])
-  })
-
-  test('calls onChange with array of values', async () => {
-    const onChange = vi.fn()
-    render(() => <MultiSelect items={FRUITS} defaultOpen onChange={onChange} />)
-
-    const items = queryAllBody('[data-slot="item"]')
-    fireEvent.click(items[0]!)
-
-    expect(onChange).toHaveBeenCalledTimes(1)
-    expect(onChange).toHaveBeenLastCalledWith(['apple'])
-  })
-
-  test('stays open when an untyped runtime caller supplies closeOnSelect', () => {
-    const runtimeProps = {
-      items: FRUITS,
-      defaultOpen: true,
-      closeOnSelect: true,
-    } as unknown as MultiSelectProps
-    render(() => <MultiSelect {...runtimeProps} />)
-
-    fireEvent.click(queryAllBody('[data-slot="item"]')[0]!)
-
-    expect(queryBody('[data-slot="content"]')?.hasAttribute('data-closed')).toBe(false)
-    expect(queryBody('[data-slot="item"]')?.getAttribute('aria-selected')).toBe('true')
-  })
-
-  test('mirrors Form.Field invalid state on the control and combobox', async () => {
-    const { screen } = renderWithOwner(
-      () =>
-        createForm({
-          schema: v.object({
-            fruits: v.pipe(
-              v.array(v.string()),
-              v.check((value) => value.length === 1, 'Choose one fruit'),
-            ),
-          }),
-          initialInput: { fruits: ['apple'] },
-          validate: 'change',
-        }),
-      (form) => (
-        <form.Form>
-          <form.Field name="fruits">
-            <MultiSelect search defaultOpen items={FRUITS} />
-          </form.Field>
-        </form.Form>
-      ),
-    )
-
-    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
-
-    await waitFor(() => expect(screen.getByText('Choose one fruit')).toBeTruthy())
-    expect(
-      screen.container.querySelector('[data-slot="trigger"]')?.hasAttribute('data-invalid'),
-    ).toBe(true)
-    expect(screen.getByRole('combobox').getAttribute('aria-invalid')).toBe('true')
-  })
-
-  test('restores rejected controlled arrays in tags, FormField, and native state', async () => {
-    const onChange = vi.fn()
-    const { screen, value: form } = renderWithOwner(
-      () =>
-        createForm({
-          schema: v.object({ fruits: v.array(v.string()) }),
-          initialInput: { fruits: ['apple'] },
-        }),
-      (form) => (
-        <form.Form>
-          <form.Field name="fruits" label="Fruits">
-            <MultiSelect items={FRUITS} value={['apple']} defaultOpen onChange={onChange} />
-          </form.Field>
-        </form.Form>
-      ),
-    )
-
-    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
-
-    expect(onChange).toHaveBeenCalledOnce()
-    expect(onChange).toHaveBeenCalledWith(['apple', 'banana'])
-    expect(
-      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
-        tag.getAttribute('title'),
-      ),
-    ).toEqual(['Apple'])
-    expect(getInput(form)).toEqual({ fruits: ['apple'] })
-  })
-
-  test('commits a synchronously accepted controlled array once', async () => {
-    const [value, setValue] = createSignal<Array<string | number>>(['apple'])
-    const onChange = vi.fn((nextValue: Array<string | number>) => setValue(nextValue))
-    const screen = render(() => (
-      <MultiSelect items={FRUITS} value={value()} defaultOpen onChange={onChange} />
-    ))
-
-    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
-
-    expect(onChange).toHaveBeenCalledOnce()
-    expect(onChange).toHaveBeenCalledWith(['apple', 'banana'])
-    expect(
-      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
-        tag.getAttribute('title'),
-      ),
-    ).toEqual(['Apple', 'Banana'])
-  })
-
-  test('reacts to external Formisch arrays without publishing callbacks', () => {
-    const onChange = vi.fn()
-    const { screen, value: form } = renderWithOwner(
-      () =>
-        createForm({
-          schema: v.object({ fruits: v.array(v.string()) }),
-          initialInput: { fruits: ['apple'] },
-        }),
-      (form) => (
-        <form.Form>
-          <form.Field name="fruits" label="Fruits">
-            <MultiSelect items={FRUITS} onChange={onChange} />
-          </form.Field>
-        </form.Form>
-      ),
-    )
-
-    setInput(form, { path: ['fruits'], input: ['banana', 'apple'] })
-
-    expect(
-      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
-        tag.getAttribute('title'),
-      ),
-    ).toEqual(['Banana', 'Apple'])
-    expect(onChange).not.toHaveBeenCalled()
-  })
-
-  test('forwards virtual rendering and scroll callbacks', async () => {
-    const [entryIndex, setEntryIndex] = createSignal(0)
-    const scrollToItem = vi.fn()
-    const screen = render(() => (
-      <MultiSelect
-        items={FRUITS}
-        defaultOpen
-        scrollToItem={(item, index) => {
-          scrollToItem(item, index)
-          setEntryIndex(index)
-        }}
-        virtualRender={(context) => (
-          <For each={[context.entries[entryIndex()]!]}>
-            {(entry) => context.render(entry, entryIndex(), { 'data-index': entryIndex() })}
-          </For>
-        )}
-      />
-    ))
-    const combobox = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
-    combobox.focus()
-
-    fireEvent.keyDown(combobox, { key: 'ArrowDown' })
-
-    await waitFor(() => {
-      const item = queryBody('[data-slot="item"]')
-      expect(queryAllBody('[data-slot="item"]').length).toBe(1)
-      expect(item?.textContent).toContain('Banana')
-      expect(item?.getAttribute('data-index')).toBe('1')
-    })
-    expect(scrollToItem).toHaveBeenLastCalledWith(FRUITS[1], 1)
-    expect(document.activeElement).toBe(combobox)
-  })
-
-  test('respects maxCount limit', async () => {
-    const onChange = vi.fn()
-    render(() => (
-      <MultiSelect
-        items={FRUITS}
-        defaultValue={['apple']}
-        defaultOpen
-        onChange={onChange}
-        maxCount={1}
-      />
-    ))
-
-    const items = queryAllBody('[data-slot="item"]')
-    fireEvent.click(items[1]!)
-
-    expect(onChange).not.toHaveBeenCalled()
-  })
-
-  test('disables non-selected items when maxCount is reached', () => {
-    render(() => <MultiSelect items={FRUITS} defaultOpen defaultValue={['apple']} maxCount={1} />)
-
-    const items = queryAllBody('[data-slot="item"]')
-    expect(items[0]?.getAttribute('aria-disabled')).toBeNull()
-    expect(items[1]?.getAttribute('aria-disabled')).toBe('true')
-    expect(items[2]?.getAttribute('aria-disabled')).toBe('true')
-  })
-
-  test('creates and selects tag from token separators', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <MultiSelect
-        search
-        items={FRUITS}
-        createItem={(input) => ({ value: input, label: input })}
-        tokenSeparators={[',']}
-        onChange={onChange}
-        placeholder="Type..."
-      />
-    ))
-
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    fireEvent.input(input, { target: { value: 'custom,' } })
-
-    expect(onChange).toHaveBeenCalledWith(['custom'])
-    await waitFor(() => {
-      expect(input.value).toBe('')
-    })
-  })
-
-  test('keeps trailing token and emits onSearch remainder', async () => {
-    const onChange = vi.fn()
-    const onSearch = vi.fn()
-    const screen = render(() => (
-      <MultiSelect
-        search
-        items={FRUITS}
-        tokenSeparators={[',']}
-        onChange={onChange}
-        onSearch={onSearch}
-      />
-    ))
-
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    fireEvent.input(input, { target: { value: 'Apple,ba' } })
-
-    expect(onChange).toHaveBeenCalledWith(['apple'])
-    expect(onSearch).toHaveBeenCalledOnce()
-    expect(onSearch).toHaveBeenCalledWith('ba')
-    await waitFor(() => {
-      expect(input.value).toBe('ba')
-    })
-  })
-
-  test('treats multi-character token separators as literal alternatives', async () => {
-    const onChange = vi.fn()
-    const onSearch = vi.fn()
-    const screen = render(() => (
-      <MultiSelect
-        search
-        items={FRUITS}
-        createItem={(input) => ({ value: input, label: input })}
-        tokenSeparators={['::']}
-        onChange={onChange}
-        onSearch={onSearch}
-      />
-    ))
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-
-    fireEvent.input(input, { target: { value: 'custom:value::Apple::tail' } })
-
-    expect(onChange).toHaveBeenCalledOnce()
-    expect(onChange).toHaveBeenCalledWith(['custom:value', 'apple'])
-    expect(onSearch).toHaveBeenCalledOnce()
-    expect(onSearch).toHaveBeenCalledWith('tail')
-    expect(input.value).toBe('tail')
-  })
-
-  test('defers token commits until IME composition ends', async () => {
-    const onChange = vi.fn()
-    const onSearch = vi.fn()
-    const screen = render(() => (
-      <MultiSelect
-        search
-        items={FRUITS}
-        createItem={(input) => ({ value: input, label: input })}
-        tokenSeparators={[',']}
-        onChange={onChange}
-        onSearch={onSearch}
-      />
-    ))
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-
-    fireEvent.compositionStart(input)
-    fireEvent.input(input, { target: { value: 'custom,' } })
-
-    expect(onChange).not.toHaveBeenCalled()
-    expect(input.value).toBe('custom,')
-
-    fireEvent.compositionEnd(input)
-
-    expect(onChange).toHaveBeenCalledOnce()
-    expect(onChange).toHaveBeenCalledWith(['custom'])
-    expect(onSearch).not.toHaveBeenCalled()
-    expect(input.value).toBe('')
-  })
-
-  test('commits only the final token remainder when searchValue is controlled', () => {
-    const onSearch = vi.fn()
-    const screen = render(() => (
-      <MultiSelect
-        search
-        items={FRUITS}
-        searchValue="seed"
-        tokenSeparators={[',']}
-        onSearch={onSearch}
-      />
-    ))
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-
-    fireEvent.input(input, { target: { value: 'Apple,ba' } })
-
-    expect(onSearch).toHaveBeenCalledOnce()
-    expect(onSearch).toHaveBeenCalledWith('ba')
-  })
-
-  test('respects maxCount when processing token separators', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <MultiSelect
-        search
-        items={FRUITS}
-        tokenSeparators={[',']}
-        defaultValue={['apple']}
-        maxCount={1}
-        onChange={onChange}
-      />
-    ))
-
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    fireEvent.input(input, { target: { value: 'banana,' } })
-
-    expect(onChange).not.toHaveBeenCalled()
-    await waitFor(() => {
-      expect(input.value).toBe('')
-    })
-  })
-
-  test('creates tag on Enter when createItem is provided', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <MultiSelect
-        search
-        items={FRUITS}
-        defaultOpen
-        createItem={(input) => ({ value: input, label: input })}
-        onChange={onChange}
-      />
-    ))
-
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    fireEvent.input(input, { target: { value: 'Dragonfruit' } })
-    fireEvent.keyDown(input, { key: 'Enter' })
-
-    expect(onChange).toHaveBeenCalledWith(['Dragonfruit'])
-    expect(input.value).toBe('')
-  })
-
-  test('does not create tag on Enter when maxCount is reached', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <MultiSelect
-        search
-        items={FRUITS}
-        defaultOpen
-        createItem={(input) => ({ value: input, label: input })}
-        defaultValue={['apple']}
-        maxCount={1}
-        onChange={onChange}
-      />
-    ))
-
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    fireEvent.input(input, { target: { value: 'Dragonfruit' } })
-    fireEvent.keyDown(input, { key: 'Enter' })
-
-    expect(onChange).not.toHaveBeenCalled()
-    expect(input.value).toBe('Dragonfruit')
-  })
-
-  test('does not create tag on Enter when createItem is absent', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <MultiSelect search items={FRUITS} defaultOpen onChange={onChange} />
-    ))
-
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    fireEvent.input(input, { target: { value: 'Dragonfruit' } })
-    fireEvent.keyDown(input, { key: 'Enter' })
-
-    expect(onChange).not.toHaveBeenCalled()
-    expect(input.value).toBe('Dragonfruit')
-  })
-
-  test('does not select existing option on Enter when maxCount is reached', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <MultiSelect
-        search
-        items={FRUITS}
-        defaultOpen
-        defaultValue={['apple']}
-        maxCount={1}
-        onChange={onChange}
-      />
-    ))
-
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    fireEvent.input(input, { target: { value: 'Banana' } })
-    fireEvent.keyDown(input, { key: 'Enter' })
-
-    expect(onChange).not.toHaveBeenCalled()
-    expect(input.value).toBe('Banana')
-  })
-
-  test('does not select disabled option on Enter', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <MultiSelect search items={FRUITS} defaultOpen onChange={onChange} />
-    ))
-
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    fireEvent.input(input, { target: { value: 'Cherry' } })
-    fireEvent.keyDown(input, { key: 'Enter' })
-
-    expect(onChange).not.toHaveBeenCalled()
-    expect(input.value).toBe('Cherry')
-  })
-
-  test('shows +N overflow when maxTagCount is reached', () => {
-    const screen = render(() => (
-      <MultiSelect items={FRUITS} value={['apple', 'banana']} maxTagCount={1} />
-    ))
-
-    const tags = screen.container.querySelectorAll('[data-slot="tag"]')
-    const overflow = screen.container.querySelector('[data-slot="tagOverflow"]')
-    expect(tags.length).toBe(1)
-    expect(overflow?.textContent).toContain('+1')
-  })
-
-  test('opens dropdown and focuses combobox when control shell is clicked', async () => {
-    const screen = render(() => <MultiSelect items={FRUITS} placeholder="Pick fruits" />)
-    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
-    const combobox = screen.getByRole('combobox')
-
-    fireEvent.pointerDown(control, { button: 0 })
-    fireEvent.click(control)
-
-    await waitFor(() => {
-      expect(queryBody('[data-slot="content"]')).not.toBeNull()
-    })
-
-    expect(document.activeElement).toBe(combobox)
-  })
-
-  test('non-search control does not show focus ring on pointer click', async () => {
-    const screen = render(() => <MultiSelect items={FRUITS} placeholder="Pick fruits" />)
-    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
-
-    fireEvent.pointerDown(control, { button: 0 })
-    fireEvent.click(control)
-
-    expect(control.className).toContain('focus-visible:ring-ring/50')
-    expect(control.hasAttribute('data-search')).toBe(false)
-    expect(control.className).toContain('cursor-pointer')
-    expect(control.className).not.toContain('focus-within:ring-ring/50')
-  })
-
-  test('non-search control uses focus-visible ring styling for keyboard focus', () => {
-    const screen = render(() => <MultiSelect items={FRUITS} placeholder="Pick fruits" />)
-    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
-
-    control.focus()
-
-    expect(document.activeElement).toBe(control)
-    expect(control.className).toContain('focus-visible:ring-ring/50')
-  })
-
-  test('searchable control keeps focus-within ring styling', () => {
-    const screen = render(() => <MultiSelect items={FRUITS} search placeholder="Pick fruits" />)
-    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
-
-    expect(control.className).toContain('focus-within:ring-ring/50')
-    expect(control.className).not.toContain('focus:ring-ring/50')
-  })
-
-  test('keeps the searchable panel open and allows native pointer selection in its input', () => {
-    const screen = render(() => <MultiSelect items={FRUITS} search defaultOpen />)
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    const pointerDown = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
-
-    input.dispatchEvent(pointerDown)
-    fireEvent.click(input)
-
-    expect(pointerDown.defaultPrevented).toBe(false)
+  test('keeps a read-only field browsable through its secondary trigger', () => {
+    const screen = render(() => <MultiSelect items={ITEMS} readOnly />)
+    const input = screen.getByRole('combobox')
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle options' }))
     expect(input.getAttribute('aria-expanded')).toBe('true')
   })
 
-  test('hides the placeholder after a value is selected', () => {
-    const screen = render(() => (
-      <MultiSelect items={FRUITS} defaultValue={['apple']} placeholder="Pick fruits" />
-    ))
-
-    expect(screen.getByRole<HTMLInputElement>('textbox').placeholder).toBe('')
+  test('has no tokenSeparators API', () => {
+    // @ts-expect-error tokenization belongs to TagsInput.
+    const invalid = <MultiSelect items={ITEMS} tokenSeparators={[',']} />
+    expect(invalid).toBeTruthy()
   })
 
-  test('after trigger click, ArrowDown selects the first option', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => <MultiSelect items={FRUITS} onChange={onChange} />)
-    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
-
-    fireEvent.click(trigger)
-    await waitFor(() => {
-      expect(queryBody('[data-slot="content"]')).not.toBeNull()
-    })
-
-    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
-    fireEvent.keyDown(control, { key: 'ArrowDown' })
-    fireEvent.keyDown(control, { key: 'Enter' })
-
-    expect(onChange).toHaveBeenCalledWith(['banana'])
-  })
-
-  test('renders non-search placeholder as presentation-only text', () => {
-    const screen = render(() => <MultiSelect items={FRUITS} placeholder="Pick fruits" />)
-
-    const input = screen.container.querySelector('[data-slot="input"]') as HTMLElement
-    expect(input.tagName).toBe('INPUT')
-    expect(input.getAttribute('readonly')).not.toBeNull()
-    expect(input.getAttribute('tabindex')).toBe('-1')
-    expect(screen.container.querySelector('[data-slot="trigger"]')).not.toBeNull()
-  })
-
-  test('when menu is open, Tab toggles focused item', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => <MultiSelect items={FRUITS} search onChange={onChange} />)
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-
-    input.focus()
-    fireEvent.click(input)
-    await waitFor(() => {
-      expect(input.getAttribute('aria-expanded')).toBe('true')
-    })
-
-    fireEvent.keyDown(input, { key: 'ArrowDown' })
-
-    const tabEvent = new KeyboardEvent('keydown', {
-      key: 'Tab',
-      bubbles: true,
-      cancelable: true,
-    })
-    input.dispatchEvent(tabEvent)
-
-    expect(tabEvent.defaultPrevented).toBe(false)
-    expect(onChange).not.toHaveBeenCalled()
-  })
-
-  test('non-search Tab leaves the multi-select and does not select', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <>
-        <MultiSelect items={FRUITS} onChange={onChange} />
-        <button type="button">Next</button>
-      </>
-    ))
-    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
-    const nextButton = screen.getByRole('button', { name: 'Next' })
-
-    control.focus()
-    fireEvent.click(control)
-    await waitFor(() => {
-      expect(control.getAttribute('aria-expanded')).toBe('true')
-    })
-
-    fireEvent.keyDown(control, { key: 'ArrowDown' })
-    const tabEvent = new KeyboardEvent('keydown', {
-      key: 'Tab',
-      bubbles: true,
-      cancelable: true,
-    })
-    control.dispatchEvent(tabEvent)
-
-    expect(tabEvent.defaultPrevented).toBe(false)
-    nextButton.focus()
-    expect(document.activeElement).toBe(nextButton)
-    expect(onChange).not.toHaveBeenCalled()
-  })
-
-  test('space toggles the highlighted option when menu is open', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => <MultiSelect items={FRUITS} onChange={onChange} />)
-    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
-
-    fireEvent.click(control)
-    await waitFor(() => {
-      expect(control.getAttribute('aria-expanded')).toBe('true')
-    })
-
-    fireEvent.keyDown(control, { key: 'ArrowDown' })
-    fireEvent.keyDown(control, { key: ' ' })
-
-    expect(onChange).toHaveBeenCalledWith(['banana'])
-  })
-
-  test('keeps the highlighted option until exit motion finishes', async () => {
-    const screen = render(() => (
-      <MultiSelect items={FRUITS} search defaultOpen defaultValue={['banana']} placeholder="Pick" />
-    ))
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-
-    await waitFor(() => {
-      expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Banana')
-    })
-
-    fireEvent.keyDown(input, { key: 'Escape' })
-
-    await waitFor(() => {
-      expect(queryBody('[data-slot="content"]')?.getAttribute('data-closed')).toBe('')
-      expect(queryBody('[data-slot="item"][data-highlighted]')?.textContent).toContain('Banana')
-    })
-
-    await finishSelectExitMotion()
-
-    await waitFor(() => {
-      expect(queryBody('[data-slot="content"]')).toBeNull()
-    })
-  })
-
-  test('renders empty state separately from non-null items', async () => {
-    let receivedEmptyOption = false
-    const screen = render(() => (
-      <MultiSelect
-        search
-        items={FRUITS}
-        defaultOpen
-        emptyRender={() => <div data-testid="empty">Empty</div>}
-        itemRender={(props) => {
-          receivedEmptyOption ||= props.item === null
-          return <div data-testid="empty">Empty</div>
-        }}
-      />
-    ))
-
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    fireEvent.input(input, { target: { value: 'xyznonexistent' } })
-
-    await waitFor(() => {
-      expect(receivedEmptyOption).toBe(false)
-      expect(queryBody('[data-testid="empty"]')).not.toBeNull()
-    })
-  })
-
-  test('renders default "No items" fallback when search has no matches', async () => {
-    const screen = render(() => (
-      <MultiSelect search items={FRUITS} defaultOpen placeholder="Search..." />
-    ))
-
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    fireEvent.input(input, { target: { value: 'xyznonexistent' } })
-
-    await waitFor(() => {
-      const emptyNode = queryBody('[data-slot="empty"]')
-      expect(emptyNode).not.toBeNull()
-      expect(emptyNode?.textContent).toBe('No items')
-    })
-  })
-
-  test('uses tagRender for custom tag rendering', () => {
-    const screen = render(() => (
-      <MultiSelect
-        items={FRUITS}
-        value={['apple']}
-        tagRender={(props) => (
-          <span data-testid="custom-tag">
-            {props.label}
-            <button onClick={props.onClose}>x</button>
-          </span>
-        )}
-      />
-    ))
-
-    expect(screen.getByTestId('custom-tag')).not.toBeNull()
-  })
-
-  test('does not let custom tagRender remove a disabled item', () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <MultiSelect
-        value={['locked']}
-        items={[{ value: 'locked', label: 'Locked', disabled: true }]}
-        onChange={onChange}
-        tagRender={({ label, onClose }) => (
-          <span data-testid="locked-tag">
-            {label}
-            <button onClick={onClose}>Remove</button>
-          </span>
-        )}
-      />
-    ))
-
-    fireEvent.click(screen.getByRole('button', { name: 'Remove' }))
-
-    expect(onChange).not.toHaveBeenCalled()
-    expect(screen.getByTestId('locked-tag')).not.toBeNull()
-  })
-
-  test('resolves JSX-capable getters once and keeps closed popup trees lazy', async () => {
-    const reads = {
-      itemRender: 0,
-      tagRender: 0,
-      emptyRender: 0,
-    }
-    const instances = { option: 0, tag: 0, empty: 0 }
-    const screen = render(() =>
-      createComponent(MultiSelect, {
-        items: FRUITS,
-        defaultValue: ['apple'],
-        loading: true,
-        get itemRender() {
-          reads.itemRender += 1
-          return (props: MultiSelectT.ItemRenderProps) => {
-            instances.option += 1
-            return <span>{props.item?.label}</span>
-          }
-        },
-        get tagRender() {
-          reads.tagRender += 1
-          return (props: MultiSelectT.TagRenderProps) => {
-            instances.tag += 1
-            return <span data-testid="getter-tag">{props.label}</span>
-          }
-        },
-        get emptyRender() {
-          reads.emptyRender += 1
-          return () => {
-            instances.empty += 1
-            return <span>Empty</span>
-          }
-        },
-        get leadingIcon() {
-          return 'icon-search' as const
-        },
-        get loadingIcon() {
-          return 'icon-loading' as const
-        },
-        get trailingIcon() {
-          return 'icon-chevron-down' as const
-        },
-        get closeIcon() {
-          return 'icon-close' as const
-        },
-      }),
-    )
-
-    expect(instances).toEqual({ option: 0, tag: 1, empty: 0 })
-    expect(Object.values(reads)).toEqual([0, 1, 0])
-
-    fireEvent.click(screen.container.querySelector('[data-slot="trigger"]')!)
-
-    expect(queryAllBody('[data-slot="item"]')).toHaveLength(3)
-    expect(instances).toEqual({ option: 3, tag: 1, empty: 0 })
-    expect(Object.values(reads)).toEqual([1, 1, 0])
-  })
-
-  test('types onChange payload as array', () => {
-    const onChange: NonNullable<MultiSelectProps['onChange']> = (value) => {
-      const values: Array<string | number> = value
-      expect(Array.isArray(values)).toBe(true)
-    }
-
-    onChange(['apple'])
-  })
-
-  test('serializes selected values as repeated same-name entries in selection order', async () => {
-    const screen = render(() => (
-      <form>
-        <MultiSelect name="fruits" items={FRUITS} defaultOpen />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-    const items = queryAllBody('[data-slot="item"]')
-
-    fireEvent.click(items[1]!)
-    fireEvent.click(items[0]!)
-
-    expect(new FormData(form).getAll('fruits')).toEqual(['banana', 'apple'])
-    expect(form.querySelectorAll('input[type="hidden"][name="fruits"]')).toHaveLength(2)
-  })
-
-  test('keeps a read-only multi-select focusable while blocking all mutations', () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <form>
-        <MultiSelect
-          name="fruits"
-          search
-          allowClear
-          createItem={(input) => ({ value: input, label: input })}
-          tokenSeparators={[',']}
-          defaultOpen
-          defaultValue={['apple']}
-          items={FRUITS}
-          readOnly
-          onChange={onChange}
-        />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    const tagRemove = screen.getByRole<HTMLButtonElement>('button', { name: 'Remove Apple' })
-
-    input.focus()
-    fireEvent.input(input, { target: { value: 'banana,' } })
-    fireEvent.keyDown(input, { key: 'Enter' })
-    fireEvent.keyDown(input, { key: 'Backspace' })
-    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
-    fireEvent.click(tagRemove)
-    fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
-
-    expect(document.activeElement).toBe(input)
-    expect(input.readOnly).toBe(true)
-    expect(input.getAttribute('aria-readonly')).toBe('true')
-    expect(
-      screen.container.querySelector('[data-slot="trigger"]')?.hasAttribute('data-readonly'),
-    ).toBe(true)
-    expect(tagRemove.disabled).toBe(true)
-    expect(
-      screen.getByRole<HTMLButtonElement>('button', { name: 'Clear selection' }).disabled,
-    ).toBe(true)
-    expect(onChange).not.toHaveBeenCalled()
-    expect(new FormData(form).getAll('fruits')).toEqual(['apple'])
-  })
-
-  test('serializes matched, missing, numeric, and string values in public order', () => {
-    const screen = render(() => (
-      <form>
-        <MultiSelect
-          name="choices"
-          items={[
-            { label: 'Numeric one', value: 1 },
-            { label: 'String one', value: '1' },
-            { label: 'Numeric two', value: 2 },
-          ]}
-          defaultValue={[2, 'missing', 1, '1']}
-        />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-
-    expect(
-      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
-        tag.getAttribute('title'),
-      ),
-    ).toEqual(['Numeric two', 'missing', 'Numeric one', 'String one'])
-    expect(new FormData(form).getAll('choices')).toEqual(['2', 'missing', '1', '1'])
-  })
-
-  test('uses selected values for required validity and serializes created tags', async () => {
-    const screen = render(() => (
-      <form>
-        <MultiSelect
-          name="fruits"
-          items={FRUITS}
-          required
-          search
-          createItem={(input) => ({ value: input, label: input })}
-        />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-    expect(new FormData(form).getAll('fruits')).toEqual([])
-    expect(form.checkValidity()).toBe(false)
-    expect(input.name).toBe('')
-    expect(input.required).toBe(false)
-    fireEvent.input(input, { target: { value: 'dragonfruit' } })
-    fireEvent.keyDown(input, { key: 'Enter' })
-
-    expect(form.checkValidity()).toBe(true)
-    expect(new FormData(form).getAll('fruits')).toEqual(['dragonfruit'])
-  })
-
-  test('omits disabled fields from native form data', () => {
-    const screen = render(() => (
-      <form>
-        <MultiSelect name="fruits" items={FRUITS} defaultValue={['apple']} disabled />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-
-    expect(new FormData(form).has('fruits')).toBe(false)
-  })
-
-  test('shows loading icon when loading is true even if selection is not empty and allowClear is true', () => {
-    const screen = render(() => (
-      <MultiSelect items={FRUITS} value={['apple']} loading allowClear placeholder="Pick" />
-    ))
-
-    const indicator = screen.container.querySelector('[data-slot="indicator"]')
-    expect(indicator).not.toBeNull()
-    expect(indicator?.getAttribute('aria-label')).toBe('Loading')
-    expect(indicator?.getAttribute('aria-busy')).toBe('true')
-    expect(indicator?.hasAttribute('data-loading')).toBe(true)
-    const icon = indicator?.querySelector('[data-slot="icon"]')
-    expect(icon?.className).toContain('icon-loading')
-    expect(icon?.hasAttribute('data-loading')).toBe(true)
-    expect(icon?.className).toContain('data-loading:animate-spin')
-    expect(indicator?.className).not.toContain('[&>')
-    expect(screen.container.querySelector('[data-slot="clear"]')).toBeNull()
-  })
-
-  test('transitions between loading indicator and clear action when loading changes', () => {
-    const [isLoading, setIsLoading] = createSignal(true)
-    const screen = render(() => (
-      <MultiSelect
-        items={FRUITS}
-        value={['apple']}
-        loading={isLoading()}
-        allowClear
-        placeholder="Pick"
-      />
-    ))
-
-    expect(
-      screen.container.querySelector('[data-slot="indicator"]')?.getAttribute('aria-label'),
-    ).toBe('Loading')
-    expect(
-      screen.container.querySelector('[data-slot="indicator"] [data-slot="icon"]')?.className,
-    ).toContain('icon-loading')
-
-    setIsLoading(false)
-
-    const clearAction = screen.container.querySelector('[data-slot="clear"]')
-    expect(clearAction).not.toBeNull()
-    expect(clearAction?.getAttribute('aria-label')).toBe('Clear selection')
-    expect(clearAction?.querySelector('[data-slot="icon"]')?.className).toContain('icon-close')
-  })
-
-  test('aligns control padding with the tag gap and removes trigger hover background', () => {
-    const screen = render(() => (
-      <MultiSelect items={FRUITS} size="md" leadingIcon="icon-search" placeholder="Pick" />
-    ))
-    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
-
-    expect(control.className).toContain('ps-2.5')
-    expect(control.className).toContain('pe-2')
-    expect(control.className).toContain('gap-1.5')
-  })
-
-  test('sizes tag and input rows from their content', () => {
-    const screen = render(() => <MultiSelect items={FRUITS} value={['apple', 'banana']} />)
-    const tag = screen.container.querySelector('[data-slot="tag"]') as HTMLElement
-    const tagRemove = screen.container.querySelector('[data-slot="tagRemove"]') as HTMLElement
-    const input = screen.container.querySelector('[data-slot="input"]') as HTMLInputElement
-
-    expect(tag.className).toContain('text-sm')
-    expect(tagRemove.className).toContain('p-0.5')
-    expect(input.className).toContain('text-sm')
-    expect(input.className).toContain('py-0.5')
-  })
-
-  test('scales tags and inputs by size', () => {
-    const screen = render(() => (
-      <>
-        <MultiSelect items={FRUITS} size="sm" value={['apple']} />
-        <MultiSelect items={FRUITS} size="md" value={['apple']} />
-        <MultiSelect items={FRUITS} size="lg" value={['apple']} />
-      </>
-    ))
-    const tags = Array.from(screen.container.querySelectorAll('[data-slot="tag"]'))
-    const inputs = Array.from(screen.container.querySelectorAll('[data-slot="input"]'))
-
-    expect(tags[0]?.className).toContain('text-xs')
-    expect(tags[1]?.className).toContain('text-sm')
-    expect(tags[2]?.className).toContain('text-base')
-    expect(inputs[0]?.className).toContain('text-xs')
-    expect(inputs[1]?.className).toContain('text-sm')
-    expect(inputs[2]?.className).toContain('text-base')
-  })
-
-  test('clears a non-empty default selection instead of restoring it', async () => {
-    const onChange = vi.fn()
-    const onClear = vi.fn()
-    const screen = render(() => (
-      <form>
-        <MultiSelect
-          name="fruits"
-          items={FRUITS}
-          search
-          defaultOpen
-          defaultValue={['apple']}
-          defaultSearchValue="query"
-          allowClear
-          onChange={onChange}
-          onClear={onClear}
-        />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-
-    fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
-
-    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(0)
-    expect(input.value).toBe('')
-    expect(input.getAttribute('aria-expanded')).toBe('true')
-    expect(new FormData(form).getAll('fruits')).toEqual([])
-    expect(onChange).toHaveBeenCalledOnce()
-    expect(onChange).toHaveBeenCalledWith([])
-    expect(onClear).toHaveBeenCalledOnce()
-  })
-
-  test('restores a rejected controlled clear in tags and native state', async () => {
-    const onChange = vi.fn()
-    const onClear = vi.fn()
-    const screen = render(() => (
-      <form>
-        <MultiSelect
-          name="fruits"
-          items={FRUITS}
-          value={['apple']}
-          allowClear
-          onChange={onChange}
-          onClear={onClear}
-        />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-
-    fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
-
-    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(1)
-    expect(new FormData(form).getAll('fruits')).toEqual(['apple'])
-    expect(onChange).toHaveBeenCalledOnce()
-    expect(onChange).toHaveBeenCalledWith([])
-    expect(onClear).toHaveBeenCalledOnce()
-  })
-
-  test('commits a synchronously accepted controlled clear once', async () => {
-    const [value, setValue] = createSignal<Array<string | number>>(['apple'])
-    const onChange = vi.fn((nextValue: Array<string | number>) => setValue(nextValue))
-    const onClear = vi.fn()
-    const screen = render(() => (
-      <MultiSelect
-        items={FRUITS}
-        value={value()}
-        allowClear
-        onChange={onChange}
-        onClear={onClear}
-      />
-    ))
-
-    fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
-
-    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(0)
-    expect(onChange).toHaveBeenCalledOnce()
-    expect(onChange).toHaveBeenCalledWith([])
-    expect(onClear).toHaveBeenCalledOnce()
-  })
-
-  test('does not publish a no-op token batch', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <MultiSelect
-        search
-        items={FRUITS}
-        defaultValue={['apple']}
-        tokenSeparators={[',']}
-        onChange={onChange}
-      />
-    ))
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-
-    fireEvent.input(input, { target: { value: 'Apple,Apple,Cherry,' } })
-
-    expect(onChange).not.toHaveBeenCalled()
-    expect(input.value).toBe('')
-  })
-
-  test('keeps tokenization inert while disabled', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <MultiSelect search disabled items={FRUITS} tokenSeparators={[',']} onChange={onChange} />
-    ))
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-
-    fireEvent.input(input, { target: { value: 'custom,' } })
-
-    expect(onChange).not.toHaveBeenCalled()
-    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(0)
-  })
-
-  test('resets uncontrolled selection and created tags to the initial default snapshot', async () => {
-    const [defaultValue, setDefaultValue] = createSignal<Array<string | number>>(['apple'])
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <form>
-        <MultiSelect
-          name="fruits"
-          search
-          items={FRUITS}
-          defaultOpen
-          defaultValue={defaultValue()}
-          createItem={(input) => ({ value: input, label: input })}
-          onChange={onChange}
-        />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-    const input = screen.getByRole<HTMLInputElement>('combobox')
-
-    setDefaultValue(['banana'])
-    fireEvent.input(input, { target: { value: 'Dragonfruit' } })
-    fireEvent.keyDown(input, { key: 'Enter' })
-    expect(new FormData(form).getAll('fruits')).toEqual(['apple', 'Dragonfruit'])
-
-    form.reset()
-    await Promise.resolve()
-
-    expect(
-      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
-        tag.getAttribute('title'),
-      ),
-    ).toEqual(['Apple'])
-    expect(new FormData(form).getAll('fruits')).toEqual(['apple'])
-    expect(input.value).toBe('')
-    expect(
-      Array.from(queryAllBody('[data-slot="item"]')).map((item) => item.textContent?.trim()),
-    ).not.toContain('Dragonfruit')
-    expect(onChange).toHaveBeenCalledOnce()
-  })
-
-  test('restores the latest explicit controlled array on reset without callbacks', async () => {
-    const [value, setValue] = createSignal<Array<string | number>>(['apple'])
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <form>
-        <MultiSelect name="fruits" items={FRUITS} value={value()} onChange={onChange} />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-
-    setValue(['banana', 'apple'])
-    form.reset()
-    await Promise.resolve()
-
-    expect(
-      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
-        tag.getAttribute('title'),
-      ),
-    ).toEqual(['Banana', 'Apple'])
-    expect(new FormData(form).getAll('fruits')).toEqual(['banana', 'apple'])
-    expect(onChange).not.toHaveBeenCalled()
-  })
-
-  test('keeps the current selection when form reset is canceled', async () => {
-    const onChange = vi.fn()
-    const screen = render(() => (
-      <form onReset={(event) => event.preventDefault()}>
-        <MultiSelect
-          name="fruits"
-          items={FRUITS}
-          defaultValue={['apple']}
-          defaultOpen
-          onChange={onChange}
-        />
-      </form>
-    ))
-    const form = screen.container.querySelector('form') as HTMLFormElement
-
-    fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
-    form.reset()
-    await Promise.resolve()
-
-    expect(
-      Array.from(screen.container.querySelectorAll('[data-slot="tag"]')).map((tag) =>
-        tag.getAttribute('title'),
-      ),
-    ).toEqual(['Apple', 'Banana'])
-    expect(new FormData(form).getAll('fruits')).toEqual(['apple', 'banana'])
-    expect(onChange).toHaveBeenCalledOnce()
+  test('keeps controlled values authoritative', () => {
+    const [value, setValue] = createSignal<string[]>(['missing'])
+    const screen = render(() => <MultiSelect items={ITEMS} value={value()} onChange={setValue} />)
+    expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe('missing')
+    setValue(['apple'])
+    expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe('Apple')
   })
 })

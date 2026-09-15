@@ -164,5 +164,5 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 
 ## Special Cases
 
-- For common Combobox component, use Select component via `search` prop
-- For tag input, use MultiSelect component
+- Use `Combobox` for editable single collection selection.
+- Use `TagsInput` for free-form string tags and `MultiSelect` for collection-backed values.

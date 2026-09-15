@@ -601,7 +601,7 @@ function AttributesSection(props: { section: PropsTableSection }): JSX.Element {
             placeholder="Select a slot"
             classes={{
               control: 'w-full',
-              input: 'font-mono text-xs',
+              value: 'font-mono text-xs',
             }}
             onChange={(value) => {
               if (typeof value === 'string') {

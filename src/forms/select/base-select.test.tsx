@@ -10,15 +10,98 @@ import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { FormFieldProvider } from '../form/form-context.ts'
 import { createForm } from '../form/index.ts'
 
-import { BaseSelect } from './base-select.tsx'
+import { BaseSelect, useSelectState } from './base-select.tsx'
+import { Combobox } from './combobox.tsx'
 import { MultiSelect } from './multi-select.tsx'
-import { Select } from './select.tsx'
+import { useBaseSelectSearchInput, useSearchValue } from './utils.ts'
 
 const items = [
   { value: 1, label: 'Alpha', extra: 'first' },
   { value: 2, label: 'Beta', extra: 'second' },
   { value: 3, label: 'Disabled', disabled: true, extra: 'third' },
 ]
+
+test('separates the Control anchor from the Trigger focus owner and cleans both refs', () => {
+  let anchor = (): HTMLElement | undefined => undefined
+  let focusOwner = (): HTMLElement | undefined => undefined
+  function Anatomy() {
+    const state = useSelectState()
+    anchor = state.anchor
+    focusOwner = state.focusOwner
+    return (
+      <BaseSelect.Control>
+        <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
+      </BaseSelect.Control>
+    )
+  }
+  const screen = render(() => (
+    <BaseSelect items={items}>
+      <Anatomy />
+    </BaseSelect>
+  ))
+  const control = screen.container.querySelector<HTMLElement>('[data-slot="control"]')!
+  const trigger = screen.getByRole('combobox')
+  expect(control.tabIndex).toBe(-1)
+  expect(control.getAttribute('role')).toBeNull()
+  expect(anchor()).toBe(control)
+  expect(focusOwner()).toBe(trigger)
+  expect(anchor()).not.toBe(focusOwner())
+  fireEvent.click(control)
+  expect(trigger.getAttribute('aria-expanded')).toBe('false')
+  fireEvent.click(trigger)
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  screen.unmount()
+  expect(anchor()).toBeUndefined()
+  expect(focusOwner()).toBeUndefined()
+})
+
+test('falls back to the focus owner when Control is omitted', () => {
+  let anchor = (): HTMLElement | undefined => undefined
+  let focusOwner = (): HTMLElement | undefined => undefined
+  function Anatomy() {
+    const state = useSelectState()
+    anchor = state.anchor
+    focusOwner = state.focusOwner
+    return <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
+  }
+  const screen = render(() => (
+    <BaseSelect items={items}>
+      <Anatomy />
+    </BaseSelect>
+  ))
+  expect(anchor()).toBeUndefined()
+  expect(focusOwner()).toBe(screen.getByRole('combobox'))
+})
+
+test('supports a custom searchable Control without BaseSelect.Trigger', () => {
+  function SearchControl() {
+    const state = useSelectState()
+    const search = useSearchValue()
+    const input = useBaseSelectSearchInput(state, {}, () => true, search)
+    return (
+      <BaseSelect.Control>
+        <input {...input.binding} />
+        <button type="button" onClick={() => state.setOpen(!state.open())}>
+          Toggle
+        </button>
+      </BaseSelect.Control>
+    )
+  }
+  const screen = render(() => (
+    <BaseSelect items={items}>
+      <SearchControl />
+      <BaseSelect.Content>
+        <BaseSelect.Listbox />
+      </BaseSelect.Content>
+    </BaseSelect>
+  ))
+  const input = screen.getByRole('combobox')
+  expect(screen.container.querySelector('[data-slot="control"]')?.getAttribute('role')).toBeNull()
+  fireEvent.input(input, { target: { value: 'be' } })
+  expect(input.getAttribute('aria-expanded')).toBe('true')
+  fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
+  expect(input.getAttribute('aria-expanded')).toBe('false')
+})
 function Parts() {
   return (
     <>
@@ -293,7 +376,7 @@ describe('canonical collection and search view', () => {
         <form>
           <Show
             when={multiple}
-            fallback={<Select search items={items} defaultValue={1} name="choice" defaultOpen />}
+            fallback={<Combobox items={items} defaultValue={1} name="choice" defaultOpen />}
           >
             <MultiSelect search items={items} defaultValue={[1]} name="choice" defaultOpen />
           </Show>

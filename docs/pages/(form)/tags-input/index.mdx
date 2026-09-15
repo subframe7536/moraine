@@ -1,0 +1,52 @@
+---
+title: TagsInput
+description: Free-form multiple string entry with tokenization, paste, and editable tags.
+sidebar:
+  order: 12
+search:
+  tags: [tags input, chips, tokens, free form]
+---
+
+import { TagsInput } from '@src'
+
+## Import
+
+```tsx
+import { TagsInput } from 'moraine'
+import type { TagsInputT } from 'moraine'
+```
+
+TagsInput commits free-form strings directly. It does not own collection items, filtering, a
+listbox, a popup, item creation, or virtual rendering.
+
+## Anatomy
+
+```text
+control
+├── leading (optional)
+├── tagsContainer
+│   ├── tag
+│   │   ├── tagLabel
+│   │   └── tagRemove
+│   └── input
+└── clear (optional)
+```
+
+All committed tags stay directly reachable. TagsInput has no maxTagCount or tagOverflow behavior.
+
+## Basic and controlled input
+
+<Preview path="./basic" />
+
+## Separators and paste
+
+Enter commits the trimmed draft. Configured token separators commit completed tokens, paste splits
+using the same separators, duplicates are ignored, and partial IME composition is never submitted.
+
+<Preview path="./separators" />
+
+## Limits, custom tags, and forms
+
+maxCount limits committed values. The value and native form contract is string[].
+
+<Preview path="./form" />

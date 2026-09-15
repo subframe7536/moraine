@@ -1,0 +1,64 @@
+---
+title: Combobox
+description: Single collection selection with an editable query and a secondary popup trigger.
+sidebar:
+  order: 11
+search:
+  tags: [combobox, search, filter, listbox]
+---
+
+import { Combobox } from '@src'
+
+## Import
+
+```tsx
+import { Combobox } from 'moraine'
+import type { ComboboxT } from 'moraine'
+```
+
+Combobox keeps the committed value and query independent. While open, the input displays the query;
+while closed, it displays the selected item label. Arbitrary query text is never committed.
+
+## Anatomy
+
+```text
+control
+├── leading (optional)
+├── input
+├── clear (optional)
+└── trigger
+```
+
+Control is the visual field and floating anchor. Input is the only combobox ARIA and focus owner.
+Trigger is an always-present secondary button with tabIndex={-1}; it toggles without creating a
+second combobox focus model.
+
+## Basic
+
+<Preview path="./basic" />
+
+## Controlled query and external filtering
+
+<Preview path="./controlled-query" />
+
+## Explicit pointer trigger
+
+With openOnControlClick={false}, ordinary input/control pointer clicks do not open the popup. The
+secondary trigger still toggles, while typing and ArrowDown/ArrowUp still open normally.
+
+<Preview path="./explicit-trigger" />
+
+## Groups and empty state
+
+<Preview path="./groups" />
+
+## Virtualization
+
+<Preview path="./virtualization" />
+
+## Form integration
+
+<Preview path="./form-integration" />
+
+Combobox also supports custom item rendering, incremental loading, empty-string and numeric values,
+and unresolved-value fallback.

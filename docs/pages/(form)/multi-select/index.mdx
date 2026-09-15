@@ -1,14 +1,13 @@
 ---
 title: MultiSelect
-description: A multi-value combobox with removable tags, search, optional value creation, token separators, overflow summaries, and virtualized rendering.
+description: Collection-backed multiple selection with tags, optional search, and explicit item creation.
 sidebar:
-  order: 12
+  order: 13
 search:
-  tags: [combobox, multiple selection, tags, items, multi-select, chips, tag input]
+  tags: [combobox, multiple selection, items, multi-select, tags]
 ---
 
 import { MultiSelect } from '@src'
-import { createSignal } from 'solid-js'
 
 ## Import
 
@@ -17,176 +16,60 @@ import { MultiSelect } from 'moraine'
 import type { MultiSelectT } from 'moraine'
 ```
 
-## Features
-
-- **Removable Tags**: Selected values render as tags with individual removal controls; Backspace removes the last tag when the text input is empty.
-- **Search & Creation**: Filter items as you type and provide `createItem` when user-entered values should become new selections.
-- **Token Separators**: Configured delimiter keys can convert typed text into selections.
-- **Selection & Display Limits**: `maxCount` limits selected values while `maxTagCount` limits visible tags and renders an overflow summary.
-- **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured rendering of larger item sets.
-- **Floating UI Positioning**: The listbox is positioned with Floating UI.
-
-## Playground
-
-<Playground
-  controls={[
-    { kind: 'input', prop: 'placeholder', label: 'Placeholder', defaultValue: 'Select tags...' },
-    {
-      kind: 'select',
-      prop: 'variant',
-      label: 'Variant',
-      defaultValue: 'outline',
-      options: [
-        { label: 'Outline', value: 'outline' },
-        { label: 'Subtle', value: 'subtle' },
-        { label: 'Ghost', value: 'ghost' },
-        { label: 'None', value: 'none' },
-      ],
-    },
-    {
-      kind: 'select',
-      prop: 'size',
-      label: 'Size',
-      defaultValue: 'md',
-      options: [
-        { label: 'Small', value: 'sm' },
-        { label: 'Medium', value: 'md' },
-        { label: 'Large', value: 'lg' },
-      ],
-    },
-    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-    { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
-    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
-  ]}
->
-  {(props) => {
-    const TAG_OPTIONS = [
-      { label: 'Design', value: 'design', icon: 'i-lucide:palette' },
-      { label: 'Development', value: 'dev', icon: 'i-lucide:code' },
-      { label: 'Marketing', value: 'marketing', icon: 'i-lucide:megaphone' },
-      { label: 'Product', value: 'product', icon: 'i-lucide:layers' },
-      { label: 'Research', value: 'research', icon: 'i-lucide:search' },
-    ]
-    return (
-      <MultiSelect
-        items={TAG_OPTIONS}
-        placeholder={props.placeholder}
-        variant={props.variant}
-        size={props.size}
-        disabled={props.disabled}
-        readOnly={props.readOnly}
-        loading={props.loading}
-        allowClear
-      />
-    )
-  }}
-</Playground>
+MultiSelect commits multiple values from a collection. It combines BaseSelect navigation,
+Combobox query behavior, and tag-field editing while keeping one value owner, one query owner, one
+physical input, and one form registration.
 
 ## Anatomy
 
-### Control
-
 ```text
 control
+├── leading (optional)
 ├── tagsContainer
-│   ├── tag (×n)
+│   ├── tag
+│   │   ├── tagLabel
+│   │   └── tagRemove
 │   ├── tagOverflow (optional)
 │   └── input
 ├── clear (optional)
 └── trigger
 ```
 
-### Floating listbox
+The trailing trigger is always a real secondary button and is never replaced by clear or loading.
+Normal control clicks are open-only. Set openOnControlClick={false} to require the trailing button
+for pointer opening; typing and Arrow keys still open normally.
 
-```text
-content
-├── listbox
-│   ├── item (×n)
-│   └── group (optional ×n)
-│       ├── group label (optional)
-│       └── item (optional ×n)
-└── empty (optional)
-```
+## Editable behavior
 
-## Usage
+- MultiSelect without search keeps its one input read-only and uses collection typeahead.
+- search makes the input editable and filters the collection.
+- createItem makes the input editable even when search is false.
 
-### Values, search, and creation
-
-The value is an array of selected option values. Control it with `value` and `onChange` when the application owns selection. Search state and creation behavior are separate from selection; token separators can turn pasted text into multiple values when the relevant items are enabled.
+createItem(input) explicitly constructs a valid TItem. MultiSelect reuses an existing canonical
+item with the same value, rejects disabled or over-limit additions, then commits TItem.value.
+This differs from TagsInput, which commits free-form strings directly.
 
 <Preview path="./values-and-search" />
 
-### Read-only selection
-
-Use `readOnly` to keep tags and selected values available for focus, browsing, and native form submission while preventing item changes, tag removal, clear actions, and tag creation.
-
-### Large item sets
-
-Use groups to organize items and virtualization when rendering a large, stable list. Limits such as maximum selected values and displayed tags constrain selection or presentation; see the API reference for the individual limit props.
-
-<Preview path="./large-collections" />
-
-### Search, creation, and unresolved values
-
-`searchValue` contains query text only. Closing with Escape or an outside interaction preserves the query and its filtered view. Selecting or deselecting an item clears the query. Token commits consume their matched input and retain the trailing query. Native form reset clears the query and runtime-created items; controlled values remain authoritative.
-
-Provide a typed factory to enable creation. Every free-form path (Enter, empty-state `create()`, and token separators) uses it. Existing text matches select the canonical item without invoking the factory. Without a factory, unmatched text never produces a synthetic item.
-
-```tsx
-interface UserItem extends MultiSelectT.Item<string> {
-  department: string
-}
-
-;<MultiSelect<UserItem>
-  items={users}
-  createItem={(input) => ({ value: input, label: input, department: 'unknown' })}
-  tagRender={({ value, label, item, onClose }) => (
-    <button onClick={onClose} title={item?.department ?? String(value)}>
-      {label}
-    </button>
-  )}
-/>
-```
-
-The generic parameter is the complete item type, including in groups, filters, renderers, tags, text resolution, scrolling, and virtual rows. Group input remains `{ type: 'group', label, items }`; use `MultiSelectT.Row<UserItem>` for shared normal/virtual rows.
-
-Item values must be unique within a Select collection. Duplicate values are invalid consumer input.
-
-Unresolved values remain selected. Default tags display `String(value)`; custom `tagRender` receives `{ value, label, item: undefined, onClose }`. When source data arrives, `item` resolves to the original canonical object. Removing source data does not remove controlled values.
-
-### Keyboard interaction
-
-| Key                              | Description                                                                 |
-| -------------------------------- | --------------------------------------------------------------------------- |
-| <kbd>ArrowDown</kbd>             | Opens the listbox or moves to the next option.                              |
-| <kbd>ArrowUp</kbd>               | Moves to the previous option.                                               |
-| <kbd>Enter</kbd>                 | Toggles the active option or creates a value when `createItem` is provided. |
-| <kbd>Backspace</kbd>             | Removes the last selected tag when the text input is empty.                 |
-| <kbd>Escape</kbd>                | Closes the listbox.                                                         |
-| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available option.                                |
-
-## Examples
-
-### Create tags
+### Create collection items
 
 <Preview path="./create-new-tags" />
 
-### Token separators
+### Groups and large collections
 
-<Preview path="./token-separators" />
+<Preview path="./large-collections" />
 
-### Selection limits
+### Limits
+
+maxCount is a behavioral selection limit. maxTagCount is visual only; hidden selections remain
+committed, submitted, and reachable through the collection popup.
 
 <Preview path="./max-count-max-tag-count" />
 
 ### Virtualization
-
-make sure `@tanstack/virtual-core` installed
 
 <Preview path="./virtualization" />
 
 ### Form integration
 
 <Preview path="./form-integration" />
-
-MultiSelect remains array-based in Form state and stays open after normal item selection. Its visual root and root styling slot are the `control` element.

@@ -4,11 +4,56 @@
     "name": "Select",
     "category": "forms",
     "polymorphic": false,
-    "description": "Single selection with optional search and standard item presentation.",
+    "description": "Single, non-editable collection selection.",
     "sourcePath": "src/forms/select/select.tsx",
     "kind": "single"
   },
   "slots": [
+    {
+      "name": "control",
+      "description": "Optional non-interactive layout container and floating anchor.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "trigger",
+      "description": "Primary select-like popup activator.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": [
+        {
+          "name": "aria-activedescendant",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "aria-controls",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "References the controlled element while the related content is mounted."
+        },
+        {
+          "name": "aria-expanded",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Indicates whether the controlled content is expanded."
+        },
+        {
+          "name": "aria-haspopup",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
+        }
+      ]
+    },
     {
       "name": "content",
       "description": "Floating popup panel.",
@@ -130,15 +175,8 @@
       "ariaAttributes": []
     },
     {
-      "name": "control",
-      "description": "Closed select control that displays the current value and opens the popup.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "input",
-      "description": "Search input or value text field inside the control.",
+      "name": "value",
+      "description": "Text presentation of the selected value.",
       "cssVariables": [],
       "dataAttributes": [
         {
@@ -163,38 +201,6 @@
           "description": "Hides decorative content from assistive technology."
         }
       ]
-    },
-    {
-      "name": "trigger",
-      "description": "Button region that toggles the select popup.",
-      "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-disabled",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component, slot, or item is disabled."
-        },
-        {
-          "name": "data-invalid",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field or form has a validation error."
-        },
-        {
-          "name": "data-readonly",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field is in read-only mode."
-        },
-        {
-          "name": "data-required",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field input is required."
-        }
-      ],
-      "ariaAttributes": []
     },
     {
       "name": "clear",
@@ -319,13 +325,6 @@
         "defaultValue": "false"
       },
       {
-        "name": "defaultSearchValue",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Initial search text.",
-        "defaultValue": ""
-      },
-      {
         "name": "defaultValue",
         "required": false,
         "type": "T[\"value\"] | null | undefined",
@@ -345,13 +344,6 @@
         "description": "Custom renderer for the empty state when current filtered result has no matches."
       },
       {
-        "name": "filterItem",
-        "required": false,
-        "type": "boolean | \"startsWith\" | \"endsWith\" | \"contains\" | ((query: string, item: T) => boolean) | undefined",
-        "description": "Filtering strategy or predicate receiving the raw item.",
-        "defaultValue": "true"
-      },
-      {
         "name": "gutter",
         "required": false,
         "type": "number | undefined",
@@ -363,11 +355,6 @@
         "required": false,
         "type": "string | undefined",
         "description": "The ID of the input element."
-      },
-      {
-        "name": "inputRef",
-        "required": false,
-        "type": "Ref<HTMLInputElement> | undefined"
       },
       {
         "name": "isItemDisabled",
@@ -461,12 +448,6 @@
         "description": "Called once when scrolling reaches the bottom."
       },
       {
-        "name": "onSearch",
-        "required": false,
-        "type": "((value: string) => void) | undefined",
-        "description": "Called when search text changes."
-      },
-      {
         "name": "open",
         "required": false,
         "type": "boolean | undefined",
@@ -517,25 +498,6 @@
         "required": false,
         "type": "((item: T, entryIndex: number) => void) | undefined",
         "description": "Scroll a highlighted item to its logical entry index."
-      },
-      {
-        "name": "search",
-        "required": false,
-        "type": "boolean | null | undefined",
-        "description": "Whether the control accepts searchable input.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "searchMaxLength",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Maximum committed search length."
-      },
-      {
-        "name": "searchValue",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Controlled search text."
       },
       {
         "name": "size",

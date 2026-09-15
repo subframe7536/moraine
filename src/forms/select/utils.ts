@@ -33,8 +33,8 @@ export interface BaseSelectSearchInputState {
   highlightedValue: Accessor<BaseSelectT.Value | undefined>
   itemId: (value: BaseSelectT.Value) => string
   locked: Accessor<boolean>
-  control: Accessor<HTMLElement | undefined>
-  setControl: (element: HTMLElement | undefined) => void
+  focusOwner: Accessor<HTMLElement | undefined>
+  setFocusOwner: (element: HTMLElement | undefined) => void
   registerCompositionDiscarder: (discard: () => void) => void
   keyDown: (event: KeyboardEvent, textInput?: boolean) => void
 }
@@ -158,10 +158,10 @@ export function useBaseSelectSearchInput(
         return composing() ? draft() : display()
       },
       ref(element: HTMLInputElement) {
-        state.setControl(element)
+        state.setFocusOwner(element)
         onCleanup(() => {
-          if (state.control() === element) {
-            state.setControl(undefined)
+          if (state.focusOwner() === element) {
+            state.setFocusOwner(undefined)
           }
         })
       },

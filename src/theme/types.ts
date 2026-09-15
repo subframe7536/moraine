@@ -18,7 +18,7 @@ import type { InputT } from '../forms/input'
 import type { InputGroupT } from '../forms/input-group/index.ts'
 import type { InputNumberT } from '../forms/input-number'
 import type { RadioGroupT } from '../forms/radio-group'
-import type { BaseSelectT, MultiSelectT, SelectT } from '../forms/select'
+import type { BaseSelectT, ComboboxT, MultiSelectT, SelectT, TagsInputT } from '../forms/select'
 import type { TextControlStyleVariant } from '../forms/shared/text-control.class.ts'
 import type { SliderT } from '../forms/slider'
 import type { SwitchT } from '../forms/switch'
@@ -41,6 +41,7 @@ import type { ComponentRecipeConfig, SlotRecipeFn } from '../shared/style/recipe
 /** Component families and their locally declared presentation contracts. */
 export interface MoraineThemeSchema {
   baseSelect: { slots: BaseSelectT.Slot; variants: BaseSelectT.Variant }
+  combobox: { slots: ComboboxT.Slot; variants: ComboboxT.Variant }
   accordion: { slots: AccordionT.Slot; variants: AccordionT.Variant }
   avatar: { slots: AvatarT.Slot; variants: AvatarT.Variant }
   avatarGroup: { slots: AvatarGroupT.Slot; variants: AvatarGroupT.Variant }
@@ -73,6 +74,7 @@ export interface MoraineThemeSchema {
   radioGroup: { slots: RadioGroupT.Slot; variants: RadioGroupT.Variant }
   resizable: { slots: ResizableT.Slot; variants: ResizableT.Variant }
   select: { slots: SelectT.Slot; variants: SelectT.Variant }
+  tagsInput: { slots: TagsInputT.Slot; variants: TagsInputT.Variant }
   separator: { slots: SeparatorT.Slot; variants: SeparatorT.Variant }
   sheet: { slots: SheetT.Slot; variants: SheetT.Variant }
   sidebarFrame: { slots: SidebarFrameT.Slot; variants: SidebarFrameT.Variant }

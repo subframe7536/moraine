@@ -101,10 +101,6 @@ export namespace MultiSelectT {
      * @default 'md'
      */
     size?: 'sm' | 'md' | 'lg'
-    /** Whether the control accepts searchable input.
-     * @default false
-     */
-    search?: boolean | null
   }
 
   export type Classes = Slot<SlotClassValue>
@@ -131,9 +127,7 @@ export namespace MultiSelectT {
     allowClear?: boolean
     /** Called when clear is triggered. */
     onClear?: () => void
-    /** Characters that split input into tokens and immediately select them. */
-    tokenSeparators?: string[]
-    /** Factory used by every unmatched free-text creation path. */
+    /** Factory used by every unmatched free-text creation path. Providing it implicitly enables the editable search input. */
     createItem?: (input: string) => TItem
     /** Maximum number of selected values (multiple/tags). */
     maxCount?: number
@@ -167,6 +161,10 @@ export namespace MultiSelectT {
      * Tag remove buttons keep using this icon as well.
      */
     closeIcon?: IconT.Name
+    /** Whether ordinary control/input pointer clicks open the popup. @default true */
+    openOnControlClick?: boolean
+    /** Whether the collection can be filtered through the editable input. @default false */
+    search?: boolean
   }
 
   export type Props<TItem extends Item = Item> = BaseProps<

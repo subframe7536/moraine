@@ -22,6 +22,10 @@ export namespace BaseSelectT {
   }
   export type ItemValue<TItem extends Item> = TItem['value']
   export interface Slot<T = unknown> {
+    /** Optional non-interactive layout container and floating anchor. */
+    control?: T
+    /** Primary select-like popup activator. */
+    trigger?: T
     /** Floating popup panel. */
     content?: T
     /** Scrollable listbox. */
@@ -114,6 +118,7 @@ export namespace BaseSelectT {
     disabled: boolean
   }
   export type PartProps = ElementProps<HTMLDivElement>
+  export type ControlProps = PartProps
   export type ContentProps = PartProps & {
     /** Called once after an open popup completes its exit. */
     onExitComplete?: () => void
