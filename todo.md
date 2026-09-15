@@ -1,3 +1,10 @@
+## TODO in this PR
+
+- [ ] cleanup prop types
+- [ ] reuse classes
+- [ ] reuse more logic
+- [ ] cleanup and polish docs
+
 ## Fix
 
 - [x] file-upload style refactor to https://diceui.com/docs/components/base/file-upload
@@ -16,6 +23,7 @@
 - [ ] src/forms/form/form-field.tsx 's `local.form` should be reconsidered
 - [ ] itemRender in pagination (for custom link, maybe reuse button's as)
 - [ ] a better way to define destructive item in menu
+- [ ] correct document page's focus loop
 - [ ] metric adjust across all sizes
 
 # V1

@@ -25,9 +25,8 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   props: MultiSelectProps<T>,
 ): JSX.Element {
   type Value = T['value']
-  type RuntimeProps = MultiSelectProps<T> & { closeOnSelect?: boolean }
   const [local, baseSelectProps, rootProps] = splitProps(
-    props as RuntimeProps,
+    props,
     MULTI_SELECT_LOCAL_PROP_KEYS,
     BASE_SELECT_FORWARD_PROP_KEYS,
   )

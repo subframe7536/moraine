@@ -349,6 +349,12 @@
         "description": "Icon used when the action button clears the selection.\nTag remove buttons keep using this icon as well."
       },
       {
+        "name": "closeOnSelect",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Close after selection. Defaults to true for single, false for multiple."
+      },
+      {
         "name": "createItem",
         "required": false,
         "type": "((input: string) => T) | undefined",

@@ -11,11 +11,13 @@ import {
 
 import type { TagsInputT } from './tags-input.types.ts'
 
+export const TAGS_INPUT_INPUT_CLASS = `${FIELD_INPUT_CLASS} min-w-12 py-0.5 data-duplicate:text-destructive`
+
 export const tagsInputRecipe = /* @__PURE__ */ slotRecipe<TagsInputT.Slot, TagsInputT.Variant>({
   base: {
     control: `${FIELD_CONTROL_CLASS} data-tags:ps-1`,
     leading: SELECT_LEADING_ICON_CLASS,
-    input: `${FIELD_INPUT_CLASS} min-w-12 py-0.5`,
+    input: TAGS_INPUT_INPUT_CLASS,
     clear: SELECT_CLEAR_ACTION_CLASS,
     ...TAG_SLOTS,
   },

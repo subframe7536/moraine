@@ -110,7 +110,7 @@ export namespace MultiSelectT {
     extends
       Omit<
         BaseSelectT.Base<TItem>,
-        'children' | 'classes' | 'styles' | 'size' | 'items' | 'serializeValue' | 'closeOnSelect'
+        'children' | 'classes' | 'styles' | 'size' | 'items' | 'serializeValue'
       >,
       SearchProps<TItem>,
       ContentProps<TItem>,

@@ -145,4 +145,32 @@ describe('TagsInput', () => {
     fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' })
     expect(onChange).not.toHaveBeenCalled()
   })
+
+  test('marks input with data-duplicate and destructive style when draft matches existing tag', () => {
+    const screen = render(() => <TagsInput defaultValue={['apple', 'banana']} />)
+    const input = screen.getByRole('textbox')
+
+    expect(input.className).toContain('data-duplicate:text-destructive')
+    expect(input.hasAttribute('data-duplicate')).toBe(false)
+
+    // Type a duplicate tag
+    fireEvent.input(input, { target: { value: 'apple' } })
+    expect(input.hasAttribute('data-duplicate')).toBe(true)
+
+    // Type with whitespace around duplicate tag
+    fireEvent.input(input, { target: { value: '  apple  ' } })
+    expect(input.hasAttribute('data-duplicate')).toBe(true)
+
+    // Type a non-duplicate tag
+    fireEvent.input(input, { target: { value: 'cherry' } })
+    expect(input.hasAttribute('data-duplicate')).toBe(false)
+
+    // Back to duplicate tag
+    fireEvent.input(input, { target: { value: 'banana' } })
+    expect(input.hasAttribute('data-duplicate')).toBe(true)
+
+    // Removing the existing tag clears duplicate state reactively
+    fireEvent.click(screen.getByRole('button', { name: 'Remove banana' }))
+    expect(input.hasAttribute('data-duplicate')).toBe(false)
+  })
 })

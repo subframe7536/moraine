@@ -21,6 +21,12 @@
           "description": "Present when the component, slot, or item is disabled."
         },
         {
+          "name": "data-editable",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        },
+        {
           "name": "data-invalid",
           "required": false,
           "type": "string | undefined",
@@ -100,7 +106,14 @@
       "name": "input",
       "description": "Editable draft input.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-duplicate",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": []
     },
     {
