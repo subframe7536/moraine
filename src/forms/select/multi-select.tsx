@@ -17,7 +17,8 @@ import {
   BASE_SELECT_SHARED_SLOTS,
   MULTI_SELECT_LOCAL_PROP_KEYS,
 } from './shared/props.ts'
-import { useSelectSearch, useSelectSearchInput } from './shared/search.ts'
+import { useSelectSearch } from './shared/search.ts'
+import { useBaseSelectSearchInput } from './utils.ts'
 
 /** Multiple selection with tags, search, and optional item creation. */
 export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
@@ -60,7 +61,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   let committingTokens = false
   function Control(): JSX.Element {
     const state = useSelectState<Item>()
-    const input = useSelectSearchInput(local, searchable, search)
+    const input = useBaseSelectSearchInput(state, local, searchable, search)
     const atMax = () => local.maxCount !== undefined && state.value().length >= local.maxCount
     const tags = createMemo(() =>
       state.value().map((value) => {

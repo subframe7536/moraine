@@ -17,7 +17,8 @@ import {
   BASE_SELECT_SHARED_SLOTS,
   SELECT_LOCAL_PROP_KEYS,
 } from './shared/props.ts'
-import { useSelectSearch, useSelectSearchInput } from './shared/search.ts'
+import { useSelectSearch } from './shared/search.ts'
+import { useBaseSelectSearchInput } from './utils.ts'
 
 /** Single selection with optional search and standard item presentation. */
 export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps<T>): JSX.Element {
@@ -66,7 +67,7 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
           ? String(state.value()[0])
           : ''
     }
-    const input = useSelectSearchInput(local, searchable, search, () =>
+    const input = useBaseSelectSearchInput(state, local, searchable, search, () =>
       state.open() ? search.query() : selectedLabel(),
     )
     const hasValue = () => state.value().length > 0

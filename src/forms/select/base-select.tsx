@@ -373,7 +373,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
 
 type SelectState<T extends BaseSelectT.Item> = ReturnType<typeof createSelectState<T>>
 const SelectContext = createContext<SelectState<BaseSelectT.Item>>()
-/** Internal state access for the high-level controls and renderer. */
+/** Accesses BaseSelect state when composing custom controls. */
 export function useSelectState<T extends BaseSelectT.Item = BaseSelectT.Item>(): SelectState<T> {
   const context = useContext(SelectContext)
   if (!context) {

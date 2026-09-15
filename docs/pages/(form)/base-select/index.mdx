@@ -10,7 +10,7 @@ sidebar:
 ## Import
 
 ```tsx
-import { BaseSelect } from 'moraine'
+import { BaseSelect, useSelectState } from 'moraine'
 import type { BaseSelectT } from 'moraine'
 ```
 
@@ -28,7 +28,7 @@ This is the same interaction shape as a shadcn Combobox popup: a button shows th
 
 <Preview path="./searchable" />
 
-Use the high-level `Select` when the picker needs an input-backed query. `search` owns the combobox input semantics, query state, filtering lifecycle, IME handling, and selected-item label resolution. BaseSelect deliberately receives only the current flat navigation items, so filtering and source-item resolution remain with its owner when you build a custom search experience.
+This custom composition uses `useSelectState` from `moraine` plus `useSearchValue` and `useBaseSelectSearchInput` from `moraine/utils` for query state and IME-safe input, ARIA, focus, and navigation bindings. `Select search` packages the same responsibilities when its standard control and rendering are sufficient. BaseSelect deliberately receives only the current flat navigation items, so filtering and source-item resolution remain with its owner.
 
 ### Anatomy
 
@@ -52,34 +52,19 @@ BaseSelect
 
 ### Multiple selection
 
-```tsx
-const items = [
-  { value: 'solid', label: 'Solid' },
-  { value: 'react', label: 'React' },
-]
-
-<BaseSelect items={items} multiple defaultValue={['solid']} name="frameworks">
-  <BaseSelect.Trigger>
-    {(state) => <span>{state.value.length} selected</span>}
-  </BaseSelect.Trigger>
-  <BaseSelect.Content>
-    <BaseSelect.Listbox>
-      <For each={items}>{(item) => <BaseSelect.Item item={item} />}</For>
-    </BaseSelect.Listbox>
-    <BaseSelect.Empty>No frameworks</BaseSelect.Empty>
-  </BaseSelect.Content>
-</BaseSelect>
-```
+<Preview path="./multiple" />
 
 Both modes use array-shaped `value`, `defaultValue`, and `onChange`. Single selection uses `[]` or `[value]`; a controlled array containing more than one value is normalized to its first value. `multiple` changes selection behavior only. Trigger state exposes `value`, `open`, `disabled`, and `readOnly`. Single selection closes on selection by default, while multiple selection stays open. Override this with `closeOnSelect`.
 
 ### Forms and text matching
 
+<Preview path="./form" />
+
 Use `name`, `required`, `disabled`, and `readOnly` directly on BaseSelect. Form reset restores the initial uncontrolled value; controlled values remain authoritative. Multiple selection serializes one hidden input per value. `serializeValue(value)` can return a string or `undefined` to omit a value. High-level Select/MultiSelect use this boundary to preserve canonical disabled-item submission rules even when those items are filtered out of navigation.
 
 `itemToLabelString` supplies machine-readable text for typeahead. Without it, BaseSelect uses a string label or `String(item.value)`. Visual rendering always uses `item.label` or the part's children.
 
-Search and default item rendering are available through `Select` and `MultiSelect`. BaseSelect receives only the current navigation items. Group data belongs to Select/MultiSelect; `BaseSelect.Group` and `GroupLabel` remain available as accessible composition primitives.
+`Select` and `MultiSelect` provide the standard search control and item rendering. Custom BaseSelect compositions can use the exported query and input hooks when they need different presentation; BaseSelect receives only the current navigation items. Group data belongs to Select/MultiSelect; `BaseSelect.Group` and `GroupLabel` remain available as accessible composition primitives.
 
 `isItemDisabled(item, values)` adds a dynamic policy to the item's own `disabled` flag. Values retain JavaScript Map/Set identity, so numeric and string values are distinct.
 

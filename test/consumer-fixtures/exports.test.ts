@@ -42,8 +42,10 @@ test('publishes only documented entry points with types before runtime condition
       entry,
       `
       import assert from 'node:assert/strict'
-      import { useDisclosureState } from 'moraine/utils'
+      import { useBaseSelectSearchInput, useDisclosureState, useSearchValue } from 'moraine/utils'
+      assert.equal(typeof useBaseSelectSearchInput, 'function')
       assert.equal(typeof useDisclosureState, 'function')
+      assert.equal(typeof useSearchValue, 'function')
       assert.ok(import.meta.resolve('moraine').endsWith('/dist/index.mjs'))
       for (const specifier of ['moraine/button', 'moraine/dist/index.mjs', 'moraine/shared/provider']) {
         assert.throws(() => import.meta.resolve(specifier), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' })
@@ -65,11 +67,23 @@ test.each(['Bundler', 'NodeNext'] as const)(
       writeFileSync(
         join(consumer.root, 'entry.tsx'),
         `
-      import { Button, Dialog, Select } from 'moraine'
+      import { Button, Dialog, Select, useSelectState } from 'moraine'
       import type { FormT, ListT } from 'moraine'
-      import { createContextProvider, useDisclosureState } from 'moraine/utils'
+      import {
+        createContextProvider,
+        useBaseSelectSearchInput,
+        useDisclosureState,
+        useSearchValue,
+      } from 'moraine/utils'
       import { createTheme } from 'moraine/theme'
-      export { createContextProvider, useDisclosureState, createTheme }
+      export {
+        createContextProvider,
+        useBaseSelectSearchInput,
+        useDisclosureState,
+        useSearchValue,
+        createTheme,
+        useSelectState,
+      }
       export const mode: FormT.ValidationMode = 'blur'
       export const row: ListT.RowProps<HTMLLIElement> = { 'data-index': 0 }
       export const button = <Button as="a" href="/">Save</Button>
