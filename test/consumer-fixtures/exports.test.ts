@@ -42,8 +42,10 @@ test('publishes only documented entry points with types before runtime condition
       entry,
       `
       import assert from 'node:assert/strict'
-      import { useDisclosureState } from 'moraine/utils'
+      import { useBaseSelectSearchInput, useDisclosureState, useSearchValue } from 'moraine/utils'
+      assert.equal(typeof useBaseSelectSearchInput, 'function')
       assert.equal(typeof useDisclosureState, 'function')
+      assert.equal(typeof useSearchValue, 'function')
       assert.ok(import.meta.resolve('moraine').endsWith('/dist/index.mjs'))
       for (const specifier of ['moraine/button', 'moraine/dist/index.mjs', 'moraine/shared/provider']) {
         assert.throws(() => import.meta.resolve(specifier), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' })
@@ -65,16 +67,35 @@ test.each(['Bundler', 'NodeNext'] as const)(
       writeFileSync(
         join(consumer.root, 'entry.tsx'),
         `
-      import { Button, Dialog, Select } from 'moraine'
-      import type { FormT, ListT } from 'moraine'
-      import { createContextProvider, useDisclosureState } from 'moraine/utils'
+      import { Button, Combobox, Dialog, MultiSelect, Select, TagsInput, useSelectState } from 'moraine'
+      import type { ComboboxT, FormT, ListT, MultiSelectT, SelectT, TagsInputT } from 'moraine'
+      import {
+        createContextProvider,
+        useBaseSelectSearchInput,
+        useDisclosureState,
+        useSearchValue,
+      } from 'moraine/utils'
       import { createTheme } from 'moraine/theme'
-      export { createContextProvider, useDisclosureState, createTheme }
+      export {
+        createContextProvider,
+        useBaseSelectSearchInput,
+        useDisclosureState,
+        useSearchValue,
+        createTheme,
+        useSelectState,
+      }
       export const mode: FormT.ValidationMode = 'blur'
       export const row: ListT.RowProps<HTMLLIElement> = { 'data-index': 0 }
       export const button = <Button as="a" href="/">Save</Button>
       export const dialog = <Dialog><Dialog.Trigger>Open</Dialog.Trigger><Dialog.Content /></Dialog>
-      export const select = <Select options={[{ value: 1, label: 'One' }]} onChange={value => value?.toFixed()} />
+      export const select = <Select items={[{ value: 1, label: 'One' }]} onChange={value => value?.toFixed()} />
+      export const combobox = <Combobox items={[{ value: 1, label: 'One' }]} onChange={value => value?.toFixed()} />
+      export const tags = <TagsInput defaultValue={['one']} />
+      export const multiple = <MultiSelect items={[{ value: 1, label: 'One' }]} />
+      export const selectKind: SelectT.Kind = 'single'
+      export const comboboxKind: ComboboxT.Kind = 'single'
+      export const tagsKind: TagsInputT.Kind = 'single'
+      export const multiKind: MultiSelectT.Kind = 'single'
       // @ts-expect-error Component-specific subpaths are not public.
       type ButtonPath = typeof import('moraine/button')
       // @ts-expect-error Internal helpers are not public components.

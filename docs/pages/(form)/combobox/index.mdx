@@ -1,0 +1,144 @@
+---
+title: Combobox
+description: Single collection selection with an editable query and a secondary popup trigger.
+sidebar:
+  order: 11
+search:
+  tags: [combobox, search, filter, listbox]
+---
+
+import { Combobox } from '@src'
+
+## Import
+
+```tsx
+import { Combobox } from 'moraine'
+import type { ComboboxT } from 'moraine'
+```
+
+## Features
+
+- **Independent value and query**: Query text filters; only an option commits a value.
+- **One focus owner**: The editable input owns combobox ARIA and keyboard interaction.
+- **Explicit secondary trigger**: The trailing button always exists and toggles the popup.
+- **Collection rendering**: Supports groups, external filtering, custom items, and virtualization.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'input',
+      prop: 'placeholder',
+      label: 'Placeholder',
+      defaultValue: 'Search frameworks...',
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    {
+      kind: 'switch',
+      prop: 'openOnControlClick',
+      label: 'Open on control click',
+      defaultValue: true,
+    },
+    { kind: 'switch', prop: 'allowClear', label: 'Clearable', defaultValue: true },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
+    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+  ]}
+>
+  {(props) => (
+    <Combobox
+      items={[
+        { label: 'SolidJS', value: 'solid' },
+        { label: 'Vue.js', value: 'vue' },
+        { label: 'React', value: 'react' },
+        { label: 'Svelte', value: 'svelte' },
+        { label: 'Astro', value: 'astro' },
+      ]}
+      placeholder={props.placeholder}
+      variant={props.variant}
+      size={props.size}
+      openOnControlClick={props.openOnControlClick}
+      allowClear={props.allowClear}
+      disabled={props.disabled}
+      readOnly={props.readOnly}
+      loading={props.loading}
+      class="max-w-72 min-w-40 w-60%"
+    />
+  )}
+</Playground>
+
+## Anatomy
+
+```text
+control
+├── leading (optional)
+├── input
+├── clear (optional)
+└── trigger
+```
+
+Control is the visual field and floating anchor. Input is the only combobox ARIA and focus owner.
+Trigger is an always-present secondary button with `tabIndex={-1}`; it toggles without creating a
+second combobox focus model.
+
+## Usage
+
+### Value and query
+
+<Preview path="./basic" />
+
+While open, the input displays the query; while closed, it displays the selected item label.
+Arbitrary query text is never committed. Use `value` / `onChange` for selection and `searchValue` /
+`onSearch` for query state.
+
+### Controlled query and external filtering
+
+<Preview path="./controlled-query" />
+
+### Pointer opening
+
+By default, ordinary input/control pointer clicks do not open the popup. The secondary trigger
+still toggles, while typing and ArrowDown/ArrowUp still open normally. Set `openOnControlClick={true}`
+to open on control click.
+
+<Preview path="./explicit-trigger" />
+
+## Examples
+
+### Groups and empty state
+
+<Preview path="./groups" />
+
+### Virtualization
+
+<Preview path="./virtualization" />
+
+### Form integration
+
+<Preview path="./form-integration" />
+
+Combobox also supports custom item rendering, incremental loading, empty-string and numeric values,
+and unresolved-value fallback.

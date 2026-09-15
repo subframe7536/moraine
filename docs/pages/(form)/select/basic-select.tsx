@@ -16,9 +16,8 @@ export function BasicSelect() {
   return (
     <div class="max-w-xs w-full space-y-3">
       <Select
-        search
         placeholder="Select a country..."
-        options={COUNTRIES}
+        items={COUNTRIES}
         value={selected()}
         onChange={setSelected}
         allowClear

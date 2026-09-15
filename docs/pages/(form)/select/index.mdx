@@ -1,10 +1,10 @@
 ---
 title: Select
-description: A single-selection combobox/listbox with optional search, grouped options, incremental loading, and virtualized rendering.
+description: A single, non-editable collection selection with typeahead, groups, and virtual rendering.
 sidebar:
   order: 10
 search:
-  tags: [combobox, dropdown, options, searchable, select listbox, filter]
+  tags: [dropdown, items, select, listbox, typeahead]
 ---
 
 import { Select } from '@src'
@@ -18,12 +18,10 @@ import type { SelectT } from 'moraine'
 
 ## Features
 
-- **Optional Search**: Enable `search` to use the combobox input for filtering and typeahead interaction.
-- **Grouped Options**: Options can be organized into labeled, non-selectable groups.
-- **Incremental Loading**: Use the listbox loading hooks to append options as the user reaches the end of the list.
-- **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured virtual rendering of larger option sets.
-- **Clearable Selection**: `allowClear` adds a clear action when a value is selected.
-- **Combobox/Listbox Semantics**: Exposes combobox/listbox roles, expanded state, active option metadata, and keyboard navigation appropriate to the current mode.
+- **Single collection value**: Commits one `TItem['value']` or `null`.
+- **Non-editable trigger**: Printable keys use typeahead, not query state.
+- **Collection rendering**: Supports groups, custom items, incremental loading, and virtualization.
+- **Stable anatomy**: Control is the field, Trigger is the button, and Value is the label region.
 
 ## Playground
 
@@ -58,98 +56,84 @@ import type { SelectT } from 'moraine'
         { label: 'Large', value: 'lg' },
       ],
     },
+    { kind: 'switch', prop: 'allowClear', label: 'Clearable', defaultValue: true },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
-    { kind: 'switch', prop: 'search', label: 'Search', defaultValue: false },
+    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
   ]}
 >
-  {(props) => {
-    const TECH_OPTIONS = [
-      { label: 'SolidJS', value: 'solid', icon: 'i-lucide:atom' },
-      { label: 'Vue.js', value: 'vue', icon: 'i-lucide:sparkles' },
-      { label: 'React', value: 'react', icon: 'i-lucide:box' },
-      { label: 'Svelte', value: 'svelte', icon: 'i-lucide:flame' },
-      { label: 'Astro', value: 'astro', icon: 'i-lucide:rocket' },
-    ]
-    return (
-      <Select
-        options={TECH_OPTIONS}
-        placeholder={props.placeholder}
-        variant={props.variant}
-        size={props.size}
-        disabled={props.disabled}
-        readOnly={props.readOnly}
-        search={props.search}
-        allowClear
-        class="max-w-72 min-w-40 w-60%"
-      />
-    )
-  }}
+  {(props) => (
+    <Select
+      items={[
+        { label: 'SolidJS', value: 'solid', icon: 'i-lucide:atom' },
+        { label: 'Vue.js', value: 'vue', icon: 'i-lucide:sparkles' },
+        { label: 'React', value: 'react', icon: 'i-lucide:box' },
+        { label: 'Svelte', value: 'svelte', icon: 'i-lucide:flame' },
+        { label: 'Astro', value: 'astro', icon: 'i-lucide:rocket' },
+      ]}
+      placeholder={props.placeholder}
+      variant={props.variant}
+      size={props.size}
+      allowClear={props.allowClear}
+      disabled={props.disabled}
+      readOnly={props.readOnly}
+      loading={props.loading}
+      class="max-w-72 min-w-40 w-60%"
+    />
+  )}
 </Playground>
 
 ## Anatomy
 
-### Trigger control
-
 ```text
 control
-├── leading (optional)
-├── input
-├── clear (optional)
-└── trigger
+├── trigger
+│   ├── leading (optional)
+│   └── value
+└── clear (optional)
 ```
 
-### Floating listbox
-
-```text
-content
-└── listbox
-    ├── item (×n)
-    ├── group (optional ×n)
-    └── empty (optional)
-```
+The control slot is the outer visual field and floating anchor. The trigger slot is the actual
+primary button. The value slot displays the selected label or `String(value)` for a temporarily
+unresolved value. Clear is a sibling action and never toggles the popup.
 
 ## Usage
 
-### Value and search state
-
-Use `value` with `onChange` for controlled selection, or a default value for local state. Search, clear affordances, grouped options, and loading are separate concerns; provide the option collection and any incremental loading behavior from your application.
+### Value and collection
 
 <Preview path="./basic-select" />
 
-### Read-only selection
-
-Use `readOnly` when users should be able to focus, open, and browse a selection without changing it. The selected value remains part of native form submission.
+The value API is `TItem['value'] | null`. `undefined` leaves the component uncontrolled, `null`
+means no selection, and an empty string remains a valid value. Item values must be unique.
 
 ### Large and remote collections
 
-Virtualization is appropriate for large, stable option lists. Infinite loading should be driven by application state and deterministic loading callbacks; the component does not fetch data itself.
+Virtualization is appropriate for large, stable option lists. Incremental loading remains
+application-owned and does not change the canonical selection source.
 
 <Preview path="./collections" />
 
 ### Keyboard interaction
 
-| Key                              | Description                                                    |
-| -------------------------------- | -------------------------------------------------------------- |
-| <kbd>Enter</kbd>                 | Opens the listbox or selects the active option.                |
-| <kbd>Space</kbd>                 | Opens/selects where the current trigger/input mode permits it. |
-| <kbd>ArrowDown</kbd>             | Opens the listbox or moves to the next available option.       |
-| <kbd>ArrowUp</kbd>               | Moves to the previous available option.                        |
-| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available option.                   |
-| <kbd>Escape</kbd>                | Closes the listbox without changing the selected value.        |
-| <kbd>Tab</kbd>                   | Leaves the control according to normal document focus order.   |
+| Key                 | Behavior                                    |
+| ------------------- | ------------------------------------------- |
+| Enter / Space       | Open the popup or select the active option  |
+| ArrowDown / ArrowUp | Open or move through selectable options     |
+| Home / End          | Move to the first or last option while open |
+| Printable key       | Typeahead to a matching item                |
+| Escape              | Close without changing the value            |
 
 ## Examples
 
-### Searchable options
+### Groups
 
-<Preview path="./searchable" />
+<Preview path="./grouped-items" />
 
-### Grouped options
+### Clear, disabled, and read-only
 
-<Preview path="./grouped-options" />
+<Preview path="./states" />
 
-### Incremental loading
+### Incremental collections
 
 <Preview path="./infinite-scroll" />
 
@@ -157,10 +141,9 @@ Virtualization is appropriate for large, stable option lists. Infinite loading s
 
 <Preview path="./virtualization" />
 
-### Disabled state
-
-<Preview path="./states" />
-
 ### Form integration
 
 <Preview path="./form-integration" />
+
+For an empty Form.Field-bound Select, initialize the field with `null` and accept `null` in the
+schema's input. An empty string is a real selected value and therefore is not a placeholder.

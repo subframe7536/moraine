@@ -9,10 +9,11 @@ export namespace ListT {
   export type Variant = never
   export type RowProps<TItemElement extends HTMLElement = HTMLElement> = Omit<
     JSX.HTMLAttributes<TItemElement>,
-    'ref'
+    'ref' | 'style'
   > & {
     ref?: (element: TItemElement) => void
     'data-index'?: number | string
+    style?: JSX.CSSProperties
   }
 
   export interface ItemRenderProps<TItem, TItemElement extends HTMLElement = HTMLElement> {

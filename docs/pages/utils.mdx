@@ -33,6 +33,8 @@ import {
   useEventListener,
   useEventListenerMap,
   useLoadingAutoClick,
+  useBaseSelectSearchInput,
+  useSearchValue,
   useSelectableCollectionNavigation,
   useTransitionPresence,
 } from 'moraine/utils'
@@ -63,6 +65,10 @@ Keep an element mounted until its exit animation finishes.
 ### `useSelectableCollectionNavigation`
 
 Add keyboard navigation for tabs, radio groups, listboxes, and similar selectable collections.
+
+### `useSearchValue` and `useBaseSelectSearchInput`
+
+Build a custom searchable `BaseSelect` while keeping query state and the text input outside the primitive. `useSearchValue` manages controlled or uncontrolled query state. `useBaseSelectSearchInput` supplies IME-safe input, ARIA, focus, and navigation bindings within a `BaseSelect` composition.
 
 ### `createMediaQuery`
 

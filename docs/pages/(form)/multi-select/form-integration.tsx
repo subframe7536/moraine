@@ -32,7 +32,7 @@ export function FormIntegration() {
           description="Select at least 2 topics for your feed."
           required
         >
-          <MultiSelect options={TOPICS} placeholder="Select topics..." />
+          <MultiSelect items={TOPICS} placeholder="Select topics..." />
         </form.Field>
         <div class="flex gap-3 items-center">
           <Button type="submit" variant="secondary" size="sm">

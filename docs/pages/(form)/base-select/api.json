@@ -1,0 +1,535 @@
+{
+  "component": {
+    "key": "base-select",
+    "name": "BaseSelect",
+    "category": "forms",
+    "polymorphic": false,
+    "description": "Public selection primitive for a flat navigation collection.",
+    "sourcePath": "src/forms/base-select/base-select.tsx",
+    "kind": "composite"
+  },
+  "slots": [
+    {
+      "name": "control",
+      "description": "Optional non-interactive layout container and floating anchor.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "trigger",
+      "description": "Primary select-like popup activator.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "content",
+      "description": "Floating popup panel.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "listbox",
+      "description": "Scrollable listbox.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "item",
+      "description": "Selectable row.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "group",
+      "description": "Group container.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "groupLabel",
+      "description": "Group heading.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "separator",
+      "description": "Decorative divider.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    },
+    {
+      "name": "empty",
+      "description": "Empty collection message.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
+    }
+  ],
+  "item": {
+    "props": [
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether this item cannot be selected."
+      },
+      {
+        "name": "label",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Visual label."
+      },
+      {
+        "name": "value",
+        "required": true,
+        "type": "BaseSelectT.Value",
+        "description": "Unique selection and form value."
+      }
+    ]
+  },
+  "props": {
+    "own": [
+      {
+        "name": "children",
+        "required": false,
+        "type": "JSX.Element",
+        "description": "Composed trigger and popup parts."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "BaseSelectT.Classes | undefined",
+        "description": "Classes for popup parts."
+      },
+      {
+        "name": "closeOnSelect",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Close after selection. Defaults to true for single, false for multiple."
+      },
+      {
+        "name": "defaultOpen",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Initial popup state.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "defaultValue",
+        "required": false,
+        "type": "readonly BaseSelectT.ItemValue<T>[] | undefined",
+        "description": "Initial selection.",
+        "defaultValue": "[]"
+      },
+      {
+        "name": "disabled",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is disabled.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "id",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The ID of the input element."
+      },
+      {
+        "name": "isItemDisabled",
+        "required": false,
+        "type": "((item: T, values: readonly T[\"value\"][]) => boolean) | undefined",
+        "description": "Additional disabled policy evaluated against the current selection."
+      },
+      {
+        "name": "items",
+        "required": false,
+        "type": "readonly T[] | undefined",
+        "description": "Current flat navigation collection."
+      },
+      {
+        "name": "itemToLabelString",
+        "required": false,
+        "type": "((item: T) => string) | undefined",
+        "description": "Machine-readable text for matching; does not change visual labels."
+      },
+      {
+        "name": "multiple",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether selecting an item toggles multiple values."
+      },
+      {
+        "name": "name",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The name of the input element, used for form submission."
+      },
+      {
+        "name": "onChange",
+        "required": false,
+        "type": "((value: BaseSelectT.ItemValue<T>[]) => void) | undefined",
+        "description": "Called when selection changes."
+      },
+      {
+        "name": "onOpenChange",
+        "required": false,
+        "type": "((open: boolean) => void) | undefined",
+        "description": "Called when popup state changes."
+      },
+      {
+        "name": "onReset",
+        "required": false,
+        "type": "(() => void) | undefined",
+        "description": "Post-reset notification after an unprevented native form reset."
+      },
+      {
+        "name": "open",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Controlled popup state."
+      },
+      {
+        "name": "readOnly",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is read-only.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "required",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether the input is required.",
+        "defaultValue": "false"
+      },
+      {
+        "name": "serializeValue",
+        "required": false,
+        "type": "((value: T[\"value\"]) => string | undefined) | undefined",
+        "description": "Native form value; return undefined to omit a selected value from submission."
+      },
+      {
+        "name": "size",
+        "required": false,
+        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "description": "Popup and item size.",
+        "defaultValue": "md"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "BaseSelectT.Styles | undefined",
+        "description": "Styles for popup parts."
+      },
+      {
+        "name": "value",
+        "required": false,
+        "type": "readonly BaseSelectT.ItemValue<T>[] | undefined",
+        "description": "Controlled selection. Single mode uses at most the first value."
+      }
+    ],
+    "inherited": []
+  },
+  "primitives": [
+    {
+      "component": {
+        "key": "base-select-control",
+        "name": "BaseSelect.Control",
+        "category": "forms",
+        "polymorphic": false,
+        "sourcePath": "src/forms/base-select/base-select.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "base-select-trigger",
+        "name": "BaseSelect.Trigger",
+        "category": "forms",
+        "polymorphic": true,
+        "sourcePath": "src/forms/base-select/base-select.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "as",
+            "required": false,
+            "type": "\"button\" | undefined",
+            "description": "Element or component to render as.",
+            "defaultValue": "button"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element | ((state: BaseSelectT.TriggerState<TItem>) => JSX.Element)",
+            "description": "Label or reactive presentation function."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "disabled",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether this trigger is disabled."
+          },
+          {
+            "name": "onBlur",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, FocusEvent> | undefined"
+          },
+          {
+            "name": "onClick",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, MouseEvent> | undefined"
+          },
+          {
+            "name": "onContextMenu",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, MouseEvent> | undefined"
+          },
+          {
+            "name": "onKeyDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onKeyUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, KeyboardEvent> | undefined"
+          },
+          {
+            "name": "onPointerCancel",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerDown",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerMove",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
+          },
+          {
+            "name": "onPointerUp",
+            "required": false,
+            "type": "JSX.EventHandlerUnion<ModalT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "type",
+            "required": false,
+            "type": "\"button\" extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : \"button\" extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : \"button\" extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "base-select-content",
+        "name": "BaseSelect.Content",
+        "category": "forms",
+        "polymorphic": false,
+        "sourcePath": "src/forms/base-select/base-select.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "gutter",
+            "required": false,
+            "type": "number | undefined",
+            "description": "Gap between anchor and popup.",
+            "defaultValue": "0"
+          },
+          {
+            "name": "onExitComplete",
+            "required": false,
+            "type": "(() => void) | undefined",
+            "description": "Called once after an open popup completes its exit."
+          },
+          {
+            "name": "overflowPadding",
+            "required": false,
+            "type": "number | undefined",
+            "description": "Viewport collision padding.",
+            "defaultValue": "4"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "base-select-listbox",
+        "name": "BaseSelect.Listbox",
+        "category": "forms",
+        "polymorphic": false,
+        "sourcePath": "src/forms/base-select/base-select.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "base-select-item",
+        "name": "BaseSelect.Item",
+        "category": "forms",
+        "polymorphic": false,
+        "sourcePath": "src/forms/base-select/base-select.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element | ((state: BaseSelectT.ItemState<T>) => JSX.Element)",
+            "description": "Visual content or reactive row presentation."
+          },
+          {
+            "name": "item",
+            "required": true,
+            "type": "T",
+            "description": "Raw item belonging to the current navigation collection."
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "base-select-group",
+        "name": "BaseSelect.Group",
+        "category": "forms",
+        "polymorphic": false,
+        "sourcePath": "src/forms/base-select/base-select.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "base-select-group-label",
+        "name": "BaseSelect.GroupLabel",
+        "category": "forms",
+        "polymorphic": false,
+        "sourcePath": "src/forms/base-select/base-select.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "base-select-separator",
+        "name": "BaseSelect.Separator",
+        "category": "forms",
+        "polymorphic": false,
+        "sourcePath": "src/forms/base-select/base-select.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "base-select-empty",
+        "name": "BaseSelect.Empty",
+        "category": "forms",
+        "polymorphic": false,
+        "sourcePath": "src/forms/base-select/base-select.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "style",
+            "required": false,
+            "type": "JSX.CSSProperties | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    }
+  ]
+}

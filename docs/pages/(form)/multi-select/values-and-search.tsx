@@ -18,7 +18,7 @@ export function ValuesAndSearch() {
       <MultiSelect
         search
         placeholder="Select frameworks..."
-        options={FRAMEWORKS}
+        items={FRAMEWORKS}
         value={selected()}
         onChange={setSelected}
         allowClear
@@ -26,7 +26,7 @@ export function ValuesAndSearch() {
       <MultiSelect
         readOnly
         search
-        options={FRAMEWORKS}
+        items={FRAMEWORKS}
         value={selected()}
         placeholder="Read-only framework selection"
       />

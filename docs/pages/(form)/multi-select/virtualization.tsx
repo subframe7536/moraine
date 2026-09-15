@@ -9,7 +9,7 @@ const OPTIONS: MultiSelectT.Item<string>[] = Array.from({ length: 10_000 }, (_, 
 
 export function Virtualization() {
   const virtualizer = useListVirtualizer<
-    MultiSelectT.VirtualEntry<string>,
+    MultiSelectT.Row<MultiSelectT.Item<string>>,
     HTMLDivElement,
     HTMLDivElement
   >({
@@ -21,8 +21,8 @@ export function Virtualization() {
   return (
     <div class="w-80">
       <MultiSelect
-        options={OPTIONS}
-        placeholder="Pick from 10,000 options..."
+        items={OPTIONS}
+        placeholder="Pick from 10,000 items..."
         virtualRender={virtualizer.virtualRender}
         scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
         classes={{ listbox: 'h-80 max-h-80' }}

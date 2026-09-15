@@ -5,6 +5,7 @@ import { attachEventListener } from './use-event-listener'
 
 export interface UseTransitionPresenceOptions {
   open: Accessor<boolean>
+  onExitComplete?: () => void
 }
 
 export interface TransitionPresenceState {
@@ -135,8 +136,12 @@ export function useTransitionPresence(
       return
     }
 
+    const completed = present()
     clearPendingAnimations()
     setPresent(false)
+    if (completed && !disposed) {
+      options.onExitComplete?.()
+    }
   }
 
   const settleAnimation = (element: HTMLElement, animationName: string): void => {
@@ -293,13 +298,13 @@ export function useTransitionPresence(
       }
 
       if (currentElements.length === 0) {
-        clearPendingAnimations()
-        setPresent(false)
+        finishHiding()
         return
       }
 
       let cancelled = false
 
+      // oxlint-disable-next-line subf/solid-reactivity -- Measure committed exit styles after this effect, checking the latest open state before completing.
       queueMicrotask(() => {
         if (cancelled || disposed) {
           return
@@ -376,6 +381,7 @@ export function useTransitionPresence(
       const registrationId = addRegistration(element)
       let active = true
 
+      // oxlint-disable-next-line subf/solid-reactivity -- Registration cleanup can complete an exit and must read current presence.
       return () => {
         if (!active) {
           return

@@ -8,7 +8,8 @@ export type SlotClassValue = ClassValue
 
 export type SlotStyleValue = JSX.CSSProperties
 
-export type ElementProps<T extends HTMLElement> = JSX.HTMLAttributes<T> & {
+export type ElementProps<T extends HTMLElement> = Omit<JSX.HTMLAttributes<T>, 'style'> & {
+  style?: JSX.CSSProperties
   [key: `data-${string}`]: string | number | boolean | undefined
 }
 

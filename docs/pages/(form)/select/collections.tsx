@@ -2,10 +2,11 @@ import { Select } from '@src'
 import type { SelectT } from '@src'
 import { createSignal } from 'solid-js'
 
-const REGIONS: SelectT.Item<string>[] = [
+const REGIONS: SelectT.Entry<SelectT.Item<string>>[] = [
   {
     label: 'North America',
-    children: [
+    type: 'group',
+    items: [
       { label: 'US East (N. Virginia)', value: 'us-east-1' },
       { label: 'US West (Oregon)', value: 'us-west-2' },
       { label: 'Canada (Central)', value: 'ca-central-1' },
@@ -13,7 +14,8 @@ const REGIONS: SelectT.Item<string>[] = [
   },
   {
     label: 'Europe',
-    children: [
+    type: 'group',
+    items: [
       { label: 'EU (Frankfurt)', value: 'eu-central-1' },
       { label: 'EU (Ireland)', value: 'eu-west-1' },
       { label: 'EU (London)', value: 'eu-west-2' },
@@ -21,7 +23,8 @@ const REGIONS: SelectT.Item<string>[] = [
   },
   {
     label: 'Asia Pacific',
-    children: [
+    type: 'group',
+    items: [
       { label: 'Asia (Tokyo)', value: 'ap-northeast-1' },
       { label: 'Asia (Singapore)', value: 'ap-southeast-1' },
       { label: 'Asia (Sydney)', value: 'ap-southeast-2' },
@@ -34,9 +37,8 @@ export function Collections() {
 
   return (
     <div class="max-w-sm w-full">
-      <Select<string>
-        search
-        options={REGIONS}
+      <Select<SelectT.Item<string>>
+        items={REGIONS}
         value={region()}
         onChange={(val) => val && setRegion(val)}
         placeholder="Select a region..."

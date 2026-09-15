@@ -23,7 +23,7 @@ export function HorizontalLayout() {
 
       <form.Field name="role" orientation="horizontal" label="Default Role" required>
         <Select
-          options={[
+          items={[
             { label: 'Developer', value: 'developer' },
             { label: 'Designer', value: 'designer' },
             { label: 'Manager', value: 'manager' },

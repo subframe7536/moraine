@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { Select } from './select'
+import { Select } from './select.tsx'
 
 export function renderSelectFixture(): string {
   return renderToString(() => (
@@ -8,7 +8,7 @@ export function renderSelectFixture(): string {
       id="fruit"
       name="fruit"
       value="banana"
-      options={[
+      items={[
         { value: 'apple', label: 'Apple', description: 'Crisp' },
         { value: 'banana', label: 'Banana', description: 'Sweet' },
       ]}

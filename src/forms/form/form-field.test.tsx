@@ -14,8 +14,8 @@ import { CheckboxGroup } from '../checkbox-group'
 import { FileUpload } from '../file-upload'
 import { Input } from '../input'
 import { InputNumber } from '../input-number'
+import { MultiSelect } from '../multi-select/multi-select'
 import { RadioGroup } from '../radio-group'
-import { MultiSelect } from '../select/multi-select'
 import { Select } from '../select/select'
 import { Slider } from '../slider'
 import { Switch } from '../switch'
@@ -133,7 +133,7 @@ const CONSUMER_CASES: ConsumerCase[] = [
     name: 'Select',
     bound: false,
     createControl: (required) => (
-      <Select required={required} options={[{ label: 'A', value: 'a' }]} />
+      <Select required={required} items={[{ label: 'A', value: 'a' }]} />
     ),
     requiredSelector: 'input[type="text"][aria-hidden="true"]',
     requiredAriaSelector: '[role="combobox"]',
@@ -143,7 +143,7 @@ const CONSUMER_CASES: ConsumerCase[] = [
     name: 'MultiSelect',
     bound: false,
     createControl: (required) => (
-      <MultiSelect required={required} options={[{ label: 'A', value: 'a' }]} />
+      <MultiSelect required={required} items={[{ label: 'A', value: 'a' }]} />
     ),
     requiredSelector: 'input[type="text"][aria-hidden="true"]',
     requiredAriaSelector: '[role="combobox"]',

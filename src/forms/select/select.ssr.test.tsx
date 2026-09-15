@@ -1,110 +1,37 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test'
+import { hydrateFixture } from '../../test-utils/ssr-test.ts'
 
-import { Select } from './select'
-import type { SelectT } from './select.types'
+import { Select } from './select.tsx'
 
-describe('Select SSR Hydration', () => {
-  test('hydrates the closed control in place and opens on the first keyboard action', () => {
-    const reads = {
-      options: 0,
-      label: 0,
-      description: 0,
-      optionRender: 0,
-      leadingIcon: 0,
-      trailingIcon: 0,
-      closeIcon: 0,
-    }
-
-    const { container } = hydrateFixture(
-      '/src/forms/select/select.ssr.fixture.tsx',
-      'renderSelectFixture',
-      () =>
-        createComponent(Select, {
-          id: 'fruit',
-          name: 'fruit',
-          value: 'banana',
-          allowClear: true,
-          get options() {
-            reads.options += 1
-            return [
-              {
-                value: 'apple',
-                get label() {
-                  reads.label += 1
-                  return 'Apple'
-                },
-                get description() {
-                  reads.description += 1
-                  return 'Crisp'
-                },
-              },
-              {
-                value: 'banana',
-                get label() {
-                  reads.label += 1
-                  return 'Banana'
-                },
-                get description() {
-                  reads.description += 1
-                  return 'Sweet'
-                },
-              },
-            ]
-          },
-          get optionRender() {
-            reads.optionRender += 1
-            return (props: SelectT.OptionRenderProps) => <span>{props.option?.label}</span>
-          },
-          get leadingIcon() {
-            reads.leadingIcon += 1
-            return 'icon-search' as const
-          },
-          get trailingIcon() {
-            reads.trailingIcon += 1
-            return 'icon-chevron-down' as const
-          },
-          get closeIcon() {
-            reads.closeIcon += 1
-            return 'icon-close' as const
-          },
-        }),
-    )
-
-    const root = container.querySelector('[data-slot="root"]')
-    const control = container.querySelector('[data-slot="control"]')
-    const clear = container.querySelector('[data-slot="clear"]')
-    const formInput = container.querySelector<HTMLInputElement>(
-      'input[type="hidden"][name="fruit"]',
-    )
-    const combobox = container.querySelector<HTMLElement>('[role="combobox"]')!
-
-    expect(root).not.toBeNull()
-    expect(control).not.toBeNull()
-    expect(clear).not.toBeNull()
-    expect(formInput?.value).toBe('banana')
-    expect(container.querySelector('select, option')).toBeNull()
-    expect(combobox.getAttribute('aria-expanded')).toBe('false')
-    expect(reads).toEqual({
-      options: 1,
-      label: 2,
-      description: 2,
-      optionRender: 1,
-      leadingIcon: 1,
-      trailingIcon: 1,
-      closeIcon: 1,
-    })
-
-    fireEvent.keyDown(combobox, { key: 'ArrowDown' })
-
-    expect(combobox.getAttribute('aria-expanded')).toBe('true')
-    expect(document.body.querySelectorAll('[data-slot="item"]')).toHaveLength(2)
-    expect(reads.optionRender).toBe(1)
-    expect(
-      document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
-    ).toContain('Apple')
-  })
+test('hydrates Select Control/Trigger/Value anatomy in place', () => {
+  const { container } = hydrateFixture(
+    '/src/forms/select/select.ssr.fixture.tsx',
+    'renderSelectFixture',
+    () =>
+      createComponent(Select, {
+        id: 'fruit',
+        name: 'fruit',
+        value: 'banana',
+        allowClear: true,
+        items: [
+          { value: 'apple', label: 'Apple', description: 'Crisp' },
+          { value: 'banana', label: 'Banana', description: 'Sweet' },
+        ],
+        leadingIcon: 'icon-search',
+        trailingIcon: 'icon-chevron-down',
+        closeIcon: 'icon-close',
+      }),
+  )
+  const control = container.querySelector('[data-slot="control"]')!
+  const trigger = container.querySelector<HTMLElement>('[data-slot="trigger"]')!
+  expect(control.tagName).toBe('DIV')
+  expect(trigger.tagName).toBe('BUTTON')
+  expect(control.querySelector('[data-slot="value"]')?.textContent).toBe('Banana')
+  expect(container.querySelectorAll('input[data-slot="input"]')).toHaveLength(0)
+  expect(container.querySelector<HTMLInputElement>('input[name="fruit"]')?.value).toBe('banana')
+  fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
 })

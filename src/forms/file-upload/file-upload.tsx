@@ -638,10 +638,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       data-readonly={readOnly() ? '' : undefined}
       {...(rest as Record<string, unknown>)}
       id={`${field.id()}-root`}
-      component={
-        // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- Internal Dynamic spreads use a widened element type.
-        merged.as as ValidComponent
-      }
+      component={merged.as as ValidComponent}
       {...resolved.root}
     >
       <Show

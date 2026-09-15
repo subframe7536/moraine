@@ -17,7 +17,7 @@ export function InfiniteScroll() {
   return (
     <div class="w-80 space-y-2">
       <Select
-        options={infiniteOptions()}
+        items={infiniteOptions()}
         classes={{
           listbox: 'max-h-100',
         }}
@@ -36,7 +36,7 @@ export function InfiniteScroll() {
         loading={loadingMore()}
         placeholder="Scroll to load more..."
       />
-      <p class="text-xs text-muted-foreground">Total options: {infiniteOptions().length}</p>
+      <p class="text-xs text-muted-foreground">Total items: {infiniteOptions().length}</p>
     </div>
   )
 }

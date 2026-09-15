@@ -592,7 +592,7 @@ function AttributesSection(props: { section: PropsTableSection }): JSX.Element {
           }
         >
           <Select
-            options={slotOptions().map((slot) => ({
+            items={slotOptions().map((slot) => ({
               label: `${slot.name} (${getSlotMetadataCount(slot)})`,
               value: slot.name,
             }))}
@@ -600,9 +600,8 @@ function AttributesSection(props: { section: PropsTableSection }): JSX.Element {
             size="sm"
             placeholder="Select a slot"
             classes={{
-              root: 'w-full',
               control: 'w-full',
-              input: 'font-mono text-xs',
+              value: 'font-mono text-xs',
             }}
             onChange={(value) => {
               if (typeof value === 'string') {

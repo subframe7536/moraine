@@ -10,18 +10,22 @@ import type { KbdGroupT, KbdT } from '../elements/kbd'
 import type { ProgressT } from '../elements/progress'
 import type { ResizableT } from '../elements/resizable'
 import type { SeparatorT } from '../elements/separator'
+import type { BaseSelectT } from '../forms/base-select'
 import type { CheckboxT } from '../forms/checkbox'
 import type { CheckboxGroupT } from '../forms/checkbox-group'
+import type { ComboboxT } from '../forms/combobox'
 import type { FileUploadT } from '../forms/file-upload'
 import type { FormFieldT, FormT } from '../forms/form'
 import type { InputT } from '../forms/input'
 import type { InputGroupT } from '../forms/input-group/index.ts'
 import type { InputNumberT } from '../forms/input-number'
+import type { MultiSelectT } from '../forms/multi-select'
 import type { RadioGroupT } from '../forms/radio-group'
-import type { MultiSelectT, SelectT } from '../forms/select'
+import type { SelectT } from '../forms/select'
 import type { TextControlStyleVariant } from '../forms/shared/text-control.class.ts'
 import type { SliderT } from '../forms/slider'
 import type { SwitchT } from '../forms/switch'
+import type { TagsInputT } from '../forms/tags-input'
 import type { TextareaT } from '../forms/textarea'
 import type { BreadcrumbT } from '../navigation/breadcrumb'
 import type { CommandPaletteT } from '../navigation/command-palette'
@@ -40,6 +44,8 @@ import type { ComponentRecipeConfig, SlotRecipeFn } from '../shared/style/recipe
 
 /** Component families and their locally declared presentation contracts. */
 export interface MoraineThemeSchema {
+  baseSelect: { slots: BaseSelectT.Slot; variants: BaseSelectT.Variant }
+  combobox: { slots: ComboboxT.Slot; variants: ComboboxT.Variant }
   accordion: { slots: AccordionT.Slot; variants: AccordionT.Variant }
   avatar: { slots: AvatarT.Slot; variants: AvatarT.Variant }
   avatarGroup: { slots: AvatarGroupT.Slot; variants: AvatarGroupT.Variant }
@@ -72,6 +78,7 @@ export interface MoraineThemeSchema {
   radioGroup: { slots: RadioGroupT.Slot; variants: RadioGroupT.Variant }
   resizable: { slots: ResizableT.Slot; variants: ResizableT.Variant }
   select: { slots: SelectT.Slot; variants: SelectT.Variant }
+  tagsInput: { slots: TagsInputT.Slot; variants: TagsInputT.Variant }
   separator: { slots: SeparatorT.Slot; variants: SeparatorT.Variant }
   sheet: { slots: SheetT.Slot; variants: SheetT.Variant }
   sidebarFrame: { slots: SidebarFrameT.Slot; variants: SidebarFrameT.Variant }
