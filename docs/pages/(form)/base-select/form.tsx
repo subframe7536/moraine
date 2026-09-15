@@ -10,7 +10,8 @@ export default function Example() {
       class="flex gap-2 items-start"
       onSubmit={(event) => {
         event.preventDefault()
-        setSubmitted(new FormData(event.currentTarget).get('framework')?.toString() ?? 'No selection')
+        const value = new FormData(event.currentTarget).get('framework')
+        setSubmitted(typeof value === 'string' ? value : 'No selection')
       }}
     >
       <BaseSelect
@@ -33,7 +34,7 @@ export default function Example() {
         </BaseSelect.Content>
       </BaseSelect>
       <Button type="submit">Submit</Button>
-      <output class="text-muted-foreground self-center text-sm">{submitted()}</output>
+      <output class="text-sm text-muted-foreground self-center">{submitted()}</output>
     </form>
   )
 }

@@ -31,7 +31,10 @@ export function FrameworkListbox(props: { items: Accessor<readonly FrameworkItem
   const groups = createMemo(() => {
     const visible = new Set(props.items())
     return frameworkGroups
-      .map((group) => ({ ...group, items: group.items.filter((item) => visible.has(item)) }))
+      .map((group) => ({
+        label: group.label,
+        items: group.items.filter((item) => visible.has(item)),
+      }))
       .filter((group) => group.items.length)
   })
   return (

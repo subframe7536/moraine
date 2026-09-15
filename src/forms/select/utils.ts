@@ -2,8 +2,9 @@ import { createEffect, createSignal, on, onCleanup } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import type { BaseSelectT } from './base-select.types.ts'
 import type { UseFormFieldReturn } from '../form/form-context.ts'
+
+import type { BaseSelectT } from './base-select.types.ts'
 
 /** Query-state options shared by searchable selection controls. */
 export interface SearchValueOptions {
@@ -28,9 +29,11 @@ export interface BaseSelectSearchInputState {
   field: Pick<UseFormFieldReturn, 'id' | 'disabled' | 'readOnly' | 'emit'>
   listboxId: Accessor<string>
   open: Accessor<boolean>
+  setOpen: (next: boolean) => void
   highlightedValue: Accessor<BaseSelectT.Value | undefined>
   itemId: (value: BaseSelectT.Value) => string
   locked: Accessor<boolean>
+  control: Accessor<HTMLElement | undefined>
   setControl: (element: HTMLElement | undefined) => void
   registerCompositionDiscarder: (discard: () => void) => void
   keyDown: (event: KeyboardEvent, textInput?: boolean) => void

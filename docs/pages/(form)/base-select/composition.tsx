@@ -10,13 +10,12 @@ export default function Example() {
       <BaseSelect.Trigger
         as={Button}
         variant="outline"
-        class="justify-between min-w-52"
+        class="min-w-52 justify-between"
         trailing="i-lucide:chevrons-up-down"
       >
         {(state) => (
           <span>
-            {frameworks.find((item) => item.value === state.value[0])?.label ??
-              'Select framework…'}
+            {frameworks.find((item) => item.value === state.value[0])?.label ?? 'Select framework…'}
           </span>
         )}
       </BaseSelect.Trigger>
