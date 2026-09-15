@@ -84,7 +84,6 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
     }
   }
 
-  // oxlint-disable-next-line subf/solid-reactivity -- Returned as an event handler by both tag controls.
   function isolatePointer(event: PointerEvent): void {
     event.preventDefault()
     event.stopPropagation()

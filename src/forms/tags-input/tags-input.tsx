@@ -62,6 +62,11 @@ export function TagsInput(props: TagsInputProps): JSX.Element {
   const [compositionDraft, setCompositionDraft] = createSignal('')
   let validationInput: HTMLInputElement | undefined
 
+  const isDuplicate = createMemo(() => {
+    const text = (composing() ? compositionDraft() : draft()).trim()
+    return text.length > 0 && values().includes(text)
+  })
+
   function setDraft(next: string): string {
     if (next === draft()) {
       return next
@@ -278,6 +283,7 @@ export function TagsInput(props: TagsInputProps): JSX.Element {
             data-slot="input"
             {...styles.slot('input')}
             {...field.ariaAttrs()}
+            data-duplicate={isDuplicate() ? '' : undefined}
             disabled={field.disabled()}
             readOnly={field.readOnly()}
             value={composing() ? compositionDraft() : draft()}
