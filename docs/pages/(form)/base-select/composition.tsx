@@ -1,4 +1,4 @@
-import { BaseSelect, Button } from '@src'
+import { BaseSelect, Button, Icon } from '@src'
 import type { BaseSelectT } from '@src'
 import { For, Show } from 'solid-js'
 
@@ -11,51 +11,52 @@ const frameworks: FrameworkItem[] = [
 ]
 export default function Example() {
   return (
-    <form class="flex gap-3 items-center">
-      <BaseSelect<FrameworkItem>
-        items={frameworks}
-        name="framework"
-        defaultValue={['solid']}
-        itemToLabelString={(item) => `${item.value} ${item.description}`}
+    <BaseSelect<FrameworkItem>
+      items={frameworks}
+      itemToLabelString={(item) => `${item.value} ${item.description}`}
+    >
+      <BaseSelect.Trigger
+        as={Button}
+        variant="outline"
+        class="justify-between min-w-52"
+        trailing="i-lucide:chevrons-up-down"
       >
-        <BaseSelect.Trigger as={Button}>
-          {(state) => (
-            <span>
-              {frameworks.find((item) => item.value === state.value[0])?.label ??
-                'Select framework'}
-            </span>
-          )}
-        </BaseSelect.Trigger>
-        <BaseSelect.Content>
-          <BaseSelect.Listbox>
-            <BaseSelect.Group>
-              <BaseSelect.GroupLabel>Frontend</BaseSelect.GroupLabel>
-              <For each={frameworks}>
-                {(item) => (
-                  <BaseSelect.Item item={item}>
-                    {(state) => (
-                      <>
-                        <span>
-                          {state.item.label}
-                          <small class="text-muted-foreground block">
-                            {state.item.description}
-                          </small>
-                        </span>
-                        <Show when={state.selected}>✓</Show>
-                      </>
-                    )}
-                  </BaseSelect.Item>
-                )}
-              </For>
-            </BaseSelect.Group>
-            <BaseSelect.Separator />
-          </BaseSelect.Listbox>
-          <BaseSelect.Empty>No frameworks</BaseSelect.Empty>
-        </BaseSelect.Content>
-      </BaseSelect>
-      <Button type="reset" variant="outline">
-        Reset
-      </Button>
-    </form>
+        {(state) => (
+          <span>
+            {frameworks.find((item) => item.value === state.value[0])?.label ??
+              'Select framework…'}
+          </span>
+        )}
+      </BaseSelect.Trigger>
+      <BaseSelect.Content>
+        <BaseSelect.Listbox>
+          <BaseSelect.Group>
+            <BaseSelect.GroupLabel>Frontend</BaseSelect.GroupLabel>
+            <For each={frameworks}>
+              {(item) => (
+                <BaseSelect.Item item={item}>
+                  {(state) => (
+                    <>
+                      <Icon
+                        name="i-lucide:check"
+                        class={state.selected ? 'opacity-100' : 'opacity-0'}
+                      />
+                      <span>
+                        {state.item.label}
+                        <small class="text-muted-foreground block">
+                          {state.item.description}
+                        </small>
+                      </span>
+                    </>
+                  )}
+                </BaseSelect.Item>
+              )}
+            </For>
+          </BaseSelect.Group>
+          <BaseSelect.Separator />
+        </BaseSelect.Listbox>
+        <BaseSelect.Empty>No frameworks found.</BaseSelect.Empty>
+      </BaseSelect.Content>
+    </BaseSelect>
   )
 }

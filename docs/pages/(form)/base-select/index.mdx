@@ -16,15 +16,41 @@ import type { BaseSelectT } from 'moraine'
 
 BaseSelect is the callable root. It renders its children and lightweight hidden form inputs without a layout wrapper. Supply `items` as the current flat navigation collection. Filter and resolve source data in the owning component before passing navigation items to BaseSelect. Each item requires a unique `value` and a visual `label`; custom fields stay available in item presentation state. The root owns array selection, disclosure, navigation, form integration, and anchor/control references.
 
-## Composition
+## Usage
+
+### Without search
 
 <Preview path="./composition" />
+
+This is the same interaction shape as a shadcn Combobox popup: a button shows the selected label, and each option renders its own selection indicator. `BaseSelect` intentionally supplies the selection, disclosure, navigation, and form behavior while leaving the trigger and option presentation to the application.
+
+### With search
+
+<Preview path="./searchable" />
+
+Use the high-level `Select` when the picker needs an input-backed query. `search` owns the combobox input semantics, query state, filtering lifecycle, IME handling, and selected-item label resolution. BaseSelect deliberately receives only the current flat navigation items, so filtering and source-item resolution remain with its owner when you build a custom search experience.
+
+### Anatomy
+
+```text
+BaseSelect
+├── Trigger
+└── Content
+    ├── Listbox
+    │   ├── Group (optional)
+    │   │   ├── GroupLabel
+    │   │   └── Item (×n)
+    │   └── Separator (optional)
+    └── Empty (optional)
+```
 
 `Trigger` defaults to an unstyled button with `type="button"`. Use `as` to render a custom component. It is the only polymorphic part. `Content` provides positioning, presence, dismissal, and a portal; `Listbox` renders exactly its children. `GroupLabel` automatically labels its enclosing `Group`.
 
 `Separator` is decorative and has no effect on keyboard navigation. Place `Empty` beside `Listbox` inside `Content`; the listbox stays mounted when empty.
 
-## Multiple selection
+## Examples
+
+### Multiple selection
 
 ```tsx
 const items = [
@@ -47,7 +73,7 @@ const items = [
 
 Both modes use array-shaped `value`, `defaultValue`, and `onChange`. Single selection uses `[]` or `[value]`; a controlled array containing more than one value is normalized to its first value. `multiple` changes selection behavior only. Trigger state exposes `value`, `open`, `disabled`, and `readOnly`. Single selection closes on selection by default, while multiple selection stays open. Override this with `closeOnSelect`.
 
-## Forms and text matching
+### Forms and text matching
 
 Use `name`, `required`, `disabled`, and `readOnly` directly on BaseSelect. Form reset restores the initial uncontrolled value; controlled values remain authoritative. Multiple selection serializes one hidden input per value. `serializeValue(value)` can return a string or `undefined` to omit a value. High-level Select/MultiSelect use this boundary to preserve canonical disabled-item submission rules even when those items are filtered out of navigation.
 
