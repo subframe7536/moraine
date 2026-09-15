@@ -7,7 +7,8 @@ const SELECT_CONTENT_CLASS =
 export const baseSelectRecipe = /* @__PURE__ */ slotRecipe<BaseSelectT.Slot, BaseSelectT.Variant>({
   base: {
     content: SELECT_CONTENT_CLASS,
-    listbox: 'm-0 p-1 outline-none max-h-(--mo-popper-content-available-height) overflow-y-auto empty:p-0',
+    listbox:
+      'm-0 p-1 outline-none max-h-(--mo-popper-content-available-height) overflow-y-auto empty:p-0',
     item: 'px-2 py-1.5 outline-none rounded-sm flex gap-2 cursor-pointer items-center relative data-highlighted:bg-muted data-disabled:(opacity-64 pointer-events-none)',
     group: '[&:not(:first-child)]:mt-1.5',
     groupLabel: 'text-xs text-muted-foreground font-medium px-2 py-1.5 block',

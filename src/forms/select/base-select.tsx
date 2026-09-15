@@ -563,10 +563,7 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   return (
     <Show when={presence.present()}>
       <Portal>
-        <div
-          data-slot="positioner"
-          ref={setPositioner}
-        >
+        <div data-slot="positioner" ref={setPositioner}>
           <div
             {...rest}
             {...presence.dataAttrs()}

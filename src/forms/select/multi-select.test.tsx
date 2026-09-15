@@ -45,10 +45,10 @@ describe('MultiSelect', () => {
   test('renders unstyled when provider is absent', () => {
     const screen = baseRender(() => <MultiSelect items={FRUITS} placeholder="Unstyled" />)
     const root = screen.container.querySelector('[data-slot="root"]')
-  const control = screen.container.querySelector('[data-slot="trigger"]')
-  expect(root).toBeNull()
-  expect(screen.container.querySelector('[data-slot="control"]')).toBeNull()
-  expect(control?.className).toBe('')
+    const control = screen.container.querySelector('[data-slot="trigger"]')
+    expect(root).toBeNull()
+    expect(screen.container.querySelector('[data-slot="control"]')).toBeNull()
+    expect(control?.className).toBe('')
   })
 
   test('forwards root ref and inner inputRef', () => {
