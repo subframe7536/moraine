@@ -600,7 +600,6 @@ function AttributesSection(props: { section: PropsTableSection }): JSX.Element {
             size="sm"
             placeholder="Select a slot"
             classes={{
-              root: 'w-full',
               control: 'w-full',
               input: 'font-mono text-xs',
             }}

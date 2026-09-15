@@ -312,38 +312,6 @@
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
-    },
-    {
-      "name": "root",
-      "description": "Visual control wrapper.",
-      "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-disabled",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component, slot, or item is disabled."
-        },
-        {
-          "name": "data-invalid",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field or form has a validation error."
-        },
-        {
-          "name": "data-readonly",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field is in read-only mode."
-        },
-        {
-          "name": "data-required",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field input is required."
-        }
-      ],
-      "ariaAttributes": []
     }
   ],
   "item": {
@@ -405,12 +373,6 @@
         "required": false,
         "type": "IconT.Name",
         "description": "Icon used when the action button clears the selection.\nTag remove buttons keep using this icon as well."
-      },
-      {
-        "name": "closeOnSelect",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Close after selection. Defaults to true for single, false for multiple."
       },
       {
         "name": "createItem",

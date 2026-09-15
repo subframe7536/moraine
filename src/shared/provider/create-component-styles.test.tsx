@@ -113,8 +113,8 @@ describe('createComponentStyles', () => {
         defaults: { search: true },
         variants: {
           search: {
-            true: { root: 'searchable' },
-            false: { root: 'plain' },
+            true: { control: 'searchable' },
+            false: { control: 'plain' },
           },
         },
       },
@@ -128,7 +128,7 @@ describe('createComponentStyles', () => {
             return search()
           },
         },
-        { inheritedVariants: () => ({ search: true }) },
+        { rootSlot: 'control', inheritedVariants: () => ({ search: true }) },
       )
       return <div data-testid="select" {...styles.root} />
     }

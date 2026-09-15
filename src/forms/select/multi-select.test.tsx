@@ -46,7 +46,7 @@ describe('MultiSelect', () => {
     const screen = baseRender(() => <MultiSelect items={FRUITS} placeholder="Unstyled" />)
     const root = screen.container.querySelector('[data-slot="root"]')
     const control = screen.container.querySelector('[data-slot="control"]')
-    expect(root?.className).toBe('')
+    expect(root).toBeNull()
     expect(control?.className).toBe('')
   })
 
@@ -97,35 +97,35 @@ describe('MultiSelect', () => {
     expect(control.hasAttribute('data-search')).toBe(false)
   })
 
-  test('uses the normative root class and style precedence', () => {
+  test('uses the normative control class and style precedence', () => {
     const screen = render(() => (
       <MoraineProvider
         theme={createTheme({
           extends: defaultTheme,
           multiSelect: {
-            base: { root: 'w-24 px-1 h-[10px] text-red-500 provider-root' },
+            base: { control: 'w-24 px-1 h-[10px] text-red-500 provider-control' },
           },
         })}
       >
         <MultiSelect
-          data-testid="multi-select-root"
+          data-testid="multi-select-control"
           items={FRUITS}
-          classes={{ root: 'w-32 px-2 instance-root' }}
+          classes={{ control: 'w-32 px-2 instance-control' }}
           class="final-root w-48"
-          styles={{ root: { width: '200px', background: 'blue' } }}
+          styles={{ control: { width: '200px', background: 'blue' } }}
           style={{ width: '300px', color: 'green' }}
         />
       </MoraineProvider>
     ))
 
-    const root = screen.getByTestId('multi-select-root')
+    const root = screen.getByTestId('multi-select-control')
     expect(root.className).toContain('w-48')
     expect(root.className).not.toContain('w-24')
     expect(root.className).not.toContain('w-32')
     expect(root.className).toContain('px-2')
     expect(root.className).not.toContain('px-1')
-    expect(root.className).toContain('provider-root')
-    expect(root.className).toContain('instance-root')
+    expect(root.className).toContain('provider-control')
+    expect(root.className).toContain('instance-control')
     expect(root.className).toContain('final-root')
 
     expect(root.style.width).toBe('300px')
@@ -195,11 +195,15 @@ describe('MultiSelect', () => {
   test('reacts to replaced provider and instance style objects without remounting', () => {
     const [providerConfig, setProviderConfig] = createSignal({
       multiSelect: {
-        base: { root: 'provider-root-initial text-red-500' },
+        base: { control: 'provider-control-initial text-red-500' },
       },
     })
-    const [instanceClasses, setInstanceClasses] = createSignal({ root: 'instance-root-initial' })
-    const [instanceStyles, setInstanceStyles] = createSignal({ root: { border: '1px solid red' } })
+    const [instanceClasses, setInstanceClasses] = createSignal({
+      control: 'instance-control-initial',
+    })
+    const [instanceStyles, setInstanceStyles] = createSignal({
+      control: { border: '1px solid red' },
+    })
 
     const screen = render(() => (
       <MoraineProvider theme={createTheme({ extends: defaultTheme, ...providerConfig() })}>
@@ -213,28 +217,28 @@ describe('MultiSelect', () => {
     ))
 
     const root = screen.getByTestId('reactive-multi-select')
-    expect(root.className).toContain('provider-root-initial')
-    expect(root.className).toContain('instance-root-initial')
+    expect(root.className).toContain('provider-control-initial')
+    expect(root.className).toContain('instance-control-initial')
     expect(root.className).toContain('text-red-500')
     expect(root.style.border).toBe('1px solid red')
 
     setProviderConfig({
       multiSelect: {
-        base: { root: 'provider-root-updated text-blue-500' },
+        base: { control: 'provider-control-updated text-blue-500' },
       },
     })
 
     expect(screen.getByTestId('reactive-multi-select')).toBe(root)
-    expect(root.className).toContain('provider-root-updated')
-    expect(root.className).not.toContain('provider-root-initial')
+    expect(root.className).toContain('provider-control-updated')
+    expect(root.className).not.toContain('provider-control-initial')
     expect(root.className).toContain('text-blue-500')
 
-    setInstanceClasses({ root: 'instance-root-updated' })
-    setInstanceStyles({ root: { border: '1px solid blue' } })
+    setInstanceClasses({ control: 'instance-control-updated' })
+    setInstanceStyles({ control: { border: '1px solid blue' } })
 
     expect(screen.getByTestId('reactive-multi-select')).toBe(root)
-    expect(root.className).toContain('instance-root-updated')
-    expect(root.className).not.toContain('instance-root-initial')
+    expect(root.className).toContain('instance-control-updated')
+    expect(root.className).not.toContain('instance-control-initial')
     expect(root.style.border).toBe('1px solid blue')
   })
 
@@ -552,7 +556,21 @@ describe('MultiSelect', () => {
     expect(onChange).toHaveBeenLastCalledWith(['apple'])
   })
 
-  test('mirrors Form.Field invalid state on the visual root, control, and combobox', async () => {
+  test('stays open when an untyped runtime caller supplies closeOnSelect', () => {
+    const runtimeProps = {
+      items: FRUITS,
+      defaultOpen: true,
+      closeOnSelect: true,
+    } as unknown as MultiSelectProps
+    render(() => <MultiSelect {...runtimeProps} />)
+
+    fireEvent.click(queryAllBody('[data-slot="item"]')[0]!)
+
+    expect(queryBody('[data-slot="content"]')?.hasAttribute('data-closed')).toBe(false)
+    expect(queryBody('[data-slot="item"]')?.getAttribute('aria-selected')).toBe('true')
+  })
+
+  test('mirrors Form.Field invalid state on the control and combobox', async () => {
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -577,11 +595,6 @@ describe('MultiSelect', () => {
     fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
 
     await waitFor(() => expect(screen.getByText('Choose one fruit')).toBeTruthy())
-    expect(
-      screen.container
-        .querySelector('[data-slot="container"] > [data-slot="root"]')
-        ?.hasAttribute('data-invalid'),
-    ).toBe(true)
     expect(
       screen.container.querySelector('[data-slot="control"]')?.hasAttribute('data-invalid'),
     ).toBe(true)
@@ -1347,7 +1360,7 @@ describe('MultiSelect', () => {
     expect(input.readOnly).toBe(true)
     expect(input.getAttribute('aria-readonly')).toBe('true')
     expect(
-      screen.container.querySelector('[data-slot="root"]')?.hasAttribute('data-readonly'),
+      screen.container.querySelector('[data-slot="control"]')?.hasAttribute('data-readonly'),
     ).toBe(true)
     expect(tagRemove.disabled).toBe(true)
     expect(

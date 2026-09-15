@@ -91,7 +91,7 @@ describe('MultiSelect SSR Hydration', () => {
     )
     const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!
 
-    expect(root).not.toBeNull()
+    expect(root).toBeNull()
     expect(control).not.toBeNull()
     expect(tag).not.toBeNull()
     expect(formInput?.value).toBe('apple')

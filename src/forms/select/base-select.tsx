@@ -41,11 +41,9 @@ import {
   sameValue,
   selectionEqual,
 } from './shared/collection.ts'
-import { FormValueExistsContext } from './shared/form-value-context.ts'
 
 function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>) {
   type Value = readonly T['value'][]
-  const canonicalValueExists = useContext(FormValueExistsContext)
   const normalize = (values: Value): T['value'][] =>
     normalizeSelection(values, props.multiple === true)
   const id = useId(() => props.id, 'select')
@@ -55,12 +53,10 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     () => ({
       defaultId: id(),
       bind: false,
-      initialValue: props.multiple ? initial : (initial[0] ?? ''),
+      initialValue: props.multiple ? initial : (initial[0] ?? null),
     }),
   )
   const items = () => props.items ?? []
-  const formValueExists = (value: T['value']) =>
-    canonicalValueExists?.(value) ?? items().some((item) => sameValue(item.value, value))
   createEffect(on(items, diagnoseDuplicateItems))
   const [selection, setSelection] = useControllableValue<Value>({
     value: () => {
@@ -71,8 +67,11 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
       if (Array.isArray(value)) {
         return value
       }
+      if (!props.multiple && value === null) {
+        return []
+      }
       if (!props.multiple && (typeof value === 'string' || typeof value === 'number')) {
-        return value === '' && !formValueExists(value) ? [] : [value]
+        return [value]
       }
       return undefined
     },
@@ -118,11 +117,11 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     }
     setSelection(after)
     if (props.value === undefined) {
-      field.setFormValue(props.multiple ? after : (after[0] ?? ''))
+      field.setFormValue(props.multiple ? after : (after[0] ?? null))
     }
     props.onChange?.(after)
     if (props.value !== undefined) {
-      field.setFormValue(props.multiple ? normalize(props.value) : (props.value[0] ?? ''))
+      field.setFormValue(props.multiple ? normalize(props.value) : (props.value[0] ?? null))
     }
     field.emit('change')
     field.emit('input')
@@ -241,8 +240,8 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
           if (!Array.isArray(formValue) || !selectionEqual(current, formValue as T['value'][])) {
             field.setFormValue(current)
           }
-        } else if (!sameValue(current[0] ?? '', formValue as T['value'] | undefined)) {
-          field.setFormValue(current[0] ?? '')
+        } else if (current[0] !== formValue) {
+          field.setFormValue(current[0] ?? null)
         }
       },
     ),
@@ -288,7 +287,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
       discardComposition()
       setSelection(initial)
       const next = props.value !== undefined ? normalize(props.value) : initial
-      field.setFormValue(props.multiple ? next : (next[0] ?? ''))
+      field.setFormValue(props.multiple ? next : (next[0] ?? null))
       if (validationInput) {
         validationInput.value = validationValue()
       }
@@ -391,8 +390,8 @@ export function BaseSelect<T extends BaseSelectT.Item = BaseSelectT.Item>(
   const state = createSelectState(props)
   return (
     <SelectContext.Provider value={state as unknown as SelectState<BaseSelectT.Item>}>
-      {state.formControls()}
       {props.children}
+      {state.formControls()}
     </SelectContext.Provider>
   )
 }
@@ -507,7 +506,10 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   ])
   const presence = useTransitionPresence({
     open: state.open,
-    onExitComplete: () => local.onExitComplete?.(),
+    onExitComplete: () => {
+      state.setHighlightedValue(undefined)
+      local.onExitComplete?.()
+    },
   })
   const [content, setContent] = createSignal<HTMLDivElement>()
   const [positioner, setPositioner] = createSignal<HTMLDivElement>()

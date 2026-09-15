@@ -18,7 +18,6 @@ export const SELECT_CLEAR_ACTION_CLASS =
   'text-muted-foreground opacity-80 disabled:pointer-events-none data-loading:cursor-wait transition-colors hover:(bg-muted-hover text-foreground opacity-100) active:bg-muted-active'
 
 const SELECT_CONTROL_CLASSES = {
-  root: 'inline-flex h-fit w-full relative',
   control: SELECT_CONTROL_CLASS,
   leading: SELECT_LEADING_ICON_CLASS,
   clear: `${SELECT_CLEAR_ACTION_CLASS} border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center`,

@@ -90,10 +90,7 @@ export namespace MultiSelectT {
     close: () => void
   }
 
-  export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, ItemSlot<T> {
-    /** Visual control wrapper. */
-    root?: T
-  }
+  export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, ItemSlot<T> {}
 
   export interface Variant {
     /** Visual treatment of the component.
@@ -118,7 +115,7 @@ export namespace MultiSelectT {
     extends
       Omit<
         BaseSelectT.Base<TItem>,
-        'children' | 'classes' | 'styles' | 'size' | 'items' | 'serializeValue'
+        'children' | 'classes' | 'styles' | 'size' | 'items' | 'serializeValue' | 'closeOnSelect'
       >,
       SearchProps<TItem>,
       ContentProps<TItem>,

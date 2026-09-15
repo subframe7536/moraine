@@ -65,10 +65,7 @@ export namespace SelectT {
     close: () => void
   }
 
-  export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, ItemSlot<T> {
-    /** Visual control wrapper. */
-    root?: T
-  }
+  export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, ItemSlot<T> {}
   export interface Variant {
     /** Visual treatment of the component.
      * @default 'outline'

@@ -63,6 +63,12 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
   filterItem={(_, item) => item.value === 1}
 />
 ;<MultiSelect items={items} />
+// @ts-expect-error MultiSelect always remains open after item selection.
+;<MultiSelect items={items} closeOnSelect />
+// @ts-expect-error Select and MultiSelect expose control, not root, as their styling slot.
+;<Select items={items} classes={{ root: 'invalid' }} />
+// @ts-expect-error Select and MultiSelect expose control, not root, as their styling slot.
+;<MultiSelect items={items} styles={{ root: { width: '1px' } }} />
 ;<Select<BusinessItem>
   items={[
     { type: 'group', value: 'business', label: 'Business', department: 'sales' },

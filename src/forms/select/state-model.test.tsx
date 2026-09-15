@@ -161,6 +161,30 @@ describe('BaseSelect array and lifecycle contracts', () => {
     await finishExit()
     expect(exit).toHaveBeenCalledTimes(2)
   })
+
+  test('keeps the exit highlight until completion, then restores selection on reopening', async () => {
+    const screen = render(() => (
+      <BaseSelect items={countries} defaultOpen defaultValue={['GB']}>
+        <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
+        <BaseSelect.Content>
+          <BaseSelect.Listbox>
+            <For each={countries}>{(item) => <BaseSelect.Item item={item} />}</For>
+          </BaseSelect.Listbox>
+        </BaseSelect.Content>
+      </BaseSelect>
+    ))
+    const trigger = screen.getByRole('combobox')
+
+    fireEvent.keyDown(trigger, { key: 'ArrowUp' })
+    expect(options()[0]?.hasAttribute('data-highlighted')).toBe(true)
+
+    fireEvent.keyDown(trigger, { key: 'Escape' })
+    expect(options()[0]?.hasAttribute('data-highlighted')).toBe(true)
+    await finishExit()
+
+    fireEvent.click(trigger)
+    expect(options()[1]?.hasAttribute('data-highlighted')).toBe(true)
+  })
 })
 
 describe('query ownership', () => {
@@ -316,14 +340,9 @@ describe('empty-string Form.Field decoding', () => {
     fireEvent.keyDown(input, { key: 'Escape' })
     await waitFor(() => expect(input.value).toBe('Empty value'))
     expect(getInput(form)).toEqual({ choice: '' })
-    await finishExit()
-
-    fireEvent.click(input)
-    expect(options()).toHaveLength(2)
-    expect(options()[0]?.getAttribute('aria-selected')).toBe('true')
   })
 
-  test('treats an empty Form.Field as unselected when no canonical empty value exists', () => {
+  test('preserves an unresolved empty Form.Field value as a logical selection', () => {
     const { screen } = renderWithOwner(
       () =>
         createForm({
@@ -338,7 +357,7 @@ describe('empty-string Form.Field decoding', () => {
         </form.Form>
       ),
     )
-    expect(screen.getByRole('combobox').textContent).toBe('Choose')
+    expect(screen.getByRole('combobox').textContent).toBe('')
   })
 
   test('keeps an empty-string MultiSelect Form.Field value without canonical context', () => {

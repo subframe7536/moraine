@@ -5,19 +5,16 @@ import { Dynamic } from 'solid-js/web'
 import { Icon } from '../../elements/icon/index.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { callRef } from '../../shared/utils.ts'
+import { callHandler, callRef } from '../../shared/utils.ts'
 import { useFormFieldContext } from '../form/form-context.ts'
 
 import { BaseSelect, useSelectState } from './base-select.tsx'
-import type { BaseSelectT } from './base-select.types.ts'
 import type { SelectProps, SelectT } from './select.types.ts'
 import { createSource, labelString } from './shared/collection.ts'
 import { DefaultSelectContent } from './shared/default-content.tsx'
-import { FormValueExistsContext } from './shared/form-value-context.ts'
 import {
   BASE_SELECT_FORWARD_PROP_KEYS,
   BASE_SELECT_SHARED_SLOTS,
-  isFormFieldInvalid,
   SELECT_LOCAL_PROP_KEYS,
 } from './shared/props.ts'
 import { useSelectSearch, useSelectSearchInput } from './shared/search.ts'
@@ -35,6 +32,7 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
   const closeIcon = () => local.closeIcon ?? 'icon-close'
   const field = useFormFieldContext()
   const styles = createComponentStyles('select', props, {
+    rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
   })
   const sharedClasses = createMemo(() =>
@@ -87,15 +85,21 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
         <Dynamic
           component={searchable() ? 'div' : BaseSelect.Trigger}
           as={searchable() ? undefined : 'div'}
+          {...rootProps}
           data-slot="control"
           {...styles.slot('control')}
           data-disabled={state.field.disabled() ? '' : undefined}
           data-readonly={state.field.readOnly() ? '' : undefined}
           data-required={state.field.required() ? '' : undefined}
           data-invalid={state.field.invalid() ? '' : undefined}
-          ref={state.setAnchor}
+          ref={(element: HTMLDivElement) => {
+            state.setAnchor(element)
+            callRef(local.ref, element)
+          }}
           onPointerDown={(event: PointerEvent) => {
+            callHandler(event, rootProps.onPointerDown)
             if (
+              !event.defaultPrevented &&
               !(event.target instanceof HTMLInputElement) &&
               event.pointerType !== 'touch' &&
               event.pointerType !== 'pen'
@@ -105,8 +109,9 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
             }
           }}
           onClick={(event: MouseEvent) => {
-            state.control()?.focus()
-            if (searchable()) {
+            callHandler(event, rootProps.onClick)
+            if (!event.defaultPrevented && searchable()) {
+              state.control()?.focus()
               state.setOpen(event.target instanceof HTMLInputElement ? true : !state.open())
             }
           }}
@@ -205,40 +210,25 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
     )
   }
   return (
-    <div
-      {...rootProps}
-      ref={local.ref}
-      data-slot="root"
-      data-disabled={(baseSelectProps.disabled ?? field?.disabled) ? '' : undefined}
-      data-readonly={(baseSelectProps.readOnly ?? field?.readOnly) ? '' : undefined}
-      data-required={(baseSelectProps.required ?? field?.required) ? '' : undefined}
-      data-invalid={isFormFieldInvalid(field) ? '' : undefined}
-      {...styles.root}
+    <BaseSelect<T>
+      {...baseSelectProps}
+      items={search.view().items}
+      serializeValue={(value) =>
+        source().byValue.get(value)?.disabled ? undefined : String(value)
+      }
+      value={selection()}
+      defaultValue={defaultSelection()}
+      onChange={(values) => local.onChange?.(values[0] ?? null)}
+      onReset={() => {
+        search.setQuery('')
+        local.onReset?.()
+      }}
+      multiple={false}
+      size={styles.variants.size ?? undefined}
+      classes={sharedClasses()}
+      styles={sharedStyles()}
     >
-      <FormValueExistsContext.Provider
-        value={(value: BaseSelectT.Value) => source().byValue.has(value)}
-      >
-        <BaseSelect<T>
-          {...baseSelectProps}
-          items={search.view().items}
-          serializeValue={(value) =>
-            source().byValue.get(value)?.disabled ? undefined : String(value)
-          }
-          value={selection()}
-          defaultValue={defaultSelection()}
-          onChange={(values) => local.onChange?.(values[0] ?? null)}
-          onReset={() => {
-            search.setQuery('')
-            local.onReset?.()
-          }}
-          multiple={false}
-          size={styles.variants.size ?? undefined}
-          classes={sharedClasses()}
-          styles={sharedStyles()}
-        >
-          <Control />
-        </BaseSelect>
-      </FormValueExistsContext.Provider>
-    </div>
+      <Control />
+    </BaseSelect>
   )
 }

@@ -5,7 +5,7 @@ import { Dynamic } from 'solid-js/web'
 import { Icon } from '../../elements/icon/index.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
-import { callRef } from '../../shared/utils.ts'
+import { callHandler, callRef } from '../../shared/utils.ts'
 import { useFormFieldContext } from '../form/form-context.ts'
 
 import { BaseSelect, useSelectState } from './base-select.tsx'
@@ -15,7 +15,6 @@ import { DefaultSelectContent } from './shared/default-content.tsx'
 import {
   BASE_SELECT_FORWARD_PROP_KEYS,
   BASE_SELECT_SHARED_SLOTS,
-  isFormFieldInvalid,
   MULTI_SELECT_LOCAL_PROP_KEYS,
 } from './shared/props.ts'
 import { useSelectSearch, useSelectSearchInput } from './shared/search.ts'
@@ -26,8 +25,9 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
 ): JSX.Element {
   type Item = T
   type V = T['value']
+  type RuntimeProps = MultiSelectProps<T> & { closeOnSelect?: boolean }
   const [local, baseSelectProps, rootProps] = splitProps(
-    props,
+    props as RuntimeProps,
     MULTI_SELECT_LOCAL_PROP_KEYS,
     BASE_SELECT_FORWARD_PROP_KEYS,
   )
@@ -38,6 +38,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   const tagRender = createMemo(() => local.tagRender)
   const field = useFormFieldContext()
   const styles = createComponentStyles('multiSelect', props, {
+    rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
   })
   const sharedClasses = createMemo(() =>
@@ -218,6 +219,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
         <Dynamic
           component={searchable() ? 'div' : BaseSelect.Trigger}
           as={searchable() ? undefined : 'div'}
+          {...rootProps}
           data-slot="control"
           {...styles.slot('control')}
           data-tags={tags().length ? '' : undefined}
@@ -225,9 +227,14 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           data-readonly={state.field.readOnly() ? '' : undefined}
           data-required={state.field.required() ? '' : undefined}
           data-invalid={state.field.invalid() ? '' : undefined}
-          ref={state.setAnchor}
+          ref={(element: HTMLDivElement) => {
+            state.setAnchor(element)
+            callRef(local.ref, element)
+          }}
           onPointerDown={(event: PointerEvent) => {
+            callHandler(event, rootProps.onPointerDown)
             if (
+              !event.defaultPrevented &&
               !(event.target instanceof HTMLInputElement) &&
               event.pointerType !== 'touch' &&
               event.pointerType !== 'pen'
@@ -237,8 +244,9 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             }
           }}
           onClick={(event: MouseEvent) => {
-            state.control()?.focus()
-            if (searchable()) {
+            callHandler(event, rootProps.onClick)
+            if (!event.defaultPrevented && searchable()) {
+              state.control()?.focus()
               state.setOpen(event.target instanceof HTMLInputElement ? true : !state.open())
             }
           }}
@@ -425,48 +433,38 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     )
   }
   return (
-    <div
-      {...rootProps}
-      ref={local.ref}
-      data-slot="root"
-      data-disabled={(baseSelectProps.disabled ?? field?.disabled) ? '' : undefined}
-      data-readonly={(baseSelectProps.readOnly ?? field?.readOnly) ? '' : undefined}
-      data-required={(baseSelectProps.required ?? field?.required) ? '' : undefined}
-      data-invalid={isFormFieldInvalid(field) ? '' : undefined}
-      {...styles.root}
-    >
-      <BaseSelect<Item>
-        {...baseSelectProps}
-        items={search.view().items}
-        serializeValue={(value) =>
-          source().byValue.get(value)?.disabled ? undefined : String(value)
-        }
-        value={local.value}
-        defaultValue={local.defaultValue}
-        onChange={(values) => {
-          if (!committingTokens) {
-            search.setQuery('')
-          }
-          local.onChange?.(values)
-        }}
-        onReset={() => {
+    <BaseSelect<Item>
+      {...baseSelectProps}
+      closeOnSelect={false}
+      items={search.view().items}
+      serializeValue={(value) =>
+        source().byValue.get(value)?.disabled ? undefined : String(value)
+      }
+      value={local.value}
+      defaultValue={local.defaultValue}
+      onChange={(values) => {
+        if (!committingTokens) {
           search.setQuery('')
-          setCreated([])
-          local.onReset?.()
-        }}
-        isItemDisabled={(item, values) =>
-          baseSelectProps.isItemDisabled?.(item, values) === true ||
-          (local.maxCount !== undefined &&
-            values.length >= local.maxCount &&
-            !values.includes(item.value))
         }
-        multiple
-        size={styles.variants.size ?? undefined}
-        classes={sharedClasses()}
-        styles={sharedStyles()}
-      >
-        <Control />
-      </BaseSelect>
-    </div>
+        local.onChange?.(values)
+      }}
+      onReset={() => {
+        search.setQuery('')
+        setCreated([])
+        local.onReset?.()
+      }}
+      isItemDisabled={(item, values) =>
+        baseSelectProps.isItemDisabled?.(item, values) === true ||
+        (local.maxCount !== undefined &&
+          values.length >= local.maxCount &&
+          !values.includes(item.value))
+      }
+      multiple
+      size={styles.variants.size ?? undefined}
+      classes={sharedClasses()}
+      styles={sharedStyles()}
+    >
+      <Control />
+    </BaseSelect>
   )
 }

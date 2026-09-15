@@ -63,7 +63,7 @@ test('validates a committed selection in change mode', async () => {
   await waitFor(() => expect(screen.getByText('Choose apple')).toBeTruthy())
 })
 
-test('mirrors Form.Field invalid state on the visual root, control, and combobox', async () => {
+test('mirrors Form.Field invalid state on the control and combobox', async () => {
   const { screen } = renderWithOwner(
     () =>
       createForm({
@@ -88,11 +88,6 @@ test('mirrors Form.Field invalid state on the visual root, control, and combobox
   fireEvent.click(queryAllBody('[data-slot="item"]')[1]!)
 
   await waitFor(() => expect(screen.getByText('Choose apple')).toBeTruthy())
-  expect(
-    screen.container
-      .querySelector('[data-slot="container"] > [data-slot="root"]')
-      ?.hasAttribute('data-invalid'),
-  ).toBe(true)
   expect(
     screen.container.querySelector('[data-slot="control"]')?.hasAttribute('data-invalid'),
   ).toBe(true)
@@ -156,7 +151,7 @@ test('renders unstyled when provider is absent', () => {
   const screen = baseRender(() => <Select items={FRUITS} placeholder="Unstyled" />)
   const root = screen.container.querySelector('[data-slot="root"]')
   const control = screen.container.querySelector('[data-slot="control"]')
-  expect(root?.className).toBe('')
+  expect(root).toBeNull()
   expect(control?.className).toBe('')
 })
 
@@ -177,6 +172,22 @@ test('forwards root ref and inner inputRef when searchable', () => {
   expect(rootEl).toBeInstanceOf(HTMLDivElement)
   expect(inputEl).toBeInstanceOf(HTMLInputElement)
   expect(inputEl?.placeholder).toBe('Ref test')
+})
+
+test('composes control click and pointer handlers before trigger activation', () => {
+  const onClick = vi.fn((event: MouseEvent) => event.preventDefault())
+  const onPointerDown = vi.fn()
+  const screen = render(() => (
+    <Select items={FRUITS} onClick={onClick} onPointerDown={onPointerDown} />
+  ))
+  const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+
+  fireEvent.pointerDown(control, { button: 0 })
+  fireEvent.click(control)
+
+  expect(onPointerDown).toHaveBeenCalledOnce()
+  expect(onClick).toHaveBeenCalledOnce()
+  expect(queryBody('[data-slot="content"]')).toBeNull()
 })
 
 test('uses input sizing classes in single mode', () => {
@@ -263,22 +274,22 @@ describe('Select - single mode', () => {
     expect(inputs[1]?.className).toContain('text-base')
   })
 
-  test('applies classes.root override', () => {
+  test('applies classes.control override', () => {
     const screen = render(() => (
-      <Select items={FRUITS} placeholder="Pick a fruit" classes={{ root: 'root-override' }} />
+      <Select items={FRUITS} placeholder="Pick a fruit" classes={{ control: 'control-override' }} />
     ))
 
-    const root = screen.container.firstElementChild as HTMLElement | null
-    expect(root?.className).toContain('root-override')
+    const control = screen.container.querySelector('[data-slot="control"]')
+    expect(control?.className).toContain('control-override')
   })
 
-  test('applies styles.root override', () => {
+  test('applies styles.control override', () => {
     const screen = render(() => (
-      <Select items={FRUITS} placeholder="Pick a fruit" styles={{ root: { width: '200px' } }} />
+      <Select items={FRUITS} placeholder="Pick a fruit" styles={{ control: { width: '200px' } }} />
     ))
 
-    const root = screen.container.firstElementChild as HTMLElement | null
-    expect(root?.style.width).toBe('200px')
+    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement | null
+    expect(control?.style.width).toBe('200px')
   })
 
   test('uses the normative root class and style precedence', () => {
@@ -287,30 +298,30 @@ describe('Select - single mode', () => {
         theme={createTheme({
           extends: defaultTheme,
           select: {
-            base: { root: 'w-24 px-1 h-[10px] text-red-500 provider-root' },
+            base: { control: 'w-24 px-1 h-[10px] text-red-500 provider-control' },
           },
         })}
       >
         <Select
-          data-testid="select-root"
+          data-testid="select-control"
           items={FRUITS}
           placeholder="Pick a fruit"
-          classes={{ root: 'w-32 px-2 instance-root' }}
+          classes={{ control: 'w-32 px-2 instance-control' }}
           class="final-root w-48"
-          styles={{ root: { width: '200px', background: 'blue' } }}
+          styles={{ control: { width: '200px', background: 'blue' } }}
           style={{ width: '300px', color: 'green' }}
         />
       </MoraineProvider>
     ))
 
-    const root = screen.getByTestId('select-root')
+    const root = screen.getByTestId('select-control')
     expect(root.className).toContain('w-48')
     expect(root.className).not.toContain('w-24')
     expect(root.className).not.toContain('w-32')
     expect(root.className).toContain('px-2')
     expect(root.className).not.toContain('px-1')
-    expect(root.className).toContain('provider-root')
-    expect(root.className).toContain('instance-root')
+    expect(root.className).toContain('provider-control')
+    expect(root.className).toContain('instance-control')
     expect(root.className).toContain('final-root')
 
     expect(root.style.width).toBe('300px')
@@ -352,11 +363,15 @@ describe('Select - single mode', () => {
   test('reacts to replaced provider and instance style objects without remounting', () => {
     const [providerConfig, setProviderConfig] = createSignal({
       select: {
-        base: { root: 'provider-root-initial text-red-500' },
+        base: { control: 'provider-control-initial text-red-500' },
       },
     })
-    const [instanceClasses, setInstanceClasses] = createSignal({ root: 'instance-root-initial' })
-    const [instanceStyles, setInstanceStyles] = createSignal({ root: { border: '1px solid red' } })
+    const [instanceClasses, setInstanceClasses] = createSignal({
+      control: 'instance-control-initial',
+    })
+    const [instanceStyles, setInstanceStyles] = createSignal({
+      control: { border: '1px solid red' },
+    })
 
     const screen = render(() => (
       <MoraineProvider theme={createTheme({ extends: defaultTheme, ...providerConfig() })}>
@@ -370,28 +385,28 @@ describe('Select - single mode', () => {
     ))
 
     const root = screen.getByTestId('reactive-select')
-    expect(root.className).toContain('provider-root-initial')
-    expect(root.className).toContain('instance-root-initial')
+    expect(root.className).toContain('provider-control-initial')
+    expect(root.className).toContain('instance-control-initial')
     expect(root.className).toContain('text-red-500')
     expect(root.style.border).toBe('1px solid red')
 
     setProviderConfig({
       select: {
-        base: { root: 'provider-root-updated text-blue-500' },
+        base: { control: 'provider-control-updated text-blue-500' },
       },
     })
 
     expect(screen.getByTestId('reactive-select')).toBe(root)
-    expect(root.className).toContain('provider-root-updated')
-    expect(root.className).not.toContain('provider-root-initial')
+    expect(root.className).toContain('provider-control-updated')
+    expect(root.className).not.toContain('provider-control-initial')
     expect(root.className).toContain('text-blue-500')
 
-    setInstanceClasses({ root: 'instance-root-updated' })
-    setInstanceStyles({ root: { border: '1px solid blue' } })
+    setInstanceClasses({ control: 'instance-control-updated' })
+    setInstanceStyles({ control: { border: '1px solid blue' } })
 
     expect(screen.getByTestId('reactive-select')).toBe(root)
-    expect(root.className).toContain('instance-root-updated')
-    expect(root.className).not.toContain('instance-root-initial')
+    expect(root.className).toContain('instance-control-updated')
+    expect(root.className).not.toContain('instance-control-initial')
     expect(root.style.border).toBe('1px solid blue')
   })
 
@@ -1503,17 +1518,14 @@ describe('Select - keyboard and ARIA', () => {
     expect(input.getAttribute('aria-autocomplete')).toBe('list')
   })
 
-  test('propagates required and disabled state to root, control, and combobox', () => {
+  test('propagates required and disabled state to control and combobox', () => {
     const screen = render(() => (
       <Select items={FRUITS} required disabled placeholder="Pick a fruit" />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
     const control = screen.container.querySelector('[data-slot="control"]')
     const input = screen.getByRole('combobox')
 
-    expect(root?.getAttribute('data-required')).toBe('')
-    expect(root?.getAttribute('data-disabled')).toBe('')
     expect(control?.getAttribute('data-required')).toBe('')
     expect(control?.getAttribute('data-disabled')).toBe('')
     expect(input.getAttribute('aria-required')).toBe('true')
@@ -1567,7 +1579,7 @@ describe('Select - form integration', () => {
     expect(input.readOnly).toBe(true)
     expect(input.getAttribute('aria-readonly')).toBe('true')
     expect(
-      screen.container.querySelector('[data-slot="root"]')?.hasAttribute('data-readonly'),
+      screen.container.querySelector('[data-slot="control"]')?.hasAttribute('data-readonly'),
     ).toBe(true)
     const clearButton = screen.container.querySelector(
       '[data-slot="clear"]',
@@ -1705,6 +1717,72 @@ describe('Select - form integration', () => {
 
     expect(screen.getByRole('combobox').textContent).toBe('Banana')
     expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('treats null Form.Field input as an authoritative empty selection', () => {
+    const onChange = vi.fn()
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ fruit: v.nullable(v.string()) }),
+          initialInput: { fruit: null },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="fruit" label="Fruit">
+            <Select items={FRUITS} defaultValue="apple" placeholder="Choose" onChange={onChange} />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    expect(screen.getByRole('combobox').textContent).toBe('Choose')
+    expect(getInput(form)).toEqual({ fruit: null })
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('clears when Form.Field changes externally to null without publishing a change', () => {
+    const onChange = vi.fn()
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ fruit: v.nullable(v.string()) }),
+          initialInput: { fruit: 'apple' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="fruit" label="Fruit">
+            <Select items={FRUITS} placeholder="Choose" required onChange={onChange} />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    setInput(form, { path: ['fruit'], input: null })
+
+    expect(screen.getByRole('combobox').textContent).toBe('Choose')
+    expect(getInput(form)).toEqual({ fruit: null })
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('accepts an unresolved empty Form.Field value as a selection', () => {
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ fruit: v.string() }),
+          initialInput: { fruit: '' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="fruit" label="Fruit">
+            <Select items={FRUITS} placeholder="Choose" />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    expect(screen.getByRole('combobox').textContent).toBe('')
+    expect(getInput(form)).toEqual({ fruit: '' })
   })
 
   test('resets uncontrolled selection to the initial default snapshot without callbacks', async () => {

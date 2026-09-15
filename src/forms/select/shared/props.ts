@@ -1,5 +1,3 @@
-import type { FormFieldContextOptions } from '../../form/form-context.ts'
-
 /** BaseSelect ownership shared by the Select-family visual wrappers. */
 export const BASE_SELECT_FORWARD_PROP_KEYS = [
   'itemToLabelString',
@@ -59,6 +57,7 @@ export const SELECT_LOCAL_PROP_KEYS = [
 /** Local props intercepted by MultiSelect. */
 export const MULTI_SELECT_LOCAL_PROP_KEYS = [
   ...SELECT_LOCAL_PROP_KEYS,
+  'closeOnSelect',
   'tagRender',
   'createItem',
   'maxCount',
@@ -76,9 +75,3 @@ export const BASE_SELECT_SHARED_SLOTS = [
   'separator',
   'empty',
 ] as const
-
-/** Mirrors the invalid semantics used by the Select-owned form controller. */
-export function isFormFieldInvalid(field: FormFieldContextOptions | null): boolean {
-  const error = field?.error
-  return error !== undefined && error !== null && error !== false && error !== ''
-}

@@ -198,3 +198,5 @@ make sure `@tanstack/virtual-core` installed
 ### Form integration
 
 <Preview path="./form-integration" />
+
+For a bound single Select, `null` means no selection, while `undefined` leaves the component uncontrolled. An empty string (`""`) is a valid selected value, including when its item is temporarily unavailable. Use a nullable Form schema/state for an empty Select; native form submission may still serialize both an empty selection and a selected empty string as `""`.

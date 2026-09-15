@@ -76,7 +76,7 @@ describe('Select SSR Hydration', () => {
     )
     const combobox = container.querySelector<HTMLElement>('[role="combobox"]')!
 
-    expect(root).not.toBeNull()
+    expect(root).toBeNull()
     expect(control).not.toBeNull()
     expect(clear).not.toBeNull()
     expect(formInput?.value).toBe('banana')
