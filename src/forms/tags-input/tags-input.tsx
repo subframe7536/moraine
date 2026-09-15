@@ -17,10 +17,10 @@ import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import { useFormField, useFormFieldContext } from '../form/form-context.ts'
+import { TAGS_INPUT_LOCAL_PROP_KEYS } from '../shared/select/props.ts'
+import { createTagsField } from '../shared/select/tags-field.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
-import { TAGS_INPUT_LOCAL_PROP_KEYS } from './shared/props.ts'
-import { createTagsField } from './shared/tags-field.ts'
 import type { TagsInputProps, TagsInputT } from './tags-input.types.ts'
 
 function normalizeValues(values: readonly string[]): string[] {

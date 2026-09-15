@@ -4,7 +4,7 @@ import type { IconT } from '../../../elements/icon/index.ts'
 import type { ListT } from '../../../elements/list/index.ts'
 import type { ComponentOrElement } from '../../../shared/render-prop.ts'
 import type { ElementProps } from '../../../shared/types.ts'
-import type { BaseSelectT } from '../base-select.types.ts'
+import type { BaseSelectT } from '../../base-select/base-select.types.ts'
 
 export interface SelectItem<
   V extends BaseSelectT.Value = BaseSelectT.Value,

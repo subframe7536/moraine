@@ -1,9 +1,13 @@
+import { getInput } from '@formisch/solid'
 import { fireEvent, render as baseRender, within } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
+import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { defaultTheme } from '../../theme/default-theme.ts'
+import { createForm } from '../form/index.ts'
 
 import { Select } from './select.tsx'
 import type { SelectT } from './select.types.ts'
@@ -134,5 +138,37 @@ describe('Select', () => {
     form.reset()
     await Promise.resolve()
     expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
+  })
+
+  test('updates Form.Field and shows a placeholder for a null selection', () => {
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({
+            choice: v.pipe(
+              v.nullable(v.string()),
+              v.check((value): value is string => value !== null, 'Choose a fruit'),
+            ),
+          }),
+          initialInput: { choice: null },
+          validate: 'input',
+        }),
+      (form) => (
+        <MoraineProvider theme={defaultTheme}>
+          <form.Form>
+            <form.Field name="choice" label="Choice">
+              <Select items={ITEMS} placeholder="Choose a fruit" defaultOpen />
+            </form.Field>
+          </form.Form>
+        </MoraineProvider>
+      ),
+    )
+
+    expect(screen.container.querySelector('[data-slot="value"]')?.textContent).toBe(
+      'Choose a fruit',
+    )
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
+    expect(getInput(form)).toEqual({ choice: 'banana' })
+    expect(screen.container.querySelector('[data-slot="value"]')?.textContent).toBe('Banana')
   })
 })

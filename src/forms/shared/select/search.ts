@@ -1,8 +1,8 @@
 import { createMemo } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
-import type { BaseSelectT } from '../base-select.types.ts'
-import { useSearchValue } from '../utils.ts'
+import type { BaseSelectT } from '../../base-select/base-select.types.ts'
+import { useSearchValue } from '../../base-select/utils.ts'
 
 import { filterView, labelString } from './collection.ts'
 import type { SearchProps, SelectView } from './types.ts'

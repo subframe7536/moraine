@@ -5,7 +5,7 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Free-form multiple string entry with tags and an editable draft input.",
-    "sourcePath": "src/forms/select/tags-input.tsx",
+    "sourcePath": "src/forms/tags-input/tags-input.tsx",
     "kind": "single"
   },
   "slots": [

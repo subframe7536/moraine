@@ -9,7 +9,7 @@ import { MultiSelect } from './multi-select.tsx'
 test('hydrates MultiSelect with one input and stable secondary trigger', () => {
   const onChange = vi.fn()
   const { container } = hydrateFixture(
-    '/src/forms/select/multi-select.ssr.fixture.tsx',
+    '/src/forms/multi-select/multi-select.ssr.fixture.tsx',
     'renderMultiSelectFixture',
     () =>
       createComponent(MultiSelect, {

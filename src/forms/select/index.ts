@@ -1,11 +1,2 @@
 export { Select } from './select.tsx'
-export { Combobox } from './combobox.tsx'
-export { TagsInput } from './tags-input.tsx'
-export { MultiSelect } from './multi-select.tsx'
 export type { SelectT, SelectProps } from './select.types.ts'
-export type { ComboboxT, ComboboxProps } from './combobox.types.ts'
-export type { TagsInputT, TagsInputProps } from './tags-input.types.ts'
-export type { MultiSelectT, MultiSelectProps } from './multi-select.types.ts'
-
-export { BaseSelect, useSelectState } from './base-select.tsx'
-export type { BaseSelectT, BaseSelectProps } from './base-select.types.ts'

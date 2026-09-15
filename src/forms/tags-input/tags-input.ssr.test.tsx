@@ -9,7 +9,7 @@ import { TagsInput } from './tags-input.tsx'
 test('hydrates TagsInput tags, input, and form values in place', () => {
   const onChange = vi.fn()
   const { container } = hydrateFixture(
-    '/src/forms/select/tags-input.ssr.fixture.tsx',
+    '/src/forms/tags-input/tags-input.ssr.fixture.tsx',
     'renderTagsInputFixture',
     () =>
       createComponent(TagsInput, {

@@ -5,17 +5,17 @@ import { Icon } from '../../elements/icon/index.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callRef } from '../../shared/utils.ts'
+import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
 import { useFormFieldContext } from '../form/form-context.ts'
-
-import { BaseSelect, useSelectState } from './base-select.tsx'
-import type { SelectProps, SelectT } from './select.types.ts'
-import { createSource } from './shared/collection.ts'
-import { DefaultSelectContent } from './shared/default-content.tsx'
+import { createSource } from '../shared/select/collection.ts'
+import { DefaultSelectContent } from '../shared/select/default-content.tsx'
 import {
   BASE_SELECT_FORWARD_PROP_KEYS,
   BASE_SELECT_SHARED_SLOTS,
   SELECT_LOCAL_PROP_KEYS,
-} from './shared/props.ts'
+} from '../shared/select/props.ts'
+
+import type { SelectProps, SelectT } from './select.types.ts'
 
 /** Single, non-editable collection selection. */
 export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps<T>): JSX.Element {

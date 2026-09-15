@@ -5,20 +5,20 @@ import { Icon } from '../../elements/icon/index.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef } from '../../shared/utils.ts'
+import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
+import { useBaseSelectSearchInput } from '../base-select/utils.ts'
 import { useFormFieldContext } from '../form/form-context.ts'
-
-import { BaseSelect, useSelectState } from './base-select.tsx'
-import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
-import { createSource, labelString, sameValue } from './shared/collection.ts'
-import { DefaultSelectContent } from './shared/default-content.tsx'
+import { createSource, labelString, sameValue } from '../shared/select/collection.ts'
+import { DefaultSelectContent } from '../shared/select/default-content.tsx'
 import {
   BASE_SELECT_FORWARD_PROP_KEYS,
   BASE_SELECT_SHARED_SLOTS,
   MULTI_SELECT_LOCAL_PROP_KEYS,
-} from './shared/props.ts'
-import { useComboboxSearch } from './shared/search.ts'
-import { createTagsField } from './shared/tags-field.ts'
-import { useBaseSelectSearchInput } from './utils.ts'
+} from '../shared/select/props.ts'
+import { useComboboxSearch } from '../shared/select/search.ts'
+import { createTagsField } from '../shared/select/tags-field.ts'
+
+import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
 
 /** Collection-backed multiple selection with tags and optional search or creation. */
 export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(

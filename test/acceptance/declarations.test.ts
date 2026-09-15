@@ -27,7 +27,7 @@ describe('published declarations', () => {
       'Interactive button element, or the polymorphic element provided through `as`.',
     )
     expect(namespace('InputT')).toContain('Native text input element.')
-    expect(readFileSync(resolve(dist, 'forms/select/shared/types.d.mts'), 'utf8')).toContain(
+    expect(readFileSync(resolve(dist, 'forms/shared/select/types.d.mts'), 'utf8')).toContain(
       'Custom item presentation.',
     )
     expect(namespace('SelectT')).toMatch(/interface Slot<T = unknown>/)
@@ -42,8 +42,8 @@ describe('published declarations', () => {
     expect(namespace('SelectT')).toContain(
       "onChange?: (value: NoInfer<TItem['value'] | null>) => void",
     )
-    expect(readFileSync(resolve(dist, 'forms/select/base-select.types.d.mts'), 'utf8')).toContain(
-      'items?: readonly TItem[]',
-    )
+    expect(
+      readFileSync(resolve(dist, 'forms/base-select/base-select.types.d.mts'), 'utf8'),
+    ).toContain('items?: readonly TItem[]')
   })
 })

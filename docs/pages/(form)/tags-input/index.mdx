@@ -16,8 +16,64 @@ import { TagsInput } from 'moraine'
 import type { TagsInputT } from 'moraine'
 ```
 
-TagsInput commits free-form strings directly. It does not own collection items, filtering, a
-listbox, a popup, item creation, or virtual rendering.
+## Features
+
+- **Free-form strings**: Enter commits the trimmed draft directly.
+- **Tokenization and paste**: Configured separators split complete values safely.
+- **Tag keyboard behavior**: Backspace, arrow movement, and removal stay input-focused.
+- **Direct reachability**: Every committed tag remains visible; there is no overflow summary.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'input',
+      prop: 'placeholder',
+      label: 'Placeholder',
+      defaultValue: 'Add tags...',
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'allowClear', label: 'Clearable', defaultValue: true },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
+  ]}
+>
+  {(props) => (
+    <TagsInput
+      defaultValue={['solid', 'typescript']}
+      placeholder={props.placeholder}
+      variant={props.variant}
+      size={props.size}
+      allowClear={props.allowClear}
+      disabled={props.disabled}
+      readOnly={props.readOnly}
+      class="max-w-xl"
+    />
+  )}
+</Playground>
 
 ## Anatomy
 
@@ -32,21 +88,29 @@ control
 └── clear (optional)
 ```
 
-All committed tags stay directly reachable. TagsInput has no maxTagCount or tagOverflow behavior.
+All committed tags stay directly reachable. TagsInput has no `maxTagCount`, `tagOverflow`,
+collection, listbox, popup, or trigger behavior.
 
-## Basic and controlled input
+## Usage
+
+### Values and controlled input
 
 <Preview path="./basic" />
 
-## Separators and paste
+The committed value is `string[]`; the draft is independently controlled with `inputValue` and
+`onInputValueChange`.
+
+### Separators and paste
 
 Enter commits the trimmed draft. Configured token separators commit completed tokens, paste splits
 using the same separators, duplicates are ignored, and partial IME composition is never submitted.
 
 <Preview path="./separators" />
 
-## Limits, custom tags, and forms
+## Examples
 
-maxCount limits committed values. The value and native form contract is string[].
+### Limits, custom tags, and form integration
+
+`maxCount` limits committed values without hiding any existing tags.
 
 <Preview path="./form" />

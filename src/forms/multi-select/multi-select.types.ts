@@ -3,9 +3,8 @@ import type { Ref } from 'solid-js'
 import type { IconT } from '../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseSelectT } from '../base-select/base-select.types.ts'
 import type { FormValueOptions } from '../shared/form-options.ts'
-
-import type { BaseSelectT } from './base-select.types.ts'
 import type {
   SelectItem,
   SearchProps,
@@ -14,7 +13,7 @@ import type {
   SelectGroup,
   SelectEntry,
   SelectVirtualRenderProps,
-} from './shared/types.ts'
+} from '../shared/select/types.ts'
 
 export namespace MultiSelectT {
   export type Kind = 'single'

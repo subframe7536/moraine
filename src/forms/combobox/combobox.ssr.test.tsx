@@ -8,7 +8,7 @@ import { Combobox } from './combobox.tsx'
 
 test('hydrates Combobox with one input focus owner', () => {
   const { container } = hydrateFixture(
-    '/src/forms/select/combobox.ssr.fixture.tsx',
+    '/src/forms/combobox/combobox.ssr.fixture.tsx',
     'renderComboboxFixture',
     () =>
       createComponent(Combobox, {

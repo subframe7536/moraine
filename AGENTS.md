@@ -56,15 +56,19 @@ src/
 ├── forms/                 # Form controls and form-state integration.
 │   ├── checkbox/          # Checkbox control.
 │   ├── checkbox-group/    # Checkbox group control.
+│   ├── base-select/       # Low-level selection, disclosure, and listbox primitive.
+│   ├── combobox/          # Editable single collection selection.
 │   ├── file-upload/       # File upload control and dropzone behavior.
 │   ├── form/              # Form root, field wrapper, submission, and context.
 │   ├── input/             # Text input control.
 │   ├── input-group/       # Compound input layout with addons and triggers.
 │   ├── input-number/      # Numeric input control.
+│   ├── multi-select/      # Collection-backed multiple selection.
 │   ├── radio-group/       # Radio group control.
-│   ├── select/             # Select, multi-select, and shared select behavior.
+│   ├── select/             # Non-editable single collection selection.
 │   ├── slider/             # Slider control and slider hooks.
 │   ├── switch/             # Switch control.
+│   ├── tags-input/         # Free-form multiple string entry.
 │   ├── textarea/           # Textarea control.
 │   └── shared/             # Form-specific hooks and helpers.
 ├── navigation/            # Navigation and page-organization components.

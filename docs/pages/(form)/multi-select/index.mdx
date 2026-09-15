@@ -16,9 +16,82 @@ import { MultiSelect } from 'moraine'
 import type { MultiSelectT } from 'moraine'
 ```
 
-MultiSelect commits multiple values from a collection. It combines BaseSelect navigation,
-Combobox query behavior, and tag-field editing while keeping one value owner, one query owner, one
-physical input, and one form registration.
+## Features
+
+- **Collection-backed values**: Every committed value resolves through a canonical `TItem` source.
+- **Stable tag field**: One input owns focus, keyboard behavior, query, and combobox ARIA.
+- **Optional search and creation**: `search` filters; `createItem` explicitly constructs a `TItem`.
+- **Separate limits**: `maxCount` limits values; `maxTagCount` only changes presentation.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'input',
+      prop: 'placeholder',
+      label: 'Placeholder',
+      defaultValue: 'Select topics...',
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'search', label: 'Search', defaultValue: false },
+    {
+      kind: 'switch',
+      prop: 'openOnControlClick',
+      label: 'Open on control click',
+      defaultValue: true,
+    },
+    { kind: 'switch', prop: 'allowClear', label: 'Clearable', defaultValue: true },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
+    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+  ]}
+>
+  {(props) => (
+    <MultiSelect
+      items={[
+        { label: 'Design', value: 'design', icon: 'i-lucide:palette' },
+        { label: 'Development', value: 'dev', icon: 'i-lucide:code' },
+        { label: 'Marketing', value: 'marketing', icon: 'i-lucide:megaphone' },
+        { label: 'Product', value: 'product', icon: 'i-lucide:layers' },
+        { label: 'Research', value: 'research', icon: 'i-lucide:search' },
+      ]}
+      defaultValue={['design']}
+      placeholder={props.placeholder}
+      variant={props.variant}
+      size={props.size}
+      search={props.search}
+      openOnControlClick={props.openOnControlClick}
+      allowClear={props.allowClear}
+      disabled={props.disabled}
+      readOnly={props.readOnly}
+      loading={props.loading}
+      class="max-w-xl"
+    />
+  )}
+</Playground>
 
 ## Anatomy
 
@@ -36,32 +109,36 @@ control
 ```
 
 The trailing trigger is always a real secondary button and is never replaced by clear or loading.
-Normal control clicks are open-only. Set openOnControlClick={false} to require the trailing button
+Normal control clicks are open-only. Set `openOnControlClick={false}` to require the trailing button
 for pointer opening; typing and Arrow keys still open normally.
 
-## Editable behavior
+## Usage
 
-- MultiSelect without search keeps its one input read-only and uses collection typeahead.
-- search makes the input editable and filters the collection.
-- createItem makes the input editable even when search is false.
-
-createItem(input) explicitly constructs a valid TItem. MultiSelect reuses an existing canonical
-item with the same value, rejects disabled or over-limit additions, then commits TItem.value.
-This differs from TagsInput, which commits free-form strings directly.
+### Values and search
 
 <Preview path="./values-and-search" />
+
+Without `search`, the single physical input is read-only and printable keys use collection
+typeahead. `search` makes it editable and filters the collection. Query state stays separate from
+the committed `TItem['value'][]`.
 
 ### Create collection items
 
 <Preview path="./create-new-tags" />
 
-### Groups and large collections
+Providing `createItem` implicitly enables the editable search input, even with `search={false}`.
+It converts normalized text into a valid `TItem`; MultiSelect then commits `TItem.value`. This is
+different from TagsInput, which commits free-form strings directly.
+
+### Large item sets
 
 <Preview path="./large-collections" />
 
-### Limits
+## Examples
 
-maxCount is a behavioral selection limit. maxTagCount is visual only; hidden selections remain
+### Selection and display limits
+
+`maxCount` is a behavioral selection limit. `maxTagCount` is visual only; hidden selections remain
 committed, submitted, and reachable through the collection popup.
 
 <Preview path="./max-count-max-tag-count" />

@@ -1,6 +1,6 @@
 import { DEV } from 'solid-js'
 
-import type { BaseSelectT } from '../base-select.types.ts'
+import type { BaseSelectT } from '../../base-select/base-select.types.ts'
 
 import type { SelectEntry, SelectGroup, SelectView, SelectRow } from './types.ts'
 

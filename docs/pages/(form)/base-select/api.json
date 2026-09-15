@@ -5,7 +5,7 @@
     "category": "forms",
     "polymorphic": false,
     "description": "Public selection primitive for a flat navigation collection.",
-    "sourcePath": "src/forms/select/base-select.tsx",
+    "sourcePath": "src/forms/base-select/base-select.tsx",
     "kind": "composite"
   },
   "slots": [
@@ -245,7 +245,7 @@
         "name": "BaseSelect.Control",
         "category": "forms",
         "polymorphic": false,
-        "sourcePath": "src/forms/select/base-select.tsx"
+        "sourcePath": "src/forms/base-select/base-select.tsx"
       },
       "slots": [],
       "props": {
@@ -265,7 +265,7 @@
         "name": "BaseSelect.Trigger",
         "category": "forms",
         "polymorphic": true,
-        "sourcePath": "src/forms/select/base-select.tsx"
+        "sourcePath": "src/forms/base-select/base-select.tsx"
       },
       "slots": [],
       "props": {
@@ -365,7 +365,7 @@
         "name": "BaseSelect.Content",
         "category": "forms",
         "polymorphic": false,
-        "sourcePath": "src/forms/select/base-select.tsx"
+        "sourcePath": "src/forms/base-select/base-select.tsx"
       },
       "slots": [],
       "props": {
@@ -405,7 +405,7 @@
         "name": "BaseSelect.Listbox",
         "category": "forms",
         "polymorphic": false,
-        "sourcePath": "src/forms/select/base-select.tsx"
+        "sourcePath": "src/forms/base-select/base-select.tsx"
       },
       "slots": [],
       "props": {
@@ -425,7 +425,7 @@
         "name": "BaseSelect.Item",
         "category": "forms",
         "polymorphic": false,
-        "sourcePath": "src/forms/select/base-select.tsx"
+        "sourcePath": "src/forms/base-select/base-select.tsx"
       },
       "slots": [],
       "props": {
@@ -457,7 +457,7 @@
         "name": "BaseSelect.Group",
         "category": "forms",
         "polymorphic": false,
-        "sourcePath": "src/forms/select/base-select.tsx"
+        "sourcePath": "src/forms/base-select/base-select.tsx"
       },
       "slots": [],
       "props": {
@@ -477,7 +477,7 @@
         "name": "BaseSelect.GroupLabel",
         "category": "forms",
         "polymorphic": false,
-        "sourcePath": "src/forms/select/base-select.tsx"
+        "sourcePath": "src/forms/base-select/base-select.tsx"
       },
       "slots": [],
       "props": {
@@ -497,7 +497,7 @@
         "name": "BaseSelect.Separator",
         "category": "forms",
         "polymorphic": false,
-        "sourcePath": "src/forms/select/base-select.tsx"
+        "sourcePath": "src/forms/base-select/base-select.tsx"
       },
       "slots": [],
       "props": {
@@ -517,7 +517,7 @@
         "name": "BaseSelect.Empty",
         "category": "forms",
         "polymorphic": false,
-        "sourcePath": "src/forms/select/base-select.tsx"
+        "sourcePath": "src/forms/base-select/base-select.tsx"
       },
       "slots": [],
       "props": {

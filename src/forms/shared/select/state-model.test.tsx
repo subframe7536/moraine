@@ -2,9 +2,9 @@ import { fireEvent, render, within } from '@solidjs/testing-library'
 import { For } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { BaseSelect, useSelectState } from './base-select.tsx'
-import { Combobox } from './combobox.tsx'
-import { MultiSelect } from './multi-select.tsx'
+import { BaseSelect, useSelectState } from '../../base-select/base-select.tsx'
+import { Combobox } from '../../combobox/combobox.tsx'
+import { MultiSelect } from '../../multi-select/multi-select.tsx'
 
 const items = [
   { value: 'US', label: 'United States' },

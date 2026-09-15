@@ -1,9 +1,13 @@
+import { getInput } from '@formisch/solid'
 import { fireEvent, render as baseRender, within } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
+import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { defaultTheme } from '../../theme/default-theme.ts'
+import { createForm } from '../form/index.ts'
 
 import { MultiSelect } from './multi-select.tsx'
 import type { MultiSelectT } from './multi-select.types.ts'
@@ -41,7 +45,8 @@ describe('MultiSelect', () => {
     { search: false, createItem: (value: string) => ({ value, label: value }) },
   ])('is editable when search or createItem enables it', (props) => {
     const screen = render(() => <MultiSelect items={ITEMS} {...props} />)
-    expect((screen.getByRole('combobox') as HTMLInputElement).readOnly).toBe(false)
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    expect(input.readOnly).toBe(false)
   })
 
   test('control click is open-only and trigger click toggles', () => {
@@ -228,5 +233,31 @@ describe('MultiSelect', () => {
     expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe('missing')
     setValue(['apple'])
     expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe('Apple')
+  })
+
+  test('updates a collection array owned by Form.Field', () => {
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({
+            choices: v.pipe(v.array(v.string()), v.minLength(2, 'Choose two')),
+          }),
+          initialInput: { choices: ['apple'] },
+          validate: 'input',
+        }),
+      (form) => (
+        <MoraineProvider theme={defaultTheme}>
+          <form.Form>
+            <form.Field name="choices" label="Choices">
+              <MultiSelect items={ITEMS} defaultOpen />
+            </form.Field>
+          </form.Form>
+        </MoraineProvider>
+      ),
+    )
+
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
+    expect(getInput(form)).toEqual({ choices: ['apple', 'banana'] })
+    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(2)
   })
 })

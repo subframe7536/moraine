@@ -32,16 +32,16 @@ import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import { useFormField } from '../form/form-context.ts'
-import { useFormReset } from '../shared/use-form-reset.ts'
-
-import type { BaseSelectProps, BaseSelectT } from './base-select.types.ts'
 import {
   diagnoseDuplicateItems,
   labelString,
   normalizeSelection,
   sameValue,
   selectionEqual,
-} from './shared/collection.ts'
+} from '../shared/select/collection.ts'
+import { useFormReset } from '../shared/use-form-reset.ts'
+
+import type { BaseSelectProps, BaseSelectT } from './base-select.types.ts'
 
 const FORM_VALUE_EXISTS = DEV ? 'moraine:selection-exists' : '1'
 

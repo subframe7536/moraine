@@ -7,12 +7,12 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../elements/button/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { Combobox } from '../combobox/combobox.tsx'
 import { FormFieldProvider } from '../form/form-context.ts'
 import { createForm } from '../form/index.ts'
+import { MultiSelect } from '../multi-select/multi-select.tsx'
 
 import { BaseSelect, useSelectState } from './base-select.tsx'
-import { Combobox } from './combobox.tsx'
-import { MultiSelect } from './multi-select.tsx'
 import { useBaseSelectSearchInput, useSearchValue } from './utils.ts'
 
 const items = [

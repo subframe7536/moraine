@@ -7,7 +7,7 @@ import { hydrateFixture } from '../../test-utils/ssr-test.ts'
 import { BaseSelect } from './base-select.tsx'
 test('hydrates the standard BaseSelect Control and Trigger anatomy', () => {
   const { container } = hydrateFixture(
-    '/src/forms/select/base-select.ssr.fixture.tsx',
+    '/src/forms/base-select/base-select.ssr.fixture.tsx',
     'renderBaseSelectFixture',
     () => (
       <BaseSelect

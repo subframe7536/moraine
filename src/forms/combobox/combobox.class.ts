@@ -1,18 +1,19 @@
 import { slotRecipe } from '../../shared/style/recipe.ts'
 import {
   COMMON_CONTROL_SLOTS,
+  FIELD_INPUT_CLASS,
   FIELD_SIZES,
   FIELD_VARIANTS,
-  PRIMARY_TRIGGER_CLASS,
+  SECONDARY_TRIGGER_CLASS,
 } from '../shared/select/select-field.class.ts'
 
-import type { SelectT } from './select.types.ts'
+import type { ComboboxT } from './combobox.types.ts'
 
-export const selectRecipe = /* @__PURE__ */ slotRecipe<SelectT.Slot, SelectT.Variant>({
+export const comboboxRecipe = /* @__PURE__ */ slotRecipe<ComboboxT.Slot, ComboboxT.Variant>({
   base: {
     ...COMMON_CONTROL_SLOTS,
-    trigger: PRIMARY_TRIGGER_CLASS,
-    value: 'flex-1 min-w-0 truncate py-1.5 data-placeholder:text-muted-foreground',
+    input: `${FIELD_INPUT_CLASS} text-start min-w-0 truncate py-1.5`,
+    trigger: SECONDARY_TRIGGER_CLASS,
   },
   defaults: { variant: 'outline', size: 'md' },
   variants: { variant: FIELD_VARIANTS, size: FIELD_SIZES },

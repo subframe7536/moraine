@@ -16,9 +16,72 @@ import { Select } from 'moraine'
 import type { SelectT } from 'moraine'
 ```
 
-Select commits one collection item value. Its primary trigger is not editable; printable keys use
-typeahead rather than query state. Use [Combobox](../combobox) when the field must accept a search
-query.
+## Features
+
+- **Single collection value**: Commits one `TItem['value']` or `null`.
+- **Non-editable trigger**: Printable keys use typeahead, not query state.
+- **Collection rendering**: Supports groups, custom items, incremental loading, and virtualization.
+- **Stable anatomy**: Control is the field, Trigger is the button, and Value is the label region.
+
+## Playground
+
+<Playground
+  controls={[
+    {
+      kind: 'input',
+      prop: 'placeholder',
+      label: 'Placeholder',
+      defaultValue: 'Select a framework...',
+    },
+    {
+      kind: 'select',
+      prop: 'variant',
+      label: 'Variant',
+      defaultValue: 'outline',
+      options: [
+        { label: 'Outline', value: 'outline' },
+        { label: 'Subtle', value: 'subtle' },
+        { label: 'Ghost', value: 'ghost' },
+        { label: 'None', value: 'none' },
+      ],
+    },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
+    { kind: 'switch', prop: 'allowClear', label: 'Clearable', defaultValue: true },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
+    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
+  ]}
+>
+  {(props) => (
+    <Select
+      items={[
+        { label: 'SolidJS', value: 'solid', icon: 'i-lucide:atom' },
+        { label: 'Vue.js', value: 'vue', icon: 'i-lucide:sparkles' },
+        { label: 'React', value: 'react', icon: 'i-lucide:box' },
+        { label: 'Svelte', value: 'svelte', icon: 'i-lucide:flame' },
+        { label: 'Astro', value: 'astro', icon: 'i-lucide:rocket' },
+      ]}
+      placeholder={props.placeholder}
+      variant={props.variant}
+      size={props.size}
+      allowClear={props.allowClear}
+      disabled={props.disabled}
+      readOnly={props.readOnly}
+      loading={props.loading}
+      class="max-w-72 min-w-40 w-60%"
+    />
+  )}
+</Playground>
 
 ## Anatomy
 
@@ -31,15 +94,34 @@ control
 ```
 
 The control slot is the outer visual field and floating anchor. The trigger slot is the actual
-primary button. The value slot displays the selected label or String(value) for a temporarily
+primary button. The value slot displays the selected label or `String(value)` for a temporarily
 unresolved value. Clear is a sibling action and never toggles the popup.
 
 ## Usage
 
+### Value and collection
+
 <Preview path="./basic-select" />
 
-The value API is TItem['value'] | null. Undefined leaves the component uncontrolled, null means no
-selection, and an empty string remains a valid value. Item values must be unique.
+The value API is `TItem['value'] | null`. `undefined` leaves the component uncontrolled, `null`
+means no selection, and an empty string remains a valid value. Item values must be unique.
+
+### Large and remote collections
+
+Virtualization is appropriate for large, stable option lists. Incremental loading remains
+application-owned and does not change the canonical selection source.
+
+<Preview path="./collections" />
+
+### Keyboard interaction
+
+| Key                 | Behavior                                    |
+| ------------------- | ------------------------------------------- |
+| Enter / Space       | Open the popup or select the active option  |
+| ArrowDown / ArrowUp | Open or move through selectable options     |
+| Home / End          | Move to the first or last option while open |
+| Printable key       | Typeahead to a matching item                |
+| Escape              | Close without changing the value            |
 
 ## Examples
 
@@ -63,12 +145,5 @@ selection, and an empty string remains a valid value. Item values must be unique
 
 <Preview path="./form-integration" />
 
-## Keyboard interaction
-
-| Key                 | Behavior                                    |
-| ------------------- | ------------------------------------------- |
-| Enter / Space       | Open the popup or select the active option  |
-| ArrowDown / ArrowUp | Open or move through selectable options     |
-| Home / End          | Move to the first or last option while open |
-| Printable key       | Typeahead to a matching item                |
-| Escape              | Close without changing the value            |
+For an empty Form.Field-bound Select, initialize the field with `null` and accept `null` in the
+schema's input. An empty string is a real selected value and therefore is not a placeholder.
