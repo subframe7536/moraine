@@ -10,11 +10,11 @@ export const PRIMARY_TRIGGER_CLASS =
   'outline-none bg-transparent flex flex-1 gap-1.5 min-w-0 cursor-pointer items-center text-start disabled:pointer-events-none'
 
 export const SECONDARY_TRIGGER_CLASS =
-  'text-muted-foreground opacity-80 outline-none rounded-md inline-flex shrink-0 cursor-pointer items-center justify-center transition-colors hover:(bg-muted-hover text-foreground opacity-100) active:bg-muted-active disabled:pointer-events-none data-loading:cursor-wait'
+  'text-muted-foreground opacity-80 outline-none p-0.5 rounded-xs inline-flex shrink-0 cursor-pointer items-center justify-center transition-colors hover:(bg-muted-hover text-foreground opacity-100) active:bg-muted-active disabled:pointer-events-none data-loading:cursor-wait'
 
 export const SELECT_LEADING_ICON_CLASS = 'text-muted-foreground shrink-0'
 export const SELECT_CLEAR_ACTION_CLASS =
-  'text-muted-foreground opacity-80 border border-transparent rounded-md inline-flex shrink-0 cursor-pointer select-none items-center justify-center disabled:pointer-events-none transition-colors hover:(bg-muted-hover text-foreground opacity-100) active:bg-muted-active'
+  'text-muted-foreground opacity-80 p-0.5 rounded-xs inline-flex shrink-0 cursor-pointer select-none items-center justify-center disabled:pointer-events-none transition-colors hover:(bg-muted-hover text-foreground opacity-100) active:bg-muted-active'
 
 export const COMMON_CONTROL_SLOTS = {
   control: FIELD_CONTROL_CLASS,
@@ -44,7 +44,7 @@ export const TAG_SLOTS = {
   tag: 'text-foreground leading-tight px-1.5 pe-0 border-0 rounded-sm bg-muted inline-flex gap-1 max-w-50% w-fit whitespace-nowrap items-center justify-center',
   tagLabel: 'min-w-0 truncate',
   tagRemove:
-    'p-0.5 appearance-none flex shrink-0 items-center justify-center -ms-1 cursor-pointer transition-opacity opacity-50 hover:opacity-100 disabled:(pointer-events-none opacity-50)',
+    'p-0.5 appearance-none rounded-xs flex shrink-0 items-center justify-center -ms-1 cursor-pointer transition-opacity opacity-50 hover:opacity-100 disabled:(pointer-events-none opacity-50)',
 } as const
 
 export const TAG_SIZES = {

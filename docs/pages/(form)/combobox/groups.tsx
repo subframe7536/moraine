@@ -4,7 +4,7 @@ export function Groups() {
   return (
     <Combobox
       class="max-w-xs"
-      defaultOpen
+      placeholder="Category by group"
       items={[
         {
           type: 'group',
@@ -20,7 +20,7 @@ export function Groups() {
           items: [{ label: 'Rust', value: 'rust' }],
         },
       ]}
-      emptyRender={({ inputValue }) => <span>No match for {inputValue}</span>}
+      emptyRender={(props) => <span>No match for {props.inputValue}</span>}
     />
   )
 }
