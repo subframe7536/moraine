@@ -42,22 +42,20 @@ describe('Combobox', () => {
     expect(screen.container.querySelectorAll('input[data-slot="input"]')).toHaveLength(1)
   })
 
-  test('control clicks are open-only by default', () => {
+  test('control clicks do not open by default', () => {
     const screen = render(() => <Combobox items={ITEMS} />)
     const control = screen.container.querySelector<HTMLElement>('[data-slot="control"]')!
     const input = screen.getByRole('combobox')
     fireEvent.click(control)
-    expect(input.getAttribute('aria-expanded')).toBe('true')
-    fireEvent.click(input)
-    expect(input.getAttribute('aria-expanded')).toBe('true')
-  })
-
-  test('openOnControlClick=false suppresses pointer-open only', () => {
-    const screen = render(() => <Combobox items={ITEMS} openOnControlClick={false} />)
-    const input = screen.getByRole('combobox')
+    expect(input.getAttribute('aria-expanded')).toBe('false')
     fireEvent.click(input)
     expect(input.getAttribute('aria-expanded')).toBe('false')
-    fireEvent.keyDown(input, { key: 'ArrowDown' })
+  })
+
+  test('openOnControlClick=true enables pointer-open', () => {
+    const screen = render(() => <Combobox items={ITEMS} openOnControlClick />)
+    const input = screen.getByRole('combobox')
+    fireEvent.click(input)
     expect(input.getAttribute('aria-expanded')).toBe('true')
   })
 
@@ -166,5 +164,11 @@ describe('Combobox', () => {
     expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
     fireEvent.reset(form)
     expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
+  })
+
+  test('has data-editable on control for search input focus ring', () => {
+    const screen = render(() => <Combobox items={ITEMS} />)
+    const control = screen.container.querySelector('[data-slot="control"]')!
+    expect(control.hasAttribute('data-editable')).toBe(true)
   })
 })

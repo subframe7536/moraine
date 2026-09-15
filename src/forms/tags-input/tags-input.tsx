@@ -218,6 +218,7 @@ export function TagsInput(props: TagsInputProps): JSX.Element {
         {...styles.slot('control')}
         id={undefined}
         data-slot="control"
+        data-editable=""
         data-tags={values().length ? '' : undefined}
         data-disabled={field.disabled() ? '' : undefined}
         data-readonly={field.readOnly() ? '' : undefined}

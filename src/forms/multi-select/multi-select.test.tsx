@@ -49,24 +49,24 @@ describe('MultiSelect', () => {
     expect(input.readOnly).toBe(false)
   })
 
-  test('control click is open-only and trigger click toggles', () => {
+  test('control click does not open by default and trigger click toggles', () => {
     const screen = render(() => <MultiSelect items={ITEMS} />)
     const input = screen.getByRole('combobox')
     const control = screen.container.querySelector('[data-slot="control"]')!
     const trigger = screen.getByRole('button', { name: 'Toggle options' })
     fireEvent.click(control)
     fireEvent.click(input)
+    expect(input.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(trigger)
     expect(input.getAttribute('aria-expanded')).toBe('true')
     fireEvent.click(trigger)
     expect(input.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('openOnControlClick=false suppresses only pointer opening', () => {
-    const screen = render(() => <MultiSelect items={ITEMS} openOnControlClick={false} />)
+  test('openOnControlClick=true enables pointer opening', () => {
+    const screen = render(() => <MultiSelect items={ITEMS} openOnControlClick />)
     const input = screen.getByRole('combobox')
     fireEvent.click(input)
-    expect(input.getAttribute('aria-expanded')).toBe('false')
-    fireEvent.keyDown(input, { key: 'ArrowDown' })
     expect(input.getAttribute('aria-expanded')).toBe('true')
   })
 
@@ -259,5 +259,15 @@ describe('MultiSelect', () => {
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
     expect(getInput(form)).toEqual({ choices: ['apple', 'banana'] })
     expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(2)
+  })
+
+  test('control focus ring highlights only when search input is enabled', () => {
+    const screenNoSearch = render(() => <MultiSelect items={ITEMS} />)
+    const controlNoSearch = screenNoSearch.container.querySelector('[data-slot="control"]')!
+    expect(controlNoSearch.hasAttribute('data-editable')).toBe(false)
+
+    const screenSearch = render(() => <MultiSelect items={ITEMS} search />)
+    const controlSearch = screenSearch.container.querySelector('[data-slot="control"]')!
+    expect(controlSearch.hasAttribute('data-editable')).toBe(true)
   })
 })

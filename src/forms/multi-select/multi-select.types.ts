@@ -160,7 +160,7 @@ export namespace MultiSelectT {
      * Tag remove buttons keep using this icon as well.
      */
     closeIcon?: IconT.Name
-    /** Whether ordinary control/input pointer clicks open the popup. @default true */
+    /** Whether ordinary control/input pointer clicks open the popup. @default false */
     openOnControlClick?: boolean
     /** Whether the collection can be filtered through the editable input. @default false */
     search?: boolean

@@ -171,4 +171,14 @@ describe('Select', () => {
     expect(getInput(form)).toEqual({ choice: 'banana' })
     expect(screen.container.querySelector('[data-slot="value"]')?.textContent).toBe('Banana')
   })
+
+  test('does not highlight focus ring without search input', () => {
+    const screen = render(() => <Select items={ITEMS} />)
+    const control = screen.container.querySelector('[data-slot="control"]')!
+    const trigger = screen.getByRole('combobox')
+    expect(control.hasAttribute('data-editable')).toBe(false)
+    expect(control.className).not.toMatch(/(?:^|\s)focus-within:/)
+    expect(control.className).toContain('data-editable:focus-within:')
+    expect(trigger.className).not.toContain('ring-')
+  })
 })

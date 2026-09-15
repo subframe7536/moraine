@@ -532,7 +532,7 @@
         "required": false,
         "type": "boolean | undefined",
         "description": "Whether ordinary control/input pointer clicks open the popup.",
-        "defaultValue": "true"
+        "defaultValue": "false"
       },
       {
         "name": "overflowPadding",

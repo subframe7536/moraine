@@ -92,7 +92,7 @@ export namespace ComboboxT {
     allowClear?: boolean
     /** Called once when clear is triggered. */
     onClear?: () => void
-    /** Whether ordinary control/input pointer clicks open the popup. @default true */
+    /** Whether ordinary control/input pointer clicks open the popup. @default false */
     openOnControlClick?: boolean
     /** Loading icon. @default 'icon-loading' */
     loadingIcon?: IconT.Name

@@ -89,6 +89,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
         <BaseSelect.Control
           {...rootProps}
           {...styles.slot('control')}
+          data-editable=""
           data-disabled={state.field.disabled() ? '' : undefined}
           data-readonly={state.field.readOnly() ? '' : undefined}
           data-required={state.field.required() ? '' : undefined}
@@ -108,7 +109,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
           }}
           onClick={(event) => {
             callHandler(event, rootProps.onClick)
-            if (!event.defaultPrevented && (local.openOnControlClick ?? true)) {
+            if (!event.defaultPrevented && (local.openOnControlClick ?? false)) {
               focusInput()
               state.setOpen(true)
             }

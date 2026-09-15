@@ -170,12 +170,14 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               event.pointerType !== 'pen'
             ) {
               event.preventDefault()
-              focusInput()
+              if (editable()) {
+                focusInput()
+              }
             }
           }}
           onClick={(event) => {
             callHandler(event, rootProps.onClick)
-            if (!event.defaultPrevented && (local.openOnControlClick ?? true)) {
+            if (!event.defaultPrevented && (local.openOnControlClick ?? false)) {
               focusInput()
               state.setOpen(true)
             }
@@ -295,7 +297,9 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             onPointerDown={(event) => {
               event.preventDefault()
               event.stopPropagation()
-              focusInput()
+              if (editable()) {
+                focusInput()
+              }
             }}
             onClick={(event) => {
               event.stopPropagation()

@@ -120,8 +120,9 @@ Arbitrary query text is never committed. Use `value` / `onChange` for selection 
 
 ### Pointer opening
 
-With `openOnControlClick={false}`, ordinary input/control pointer clicks do not open the popup. The
-secondary trigger still toggles, while typing and ArrowDown/ArrowUp still open normally.
+By default, ordinary input/control pointer clicks do not open the popup. The secondary trigger
+still toggles, while typing and ArrowDown/ArrowUp still open normally. Set `openOnControlClick={true}`
+to open on control click.
 
 <Preview path="./explicit-trigger" />
 
