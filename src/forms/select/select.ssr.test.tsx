@@ -69,7 +69,7 @@ describe('Select SSR Hydration', () => {
     )
 
     const root = container.querySelector('[data-slot="root"]')
-    const control = container.querySelector('[data-slot="control"]')
+    const control = container.querySelector('[data-slot="trigger"]')
     const clear = container.querySelector('[data-slot="clear"]')
     const formInput = container.querySelector<HTMLInputElement>(
       'input[type="hidden"][name="fruit"]',

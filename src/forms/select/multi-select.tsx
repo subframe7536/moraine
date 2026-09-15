@@ -221,7 +221,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           component={searchable() ? 'div' : BaseSelect.Trigger}
           as={searchable() ? undefined : 'div'}
           {...rootProps}
-          data-slot="control"
+          data-slot="trigger"
           {...styles.slot('control')}
           data-tags={tags().length ? '' : undefined}
           data-disabled={state.field.disabled() ? '' : undefined}
@@ -362,7 +362,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               <button
                 type="button"
                 tabIndex={-1}
-                data-slot="trigger"
+                data-slot="indicator"
                 aria-label={local.loading ? 'Loading' : 'Toggle selection'}
                 aria-busy={local.loading ? 'true' : undefined}
                 data-loading={local.loading ? '' : undefined}

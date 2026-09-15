@@ -84,7 +84,7 @@ describe('MultiSelect SSR Hydration', () => {
     )
 
     const root = container.querySelector('[data-slot="root"]')
-    const control = container.querySelector('[data-slot="control"]')
+    const control = container.querySelector('[data-slot="trigger"]')
     const tag = container.querySelector('[data-slot="tag"]')
     const formInput = container.querySelector<HTMLInputElement>(
       'input[type="hidden"][name="fruits"]',

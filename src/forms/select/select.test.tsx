@@ -89,7 +89,7 @@ test('mirrors Form.Field invalid state on the control and combobox', async () =>
 
   await waitFor(() => expect(screen.getByText('Choose apple')).toBeTruthy())
   expect(
-    screen.container.querySelector('[data-slot="control"]')?.hasAttribute('data-invalid'),
+    screen.container.querySelector('[data-slot="trigger"]')?.hasAttribute('data-invalid'),
   ).toBe(true)
   expect(screen.getByRole('combobox').getAttribute('aria-invalid')).toBe('true')
 })
@@ -150,8 +150,9 @@ async function finishSelectExitMotion(): Promise<void> {
 test('renders unstyled when provider is absent', () => {
   const screen = baseRender(() => <Select items={FRUITS} placeholder="Unstyled" />)
   const root = screen.container.querySelector('[data-slot="root"]')
-  const control = screen.container.querySelector('[data-slot="control"]')
+  const control = screen.container.querySelector('[data-slot="trigger"]')
   expect(root).toBeNull()
+  expect(screen.container.querySelector('[data-slot="control"]')).toBeNull()
   expect(control?.className).toBe('')
 })
 
@@ -180,7 +181,7 @@ test('composes control click and pointer handlers before trigger activation', ()
   const screen = render(() => (
     <Select items={FRUITS} onClick={onClick} onPointerDown={onPointerDown} />
   ))
-  const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+  const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
   fireEvent.pointerDown(control, { button: 0 })
   fireEvent.click(control)
@@ -208,7 +209,7 @@ test('uses the provider size as the field default', () => {
     </MoraineProvider>
   ))
 
-  expect(screen.container.querySelector('[data-slot="control"]')?.className).toContain('text-base')
+  expect(screen.container.querySelector('[data-slot="trigger"]')?.className).toContain('text-base')
 })
 
 test('uses the provider search default for behavior and styles', () => {
@@ -220,7 +221,7 @@ test('uses the provider search default for behavior and styles', () => {
     </MoraineProvider>
   ))
 
-  const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+  const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
   const input = screen.container.querySelector('input[data-slot="input"]')
   expect(input).not.toBeNull()
   expect(control.className).toContain('cursor-text')
@@ -231,19 +232,19 @@ test('keeps control spacing on the control instead of its icons and input', () =
   const screen = render(() => (
     <Select items={FRUITS} size="md" leadingIcon="icon-search" placeholder="Pick" />
   ))
-  const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+  const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
   const input = screen.container.querySelector('[data-slot="input"]') as HTMLElement
   const leading = screen.container.querySelector('[data-slot="leading"]') as HTMLElement
-  const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
+  const indicator = screen.container.querySelector('[data-slot="indicator"]') as HTMLElement
 
   expect(control.className).toContain('ps-2.5')
   expect(control.className).toContain('pe-2')
   expect(input.className).toContain('min-w-0')
   expect(input.className).not.toContain('mx-$s-p')
   expect(leading.className).not.toContain('ms-')
-  expect(trigger.className).not.toContain('me-')
+  expect(indicator.className).not.toContain('me-')
   expect(leading.className).not.toMatch(/(?:^|\s)size-/)
-  expect(trigger.className).not.toMatch(/(?:^|\s)size-/)
+  expect(indicator.className).not.toMatch(/(?:^|\s)size-/)
 })
 
 describe('Select - single mode', () => {
@@ -279,7 +280,7 @@ describe('Select - single mode', () => {
       <Select items={FRUITS} placeholder="Pick a fruit" classes={{ control: 'control-override' }} />
     ))
 
-    const control = screen.container.querySelector('[data-slot="control"]')
+    const control = screen.container.querySelector('[data-slot="trigger"]')
     expect(control?.className).toContain('control-override')
   })
 
@@ -288,7 +289,7 @@ describe('Select - single mode', () => {
       <Select items={FRUITS} placeholder="Pick a fruit" styles={{ control: { width: '200px' } }} />
     ))
 
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement | null
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement | null
     expect(control?.style.width).toBe('200px')
   })
 
@@ -427,7 +428,7 @@ describe('Select - single mode', () => {
     expect(placeholder.getAttribute('tabindex')).toBeNull()
     expect(placeholder.getAttribute('aria-controls')).toBeNull()
     expect(placeholder.getAttribute('aria-expanded')).toBeNull()
-    expect(screen.getByRole('combobox')).toBe(placeholder.closest('[data-slot="control"]'))
+    expect(screen.getByRole('combobox')).toBe(placeholder.closest('[data-slot="trigger"]'))
   })
 
   test('opens dropdown when combobox input is clicked', async () => {
@@ -445,7 +446,7 @@ describe('Select - single mode', () => {
 
   test('non-search control does not show focus ring on pointer click', async () => {
     const screen = render(() => <Select items={FRUITS} placeholder="Pick a fruit" />)
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
     fireEvent.pointerDown(control, { button: 0 })
     fireEvent.click(control)
@@ -458,7 +459,7 @@ describe('Select - single mode', () => {
 
   test('prevents mouse pointerdown but preserves touch and pen defaults', () => {
     const screen = render(() => <Select items={FRUITS} defaultOpen placeholder="Pick" />)
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
     const item = queryBody('[data-slot="item"]') as HTMLElement
 
     for (const element of [control, item]) {
@@ -474,7 +475,7 @@ describe('Select - single mode', () => {
 
   test('non-search control uses focus-visible ring styling for keyboard focus', () => {
     const screen = render(() => <Select items={FRUITS} placeholder="Pick a fruit" />)
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
     control.focus()
 
@@ -484,7 +485,7 @@ describe('Select - single mode', () => {
 
   test('searchable control keeps focus-within ring styling', () => {
     const screen = render(() => <Select items={FRUITS} search placeholder="Pick a fruit" />)
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
     expect(control.className).toContain('focus-within:ring-ring/50')
     expect(control.className).not.toContain('focus:ring-ring/50')
@@ -492,7 +493,7 @@ describe('Select - single mode', () => {
 
   test('opens dropdown and focuses combobox when control shell is clicked', async () => {
     const screen = render(() => <Select items={FRUITS} />)
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
     const combobox = screen.getByRole('combobox')
 
     fireEvent.pointerDown(control, { button: 0 })
@@ -505,7 +506,7 @@ describe('Select - single mode', () => {
     expect(document.activeElement).toBe(combobox)
   })
 
-  test('opens dropdown when trigger icon is clicked', async () => {
+  test('opens dropdown when its trigger is clicked', async () => {
     const screen = render(() => <Select items={FRUITS} placeholder="Pick a fruit" />)
     const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
@@ -640,11 +641,11 @@ describe('Select - single mode', () => {
     error.mockRestore()
   })
 
-  test('renders a plain trigger icon', () => {
+  test('renders a plain indicator icon', () => {
     const screen = render(() => <Select items={FRUITS} placeholder="Pick" />)
-    const trigger = screen.container.querySelector('[data-slot="trigger"]')
+    const indicator = screen.container.querySelector('[data-slot="indicator"]')
 
-    expect(trigger?.className).toContain('icon-chevron-down')
+    expect(indicator?.className).toContain('icon-chevron-down')
   })
 
   test('renders and clears a selected value through the clear action', async () => {
@@ -692,11 +693,11 @@ describe('Select - single mode', () => {
       <Select items={FRUITS} defaultValue="apple" loading allowClear placeholder="Pick" />
     ))
 
-    const trigger = screen.container.querySelector('[data-slot="trigger"]')
-    expect(trigger).not.toBeNull()
-    expect(trigger?.getAttribute('data-loading')).toBe('')
-    expect(trigger?.className).toContain('icon-loading')
-    expect(trigger?.className).toContain('animate-spin')
+    const indicator = screen.container.querySelector('[data-slot="indicator"]')
+    expect(indicator).not.toBeNull()
+    expect(indicator?.getAttribute('data-loading')).toBe('')
+    expect(indicator?.className).toContain('icon-loading')
+    expect(indicator?.className).toContain('animate-spin')
     expect(screen.container.querySelector('[data-slot="clear"]')).toBeNull()
   })
 
@@ -1234,11 +1235,11 @@ describe('Select - render hooks', () => {
 })
 
 describe('Select - keyboard and ARIA', () => {
-  test('trigger icon is not interactive', () => {
+  test('indicator icon is not interactive', () => {
     const screen = render(() => <Select items={FRUITS} placeholder="Pick" />)
-    const trigger = screen.container.querySelector('[data-slot="trigger"]')
+    const indicator = screen.container.querySelector('[data-slot="indicator"]')
 
-    expect(trigger?.getAttribute('aria-hidden')).toBe('true')
+    expect(indicator?.getAttribute('aria-hidden')).toBe('true')
   })
 
   test('opens a closed non-search Select with Space without changing selection', async () => {
@@ -1523,7 +1524,7 @@ describe('Select - keyboard and ARIA', () => {
       <Select items={FRUITS} required disabled placeholder="Pick a fruit" />
     ))
 
-    const control = screen.container.querySelector('[data-slot="control"]')
+    const control = screen.container.querySelector('[data-slot="trigger"]')
     const input = screen.getByRole('combobox')
 
     expect(control?.getAttribute('data-required')).toBe('')
@@ -1579,7 +1580,7 @@ describe('Select - form integration', () => {
     expect(input.readOnly).toBe(true)
     expect(input.getAttribute('aria-readonly')).toBe('true')
     expect(
-      screen.container.querySelector('[data-slot="control"]')?.hasAttribute('data-readonly'),
+      screen.container.querySelector('[data-slot="trigger"]')?.hasAttribute('data-readonly'),
     ).toBe(true)
     const clearButton = screen.container.querySelector(
       '[data-slot="clear"]',
@@ -2054,7 +2055,7 @@ describe('Select - popup behavior', () => {
     })
   })
 
-  test('syncs positioner z-index from popup content style', async () => {
+  test('leaves positioner presentation to the floating hook', async () => {
     render(() => (
       <Select
         items={FRUITS}
@@ -2066,10 +2067,10 @@ describe('Select - popup behavior', () => {
 
     await waitFor(() => {
       const positioner = queryBody('[data-slot="positioner"]') as HTMLElement | null
-      expect(positioner?.style.zIndex).toBe('70')
+      expect(positioner?.className).toBe('')
+      expect(positioner?.style.zIndex).toBe('')
       expect(positioner?.style.position).toBe('absolute')
-      expect(positioner?.classList.contains('absolute')).toBe(true)
-      expect(positioner?.classList.contains('fixed')).toBe(false)
+      expect(positioner?.style.visibility).toBe('visible')
     })
   })
 })

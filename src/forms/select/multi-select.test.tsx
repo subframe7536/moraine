@@ -45,9 +45,10 @@ describe('MultiSelect', () => {
   test('renders unstyled when provider is absent', () => {
     const screen = baseRender(() => <MultiSelect items={FRUITS} placeholder="Unstyled" />)
     const root = screen.container.querySelector('[data-slot="root"]')
-    const control = screen.container.querySelector('[data-slot="control"]')
-    expect(root).toBeNull()
-    expect(control?.className).toBe('')
+  const control = screen.container.querySelector('[data-slot="trigger"]')
+  expect(root).toBeNull()
+  expect(screen.container.querySelector('[data-slot="control"]')).toBeNull()
+  expect(control?.className).toBe('')
   })
 
   test('forwards root ref and inner inputRef', () => {
@@ -76,7 +77,7 @@ describe('MultiSelect', () => {
       </MoraineProvider>
     ))
 
-    expect(screen.container.querySelector('[data-slot="control"]')?.className).toContain(
+    expect(screen.container.querySelector('[data-slot="trigger"]')?.className).toContain(
       'text-base',
     )
   })
@@ -90,7 +91,7 @@ describe('MultiSelect', () => {
       </MoraineProvider>
     ))
 
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
     const input = screen.container.querySelector('[data-slot="input"]') as HTMLInputElement
     expect(input.readOnly).toBe(false)
     expect(control.className).toContain('cursor-text')
@@ -596,7 +597,7 @@ describe('MultiSelect', () => {
 
     await waitFor(() => expect(screen.getByText('Choose one fruit')).toBeTruthy())
     expect(
-      screen.container.querySelector('[data-slot="control"]')?.hasAttribute('data-invalid'),
+      screen.container.querySelector('[data-slot="trigger"]')?.hasAttribute('data-invalid'),
     ).toBe(true)
     expect(screen.getByRole('combobox').getAttribute('aria-invalid')).toBe('true')
   })
@@ -693,7 +694,7 @@ describe('MultiSelect', () => {
         )}
       />
     ))
-    const combobox = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const combobox = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
     combobox.focus()
 
     fireEvent.keyDown(combobox, { key: 'ArrowDown' })
@@ -979,7 +980,7 @@ describe('MultiSelect', () => {
 
   test('opens dropdown and focuses combobox when control shell is clicked', async () => {
     const screen = render(() => <MultiSelect items={FRUITS} placeholder="Pick fruits" />)
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
     const combobox = screen.getByRole('combobox')
 
     fireEvent.pointerDown(control, { button: 0 })
@@ -994,7 +995,7 @@ describe('MultiSelect', () => {
 
   test('non-search control does not show focus ring on pointer click', async () => {
     const screen = render(() => <MultiSelect items={FRUITS} placeholder="Pick fruits" />)
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
     fireEvent.pointerDown(control, { button: 0 })
     fireEvent.click(control)
@@ -1007,7 +1008,7 @@ describe('MultiSelect', () => {
 
   test('non-search control uses focus-visible ring styling for keyboard focus', () => {
     const screen = render(() => <MultiSelect items={FRUITS} placeholder="Pick fruits" />)
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
     control.focus()
 
@@ -1017,7 +1018,7 @@ describe('MultiSelect', () => {
 
   test('searchable control keeps focus-within ring styling', () => {
     const screen = render(() => <MultiSelect items={FRUITS} search placeholder="Pick fruits" />)
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
     expect(control.className).toContain('focus-within:ring-ring/50')
     expect(control.className).not.toContain('focus:ring-ring/50')
@@ -1053,7 +1054,7 @@ describe('MultiSelect', () => {
       expect(queryBody('[data-slot="content"]')).not.toBeNull()
     })
 
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
     fireEvent.keyDown(control, { key: 'ArrowDown' })
     fireEvent.keyDown(control, { key: 'Enter' })
 
@@ -1067,7 +1068,7 @@ describe('MultiSelect', () => {
     expect(input.tagName).toBe('INPUT')
     expect(input.getAttribute('readonly')).not.toBeNull()
     expect(input.getAttribute('tabindex')).toBe('-1')
-    expect(screen.container.querySelector('[data-slot="control"]')).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot="trigger"]')).not.toBeNull()
   })
 
   test('when menu is open, Tab toggles focused item', async () => {
@@ -1102,7 +1103,7 @@ describe('MultiSelect', () => {
         <button type="button">Next</button>
       </>
     ))
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
     const nextButton = screen.getByRole('button', { name: 'Next' })
 
     control.focus()
@@ -1128,7 +1129,7 @@ describe('MultiSelect', () => {
   test('space toggles the highlighted option when menu is open', async () => {
     const onChange = vi.fn()
     const screen = render(() => <MultiSelect items={FRUITS} onChange={onChange} />)
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
     fireEvent.click(control)
     await waitFor(() => {
@@ -1294,7 +1295,7 @@ describe('MultiSelect', () => {
     expect(instances).toEqual({ option: 0, tag: 1, empty: 0 })
     expect(Object.values(reads)).toEqual([0, 1, 0])
 
-    fireEvent.click(screen.container.querySelector('[data-slot="control"]')!)
+    fireEvent.click(screen.container.querySelector('[data-slot="trigger"]')!)
 
     expect(queryAllBody('[data-slot="item"]')).toHaveLength(3)
     expect(instances).toEqual({ option: 3, tag: 1, empty: 0 })
@@ -1360,7 +1361,7 @@ describe('MultiSelect', () => {
     expect(input.readOnly).toBe(true)
     expect(input.getAttribute('aria-readonly')).toBe('true')
     expect(
-      screen.container.querySelector('[data-slot="control"]')?.hasAttribute('data-readonly'),
+      screen.container.querySelector('[data-slot="trigger"]')?.hasAttribute('data-readonly'),
     ).toBe(true)
     expect(tagRemove.disabled).toBe(true)
     expect(
@@ -1435,16 +1436,16 @@ describe('MultiSelect', () => {
       <MultiSelect items={FRUITS} value={['apple']} loading allowClear placeholder="Pick" />
     ))
 
-    const trigger = screen.container.querySelector('[data-slot="trigger"]')
-    expect(trigger).not.toBeNull()
-    expect(trigger?.getAttribute('aria-label')).toBe('Loading')
-    expect(trigger?.getAttribute('aria-busy')).toBe('true')
-    expect(trigger?.hasAttribute('data-loading')).toBe(true)
-    const icon = trigger?.querySelector('[data-slot="icon"]')
+    const indicator = screen.container.querySelector('[data-slot="indicator"]')
+    expect(indicator).not.toBeNull()
+    expect(indicator?.getAttribute('aria-label')).toBe('Loading')
+    expect(indicator?.getAttribute('aria-busy')).toBe('true')
+    expect(indicator?.hasAttribute('data-loading')).toBe(true)
+    const icon = indicator?.querySelector('[data-slot="icon"]')
     expect(icon?.className).toContain('icon-loading')
     expect(icon?.hasAttribute('data-loading')).toBe(true)
     expect(icon?.className).toContain('data-loading:animate-spin')
-    expect(trigger?.className).not.toContain('[&>')
+    expect(indicator?.className).not.toContain('[&>')
     expect(screen.container.querySelector('[data-slot="clear"]')).toBeNull()
   })
 
@@ -1461,10 +1462,10 @@ describe('MultiSelect', () => {
     ))
 
     expect(
-      screen.container.querySelector('[data-slot="trigger"]')?.getAttribute('aria-label'),
+      screen.container.querySelector('[data-slot="indicator"]')?.getAttribute('aria-label'),
     ).toBe('Loading')
     expect(
-      screen.container.querySelector('[data-slot="trigger"] [data-slot="icon"]')?.className,
+      screen.container.querySelector('[data-slot="indicator"] [data-slot="icon"]')?.className,
     ).toContain('icon-loading')
 
     setIsLoading(false)
@@ -1479,7 +1480,7 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect items={FRUITS} size="md" leadingIcon="icon-search" placeholder="Pick" />
     ))
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
 
     expect(control.className).toContain('ps-2.5')
     expect(control.className).toContain('pe-2')

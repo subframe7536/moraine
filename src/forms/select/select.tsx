@@ -87,7 +87,7 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
           component={searchable() ? 'div' : BaseSelect.Trigger}
           as={searchable() ? undefined : 'div'}
           {...rootProps}
-          data-slot="control"
+          data-slot="trigger"
           {...styles.slot('control')}
           data-disabled={state.field.disabled() ? '' : undefined}
           data-readonly={state.field.readOnly() ? '' : undefined}
@@ -150,7 +150,7 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
             fallback={
               <Icon
                 name={local.loading ? loadingIcon() : trailingIcon()}
-                slotName="trigger"
+                slotName="indicator"
                 data-loading={local.loading ? '' : undefined}
                 {...styles.slot('trigger')}
               />

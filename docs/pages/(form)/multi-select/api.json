@@ -133,38 +133,7 @@
       "name": "control",
       "description": "Multi-select control that displays selected tags and opens the popup.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-disabled",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component, slot, or item is disabled."
-        },
-        {
-          "name": "data-invalid",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field or form has a validation error."
-        },
-        {
-          "name": "data-readonly",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field is in read-only mode."
-        },
-        {
-          "name": "data-required",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field input is required."
-        },
-        {
-          "name": "data-tags",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": []
     },
     {
@@ -201,26 +170,37 @@
       "cssVariables": [],
       "dataAttributes": [
         {
-          "name": "data-loading",
+          "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or async operation is loading."
-        }
-      ],
-      "ariaAttributes": [
-        {
-          "name": "aria-busy",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Accessibility attribute forwarded by the rendered component."
+          "description": "Present when the component, slot, or item is disabled."
         },
         {
-          "name": "aria-label",
+          "name": "data-invalid",
           "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
+          "type": "string | undefined",
+          "description": "Present when the field or form has a validation error."
+        },
+        {
+          "name": "data-readonly",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is in read-only mode."
+        },
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field input is required."
+        },
+        {
+          "name": "data-tags",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
         }
-      ]
+      ],
+      "ariaAttributes": []
     },
     {
       "name": "clear",

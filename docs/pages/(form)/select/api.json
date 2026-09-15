@@ -133,32 +133,7 @@
       "name": "control",
       "description": "Closed select control that displays the current value and opens the popup.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-disabled",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component, slot, or item is disabled."
-        },
-        {
-          "name": "data-invalid",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field or form has a validation error."
-        },
-        {
-          "name": "data-readonly",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field is in read-only mode."
-        },
-        {
-          "name": "data-required",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field input is required."
-        }
-      ],
+      "dataAttributes": [],
       "ariaAttributes": []
     },
     {
@@ -195,20 +170,31 @@
       "cssVariables": [],
       "dataAttributes": [
         {
-          "name": "data-loading",
+          "name": "data-disabled",
           "required": false,
           "type": "string | undefined",
-          "description": "Present when the component or async operation is loading."
+          "description": "Present when the component, slot, or item is disabled."
+        },
+        {
+          "name": "data-invalid",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field or form has a validation error."
+        },
+        {
+          "name": "data-readonly",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is in read-only mode."
+        },
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field input is required."
         }
       ],
-      "ariaAttributes": [
-        {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        }
-      ]
+      "ariaAttributes": []
     },
     {
       "name": "clear",

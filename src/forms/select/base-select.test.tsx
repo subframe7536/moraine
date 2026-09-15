@@ -166,6 +166,7 @@ describe('BaseSelect composition', () => {
     ))
     const trigger = screen.getByRole('combobox')
     expect(trigger.tagName).toBe('BUTTON')
+    expect(trigger.getAttribute('data-slot')).toBe('trigger')
     expect(trigger.getAttribute('type')).toBe('button')
     expect(trigger.className).toBe('')
     expect(trigger.parentElement).toBe(screen.container)

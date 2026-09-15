@@ -462,6 +462,7 @@ function BaseSelectTrigger<
       {...state.field.ariaAttrs()}
       id={state.field.id()}
       role="combobox"
+      data-slot="trigger"
       aria-haspopup="listbox"
       aria-controls={state.listboxId()}
       aria-expanded={state.open() ? 'true' : 'false'}
@@ -534,18 +535,6 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
       }
     }),
   )
-  createEffect(
-    on([content, positioner], ([element, wrapper]) => {
-      if (element && wrapper) {
-        // oxlint-disable-next-line subf/solid-reactivity -- Positioning checks the currently mounted popup elements.
-        queueMicrotask(() => {
-          if (content() === element && positioner() === wrapper) {
-            wrapper.style.zIndex = getComputedStyle(element).zIndex
-          }
-        })
-      }
-    }),
-  )
   useOverlayInteraction({
     containsTarget: (node) =>
       Boolean(state.anchor()?.contains(node) || positioner()?.contains(node)),
@@ -576,12 +565,7 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
       <Portal>
         <div
           data-slot="positioner"
-          ref={(element) => {
-            setPositioner(element)
-            element.style.position = 'absolute'
-            element.style.visibility = 'hidden'
-          }}
-          class="left-0 top-0 absolute"
+          ref={setPositioner}
         >
           <div
             {...rest}
