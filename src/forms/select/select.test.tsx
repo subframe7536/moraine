@@ -126,6 +126,14 @@ describe('Select', () => {
     expect(screen.queryByRole('button', { name: 'Clear selection' })).toBeNull()
   })
 
+  test('keeps the loading spinner class on its icon without a theme', () => {
+    const screen = baseRender(() => <Select items={ITEMS} loading />)
+    const icon = screen
+      .getByRole('combobox')
+      .querySelector<HTMLElement>('[data-slot="icon"][data-loading]')!
+    expect(icon.classList).toContain('data-loading:animate-spin')
+  })
+
   test('serializes and resets one logical value', async () => {
     const screen = render(() => (
       <form>

@@ -16,6 +16,7 @@ import {
   MULTI_SELECT_LOCAL_PROP_KEYS,
 } from '../shared/select/props.ts'
 import { useComboboxSearch } from '../shared/select/search.ts'
+import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
 import { createTagsField } from '../shared/select/tags-field.ts'
 
 import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
@@ -312,6 +313,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   : (local.trailingIcon ?? 'icon-chevron-down')
               }
               data-loading={local.loading ? '' : undefined}
+              class={SELECT_LOADING_ICON_CLASS}
             />
           </button>
         </BaseSelect.Control>

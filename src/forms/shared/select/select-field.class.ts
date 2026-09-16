@@ -6,14 +6,15 @@ export const FIELD_CONTROL_CLASS =
 export const FIELD_INPUT_CLASS =
   'outline-none bg-transparent flex-1 w-full disabled:(opacity-64 pointer-events-none) read-only:cursor-pointer'
 
-export const SELECT_LOADING_ICON_CLASS = '[&_[data-loading]]:animate-spin'
+export const SELECT_LOADING_ICON_CLASS = 'data-loading:animate-spin'
 
-export const PRIMARY_TRIGGER_CLASS = `outline-none bg-transparent flex flex-1 gap-1.5 min-w-0 cursor-pointer items-center text-start disabled:pointer-events-none ${SELECT_LOADING_ICON_CLASS}`
+export const PRIMARY_TRIGGER_CLASS =
+  'outline-none bg-transparent flex flex-1 gap-1.5 min-w-0 cursor-pointer items-center text-start disabled:pointer-events-none'
 
 const SELECT_FIELD_ACTION_CLASS =
   'text-muted-foreground opacity-80 p-0.5 rounded-xs inline-flex shrink-0 cursor-pointer items-center justify-center transition-colors hover:(bg-muted-hover text-foreground opacity-100) active:bg-muted-active disabled:pointer-events-none'
 
-export const SECONDARY_TRIGGER_CLASS = `${SELECT_FIELD_ACTION_CLASS} outline-none data-loading:cursor-wait ${SELECT_LOADING_ICON_CLASS}`
+export const SECONDARY_TRIGGER_CLASS = `${SELECT_FIELD_ACTION_CLASS} outline-none data-loading:cursor-wait`
 
 export const SELECT_LEADING_ICON_CLASS = 'text-muted-foreground shrink-0'
 export const SELECT_CLEAR_ACTION_CLASS = `${SELECT_FIELD_ACTION_CLASS} select-none`

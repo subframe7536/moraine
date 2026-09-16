@@ -14,6 +14,7 @@ import {
   SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   SELECT_LOCAL_PROP_KEYS,
 } from '../shared/select/props.ts'
+import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
 
 import type { SelectProps, SelectT } from './select.types.ts'
 
@@ -83,6 +84,7 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
                   : (local.trailingIcon ?? 'icon-chevron-down')
               }
               data-loading={local.loading ? '' : undefined}
+              class={SELECT_LOADING_ICON_CLASS}
             />
           </BaseSelect.Trigger>
           <Show when={!local.loading && local.allowClear && hasValue()}>

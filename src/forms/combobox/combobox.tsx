@@ -16,6 +16,7 @@ import {
   SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
 } from '../shared/select/props.ts'
 import { useComboboxSearch } from '../shared/select/search.ts'
+import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
 
 import type { ComboboxProps, ComboboxT } from './combobox.types.ts'
 
@@ -178,6 +179,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
                   : (local.trailingIcon ?? 'icon-chevron-down')
               }
               data-loading={local.loading ? '' : undefined}
+              class={SELECT_LOADING_ICON_CLASS}
             />
           </button>
         </BaseSelect.Control>
