@@ -7,7 +7,8 @@ export const buttonGroupRecipe = /* @__PURE__ */ slotRecipe<
   ButtonGroupT.Variant
 >({
   base: {
-    root: 'inline-flex w-fit items-stretch *:focus-visible:(relative z-sticky)',
+    root: 'inline-flex size-fit items-stretch *:focus-visible:(relative z-sticky)',
+    separator: 'relative self-stretch bg-input',
   },
   defaults: {
     orientation: 'horizontal',
@@ -15,10 +16,12 @@ export const buttonGroupRecipe = /* @__PURE__ */ slotRecipe<
   variants: {
     orientation: {
       horizontal: {
-        root: 'flex-row -[&>*:not(:last-child)]:me-px [&>*:not(:first-child)]:rounded-s-none [&>*:not(:last-child)]:rounded-e-none',
+        root: 'flex-row [&>*:not(:last-child)]:(-me-px border-e-0) [&>*:not(:first-child)]:rounded-s-none [&>*:not(:last-child)]:rounded-e-none',
+        separator: 'mx-px w-auto',
       },
       vertical: {
-        root: 'flex-col -[&>*:not(:last-child)]:mb-px [&>*:not(:first-child)]:rounded-t-none [&>*:not(:last-child)]:rounded-b-none',
+        root: 'flex-col [&>*:not(:last-child)]:(-mb-px border-b-0) [&>*:not(:first-child)]:rounded-t-none [&>*:not(:last-child)]:rounded-b-none',
+        separator: 'my-px h-auto',
       },
     },
   },

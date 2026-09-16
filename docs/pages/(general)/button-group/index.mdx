@@ -1,6 +1,6 @@
 ---
 title: ButtonGroup
-description: A connected toolbar container for grouping related buttons with shared variants, sizes, divider separators, and split action dropdowns.
+description: A connected toolbar container for grouping related buttons with shared variants, sizes, explicit separators, and split action dropdowns.
 sidebar:
   order: 1
 search:
@@ -21,6 +21,7 @@ import type { ButtonGroupT } from 'moraine'
 ## Features
 
 - **Connected Button Layout**: Removes intermediate border radii and collapses adjacent borders between grouped buttons.
+- **Explicit Separators**: Insert `ButtonGroup.Separator` only where a stronger boundary clarifies separate actions.
 - **Contextual Prop Inheritance**: Propagates `size` and `variant` to all child buttons, while allowing individual buttons to override them when necessary.
 - **Horizontal & Vertical Layouts**: Support both horizontal toolbar segments and vertical control stacks.
 - **Split-Button & Dropdown Compositions**: Effortlessly pair primary action buttons with chevron dropdown triggers in a unified pill container.
@@ -59,7 +60,6 @@ import type { ButtonGroupT } from 'moraine'
     <ButtonGroup
       variant={props.variant}
       orientation={props.orientation}
-      separator={props.separator}
       aria-label="Document history"
     >
       <Button leading="i-lucide:undo-2">Undo</Button>
@@ -70,22 +70,23 @@ import type { ButtonGroupT } from 'moraine'
 
 ## Anatomy
 
-Hierarchical slot and element structure:
+Composable element structure:
 
 ```text
-root (button group container)
-├── Button (child button item ×n)
-└── separator (hairline divider line between buttons, optional)
+ButtonGroup
+├── Button
+├── ButtonGroup.Separator
+└── Button
 ```
 
 - `root`: Flex container managing border collapsing and role orientation.
-- `separator`: Decorative divider element inserted between consecutive buttons.
+- `separator`: Explicit semantic divider with ButtonGroup-specific presentation.
 
 ## Usage
 
 ### Composition
 
-Use `ButtonGroup` to align related actions without changing the semantics of its children. Compose a menu or popover trigger as a child when an action needs an attached overlay, and use separators only when they clarify distinct action clusters.
+Use `ButtonGroup` to align related actions without changing the semantics of its children. Compose a menu or popover trigger as a child when an action needs an attached overlay.
 
 <Preview path="./group-composition" />
 
@@ -97,6 +98,12 @@ Use `ButtonGroup` to align related actions without changing the semantics of its
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the currently focused button in the group.       |
 
 ## Examples
+
+### Separator
+
+Insert `ButtonGroup.Separator` only where an explicit boundary is useful. It defaults to a vertical separator; set `orientation="horizontal"` when using it in a vertical group.
+
+<Preview path="./separator" />
 
 ### Dropdown menu composition
 

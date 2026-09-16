@@ -5,6 +5,7 @@ import {
   AvatarGroup,
   Badge,
   Button,
+  ButtonGroup,
   Card,
   Combobox,
   ContextMenu,
@@ -33,6 +34,7 @@ import {
 } from 'moraine'
 import type {
   ButtonT,
+  ButtonGroupT,
   Cn,
   CnConfig,
   CommandPaletteT,
@@ -55,6 +57,7 @@ import * as v from 'valibot'
 type Assert<T extends true> = T
 export type ComponentKinds = [
   Assert<ButtonT.Kind extends 'single' ? true : false>,
+  Assert<ButtonGroupT.Kind extends 'composite' ? true : false>,
   Assert<DialogT.Kind extends 'composite' ? true : false>,
   Assert<SidebarFrameT.Kind extends 'composite' ? true : false>,
   Assert<SelectT.Kind extends 'single' ? true : false>,
@@ -124,6 +127,11 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<Avatar text="MR" />
 ;<AvatarGroup items={[{ text: 'MR' }]} />
 ;<Button onClick={() => undefined}>Save</Button>
+;<ButtonGroup>
+  <Button>Copy</Button>
+  <ButtonGroup.Separator orientation="vertical" class="bg-input" style={{ opacity: 0.8 }} />
+  <Button>Paste</Button>
+</ButtonGroup>
 ;<Button
   as="a"
   href="/docs"

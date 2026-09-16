@@ -20,12 +20,6 @@ export namespace SeparatorT {
   /** Base props for the Separator component. */
   export interface Base {
     /**
-     * Whether the separator is decorative (hidden from assistive technologies).
-     * @default false
-     */
-    decorative?: boolean
-
-    /**
      * The orientation of the separator.
      * @default 'horizontal'
      */
@@ -33,7 +27,7 @@ export namespace SeparatorT {
   }
 
   /** Props for the Separator component. */
-  export type Props = BaseProps<'div', Base, Variant, never, never>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /** Props for the Separator component. */

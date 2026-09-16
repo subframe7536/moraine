@@ -36,6 +36,7 @@ export function DropdownAction() {
     <div class="flex flex-col gap-3 items-start">
       <ButtonGroup>
         <Button leading="i-lucide:download">Export report</Button>
+        <ButtonGroup.Separator />
         <DropdownMenu placement="bottom-end">
           <DropdownMenu.Trigger as={Button} size="icon-md">
             <Icon name="i-lucide:chevron-down" />

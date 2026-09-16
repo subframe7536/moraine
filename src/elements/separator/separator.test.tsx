@@ -11,7 +11,7 @@ import { Separator } from './separator'
 describe('Separator', () => {
   test('renders unstyled when provider is absent', () => {
     const screen = render(() => <Separator />)
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
     expect(root?.className).toBe('')
   })
 
@@ -25,7 +25,8 @@ describe('Separator', () => {
 
     expect(root?.tagName).toBe('DIV')
     expect(root?.children).toHaveLength(0)
-    expect(root?.hasAttribute('data-orientation')).toBe(false)
+    expect(root?.getAttribute('data-orientation')).toBe('horizontal')
+    expect(root?.getAttribute('data-slot')).toBe('root')
     expect(root?.getAttribute('aria-orientation')).toBe('horizontal')
     expect(root?.getAttribute('role')).toBe('separator')
     expect(root?.className).toContain('h-px')
@@ -46,16 +47,17 @@ describe('Separator', () => {
 
     setOrientation('vertical')
 
-    expect(root.hasAttribute('data-orientation')).toBe(false)
+    expect(root.getAttribute('data-orientation')).toBe('vertical')
     expect(root.getAttribute('aria-orientation')).toBe('vertical')
     expect(root.className).toContain('w-px')
     expect(root.className).toContain('h-full')
   })
 
-  test('lets caller attributes override generated separator semantics', () => {
+  test('forwards native attributes while retaining separator semantics', () => {
     const screen = render(() => (
       <Separator
-        decorative
+        id="section-break"
+        title="Section break"
         orientation="horizontal"
         role="presentation"
         aria-hidden={false}
@@ -63,12 +65,14 @@ describe('Separator', () => {
         data-orientation="custom"
       />
     ))
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
 
-    expect(root?.getAttribute('role')).toBe('presentation')
+    expect(root?.id).toBe('section-break')
+    expect(root?.title).toBe('Section break')
     expect(root?.getAttribute('aria-hidden')).toBe('false')
-    expect(root?.getAttribute('aria-orientation')).toBe('vertical')
-    expect(root?.getAttribute('data-orientation')).toBe('custom')
+    expect(root?.getAttribute('role')).toBe('separator')
+    expect(root?.getAttribute('aria-orientation')).toBe('horizontal')
+    expect(root?.getAttribute('data-orientation')).toBe('horizontal')
   })
 
   test('remains passive and non-tabbable while forwarding caller pointer events', () => {
@@ -139,13 +143,5 @@ describe('Separator', () => {
 
     expect(screen.getByRole('separator')).toBe(root)
     expect(root.className).toContain('bg-border')
-  })
-
-  test('decorative mode uses presentational semantics', () => {
-    const screen = render(() => <Separator decorative orientation="vertical" />)
-    const root = screen.container.querySelector('[data-slot="root"]')
-
-    expect(root?.getAttribute('role')).toBe('separator')
-    expect(root?.getAttribute('aria-hidden')).toBe('true')
   })
 })
