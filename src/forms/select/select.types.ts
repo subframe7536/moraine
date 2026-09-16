@@ -1,131 +1,75 @@
-import type { Component, Ref } from 'solid-js'
-
-import type { IconT } from '../../elements/icon'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { IconT } from '../../elements/icon/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseSelectT } from '../base-select/base-select.types.ts'
+import type { FormValueOptions } from '../shared/form-options.ts'
 import type {
-  FormDisableOption,
-  FormIdentityOptions,
-  FormReadOnlyOption,
-  FormRequiredOption,
-  FormValueOptions,
-} from '../shared/form-options'
-
-import type { BaseSelectT } from './base-select'
+  SelectItem,
+  SelectControlVariant,
+  ContentProps,
+  SelectRow,
+  SelectGroup,
+  SelectEntry,
+  SelectItemSlot,
+  SelectVirtualRenderProps,
+} from '../shared/select/types.ts'
 
 export namespace SelectT {
   export type Kind = 'single'
 
   export type Value = string | number
 
-  export type OptionRenderState = BaseSelectT.OptionRenderState
-  export type VirtualEntry<TItem extends Value = Value> = BaseSelectT.VirtualEntry<Item<TItem>>
-  export type VirtualRenderProps<TItem extends Value = Value> = BaseSelectT.VirtualRenderProps<
-    Item<TItem>
-  >
+  export type ItemRenderState = Omit<BaseSelectT.ItemState, 'item'>
+  export type ItemRenderProps<TItem extends Item = Item> = BaseSelectT.ItemState<TItem>
+  export type Row<TItem extends Item = Item> = SelectRow<TItem>
+  export type VirtualRenderProps<TItem extends Item = Item> = SelectVirtualRenderProps<TItem>
+  export type Group<TItem extends Item = Item> = SelectGroup<TItem>
+  export type Entry<TItem extends Item = Item> = SelectEntry<TItem>
 
   export interface ControlSlot<T = unknown> {
-    /** Closed select control that displays the current value and opens the popup. */
+    /** Outer visual field and floating anchor. */
     control?: T
-    /** Search input or value text field inside the control. */
-    input?: T
+    /** Text presentation of the selected value. */
+    value?: T
     /** Icon shown before the select input or value. */
     leading?: T
-    /** Button region that toggles the select popup. */
+    /** Primary interactive button that toggles the popup. */
     trigger?: T
     /** Button used to clear the selected value. */
     clear?: T
   }
 
-  export interface OptionSlot<T = unknown> {
-    /** Message shown when filtering leaves no selectable options. */
-    empty?: T
-    /** Leading icon inside an option row. */
-    itemLeading?: T
-    /** Text region containing the primary label and optional description. */
-    itemLabel?: T
-    /** Supporting description text inside an option row. */
-    itemDescription?: T
-    /** Trailing region inside an option row, usually for selection state or custom content. */
-    itemTrailing?: T
-  }
+  export interface ItemSlot<T = unknown> extends SelectItemSlot<T> {}
 
-  export interface OptionRenderProps<TItem extends Value = Value> {
-    /** Option and interaction state, or null when no option matches. */
-    option: (Item<TItem> & OptionRenderState) | null
-  }
-
-  export interface LabelRenderProps<TItem extends Value = Value> {
-    /** Option whose label is being rendered. */
-    option: Item<TItem>
-  }
-
-  export interface EmptyRenderProps<TItem extends Value = Value> {
-    /** Current input/search text. */
-    inputValue: string
-    /** Whether the current filter has any matches. */
+  export interface EmptyRenderProps<TItem extends Item = Item> {
+    /** Whether the collection has any selectable items. */
     hasMatches: boolean
     /** Currently selected value. */
-    selectedValue: TItem | null
+    selectedValue: TItem['value'] | null
     /** Close the dropdown menu. */
     close: () => void
   }
 
-  export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, OptionSlot<T> {}
-  export interface Variant {
-    /** Visual treatment of the component.
-     * @default 'outline'
-     */
-    variant?: 'outline' | 'subtle' | 'ghost' | 'none'
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-    /** Whether the control accepts searchable input.
-     * @default false
-     */
-    search?: boolean | null
-  }
+  export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, ItemSlot<T> {}
+  export interface Variant extends SelectControlVariant {}
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export interface Item<Val extends Value = Value> extends BaseSelectT.Item<Val> {}
+  export interface Item<Val extends Value = Value> extends SelectItem<Val> {}
 
-  export interface Base<TItem extends Value = Value>
+  export interface Base<TItem extends Item = Item>
     extends
-      Omit<
-        BaseSelectT.Base<Item<TItem>>,
-        | 'children'
-        | 'closeOnSelect'
-        | 'emptyRender'
-        | 'initialValue'
-        | 'onInputKeyDown'
-        | '_onFormReset'
-        | '_isValueControlled'
-        | '_styles'
-        | 'onOptionSelect'
-        | 'optionRender'
-        | 'selectedValues'
-        | 'multiple'
-        | 'tabSelectionBehavior'
-        | 'virtualRender'
-        | 'scrollToItem'
-      >,
-      FormIdentityOptions,
-      FormValueOptions<TItem | null>,
-      FormRequiredOption,
-      FormDisableOption,
-      FormReadOnlyOption {
+      BaseSelectT.FieldProps,
+      BaseSelectT.DisclosureProps,
+      BaseSelectT.ItemBehaviorProps<TItem>,
+      BaseSelectT.CloseOnSelectOption,
+      BaseSelectT.ResetProps,
+      ContentProps<TItem>,
+      FormValueOptions<TItem['value'] | null> {
+    /** Source items, optionally grouped. Item values must be unique within the collection. */
+    items?: Entry<TItem>[]
     /** Called when the selection changes. */
-    onChange?: (value: NoInfer<TItem | null>) => void
-    /** Renders flattened group labels and options through a virtualization layer. */
-    virtualRender?: Component<VirtualRenderProps<TItem>>
-    /** Scrolls a highlighted option into view using its flattened entry index. */
-    scrollToItem?: (item: Item<TItem>, entryIndex: number) => void
-    /** Custom renderer for each option in the dropdown. Passes `null` for empty state. */
-    optionRender?: ComponentOrElement<OptionRenderProps<TItem>>
-    /** Custom renderer for the option label text. */
-    labelRender?: ComponentOrElement<LabelRenderProps<TItem>>
+    onChange?: (value: NoInfer<TItem['value'] | null>) => void
     /** Custom renderer for the empty state when current filtered result has no matches. */
     emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
     /**
@@ -155,7 +99,7 @@ export namespace SelectT {
     closeIcon?: IconT.Name
   }
 
-  export type Props<TItem extends Value = Value> = BaseProps<
+  export type Props<TItem extends Item = Item> = BaseProps<
     'div',
     Base<TItem>,
     Variant,
@@ -164,9 +108,4 @@ export namespace SelectT {
   >
 }
 
-export interface SelectProps<
-  TItem extends SelectT.Value = SelectT.Value,
-> extends SelectT.Props<TItem> {
-  ref?: Ref<HTMLDivElement>
-  inputRef?: Ref<HTMLInputElement>
-}
+export type SelectProps<TItem extends SelectT.Item = SelectT.Item> = SelectT.Props<TItem>

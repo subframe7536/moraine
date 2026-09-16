@@ -1,7 +1,7 @@
 // @vitest-environment node
 
 import { globSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
@@ -34,7 +34,16 @@ describe('Theme architecture', () => {
         continue
       }
       const text = readFileSync(resolve(root, file), 'utf8')
-      if (/from ['"][^'"]*(?:\.class(?:\.ts)?|default-theme)['"]/.test(text)) {
+      const imports = [...text.matchAll(/from ['"]([^'"]+)['"]/g)].map((match) => match[1])
+      const importsRecipe = imports.some((specifier) => {
+        if (!specifier.includes('.class')) {
+          return false
+        }
+        return /\b(?:atomicRecipe|slotRecipe)\b/.test(
+          readFileSync(resolve(dirname(resolve(root, file)), specifier), 'utf8'),
+        )
+      })
+      if (importsRecipe || imports.some((specifier) => specifier.includes('default-theme'))) {
         violations.push(file)
       }
     }

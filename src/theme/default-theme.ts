@@ -10,16 +10,19 @@ import { kbdGroupRecipe, kbdRecipe } from '../elements/kbd/kbd.class'
 import { progressRecipe } from '../elements/progress/progress.class'
 import { resizableRecipe } from '../elements/resizable/resizable.class'
 import { separatorRecipe } from '../elements/separator/separator.class'
+import { baseSelectRecipe } from '../forms/base-select/base-select.class.ts'
 import { checkboxGroupRecipe } from '../forms/checkbox-group/checkbox-group.class'
 import { checkboxRecipe } from '../forms/checkbox/checkbox.class'
+import { comboboxRecipe } from '../forms/combobox/combobox.class.ts'
 import { fileUploadRecipe } from '../forms/file-upload/file-upload.class'
 import { formFieldRecipe } from '../forms/form/form-field.class'
 import { formRecipe } from '../forms/form/form.class'
 import { inputGroupRecipe } from '../forms/input-group/input-group.class.ts'
 import { inputNumberRecipe } from '../forms/input-number/input-number.class'
 import { inputRecipe } from '../forms/input/input.class'
+import { multiSelectRecipe } from '../forms/multi-select/multi-select.class.ts'
 import { radioGroupRecipe } from '../forms/radio-group/radio-group.class'
-import { multiSelectRecipe, selectRecipe } from '../forms/select/select.class'
+import { selectRecipe } from '../forms/select/select.class.ts'
 import { sliderRecipe } from '../forms/slider/slider.class'
 import { switchRecipe } from '../forms/switch/switch.class'
 import { textareaRecipe } from '../forms/textarea/textarea.class'
@@ -42,6 +45,8 @@ import type { MoraineTheme } from './types'
 
 /** Official component presentation, explicitly supplied to MoraineProvider. */
 export const defaultTheme: MoraineTheme = /* @__PURE__ */ Object.freeze({
+  baseSelect: toThemeEntry(baseSelectRecipe),
+  combobox: toThemeEntry(comboboxRecipe),
   accordion: toThemeEntry(accordionRecipe),
   avatar: toThemeEntry(avatarRecipe),
   avatarGroup: toThemeEntry(avatarGroupRecipe),

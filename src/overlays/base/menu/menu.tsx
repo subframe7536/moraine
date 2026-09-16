@@ -74,12 +74,6 @@ type OverlayMenuListEntry<TItem> =
   | { type: 'group'; group: OverlayMenuResolvedGroup<TItem> }
   | { type: 'contentBottom' }
 
-function toStyleObject(
-  style: string | JSX.CSSProperties | undefined,
-): JSX.CSSProperties | undefined {
-  return typeof style === 'object' ? style : undefined
-}
-
 function callRef<T extends HTMLElement>(
   ref: T | ((element: T) => void) | undefined,
   element: T,
@@ -367,14 +361,14 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     ),
   )
 
-  function getItemSlot(itemAttrsStyle?: string | JSX.CSSProperties, itemAttrsClass?: ClassValue) {
+  function getItemSlot(itemAttrsStyle?: JSX.CSSProperties, itemAttrsClass?: ClassValue) {
     const binding = resolveSlot('item')
     return {
       get class() {
         return cn(binding.class, itemAttrsClass)
       },
       get style() {
-        return { ...toStyleObject(itemAttrsStyle), ...binding.style }
+        return { ...itemAttrsStyle, ...binding.style }
       },
     }
   }
@@ -1158,7 +1152,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     class: cn(resolveSlot('content').class, props.contentProps?.class),
     style: {
       '--mo-popper-content-transform-origin': undefined,
-      ...toStyleObject(props.contentProps?.style),
+      ...props.contentProps?.style,
       ...resolveSlot('content').style,
     },
   })

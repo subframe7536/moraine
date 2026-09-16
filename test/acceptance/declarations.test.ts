@@ -27,7 +27,9 @@ describe('published declarations', () => {
       'Interactive button element, or the polymorphic element provided through `as`.',
     )
     expect(namespace('InputT')).toContain('Native text input element.')
-    expect(namespace('SelectT')).toContain('Custom renderer for each option in the dropdown.')
+    expect(readFileSync(resolve(dist, 'forms/shared/select/types.d.mts'), 'utf8')).toContain(
+      'Custom item presentation.',
+    )
     expect(namespace('SelectT')).toMatch(/interface Slot<T = unknown>/)
   })
 
@@ -37,7 +39,27 @@ describe('published declarations', () => {
     expect(input).toContain('The delay in milliseconds before automatically focusing the input.')
     expect(input).toContain('ref?: Ref<HTMLInputElement>')
     expect(input).toContain('onChange?: JSX.EventHandlerUnion<HTMLInputElement, Event>')
-    expect(namespace('SelectT')).toContain('onChange?: (value: NoInfer<TItem | null>) => void')
-    expect(namespace('SelectT')).toContain('options')
+    expect(namespace('SelectT')).toContain(
+      "onChange?: (value: NoInfer<TItem['value'] | null>) => void",
+    )
+    expect(
+      readFileSync(resolve(dist, 'forms/base-select/base-select.types.d.mts'), 'utf8'),
+    ).toContain('items?: readonly TItem[]')
+  })
+
+  test('expose complete Select-family Props and owned input refs', () => {
+    const select = readFileSync(resolve(dist, 'forms/select/select.types.d.mts'), 'utf8')
+    const combobox = readFileSync(resolve(dist, 'forms/combobox/combobox.types.d.mts'), 'utf8')
+    const multiSelect = readFileSync(
+      resolve(dist, 'forms/multi-select/multi-select.types.d.mts'),
+      'utf8',
+    )
+
+    expect(select).toContain(
+      'type SelectProps<TItem extends SelectT.Item = SelectT.Item> = SelectT.Props<TItem>',
+    )
+    expect(combobox).toContain('inputRef?: Ref<HTMLInputElement>')
+    expect(multiSelect).toContain('inputRef?: Ref<HTMLInputElement>')
+    expect(multiSelect).toContain('tokenSeparators?: string[]')
   })
 })

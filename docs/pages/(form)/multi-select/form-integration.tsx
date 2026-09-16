@@ -29,17 +29,26 @@ export function FormIntegration() {
         <form.Field
           name="topics"
           label="Interest Topics"
-          description="Select at least 2 topics for your feed."
+          description="Select at least 2 topics for your curated developer feed."
           required
         >
-          <MultiSelect options={TOPICS} placeholder="Select topics..." />
+          <MultiSelect
+            items={TOPICS}
+            placeholder="Select topics..."
+            search
+            openOnControlClick
+            allowClear
+          />
         </form.Field>
         <div class="flex gap-3 items-center">
           <Button type="submit" variant="secondary" size="sm">
             Validate
           </Button>
           <p class="text-xs text-muted-foreground">
-            Selected topics: {submittedTags().length ? submittedTags().join(', ') : 'typescript'}
+            Submitted:{' '}
+            <span class="text-foreground font-medium font-mono">
+              {submittedTags().length ? submittedTags().join(', ') : 'none'}
+            </span>
           </p>
         </div>
       </div>

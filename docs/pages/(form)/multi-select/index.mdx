@@ -1,14 +1,13 @@
 ---
 title: MultiSelect
-description: A multi-value combobox with removable tags, search, optional value creation, token separators, overflow summaries, and virtualized rendering.
+description: Collection-backed multiple selection with tags, optional search, token separators, and item creation.
 sidebar:
-  order: 11
+  order: 13
 search:
-  tags: [combobox, multiple selection, tags, options, multi-select, chips, tag input]
+  tags: [combobox, multiple selection, items, multi-select, tags, chips]
 ---
 
 import { MultiSelect } from '@src'
-import { createSignal } from 'solid-js'
 
 ## Import
 
@@ -19,18 +18,22 @@ import type { MultiSelectT } from 'moraine'
 
 ## Features
 
-- **Removable Tags**: Selected values render as tags with individual removal controls; Backspace removes the last tag when the text input is empty.
-- **Search & Creation**: Filter options as you type and enable `creatable` when user-entered values should become new selections.
-- **Token Separators**: Configured delimiter keys can convert typed text into selections.
-- **Selection & Display Limits**: `maxCount` limits selected values while `maxTagCount` limits visible tags and renders an overflow summary.
-- **Virtualized Rendering**: Integrates with `useListVirtualizer` for caller-configured rendering of larger option sets.
-- **Floating UI Positioning**: The listbox is positioned with Floating UI.
+- **Collection-backed values**: Every committed value resolves through a canonical `TItem` source.
+- **Interactive tag field**: Displays selected items as removable chips with optional overflow badge.
+- **Optional search & creation**: `search` filters; `createItem` constructs a `TItem` for free-form input.
+- **Unified tokenization**: Separators (comma, space) and paste reuse the same collection-aware creation path.
+- **Separate limits**: `maxCount` limits total selections; `maxTagCount` collapses visual tags into a `+N` badge.
 
 ## Playground
 
 <Playground
   controls={[
-    { kind: 'input', prop: 'placeholder', label: 'Placeholder', defaultValue: 'Select tags...' },
+    {
+      kind: 'input',
+      prop: 'placeholder',
+      label: 'Placeholder',
+      defaultValue: 'Select topics...',
+    },
     {
       kind: 'select',
       prop: 'variant',
@@ -54,105 +57,142 @@ import type { MultiSelectT } from 'moraine'
         { label: 'Large', value: 'lg' },
       ],
     },
+    { kind: 'switch', prop: 'search', label: 'Search', defaultValue: true },
+    {
+      kind: 'switch',
+      prop: 'openOnControlClick',
+      label: 'Open on control click',
+      defaultValue: true,
+    },
+    { kind: 'switch', prop: 'allowClear', label: 'Clearable', defaultValue: true },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
     { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
   ]}
 >
-  {(props) => {
-    const TAG_OPTIONS = [
-      { label: 'Design', value: 'design', icon: 'i-lucide:palette' },
-      { label: 'Development', value: 'dev', icon: 'i-lucide:code' },
-      { label: 'Marketing', value: 'marketing', icon: 'i-lucide:megaphone' },
-      { label: 'Product', value: 'product', icon: 'i-lucide:layers' },
-      { label: 'Research', value: 'research', icon: 'i-lucide:search' },
-    ]
-    return (
-      <MultiSelect
-        options={TAG_OPTIONS}
-        placeholder={props.placeholder}
-        variant={props.variant}
-        size={props.size}
-        disabled={props.disabled}
-        readOnly={props.readOnly}
-        loading={props.loading}
-        allowClear
-      />
-    )
-  }}
+  {(props) => (
+    <MultiSelect
+      items={[
+        { label: 'Design', value: 'design', icon: 'i-lucide:palette' },
+        { label: 'Development', value: 'dev', icon: 'i-lucide:code' },
+        { label: 'Marketing', value: 'marketing', icon: 'i-lucide:megaphone' },
+        { label: 'Product', value: 'product', icon: 'i-lucide:layers' },
+        { label: 'Research', value: 'research', icon: 'i-lucide:search' },
+      ]}
+      defaultValue={['design']}
+      placeholder={props.placeholder}
+      variant={props.variant}
+      size={props.size}
+      search={props.search}
+      openOnControlClick={props.openOnControlClick}
+      allowClear={props.allowClear}
+      disabled={props.disabled}
+      readOnly={props.readOnly}
+      loading={props.loading}
+      class="max-w-xl"
+    />
+  )}
 </Playground>
 
 ## Anatomy
 
-### Control
-
 ```text
 control
+├── leading (optional)
 ├── tagsContainer
 │   ├── tag (×n)
+│   │   ├── tagLabel
+│   │   └── tagRemove
 │   ├── tagOverflow (optional)
 │   └── input
 ├── clear (optional)
 └── trigger
 ```
 
-### Floating listbox
-
-```text
-content
-└── listbox
-    ├── item (×n)
-    ├── group (optional ×n)
-    └── empty (optional)
-```
+The control slot wraps the interactive tags container and floating anchor. When non-editable, clicking the control opens the panel by default; when editable (`search` or `createItem`), clicking the control focuses the input without opening the panel so users can type immediately. Use `openOnControlClick` to explicitly override this default behavior.
 
 ## Usage
 
-### Values, search, and creation
+### Values and tag lifecycle
 
-The value is an array of selected option values. Control it with `value` and `onChange` when the application owns selection. Search state and creation behavior are separate from selection; token separators can turn pasted text into multiple values when the relevant options are enabled.
+The committed selection is represented as an array of item values: `TItem['value'][]`.
+Without `search`, printable keys trigger collection typeahead. Enabling `search={true}` allows
+users to type directly in the field to filter available options.
 
-<Preview path="./values-and-search" />
+<Preview path="./usage-tags" />
 
-### Read-only selection
+### Item creation and delimiters
 
-Use `readOnly` to keep tags and selected values available for focus, browsing, and native form submission while preventing option changes, tag removal, clear actions, and tag creation.
+Providing `createItem` transforms unmatched query text into a valid `TItem` on Enter or when a token
+separator is encountered. Separator characters (like comma or space) and pasted strings are automatically
+parsed through the same creation path.
 
-### Large option sets
-
-Use groups to organize options and virtualization when rendering a large, stable list. Limits such as maximum selected values and displayed tags constrain selection or presentation; see the API reference for the individual limit props.
-
-<Preview path="./large-collections" />
+<Preview path="./usage-creation" />
 
 ### Keyboard interaction
 
-| Key                              | Description                                                              |
-| -------------------------------- | ------------------------------------------------------------------------ |
-| <kbd>ArrowDown</kbd>             | Opens the listbox or moves to the next option.                           |
-| <kbd>ArrowUp</kbd>               | Moves to the previous option.                                            |
-| <kbd>Enter</kbd>                 | Toggles the active option or creates a value when `creatable` allows it. |
-| <kbd>Backspace</kbd>             | Removes the last selected tag when the text input is empty.              |
-| <kbd>Escape</kbd>                | Closes the listbox.                                                      |
-| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available option.                             |
+| Key                 | Behavior                                                                   |
+| ------------------- | -------------------------------------------------------------------------- |
+| Backspace           | When input is empty, deletes the immediately preceding tag                 |
+| ArrowDown / ArrowUp | Open popup or move focus through the options list                          |
+| Enter               | Commit the highlighted item (or create an item when input text is present) |
+| Escape              | Close the dropdown or clear active query text                              |
 
 ## Examples
 
-### Create tags
+### Custom tag rendering
 
-<Preview path="./create-new-tags" />
+Use `tagRender` to customize chip presentation with colors, status dots, badges, or custom remove buttons.
 
-### Token separators
+<Preview path="./custom-tags" />
 
-<Preview path="./token-separators" />
+### Project assignees
 
-### Selection limits
+<Preview path="./user-chips" />
+
+### Selection and display limits
+
+`maxCount` is a behavioral constraint preventing additional selections. `maxTagCount` is purely
+visual: surplus selections stay committed and are summarized in a `+N` badge.
 
 <Preview path="./max-count-max-tag-count" />
 
+### Creatable collection items
+
+Allow users to select from existing options or dynamically generate new tags via an empty state button.
+
+<Preview path="./create-new-tags" />
+
+### Free-form tags
+
+Without predefined items, combine `createItem` and `tokenSeparators` for a lightweight tag input.
+
+<Preview path="./free-form-tags" />
+
+### Grouped options
+
+Organize large collections into categorized option groups.
+
+<Preview path="./grouped-items" />
+
+### Clearable, disabled, and locked states
+
+Pre-locked items cannot be deselected, while individual options can be disabled in the listbox.
+
+<Preview path="./clear-and-disabled" />
+
+### Sizes and variants
+
+<Preview path="./sizes-and-variants" />
+
 ### Virtualization
+
+Render 10,000+ items smoothly using TanStack Virtualizer.
 
 <Preview path="./virtualization" />
 
 ### Form integration
+
+Validate multi-selection schemas (e.g. requiring a minimum number of tags) with `createForm`.
 
 <Preview path="./form-integration" />

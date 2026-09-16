@@ -56,13 +56,16 @@ src/
 ├── forms/                 # Form controls and form-state integration.
 │   ├── checkbox/          # Checkbox control.
 │   ├── checkbox-group/    # Checkbox group control.
+│   ├── base-select/       # Low-level selection, disclosure, and listbox primitive.
+│   ├── combobox/          # Editable single collection selection.
 │   ├── file-upload/       # File upload control and dropzone behavior.
 │   ├── form/              # Form root, field wrapper, submission, and context.
 │   ├── input/             # Text input control.
 │   ├── input-group/       # Compound input layout with addons and triggers.
 │   ├── input-number/      # Numeric input control.
+│   ├── multi-select/      # Collection-backed multiple selection.
 │   ├── radio-group/       # Radio group control.
-│   ├── select/             # Select, multi-select, and shared select behavior.
+│   ├── select/             # Non-editable single collection selection.
 │   ├── slider/             # Slider control and slider hooks.
 │   ├── switch/             # Switch control.
 │   ├── textarea/           # Textarea control.
@@ -146,6 +149,7 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 - **Utility First:** Use utility classes for 99% of styling.
 - **Class Prop:** Always use `class` (not `className`).
 - **Consistency:** Use `cn` to merge classes and `recipe` to define variants.
+- **Style Prop:** Style prop must always be typed as `JSX.CSSProperties` (object). String style (`string | JSX.CSSProperties`) is strictly forbidden across all component props, slots, and element wrappers. Narrow native HTML element props using `ElementProps` or `Omit<JSX.HTMLAttributes<...>, 'style'> & { style?: JSX.CSSProperties }`. Do not write defensive runtime guards like `typeof style === 'object'` or `toStyleObject()` assuming style could be a string.
 
 ### Error Handling
 
@@ -163,5 +167,5 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 
 ## Special Cases
 
-- For common Combobox component, use Select component via `search` prop
-- For tag input, use MultiSelect component
+- Use `Combobox` for editable single collection selection.
+- Use `MultiSelect` for collection-backed values and creatable free-form tags.

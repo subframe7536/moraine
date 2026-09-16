@@ -1,0 +1,173 @@
+import type { Ref } from 'solid-js'
+
+import type { IconT } from '../../elements/icon/index.ts'
+import type { ComponentOrElement } from '../../shared/render-prop.ts'
+import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type { BaseSelectT } from '../base-select/base-select.types.ts'
+import type { FormValueOptions } from '../shared/form-options.ts'
+import type {
+  SelectItem,
+  SearchProps,
+  ContentProps,
+  SelectControlVariant,
+  SelectRow,
+  SelectGroup,
+  SelectEntry,
+  SelectItemSlot,
+  SelectVirtualRenderProps,
+} from '../shared/select/types.ts'
+
+export namespace MultiSelectT {
+  export type Kind = 'single'
+
+  export type Value = string | number
+
+  export type ItemRenderState = Omit<BaseSelectT.ItemState, 'item'>
+  export type ItemRenderProps<TItem extends Item = Item> = BaseSelectT.ItemState<TItem>
+  export type Row<TItem extends Item = Item> = SelectRow<TItem>
+  export type VirtualRenderProps<TItem extends Item = Item> = SelectVirtualRenderProps<TItem>
+  export type Group<TItem extends Item = Item> = SelectGroup<TItem>
+  export type Entry<TItem extends Item = Item> = SelectEntry<TItem>
+
+  export interface ControlSlot<T = unknown> {
+    /** Multi-select control that displays selected tags and opens the popup. */
+    control?: T
+    /** Search input used to filter or add selections. */
+    input?: T
+    /** Icon shown before the selected tags and search input. */
+    leading?: T
+    /** Button region that toggles the multi-select popup. */
+    trigger?: T
+    /** Button used to clear all selected values. */
+    clear?: T
+    /** Wrapper that lays out selected value tags inside the control. */
+    tagsContainer?: T
+    /** Selected value tag. */
+    tag?: T
+    /** Text label inside a selected value tag. */
+    tagLabel?: T
+    /** Button used to remove one selected value. */
+    tagRemove?: T
+    /** Counter shown when selected tags exceed the visible limit. */
+    tagOverflow?: T
+  }
+
+  export interface ItemSlot<T = unknown> extends SelectItemSlot<T> {}
+
+  export interface TagRenderProps<TItem extends Item = Item> {
+    /** Selected item represented by the tag. */
+    item: TItem | undefined
+    /** Original selected value, including unresolved values. */
+    value: TItem['value']
+    /** Visual label, or String(value) when unresolved. */
+    label: import('solid-js').JSX.Element
+    /** Removes this item from the selection. */
+    onClose: () => void
+  }
+
+  export interface EmptyRenderProps<TItem extends Item = Item> {
+    /** Current input/search text. */
+    inputValue: string
+    /** Whether the current filter has any matches. */
+    hasMatches: boolean
+    /** Currently selected values. */
+    selectedValues: readonly TItem['value'][]
+    /** Whether the maximum selection count has been reached. */
+    isAtMaxCount: boolean
+    /** Create a new tag (requires `createItem`). Returns true if successfully created. */
+    create: (value?: string) => boolean
+    /** Close the dropdown menu. */
+    close: () => void
+  }
+
+  export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, ItemSlot<T> {}
+
+  export interface Variant extends SelectControlVariant {}
+
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
+  export interface Item<Val extends Value = Value> extends SelectItem<Val> {}
+
+  export interface Base<TItem extends Item = Item>
+    extends
+      BaseSelectT.FieldProps,
+      BaseSelectT.DisclosureProps,
+      BaseSelectT.ItemBehaviorProps<TItem>,
+      BaseSelectT.ResetProps,
+      SearchProps<TItem>,
+      ContentProps<TItem>,
+      FormValueOptions<TItem['value'][]> {
+    /** Source items, optionally grouped. Item values must be unique within the collection. */
+    items?: Entry<TItem>[]
+    /** Called when the selection changes. */
+    onChange?: (value: NoInfer<TItem['value'][]>) => void
+    /**
+     * Show a clear button when a value is selected.
+     * @default false
+     */
+    allowClear?: boolean
+    /** Called when clear is triggered. */
+    onClear?: () => void
+    /** Factory used by every unmatched free-text creation path. Providing it implicitly enables the editable search input. */
+    createItem?: (input: string) => TItem
+    /** Maximum number of selected values (multiple/tags). */
+    maxCount?: number
+    /** Maximum visible tags before showing +N (visual only). */
+    maxTagCount?: number
+    /**
+     * Strings that commit completed input tokens through `createItem` or an exact source match.
+     * Duplicate separators are ignored and overlapping separators prefer the longest match.
+     * @default [',']
+     */
+    tokenSeparators?: string[]
+    /** Custom renderer for each selected tag. */
+    tagRender?: ComponentOrElement<TagRenderProps<TItem>>
+    /** Custom renderer for the empty state when current filtered result has no matches. */
+    emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
+    /**
+     * Placeholder text shown when no value is selected.
+     * @default ''
+     */
+    placeholder?: string
+    /** Whether the select is in a loading state. */
+    loading?: boolean
+    /**
+     * Icon shown during loading state.
+     * @default 'icon-loading'
+     */
+    loadingIcon?: IconT.Name
+    /** Icon shown before the input/value area. */
+    leadingIcon?: IconT.Name
+    /**
+     * Icon used when the action button opens the dropdown.
+     * @default 'icon-chevron-down'
+     */
+    trailingIcon?: IconT.Name
+    /**
+     * Icon used when the action button clears the selection.
+     * Tag remove buttons keep using this icon as well.
+     */
+    closeIcon?: IconT.Name
+    /**
+     * Whether ordinary control/input pointer clicks open the popup.
+     * Defaults to `false` when editable (`search` or `createItem` enabled),
+     * or `true` when non-editable.
+     */
+    openOnControlClick?: boolean
+    /** Whether the collection can be filtered through the editable input. @default false */
+    search?: boolean
+    /** Optional inner input element ref. */
+    inputRef?: Ref<HTMLInputElement>
+  }
+
+  export type Props<TItem extends Item = Item> = BaseProps<
+    'div',
+    Base<TItem>,
+    Variant,
+    Classes,
+    Styles
+  >
+}
+
+export type MultiSelectProps<TItem extends MultiSelectT.Item = MultiSelectT.Item> =
+  MultiSelectT.Props<TItem>

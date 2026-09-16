@@ -548,14 +548,41 @@ function formatType(value: TypeValue, seen = new Set<string>()): string {
   return normalizeTypeText(applyTextEdits(nodeText(value.unit.source, value.node), relativeEdits))
 }
 
+function isEnclosedInParens(text: string): boolean {
+  if (!text.startsWith('(') || !text.endsWith(')')) {
+    return false
+  }
+  let depth = 0
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index]!
+    if (char === '(') {
+      depth += 1
+    } else if (char === ')') {
+      depth -= 1
+      if (depth === 0) {
+        return index === text.length - 1
+      }
+    }
+  }
+  return false
+}
+
 function addOptionalUndefined(typeText: string): string {
   if (
+    !isEnclosedInParens(typeText) &&
     splitTopLevelUnion(typeText).length === 1 &&
     (typeText.includes('=>') || typeText.includes(' & '))
   ) {
     return `(${typeText}) | undefined`
   }
   return `${typeText} | undefined`
+}
+
+function wrapUnionFunctionType(type: string): string {
+  if (!type.includes('=>') || isEnclosedInParens(type)) {
+    return type
+  }
+  return `(${type})`
 }
 
 function uniqueSlotDefinitions(values: SlotDefinitionDoc[]): SlotDefinitionDoc[] {
@@ -1466,14 +1493,23 @@ class DeclarationAnalyzer {
               literalTypeKey(candidate) === literalTypeKey(type),
           ),
       )
-      const types = preferredRawTypes
-        .map((type) =>
-          normalizedDisplays.some((display) => display.text === type && display.explicitUndefined)
-            ? type.replace(/ \| undefined$/, '')
-            : type,
-        )
+      const types = preferredRawTypes.map((type) =>
+        normalizedDisplays.some((display) => display.text === type && display.explicitUndefined)
+          ? type.replace(/ \| undefined$/, '')
+          : type,
+      )
+      let candidateTypes = types
+        .flatMap((type) => splitTopLevelUnion(type))
         .filter((value, index, values) => values.indexOf(value) === index)
-      typeText = types.length === 1 ? types[0]! : types.join(' & ')
+      if (candidateTypes.includes('false') && candidateTypes.includes('true')) {
+        candidateTypes = candidateTypes
+          .filter((type) => type !== 'false' && type !== 'true')
+          .concat('boolean')
+      }
+      const formattedTypes = candidateTypes
+        .map(wrapUnionFunctionType)
+        .filter((value, index, values) => values.indexOf(value) === index)
+      typeText = formattedTypes.length === 1 ? candidateTypes[0]! : formattedTypes.join(' | ')
       const includesUndefined = normalizedDisplays.some((display) => display.mayIncludeUndefined)
       const explicitlyIncludesUndefined = normalizedDisplays.some(
         (display) => display.explicitUndefined,

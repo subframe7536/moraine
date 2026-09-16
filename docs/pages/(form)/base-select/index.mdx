@@ -1,0 +1,120 @@
+---
+title: BaseSelect
+description: Compose custom single or multiple collection selection controls from accessible primitives.
+search:
+  tags: [select, primitive, composition]
+sidebar:
+  order: 14
+---
+
+import { BaseSelect, Button } from '@src'
+import { For } from 'solid-js'
+
+## Import
+
+```tsx
+import { BaseSelect, useSelectState } from 'moraine'
+import type { BaseSelectT } from 'moraine'
+import { useBaseSelectSearchInput, useSearchValue } from 'moraine/utils'
+```
+
+BaseSelect owns array selection, disclosure, highlighted navigation, typeahead, listbox primitives,
+and form integration. Collection grouping, filtering, query state, tags, and item creation belong to
+the composing control.
+
+## Features
+
+- **Explicit ownership**: Control anchors the popup; Trigger owns select-like focus and activation.
+- **Single or multiple selection**: BaseSelect is the low-level cardinality escape hatch.
+- **Composable popup**: Items, groups, labels, separators, and empty state are public parts.
+- **Form integration**: Values serialize without adding a visible root wrapper.
+
+## Playground
+
+<Playground
+  controls={[
+    { kind: 'switch', prop: 'multiple', label: 'Multiple', defaultValue: false },
+    { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
+    { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
+  ]}
+>
+  {(props) => {
+    const ITEMS = [
+      { value: 'solid', label: 'Solid' },
+      { value: 'react', label: 'React' },
+      { value: 'vue', label: 'Vue' },
+    ]
+    return (
+      <BaseSelect
+        items={ITEMS}
+        multiple={props.multiple}
+        disabled={props.disabled}
+        readOnly={props.readOnly}
+      >
+        <BaseSelect.Control>
+          <BaseSelect.Trigger as={Button} variant="outline" class="min-w-52 justify-between">
+            {(state) =>
+              state.value.length ? `${state.value.length} selected` : 'Select a framework…'
+            }
+          </BaseSelect.Trigger>
+        </BaseSelect.Control>
+        <BaseSelect.Content>
+          <BaseSelect.Listbox>
+            <For each={ITEMS}>
+              {(item) => <BaseSelect.Item item={item}>{item.label}</BaseSelect.Item>}
+            </For>
+          </BaseSelect.Listbox>
+        </BaseSelect.Content>
+      </BaseSelect>
+    )
+  }}
+</Playground>
+
+## Anatomy
+
+```text
+BaseSelect
+├── Control
+│   └── Trigger
+└── Content
+    ├── Listbox
+    │   ├── Group (optional)
+    │   │   ├── GroupLabel
+    │   │   └── Item (×n)
+    │   └── Separator (optional)
+    └── Empty (optional)
+```
+
+Control is an optional, non-interactive layout container and floating anchor. It does not toggle,
+own keyboard navigation, become a tab stop, or receive `role="combobox"`. Trigger is the primary
+select-like focus owner and activator. If Control is omitted, Content falls back to the registered
+focus owner for positioning.
+
+## Usage
+
+### Standard composition
+
+<Preview path="./composition" />
+
+### Custom searchable composition
+
+<Preview path="./searchable" />
+
+The input helper registers `focusOwner`; it never becomes the floating anchor. The caller owns the
+physical input, canonical source, filtering, and query cleanup. No BaseSelect.Trigger is required
+for this editable composition.
+
+## Examples
+
+### Multiple selection
+
+<Preview path="./multiple" />
+
+### Form integration
+
+<Preview path="./form" />
+
+### Styling
+
+BaseSelect exposes `control`, `trigger`, `content`, `listbox`, `item`, `group`, `groupLabel`,
+`separator`, and `empty`. Part-local class and style values have final precedence.

@@ -37,6 +37,15 @@
       "kind": "single"
     },
     {
+      "key": "base-select",
+      "name": "BaseSelect",
+      "category": "forms",
+      "polymorphic": false,
+      "description": "Public selection primitive for a flat navigation collection.",
+      "sourcePath": "src/forms/base-select/base-select.tsx",
+      "kind": "composite"
+    },
+    {
       "key": "breadcrumb",
       "name": "Breadcrumb",
       "category": "navigation",
@@ -98,6 +107,15 @@
       "description": "Expandable content section with optional height transitions.",
       "sourcePath": "src/elements/collapsible/collapsible.tsx",
       "kind": "composite"
+    },
+    {
+      "key": "combobox",
+      "name": "Combobox",
+      "category": "forms",
+      "polymorphic": false,
+      "description": "Single collection selection with an editable query input.",
+      "sourcePath": "src/forms/combobox/combobox.tsx",
+      "kind": "single"
     },
     {
       "key": "command-palette",
@@ -229,8 +247,8 @@
       "name": "MultiSelect",
       "category": "forms",
       "polymorphic": false,
-      "description": "Dropdown select component with search, multi-select, and custom item rendering.",
-      "sourcePath": "src/forms/select/multi-select.tsx",
+      "description": "Collection-backed multiple selection with tags and optional search or creation.",
+      "sourcePath": "src/forms/multi-select/multi-select.tsx",
       "kind": "single"
     },
     {
@@ -283,7 +301,7 @@
       "name": "Select",
       "category": "forms",
       "polymorphic": false,
-      "description": "Dropdown select component with search and custom item rendering.",
+      "description": "Single, non-editable collection selection.",
       "sourcePath": "src/forms/select/select.tsx",
       "kind": "single"
     },

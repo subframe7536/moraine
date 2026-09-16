@@ -106,6 +106,8 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
             'cross',
             'disabled',
             'dragging',
+            'duplicate',
+            'editable',
             'expanded',
             'focused',
             'footer',

@@ -171,6 +171,7 @@ export interface DemoProps { title: string }
       await readFile(path.join(projectRoot, 'docs/pages/_api-index.json'), 'utf8'),
     ) as IndexDoc
     const composites = new Set([
+      'base-select',
       'input-group',
       'collapsible',
       'resizable',
