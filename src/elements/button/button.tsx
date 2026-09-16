@@ -1,5 +1,5 @@
 import type { JSX, ValidComponent } from 'solid-js'
-import { Show, children as resolveChildren, createMemo, splitProps, useContext } from 'solid-js'
+import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createComponentStyles } from '../../shared/provider'
@@ -10,7 +10,7 @@ import { useLoadingAutoClick } from '../../shared/use-loading-auto'
 import { Icon } from '../icon'
 import type { IconT } from '../icon'
 
-import { ButtonGroupContext } from './button-group-context'
+import { useButtonGroupContext } from './button-group-context'
 import type { ButtonProps, ButtonT } from './button.types'
 
 /**
@@ -18,7 +18,7 @@ import type { ButtonProps, ButtonT } from './button.types'
  */
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
   const cn = useCn()
-  const group = useContext(ButtonGroupContext)
+  const group = useButtonGroupContext()
   const [local, rest] = splitProps(props, [
     'as',
     'type',
