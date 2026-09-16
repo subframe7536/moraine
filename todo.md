@@ -7,7 +7,7 @@
 - [x] slider & stepper recipe structure refactor
 - [x] split overlay from content in modal
 - [x] verify auto completion ability on `as={Button}`
-- [ ] base select should be a namespaced component and export
+- [x] base select should be a namespaced component and export
 - [x] unify context-menu and dropdown-menu menu styles
 - [ ] correct/verify button group separator
 - [ ] badge variants config / padding refresh, maybe similar to button?
@@ -16,7 +16,11 @@
 - [ ] src/forms/form/form-field.tsx 's `local.form` should be reconsidered
 - [ ] itemRender in pagination (for custom link, maybe reuse button's as)
 - [ ] a better way to define destructive item in menu
+- [ ] correct document page's focus loop
+  - [ ] also audit all components
 - [ ] metric adjust across all sizes
+- [ ] better way to define slot styles. current cannot "go to definition"
+- [ ] type instantiation reduce, including `MoraineTypeConfig`
 
 # V1
 

@@ -11,12 +11,18 @@ const COUNTRIES = [
 ]
 
 export function FormIntegration() {
-  const [submittedCountry, setSubmittedCountry] = createSignal('')
+  const [submittedCountry, setSubmittedCountry] = createSignal<string | null>(null)
   const form = createForm({
     schema: v.object({
-      country: v.pipe(v.string(), v.nonEmpty('Please select your country of residence.')),
+      country: v.pipe(
+        v.nullable(v.string()),
+        v.check(
+          (value): value is string => value !== null,
+          'Please select your country of residence.',
+        ),
+      ),
     }),
-    initialInput: { country: '' },
+    initialInput: { country: null },
     validate: 'input',
   })
 
@@ -29,7 +35,7 @@ export function FormIntegration() {
           description="Used for tax calculation and regional billing."
           required
         >
-          <Select options={COUNTRIES} placeholder="Select a country..." />
+          <Select items={COUNTRIES} placeholder="Select a country..." />
         </form.Field>
         <div class="flex gap-3 items-center">
           <Button type="submit" variant="secondary" size="sm">

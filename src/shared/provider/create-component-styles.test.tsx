@@ -109,26 +109,26 @@ describe('createComponentStyles', () => {
 
   test('preserves false over inherited and theme defaults', () => {
     const theme = createTheme({
-      select: {
-        defaults: { search: true },
+      tooltip: {
+        defaults: { invert: true },
         variants: {
-          search: {
-            true: { root: 'searchable' },
-            false: { root: 'plain' },
+          invert: {
+            true: { content: 'inverted' },
+            false: { content: 'plain' },
           },
         },
       },
     })
-    const [search, setSearch] = createSignal<boolean | null | undefined>(false)
+    const [invert, setInvert] = createSignal<boolean | undefined>(false)
     function Fixture() {
       const styles = createComponentStyles(
-        'select',
+        'tooltip',
         {
-          get search() {
-            return search()
+          get invert() {
+            return invert()
           },
         },
-        { inheritedVariants: () => ({ search: true }) },
+        { rootSlot: 'content', inheritedVariants: () => ({ invert: true }) },
       )
       return <div data-testid="select" {...styles.root} />
     }
@@ -139,10 +139,8 @@ describe('createComponentStyles', () => {
     ))
     const root = screen.getByTestId('select')
     expect(root.className).toBe('plain')
-    setSearch(null)
-    expect(root.className).toBe('')
-    setSearch(undefined)
-    expect(root.className).toBe('searchable')
+    setInvert(undefined)
+    expect(root.className).toBe('inverted')
   })
 })
 

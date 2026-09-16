@@ -436,3 +436,25 @@ describe('useTransitionPresence', () => {
     expect(fixture.presence.present()).toBe(false)
   })
 })
+
+test('notifies completed exits without animations and never initial absence or disposal', async () => {
+  installComputedStyle()
+  const exit = vi.fn()
+  const [open, setOpen] = createSignal(false)
+  const screen = render(() => {
+    const presence = useTransitionPresence({ open, onExitComplete: exit })
+    return (
+      <Show when={presence.present()}>
+        <div ref={presence.setElement} />
+      </Show>
+    )
+  })
+  expect(exit).not.toHaveBeenCalled()
+  setOpen(true)
+  setOpen(false)
+  await flushExitDetection()
+  expect(exit).toHaveBeenCalledOnce()
+  setOpen(true)
+  screen.unmount()
+  expect(exit).toHaveBeenCalledOnce()
+})

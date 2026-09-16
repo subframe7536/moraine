@@ -37,12 +37,6 @@ interface NormalizedGroup<TItem extends CommandPaletteT.Item = CommandPaletteT.I
   items: NormalizedItem<TItem>[]
 }
 
-function toStyleObject(
-  style: string | JSX.CSSProperties | undefined,
-): JSX.CSSProperties | undefined {
-  return typeof style === 'object' ? style : undefined
-}
-
 function buildItemLabel(item: CommandPaletteT.Item): string {
   return item.label || item.value
 }
@@ -509,8 +503,8 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           virtualProps?.ref?.(element)
         }}
         style={{
-          ...toStyleObject(itemAttributes()?.style),
-          ...toStyleObject(virtualProps?.style),
+          ...itemAttributes()?.style,
+          ...virtualProps?.style,
           ...resolved.slot('item').style,
         }}
         class={cn(resolved.slot('item').class, [itemAttributes()?.class, virtualProps?.class])}
@@ -661,7 +655,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
                   data-slot="group"
                   {...context.props}
                   style={{
-                    ...toStyleObject(context.props?.style),
+                    ...context.props?.style,
                     ...resolved.slot('group').style,
                   }}
                   class={cn(resolved.slot('group').class, context.props?.class)}
@@ -687,7 +681,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             callRef(merged.listboxProps?.ref, element)
           }}
           style={{
-            ...toStyleObject(merged.listboxProps?.style),
+            ...merged.listboxProps?.style,
             ...resolved.slot('listbox').style,
           }}
           class={cn(resolved.slot('listbox').class, merged.listboxProps?.class)}

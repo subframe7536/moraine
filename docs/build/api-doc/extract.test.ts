@@ -172,6 +172,7 @@ export interface DemoProps { title: string }
     ) as IndexDoc
     const composites = new Set([
       'button-group',
+      'base-select',
       'input-group',
       'collapsible',
       'resizable',
