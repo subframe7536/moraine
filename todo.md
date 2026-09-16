@@ -24,7 +24,10 @@
 - [ ] itemRender in pagination (for custom link, maybe reuse button's as)
 - [ ] a better way to define destructive item in menu
 - [ ] correct document page's focus loop
+  - [ ] also audit all components
 - [ ] metric adjust across all sizes
+- [ ] better way to define slot styles. current cannot "go to definition"
+- [ ] type instantiation reduce, including `MoraineTypeConfig`
 
 # V1
 
