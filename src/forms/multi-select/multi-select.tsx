@@ -43,7 +43,9 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   })
   const baseSelectStyles = createBaseSelectStyleProps(styles.slot)
   const [created, setCreated] = createSignal<T[]>([])
-  const source = createMemo(() => createSource(local.items ?? [], created()))
+  const source = createMemo((prev: ReturnType<typeof createSource<T>> | undefined) =>
+    createSource(local.items ?? [], created(), prev),
+  )
   const editable = () => local.search === true || local.createItem !== undefined
   const search = useComboboxSearch(
     local,

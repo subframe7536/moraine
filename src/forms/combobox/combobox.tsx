@@ -40,7 +40,9 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
     inheritedVariants: () => ({ size: field?.size }),
   })
   const baseSelectStyles = createBaseSelectStyleProps(styles.slot)
-  const source = createMemo(() => createSource(local.items ?? []))
+  const source = createMemo((prev: ReturnType<typeof createSource<T>> | undefined) =>
+    createSource(local.items ?? [], undefined, prev),
+  )
   const search = useComboboxSearch(
     local,
     () => true,

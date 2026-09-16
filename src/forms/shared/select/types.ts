@@ -48,6 +48,7 @@ export type SelectRow<T extends BaseSelectT.Item> =
 export interface SelectView<T extends BaseSelectT.Item> {
   items: T[]
   rows: SelectRow<T>[]
+  byValue?: ReadonlyMap<T['value'], T>
 }
 export type SelectVirtualRenderProps<T extends BaseSelectT.Item> = ListT.VirtualRenderProps<
   SelectRow<T>,

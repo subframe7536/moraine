@@ -1,10 +1,3 @@
-## TODO in this PR
-
-- [x] cleanup prop types
-- [x] reuse classes
-- [x] reuse more logic
-- [ ] cleanup and polish docs
-
 ## Fix
 
 - [x] file-upload style refactor to https://diceui.com/docs/components/base/file-upload

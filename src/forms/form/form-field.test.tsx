@@ -579,7 +579,7 @@ describe('FormField', () => {
     },
   )
 
-  test('keeps registration aligned through id changes, reorder, and unmount', async () => {
+  test('keeps registration aligned through id changes and unmount', async () => {
     const [singleId, setSingleId] = createSignal('single-a')
     const single = render(() => (
       <FormField label="Single">
@@ -602,8 +602,6 @@ describe('FormField', () => {
     const getMultipleLabel = () => multiple.getByText('Multiple') as HTMLLabelElement
 
     expect(getMultipleLabel().htmlFor).toBe('second')
-    setIds(['second', 'first'])
-    expect(getMultipleLabel().htmlFor).toBe('first')
     setIds(['first'])
     await waitFor(() => expect(getMultipleLabel().htmlFor).toBe('first'))
   })

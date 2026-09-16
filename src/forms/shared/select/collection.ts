@@ -63,9 +63,24 @@ export function itemRowKey(value: BaseSelectT.Value): string {
 export function createSource<T extends BaseSelectT.Item>(
   entries: readonly SelectEntry<T>[],
   created: readonly T[] = [],
-) {
+  previous?: SelectView<T>,
+): SelectView<T> & { byValue: Map<T['value'], T> } {
   const view: SelectView<T> = { items: [], rows: [] }
   const byValue = new Map<T['value'], T>()
+  const previousRows = new Map<string, SelectRow<T>>()
+  if (previous) {
+    for (const row of previous.rows) {
+      previousRows.set(row.key, row)
+    }
+  }
+  function getRow(key: string, item: T): SelectRow<T> {
+    const existing = previousRows.get(key)
+    if (existing && existing.type === 'item') {
+      existing.item = item
+      return existing
+    }
+    return { type: 'item', key, item }
+  }
   function accept(item: T): boolean {
     if (byValue.has(item.value)) {
       diagnoseDuplicateValue('Select', item.value)
@@ -77,7 +92,7 @@ export function createSource<T extends BaseSelectT.Item>(
   function append(item: T) {
     if (accept(item)) {
       view.items.push(item)
-      view.rows.push({ type: 'item', key: itemRowKey(item.value), item })
+      view.rows.push(getRow(itemRowKey(item.value), item))
     }
   }
   entries.forEach((entry, index) => {
@@ -85,19 +100,21 @@ export function createSource<T extends BaseSelectT.Item>(
       const items = entry.items.filter(accept)
       if (items.length > 0) {
         view.items.push(...items)
-        view.rows.push({
-          type: 'label',
-          key: `group:${index}`,
-          label: entry.label,
-          values: items.map((item) => item.value),
-        })
-        view.rows.push(
-          ...items.map((item): SelectRow<T> => ({
-            type: 'item',
-            key: itemRowKey(item.value),
-            item,
-          })),
-        )
+        const groupKey = `group:${index}`
+        const existing = previousRows.get(groupKey)
+        if (existing && existing.type === 'label') {
+          existing.label = entry.label
+          existing.values = items.map((item) => item.value)
+          view.rows.push(existing)
+        } else {
+          view.rows.push({
+            type: 'label',
+            key: groupKey,
+            label: entry.label,
+            values: items.map((item) => item.value),
+          })
+        }
+        view.rows.push(...items.map((item): SelectRow<T> => getRow(itemRowKey(item.value), item)))
       }
     } else {
       append(entry)
@@ -112,11 +129,7 @@ export function createSource<T extends BaseSelectT.Item>(
   if (additions.length) {
     view.items.unshift(...additions)
     view.rows.unshift(
-      ...additions.map((item): SelectRow<T> => ({
-        type: 'item',
-        key: itemRowKey(item.value),
-        item,
-      })),
+      ...additions.map((item): SelectRow<T> => getRow(itemRowKey(item.value), item)),
     )
   }
   return { ...view, byValue }
@@ -130,6 +143,7 @@ export function filterView<T extends BaseSelectT.Item>(
   const values = new Set(items.map((item) => item.value))
   return {
     items,
+    byValue: source.byValue,
     rows: source.rows.flatMap<SelectRow<T>>((row) => {
       if (row.type === 'item') {
         return values.has(row.item.value) ? [row] : []

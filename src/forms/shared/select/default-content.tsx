@@ -54,19 +54,20 @@ function DefaultSelectContentBody<T extends SelectItem>(
     ),
   )
   let atBottom = false
-  function renderItem(item: T, rowProps?: ListT.RowProps<HTMLDivElement>) {
+  function renderItem(entryItem: T, rowProps?: ListT.RowProps<HTMLDivElement>) {
+    const item = () => props.view.byValue?.get(entryItem.value) ?? entryItem
     const presentation: BaseSelectT.ItemState<T> = {
       get item() {
-        return item
+        return item()
       },
       get selected() {
-        return state.value().includes(item.value)
+        return state.value().includes(item().value)
       },
       get highlighted() {
-        return sameValue(state.highlightedValue(), item.value)
+        return sameValue(state.highlightedValue(), item().value)
       },
       get disabled() {
-        return state.itemDisabled(item)
+        return state.itemDisabled(item())
       },
     }
     const attributes = createMemo(() => props.itemProps?.(presentation))
@@ -74,7 +75,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
       <BaseSelect.Item
         {...attributes()}
         {...rowProps}
-        item={item}
+        item={item()}
         ref={(element) => {
           callRef(attributes()?.ref, element)
           rowProps?.ref?.(element)
@@ -96,7 +97,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
           callHandler(event, attributes()?.onPointerDown)
           callHandler(event, rowProps?.onPointerDown)
         }}
-        aria-posinset={props.virtualRender ? positions().get(item.value) : undefined}
+        aria-posinset={props.virtualRender ? positions().get(item().value) : undefined}
         aria-setsize={props.virtualRender ? props.view.items.length : undefined}
       >
         {(itemState) => (
@@ -104,14 +105,14 @@ function DefaultSelectContentBody<T extends SelectItem>(
             when={itemRender() !== undefined}
             fallback={
               <>
-                <Show when={item.icon}>
+                <Show when={item().icon}>
                   {(icon) => (
                     <Icon name={icon()} slotName="itemLeading" {...props.slot('itemLeading')} />
                   )}
                 </Show>
                 <span data-slot="itemLabel" {...props.slot('itemLabel')}>
-                  {item.label}
-                  <Show when={item.description}>
+                  {item().label}
+                  <Show when={item().description}>
                     {(description) => (
                       <span data-slot="itemDescription" {...props.slot('itemDescription')}>
                         {description()}

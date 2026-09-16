@@ -35,7 +35,9 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
     inheritedVariants: () => ({ size: field?.size }),
   })
   const baseSelectStyles = createBaseSelectStyleProps(styles.slot)
-  const source = createMemo(() => createSource(local.items ?? []))
+  const source = createMemo((prev: ReturnType<typeof createSource<T>> | undefined) =>
+    createSource(local.items ?? [], undefined, prev),
+  )
   const selection = createMemo(() => singleValueToSelection(local.value))
   const defaultSelection = () => singleValueToSelection(local.defaultValue)
 
