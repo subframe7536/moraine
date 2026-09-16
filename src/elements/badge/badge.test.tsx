@@ -52,26 +52,76 @@ describe('Badge', () => {
     expect(badge?.getAttribute('aria-label')).toBe('status')
   })
 
-  test('applies variant and size classes', () => {
-    const solid = render(() => (
+  test('applies the refreshed variants and defaults to subtle', () => {
+    const screen = render(() => (
       <MoraineProvider theme={defaultTheme}>
-        <Badge variant="solid" size="lg">
-          Solid
-        </Badge>
+        <div>
+          <Badge>Default</Badge>
+          <Badge variant="solid">Solid</Badge>
+          <Badge variant="subtle">Subtle</Badge>
+          <Badge variant="surface">Surface</Badge>
+          <Badge variant="outline">Outline</Badge>
+        </div>
       </MoraineProvider>
     ))
-    const outline = render(() => (
-      <MoraineProvider theme={defaultTheme}>
-        <Badge variant="outline" size="sm">
-          Outline
-        </Badge>
-      </MoraineProvider>
-    ))
+    const roots = screen.container.querySelectorAll('[data-slot="root"]')
 
-    expect(solid.container.querySelector('[data-slot="root"]')?.className).toContain('bg-primary')
-    expect(outline.container.querySelector('[data-slot="root"]')?.className).toContain(
-      'border-border',
-    )
+    expect(roots[0]?.className).toContain('border-transparent')
+    expect(roots[0]?.className).toContain('bg-accent')
+    expect(roots[1]?.className).toContain('bg-primary')
+    expect(roots[2]?.className).toContain('border-transparent')
+    expect(roots[3]?.className).toContain('border-border')
+    expect(roots[3]?.className).toContain('bg-accent')
+    expect(roots[4]?.className).toContain('bg-background')
+  })
+
+  test('applies distinct size metrics and size-specific icon dimensions', () => {
+    const screen = render(() => (
+      <MoraineProvider theme={defaultTheme}>
+        <div>
+          <Badge size="sm" leading="i-lucide-check">
+            Small
+          </Badge>
+          <Badge size="md" trailing="i-lucide-x">
+            Medium
+          </Badge>
+          <Badge size="lg" leading="i-lucide-check">
+            Large
+          </Badge>
+        </div>
+      </MoraineProvider>
+    ))
+    const roots = screen.container.querySelectorAll('[data-slot="root"]')
+    const leading = screen.container.querySelectorAll('[data-slot="leading"]')
+    const trailing = screen.container.querySelector('[data-slot="trailing"]')
+
+    expect(roots[0]?.className).toContain('h-4')
+    expect(roots[1]?.className).toContain('h-5')
+    expect(roots[2]?.className).toContain('h-6')
+    expect(leading[0]?.className).toContain('size-3')
+    expect(trailing?.className).toContain('size-3.5')
+    expect(leading[1]?.className).toContain('size-4')
+  })
+
+  test('uses square geometry only for one-icon badges without a label', () => {
+    const screen = render(() => (
+      <MoraineProvider theme={defaultTheme}>
+        <div>
+          <Badge size="sm" leading="i-lucide-check" aria-label="Leading only" />
+          <Badge trailing="i-lucide-x" aria-label="Trailing only" />
+          <Badge leading="i-lucide-check">Label</Badge>
+          <Badge leading="i-lucide-check" trailing="i-lucide-x" aria-label="Two icons" />
+        </div>
+      </MoraineProvider>
+    ))
+    const roots = screen.container.querySelectorAll('[data-slot="root"]')
+
+    expect(roots[0]?.className).toContain('w-4')
+    expect(roots[0]?.className).toContain('px-0')
+    expect(roots[1]?.className).toContain('w-5')
+    expect(roots[1]?.className).toContain('px-0')
+    expect(roots[2]?.className).not.toContain('px-0')
+    expect(roots[3]?.className).not.toContain('px-0')
   })
 
   test('renders leading and trailing icon slots', () => {

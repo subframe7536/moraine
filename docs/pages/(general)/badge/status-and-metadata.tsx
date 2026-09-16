@@ -11,7 +11,7 @@ export function StatusAndMetadata() {
           <Badge variant="solid" leading="i-lucide:check-circle">
             Production Deployed
           </Badge>
-          <Badge variant="default" leading="i-lucide:loader-circle">
+          <Badge variant="subtle" leading="i-lucide:loader-circle">
             Building Preview...
           </Badge>
           <Badge variant="outline" leading="i-lucide:shield-check">

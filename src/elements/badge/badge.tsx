@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
+import { Show, children as resolveChildren, createMemo, mergeProps, splitProps } from 'solid-js'
 
 import { createComponentStyles } from '../../shared/provider'
 import { Icon } from '../icon'
@@ -19,8 +19,6 @@ export function Badge(props: BadgeProps): JSX.Element {
     'trailing',
     'children',
   ])
-  const resolved = createComponentStyles('badge', local)
-
   const leading = createMemo(() => local.leading)
   const trailing = createMemo(() => local.trailing)
   const resolvedChildren = resolveChildren(() => local.children)
@@ -28,6 +26,13 @@ export function Badge(props: BadgeProps): JSX.Element {
     const value = resolvedChildren()
     return value === 0 || Boolean(value)
   })
+  const square = () => !hasChildren() && Boolean(leading()) !== Boolean(trailing())
+  const styleProps = mergeProps(local, {
+    get square() {
+      return square()
+    },
+  })
+  const resolved = createComponentStyles('badge', styleProps)
 
   return (
     <span data-slot="root" {...rest} {...resolved.root}>

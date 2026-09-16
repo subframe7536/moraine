@@ -114,9 +114,9 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"default\" | \"outline\" | \"solid\" | \"subtle\" | undefined",
+        "type": "\"solid\" | \"subtle\" | \"surface\" | \"outline\" | undefined",
         "description": "Visual treatment of the component.",
-        "defaultValue": "default"
+        "defaultValue": "subtle"
       }
     ],
     "inherited": []

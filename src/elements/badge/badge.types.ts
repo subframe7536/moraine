@@ -24,9 +24,9 @@ export namespace BadgeT {
 
   export interface Variant {
     /** Visual treatment of the component.
-     * @default 'default'
+     * @default 'subtle'
      */
-    variant?: 'default' | 'outline' | 'solid' | 'subtle'
+    variant?: 'solid' | 'subtle' | 'surface' | 'outline'
     /** Visual size of the component.
      * @default 'md'
      */

@@ -18,9 +18,9 @@ import type { BadgeT } from 'moraine'
 
 ## Features
 
-- **Visual Variants**: `default`, `outline`, `solid`, and `subtle` presentations share the same content model.
-- **Leading & Trailing Adornments**: Add icons or other supported adornment content around the label.
-- **Size Scale**: `sm`, `md`, and `lg` adjust padding, typography, and icon sizing.
+- **Visual Variants**: `solid`, `subtle`, `surface`, and `outline` presentations share the same content model.
+- **Leading & Trailing Adornments**: Add icons around an optional label; a single icon without text automatically uses square geometry.
+- **Size Scale**: `sm`, `md`, and `lg` adjust height, padding, gap, typography, and icon sizing.
 - **Presentation Semantics**: Badge is presentational text rather than a special ARIA widget. If a badge contains an interactive control, that control must provide its own semantics and accessible name.
 
 ## Playground
@@ -32,12 +32,12 @@ import type { BadgeT } from 'moraine'
       kind: 'select',
       prop: 'variant',
       label: 'Variant',
-      defaultValue: 'default',
+      defaultValue: 'subtle',
       options: [
-        { label: 'Default', value: 'default' },
-        { label: 'Outline', value: 'outline' },
         { label: 'Solid', value: 'solid' },
         { label: 'Subtle', value: 'subtle' },
+        { label: 'Surface', value: 'surface' },
+        { label: 'Outline', value: 'outline' },
       ],
     },
     {
@@ -65,7 +65,7 @@ import type { BadgeT } from 'moraine'
 ```text
 root
 ├── leading (optional)
-├── label
+├── label (optional)
 └── trailing (optional)
 ```
 
