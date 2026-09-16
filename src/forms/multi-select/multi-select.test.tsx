@@ -49,25 +49,41 @@ describe('MultiSelect', () => {
     expect(input.readOnly).toBe(false)
   })
 
-  test('control click does not open by default and trigger click toggles', () => {
+  test('control click opens by default when non-editable and trigger click toggles', () => {
     const screen = render(() => <MultiSelect items={ITEMS} />)
     const input = screen.getByRole('combobox')
     const control = screen.container.querySelector('[data-slot="control"]')!
     const trigger = screen.getByRole('button', { name: 'Toggle options' })
-    fireEvent.click(control)
-    fireEvent.click(input)
     expect(input.getAttribute('aria-expanded')).toBe('false')
-    fireEvent.click(trigger)
+    fireEvent.click(control)
     expect(input.getAttribute('aria-expanded')).toBe('true')
     fireEvent.click(trigger)
     expect(input.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('openOnControlClick=true enables pointer opening', () => {
-    const screen = render(() => <MultiSelect items={ITEMS} openOnControlClick />)
+  test('control click does not open by default when editable', () => {
+    const screen = render(() => <MultiSelect items={ITEMS} search />)
     const input = screen.getByRole('combobox')
+    const control = screen.container.querySelector('[data-slot="control"]')!
+    fireEvent.click(control)
     fireEvent.click(input)
-    expect(input.getAttribute('aria-expanded')).toBe('true')
+    expect(input.getAttribute('aria-expanded')).toBe('false')
+  })
+
+  test('openOnControlClick explicitly overrides default behavior', () => {
+    // Non-editable with openOnControlClick={false} -> does not open
+    const screenDisabled = render(() => <MultiSelect items={ITEMS} openOnControlClick={false} />)
+    const controlDisabled = screenDisabled.container.querySelector('[data-slot="control"]')!
+    const inputDisabled = screenDisabled.getByRole('combobox')
+    fireEvent.click(controlDisabled)
+    expect(inputDisabled.getAttribute('aria-expanded')).toBe('false')
+
+    // Editable with openOnControlClick={true} -> opens
+    const screenEnabled = render(() => <MultiSelect items={ITEMS} search openOnControlClick />)
+    const controlEnabled = screenEnabled.container.querySelector('[data-slot="control"]')!
+    const inputEnabled = screenEnabled.getByRole('combobox')
+    fireEvent.click(controlEnabled)
+    expect(inputEnabled.getAttribute('aria-expanded')).toBe('true')
   })
 
   test('clear and trigger coexist without accidental opening', () => {
@@ -439,5 +455,65 @@ describe('MultiSelect', () => {
     const screenSearch = render(() => <MultiSelect items={ITEMS} search />)
     const controlSearch = screenSearch.container.querySelector('[data-slot="control"]')!
     expect(controlSearch.hasAttribute('data-editable')).toBe(true)
+  })
+
+  test('pressing Enter on a duplicate tag does not delete previously created tag', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect createItem={(input) => ({ value: input, label: input })} onChange={onChange} />
+    ))
+    const input = screen.getByRole('combobox')
+    // 1. Create first tag
+    fireEvent.input(input, { target: { value: 'alpha' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(onChange).toHaveBeenLastCalledWith(['alpha'])
+    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(1)
+
+    // 2. Type duplicate tag
+    fireEvent.input(input, { target: { value: 'alpha' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(1)
+  })
+
+  test('pressing Enter on a duplicate item from items collection does not delete the tag', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect items={ITEMS} defaultValue={['apple']} onChange={onChange} />
+    ))
+    const input = screen.getByRole('combobox')
+    fireEvent.input(input, { target: { value: 'apple' } })
+    expect(input.hasAttribute('data-duplicate')).toBe(true)
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(onChange).not.toHaveBeenCalled()
+    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(1)
+  })
+
+  test('entering duplicate tag via delimiter does not duplicate or delete existing tag', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        createItem={(input) => ({ value: input, label: input })}
+        defaultValue={['alpha']}
+        onChange={onChange}
+      />
+    ))
+    const input = screen.getByRole('combobox')
+    fireEvent.input(input, { target: { value: 'alpha,' } })
+    expect(onChange).not.toHaveBeenCalled()
+    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(1)
+  })
+
+  test('pressing Enter on a highlighted already-selected option does not deselect it', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect items={ITEMS} defaultValue={['apple']} onChange={onChange} defaultOpen />
+    ))
+    const input = screen.getByRole('combobox')
+    // 'app' matches 'apple', which is already selected
+    fireEvent.input(input, { target: { value: 'app' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(onChange).not.toHaveBeenCalled()
+    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(1)
   })
 })

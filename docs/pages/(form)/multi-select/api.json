@@ -564,8 +564,7 @@
         "name": "openOnControlClick",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Whether ordinary control/input pointer clicks open the popup.",
-        "defaultValue": "false"
+        "description": "Whether ordinary control/input pointer clicks open the popup.\nDefaults to `false` when editable (`search` or `createItem` enabled),\nor `true` when non-editable."
       },
       {
         "name": "overflowPadding",

@@ -78,7 +78,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       }
       let item = resolveInputItem(normalized)
       if (item && state.value().some((value) => sameValue(value, item!.value))) {
-        return true
+        return false
       }
       if (atMax() || (item && state.itemDisabled(item))) {
         return false
@@ -94,18 +94,21 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
         ) {
           return false
         }
-        item = source().byValue.get(candidate.value) ?? candidate
-        if (state.itemDisabled(item)) {
+        const createdItem = source().byValue.get(candidate.value) ?? candidate
+        if (state.itemDisabled(createdItem)) {
           return false
         }
-        if (!source().byValue.has(item.value)) {
-          const createdItem = item
+        if (state.value().some((value) => sameValue(value, createdItem.value))) {
+          return false
+        }
+        if (!source().byValue.has(createdItem.value)) {
           setCreated((previous) =>
             previous.some((entry) => sameValue(entry.value, createdItem.value))
               ? previous
               : [...previous, createdItem],
           )
         }
+        item = createdItem
       }
       if (!state.value().some((value) => sameValue(value, item.value))) {
         state.change([...state.value(), item.value])
@@ -159,8 +162,15 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       tags.tokenize,
     )
     const isDuplicate = () => {
-      const item = resolveInputItem(search.query())
-      return Boolean(item && state.value().some((value) => sameValue(value, item.value)))
+      const query = search.query().trim()
+      if (!query) {
+        return false
+      }
+      const item = resolveInputItem(query)
+      if (item) {
+        return state.value().some((value) => sameValue(value, item.value))
+      }
+      return state.value().some((value) => sameValue(value, query))
     }
 
     function focusInput(): void {
@@ -194,14 +204,16 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               event.pointerType !== 'pen'
             ) {
               event.preventDefault()
-              if (editable()) {
-                focusInput()
-              }
+              focusInput()
             }
           }}
           onClick={(event) => {
             callHandler(event, rootProps.onClick)
-            if (!event.defaultPrevented && (local.openOnControlClick ?? false)) {
+            if (
+              !event.defaultPrevented &&
+              !state.locked() &&
+              (local.openOnControlClick ?? !editable())
+            ) {
               focusInput()
               state.setOpen(true)
             }
@@ -251,11 +263,19 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   return
                 }
                 if (event.key === 'Enter') {
+                  if (isDuplicate()) {
+                    event.preventDefault()
+                    return
+                  }
                   if (state.open()) {
                     const highlighted = state
                       .items()
                       .find((item) => sameValue(item.value, state.highlightedValue()))
                     if (highlighted && !state.itemDisabled(highlighted)) {
+                      if (state.value().some((value) => sameValue(value, highlighted.value))) {
+                        event.preventDefault()
+                        return
+                      }
                       inputBinding.binding.onKeyDown(event)
                       return
                     }

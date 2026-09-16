@@ -228,7 +228,7 @@ export function FormField<
     registerControl,
   }
 
-  function renderFieldRoot(): JSX.Element {
+  function RenderFieldRoot(): JSX.Element {
     const body = resolveChildren(() => merged.children as JSX.Element)
     const fieldChildren = renderComponentOrElement<FormFieldT.RenderContext>(body(), {
       get error() {
@@ -296,5 +296,9 @@ export function FormField<
     )
   }
 
-  return <FormFieldProvider value={fieldContextValue}>{renderFieldRoot()}</FormFieldProvider>
+  return (
+    <FormFieldProvider value={fieldContextValue}>
+      <RenderFieldRoot />
+    </FormFieldProvider>
+  )
 }
