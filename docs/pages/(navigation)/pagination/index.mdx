@@ -22,7 +22,7 @@ import type { PaginationT } from 'moraine'
 - **Sibling Window**: `siblingCount` controls how many nearby page numbers remain visible around the current page, with ellipses filling gaps.
 - **Navigation Controls**: `showControls` controls previous/next buttons. The first and last page numbers remain available around the sibling window.
 - **Pagination Landmark**: Uses a pagination navigation landmark and marks the active page with `aria-current="page"`.
-- **Link Destinations**: Use `to(page)` to generate anchor destinations for page controls.
+- **Flexible Navigation Elements**: `to(page)` generates destinations, while `itemAs` and `controlAs` can render numbered items and Previous/Next through custom components.
 - **Controlled State**: `page` and `onPageChange` support application-owned page state.
 
 ## Playground
@@ -81,9 +81,9 @@ import type { PaginationT } from 'moraine'
 ```text
 root (pagination navigation)
 └── list
-    ├── item → prev (optional)
-    ├── item → page link / ellipsis (×n)
-    └── item → next (optional)
+    ├── listItem → prev (optional)
+    ├── listItem → item / ellipsis (×n)
+    └── listItem → next (optional)
 ```
 
 ## Usage
@@ -96,7 +96,7 @@ Use `page` with `onPageChange` for controlled navigation. `total` is the number 
 
 ### Rendering links
 
-Use `to(page)` to render page controls as links. This example uses Solid Router's `useSearchParams` to keep the current page synchronized with destinations such as `/pagination?page=2`, including browser back and forward navigation. The application owns URL state; `to` only generates destinations.
+Use `to(page)` by itself to render enabled page controls as anchors. For router integration, use `itemAs` for numbered items and `controlAs` for Previous/Next; these props are independent and `to` still only generates the destination. This example uses Solid Router's `A` and `useSearchParams` to keep the current page synchronized with destinations such as `/pagination?page=2`. Boundary Previous/Next controls remain native disabled buttons even when `controlAs` is set.
 
 <Preview path="./link-rendering" />
 

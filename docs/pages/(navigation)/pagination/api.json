@@ -37,8 +37,8 @@
       "ariaAttributes": []
     },
     {
-      "name": "item",
-      "description": "Individual page control or ellipsis item.",
+      "name": "listItem",
+      "description": "Structural wrapper for a page control, ellipsis, previous control, or next control.",
       "cssVariables": [],
       "dataAttributes": [
         {
@@ -58,8 +58,8 @@
       ]
     },
     {
-      "name": "link",
-      "description": "Clickable page navigation control.",
+      "name": "item",
+      "description": "Interactive numbered page control.",
       "cssVariables": [],
       "dataAttributes": [
         {
@@ -223,6 +223,12 @@
         "type": "PaginationT.Classes | undefined"
       },
       {
+        "name": "controlAs",
+        "required": false,
+        "type": "ValidComponent | undefined",
+        "description": "Component used to render previous and next controls."
+      },
+      {
         "name": "controlVariant",
         "required": false,
         "type": "\"link\" | \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | undefined",
@@ -248,6 +254,12 @@
         "type": "IconT.Name",
         "description": "Icon name for the ellipsis indicator.",
         "defaultValue": "icon-ellipsis"
+      },
+      {
+        "name": "itemAs",
+        "required": false,
+        "type": "ValidComponent | undefined",
+        "description": "Component used to render numbered page items."
       },
       {
         "name": "itemsPerPage",
@@ -335,7 +347,7 @@
         "name": "to",
         "required": false,
         "type": "((page: number) => string | undefined) | undefined",
-        "description": "Function to generate a destination URL for a given page number.\nIf provided, pagination items will render as anchor tags."
+        "description": "Function to generate a destination URL for a given page number.\nWithout a custom component, enabled pagination controls with a destination render as anchors."
       },
       {
         "name": "total",

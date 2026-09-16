@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { For, Show, createMemo, createSignal, mergeProps, splitProps } from 'solid-js'
+import type { JSX, ValidComponent } from 'solid-js'
+import { For, Show, createSignal, mergeProps, splitProps } from 'solid-js'
 
 import { Button } from '../../elements/button'
 import type { ButtonProps } from '../../elements/button'
@@ -10,6 +10,7 @@ import { callRef } from '../../shared/utils'
 import type { PaginationProps } from './pagination.types'
 
 const MAX_SIBLING_COUNT = 100
+const ELLIPSIS = -1
 
 function clampPage(page: number, count: number): number {
   return Math.min(Math.max(page, 1), Math.max(count, 1))
@@ -28,6 +29,33 @@ function createRange(start: number, end: number): number[] {
     return []
   }
   return Array.from({ length: end - start + 1 }, (_, index) => start + index)
+}
+
+function getPaginationItems(page: number, count: number, siblingCount: number): number[] {
+  if (siblingCount * 2 + 5 >= count) {
+    return createRange(1, count)
+  }
+
+  const left = Math.max(page - siblingCount, 1)
+  const right = Math.min(page + siblingCount, count)
+  const showLeft = left > 2
+  const showRight = right < count - 1
+
+  if (!showLeft && showRight) {
+    return [...createRange(1, 3 + siblingCount * 2), ELLIPSIS, count]
+  }
+  if (showLeft && !showRight) {
+    return [1, ELLIPSIS, ...createRange(count - (2 + siblingCount * 2), count)]
+  }
+  return [1, ELLIPSIS, ...createRange(left, right), ELLIPSIS, count]
+}
+
+interface InteractiveProps {
+  as: ValidComponent
+  href?: string
+  rel?: string
+  type?: 'button'
+  disabled?: boolean
 }
 
 function getSize(size: string | null | undefined, text?: string): ButtonProps['size'] {
@@ -61,6 +89,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'nextText',
     'ellipsisIcon',
     'to',
+    'itemAs',
+    'controlAs',
     'classes',
     'styles',
     'class',
@@ -90,41 +120,24 @@ export function Pagination(props: PaginationProps): JSX.Element {
     normalizeInteger(merged.defaultPage, 1, 1, Number.MAX_SAFE_INTEGER),
   )
 
-  const pageCount = createMemo(() => {
+  const pageCount = () => {
     const safeItemsPerPage = normalizeInteger(merged.itemsPerPage, 10, 1, Number.MAX_SAFE_INTEGER)
     const safeTotal = normalizeInteger(merged.total, 0, 0, Number.MAX_SAFE_INTEGER)
     return Math.max(1, Math.ceil(safeTotal / safeItemsPerPage))
-  })
+  }
 
-  const resolvedPage = createMemo(() =>
+  const currentPage = () =>
     clampPage(
       normalizeInteger(merged.page ?? internalPage(), 1, 1, Number.MAX_SAFE_INTEGER),
       pageCount(),
-    ),
-  )
+    )
 
-  const paginationItems = createMemo(() => {
-    const page = resolvedPage()
-    const count = pageCount()
-    const siblings = normalizeInteger(merged.siblingCount, 2, 0, MAX_SIBLING_COUNT)
-
-    if (siblings * 2 + 5 >= count) {
-      return createRange(1, count)
-    }
-
-    const left = Math.max(page - siblings, 1)
-    const right = Math.min(page + siblings, count)
-    const showLeft = left > 2
-    const showRight = right < count - 1
-
-    if (!showLeft && showRight) {
-      return [...createRange(1, 3 + siblings * 2), -1, count]
-    }
-    if (showLeft && !showRight) {
-      return [1, -1, ...createRange(count - (2 + siblings * 2), count)]
-    }
-    return [1, -1, ...createRange(left, right), -1, count]
-  })
+  const paginationItems = () =>
+    getPaginationItems(
+      currentPage(),
+      pageCount(),
+      normalizeInteger(merged.siblingCount, 2, 0, MAX_SIBLING_COUNT),
+    )
 
   const selectPage = (targetPage: number, event?: MouseEvent): void => {
     if (event?.defaultPrevented || merged.disabled) {
@@ -132,7 +145,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     }
 
     const next = clampPage(targetPage, pageCount())
-    if (next === resolvedPage()) {
+    if (next === currentPage()) {
       return
     }
 
@@ -142,20 +155,28 @@ export function Pagination(props: PaginationProps): JSX.Element {
     merged.onPageChange?.(next)
   }
 
-  const getControlProps = (
-    target: number,
-    isEdge: boolean,
-    rel?: string,
-  ): {
-    as?: 'a'
-    href?: string
-    rel?: string
-    type?: 'button'
-    disabled?: boolean
-  } => {
-    const disabled = Boolean(merged.disabled) || isEdge
-    const href = disabled ? undefined : merged.to?.(target)
-    return href ? { as: 'a' as const, href, rel } : { type: 'button' as const, disabled }
+  const getItemProps = (target: number): InteractiveProps => {
+    if (merged.disabled) {
+      return { as: 'button', type: 'button', disabled: true }
+    }
+
+    const href = merged.to?.(target)
+    if (merged.itemAs) {
+      return href ? { as: merged.itemAs, href } : { as: merged.itemAs }
+    }
+    return href ? { as: 'a', href } : { as: 'button', type: 'button' }
+  }
+
+  const getControlProps = (target: number, isEdge: boolean, rel?: string): InteractiveProps => {
+    if (merged.disabled || isEdge) {
+      return { as: 'button', type: 'button', disabled: true }
+    }
+
+    const href = merged.to?.(target)
+    if (merged.controlAs) {
+      return href ? { as: merged.controlAs, href, rel } : { as: merged.controlAs }
+    }
+    return href ? { as: 'a', href, rel } : { as: 'button', type: 'button' }
   }
 
   const getPageLabel = (page: number, isCurrent: boolean): string => {
@@ -167,7 +188,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
   }
 
   const getPrevLabel = (): string => {
-    const current = resolvedPage()
+    const current = currentPage()
     if (current <= 1) {
       return 'Go to previous page'
     }
@@ -175,16 +196,13 @@ export function Pagination(props: PaginationProps): JSX.Element {
   }
 
   const getNextLabel = (): string => {
-    const current = resolvedPage()
+    const current = currentPage()
     const total = pageCount()
     if (current >= total) {
       return 'Go to next page'
     }
     return `Go to next page, page ${current + 1}`
   }
-
-  const hasPrevText = createMemo(() => Boolean(merged.prevText))
-  const hasNextText = createMemo(() => Boolean(merged.nextText))
 
   return (
     <nav
@@ -197,20 +215,20 @@ export function Pagination(props: PaginationProps): JSX.Element {
     >
       <ul data-slot="list" {...resolved.slot('list')}>
         <Show when={merged.showControls}>
-          <li data-slot="item" {...resolved.slot('item')}>
+          <li data-slot="list-item" {...resolved.slot('listItem')}>
             <Button
               data-slot="prev"
               variant={resolved.variants.controlVariant}
-              size={getSize(resolved.variants.size, hasPrevText() ? merged.prevText : undefined)}
+              size={getSize(resolved.variants.size, merged.prevText)}
               aria-label={getPrevLabel()}
-              data-text={hasPrevText() ? '' : undefined}
+              data-text={merged.prevText ? '' : undefined}
               {...resolved.slot('prev')}
-              classes={{ label: hasPrevText() ? resolved.slot('controlLabel').class : undefined }}
-              onClick={(event) => selectPage(resolvedPage() - 1, event)}
-              {...getControlProps(resolvedPage() - 1, resolvedPage() <= 1, 'prev')}
-              leading={hasPrevText() ? merged.prevIcon : undefined}
+              classes={{ label: merged.prevText ? resolved.slot('controlLabel').class : undefined }}
+              onClick={(event) => selectPage(currentPage() - 1, event)}
+              {...getControlProps(currentPage() - 1, currentPage() <= 1, 'prev')}
+              leading={merged.prevText ? merged.prevIcon : undefined}
             >
-              <Show when={hasPrevText()} fallback={<Icon name={merged.prevIcon} />}>
+              <Show when={merged.prevText} fallback={<Icon name={merged.prevIcon} />}>
                 {merged.prevText}
               </Show>
             </Button>
@@ -219,16 +237,16 @@ export function Pagination(props: PaginationProps): JSX.Element {
 
         <For each={paginationItems()}>
           {(item) => {
-            const isActive = () => item === resolvedPage()
+            const isActive = () => item === currentPage()
             return (
               <li
-                data-slot="item"
-                aria-hidden={item < 0 ? true : undefined}
-                data-ellipsis={item < 0 ? '' : undefined}
-                {...resolved.slot('item')}
+                data-slot="list-item"
+                aria-hidden={item === ELLIPSIS ? true : undefined}
+                data-ellipsis={item === ELLIPSIS ? '' : undefined}
+                {...resolved.slot('listItem')}
               >
                 <Show
-                  when={item >= 0}
+                  when={item !== ELLIPSIS}
                   fallback={
                     <Icon
                       slotName="ellipsis"
@@ -238,7 +256,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                   }
                 >
                   <Button
-                    data-slot="link"
+                    data-slot="item"
                     variant={
                       isActive() ? resolved.variants.activeVariant : resolved.variants.variant
                     }
@@ -246,9 +264,9 @@ export function Pagination(props: PaginationProps): JSX.Element {
                     aria-current={isActive() ? 'page' : undefined}
                     aria-label={getPageLabel(item, isActive())}
                     data-current={isActive() ? '' : undefined}
-                    {...resolved.slot('link')}
+                    {...resolved.slot('item')}
                     onClick={(event) => selectPage(item, event)}
-                    {...getControlProps(item, false)}
+                    {...getItemProps(item)}
                   >
                     {item}
                   </Button>
@@ -259,20 +277,20 @@ export function Pagination(props: PaginationProps): JSX.Element {
         </For>
 
         <Show when={merged.showControls}>
-          <li data-slot="item" {...resolved.slot('item')}>
+          <li data-slot="list-item" {...resolved.slot('listItem')}>
             <Button
               data-slot="next"
               variant={resolved.variants.controlVariant}
-              size={getSize(resolved.variants.size, hasNextText() ? merged.nextText : undefined)}
+              size={getSize(resolved.variants.size, merged.nextText)}
               aria-label={getNextLabel()}
-              data-text={hasNextText() ? '' : undefined}
+              data-text={merged.nextText ? '' : undefined}
               {...resolved.slot('next')}
-              classes={{ label: hasNextText() ? resolved.slot('controlLabel').class : undefined }}
-              onClick={(event) => selectPage(resolvedPage() + 1, event)}
-              {...getControlProps(resolvedPage() + 1, resolvedPage() >= pageCount(), 'next')}
-              trailing={hasNextText() ? merged.nextIcon : undefined}
+              classes={{ label: merged.nextText ? resolved.slot('controlLabel').class : undefined }}
+              onClick={(event) => selectPage(currentPage() + 1, event)}
+              {...getControlProps(currentPage() + 1, currentPage() >= pageCount(), 'next')}
+              trailing={merged.nextText ? merged.nextIcon : undefined}
             >
-              <Show when={hasNextText()} fallback={<Icon name={merged.nextIcon} />}>
+              <Show when={merged.nextText} fallback={<Icon name={merged.nextIcon} />}>
                 {merged.nextText}
               </Show>
             </Button>
@@ -281,7 +299,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       </ul>
 
       <div data-slot="status" role="status" aria-live="polite" aria-atomic="true" class="sr-only">
-        Page {resolvedPage()} of {pageCount()}
+        Page {currentPage()} of {pageCount()}
       </div>
     </nav>
   )

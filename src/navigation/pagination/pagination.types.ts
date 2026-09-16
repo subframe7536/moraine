@@ -1,4 +1,4 @@
-import type { Ref } from 'solid-js'
+import type { Ref, ValidComponent } from 'solid-js'
 
 import type { ButtonProps } from '../../elements/button'
 import type { IconT } from '../../elements/icon'
@@ -18,11 +18,11 @@ export namespace PaginationT {
     /** Wrapper that lays out page, ellipsis, previous, and next controls. */
     list?: T
 
-    /** Individual page control or ellipsis item. */
-    item?: T
+    /** Structural wrapper for a page control, ellipsis, previous control, or next control. */
+    listItem?: T
 
-    /** Clickable page navigation control. */
-    link?: T
+    /** Interactive numbered page control. */
+    item?: T
 
     /** Control that navigates to the previous page. */
     prev?: T
@@ -153,9 +153,15 @@ export namespace PaginationT {
 
     /**
      * Function to generate a destination URL for a given page number.
-     * If provided, pagination items will render as anchor tags.
+     * Without a custom component, enabled pagination controls with a destination render as anchors.
      */
     to?: (page: number) => string | undefined
+
+    /** Component used to render numbered page items. */
+    itemAs?: ValidComponent
+
+    /** Component used to render previous and next controls. */
+    controlAs?: ValidComponent
   }
 
   /**

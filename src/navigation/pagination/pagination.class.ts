@@ -8,8 +8,8 @@ export const paginationRecipe = /* @__PURE__ */ slotRecipe<PaginationT.Slot, Pag
   base: {
     root: 'mx-auto flex w-full justify-center',
     list: 'flex gap-1 items-center justify-center',
-    item: 'flex items-center justify-center data-ellipsis:size-9',
-    link: 'outline-none',
+    listItem: 'flex items-center justify-center data-ellipsis:size-9',
+    item: 'outline-none',
     prev: 'data-text:ps-2!',
     next: 'data-text:pe-2!',
     ellipsis: '',

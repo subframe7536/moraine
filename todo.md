@@ -14,7 +14,7 @@
 - [ ] kbd-group 's `*Render` should be renamed and reconsider default value
 - [ ] sidebar-frame styling is broken, more useful usage and example
 - [ ] src/forms/form/form-field.tsx 's `local.form` should be reconsidered
-- [ ] itemRender in pagination (for custom link, maybe reuse button's as)
+- [x] pagination custom item/control components via itemAs/controlAs
 - [ ] a better way to define destructive item in menu
 - [ ] correct document page's focus loop
   - [ ] also audit all components

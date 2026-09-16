@@ -13,7 +13,7 @@ describe('Pagination SSR Hydration', () => {
       'renderSinglePagePaginationFixture',
     )
 
-    expect(markup.match(/data-slot="link"/g)).toHaveLength(1)
+    expect(markup.match(/data-slot="item"/g)).toHaveLength(1)
     expect(markup).toContain('Page 1 of 1')
     expect(markup).not.toContain('data-slot="ellipsis"')
   })

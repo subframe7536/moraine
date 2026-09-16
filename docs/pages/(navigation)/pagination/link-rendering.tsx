@@ -1,4 +1,4 @@
-import { useSearchParams } from '@solidjs/router'
+import { A, useSearchParams } from '@solidjs/router'
 import { Pagination } from '@src'
 import { createMemo } from 'solid-js'
 
@@ -11,6 +11,8 @@ export function LinkRendering() {
   return (
     <div class="flex w-full justify-center">
       <Pagination
+        itemAs={A}
+        controlAs={A}
         total={50}
         itemsPerPage={10}
         page={page()}
