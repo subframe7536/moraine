@@ -10,8 +10,8 @@ import { useFormFieldContext } from '../form/form-context.ts'
 import { createSource } from '../shared/select/collection.ts'
 import { DefaultSelectContent } from '../shared/select/default-content.tsx'
 import {
-  BASE_SELECT_FORWARD_PROP_KEYS,
   BASE_SELECT_SHARED_SLOTS,
+  SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   SELECT_LOCAL_PROP_KEYS,
 } from '../shared/select/props.ts'
 
@@ -22,7 +22,7 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
   const [local, baseSelectProps, rootProps] = splitProps(
     props,
     SELECT_LOCAL_PROP_KEYS,
-    BASE_SELECT_FORWARD_PROP_KEYS,
+    SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFormFieldContext()
   const styles = createComponentStyles('select', props, {

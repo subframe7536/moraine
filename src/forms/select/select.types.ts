@@ -1,5 +1,3 @@
-import type { Ref } from 'solid-js'
-
 import type { IconT } from '../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
@@ -7,10 +5,12 @@ import type { BaseSelectT } from '../base-select/base-select.types.ts'
 import type { FormValueOptions } from '../shared/form-options.ts'
 import type {
   SelectItem,
+  SelectControlVariant,
   ContentProps,
   SelectRow,
   SelectGroup,
   SelectEntry,
+  SelectItemSlot,
   SelectVirtualRenderProps,
 } from '../shared/select/types.ts'
 
@@ -39,18 +39,7 @@ export namespace SelectT {
     clear?: T
   }
 
-  export interface ItemSlot<T = unknown> {
-    /** Message shown when filtering leaves no selectable items. */
-    empty?: T
-    /** Leading icon inside an item row. */
-    itemLeading?: T
-    /** Text region containing the primary label and optional description. */
-    itemLabel?: T
-    /** Supporting description text inside an item row. */
-    itemDescription?: T
-    /** Trailing region inside an item row, usually for selection state or custom content. */
-    itemTrailing?: T
-  }
+  export interface ItemSlot<T = unknown> extends SelectItemSlot<T> {}
 
   export interface EmptyRenderProps<TItem extends Item = Item> {
     /** Whether the collection has any selectable items. */
@@ -62,16 +51,7 @@ export namespace SelectT {
   }
 
   export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, ItemSlot<T> {}
-  export interface Variant {
-    /** Visual treatment of the component.
-     * @default 'outline'
-     */
-    variant?: 'outline' | 'subtle' | 'ghost' | 'none'
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-  }
+  export interface Variant extends SelectControlVariant {}
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -79,10 +59,11 @@ export namespace SelectT {
 
   export interface Base<TItem extends Item = Item>
     extends
-      Omit<
-        BaseSelectT.Base<TItem>,
-        'children' | 'classes' | 'styles' | 'size' | 'items' | 'serializeValue'
-      >,
+      BaseSelectT.FieldProps,
+      BaseSelectT.DisclosureProps,
+      BaseSelectT.ItemBehaviorProps<TItem>,
+      BaseSelectT.CloseOnSelectOption,
+      BaseSelectT.ResetProps,
       ContentProps<TItem>,
       FormValueOptions<TItem['value'] | null> {
     /** Source items, optionally grouped. Item values must be unique within the collection. */
@@ -127,8 +108,4 @@ export namespace SelectT {
   >
 }
 
-export interface SelectProps<
-  TItem extends SelectT.Item = SelectT.Item,
-> extends SelectT.Props<TItem> {
-  ref?: Ref<HTMLDivElement>
-}
+export type SelectProps<TItem extends SelectT.Item = SelectT.Item> = SelectT.Props<TItem>

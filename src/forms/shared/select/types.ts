@@ -14,6 +14,26 @@ export interface SelectItem<
   /** Secondary item description. */
   description?: JSX.Element
 }
+/** Shared visual variants for the Select-family field controls. */
+export interface SelectControlVariant {
+  /** Visual treatment of the component. @default 'outline' */
+  variant?: 'outline' | 'subtle' | 'ghost' | 'none'
+  /** Visual size of the component. @default 'md' */
+  size?: 'sm' | 'md' | 'lg'
+}
+/** Shared item-content slots for collection-backed Select-family controls. */
+export interface SelectItemSlot<T = unknown> {
+  /** Message shown when filtering leaves no selectable items. */
+  empty?: T
+  /** Leading icon inside an item row. */
+  itemLeading?: T
+  /** Text region containing the primary label and optional description. */
+  itemLabel?: T
+  /** Supporting description text inside an item row. */
+  itemDescription?: T
+  /** Trailing region inside an item row, usually for selection state or custom content. */
+  itemTrailing?: T
+}
 export interface SelectGroup<T extends BaseSelectT.Item> {
   /** Structural group discriminator. */
   type: 'group'

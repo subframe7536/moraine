@@ -81,11 +81,10 @@ export namespace TagsInputT {
     onInput?: JSX.InputEventHandlerUnion<HTMLInputElement, InputEvent>
     /** Native input key event after tag behavior. */
     onKeyDown?: JSX.EventHandlerUnion<HTMLInputElement, KeyboardEvent>
+    /** Optional inner input element ref. */
+    inputRef?: Ref<HTMLInputElement>
   }
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
-export interface TagsInputProps extends TagsInputT.Props {
-  ref?: Ref<HTMLDivElement>
-  inputRef?: Ref<HTMLInputElement>
-}
+export type TagsInputProps = TagsInputT.Props

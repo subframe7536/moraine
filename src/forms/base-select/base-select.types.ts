@@ -47,31 +47,47 @@ export namespace BaseSelectT {
   }
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export interface Base<TItem extends Item>
-    extends
-      FormIdentityOptions,
-      FormDisableOption,
-      FormReadOnlyOption,
-      FormRequiredOption,
-      Variant {
-    /** Current flat navigation collection. */
-    items?: readonly TItem[]
-    /** Machine-readable text for matching; does not change visual labels. */
-    itemToLabelString?: (item: TItem) => string
-    /** Additional disabled policy evaluated against the current selection. */
-    isItemDisabled?: (item: TItem, values: readonly TItem['value'][]) => boolean
-    /** Native form value; return undefined to omit a selected value from submission. */
-    serializeValue?: (value: TItem['value']) => string | undefined
-    /** Post-reset notification after an unprevented native form reset. */
-    onReset?: () => void
+  /** Form identity and state forwarded to the selection machine. */
+  export interface FieldProps
+    extends FormIdentityOptions, FormDisableOption, FormReadOnlyOption, FormRequiredOption {}
+  /** Controlled and uncontrolled popup state. */
+  export interface DisclosureProps {
     /** Controlled popup state. */
     open?: boolean
     /** Initial popup state. @default false */
     defaultOpen?: boolean
     /** Called when popup state changes. */
     onOpenChange?: (open: boolean) => void
+  }
+  /** Item policies used by navigation, filtering, and selection. */
+  export interface ItemBehaviorProps<TItem extends Item> {
+    /** Machine-readable text for matching; does not change visual labels. */
+    itemToLabelString?: (item: TItem) => string
+    /** Additional disabled policy evaluated against the current selection. */
+    isItemDisabled?: (item: TItem, values: readonly TItem['value'][]) => boolean
+  }
+  /** Selection behavior that visual single-value wrappers may forward. */
+  export interface CloseOnSelectOption {
     /** Close after selection. Defaults to true for single, false for multiple. */
     closeOnSelect?: boolean
+  }
+  /** Reset notification forwarded by higher-level collection controls. */
+  export interface ResetProps {
+    /** Post-reset notification after an unprevented native form reset. */
+    onReset?: () => void
+  }
+  export interface Base<TItem extends Item>
+    extends
+      FieldProps,
+      DisclosureProps,
+      ItemBehaviorProps<TItem>,
+      CloseOnSelectOption,
+      ResetProps,
+      Variant {
+    /** Current flat navigation collection. */
+    items?: readonly TItem[]
+    /** Native form value; return undefined to omit a selected value from submission. */
+    serializeValue?: (value: TItem['value']) => string | undefined
     /** Classes for popup parts. */
     classes?: Classes
     /** Styles for popup parts. */

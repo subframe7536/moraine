@@ -186,7 +186,8 @@
       {
         "name": "inputRef",
         "required": false,
-        "type": "Ref<HTMLInputElement> | undefined"
+        "type": "Ref<HTMLInputElement> | undefined",
+        "description": "Optional inner input element ref."
       },
       {
         "name": "inputValue",
@@ -258,7 +259,7 @@
       {
         "name": "ref",
         "required": false,
-        "type": "Ref<HTMLDivElement> | undefined"
+        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
         "name": "required",

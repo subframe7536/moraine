@@ -1,5 +1,19 @@
-import { BaseSelect, Button, Combobox, MultiSelect, Select } from 'moraine'
-import type { BaseSelectT, SelectT } from 'moraine'
+import { BaseSelect, Button, Combobox, MultiSelect, Select, TagsInput } from 'moraine'
+import type {
+  BaseSelectT,
+  ComboboxProps,
+  ComboboxT,
+  MultiSelectProps,
+  MultiSelectT,
+  SelectProps,
+  SelectT,
+  TagsInputProps,
+  TagsInputT,
+} from 'moraine'
+
+type Assert<T extends true> = T
+type Equal<T, U> =
+  (<V>() => V extends T ? 1 : 2) extends <V>() => V extends U ? 1 : 2 ? true : false
 
 interface UserItem extends BaseSelectT.Item<number> {
   email: string
@@ -10,6 +24,15 @@ interface BusinessItem extends BaseSelectT.Item<string> {
 }
 const items: UserItem[] = [{ value: 1, label: 'One', email: 'one@example.com' }]
 const group: SelectT.Group<UserItem> = { type: 'group', label: 'Users', items }
+const divRef = (element: HTMLDivElement) => element.focus()
+const inputRef = (element: HTMLInputElement) => element.focus()
+
+export type SelectFamilyPropAliases = [
+  Assert<Equal<SelectProps<UserItem>, SelectT.Props<UserItem>>>,
+  Assert<Equal<ComboboxProps<UserItem>, ComboboxT.Props<UserItem>>>,
+  Assert<Equal<MultiSelectProps<UserItem>, MultiSelectT.Props<UserItem>>>,
+  Assert<Equal<TagsInputProps, TagsInputT.Props>>,
+]
 ;<BaseSelect<UserItem>
   items={items}
   onChange={(value) => {
@@ -63,6 +86,12 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
   filterItem={(_, item) => item.value === 1}
 />
 ;<MultiSelect items={items} />
+;<Select items={items} ref={divRef} />
+;<Combobox items={items} ref={divRef} inputRef={inputRef} />
+;<MultiSelect items={items} ref={divRef} inputRef={inputRef} />
+;<TagsInput ref={divRef} inputRef={inputRef} />
+// @ts-expect-error Select has no inaccessible inner native input.
+;<Select items={items} inputRef={inputRef} />
 // @ts-expect-error MultiSelect always remains open after item selection.
 ;<MultiSelect items={items} closeOnSelect />
 // @ts-expect-error Select and MultiSelect expose control, not root, as their styling slot.

@@ -1,6 +1,6 @@
 ## TODO in this PR
 
-- [ ] cleanup prop types
+- [x] cleanup prop types
 - [ ] reuse classes
 - [ ] reuse more logic
 - [ ] cleanup and polish docs

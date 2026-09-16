@@ -8,9 +8,11 @@ import type { FormValueOptions } from '../shared/form-options.ts'
 import type {
   ContentProps,
   SearchProps,
+  SelectControlVariant,
   SelectEntry,
   SelectGroup,
   SelectItem,
+  SelectItemSlot,
   SelectRow,
   SelectVirtualRenderProps,
 } from '../shared/select/types.ts'
@@ -37,18 +39,7 @@ export namespace ComboboxT {
     /** Secondary button that toggles the popup. */
     trigger?: T
   }
-  export interface ItemSlot<T = unknown> {
-    /** Message shown when filtering leaves no selectable items. */
-    empty?: T
-    /** Leading icon inside an item row. */
-    itemLeading?: T
-    /** Text region containing the primary label and optional description. */
-    itemLabel?: T
-    /** Supporting description text inside an item row. */
-    itemDescription?: T
-    /** Trailing region inside an item row. */
-    itemTrailing?: T
-  }
+  export interface ItemSlot<T = unknown> extends SelectItemSlot<T> {}
   export interface EmptyRenderProps<TItem extends Item = Item> {
     /** Current query text. */
     inputValue: string
@@ -60,21 +51,17 @@ export namespace ComboboxT {
     close: () => void
   }
   export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, ItemSlot<T> {}
-  export interface Variant {
-    /** Visual treatment of the component. @default 'outline' */
-    variant?: 'outline' | 'subtle' | 'ghost' | 'none'
-    /** Visual size of the component. @default 'md' */
-    size?: 'sm' | 'md' | 'lg'
-  }
+  export interface Variant extends SelectControlVariant {}
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item<Val extends Value = Value> extends SelectItem<Val> {}
   export interface Base<TItem extends Item = Item>
     extends
-      Omit<
-        BaseSelectT.Base<TItem>,
-        'children' | 'classes' | 'styles' | 'size' | 'items' | 'serializeValue'
-      >,
+      BaseSelectT.FieldProps,
+      BaseSelectT.DisclosureProps,
+      BaseSelectT.ItemBehaviorProps<TItem>,
+      BaseSelectT.CloseOnSelectOption,
+      BaseSelectT.ResetProps,
       SearchProps<TItem>,
       ContentProps<TItem>,
       FormValueOptions<TItem['value'] | null> {
@@ -94,6 +81,8 @@ export namespace ComboboxT {
     onClear?: () => void
     /** Whether ordinary control/input pointer clicks open the popup. @default false */
     openOnControlClick?: boolean
+    /** Optional inner input element ref. */
+    inputRef?: Ref<HTMLInputElement>
     /** Loading icon. @default 'icon-loading' */
     loadingIcon?: IconT.Name
     /** Leading icon. */
@@ -112,9 +101,4 @@ export namespace ComboboxT {
   >
 }
 
-export interface ComboboxProps<
-  TItem extends ComboboxT.Item = ComboboxT.Item,
-> extends ComboboxT.Props<TItem> {
-  ref?: Ref<HTMLDivElement>
-  inputRef?: Ref<HTMLInputElement>
-}
+export type ComboboxProps<TItem extends ComboboxT.Item = ComboboxT.Item> = ComboboxT.Props<TItem>

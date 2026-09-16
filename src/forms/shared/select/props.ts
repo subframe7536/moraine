@@ -1,3 +1,19 @@
+import type { BaseSelectT } from '../../base-select/base-select.types.ts'
+
+type SharedBaseSelectForwardProp = keyof Pick<
+  BaseSelectT.Base<BaseSelectT.Item>,
+  | 'itemToLabelString'
+  | 'id'
+  | 'name'
+  | 'required'
+  | 'disabled'
+  | 'readOnly'
+  | 'open'
+  | 'defaultOpen'
+  | 'onOpenChange'
+  | 'isItemDisabled'
+>
+
 /** BaseSelect ownership shared by the Select-family visual wrappers. */
 export const BASE_SELECT_FORWARD_PROP_KEYS = [
   'itemToLabelString',
@@ -9,9 +25,14 @@ export const BASE_SELECT_FORWARD_PROP_KEYS = [
   'open',
   'defaultOpen',
   'onOpenChange',
-  'closeOnSelect',
   'isItemDisabled',
-] as const
+] as const satisfies readonly SharedBaseSelectForwardProp[]
+
+/** Single-value Select wrappers may additionally configure closing after selection. */
+export const SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS = [
+  ...BASE_SELECT_FORWARD_PROP_KEYS,
+  'closeOnSelect',
+] as const satisfies readonly (SharedBaseSelectForwardProp | 'closeOnSelect')[]
 
 /** Local props intercepted by Select. */
 export const SELECT_LOCAL_PROP_KEYS = [
@@ -63,7 +84,6 @@ export const COMBOBOX_LOCAL_PROP_KEYS = [
 export const MULTI_SELECT_LOCAL_PROP_KEYS = [
   ...COMBOBOX_LOCAL_PROP_KEYS,
   'search',
-  'closeOnSelect',
   'tagRender',
   'createItem',
   'maxCount',
@@ -112,4 +132,7 @@ export const BASE_SELECT_SHARED_SLOTS = [
   'groupLabel',
   'separator',
   'empty',
-] as const
+] as const satisfies readonly (keyof Pick<
+  BaseSelectT.Slot,
+  'content' | 'listbox' | 'item' | 'group' | 'groupLabel' | 'separator' | 'empty'
+>)[]

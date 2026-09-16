@@ -46,4 +46,21 @@ describe('published declarations', () => {
       readFileSync(resolve(dist, 'forms/base-select/base-select.types.d.mts'), 'utf8'),
     ).toContain('items?: readonly TItem[]')
   })
+
+  test('expose complete Select-family Props and owned input refs', () => {
+    const select = readFileSync(resolve(dist, 'forms/select/select.types.d.mts'), 'utf8')
+    const combobox = readFileSync(resolve(dist, 'forms/combobox/combobox.types.d.mts'), 'utf8')
+    const multiSelect = readFileSync(
+      resolve(dist, 'forms/multi-select/multi-select.types.d.mts'),
+      'utf8',
+    )
+    const tagsInput = readFileSync(resolve(dist, 'forms/tags-input/tags-input.types.d.mts'), 'utf8')
+
+    expect(select).toContain(
+      'type SelectProps<TItem extends SelectT.Item = SelectT.Item> = SelectT.Props<TItem>',
+    )
+    expect(combobox).toContain('inputRef?: Ref<HTMLInputElement>')
+    expect(multiSelect).toContain('inputRef?: Ref<HTMLInputElement>')
+    expect(tagsInput).toContain('inputRef?: Ref<HTMLInputElement>')
+  })
 })

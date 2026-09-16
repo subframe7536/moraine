@@ -9,9 +9,11 @@ import type {
   SelectItem,
   SearchProps,
   ContentProps,
+  SelectControlVariant,
   SelectRow,
   SelectGroup,
   SelectEntry,
+  SelectItemSlot,
   SelectVirtualRenderProps,
 } from '../shared/select/types.ts'
 
@@ -50,18 +52,7 @@ export namespace MultiSelectT {
     tagOverflow?: T
   }
 
-  export interface ItemSlot<T = unknown> {
-    /** Message shown when filtering leaves no selectable items. */
-    empty?: T
-    /** Leading icon inside an item row. */
-    itemLeading?: T
-    /** Text region containing the primary label and optional description. */
-    itemLabel?: T
-    /** Supporting description text inside an item row. */
-    itemDescription?: T
-    /** Trailing region inside an item row, usually for selection state or custom content. */
-    itemTrailing?: T
-  }
+  export interface ItemSlot<T = unknown> extends SelectItemSlot<T> {}
 
   export interface TagRenderProps<TItem extends Item = Item> {
     /** Selected item represented by the tag. */
@@ -91,16 +82,7 @@ export namespace MultiSelectT {
 
   export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, ItemSlot<T> {}
 
-  export interface Variant {
-    /** Visual treatment of the component.
-     * @default 'outline'
-     */
-    variant?: 'outline' | 'subtle' | 'ghost' | 'none'
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-  }
+  export interface Variant extends SelectControlVariant {}
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -108,10 +90,10 @@ export namespace MultiSelectT {
 
   export interface Base<TItem extends Item = Item>
     extends
-      Omit<
-        BaseSelectT.Base<TItem>,
-        'children' | 'classes' | 'styles' | 'size' | 'items' | 'serializeValue'
-      >,
+      BaseSelectT.FieldProps,
+      BaseSelectT.DisclosureProps,
+      BaseSelectT.ItemBehaviorProps<TItem>,
+      BaseSelectT.ResetProps,
       SearchProps<TItem>,
       ContentProps<TItem>,
       FormValueOptions<TItem['value'][]> {
@@ -164,6 +146,8 @@ export namespace MultiSelectT {
     openOnControlClick?: boolean
     /** Whether the collection can be filtered through the editable input. @default false */
     search?: boolean
+    /** Optional inner input element ref. */
+    inputRef?: Ref<HTMLInputElement>
   }
 
   export type Props<TItem extends Item = Item> = BaseProps<
@@ -175,9 +159,5 @@ export namespace MultiSelectT {
   >
 }
 
-export interface MultiSelectProps<
-  TItem extends MultiSelectT.Item = MultiSelectT.Item,
-> extends MultiSelectT.Props<TItem> {
-  ref?: Ref<HTMLDivElement>
-  inputRef?: Ref<HTMLInputElement>
-}
+export type MultiSelectProps<TItem extends MultiSelectT.Item = MultiSelectT.Item> =
+  MultiSelectT.Props<TItem>
