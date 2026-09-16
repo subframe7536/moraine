@@ -13,7 +13,32 @@
       "name": "control",
       "description": "Optional non-interactive layout container and floating anchor.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-disabled",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the component, slot, or item is disabled."
+        },
+        {
+          "name": "data-invalid",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field or form has a validation error."
+        },
+        {
+          "name": "data-readonly",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field is in read-only mode."
+        },
+        {
+          "name": "data-required",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field input is required."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -179,7 +204,14 @@
       "name": "input",
       "description": "Search input used to filter or add selections.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-duplicate",
+          "required": false,
+          "type": "string | undefined",
+          "description": "State or slot attribute exposed for styling hooks and selectors."
+        }
+      ],
       "ariaAttributes": []
     },
     {
@@ -622,6 +654,13 @@
         "required": false,
         "type": "ComponentOrElement<MultiSelectT.TagRenderProps<T>>",
         "description": "Custom renderer for each selected tag."
+      },
+      {
+        "name": "tokenSeparators",
+        "required": false,
+        "type": "string[] | undefined",
+        "description": "Strings that commit completed input tokens through `createItem` or an exact source match.\nDuplicate separators are ignored and overlapping separators prefer the longest match.",
+        "defaultValue": "[',']"
       },
       {
         "name": "trailingIcon",

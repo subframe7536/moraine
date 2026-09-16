@@ -369,15 +369,6 @@
       "kind": "single"
     },
     {
-      "key": "tags-input",
-      "name": "TagsInput",
-      "category": "forms",
-      "polymorphic": false,
-      "description": "Free-form multiple string entry with tags and an editable draft input.",
-      "sourcePath": "src/forms/tags-input/tags-input.tsx",
-      "kind": "single"
-    },
-    {
       "key": "textarea",
       "name": "Textarea",
       "category": "forms",

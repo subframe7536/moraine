@@ -24,7 +24,6 @@ import {
   Separator,
   Sheet,
   SidebarFrame,
-  TagsInput,
   Textarea,
   Tooltip,
   cn,
@@ -47,7 +46,6 @@ import type {
   SelectT,
   SidebarFrameT,
   SliderT,
-  TagsInputT,
   TextareaT,
 } from 'moraine'
 import { atomicRecipe, createTheme, defaultTheme, emptyTheme, slotRecipe } from 'moraine/theme'
@@ -61,7 +59,6 @@ export type ComponentKinds = [
   Assert<SidebarFrameT.Kind extends 'composite' ? true : false>,
   Assert<SelectT.Kind extends 'single' ? true : false>,
   Assert<ComboboxT.Kind extends 'single' ? true : false>,
-  Assert<TagsInputT.Kind extends 'single' ? true : false>,
   Assert<FormT.Kind extends 'single' ? true : false>,
   Assert<'kind' extends keyof ButtonT.Props ? false : true>,
   Assert<'kind' extends keyof DialogT.Props ? false : true>,
@@ -331,7 +328,10 @@ const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
 />
 ;<MultiSelect items={[{ label: 'One', value: 1 }]} readOnly />
 ;<Combobox items={[{ label: 'One', value: 1 }]} openOnControlClick={false} />
-;<TagsInput tokenSeparators={[',', ';']} />
+;<MultiSelect
+  createItem={(input) => ({ label: input, value: input })}
+  tokenSeparators={[',', ';']}
+/>
 
 export type NativeTextSlots = [
   Assert<'orientation' extends keyof InputGroupT.Variant ? true : false>,
@@ -373,7 +373,6 @@ const theme = createTheme({
   combobox: { base: { control: 'min-w-48' } },
   multiSelect: { defaults: { size: 'sm' } },
   select: { defaults: { size: 'sm' } },
-  tagsInput: { base: { control: 'min-w-48' } },
   separator: {
     base: { root: 'border-t' },
     variants: { orientation: { vertical: { root: 'h-full' } } },

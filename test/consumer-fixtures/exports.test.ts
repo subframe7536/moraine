@@ -67,8 +67,8 @@ test.each(['Bundler', 'NodeNext'] as const)(
       writeFileSync(
         join(consumer.root, 'entry.tsx'),
         `
-      import { Button, Combobox, Dialog, MultiSelect, Select, TagsInput, useSelectState } from 'moraine'
-      import type { ComboboxT, FormT, ListT, MultiSelectT, SelectT, TagsInputT } from 'moraine'
+      import { Button, Combobox, Dialog, MultiSelect, Select, useSelectState } from 'moraine'
+      import type { ComboboxT, FormT, ListT, MultiSelectT, SelectT } from 'moraine'
       import {
         createContextProvider,
         useBaseSelectSearchInput,
@@ -90,11 +90,9 @@ test.each(['Bundler', 'NodeNext'] as const)(
       export const dialog = <Dialog><Dialog.Trigger>Open</Dialog.Trigger><Dialog.Content /></Dialog>
       export const select = <Select items={[{ value: 1, label: 'One' }]} onChange={value => value?.toFixed()} />
       export const combobox = <Combobox items={[{ value: 1, label: 'One' }]} onChange={value => value?.toFixed()} />
-      export const tags = <TagsInput defaultValue={['one']} />
-      export const multiple = <MultiSelect items={[{ value: 1, label: 'One' }]} />
+      export const multiple = <MultiSelect items={[{ value: 1, label: 'One' }]} tokenSeparators={[',']} />
       export const selectKind: SelectT.Kind = 'single'
       export const comboboxKind: ComboboxT.Kind = 'single'
-      export const tagsKind: TagsInputT.Kind = 'single'
       export const multiKind: MultiSelectT.Kind = 'single'
       // @ts-expect-error Component-specific subpaths are not public.
       type ButtonPath = typeof import('moraine/button')

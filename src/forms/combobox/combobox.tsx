@@ -8,11 +8,16 @@ import { callHandler, callRef } from '../../shared/utils.ts'
 import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
 import { useBaseSelectSearchInput } from '../base-select/utils.ts'
 import { useFormFieldContext } from '../form/form-context.ts'
-import { createSource, labelString } from '../shared/select/collection.ts'
+import {
+  createSource,
+  labelString,
+  serializeSourceValue,
+  singleValueToSelection,
+} from '../shared/select/collection.ts'
 import { DefaultSelectContent } from '../shared/select/default-content.tsx'
 import {
-  BASE_SELECT_SHARED_SLOTS,
   COMBOBOX_LOCAL_PROP_KEYS,
+  createBaseSelectStyleProps,
   SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
 } from '../shared/select/props.ts'
 import { useComboboxSearch } from '../shared/select/search.ts'
@@ -34,12 +39,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
   })
-  const sharedClasses = createMemo(() =>
-    Object.fromEntries(BASE_SELECT_SHARED_SLOTS.map((slot) => [slot, styles.slot(slot).class])),
-  )
-  const sharedStyles = createMemo(() =>
-    Object.fromEntries(BASE_SELECT_SHARED_SLOTS.map((slot) => [slot, styles.slot(slot).style])),
-  )
+  const baseSelectStyles = createBaseSelectStyleProps(styles.slot)
   const source = createMemo(() => createSource(local.items ?? []))
   const search = useComboboxSearch(
     local,
@@ -47,11 +47,8 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
     () => source(),
     () => baseSelectProps.itemToLabelString,
   )
-  const selection = createMemo(() =>
-    local.value === undefined ? undefined : local.value === null ? [] : [local.value],
-  )
-  const defaultSelection = () =>
-    local.defaultValue === undefined || local.defaultValue === null ? [] : [local.defaultValue]
+  const selection = createMemo(() => singleValueToSelection(local.value))
+  const defaultSelection = () => singleValueToSelection(local.defaultValue)
 
   function Control(): JSX.Element {
     const state = useSelectState<T>()
@@ -91,10 +88,6 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
           {...rootProps}
           {...styles.slot('control')}
           data-editable=""
-          data-disabled={state.field.disabled() ? '' : undefined}
-          data-readonly={state.field.readOnly() ? '' : undefined}
-          data-required={state.field.required() ? '' : undefined}
-          data-invalid={state.field.invalid() ? '' : undefined}
           ref={(element) => callRef(local.ref, element)}
           onPointerDown={(event) => {
             callHandler(event, rootProps.onPointerDown)
@@ -184,17 +177,9 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
           </button>
         </BaseSelect.Control>
         <DefaultSelectContent
+          {...local}
           view={search.view()}
           onExitComplete={() => search.setQuery('')}
-          itemRender={local.itemRender}
-          itemProps={local.itemProps}
-          listboxProps={local.listboxProps}
-          virtualRender={local.virtualRender}
-          scrollToItem={local.scrollToItem}
-          onScrollBottom={local.onScrollBottom}
-          scrollBottomThreshold={local.scrollBottomThreshold}
-          gutter={local.gutter}
-          overflowPadding={local.overflowPadding}
           slot={styles.slot}
           renderEmpty={() =>
             local.emptyRender !== undefined
@@ -221,9 +206,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
     <BaseSelect<T>
       {...baseSelectProps}
       items={search.view().items}
-      serializeValue={(value) =>
-        source().byValue.get(value)?.disabled ? undefined : String(value)
-      }
+      serializeValue={(value) => serializeSourceValue(source(), value)}
       value={selection()}
       defaultValue={defaultSelection()}
       onChange={(values) => local.onChange?.(values[0] ?? null)}
@@ -233,8 +216,8 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
       }}
       multiple={false}
       size={styles.variants.size ?? undefined}
-      classes={sharedClasses()}
-      styles={sharedStyles()}
+      classes={baseSelectStyles.classes()}
+      styles={baseSelectStyles.styles()}
     >
       <Control />
     </BaseSelect>

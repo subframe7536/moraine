@@ -1,3 +1,6 @@
+import { createMemo } from 'solid-js'
+
+import type { SlotBinding } from '../../../shared/provider/create-component-styles.ts'
 import type { BaseSelectT } from '../../base-select/base-select.types.ts'
 
 type SharedBaseSelectForwardProp = keyof Pick<
@@ -88,39 +91,7 @@ export const MULTI_SELECT_LOCAL_PROP_KEYS = [
   'createItem',
   'maxCount',
   'maxTagCount',
-] as const
-
-/** Local props intercepted by TagsInput. */
-export const TAGS_INPUT_LOCAL_PROP_KEYS = [
-  'id',
-  'name',
-  'value',
-  'defaultValue',
-  'onChange',
-  'inputValue',
-  'defaultInputValue',
-  'onInputValueChange',
   'tokenSeparators',
-  'maxCount',
-  'tagRender',
-  'allowClear',
-  'onClear',
-  'placeholder',
-  'disabled',
-  'readOnly',
-  'required',
-  'leadingIcon',
-  'closeIcon',
-  'classes',
-  'styles',
-  'size',
-  'variant',
-  'class',
-  'style',
-  'ref',
-  'inputRef',
-  'onInput',
-  'onKeyDown',
 ] as const
 
 /** Popup slots resolved by Select and forwarded to BaseSelect. */
@@ -136,3 +107,24 @@ export const BASE_SELECT_SHARED_SLOTS = [
   BaseSelectT.Slot,
   'content' | 'listbox' | 'item' | 'group' | 'groupLabel' | 'separator' | 'empty'
 >)[]
+
+/** Maps resolved Select-family popup slots to reactive BaseSelect style props. */
+export function createBaseSelectStyleProps(
+  slot: (name: (typeof BASE_SELECT_SHARED_SLOTS)[number]) => SlotBinding,
+) {
+  const classes = createMemo<BaseSelectT.Classes>(() => {
+    const result: BaseSelectT.Classes = {}
+    for (const name of BASE_SELECT_SHARED_SLOTS) {
+      result[name] = slot(name).class
+    }
+    return result
+  })
+  const styles = createMemo<BaseSelectT.Styles>(() => {
+    const result: BaseSelectT.Styles = {}
+    for (const name of BASE_SELECT_SHARED_SLOTS) {
+      result[name] = slot(name).style
+    }
+    return result
+  })
+  return { classes, styles }
+}

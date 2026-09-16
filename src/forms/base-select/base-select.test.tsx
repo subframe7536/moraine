@@ -73,6 +73,29 @@ test('falls back to the focus owner when Control is omitted', () => {
   expect(focusOwner()).toBe(screen.getByRole('combobox'))
 })
 
+test('BaseSelect.Control exposes inherited field state attributes', () => {
+  const screen = render(() => (
+    <FormFieldProvider
+      value={{
+        ariaId: 'choice',
+        disabled: true,
+        readOnly: true,
+        required: true,
+        error: 'Required',
+      }}
+    >
+      <BaseSelect items={items}>
+        <BaseSelect.Control data-testid="control" />
+      </BaseSelect>
+    </FormFieldProvider>
+  ))
+  const control = screen.getByTestId('control')
+  expect(control.getAttribute('data-disabled')).toBe('')
+  expect(control.getAttribute('data-readonly')).toBe('')
+  expect(control.getAttribute('data-required')).toBe('')
+  expect(control.getAttribute('data-invalid')).toBe('')
+})
+
 test('supports a custom searchable Control without BaseSelect.Trigger', () => {
   function SearchControl() {
     const state = useSelectState()

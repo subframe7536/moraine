@@ -7,10 +7,14 @@ import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callRef } from '../../shared/utils.ts'
 import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
 import { useFormFieldContext } from '../form/form-context.ts'
-import { createSource } from '../shared/select/collection.ts'
+import {
+  createSource,
+  serializeSourceValue,
+  singleValueToSelection,
+} from '../shared/select/collection.ts'
 import { DefaultSelectContent } from '../shared/select/default-content.tsx'
 import {
-  BASE_SELECT_SHARED_SLOTS,
+  createBaseSelectStyleProps,
   SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   SELECT_LOCAL_PROP_KEYS,
 } from '../shared/select/props.ts'
@@ -30,18 +34,10 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
   })
-  const sharedClasses = createMemo(() =>
-    Object.fromEntries(BASE_SELECT_SHARED_SLOTS.map((slot) => [slot, styles.slot(slot).class])),
-  )
-  const sharedStyles = createMemo(() =>
-    Object.fromEntries(BASE_SELECT_SHARED_SLOTS.map((slot) => [slot, styles.slot(slot).style])),
-  )
+  const baseSelectStyles = createBaseSelectStyleProps(styles.slot)
   const source = createMemo(() => createSource(local.items ?? []))
-  const selection = createMemo(() =>
-    local.value === undefined ? undefined : local.value === null ? [] : [local.value],
-  )
-  const defaultSelection = () =>
-    local.defaultValue === undefined || local.defaultValue === null ? [] : [local.defaultValue]
+  const selection = createMemo(() => singleValueToSelection(local.value))
+  const defaultSelection = () => singleValueToSelection(local.defaultValue)
 
   function Control(): JSX.Element {
     const state = useSelectState<T>()
@@ -60,10 +56,6 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
         <BaseSelect.Control
           {...rootProps}
           {...styles.slot('control')}
-          data-disabled={state.field.disabled() ? '' : undefined}
-          data-readonly={state.field.readOnly() ? '' : undefined}
-          data-required={state.field.required() ? '' : undefined}
-          data-invalid={state.field.invalid() ? '' : undefined}
           ref={(element) => callRef(local.ref, element)}
         >
           <BaseSelect.Trigger<'button', T> {...styles.slot('trigger')}>
@@ -110,16 +102,8 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
           </Show>
         </BaseSelect.Control>
         <DefaultSelectContent
+          {...local}
           view={source()}
-          itemRender={local.itemRender}
-          itemProps={local.itemProps}
-          listboxProps={local.listboxProps}
-          virtualRender={local.virtualRender}
-          scrollToItem={local.scrollToItem}
-          onScrollBottom={local.onScrollBottom}
-          scrollBottomThreshold={local.scrollBottomThreshold}
-          gutter={local.gutter}
-          overflowPadding={local.overflowPadding}
           slot={styles.slot}
           renderEmpty={() =>
             local.emptyRender !== undefined
@@ -143,17 +127,15 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
     <BaseSelect<T>
       {...baseSelectProps}
       items={source().items}
-      serializeValue={(value) =>
-        source().byValue.get(value)?.disabled ? undefined : String(value)
-      }
+      serializeValue={(value) => serializeSourceValue(source(), value)}
       value={selection()}
       defaultValue={defaultSelection()}
       onChange={(values) => local.onChange?.(values[0] ?? null)}
       onReset={local.onReset}
       multiple={false}
       size={styles.variants.size ?? undefined}
-      classes={sharedClasses()}
-      styles={sharedStyles()}
+      classes={baseSelectStyles.classes()}
+      styles={baseSelectStyles.styles()}
     >
       <Control />
     </BaseSelect>

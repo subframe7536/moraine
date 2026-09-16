@@ -151,6 +151,24 @@ export function labelString<T extends BaseSelectT.Item>(
   return typeof label === 'string' ? label : String(item.value)
 }
 
+/** Converts a public scalar selection into BaseSelect's internal selection array. */
+export function singleValueToSelection<T extends BaseSelectT.Value>(
+  value: T | null | undefined,
+): T[] | undefined {
+  if (value === undefined) {
+    return undefined
+  }
+  return value === null ? [] : [value]
+}
+
+/** Serializes against the canonical source rather than a filtered navigation view. */
+export function serializeSourceValue<T extends BaseSelectT.Item>(
+  source: { byValue: ReadonlyMap<T['value'], T> },
+  value: T['value'],
+): string | undefined {
+  return source.byValue.get(value)?.disabled ? undefined : String(value)
+}
+
 /** JavaScript Map/Set equality for raw selection values. */
 export function sameValue(
   a: BaseSelectT.Value | undefined,

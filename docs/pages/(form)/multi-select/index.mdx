@@ -20,7 +20,8 @@ import type { MultiSelectT } from 'moraine'
 
 - **Collection-backed values**: Every committed value resolves through a canonical `TItem` source.
 - **Stable tag field**: One input owns focus, keyboard behavior, query, and combobox ARIA.
-- **Optional search and creation**: `search` filters; `createItem` explicitly constructs a `TItem`.
+- **Optional search and creation**: `search` filters; `createItem` constructs a `TItem` for free-form input.
+- **Unified tokenization**: Separators and paste reuse the same collection-aware creation path.
 - **Separate limits**: `maxCount` limits values; `maxTagCount` only changes presentation.
 
 ## Playground
@@ -127,8 +128,16 @@ the committed `TItem['value'][]`.
 <Preview path="./create-new-tags" />
 
 Providing `createItem` implicitly enables the editable search input, even with `search={false}`.
-It converts normalized text into a valid `TItem`; MultiSelect then commits `TItem.value`. This is
-different from TagsInput, which commits free-form strings directly.
+It converts normalized text into a valid `TItem`; MultiSelect then commits `TItem.value`. Exact
+label or value matches reuse existing items before calling `createItem`.
+
+### Free-form tags
+
+<Preview path="./free-form-tags" />
+
+With no predefined items, `createItem` and `tokenSeparators` provide free-form tag entry without a
+separate component or selection model. Separator typing and pasted tokens use the same commit path
+as Enter.
 
 ### Large item sets
 

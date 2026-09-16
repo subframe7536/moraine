@@ -69,13 +69,14 @@ export function useBaseSelectSearchInput(
   enabled: Accessor<boolean>,
   search: SearchValue,
   display: Accessor<string> = search.query,
+  transformInput: (value: string) => string = (value) => value,
 ) {
   const { query, setQuery } = search
   const [composing, setComposing] = createSignal(false)
   const [draft, setDraft] = createSignal('')
   function commit(value: string) {
-    const next = setQuery(value)
-    if (value.trim()) {
+    const next = setQuery(transformInput(value))
+    if (next.trim()) {
       state.setOpen(true)
     }
     return next

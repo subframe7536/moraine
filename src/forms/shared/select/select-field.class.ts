@@ -55,7 +55,7 @@ export const FIELD_SIZES = {
 } as const
 
 export const TAG_FIELD_CONTROL_CLASS = `${FIELD_CONTROL_CLASS} data-tags:ps-1`
-export const TAG_FIELD_INPUT_CLASS = `${FIELD_INPUT_CLASS} min-w-12 py-0.5`
+export const TAG_FIELD_INPUT_CLASS = `${FIELD_INPUT_CLASS} min-w-12 py-0.5 data-duplicate:text-destructive`
 
 export const TAG_SLOTS = {
   tagsContainer: 'py-1 bg-transparent flex flex-1 flex-wrap gap-1 max-w-full select-none',

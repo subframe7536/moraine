@@ -45,6 +45,13 @@ import type { BaseSelectProps, BaseSelectT } from './base-select.types.ts'
 
 const FORM_VALUE_EXISTS = DEV ? 'moraine:selection-exists' : '1'
 
+function selectionToFormValue<T extends BaseSelectT.Value>(
+  values: readonly T[],
+  multiple: boolean,
+): T[] | T | null {
+  return multiple ? [...values] : (values[0] ?? null)
+}
+
 function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>) {
   type Value = readonly T['value'][]
   const normalize = (values: Value): T['value'][] =>
@@ -56,7 +63,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     () => ({
       defaultId: id(),
       bind: false,
-      initialValue: props.multiple ? initial : (initial[0] ?? null),
+      initialValue: selectionToFormValue(initial, props.multiple === true),
     }),
   )
   const items = () => props.items ?? []
@@ -67,7 +74,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
         return props.value
       }
       const value = field.value()
-      if (Array.isArray(value)) {
+      if (props.multiple && Array.isArray(value)) {
         return value
       }
       if (!props.multiple && value === null) {
@@ -120,11 +127,11 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     }
     setSelection(after)
     if (props.value === undefined) {
-      field.setFormValue(props.multiple ? after : (after[0] ?? null))
+      field.setFormValue(selectionToFormValue(after, props.multiple === true))
     }
     props.onChange?.(after)
     if (props.value !== undefined) {
-      field.setFormValue(props.multiple ? normalize(props.value) : (props.value[0] ?? null))
+      field.setFormValue(selectionToFormValue(normalize(props.value), props.multiple === true))
     }
     field.emit('change')
     field.emit('input')
@@ -239,12 +246,13 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
         if (!controlled) {
           return
         }
+        const projected = selectionToFormValue(current, props.multiple === true)
         if (props.multiple) {
           if (!Array.isArray(formValue) || !selectionEqual(current, formValue as T['value'][])) {
-            field.setFormValue(current)
+            field.setFormValue(projected)
           }
-        } else if (current[0] !== formValue) {
-          field.setFormValue(current[0] ?? null)
+        } else if (projected !== formValue) {
+          field.setFormValue(projected)
         }
       },
     ),
@@ -289,7 +297,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
       discardComposition()
       setSelection(initial)
       const next = props.value !== undefined ? normalize(props.value) : initial
-      field.setFormValue(props.multiple ? next : (next[0] ?? null))
+      field.setFormValue(selectionToFormValue(next, props.multiple === true))
       if (validationInput) {
         validationInput.value = validationValue()
       }
@@ -406,6 +414,10 @@ function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
     <div
       {...rest}
       data-slot="control"
+      data-disabled={state.field.disabled() ? '' : undefined}
+      data-readonly={state.field.readOnly() ? '' : undefined}
+      data-required={state.field.required() ? '' : undefined}
+      data-invalid={state.field.invalid() ? '' : undefined}
       ref={(element) => {
         state.setAnchor(element)
         callRef(local.ref, element)

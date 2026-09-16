@@ -54,13 +54,12 @@ describe('published declarations', () => {
       resolve(dist, 'forms/multi-select/multi-select.types.d.mts'),
       'utf8',
     )
-    const tagsInput = readFileSync(resolve(dist, 'forms/tags-input/tags-input.types.d.mts'), 'utf8')
 
     expect(select).toContain(
       'type SelectProps<TItem extends SelectT.Item = SelectT.Item> = SelectT.Props<TItem>',
     )
     expect(combobox).toContain('inputRef?: Ref<HTMLInputElement>')
     expect(multiSelect).toContain('inputRef?: Ref<HTMLInputElement>')
-    expect(tagsInput).toContain('inputRef?: Ref<HTMLInputElement>')
+    expect(multiSelect).toContain('tokenSeparators?: string[]')
   })
 })

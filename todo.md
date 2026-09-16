@@ -2,7 +2,7 @@
 
 - [x] cleanup prop types
 - [x] reuse classes
-- [ ] reuse more logic
+- [x] reuse more logic
 - [ ] cleanup and polish docs
 
 ## Fix

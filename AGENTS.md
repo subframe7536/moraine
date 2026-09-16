@@ -68,7 +68,6 @@ src/
 │   ├── select/             # Non-editable single collection selection.
 │   ├── slider/             # Slider control and slider hooks.
 │   ├── switch/             # Switch control.
-│   ├── tags-input/         # Free-form multiple string entry.
 │   ├── textarea/           # Textarea control.
 │   └── shared/             # Form-specific hooks and helpers.
 ├── navigation/            # Navigation and page-organization components.
@@ -169,4 +168,4 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 ## Special Cases
 
 - Use `Combobox` for editable single collection selection.
-- Use `TagsInput` for free-form string tags and `MultiSelect` for collection-backed values.
+- Use `MultiSelect` for collection-backed values and creatable free-form tags.

@@ -23,6 +23,7 @@ export function CreateNewTags() {
         value={createTagValues()}
         onChange={setCreateTagValues}
         createItem={(input) => ({ value: input, label: input })}
+        tokenSeparators={[',', ';']}
         placeholder="Type to create tags..."
         emptyRender={(ctx) => (
           <div class="p-2 text-center">

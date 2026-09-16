@@ -25,7 +25,6 @@ import type { SelectT } from '../forms/select'
 import type { TextControlStyleVariant } from '../forms/shared/text-control.class.ts'
 import type { SliderT } from '../forms/slider'
 import type { SwitchT } from '../forms/switch'
-import type { TagsInputT } from '../forms/tags-input'
 import type { TextareaT } from '../forms/textarea'
 import type { BreadcrumbT } from '../navigation/breadcrumb'
 import type { CommandPaletteT } from '../navigation/command-palette'
@@ -78,7 +77,6 @@ export interface MoraineThemeSchema {
   radioGroup: { slots: RadioGroupT.Slot; variants: RadioGroupT.Variant }
   resizable: { slots: ResizableT.Slot; variants: ResizableT.Variant }
   select: { slots: SelectT.Slot; variants: SelectT.Variant }
-  tagsInput: { slots: TagsInputT.Slot; variants: TagsInputT.Variant }
   separator: { slots: SeparatorT.Slot; variants: SeparatorT.Variant }
   sheet: { slots: SheetT.Slot; variants: SheetT.Variant }
   sidebarFrame: { slots: SidebarFrameT.Slot; variants: SidebarFrameT.Variant }

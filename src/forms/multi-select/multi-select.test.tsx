@@ -1,6 +1,6 @@
 import { getInput } from '@formisch/solid'
 import { fireEvent, render as baseRender, within } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createSignal, untrack } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -221,10 +221,180 @@ describe('MultiSelect', () => {
     expect(input.getAttribute('aria-expanded')).toBe('true')
   })
 
-  test('has no tokenSeparators API', () => {
-    // @ts-expect-error tokenization belongs to TagsInput.
-    const invalid = <MultiSelect items={ITEMS} tokenSeparators={[',']} />
-    expect(invalid).toBeTruthy()
+  test('creates free-form items with Enter and the default comma separator', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect createItem={(input) => ({ value: input, label: input })} onChange={onChange} />
+    ))
+    const input = screen.getByRole('combobox')
+    fireEvent.input(input, { target: { value: 'alpha' } })
+    expect(within(document.body).getByText('Press Enter to create “alpha”')).toBeTruthy()
+    fireEvent.keyDown(input, { key: 'Enter' })
+    expect(onChange).toHaveBeenLastCalledWith(['alpha'])
+    fireEvent.input(input, { target: { value: 'beta,' } })
+    expect(onChange).toHaveBeenLastCalledWith(['alpha', 'beta'])
+  })
+
+  test('tokenizes duplicate, multiple, and overlapping multi-character separators', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        createItem={(input) => ({ value: input, label: input })}
+        tokenSeparators={[':', '::', ',', '::']}
+        onChange={onChange}
+      />
+    ))
+    const input = screen.getByRole('combobox')
+    fireEvent.input(input, { target: { value: 'alpha::beta,' } })
+    expect(onChange).toHaveBeenLastCalledWith(['alpha', 'beta'])
+  })
+
+  test('deduplicates token commits and applies maxCount to created items', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        defaultValue={['alpha']}
+        createItem={(input) => ({ value: input, label: input })}
+        maxCount={2}
+        onChange={onChange}
+      />
+    ))
+    const input = screen.getByRole('combobox')
+    fireEvent.input(input, { target: { value: 'alpha,' } })
+    expect(onChange).not.toHaveBeenCalled()
+    fireEvent.input(input, { target: { value: 'beta,gamma,' } })
+    expect(onChange).toHaveBeenCalledOnce()
+    expect(onChange).toHaveBeenLastCalledWith(['alpha', 'beta'])
+  })
+
+  test('pastes multiple tokens and leaves ordinary paste to the input', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        createItem={(input) => ({ value: input, label: input })}
+        tokenSeparators={[',', ';']}
+        onChange={onChange}
+      />
+    ))
+    const input = screen.getByRole('combobox')
+    expect(fireEvent.paste(input, { clipboardData: { getData: () => 'alpha,beta;gamma' } })).toBe(
+      false,
+    )
+    expect(onChange).toHaveBeenLastCalledWith(['alpha', 'beta', 'gamma'])
+    expect(fireEvent.paste(input, { clipboardData: { getData: () => 'ordinary text' } })).toBe(true)
+  })
+
+  test('defers tokenization until IME composition ends', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect
+        createItem={(input) => ({ value: input, label: input })}
+        tokenSeparators={[',']}
+        onChange={onChange}
+      />
+    ))
+    const input = screen.getByRole('combobox')
+    fireEvent.compositionStart(input)
+    fireEvent.input(input, { target: { value: '未,完' }, isComposing: true })
+    expect(onChange).not.toHaveBeenCalled()
+    fireEvent.compositionEnd(input, { data: '未,完' })
+    expect(onChange).toHaveBeenLastCalledWith(['未'])
+    expect((input as HTMLInputElement).value).toBe('完')
+  })
+
+  test('resolves exact existing items before creation and rejects disabled items', () => {
+    const createItem = vi.fn((input: string) => ({ value: input, label: input }))
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <MultiSelect items={ITEMS} createItem={createItem} onChange={onChange} />
+    ))
+    const input = screen.getByRole('combobox')
+    fireEvent.input(input, { target: { value: 'Apple,' } })
+    expect(onChange).toHaveBeenLastCalledWith(['apple'])
+    expect(createItem).not.toHaveBeenCalled()
+    fireEvent.input(input, { target: { value: 'Cherry,' } })
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(createItem).not.toHaveBeenCalled()
+  })
+
+  test('keeps controlled and uncontrolled query state on the shared input', () => {
+    const [query, setQuery] = createSignal('controlled')
+    const controlled = render(() => (
+      <MultiSelect
+        createItem={(input) => ({ value: input, label: input })}
+        searchValue={query()}
+        onSearch={setQuery}
+      />
+    ))
+    const controlledInput = controlled.getByRole('combobox') as HTMLInputElement
+    expect(controlledInput.value).toBe('controlled')
+    fireEvent.input(controlledInput, { target: { value: 'next' } })
+    expect(untrack(query)).toBe('next')
+
+    const uncontrolled = render(() => (
+      <MultiSelect
+        createItem={(input) => ({ value: input, label: input })}
+        defaultSearchValue="draft"
+      />
+    ))
+    const uncontrolledInput = uncontrolled.getByRole<HTMLInputElement>('combobox')
+    expect(uncontrolledInput.value).toBe('draft')
+  })
+
+  test('shares custom tag removal and keyboard focus behavior', async () => {
+    const screen = render(() => (
+      <MultiSelect
+        items={ITEMS}
+        defaultValue={['apple', 'banana']}
+        tagRender={(tag) => (
+          <button type="button" aria-label={`Custom ${tag.value}`} onClick={tag.onClose}>
+            {tag.label}
+          </button>
+        )}
+      />
+    ))
+    fireEvent.click(screen.getByRole('button', { name: 'Custom apple' }))
+    expect(screen.queryByRole('button', { name: 'Custom apple' })).toBeNull()
+    expect(document.activeElement).toBe(screen.getByRole('combobox'))
+
+    const keyboard = render(() => <MultiSelect items={ITEMS} defaultValue={['apple', 'banana']} />)
+    const input = keyboard.getByRole('combobox') as HTMLInputElement
+    input.focus()
+    input.setSelectionRange(0, 0)
+    fireEvent.keyDown(input, { key: 'ArrowLeft' })
+    const banana = keyboard.getByRole('button', { name: 'Remove Banana' })
+    expect(document.activeElement).toBe(banana)
+    fireEvent.keyDown(banana, { key: 'Backspace' })
+    await Promise.resolve()
+    expect(document.activeElement).toBe(keyboard.getByRole('button', { name: 'Remove Apple' }))
+    input.focus()
+    fireEvent.keyDown(input, { key: 'Backspace' })
+    expect(keyboard.queryByRole('button', { name: 'Remove Apple' })).toBeNull()
+  })
+
+  test('hides the placeholder after a tag is committed', () => {
+    const screen = render(() => (
+      <MultiSelect items={ITEMS} placeholder="Choose fruit" defaultValue={['apple']} />
+    ))
+    expect(screen.getByRole('combobox').getAttribute('placeholder')).toBe('')
+  })
+
+  test('serializes created values and restores uncontrolled values on form reset', async () => {
+    const screen = render(() => (
+      <form>
+        <MultiSelect
+          name="tag"
+          defaultValue={['alpha']}
+          createItem={(input) => ({ value: input, label: input })}
+        />
+      </form>
+    ))
+    const form = screen.container.querySelector('form')!
+    fireEvent.input(screen.getByRole('combobox'), { target: { value: 'beta,' } })
+    expect(new FormData(form).getAll('tag')).toEqual(['alpha', 'beta'])
+    form.reset()
+    await Promise.resolve()
+    expect(new FormData(form).getAll('tag')).toEqual(['alpha'])
   })
 
   test('keeps controlled values authoritative', () => {

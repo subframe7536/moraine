@@ -1,4 +1,4 @@
-import { BaseSelect, Button, Combobox, MultiSelect, Select, TagsInput } from 'moraine'
+import { BaseSelect, Button, Combobox, MultiSelect, Select } from 'moraine'
 import type {
   BaseSelectT,
   ComboboxProps,
@@ -7,8 +7,6 @@ import type {
   MultiSelectT,
   SelectProps,
   SelectT,
-  TagsInputProps,
-  TagsInputT,
 } from 'moraine'
 
 type Assert<T extends true> = T
@@ -31,7 +29,6 @@ export type SelectFamilyPropAliases = [
   Assert<Equal<SelectProps<UserItem>, SelectT.Props<UserItem>>>,
   Assert<Equal<ComboboxProps<UserItem>, ComboboxT.Props<UserItem>>>,
   Assert<Equal<MultiSelectProps<UserItem>, MultiSelectT.Props<UserItem>>>,
-  Assert<Equal<TagsInputProps, TagsInputT.Props>>,
 ]
 ;<BaseSelect<UserItem>
   items={items}
@@ -89,7 +86,6 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
 ;<Select items={items} ref={divRef} />
 ;<Combobox items={items} ref={divRef} inputRef={inputRef} />
 ;<MultiSelect items={items} ref={divRef} inputRef={inputRef} />
-;<TagsInput ref={divRef} inputRef={inputRef} />
 // @ts-expect-error Select has no inaccessible inner native input.
 ;<Select items={items} inputRef={inputRef} />
 // @ts-expect-error MultiSelect always remains open after item selection.
@@ -153,6 +149,7 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
 />
 ;<MultiSelect<UserItem>
   items={[group]}
+  tokenSeparators={[',', '::']}
   createItem={(input) => ({ value: input.length, label: input, email: input })}
   itemRender={({ item }) => item.email}
   filterItem={(query, item) => item.email.includes(query)}

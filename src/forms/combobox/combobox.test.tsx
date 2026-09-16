@@ -1,9 +1,13 @@
+import { getInput } from '@formisch/solid'
 import { fireEvent, render as baseRender, waitFor, within } from '@solidjs/testing-library'
 import { createSignal, untrack } from 'solid-js'
+import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
+import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { defaultTheme } from '../../theme/default-theme.ts'
+import { createForm } from '../form/index.ts'
 
 import { Combobox } from './combobox.tsx'
 
@@ -164,6 +168,69 @@ describe('Combobox', () => {
     expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
     fireEvent.reset(form)
     expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
+  })
+
+  test('keeps Form.Field selection values scalar across falsey changes and reset', async () => {
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choice: v.nullable(v.union([v.string(), v.number()])) }),
+          initialInput: { choice: null as string | number | null },
+        }),
+      (form) => (
+        <MoraineProvider theme={defaultTheme}>
+          <form.Form>
+            <form.Field name="choice" label="Choice">
+              <Combobox
+                items={[
+                  { label: 'Empty', value: '' },
+                  { label: 'Zero', value: 0 },
+                ]}
+                closeOnSelect={false}
+                defaultOpen
+              />
+            </form.Field>
+          </form.Form>
+        </MoraineProvider>
+      ),
+    )
+
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Empty' }))
+    expect(getInput(form)).toEqual({ choice: '' })
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Zero' }))
+    expect(getInput(form)).toEqual({ choice: 0 })
+    screen.container.querySelector('form')!.reset()
+    await Promise.resolve()
+    expect(getInput(form)).toEqual({ choice: null })
+  })
+
+  test('synchronizes controlled scalar Form.Field values as primitives', () => {
+    const [controlled, setControlled] = createSignal<string | number | null>('apple')
+    const { value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choice: v.nullable(v.union([v.string(), v.number()])) }),
+          initialInput: { choice: null as string | number | null },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="choice" label="Choice">
+            <Combobox
+              items={[...ITEMS, { label: 'Empty', value: '' }, { label: 'Zero', value: 0 }]}
+              value={controlled()}
+            />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    expect(getInput(form)).toEqual({ choice: 'apple' })
+    setControlled(0)
+    expect(getInput(form)).toEqual({ choice: 0 })
+    setControlled('')
+    expect(getInput(form)).toEqual({ choice: '' })
+    setControlled(null)
+    expect(getInput(form)).toEqual({ choice: null })
   })
 
   test('has data-editable on control for search input focus ring', () => {

@@ -114,6 +114,12 @@ export namespace MultiSelectT {
     maxCount?: number
     /** Maximum visible tags before showing +N (visual only). */
     maxTagCount?: number
+    /**
+     * Strings that commit completed input tokens through `createItem` or an exact source match.
+     * Duplicate separators are ignored and overlapping separators prefer the longest match.
+     * @default [',']
+     */
+    tokenSeparators?: string[]
     /** Custom renderer for each selected tag. */
     tagRender?: ComponentOrElement<TagRenderProps<TItem>>
     /** Custom renderer for the empty state when current filtered result has no matches. */

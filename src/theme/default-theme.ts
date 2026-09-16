@@ -25,7 +25,6 @@ import { radioGroupRecipe } from '../forms/radio-group/radio-group.class'
 import { selectRecipe } from '../forms/select/select.class.ts'
 import { sliderRecipe } from '../forms/slider/slider.class'
 import { switchRecipe } from '../forms/switch/switch.class'
-import { tagsInputRecipe } from '../forms/tags-input/tags-input.class.ts'
 import { textareaRecipe } from '../forms/textarea/textarea.class'
 import { breadcrumbRecipe } from '../navigation/breadcrumb/breadcrumb.class'
 import { commandPaletteRecipe } from '../navigation/command-palette/command-palette.class'
@@ -79,7 +78,6 @@ export const defaultTheme: MoraineTheme = /* @__PURE__ */ Object.freeze({
   radioGroup: toThemeEntry(radioGroupRecipe),
   resizable: toThemeEntry(resizableRecipe),
   select: toThemeEntry(selectRecipe),
-  tagsInput: toThemeEntry(tagsInputRecipe),
   separator: toThemeEntry(separatorRecipe),
   sheet: toThemeEntry(sheetRecipe),
   sidebarFrame: toThemeEntry(sidebarFrameRecipe),
