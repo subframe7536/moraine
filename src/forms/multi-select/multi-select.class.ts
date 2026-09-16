@@ -1,10 +1,11 @@
+import { TEXT_SIZE_VARIANT } from '../../shared/recipe-common.class.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 import {
-  COMMON_CONTROL_SLOTS,
-  FIELD_CONTROL_CLASS,
-  FIELD_INPUT_CLASS,
+  SELECT_FAMILY_SLOTS,
   FIELD_VARIANTS,
   SECONDARY_TRIGGER_CLASS,
+  TAG_FIELD_CONTROL_CLASS,
+  TAG_FIELD_INPUT_CLASS,
   TAG_SIZES,
   TAG_SLOTS,
 } from '../shared/select/select-field.class.ts'
@@ -16,9 +17,9 @@ export const multiSelectRecipe = /* @__PURE__ */ slotRecipe<
   MultiSelectT.Variant
 >({
   base: {
-    ...COMMON_CONTROL_SLOTS,
-    control: `${FIELD_CONTROL_CLASS} data-tags:ps-1`,
-    input: `${FIELD_INPUT_CLASS} min-w-12 py-0.5`,
+    ...SELECT_FAMILY_SLOTS,
+    control: TAG_FIELD_CONTROL_CLASS,
+    input: TAG_FIELD_INPUT_CLASS,
     trigger: SECONDARY_TRIGGER_CLASS,
     ...TAG_SLOTS,
     tagOverflow: 'text-muted-foreground px-1 flex items-center',
@@ -27,9 +28,9 @@ export const multiSelectRecipe = /* @__PURE__ */ slotRecipe<
   variants: {
     variant: FIELD_VARIANTS,
     size: {
-      sm: { ...TAG_SIZES.sm, tagOverflow: 'text-xs' },
-      md: { ...TAG_SIZES.md, tagOverflow: 'text-sm' },
-      lg: { ...TAG_SIZES.lg, tagOverflow: 'text-base' },
+      sm: { ...TAG_SIZES.sm, tagOverflow: TEXT_SIZE_VARIANT.sm },
+      md: { ...TAG_SIZES.md, tagOverflow: TEXT_SIZE_VARIANT.md },
+      lg: { ...TAG_SIZES.lg, tagOverflow: TEXT_SIZE_VARIANT.lg },
     },
   },
 } as const)

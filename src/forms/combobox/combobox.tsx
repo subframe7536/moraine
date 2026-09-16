@@ -178,7 +178,6 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
                   : (local.trailingIcon ?? 'icon-chevron-down')
               }
               data-loading={local.loading ? '' : undefined}
-              class="data-loading:animate-spin"
             />
           </button>
         </BaseSelect.Control>

@@ -1,6 +1,6 @@
 import { slotRecipe } from '../../shared/style/recipe.ts'
 import {
-  COMMON_CONTROL_SLOTS,
+  SELECT_FAMILY_SLOTS,
   FIELD_SIZES,
   FIELD_VARIANTS,
   PRIMARY_TRIGGER_CLASS,
@@ -10,7 +10,7 @@ import type { SelectT } from './select.types.ts'
 
 export const selectRecipe = /* @__PURE__ */ slotRecipe<SelectT.Slot, SelectT.Variant>({
   base: {
-    ...COMMON_CONTROL_SLOTS,
+    ...SELECT_FAMILY_SLOTS,
     trigger: PRIMARY_TRIGGER_CLASS,
     value: 'flex-1 min-w-0 truncate py-1.5 data-placeholder:text-muted-foreground',
   },

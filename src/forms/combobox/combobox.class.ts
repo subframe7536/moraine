@@ -1,6 +1,6 @@
 import { slotRecipe } from '../../shared/style/recipe.ts'
 import {
-  COMMON_CONTROL_SLOTS,
+  SELECT_FAMILY_SLOTS,
   FIELD_INPUT_CLASS,
   FIELD_SIZES,
   FIELD_VARIANTS,
@@ -11,7 +11,7 @@ import type { ComboboxT } from './combobox.types.ts'
 
 export const comboboxRecipe = /* @__PURE__ */ slotRecipe<ComboboxT.Slot, ComboboxT.Variant>({
   base: {
-    ...COMMON_CONTROL_SLOTS,
+    ...SELECT_FAMILY_SLOTS,
     input: `${FIELD_INPUT_CLASS} text-start min-w-0 truncate py-1.5`,
     trigger: SECONDARY_TRIGGER_CLASS,
   },

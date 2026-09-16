@@ -1,3 +1,4 @@
+import { TEXT_SIZE_VARIANT } from '../../shared/recipe-common.class.ts'
 import { slotRecipe } from '../../shared/style/recipe.ts'
 
 import type { BaseSelectT } from './base-select.types.ts'
@@ -18,9 +19,9 @@ export const baseSelectRecipe = /* @__PURE__ */ slotRecipe<BaseSelectT.Slot, Bas
   defaults: { size: 'md' },
   variants: {
     size: {
-      sm: { item: 'text-xs min-h-7' },
-      md: { item: 'text-sm min-h-8' },
-      lg: { item: 'text-base min-h-9' },
+      sm: { item: `${TEXT_SIZE_VARIANT.sm} min-h-7` },
+      md: { item: `${TEXT_SIZE_VARIANT.md} min-h-8` },
+      lg: { item: `${TEXT_SIZE_VARIANT.lg} min-h-9` },
     },
   },
 })

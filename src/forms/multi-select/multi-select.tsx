@@ -312,7 +312,6 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   : (local.trailingIcon ?? 'icon-chevron-down')
               }
               data-loading={local.loading ? '' : undefined}
-              class="data-loading:animate-spin"
             />
           </button>
         </BaseSelect.Control>

@@ -83,7 +83,6 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
                   : (local.trailingIcon ?? 'icon-chevron-down')
               }
               data-loading={local.loading ? '' : undefined}
-              class="data-loading:animate-spin"
             />
           </BaseSelect.Trigger>
           <Show when={!local.loading && local.allowClear && hasValue()}>
