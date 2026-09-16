@@ -4,7 +4,7 @@ import type { ButtonT } from './button.types'
 
 export const buttonRecipe = /* @__PURE__ */ slotRecipe<ButtonT.Slot, ButtonT.Variant>({
   base: {
-    root: 'border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[colors,transform] items-center justify-center bg-clip-padding focus-visible:(outline-none border-ring ring-3 ring-ring/50) aria-invalid:(border-destructive ring-3 ring-destructive/20) aria-disabled:(opacity-64 pointer-events-none) disabled:(opacity-64 pointer-events-none) [&:active:not([aria-haspopup])]:translate-y-px',
+    root: 'border inline-flex gap-1.5 cursor-pointer select-none whitespace-nowrap transition-[colors,transform,box-shadow] items-center justify-center bg-clip-padding focus-visible:(outline-none border-ring ring-3 ring-ring/50) aria-invalid:(border-destructive ring-3 ring-destructive/20) aria-disabled:(opacity-64 pointer-events-none) disabled:(opacity-64 pointer-events-none) [&:active:not([aria-haspopup])]:translate-y-px',
     loading: 'cursor-wait opacity-80 animate-spin',
     leading: '',
     label: 'min-w-0 truncate',

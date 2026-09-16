@@ -56,7 +56,7 @@ function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.Element {
   return (
     <Separator
       {...rest}
-      data-slot="button-group-separator"
+      data-slot="separator"
       orientation={resolved.variants.orientation ?? 'vertical'}
       {...resolved.root}
     />

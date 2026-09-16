@@ -9,7 +9,7 @@
 - [x] verify auto completion ability on `as={Button}`
 - [x] base select should be a namespaced component and export
 - [x] unify context-menu and dropdown-menu menu styles
-- [ ] correct/verify button group separator
+- [x] correct/verify button group separator
 - [ ] badge variants config / padding refresh, maybe similar to button?
 - [ ] kbd-group 's `*Render` should be renamed and reconsider default value
 - [ ] sidebar-frame styling is broken, more useful usage and example
@@ -21,6 +21,7 @@
 - [ ] metric adjust across all sizes
 - [ ] better way to define slot styles. current cannot "go to definition"
 - [ ] type instantiation reduce, including `MoraineTypeConfig`
+- [ ] polish button-group of border color when press
 
 # V1
 
