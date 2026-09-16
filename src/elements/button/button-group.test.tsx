@@ -5,6 +5,7 @@ import { describe, expect, test } from 'vitest'
 import { DropdownMenu } from '../../overlays/dropdown-menu'
 import { Popover } from '../../overlays/popover'
 import { MoraineProvider } from '../../shared/provider'
+import { createTheme } from '../../theme'
 import { defaultTheme } from '../../theme/default-theme'
 
 import { Button } from './button'
@@ -39,11 +40,83 @@ describe('ButtonGroup', () => {
     const group = screen.getByRole('group', { name: 'History controls' })
     expect(group.getAttribute('data-slot')).toBe('root')
     expect(group.hasAttribute('data-orientation')).toBe(false)
-    expect(group.className).toContain('-[&>*:not(:last-child)]:me-px')
+    expect(group.className).toContain('size-fit')
+    expect(group.className).toContain('-me-px')
+    expect(group.className).toContain('border-e-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-s-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-e-none')
-    expect(group.querySelectorAll('[data-slot="separator"]')).toHaveLength(0)
+    expect(group.querySelectorAll('[data-slot="button-group-separator"]')).toHaveLength(0)
     expect(screen.getAllByRole('button')).toHaveLength(2)
+  })
+
+  test('attaches the Separator namespace part', () => {
+    expect(ButtonGroup.Separator).toBeTypeOf('function')
+
+    const screen = render(() => <ButtonGroup.Separator />)
+    const separator = screen.getByRole('separator')
+
+    expect(separator.getAttribute('data-slot')).toBe('button-group-separator')
+  })
+
+  test('renders an explicit separator with generic separator semantics', () => {
+    const screen = render(() => (
+      <MoraineProvider theme={defaultTheme}>
+        <ButtonGroup aria-label="Clipboard actions">
+          <Button>Copy</Button>
+          <ButtonGroup.Separator />
+          <Button>Paste</Button>
+        </ButtonGroup>
+      </MoraineProvider>
+    ))
+
+    const group = screen.getByRole('group', { name: 'Clipboard actions' })
+    const separator = screen.getByRole('separator')
+
+    expect(group.querySelectorAll('[data-slot="button-group-separator"]')).toHaveLength(1)
+    expect(separator.parentElement).toBe(group)
+    expect(separator.getAttribute('data-slot')).toBe('button-group-separator')
+    expect(separator.getAttribute('role')).toBe('separator')
+    expect(separator.getAttribute('aria-orientation')).toBe('vertical')
+    expect(separator.getAttribute('data-orientation')).toBe('vertical')
+    expect(separator.className).toContain('relative')
+    expect(separator.className).toContain('self-stretch')
+    expect(separator.className).toContain('my-px')
+    expect(separator.className).toContain('h-auto')
+  })
+
+  test('allows ButtonGroup.Separator orientation to be overridden independently', () => {
+    const screen = render(() => (
+      <MoraineProvider theme={defaultTheme}>
+        <ButtonGroup.Separator orientation="horizontal" />
+      </MoraineProvider>
+    ))
+    const separator = screen.getByRole('separator')
+
+    expect(separator.getAttribute('aria-orientation')).toBe('horizontal')
+    expect(separator.getAttribute('data-orientation')).toBe('horizontal')
+    expect(separator.className).toContain('mx-px')
+    expect(separator.className).toContain('w-auto')
+  })
+
+  test('applies ButtonGroup separator theme and local slot overrides', () => {
+    const theme = createTheme({
+      extends: defaultTheme,
+      buttonGroup: { base: { separator: 'theme-separator' } },
+    })
+    const screen = render(() => (
+      <MoraineProvider theme={theme}>
+        <ButtonGroup classes={{ separator: 'group-separator' }}>
+          <Button>Copy</Button>
+          <ButtonGroup.Separator class="instance-separator" />
+          <Button>Paste</Button>
+        </ButtonGroup>
+      </MoraineProvider>
+    ))
+    const separator = screen.getByRole('separator')
+
+    expect(separator.className).toContain('theme-separator')
+    expect(separator.className).toContain('group-separator')
+    expect(separator.className).toContain('instance-separator')
   })
 
   test('reuses resolved getter-backed children without a separator', () => {
@@ -77,7 +150,8 @@ describe('ButtonGroup', () => {
     ))
 
     const group = screen.getByRole('group')
-    expect(group.className).toContain('-[&>*:not(:last-child)]:me-px')
+    expect(group.className).toContain('-me-px')
+    expect(group.className).toContain('border-e-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-s-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-e-none')
     expect(group.querySelector('[data-slot="trigger"]')?.parentElement).toBe(group)
@@ -175,9 +249,31 @@ describe('ButtonGroup', () => {
     const group = screen.getByRole('group')
     expect(group.hasAttribute('data-orientation')).toBe(false)
     expect(group.className).toContain('flex-col')
-    expect(group.className).toContain('-[&>*:not(:last-child)]:mb-px')
+    expect(group.className).toContain('-mb-px')
+    expect(group.className).toContain('border-b-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-t-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-b-none')
+  })
+
+  test('keeps an explicit horizontal separator as the only vertical action boundary', () => {
+    const screen = render(() => (
+      <MoraineProvider theme={defaultTheme}>
+        <ButtonGroup orientation="vertical" aria-label="Move actions">
+          <Button>Move up</Button>
+          <ButtonGroup.Separator orientation="horizontal" />
+          <Button>Move down</Button>
+        </ButtonGroup>
+      </MoraineProvider>
+    ))
+
+    const group = screen.getByRole('group', { name: 'Move actions' })
+    const separator = screen.getByRole('separator')
+
+    expect(group.className).toContain('border-b-0')
+    expect(group.className).toContain('border-t-0')
+    expect(separator.getAttribute('aria-orientation')).toBe('horizontal')
+    expect(separator.className).toContain('mx-px')
+    expect(separator.className).toContain('w-auto')
   })
 
   test('joins overlay trigger roots as direct children vertically', () => {
@@ -196,7 +292,8 @@ describe('ButtonGroup', () => {
     ))
 
     const group = screen.getByRole('group')
-    expect(group.className).toContain('-[&>*:not(:last-child)]:mb-px')
+    expect(group.className).toContain('-mb-px')
+    expect(group.className).toContain('border-b-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-t-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-b-none')
     expect(group.querySelector('[data-slot="trigger"]')?.parentElement).toBe(group)

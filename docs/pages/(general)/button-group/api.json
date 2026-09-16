@@ -6,7 +6,7 @@
     "polymorphic": false,
     "description": "Joins related buttons and provides shared size and visual variant defaults.",
     "sourcePath": "src/elements/button/button-group.tsx",
-    "kind": "single"
+    "kind": "composite"
   },
   "slots": [
     {
@@ -22,6 +22,13 @@
           "description": "Defines the semantic role exposed to assistive technology."
         }
       ]
+    },
+    {
+      "name": "separator",
+      "description": "Explicit divider between adjacent ButtonGroup parts.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "props": {
@@ -93,5 +100,56 @@
       }
     ],
     "inherited": []
-  }
+  },
+  "primitives": [
+    {
+      "component": {
+        "key": "button-group-separator",
+        "name": "ButtonGroup.Separator",
+        "category": "elements",
+        "polymorphic": false,
+        "description": "Explicit semantic divider for adjacent ButtonGroup parts.",
+        "sourcePath": "src/elements/button/button-group.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "classes",
+            "required": false,
+            "type": "ButtonGroupT.Classes | undefined"
+          },
+          {
+            "name": "orientation",
+            "required": false,
+            "type": "\"horizontal\" | \"vertical\" | undefined",
+            "description": "The orientation of the separator.",
+            "defaultValue": "vertical"
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
+          },
+          {
+            "name": "styles",
+            "required": false,
+            "type": "ButtonGroupT.Styles | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    }
+  ]
 }

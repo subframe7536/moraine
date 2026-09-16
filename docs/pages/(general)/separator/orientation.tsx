@@ -7,9 +7,9 @@ export function Orientation() {
       <Separator />
       <div class="text-sm text-muted-foreground flex gap-3 items-center">
         <span>Profile</span>
-        <Separator orientation="vertical" class="h-4" decorative />
+        <Separator orientation="vertical" class="h-4" />
         <span>Security</span>
-        <Separator orientation="vertical" class="h-4" decorative />
+        <Separator orientation="vertical" class="h-4" />
         <span>Billing</span>
       </div>
     </div>

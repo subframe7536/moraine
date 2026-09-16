@@ -4,7 +4,7 @@
     "name": "Separator",
     "category": "elements",
     "polymorphic": false,
-    "description": "Visual divider with configurable orientation, style, and border type.",
+    "description": "Semantic divider with configurable horizontal or vertical orientation.",
     "sourcePath": "src/elements/separator/separator.tsx",
     "kind": "single"
   },
@@ -13,14 +13,15 @@
       "name": "root",
       "description": "Visual divider element.",
       "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": [
+      "dataAttributes": [
         {
-          "name": "aria-hidden",
+          "name": "data-orientation",
           "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        },
+          "type": "string | undefined",
+          "description": "Stores the rendered orientation (horizontal or vertical)."
+        }
+      ],
+      "ariaAttributes": [
         {
           "name": "aria-orientation",
           "required": false,
@@ -43,13 +44,6 @@
         "required": false,
         "type": "SlotClassValue",
         "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "decorative",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the separator is decorative (hidden from assistive technologies).",
-        "defaultValue": "false"
       },
       {
         "name": "orientation",

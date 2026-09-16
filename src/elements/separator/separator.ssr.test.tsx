@@ -24,11 +24,13 @@ describe('Separator SSR Hydration', () => {
     const root = container.querySelector('[data-slot="root"]')!
     expect(root).not.toBeNull()
     expect(root.children).toHaveLength(0)
+    expect(root.getAttribute('data-orientation')).toBe('horizontal')
     expect(root.getAttribute('aria-orientation')).toBe('horizontal')
     expect(root.className).toContain('h-px')
     expect(root.className).toContain('w-full')
 
     setOrientation('vertical')
+    expect(root.getAttribute('data-orientation')).toBe('vertical')
     expect(root.getAttribute('aria-orientation')).toBe('vertical')
     expect(root.className).toContain('bg-border')
     expect(root.className).toContain('w-px')

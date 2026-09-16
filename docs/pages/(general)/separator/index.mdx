@@ -1,6 +1,6 @@
 ---
 title: Separator
-description: A horizontal or vertical separator with configurable thickness, border style, and decorative accessibility behavior.
+description: A horizontal or vertical semantic separator with theme-aware presentation.
 sidebar:
   order: 9
 search:
@@ -18,10 +18,9 @@ import type { SeparatorT } from 'moraine'
 
 ## Features
 
-- **Horizontal & Vertical Orientations**: Controls the line direction and sets matching `aria-orientation` metadata.
-- **Border Styles**: Choose `solid`, `dashed`, or `dotted`.
-- **Thickness Scale**: `sm`, `md`, and `lg` adjust the rendered separator thickness.
-- **Semantic or Decorative Use**: The root always renders as `<div role="separator">`; `decorative` adds `aria-hidden="true"` so assistive technologies ignore it.
+- **Horizontal & Vertical Orientations**: Controls the line direction and sets matching `aria-orientation` and `data-orientation` attributes.
+- **Consistent Semantics**: The root always renders as `<div role="separator">` with its resolved orientation exposed to assistive technologies.
+- **Theme-Aware Presentation**: Configure `separator.base.root` in your Theme while keeping the semantic DOM contract intact.
 
 ## Playground
 
@@ -51,7 +50,7 @@ import type { SeparatorT } from 'moraine'
 ## Anatomy
 
 ```text
-root (<div role="separator">)
+root (<div role="separator" aria-orientation data-orientation>)
 ```
 
 ## Usage
@@ -62,9 +61,9 @@ root (<div role="separator">)
 
 <Preview path="./root-styling" />
 
-### Visual and semantic dividers
+### Semantic orientation
 
-Use a semantic separator when it marks a real thematic break, and decorative mode for purely visual division. Choose horizontal or vertical orientation to match the surrounding layout.
+Every `Separator` exposes `role="separator"`, `aria-orientation`, and `data-orientation`. Choose horizontal or vertical orientation to match the surrounding layout.
 
 <Preview path="./separator-usage" />
 

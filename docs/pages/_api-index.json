@@ -61,7 +61,7 @@
       "polymorphic": false,
       "description": "Joins related buttons and provides shared size and visual variant defaults.",
       "sourcePath": "src/elements/button/button-group.tsx",
-      "kind": "single"
+      "kind": "composite"
     },
     {
       "key": "card",
@@ -292,7 +292,7 @@
       "name": "Separator",
       "category": "elements",
       "polymorphic": false,
-      "description": "Visual divider with configurable orientation, style, and border type.",
+      "description": "Semantic divider with configurable horizontal or vertical orientation.",
       "sourcePath": "src/elements/separator/separator.tsx",
       "kind": "single"
     },
