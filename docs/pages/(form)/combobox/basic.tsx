@@ -1,11 +1,25 @@
 import { Combobox } from '@src'
+import type { ComboboxT } from '@src'
 
-const ITEMS = [
+const FRAMEWORKS: ComboboxT.Item[] = [
   { label: 'SolidJS', value: 'solid' },
-  { label: 'Vue', value: 'vue' },
   { label: 'React', value: 'react' },
+  { label: 'Vue.js', value: 'vue' },
+  { label: 'Svelte', value: 'svelte' },
+  { label: 'Astro', value: 'astro' },
+  { label: 'Next.js', value: 'next' },
+  { label: 'Nuxt', value: 'nuxt' },
 ]
 
 export function Basic() {
-  return <Combobox class="max-w-xs" items={ITEMS} placeholder="Search frameworks..." allowClear />
+  return (
+    <div class="max-w-xs w-full">
+      <Combobox
+        items={FRAMEWORKS}
+        placeholder="Search framework..."
+        leadingIcon="i-lucide:search"
+        allowClear
+      />
+    </div>
+  )
 }

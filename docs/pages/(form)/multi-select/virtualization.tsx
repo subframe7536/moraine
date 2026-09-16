@@ -19,10 +19,12 @@ export function Virtualization() {
   })
 
   return (
-    <div class="w-80">
+    <div class="max-w-md w-full">
       <MultiSelect
         items={OPTIONS}
-        placeholder="Pick from 10,000 items..."
+        search
+        openOnControlClick
+        placeholder="Search across 10,000 options..."
         virtualRender={virtualizer.virtualRender}
         scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
         classes={{ listbox: 'h-80 max-h-80' }}

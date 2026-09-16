@@ -19,13 +19,16 @@ export function Virtualization() {
   })
 
   return (
-    <Combobox
-      class="max-w-xs"
-      items={ITEMS}
-      placeholder="Search 10,000 options"
-      virtualRender={virtualizer.virtualRender}
-      scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
-      classes={{ listbox: 'h-80 max-h-80' }}
-    />
+    <div class="max-w-xs w-full">
+      <Combobox
+        items={ITEMS}
+        placeholder="Search 10,000 options..."
+        leadingIcon="i-lucide:search"
+        openOnControlClick
+        virtualRender={virtualizer.virtualRender}
+        scrollToItem={(_, entryIndex) => virtualizer.scrollToIndex(entryIndex)}
+        classes={{ listbox: 'h-80 max-h-80' }}
+      />
+    </div>
   )
 }

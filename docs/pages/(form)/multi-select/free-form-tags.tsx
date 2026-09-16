@@ -2,18 +2,22 @@ import { MultiSelect } from '@src'
 import { createSignal } from 'solid-js'
 
 export function FreeFormTags() {
-  const [tags, setTags] = createSignal<string[]>([])
+  const [tags, setTags] = createSignal<string[]>(['web', 'ui', 'components'])
 
   return (
-    <div class="w-80 space-y-2">
+    <div class="max-w-md w-full space-y-2">
+      <label class="text-xs text-muted-foreground font-medium block">
+        Free-Form Tags (Comma or space separated)
+      </label>
       <MultiSelect
         value={tags()}
         onChange={setTags}
-        createItem={(input) => ({ value: input, label: input })}
-        tokenSeparators={[',']}
-        placeholder="Type or paste comma-separated tags..."
+        createItem={(input) => ({ value: input.trim().toLowerCase(), label: input.trim() })}
+        tokenSeparators={[',', ' ']}
+        placeholder="Type words, press space or comma..."
+        allowClear
       />
-      <p class="text-xs text-muted-foreground">Tags: {tags().join(', ') || 'none'}</p>
+      <p class="text-xs text-muted-foreground">Tags array: {JSON.stringify(tags())}</p>
     </div>
   )
 }

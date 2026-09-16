@@ -1,6 +1,6 @@
 ---
 title: Select
-description: A single, non-editable collection selection with typeahead, groups, and virtual rendering.
+description: A single, non-editable collection selection with typeahead, rich items, groups, and virtual rendering.
 sidebar:
   order: 10
 search:
@@ -19,9 +19,10 @@ import type { SelectT } from 'moraine'
 ## Features
 
 - **Single collection value**: Commits one `TItem['value']` or `null`.
-- **Non-editable trigger**: Printable keys use typeahead, not query state.
-- **Collection rendering**: Supports groups, custom items, incremental loading, and virtualization.
-- **Stable anatomy**: Control is the field, Trigger is the button, and Value is the label region.
+- **Non-editable trigger**: Focus stays on the button; printable keys navigate items via typeahead.
+- **Native rich items**: Built-in `icon` and multi-line `description` support out of the box.
+- **Collection rendering**: Supports groups, custom items, infinite scroll, and virtualization.
+- **Stable anatomy**: Control is the floating anchor, Trigger is the button, and Value is the label region.
 
 ## Playground
 
@@ -89,61 +90,76 @@ import type { SelectT } from 'moraine'
 control
 ├── trigger
 │   ├── leading (optional)
-│   └── value
+│   ├── value
+│   └── trailing (chevron / loading icon)
 └── clear (optional)
 ```
 
-The control slot is the outer visual field and floating anchor. The trigger slot is the actual
-primary button. The value slot displays the selected label or `String(value)` for a temporarily
-unresolved value. Clear is a sibling action and never toggles the popup.
+The control slot is the outer visual field and floating anchor. The trigger slot is the primary
+interactive button. The value slot displays the selected label or `String(value)` for an unresolved
+value. Clear is a sibling action that clears the selection without toggling the popup.
 
 ## Usage
 
 ### Value and collection
 
-<Preview path="./basic-select" />
+The value API is `TItem['value'] | null`. `undefined` leaves the component uncontrolled (using `defaultValue`),
+`null` indicates no active selection, and an empty string remains a valid value. Item values must be unique.
 
-The value API is `TItem['value'] | null`. `undefined` leaves the component uncontrolled, `null`
-means no selection, and an empty string remains a valid value. Item values must be unique.
+Printable keys perform rapid typeahead navigation across available options without opening an editable input.
 
-### Large and remote collections
-
-Virtualization is appropriate for large, stable option lists. Incremental loading remains
-application-owned and does not change the canonical selection source.
-
-<Preview path="./collections" />
+<Preview path="./usage-value" />
 
 ### Keyboard interaction
 
-| Key                 | Behavior                                    |
-| ------------------- | ------------------------------------------- |
-| Enter / Space       | Open the popup or select the active option  |
-| ArrowDown / ArrowUp | Open or move through selectable options     |
-| Home / End          | Move to the first or last option while open |
-| Printable key       | Typeahead to a matching item                |
-| Escape              | Close without changing the value            |
+| Key                 | Behavior                                      |
+| ------------------- | --------------------------------------------- |
+| Enter / Space       | Open the popup or commit the active option    |
+| ArrowDown / ArrowUp | Open or move through selectable options       |
+| Home / End          | Move to the first or last option while open   |
+| Printable key       | Typeahead to the matching item label          |
+| Escape              | Close the dropdown without changing the value |
 
 ## Examples
 
-### Groups
+### Sizes and variants
+
+<Preview path="./sizes-and-variants" />
+
+### Rich items
+
+Each item supports an `icon` and secondary `description` without requiring custom item templates.
+
+<Preview path="./rich-items" />
+
+### Team roles
+
+<Preview path="./user-assignee" />
+
+### Grouped options
+
+Organize options into labeled categories using `type: 'group'`.
 
 <Preview path="./grouped-items" />
 
-### Clear, disabled, and read-only
+### Clearable, disabled, and read-only
 
 <Preview path="./states" />
 
 ### Incremental collections
 
+Use `onScrollBottom` and `scrollBottomThreshold` to load additional pages of options as the user scrolls.
+
 <Preview path="./infinite-scroll" />
 
 ### Virtualization
+
+For collections with thousands of options, combine with `useListVirtualizer` from `moraine/virtualizer`.
 
 <Preview path="./virtualization" />
 
 ### Form integration
 
-<Preview path="./form-integration" />
+For an empty `Form.Field`-bound Select, initialize the field with `null` and accept `null` in the schema.
 
-For an empty Form.Field-bound Select, initialize the field with `null` and accept `null` in the
-schema's input. An empty string is a real selected value and therefore is not a placeholder.
+<Preview path="./form-integration" />

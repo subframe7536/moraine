@@ -1,10 +1,10 @@
 ---
 title: MultiSelect
-description: Collection-backed multiple selection with tags, optional search, and explicit item creation.
+description: Collection-backed multiple selection with tags, optional search, token separators, and item creation.
 sidebar:
   order: 13
 search:
-  tags: [combobox, multiple selection, items, multi-select, tags]
+  tags: [combobox, multiple selection, items, multi-select, tags, chips]
 ---
 
 import { MultiSelect } from '@src'
@@ -19,10 +19,10 @@ import type { MultiSelectT } from 'moraine'
 ## Features
 
 - **Collection-backed values**: Every committed value resolves through a canonical `TItem` source.
-- **Stable tag field**: One input owns focus, keyboard behavior, query, and combobox ARIA.
-- **Optional search and creation**: `search` filters; `createItem` constructs a `TItem` for free-form input.
-- **Unified tokenization**: Separators and paste reuse the same collection-aware creation path.
-- **Separate limits**: `maxCount` limits values; `maxTagCount` only changes presentation.
+- **Interactive tag field**: Displays selected items as removable chips with optional overflow badge.
+- **Optional search & creation**: `search` filters; `createItem` constructs a `TItem` for free-form input.
+- **Unified tokenization**: Separators (comma, space) and paste reuse the same collection-aware creation path.
+- **Separate limits**: `maxCount` limits total selections; `maxTagCount` collapses visual tags into a `+N` badge.
 
 ## Playground
 
@@ -57,7 +57,7 @@ import type { MultiSelectT } from 'moraine'
         { label: 'Large', value: 'lg' },
       ],
     },
-    { kind: 'switch', prop: 'search', label: 'Search', defaultValue: false },
+    { kind: 'switch', prop: 'search', label: 'Search', defaultValue: true },
     {
       kind: 'switch',
       prop: 'openOnControlClick',
@@ -100,7 +100,7 @@ import type { MultiSelectT } from 'moraine'
 control
 ├── leading (optional)
 ├── tagsContainer
-│   ├── tag
+│   ├── tag (×n)
 │   │   ├── tagLabel
 │   │   └── tagRemove
 │   ├── tagOverflow (optional)
@@ -109,53 +109,90 @@ control
 └── trigger
 ```
 
-The trailing trigger is always a real secondary button and is never replaced by clear or loading.
-By default, control clicks do not open the popup. Set `openOnControlClick={true}` to allow
-ordinary control clicks to open the popup; typing and Arrow keys still open normally.
+The control slot wraps the interactive tags container and floating anchor. When non-editable, clicking the control opens the panel by default; when editable (`search` or `createItem`), clicking the control focuses the input without opening the panel so users can type immediately. Use `openOnControlClick` to explicitly override this default behavior.
 
 ## Usage
 
-### Values and search
+### Values and tag lifecycle
 
-<Preview path="./values-and-search" />
+The committed selection is represented as an array of item values: `TItem['value'][]`.
+Without `search`, printable keys trigger collection typeahead. Enabling `search={true}` allows
+users to type directly in the field to filter available options.
 
-Without `search`, the single physical input is read-only and printable keys use collection
-typeahead. `search` makes it editable and filters the collection. Query state stays separate from
-the committed `TItem['value'][]`.
+<Preview path="./usage-tags" />
 
-### Create collection items
+### Item creation and delimiters
 
-<Preview path="./create-new-tags" />
+Providing `createItem` transforms unmatched query text into a valid `TItem` on Enter or when a token
+separator is encountered. Separator characters (like comma or space) and pasted strings are automatically
+parsed through the same creation path.
 
-Providing `createItem` implicitly enables the editable search input, even with `search={false}`.
-It converts normalized text into a valid `TItem`; MultiSelect then commits `TItem.value`. Exact
-label or value matches reuse existing items before calling `createItem`.
+<Preview path="./usage-creation" />
 
-### Free-form tags
+### Keyboard interaction
 
-<Preview path="./free-form-tags" />
-
-With no predefined items, `createItem` and `tokenSeparators` provide free-form tag entry without a
-separate component or selection model. Separator typing and pasted tokens use the same commit path
-as Enter.
-
-### Large item sets
-
-<Preview path="./large-collections" />
+| Key                 | Behavior                                                                   |
+| ------------------- | -------------------------------------------------------------------------- |
+| Backspace           | When input is empty, deletes the immediately preceding tag                 |
+| ArrowDown / ArrowUp | Open popup or move focus through the options list                          |
+| Enter               | Commit the highlighted item (or create an item when input text is present) |
+| Escape              | Close the dropdown or clear active query text                              |
 
 ## Examples
 
+### Custom tag rendering
+
+Use `tagRender` to customize chip presentation with colors, status dots, badges, or custom remove buttons.
+
+<Preview path="./custom-tags" />
+
+### Project assignees
+
+<Preview path="./user-chips" />
+
 ### Selection and display limits
 
-`maxCount` is a behavioral selection limit. `maxTagCount` is visual only; hidden selections remain
-committed, submitted, and reachable through the collection popup.
+`maxCount` is a behavioral constraint preventing additional selections. `maxTagCount` is purely
+visual: surplus selections stay committed and are summarized in a `+N` badge.
 
 <Preview path="./max-count-max-tag-count" />
 
+### Creatable collection items
+
+Allow users to select from existing options or dynamically generate new tags via an empty state button.
+
+<Preview path="./create-new-tags" />
+
+### Free-form tags
+
+Without predefined items, combine `createItem` and `tokenSeparators` for a lightweight tag input.
+
+<Preview path="./free-form-tags" />
+
+### Grouped options
+
+Organize large collections into categorized option groups.
+
+<Preview path="./grouped-items" />
+
+### Clearable, disabled, and locked states
+
+Pre-locked items cannot be deselected, while individual options can be disabled in the listbox.
+
+<Preview path="./clear-and-disabled" />
+
+### Sizes and variants
+
+<Preview path="./sizes-and-variants" />
+
 ### Virtualization
+
+Render 10,000+ items smoothly using TanStack Virtualizer.
 
 <Preview path="./virtualization" />
 
 ### Form integration
+
+Validate multi-selection schemas (e.g. requiring a minimum number of tags) with `createForm`.
 
 <Preview path="./form-integration" />

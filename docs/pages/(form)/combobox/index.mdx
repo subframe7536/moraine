@@ -4,7 +4,7 @@ description: Single collection selection with an editable query and a secondary 
 sidebar:
   order: 11
 search:
-  tags: [combobox, search, filter, listbox]
+  tags: [combobox, search, filter, listbox, autocomplete]
 ---
 
 import { Combobox } from '@src'
@@ -18,10 +18,10 @@ import type { ComboboxT } from 'moraine'
 
 ## Features
 
-- **Independent value and query**: Query text filters; only an option commits a value.
-- **One focus owner**: The editable input owns combobox ARIA and keyboard interaction.
-- **Explicit secondary trigger**: The trailing button always exists and toggles the popup.
-- **Collection rendering**: Supports groups, external filtering, custom items, and virtualization.
+- **Independent value and query**: Query text filters options; only an option commit sets the selected value.
+- **Single focus owner**: The editable input retains focus, combobox ARIA roles, and keyboard interaction.
+- **Explicit secondary trigger**: The trailing button always exists and toggles the popup without stealing input focus.
+- **Collection rendering**: Supports groups, custom items, filter strategies, external search, and virtualization.
 
 ## Playground
 
@@ -100,45 +100,85 @@ control
 └── trigger
 ```
 
-Control is the visual field and floating anchor. Input is the only combobox ARIA and focus owner.
-Trigger is an always-present secondary button with `tabIndex={-1}`; it toggles without creating a
-second combobox focus model.
+Control is the visual field and floating anchor. Input is the sole combobox ARIA and focus owner.
+Trigger is an always-present secondary button with `tabIndex={-1}` that toggles the dropdown without
+creating competing focus targets.
 
 ## Usage
 
 ### Value and query
 
-<Preview path="./basic" />
-
 While open, the input displays the query; while closed, it displays the selected item label.
-Arbitrary query text is never committed. Use `value` / `onChange` for selection and `searchValue` /
-`onSearch` for query state.
+Arbitrary query text is never committed as a value. Use `value` / `onChange` for selection and
+`searchValue` / `onSearch` for query text.
 
-### Controlled query and external filtering
-
-<Preview path="./controlled-query" />
+<Preview path="./usage-query" />
 
 ### Pointer opening
 
-By default, ordinary input/control pointer clicks do not open the popup. The secondary trigger
-still toggles, while typing and ArrowDown/ArrowUp still open normally. Set `openOnControlClick={true}`
-to open on control click.
+By default, clicking inside the input focuses the field without opening the popup immediately. The trailing
+chevron button toggles the dropdown, while typing or pressing ArrowDown opens it. Set `openOnControlClick={true}`
+if you want any click on the field to open the options list.
 
 <Preview path="./explicit-trigger" />
 
+### Keyboard interaction
+
+| Key                 | Behavior                                                                    |
+| ------------------- | --------------------------------------------------------------------------- |
+| ArrowDown / ArrowUp | Open the popup or navigate through matched options                          |
+| Enter               | Commit the currently highlighted option                                     |
+| Escape              | Revert query text or close the dropdown                                     |
+| Home / End          | Move text cursor within input (or navigate options when listbox is focused) |
+
 ## Examples
 
-### Groups and empty state
+### Basic autocomplete
+
+<Preview path="./basic" />
+
+### Custom and rich items
+
+Display status indicators, icons, and descriptions using `icon` and `description`.
+
+<Preview path="./custom-items" />
+
+### User search
+
+Search teammates by name or email.
+
+<Preview path="./user-picker" />
+
+### Filter strategies
+
+Configure how query text matches items using `filterItem="contains"` (default) or `filterItem="startsWith"`.
+
+<Preview path="./filter-strategies" />
+
+### Debounced remote search
+
+Simulate async fetching by combining `searchValue`, `onSearch`, and `loading`.
+
+<Preview path="./async-search" />
+
+### Groups and custom empty state
+
+Organize options into categories and customize the empty state when no matches exist.
 
 <Preview path="./groups" />
 
+### Sizes and variants
+
+<Preview path="./sizes-and-variants" />
+
 ### Virtualization
+
+Virtualize large lists of 10,000+ items using TanStack Virtualizer.
 
 <Preview path="./virtualization" />
 
 ### Form integration
 
-<Preview path="./form-integration" />
+Integrates seamlessly with `createForm` and `form.Field` for validation and error handling.
 
-Combobox also supports custom item rendering, incremental loading, empty-string and numeric values,
-and unresolved-value fallback.
+<Preview path="./form-integration" />

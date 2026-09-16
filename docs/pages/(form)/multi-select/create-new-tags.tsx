@@ -2,38 +2,45 @@ import { Button, MultiSelect } from '@src'
 import type { MultiSelectT } from '@src'
 import { createSignal } from 'solid-js'
 
-export function CreateNewTags() {
-  const FRUIT_OPTIONS: MultiSelectT.Item[] = [
-    { label: 'Apple', value: 'apple' },
-    { label: 'Banana', value: 'banana' },
-    { label: 'Cherry', value: 'cherry' },
-    { label: 'Date', value: 'date' },
-    { label: 'Elderberry', value: 'elderberry', disabled: true },
-    { label: 'Forest', value: 'forest', icon: 'i-lucide:braces' },
-  ]
+const INITIAL_TOPICS: MultiSelectT.Item[] = [
+  { label: 'React', value: 'react' },
+  { label: 'SolidJS', value: 'solid' },
+  { label: 'Vue.js', value: 'vue' },
+  { label: 'TypeScript', value: 'ts' },
+]
 
-  const [createTagValues, setCreateTagValues] = createSignal<MultiSelectT.Value[]>([])
+export function CreateNewTags() {
+  const [tags, setTags] = createSignal<MultiSelectT.Value[]>(['solid'])
 
   return (
-    <div class="w-80 space-y-2">
+    <div class="max-w-md w-full space-y-2">
+      <label class="text-xs text-muted-foreground font-medium block">
+        Topics (Select existing or type to create)
+      </label>
       <MultiSelect
         search
-        loading
-        items={FRUIT_OPTIONS}
-        value={createTagValues()}
-        onChange={setCreateTagValues}
-        createItem={(input) => ({ value: input, label: input })}
+        items={INITIAL_TOPICS}
+        value={tags()}
+        onChange={setTags}
+        createItem={(input) => ({ value: input.trim().toLowerCase(), label: input.trim() })}
         tokenSeparators={[',', ';']}
-        placeholder="Type to create tags..."
+        placeholder="Type to create or select..."
+        openOnControlClick
+        allowClear
         emptyRender={(ctx) => (
           <div class="p-2 text-center">
-            <Button variant="link" size="sm" class="text-primary" onClick={() => ctx.create()}>
+            <Button
+              variant="link"
+              size="sm"
+              class="text-xs text-primary"
+              onClick={() => ctx.create()}
+            >
               Create &ldquo;{ctx.inputValue}&rdquo;
             </Button>
           </div>
         )}
       />
-      <p class="text-xs text-muted-foreground">Tags: {createTagValues().join(', ') || 'none'}</p>
+      <p class="text-xs text-muted-foreground">Selected values: {tags().join(', ') || 'none'}</p>
     </div>
   )
 }
