@@ -27,7 +27,7 @@ export namespace SeparatorT {
   }
 
   /** Props for the Separator component. */
-  export type Props = BaseProps<'div', Base, Variant, never, never>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /** Props for the Separator component. */
