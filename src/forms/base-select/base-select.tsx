@@ -67,6 +67,15 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     }),
   )
   const items = () => props.items ?? []
+  const itemByValue = createMemo(() => {
+    const byValue = new Map<T['value'], T>()
+    for (const item of items()) {
+      if (!byValue.has(item.value)) {
+        byValue.set(item.value, item)
+      }
+    }
+    return byValue
+  })
   createEffect(on(items, diagnoseDuplicateItems))
   const [selection, setSelection] = useControllableValue<Value>({
     value: () => {
@@ -81,6 +90,9 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
         return []
       }
       if (!props.multiple && (typeof value === 'string' || typeof value === 'number')) {
+        if (value === '' && !itemByValue().has(value)) {
+          return []
+        }
         return [value]
       }
       return undefined
@@ -88,7 +100,10 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     defaultValue: () => initial,
   })
   const value = createMemo(() => normalize(selection() ?? []))
-  const itemDisabled = (item: T) => Boolean(item.disabled || props.isItemDisabled?.(item, value()))
+  const itemDisabled = (item: T) => {
+    const canonical = itemByValue().get(item.value) ?? item
+    return Boolean(canonical.disabled || props.isItemDisabled?.(canonical, value()))
+  }
   const [openValue, setOpenValue] = useControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
@@ -140,7 +155,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     if (locked() || itemDisabled(item)) {
       return
     }
-    if (!items().some((candidate) => sameValue(candidate.value, item.value))) {
+    if (!itemByValue().has(item.value)) {
       return
     }
     discardComposition()
@@ -278,13 +293,13 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   )
   const serialized = createMemo(() => {
     const selected = value()
-    if (!props.multiple && !selected.length) {
-      return ['']
+    if (!selected.length) {
+      return []
     }
     return selected.flatMap((value) => {
       const serialized = props.serializeValue
         ? props.serializeValue(value)
-        : items().find((item) => sameValue(item.value, value))?.disabled
+        : itemByValue().get(value)?.disabled
           ? undefined
           : String(value)
       return serialized === undefined ? [] : [serialized]

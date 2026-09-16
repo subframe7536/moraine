@@ -181,7 +181,12 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
         return
       }
       inputBinding.discardComposition()
-      state.change([])
+      state.change(
+        state.value().filter((value) => {
+          const item = source().byValue.get(value)
+          return item !== undefined && state.itemDisabled(item)
+        }),
+      )
       search.setQuery('')
       local.onClear?.()
       focusInput()
