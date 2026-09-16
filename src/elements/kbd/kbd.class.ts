@@ -27,11 +27,8 @@ export const kbdRecipe = /* @__PURE__ */ slotRecipe<KbdT.Slot, KbdT.Variant>({
 
 export const kbdGroupRecipe = /* @__PURE__ */ slotRecipe<KbdGroupT.Slot, KbdGroupT.Variant>({
   base: {
-    root: 'inline-flex gap-1 items-center',
-    chord: 'inline-flex gap-1 items-center',
+    root: 'inline-flex gap-1 items-center text-muted-foreground',
     item: '',
-    divider: 'text-muted-foreground',
-    sequenceDivider: 'text-muted-foreground',
   },
   defaults: {
     size: 'md',

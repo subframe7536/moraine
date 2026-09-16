@@ -220,7 +220,7 @@
       "name": "KbdGroup",
       "category": "elements",
       "polymorphic": false,
-      "description": "Group of keyboard shortcut keys with support for simultaneous chords and ordered sequences.",
+      "description": "Data-driven renderer for one simultaneous keyboard shortcut.",
       "sourcePath": "src/elements/kbd/kbd-group.tsx",
       "kind": "single"
     },

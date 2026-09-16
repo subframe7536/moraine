@@ -1,6 +1,6 @@
 import { render, screen } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
 import { createTheme } from '../../theme'
@@ -126,35 +126,25 @@ describe('Kbd', () => {
 })
 
 describe('KbdGroup', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders an unstyled semantic kbd root when provider is absent', () => {
     const view = render(() => <KbdGroup items={['Ctrl', 'K']} />)
     const root = view.container.querySelector('[data-slot="root"]')
+
+    expect(root?.tagName).toBe('KBD')
     expect(root?.className).toBe('')
-    const chord = view.container.querySelector('[data-slot="chord"]')
-    expect(chord?.className).toBe('')
+    expect(view.container.querySelector('[data-slot="chord"]')).toBeNull()
   })
 
-  test('accepts static JSX for divider renderers', () => {
-    const view = render(() => (
-      <KbdGroup items={['Ctrl', 'K']} dividerRender={<span data-testid="divider">and</span>} />
-    ))
-
-    expect(view.getByTestId('divider').textContent).toBe('and')
-    expect(view.container.querySelector('[data-slot="root"]')?.hasAttribute('dividerrender')).toBe(
-      false,
-    )
-  })
-
-  test('renders simultaneous items with dividers', () => {
+  test('renders default inline separators without separator semantics', () => {
     const view = render(() => <KbdGroup items={['Ctrl', 'Shift', 'P']} />)
     const items = view.container.querySelectorAll('[data-slot="item"]')
-    const dividers = view.container.querySelectorAll('[data-slot="divider"]')
+    const root = view.container.querySelector('[data-slot="root"]')
 
-    expect(view.container.querySelector('[data-slot="root"]')?.tagName).toBe('SPAN')
-    expect(view.container.querySelector('[data-slot="chord"]')?.tagName).toBe('SPAN')
     expect([...items].map((item) => item.textContent)).toEqual(['Ctrl', '⇧', 'P'])
-    expect(dividers.length).toBe(2)
-    expect(dividers.item(0)?.textContent).toBe('+')
+    expect(root?.textContent).toBe('Ctrl+⇧+P')
+    expect(view.container.querySelector('[role="separator"]')).toBeNull()
+    expect(view.container.querySelector('[aria-orientation]')).toBeNull()
+    expect(view.container.querySelector('[data-slot="separator"]')).toBeNull()
   })
 
   test('renders item objects with accessible labels', () => {
@@ -163,64 +153,70 @@ describe('KbdGroup', () => {
     expect(screen.getByLabelText('Command key').textContent).toBe('Cmd')
   })
 
-  test('renders a sequence with custom dividers and indexes', () => {
-    const dividerRender = vi.fn((ctx: { index: number }) => <span>plus-{ctx.index}</span>)
-    const sequenceDividerRender = vi.fn((ctx: { index: number }) => <span>then-{ctx.index}</span>)
-    const view = render(() => (
+  test('renders nothing for empty items and no separator for a single item', () => {
+    const empty = render(() => <KbdGroup items={[]} />)
+    const single = render(() => <KbdGroup items={['K']} separator="/" />)
+
+    expect(empty.container.querySelector('[data-slot="root"]')).toBeNull()
+    expect(single.container.querySelectorAll('[data-slot="item"]')).toHaveLength(1)
+    expect(single.container.querySelector('[data-slot="root"]')?.textContent).toBe('K')
+  })
+
+  test('supports custom string and JSX separators', () => {
+    const stringSeparator = render(() => <KbdGroup items={['Ctrl', 'K']} separator="/" />)
+    const jsxSeparator = render(() => (
       <KbdGroup
-        sequence={[
-          ['Ctrl', 'K'],
-          ['Ctrl', 'S'],
-        ]}
-        dividerRender={dividerRender}
-        sequenceDividerRender={sequenceDividerRender}
+        items={['Ctrl', 'Shift', 'P']}
+        separator={<span data-testid="custom-separator">·</span>}
       />
     ))
 
-    expect(view.container.querySelectorAll('[data-slot="chord"]')).toHaveLength(2)
-    expect(view.container.querySelector('[data-slot="divider"]')?.textContent).toBe('plus-0')
-    expect(view.container.querySelector('[data-slot="sequenceDivider"]')?.textContent).toBe(
-      'then-0',
+    expect(stringSeparator.container.querySelector('[data-slot="root"]')?.textContent).toBe(
+      'Ctrl/K',
     )
-    expect(dividerRender).toHaveBeenCalledTimes(2)
-    expect(sequenceDividerRender).toHaveBeenCalledOnce()
+    expect(jsxSeparator.getAllByTestId('custom-separator')).toHaveLength(2)
+    expect(jsxSeparator.container.querySelector('[data-slot="root"]')?.textContent).toBe('Ctrl·⇧·P')
   })
 
-  test('prefers sequence when items and sequence are both provided', () => {
-    const view = render(() => <KbdGroup items={['Ignored']} sequence={[['Ctrl', 'S']]} />)
+  test('propagates size and variant to generated Kbd items', () => {
+    const view = render(() => (
+      <MoraineProvider theme={defaultTheme}>
+        <KbdGroup items={['Ctrl', 'K']} size="sm" variant="outline" />
+      </MoraineProvider>
+    ))
+    const items = view.container.querySelectorAll('[data-slot="item"]')
 
-    expect(view.container.textContent).not.toContain('Ignored')
-    expect(view.container.querySelectorAll('[data-slot="item"]')).toHaveLength(2)
+    for (const item of items) {
+      expect(item.className).toContain('h-4.5')
+      expect(item.className).toContain('border-b-2')
+    }
   })
 
-  test('renders nothing for empty items and empty sequence groups', () => {
-    const emptyItems = render(() => <KbdGroup items={[]} />)
-    const emptySequence = render(() => <KbdGroup sequence={[[], []]} />)
-
-    expect(emptyItems.container.querySelector('[data-slot="root"]')).toBeNull()
-    expect(emptySequence.container.querySelector('[data-slot="root"]')).toBeNull()
-  })
-
-  test('applies group and item slot customizations', () => {
+  test('applies root and item slot customizations', () => {
     const view = render(() => (
       <KbdGroup
         items={['Ctrl', 'K']}
         class="root-class"
         style={{ width: '200px' }}
-        classes={{ chord: 'chord-class', item: 'item-class', divider: 'divider-class' }}
-        styles={{ item: { height: '20px' }, divider: { width: '10px' } }}
+        classes={{ item: 'item-class' }}
+        styles={{ item: { height: '20px' } }}
       />
     ))
     const root = view.container.querySelector('[data-slot="root"]') as HTMLElement | null
     const item = view.container.querySelector('[data-slot="item"]') as HTMLElement | null
-    const divider = view.container.querySelector('[data-slot="divider"]') as HTMLElement | null
 
     expect(root?.className).toContain('root-class')
     expect(root?.style.width).toBe('200px')
-    expect(view.container.querySelector('[data-slot="chord"]')?.className).toContain('chord-class')
     expect(item?.className).toContain('item-class')
     expect(item?.style.height).toBe('20px')
-    expect(divider?.className).toContain('divider-class')
-    expect(divider?.style.width).toBe('10px')
+  })
+
+  test('reacts to item changes', () => {
+    const [items, setItems] = createSignal(['Ctrl', 'K'])
+    const view = render(() => <KbdGroup items={items()} />)
+
+    expect(view.container.querySelector('[data-slot="root"]')?.textContent).toBe('Ctrl+K')
+    setItems(['Shift', 'P'])
+    expect(view.container.querySelector('[data-slot="root"]')?.textContent).toBe('⇧+P')
   })
 })

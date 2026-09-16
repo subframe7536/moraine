@@ -4,28 +4,21 @@
     "name": "KbdGroup",
     "category": "elements",
     "polymorphic": false,
-    "description": "Group of keyboard shortcut keys with support for simultaneous chords and ordered sequences.",
+    "description": "Data-driven renderer for one simultaneous keyboard shortcut.",
     "sourcePath": "src/elements/kbd/kbd-group.tsx",
     "kind": "single"
   },
   "slots": [
     {
       "name": "root",
-      "description": "Container for one or more shortcut steps.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "chord",
-      "description": "Wrapper around keys pressed at the same time.",
+      "description": "KbdGroup root element.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
     },
     {
       "name": "item",
-      "description": "Individual key token.",
+      "description": "Generated Kbd item.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": [
@@ -36,20 +29,6 @@
           "description": "Provides an accessible label when visible text is not sufficient."
         }
       ]
-    },
-    {
-      "name": "divider",
-      "description": "Divider between keys pressed at the same time.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "sequenceDivider",
-      "description": "Divider between shortcut steps pressed in sequence.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
     }
   ],
   "item": {
@@ -84,6 +63,12 @@
   "props": {
     "own": [
       {
+        "name": "children",
+        "required": false,
+        "type": "never | undefined",
+        "description": "KbdGroup is data-driven and does not accept composed children."
+      },
+      {
         "name": "class",
         "required": false,
         "type": "SlotClassValue",
@@ -95,33 +80,22 @@
         "type": "KbdGroupT.Classes | undefined"
       },
       {
-        "name": "dividerRender",
-        "required": false,
-        "type": "ComponentOrElement<KbdGroupT.DividerRenderProps>",
-        "description": "Custom divider rendered between keys in the same group."
-      },
-      {
         "name": "items",
-        "required": false,
-        "type": "KbdGroupT.Item[] | undefined",
-        "description": "Keys pressed at the same time, such as Ctrl+K."
+        "required": true,
+        "type": "KbdGroupT.Item[]",
+        "description": "Keyboard keys displayed as one simultaneous shortcut."
       },
       {
         "name": "ref",
         "required": false,
-        "type": "JSX.HTMLElementTags[\"span\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+        "type": "JSX.HTMLElementTags[\"kbd\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
-        "name": "sequence",
+        "name": "separator",
         "required": false,
-        "type": "KbdGroupT.Item[][] | undefined",
-        "description": "Key groups pressed one after another, such as Ctrl+K then Ctrl+S."
-      },
-      {
-        "name": "sequenceDividerRender",
-        "required": false,
-        "type": "ComponentOrElement<KbdGroupT.DividerRenderProps>",
-        "description": "Custom divider rendered between shortcut steps."
+        "type": "JSX.Element",
+        "description": "Inline content rendered between keys.",
+        "defaultValue": "+"
       },
       {
         "name": "size",

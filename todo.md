@@ -11,7 +11,7 @@
 - [x] unify context-menu and dropdown-menu menu styles
 - [x] correct/verify button group separator
 - [ ] badge variants config / padding refresh, maybe similar to button?
-- [ ] kbd-group 's `*Render` should be renamed and reconsider default value
+- [x] simplify kbd-group to items with inline separator
 - [ ] sidebar-frame styling is broken, more useful usage and example
 - [ ] src/forms/form/form-field.tsx 's `local.form` should be reconsidered
 - [x] pagination custom item/control components via itemAs/controlAs

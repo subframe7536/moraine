@@ -15,6 +15,7 @@ import {
   Input,
   InputGroup,
   Kbd,
+  KbdGroup,
   List,
   Modal,
   MoraineProvider,
@@ -163,6 +164,20 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<Kbd value="K" class="px-2" style={{ color: 'red' }} />
 // @ts-expect-error Root-only components do not accept instance slot style maps.
 ;<Kbd value="K" styles={{ root: { color: 'red' } }} />
+
+;<KbdGroup items={['meta', 'k']} />
+;<KbdGroup
+  items={[{ value: 'meta', label: 'Command' }, 'k']}
+  separator="/"
+  size="sm"
+  variant="outline"
+/>
+// @ts-expect-error KbdGroup no longer supports multi-step sequences.
+;<KbdGroup sequence={[['meta', 'k']]} />
+// @ts-expect-error KbdGroup no longer supports divider render props.
+;<KbdGroup items={['meta', 'k']} dividerRender="+" />
+// @ts-expect-error KbdGroup is data-driven and rejects composed children.
+;<KbdGroup items={['meta', 'k']} children={<Kbd value="meta" />} />
 
 ;<Separator class="my-2" style={{ color: 'red' }} />
 // @ts-expect-error Root-only components do not accept instance slot class maps.

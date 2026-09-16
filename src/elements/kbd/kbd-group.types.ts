@@ -1,4 +1,5 @@
-import type { ComponentOrElement } from '../../shared/render-prop'
+import type { JSX } from 'solid-js'
+
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
 import type { KbdT } from './kbd.types'
@@ -7,20 +8,11 @@ export namespace KbdGroupT {
   export type Kind = 'single'
 
   export interface Slot<T = unknown> {
-    /** Container for one or more shortcut steps. */
+    /** KbdGroup root element. */
     root?: T
 
-    /** Wrapper around keys pressed at the same time. */
-    chord?: T
-
-    /** Individual key token. */
+    /** Generated Kbd item. */
     item?: T
-
-    /** Divider between keys pressed at the same time. */
-    divider?: T
-
-    /** Divider between shortcut steps pressed in sequence. */
-    sequenceDivider?: T
   }
 
   export interface Variant {
@@ -37,27 +29,22 @@ export namespace KbdGroupT {
 
   export type Item = KbdT.Key | KbdT.Base
 
-  export interface DividerRenderProps {
-    /** Zero-based divider index in the current collection. */
-    index: number
-  }
-
   export interface Base {
-    /** Keys pressed at the same time, such as Ctrl+K. */
-    items?: Item[]
+    /** Keyboard keys displayed as one simultaneous shortcut. */
+    items: Item[]
 
-    /** Key groups pressed one after another, such as Ctrl+K then Ctrl+S. */
-    sequence?: Item[][]
+    /**
+     * Inline content rendered between keys.
+     * @default '+'
+     */
+    separator?: JSX.Element
 
-    /** Custom divider rendered between keys in the same group. */
-    dividerRender?: ComponentOrElement<DividerRenderProps>
-
-    /** Custom divider rendered between shortcut steps. */
-    sequenceDividerRender?: ComponentOrElement<DividerRenderProps>
+    /** KbdGroup is data-driven and does not accept composed children. */
+    children?: never
   }
 
   /** Props for the KbdGroup component. */
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
+  export type Props = BaseProps<'kbd', Base, Variant, Classes, Styles>
 }
 
 /** Props for the KbdGroup component. */

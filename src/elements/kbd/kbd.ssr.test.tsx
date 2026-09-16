@@ -6,25 +6,28 @@ import { hydrateFixture } from '../../test-utils/ssr-test.ts'
 import type { KbdGroupT } from './kbd-group.types.ts'
 import { KbdHydrationFixture } from './kbd.ssr.fixture.tsx'
 
-test('hydrates key aliases and custom sequence dividers before updating keys', () => {
+test('hydrates semantic KbdGroup output and reacts to item changes', () => {
   const [keyName, setKeyName] = createSignal('escape')
-  const [sequence, setSequence] = createSignal<KbdGroupT.Item[][]>([['ctrl', 'k'], ['enter']])
+  const [items, setItems] = createSignal<KbdGroupT.Item[]>(['ctrl', 'k'])
   const { container } = hydrateFixture(
     '/src/elements/kbd/kbd.ssr.fixture.tsx',
     'renderKbdFixture',
-    () => <KbdHydrationFixture keyName={keyName()} sequence={sequence()} />,
+    () => <KbdHydrationFixture keyName={keyName()} items={items()} />,
   )
   const key = container.querySelector('kbd')!
-  const chord = container.querySelector('[data-slot="chord"]')!
+  const group = container.querySelector('[data-slot="root"]:not([aria-label])')!
+
   expect(key.textContent).toBe('Esc')
   expect(key.getAttribute('aria-label')).toBe('Escape')
-  expect(container.querySelector('[data-testid="chord-divider"]')?.textContent).toBe('Chord 0')
-  expect(container.querySelector('[data-testid="sequence-divider"]')?.textContent).toBe('Step 0')
+  expect(group.tagName).toBe('KBD')
+  expect(group.textContent).toBe('Ctrl/k')
+  expect(group.querySelectorAll('[data-slot="item"]')).toHaveLength(2)
+  expect(group.querySelector('[role="separator"]')).toBeNull()
+  expect(group.querySelector('[aria-orientation]')).toBeNull()
+
   setKeyName('tab')
-  setSequence((previous) => [...previous, ['shift', 'p']])
+  setItems(['shift', 'p'])
   expect(container.querySelector('kbd')).toBe(key)
   expect(key.getAttribute('aria-label')).toBe('Tab')
-  expect(container.querySelector('[data-slot="chord"]')).toBe(chord)
-  expect(container.querySelectorAll('[data-testid="sequence-divider"]')).toHaveLength(2)
-  expect(container.querySelectorAll('kbd')).toHaveLength(6)
+  expect(group.textContent).toBe('⇧/p')
 })

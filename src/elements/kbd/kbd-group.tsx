@@ -1,37 +1,21 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createMemo, splitProps } from 'solid-js'
+import { For, Show, splitProps } from 'solid-js'
 
 import { createComponentStyles } from '../../shared/provider'
-import type { ComponentOrElement } from '../../shared/render-prop'
-import { renderComponentOrElement } from '../../shared/render-prop'
 
 import { Kbd } from './kbd'
 import type { KbdGroupProps, KbdGroupT } from './kbd-group.types'
 import type { KbdT } from './kbd.types'
 
-function resolveDivider(
-  dividerRender: ComponentOrElement<KbdGroupT.DividerRenderProps>,
-  props: KbdGroupT.DividerRenderProps,
-  fallback: JSX.Element,
-): JSX.Element {
-  return (
-    <Show when={dividerRender !== undefined} fallback={fallback}>
-      {renderComponentOrElement(dividerRender, props)}
-    </Show>
-  )
-}
-
 function toItemProps(item: KbdGroupT.Item): KbdT.Base {
   return typeof item === 'string' ? { value: item } : item
 }
 
-/** Group of keyboard shortcut keys with support for simultaneous chords and ordered sequences. */
+/** Data-driven renderer for one simultaneous keyboard shortcut. */
 export function KbdGroup(props: KbdGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'items',
-    'sequence',
-    'dividerRender',
-    'sequenceDividerRender',
+    'separator',
     'size',
     'variant',
     'classes',
@@ -41,48 +25,24 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
   ])
   const resolved = createComponentStyles('kbdGroup', local)
 
-  const size = () => resolved.variants.size
-  const variant = () => resolved.variants.variant
-
-  const groups = createMemo(() =>
-    (local.sequence ?? (local.items ? [local.items] : [])).filter((items) => items.length > 0),
-  )
-
   return (
-    <Show when={groups().length > 0}>
-      <span data-slot="root" {...rest} {...resolved.root}>
-        <For each={groups()}>
-          {(items, groupIndex) => (
+    <Show when={local.items.length > 0}>
+      <kbd data-slot="root" {...rest} {...resolved.root}>
+        <For each={local.items}>
+          {(item, index) => (
             <>
-              <Show when={groupIndex() > 0}>
-                <span data-slot="sequenceDivider" {...resolved.slot('sequenceDivider')}>
-                  {resolveDivider(local.sequenceDividerRender, { index: groupIndex() - 1 }, 'then')}
-                </span>
-              </Show>
-              <span data-slot="chord" {...resolved.slot('chord')}>
-                <For each={items}>
-                  {(item, index) => (
-                    <>
-                      <Kbd
-                        {...toItemProps(item)}
-                        size={size()}
-                        variant={variant()}
-                        {...resolved.slot('item')}
-                        slotName="item"
-                      />
-                      <Show when={index() < items.length - 1}>
-                        <span data-slot="divider" {...resolved.slot('divider')}>
-                          {resolveDivider(local.dividerRender, { index: index() }, '+')}
-                        </span>
-                      </Show>
-                    </>
-                  )}
-                </For>
-              </span>
+              <Kbd
+                {...toItemProps(item)}
+                size={resolved.variants.size}
+                variant={resolved.variants.variant}
+                {...resolved.slot('item')}
+                slotName="item"
+              />
+              <Show when={index() < local.items.length - 1}>{local.separator ?? '+'}</Show>
             </>
           )}
         </For>
-      </span>
+      </kbd>
     </Show>
   )
 }
