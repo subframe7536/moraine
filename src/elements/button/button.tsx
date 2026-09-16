@@ -38,7 +38,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'children',
   ])
   const resolved = createComponentStyles('button', local, {
-    inheritedVariants: () => group,
+    inheritedVariants: () => group ?? undefined,
   })
 
   const { isLoading, onClick } = useLoadingAutoClick<ButtonT.ElementFor<T>>({

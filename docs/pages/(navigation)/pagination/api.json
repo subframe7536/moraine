@@ -40,22 +40,8 @@
       "name": "listItem",
       "description": "Structural wrapper for a page control, ellipsis, previous control, or next control.",
       "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-ellipsis",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
-        }
-      ],
-      "ariaAttributes": [
-        {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        }
-      ]
+      "dataAttributes": [],
+      "ariaAttributes": []
     },
     {
       "name": "item",
