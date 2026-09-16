@@ -1,0 +1,59 @@
+---
+title: Field
+description: A generic layout and accessibility primitive for labels, descriptions, messages, and inherited control state.
+sidebar:
+  order: 0
+search:
+  tags: [field, label, description, error, accessibility, form control]
+---
+
+## Import
+
+```tsx
+import { Field, Input } from 'moraine'
+import type { FieldT } from 'moraine'
+```
+
+`Field` is independent of Formisch and any other form library. It provides presentation, control registration, inherited state, and ARIA relationships. Use `form.Field` from `createForm()` when the field should bind to a Formisch schema.
+
+## Features
+
+- **Standalone by Default**: Works without `createForm()` or any form store.
+- **Accessible Associations**: Connects labels, descriptions, help text, and errors to registered controls.
+- **Inherited State**: Child Moraine controls inherit `size`, `required`, `disabled`, and `readOnly` unless explicitly overridden.
+- **Flexible Messages**: Supports `description`, `hint`, `help`, and explicit `error` content.
+- **Layouts**: Supports vertical and horizontal field presentation.
+- **Control Agnostic**: Works with text inputs and non-text controls that participate in Field context.
+
+## Anatomy
+
+```text
+root
+├── wrapper
+│   ├── labelWrapper
+│   │   ├── label
+│   │   └── hint
+│   └── description
+└── container
+    ├── control content
+    ├── help
+    └── error
+```
+
+## Usage
+
+<Preview path="./field-usage" />
+
+## Examples
+
+### Inherited state
+
+<Preview path="./inherited-state" />
+
+### Manual validation
+
+<Preview path="./manual-validation" />
+
+### Horizontal layout
+
+<Preview path="./horizontal-layout" />

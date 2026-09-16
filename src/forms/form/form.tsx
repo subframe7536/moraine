@@ -1,16 +1,18 @@
-import type { FormConfig, FormSchema, FormStore } from '@formisch/solid'
+import type { FormConfig, FormSchema, FormStore, RequiredPath } from '@formisch/solid'
 import {
   createForm as createFormischForm,
   Form as FormischForm,
   reset as resetForm,
 } from '@formisch/solid'
 import type { JSX, ValidComponent } from 'solid-js'
-import { createComponent, mergeProps, splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
 
 import { createComponentStyles } from '../../shared/provider'
 import { callHandler } from '../../shared/utils'
+import type { FieldProps } from '../field'
+import { renderField } from '../field/field'
 
-import { FormField } from './form-field'
+import { useFormischFieldBinding } from './form-field-binding'
 import type { FormProps, FormT } from './form.types'
 
 interface InternalFormProps<TSchema extends FormSchema> extends FormProps<TSchema> {
@@ -31,9 +33,6 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
     const form = local.of
     callHandler(event, local.onReset)
-
-    // Native events can drain microtasks between listeners. Restore the store in
-    // the next task, after native controls and control-owned reset handlers finish.
     setTimeout(() => {
       if (!event.defaultPrevented) {
         resetForm(form)
@@ -56,23 +55,23 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
   )
 }
 
-/**
- * Creates a reactive form store bound to Moraine `<form.Form>` and `<form.Field>` components.
- */
+/** Creates a reactive Formisch store with Moraine form adapters. */
 export function createForm<TSchema extends FormSchema>(
   config: FormConfig<TSchema>,
 ): FormT.Instance<TSchema> {
   const store = createFormischForm(config)
 
-  const BoundForm = (props: FormT.Props<TSchema>): JSX.Element => {
-    return <FormRoot of={store} {...(props as any)} />
-  }
+  const BoundForm = (props: FormT.Props<TSchema>): JSX.Element => <FormRoot of={store} {...props} />
 
   const BoundField = <T extends ValidComponent = 'div'>(
     props: FormT.FieldProps<TSchema, T>,
   ): JSX.Element => {
-    const mergedProps = mergeProps({ form: store }, props)
-    return createComponent(FormField, mergedProps as any)
+    // oxlint-disable-next-line subf/solid-reactivity -- Formisch tracks the path accessor passed to useField.
+    const binding = useFormischFieldBinding(
+      store,
+      () => (typeof props.name === 'string' ? [props.name] : props.name) as unknown as RequiredPath,
+    )
+    return renderField(props as unknown as FieldProps<T>, () => binding)
   }
 
   return Object.assign(store, {

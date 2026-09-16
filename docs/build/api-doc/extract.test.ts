@@ -163,7 +163,9 @@ export interface DemoProps { title: string }
     }
     expect(result?.componentDocs.get('form')?.component.kind).toBe('single')
     expect(resultProps(result, 'form').map((prop) => prop.name)).toContain('onSubmit')
-    expect(result?.componentDocs.get('form')?.primitives?.[0]?.component.name).toBe('form.Field')
+    expect(result?.componentDocs.get('form')?.primitives).toBeUndefined()
+    expect(result?.componentDocs.get('field')?.component.name).toBe('Field')
+    expect(result?.componentDocs.get('field')?.slots.map((slot) => slot.name)).toContain('label')
     expect(result?.componentDocs.has('avatar-face')).toBe(false)
     expect(result?.componentDocs.has('render-component-or-element')).toBe(false)
     expect(result?.componentDocs.has('collapsible-content')).toBe(false)

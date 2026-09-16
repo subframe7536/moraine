@@ -7,8 +7,8 @@ import { describe, expect, test, vi } from 'vitest'
 import { MoraineProvider } from '../../shared/provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { defaultTheme } from '../../theme/default-theme'
+import { Field } from '../field'
 import { createForm } from '../form'
-import { FormField } from '../form/form-field'
 
 import { RadioGroup } from './radio-group'
 
@@ -31,9 +31,9 @@ describe('RadioGroup', () => {
 
   test('renders radio options with form-field label and no legacy wrappers', () => {
     const screen = render(() => (
-      <FormField label="Plan" description="Select one plan">
+      <Field label="Plan" description="Select one plan">
         <RadioGroup items={['Basic', 'Pro']} />
-      </FormField>
+      </Field>
     ))
 
     expect(screen.getByText('Plan')).not.toBeNull()
@@ -247,7 +247,7 @@ describe('RadioGroup', () => {
     })
   })
 
-  test('synchronizes explicit controlled values with FormField and restores rejected DOM state', async () => {
+  test('synchronizes explicit controlled values with Field and restores rejected DOM state', async () => {
     const [value, setValue] = createSignal('A')
     const onChange = vi.fn()
     const { screen, value: form } = renderWithOwner(
@@ -335,16 +335,16 @@ describe('RadioGroup', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('links item labels and descriptions while retaining FormField group messages', () => {
+  test('links item labels and descriptions while retaining Field group messages', () => {
     const screen = render(() => (
-      <FormField label="Plan" description="Choose one">
+      <Field label="Plan" description="Choose one">
         <RadioGroup
           items={[
             { value: 'basic', label: 'Basic', description: 'Basic description' },
             { value: 'pro', label: 'Pro', description: 'Pro description' },
           ]}
         />
-      </FormField>
+      </Field>
     ))
     const group = screen.getByRole('radiogroup')
     const groupLabel = screen.getByText('Plan')

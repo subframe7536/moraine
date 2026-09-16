@@ -6,7 +6,7 @@ import { createComponentStyles } from '../../shared/provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callRef } from '../../shared/utils.ts'
 import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
-import { useFormFieldContext } from '../form/form-context.ts'
+import { useFieldContext } from '../field/field-context.ts'
 import {
   createSource,
   serializeSourceValue,
@@ -29,7 +29,7 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
     SELECT_LOCAL_PROP_KEYS,
     SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
-  const field = useFormFieldContext()
+  const field = useFieldContext()
   const styles = createComponentStyles('select', props, {
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),

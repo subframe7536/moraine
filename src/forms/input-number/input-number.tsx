@@ -17,7 +17,7 @@ import { Icon } from '../../elements/icon'
 import { createComponentStyles } from '../../shared/provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { callHandler, callRef, useId } from '../../shared/utils'
-import { useFormField, useFormFieldContext } from '../form/form-context'
+import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
 import type { InputNumberProps } from './input-number.types'
@@ -213,7 +213,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'class',
     'style',
   ])
-  const themeField = useFormFieldContext()
+  const themeField = useFieldContext()
   const resolved = createComponentStyles('inputNumber', local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })
@@ -314,7 +314,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'data-required': field.required() ? '' : undefined,
   }))
 
-  // Explicit controlled props remain authoritative for FormField integrations.
+  // Explicit controlled props remain authoritative for Field integrations.
   createEffect(
     on(
       [explicitControlledValue, minValue, maxValue, field.value, () => merged.locale],

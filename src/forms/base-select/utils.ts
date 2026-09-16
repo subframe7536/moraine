@@ -2,7 +2,7 @@ import { createEffect, createSignal, on, onCleanup } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
-import type { UseFormFieldReturn } from '../form/form-context.ts'
+import type { UseFormFieldReturn } from '../field/field-context.ts'
 
 import type { BaseSelectT } from './base-select.types.ts'
 

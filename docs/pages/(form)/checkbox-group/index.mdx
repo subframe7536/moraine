@@ -1,6 +1,6 @@
 ---
 title: CheckboxGroup
-description: A multi-selection checkbox group with array value binding, list, card, or table layouts, and FormField integration.
+description: A multi-selection checkbox group with array value binding, list, card, or table layouts, and Field integration.
 sidebar:
   order: 7
 search:
@@ -24,7 +24,7 @@ import type { CheckboxGroupT } from 'moraine'
 - **Orientation**: Arrange grouped options vertically or horizontally.
 - **Indicator Configuration**: Configure indicator placement and checked/indeterminate icons for the group.
 - **Per-Item State**: Individual items can be disabled or indeterminate and can override their state icons.
-- **FormField Integration**: The group propagates identity, required, disabled, and validation metadata through a semantic fieldset.
+- **Field Integration**: The group propagates identity, required, disabled, and validation metadata through a semantic fieldset.
 
 ## Playground
 
@@ -109,7 +109,7 @@ The group value is an array of item values. Pair `value` with `onChange` for con
 
 ### Forms and keyboard behavior
 
-The group renders a semantic fieldset and its items retain native checkbox tab order. Give it a `name` when the surrounding native form needs to participate in submission, and use `FormField` for schema-bound fields.
+The group renders a semantic fieldset and its items retain native checkbox tab order. Give it a `name` when the surrounding native form needs to participate in submission, and use `Field` for schema-bound fields.
 
 <Preview path="./form-behavior" />
 

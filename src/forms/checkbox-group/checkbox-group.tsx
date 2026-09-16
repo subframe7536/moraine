@@ -15,7 +15,7 @@ import { createComponentStyles } from '../../shared/provider'
 import { useId } from '../../shared/utils'
 import { Checkbox } from '../checkbox'
 import type { CheckboxProps } from '../checkbox/checkbox.types'
-import { useFormField, useFormFieldContext } from '../form/form-context'
+import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
 import type { CheckboxGroupProps, CheckboxGroupT } from './checkbox-group.types'
@@ -98,7 +98,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     'class',
     'style',
   ])
-  const themeField = useFormFieldContext()
+  const themeField = useFieldContext()
   const resolved = createComponentStyles('checkboxGroup', local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })
@@ -253,7 +253,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
               <Checkbox
                 id={itemId()}
                 name={field.name()}
-                formFieldBind={false}
+                fieldBind={false}
                 checked={selectedValues().includes(item().value)}
                 defaultChecked={initialDefaultValue.includes(item().value)}
                 value={item().value}

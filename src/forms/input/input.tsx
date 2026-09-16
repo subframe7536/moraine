@@ -4,7 +4,7 @@ import { createMemo, mergeProps, onCleanup, onMount, splitProps } from 'solid-js
 import type { ModelModifiers } from '../../shared/input-modifiers.ts'
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { callHandler, callRef, useId } from '../../shared/utils.ts'
-import { useFormField, useFormFieldContext } from '../form/form-context.ts'
+import { useFormField, useFieldContext } from '../field/field-context.ts'
 import { useInputGroupContext } from '../input-group/input-group-context.ts'
 import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
@@ -42,7 +42,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     'class',
     'style',
   ])
-  const themeField = useFormFieldContext()
+  const themeField = useFieldContext()
   const group = useInputGroupContext()
   const resolved = createComponentStyles('input', local, {
     inheritedVariants: () => ({

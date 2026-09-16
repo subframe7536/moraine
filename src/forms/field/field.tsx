@@ -1,6 +1,4 @@
-import type { FieldStore, FormSchema, FormStore, RequiredPath } from '@formisch/solid'
-import { useField } from '@formisch/solid'
-import type { JSX, ValidComponent } from 'solid-js'
+import type { Accessor, JSX, ValidComponent } from 'solid-js'
 import {
   children as resolveChildren,
   createMemo,
@@ -8,7 +6,6 @@ import {
   mergeProps,
   Show,
   splitProps,
-  untrack,
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
@@ -17,21 +14,26 @@ import { createComponentStyles } from '../../shared/provider'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { useId } from '../../shared/utils'
 
-import type { FormFieldContextOptions } from './form-context'
-import { FormFieldProvider } from './form-context'
-import type { FormFieldProps, FormFieldT } from './form-field.types'
+import type { FieldBinding, FieldContextOptions, FieldPath } from './field-context'
+import { FieldProvider } from './field-context'
+import type { FieldProps, FieldT } from './field.types'
 
-type LooseUseField = (form: FormStore, config: () => { path: RequiredPath }) => FieldStore
+/** Generic field layout and accessibility primitive. */
+export function Field<T extends ValidComponent = 'div'>(props: FieldProps<T>): JSX.Element {
+  return renderField(props)
+}
 
-/** Form field wrapper providing label, description, and validation message layout. */
-export function FormField<
-  TSchema extends FormSchema | undefined = undefined,
-  T extends ValidComponent = 'div',
->(props: FormFieldProps<TSchema, T>): JSX.Element {
-  const [local, rest] = splitProps(props as FormFieldProps<any, any>, [
+/**
+ * Form adapter entry for supplying a generic field binding.
+ * @internal
+ */
+export function renderField<T extends ValidComponent = 'div'>(
+  props: FieldProps<T>,
+  binding?: Accessor<FieldBinding | undefined>,
+): JSX.Element {
+  const [local, rest] = splitProps(props, [
     'as',
     'id',
-    'form',
     'name',
     'label',
     'description',
@@ -49,12 +51,12 @@ export function FormField<
     'class',
     'style',
   ])
-  const resolved = createComponentStyles('formField', local)
+  const resolved = createComponentStyles('field', local)
 
-  type MergedProps = FormFieldT.Base<TSchema, T> &
-    FormFieldT.Variant & {
-      classes?: FormFieldT.Classes
-      styles?: FormFieldT.Styles
+  type MergedProps = FieldT.Base<T> &
+    FieldT.Variant & {
+      classes?: FieldT.Classes
+      styles?: FieldT.Styles
       class?: string
       style?: JSX.CSSProperties
     }
@@ -72,35 +74,24 @@ export function FormField<
   const hint = createMemo(() => merged.hint)
   const help = createMemo(() => merged.help)
   const error = createMemo(() => merged.error)
+  const activeBinding = () => binding?.()
 
-  // oxlint-disable-next-line subf/solid-reactivity -- Initial form store reference is captured at setup.
-  const activeForm = local.form
-
-  const ariaId = useId(() => local.id, 'form-field')
+  const ariaId = useId(() => local.id, 'field')
   const [registeredControls, setRegisteredControls] = createSignal<
     { id: () => string; bind: () => boolean; key: symbol }[]
   >([])
 
-  const fieldPath = createMemo<RequiredPath | undefined>(() => {
-    if (typeof merged.name === 'string') {
-      return merged.name ? [merged.name] : undefined
+  const standalonePath = createMemo<FieldPath | undefined>(() => {
+    const name = merged.name
+    if (Array.isArray(name)) {
+      return name.length > 0 ? name : undefined
     }
-    return merged.name?.length ? merged.name : undefined
+    return typeof name === 'string' && name ? [name] : undefined
   })
-  const initialPath = untrack(fieldPath)
-  const field =
-    activeForm && initialPath
-      ? // oxlint-disable-next-line subf/solid-reactivity -- Formisch tracks its getter config.
-        (useField as unknown as LooseUseField)(activeForm, () => ({
-          path: fieldPath() as RequiredPath,
-        }))
-      : undefined
 
-  const registerControl: NonNullable<FormFieldContextOptions['registerControl']> = (entry) => {
-    const key = Symbol('form-field-control')
-
+  const registerControl: NonNullable<FieldContextOptions['registerControl']> = (entry) => {
+    const key = Symbol('field-control')
     setRegisteredControls((previous) => [...previous, { ...entry, key }])
-
     return () => {
       setRegisteredControls((previous) => previous.filter((control) => control.key !== key))
     }
@@ -108,49 +99,37 @@ export function FormField<
 
   function selectedControlId(): string | undefined {
     const controls = registeredControls()
-
     for (let index = controls.length - 1; index >= 0; index -= 1) {
       const control = controls[index]
-
       if (control && control.bind()) {
         return control.id()
       }
     }
-
     return undefined
   }
 
-  const resolvedLabelTargetId = selectedControlId
-
   const resolvedError = createMemo(() => {
     const value = error()
-
     if (value === false) {
       return false
     }
-
     if (value !== undefined && value !== null) {
       return value
     }
-
-    return field?.errors?.[0]
+    return activeBinding()?.error
   })
 
   const showLabel = createMemo(() => hasNonEmptyJsxContent(label()))
   const showHint = createMemo(() => showLabel() && hasNonEmptyJsxContent(hint()))
   const showDescription = createMemo(() => hasNonEmptyJsxContent(description()))
-
   const shouldShowError = createMemo(() => {
     const value = resolvedError()
-
     if (value === undefined || value === null || value === false || value === true) {
       return false
     }
-
     if (typeof value === 'string') {
       return value.length > 0
     }
-
     return true
   })
   const showError = createMemo(() => error() !== false && shouldShowError())
@@ -166,9 +145,7 @@ export function FormField<
         ].filter((id): id is string => Boolean(id)),
       ),
     ]
-
     const attrs: Record<string, string | boolean | undefined> = {}
-
     if (hasNonEmptyJsxContent(resolvedError())) {
       attrs['aria-invalid'] = 'true'
     }
@@ -178,24 +155,24 @@ export function FormField<
     if (describedBy.length > 0) {
       attrs['aria-describedby'] = describedBy.join(' ')
     }
-
     return attrs
   })
-  const fieldContextValue: FormFieldContextOptions = {
+
+  const fieldContextValue: FieldContextOptions = {
     get error() {
       return resolvedError()
     },
     get name() {
-      return field?.props.name ?? (typeof merged.name === 'string' ? merged.name : undefined)
+      return merged.name
     },
     get path() {
-      return fieldPath()
+      return standalonePath()
+    },
+    get binding() {
+      return activeBinding()
     },
     get size() {
       return resolved.variants.size
-    },
-    get field() {
-      return field
     },
     get hint() {
       return hint()
@@ -230,7 +207,7 @@ export function FormField<
 
   function RenderFieldRoot(): JSX.Element {
     const body = resolveChildren(() => merged.children as JSX.Element)
-    const fieldChildren = renderComponentOrElement<FormFieldT.RenderContext>(body(), {
+    const fieldChildren = renderComponentOrElement<FieldT.RenderContext>(body(), {
       get error() {
         return resolvedError()
       },
@@ -243,14 +220,13 @@ export function FormField<
             <div data-slot="labelWrapper" {...resolved.slot('labelWrapper')}>
               <label
                 id={`${ariaId()}-label`}
-                for={resolvedLabelTargetId()}
+                for={selectedControlId()}
                 data-slot="label"
                 data-required={merged.required ? '' : undefined}
                 {...resolved.slot('label')}
               >
                 {label()}
               </label>
-
               <Show when={showHint()}>
                 <span id={`${ariaId()}-hint`} data-slot="hint" {...resolved.slot('hint')}>
                   {hint()}
@@ -258,7 +234,6 @@ export function FormField<
               </Show>
             </div>
           </Show>
-
           <Show when={showDescription()}>
             <p
               id={`${ariaId()}-description`}
@@ -269,14 +244,12 @@ export function FormField<
             </p>
           </Show>
         </div>
-
         <div
           data-slot="container"
           data-has-text={showLabel() || showDescription() ? '' : undefined}
           {...resolved.slot('container')}
         >
           {fieldChildren}
-
           <Show
             when={showError()}
             fallback={
@@ -297,8 +270,8 @@ export function FormField<
   }
 
   return (
-    <FormFieldProvider value={fieldContextValue}>
+    <FieldProvider value={fieldContextValue}>
       <RenderFieldRoot />
-    </FormFieldProvider>
+    </FieldProvider>
   )
 }

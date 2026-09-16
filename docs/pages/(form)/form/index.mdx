@@ -13,7 +13,7 @@ search:
       Valibot,
       form container,
       schemas,
-      FormField,
+      Field,
       field,
       label,
       error,
@@ -28,7 +28,7 @@ import * as v from 'valibot'
 
 ```tsx
 import { createForm, Input, Button, Switch } from 'moraine'
-import type { FormT, FormFieldT } from 'moraine'
+import type { FormT, FieldT } from 'moraine'
 import * as v from 'valibot'
 ```
 
@@ -68,12 +68,13 @@ export function NotificationForm() {
 ## Features
 
 - **Bound Form Instance**: `createForm` creates a reactive Formisch store and attaches pre-bound `<form.Form>` and `<form.Field>` components.
+- **Field Adapter**: `form.Field` is the schema-bound version of the standalone [`Field`](/field) layout and accessibility primitive.
 - **Type-Safe Field Paths**: `<form.Field>` automatically infers its schema and provides autocomplete for flat and nested paths (`['profile', 'email']`) without manual generics.
 - **Formisch + Standard Schema**: Integrates reactive validation and input management with Valibot, Zod, or Standard Schema.
 - **Automated ARIA & Accessible Feedback**: Automatically links `<label>`, helper description (`aria-describedby`), and error messages (`aria-errormessage`, `role="alert"`) with child controls.
 - **Flexible Field Layouts**: Vertical by default, with `orientation="horizontal"` for 1-to-3 grid column layouts.
 - **Submission & Reset Coordination**: Tracks `form.isSubmitting`, mirrors `data-submitting` on the root, and handles native reset events.
-- **Custom Control Render Prop**: Child render function receives `{ error, invalid, size, disabled, required }`.
+- **Custom Control Render Prop**: Child render functions receive the current effective `{ error }` while controls inherit field state through context.
 
 ## Playground
 
@@ -320,6 +321,18 @@ Create the form with `createForm`, then render `<form.Form>` and `<form.Field>`.
 
 <Preview path="./basic-form" />
 
+### Bound field outside the form root
+
+`form.Field` captures the Formisch store from `createForm()`, so it can be used without rendering `form.Form`. Use the standalone [`Field`](/field) when schema binding is not needed.
+
+```tsx
+const form = createForm({ schema })
+
+<form.Field name="email" label="Email">
+  <Input />
+</form.Field>
+```
+
 ### Field labels and messages
 
 Configure `label`, `hint`, `description`, `help`, and `required` indicators on `<form.Field>`. Supported Moraine controls automatically link with helper descriptions and error messages via deterministic ARIA attributes.
@@ -370,7 +383,7 @@ Pass application or server-returned error strings directly to `<form.Field error
 
 ### Render context
 
-Provide a render function as child to `<form.Field>` to access live field context `{ error, invalid, size, disabled, required }` for dynamically customizing child controls.
+Provide a render function as child to `<form.Field>` to access the current effective `{ error }` while the child control continues to inherit the bound field state.
 
 <Preview path="./render-context" />
 

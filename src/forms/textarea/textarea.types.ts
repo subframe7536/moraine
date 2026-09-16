@@ -115,7 +115,7 @@ export namespace TextareaT {
     onValueChange?: (value: ModifierValue<M>) => void
 
     /**
-     * Native change event, after value synchronization and FormField notification.
+     * Native change event, after value synchronization and Field notification.
      */
     onChange?: JSX.EventHandlerUnion<HTMLTextAreaElement, Event>
 

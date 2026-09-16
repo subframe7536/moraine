@@ -93,10 +93,10 @@ export namespace CheckboxT {
     description?: JSX.Element
 
     /**
-     * Whether to bind the checkbox value to the parent FormField.
+     * Whether to bind the checkbox value to the parent Field.
      * @default true
      */
-    formFieldBind?: boolean
+    fieldBind?: boolean
 
     /** Callback when the checked state changes. */
     onChange?: (value: TTrue | TFalse) => void

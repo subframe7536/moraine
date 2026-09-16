@@ -1,10 +1,10 @@
-import type { FieldStore } from '@formisch/solid'
 import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { FormFieldProvider } from '../form/form-context'
-import { FormField } from '../form/form-field'
+import { Field } from '../field'
+import type { FieldBinding } from '../field/field-context'
+import { FieldProvider } from '../field/field-context'
 import { Input } from '../input/input'
 import { Textarea } from '../textarea/textarea'
 
@@ -55,7 +55,7 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
 
   test('merges ARIA IDs and lets explicit false state override the field', () => {
     const screen = render(() => (
-      <FormField label="Message" description="Description" help="Help" required disabled readOnly>
+      <Field label="Message" description="Description" help="Help" required disabled readOnly>
         <Control
           id="message"
           required={false}
@@ -66,7 +66,7 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
           aria-describedby=" caller caller "
           aria-labelledby=" label label "
         />
-      </FormField>
+      </Field>
     ))
     const control = screen.getByRole('textbox') as HTMLInputElement
     expect(control.id).toBe('message')
@@ -82,9 +82,9 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
     expect(control.getAttribute('aria-labelledby')?.split(' ')[0]).toBe('label')
     screen.unmount()
     const inherited = render(() => (
-      <FormField name="message" required disabled readOnly>
+      <Field name="message" required disabled readOnly>
         <Control />
-      </FormField>
+      </Field>
     ))
     const inheritedControl = inherited.getByRole('textbox') as HTMLInputElement
     expect(inheritedControl.name).toBe('message')
@@ -95,19 +95,21 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
 
   test('normalizes once before field and original native event notifications', () => {
     const calls: string[] = []
-    const field = {
-      input: '',
-      onInput: (value: unknown) => calls.push(`field:${String(value)}`),
-      props: {
-        ref: () => {},
-        name: 'message',
-        onBlur: () => calls.push('field:blur'),
-        onFocus: () => calls.push('field:focus'),
-        onChange: (event: Event) => calls.push(`field:${event.type}`),
+    const binding: FieldBinding = {
+      name: 'message',
+      path: ['message'],
+      value: '',
+      setValue: (value) => calls.push(`field:${String(value)}`),
+      emit: (type, event) => {
+        if (type === 'blur' || type === 'focus') {
+          calls.push(`field:${type}`)
+        } else if (type === 'change') {
+          calls.push(`field:${event?.type}`)
+        }
       },
-    } as unknown as FieldStore
+    }
     const screen = render(() => (
-      <FormFieldProvider value={{ ariaId: 'message', field }}>
+      <FieldProvider value={{ ariaId: 'message', binding }}>
         <Control
           modelModifiers={{ lazy: true, trim: true, number: true }}
           onValueChange={(value) => calls.push(`value:${value}`)}
@@ -118,7 +120,7 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
           onBlur={(event: Event) => calls.push(`native:${event.type}`)}
           onFocus={(event: Event) => calls.push(`native:${event.type}`)}
         />
-      </FormFieldProvider>
+      </FieldProvider>
     ))
     const control = screen.getByRole('textbox') as HTMLInputElement
     fireEvent.input(control, { target: { value: ' 42 ' } })

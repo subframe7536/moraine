@@ -205,7 +205,7 @@ describe('Textarea', () => {
     expect(root?.style.width).toBe('200px')
   })
 
-  test('keeps the DOM and FormField aligned when a controlled edit is rejected', async () => {
+  test('keeps the DOM and Field aligned when a controlled edit is rejected', async () => {
     const [value, setValue] = createSignal('Locked')
     const onValueChange = vi.fn()
     const { screen, value: form } = renderWithOwner(

@@ -1,8 +1,8 @@
 import { slotRecipe } from '../../shared/style/recipe'
 
-import type { FormFieldT } from './form-field.types'
+import type { FieldT } from './field.types'
 
-export const formFieldRecipe = /* @__PURE__ */ slotRecipe<FormFieldT.Slot, FormFieldT.Variant>({
+export const fieldRecipe = /* @__PURE__ */ slotRecipe<FieldT.Slot, FieldT.Variant>({
   base: {
     root: '',
     wrapper: 'flex flex-col gap-1',

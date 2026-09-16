@@ -11,6 +11,7 @@ import {
   ContextMenu,
   Dialog,
   DropdownMenu,
+  Field,
   Icon,
   Input,
   InputGroup,
@@ -41,6 +42,7 @@ import type {
   CommandPaletteT,
   ComboboxT,
   DialogT,
+  FieldT,
   FormT,
   InputGroupT,
   InputT,
@@ -64,6 +66,8 @@ export type ComponentKinds = [
   Assert<SelectT.Kind extends 'single' ? true : false>,
   Assert<ComboboxT.Kind extends 'single' ? true : false>,
   Assert<FormT.Kind extends 'single' ? true : false>,
+  Assert<FieldT.Kind extends 'single' ? true : false>,
+  Assert<'root' extends keyof FieldT.Slot ? true : false>,
   Assert<'kind' extends keyof ButtonT.Props ? false : true>,
   Assert<'kind' extends keyof DialogT.Props ? false : true>,
 ]
@@ -299,6 +303,29 @@ const divRef = (element: HTMLDivElement) => element.focus()
 </SidebarFrame>
 
 const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
+;<Field label="Email" name="email" description="Standalone field">
+  <Input />
+</Field>
+;<rootOnlyForm.Field name="email" label="Email">
+  <Input />
+</rootOnlyForm.Field>
+// @ts-expect-error Bound fields require a schema-aware name.
+;<rootOnlyForm.Field label="Missing name">
+  <Input />
+</rootOnlyForm.Field>
+// @ts-expect-error Unknown schema keys are rejected.
+;<rootOnlyForm.Field name="unknown">
+  <Input />
+</rootOnlyForm.Field>
+// @ts-expect-error Old FormField component export is removed.
+type OldFormField = typeof import('moraine').FormField
+// @ts-expect-error Old FormFieldT type export is removed.
+type OldFormFieldT = import('moraine').FormFieldT
+// @ts-expect-error Old FormFieldProps type export is removed.
+type OldFormFieldProps = import('moraine').FormFieldProps
+void (null as unknown as OldFormField)
+void (null as unknown as OldFormFieldT)
+void (null as unknown as OldFormFieldProps)
 ;<rootOnlyForm.Form class="space-y-2" style={{ color: 'red' }} />
 // @ts-expect-error The bound Form component does not accept instance slot style maps.
 ;<rootOnlyForm.Form styles={{ root: { color: 'red' } }} />
@@ -390,6 +417,7 @@ const theme = createTheme({
   button: { base: { root: 'rounded-lg' }, defaults: { size: 'sm' } },
   commandPalette: { defaults: { descriptionPosition: 'trailing' } },
   form: { base: { root: 'space-y-2' } },
+  field: { base: { root: 'space-y-2' }, defaults: { size: 'sm' } },
   icon: { base: { root: 'size-4' } },
   kbd: { base: { root: 'px-1' } },
   modal: { base: { content: 'p-4' } },
@@ -408,6 +436,8 @@ const theme = createTheme({
 
 // @ts-expect-error Unknown component names are rejected.
 createTheme({ unknownComponent: {} })
+// @ts-expect-error Old formField theme key is removed.
+createTheme({ formField: { base: { root: 'space-y-2' } } })
 // @ts-expect-error List has no Theme slots.
 createTheme({ list: { base: { root: 'p-4' } } })
 createTheme({ collapsible: { base: { content: 'overflow-hidden' } } })

@@ -308,7 +308,7 @@ const theme = createTheme({
 })
 ```
 
-Visual values resolve from explicit instance props, inherited composition/FormField values, and finally the latest Theme default. Only `undefined` falls back. `null` suppresses the default and selects no branch; `false`, `0`, and `''` remain explicit values where the Variant type supports them. Every recipe for a component uses the same final visual values.
+Visual values resolve from explicit instance props, inherited composition/Field values, and finally the latest Theme default. Only `undefined` falls back. `null` suppresses the default and selects no branch; `false`, `0`, and `''` remain explicit values where the Variant type supports them. Every recipe for a component uses the same final visual values.
 
 For standalone recipe authoring, `slotRecipe` produces `{ classes, style }` and `atomicRecipe` produces one class string. Both are exported from `moraine/theme`, accept `defaults`, and expose readonly `.options` metadata. Ordinary calls always use default `cn` rules. To supply an explicit merger, call `slotRecipeFn.resolve(variants, scopedCn)` or `atomicRecipeFn.resolve(variants, scopedCn, ...extraClasses)`. These pure calls return the same result shape as ordinary calls; one recipe can be shared across Providers.
 

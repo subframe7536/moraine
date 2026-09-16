@@ -4,7 +4,7 @@ import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createComponentStyles } from '../../shared/provider'
 import { callRef, useId } from '../../shared/utils'
-import { useFormField, useFormFieldContext } from '../form/form-context'
+import { useFormField, useFieldContext } from '../field/field-context'
 
 import { useSlider } from './hook'
 import type { SliderProps, SliderT } from './slider.types'
@@ -44,7 +44,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'class',
     'style',
   ])
-  const themeField = useFormFieldContext()
+  const themeField = useFieldContext()
   const resolved = createComponentStyles('slider', local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })

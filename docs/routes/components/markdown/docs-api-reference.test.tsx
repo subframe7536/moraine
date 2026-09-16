@@ -61,30 +61,29 @@ test('shows the selected slot attribute tables', () => {
   view.unmount()
 })
 
-test('generates and displays Field props and slots within the Form page', async () => {
+test('generates and displays the standalone Field API reference', async () => {
   const projectRoot = path.resolve(import.meta.dirname, '../../../..')
   const result = await generateApiDoc(projectRoot)
   expect(result).not.toBeNull()
   const outputRoot = await mkdtemp(path.join(tmpdir(), 'moraine-form-docs-'))
   const pagesRoot = path.join(outputRoot, 'docs/pages')
-  const pageDir = path.join(pagesRoot, '(form)/form')
+  const pageDir = path.join(pagesRoot, '(form)/field')
   const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   try {
     await mkdir(pageDir, { recursive: true })
-    await writeFile(path.join(pageDir, 'index.mdx'), '# Form\n')
+    await writeFile(path.join(pageDir, 'index.mdx'), '# Field\n')
     await writeJsonFiles(pagesRoot, result!)
     expect(warn.mock.calls.flat().join('\n')).not.toContain('"form-field"')
 
-    const apiDoc = loadComponentApiDoc(outputRoot, 'form')
-    expect(apiDoc?.primitives?.[0]?.component.name).toBe('form.Field')
+    const apiDoc = loadComponentApiDoc(outputRoot, 'field')
+    expect(apiDoc?.component.name).toBe('Field')
+    expect(apiDoc?.primitives).toBeUndefined()
     const view = render(() => <DocsApiReference apiDoc={apiDoc!} />)
-    expect(view.getByRole('heading', { name: /^form\.FieldLink/ })).toBeTruthy()
     expect(view.getByText('name', { selector: 'td' })).toBeTruthy()
     expect(view.getByText('label', { selector: 'td' })).toBeTruthy()
-    expect(view.getByRole('heading', { name: /^form\.Field Attributes/ })).toBeTruthy()
     expect(getDocsApiReferenceTocEntries(apiDoc!)).toContainEqual({
-      id: 'api-form-field-attributes',
-      label: 'form.Field Attributes',
+      id: 'api-props',
+      label: 'Props',
       level: 2,
     })
     view.unmount()

@@ -368,4 +368,73 @@ describe('Form', () => {
     const formElement = screen.container.querySelector('form')
     expect(formElement?.className).toContain('space-y-4')
   })
+
+  test('binds form.Field without requiring form.Form', () => {
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.string() }),
+          initialInput: { value: 'Stored' },
+        }),
+      (form) => (
+        <form.Field name="value" label="Value">
+          <Input />
+        </form.Field>
+      ),
+    )
+
+    const input = screen.getByLabelText<HTMLInputElement>('Value')
+    expect(input.value).toBe('Stored')
+    fireEvent.input(input, { target: { value: 'Changed' } })
+    expect(getInput(form)).toEqual({ value: 'Changed' })
+  })
+
+  test('redirects a bound field when its reactive path changes', () => {
+    const [name, setName] = createSignal<'first' | 'second'>('first')
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ first: v.string(), second: v.string() }),
+          initialInput: { first: 'First', second: 'Second' },
+        }),
+      (form) => (
+        <form.Field name={name()} label="Value">
+          <Input />
+        </form.Field>
+      ),
+    )
+
+    const input = screen.getByLabelText<HTMLInputElement>('Value')
+    expect(input.value).toBe('First')
+    setName('second')
+    expect(input.value).toBe('Second')
+    fireEvent.input(input, { target: { value: 'Changed second' } })
+    expect(getInput(form)).toEqual({ first: 'First', second: 'Changed second' })
+  })
+
+  test('lets explicit errors override or suppress Formisch errors', async () => {
+    const [error, setError] = createSignal<string | false | undefined>()
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.pipe(v.string(), v.nonEmpty('Schema error')) }),
+          initialInput: { value: '' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="value" label="Value" error={error()}>
+            <Input />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    fireEvent.submit(screen.container.querySelector('form')!)
+    await waitFor(() => expect(screen.getByText('Schema error')).not.toBeNull())
+    setError('Manual error')
+    expect(screen.getByText('Manual error')).not.toBeNull()
+    setError(false)
+    expect(screen.queryByText('Manual error')).toBeNull()
+    expect(screen.queryByText('Schema error')).toBeNull()
+  })
 })

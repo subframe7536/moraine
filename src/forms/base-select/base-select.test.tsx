@@ -1,5 +1,4 @@
 import { getInput, setInput } from '@formisch/solid'
-import type { FieldStore } from '@formisch/solid'
 import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
 import { createSignal, For, Show } from 'solid-js'
 import * as v from 'valibot'
@@ -8,7 +7,8 @@ import { describe, expect, test, vi } from 'vitest'
 import { Button } from '../../elements/button/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { Combobox } from '../combobox/combobox.tsx'
-import { FormFieldProvider } from '../form/form-context.ts'
+import type { FieldBinding } from '../field/field-context.ts'
+import { FieldProvider } from '../field/field-context.ts'
 import { createForm } from '../form/index.ts'
 import { MultiSelect } from '../multi-select/multi-select.tsx'
 
@@ -75,7 +75,7 @@ test('falls back to the focus owner when Control is omitted', () => {
 
 test('BaseSelect.Control exposes inherited field state attributes', () => {
   const screen = render(() => (
-    <FormFieldProvider
+    <FieldProvider
       value={{
         ariaId: 'choice',
         disabled: true,
@@ -87,7 +87,7 @@ test('BaseSelect.Control exposes inherited field state attributes', () => {
       <BaseSelect items={items}>
         <BaseSelect.Control data-testid="control" />
       </BaseSelect>
-    </FormFieldProvider>
+    </FieldProvider>
   ))
   const control = screen.getByTestId('control')
   expect(control.getAttribute('data-disabled')).toBe('')
@@ -519,21 +519,17 @@ test('normalizes controlled multiple values before synchronizing Form.Field', ()
   })
   const [fieldValue, setFieldValue] = createSignal<unknown>(['a', 'a'])
   const onInput = vi.fn((value: unknown) => setFieldValue(value))
-  const field = {
-    get input() {
+  const binding: FieldBinding = {
+    name: 'choices',
+    path: ['choices'],
+    get value() {
       return fieldValue()
     },
-    onInput,
-    props: {
-      name: 'choices',
-      ref: () => undefined,
-      onBlur: () => undefined,
-      onChange: () => undefined,
-      onFocus: () => undefined,
-    },
-  } as unknown as FieldStore
+    setValue: onInput,
+    emit: () => undefined,
+  }
   const screen = render(() => (
-    <FormFieldProvider value={{ ariaId: 'choices', field }}>
+    <FieldProvider value={{ ariaId: 'choices', binding }}>
       <BaseSelect
         multiple
         items={[
@@ -544,7 +540,7 @@ test('normalizes controlled multiple values before synchronizing Form.Field', ()
       >
         <BaseSelect.Trigger>{(state) => state.value.join(',')}</BaseSelect.Trigger>
       </BaseSelect>
-    </FormFieldProvider>
+    </FieldProvider>
   ))
 
   expect(screen.getByRole('combobox').textContent).toBe('a')

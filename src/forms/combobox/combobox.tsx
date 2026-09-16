@@ -7,7 +7,7 @@ import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef } from '../../shared/utils.ts'
 import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
 import { useBaseSelectSearchInput } from '../base-select/utils.ts'
-import { useFormFieldContext } from '../form/form-context.ts'
+import { useFieldContext } from '../field/field-context.ts'
 import {
   createSource,
   labelString,
@@ -34,7 +34,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
     COMBOBOX_LOCAL_PROP_KEYS,
     SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
-  const field = useFormFieldContext()
+  const field = useFieldContext()
   const styles = createComponentStyles('combobox', props, {
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),

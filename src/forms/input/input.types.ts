@@ -100,7 +100,7 @@ export namespace InputT {
     onValueChange?: (value: ModifierValue<M>) => void
 
     /**
-     * Native change event, after value synchronization and FormField notification.
+     * Native change event, after value synchronization and Field notification.
      */
     onChange?: JSX.EventHandlerUnion<HTMLInputElement, Event>
 

@@ -154,6 +154,15 @@
       "kind": "composite"
     },
     {
+      "key": "field",
+      "name": "Field",
+      "category": "forms",
+      "polymorphic": true,
+      "description": "Generic field layout and accessibility primitive.",
+      "sourcePath": "src/forms/field/field.tsx",
+      "kind": "single"
+    },
+    {
       "key": "file-upload",
       "name": "FileUpload",
       "category": "forms",

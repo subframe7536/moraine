@@ -14,8 +14,8 @@ import { baseSelectRecipe } from '../forms/base-select/base-select.class.ts'
 import { checkboxGroupRecipe } from '../forms/checkbox-group/checkbox-group.class'
 import { checkboxRecipe } from '../forms/checkbox/checkbox.class'
 import { comboboxRecipe } from '../forms/combobox/combobox.class.ts'
+import { fieldRecipe } from '../forms/field/field.class'
 import { fileUploadRecipe } from '../forms/file-upload/file-upload.class'
-import { formFieldRecipe } from '../forms/form/form-field.class'
 import { formRecipe } from '../forms/form/form.class'
 import { inputGroupRecipe } from '../forms/input-group/input-group.class.ts'
 import { inputNumberRecipe } from '../forms/input-number/input-number.class'
@@ -63,7 +63,7 @@ export const defaultTheme: MoraineTheme = /* @__PURE__ */ Object.freeze({
   dropdownMenu: toThemeEntry(dropdownMenuRecipe),
   fileUpload: toThemeEntry(fileUploadRecipe),
   form: toThemeEntry(formRecipe),
-  formField: toThemeEntry(formFieldRecipe),
+  field: toThemeEntry(fieldRecipe),
   icon: toThemeEntry(iconRecipe),
   inputGroup: toThemeEntry(inputGroupRecipe),
   input: toThemeEntry(inputRecipe),

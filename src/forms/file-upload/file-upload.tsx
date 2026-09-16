@@ -16,7 +16,7 @@ import { Icon } from '../../elements/icon'
 import { HiddenInput } from '../../shared/hidden-input'
 import { createComponentStyles } from '../../shared/provider'
 import { callHandler, callRef, useId } from '../../shared/utils'
-import { useFormField, useFormFieldContext } from '../form/form-context'
+import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
 import type { FileUploadProps, FileUploadT } from './file-upload.types'
@@ -288,7 +288,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     'class',
     'style',
   ])
-  const themeField = useFormFieldContext()
+  const themeField = useFieldContext()
   const resolved = createComponentStyles('fileUpload', local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })

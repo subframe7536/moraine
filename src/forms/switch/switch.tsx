@@ -8,7 +8,7 @@ import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
 import { createComponentStyles } from '../../shared/provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { callHandler, callRef, useId } from '../../shared/utils'
-import { useFormField, useFormFieldContext } from '../form/form-context'
+import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
 import type { SwitchProps } from './switch.types'
@@ -49,7 +49,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'style',
     'onClick',
   ])
-  const themeField = useFormFieldContext()
+  const themeField = useFieldContext()
   const resolved = createComponentStyles('switch', local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })

@@ -215,10 +215,10 @@
         "defaultValue": "false"
       },
       {
-        "name": "formFieldBind",
+        "name": "fieldBind",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Whether to bind the checkbox value to the parent FormField.",
+        "description": "Whether to bind the checkbox value to the parent Field.",
         "defaultValue": "true"
       },
       {

@@ -514,7 +514,7 @@ describe('CheckboxGroup', () => {
     expect(onChange).toHaveBeenCalledTimes(1)
   })
 
-  test('synchronizes external controlled values into FormField submission', async () => {
+  test('synchronizes external controlled values into Field submission', async () => {
     const [value, setValue] = createSignal<string[]>([])
     const onSubmit = vi.fn()
     const { screen } = renderWithOwner(

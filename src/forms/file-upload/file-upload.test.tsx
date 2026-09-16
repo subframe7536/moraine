@@ -644,7 +644,7 @@ describe('FileUpload', () => {
     }
   })
 
-  test('synchronizes accepted files and reset state with FormField submission', async () => {
+  test('synchronizes accepted files and reset state with Field submission', async () => {
     const onSubmit = vi.fn()
     const { screen } = renderWithOwner(
       () =>

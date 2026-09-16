@@ -393,7 +393,7 @@ describe('Input', () => {
     expect(input.value).toBe('Accepted')
   })
 
-  test('keeps FormField aligned when a controlled request is rejected or replaced externally', async () => {
+  test('keeps Field aligned when a controlled request is rejected or replaced externally', async () => {
     const [value, setValue] = createSignal('Locked')
     const { screen, value: form } = renderWithOwner(
       () =>

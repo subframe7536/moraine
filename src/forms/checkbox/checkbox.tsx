@@ -7,7 +7,7 @@ import { createComponentStyles } from '../../shared/provider'
 import { useCn } from '../../shared/provider/cn-context'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { callHandler, callRef, useId } from '../../shared/utils'
-import { useFormField, useFormFieldContext } from '../form/form-context'
+import { useFormField, useFieldContext } from '../field/field-context'
 import { isInteractiveTarget } from '../shared/is-interactive-target'
 import { useFormReset } from '../shared/use-form-reset'
 
@@ -34,7 +34,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     'falseValue',
     'label',
     'description',
-    'formFieldBind',
+    'fieldBind',
     'onChange',
     'indeterminate',
     'checkedIcon',
@@ -50,7 +50,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     'style',
     'onClick',
   ])
-  const themeField = useFormFieldContext()
+  const themeField = useFieldContext()
   const resolved = createComponentStyles('checkbox', local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })
@@ -59,7 +59,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     {
       checkedIcon: 'icon-check' as const,
       indeterminateIcon: 'icon-minus' as const,
-      formFieldBind: true,
+      fieldBind: true,
       trueValue: true,
       falseValue: false,
       value: 'on',
@@ -83,10 +83,10 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       readOnly: readOnly(),
     }),
     () => ({
-      bind: merged.formFieldBind,
+      bind: merged.fieldBind,
       defaultId: generatedId(),
       initialValue:
-        merged.formFieldBind === false
+        merged.fieldBind === false
           ? undefined
           : (normalizeFieldValue(
               merged.checked !== undefined ? merged.checked : merged.defaultChecked,
@@ -143,7 +143,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         return toCheckedState(merged.checked)
       }
 
-      if (merged.formFieldBind !== false && field.value() !== undefined) {
+      if (merged.fieldBind !== false && field.value() !== undefined) {
         return toCheckedState(field.value())
       }
 
@@ -173,7 +173,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       [
         field.path,
         () => merged.checked,
-        () => merged.formFieldBind,
+        () => merged.fieldBind,
         () => merged.trueValue,
         () => merged.falseValue,
       ],
@@ -190,7 +190,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
 
     setChecked(nextChecked)
 
-    if (merged.formFieldBind === false) {
+    if (merged.fieldBind === false) {
       merged.onChange?.(nextValue)
       return
     }
@@ -235,7 +235,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       if (!explicitlyControlled) {
         setChecked(nextChecked)
 
-        if (merged.formFieldBind !== false) {
+        if (merged.fieldBind !== false) {
           field.setFormValue(
             nextChecked === 'indeterminate'
               ? undefined

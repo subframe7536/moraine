@@ -104,7 +104,7 @@
         "name": "onChange",
         "required": false,
         "type": "JSX.EventHandlerUnion<HTMLInputElement, Event> | undefined",
-        "description": "Native change event, after value synchronization and FormField notification."
+        "description": "Native change event, after value synchronization and Field notification."
       },
       {
         "name": "onFocus",

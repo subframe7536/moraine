@@ -6,7 +6,7 @@ import { Icon } from '../../elements/icon/index.ts'
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { createTheme } from '../../theme/create-theme.ts'
 import { defaultTheme } from '../../theme/default-theme.ts'
-import { FormField } from '../form/form-field.tsx'
+import { Field } from '../field'
 import { Input } from '../input/input.tsx'
 import { Textarea } from '../textarea/textarea.tsx'
 
@@ -363,7 +363,7 @@ describe('InputGroup', () => {
   test('inherits sizes reactively with explicit control, group and field precedence', () => {
     const [size, setSize] = createSignal<InputGroupT.Variant['size']>('md')
     const screen = render(() => (
-      <FormField size="sm" label="Message">
+      <Field size="sm" label="Message">
         <InputGroup size={size()}>
           <InputGroup.Leading>First</InputGroup.Leading>
           <Input />
@@ -374,7 +374,7 @@ describe('InputGroup', () => {
         <InputGroup>
           <Input aria-label="Inherited" />
         </InputGroup>
-      </FormField>
+      </Field>
     ))
     const [input, textarea, inherited] = screen.getAllByRole('textbox')
     expect(input?.className).toContain('h-7.5')
@@ -507,12 +507,12 @@ describe('InputGroup', () => {
     const [error, setError] = createSignal<string | undefined>('Invalid')
     const screen = render(() => (
       <form>
-        <FormField label="Message" name="message" error={error()} required>
+        <Field label="Message" name="message" error={error()} required>
           <InputGroup>
             <InputGroup.Leading>Suffix</InputGroup.Leading>
             <Input defaultValue="Initial" />
           </InputGroup>
-        </FormField>
+        </Field>
       </form>
     ))
     const control = screen.getByLabelText('Message') as HTMLInputElement

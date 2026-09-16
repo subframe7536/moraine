@@ -499,7 +499,7 @@ describe('InputNumber', () => {
     expect(spinbutton.value).toBe('8')
   })
 
-  test('keeps FormField aligned with explicit controlled and external Formisch values', async () => {
+  test('keeps Field aligned with explicit controlled and external Formisch values', async () => {
     const [value, setValue] = createSignal(5)
     const onRawValueChange = vi.fn()
     const { screen, value: form } = renderWithOwner(

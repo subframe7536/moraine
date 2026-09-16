@@ -14,8 +14,9 @@ import type { BaseSelectT } from '../forms/base-select'
 import type { CheckboxT } from '../forms/checkbox'
 import type { CheckboxGroupT } from '../forms/checkbox-group'
 import type { ComboboxT } from '../forms/combobox'
+import type { FieldT } from '../forms/field'
 import type { FileUploadT } from '../forms/file-upload'
-import type { FormFieldT, FormT } from '../forms/form'
+import type { FormT } from '../forms/form'
 import type { InputT } from '../forms/input'
 import type { InputGroupT } from '../forms/input-group/index'
 import type { InputNumberT } from '../forms/input-number'
@@ -62,7 +63,7 @@ export interface MoraineThemeSchema {
   dropdownMenu: { slots: DropdownMenuT.Slot; variants: DropdownMenuT.Variant }
   fileUpload: { slots: FileUploadT.Slot; variants: FileUploadT.Variant }
   form: { slots: FormT.Slot; variants: FormT.Variant }
-  formField: { slots: FormFieldT.Slot; variants: FormFieldT.Variant }
+  field: { slots: FieldT.Slot; variants: FieldT.Variant }
   icon: { slots: IconT.Slot; variants: IconT.Variant }
   inputGroup: { slots: InputGroupT.Slot; variants: InputGroupT.Variant & InputGroupT.PartVariant }
   input: { slots: InputT.Slot; variants: InputT.Variant & TextControlStyleVariant }

@@ -19,7 +19,7 @@ import { createComponentStyles } from '../../shared/provider'
 import { useCn } from '../../shared/provider/cn-context'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { callRef, useId } from '../../shared/utils'
-import { useFormField, useFormFieldContext } from '../form/form-context'
+import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
 import type { RadioGroupProps } from './radio-group.types'
@@ -58,7 +58,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     'style',
     'ref',
   ])
-  const themeField = useFormFieldContext()
+  const themeField = useFieldContext()
   const resolved = createComponentStyles('radioGroup', local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })

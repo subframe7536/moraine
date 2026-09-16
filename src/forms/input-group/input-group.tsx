@@ -3,7 +3,7 @@ import { splitProps } from 'solid-js'
 
 import { createComponentStyles } from '../../shared/provider/index.ts'
 import { callHandler } from '../../shared/utils.ts'
-import { useFormFieldContext } from '../form/form-context.ts'
+import { useFieldContext } from '../field/field-context.ts'
 import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
 
 import { InputGroupProvider } from './input-group-context.ts'
@@ -23,7 +23,7 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
     'style',
     'onPointerDown',
   ])
-  const field = useFormFieldContext()
+  const field = useFieldContext()
   const resolved = createComponentStyles('inputGroup', local, {
     inheritedVariants: () => ({ size: field?.size }),
   })

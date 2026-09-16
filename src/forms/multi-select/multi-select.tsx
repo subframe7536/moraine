@@ -7,7 +7,7 @@ import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef } from '../../shared/utils.ts'
 import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
 import { useBaseSelectSearchInput } from '../base-select/utils.ts'
-import { useFormFieldContext } from '../form/form-context.ts'
+import { useFieldContext } from '../field/field-context.ts'
 import {
   createSource,
   labelString,
@@ -36,7 +36,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     MULTI_SELECT_LOCAL_PROP_KEYS,
     BASE_SELECT_FORWARD_PROP_KEYS,
   )
-  const field = useFormFieldContext()
+  const field = useFieldContext()
   const styles = createComponentStyles('multiSelect', props, {
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),

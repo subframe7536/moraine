@@ -13,7 +13,7 @@
 - [ ] badge variants config / padding refresh, maybe similar to button?
 - [x] simplify kbd-group to items with inline separator
 - [ ] sidebar-frame styling is broken, more useful usage and example
-- [ ] src/forms/form/form-field.tsx 's `local.form` should be reconsidered
+- [x] split standalone Field from Formisch-bound form.Field
 - [x] pagination custom item/control components via itemAs/controlAs
 - [ ] a better way to define destructive item in menu
 - [ ] correct document page's focus loop
