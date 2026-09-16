@@ -321,9 +321,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             onPointerDown={(event) => {
               event.preventDefault()
               event.stopPropagation()
-              if (editable()) {
-                focusInput()
-              }
+              focusInput()
             }}
             onClick={(event) => {
               event.stopPropagation()
