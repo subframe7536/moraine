@@ -54,7 +54,7 @@ export function getThemeLayers(theme: MoraineTheme | undefined): readonly ThemeL
 export function getThemeRecipeLayers<S extends object, V>(
   theme: MoraineTheme,
   key: string,
-): readonly (RecipeLayerConfig<S, V> & { replace?: true })[] {
+): readonly RecipeLayerConfig<S, V>[] {
   return getThemeLayers(theme).flatMap((layer) => {
     const override = layer.overrides[key]
     return override ? [override] : []

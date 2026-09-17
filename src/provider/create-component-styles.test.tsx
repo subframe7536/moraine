@@ -6,6 +6,7 @@ import { buttonRecipe } from '../elements/button/button.recipe'
 import type { ButtonT } from '../elements/button/button.types'
 import { tooltipRecipe } from '../overlays/tooltip/tooltip.recipe'
 import { defineTheme } from '../theme/create-theme'
+import type { MoraineTheme } from '../theme/types'
 
 import { createStyles } from './create-styles'
 import { MoraineProvider } from './moraine-provider'
@@ -172,7 +173,7 @@ test('inherits theme variables and removes stale values without replacing nodes'
       base: { '--shared': 'child' },
     },
   })
-  const [theme, setTheme] = createSignal(child)
+  const [theme, setTheme] = createSignal<MoraineTheme | null>(child)
   const [size, setSize] = createSignal<ButtonT.Variant['size']>()
   const [inherited, setInherited] = createSignal<ButtonT.Variant['size']>()
   function Fixture() {
@@ -211,14 +212,7 @@ test('inherits theme variables and removes stale values without replacing nodes'
   expect(button.style.getPropertyValue('--size')).toBe('')
   setSize(undefined)
   expect(button.style.getPropertyValue('--size')).toBe('8px')
-  setTheme(
-    defineTheme({
-      button: {
-        replace: true,
-        base: { root: '', loading: '', leading: '', label: '', trailing: '' },
-      },
-    }),
-  )
+  setTheme(null)
   expect(button.style.cssText).toBe('')
   expect(screen.getByRole('button')).toBe(button)
 })

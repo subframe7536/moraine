@@ -98,27 +98,17 @@ test('uses the theme side for Sheet and lets explicit props override it', () => 
   expect(content.classList.contains('right-0')).toBe(true)
 })
 
-test('inherits built-in defaultVariants on replacement layers unless explicitly overridden', async () => {
-  const replaceBaseTheme = defineTheme({
+test('inherits built-in defaultVariants on theme layers unless explicitly overridden', async () => {
+  const customBaseTheme = defineTheme({
     sidebarFrame: {
-      replace: true,
       base: {
         root: 'custom-frame-root',
         sidebar: 'custom-sidebar',
-        sidebarHeader: '',
-        sidebarBody: '',
-        sidebarFooter: '',
-        main: '',
       },
     },
     slider: {
-      replace: true,
       base: {
         root: 'custom-slider-root',
-        track: '',
-        range: '',
-        divider: '',
-        thumb: '',
       },
     },
   })
@@ -132,7 +122,7 @@ test('inherits built-in defaultVariants on replacement layers unless explicitly 
     )
   }
 
-  const [theme, setTheme] = createSignal<MoraineTheme>(replaceBaseTheme)
+  const [theme, setTheme] = createSignal<MoraineTheme>(customBaseTheme)
   const screen = render(() => (
     <MoraineProvider theme={theme()}>
       <SidebarFrame isMobile={true}>
@@ -159,29 +149,19 @@ test('inherits built-in defaultVariants on replacement layers unless explicitly 
     expect(content.classList.contains('right-0')).toBe(false)
   })
 
-  // Theme can still explicitly override defaultVariants with replace: true
+  // Theme can explicitly override defaultVariants
   setTheme(
     defineTheme({
       sidebarFrame: {
-        replace: true,
         base: {
           root: 'custom-frame-root',
           sidebar: 'custom-sidebar',
-          sidebarHeader: '',
-          sidebarBody: '',
-          sidebarFooter: '',
-          main: '',
         },
         defaultVariants: { side: 'right' },
       },
       slider: {
-        replace: true,
         base: {
           root: 'custom-slider-root',
-          track: '',
-          range: '',
-          divider: '',
-          thumb: '',
         },
         defaultVariants: { orientation: 'vertical' },
       },

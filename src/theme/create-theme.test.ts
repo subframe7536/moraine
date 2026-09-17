@@ -56,22 +56,18 @@ describe('defineTheme', () => {
     expect(Object.isFrozen(defaultVariants)).toBe(false)
   })
 
-  test('retains replacement markers and later additive layers', () => {
+  test('retains layered overrides across extends', () => {
     const base = defineTheme({ button: { base: { root: 'base' } } })
-    const replaced = defineTheme({
+    const middle = defineTheme({
       extends: base,
       button: {
-        replace: true,
-        base: { root: 'replacement', loading: '', leading: '', label: '', trailing: '' },
+        base: { root: 'middle' },
       },
     })
-    const child = defineTheme({ extends: replaced, button: { base: { root: 'child' } } })
+    const child = defineTheme({ extends: middle, button: { base: { root: 'child' } } })
     expect(getThemeRecipeLayers(child, 'button')).toEqual([
       { base: { root: 'base' } },
-      {
-        replace: true,
-        base: { root: 'replacement', loading: '', leading: '', label: '', trailing: '' },
-      },
+      { base: { root: 'middle' } },
       { base: { root: 'child' } },
     ])
     expect(getThemeLayers(child)).toHaveLength(3)

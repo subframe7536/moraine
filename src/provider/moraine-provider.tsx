@@ -2,14 +2,9 @@ import type { JSX } from 'solid-js'
 import { createMemo, useContext } from 'solid-js'
 
 import { getThemeRecipeLayers } from '../theme/create-theme'
-import type { CnConfig } from '../theme/style/cn'
+~import type { CnConfig } from '../theme/style/cn'
 import { createCn } from '../theme/style/cn'
-import type {
-  RecipeDefaultVariants,
-  RecipeDefinition,
-  RecipeLayerConfig,
-  ResolvedRecipe,
-} from '../theme/style/recipe'
+import type { RecipeDefinition, ResolvedRecipe } from '../theme/style/recipe'
 import type { MoraineTheme } from '../theme/types'
 
 import { MoraineCnContext } from './cn-context'
@@ -47,27 +42,9 @@ export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
         return recipe
       }
 
-      let layers: RecipeLayerConfig<S, V>[] = [recipe.config]
-      for (const override of overrides) {
-        const { replace, ...layer } = override
-        if (replace) {
-          const defaultVariants =
-            recipe.config.defaultVariants || layer.defaultVariants
-              ? (Object.freeze({
-                  ...recipe.config.defaultVariants,
-                  ...Object.fromEntries(
-                    Object.entries(layer.defaultVariants ?? {}).filter(([, v]) => v !== undefined),
-                  ),
-                }) as RecipeDefaultVariants<V>)
-              : undefined
-          layers = [Object.freeze({ ...layer, ...(defaultVariants ? { defaultVariants } : {}) })]
-        } else {
-          layers = [...layers, layer]
-        }
-      }
       const resolved = Object.freeze({
         definition: recipe,
-        layers: Object.freeze(layers),
+        layers: Object.freeze([recipe.config, ...overrides]),
       }) as ResolvedRecipe<S, V>
       themeCache.set(recipe, resolved)
       return resolved

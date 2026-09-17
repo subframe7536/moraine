@@ -85,7 +85,7 @@ const theme = defineTheme({
 <MoraineProvider theme={theme}><Button>Save</Button></MoraineProvider>
 ```
 
-A Provider with `theme={undefined}` inherits its parent Theme, an explicit Theme replaces it, and `theme={null}` clears inherited overrides back to component-default recipes. Compose Themes explicitly with `defineTheme({ extends: parentTheme, ... })`; use component-level `replace: true` when a Theme must replace the built-in recipe presentation. `cnConfig` remains independent and reactive. Advanced tooling can import readonly component recipes such as `buttonRecipe` from `moraine/styles`.
+A Provider with `theme={undefined}` inherits its parent Theme, an explicit Theme replaces it, and `theme={null}` clears inherited overrides back to component-default recipes. Compose Themes explicitly with `defineTheme({ extends: parentTheme, ... })`. `cnConfig` remains independent and reactive. Advanced tooling can import readonly component recipes such as `buttonRecipe` from `moraine/styles`.
 
 Input and Textarea forward native attributes and events to their editable controls. `ref`, `class`, and `style` target the native control. Compose icons, text, and actions through `InputGroup.Leading` and `InputGroup.Trailing`. `onChange` receives the native event, while `onValueChange` receives the normalized value.
 
