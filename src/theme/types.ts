@@ -48,5 +48,3 @@ export interface MoraineTheme {
 export type DefineThemeOptions = ThemeEntries & {
   extends?: MoraineTheme
 }
-
-export type ThemeName = keyof MoraineStyleSchema
