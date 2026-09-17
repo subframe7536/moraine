@@ -281,7 +281,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       data-slot="root"
       data-autoresize={merged.autoResize ? '' : undefined}
       {...dataAttrs()}
-      {...ariaAttrs()}
+      {...(ariaAttrs() as JSX.AriaAttributes)}
       {...textControl.valueProps()}
       ref={(element) => {
         textareaEl = element

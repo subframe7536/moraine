@@ -41,10 +41,6 @@ export namespace TextareaT {
    */
   export interface Base<M extends ModelModifiers | undefined = ModelModifiers | undefined>
     extends
-      Omit<
-        JSX.TextareaHTMLAttributes<HTMLTextAreaElement>,
-        'value' | 'defaultValue' | 'ref' | 'size'
-      >,
       FormIdentityOptions,
       FormValueOptions<Value>,
       FormRequiredOption,

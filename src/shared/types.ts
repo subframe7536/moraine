@@ -35,22 +35,193 @@ type Tags = MoraineTypeConfig extends { simpleHtmlTags: true }
 
 type CommonRootProps = { [x: string]: unknown }
 
-type LowerCaseEvents = Lowercase<
-  Extract<keyof JSX.CustomEventHandlersCamelCase<HTMLElement>, string>
->
+type CuratedAttributeFallback = {
+  [key: `aria-${string}`]: string | number | boolean | undefined
+  [key: `data-${string}`]: string | number | boolean | undefined
+}
 
-type StrictedAttributeKeys =
-  | LowerCaseEvents
-  | `on:${string}`
-  | `oncapture:${string}`
-  | `use:${string}`
-  | `prop:${string}`
-  | `attr:${string}`
-  | `bool:${string}`
+type CommonNativeKeys =
+  | 'children'
+  | 'ref'
+  | 'class'
+  | 'style'
+  | 'id'
+  | 'role'
+  | 'tabIndex'
+  | 'title'
+  | 'hidden'
+  | 'dir'
+  | 'lang'
+  | 'slot'
+  | 'autofocus'
+  | 'accessKey'
+  | 'contentEditable'
+  | 'draggable'
+  | 'spellcheck'
+  | 'translate'
+  | 'inputMode'
+  | 'enterkeyhint'
+  | 'onClick'
+  | 'onDblClick'
+  | 'onFocus'
+  | 'onBlur'
+  | 'onInput'
+  | 'onChange'
+  | 'onSubmit'
+  | 'onInvalid'
+  | 'onKeyDown'
+  | 'onKeyUp'
+  | 'onContextMenu'
+  | 'onCopy'
+  | 'onCut'
+  | 'onPaste'
+  | 'onCompositionStart'
+  | 'onCompositionUpdate'
+  | 'onCompositionEnd'
+  | 'onMouseDown'
+  | 'onMouseUp'
+  | 'onMouseMove'
+  | 'onMouseEnter'
+  | 'onMouseLeave'
+  | 'onPointerDown'
+  | 'onPointerUp'
+  | 'onPointerMove'
+  | 'onPointerEnter'
+  | 'onPointerLeave'
+  | 'onPointerCancel'
+  | 'onScroll'
+  | 'onWheel'
+  | 'onTransitionCancel'
+  | 'onTransitionEnd'
+  | 'onTransitionRun'
+  | 'onTransitionStart'
 
-type StrictedAttributes<T extends Tags> = T extends unknown
-  ? Omit<JSX.IntrinsicElements[T], StrictedAttributeKeys>
-  : never
+type CommonNativeProps = Pick<JSX.HTMLAttributes<HTMLElement>, CommonNativeKeys> &
+  CuratedAttributeFallback
+
+type DivNativeProps = Pick<JSX.HTMLAttributes<HTMLDivElement>, CommonNativeKeys> &
+  CuratedAttributeFallback
+type SpanNativeProps = Pick<JSX.HTMLAttributes<HTMLSpanElement>, CommonNativeKeys> &
+  CuratedAttributeFallback
+type NavNativeProps = Pick<JSX.HTMLAttributes<HTMLElement>, CommonNativeKeys> &
+  CuratedAttributeFallback
+type KbdNativeProps = Pick<JSX.HTMLAttributes<HTMLElement>, CommonNativeKeys> &
+  CuratedAttributeFallback
+
+type AnchorNativeProps = Pick<
+  JSX.AnchorHTMLAttributes<HTMLAnchorElement>,
+  CommonNativeKeys | 'download' | 'href' | 'hreflang' | 'rel' | 'target' | 'type'
+> &
+  CuratedAttributeFallback
+
+type ButtonNativeProps = Pick<
+  JSX.ButtonHTMLAttributes<HTMLButtonElement>,
+  | CommonNativeKeys
+  | 'disabled'
+  | 'form'
+  | 'formAction'
+  | 'formEnctype'
+  | 'formMethod'
+  | 'formNoValidate'
+  | 'formTarget'
+  | 'name'
+  | 'type'
+  | 'value'
+> &
+  CuratedAttributeFallback
+
+type InputNativeProps = Pick<
+  JSX.InputHTMLAttributes<HTMLInputElement>,
+  | CommonNativeKeys
+  | 'accept'
+  | 'alt'
+  | 'autocomplete'
+  | 'capture'
+  | 'checked'
+  | 'disabled'
+  | 'form'
+  | 'formAction'
+  | 'formEnctype'
+  | 'formMethod'
+  | 'formNoValidate'
+  | 'formTarget'
+  | 'list'
+  | 'max'
+  | 'maxlength'
+  | 'maxLength'
+  | 'min'
+  | 'minlength'
+  | 'minLength'
+  | 'multiple'
+  | 'name'
+  | 'pattern'
+  | 'placeholder'
+  | 'readonly'
+  | 'readOnly'
+  | 'required'
+  | 'step'
+  | 'type'
+  | 'value'
+> &
+  CuratedAttributeFallback
+
+type TextareaNativeProps = Pick<
+  JSX.TextareaHTMLAttributes<HTMLTextAreaElement>,
+  | CommonNativeKeys
+  | 'autocomplete'
+  | 'cols'
+  | 'disabled'
+  | 'form'
+  | 'maxlength'
+  | 'maxLength'
+  | 'minlength'
+  | 'minLength'
+  | 'name'
+  | 'placeholder'
+  | 'readonly'
+  | 'readOnly'
+  | 'required'
+  | 'rows'
+  | 'value'
+  | 'wrap'
+> &
+  CuratedAttributeFallback
+
+type FormNativeProps = Pick<
+  JSX.FormHTMLAttributes<HTMLFormElement>,
+  | CommonNativeKeys
+  | 'action'
+  | 'autocomplete'
+  | 'enctype'
+  | 'method'
+  | 'name'
+  | 'noValidate'
+  | 'rel'
+  | 'target'
+> &
+  CuratedAttributeFallback
+
+type LabelNativeProps = Pick<JSX.LabelHTMLAttributes<HTMLLabelElement>, CommonNativeKeys | 'for'> &
+  CuratedAttributeFallback
+
+interface MoraineIntrinsicElements {
+  a: AnchorNativeProps
+  button: ButtonNativeProps
+  div: DivNativeProps
+  form: FormNativeProps
+  input: InputNativeProps
+  kbd: KbdNativeProps
+  label: LabelNativeProps
+  nav: NavNativeProps
+  span: SpanNativeProps
+  textarea: TextareaNativeProps
+}
+
+type CuratedRootProps<T extends Tags> = T extends keyof MoraineIntrinsicElements
+  ? MoraineIntrinsicElements[T]
+  : T extends keyof JSX.HTMLElementTags
+    ? CommonNativeProps
+    : CommonRootProps
 
 type Override<A, B> = Omit<A, keyof B> & B
 
@@ -80,7 +251,7 @@ type RootProps<T extends ValidComponent> = string & {} extends T
   : T extends Tags
     ? MoraineTypeConfig extends { simpleRootAttributes: true }
       ? CommonRootProps
-      : StrictedAttributes<T>
+      : CuratedRootProps<T>
     : T extends (props: infer P) => any
       ? P
       : CommonRootProps

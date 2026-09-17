@@ -264,7 +264,7 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
             {...mergePopperElementProps(contentProps, rest)}
             data-slot="content"
             data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'bottom')}
-            aria-label={local.ariaLabel ?? rest['aria-label']}
+            aria-label={local.ariaLabel ?? (rest['aria-label'] as string | undefined)}
             {...resolved.styles.content}
           >
             <Show when={hasJsxContent(content())}>

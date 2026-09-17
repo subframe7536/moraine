@@ -137,7 +137,7 @@ const divRef = (element: HTMLDivElement) => element.focus()
 
 ;<Avatar text="MR" />
 ;<AvatarGroup items={[{ text: 'MR' }]} />
-;<Button onClick={() => undefined}>Save</Button>
+;<Button onClick={(event) => event.currentTarget.focus()}>Save</Button>
 ;<ButtonGroup>
   <Button>Copy</Button>
   <ButtonGroup.Separator orientation="vertical" class="bg-input" style={{ opacity: 0.8 }} />
@@ -158,13 +158,29 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<Button as={CustomRoot} />
 ;<Button as="input" type="checkbox" />
 
-;<Card aria-describedby="details" onClick={() => undefined} />
+;<Card
+  id="card"
+  role="region"
+  tabIndex={0}
+  aria-label="Card"
+  aria-describedby="details"
+  data-testid="card"
+  onClick={(event) => event.currentTarget.focus()}
+/>
 // @ts-expect-error Div roots reject anchor attributes.
 ;<Card href="/details" />
-// @ts-expect-error Lowercase event aliases are intentionally stripped.
+// @ts-expect-error Lowercase event aliases are intentionally excluded.
 ;<Card onclick={() => undefined} />
-// @ts-expect-error Solid directive prefixes are intentionally stripped.
+// @ts-expect-error Lowercase keyboard aliases are intentionally excluded.
+;<Card onkeydown={() => undefined} />
+// @ts-expect-error Lowercase pointer aliases are intentionally excluded.
+;<Card onpointerdown={() => undefined} />
+// @ts-expect-error Solid directive prefixes are intentionally excluded.
 ;<Card use:foo={foo} />
+// @ts-expect-error Solid namespaced event syntax is intentionally excluded.
+;<Card on:click={foo} />
+// @ts-expect-error Solid namespaced attribute syntax is intentionally excluded.
+;<Card attr:foo="bar" />
 
 ;<Icon name="i-lucide-search" aria-label="Search" data-testid="icon" />
 ;<Icon name="i-lucide-search" class="size-4" style={{ color: 'red' }} />

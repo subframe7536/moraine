@@ -41,7 +41,6 @@ export namespace InputT {
    */
   export interface Base<M extends ModelModifiers | undefined = ModelModifiers | undefined>
     extends
-      Omit<JSX.InputHTMLAttributes<HTMLInputElement>, 'value' | 'defaultValue' | 'ref' | 'size'>,
       FormIdentityOptions,
       FormValueOptions<Value>,
       FormRequiredOption,
