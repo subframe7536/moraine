@@ -5,12 +5,13 @@ import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
 import { HiddenInput } from '../../shared/hidden-input'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
+import { switchRecipe } from './switch.recipe'
 import type { SwitchProps } from './switch.types'
 
 /** Toggle switch control with icon slots and loading state. */
@@ -50,7 +51,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     'onClick',
   ])
   const themeField = useFieldContext()
-  const resolved = createComponentStyles('switch', local, {
+  const resolved = createStyles(switchRecipe, local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })
 
@@ -256,7 +257,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       ref={(element) => callRef(local.ref, element)}
       data-slot="root"
       {...rest}
-      {...resolved.root}
+      {...resolved.styles.root}
       onClick={onRootClick}
     >
       <HiddenInput
@@ -298,7 +299,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         data-invalid={field.invalid() ? '' : undefined}
         aria-checked={Boolean(checked())}
         {...switchAriaAttrs()}
-        {...resolved.slot('track')}
+        {...resolved.styles.track}
         onPointerDown={onPointerDown}
         data-checked={checked() ? '' : undefined}
         data-unchecked={!checked() ? '' : undefined}
@@ -310,7 +311,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           data-checked={checked() ? '' : undefined}
           data-disabled={field.disabled() ? '' : undefined}
           data-readonly={readOnly() ? '' : undefined}
-          {...resolved.slot('thumb')}
+          {...resolved.styles.thumb}
         >
           <Show when={resolvedIconName()} keyed>
             {(iconName) => (
@@ -319,7 +320,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
                 data-checked={!merged.loading && checked() ? '' : undefined}
                 data-unchecked={!merged.loading && !checked() ? '' : undefined}
                 data-loading={merged.loading ? '' : undefined}
-                class={resolved.slot('icon').class}
+                class={resolved.styles.icon.class}
               />
             )}
           </Show>
@@ -327,21 +328,21 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       </button>
 
       <Show when={showLabel() || showDescription()}>
-        <span data-slot="wrapper" {...resolved.slot('wrapper')}>
+        <span data-slot="wrapper" {...resolved.styles.wrapper}>
           <Show when={showLabel()}>
             <label
               for={field.id()}
               id={labelId()}
               data-slot="label"
               data-required={field.required() ? '' : undefined}
-              {...resolved.slot('label')}
+              {...resolved.styles.label}
             >
               {label()}
             </label>
           </Show>
 
           <Show when={showDescription()}>
-            <span id={descriptionId()} data-slot="description" {...resolved.slot('description')}>
+            <span id={descriptionId()} data-slot="description" {...resolved.styles.description}>
               {description()}
             </span>
           </Show>

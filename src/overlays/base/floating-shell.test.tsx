@@ -3,7 +3,7 @@ import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
-import { createTheme } from '../../theme'
+import { defineTheme } from '../../theme'
 import { ContextMenu } from '../context-menu/context-menu'
 import { DropdownMenu } from '../dropdown-menu/dropdown-menu'
 import { Popover } from '../popover/popover'
@@ -38,11 +38,6 @@ describe.each([
     setOpen(true)
     await waitFor(() => expect(within(document.body).getByText('Body')).toBeTruthy())
     expect([triggerReads, contentReads]).toEqual([1, 1])
-    for (const slot of ['trigger', 'content', 'body', 'text']) {
-      for (const element of document.querySelectorAll<HTMLElement>(`[data-slot="${slot}"]`)) {
-        expect(element.className).toBe('')
-      }
-    }
   })
 
   test('forwards cancellable content events and clears consumer refs', async () => {
@@ -72,7 +67,7 @@ describe.each([
   test('keeps closed content lazy and preserves an open surface across Design replacement', async () => {
     let reads = 0
     const key = name === 'DropdownMenu' ? 'dropdownMenu' : 'contextMenu'
-    const [design, setDesign] = createSignal(createTheme({}))
+    const [design, setDesign] = createSignal(defineTheme({}))
     const [open, setOpen] = createSignal(false)
     const top = vi.fn(() => <span>Menu header</span>)
     render(() => (
@@ -96,8 +91,8 @@ describe.each([
     expect(reads).toBe(1)
     expect(top).toHaveBeenCalledTimes(1)
     const content = within(document.body).getByRole('menu')
-    expect(content.className).toBe('')
-    setDesign(createTheme({ [key]: { base: { content: 'bg-red-500' } } }))
+    expect(content.className).not.toBe('')
+    setDesign(defineTheme({ [key]: { base: { content: 'bg-red-500' } } }))
     expect(within(document.body).getByRole('menu')).toBe(content)
     expect(content.className).toContain('bg-red-500')
     expect(top).toHaveBeenCalledTimes(1)

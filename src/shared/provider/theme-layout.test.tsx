@@ -10,23 +10,22 @@ import { SidebarFrame } from '../../navigation/sidebar-frame/sidebar-frame'
 import { Stepper } from '../../navigation/stepper/stepper'
 import { Tabs } from '../../navigation/tabs/tabs'
 import { Sheet } from '../../overlays/sheet/sheet'
-import { createTheme } from '../../theme/create-theme'
-import { defaultTheme } from '../../theme/default-theme'
+import { defineTheme } from '../../theme/create-theme'
+import type { MoraineTheme } from '../../theme/types'
 
 import { MoraineProvider } from './moraine-provider'
 
 test('resolves layout defaults reactively for styles, semantics, and keyboard navigation', () => {
-  const verticalTheme = createTheme({
-    extends: defaultTheme,
-    separator: { defaults: { orientation: 'vertical' } },
-    slider: { defaults: { orientation: 'vertical' } },
-    tabs: { defaults: { orientation: 'vertical' } },
-    stepper: { defaults: { orientation: 'vertical' } },
-    resizable: { defaults: { orientation: 'vertical' } },
-    radioGroup: { defaults: { orientation: 'horizontal' } },
-    sidebarFrame: { defaults: { side: 'right' } },
+  const verticalTheme = defineTheme({
+    separator: { defaultVariants: { orientation: 'vertical' } },
+    slider: { defaultVariants: { orientation: 'vertical' } },
+    tabs: { defaultVariants: { orientation: 'vertical' } },
+    stepper: { defaultVariants: { orientation: 'vertical' } },
+    resizable: { defaultVariants: { orientation: 'vertical' } },
+    radioGroup: { defaultVariants: { orientation: 'horizontal' } },
+    sidebarFrame: { defaultVariants: { side: 'right' } },
   })
-  const [theme, setTheme] = createSignal(verticalTheme)
+  const [theme, setTheme] = createSignal<MoraineTheme | null>(verticalTheme)
   const screen = render(() => (
     <MoraineProvider theme={theme()}>
       <Separator data-testid="separator" />
@@ -70,7 +69,7 @@ test('resolves layout defaults reactively for styles, semantics, and keyboard na
   fireEvent.keyDown(alpha, { key: 'ArrowDown' })
   expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Beta' }))
 
-  setTheme(defaultTheme)
+  setTheme(null)
   expect(screen.getByTestId('separator').getAttribute('aria-orientation')).toBe('horizontal')
   expect(screen.getByRole('slider', { name: 'Thumb' }).getAttribute('aria-orientation')).toBe(
     'horizontal',
@@ -86,9 +85,7 @@ test('resolves layout defaults reactively for styles, semantics, and keyboard na
 test('uses the theme side for Sheet and lets explicit props override it', () => {
   const [side, setSide] = createSignal<'right' | undefined>()
   render(() => (
-    <MoraineProvider
-      theme={createTheme({ extends: defaultTheme, sheet: { defaults: { side: 'left' } } })}
-    >
+    <MoraineProvider theme={defineTheme({ sheet: { defaultVariants: { side: 'left' } } })}>
       <Sheet open>
         <Sheet.Content side={side()} body="Panel" />
       </Sheet>

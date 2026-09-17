@@ -3,17 +3,16 @@ import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
-import { createTheme } from '../../theme'
-import { defaultTheme } from '../../theme/default-theme'
+import { defineTheme } from '../../theme'
 
 import { Kbd } from './kbd'
 import { KbdGroup } from './kbd-group'
 
 describe('Kbd', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const view = render(() => <Kbd value="K" />)
     const root = view.container.querySelector('[data-slot="root"]')
-    expect(root?.className).toBe('')
+    expect(root?.className).not.toBe('')
   })
 
   test('renders a keycap in the root slot', () => {
@@ -88,7 +87,7 @@ describe('Kbd', () => {
 
     for (const [size, expectedClass] of sizes) {
       const view = render(() => (
-        <MoraineProvider theme={defaultTheme}>
+        <MoraineProvider>
           <Kbd size={size} value={size} />
         </MoraineProvider>
       ))
@@ -107,7 +106,7 @@ describe('Kbd', () => {
   })
 
   test('replaces Design root styling without remounting the keycap', () => {
-    const [design, setDesign] = createSignal(createTheme({ kbd: { base: { root: 'p-2' } } }))
+    const [design, setDesign] = createSignal(defineTheme({ kbd: { base: { root: 'p-2' } } }))
     const view = render(() => (
       <MoraineProvider theme={design()}>
         <Kbd value="K" />
@@ -117,7 +116,7 @@ describe('Kbd', () => {
 
     expect(root.className).toContain('p-2')
 
-    setDesign(createTheme({ kbd: { base: { root: 'p-4' } } }))
+    setDesign(defineTheme({ kbd: { base: { root: 'p-4' } } }))
 
     expect(view.container.querySelector('[data-slot="root"]')).toBe(root)
     expect(root.className).toContain('p-4')
@@ -126,12 +125,12 @@ describe('Kbd', () => {
 })
 
 describe('KbdGroup', () => {
-  test('renders an unstyled semantic kbd root when provider is absent', () => {
+  test('renders the styled semantic kbd root when provider is absent', () => {
     const view = render(() => <KbdGroup items={['Ctrl', 'K']} />)
     const root = view.container.querySelector('[data-slot="root"]')
 
     expect(root?.tagName).toBe('KBD')
-    expect(root?.className).toBe('')
+    expect(root?.className).not.toBe('')
     expect(view.container.querySelector('[data-slot="chord"]')).toBeNull()
   })
 
@@ -180,7 +179,7 @@ describe('KbdGroup', () => {
 
   test('propagates size and variant to generated Kbd items', () => {
     const view = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <KbdGroup items={['Ctrl', 'K']} size="sm" variant="outline" />
       </MoraineProvider>
     ))

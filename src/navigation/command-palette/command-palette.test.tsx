@@ -6,14 +6,13 @@ import { describe, expect, test, vi } from 'vitest'
 import { Dialog } from '../../overlays/dialog'
 import { MoraineProvider } from '../../shared/provider'
 import { finishExitMotion } from '../../test-utils/overlay-test'
-import { createTheme } from '../../theme'
-import { defaultTheme } from '../../theme/default-theme'
+import { defineTheme } from '../../theme'
 
 import { CommandPalette } from './command-palette'
 import type { CommandPaletteT } from './command-palette.types'
 
 function renderWithTheme(ui: () => JSX.Element) {
-  return render(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>)
+  return render(() => <MoraineProvider>{ui()}</MoraineProvider>)
 }
 
 const body = () => within(document.body)
@@ -48,13 +47,13 @@ const GROUPS: CommandPaletteT.Group[] = [
 ]
 
 describe('CommandPalette', () => {
-  test('renders unstyled when provider is absent', async () => {
+  test('renders component defaults when provider is absent', async () => {
     render(() => <CommandPalette groups={GROUPS} />)
     await waitFor(() => {
       const root = document.body.querySelector('[data-slot="root"]')
-      expect(root?.className).toBe('')
+      expect(root?.className).not.toBe('')
       const listbox = document.body.querySelector('[data-slot="listbox"]')
-      expect(listbox?.className).toBe('')
+      expect(listbox?.className).not.toBe('')
     })
   })
 
@@ -612,9 +611,8 @@ describe('CommandPalette', () => {
     >()
     render(() => (
       <MoraineProvider
-        theme={createTheme({
-          extends: defaultTheme,
-          commandPalette: { defaults: { descriptionPosition: 'trailing' } },
+        theme={defineTheme({
+          commandPalette: { defaultVariants: { descriptionPosition: 'trailing' } },
         })}
       >
         <CommandPalette

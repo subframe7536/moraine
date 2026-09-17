@@ -5,8 +5,7 @@ import { Show, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
-import { createTheme } from '../../theme'
-import { defaultTheme } from '../../theme/default-theme'
+import { defineTheme } from '../../theme'
 
 import { Button } from './button'
 import { ButtonGroup } from './button-group'
@@ -114,7 +113,7 @@ describe('Button', () => {
     expect(link.hasAttribute('type')).toBe(false)
   })
 
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = render(() => (
       <Button variant="destructive" size="sm">
         Delete
@@ -122,12 +121,12 @@ describe('Button', () => {
     ))
 
     const button = screen.getByRole('button', { name: 'Delete' })
-    expect(button.className).toBe('')
+    expect(button.className).not.toBe('')
   })
 
   test('applies variant and size classes', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Button variant="destructive" size="sm">
           Delete
         </Button>
@@ -141,7 +140,7 @@ describe('Button', () => {
 
   test('applies press interaction classes', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Button>Press</Button>
       </MoraineProvider>
     ))
@@ -155,7 +154,7 @@ describe('Button', () => {
     'does not apply a built-in shadow to the %s variant',
     (variant) => {
       const screen = render(() => (
-        <MoraineProvider theme={defaultTheme}>
+        <MoraineProvider>
           <Button variant={variant}>{variant}</Button>
         </MoraineProvider>
       ))
@@ -197,7 +196,7 @@ describe('Button', () => {
     ['icon-xl', 'text-lg', 'size-11'],
   ] as const)('applies %s size classes', (size, textClass, dimensionClass) => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Button size={size} aria-label={`${size} button`}>
           Label
         </Button>
@@ -324,8 +323,7 @@ describe('Button', () => {
   test('resolves provider loading styles for the active icon slot', () => {
     const screen = render(() => (
       <MoraineProvider
-        theme={createTheme({
-          extends: defaultTheme,
+        theme={defineTheme({
           button: {
             base: { loading: 'provider-loading w-3' },
           },
@@ -346,7 +344,7 @@ describe('Button', () => {
 
   test('renders built-in loading icon by default when loading', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Button loading>Saving</Button>
       </MoraineProvider>
     ))
@@ -422,7 +420,7 @@ describe('Button', () => {
 
   test('renders loadingIcon when loading', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Button loading loadingIcon="i-lucide-loader-circle">
           Saving
         </Button>
@@ -439,7 +437,7 @@ describe('Button', () => {
 
   test('uses loading icon in trailing slot when only trailing is provided', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Button loading trailing={<span data-testid="trailing-icon">T</span>}>
           Saving
         </Button>
@@ -462,7 +460,7 @@ describe('Button', () => {
 
   test('keeps trailing content when loading if leading and trailing are both provided', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Button
           loading
           leading={<span data-testid="leading-icon">L</span>}
@@ -484,7 +482,7 @@ describe('Button', () => {
 
   test('applies loading class override when trailing slot is replaced by loading icon', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Button
           loading
           trailing="i-lucide:timer"
@@ -1004,17 +1002,16 @@ describe('Button', () => {
     test('inherits provider defaults, classes, and styles, with group and instance overrides', () => {
       const screen = render(() => (
         <MoraineProvider
-          theme={createTheme({
-            extends: defaultTheme,
+          theme={defineTheme({
             button: {
-              defaults: { variant: 'outline', size: 'lg' },
+              defaultVariants: { variant: 'outline', size: 'lg' },
               base: {
                 root: 'provider-slot-root text-blue-500 m-1',
                 leading: 'provider-leading',
               },
             },
             buttonGroup: {
-              defaults: { size: 'sm' },
+              defaultVariants: { size: 'sm' },
               base: { root: 'provider-group-root' },
             },
           })}

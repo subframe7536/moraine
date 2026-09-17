@@ -16,6 +16,7 @@ test('publishes only documented entry points with types before runtime condition
       '.',
       './icon.css',
       './package.json',
+      './styles',
       './tailwind',
       './theme',
       './unocss',
@@ -75,13 +76,13 @@ test.each(['Bundler', 'NodeNext'] as const)(
         useDisclosureState,
         useSearchValue,
       } from 'moraine/utils'
-      import { createTheme } from 'moraine/theme'
+      import { defineTheme } from 'moraine/theme'
       export {
         createContextProvider,
         useBaseSelectSearchInput,
         useDisclosureState,
         useSearchValue,
-        createTheme,
+        defineTheme,
         useSelectState,
       }
       export const mode: FormT.ValidationMode = 'blur'

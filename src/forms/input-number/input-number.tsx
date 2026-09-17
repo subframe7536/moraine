@@ -14,14 +14,14 @@ import {
 
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
+import { inputNumberRecipe } from './input-number.recipe'
 import type { InputNumberProps } from './input-number.types'
-
 type ControlKind = 'increment' | 'decrement'
 type InputNumberControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
   [key: `data-${string}`]: string | undefined
@@ -214,7 +214,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'style',
   ])
   const themeField = useFieldContext()
-  const resolved = createComponentStyles('inputNumber', local, {
+  const resolved = createStyles(inputNumberRecipe, local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })
 
@@ -778,7 +778,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       get 'data-active'() {
         return pressedControls()[kind] ? '' : undefined
       },
-      ...resolved.slot(kind),
+      ...resolved.styles[kind],
       onClick: (event) => onControlClick(kind, event),
       onPointerDown: (event) => onControlPointerDown(kind, event),
       onPointerUp: (event) => onControlPointerUp(kind, event),
@@ -900,7 +900,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       id={`${field.id()}-root`}
       role="group"
       data-slot="root"
-      {...resolved.root}
+      {...resolved.styles.root}
       {...dataAttrs()}
       {...rest}
     >
@@ -935,7 +935,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
             ? ''
             : undefined
         }
-        {...resolved.slot('input')}
+        {...resolved.styles.input}
         onInput={(event) => {
           if (field.disabled() || readOnly()) {
             event.currentTarget.value = inputText()
@@ -1042,7 +1042,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>
-        <div data-slot="controls" {...resolved.slot('controls')}>
+        <div data-slot="controls" {...resolved.styles.controls}>
           <Show when={showIncrement()}>
             <button {...resolveControlProps('increment')}>
               <Icon name={incrementIcon()} slotName="leading" />

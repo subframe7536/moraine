@@ -13,7 +13,7 @@ import {
   onMount,
 } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import { useCn } from '../../shared/provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { callHandler, callRef, useId } from '../../shared/utils'
@@ -39,6 +39,7 @@ import {
   useResizableHandle,
 } from './hook'
 import type { ResizablePanelItem, ResizableSize } from './hook'
+import { resizableRecipe } from './resizable.recipe'
 import type { ResizableProps, ResizableT } from './resizable.types'
 
 interface DragState {
@@ -188,19 +189,19 @@ export function Resizable(props: ResizableProps): JSX.Element {
     'style',
     'ref',
   ])
-  const resolved = createComponentStyles('resizable', localProps)
+  const resolved = createStyles(resizableRecipe, localProps)
   const local = mergeProps(
     {
       keyboardDelta: '10%' as const,
       get orientation() {
-        return resolved.variants.orientation ?? 'horizontal'
+        return resolved.variants.orientation
       },
     },
     localProps,
   )
 
   const panelIdPrefix = useId(() => local.id, 'resizable')
-  const orientation = () => local.orientation
+  const orientation = () => resolved.variants.orientation ?? 'horizontal'
   const content = resolveChildren(() => local.children)
 
   const parts = createMemo(() => {
@@ -822,7 +823,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
       data-slot="root"
       data-resizable-root
       {...rest}
-      {...resolved.root}
+      {...resolved.styles.root}
     >
       <Index each={resolvedPanels()}>
         {(panel, index) => {
@@ -843,12 +844,12 @@ export function Resizable(props: ResizableProps): JSX.Element {
                 data-expanded={panelItem().collapsible && !collapsed() ? '' : undefined}
                 data-resizing={interactionResizing() ? '' : undefined}
                 data-transitioning={isTransitioning() ? '' : undefined}
-                class={cn(resolved.slot('panel').class, panelItem().class)}
+                class={cn(resolved.styles.panel.class, panelItem().class)}
                 style={{
                   'flex-grow': size(),
                   'flex-shrink': 1,
                   'flex-basis': '0px',
-                  ...resolved.slot('panel').style,
+                  ...resolved.styles.panel.style,
                   ...panelItem().style,
                 }}
                 onTransitionEnd={(event) => {
@@ -976,9 +977,9 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       data-active={bindings.active() ? '' : undefined}
                       data-cross={bindings.crossHovered() ? '' : undefined}
                       data-dragging={bindings.dragging() ? '' : undefined}
-                      class={cn(resolved.slot('divider').class, handlePart().local.class)}
+                      class={cn(resolved.styles.divider.class, handlePart().local.class)}
                       style={{
-                        ...resolved.slot('divider').style,
+                        ...resolved.styles.divider.style,
                         ...handlePart().local.style,
                       }}
                       onMouseEnter={(event) =>
@@ -1011,7 +1012,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                         <div
                           data-slot="crossTarget"
                           data-resizable-handle-start-target
-                          {...resolved.slot('crossTarget')}
+                          {...resolved.styles.crossTarget}
                           onMouseEnter={() =>
                             bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_START)
                           }
@@ -1027,7 +1028,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                           onPointerDown={onGripPointerDown}
                           onClick={onHandleClick}
                           data-collapse={handleCollapseAction() ? '' : undefined}
-                          {...resolved.slot('handle')}
+                          {...resolved.styles.handle}
                         >
                           <Show when={handlePart().content() !== undefined}>
                             {renderComponentOrElement(handlePart().content(), handleContext)}
@@ -1039,7 +1040,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                         <div
                           data-slot="crossTarget"
                           data-resizable-handle-end-target
-                          {...resolved.slot('crossTarget')}
+                          {...resolved.styles.crossTarget}
                           onMouseEnter={() =>
                             bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_END)
                           }

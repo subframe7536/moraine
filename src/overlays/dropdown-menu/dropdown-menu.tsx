@@ -12,7 +12,7 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { createContextProvider } from '../../shared/create-context-provider'
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'
@@ -25,6 +25,7 @@ import {
   validateOverlayTrigger,
 } from '../base/trigger'
 
+import { dropdownMenuRecipe } from './dropdown-menu.recipe'
 import type { DropdownMenuProps, DropdownMenuT } from './dropdown-menu.types'
 
 /**
@@ -209,7 +210,7 @@ function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style'])
   const context = useDropdownMenuContext()
 
-  const resolved = createComponentStyles('dropdownMenu', local, { rootSlot: 'trigger' })
+  const resolved = createStyles(dropdownMenuRecipe, local, { rootSlot: 'trigger' })
   const binding = mergeMenuTriggerProps(rest, context.triggerProps)
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu'))
@@ -218,7 +219,7 @@ function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
       component={(local.as as ValidComponent) ?? 'button'}
       type={local.as === undefined || local.as === 'button' ? 'button' : undefined}
       {...binding}
-      {...resolved.root}
+      {...resolved.styles.trigger}
     >
       {children()}
     </Dynamic>
@@ -247,11 +248,11 @@ function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Element {
 
     local,
   )
-  const resolved = createComponentStyles('dropdownMenu', local, { rootSlot: 'content' })
+  const resolved = createStyles(dropdownMenuRecipe, local, { rootSlot: 'content' })
   return (
     <OverlayMenu<DropdownMenuT.Item>
       {...context.menuProps}
-      slotBinding={resolved.slot}
+      slotBinding={(slot) => resolved.styles[slot]}
       size={resolved.variants.size ?? undefined}
       items={merged.items}
       checkedIcon={merged.checkedIcon}

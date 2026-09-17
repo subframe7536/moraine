@@ -4,9 +4,10 @@ import { For, Show, createSignal, mergeProps, splitProps } from 'solid-js'
 import { Button } from '../../elements/button'
 import type { ButtonProps } from '../../elements/button'
 import { Icon } from '../../elements/icon'
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import { callRef } from '../../shared/utils'
 
+import { paginationRecipe } from './pagination.recipe'
 import type { PaginationProps } from './pagination.types'
 
 const MAX_SIBLING_COUNT = 100
@@ -96,7 +97,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createComponentStyles('pagination', local)
+  const resolved = createStyles(paginationRecipe, local)
 
   const merged = mergeProps(
     {
@@ -210,20 +211,20 @@ export function Pagination(props: PaginationProps): JSX.Element {
       data-slot="root"
       aria-label={merged['aria-label']}
       role={merged.role}
-      {...resolved.root}
+      {...resolved.styles.root}
       {...rest}
     >
-      <ul data-slot="list" {...resolved.slot('list')}>
+      <ul data-slot="list" {...resolved.styles.list}>
         <Show when={merged.showControls}>
-          <li data-slot="list-item" {...resolved.slot('listItem')}>
+          <li data-slot="list-item" {...resolved.styles.listItem}>
             <Button
               data-slot="prev"
               variant={resolved.variants.controlVariant}
               size={getSize(resolved.variants.size, merged.prevText)}
               aria-label={getPrevLabel()}
               data-text={merged.prevText ? '' : undefined}
-              {...resolved.slot('prev')}
-              classes={{ label: merged.prevText ? resolved.slot('controlLabel').class : undefined }}
+              {...resolved.styles.prev}
+              classes={{ label: merged.prevText ? resolved.styles.controlLabel.class : undefined }}
               onClick={(event) => selectPage(currentPage() - 1, event)}
               {...getControlProps(currentPage() - 1, currentPage() <= 1, 'prev')}
               leading={merged.prevText ? merged.prevIcon : undefined}
@@ -243,7 +244,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                 data-slot="list-item"
                 aria-hidden={item === ELLIPSIS ? true : undefined}
                 data-ellipsis={item === ELLIPSIS ? '' : undefined}
-                {...resolved.slot('listItem')}
+                {...resolved.styles.listItem}
               >
                 <Show
                   when={item !== ELLIPSIS}
@@ -251,7 +252,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                     <Icon
                       slotName="ellipsis"
                       name={merged.ellipsisIcon}
-                      {...resolved.slot('ellipsis')}
+                      {...resolved.styles.ellipsis}
                     />
                   }
                 >
@@ -264,7 +265,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                     aria-current={isActive() ? 'page' : undefined}
                     aria-label={getPageLabel(item, isActive())}
                     data-current={isActive() ? '' : undefined}
-                    {...resolved.slot('item')}
+                    {...resolved.styles.item}
                     onClick={(event) => selectPage(item, event)}
                     {...getItemProps(item)}
                   >
@@ -277,15 +278,15 @@ export function Pagination(props: PaginationProps): JSX.Element {
         </For>
 
         <Show when={merged.showControls}>
-          <li data-slot="list-item" {...resolved.slot('listItem')}>
+          <li data-slot="list-item" {...resolved.styles.listItem}>
             <Button
               data-slot="next"
               variant={resolved.variants.controlVariant}
               size={getSize(resolved.variants.size, merged.nextText)}
               aria-label={getNextLabel()}
               data-text={merged.nextText ? '' : undefined}
-              {...resolved.slot('next')}
-              classes={{ label: merged.nextText ? resolved.slot('controlLabel').class : undefined }}
+              {...resolved.styles.next}
+              classes={{ label: merged.nextText ? resolved.styles.controlLabel.class : undefined }}
               onClick={(event) => selectPage(currentPage() + 1, event)}
               {...getControlProps(currentPage() + 1, currentPage() >= pageCount(), 'next')}
               trailing={merged.nextText ? merged.nextIcon : undefined}

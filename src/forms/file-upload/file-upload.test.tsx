@@ -5,7 +5,6 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
-import { defaultTheme } from '../../theme/default-theme'
 import { createForm } from '../form'
 
 import { FileUpload } from './file-upload'
@@ -70,17 +69,17 @@ async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
 }
 
 describe('FileUpload', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = render(() => <FileUpload />)
     const root = screen.container.querySelector('[data-slot="root"]')
     const control = screen.container.querySelector('[data-slot="control"]')
-    expect(root?.className).toBe('')
-    expect(control?.className).toBe('')
+    expect(root?.className).not.toBe('')
+    expect(control?.className).not.toBe('')
   })
 
   test('renders official classes when provider is present', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <FileUpload dropzone />
       </MoraineProvider>
     ))

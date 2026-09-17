@@ -1,10 +1,11 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import { Separator } from '../separator'
 
 import { ButtonGroupProvider, useButtonGroupContext } from './button-group-context'
+import { buttonGroupRecipe } from './button-group.recipe'
 import type { ButtonGroupProps, ButtonGroupT } from './button-group.types'
 
 /** Joins related buttons and provides shared size and visual variant defaults. */
@@ -20,7 +21,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
     'style',
     'children',
   ])
-  const resolved = createComponentStyles('buttonGroup', local)
+  const resolved = createStyles(buttonGroupRecipe, local)
 
   return (
     <ButtonGroupProvider
@@ -36,7 +37,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
         },
       }}
     >
-      <div role={local.role ?? 'group'} data-slot="root" {...rest} {...resolved.root}>
+      <div role={local.role ?? 'group'} data-slot="root" {...rest} {...resolved.styles.root}>
         {local.children}
       </div>
     </ButtonGroupProvider>
@@ -47,18 +48,18 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
 function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.Element {
   const [local, rest] = splitProps(props, ['orientation', 'classes', 'styles', 'class', 'style'])
   const group = useButtonGroupContext()
-  const resolved = createComponentStyles('buttonGroup', local, {
+  const resolved = createStyles(buttonGroupRecipe, local, {
     rootSlot: 'separator',
     inheritedVariants: () => ({ orientation: 'vertical' as const }),
-    groupStyles: () => group?.presentation,
+    inheritedStyles: () => group?.presentation,
   })
 
   return (
     <Separator
       {...rest}
-      data-slot="separator"
-      orientation={resolved.variants.orientation ?? 'vertical'}
-      {...resolved.root}
+      data-slot="button-group-separator"
+      orientation={resolved.variants.orientation}
+      {...resolved.styles.separator}
     />
   )
 }

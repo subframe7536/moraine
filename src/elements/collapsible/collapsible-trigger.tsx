@@ -2,11 +2,12 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callRef } from '../../shared/utils'
 
 import { useCollapsibleContext } from './collapsible-context'
+import { collapsibleRecipe } from './collapsible.recipe'
 import type { CollapsibleT } from './collapsible.types'
 
 type CollapsibleTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
@@ -33,9 +34,9 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     'ref',
   ])
   const context = useCollapsibleContext()
-  const resolved = createComponentStyles('collapsible', local, {
+  const resolved = createStyles(collapsibleRecipe, local, {
     rootSlot: 'trigger',
-    groupStyles: () => context.presentation,
+    inheritedStyles: () => context.presentation,
   })
   const customAs = createMemo(() => local.as)
   const tag = createMemo(() => customAs() ?? 'button')
@@ -76,7 +77,7 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
           id={context.triggerId()}
           data-slot="trigger"
           {...(interactionProps as JSX.ButtonHTMLAttributes<HTMLButtonElement>)}
-          {...resolved.root}
+          {...resolved.styles.trigger}
           aria-controls={context.open() ? context.contentId() : undefined}
           aria-expanded={context.open()}
           {...context.dataAttrs()}
@@ -93,7 +94,7 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
           data-slot="trigger"
           {...(interactionProps as Record<string, unknown>)}
           component={as() as ValidComponent}
-          {...resolved.root}
+          {...resolved.styles.trigger}
           aria-controls={context.open() ? context.contentId() : undefined}
           aria-expanded={context.open()}
           {...context.dataAttrs()}

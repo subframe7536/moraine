@@ -6,13 +6,12 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
-import { defaultTheme } from '../../theme/default-theme'
 import { createForm } from '../form'
 
 import { Textarea } from './textarea'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 afterEach(() => {
   vi.useRealTimers()
@@ -20,12 +19,12 @@ afterEach(() => {
 })
 
 describe('Textarea', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = baseRender(() => <Textarea />)
     const root = screen.container.querySelector('[data-slot="root"]')
     const input = screen.container.querySelector('[data-slot="root"]')
-    expect(root?.className).toBe('')
-    expect(input?.className).toBe('')
+    expect(root?.className).not.toBe('')
+    expect(input?.className).not.toBe('')
   })
 
   test('forwards ref to its only native element', () => {

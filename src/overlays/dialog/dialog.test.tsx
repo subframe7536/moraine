@@ -7,8 +7,7 @@ import { CommandPalette } from '../../navigation/command-palette'
 import { MoraineProvider } from '../../shared/provider'
 import { finishExitMotion } from '../../test-utils/overlay-test'
 import { renderWithTheme } from '../../test-utils/theme-render'
-import { createTheme } from '../../theme'
-import { defaultTheme } from '../../theme/default-theme'
+import { defineTheme } from '../../theme'
 
 import { Dialog } from './dialog'
 
@@ -501,8 +500,7 @@ describe('Dialog', () => {
   test('preserves Modal overlay behavior for provider slot overrides', () => {
     renderWithTheme(() => (
       <MoraineProvider
-        theme={createTheme({
-          extends: defaultTheme,
+        theme={defineTheme({
           dialog: { base: { overlay: 'bg-blue-500 provider-dialog-overlay' } },
         })}
       >

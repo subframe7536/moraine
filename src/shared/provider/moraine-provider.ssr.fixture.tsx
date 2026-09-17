@@ -3,16 +3,14 @@ import { renderToString } from 'solid-js/web'
 import { Button } from '../../elements/button/button'
 import { Input } from '../../forms/input/input'
 import { Textarea } from '../../forms/textarea/textarea'
-import { createTheme } from '../../theme/create-theme'
-import { defaultTheme } from '../../theme/default-theme'
+import { defineTheme } from '../../theme/create-theme'
 import type { MoraineTheme } from '../../theme/types'
 import type { CnConfig } from '../style/cn'
 
 import { MoraineProvider } from './moraine-provider'
 
-export const fixtureTheme = createTheme({
-  extends: defaultTheme,
-  button: { defaults: { size: 'sm' }, base: { root: 'rounded-none' } },
+export const fixtureTheme = defineTheme({
+  button: { defaultVariants: { size: 'sm' }, base: { root: 'rounded-none' } },
 })
 
 export function ThemeHydrationFixture(props: { theme?: MoraineTheme }) {

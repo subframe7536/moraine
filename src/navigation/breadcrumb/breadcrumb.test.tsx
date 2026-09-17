@@ -5,17 +5,16 @@ import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
-import { defaultTheme } from '../../theme/default-theme'
 
 import { Breadcrumb } from './breadcrumb'
 import type { BreadcrumbT } from './breadcrumb.types'
 
 function renderWithTheme(ui: () => JSX.Element) {
-  return render(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>)
+  return render(() => <MoraineProvider>{ui()}</MoraineProvider>)
 }
 
 describe('Breadcrumb', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = render(() => (
       <Breadcrumb
         items={[
@@ -25,9 +24,9 @@ describe('Breadcrumb', () => {
       />
     ))
     const root = screen.getByRole('navigation')
-    expect(root.className).toBe('')
+    expect(root.className).not.toBe('')
     const list = screen.container.querySelector('ol[data-slot="list"]')
-    expect(list?.className).toBe('')
+    expect(list?.className).not.toBe('')
   })
 
   test('forwards ref to root nav element', () => {

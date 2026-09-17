@@ -3,7 +3,7 @@ import { hydrate } from 'solid-js/web'
 import { expect, test } from 'vitest'
 
 import { renderSsrFixture, installHydrationState } from '../../test-utils/ssr-test'
-import { createTheme } from '../../theme/create-theme'
+import { defineTheme } from '../../theme/create-theme'
 import type { CnConfig } from '../style/cn'
 
 import {
@@ -59,8 +59,8 @@ test('hydrates Theme presentation once and preserves native nodes across replace
     input.setSelectionRange(1, 4)
     textarea.value = 'Another edit'
     setTheme(
-      createTheme({
-        button: { defaults: { size: 'lg' }, base: { root: 'rounded-xl' } },
+      defineTheme({
+        button: { defaultVariants: { size: 'lg' }, base: { root: 'rounded-xl' } },
       }),
     )
     expect(container.querySelector('button')).toBe(button)
@@ -76,7 +76,7 @@ test('hydrates Theme presentation once and preserves native nodes across replace
   }
 })
 
-test('hydrates headless presentation with the same component nodes', () => {
+test('hydrates default presentation with the same component nodes', () => {
   const container = document.createElement('div')
   container.innerHTML = renderSsrFixture(
     '/src/shared/provider/moraine-provider.ssr.fixture.tsx',
@@ -90,7 +90,7 @@ test('hydrates headless presentation with the same component nodes', () => {
   try {
     expect(container.querySelector('button')).toBe(button)
     expect(container.querySelector('input')).toBe(input)
-    expect(button.className).toBe('')
+    expect(button.className).not.toBe('')
     expect(input.value).toBe('Input draft')
   } finally {
     dispose()

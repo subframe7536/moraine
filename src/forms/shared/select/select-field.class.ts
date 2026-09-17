@@ -21,6 +21,13 @@ export const SELECT_CLEAR_ACTION_CLASS = `${SELECT_FIELD_ACTION_CLASS} select-no
 
 export const SELECT_FAMILY_SLOTS = {
   control: FIELD_CONTROL_CLASS,
+  content: '',
+  listbox: '',
+  item: '',
+  group: '',
+  groupLabel: '',
+  separator: '',
+  empty: '',
   leading: SELECT_LEADING_ICON_CLASS,
   clear: SELECT_CLEAR_ACTION_CLASS,
   itemLeading: 'shrink-0',

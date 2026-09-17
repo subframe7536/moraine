@@ -15,7 +15,7 @@
 - [x] split standalone Field from Formisch-bound form.Field
 - [x] pagination custom item/control components via itemAs/controlAs
 - [ ] a better way to define destructive item in menu
-- [ ] better way to define slot styles. current cannot "go to definition"
+- [x] better way to define slot styles. current cannot "go to definition"
 - [ ] correct document page's focus loop
   - [ ] also audit all components
 - [ ] type instantiation reduce, including `MoraineTypeConfig`

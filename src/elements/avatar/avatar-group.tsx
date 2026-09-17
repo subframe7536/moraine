@@ -1,10 +1,11 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 
 import { AvatarFace } from './avatar'
 import type { AvatarGroupProps } from './avatar-group.types'
+import { avatarGroupRecipe } from './avatar.recipe'
 
 function resolveMax(max: AvatarGroupProps['max']): number | undefined {
   if (typeof max === 'string') {
@@ -35,7 +36,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createComponentStyles('avatarGroup', local)
+  const resolved = createStyles(avatarGroupRecipe, local)
 
   const size = () => resolved.variants.size
   const items = createMemo(() => local.items ?? [])
@@ -57,9 +58,9 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
 
   return (
     <Show when={items().length > 0}>
-      <div data-slot="root" {...rest} {...resolved.root}>
+      <div data-slot="root" {...rest} {...resolved.styles.root}>
         <Show when={hiddenCount() > 0}>
-          <span data-slot="count" {...resolved.slot('count')}>
+          <span data-slot="count" {...resolved.styles.count}>
             +{hiddenCount()}
           </span>
         </Show>
@@ -70,18 +71,18 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
               {...item}
               size={size()}
               rootSlot="item"
-              {...resolved.slot('item')}
+              {...resolved.styles.item}
               classes={{
-                image: resolved.slot('image').class,
-                fallback: resolved.slot('fallback').class,
-                fallbackIcon: resolved.slot('fallbackIcon').class,
-                badge: resolved.slot('badge').class,
+                image: resolved.styles.image.class,
+                fallback: resolved.styles.fallback.class,
+                fallbackIcon: resolved.styles.fallbackIcon.class,
+                badge: resolved.styles.badge.class,
               }}
               styles={{
-                image: resolved.slot('image').style,
-                fallback: resolved.slot('fallback').style,
-                fallbackIcon: resolved.slot('fallbackIcon').style,
-                badge: resolved.slot('badge').style,
+                image: resolved.styles.image.style,
+                fallback: resolved.styles.fallback.style,
+                fallbackIcon: resolved.styles.fallbackIcon.style,
+                badge: resolved.styles.badge.style,
               }}
             />
           )}

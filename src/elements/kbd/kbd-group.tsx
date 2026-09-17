@@ -1,10 +1,11 @@
 import type { JSX } from 'solid-js'
 import { For, Show, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 
 import { Kbd } from './kbd'
 import type { KbdGroupProps, KbdGroupT } from './kbd-group.types'
+import { kbdGroupRecipe } from './kbd.recipe'
 import type { KbdT } from './kbd.types'
 
 function toItemProps(item: KbdGroupT.Item): KbdT.Base {
@@ -23,11 +24,11 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createComponentStyles('kbdGroup', local)
+  const resolved = createStyles(kbdGroupRecipe, local)
 
   return (
     <Show when={local.items.length > 0}>
-      <kbd data-slot="root" {...rest} {...resolved.root}>
+      <kbd data-slot="root" {...rest} {...resolved.styles.root}>
         <For each={local.items}>
           {(item, index) => (
             <>
@@ -35,7 +36,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
                 {...toItemProps(item)}
                 size={resolved.variants.size}
                 variant={resolved.variants.variant}
-                {...resolved.slot('item')}
+                {...resolved.styles.item}
                 slotName="item"
               />
               <Show when={index() < local.items.length - 1}>{local.separator ?? '+'}</Show>

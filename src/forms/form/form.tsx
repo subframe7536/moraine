@@ -7,14 +7,14 @@ import {
 import type { JSX, ValidComponent } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import { callHandler } from '../../shared/utils'
 import type { FieldProps } from '../field'
 import { renderField } from '../field/field'
 
 import { useFormischFieldBinding } from './form-field-binding'
+import { formRecipe } from './form.recipe'
 import type { FormProps, FormT } from './form.types'
-
 interface InternalFormProps<TSchema extends FormSchema> extends FormProps<TSchema> {
   of: FormStore<TSchema>
 }
@@ -28,7 +28,7 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
     'onReset',
     'children',
   ])
-  const resolved = createComponentStyles('form', local)
+  const resolved = createStyles(formRecipe, local)
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
     const form = local.of
@@ -46,7 +46,7 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
       of={local.of}
       onSubmit={local.onSubmit ?? (() => {})}
       onReset={onReset}
-      {...resolved.root}
+      {...resolved.styles.root}
       data-slot="root"
       data-submitting={local.of.isSubmitting ? '' : undefined}
     >

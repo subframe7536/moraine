@@ -5,14 +5,13 @@ import { describe, expect, test } from 'vitest'
 import { DropdownMenu } from '../../overlays/dropdown-menu'
 import { Popover } from '../../overlays/popover'
 import { MoraineProvider } from '../../shared/provider'
-import { createTheme } from '../../theme'
-import { defaultTheme } from '../../theme/default-theme'
+import { defineTheme } from '../../theme'
 
 import { Button } from './button'
 import { ButtonGroup } from './button-group'
 
 describe('ButtonGroup', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = render(() => (
       <ButtonGroup aria-label="History controls">
         <Button>Back</Button>
@@ -21,15 +20,15 @@ describe('ButtonGroup', () => {
     ))
 
     const group = screen.getByRole('group', { name: 'History controls' })
-    expect(group.className).toBe('')
+    expect(group.className).not.toBe('')
     const buttons = screen.getAllByRole('button')
-    expect(buttons[0]?.className).toBe('')
-    expect(buttons[1]?.className).toBe('')
+    expect(buttons[0]?.className).not.toBe('')
+    expect(buttons[1]?.className).not.toBe('')
   })
 
   test('renders related buttons with group semantics and joined horizontal edges', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <ButtonGroup aria-label="History controls">
           <Button>Back</Button>
           <Button>Forward</Button>
@@ -60,7 +59,7 @@ describe('ButtonGroup', () => {
 
   test('renders an explicit separator with generic separator semantics', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <ButtonGroup aria-label="Clipboard actions">
           <Button>Copy</Button>
           <ButtonGroup.Separator />
@@ -86,7 +85,7 @@ describe('ButtonGroup', () => {
 
   test('allows ButtonGroup.Separator orientation to be overridden independently', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <ButtonGroup.Separator orientation="horizontal" />
       </MoraineProvider>
     ))
@@ -99,8 +98,7 @@ describe('ButtonGroup', () => {
   })
 
   test('applies ButtonGroup separator theme and local slot overrides', () => {
-    const theme = createTheme({
-      extends: defaultTheme,
+    const theme = defineTheme({
       buttonGroup: { base: { separator: 'theme-separator' } },
     })
     const screen = render(() => (
@@ -136,7 +134,7 @@ describe('ButtonGroup', () => {
 
   test('joins overlay trigger roots as direct children', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <ButtonGroup>
           <Button>Export</Button>
           <DropdownMenu>
@@ -187,7 +185,7 @@ describe('ButtonGroup', () => {
     ['lg', 'h-9'],
   ] as const)('provides the %s size to nested buttons', (size, expectedClass) => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <ButtonGroup size={size}>
           <Button>{size}</Button>
         </ButtonGroup>
@@ -208,7 +206,7 @@ describe('ButtonGroup', () => {
     ['destructive', 'bg-destructive'],
   ] as const)('provides the %s variant to nested buttons', (variant, expectedClass) => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <ButtonGroup variant={variant}>
           <Button>{variant}</Button>
         </ButtonGroup>
@@ -222,7 +220,7 @@ describe('ButtonGroup', () => {
 
   test('allows a nested button to override group size and variant defaults', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <ButtonGroup size="lg" variant="secondary">
           <Button size="sm" variant="destructive">
             Remove
@@ -238,7 +236,7 @@ describe('ButtonGroup', () => {
 
   test('supports a cohesive vertical orientation', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <ButtonGroup orientation="vertical">
           <Button>Up</Button>
           <Button>Down</Button>
@@ -257,7 +255,7 @@ describe('ButtonGroup', () => {
 
   test('keeps an explicit horizontal separator as the only vertical action boundary', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <ButtonGroup orientation="vertical" aria-label="Move actions">
           <Button>Move up</Button>
           <ButtonGroup.Separator orientation="horizontal" />
@@ -270,7 +268,6 @@ describe('ButtonGroup', () => {
     const separator = screen.getByRole('separator')
 
     expect(group.className).toContain('border-b-0')
-    expect(group.className).toContain('border-t-0')
     expect(separator.getAttribute('aria-orientation')).toBe('horizontal')
     expect(separator.className).toContain('mx-px')
     expect(separator.className).toContain('w-auto')
@@ -278,7 +275,7 @@ describe('ButtonGroup', () => {
 
   test('joins overlay trigger roots as direct children vertically', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <ButtonGroup orientation="vertical">
           <Button>Export</Button>
           <DropdownMenu>
@@ -304,7 +301,7 @@ describe('ButtonGroup', () => {
     const [size, setSize] = createSignal<'sm' | 'lg'>('sm')
     const [variant, setVariant] = createSignal<'outline' | 'secondary'>('outline')
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <ButtonGroup size={size()} variant={variant()}>
           <Button>Action</Button>
         </ButtonGroup>

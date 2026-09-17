@@ -14,11 +14,12 @@ import {
 
 import { Icon } from '../../elements/icon'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { useId } from '../../shared/utils'
 
+import { tabsRecipe } from './tabs.recipe'
 import type { TabsProps, TabsT } from './tabs.types'
 
 interface NormalizedTabItem extends TabsT.Item {
@@ -55,11 +56,11 @@ export function Tabs(props: TabsProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createComponentStyles('tabs', local)
+  const resolved = createStyles(tabsRecipe, local)
   const merged = mergeProps(
     {
       get orientation() {
-        return resolved.variants.orientation ?? 'horizontal'
+        return resolved.variants.orientation
       },
     },
     local,
@@ -275,19 +276,19 @@ export function Tabs(props: TabsProps): JSX.Element {
   )
 
   return (
-    <div id={rootId()} data-slot="root" {...resolved.root} {...rest}>
+    <div id={rootId()} data-slot="root" {...resolved.styles.root} {...rest}>
       <div
         ref={(e) => (listRef = e)}
         role="tablist"
         aria-orientation={merged.orientation ?? undefined}
         data-slot="list"
-        {...resolved.slot('list')}
+        {...resolved.styles.list}
       >
         <div
           aria-hidden="true"
           data-slot="indicator"
-          style={{ ...indicatorStyle(), ...resolved.slot('indicator').style }}
-          class={resolved.slot('indicator').class}
+          style={{ ...indicatorStyle(), ...resolved.styles.indicator.style }}
+          class={resolved.styles.indicator.class}
         />
 
         <For each={normalizedItems()}>
@@ -325,7 +326,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 data-highlighted={highlighted() && !selected() ? '' : undefined}
                 disabled={Boolean(merged.disabled || item.disabled)}
                 data-slot="trigger"
-                {...resolved.slot('trigger')}
+                {...resolved.styles.trigger}
                 onClick={() => {
                   setHighlightedKey(item.instanceKey)
                   selectValue(item.value)
@@ -336,13 +337,13 @@ export function Tabs(props: TabsProps): JSX.Element {
                 }}
               >
                 <Show when={item.icon}>
-                  <span data-slot="leading" {...resolved.slot('leading')}>
+                  <span data-slot="leading" {...resolved.styles.leading}>
                     <Icon name={item.icon} />
                   </span>
                 </Show>
 
                 <Show when={typeof item.label === 'string'} fallback={item.label}>
-                  <span data-slot="label" {...resolved.slot('label')}>
+                  <span data-slot="label" {...resolved.styles.label}>
                     {item.label}
                   </span>
                 </Show>
@@ -365,7 +366,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 aria-labelledby={getTriggerId(item.instanceKey)}
                 data-selected=""
                 data-slot="content"
-                {...resolved.slot('content')}
+                {...resolved.styles.content}
               >
                 {item.content}
               </div>

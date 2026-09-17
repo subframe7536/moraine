@@ -18,13 +18,7 @@ export namespace SeparatorT {
   export interface Item {}
 
   /** Base props for the Separator component. */
-  export interface Base {
-    /**
-     * The orientation of the separator.
-     * @default 'horizontal'
-     */
-    orientation?: 'horizontal' | 'vertical'
-  }
+  export interface Base {}
 
   /** Props for the Separator component. */
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles>

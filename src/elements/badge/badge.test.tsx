@@ -3,24 +3,23 @@ import { createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
-import { defaultTheme } from '../../theme/default-theme'
 
 import { Badge } from './badge'
 
 describe('Badge', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = render(() => (
       <Badge variant="solid" size="lg">
         Solid
       </Badge>
     ))
     const badge = screen.container.querySelector('[data-slot="root"]')
-    expect(badge?.className).toBe('')
+    expect(badge?.className).not.toBe('')
   })
 
   test('renders default badge semantics and label', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Badge>New</Badge>
       </MoraineProvider>
     ))
@@ -54,7 +53,7 @@ describe('Badge', () => {
 
   test('applies the refreshed variants and defaults to subtle', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <div>
           <Badge>Default</Badge>
           <Badge variant="solid">Solid</Badge>
@@ -77,7 +76,7 @@ describe('Badge', () => {
 
   test('applies distinct size metrics and size-specific icon dimensions', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <div>
           <Badge size="sm" leading="i-lucide-check">
             Small
@@ -105,7 +104,7 @@ describe('Badge', () => {
 
   test('uses square geometry only for one-icon badges without a label', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <div>
           <Badge size="sm" leading="i-lucide-check" aria-label="Leading only" />
           <Badge trailing="i-lucide-x" aria-label="Trailing only" />

@@ -1,8 +1,17 @@
 import { createMemo, createRoot, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import type { ComponentRecipeConfig } from './recipe'
-import { atomicRecipe, slotRecipe } from './recipe'
+import { cn } from './cn'
+import type { RecipeConfig } from './recipe'
+import { atomicRecipe, defineRecipe, resolveRecipe } from './recipe'
+
+function testRecipe<Key extends string, S extends object, V>(key: Key, config: RecipeConfig<S, V>) {
+  const definition = defineRecipe<Key, S, V>(key, config)
+  const fn = (variants?: any) => resolveRecipe(definition, variants, cn)
+  return Object.assign(fn, {
+    resolve: (variants: any, merge: typeof cn) => resolveRecipe(definition, variants, merge),
+  })
+}
 
 interface RootSlot {
   root?: unknown
@@ -38,8 +47,9 @@ interface SparseVariant {
   label?: string
 }
 
-const missingSlotBase: ComponentRecipeConfig<RootSlot, never> = {}
-const unknownVariantSlot: ComponentRecipeConfig<RootSlot, StateVariant> = {
+// @ts-expect-error Component recipe base is required.
+const missingSlotBase: RecipeConfig<RootSlot, never> = {}
+const unknownVariantSlot: RecipeConfig<RootSlot, StateVariant> = {
   base: { root: 'root' },
   variants: {
     state: {
@@ -180,7 +190,7 @@ describe('recipe', () => {
   })
 
   describe('multi-slot recipe', () => {
-    const card = slotRecipe<CardSlot, CardVariant>({
+    const card = testRecipe<'card', CardSlot, CardVariant>('card', {
       base: {
         root: 'rounded-lg border border-border bg-card p-4',
         header: 'font-semibold text-card-foreground mb-2',
@@ -225,7 +235,7 @@ describe('recipe', () => {
           footer: 'justify-end',
         },
       ],
-      defaults: {
+      defaultVariants: {
         variant: 'solid',
         bordered: false,
       },
@@ -267,7 +277,7 @@ describe('recipe', () => {
     })
 
     test('resolves declared slots without a runtime slots array', () => {
-      const inferred = slotRecipe<InferredSlot, never>({
+      const inferred = testRecipe<'inferred', InferredSlot, never>('inferred', {
         base: {
           root: 'flex flex-col',
           header: 'p-4 border-b',
@@ -329,8 +339,9 @@ describe('recipe', () => {
 })
 
 test('matches sparse compound-only keys and preserves false, zero, empty string, and null', () => {
-  const sparse = slotRecipe<RootSlot, SparseVariant>({
-    defaults: { enabled: false, count: 0, label: '' },
+  const sparse = testRecipe<'sparse', RootSlot, SparseVariant>('sparse', {
+    base: { root: '' },
+    defaultVariants: { enabled: false, count: 0, label: '' },
     compoundVariants: [{ variants: { enabled: false, count: 0, label: '' }, root: 'p-2' }],
   })
   expect(sparse()).toEqual({ classes: { root: 'p-2' }, style: {} })
@@ -346,7 +357,7 @@ test('resolves base, variant, compound, and extra classes with an explicit merge
     variants: { active: { true: 'p-4' } },
     compoundVariants: [{ active: true, class: 'p-6' }],
   })
-  const slots = slotRecipe<RootSlot, { active?: boolean }>({
+  const slots = testRecipe<'slots', RootSlot, { active?: boolean }>('slots', {
     base: { root: 'p-2' },
     variants: { active: { true: { root: 'p-4' } } },
     compoundVariants: [{ variants: { active: true }, root: 'p-6' }],
@@ -359,12 +370,16 @@ test('resolves base, variant, compound, and extra classes with an explicit merge
     style: {},
   })
   expect(slots.resolve({ active: true }, cn)).toEqual(slots({ active: true }))
-  expect(slots.options.base).toEqual({ root: 'p-2' })
+  expect(slots()).toEqual({ classes: { root: 'p-2' }, style: {} })
 })
 
 test('resolves classes and variables from the same matched branches', () => {
-  const recipe = slotRecipe<RootSlot, { size: 'sm' | 'lg'; enabled: boolean; count: 0 | 1 }>({
-    defaults: { size: 'sm', enabled: true, count: 1 },
+  const recipe = testRecipe<
+    'vars',
+    RootSlot,
+    { size: 'sm' | 'lg'; enabled: boolean; count: 0 | 1 }
+  >('vars', {
+    defaultVariants: { size: 'sm', enabled: true, count: 1 },
     base: {
       root: 'p-2',
       '--size': '4px',
@@ -410,14 +425,17 @@ test('resolves classes and variables from the same matched branches', () => {
 
 test('supports variable-only recipes and scoped merging without changing style output', async () => {
   const { createCn } = await import('./cn.ts')
-  const recipe = slotRecipe<RootSlot, never>({
-    base: { '--zero': 0, '--length': '20px' },
+  const recipe = testRecipe<'root', RootSlot, never>('root', {
+    base: { root: '', '--zero': 0, '--length': '20px' },
   })
-  expect(recipe()).toEqual({ classes: {}, style: { '--zero': 0, '--length': '20px' } })
+  expect(recipe()).toEqual({
+    classes: { root: undefined },
+    style: { '--zero': 0, '--length': '20px' },
+  })
   expect(recipe.resolve(undefined, createCn({}))).toEqual(recipe())
 })
 
-const invalidVariable = slotRecipe<RootSlot, never>({
+const invalidVariable = testRecipe<'root', RootSlot, never>('root', {
   // @ts-expect-error Custom property names must start with --.
   base: { size: '4px' },
 })

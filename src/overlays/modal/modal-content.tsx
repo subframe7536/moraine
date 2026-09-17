@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, onCleanup, splitProps } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import { useCn } from '../../shared/provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { callHandler, callRef } from '../../shared/utils'
@@ -10,6 +10,7 @@ import { trapFocusInContainer } from '../base/utils'
 
 import { useModalContext } from './modal-context'
 import { useModalOverlayContext } from './modal-overlay'
+import { modalRecipe } from './modal.recipe'
 import type { ModalT } from './modal.types'
 
 export type SurfaceContent = Pick<
@@ -27,15 +28,15 @@ export type ModalSurfaceProps = Omit<ModalT.ContentProps, 'children'> & {
   overlayStyle?: JSX.CSSProperties
 }
 
-/** Standalone Modal presentation; composed overlays use the same unstyled surface. */
+/** Standalone Modal presentation; composed overlays use the same recipe-backed surface. */
 export function ModalContent(props: ModalT.ContentProps): JSX.Element {
   const [local, rest] = splitProps(props, ['class', 'style', 'classes', 'styles'])
 
-  const resolved = createComponentStyles('modal', local, { rootSlot: 'content' })
-  return <ModalSurface {...rest} {...resolved.root} />
+  const resolved = createStyles(modalRecipe, local, { rootSlot: 'content' })
+  return <ModalSurface {...rest} {...resolved.styles.content} />
 }
 
-/** Shared modal DOM, presence, and focus behavior without a default visual layer. */
+/** Shared modal DOM, presence, focus, and recipe-backed presentation behavior. */
 export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
   const cn = useCn()
   type RuntimeProps = ModalT.ContentBase & {

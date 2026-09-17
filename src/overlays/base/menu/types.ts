@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 
 import type { IconT } from '../../../elements/icon'
-import type { SlotBinding as ComponentSlotBinding } from '../../../shared/provider/create-component-styles'
+import type { SlotBinding as ComponentSlotBinding } from '../../../shared/provider/create-styles'
 import type { ComponentOrElement } from '../../../shared/render-prop'
 import type { SlotClassValue, SlotStyleValue, ElementProps } from '../../../shared/types'
 

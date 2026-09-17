@@ -23,7 +23,7 @@ import { useOverlayInteraction } from '../../overlays/base/interaction.ts'
 import { acquireBodyScrollLock } from '../../overlays/base/utils.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { useCn } from '../../shared/provider/cn-context.ts'
-import { createComponentStyles } from '../../shared/provider/create-component-styles.ts'
+import { createStyles } from '../../shared/provider/create-styles.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { createTypeahead } from '../../shared/typeahead.ts'
@@ -41,6 +41,7 @@ import {
 } from '../shared/select/collection.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
+import { baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectProps, BaseSelectT } from './base-select.types.ts'
 
 const FORM_VALUE_EXISTS = DEV ? 'moraine:selection-exists' : '1'
@@ -115,7 +116,8 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   const listboxId = () => `${field.id()}-listbox`
   const itemId = (value: BaseSelectT.Value) =>
     `${listboxId()}-${encodeURIComponent(`${typeof value}:${String(value)}`)}`
-  const styles = createComponentStyles('baseSelect', props, {
+  const styles = createStyles(baseSelectRecipe, props, {
+    rootSlot: 'control',
     inheritedVariants: () => ({ size: field.size() ?? undefined }),
   })
   const locked = () => field.disabled() || field.readOnly()
@@ -442,9 +444,9 @@ function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
           }
         })
       }}
-      class={cn(state.styles.slot('control').class, local.class)}
+      class={cn(state.styles.styles.control.class, local.class)}
       style={{
-        ...state.styles.slot('control').style,
+        ...state.styles.styles.control.style,
         ...local.style,
       }}
     >
@@ -528,9 +530,9 @@ function BaseSelectTrigger<
           ? state.itemId(state.highlightedValue()!)
           : undefined
       }
-      class={cn(state.styles.slot('trigger').class, local.class)}
+      class={cn(state.styles.styles.trigger.class, local.class)}
       style={{
-        ...state.styles.slot('trigger').style,
+        ...state.styles.styles.trigger.style,
         ...local.style,
       }}
       ref={(element: HTMLElement) => {
@@ -634,9 +636,9 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
               presence.setElement(element)
               callRef(local.ref, element)
             }}
-            class={cn(state.styles.slot('content').class, local.class)}
+            class={cn(state.styles.styles.content.class, local.class)}
             style={{
-              ...state.styles.slot('content').style,
+              ...state.styles.styles.content.style,
               ...local.style,
             }}
           >
@@ -686,9 +688,9 @@ function BaseSelectListbox(props: BaseSelectT.PartProps): JSX.Element {
           }
         })
       }}
-      class={cn(state.styles.slot('listbox').class, local.class)}
+      class={cn(state.styles.styles.listbox.class, local.class)}
       style={{
-        ...state.styles.slot('listbox').style,
+        ...state.styles.styles.listbox.style,
         ...local.style,
       }}
     >
@@ -751,9 +753,9 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       data-selected={selected() ? '' : undefined}
       data-highlighted={highlighted() ? '' : undefined}
       data-disabled={disabled() ? '' : undefined}
-      class={cn(state.styles.slot('item').class, local.class)}
+      class={cn(state.styles.styles.item.class, local.class)}
       style={{
-        ...state.styles.slot('item').style,
+        ...state.styles.styles.item.style,
         ...local.style,
       }}
       onPointerMove={(event) => {
@@ -804,9 +806,9 @@ function BaseSelectGroup(props: BaseSelectT.PartProps): JSX.Element {
         role="group"
         aria-labelledby={labelId() ?? props['aria-labelledby']}
         data-slot="group"
-        class={cn(state.styles.slot('group').class, props.class)}
+        class={cn(state.styles.styles.group.class, props.class)}
         style={{
-          ...state.styles.slot('group').style,
+          ...state.styles.styles.group.style,
           ...props.style,
         }}
       >
@@ -831,9 +833,9 @@ function BaseSelectGroupLabel(props: BaseSelectT.PartProps): JSX.Element {
       {...props}
       id={id()}
       data-slot="groupLabel"
-      class={cn(state.styles.slot('groupLabel').class, props.class)}
+      class={cn(state.styles.styles.groupLabel.class, props.class)}
       style={{
-        ...state.styles.slot('groupLabel').style,
+        ...state.styles.styles.groupLabel.style,
         ...props.style,
       }}
     >
@@ -850,9 +852,9 @@ function BaseSelectSeparator(props: BaseSelectT.PartProps): JSX.Element {
       role="presentation"
       aria-hidden="true"
       data-slot="separator"
-      class={cn(state.styles.slot('separator').class, props.class)}
+      class={cn(state.styles.styles.separator.class, props.class)}
       style={{
-        ...state.styles.slot('separator').style,
+        ...state.styles.styles.separator.style,
         ...props.style,
       }}
     />
@@ -866,9 +868,9 @@ function BaseSelectEmpty(props: BaseSelectT.PartProps): JSX.Element {
       <div
         {...props}
         data-slot="empty"
-        class={cn(state.styles.slot('empty').class, props.class)}
+        class={cn(state.styles.styles.empty.class, props.class)}
         style={{
-          ...state.styles.slot('empty').style,
+          ...state.styles.styles.empty.style,
           ...props.style,
         }}
       >

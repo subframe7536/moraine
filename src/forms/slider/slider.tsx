@@ -2,13 +2,13 @@ import type { JSX, Ref } from 'solid-js'
 import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
 import { HiddenInput } from '../../shared/hidden-input'
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import { callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 
 import { useSlider } from './hook'
+import { sliderRecipe } from './slider.recipe'
 import type { SliderProps, SliderT } from './slider.types'
-
 type RootProps<TValue = SliderT.Value> = SliderProps<TValue> & {
   ref?: Ref<HTMLDivElement>
 }
@@ -45,7 +45,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     'style',
   ])
   const themeField = useFieldContext()
-  const resolved = createComponentStyles('slider', local, {
+  const resolved = createStyles(sliderRecipe, local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })
   const merged = mergeProps(
@@ -55,7 +55,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       minStepsBetweenThumbs: 0,
       allowThumbCrossing: true,
       get orientation() {
-        return resolved.variants.orientation ?? 'horizontal'
+        return resolved.variants.orientation
       },
       inverted: false,
     },
@@ -119,7 +119,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       data-readonly={merged.readOnly ? '' : undefined}
       data-required={field.required() ? '' : undefined}
       {...field.ariaAttrs()}
-      {...resolved.root}
+      {...resolved.styles.root}
       {...rest}
     >
       <div
@@ -127,7 +127,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           slider.setTrackRef(element)
         }}
         data-slot="track"
-        {...resolved.slot('track')}
+        {...resolved.styles.track}
         onPointerDown={slider.onTrackPointerDown}
         onPointerMove={slider.onTrackPointerMove}
         onPointerUp={slider.onTrackPointerUp}
@@ -139,8 +139,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           data-multiple={slider.currentValues().length > 1 ? '' : undefined}
           data-inverted={merged.inverted ? '' : undefined}
           data-dragging={slider.dragging() ? '' : undefined}
-          style={{ ...slider.rangeStyle(), ...resolved.slot('range').style }}
-          class={resolved.slot('range').class}
+          style={{ ...slider.rangeStyle(), ...resolved.styles.range.style }}
+          class={resolved.styles.range.class}
         />
 
         <Show when={merged.divider}>
@@ -150,9 +150,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                 data-slot="divider"
                 style={{
                   ...slider.getDividerStyle(dividerIndex),
-                  ...resolved.slot('divider').style,
+                  ...resolved.styles.divider.style,
                 }}
-                class={resolved.slot('divider').class}
+                class={resolved.styles.divider.class}
               />
             )}
           </For>
@@ -180,8 +180,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             data-required={field.required() ? '' : undefined}
             role="slider"
             tabIndex={field.disabled() ? undefined : 0}
-            style={{ ...slider.thumbStyles()[thumbIndex], ...resolved.slot('thumb').style }}
-            class={resolved.slot('thumb').class}
+            style={{ ...slider.thumbStyles()[thumbIndex], ...resolved.styles.thumb.style }}
+            class={resolved.styles.thumb.class}
             aria-valuemin={slider.getThumbMinValue(thumbIndex)}
             aria-valuenow={slider.currentValues()[thumbIndex] ?? merged.min}
             aria-valuemax={slider.getThumbMaxValue(thumbIndex)}

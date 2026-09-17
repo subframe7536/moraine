@@ -54,8 +54,12 @@ type StrictedAttributes<T extends Tags> = T extends unknown
 
 type Override<A, B> = Omit<A, keyof B> & B
 
+type NullableVariantProps<Variant> = {
+  [K in keyof Variant]: Variant[K] | null
+}
+
 type ComponentBaseProps<Base, Variant, Classes, Styles> = Base &
-  ([Variant] extends [never] ? {} : Variant) & {
+  ([Variant] extends [never] ? {} : NullableVariantProps<Variant>) & {
     /** Class applied to the component root or trigger element. */
     class?: SlotClassValue
     /** Style applied to the component root or trigger element. */

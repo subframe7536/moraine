@@ -54,8 +54,7 @@
         "name": "orientation",
         "required": false,
         "type": "\"horizontal\" | \"vertical\" | undefined",
-        "description": "The orientation of the separator.",
-        "defaultValue": "horizontal"
+        "description": "Layout axis used by the component Recipe."
       },
       {
         "name": "ref",

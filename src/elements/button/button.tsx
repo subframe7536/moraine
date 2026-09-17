@@ -2,7 +2,7 @@ import type { JSX, ValidComponent } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import { useCn } from '../../shared/provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
@@ -11,6 +11,7 @@ import { Icon } from '../icon'
 import type { IconT } from '../icon'
 
 import { useButtonGroupContext } from './button-group-context'
+import { buttonRecipe } from './button.recipe'
 import type { ButtonProps, ButtonT } from './button.types'
 
 /**
@@ -37,7 +38,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'trailing',
     'children',
   ])
-  const resolved = createComponentStyles('button', local, {
+  const resolved = createStyles(buttonRecipe, local, {
     inheritedVariants: () => group ?? undefined,
   })
 
@@ -115,7 +116,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       data-disabled={local.disabled ? '' : undefined}
       {...interactionProps}
       component={tag()}
-      {...resolved.root}
+      {...resolved.styles.root}
     >
       <Show when={resolvedLeading()}>
         {(leading) => (
@@ -123,12 +124,12 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
             name={leading()}
             slotName="leading"
             class={cn(
-              isLeadingLoading() ? resolved.slot('loading').class : undefined,
-              resolved.slot('leading').class,
+              isLeadingLoading() ? resolved.styles.loading.class : undefined,
+              resolved.styles.leading.class,
             )}
             style={{
-              ...(isLeadingLoading() ? resolved.slot('loading').style : undefined),
-              ...resolved.slot('leading').style,
+              ...(isLeadingLoading() ? resolved.styles.loading.style : undefined),
+              ...resolved.styles.leading.style,
             }}
             aria-hidden={isLeadingLoading() ? true : undefined}
           />
@@ -136,7 +137,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       </Show>
 
       <Show when={hasResolvedChildren()}>
-        <span data-slot="label" {...resolved.slot('label')}>
+        <span data-slot="label" {...resolved.styles.label}>
           {resolvedChildren()}
         </span>
       </Show>
@@ -147,12 +148,12 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
             name={trailing()}
             slotName="trailing"
             class={cn(
-              isTrailingLoading() ? resolved.slot('loading').class : undefined,
-              resolved.slot('trailing').class,
+              isTrailingLoading() ? resolved.styles.loading.class : undefined,
+              resolved.styles.trailing.class,
             )}
             style={{
-              ...(isTrailingLoading() ? resolved.slot('loading').style : undefined),
-              ...resolved.slot('trailing').style,
+              ...(isTrailingLoading() ? resolved.styles.loading.style : undefined),
+              ...resolved.styles.trailing.style,
             }}
             aria-hidden={isTrailingLoading() ? true : undefined}
           />

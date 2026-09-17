@@ -3,30 +3,29 @@ import { createComponent } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
-import { defaultTheme } from '../../theme/default-theme'
 
 import { Card } from './card'
 
 describe('Card', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = render(() => (
       <Card header="Header" footer="Footer">
         Body
       </Card>
     ))
     const root = screen.container.querySelector('[data-slot="root"]')
-    expect(root?.className).toBe('')
+    expect(root?.className).not.toBe('')
     const header = screen.container.querySelector('[data-slot="header"]')
-    expect(header?.className).toBe('')
+    expect(header?.className).not.toBe('')
     const body = screen.container.querySelector('[data-slot="body"]')
-    expect(body?.className).toBe('')
+    expect(body?.className).not.toBe('')
     const footer = screen.container.querySelector('[data-slot="footer"]')
-    expect(footer?.className).toBe('')
+    expect(footer?.className).not.toBe('')
   })
 
   test('renders root with the default outline appearance', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Card />
       </MoraineProvider>
     ))

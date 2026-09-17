@@ -6,14 +6,13 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { defaultTheme } from '../../theme/default-theme.ts'
 import { createForm } from '../form/index.ts'
 
 import { Select } from './select.tsx'
 import type { SelectT } from './select.types.ts'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 const ITEMS = [
   { label: 'Apple', value: 'apple' },
@@ -200,7 +199,7 @@ describe('Select', () => {
           validate: 'input',
         }),
       (form) => (
-        <MoraineProvider theme={defaultTheme}>
+        <MoraineProvider>
           <form.Form>
             <form.Field name="choice" label="Choice">
               <Select items={ITEMS} placeholder="Choose a fruit" defaultOpen />
@@ -226,7 +225,7 @@ describe('Select', () => {
           initialInput: { choice: null as string | number | null },
         }),
       (form) => (
-        <MoraineProvider theme={defaultTheme}>
+        <MoraineProvider>
           <form.Form>
             <form.Field name="choice" label="Choice">
               <Select

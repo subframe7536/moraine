@@ -1,8 +1,7 @@
 import { Icon, MoraineProvider } from '@src'
-import { createTheme, defaultTheme } from '@src/theme'
+import { defineTheme } from '@src/theme'
 
-const theme = createTheme({
-  extends: defaultTheme,
+const theme = defineTheme({
   icon: { base: { root: 'text-emerald-600' } },
 })
 

@@ -1053,6 +1053,14 @@ class DeclarationAnalyzer {
     }
 
     const properties = await this.#resolveNamedProperties(name, typeArguments, context, visited)
+    if (name === 'BaseProps' && typeArguments.length === 5) {
+      // BaseProps maps variant fields into nullable public props. Resolve the
+      // original Variant argument as well so its JSDoc (especially @default)
+      // remains attached after the mapped type is expanded.
+      properties.push(
+        ...(await this.resolveProperties(contextValue(typeArguments[2]!, context), visited)),
+      )
+    }
     if (
       name === 'BaseProps' &&
       typeArguments.length === 5 &&

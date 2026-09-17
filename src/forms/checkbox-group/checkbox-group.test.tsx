@@ -5,7 +5,6 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
-import { defaultTheme } from '../../theme/default-theme'
 import { createForm } from '../form'
 
 import { CheckboxGroup } from './checkbox-group'
@@ -19,7 +18,7 @@ function getHiddenCheckbox(container: HTMLElement, value: string): HTMLInputElem
 }
 
 describe('CheckboxGroup', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = render(() => (
       <CheckboxGroup
         variant="table"
@@ -32,9 +31,9 @@ describe('CheckboxGroup', () => {
     const root = screen.container.querySelector('[data-slot="root"]')
     const fieldset = screen.container.querySelector('[data-slot="fieldset"]')
     const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')
-    expect(root?.className).toBe('')
-    expect(fieldset?.className).toBe('')
-    expect(item?.className).toBe('')
+    expect(root?.className).not.toBe('')
+    expect(fieldset?.className).not.toBe('')
+    expect(item?.className).not.toBe('')
   })
   test('renders legend and primitive items', () => {
     const screen = render(() => <CheckboxGroup legend="Fruits" items={['Apple', 'Banana']} />)
@@ -319,7 +318,7 @@ describe('CheckboxGroup', () => {
 
   test('applies horizontal table layout classes', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <CheckboxGroup items={['A', 'B']} orientation="horizontal" variant="table" size="lg" />
       </MoraineProvider>
     ))
@@ -339,7 +338,7 @@ describe('CheckboxGroup', () => {
 
   test('applies vertical table layout classes', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <CheckboxGroup items={['A', 'B']} variant="table" size="lg" />
       </MoraineProvider>
     ))
@@ -403,7 +402,7 @@ describe('CheckboxGroup', () => {
 
   test('applies flattened classes to item and checkbox slots', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <CheckboxGroup
           items={['A']}
           variant="table"

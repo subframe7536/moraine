@@ -7,8 +7,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { Button } from '../../elements/button'
 import { MoraineProvider } from '../../shared/provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
-import { createTheme } from '../../theme'
-import { defaultTheme } from '../../theme/default-theme'
+import { defineTheme } from '../../theme'
 import { Input } from '../input'
 import { Switch } from '../switch'
 
@@ -20,13 +19,13 @@ const Schema = v.object({
 })
 
 describe('Form', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const { screen } = renderWithOwner(
       () => createForm({ schema: Schema }),
       (form) => <form.Form />,
     )
     const formElement = screen.container.querySelector('form')
-    expect(formElement?.className).toBe('')
+    expect(formElement?.className).not.toBe('')
   })
   test('submits Formisch output through the high-level adapters', async () => {
     const onSubmit = vi.fn()
@@ -89,7 +88,7 @@ describe('Form', () => {
   test('replaces Design root styling without remounting the bound form', () => {
     const { screen, value } = renderWithOwner(
       () => {
-        const [design, setDesign] = createSignal(createTheme({ form: { base: { root: 'p-2' } } }))
+        const [design, setDesign] = createSignal(defineTheme({ form: { base: { root: 'p-2' } } }))
         return { form: createForm({ schema: Schema }), design, setDesign }
       },
       (props) => (
@@ -102,7 +101,7 @@ describe('Form', () => {
 
     expect(element.className).toContain('p-2')
 
-    value.setDesign(createTheme({ form: { base: { root: 'p-4' } } }))
+    value.setDesign(defineTheme({ form: { base: { root: 'p-4' } } }))
 
     expect(screen.container.querySelector('form')).toBe(element)
     expect(element.className).toContain('p-4')
@@ -355,7 +354,7 @@ describe('Form', () => {
           initialInput: { value: '' },
         }),
       (form) => (
-        <MoraineProvider theme={defaultTheme}>
+        <MoraineProvider>
           <form.Form>
             <form.Field name="value" label="Value">
               <Input />

@@ -32,7 +32,7 @@ export interface FieldContextOptions {
   name?: FieldName
   path?: FieldPath
   binding?: FieldBinding
-  size?: FieldSize
+  size?: FieldSize | null
   hint?: JSX.Element
   description?: JSX.Element
   help?: JSX.Element

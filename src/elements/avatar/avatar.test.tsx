@@ -3,8 +3,7 @@ import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
-import { createTheme } from '../../theme'
-import { defaultTheme } from '../../theme/default-theme'
+import { defineTheme } from '../../theme'
 
 import { Avatar } from './avatar'
 import { AvatarGroup } from './avatar-group'
@@ -65,7 +64,7 @@ afterEach(() => {
 })
 
 describe('Avatar', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = render(() => (
       <>
         <Avatar size="sm" fallback="i-lucide-user" badge="i-lucide-check" />
@@ -74,11 +73,11 @@ describe('Avatar', () => {
     ))
 
     const avatarRoot = screen.container.querySelector('[data-slot="root"]')
-    expect(avatarRoot?.className).toBe('')
+    expect(avatarRoot?.className).not.toBe('')
     const badge = screen.container.querySelector('[data-slot="badge"]')
-    expect(badge?.className).toBe('')
+    expect(badge?.className).not.toBe('')
     const groupRoot = screen.container.querySelectorAll('[data-slot="root"]')[1]
-    expect(groupRoot?.className).toBe('')
+    expect(groupRoot?.className).not.toBe('')
   })
 
   test('renders nothing when avatar group items is undefined or empty', () => {
@@ -174,7 +173,7 @@ describe('Avatar', () => {
 
   test('renders badge and supports four corner positions', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Avatar badge="i-lucide-check" badgePosition="top-left" />
         <Avatar badge="i-lucide-check" badgePosition="top-right" />
         <Avatar badge="i-lucide-check" badgePosition="bottom-left" />
@@ -196,7 +195,7 @@ describe('Avatar', () => {
 
   test('keeps badge visible by not clipping avatar root overflow', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Avatar badge="i-lucide-check" />
       </MoraineProvider>
     ))
@@ -208,7 +207,7 @@ describe('Avatar', () => {
 
   test('supports sm and lg size variants for single avatars', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Avatar size="sm" fallback="i-lucide-user" badge="i-lucide-check" />
         <Avatar size="lg" fallback="i-lucide-user" badge="i-lucide-check" />
       </MoraineProvider>
@@ -388,7 +387,7 @@ describe('Avatar', () => {
 
   test('keeps badge icons passive and creates no internal tab stop', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Avatar badge="i-lucide-check" text="MR" />
       </MoraineProvider>
     ))
@@ -450,7 +449,7 @@ describe('Avatar', () => {
 
   test('renders avatar group with items + max', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <AvatarGroup max={2} items={[{ text: 'A' }, { text: 'B' }, { text: 'C' }, { text: 'D' }]} />
       </MoraineProvider>
     ))
@@ -490,7 +489,7 @@ describe('Avatar', () => {
 
   test('supports sm and lg size variants for avatar groups', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <AvatarGroup size="sm" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
         <AvatarGroup size="lg" max={1} items={[{ text: 'A' }, { text: 'B' }]} />
       </MoraineProvider>
@@ -590,17 +589,16 @@ describe('Avatar', () => {
     test('Avatar and AvatarGroup inherit provider configuration with instance overrides', () => {
       const screen = render(() => (
         <MoraineProvider
-          theme={createTheme({
-            extends: defaultTheme,
+          theme={defineTheme({
             avatar: {
-              defaults: { size: 'lg' },
+              defaultVariants: { size: 'lg' },
               base: {
                 root: 'p-slot-root m-0.5 text-red-500',
                 fallback: 'p-fallback text-blue-500',
               },
             },
             avatarGroup: {
-              defaults: { size: 'sm' },
+              defaultVariants: { size: 'sm' },
               base: { root: 'p-group-root', count: 'p-count' },
             },
           })}

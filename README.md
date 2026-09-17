@@ -57,38 +57,35 @@ For Tailwind CSS v4, add the plugin and a source path relative to your styleshee
 
 Import `moraine/icon.css` only when you want the optional bundled icon masks. It does not replace the required preset/plugin configuration.
 
-3. Pass `defaultTheme` to `MoraineProvider` to load the official Theme. Components without a provider retain behavior and render unstyled.
+3. Moraine components include their official recipes by default; a Provider is only needed for Theme or `cnConfig` overrides.
 
 ```tsx
-import { Button, Input, MoraineProvider } from 'moraine'
-import { defaultTheme } from 'moraine/theme'
+import { Button, Input } from 'moraine'
 
 function App() {
   return (
-    <MoraineProvider theme={defaultTheme}>
-      <div class="flex flex-col gap-3">
-        <Input placeholder="Enter text" />
-        <Button variant="outline">Save changes</Button>
-      </div>
-    </MoraineProvider>
+    <>
+      <Input placeholder="Enter text" />
+      <Button variant="outline">Save changes</Button>
+    </>
   )
 }
 ```
 
-Use `createTheme` to customize the official theme:
+Use `defineTheme` for immutable partial overrides:
 
 ```tsx
-import { createTheme, defaultTheme } from 'moraine/theme'
+import { Button, MoraineProvider } from 'moraine'
+import { defineTheme } from 'moraine/theme'
 
-const theme = createTheme({
-  extends: defaultTheme,
-  button: { defaults: { size: 'sm' }, base: { root: 'rounded-xl' } },
+const theme = defineTheme({
+  button: { defaultVariants: { size: 'sm' }, base: { root: 'rounded-xl' } },
 })
 
 <MoraineProvider theme={theme}><Button>Save</Button></MoraineProvider>
 ```
 
-A Provider without `theme` inherits its parent theme, or uses empty presentation at the root. An explicit theme replaces the parent; `emptyTheme` clears inherited styles. Use `cnConfig` to configure class conflict rules independently of the theme. Components and `useCn()` follow the nearest Provider; exported `cn` keeps fixed default rules, and `createCn(config)` creates an independent merger for ordinary code. An omitted `cnConfig` inherits, an object replaces inherited application rules, and `{}` resets to Moraine defaults. See the [styling guide](docs/pages/styling.mdx) for examples, theme composition, and slot precedence.
+A Provider with `theme={undefined}` inherits its parent Theme, an explicit Theme replaces it, and `theme={null}` clears inherited overrides back to component-default recipes. Compose Themes explicitly with `defineTheme({ extends: parentTheme, ... })`; use component-level `replace: true` when a Theme must replace the built-in recipe presentation. `cnConfig` remains independent and reactive. Advanced tooling can import readonly component recipes such as `buttonRecipe` from `moraine/styles`.
 
 Input and Textarea forward native attributes and events to their editable controls. `ref`, `class`, and `style` target the native control. Compose icons, text, and actions through `InputGroup.Leading` and `InputGroup.Trailing`. `onChange` receives the native event, while `onValueChange` receives the normalized value.
 
@@ -96,7 +93,7 @@ Input and Textarea forward native attributes and events to their editable contro
 
 Import every component and `MoraineProvider` from `moraine`. The package preserves ESM module boundaries so production bundlers can remove unused components; component subpaths and internal files are not public APIs.
 
-Use `moraine/theme` for theme authoring and official presentation, `moraine/utils` for shared hooks, and `moraine/unocss` or `moraine/tailwind` for styling integration. Solid-aware bundlers select the preserved JSX entry for client or server compilation; other bundlers use the compiled browser ESM entry.
+Use `moraine/theme` for Theme authoring, `moraine/styles` for advanced readonly recipe access, `moraine/utils` for shared hooks, and `moraine/unocss` or `moraine/tailwind` for styling integration. Solid-aware bundlers select the preserved JSX entry for client or server compilation; other bundlers use the compiled browser ESM entry.
 
 The optional `useListVirtualizer` adapter is available from `moraine/virtualizer` and requires `@tanstack/virtual-core`. It is not exported by `moraine/utils`.
 

@@ -138,14 +138,12 @@ function Icon() {
   return <span data-slot="icon" aria-hidden />
 }
 export function Demo() {
-  const resolved = createComponentStyles('demo', {
+  const resolved = createStyles(demoRecipe, {
     classes: { content: 'w-(--panel-width)', label: 'text-sm' },
-    styles: { content: { '--panel-color': 'red' } },
-  }, {
-    dynamicStyles: () => ({ label: { '--label-color': 'blue' } }),
-  })
-  return <div data-slot="content" {...resolved.slot('content')}>
-    <span data-slot="label" {...resolved.slot('label')} />
+    styles: { content: { '--panel-color': 'red' }, label: { '--label-color': 'blue' } },
+  }, { rootSlot: 'content' })
+  return <div data-slot="content" {...resolved.styles.content}>
+    <span data-slot="label" {...resolved.styles.label} />
     <Icon slotName="leading" />
   </div>
 }

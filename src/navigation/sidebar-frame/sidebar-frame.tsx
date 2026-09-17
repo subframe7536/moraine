@@ -12,12 +12,13 @@ import {
 } from 'solid-js'
 
 import { Sheet } from '../../overlays/sheet'
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import { useCn } from '../../shared/provider/cn-context'
 import { createMediaQuery } from '../../shared/use-media-query'
 import { callHandler } from '../../shared/utils'
 
 import { SidebarFrameProvider, useSidebarFrameContext } from './sidebar-frame-context'
+import { sidebarFrameRecipe } from './sidebar-frame.recipe'
 import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types'
 
 function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
@@ -36,8 +37,8 @@ function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
         contentProps.mobile ? !context.isOpen() : context.isMobile() || !context.isOpen()
       }
       {...rest}
-      class={cn(context.resolved.slot('sidebar').class, local.class)}
-      style={{ ...context.resolved.slot('sidebar').style, ...local.style }}
+      class={cn(context.resolved.styles.sidebar.class, local.class)}
+      style={{ ...context.resolved.styles.sidebar.style, ...local.style }}
     >
       <Show
         when={contentProps.mobile}
@@ -69,8 +70,8 @@ function SidebarFrameSidebarHeader(props: SidebarFrameT.SidebarHeaderProps): JSX
     <div
       data-slot="sidebarHeader"
       {...rest}
-      class={cn(context.resolved.slot('sidebarHeader').class, local.class)}
-      style={{ ...context.resolved.slot('sidebarHeader').style, ...local.style }}
+      class={cn(context.resolved.styles.sidebarHeader.class, local.class)}
+      style={{ ...context.resolved.styles.sidebarHeader.style, ...local.style }}
     >
       {local.children}
     </div>
@@ -86,8 +87,8 @@ function SidebarFrameSidebarBody(props: SidebarFrameT.SidebarBodyProps): JSX.Ele
     <div
       data-slot="sidebarBody"
       {...rest}
-      class={cn(context.resolved.slot('sidebarBody').class, local.class)}
-      style={{ ...context.resolved.slot('sidebarBody').style, ...local.style }}
+      class={cn(context.resolved.styles.sidebarBody.class, local.class)}
+      style={{ ...context.resolved.styles.sidebarBody.style, ...local.style }}
     >
       {local.children}
     </div>
@@ -103,8 +104,8 @@ function SidebarFrameSidebarFooter(props: SidebarFrameT.SidebarFooterProps): JSX
     <div
       data-slot="sidebarFooter"
       {...rest}
-      class={cn(context.resolved.slot('sidebarFooter').class, local.class)}
-      style={{ ...context.resolved.slot('sidebarFooter').style, ...local.style }}
+      class={cn(context.resolved.styles.sidebarFooter.class, local.class)}
+      style={{ ...context.resolved.styles.sidebarFooter.style, ...local.style }}
     >
       {local.children}
     </div>
@@ -120,8 +121,8 @@ function SidebarFrameMain(props: SidebarFrameT.MainProps): JSX.Element {
     <div
       data-slot="main"
       {...rest}
-      class={cn(context.resolved.slot('main').class, local.class)}
-      style={{ ...context.resolved.slot('main').style, ...local.style }}
+      class={cn(context.resolved.styles.main.class, local.class)}
+      style={{ ...context.resolved.styles.main.style, ...local.style }}
       onScroll={(event) => {
         const result = callHandler(event, local.onScroll)
         if (!result.defaultPrevented) {
@@ -147,11 +148,11 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createComponentStyles('sidebarFrame', local)
+  const resolved = createStyles(sidebarFrameRecipe, local)
   const merged = mergeProps(
     {
       get side() {
-        return resolved.variants.side ?? 'left'
+        return resolved.variants.side
       },
       scrollThreshold: 60,
     },
@@ -198,7 +199,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
 
   return (
     <SidebarFrameProvider value={context}>
-      <div data-slot="root" {...rest} {...resolved.root}>
+      <div data-slot="root" {...rest} {...resolved.styles.root}>
         {local.children}
       </div>
     </SidebarFrameProvider>

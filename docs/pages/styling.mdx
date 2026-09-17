@@ -178,23 +178,21 @@ The bound `form.Form` is single: `createForm()` returns separate `Form` and `Fie
 
 ## Themes and Providers
 
-Pass `defaultTheme` from `moraine/theme` to the application Provider for official styles. Components outside a Provider remain functional and unstyled.
+Components use their built-in recipes by default. Add `MoraineProvider` only when you need Theme or `cnConfig` overrides.
 
 | `theme`                | Behavior                                                         |
 | ---------------------- | ---------------------------------------------------------------- |
 | Omitted or `undefined` | Inherit the parent theme, or use empty presentation at the root. |
 | A theme object         | Replace the parent theme. Use `extends` to compose themes.       |
-| `emptyTheme`           | Clear inherited presentation.                                    |
+| `theme={null}`         | Clear inherited Theme overrides and use component recipes.       |
 
 ```tsx
 import { Button, MoraineProvider } from 'moraine'
-import { createTheme, defaultTheme, emptyTheme } from 'moraine/theme'
 
-const brand = createTheme({
-  extends: defaultTheme,
-  button: { defaults: { size: 'sm' }, base: { root: 'rounded-xl' } },
+const brand = defineTheme({
+    button: { defaultVariants: { size: 'sm' }, base: { root: 'rounded-xl' } },
 })
-const section = createTheme({
+const section = defineTheme({
   extends: brand,
   button: { base: { root: 'shadow-md' } },
 })
@@ -204,13 +202,13 @@ const section = createTheme({
   <MoraineProvider theme={section}>
     <Button>Extended presentation</Button>
   </MoraineProvider>
-  <MoraineProvider theme={emptyTheme}>
+  <MoraineProvider theme={null}>
     <Button class="my-button">Custom presentation</Button>
   </MoraineProvider>
 </MoraineProvider>
 ```
 
-`createTheme()` returns an empty theme. `extends` merges component defaults, preserving parent values where the child supplies `undefined`, and evaluates parent recipes before child recipes. Update presentation by replacing the theme object. Setting `theme` back to `undefined` resumes inheritance and follows subsequent parent updates.
+`defineTheme()` returns an empty theme. `extends` merges component defaults, preserving parent values where the child supplies `undefined`, and evaluates parent recipes before child recipes. Update presentation by replacing the theme object. Setting `theme` back to `undefined` resumes inheritance and follows subsequent parent updates.
 
 ### Class merging configuration
 
@@ -252,7 +250,6 @@ Define the corresponding CSS in your application. Conflict rules do not generate
 
 ```tsx
 import { Button, MoraineProvider, cn, useCn } from 'moraine'
-import { defaultTheme, emptyTheme } from 'moraine/theme'
 import { appCnConfig } from './app-cn.ts'
 
 function Preview() {
@@ -268,9 +265,9 @@ function Preview() {
 
 export function App() {
   return (
-    <MoraineProvider theme={defaultTheme} cnConfig={appCnConfig}>
+    <MoraineProvider cnConfig={appCnConfig}>
       <Preview />
-      <MoraineProvider theme={emptyTheme}>
+      <MoraineProvider theme={null}>
         <Preview />
       </MoraineProvider>
       <MoraineProvider cnConfig={{}}>
@@ -287,7 +284,7 @@ export function App() {
 | An extension object    | Replace the inherited merger with Moraine defaults plus this object; parent application extensions are not retained. |
 | `{}`                   | Reset to Moraine default rules.                                                                                      |
 
-Replace the config object to update existing descendants. Changing it back to `undefined` resumes live parent inheritance. Theme and class merging are independent: `emptyTheme` clears presentation while preserving the current merger. `prefix` only changes class parsing; it does not prefix official theme classes or generated CSS. `cacheSize: 0` disables the upstream result cache.
+Replace the config object to update existing descendants. Changing it back to `undefined` resumes live parent inheritance. Theme and class merging are independent: `theme={null}` clears inherited Theme overrides while preserving the current merger. `prefix` only changes class parsing; it does not prefix official theme classes or generated CSS. `cacheSize: 0` disables the upstream result cache.
 
 Call `useCn()` during initialization in a descendant such as `Preview`; a parent cannot read a Provider that it will later return. The captured handle remains usable in events and after `await` while its owner lives. Calls in JSX or memos track config changes; a previously computed string does not update itself. Without a Provider, `useCn()` uses the same rules as `cn`.
 
@@ -298,10 +295,9 @@ A merger cannot restore classes already removed by another merger. Use `useCn()`
 Component configurations accept `base`, `variants`, `compoundVariants`, and `defaults`. Each contribution maps slot names to classes and full `--` custom property names to root CSS variables.
 
 ```ts
-const theme = createTheme({
-  extends: defaultTheme,
+const theme = defineTheme({
   button: {
-    defaults: { size: 'sm' },
+    defaultVariants: { size: 'sm' },
     variants: { size: { sm: { label: 'tracking-wide' } } },
     compoundVariants: [{ variants: { size: 'sm', variant: 'outline' }, root: 'border-2' }],
   },
@@ -310,15 +306,14 @@ const theme = createTheme({
 
 Visual values resolve from explicit instance props, inherited composition/Field values, and finally the latest Theme default. Only `undefined` falls back. `null` suppresses the default and selects no branch; `false`, `0`, and `''` remain explicit values where the Variant type supports them. Every recipe for a component uses the same final visual values.
 
-For standalone recipe authoring, `slotRecipe` produces `{ classes, style }` and `atomicRecipe` produces one class string. Both are exported from `moraine/theme`, accept `defaults`, and expose readonly `.options` metadata. Ordinary calls always use default `cn` rules. To supply an explicit merger, call `slotRecipeFn.resolve(variants, scopedCn)` or `atomicRecipeFn.resolve(variants, scopedCn, ...extraClasses)`. These pure calls return the same result shape as ordinary calls; one recipe can be shared across Providers.
+Component recipes are readonly advanced exports from `moraine/styles`. Theme customization uses `defineTheme()`; recipe construction and merge builders are internal Moraine implementation details.
 
 ### State selectors
 
 Recipe Variants describe stable component options that select class branches, including visual treatments and configured layout or interaction modes. Transient disabled, required, selected, open/closed, loading, orientation, and placement state use the component's documented data/ARIA attributes. Keep state selectors flat so both CSS engines can scan them:
 
 ```ts
-const theme = createTheme({
-  extends: defaultTheme,
+const theme = defineTheme({
   button: { base: { root: 'data-disabled:opacity-50 data-loading:cursor-wait' } },
   select: { variants: { search: { true: { control: 'focus-within:ring-2' } } } },
   popover: { base: { content: 'data-[side=bottom]:mt-2' } },
@@ -332,10 +327,7 @@ Measurements such as slider percentages and floating transform origins remain in
 Each recipe branch can mix slot classes and root CSS variables in one flat object. Declare full custom property names so declarations and class references use the same spelling.
 
 ```tsx
-import { createTheme, defaultTheme } from 'moraine/theme'
-
-const theme = createTheme({
-  extends: defaultTheme,
+const theme = defineTheme({
   slider: {
     variants: {
       size: {

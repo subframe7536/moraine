@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createEffect, createMemo, mergeProps, on, onCleanup, onMount, splitProps } from 'solid-js'
 
 import type { ModelModifiers } from '../../shared/input-modifiers.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
+import { createStyles } from '../../shared/provider/index.ts'
 import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import { useFormField, useFieldContext } from '../field/field-context.ts'
 import { useInputGroupContext } from '../input-group/input-group-context.ts'
@@ -10,6 +10,7 @@ import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
+import { textareaRecipe } from './textarea.recipe'
 import type { TextareaProps, TextareaT } from './textarea.types.ts'
 
 // --- Autosize helpers ---
@@ -62,7 +63,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
   ])
   const themeField = useFieldContext()
   const group = useInputGroupContext()
-  const resolved = createComponentStyles('textarea', local, {
+  const resolved = createStyles(textareaRecipe, local, {
     inheritedVariants: () => ({
       grouped: Boolean(group),
       groupedOrientation: group?.orientation,
@@ -286,7 +287,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
         textareaEl = element
         callRef(local.ref, element)
       }}
-      {...resolved.root}
+      {...resolved.styles.root}
       onInput={onInput}
       onChange={onChange}
       onBlur={onBlur}

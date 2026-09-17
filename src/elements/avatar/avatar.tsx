@@ -10,10 +10,11 @@ import {
   untrack,
 } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import type { SlotClassValue } from '../../shared/types'
 import { Icon } from '../icon'
 
+import { avatarRecipe } from './avatar.recipe'
 import type { AvatarProps, AvatarT } from './avatar.types'
 
 function resolveFallbackText(text: string | undefined, alt: string | undefined): string {
@@ -39,7 +40,7 @@ interface AvatarFaceProps extends AvatarT.Base {
   style?: JSX.CSSProperties
   classes?: AvatarT.Classes
   styles?: AvatarT.Styles
-  size?: AvatarT.Variant['size']
+  size?: AvatarT.Variant['size'] | null
   rootSlot?: 'root' | 'item'
 }
 
@@ -59,7 +60,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
     'size',
     'rootSlot',
   ])
-  const resolved = createComponentStyles('avatar', local)
+  const resolved = createStyles(avatarRecipe, local)
 
   const source = createMemo(() => local.src?.trim() || undefined)
   const alt = createMemo(() => local.alt)
@@ -137,7 +138,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
       data-status={status()}
       role={rootAriaLabel() !== undefined ? 'img' : undefined}
       {...rest}
-      {...resolved.root}
+      {...resolved.styles.root}
     >
       <img
         data-slot="image"
@@ -145,7 +146,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         src={resolvedSrc()}
         alt={alt() ?? ''}
         aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
-        {...resolved.slot('image')}
+        {...resolved.styles.image}
       />
 
       <span
@@ -162,22 +163,18 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
             : undefined
         }
         aria-hidden={rootAriaLabel() !== undefined || status() === 'loaded' ? 'true' : undefined}
-        {...resolved.slot('fallback')}
+        {...resolved.styles.fallback}
       >
         <Show when={fallback()} fallback={fallbackText()}>
           {(fallbackIcon) => (
-            <Icon
-              name={fallbackIcon()}
-              slotName="fallbackIcon"
-              {...resolved.slot('fallbackIcon')}
-            />
+            <Icon name={fallbackIcon()} slotName="fallbackIcon" {...resolved.styles.fallbackIcon} />
           )}
         </Show>
       </span>
 
       <Show when={badge()}>
         {(badge) => (
-          <span data-slot="badge" {...resolved.slot('badge')}>
+          <span data-slot="badge" {...resolved.styles.badge}>
             <Icon name={badge()} />
           </span>
         )}

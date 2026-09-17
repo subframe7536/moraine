@@ -6,7 +6,7 @@ import { Button } from '../../elements/button'
 import { MoraineProvider } from '../../shared/provider'
 import { finishExitMotion } from '../../test-utils/overlay-test'
 import { renderWithTheme } from '../../test-utils/theme-render'
-import { createTheme } from '../../theme'
+import { defineTheme } from '../../theme'
 import { pushOverlayLayer } from '../base/overlay-stack'
 import { getFocusableElements } from '../base/utils'
 import { Dialog } from '../dialog/dialog'
@@ -149,20 +149,20 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
-  test('leaves modal surfaces unstyled without a provider', () => {
+  test('uses default modal presentation without a provider', () => {
     render(() => (
       <Modal defaultOpen>
         <Modal.Overlay />
         <Modal.Content>Unstyled</Modal.Content>
       </Modal>
     ))
-    expect(document.querySelector('[data-slot="overlay"]')?.className).toBe('')
-    expect(document.querySelector('[data-slot="content"]')?.className).toBe('')
+    expect(document.querySelector('[data-slot="overlay"]')?.className).not.toBe('')
+    expect(document.querySelector('[data-slot="content"]')?.className).not.toBe('')
   })
 
   test('replaces modal Design without replacing the focused surface', () => {
     const [design, setDesign] = createSignal(
-      createTheme({
+      defineTheme({
         modal: { base: { content: 'first-surface', overlay: 'first-overlay' } },
       }),
     )
@@ -177,14 +177,18 @@ describe('Modal primitives', () => {
     const surface = document.querySelector<HTMLElement>('[data-slot="content"]')!
     surface.focus()
     setDesign(
-      createTheme({
+      defineTheme({
         modal: { base: { content: 'second-surface', overlay: 'second-overlay' } },
       }),
     )
     expect(document.querySelector('[data-slot="content"]')).toBe(surface)
     expect(document.activeElement).toBe(surface)
-    expect(surface.className).toBe('second-surface')
-    expect(document.querySelector('[data-slot="overlay"]')?.className).toBe('second-overlay')
+    expect(surface.className).toContain('second-surface')
+    expect(surface.className).not.toContain('first-surface')
+    expect(document.querySelector('[data-slot="overlay"]')?.className).toContain('second-overlay')
+    expect(document.querySelector('[data-slot="overlay"]')?.className).not.toContain(
+      'first-overlay',
+    )
   })
 
   test('Close honors cancellation and keyboard activation', () => {
@@ -295,7 +299,7 @@ describe('Modal primitives', () => {
   test('composed overlays use their own Design without inheriting Modal presentation', () => {
     const screen = render(() => (
       <MoraineProvider
-        theme={createTheme({
+        theme={defineTheme({
           modal: { base: { content: 'modal-provider-class' } },
           dialog: { base: { content: 'dialog-design-surface' } },
           sheet: { base: { content: 'sheet-design-surface' } },
@@ -493,7 +497,7 @@ describe('Modal primitives', () => {
     expect(content?.className).toContain('data-expanded:animate-mo-enter')
   })
 
-  test('replaces the default content classes when a custom class is provided', () => {
+  test('adds a custom content class after the default content classes', () => {
     render(() => (
       <Modal defaultOpen>
         <Modal.Content class="custom-content">
@@ -503,7 +507,8 @@ describe('Modal primitives', () => {
     ))
 
     const content = document.body.querySelector('[data-slot="content"]')
-    expect(content?.className).toBe('custom-content')
+    expect(content?.className).toContain('custom-content')
+    expect(content?.className).toContain('outline-none')
   })
 
   test('shares data attributes and waits for both surfaces before exiting', async () => {
@@ -592,8 +597,8 @@ describe('Modal primitives', () => {
 
     expect(overlay).not.toBeNull()
     expect(content).not.toBeNull()
-    expect(overlay?.className).toBe('custom-overlay')
-    expect(overlay?.className).not.toContain('fixed')
+    expect(overlay?.className).toContain('custom-overlay')
+    expect(overlay?.className).toContain('fixed')
     expect(overlay?.getAttribute('style')).toContain('opacity: 0.4')
     expect(overlayRef).toHaveBeenCalledWith(overlay)
     expect(contentRef).toHaveBeenCalledWith(content)

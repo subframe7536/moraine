@@ -2,7 +2,7 @@ import { transformerVariantGroup } from '@subf/unocss'
 import MagicString from 'magic-string'
 import type { Plugin } from 'vite'
 
-const CLASS_MODULE_RE = /\.class\.ts(?:\?.*)?$/
+const CLASS_MODULE_RE = /\.(?:class|recipe)\.ts(?:\?.*)?$/
 
 /** Expands UnoCSS variant groups in class modules before framework transforms run. */
 export function variantGroupPlugin(): Plugin {

@@ -36,7 +36,7 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
     const editable = screen.getByRole('textbox')
     expect(input).toBe(editable)
     expect(screen.container.firstElementChild).toBe(editable)
-    expect(input?.className).toBe('control')
+    expect(input?.className).toContain('control')
     expect(input?.style.color).toBe('red')
     for (const [name, value] of [
       ['form', 'external-form'],

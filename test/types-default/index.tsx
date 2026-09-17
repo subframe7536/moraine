@@ -50,10 +50,16 @@ import type {
   MultiSelectT,
   SelectT,
   SidebarFrameT,
-  SliderT,
   TextareaT,
 } from 'moraine'
-import { atomicRecipe, createTheme, defaultTheme, emptyTheme, slotRecipe } from 'moraine/theme'
+import type {
+  buttonRecipe,
+  sliderRecipe as publicSliderRecipe,
+  RecipeKey,
+  RecipeSlots,
+  RecipeVariant,
+} from 'moraine/styles'
+import { defineTheme } from 'moraine/theme'
 import type { Component, JSX } from 'solid-js'
 import * as v from 'valibot'
 
@@ -184,7 +190,6 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<KbdGroup items={['meta', 'k']} children={<Kbd value="meta" />} />
 
 ;<Separator class="my-2" style={{ color: 'red' }} />
-// @ts-expect-error Root-only components do not accept instance slot class maps.
 ;<Separator classes={{ root: 'my-2' }} />
 
 ;<List id="items" items={[1, 2]} itemRender={(context) => context.item} />
@@ -407,23 +412,20 @@ export type NativeTextSlots = [
 ;<InputGroup orientation="inline" />
 
 ;<MoraineProvider />
-;<MoraineProvider theme={defaultTheme} />
-;<MoraineProvider theme={emptyTheme} />
-// @ts-expect-error Undefined inherits; null is not a reset value.
+;<MoraineProvider />
 ;<MoraineProvider theme={null} />
 
-const theme = createTheme({
-  extends: defaultTheme,
-  button: { base: { root: 'rounded-lg' }, defaults: { size: 'sm' } },
-  commandPalette: { defaults: { descriptionPosition: 'trailing' } },
+const theme = defineTheme({
+  button: { base: { root: 'rounded-lg' }, defaultVariants: { size: 'sm' } },
+  commandPalette: { defaultVariants: { descriptionPosition: 'trailing' } },
   form: { base: { root: 'space-y-2' } },
-  field: { base: { root: 'space-y-2' }, defaults: { size: 'sm' } },
+  field: { base: { root: 'space-y-2' }, defaultVariants: { size: 'sm' } },
   icon: { base: { root: 'size-4' } },
   kbd: { base: { root: 'px-1' } },
   modal: { base: { content: 'p-4' } },
   combobox: { base: { control: 'min-w-48' } },
-  multiSelect: { defaults: { size: 'sm' } },
-  select: { defaults: { size: 'sm' } },
+  multiSelect: { defaultVariants: { size: 'sm' } },
+  select: { defaultVariants: { size: 'sm' } },
   separator: {
     base: { root: 'border-t' },
     variants: { orientation: { vertical: { root: 'h-full' } } },
@@ -435,28 +437,27 @@ const theme = createTheme({
 </MoraineProvider>
 
 // @ts-expect-error Unknown component names are rejected.
-createTheme({ unknownComponent: {} })
+defineTheme({ unknownComponent: {} })
 // @ts-expect-error Old formField theme key is removed.
-createTheme({ formField: { base: { root: 'space-y-2' } } })
+defineTheme({ formField: { base: { root: 'space-y-2' } } })
 // @ts-expect-error List has no Theme slots.
-createTheme({ list: { base: { root: 'p-4' } } })
-createTheme({ collapsible: { base: { content: 'overflow-hidden' } } })
+defineTheme({ list: { base: { root: 'p-4' } } })
+defineTheme({ collapsible: { base: { content: 'overflow-hidden' } } })
 // @ts-expect-error Collapsible has no visual variants.
-createTheme({ collapsible: { defaults: { size: 'sm' } } })
+defineTheme({ collapsible: { defaultVariants: { size: 'sm' } } })
 // @ts-expect-error Unknown slots are rejected.
-createTheme({ button: { base: { missing: 'p-4' } } })
+defineTheme({ button: { base: { missing: 'p-4' } } })
 // @ts-expect-error Variant defaults are constrained to component variants.
-createTheme({ button: { defaults: { size: 'huge' } } })
+defineTheme({ button: { defaultVariants: { size: 'huge' } } })
 // @ts-expect-error Theme does not accept inline styles.
-createTheme({ button: { styles: { root: { color: 'red' } } } })
+defineTheme({ button: { styles: { root: { color: 'red' } } } })
 // @ts-expect-error Variant selectors are constrained.
-createTheme({ button: { variants: { size: { huge: { root: 'p-4' } } } } })
-createTheme({
+defineTheme({ button: { variants: { size: { huge: { root: 'p-4' } } } } })
+defineTheme({
   // @ts-expect-error Compound slots are constrained.
   button: { compoundVariants: [{ variants: { size: 'sm' }, missing: 'p-4' }] },
 })
-// @ts-expect-error Null is a suppression value for instances, not a Theme default.
-createTheme({ button: { defaults: { size: null } } })
+defineTheme({ button: { defaultVariants: { size: null } } })
 
 const cnConfig = {
   cacheSize: 0,
@@ -465,36 +466,14 @@ const cnConfig = {
 } satisfies CnConfig
 const customCn: Cn = createCn(cnConfig)
 const scopedCn: Cn = useCn()
-const mergedClass: string | undefined = cn(customCn('p-2'), scopedCn('p-4'))
-const atomic = atomicRecipe({ variants: { size: { sm: 'p-2' } } })
-const slots = slotRecipe<ButtonT.Slot, ButtonT.Variant>({ base: { root: 'p-2' } })
-const atomicResult: string | undefined = atomic.resolve({ size: 'sm' }, customCn, 'p-4')
-const slotResult: string | undefined = slots.resolve({ size: 'sm' }, customCn).classes.root
-const emptySlots = slotRecipe<{ root: unknown }, never>({ base: { root: 'p-2' } })
-emptySlots.resolve(undefined, customCn)
-// @ts-expect-error resolve preserves inferred variant values.
-atomic.resolve({ size: 'invalid' }, customCn)
-// @ts-expect-error resolve preserves slot names.
-void slots.resolve(undefined, customCn).classes.unknown
-// @ts-expect-error Provider only accepts an extension object.
-;<MoraineProvider cnConfig={customCn} />
-;<MoraineProvider cnConfig={cnConfig}>
-  <Button class={mergedClass}>
-    {atomicResult}
-    {slotResult}
-  </Button>
-</MoraineProvider>
-
-const sliderRecipe = slotRecipe<SliderT.Slot, SliderT.Variant>({
-  variants: { size: { sm: { '--s-size': '4px' }, lg: { '--s-size': '6px' } } },
-})
-sliderRecipe({ size: 'sm', variant: null })
-// @ts-expect-error Invalid component variant value.
-sliderRecipe({ size: 'huge' })
-// @ts-expect-error Invalid component variant dimension.
-sliderRecipe({ unknown: true })
-createTheme({ slider: sliderRecipe.options })
-slotRecipe<SliderT.Slot, SliderT.Variant>({
-  // @ts-expect-error Custom property names must start with --.
-  base: { size: '4px' },
-})
+const _mergedClass: string | undefined = cn(customCn('p-2'), scopedCn('p-4'))
+type ButtonRecipeKey = RecipeKey<typeof buttonRecipe>
+type ButtonRecipeSlots = RecipeSlots<typeof buttonRecipe>
+type SliderRecipeVariant = RecipeVariant<typeof publicSliderRecipe>
+const buttonRecipeKey: ButtonRecipeKey = 'button'
+const buttonRoot: keyof ButtonRecipeSlots = 'root'
+const sliderSize: SliderRecipeVariant['size'] = 'sm'
+void [buttonRecipeKey, buttonRoot, sliderSize]
+// @ts-expect-error Recipe keys remain literal.
+const invalidButtonRecipeKey: ButtonRecipeKey = 'input'
+void invalidButtonRecipeKey

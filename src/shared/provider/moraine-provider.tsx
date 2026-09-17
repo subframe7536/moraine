@@ -1,33 +1,80 @@
 import type { JSX } from 'solid-js'
 import { createMemo, useContext } from 'solid-js'
 
+import { getThemeRecipeLayers } from '../../theme/create-theme'
 import type { MoraineTheme } from '../../theme/types'
 import type { CnConfig } from '../style/cn'
 import { createCn } from '../style/cn'
+import type { RecipeDefinition, RecipeLayerConfig, ResolvedRecipe } from '../style/recipe'
 
 import { MoraineCnContext } from './cn-context'
-import { MoraineThemeContext } from './theme-context'
+import { defaultRecipeResolver, MoraineThemeContext } from './theme-context'
+import type { ThemeResolver } from './theme-context'
 
 export interface MoraineProviderProps {
-  /** Replaces inherited presentation. Undefined inherits the parent Theme; emptyTheme clears it. */
-  theme?: MoraineTheme
+  /** Undefined inherits the parent Theme; a Theme replaces it; null clears inherited overrides. */
+  theme?: MoraineTheme | null
   /** Undefined inherits the parent merger; an object replaces it with Moraine defaults plus this config. */
   cnConfig?: CnConfig
   /** Components that receive the theme and class merging rules. */
   children?: JSX.Element
 }
 
-/** Provides a theme to descendant components; roots default to empty presentation. */
+/** Provides theme overrides and class merging rules to descendant components. */
 export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
-  const parent = useContext(MoraineThemeContext)
-  const theme = () => props.theme ?? parent()
+  const parentResolver = useContext(MoraineThemeContext)
+  const cache = new WeakMap<MoraineTheme, WeakMap<RecipeDefinition<any>, ResolvedRecipe<any>>>()
+
+  const resolverFor = (theme: MoraineTheme): ThemeResolver => ({
+    resolve<Key extends string, S extends object, V>(recipe: RecipeDefinition<Key, S, V>) {
+      let themeCache = cache.get(theme)
+      if (!themeCache) {
+        themeCache = new WeakMap()
+        cache.set(theme, themeCache)
+      }
+      const cached = themeCache.get(recipe) as ResolvedRecipe<Key, S, V> | undefined
+      if (cached) {
+        return cached
+      }
+
+      const overrides = getThemeRecipeLayers<S, V>(theme, recipe.key)
+      if (overrides.length === 0) {
+        return recipe
+      }
+
+      let layers: RecipeLayerConfig<S, V>[] = [recipe.config]
+      for (const override of overrides) {
+        const { replace, ...layer } = override
+        layers = replace ? [layer] : [...layers, layer]
+      }
+      const resolved = Object.freeze({
+        definition: recipe,
+        layers: Object.freeze(layers),
+      }) as ResolvedRecipe<Key, S, V>
+      themeCache.set(recipe, resolved)
+      return resolved
+    },
+  })
+
+  const currentResolver = createMemo<ThemeResolver>(() => {
+    const theme = props.theme
+    if (theme === undefined) {
+      return parentResolver()
+    }
+    if (theme === null) {
+      return defaultRecipeResolver
+    }
+    return resolverFor(theme)
+  })
+
   const parentCn = useContext(MoraineCnContext)
   const currentCn = createMemo(() => {
     const config = props.cnConfig
     return config === undefined ? parentCn() : createCn(config)
   })
+
   return (
-    <MoraineThemeContext.Provider value={theme}>
+    <MoraineThemeContext.Provider value={currentResolver}>
       <MoraineCnContext.Provider value={currentCn}>{props.children}</MoraineCnContext.Provider>
     </MoraineThemeContext.Provider>
   )

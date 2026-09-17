@@ -16,7 +16,7 @@ describe('published component bundle ownership', () => {
         virtualizer: false,
       })
       expect(bundle.code).toContain('Button')
-      expect(bundle.code).not.toContain('defaultTheme')
+      expect(bundle.code).not.toContain('default-theme')
       expect(bundle.code).not.toContain('--s-len')
       expect(bundle.code).not.toContain('animate-accordion-down')
       expect(bundle.code).not.toContain('Dialog')
@@ -33,18 +33,16 @@ describe('published component bundle ownership', () => {
 
   test('keeps the Provider independent of official presentation', async () => {
     const bundle = await buildConsumerBundle("export { Button, MoraineProvider } from 'moraine'")
-    expect(bundle.code).not.toContain('defaultTheme')
+    expect(bundle.code).not.toContain('default-theme')
     expect(bundle.code).not.toContain('--s-len')
     expect(bundle.code).not.toContain('animate-accordion-down')
   })
 
-  test('includes official presentation when explicitly imported from the theme entry', async () => {
-    const bundle = await buildConsumerBundle(
-      "export { Button, MoraineProvider } from 'moraine'; export { defaultTheme } from 'moraine/theme'",
-    )
-    expect(bundle.code).toContain('defaultTheme')
-    expect(bundle.code).toContain('--s-len')
-    expect(bundle.code).toContain('animate-accordion-down')
+  test('tree-shakes the styles barrel to one explicitly imported recipe', async () => {
+    const bundle = await buildConsumerBundle("export { buttonRecipe } from 'moraine/styles'")
+    expect(bundle.code).toContain('bg-primary')
+    expect(bundle.code).not.toContain('animate-accordion-down')
+    expect(bundle.code).not.toContain('--mo-popper-content-transform-origin')
   })
 })
 
@@ -54,11 +52,11 @@ test('hydrates published components with shared context, scoped styles, and atta
     import { hydrate, renderToString } from 'solid-js/web'
     import { Button, Collapsible, MoraineProvider, renderComponentOrElement as rootRender } from 'moraine'
     import { createContextProvider, renderComponentOrElement as utilsRender } from 'moraine/utils'
-    import { createTheme } from 'moraine/theme'
+    import { defineTheme } from 'moraine/theme'
 
     export const sharedRender = rootRender === utilsRender
     const [CounterProvider, useCounter] = createContextProvider('Counter')
-    const theme = createTheme({ button: { base: { root: 'consumer-theme density-roomy density-compact' } } })
+    const theme = defineTheme({ button: { base: { root: 'consumer-theme density-roomy density-compact' } } })
     function Label() {
       const count = useCounter()
       return <span data-counter>{count()}</span>

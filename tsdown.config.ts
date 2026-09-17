@@ -16,6 +16,7 @@ export default defineConfig([
       unocss: './src/unocss/index.ts',
       tailwind: './src/tailwind/index.ts',
       theme: './src/theme.ts',
+      styles: './src/styles.ts',
     },
     plugins: [variantGroupPlugin(), solid()],
     root: 'src',

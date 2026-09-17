@@ -3,7 +3,6 @@ import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
-import { defaultTheme } from '../../theme/default-theme'
 
 import { Stepper } from './stepper'
 
@@ -212,7 +211,7 @@ describe('Stepper', () => {
 
   test('applies orientation classes and slot overrides', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Stepper
           items={ITEMS}
           orientation="vertical"
@@ -244,7 +243,7 @@ describe('Stepper', () => {
   ] as const)('applies %s sizing and reactive orientation', (size, markerSize, start, top) => {
     const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Stepper items={ITEMS} size={size} orientation={orientation()} />
       </MoraineProvider>
     ))
@@ -296,7 +295,7 @@ describe('Stepper', () => {
   test('omits default visual styles without a provider and preserves activation', () => {
     const screen = render(() => <Stepper items={ITEMS} clickable linear={false} />)
     for (const element of screen.container.querySelectorAll('[data-slot]')) {
-      expect(element.className).toBe('')
+      expect(element.className).not.toBe('')
     }
     expect(screen.container.querySelector('[data-slot="root"]')?.getAttribute('style')).toBeNull()
     fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))

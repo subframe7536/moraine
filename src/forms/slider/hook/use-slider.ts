@@ -29,7 +29,7 @@ type UseSliderProps<TValue extends SliderValue> = {
   step?: number
   styles?: { divider?: JSX.CSSProperties }
   value?: TValue
-  variant?: SliderT.Variant['variant']
+  variant?: SliderT.Variant['variant'] | null
 }
 
 type UseSliderOptions<TValue extends SliderValue> = {

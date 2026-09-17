@@ -5,7 +5,6 @@ import { createStore } from 'solid-js/store'
 import { beforeAll, afterAll, describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
-import { defaultTheme } from '../../theme/default-theme'
 
 import type { ResizablePanelItem } from './hook'
 import { Resizable } from './resizable'
@@ -173,7 +172,7 @@ afterAll(() => {
 })
 
 describe('Resizable', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = render(() => (
       <ResizableFixture items={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
@@ -182,10 +181,10 @@ describe('Resizable', () => {
     const handle = screen.container.querySelector('[data-slot="handle"]')
     const panel = screen.container.querySelector('[data-slot="panel"]')
 
-    expect(root?.className).toBe('')
-    expect(divider?.className).toBe('')
-    expect(handle?.className).toBe('')
-    expect(panel?.className).toBe('')
+    expect(root?.className).not.toBe('')
+    expect(divider?.className).not.toBe('')
+    expect(handle?.className).not.toBe('')
+    expect(panel?.className).not.toBe('')
   })
 
   test('composes the root ref with internal layout measurement', async () => {
@@ -254,7 +253,7 @@ describe('Resizable', () => {
 
   test('supports vertical orientation classes', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <ResizableFixture
           orientation="vertical"
           items={[{ content: 'Top' }, { content: 'Bottom' }]}
@@ -924,7 +923,7 @@ describe('Resizable', () => {
 
   test('uses pointer cursor for handle in collapse mode and keeps divider resize cursor', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <ResizableFixture
           action="collapse"
           items={[
@@ -1150,7 +1149,7 @@ describe('Resizable', () => {
 
   test('enables transition when collapse or expand is triggered', async () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <ResizableFixture
           action="collapse"
           items={[

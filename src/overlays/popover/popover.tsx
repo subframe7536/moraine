@@ -12,11 +12,12 @@ import {
 
 import { createContextProvider } from '../../shared/create-context-provider'
 import { hasJsxContent } from '../../shared/jsx-content'
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../shared/provider'
 import { resolveOverlayMenuSide } from '../base'
 import { createPopper, PopperTrigger, PopperContent, mergePopperElementProps } from '../base/popper'
 import type { PopperTriggerProps } from '../base/popper.types'
 
+import { popoverRecipe } from './popover.recipe'
 import type { PopoverProps, PopoverT } from './popover.types'
 
 const [PopoverProvider, usePopoverContext] = createContextProvider<{
@@ -136,7 +137,7 @@ function PopoverTrigger<T extends ValidComponent = 'button'>(
   props: PopoverT.TriggerProps<T>,
 ): JSX.Element {
   const context = usePopoverContext()
-  const resolved = createComponentStyles('popover', props, { rootSlot: 'trigger' })
+  const resolved = createStyles(popoverRecipe, props, { rootSlot: 'trigger' })
   const popper = context.popper
   const triggerProps = mergeProps(
     mergePopperElementProps<HTMLElement>(
@@ -164,7 +165,7 @@ function PopoverTrigger<T extends ValidComponent = 'button'>(
       },
       props,
     ),
-    resolved.root,
+    resolved.styles.trigger,
     {
       context: popper,
       get toggleOnClick() {
@@ -207,7 +208,7 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       }
     },
   }
-  const resolved = createComponentStyles('popover', local, { rootSlot: 'content' })
+  const resolved = createStyles(popoverRecipe, local, { rootSlot: 'content' })
 
   return (
     <PopperContent
@@ -264,10 +265,10 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
             data-slot="content"
             data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'bottom')}
             aria-label={local.ariaLabel ?? rest['aria-label']}
-            {...resolved.root}
+            {...resolved.styles.content}
           >
             <Show when={hasJsxContent(content())}>
-              <div data-slot="body" {...resolved.slot('body')}>
+              <div data-slot="body" {...resolved.styles.body}>
                 {content()}
               </div>
             </Show>

@@ -1,9 +1,10 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider/index.ts'
+import { createStyles } from '../../shared/provider/index.ts'
 
 import { useInputGroupContext } from './input-group-context.ts'
+import { inputGroupRecipe } from './input-group.recipe'
 import type { InputGroupT } from './input-group.types.ts'
 
 export function InputGroupLeading(props: InputGroupT.LeadingProps): JSX.Element {
@@ -12,10 +13,10 @@ export function InputGroupLeading(props: InputGroupT.LeadingProps): JSX.Element 
   if (!group) {
     throw new Error('InputGroup.Leading must be used within InputGroup')
   }
-  const resolved = createComponentStyles('inputGroup', local, {
+  const resolved = createStyles(inputGroupRecipe, local, {
     rootSlot: 'leading',
     inheritedVariants: () => ({ size: group.size, orientation: group.orientation }),
-    groupStyles: () => group.presentation,
+    inheritedStyles: () => group.presentation,
   })
   return (
     <div
@@ -23,7 +24,7 @@ export function InputGroupLeading(props: InputGroupT.LeadingProps): JSX.Element 
       data-slot="leading"
       data-orientation={group.orientation}
       data-compact={resolved.variants.compact || undefined}
-      {...resolved.root}
+      {...resolved.styles.leading}
     >
       {local.children}
     </div>
@@ -36,10 +37,10 @@ export function InputGroupTrailing(props: InputGroupT.TrailingProps): JSX.Elemen
   if (!group) {
     throw new Error('InputGroup.Trailing must be used within InputGroup')
   }
-  const resolved = createComponentStyles('inputGroup', local, {
+  const resolved = createStyles(inputGroupRecipe, local, {
     rootSlot: 'trailing',
     inheritedVariants: () => ({ size: group.size, orientation: group.orientation }),
-    groupStyles: () => group.presentation,
+    inheritedStyles: () => group.presentation,
   })
   return (
     <div
@@ -47,7 +48,7 @@ export function InputGroupTrailing(props: InputGroupT.TrailingProps): JSX.Elemen
       data-slot="trailing"
       data-orientation={group.orientation}
       data-compact={resolved.variants.compact || undefined}
-      {...resolved.root}
+      {...resolved.styles.trailing}
     >
       {local.children}
     </div>

@@ -5,8 +5,9 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 export namespace SidebarFrameT {
   export type Kind = 'composite'
 
-  export interface Context extends Variant {
+  export interface Context {
     side: 'left' | 'right'
+    variant?: Variant['variant'] | null
     isMobile: Accessor<boolean>
     scrolled: Accessor<boolean>
     isOpen: Accessor<boolean>

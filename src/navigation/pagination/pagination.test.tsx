@@ -4,12 +4,11 @@ import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../shared/provider'
-import { defaultTheme } from '../../theme/default-theme'
 
 import { Pagination } from './pagination'
 
 function renderWithTheme(ui: () => JSX.Element) {
-  return render(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>)
+  return render(() => <MoraineProvider>{ui()}</MoraineProvider>)
 }
 
 function ItemLink(props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) {
@@ -21,12 +20,12 @@ function ControlLink(props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) {
 }
 
 describe('Pagination', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = render(() => <Pagination total={30} itemsPerPage={10} />)
     const root = screen.container.querySelector('[data-slot="root"]')
-    expect(root?.className).toBe('')
+    expect(root?.className).not.toBe('')
     const list = screen.container.querySelector('[data-slot="list"]')
-    expect(list?.className).toBe('')
+    expect(list?.className).not.toBe('')
   })
 
   test('forwards ref to root nav element', () => {
