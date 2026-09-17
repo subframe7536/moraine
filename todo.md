@@ -14,14 +14,14 @@
 - [x] simplify kbd-group to items with inline separator
 - [x] split standalone Field from Formisch-bound form.Field
 - [x] pagination custom item/control components via itemAs/controlAs
-- [ ] a better way to define destructive item in menu
 - [x] better way to define slot styles. current cannot "go to definition"
-- [ ] correct document page's focus loop
-  - [ ] also audit all components
 - [x] type instantiation reduce, including `MoraineTypeConfig`
-- [ ] metric adjust across all sizes
+- [ ] a better way to define destructive item in menu
 - [ ] sidebar-frame styling is broken, more useful usage and example
 - [ ] polish button-group of border color when press
+- [ ] correct document page's focus loop
+  - [ ] also audit all components
+- [ ] metric adjust across all sizes
 
 # V1
 
