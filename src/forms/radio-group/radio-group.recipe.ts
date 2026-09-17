@@ -1,11 +1,11 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { RadioGroupT } from './radio-group.types'
+import type { RadioGroupStyleSlot, RadioGroupStyleVariant } from './radio-group.style-types.ts'
 
 export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
   'radioGroup',
-  RadioGroupT.Slot,
-  RadioGroupT.Variant
+  RadioGroupStyleSlot,
+  RadioGroupStyleVariant
 >('radioGroup', {
   base: {
     root: 'flex relative',

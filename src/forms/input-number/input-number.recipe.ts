@@ -1,12 +1,12 @@
 import { INPUT_VARIANT } from '../../shared/recipe-common.class'
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { InputNumberT } from './input-number.types'
+import type { InputNumberStyleSlot, InputNumberStyleVariant } from './input-number.style-types.ts'
 
 export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
   'inputNumber',
-  InputNumberT.Slot,
-  InputNumberT.Variant
+  InputNumberStyleSlot,
+  InputNumberStyleVariant
 >('inputNumber', {
   base: {
     root: 'inline-flex w-full cursor-text transition-[colors,box-shadow] items-stretch overflow-hidden focus-within:(outline-none border-ring ring-3 ring-ring/50) data-invalid:(border-destructive ring-3 ring-destructive/20) dark:data-invalid:(border-destructive/50 ring-destructive/40) data-disabled:(opacity-64 pointer-events-none) focus-within:data-invalid:(border-destructive ring-3 ring-destructive/20) dark:focus-within:data-invalid:(border-destructive/50 ring-destructive/40)',

@@ -7,12 +7,12 @@ import {
   SECONDARY_TRIGGER_CLASS,
 } from '../shared/select/select-field.class.ts'
 
-import type { ComboboxT } from './combobox.types.ts'
+import type { ComboboxStyleSlot, ComboboxStyleVariant } from './combobox.style-types.ts'
 
 export const comboboxRecipe = /* @__PURE__ */ defineRecipe<
   'combobox',
-  ComboboxT.Slot,
-  ComboboxT.Variant
+  ComboboxStyleSlot,
+  ComboboxStyleVariant
 >('combobox', {
   base: {
     ...SELECT_FAMILY_SLOTS,

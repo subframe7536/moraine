@@ -1,38 +1,16 @@
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type { IconT } from '../icon'
 
+import type { AvatarStyleSlot, AvatarStyleVariant } from './avatar.style-types'
+
 export namespace AvatarT {
   export type Kind = 'single'
 
   export type Status = 'idle' | 'loading' | 'loaded' | 'error'
 
-  export interface Slot<T = unknown> {
-    /** Avatar frame that controls size, shape, image, fallback, and badge placement. */
-    root?: T
+  export type Slot<T = unknown> = AvatarStyleSlot<T>
 
-    /** Loaded avatar image rendered inside the frame. */
-    image?: T
-
-    /** Text fallback shown while the image is unavailable or failed. */
-    fallback?: T
-
-    /** Icon fallback shown when no image or text fallback is available. */
-    fallbackIcon?: T
-
-    /** Status or indicator badge anchored to the avatar frame. */
-    badge?: T
-  }
-
-  export interface Variant {
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-    /** Position of the badge relative to the avatar.
-     * @default 'bottom-right'
-     */
-    badgePosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
-  }
+  export type Variant = AvatarStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

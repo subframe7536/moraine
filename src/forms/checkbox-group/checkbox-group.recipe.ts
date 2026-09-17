@@ -1,11 +1,14 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { CheckboxGroupT } from './checkbox-group.types'
+import type {
+  CheckboxGroupStyleSlot,
+  CheckboxGroupStyleVariant,
+} from './checkbox-group.style-types.ts'
 
 export const checkboxGroupRecipe = /* @__PURE__ */ defineRecipe<
   'checkboxGroup',
-  CheckboxGroupT.Slot,
-  CheckboxGroupT.Variant
+  CheckboxGroupStyleSlot,
+  CheckboxGroupStyleVariant
 >('checkboxGroup', {
   base: {
     root: 'relative',

@@ -1,11 +1,11 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { ProgressT } from './progress.types'
+import type { ProgressStyleSlot, ProgressStyleVariant } from './progress.style-types.ts'
 
 export const progressRecipe = /* @__PURE__ */ defineRecipe<
   'progress',
-  ProgressT.Slot,
-  ProgressT.Variant
+  ProgressStyleSlot,
+  ProgressStyleVariant
 >('progress', {
   base: {
     root: 'gap-2 relative',

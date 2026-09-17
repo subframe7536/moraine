@@ -1,11 +1,11 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { TooltipT } from './tooltip.types'
+import type { TooltipStyleSlot, TooltipStyleVariant } from './tooltip.style-types.ts'
 
 export const tooltipRecipe = /* @__PURE__ */ defineRecipe<
   'tooltip',
-  TooltipT.Slot,
-  TooltipT.Variant
+  TooltipStyleSlot,
+  TooltipStyleVariant
 >('tooltip', {
   base: {
     trigger: '',

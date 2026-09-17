@@ -4,21 +4,14 @@ import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/typ
 import type { PopperContentOptions, PopperProps } from '../base/popper.types'
 import type { ModalT } from '../modal/modal.types'
 
+import type { PopoverStyleSlot, PopoverStyleVariant } from './popover.style-types'
+
 export namespace PopoverT {
   export type Kind = 'composite'
 
-  export interface Slot<T = unknown> {
-    /** Element that opens the popover. */
-    trigger?: T
+  export type Slot<T = unknown> = PopoverStyleSlot<T>
 
-    /** Positioned popover panel anchored to the trigger. */
-    content?: T
-
-    /** Content body rendered inside the popover panel. */
-    body?: T
-  }
-
-  export type Variant = never
+  export type Variant = PopoverStyleVariant
   export type Mode = 'click' | 'hover'
 
   export type Classes = Slot<SlotClassValue>

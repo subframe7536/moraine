@@ -3,40 +3,13 @@ import type { JSX } from 'solid-js'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type { IconT } from '../icon'
 
+import type { AccordionStyleSlot, AccordionStyleVariant } from './accordion.style-types'
+
 export namespace AccordionT {
   export type Kind = 'single'
 
-  export interface Slot<T = unknown> {
-    /**
-     * Container that owns the accordion item collection and shared state attributes.
-     */
-    root?: T
-
-    /** Wrapper for one accordion entry, including its header trigger and collapsible panel. */
-    item?: T
-
-    /** Heading row that contains the interactive trigger for an item. */
-    header?: T
-
-    /** Button users activate to expand or collapse an item. */
-    trigger?: T
-
-    /** Optional icon or visual placed before the item label. */
-    leading?: T
-
-    /** Text label displayed inside the item trigger. */
-    label?: T
-
-    /** Optional icon placed after the label, commonly used for the disclosure indicator. */
-    trailing?: T
-
-    /** Panel that contains the item content when expanded. */
-    content?: T
-
-    /** Inner container inside the collapsible panel for padding. */
-    contentInner?: T
-  }
-  export type Variant = never
+  export type Slot<T = unknown> = AccordionStyleSlot<T>
+  export type Variant = AccordionStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

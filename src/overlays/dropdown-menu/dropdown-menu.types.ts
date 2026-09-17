@@ -6,20 +6,16 @@ import type {
   OverlayMenuRootProps,
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderProps,
-  OverlayMenuSharedSlots,
 } from '../base/menu'
 import type { ModalT } from '../modal/modal.types'
+
+import type { DropdownMenuStyleSlot, DropdownMenuStyleVariant } from './dropdown-menu.style-types'
 
 export namespace DropdownMenuT {
   export type Kind = 'composite'
 
-  export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}
-  export interface Variant {
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-  }
+  export type Slot<T = unknown> = DropdownMenuStyleSlot<T>
+  export type Variant = DropdownMenuStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

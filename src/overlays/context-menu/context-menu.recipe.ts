@@ -1,12 +1,12 @@
 import { defineRecipe } from '../../shared/style/recipe'
 import { overlayMenuRecipeOptions } from '../base/menu/menu.class'
 
-import type { ContextMenuT } from './context-menu.types'
+import type { ContextMenuStyleSlot, ContextMenuStyleVariant } from './context-menu.style-types.ts'
 
 export const contextMenuRecipe = /* @__PURE__ */ defineRecipe<
   'contextMenu',
-  ContextMenuT.Slot,
-  ContextMenuT.Variant
+  ContextMenuStyleSlot,
+  ContextMenuStyleVariant
 >('contextMenu', {
   ...overlayMenuRecipeOptions,
 })

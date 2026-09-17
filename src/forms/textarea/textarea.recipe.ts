@@ -4,16 +4,13 @@ import {
   TEXT_CONTROL_GROUPED,
   TEXT_CONTROL_VARIANT,
 } from '../shared/text-control.class.ts'
-import type { TextControlStyleVariant } from '../shared/text-control.class.ts'
 
-import type { TextareaT } from './textarea.types.ts'
-
-type TextareaStyleVariant = TextareaT.Variant & TextControlStyleVariant
+import type { TextareaRecipeVariant, TextareaStyleSlot } from './textarea.style-types.ts'
 
 export const textareaRecipe = /* @__PURE__ */ defineRecipe<
   'textarea',
-  TextareaT.Slot,
-  TextareaStyleVariant
+  TextareaStyleSlot,
+  TextareaRecipeVariant
 >('textarea', {
   base: { root: `${TEXT_CONTROL_CLASS} rounded-md resize-y data-autoresize:resize-none` },
   defaultVariants: { size: 'md', variant: 'outline', grouped: false },

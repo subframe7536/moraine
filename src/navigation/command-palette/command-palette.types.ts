@@ -5,69 +5,19 @@ import type { ListT } from '../../elements/list'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
+import type {
+  CommandPaletteStyleSlot,
+  CommandPaletteStyleVariant,
+} from './command-palette.style-types.ts'
+
 export namespace CommandPaletteT {
   export type Kind = 'single'
 
   export type DescriptionPosition = 'bottom' | 'trailing'
 
-  export interface Slot<T = unknown> {
-    /**
-     * Command palette container that owns search and option list.
-     */
-    root?: T
+  export type Slot<T = unknown> = CommandPaletteStyleSlot<T>
 
-    /** Search row that groups input, search icon, and dismiss controls. */
-    inputWrapper?: T
-
-    /** Search input used to filter commands. */
-    input?: T
-
-    /** Scrollable command list that owns option and active-descendant semantics. */
-    listbox?: T
-
-    /** Bottom region for keyboard hints or custom footer content. */
-    footer?: T
-
-    /** Section wrapper for a group of command items. */
-    group?: T
-
-    /** Group heading text. */
-    label?: T
-
-    /** Command row that can be highlighted, selected, or disabled. */
-    item?: T
-
-    /** Leading region for a command row. */
-    itemLeading?: T
-
-    /** Text column that groups command label and description. */
-    itemWrapper?: T
-
-    /** Primary text for a command item. */
-    itemLabel?: T
-
-    /** Supporting text for a command item. */
-    itemDescription?: T
-
-    /** Trailing region for shortcuts or custom item metadata. */
-    itemTrailing?: T
-
-    /** Search icon or loading indicator displayed in the input row. */
-    search?: T
-
-    /** Button that dismisses the command palette. */
-    close?: T
-
-    /** Message shown when no command items match the search. */
-    empty?: T
-  }
-
-  export interface Variant {
-    /** Where descriptions render in each command item.
-     * @default 'bottom'
-     */
-    descriptionPosition?: DescriptionPosition
-  }
+  export type Variant = CommandPaletteStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

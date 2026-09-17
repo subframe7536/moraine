@@ -1,11 +1,14 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { SidebarFrameT } from './sidebar-frame.types'
+import type {
+  SidebarFrameStyleSlot,
+  SidebarFrameStyleVariant,
+} from './sidebar-frame.style-types.ts'
 
 export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
   'sidebarFrame',
-  SidebarFrameT.Slot,
-  SidebarFrameT.Variant
+  SidebarFrameStyleSlot,
+  SidebarFrameStyleVariant
 >('sidebarFrame', {
   base: {
     root: 'flex h-screen max-h-full min-h-0 overflow-hidden',

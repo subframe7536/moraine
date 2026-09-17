@@ -3,24 +3,13 @@ import type { JSX } from 'solid-js'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type { SeparatorT } from '../separator/separator.types'
 
-import type { ButtonT } from './button.types'
+import type { ButtonGroupStyleSlot, ButtonGroupStyleVariant } from './button-group.style-types.ts'
 
 export namespace ButtonGroupT {
   export type Kind = 'composite'
 
-  export interface Slot<T = unknown> {
-    /** Container that joins the edges of its direct button children. */
-    root?: T
-
-    /** Explicit divider between adjacent ButtonGroup parts. */
-    separator?: T
-  }
-  export interface Variant extends ButtonT.Variant {
-    /** Visual layout direction.
-     * @default 'horizontal'
-     */
-    orientation?: 'horizontal' | 'vertical'
-  }
+  export type Slot<T = unknown> = ButtonGroupStyleSlot<T>
+  export type Variant = ButtonGroupStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

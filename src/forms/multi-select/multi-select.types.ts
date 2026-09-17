@@ -5,17 +5,22 @@ import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 import type { BaseSelectT } from '../base-select/base-select.types.ts'
 import type { FormValueOptions } from '../shared/form-options.ts'
+import type { SelectItemStyleSlot } from '../shared/select/style-types.ts'
 import type {
   SelectItem,
   SearchProps,
   ContentProps,
-  SelectControlVariant,
   SelectRow,
   SelectGroup,
   SelectEntry,
-  SelectItemSlot,
   SelectVirtualRenderProps,
 } from '../shared/select/types.ts'
+
+import type {
+  MultiSelectControlStyleSlot,
+  MultiSelectStyleSlot,
+  MultiSelectStyleVariant,
+} from './multi-select.style-types.ts'
 
 export namespace MultiSelectT {
   export type Kind = 'single'
@@ -29,30 +34,9 @@ export namespace MultiSelectT {
   export type Group<TItem extends Item = Item> = SelectGroup<TItem>
   export type Entry<TItem extends Item = Item> = SelectEntry<TItem>
 
-  export interface ControlSlot<T = unknown> {
-    /** Multi-select control that displays selected tags and opens the popup. */
-    control?: T
-    /** Search input used to filter or add selections. */
-    input?: T
-    /** Icon shown before the selected tags and search input. */
-    leading?: T
-    /** Button region that toggles the multi-select popup. */
-    trigger?: T
-    /** Button used to clear all selected values. */
-    clear?: T
-    /** Wrapper that lays out selected value tags inside the control. */
-    tagsContainer?: T
-    /** Selected value tag. */
-    tag?: T
-    /** Text label inside a selected value tag. */
-    tagLabel?: T
-    /** Button used to remove one selected value. */
-    tagRemove?: T
-    /** Counter shown when selected tags exceed the visible limit. */
-    tagOverflow?: T
-  }
+  export type ControlSlot<T = unknown> = MultiSelectControlStyleSlot<T>
 
-  export interface ItemSlot<T = unknown> extends SelectItemSlot<T> {}
+  export type ItemSlot<T = unknown> = SelectItemStyleSlot<T>
 
   export interface TagRenderProps<TItem extends Item = Item> {
     /** Selected item represented by the tag. */
@@ -80,9 +64,9 @@ export namespace MultiSelectT {
     close: () => void
   }
 
-  export interface Slot<T = unknown> extends BaseSelectT.Slot<T>, ControlSlot<T>, ItemSlot<T> {}
+  export type Slot<T = unknown> = MultiSelectStyleSlot<T>
 
-  export interface Variant extends SelectControlVariant {}
+  export type Variant = MultiSelectStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

@@ -2,6 +2,8 @@ import type { Accessor, JSX } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
+import type { SidebarFrameStyleSlot, SidebarFrameStyleVariant } from './sidebar-frame.style-types'
+
 export namespace SidebarFrameT {
   export type Kind = 'composite'
 
@@ -15,25 +17,9 @@ export namespace SidebarFrameT {
     toggle: () => void
   }
 
-  export interface Slot<T = unknown> {
-    /** Frame that contains the sidebar and main regions. */
-    root?: T
-    /** Sidebar region, rendered in a Sheet on mobile. */
-    sidebar?: T
-    /** Header region inside the sidebar. */
-    sidebarHeader?: T
-    /** Scrollable content region inside the sidebar. */
-    sidebarBody?: T
-    /** Footer region inside the sidebar. */
-    sidebarFooter?: T
-    /** Main application content region. */
-    main?: T
-  }
+  export type Slot<T = unknown> = SidebarFrameStyleSlot<T>
 
-  export interface Variant {
-    side?: 'left' | 'right'
-    variant?: 'default' | 'floating' | 'inset'
-  }
+  export type Variant = SidebarFrameStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

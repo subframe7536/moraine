@@ -10,6 +10,8 @@ import type { JSX, ValidComponent } from 'solid-js'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type { FieldProps as StandaloneFieldProps } from '../field'
 
+import type { FormStyleSlot, FormStyleVariant } from './form.style-types'
+
 export namespace FormT {
   export type Kind = 'single'
 
@@ -36,12 +38,9 @@ export namespace FormT {
 
   export type ValidationMode = Formisch.ValidationMode
 
-  export interface Slot<T = unknown> {
-    /** Form root container. */
-    root?: T
-  }
+  export type Slot<T = unknown> = FormStyleSlot<T>
 
-  export type Variant = never
+  export type Variant = FormStyleVariant
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export interface Item {}

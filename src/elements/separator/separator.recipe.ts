@@ -1,11 +1,11 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { SeparatorT } from './separator.types'
+import type { SeparatorStyleSlot, SeparatorStyleVariant } from './separator.style-types.ts'
 
 export const separatorRecipe = /* @__PURE__ */ defineRecipe<
   'separator',
-  SeparatorT.Slot,
-  SeparatorT.Variant
+  SeparatorStyleSlot,
+  SeparatorStyleVariant
 >('separator', {
   base: {
     root: 'bg-border shrink-0',

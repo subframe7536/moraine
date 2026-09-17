@@ -10,12 +10,12 @@ import {
   TAG_SLOTS,
 } from '../shared/select/select-field.class.ts'
 
-import type { MultiSelectT } from './multi-select.types.ts'
+import type { MultiSelectStyleSlot, MultiSelectStyleVariant } from './multi-select.style-types.ts'
 
 export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<
   'multiSelect',
-  MultiSelectT.Slot,
-  MultiSelectT.Variant
+  MultiSelectStyleSlot,
+  MultiSelectStyleVariant
 >('multiSelect', {
   base: {
     ...SELECT_FAMILY_SLOTS,

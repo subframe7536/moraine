@@ -1,6 +1,6 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { BreadcrumbT } from './breadcrumb.types'
+import type { BreadcrumbStyleSlot, BreadcrumbStyleVariant } from './breadcrumb.style-types.ts'
 
 export const BREADCRUMB_LINK_CLASS =
   'transition-colors hover:text-foreground inline-flex items-center gap-1.5'
@@ -10,8 +10,8 @@ export const BREADCRUMB_TRUNCATE_CLASS = 'min-w-0 truncate'
 
 export const breadcrumbRecipe = /* @__PURE__ */ defineRecipe<
   'breadcrumb',
-  BreadcrumbT.Slot,
-  BreadcrumbT.Variant
+  BreadcrumbStyleSlot,
+  BreadcrumbStyleVariant
 >('breadcrumb', {
   base: {
     root: 'min-w-0 relative',

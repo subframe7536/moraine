@@ -36,6 +36,7 @@ import {
 } from 'moraine'
 import type {
   ButtonT,
+  BadgeT,
   ButtonGroupT,
   Cn,
   CnConfig,
@@ -84,6 +85,10 @@ export type RecipeVariants = [
   Assert<'search' extends keyof SelectT.Variant ? false : true>,
   Assert<'search' extends keyof ComboboxT.Variant ? false : true>,
   Assert<'search' extends keyof MultiSelectT.Variant ? false : true>,
+  Assert<'square' extends keyof BadgeT.Variant ? false : true>,
+  Assert<'grouped' extends keyof InputT.Variant ? false : true>,
+  Assert<'grouped' extends keyof TextareaT.Variant ? false : true>,
+  Assert<'compact' extends keyof InputGroupT.Variant ? false : true>,
 ]
 
 export type ReadOnlyContracts = [
@@ -442,6 +447,10 @@ const theme = defineTheme({
   combobox: { base: { control: 'min-w-48' } },
   multiSelect: { defaultVariants: { size: 'sm' } },
   select: { defaultVariants: { size: 'sm' } },
+  badge: { defaultVariants: { square: true } },
+  input: { defaultVariants: { grouped: true, groupedOrientation: 'horizontal' } },
+  inputGroup: { defaultVariants: { compact: true } },
+  textarea: { defaultVariants: { grouped: true, groupedOrientation: 'vertical' } },
   separator: {
     base: { root: 'border-t' },
     variants: { orientation: { vertical: { root: 'h-full' } } },
@@ -474,6 +483,8 @@ defineTheme({
   button: { compoundVariants: [{ variants: { size: 'sm' }, missing: 'p-4' }] },
 })
 defineTheme({ button: { defaultVariants: { size: null } } })
+// @ts-expect-error ButtonGroup theme size is constrained to implemented recipe sizes.
+defineTheme({ buttonGroup: { defaultVariants: { size: 'icon-md' } } })
 
 const cnConfig = {
   cacheSize: 0,

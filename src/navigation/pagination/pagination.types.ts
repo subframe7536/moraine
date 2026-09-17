@@ -1,67 +1,16 @@
 import type { Ref, ValidComponent } from 'solid-js'
 
-import type { ButtonProps } from '../../elements/button'
 import type { IconT } from '../../elements/icon'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
-type PaginationVariant = ButtonProps['variant']
+import type { PaginationStyleSlot, PaginationStyleVariant } from './pagination.style-types.ts'
 
 export namespace PaginationT {
   export type Kind = 'single'
 
-  export interface Slot<T = unknown> {
-    /**
-     * Navigation container for page controls.
-     */
-    root?: T
+  export type Slot<T = unknown> = PaginationStyleSlot<T>
 
-    /** Wrapper that lays out page, ellipsis, previous, and next controls. */
-    list?: T
-
-    /** Structural wrapper for a page control, ellipsis, previous control, or next control. */
-    listItem?: T
-
-    /** Interactive numbered page control. */
-    item?: T
-
-    /** Control that navigates to the previous page. */
-    prev?: T
-
-    /** Control that navigates to the next page. */
-    next?: T
-
-    /** Non-interactive marker for skipped page ranges. */
-    ellipsis?: T
-
-    /** Label text for previous/next control buttons on larger screens. */
-    controlLabel?: T
-  }
-
-  export interface Variant {
-    /**
-     * Size of the pagination buttons.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-
-    /**
-     * Visual variant for the page buttons.
-     * @default 'ghost'
-     */
-    variant?: PaginationVariant
-
-    /**
-     * Visual variant for the active page button.
-     * @default 'outline'
-     */
-    activeVariant?: PaginationVariant
-
-    /**
-     * Visual variant for the previous/next control buttons.
-     * @default 'ghost'
-     */
-    controlVariant?: PaginationVariant
-  }
+  export type Variant = PaginationStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

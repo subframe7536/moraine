@@ -1,11 +1,14 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { CommandPaletteT } from './command-palette.types'
+import type {
+  CommandPaletteStyleSlot,
+  CommandPaletteStyleVariant,
+} from './command-palette.style-types.ts'
 
 export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
   'commandPalette',
-  CommandPaletteT.Slot,
-  CommandPaletteT.Variant
+  CommandPaletteStyleSlot,
+  CommandPaletteStyleVariant
 >('commandPalette', {
   base: {
     root: 'bg-popover text-popover-foreground border border-border rounded-lg flex flex-col min-h-0 shadow-md overflow-hidden',

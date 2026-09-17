@@ -3,6 +3,8 @@ import type { JSX, ValidComponent } from 'solid-js'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue } from '../../shared/types'
 
+import type { ModalStyleSlot, ModalStyleVariant } from './modal.style-types'
+
 export namespace ModalT {
   export type Kind = 'composite'
 
@@ -53,13 +55,8 @@ export namespace ModalT {
     children?: JSX.Element
   }
 
-  export interface Slot<T = unknown> {
-    /** Fixed backdrop that contains the modal shell. */
-    overlay: T
-    /** Modal panel that contains the dialog content. */
-    content: T
-  }
-  export type Variant = never
+  export type Slot<T = unknown> = ModalStyleSlot<T>
+  export type Variant = ModalStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<JSX.CSSProperties>

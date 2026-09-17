@@ -1,11 +1,11 @@
 import { defineRecipe } from '../../shared/style/recipe.ts'
 
-import type { StepperT } from './stepper.types.ts'
+import type { StepperStyleSlot, StepperStyleVariant } from './stepper.style-types.ts'
 
 export const stepperRecipe = /* @__PURE__ */ defineRecipe<
   'stepper',
-  StepperT.Slot,
-  StepperT.Variant
+  StepperStyleSlot,
+  StepperStyleVariant
 >('stepper', {
   base: {
     root: 'flex gap-2',

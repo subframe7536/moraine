@@ -1,9 +1,9 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { KbdGroupT } from './kbd-group.types'
-import type { KbdT } from './kbd.types'
+import type { KbdGroupStyleSlot, KbdGroupStyleVariant } from './kbd-group.style-types.ts'
+import type { KbdStyleSlot, KbdStyleVariant } from './kbd.style-types.ts'
 
-export const kbdRecipe = /* @__PURE__ */ defineRecipe<'kbd', KbdT.Slot, KbdT.Variant>('kbd', {
+export const kbdRecipe = /* @__PURE__ */ defineRecipe<'kbd', KbdStyleSlot, KbdStyleVariant>('kbd', {
   base: {
     root: 'leading-none font-medium font-mono px-1 rounded-sm inline-flex select-none uppercase items-center justify-center',
   },
@@ -27,8 +27,8 @@ export const kbdRecipe = /* @__PURE__ */ defineRecipe<'kbd', KbdT.Slot, KbdT.Var
 
 export const kbdGroupRecipe = /* @__PURE__ */ defineRecipe<
   'kbdGroup',
-  KbdGroupT.Slot,
-  KbdGroupT.Variant
+  KbdGroupStyleSlot,
+  KbdGroupStyleVariant
 >('kbdGroup', {
   base: {
     root: 'inline-flex gap-1 items-center text-muted-foreground',

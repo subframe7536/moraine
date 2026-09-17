@@ -1,11 +1,11 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { ButtonGroupT } from './button-group.types'
+import type { ButtonGroupStyleSlot, ButtonGroupRecipeVariant } from './button-group.style-types.ts'
 
 export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
   'buttonGroup',
-  ButtonGroupT.Slot,
-  ButtonGroupT.Variant
+  ButtonGroupStyleSlot,
+  ButtonGroupRecipeVariant
 >('buttonGroup', {
   base: {
     root: 'inline-flex size-fit items-stretch *:focus-visible:(relative z-sticky)',

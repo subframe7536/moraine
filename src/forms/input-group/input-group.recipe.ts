@@ -1,12 +1,12 @@
 import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
 import { defineRecipe } from '../../shared/style/recipe.ts'
 
-import type { InputGroupT } from './input-group.types.ts'
+import type { InputGroupStyleSlot, InputGroupRecipeVariant } from './input-group.style-types.ts'
 
 export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
   'inputGroup',
-  InputGroupT.Slot,
-  InputGroupT.Variant & InputGroupT.PartVariant
+  InputGroupStyleSlot,
+  InputGroupRecipeVariant
 >('inputGroup', {
   base: {
     root: 'flex flex-wrap w-full items-center overflow-hidden cursor-text transition-[colors,box-shadow] [&:has(>input:focus)]:border-ring [&:has(>textarea:focus)]:border-ring [&:has(>input:focus)]:ring-3 [&:has(>textarea:focus)]:ring-3 [&:has(>input:focus)]:ring-ring/50 [&:has(>textarea:focus)]:ring-ring/50 [&:has(>input[aria-invalid=true])]:border-destructive [&:has(>textarea[aria-invalid=true])]:border-destructive [&:has(>input[aria-invalid=true])]:ring-3 [&:has(>textarea[aria-invalid=true])]:ring-3 [&:has(>input[aria-invalid=true])]:ring-destructive/20 [&:has(>textarea[aria-invalid=true])]:ring-destructive/20 dark:[&:has(>input[aria-invalid=true])]:border-destructive/50 dark:[&:has(>textarea[aria-invalid=true])]:border-destructive/50 dark:[&:has(>input[aria-invalid=true])]:ring-destructive/40 dark:[&:has(>textarea[aria-invalid=true])]:ring-destructive/40 [&:has(>input:disabled)]:opacity-64 [&:has(>textarea:disabled)]:opacity-64',

@@ -6,20 +6,16 @@ import type {
   OverlayMenuRootProps,
   OverlayMenuSharedItem,
   OverlayMenuSharedItemRenderProps,
-  OverlayMenuSharedSlots,
 } from '../base/menu'
 import type { ModalT } from '../modal/modal.types'
+
+import type { ContextMenuStyleSlot, ContextMenuStyleVariant } from './context-menu.style-types'
 
 export namespace ContextMenuT {
   export type Kind = 'composite'
 
-  export interface Slot<T = unknown> extends OverlayMenuSharedSlots<T> {}
-  export interface Variant {
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-  }
+  export type Slot<T = unknown> = ContextMenuStyleSlot<T>
+  export type Variant = ContextMenuStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

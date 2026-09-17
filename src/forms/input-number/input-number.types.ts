@@ -9,48 +9,17 @@ import type {
   FormRequiredOption,
 } from '../shared/form-options'
 
+import type { InputNumberStyleSlot, InputNumberStyleVariant } from './input-number.style-types'
+
 export namespace InputNumberT {
   export type Kind = 'single'
 
   export type Orientation = 'horizontal' | 'vertical'
   export type PointerType = 'mouse' | 'touch' | 'pen'
 
-  export interface Slot<T = unknown> {
-    /**
-     * Number input wrapper that owns the input and step controls.
-     */
-    root?: T
+  export type Slot<T = unknown> = InputNumberStyleSlot<T>
 
-    /** Native number input element. */
-    input?: T
-
-    /** Button that increases the current numeric value. */
-    increment?: T
-
-    /** Button that decreases the current numeric value. */
-    decrement?: T
-
-    /** Column container for vertical increment/decrement controls. */
-    controls?: T
-  }
-
-  export interface Variant {
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-    /** Visual treatment of the component.
-     * @default 'outline'
-     */
-    variant?: 'outline' | 'subtle' | 'ghost' | 'none'
-    /** Text alignment; omitted values follow the control layout.
-     */
-    align?: 'center' | 'start'
-    /** Visual layout direction.
-     * @default 'horizontal'
-     */
-    orientation?: 'horizontal' | 'vertical'
-  }
+  export type Variant = InputNumberStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

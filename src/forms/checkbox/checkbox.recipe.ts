@@ -1,11 +1,11 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { CheckboxT } from './checkbox.types'
+import type { CheckboxStyleSlot, CheckboxStyleVariant } from './checkbox.style-types.ts'
 
 export const checkboxRecipe = /* @__PURE__ */ defineRecipe<
   'checkbox',
-  CheckboxT.Slot,
-  CheckboxT.Variant
+  CheckboxStyleSlot,
+  CheckboxStyleVariant
 >('checkbox', {
   base: {
     root: 'flex items-start relative',

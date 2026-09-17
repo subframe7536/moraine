@@ -10,10 +10,10 @@ import type { MoraineStyleSchema, StyleContract } from './style-contract'
 
 export type { MoraineStyleSchema } from './style-contract'
 
-type ContractSlots<C extends StyleContract<string, any>> = Record<C['slots'], unknown>
-type ContractVariants<C extends StyleContract<string, any>> = C['variants']
+type ContractSlots<C extends StyleContract<object, any>> = C['slots']
+type ContractVariants<C extends StyleContract<object, any>> = C['variants']
 
-type AdditiveThemeOverride<C extends StyleContract<string, any>> = {
+type AdditiveThemeOverride<C extends StyleContract<object, any>> = {
   replace?: false | undefined
   base?: RecipeContribution<ContractSlots<C>>
   variants?: RecipeVariants<ContractSlots<C>, ContractVariants<C>>
@@ -21,7 +21,7 @@ type AdditiveThemeOverride<C extends StyleContract<string, any>> = {
   defaultVariants?: RecipeDefaultVariants<ContractVariants<C>>
 }
 
-type ReplacementThemeOverride<C extends StyleContract<string, any>> = {
+type ReplacementThemeOverride<C extends StyleContract<object, any>> = {
   replace: true
   base: RecipeBase<ContractSlots<C>>
   variants?: RecipeVariants<ContractSlots<C>, ContractVariants<C>>
@@ -29,7 +29,7 @@ type ReplacementThemeOverride<C extends StyleContract<string, any>> = {
   defaultVariants?: RecipeDefaultVariants<ContractVariants<C>>
 }
 
-export type ThemeRecipeOverride<C extends StyleContract<string, any>> =
+export type ThemeRecipeOverride<C extends StyleContract<object, any>> =
   | AdditiveThemeOverride<C>
   | ReplacementThemeOverride<C>
 

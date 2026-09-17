@@ -4,6 +4,8 @@ import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type { IconT } from '../icon'
 
+import type { ButtonStyleSlot, ButtonStyleVariant } from './button.style-types'
+
 type IsUnion<T, U = T> = T extends unknown ? ([U] extends [T] ? false : true) : never
 
 type ButtonElementFor<T extends ValidComponent> =
@@ -18,46 +20,8 @@ export namespace ButtonT {
 
   export type ElementFor<T extends ValidComponent> = ButtonElementFor<T>
 
-  export interface Slot<T = unknown> {
-    /**
-     * Interactive button element, or the polymorphic element provided through `as`.
-     */
-    root?: T
-
-    /** Loading icon shown while the button is busy. */
-    loading?: T
-
-    /** Icon region before the button label. */
-    leading?: T
-
-    /** Button content region after render-prop resolution. */
-    label?: T
-
-    /** Icon region after the button label. */
-    trailing?: T
-  }
-
-  export interface Variant {
-    /** Visual treatment of the component.
-     * @default 'default'
-     */
-    variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?:
-      | 'xs'
-      | 'sm'
-      | 'md'
-      | 'lg'
-      | 'xl'
-      | 'icon-xs'
-      | 'icon-sm'
-      | 'icon-md'
-      | 'icon-lg'
-      | 'icon-xl'
-      | null
-  }
+  export type Slot<T = unknown> = ButtonStyleSlot<T>
+  export type Variant = ButtonStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

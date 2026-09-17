@@ -1,11 +1,11 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { FileUploadT } from './file-upload.types'
+import type { FileUploadStyleSlot, FileUploadStyleVariant } from './file-upload.style-types.ts'
 
 export const fileUploadRecipe = /* @__PURE__ */ defineRecipe<
   'fileUpload',
-  FileUploadT.Slot,
-  FileUploadT.Variant
+  FileUploadStyleSlot,
+  FileUploadStyleVariant
 >('fileUpload', {
   base: {
     root: 'relative flex min-w-0 flex-col data-disabled:(pointer-events-none opacity-64)',

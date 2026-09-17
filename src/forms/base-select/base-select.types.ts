@@ -9,6 +9,8 @@ import type {
   FormRequiredOption,
 } from '../shared/form-options.ts'
 
+import type { BaseSelectStyleSlot, BaseSelectStyleVariant } from './base-select.style-types'
+
 export namespace BaseSelectT {
   export type Kind = 'composite'
   export type Value = string | number
@@ -21,30 +23,8 @@ export namespace BaseSelectT {
     disabled?: boolean
   }
   export type ItemValue<TItem extends Item> = TItem['value']
-  export interface Slot<T = unknown> {
-    /** Optional non-interactive layout container and floating anchor. */
-    control?: T
-    /** Primary select-like popup activator. */
-    trigger?: T
-    /** Floating popup panel. */
-    content?: T
-    /** Scrollable listbox. */
-    listbox?: T
-    /** Selectable row. */
-    item?: T
-    /** Group container. */
-    group?: T
-    /** Group heading. */
-    groupLabel?: T
-    /** Decorative divider. */
-    separator?: T
-    /** Empty collection message. */
-    empty?: T
-  }
-  export interface Variant {
-    /** Popup and item size. @default 'md' */
-    size?: 'sm' | 'md' | 'lg'
-  }
+  export type Slot<T = unknown> = BaseSelectStyleSlot<T>
+  export type Variant = BaseSelectStyleVariant
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   /** Form identity and state forwarded to the selection machine. */

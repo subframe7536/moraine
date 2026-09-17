@@ -1,6 +1,6 @@
 import type { RecipeConfig } from '../../../shared/style/recipe'
 
-import type { OverlayMenuItemVariantProps, OverlayMenuSharedSlots } from './types'
+import type { OverlayMenuStyleSlot, OverlayMenuStyleVariant } from './style-types'
 
 export const overlayMenuRecipeOptions = {
   base: {
@@ -30,4 +30,4 @@ export const overlayMenuRecipeOptions = {
     },
   },
   defaultVariants: { size: 'md' },
-} as const satisfies RecipeConfig<OverlayMenuSharedSlots, OverlayMenuItemVariantProps>
+} as const satisfies RecipeConfig<OverlayMenuStyleSlot, OverlayMenuStyleVariant>

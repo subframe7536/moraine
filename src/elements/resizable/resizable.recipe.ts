@@ -1,11 +1,11 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { ResizableT } from './resizable.types'
+import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.style-types.ts'
 
 export const resizableRecipe = /* @__PURE__ */ defineRecipe<
   'resizable',
-  ResizableT.Slot,
-  ResizableT.Variant
+  ResizableStyleSlot,
+  ResizableStyleVariant
 >('resizable', {
   base: {
     root: 'flex h-full min-h-0 min-w-0 w-full',

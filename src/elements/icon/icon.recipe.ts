@@ -1,8 +1,8 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { IconT } from './icon.types'
+import type { IconStyleSlot } from './icon.style-types.ts'
 
-export const iconRecipe = /* @__PURE__ */ defineRecipe<'icon', IconT.Slot>('icon', {
+export const iconRecipe = /* @__PURE__ */ defineRecipe<'icon', IconStyleSlot>('icon', {
   base: {
     root: '',
   },

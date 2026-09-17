@@ -1,6 +1,6 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { ModalT } from './modal.types'
+import type { ModalStyleSlot } from './modal.style-types.ts'
 
 /** Default backdrop classes for modal overlays. */
 export const MODAL_OVERLAY_CLASS =
@@ -13,7 +13,7 @@ export const MODAL_CONTENT_CLASS =
 export const MODAL_CONTENT_DEFAULT_CLASS =
   'max-h-[calc(100%-2rem)] max-w-[calc(100%-2rem)] left-1/2 top-1/2 fixed sm:max-w-md -translate-x-1/2 -translate-y-1/2'
 
-export const modalRecipe = /* @__PURE__ */ defineRecipe<'modal', ModalT.Slot>('modal', {
+export const modalRecipe = /* @__PURE__ */ defineRecipe<'modal', ModalStyleSlot>('modal', {
   base: {
     overlay: `${MODAL_OVERLAY_CLASS} data-overlay-scroll:(p-4 overflow-y-auto)`,
     content: `${MODAL_CONTENT_CLASS} ${MODAL_CONTENT_DEFAULT_CLASS}`,

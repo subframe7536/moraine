@@ -1,13 +1,13 @@
 import { defineRecipe } from '../../shared/style/recipe'
 
-import type { PaginationT } from './pagination.types'
+import type { PaginationStyleSlot, PaginationStyleVariant } from './pagination.style-types.ts'
 
 export const PAGINATION_CONTROL_LABEL_CLASS = 'hidden sm:block'
 
 export const paginationRecipe = /* @__PURE__ */ defineRecipe<
   'pagination',
-  PaginationT.Slot,
-  PaginationT.Variant
+  PaginationStyleSlot,
+  PaginationStyleVariant
 >('pagination', {
   base: {
     root: 'mx-auto flex w-full justify-center',

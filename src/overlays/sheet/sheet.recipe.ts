@@ -1,9 +1,9 @@
 import { defineRecipe } from '../../shared/style/recipe'
 import { MODAL_OVERLAY_CLASS } from '../modal/modal.recipe'
 
-import type { SheetT } from './sheet.types'
+import type { SheetStyleSlot, SheetStyleVariant } from './sheet.style-types.ts'
 
-export const sheetRecipe = /* @__PURE__ */ defineRecipe<'sheet', SheetT.Slot, SheetT.Variant>(
+export const sheetRecipe = /* @__PURE__ */ defineRecipe<'sheet', SheetStyleSlot, SheetStyleVariant>(
   'sheet',
   {
     base: {

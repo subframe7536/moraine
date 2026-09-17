@@ -22,15 +22,26 @@ function namespace(name: string): string {
 describe('published declarations', () => {
   test('retain documented Variants, official defaults and slots', () => {
     const button = namespace('ButtonT')
-    expect(button).toMatch(/Visual size of the component\.[\s\S]*?@default 'md'[\s\S]*?size\?:/)
-    expect(button).toContain(
+    const buttonStyle = readFileSync(
+      resolve(dist, 'elements/button/button.style-types.d.mts'),
+      'utf8',
+    )
+    const inputStyle = readFileSync(resolve(dist, 'forms/input/input.style-types.d.mts'), 'utf8')
+
+    expect(button).toContain('type Slot<T = unknown> = ButtonStyleSlot<T>')
+    expect(button).toContain('type Variant = ButtonStyleVariant')
+    expect(buttonStyle).toMatch(
+      /Visual size of the component\.[\s\S]*?@default 'md'[\s\S]*?size\?:/,
+    )
+    expect(buttonStyle).toContain(
       'Interactive button element, or the polymorphic element provided through `as`.',
     )
-    expect(namespace('InputT')).toContain('Native text input element.')
+    expect(namespace('InputT')).toContain('type Slot<T = unknown> = InputStyleSlot<T>')
+    expect(inputStyle).toContain('Native text input element.')
     expect(readFileSync(resolve(dist, 'forms/shared/select/types.d.mts'), 'utf8')).toContain(
       'Custom item presentation.',
     )
-    expect(namespace('SelectT')).toMatch(/interface Slot<T = unknown>/)
+    expect(namespace('SelectT')).toContain('type Slot<T = unknown> = SelectStyleSlot<T>')
   })
 
   test('retain curated Input ownership, owned prop documentation, and generic Select callbacks', () => {

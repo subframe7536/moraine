@@ -3,6 +3,8 @@ import type { JSX, ValidComponent } from 'solid-js'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
+import type { FieldStyleSlot, FieldStyleVariant } from './field.style-types'
+
 export namespace FieldT {
   export type Kind = 'single'
   export type Path = readonly (string | number)[]
@@ -14,37 +16,9 @@ export namespace FieldT {
     error?: JSX.Element
   }
 
-  export interface Slot<T = unknown> {
-    /** Field wrapper that links label, control, description, and messages. */
-    root?: T
-    /** Inner wrapper that arranges label, control, helper text, and messages. */
-    wrapper?: T
-    /** Row that groups the field label and optional hint. */
-    labelWrapper?: T
-    /** Accessible field label associated with the control. */
-    label?: T
-    /** Region that contains the wrapped form control. */
-    container?: T
-    /** Helper text associated with the control. */
-    description?: T
-    /** Validation error message region for the field. */
-    error?: T
-    /** Short hint rendered beside the field label. */
-    hint?: T
-    /** Additional guidance rendered below the control. */
-    help?: T
-  }
+  export type Slot<T = unknown> = FieldStyleSlot<T>
 
-  export interface Variant {
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-    /** Visual layout direction.
-     * @default 'vertical'
-     */
-    orientation?: 'vertical' | 'horizontal'
-  }
+  export type Variant = FieldStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

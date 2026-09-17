@@ -1,6 +1,8 @@
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
+import type { ProgressStyleSlot, ProgressStyleVariant } from './progress.style-types'
+
 export namespace ProgressT {
   export type Kind = 'single'
 
@@ -18,40 +20,9 @@ export namespace ProgressT {
     state: 'active' | 'first' | 'last' | 'other'
   }
 
-  export interface Slot<T = unknown> {
-    /** Progress container that owns track, indicator, labels, and step markers. */
-    root?: T
+  export type Slot<T = unknown> = ProgressStyleSlot<T>
 
-    /** Text region that displays the current progress status. */
-    status?: T
-
-    /** Background rail that represents the full progress range. */
-    track?: T
-
-    /** Filled bar that represents the current progress value. */
-    indicator?: T
-
-    /** Wrapper for step labels when progress is driven by named steps. */
-    steps?: T
-
-    /** Individual step label or marker rendered along the progress scale. */
-    step?: T
-  }
-
-  export interface Variant {
-    /** Visual layout direction.
-     * @default 'horizontal'
-     */
-    orientation?: 'horizontal' | 'vertical'
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-    /** Visual animation of the component.
-     * @default 'carousel'
-     */
-    animation?: 'carousel' | 'reverse' | 'swing' | 'elastic'
-  }
+  export type Variant = ProgressStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

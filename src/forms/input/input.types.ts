@@ -10,26 +10,15 @@ import type {
   FormValueOptions,
 } from '../shared/form-options.ts'
 
+import type { InputStyleSlot, InputStyleVariant } from './input.style-types.ts'
+
 export namespace InputT {
   export type Kind = 'single'
 
   export type Value = string | number | undefined
 
-  export interface Slot<T = unknown> {
-    /** Native text input element. */
-    root?: T
-  }
-
-  export interface Variant {
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-    /** Visual treatment of the component.
-     * @default 'outline'
-     */
-    variant?: 'outline' | 'subtle' | 'ghost' | 'none'
-  }
+  export type Slot<T = unknown> = InputStyleSlot<T>
+  export type Variant = InputStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
