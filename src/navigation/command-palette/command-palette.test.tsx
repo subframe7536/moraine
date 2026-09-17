@@ -4,7 +4,7 @@ import type { JSX } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Dialog } from '../../overlays/dialog'
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 import { finishExitMotion } from '../../test-utils/overlay-test'
 import { defineTheme } from '../../theme'
 

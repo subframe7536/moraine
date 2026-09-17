@@ -1,12 +1,11 @@
+import type { MoraineStyleSchema, StyleContract } from './style-contract'
 import type {
   RecipeBase,
   RecipeCompoundVariant,
   RecipeContribution,
   RecipeDefaultVariants,
   RecipeVariants,
-} from '../shared/style/recipe'
-
-import type { MoraineStyleSchema, StyleContract } from './style-contract'
+} from './style/recipe'
 
 export type { MoraineStyleSchema } from './style-contract'
 

@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import { createStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 import { renderComponentOrElement } from '../../shared/render-prop'
 
 import { progressRecipe } from './progress.recipe'

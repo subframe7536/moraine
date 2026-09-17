@@ -1,4 +1,4 @@
-import type { InputStyleVariant } from '../input/input.style-types.ts'
+import type { InputStyleVariant } from '../input/input.style-types'
 
 export interface InputGroupStyleSlot<T = unknown> {
   /** Shared frame around one Input or Textarea and its supporting content. */

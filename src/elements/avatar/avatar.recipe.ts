@@ -1,7 +1,7 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { AvatarGroupStyleSlot, AvatarGroupStyleVariant } from './avatar-group.style-types.ts'
-import type { AvatarStyleSlot, AvatarStyleVariant } from './avatar.style-types.ts'
+import type { AvatarGroupStyleSlot, AvatarGroupStyleVariant } from './avatar-group.style-types'
+import type { AvatarStyleSlot, AvatarStyleVariant } from './avatar.style-types'
 
 export const avatarRecipe = /* @__PURE__ */ defineRecipe<
   'avatar',

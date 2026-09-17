@@ -3,9 +3,9 @@ import { Show, createEffect, createMemo, mergeProps, on, splitProps, untrack } f
 
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
+import { createStyles } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import { createStyles } from '../../shared/provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'

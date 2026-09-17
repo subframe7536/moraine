@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { createStyles } from '../../shared/provider/index.ts'
+import { createStyles } from '../../provider/index.ts'
 
 import { useInputGroupContext } from './input-group-context.ts'
 import { inputGroupRecipe } from './input-group.recipe'

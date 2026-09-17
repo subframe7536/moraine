@@ -4,7 +4,7 @@ import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { Field } from '../field'
 import { createForm } from '../form'

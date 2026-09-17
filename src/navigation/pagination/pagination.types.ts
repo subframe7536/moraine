@@ -3,7 +3,7 @@ import type { Ref, ValidComponent } from 'solid-js'
 import type { IconT } from '../../elements/icon'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
-import type { PaginationStyleSlot, PaginationStyleVariant } from './pagination.style-types.ts'
+import type { PaginationStyleSlot, PaginationStyleVariant } from './pagination.style-types'
 
 export namespace PaginationT {
   export type Kind = 'single'

@@ -6,7 +6,7 @@ import type {
   InputGroupRecipeVariant,
   InputGroupStyleSlot,
   InputGroupStyleVariant,
-} from './input-group.style-types.ts'
+} from './input-group.style-types'
 
 export namespace InputGroupT {
   export type Kind = 'composite'

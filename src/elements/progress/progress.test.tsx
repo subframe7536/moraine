@@ -2,7 +2,7 @@ import { render } from '@solidjs/testing-library'
 import { ErrorBoundary, createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 
 import { Progress } from './progress'
 import type { ProgressT } from './progress.types'

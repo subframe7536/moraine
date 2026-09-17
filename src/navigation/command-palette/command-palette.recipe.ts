@@ -1,9 +1,9 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
 import type {
   CommandPaletteStyleSlot,
   CommandPaletteStyleVariant,
-} from './command-palette.style-types.ts'
+} from './command-palette.style-types'
 
 export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
   'commandPalette',

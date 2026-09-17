@@ -4,7 +4,7 @@ import { unocss } from 'rolldown-plugin-unocss'
 import { defineConfig } from 'tsdown'
 import solid from 'vite-plugin-solid'
 
-import { DEFAULT_ICON_SHORTCUTS } from './src/shared/style/icons.ts'
+import { DEFAULT_ICON_SHORTCUTS } from './src/theme/style/icons.ts'
 import { variantGroupPlugin } from './vite-plugin-variant-group.ts'
 
 export default defineConfig([

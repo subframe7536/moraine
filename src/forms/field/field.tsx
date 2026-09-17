@@ -9,8 +9,8 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { createStyles } from '../../provider'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import { createStyles } from '../../shared/provider'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { useId } from '../../shared/utils'
 

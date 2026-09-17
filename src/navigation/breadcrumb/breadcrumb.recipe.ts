@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { BreadcrumbStyleSlot, BreadcrumbStyleVariant } from './breadcrumb.style-types.ts'
+import type { BreadcrumbStyleSlot, BreadcrumbStyleVariant } from './breadcrumb.style-types'
 
 export const BREADCRUMB_LINK_CLASS =
   'transition-colors hover:text-foreground inline-flex items-center gap-1.5'

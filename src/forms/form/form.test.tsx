@@ -5,7 +5,7 @@ import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Button } from '../../elements/button'
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { defineTheme } from '../../theme'
 import { Input } from '../input'

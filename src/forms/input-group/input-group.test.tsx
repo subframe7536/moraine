@@ -3,7 +3,7 @@ import { createComponent, createSignal, onCleanup, onMount, Show } from 'solid-j
 import { describe, expect, test, vi } from 'vitest'
 
 import { Icon } from '../../elements/icon/index.ts'
-import { MoraineProvider } from '../../shared/provider/index.ts'
+import { MoraineProvider } from '../../provider/index.ts'
 import { defineTheme } from '../../theme/create-theme.ts'
 import { Field } from '../field'
 import { Input } from '../input/input.tsx'

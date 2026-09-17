@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { createStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 
 import { separatorRecipe } from './separator.recipe'
 import type { SeparatorProps } from './separator.types'

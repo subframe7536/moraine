@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { CheckboxStyleSlot, CheckboxStyleVariant } from './checkbox.style-types.ts'
+import type { CheckboxStyleSlot, CheckboxStyleVariant } from './checkbox.style-types'
 
 export const checkboxRecipe = /* @__PURE__ */ defineRecipe<
   'checkbox',

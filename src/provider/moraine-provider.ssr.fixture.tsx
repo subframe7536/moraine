@@ -1,11 +1,11 @@
 import { renderToString } from 'solid-js/web'
 
-import { Button } from '../../elements/button/button'
-import { Input } from '../../forms/input/input'
-import { Textarea } from '../../forms/textarea/textarea'
-import { defineTheme } from '../../theme/create-theme'
-import type { MoraineTheme } from '../../theme/types'
-import type { CnConfig } from '../style/cn'
+import { Button } from '../elements/button/button'
+import { Input } from '../forms/input/input'
+import { Textarea } from '../forms/textarea/textarea'
+import { defineTheme } from '../theme/create-theme'
+import type { CnConfig } from '../theme/style/cn'
+import type { MoraineTheme } from '../theme/types'
 
 import { MoraineProvider } from './moraine-provider'
 

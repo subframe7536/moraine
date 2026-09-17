@@ -1,9 +1,9 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
 import type {
   SidebarFrameStyleSlot,
   SidebarFrameStyleVariant,
-} from './sidebar-frame.style-types.ts'
+} from './sidebar-frame.style-types'
 
 export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
   'sidebarFrame',

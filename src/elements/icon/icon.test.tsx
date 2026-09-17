@@ -2,7 +2,7 @@ import { render } from '@solidjs/testing-library'
 import { createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
 
 import { Icon } from './icon'

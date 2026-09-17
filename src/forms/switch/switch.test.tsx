@@ -2,7 +2,7 @@ import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-libra
 import { createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 
 import { Switch } from './switch'
 

@@ -13,8 +13,8 @@ import {
 } from 'solid-js'
 
 import { KbdGroup } from '../../elements/kbd'
+import { createStyles } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
-import { createStyles } from '../../shared/provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useId } from '../../shared/utils'
 import { resolveOverlayMenuSide } from '../base'

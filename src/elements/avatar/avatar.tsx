@@ -10,7 +10,7 @@ import {
   untrack,
 } from 'solid-js'
 
-import { createStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 import type { SlotClassValue } from '../../shared/types'
 import { Icon } from '../icon'
 

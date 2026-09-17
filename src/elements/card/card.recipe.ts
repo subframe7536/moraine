@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { CardStyleSlot, CardStyleVariant } from './card.style-types.ts'
+import type { CardStyleSlot, CardStyleVariant } from './card.style-types'
 
 export const cardRecipe = /* @__PURE__ */ defineRecipe<'card', CardStyleSlot, CardStyleVariant>(
   'card',

@@ -7,7 +7,7 @@ import {
 import type { JSX, ValidComponent } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { createStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 import { callHandler } from '../../shared/utils'
 import type { FieldProps } from '../field'
 import { renderField } from '../field/field'

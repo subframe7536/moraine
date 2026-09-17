@@ -1,7 +1,7 @@
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 import { hydrateFixture } from '../../test-utils/ssr-test'
 
 import { Separator } from './separator'

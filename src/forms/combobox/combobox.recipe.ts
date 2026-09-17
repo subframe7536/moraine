@@ -1,4 +1,4 @@
-import { defineRecipe } from '../../shared/style/recipe.ts'
+import { defineRecipe } from '../../theme/style/recipe.ts'
 import {
   SELECT_FAMILY_SLOTS,
   FIELD_INPUT_CLASS,
@@ -7,7 +7,7 @@ import {
   SECONDARY_TRIGGER_CLASS,
 } from '../shared/select/select-field.class.ts'
 
-import type { ComboboxStyleSlot, ComboboxStyleVariant } from './combobox.style-types.ts'
+import type { ComboboxStyleSlot, ComboboxStyleVariant } from './combobox.style-types'
 
 export const comboboxRecipe = /* @__PURE__ */ defineRecipe<
   'combobox',

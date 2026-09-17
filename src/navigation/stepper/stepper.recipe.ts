@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe.ts'
+import { defineRecipe } from '../../theme/style/recipe.ts'
 
-import type { StepperStyleSlot, StepperStyleVariant } from './stepper.style-types.ts'
+import type { StepperStyleSlot, StepperStyleVariant } from './stepper.style-types'
 
 export const stepperRecipe = /* @__PURE__ */ defineRecipe<
   'stepper',

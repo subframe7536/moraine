@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { FieldStyleSlot, FieldStyleVariant } from './field.style-types.ts'
+import type { FieldStyleSlot, FieldStyleVariant } from './field.style-types'
 
 export const fieldRecipe = /* @__PURE__ */ defineRecipe<'field', FieldStyleSlot, FieldStyleVariant>(
   'field',

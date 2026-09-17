@@ -2,10 +2,10 @@ import { render } from '@solidjs/testing-library'
 import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { Button } from '../../elements/button/button'
-import { Input } from '../../forms/input/input'
-import { defineTheme } from '../../theme/create-theme'
-import type { MoraineTheme } from '../../theme/types'
+import { Button } from '../elements/button/button'
+import { Input } from '../forms/input/input'
+import { defineTheme } from '../theme/create-theme'
+import type { MoraineTheme } from '../theme/types'
 
 import { MoraineProvider } from './moraine-provider'
 

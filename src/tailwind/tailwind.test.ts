@@ -5,7 +5,7 @@ import { addIconSelectors } from '@iconify/tailwind'
 import { __unstable__loadDesignSystem, compile } from 'tailwindcss'
 import { describe, expect, test } from 'vitest'
 
-import { DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons'
+import { DEFAULT_ICON_SHORTCUTS } from '../theme/style/icons'
 
 import { moraineTailwind } from './'
 import type { MorainePluginOptions } from './'

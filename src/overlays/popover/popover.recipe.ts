@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { PopoverStyleSlot } from './popover.style-types.ts'
+import type { PopoverStyleSlot } from './popover.style-types'
 
 export const popoverRecipe = /* @__PURE__ */ defineRecipe<'popover', PopoverStyleSlot>('popover', {
   base: {

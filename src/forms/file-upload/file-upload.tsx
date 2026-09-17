@@ -13,8 +13,8 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../elements/icon'
+import { createStyles } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
-import { createStyles } from '../../shared/provider'
 import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'

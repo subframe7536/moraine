@@ -4,7 +4,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
-import { createStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { callRef } from '../../shared/utils'

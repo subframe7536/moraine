@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { ProgressStyleSlot, ProgressStyleVariant } from './progress.style-types.ts'
+import type { ProgressStyleSlot, ProgressStyleVariant } from './progress.style-types'
 
 export const progressRecipe = /* @__PURE__ */ defineRecipe<
   'progress',

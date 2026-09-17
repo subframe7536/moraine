@@ -1,6 +1,6 @@
 import { renderToString } from 'solid-js/web'
 
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 
 import { Separator } from './separator'
 

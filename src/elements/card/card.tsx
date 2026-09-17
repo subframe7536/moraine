@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
-import { createStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 
 import { cardRecipe } from './card.recipe'
 import type { CardProps } from './card.types'

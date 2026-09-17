@@ -14,9 +14,9 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { createStyles } from '../../provider'
+import { useCn } from '../../provider/cn-context'
 import { HiddenInput } from '../../shared/hidden-input'
-import { createStyles } from '../../shared/provider'
-import { useCn } from '../../shared/provider/cn-context'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'

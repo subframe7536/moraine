@@ -2,7 +2,7 @@ import type {
   ComponentSize,
   Orientation,
   TextControlVariant,
-} from '../../shared/style/style-types.ts'
+} from '../../theme/style/style-types.ts'
 
 export interface InputStyleSlot<T = unknown> {
   /** Native text input element. */

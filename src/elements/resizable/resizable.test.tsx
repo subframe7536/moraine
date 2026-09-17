@@ -4,7 +4,7 @@ import type { JSX } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { beforeAll, afterAll, describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 
 import type { ResizablePanelItem } from './hook'
 import { Resizable } from './resizable'

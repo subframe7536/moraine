@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { AccordionStyleSlot } from './accordion.style-types.ts'
+import type { AccordionStyleSlot } from './accordion.style-types'
 
 export const accordionRecipe = /* @__PURE__ */ defineRecipe<'accordion', AccordionStyleSlot>(
   'accordion',

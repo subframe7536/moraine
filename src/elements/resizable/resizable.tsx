@@ -13,8 +13,8 @@ import {
   onMount,
 } from 'solid-js'
 
-import { createStyles } from '../../shared/provider'
-import { useCn } from '../../shared/provider/cn-context'
+import { createStyles } from '../../provider'
+import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { callHandler, callRef, useId } from '../../shared/utils'
 

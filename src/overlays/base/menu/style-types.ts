@@ -1,4 +1,4 @@
-import type { ComponentSize } from '../../../shared/style/style-types'
+import type { ComponentSize } from '../../../theme/style/style-types'
 
 export interface OverlayMenuStyleSlot<T = unknown> {
   /** Element that opens the menu. */

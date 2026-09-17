@@ -5,8 +5,8 @@ import {
   getMoraineAnimDurations,
   getMoraineAnimTimingFns,
   toUnocssKeyframes,
-} from '../shared/style/animations'
-import { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons'
+} from '../theme/style/animations'
+import { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS } from '../theme/style/icons'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
@@ -14,7 +14,7 @@ import {
   MORAINE_SHADOW,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
-} from '../shared/style/theme'
+} from '../theme/style/theme'
 
 export { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS }
 

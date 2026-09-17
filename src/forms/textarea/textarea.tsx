@@ -1,8 +1,8 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createMemo, mergeProps, on, onCleanup, onMount, splitProps } from 'solid-js'
 
+import { createStyles } from '../../provider/index.ts'
 import type { ModelModifiers } from '../../shared/input-modifiers.ts'
-import { createStyles } from '../../shared/provider/index.ts'
 import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import { useFormField, useFieldContext } from '../field/field-context.ts'
 import { useInputGroupContext } from '../input-group/input-group-context.ts'

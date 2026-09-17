@@ -2,8 +2,8 @@ import type { JSX } from 'solid-js'
 import { Show, onCleanup, splitProps } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
+import { createStyles } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
-import { createStyles } from '../../shared/provider'
 import { callRef } from '../../shared/utils'
 
 import { useModalContext } from './modal-context'

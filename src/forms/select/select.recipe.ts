@@ -1,4 +1,4 @@
-import { defineRecipe } from '../../shared/style/recipe.ts'
+import { defineRecipe } from '../../theme/style/recipe.ts'
 import {
   SELECT_FAMILY_SLOTS,
   FIELD_SIZES,
@@ -6,7 +6,7 @@ import {
   PRIMARY_TRIGGER_CLASS,
 } from '../shared/select/select-field.class.ts'
 
-import type { SelectStyleSlot, SelectStyleVariant } from './select.style-types.ts'
+import type { SelectStyleSlot, SelectStyleVariant } from './select.style-types'
 
 export const selectRecipe = /* @__PURE__ */ defineRecipe<
   'select',

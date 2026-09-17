@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, splitProps } from 'solid-js'
 
-import { createStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 
 import { Kbd } from './kbd'
 import type { KbdGroupProps, KbdGroupT } from './kbd-group.types'

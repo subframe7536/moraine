@@ -4,7 +4,7 @@ import { For, Show, createSignal, mergeProps, splitProps } from 'solid-js'
 import { Button } from '../../elements/button'
 import type { ButtonProps } from '../../elements/button'
 import { Icon } from '../../elements/icon'
-import { createStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 import { callRef } from '../../shared/utils'
 
 import { paginationRecipe } from './pagination.recipe'

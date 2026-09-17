@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe.ts'
+import { defineRecipe } from '../../theme/style/recipe.ts'
 
-import type { SliderStyleSlot, SliderStyleVariant } from './slider.style-types.ts'
+import type { SliderStyleSlot, SliderStyleVariant } from './slider.style-types'
 
 export const sliderRecipe = /* @__PURE__ */ defineRecipe<
   'slider',

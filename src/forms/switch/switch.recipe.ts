@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { SwitchStyleSlot, SwitchStyleVariant } from './switch.style-types.ts'
+import type { SwitchStyleSlot, SwitchStyleVariant } from './switch.style-types'
 
 export const switchRecipe = /* @__PURE__ */ defineRecipe<
   'switch',

@@ -4,7 +4,7 @@ import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
 import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook'
-import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.style-types.ts'
+import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.style-types'
 
 export namespace ResizableT {
   export type Kind = 'composite'

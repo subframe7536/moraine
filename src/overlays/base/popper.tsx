@@ -13,7 +13,7 @@ import {
 } from 'solid-js'
 import { Dynamic, Portal } from 'solid-js/web'
 
-import { useCn } from '../../shared/provider/cn-context'
+import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { useControllableValue } from '../../shared/use-controllable-value'

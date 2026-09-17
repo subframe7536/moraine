@@ -17,7 +17,7 @@ import type {
   SelectControlStyleSlot,
   SelectStyleSlot,
   SelectStyleVariant,
-} from './select.style-types.ts'
+} from './select.style-types'
 
 export namespace SelectT {
   export type Kind = 'single'

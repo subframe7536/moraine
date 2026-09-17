@@ -1,4 +1,4 @@
-import type { Orientation } from '../../shared/style/style-types.ts'
+import type { Orientation } from '../../theme/style/style-types.ts'
 
 export interface TextareaStyleSlot<T = unknown> {
   /** Native textarea element. */

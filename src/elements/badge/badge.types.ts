@@ -3,7 +3,7 @@ import type { JSX } from 'solid-js'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type { IconT } from '../icon'
 
-import type { BadgeStyleSlot, BadgeStyleVariant } from './badge.style-types.ts'
+import type { BadgeStyleSlot, BadgeStyleVariant } from './badge.style-types'
 
 export namespace BadgeT {
   export type Kind = 'single'

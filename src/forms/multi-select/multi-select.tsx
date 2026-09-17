@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, createSignal, For, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
-import { createStyles } from '../../shared/provider/index.ts'
+import { createStyles } from '../../provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef } from '../../shared/utils.ts'
 import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'

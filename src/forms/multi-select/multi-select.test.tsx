@@ -4,7 +4,7 @@ import { createSignal, untrack } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
+import { MoraineProvider } from '../../provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { createForm } from '../form/index.ts'
 

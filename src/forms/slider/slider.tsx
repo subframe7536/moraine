@@ -1,8 +1,8 @@
 import type { JSX, Ref } from 'solid-js'
 import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
+import { createStyles } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
-import { createStyles } from '../../shared/provider'
 import { callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 

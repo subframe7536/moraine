@@ -6,8 +6,8 @@ import {
   getMoraineAnimCounts,
   getMoraineAnimDurations,
   getMoraineAnimTimingFns,
-} from '../shared/style/animations'
-import { DEFAULT_ICON_SHORTCUTS } from '../shared/style/icons'
+} from '../theme/style/animations'
+import { DEFAULT_ICON_SHORTCUTS } from '../theme/style/icons'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
@@ -15,7 +15,7 @@ import {
   MORAINE_SHADOW,
   MORAINE_WIDTH,
   MORAINE_Z_INDEX,
-} from '../shared/style/theme'
+} from '../theme/style/theme'
 
 export interface MorainePluginOptions {
   /** Emit default page background and text colors. @default true */

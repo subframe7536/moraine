@@ -2,7 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 import { renderWithTheme } from '../../test-utils/theme-render'
 import { defineTheme } from '../../theme'
 import { setPopperTestPlacementAccessor } from '../base/popper'

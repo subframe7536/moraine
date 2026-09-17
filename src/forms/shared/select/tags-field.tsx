@@ -3,7 +3,7 @@ import { createMemo } from 'solid-js'
 
 import { Icon } from '../../../elements/icon/index.ts'
 import type { IconT } from '../../../elements/icon/index.ts'
-import type { SlotBinding } from '../../../shared/provider/create-styles.ts'
+import type { SlotBinding } from '../../../provider/create-styles.ts'
 
 export interface TagsFieldEntry<TValue> {
   value: TValue

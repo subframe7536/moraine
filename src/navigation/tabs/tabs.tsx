@@ -13,8 +13,8 @@ import {
 } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
+import { createStyles } from '../../provider'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
-import { createStyles } from '../../shared/provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { useId } from '../../shared/utils'

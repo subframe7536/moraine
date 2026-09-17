@@ -12,8 +12,8 @@ import {
   untrack,
 } from 'solid-js'
 
-import { createStyles } from '../../shared/provider'
-import { useCn } from '../../shared/provider/cn-context'
+import { createStyles } from '../../provider'
+import { useCn } from '../../provider/cn-context'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useDisclosureState } from '../../shared/use-disclosure-state'
 import { useTransitionPresence } from '../../shared/use-transition-presence'

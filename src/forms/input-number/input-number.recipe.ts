@@ -1,7 +1,7 @@
 import { INPUT_VARIANT } from '../../shared/recipe-common.class'
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { InputNumberStyleSlot, InputNumberStyleVariant } from './input-number.style-types.ts'
+import type { InputNumberStyleSlot, InputNumberStyleVariant } from './input-number.style-types'
 
 export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
   'inputNumber',

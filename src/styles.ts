@@ -1,4 +1,4 @@
-export type { RecipeDefinition, RecipeKey, RecipeSlots, RecipeVariant } from './shared/style/recipe'
+export type { RecipeDefinition, RecipeKey, RecipeSlots, RecipeVariant } from './theme/style/recipe'
 
 export { accordionRecipe } from './elements/accordion/accordion.recipe'
 export { avatarRecipe, avatarGroupRecipe } from './elements/avatar/avatar.recipe'

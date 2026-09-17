@@ -1,4 +1,4 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
 import type { ButtonStyleSlot, ButtonStyleVariant } from './button.style-types'
 

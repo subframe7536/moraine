@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { FormStyleSlot } from './form.style-types.ts'
+import type { FormStyleSlot } from './form.style-types'
 
 export const formRecipe = /* @__PURE__ */ defineRecipe<'form', FormStyleSlot>('form', {
   base: {

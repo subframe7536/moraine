@@ -1,4 +1,4 @@
-import type { RecipeConfig } from '../../../shared/style/recipe'
+import type { RecipeConfig } from '../../../theme/style/recipe'
 
 import type { OverlayMenuStyleSlot, OverlayMenuStyleVariant } from './style-types'
 

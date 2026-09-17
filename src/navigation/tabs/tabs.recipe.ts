@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { TabsStyleSlot, TabsStyleVariant } from './tabs.style-types.ts'
+import type { TabsStyleSlot, TabsStyleVariant } from './tabs.style-types'
 
 export const tabsRecipe = /* @__PURE__ */ defineRecipe<'tabs', TabsStyleSlot, TabsStyleVariant>(
   'tabs',

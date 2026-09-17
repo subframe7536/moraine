@@ -48,7 +48,7 @@ test('publishes only documented entry points with types before runtime condition
       assert.equal(typeof useDisclosureState, 'function')
       assert.equal(typeof useSearchValue, 'function')
       assert.ok(import.meta.resolve('moraine').endsWith('/dist/index.mjs'))
-      for (const specifier of ['moraine/button', 'moraine/dist/index.mjs', 'moraine/shared/provider']) {
+      for (const specifier of ['moraine/button', 'moraine/dist/index.mjs', 'moraine/provider']) {
         assert.throws(() => import.meta.resolve(specifier), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' })
       }
     `,

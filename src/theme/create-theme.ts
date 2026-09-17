@@ -1,5 +1,4 @@
-import type { RecipeLayerConfig } from '../shared/style/recipe'
-
+import type { RecipeLayerConfig } from './style/recipe'
 import type { DefineThemeOptions, MoraineTheme } from './types'
 
 // Public subpath bundles may contain separate copies of this module. Use the

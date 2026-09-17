@@ -1,8 +1,8 @@
 import type { JSX, ValidComponent } from 'solid-js'
 
-import type { ClassValue } from './style/recipe'
+import type { ClassValue } from '../theme/style/recipe'
 
-export type { ClassValue } from './style/recipe'
+export type { ClassValue } from '../theme/style/recipe'
 
 export type SlotClassValue = ClassValue
 

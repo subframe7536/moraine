@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { ModalStyleSlot } from './modal.style-types.ts'
+import type { ModalStyleSlot } from './modal.style-types'
 
 /** Default backdrop classes for modal overlays. */
 export const MODAL_OVERLAY_CLASS =

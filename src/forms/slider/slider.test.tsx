@@ -2,7 +2,7 @@ import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-libra
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 
 import { useSlider } from './hook'
 import { Slider } from './slider'

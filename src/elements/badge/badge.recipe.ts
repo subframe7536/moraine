@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { BadgeStyleSlot, BadgeRecipeVariant } from './badge.style-types.ts'
+import type { BadgeStyleSlot, BadgeRecipeVariant } from './badge.style-types'
 
 export const badgeRecipe = /* @__PURE__ */ defineRecipe<
   'badge',

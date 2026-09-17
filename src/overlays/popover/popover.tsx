@@ -10,9 +10,9 @@ import {
   splitProps,
 } from 'solid-js'
 
+import { createStyles } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
 import { hasJsxContent } from '../../shared/jsx-content'
-import { createStyles } from '../../shared/provider'
 import { resolveOverlayMenuSide } from '../base'
 import { createPopper, PopperTrigger, PopperContent, mergePopperElementProps } from '../base/popper'
 import type { PopperTriggerProps } from '../base/popper.types'

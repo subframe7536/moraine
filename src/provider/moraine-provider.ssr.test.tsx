@@ -2,9 +2,9 @@ import { createComponent, createSignal } from 'solid-js'
 import { hydrate } from 'solid-js/web'
 import { expect, test } from 'vitest'
 
-import { renderSsrFixture, installHydrationState } from '../../test-utils/ssr-test'
-import { defineTheme } from '../../theme/create-theme'
-import type { CnConfig } from '../style/cn'
+import { renderSsrFixture, installHydrationState } from '../test-utils/ssr-test'
+import { defineTheme } from '../theme/create-theme'
+import type { CnConfig } from '../theme/style/cn'
 
 import {
   CnHydrationFixture,
@@ -16,7 +16,7 @@ import {
 test('hydrates Theme presentation once and preserves native nodes across replacement', () => {
   const container = document.createElement('div')
   container.innerHTML = renderSsrFixture(
-    '/src/shared/provider/moraine-provider.ssr.fixture.tsx',
+    '/src/provider/moraine-provider.ssr.fixture.tsx',
     'renderThemeFixture',
   )
   document.body.append(container)
@@ -79,7 +79,7 @@ test('hydrates Theme presentation once and preserves native nodes across replace
 test('hydrates default presentation with the same component nodes', () => {
   const container = document.createElement('div')
   container.innerHTML = renderSsrFixture(
-    '/src/shared/provider/moraine-provider.ssr.fixture.tsx',
+    '/src/provider/moraine-provider.ssr.fixture.tsx',
     'renderHeadlessThemeFixture',
   )
   document.body.append(container)
@@ -100,7 +100,7 @@ test('hydrates default presentation with the same component nodes', () => {
 })
 
 test('isolates SSR requests and hydrates scoped merging with live config replacement', () => {
-  const fixture = '/src/shared/provider/moraine-provider.ssr.fixture.tsx'
+  const fixture = '/src/provider/moraine-provider.ssr.fixture.tsx'
   const html = renderSsrFixture(fixture, 'renderCnFixture')
   const defaultHtml = renderSsrFixture(fixture, 'renderDefaultCnFixture')
   expect(html).toContain('p-2 p-4')

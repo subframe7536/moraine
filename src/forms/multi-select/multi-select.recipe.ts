@@ -1,5 +1,5 @@
 import { TEXT_SIZE_VARIANT } from '../../shared/recipe-common.class.ts'
-import { defineRecipe } from '../../shared/style/recipe.ts'
+import { defineRecipe } from '../../theme/style/recipe.ts'
 import {
   SELECT_FAMILY_SLOTS,
   FIELD_VARIANTS,
@@ -10,7 +10,7 @@ import {
   TAG_SLOTS,
 } from '../shared/select/select-field.class.ts'
 
-import type { MultiSelectStyleSlot, MultiSelectStyleVariant } from './multi-select.style-types.ts'
+import type { MultiSelectStyleSlot, MultiSelectStyleVariant } from './multi-select.style-types'
 
 export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<
   'multiSelect',

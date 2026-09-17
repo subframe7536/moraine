@@ -14,7 +14,7 @@ import {
 
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
-import { createStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'

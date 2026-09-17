@@ -1,7 +1,7 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { KbdGroupStyleSlot, KbdGroupStyleVariant } from './kbd-group.style-types.ts'
-import type { KbdStyleSlot, KbdStyleVariant } from './kbd.style-types.ts'
+import type { KbdGroupStyleSlot, KbdGroupStyleVariant } from './kbd-group.style-types'
+import type { KbdStyleSlot, KbdStyleVariant } from './kbd.style-types'
 
 export const kbdRecipe = /* @__PURE__ */ defineRecipe<'kbd', KbdStyleSlot, KbdStyleVariant>('kbd', {
   base: {

@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import { createStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 import { Icon } from '../icon'
 
 import { badgeRecipe } from './badge.recipe'

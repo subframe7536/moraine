@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { TooltipStyleSlot, TooltipStyleVariant } from './tooltip.style-types.ts'
+import type { TooltipStyleSlot, TooltipStyleVariant } from './tooltip.style-types'
 
 export const tooltipRecipe = /* @__PURE__ */ defineRecipe<
   'tooltip',

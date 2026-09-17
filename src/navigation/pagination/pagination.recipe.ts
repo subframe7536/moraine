@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { PaginationStyleSlot, PaginationStyleVariant } from './pagination.style-types.ts'
+import type { PaginationStyleSlot, PaginationStyleVariant } from './pagination.style-types'
 
 export const PAGINATION_CONTROL_LABEL_CLASS = 'hidden sm:block'
 

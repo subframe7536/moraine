@@ -10,7 +10,7 @@ import type {
   FormValueOptions,
 } from '../shared/form-options.ts'
 
-import type { InputStyleSlot, InputStyleVariant } from './input.style-types.ts'
+import type { InputStyleSlot, InputStyleVariant } from './input.style-types'
 
 export namespace InputT {
   export type Kind = 'single'

@@ -10,7 +10,7 @@ import type {
   FormValueOptions,
 } from '../shared/form-options.ts'
 
-import type { TextareaStyleSlot, TextareaStyleVariant } from './textarea.style-types.ts'
+import type { TextareaStyleSlot, TextareaStyleVariant } from './textarea.style-types'
 
 export namespace TextareaT {
   export type Kind = 'single'

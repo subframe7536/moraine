@@ -20,7 +20,7 @@ import type {
   ComboboxControlStyleSlot,
   ComboboxStyleSlot,
   ComboboxStyleVariant,
-} from './combobox.style-types.ts'
+} from './combobox.style-types'
 
 export namespace ComboboxT {
   export type Kind = 'single'

@@ -1,11 +1,11 @@
-import { defineRecipe } from '../../shared/style/recipe.ts'
+import { defineRecipe } from '../../theme/style/recipe.ts'
 import {
   TEXT_CONTROL_CLASS,
   TEXT_CONTROL_GROUPED,
   TEXT_CONTROL_VARIANT,
 } from '../shared/text-control.class.ts'
 
-import type { InputRecipeVariant, InputStyleSlot } from './input.style-types.ts'
+import type { InputRecipeVariant, InputStyleSlot } from './input.style-types'
 
 export const inputRecipe = /* @__PURE__ */ defineRecipe<
   'input',

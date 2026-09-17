@@ -1,4 +1,4 @@
-import type { BaseSelectStyleSlot } from '../base-select/base-select.style-types.ts'
+import type { BaseSelectStyleSlot } from '../base-select/base-select.style-types'
 import type {
   SelectControlStyleVariant,
   SelectItemStyleSlot,

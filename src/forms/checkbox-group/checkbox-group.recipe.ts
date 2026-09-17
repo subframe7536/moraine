@@ -1,9 +1,9 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
 import type {
   CheckboxGroupStyleSlot,
   CheckboxGroupStyleVariant,
-} from './checkbox-group.style-types.ts'
+} from './checkbox-group.style-types'
 
 export const checkboxGroupRecipe = /* @__PURE__ */ defineRecipe<
   'checkboxGroup',

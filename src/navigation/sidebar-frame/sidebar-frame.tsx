@@ -12,8 +12,8 @@ import {
 } from 'solid-js'
 
 import { Sheet } from '../../overlays/sheet'
-import { createStyles } from '../../shared/provider'
-import { useCn } from '../../shared/provider/cn-context'
+import { createStyles } from '../../provider'
+import { useCn } from '../../provider/cn-context'
 import { createMediaQuery } from '../../shared/use-media-query'
 import { callHandler } from '../../shared/utils'
 

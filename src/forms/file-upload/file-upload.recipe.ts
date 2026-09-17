@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { FileUploadStyleSlot, FileUploadStyleVariant } from './file-upload.style-types.ts'
+import type { FileUploadStyleSlot, FileUploadStyleVariant } from './file-upload.style-types'
 
 export const fileUploadRecipe = /* @__PURE__ */ defineRecipe<
   'fileUpload',

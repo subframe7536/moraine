@@ -1,11 +1,11 @@
 import type { JSX } from 'solid-js'
 import { createMemo, useContext } from 'solid-js'
 
-import { getThemeRecipeLayers } from '../../theme/create-theme'
-import type { MoraineTheme } from '../../theme/types'
-import type { CnConfig } from '../style/cn'
-import { createCn } from '../style/cn'
-import type { RecipeDefinition, RecipeLayerConfig, ResolvedRecipe } from '../style/recipe'
+import { getThemeRecipeLayers } from '../theme/create-theme'
+import type { CnConfig } from '../theme/style/cn'
+import { createCn } from '../theme/style/cn'
+import type { RecipeDefinition, RecipeLayerConfig, ResolvedRecipe } from '../theme/style/recipe'
+import type { MoraineTheme } from '../theme/types'
 
 import { MoraineCnContext } from './cn-context'
 import { defaultRecipeResolver, MoraineThemeContext } from './theme-context'

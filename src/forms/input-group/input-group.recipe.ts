@@ -1,7 +1,7 @@
 import { INPUT_VARIANT } from '../../shared/recipe-common.class.ts'
-import { defineRecipe } from '../../shared/style/recipe.ts'
+import { defineRecipe } from '../../theme/style/recipe.ts'
 
-import type { InputGroupStyleSlot, InputGroupRecipeVariant } from './input-group.style-types.ts'
+import type { InputGroupStyleSlot, InputGroupRecipeVariant } from './input-group.style-types'
 
 export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
   'inputGroup',

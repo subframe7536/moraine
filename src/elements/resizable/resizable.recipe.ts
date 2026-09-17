@@ -1,6 +1,6 @@
-import { defineRecipe } from '../../shared/style/recipe'
+import { defineRecipe } from '../../theme/style/recipe'
 
-import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.style-types.ts'
+import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.style-types'
 
 export const resizableRecipe = /* @__PURE__ */ defineRecipe<
   'resizable',

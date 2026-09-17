@@ -11,8 +11,8 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { createStyles } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
-import { createStyles } from '../../shared/provider'
 import { useEventListener } from '../../shared/use-event-listener'
 import { useId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'

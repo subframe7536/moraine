@@ -8,9 +8,9 @@ import {
 } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
+import { createStyles } from '../../provider'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
-import { createStyles } from '../../shared/provider'
 import { Modal } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'

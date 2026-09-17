@@ -4,7 +4,7 @@ import { describe, expect, test } from 'vitest'
 
 import { DropdownMenu } from '../../overlays/dropdown-menu'
 import { Popover } from '../../overlays/popover'
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 import { defineTheme } from '../../theme'
 
 import { Button } from './button'

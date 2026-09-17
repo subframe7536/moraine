@@ -1,4 +1,4 @@
-import type { ComponentSize } from '../../shared/style/style-types'
+import type { ComponentSize } from '../../theme/style/style-types'
 
 import type { ButtonStyleVariant } from './button.style-types'
 

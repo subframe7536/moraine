@@ -1,14 +1,14 @@
 import type { JSX } from 'solid-js'
 import { createMemo } from 'solid-js'
 
+import type { SlotClassValue } from '../shared/types'
 import type {
   RecipeDefinition,
   RecipeSlots,
   RecipeVariant,
   RecipeVariantSelection,
-} from '../style/recipe'
-import { getRecipeDefaultVariants, resolveRecipe } from '../style/recipe'
-import type { SlotClassValue } from '../types'
+} from '../theme/style/recipe'
+import { getRecipeDefaultVariants, resolveRecipe } from '../theme/style/recipe'
 
 import { useCn } from './cn-context'
 import { useThemeResolver } from './theme-context'

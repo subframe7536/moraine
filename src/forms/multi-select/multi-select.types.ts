@@ -20,7 +20,7 @@ import type {
   MultiSelectControlStyleSlot,
   MultiSelectStyleSlot,
   MultiSelectStyleVariant,
-} from './multi-select.style-types.ts'
+} from './multi-select.style-types'
 
 export namespace MultiSelectT {
   export type Kind = 'single'

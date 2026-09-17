@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
 
+import type { CreateStylesResult } from '../../provider/create-styles'
 import { createContextProvider } from '../../shared/create-context-provider'
-import type { CreateStylesResult } from '../../shared/provider/create-styles'
 
 import type { sidebarFrameRecipe } from './sidebar-frame.recipe'
 import type { SidebarFrameT } from './sidebar-frame.types'

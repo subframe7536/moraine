@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
-import { createStyles } from '../../shared/provider/index.ts'
+import { createStyles } from '../../provider/index.ts'
 import { callHandler } from '../../shared/utils.ts'
 import { useFieldContext } from '../field/field-context.ts'
 import { isInteractiveTarget } from '../shared/is-interactive-target.ts'
