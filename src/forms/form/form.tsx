@@ -4,10 +4,11 @@ import {
   Form as FormischForm,
   reset as resetForm,
 } from '@formisch/solid'
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
+import type { ValidComponent } from '../../shared/types.ts'
 import { callHandler } from '../../shared/utils'
 import type { FieldProps } from '../field'
 import { renderField } from '../field/field'

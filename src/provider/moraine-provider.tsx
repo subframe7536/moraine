@@ -4,7 +4,12 @@ import { createMemo, useContext } from 'solid-js'
 import { getThemeRecipeLayers } from '../theme/create-theme'
 import type { CnConfig } from '../theme/style/cn'
 import { createCn } from '../theme/style/cn'
-import type { RecipeDefinition, RecipeLayerConfig, ResolvedRecipe } from '../theme/style/recipe'
+import type {
+  RecipeDefaultVariants,
+  RecipeDefinition,
+  RecipeLayerConfig,
+  ResolvedRecipe,
+} from '../theme/style/recipe'
 import type { MoraineTheme } from '../theme/types'
 
 import { MoraineCnContext } from './cn-context'
@@ -45,7 +50,20 @@ export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
       let layers: RecipeLayerConfig<S, V>[] = [recipe.config]
       for (const override of overrides) {
         const { replace, ...layer } = override
-        layers = replace ? [layer] : [...layers, layer]
+        if (replace) {
+          const defaultVariants =
+            recipe.config.defaultVariants || layer.defaultVariants
+              ? (Object.freeze({
+                  ...recipe.config.defaultVariants,
+                  ...Object.fromEntries(
+                    Object.entries(layer.defaultVariants ?? {}).filter(([, v]) => v !== undefined),
+                  ),
+                }) as RecipeDefaultVariants<V>)
+              : undefined
+          layers = [Object.freeze({ ...layer, ...(defaultVariants ? { defaultVariants } : {}) })]
+        } else {
+          layers = [...layers, layer]
+        }
       }
       const resolved = Object.freeze({
         definition: recipe,

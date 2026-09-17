@@ -1,4 +1,4 @@
-import type { Accessor, JSX, ValidComponent } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 import {
   Show,
   children as resolveChildren,
@@ -15,6 +15,7 @@ import {
 import { KbdGroup } from '../../elements/kbd'
 import { createStyles } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
+import type { ValidComponent } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useId } from '../../shared/utils'
 import { resolveOverlayMenuSide } from '../base'

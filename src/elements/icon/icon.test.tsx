@@ -104,9 +104,7 @@ describe('Icon', () => {
 
   test('forwards reactive attributes to renderers with default parameters', () => {
     const [label, setLabel] = createSignal('Before')
-    const Glyph = (props: Omit<IconProps, 'name'> = {}) => (
-      <span aria-label={props['aria-label'] as string | undefined} />
-    )
+    const Glyph = (props: Omit<IconProps, 'name'> = {}) => <span aria-label={props['aria-label']} />
     const screen = render(() => <Icon name={Glyph} aria-label={label()} />)
     const glyph = screen.container.querySelector('span')!
     expect(glyph.getAttribute('aria-label')).toBe('Before')

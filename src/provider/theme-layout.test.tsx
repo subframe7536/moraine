@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@solidjs/testing-library'
+import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { expect, test } from 'vitest'
 
@@ -7,6 +7,7 @@ import { Separator } from '../elements/separator/separator'
 import { RadioGroup } from '../forms/radio-group/radio-group'
 import { Slider } from '../forms/slider/slider'
 import { SidebarFrame } from '../navigation/sidebar-frame/sidebar-frame'
+import { useSidebarFrame } from '../navigation/sidebar-frame/sidebar-frame-context'
 import { Stepper } from '../navigation/stepper/stepper'
 import { Tabs } from '../navigation/tabs/tabs'
 import { Sheet } from '../overlays/sheet/sheet'
@@ -95,4 +96,104 @@ test('uses the theme side for Sheet and lets explicit props override it', () => 
   expect(content.classList.contains('left-0')).toBe(true)
   setSide('right')
   expect(content.classList.contains('right-0')).toBe(true)
+})
+
+test('inherits built-in defaultVariants on replacement layers unless explicitly overridden', async () => {
+  const replaceBaseTheme = defineTheme({
+    sidebarFrame: {
+      replace: true,
+      base: {
+        root: 'custom-frame-root',
+        sidebar: 'custom-sidebar',
+        sidebarHeader: '',
+        sidebarBody: '',
+        sidebarFooter: '',
+        main: '',
+      },
+    },
+    slider: {
+      replace: true,
+      base: {
+        root: 'custom-slider-root',
+        track: '',
+        range: '',
+        divider: '',
+        thumb: '',
+      },
+    },
+  })
+
+  function FrameToggle() {
+    const frame = useSidebarFrame()
+    return (
+      <button type="button" onClick={frame.toggle}>
+        Toggle Sidebar
+      </button>
+    )
+  }
+
+  const [theme, setTheme] = createSignal<MoraineTheme>(replaceBaseTheme)
+  const screen = render(() => (
+    <MoraineProvider theme={theme()}>
+      <SidebarFrame isMobile={true}>
+        <SidebarFrame.Sidebar>Sidebar Content</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <FrameToggle />
+        </SidebarFrame.Main>
+      </SidebarFrame>
+      <Slider defaultValue={50} />
+    </MoraineProvider>
+  ))
+
+  // Slider inherits built-in orientation: 'horizontal'
+  expect(screen.getByRole('slider', { name: 'Thumb' }).getAttribute('aria-orientation')).toBe(
+    'horizontal',
+  )
+
+  // SidebarFrame inherits built-in side: 'left', so mobile Sheet opens on the left (left-0, not right-0)
+  fireEvent.click(screen.getByText('Toggle Sidebar'))
+  await waitFor(() => {
+    const content = document.body.querySelector('[data-slot="content"]')!
+    expect(content).not.toBeNull()
+    expect(content.classList.contains('left-0')).toBe(true)
+    expect(content.classList.contains('right-0')).toBe(false)
+  })
+
+  // Theme can still explicitly override defaultVariants with replace: true
+  setTheme(
+    defineTheme({
+      sidebarFrame: {
+        replace: true,
+        base: {
+          root: 'custom-frame-root',
+          sidebar: 'custom-sidebar',
+          sidebarHeader: '',
+          sidebarBody: '',
+          sidebarFooter: '',
+          main: '',
+        },
+        defaultVariants: { side: 'right' },
+      },
+      slider: {
+        replace: true,
+        base: {
+          root: 'custom-slider-root',
+          track: '',
+          range: '',
+          divider: '',
+          thumb: '',
+        },
+        defaultVariants: { orientation: 'vertical' },
+      },
+    }),
+  )
+
+  expect(
+    screen.getByRole('slider', { name: 'Thumb', hidden: true }).getAttribute('aria-orientation'),
+  ).toBe('vertical')
+  await waitFor(() => {
+    const content = document.body.querySelector('[data-slot="content"]')!
+    expect(content.classList.contains('right-0')).toBe(true)
+    expect(content.classList.contains('left-0')).toBe(false)
+  })
 })

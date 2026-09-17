@@ -1,9 +1,10 @@
-import type { Component, JSX, ValidComponent } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 import { For, Show, createSignal, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
+import type { ValidComponent } from '../../shared/types.ts'
 
 import type { ListProps, ListT } from './list.types'
 

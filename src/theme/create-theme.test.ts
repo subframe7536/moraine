@@ -23,7 +23,37 @@ describe('defineTheme', () => {
       { base: { label: 'font-bold' }, defaultVariants: { size: 'lg' } },
     ])
     expect(Object.isFrozen(config.button)).toBe(false)
+    expect(Object.isFrozen(config.button.base)).toBe(false)
+    expect(Object.isFrozen(config.button.defaultVariants)).toBe(false)
     expect(config.button.defaultVariants.size).toBe('sm')
+  })
+
+  test('does not freeze caller input objects or nested references', () => {
+    const base = { root: 'p-2' }
+    const variants = { size: { sm: { root: 'p-1' } } }
+    const compoundVariants = [{ variants: { size: 'sm' as const }, root: 'font-bold' }]
+    const defaultVariants = { size: 'sm' as const }
+    const config = {
+      button: {
+        base,
+        variants,
+        compoundVariants,
+        defaultVariants,
+      },
+    }
+
+    defineTheme(config)
+
+    expect(Object.isFrozen(config)).toBe(false)
+    expect(Object.isFrozen(config.button)).toBe(false)
+    expect(Object.isFrozen(base)).toBe(false)
+    expect(Object.isFrozen(variants)).toBe(false)
+    expect(Object.isFrozen(variants.size)).toBe(false)
+    expect(Object.isFrozen(variants.size.sm)).toBe(false)
+    expect(Object.isFrozen(compoundVariants)).toBe(false)
+    expect(Object.isFrozen(compoundVariants[0])).toBe(false)
+    expect(Object.isFrozen(compoundVariants[0]!.variants)).toBe(false)
+    expect(Object.isFrozen(defaultVariants)).toBe(false)
   })
 
   test('retains replacement markers and later additive layers', () => {

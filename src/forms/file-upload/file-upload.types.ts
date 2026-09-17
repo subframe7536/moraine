@@ -1,7 +1,7 @@
-import type { JSX, Ref, ValidComponent } from 'solid-js'
+import type { JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
 import type {
   FormDisableOption,
   FormIdentityOptions,

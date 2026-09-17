@@ -1,4 +1,4 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 import {
   Show,
   children as resolveChildren,
@@ -13,6 +13,7 @@ import {
 import { createStyles } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
 import { hasJsxContent } from '../../shared/jsx-content'
+import type { ValidComponent } from '../../shared/types.ts'
 import { resolveOverlayMenuSide } from '../base'
 import { createPopper, PopperTrigger, PopperContent, mergePopperElementProps } from '../base/popper'
 import type { PopperTriggerProps } from '../base/popper.types'
@@ -264,7 +265,7 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
             {...mergePopperElementProps(contentProps, rest)}
             data-slot="content"
             data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'bottom')}
-            aria-label={local.ariaLabel ?? (rest['aria-label'] as string | undefined)}
+            aria-label={local.ariaLabel ?? rest['aria-label']}
             {...resolved.styles.content}
           >
             <Show when={hasJsxContent(content())}>

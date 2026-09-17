@@ -1,4 +1,4 @@
-import type { Accessor, JSX, ValidComponent } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 import {
   Show,
   children as resolveChildren,
@@ -15,6 +15,7 @@ import { Dynamic, Portal } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
+import type { ValidComponent } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../shared/use-transition-presence'

@@ -15,7 +15,7 @@ Moraine is designed from the ground up for strict, ergonomic TypeScript support 
 The type system is structured around four architectural principles:
 
 - **Two-tier public exports**: Every component exports a top-level `XxxProps` type for prop extension alongside a cohesive `XxxT` namespace for supporting types (items, values, slots, variants), preventing global type namespace pollution.
-- **Curated native element ownership**: Root and control elements expose a practical, intentionally narrower native DOM surface with canonical camelCase events, while omitting lowercase aliases and unwanted namespace-style APIs for cleaner completions and lower checker cost.
+- **Strict native element ownership**: Root and control elements expose strict native Solid attributes and camelCase event handlers, while omitting legacy lowercase event aliases and directive prefixes for noise-free completions.
 - **True polymorphic rendering**: The `as` prop supports both native HTML tags and custom Solid components (`as={Button}`), preserving required props, target variant completion, and "Go to Definition" navigation.
 - **Compile-time configuration**: Project-wide type behavior can be adjusted via module augmentation using `MoraineTypeConfig`.
 
@@ -121,15 +121,11 @@ const cardStyles: CardT.Classes = {
 
 ## Root Props & Native Element Ownership
 
-Components with a DOM root document that root through their public types. By default, Moraine exposes a curated native DOM surface rather than Solid's complete intrinsic attribute universe:
+Components with a DOM root document that root through their public types. DOM roots expose precise native Solid attributes by default:
 
-- **Curated native attributes**: Common structural, form, link, and control attributes are typed from Solid's native definitions without expanding the complete DOM surface.
-- **ARIA & data attributes**: Arbitrary `aria-*` and `data-*` attributes are accepted through lightweight template-key fallbacks.
-- **Canonical events only**: `onClick`, `onInput`, `onKeyDown`, `onPointerDown`, and other supported camelCase handlers remain typed with the native root as `currentTarget`. Lowercase aliases such as `onclick` and `onkeydown` are intentionally unsupported.
-- **No unwanted namespace syntax**: Moraine roots intentionally do not expose Solid namespace-style forms such as `use:`, `on:`, `oncapture:`, `attr:`, `bool:`, and `prop:`.
-- **Unknown attributes**: Other unrecognized attributes fail type checking by default to catch typos early.
-
-TypeScript 7.0.2 currently does not suggest matching explicit ARIA names when an `aria-${string}` template fallback is present. Attributes such as `aria-label` and `aria-describedby` still typecheck correctly; Moraine accepts this language-service limitation instead of enumerating the complete ARIA interface and reconnecting the large DOM type graph.
+- **Standard HTML & ARIA attributes**: `aria-*`, `data-*`, `id`, `tabIndex`, and standard attributes are fully typed.
+- **CamelCase event handlers**: `onClick`, `onInput`, `onKeyDown`, etc. Lowercase aliases (`onclick`) and Solid directive prefixes (`use:*`) are omitted to keep autocompletion focused.
+- **Unknown attributes**: Unrecognized attributes fail type checking by default to catch typos early.
 
 ```tsx
 <Card aria-describedby="details" data-testid="card" />
@@ -215,8 +211,8 @@ declare module 'moraine' {
   interface MoraineTypeConfig {
     /**
      * When true, relaxes root element attributes to component props + `Record<string, unknown>`.
-     * Unknown attributes will be accepted without type errors, minimizing root-prop checker cost.
-     * Defaults to false (the curated native-root contract).
+     * Unknown attributes will be accepted without type errors, improving type-checking speed.
+     * Defaults to false (strict checking against JSX.IntrinsicElements).
      */
     simpleRootAttributes?: boolean
 
@@ -232,8 +228,8 @@ declare module 'moraine' {
 
 ### `simpleRootAttributes`
 
-- **`false` (default)**: Native roots use Moraine's curated strict DOM contract. Common native functionality, canonical events, arbitrary `data-*`, and arbitrary `aria-*` remain available without exposing Solid's complete intrinsic surface.
-- **`true`**: A performance/compatibility escape hatch that relaxes the curated native-root contract to component props + `Record<string, unknown>`. Unknown root attributes pass without errors, while component-specific props (`variant`, `size`, `disabled`) remain strictly typed.
+- **`false` (default)**: All intrinsic HTML attributes are strictly verified against `StrictedAttributes<T>`. Custom, misspelled, or non-standard attributes (outside `data-*` and `aria-*`) trigger TypeScript errors.
+- **`true`**: Root attributes accept component props + `Record<string, unknown>`. Unknown attributes pass without errors, while known component props (`variant`, `size`, `disabled`) remain strictly checked. Recommended for large enterprise codebases prioritizing compiler performance.
 
 ### `simpleHtmlTags`
 

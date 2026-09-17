@@ -1,8 +1,8 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, onMount, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { SlotClassValue } from '../../shared/types'
+import type { SlotClassValue, ValidComponent } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callRef } from '../../shared/utils'
 import { validateOverlayTrigger } from '../base/trigger'

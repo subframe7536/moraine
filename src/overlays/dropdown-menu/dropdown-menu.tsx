@@ -1,4 +1,4 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 import {
   children as resolveChildren,
   createEffect,
@@ -13,6 +13,7 @@ import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
+import type { ValidComponent } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'

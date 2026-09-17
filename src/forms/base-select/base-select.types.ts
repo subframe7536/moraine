@@ -1,7 +1,12 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 
 import type { ModalT } from '../../overlays/modal/modal.types.ts'
-import type { ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
+import type {
+  ElementProps,
+  SlotClassValue,
+  SlotStyleValue,
+  ValidComponent,
+} from '../../shared/types.ts'
 import type {
   FormIdentityOptions,
   FormDisableOption,

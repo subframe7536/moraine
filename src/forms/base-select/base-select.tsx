@@ -1,4 +1,4 @@
-import type { Accessor, JSX, ValidComponent } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 import {
   batch,
   children as resolveChildren,
@@ -27,6 +27,7 @@ import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { createTypeahead } from '../../shared/typeahead.ts'
+import type { ValidComponent } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'

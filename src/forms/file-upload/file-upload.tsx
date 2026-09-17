@@ -1,4 +1,4 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 import {
   For,
   Show,
@@ -15,6 +15,7 @@ import { Dynamic } from 'solid-js/web'
 import { Icon } from '../../elements/icon'
 import { createStyles } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
+import type { ValidComponent } from '../../shared/types.ts'
 import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'

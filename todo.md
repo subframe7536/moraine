@@ -19,6 +19,7 @@
 - [ ] a better way to define destructive item in menu
 - [ ] sidebar-frame styling is broken, more useful usage and example
 - [ ] polish button-group of border color when press
+- [ ] cleanup types to make memory less
 - [ ] correct document page's focus loop
   - [ ] also audit all components
 - [ ] metric adjust across all sizes

@@ -1,4 +1,4 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 import {
   Show,
   children as resolveChildren,
@@ -11,6 +11,7 @@ import { Icon } from '../../elements/icon'
 import { createStyles } from '../../provider'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
+import type { ValidComponent } from '../../shared/types.ts'
 import { Modal } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'

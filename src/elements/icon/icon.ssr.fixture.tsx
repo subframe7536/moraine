@@ -6,7 +6,7 @@ import type { IconProps } from './icon.types.ts'
 
 function Glyph(props: Omit<IconProps, 'name'>) {
   return (
-    <svg aria-label={props['aria-label'] as string | undefined} data-testid="component-icon">
+    <svg aria-label={props['aria-label']} data-testid="component-icon">
       <title>{props['aria-label']}</title>
     </svg>
   )

@@ -1,9 +1,10 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
+import type { ValidComponent } from '../../shared/types.ts'
 import { callRef } from '../../shared/utils'
 
 import { useCollapsibleContext } from './collapsible-context'

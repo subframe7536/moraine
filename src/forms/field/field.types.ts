@@ -1,7 +1,7 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
 
 import type { FieldStyleSlot, FieldStyleVariant } from './field.style-types'
 

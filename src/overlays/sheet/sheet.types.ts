@@ -1,6 +1,6 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
 import type { ModalT } from '../modal/modal.types'
 
 import type { SheetStyleSlot, SheetStyleVariant } from './sheet.style-types'

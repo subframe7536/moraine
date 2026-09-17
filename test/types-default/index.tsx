@@ -51,7 +51,9 @@ import type {
   MultiSelectT,
   SelectT,
   SidebarFrameT,
+  Tags,
   TextareaT,
+  ValidComponent,
 } from 'moraine'
 import type {
   buttonRecipe,
@@ -498,3 +500,10 @@ type SliderRecipeVariant = RecipeVariant<typeof publicSliderRecipe>
 const buttonRoot: keyof ButtonRecipeSlots = 'root'
 const sliderSize: SliderRecipeVariant['size'] = 'sm'
 void [buttonRoot, sliderSize]
+
+export type DefaultTagAssertions = [
+  Assert<Tags extends keyof JSX.IntrinsicElements ? true : false>,
+  Assert<'svg' extends Tags ? true : false>,
+  Assert<'div' extends Tags ? true : false>,
+  Assert<ValidComponent extends Tags | ((props: any) => any) | (string & {}) ? true : false>,
+]

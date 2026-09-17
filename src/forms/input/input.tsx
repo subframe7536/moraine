@@ -193,7 +193,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       autocomplete={merged.autocomplete}
       data-slot="root"
       {...dataAttrs()}
-      {...(ariaAttrs() as JSX.AriaAttributes)}
+      {...ariaAttrs()}
       {...textControl.valueProps()}
       ref={(element) => {
         inputEl = element

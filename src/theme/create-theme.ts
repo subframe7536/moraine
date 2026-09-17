@@ -14,20 +14,18 @@ type InternalTheme = MoraineTheme & {
   readonly [THEME_LAYERS]: readonly ThemeLayer[]
 }
 
-function freezeObject(value: unknown): unknown {
-  if (!value || typeof value !== 'object' || Object.isFrozen(value)) {
+function cloneAndFreeze(value: unknown): unknown {
+  if (!value || typeof value !== 'object') {
     return value
   }
   if (Array.isArray(value)) {
-    for (const item of value) {
-      freezeObject(item)
-    }
-    return Object.freeze(value)
+    return Object.freeze(value.map((item) => cloneAndFreeze(item)))
   }
-  for (const item of Object.values(value)) {
-    freezeObject(item)
+  const cloned: Record<string, unknown> = {}
+  for (const [key, val] of Object.entries(value)) {
+    cloned[key] = cloneAndFreeze(val)
   }
-  return Object.freeze(value)
+  return Object.freeze(cloned)
 }
 
 /** Creates an immutable layered Moraine theme override. */
@@ -38,7 +36,7 @@ export function defineTheme(options: DefineThemeOptions = {}): MoraineTheme {
     if (value === undefined) {
       continue
     }
-    overrides[key] = freezeObject({ ...value }) as Readonly<Record<string, unknown>>
+    overrides[key] = cloneAndFreeze(value) as Readonly<Record<string, unknown>>
   }
   const layers = Object.freeze([
     ...getThemeLayers(parent),

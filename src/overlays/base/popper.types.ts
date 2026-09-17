@@ -1,7 +1,8 @@
 import type { Placement as FloatingPlacement } from '@floating-ui/dom'
-import type { Accessor, JSX, ValidComponent } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
+import type { ValidComponent } from '../../shared/types.ts'
 import type { ModalT } from '../modal/modal.types'
 
 export type PopperPlacement = FloatingPlacement

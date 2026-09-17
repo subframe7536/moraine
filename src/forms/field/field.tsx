@@ -1,4 +1,4 @@
-import type { Accessor, JSX, ValidComponent } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 import {
   children as resolveChildren,
   createMemo,
@@ -12,6 +12,7 @@ import { Dynamic } from 'solid-js/web'
 import { createStyles } from '../../provider'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
 import { renderComponentOrElement } from '../../shared/render-prop'
+import type { ValidComponent } from '../../shared/types.ts'
 import { useId } from '../../shared/utils'
 
 import type { FieldBinding, FieldContextOptions, FieldPath } from './field-context'

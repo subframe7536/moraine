@@ -5,9 +5,14 @@ import type {
   SubmitEventHandler,
 } from '@formisch/solid'
 import type * as Formisch from '@formisch/solid'
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type {
+  BaseProps,
+  SlotClassValue,
+  SlotStyleValue,
+  ValidComponent,
+} from '../../shared/types.ts'
 import type { FieldProps as StandaloneFieldProps } from '../field'
 
 import type { FormStyleSlot, FormStyleVariant } from './form.style-types'
