@@ -38,6 +38,11 @@ test('publishes only documented entry points with types before runtime condition
         expect(existsSync(join(consumer.packageDir, file)), file).toBe(true)
       }
     }
+    const iconCssPath = manifest.exports['./icon.css'] as string
+    const iconCss = readFileSync(join(consumer.packageDir, iconCssPath), 'utf8')
+    expect(iconCss.length).toBeGreaterThan(0)
+    expect(iconCss).toContain('icon-search')
+    expect(iconCss).toContain('icon-loading')
     const entry = join(consumer.root, 'verify.mjs')
     writeFileSync(
       entry,

@@ -164,6 +164,28 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<Button as={CustomRoot} />
 ;<Button as="input" type="checkbox" />
 
+;<Button
+  as="svg"
+  viewBox="0 0 24 24"
+  preserveAspectRatio="xMidYMid meet"
+  stroke-width={2}
+  shape-rendering="geometricPrecision"
+  ref={(element) => {
+    const svg: SVGSVGElement = element
+    void svg
+  }}
+/>
+// @ts-expect-error Lowercase event aliases remain excluded.
+;<Button as="svg" onclick={() => undefined} />
+// @ts-expect-error Lowercase keyboard aliases remain excluded.
+;<Button as="svg" onkeydown={() => undefined} />
+// @ts-expect-error Solid directive syntax remains excluded.
+;<Button as="svg" use:foo={foo} />
+// @ts-expect-error Solid namespaced event syntax remains excluded.
+;<Button as="svg" on:click={foo} />
+// @ts-expect-error Solid namespaced attribute syntax remains excluded.
+;<Button as="svg" attr:foo="bar" />
+
 ;<Card
   id="card"
   role="region"

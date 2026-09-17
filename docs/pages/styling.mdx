@@ -130,7 +130,7 @@ Interactive surfaces use semantic `hover` and `active` colors. Each hover token 
 
 ## Override component styles
 
-Theme classes merge in layer order, followed by composition-group overrides, instance `classes`, and root `class`. Inline styles merge dynamic geometry, group `styles`, instance `styles`, and root `style`. Pass CSS property objects to inline style props.
+Theme recipe classes merge first, followed by inherited composition styles, instance `classes`, and root `class`. Inline styles follow the same precedence: recipe/theme CSS variables, inherited styles, instance `styles[slot]`, then the instance root `style`. Pass CSS property objects to inline style props.
 
 ```tsx
 <Button class="bg-red-500" style={{ borderColor: 'red' }} classes={{ label: 'text-white' }}>
@@ -180,17 +180,18 @@ The bound `form.Form` is single: `createForm()` returns separate `Form` and `Fie
 
 Components use their built-in recipes by default. Add `MoraineProvider` only when you need Theme or `cnConfig` overrides.
 
-| `theme`                | Behavior                                                         |
-| ---------------------- | ---------------------------------------------------------------- |
-| Omitted or `undefined` | Inherit the parent theme, or use empty presentation at the root. |
-| A theme object         | Replace the parent theme. Use `extends` to compose themes.       |
-| `theme={null}`         | Clear inherited Theme overrides and use component recipes.       |
+| `theme`                | Behavior                                                                                                                   |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Omitted or `undefined` | Inherit the parent Theme overrides; at the root, use the built-in component recipes with no Theme overrides.               |
+| A Theme object         | Use that Theme instead of inherited Theme overrides; built-in component recipes remain the base. Use `extends` to compose. |
+| `theme={null}`         | Clear inherited Theme overrides and return to the built-in component recipes.                                              |
 
 ```tsx
 import { Button, MoraineProvider } from 'moraine'
+import { defineTheme } from 'moraine/theme'
 
 const brand = defineTheme({
-    button: { defaultVariants: { size: 'sm' }, base: { root: 'rounded-xl' } },
+  button: { defaultVariants: { size: 'sm' }, base: { root: 'rounded-xl' } },
 })
 const section = defineTheme({
   extends: brand,
@@ -208,7 +209,7 @@ const section = defineTheme({
 </MoraineProvider>
 ```
 
-`defineTheme()` returns an empty theme. `extends` merges component defaults, preserving parent values where the child supplies `undefined`, and evaluates parent recipes before child recipes. Update presentation by replacing the theme object. Setting `theme` back to `undefined` resumes inheritance and follows subsequent parent updates.
+`defineTheme()` creates an immutable Theme override; with no component entries, it adds no overrides to the built-in recipes. `extends` composes Theme override layers, preserving parent values where the child supplies `undefined`, and evaluates parent overrides before child overrides. Update presentation by replacing the Theme object. Setting `theme` back to `undefined` resumes inheritance and follows subsequent parent updates.
 
 ### Class merging configuration
 
@@ -292,7 +293,7 @@ A merger cannot restore classes already removed by another merger. Use `useCn()`
 
 ### Recipes and defaults
 
-Component configurations accept `base`, `variants`, `compoundVariants`, and `defaults`. Each contribution maps slot names to classes and full `--` custom property names to root CSS variables.
+Component configurations accept `base`, `variants`, `compoundVariants`, and `defaultVariants`. Each contribution maps slot names to classes and full `--` custom property names to root CSS variables.
 
 ```ts
 const theme = defineTheme({
@@ -315,7 +316,7 @@ Recipe Variants describe stable component options that select class branches, in
 ```ts
 const theme = defineTheme({
   button: { base: { root: 'data-disabled:opacity-50 data-loading:cursor-wait' } },
-  select: { variants: { search: { true: { control: 'focus-within:ring-2' } } } },
+  select: { base: { control: 'focus-within:ring-2' } },
   popover: { base: { content: 'data-[side=bottom]:mt-2' } },
 })
 ```
@@ -348,7 +349,7 @@ const theme = defineTheme({
 
 Classes and variables resolve together in base, selected variant, then matching compound order. Later non-null variable values override earlier values; numbers are passed through without units. Parent and child recipes receive the same resolved variants, with child variables overriding parent variables by property.
 
-Variables are applied to the component root's inline style before dynamic styles, group styles, `styles[rootSlot]`, and the instance `style`. Changing variants or removing the theme clears variables that no longer apply.
+Recipe and Theme CSS variables are applied first, followed by inherited styles, instance `styles[rootSlot]`, and the instance root `style`. Changing variants or removing Theme overrides clears variables that no longer apply.
 
 ### Reactive replacement and native refs
 

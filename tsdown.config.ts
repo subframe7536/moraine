@@ -46,7 +46,7 @@ export default defineConfig([
       unocss({
         generateCSS: true,
         fileName: 'icon.css',
-        filter: { id: /[\\/]src[\\/]shared[\\/]style[\\/]icons\.ts$/ },
+        filter: { id: /[\\/]src[\\/]theme[\\/]style[\\/]icons\.ts$/ },
         config: {
           configFile: false,
           presets: [
