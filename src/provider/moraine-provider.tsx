@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, useContext } from 'solid-js'
 
 import { getThemeRecipeLayers } from '../theme/create-theme'
-~import type { CnConfig } from '../theme/style/cn'
+import type { CnConfig } from '../theme/style/cn'
 import { createCn } from '../theme/style/cn'
 import type { RecipeDefinition, ResolvedRecipe } from '../theme/style/recipe'
 import type { MoraineTheme } from '../theme/types'
