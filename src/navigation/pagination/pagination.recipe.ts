@@ -5,7 +5,6 @@ import type { PaginationStyleSlot, PaginationStyleVariant } from './pagination.s
 export const PAGINATION_CONTROL_LABEL_CLASS = 'hidden sm:block'
 
 export const paginationRecipe = /* @__PURE__ */ defineRecipe<
-  'pagination',
   PaginationStyleSlot,
   PaginationStyleVariant
 >('pagination', {

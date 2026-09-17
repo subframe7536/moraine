@@ -56,7 +56,6 @@ import type {
 import type {
   buttonRecipe,
   sliderRecipe as publicSliderRecipe,
-  RecipeKey,
   RecipeSlots,
   RecipeVariant,
 } from 'moraine/styles'
@@ -494,13 +493,8 @@ const cnConfig = {
 const customCn: Cn = createCn(cnConfig)
 const scopedCn: Cn = useCn()
 const _mergedClass: string | undefined = cn(customCn('p-2'), scopedCn('p-4'))
-type ButtonRecipeKey = RecipeKey<typeof buttonRecipe>
 type ButtonRecipeSlots = RecipeSlots<typeof buttonRecipe>
 type SliderRecipeVariant = RecipeVariant<typeof publicSliderRecipe>
-const buttonRecipeKey: ButtonRecipeKey = 'button'
 const buttonRoot: keyof ButtonRecipeSlots = 'root'
 const sliderSize: SliderRecipeVariant['size'] = 'sm'
-void [buttonRecipeKey, buttonRoot, sliderSize]
-// @ts-expect-error Recipe keys remain literal.
-const invalidButtonRecipeKey: ButtonRecipeKey = 'input'
-void invalidButtonRecipeKey
+void [buttonRoot, sliderSize]

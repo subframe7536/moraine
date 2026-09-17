@@ -23,16 +23,16 @@ export interface MoraineProviderProps {
 /** Provides theme overrides and class merging rules to descendant components. */
 export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
   const parentResolver = useContext(MoraineThemeContext)
-  const cache = new WeakMap<MoraineTheme, WeakMap<RecipeDefinition<any>, ResolvedRecipe<any>>>()
+  const cache = new WeakMap<MoraineTheme, WeakMap<RecipeDefinition, ResolvedRecipe>>()
 
   const resolverFor = (theme: MoraineTheme): ThemeResolver => ({
-    resolve<Key extends string, S extends object, V>(recipe: RecipeDefinition<Key, S, V>) {
+    resolve<S extends object, V>(recipe: RecipeDefinition<S, V>) {
       let themeCache = cache.get(theme)
       if (!themeCache) {
         themeCache = new WeakMap()
         cache.set(theme, themeCache)
       }
-      const cached = themeCache.get(recipe) as ResolvedRecipe<Key, S, V> | undefined
+      const cached = themeCache.get(recipe) as ResolvedRecipe<S, V> | undefined
       if (cached) {
         return cached
       }
@@ -50,7 +50,7 @@ export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
       const resolved = Object.freeze({
         definition: recipe,
         layers: Object.freeze(layers),
-      }) as ResolvedRecipe<Key, S, V>
+      }) as ResolvedRecipe<S, V>
       themeCache.set(recipe, resolved)
       return resolved
     },

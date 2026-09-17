@@ -6,7 +6,6 @@ import type {
 } from './command-palette.style-types'
 
 export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
-  'commandPalette',
   CommandPaletteStyleSlot,
   CommandPaletteStyleVariant
 >('commandPalette', {

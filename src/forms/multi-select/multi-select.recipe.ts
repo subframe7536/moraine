@@ -13,7 +13,6 @@ import {
 import type { MultiSelectStyleSlot, MultiSelectStyleVariant } from './multi-select.style-types'
 
 export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<
-  'multiSelect',
   MultiSelectStyleSlot,
   MultiSelectStyleVariant
 >('multiSelect', {

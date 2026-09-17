@@ -8,16 +8,15 @@ import {
 
 import type { SelectStyleSlot, SelectStyleVariant } from './select.style-types'
 
-export const selectRecipe = /* @__PURE__ */ defineRecipe<
+export const selectRecipe = /* @__PURE__ */ defineRecipe<SelectStyleSlot, SelectStyleVariant>(
   'select',
-  SelectStyleSlot,
-  SelectStyleVariant
->('select', {
-  base: {
-    ...SELECT_FAMILY_SLOTS,
-    trigger: PRIMARY_TRIGGER_CLASS,
-    value: 'flex-1 min-w-0 truncate py-1.5 data-placeholder:text-muted-foreground',
-  },
-  defaultVariants: { variant: 'outline', size: 'md' },
-  variants: { variant: FIELD_VARIANTS, size: FIELD_SIZES },
-} as const)
+  {
+    base: {
+      ...SELECT_FAMILY_SLOTS,
+      trigger: PRIMARY_TRIGGER_CLASS,
+      value: 'flex-1 min-w-0 truncate py-1.5 data-placeholder:text-muted-foreground',
+    },
+    defaultVariants: { variant: 'outline', size: 'md' },
+    variants: { variant: FIELD_VARIANTS, size: FIELD_SIZES },
+  } as const,
+)

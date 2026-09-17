@@ -4,7 +4,6 @@ import { defineRecipe } from '../../theme/style/recipe'
 import type { InputNumberStyleSlot, InputNumberStyleVariant } from './input-number.style-types'
 
 export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
-  'inputNumber',
   InputNumberStyleSlot,
   InputNumberStyleVariant
 >('inputNumber', {

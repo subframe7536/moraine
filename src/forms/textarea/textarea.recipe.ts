@@ -8,7 +8,6 @@ import {
 import type { TextareaRecipeVariant, TextareaStyleSlot } from './textarea.style-types'
 
 export const textareaRecipe = /* @__PURE__ */ defineRecipe<
-  'textarea',
   TextareaStyleSlot,
   TextareaRecipeVariant
 >('textarea', {

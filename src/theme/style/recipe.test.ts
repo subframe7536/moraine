@@ -5,8 +5,8 @@ import { cn } from './cn'
 import type { RecipeConfig } from './recipe'
 import { atomicRecipe, defineRecipe, resolveRecipe } from './recipe'
 
-function testRecipe<Key extends string, S extends object, V>(key: Key, config: RecipeConfig<S, V>) {
-  const definition = defineRecipe<Key, S, V>(key, config)
+function testRecipe<S extends object, V = never>(key: string, config: RecipeConfig<S, V>) {
+  const definition = defineRecipe<S, V>(key, config)
   const fn = (variants?: any) => resolveRecipe(definition, variants, cn)
   return Object.assign(fn, {
     resolve: (variants: any, merge: typeof cn) => resolveRecipe(definition, variants, merge),
@@ -190,7 +190,7 @@ describe('recipe', () => {
   })
 
   describe('multi-slot recipe', () => {
-    const card = testRecipe<'card', CardSlot, CardVariant>('card', {
+    const card = testRecipe<CardSlot, CardVariant>('card', {
       base: {
         root: 'rounded-lg border border-border bg-card p-4',
         header: 'font-semibold text-card-foreground mb-2',
@@ -277,7 +277,7 @@ describe('recipe', () => {
     })
 
     test('resolves declared slots without a runtime slots array', () => {
-      const inferred = testRecipe<'inferred', InferredSlot, never>('inferred', {
+      const inferred = testRecipe<InferredSlot>('inferred', {
         base: {
           root: 'flex flex-col',
           header: 'p-4 border-b',
@@ -339,7 +339,7 @@ describe('recipe', () => {
 })
 
 test('matches sparse compound-only keys and preserves false, zero, empty string, and null', () => {
-  const sparse = testRecipe<'sparse', RootSlot, SparseVariant>('sparse', {
+  const sparse = testRecipe<RootSlot, SparseVariant>('sparse', {
     base: { root: '' },
     defaultVariants: { enabled: false, count: 0, label: '' },
     compoundVariants: [{ variants: { enabled: false, count: 0, label: '' }, root: 'p-2' }],
@@ -357,7 +357,7 @@ test('resolves base, variant, compound, and extra classes with an explicit merge
     variants: { active: { true: 'p-4' } },
     compoundVariants: [{ active: true, class: 'p-6' }],
   })
-  const slots = testRecipe<'slots', RootSlot, { active?: boolean }>('slots', {
+  const slots = testRecipe<RootSlot, { active?: boolean }>('slots', {
     base: { root: 'p-2' },
     variants: { active: { true: { root: 'p-4' } } },
     compoundVariants: [{ variants: { active: true }, root: 'p-6' }],
@@ -374,36 +374,35 @@ test('resolves base, variant, compound, and extra classes with an explicit merge
 })
 
 test('resolves classes and variables from the same matched branches', () => {
-  const recipe = testRecipe<
+  const recipe = testRecipe<RootSlot, { size: 'sm' | 'lg'; enabled: boolean; count: 0 | 1 }>(
     'vars',
-    RootSlot,
-    { size: 'sm' | 'lg'; enabled: boolean; count: 0 | 1 }
-  >('vars', {
-    defaultVariants: { size: 'sm', enabled: true, count: 1 },
-    base: {
-      root: 'p-2',
-      '--size': '4px',
-      '--retained': 'base',
-      '--empty': null,
-    },
-    variants: {
-      size: {
-        sm: { '--size': '8px' },
-        lg: { root: 'p-4', '--size': '16px' },
+    {
+      defaultVariants: { size: 'sm', enabled: true, count: 1 },
+      base: {
+        root: 'p-2',
+        '--size': '4px',
+        '--retained': 'base',
+        '--empty': null,
       },
-      enabled: { false: { '--enabled': 0 } },
-      count: { 0: { '--count': 0 } },
-    },
-    compoundVariants: [
-      { variants: {}, '--unmatched': 1 },
-      {
-        variants: { size: ['lg'], enabled: false, count: 0 },
-        root: 'p-6',
-        '--size': '24px',
-        '--retained': undefined,
+      variants: {
+        size: {
+          sm: { '--size': '8px' },
+          lg: { root: 'p-4', '--size': '16px' },
+        },
+        enabled: { false: { '--enabled': 0 } },
+        count: { 0: { '--count': 0 } },
       },
-    ],
-  })
+      compoundVariants: [
+        { variants: {}, '--unmatched': 1 },
+        {
+          variants: { size: ['lg'], enabled: false, count: 0 },
+          root: 'p-6',
+          '--size': '24px',
+          '--retained': undefined,
+        },
+      ],
+    },
+  )
   let reads = 0
   const result = recipe({
     get size() {
@@ -425,7 +424,7 @@ test('resolves classes and variables from the same matched branches', () => {
 
 test('supports variable-only recipes and scoped merging without changing style output', async () => {
   const { createCn } = await import('./cn.ts')
-  const recipe = testRecipe<'root', RootSlot, never>('root', {
+  const recipe = testRecipe<RootSlot>('root', {
     base: { root: '', '--zero': 0, '--length': '20px' },
   })
   expect(recipe()).toEqual({
@@ -435,7 +434,7 @@ test('supports variable-only recipes and scoped merging without changing style o
   expect(recipe.resolve(undefined, createCn({}))).toEqual(recipe())
 })
 
-const invalidVariable = testRecipe<'root', RootSlot, never>('root', {
+const invalidVariable = testRecipe<RootSlot>('root', {
   // @ts-expect-error Custom property names must start with --.
   base: { size: '4px' },
 })

@@ -3,7 +3,6 @@ import { defineRecipe } from '../../theme/style/recipe'
 import type { SeparatorStyleSlot, SeparatorStyleVariant } from './separator.style-types'
 
 export const separatorRecipe = /* @__PURE__ */ defineRecipe<
-  'separator',
   SeparatorStyleSlot,
   SeparatorStyleVariant
 >('separator', {

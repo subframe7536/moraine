@@ -2,7 +2,7 @@ import { defineRecipe } from '../../theme/style/recipe'
 
 import type { FieldStyleSlot, FieldStyleVariant } from './field.style-types'
 
-export const fieldRecipe = /* @__PURE__ */ defineRecipe<'field', FieldStyleSlot, FieldStyleVariant>(
+export const fieldRecipe = /* @__PURE__ */ defineRecipe<FieldStyleSlot, FieldStyleVariant>(
   'field',
   {
     base: {

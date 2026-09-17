@@ -106,11 +106,11 @@ export function createStyles<R extends RecipeDefinition>(
     equals: false,
   })
   const rootSlot = resolveRootSlot(recipe.slots, options.rootSlot)
-  const cache: Partial<Record<Slots, SlotBinding>> = {}
+  const cache = new Map<Slots, SlotBinding>()
   const styles = {} as SlotBindings<Slots>
 
   const binding = (slot: Slots): SlotBinding => {
-    const cached = cache[slot]
+    const cached = cache.get(slot)
     if (cached) {
       return cached
     }
@@ -132,7 +132,7 @@ export function createStyles<R extends RecipeDefinition>(
         }
       },
     }
-    cache[slot] = created
+    cache.set(slot, created)
     return created
   }
 

@@ -6,7 +6,6 @@ import type {
 } from './checkbox-group.style-types'
 
 export const checkboxGroupRecipe = /* @__PURE__ */ defineRecipe<
-  'checkboxGroup',
   CheckboxGroupStyleSlot,
   CheckboxGroupStyleVariant
 >('checkboxGroup', {

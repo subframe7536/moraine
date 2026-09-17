@@ -3,7 +3,7 @@ import { MODAL_OVERLAY_CLASS } from '../modal/modal.recipe'
 
 import type { SheetStyleSlot, SheetStyleVariant } from './sheet.style-types'
 
-export const sheetRecipe = /* @__PURE__ */ defineRecipe<'sheet', SheetStyleSlot, SheetStyleVariant>(
+export const sheetRecipe = /* @__PURE__ */ defineRecipe<SheetStyleSlot, SheetStyleVariant>(
   'sheet',
   {
     base: {

@@ -2,7 +2,7 @@ import { defineRecipe } from '../../theme/style/recipe'
 
 import type { PopoverStyleSlot } from './popover.style-types'
 
-export const popoverRecipe = /* @__PURE__ */ defineRecipe<'popover', PopoverStyleSlot>('popover', {
+export const popoverRecipe = /* @__PURE__ */ defineRecipe<PopoverStyleSlot>('popover', {
   base: {
     trigger: '',
     content:

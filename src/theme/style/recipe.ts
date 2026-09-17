@@ -52,21 +52,20 @@ export interface RecipeLayerConfig<S extends object, V> {
 declare const RECIPE_TYPES: unique symbol
 
 /** Readonly component recipe definition. Construction is internal to Moraine. */
-export interface RecipeDefinition<Key extends string = string, S extends object = any, V = any> {
-  readonly key: Key
+export interface RecipeDefinition<S extends object = any, V = any> {
+  readonly key: string
   readonly slots: readonly RecipeSlot<S>[]
   readonly config: RecipeConfig<S, V>
   readonly [RECIPE_TYPES]?: { slots: S; variants: V }
 }
 
-export interface ResolvedRecipe<Key extends string = string, S extends object = any, V = any> {
-  readonly definition: RecipeDefinition<Key, S, V>
+export interface ResolvedRecipe<S extends object = any, V = any> {
+  readonly definition: RecipeDefinition<S, V>
   readonly layers: readonly RecipeLayerConfig<S, V>[]
 }
 
-export type RecipeSlots<T> = T extends RecipeDefinition<string, infer S> ? S : never
-export type RecipeVariant<T> = T extends RecipeDefinition<string, any, infer V> ? V : never
-export type RecipeKey<T> = T extends RecipeDefinition<infer Key> ? Key : never
+export type RecipeSlots<T> = T extends RecipeDefinition<infer S> ? S : never
+export type RecipeVariant<T> = T extends RecipeDefinition<any, infer V> ? V : never
 
 export interface RecipeResult<S extends object> {
   classes: Record<RecipeSlot<S>, string | undefined>
@@ -74,10 +73,10 @@ export interface RecipeResult<S extends object> {
 }
 
 /** Internal builder for statically declared component recipes. */
-export function defineRecipe<Key extends string, S extends object, V = never>(
-  key: Key,
+export function defineRecipe<S extends object, V = never>(
+  key: string,
   config: RecipeConfig<S, V>,
-): RecipeDefinition<Key, S, V> {
+): RecipeDefinition<S, V> {
   const slots = Object.freeze(
     Object.keys(config.base).filter((slot) => !slot.startsWith('--')) as RecipeSlot<S>[],
   )
@@ -157,7 +156,7 @@ function getSelectedVariantValues<C>(
 }
 
 export function getRecipeDefaultVariants<S extends object, V>(
-  recipe: RecipeDefinition<string, S, V> | ResolvedRecipe<string, S, V>,
+  recipe: RecipeDefinition<S, V> | ResolvedRecipe<S, V>,
 ): RecipeVariantSelection<V> {
   const layers = 'layers' in recipe ? recipe.layers : [recipe.config]
   const defaultVariants: Record<string, unknown> = {}
@@ -172,7 +171,7 @@ export function getRecipeDefaultVariants<S extends object, V>(
 }
 
 export function resolveRecipe<S extends object, V>(
-  recipe: RecipeDefinition<string, S, V> | ResolvedRecipe<string, S, V>,
+  recipe: RecipeDefinition<S, V> | ResolvedRecipe<S, V>,
   variants: RecipeVariantSelection<V> | undefined,
   merge: Cn,
 ): RecipeResult<S> {

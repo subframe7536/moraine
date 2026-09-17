@@ -3,7 +3,7 @@ import { defineRecipe } from '../../theme/style/recipe'
 import type { KbdGroupStyleSlot, KbdGroupStyleVariant } from './kbd-group.style-types'
 import type { KbdStyleSlot, KbdStyleVariant } from './kbd.style-types'
 
-export const kbdRecipe = /* @__PURE__ */ defineRecipe<'kbd', KbdStyleSlot, KbdStyleVariant>('kbd', {
+export const kbdRecipe = /* @__PURE__ */ defineRecipe<KbdStyleSlot, KbdStyleVariant>('kbd', {
   base: {
     root: 'leading-none font-medium font-mono px-1 rounded-sm inline-flex select-none uppercase items-center justify-center',
   },
@@ -25,29 +25,28 @@ export const kbdRecipe = /* @__PURE__ */ defineRecipe<'kbd', KbdStyleSlot, KbdSt
   },
 })
 
-export const kbdGroupRecipe = /* @__PURE__ */ defineRecipe<
+export const kbdGroupRecipe = /* @__PURE__ */ defineRecipe<KbdGroupStyleSlot, KbdGroupStyleVariant>(
   'kbdGroup',
-  KbdGroupStyleSlot,
-  KbdGroupStyleVariant
->('kbdGroup', {
-  base: {
-    root: 'inline-flex gap-1 items-center text-muted-foreground',
-    item: '',
-  },
-  defaultVariants: {
-    size: 'md',
-    variant: 'default',
-  },
-  variants: {
-    size: {
-      sm: { root: 'text-[11px]' },
-      md: { root: 'text-xs' },
-      lg: { root: 'text-xs' },
+  {
+    base: {
+      root: 'inline-flex gap-1 items-center text-muted-foreground',
+      item: '',
     },
-    variant: {
-      default: {},
-      outline: {},
-      invert: {},
+    defaultVariants: {
+      size: 'md',
+      variant: 'default',
+    },
+    variants: {
+      size: {
+        sm: { root: 'text-[11px]' },
+        md: { root: 'text-xs' },
+        lg: { root: 'text-xs' },
+      },
+      variant: {
+        default: {},
+        outline: {},
+        invert: {},
+      },
     },
   },
-})
+)

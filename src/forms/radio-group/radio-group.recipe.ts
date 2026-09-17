@@ -3,7 +3,6 @@ import { defineRecipe } from '../../theme/style/recipe'
 import type { RadioGroupStyleSlot, RadioGroupStyleVariant } from './radio-group.style-types'
 
 export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
-  'radioGroup',
   RadioGroupStyleSlot,
   RadioGroupStyleVariant
 >('radioGroup', {

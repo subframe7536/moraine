@@ -3,7 +3,6 @@ import { defineRecipe } from '../../theme/style/recipe'
 import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.style-types'
 
 export const resizableRecipe = /* @__PURE__ */ defineRecipe<
-  'resizable',
   ResizableStyleSlot,
   ResizableStyleVariant
 >('resizable', {

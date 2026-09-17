@@ -9,7 +9,6 @@ export const BREADCRUMB_DISABLED_CLASS = 'aria-disabled:(opacity-64 pointer-even
 export const BREADCRUMB_TRUNCATE_CLASS = 'min-w-0 truncate'
 
 export const breadcrumbRecipe = /* @__PURE__ */ defineRecipe<
-  'breadcrumb',
   BreadcrumbStyleSlot,
   BreadcrumbStyleVariant
 >('breadcrumb', {

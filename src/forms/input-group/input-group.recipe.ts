@@ -4,7 +4,6 @@ import { defineRecipe } from '../../theme/style/recipe.ts'
 import type { InputGroupStyleSlot, InputGroupRecipeVariant } from './input-group.style-types'
 
 export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
-  'inputGroup',
   InputGroupStyleSlot,
   InputGroupRecipeVariant
 >('inputGroup', {
