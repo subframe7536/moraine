@@ -10,17 +10,17 @@
 - [x] base select should be a namespaced component and export
 - [x] unify context-menu and dropdown-menu menu styles
 - [x] correct/verify button group separator
-- [ ] badge variants config / padding refresh, maybe similar to button?
+- [x] badge variants config / padding refresh, maybe similar to button?
 - [x] simplify kbd-group to items with inline separator
-- [ ] sidebar-frame styling is broken, more useful usage and example
 - [x] split standalone Field from Formisch-bound form.Field
 - [x] pagination custom item/control components via itemAs/controlAs
 - [ ] a better way to define destructive item in menu
+- [ ] better way to define slot styles. current cannot "go to definition"
 - [ ] correct document page's focus loop
   - [ ] also audit all components
-- [ ] metric adjust across all sizes
-- [ ] better way to define slot styles. current cannot "go to definition"
 - [ ] type instantiation reduce, including `MoraineTypeConfig`
+- [ ] metric adjust across all sizes
+- [ ] sidebar-frame styling is broken, more useful usage and example
 - [ ] polish button-group of border color when press
 
 # V1
