@@ -33,9 +33,10 @@ describe('published declarations', () => {
     expect(namespace('SelectT')).toMatch(/interface Slot<T = unknown>/)
   })
 
-  test('retain native Input inheritance, owned prop documentation, and generic Select callbacks', () => {
+  test('retain curated Input ownership, owned prop documentation, and generic Select callbacks', () => {
     const input = namespace('InputT')
-    expect(input).toContain('Omit<JSX.InputHTMLAttributes<HTMLInputElement>')
+    expect(input).not.toContain('Omit<JSX.InputHTMLAttributes<HTMLInputElement>')
+    expect(input).toContain("BaseProps<'input', Base<M>, Variant, Classes, Styles>")
     expect(input).toContain('The delay in milliseconds before automatically focusing the input.')
     expect(input).toContain('ref?: Ref<HTMLInputElement>')
     expect(input).toContain('onChange?: JSX.EventHandlerUnion<HTMLInputElement, Event>')

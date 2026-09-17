@@ -18,7 +18,7 @@
 - [x] better way to define slot styles. current cannot "go to definition"
 - [ ] correct document page's focus loop
   - [ ] also audit all components
-- [ ] type instantiation reduce, including `MoraineTypeConfig`
+- [x] type instantiation reduce, including `MoraineTypeConfig`
 - [ ] metric adjust across all sizes
 - [ ] sidebar-frame styling is broken, more useful usage and example
 - [ ] polish button-group of border color when press
