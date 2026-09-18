@@ -21,23 +21,23 @@ const ITEMS: MultiSelectT.Item[] = [
 ]
 
 describe('MultiSelect', () => {
-  test('uses a select-only focus surface without a physical input when non-editable', () => {
+  test('uses BaseSelect.Trigger as the non-editable focus owner without a physical input', () => {
     const screen = render(() => <MultiSelect items={ITEMS} defaultValue={['apple']} />)
     const control = screen.container.querySelector('[data-slot="control"]')!
-    const focus = screen.getByRole('combobox')
+    const trigger = screen.getByRole('combobox')
 
-    expect(focus.tagName).toBe('DIV')
-    expect(focus.getAttribute('data-slot')).toBe('focus')
+    expect(trigger.tagName).toBe('BUTTON')
+    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.tabIndex).toBe(0)
     expect(control.querySelectorAll('input[data-slot="input"]')).toHaveLength(0)
     expect(control.querySelector('[data-slot="tagsContainer"]')).toBeTruthy()
     expect(control.querySelector('[data-slot="tag"]')?.textContent).toContain('Apple')
-    expect(screen.getByRole('button', { name: 'Toggle options' }).tabIndex).toBe(-1)
   })
 
-  test('keeps typeahead navigation on the non-editable focus surface', () => {
+  test('keeps typeahead navigation on the non-editable trigger', () => {
     const screen = render(() => <MultiSelect items={ITEMS} defaultSearchValue="hidden" />)
-    const focus = screen.getByRole('combobox')
-    fireEvent.keyDown(focus, { key: 'b' })
+    const trigger = screen.getByRole('combobox')
+    fireEvent.keyDown(trigger, { key: 'b' })
     expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe('Banana')
   })
 
@@ -50,16 +50,15 @@ describe('MultiSelect', () => {
     expect(input.readOnly).toBe(false)
   })
 
-  test('control click opens by default when non-editable and trigger click toggles', () => {
+  test('control click opens by default and the non-editable trigger toggles', () => {
     const screen = render(() => <MultiSelect items={ITEMS} />)
-    const input = screen.getByRole('combobox')
+    const trigger = screen.getByRole('combobox')
     const control = screen.container.querySelector('[data-slot="control"]')!
-    const trigger = screen.getByRole('button', { name: 'Toggle options' })
-    expect(input.getAttribute('aria-expanded')).toBe('false')
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
     fireEvent.click(control)
-    expect(input.getAttribute('aria-expanded')).toBe('true')
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
     fireEvent.click(trigger)
-    expect(input.getAttribute('aria-expanded')).toBe('false')
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
   test('control click does not open by default when editable', () => {
@@ -92,7 +91,7 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect items={ITEMS} defaultValue={['apple']} allowClear onClear={onClear} />
     ))
-    expect(screen.getByRole('button', { name: 'Toggle options' })).toBeTruthy()
+    expect(screen.getByRole('combobox')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
     expect(onClear).toHaveBeenCalledOnce()
     expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe('false')
@@ -222,20 +221,20 @@ describe('MultiSelect', () => {
     ])
   })
 
-  test('loading never removes the secondary trigger', () => {
+  test('loading keeps the non-editable trigger mounted', () => {
     const screen = render(() => (
       <MultiSelect items={ITEMS} defaultValue={['apple']} allowClear loading />
     ))
-    expect(screen.getByRole('button', { name: 'Loading' }).getAttribute('data-slot')).toBe(
+    expect(screen.getByRole('combobox', { name: 'Loading' }).getAttribute('data-slot')).toBe(
       'trigger',
     )
   })
 
-  test('keeps a read-only field browsable through its secondary trigger', () => {
+  test('keeps a read-only field browsable through its non-editable trigger', () => {
     const screen = render(() => <MultiSelect items={ITEMS} readOnly />)
-    const input = screen.getByRole('combobox')
-    fireEvent.click(screen.getByRole('button', { name: 'Toggle options' }))
-    expect(input.getAttribute('aria-expanded')).toBe('true')
+    const trigger = screen.getByRole('combobox')
+    fireEvent.click(trigger)
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
   })
 
   test('creates free-form items with Enter and the default comma separator', () => {
@@ -452,18 +451,19 @@ describe('MultiSelect', () => {
     expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(2)
   })
 
-  test('uses direct focus-visible styling on the non-editable focus surface', () => {
+  test('uses direct focus-visible styling on the non-editable trigger', () => {
     const screen = render(() => <MultiSelect items={ITEMS} />)
     const control = screen.container.querySelector('[data-slot="control"]')!
-    const focus = screen.getByRole('combobox')
+    const trigger = screen.getByRole('combobox')
 
     expect(control.hasAttribute('data-editable')).toBe(false)
-    expect(focus.getAttribute('data-slot')).toBe('focus')
-    expect(focus.className).toContain('focus-visible:')
+    expect(trigger.tagName).toBe('BUTTON')
+    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.className).toContain('focus-visible:after:')
     expect(control.querySelector('input[data-slot="input"]')).toBeNull()
 
     fireEvent.pointerDown(control, { pointerType: 'mouse' })
-    expect(document.activeElement).toBe(focus)
+    expect(document.activeElement).toBe(trigger)
   })
 
   test('keeps editable MultiSelect on the existing focus-within path', () => {

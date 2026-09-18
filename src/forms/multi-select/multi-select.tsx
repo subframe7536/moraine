@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createMemo, createSignal, For, onCleanup, Show, splitProps } from 'solid-js'
+import { createMemo, createSignal, For, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
 import { createStyles } from '../../provider/index.ts'
@@ -21,11 +21,7 @@ import {
   MULTI_SELECT_LOCAL_PROP_KEYS,
 } from '../shared/select/props.ts'
 import { useComboboxSearch } from '../shared/select/search.ts'
-import {
-  SELECT_FOCUS_SURFACE_BASE_CLASS,
-  SELECT_FOCUS_SURFACE_CLASS,
-  SELECT_LOADING_ICON_CLASS,
-} from '../shared/select/select-field.class.ts'
+import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
 import { createTagsField } from '../shared/select/tags-field.tsx'
 
 import { multiSelectRecipe } from './multi-select.recipe'
@@ -198,11 +194,11 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       focusControl()
     }
 
-    function onFocusOwnerKeyDown(event: KeyboardEvent): void {
+    function onEditableInputKeyDown(event: KeyboardEvent): void {
       if (inputBinding.composing() || event.isComposing || state.locked()) {
         return
       }
-      if (tags.onFocusOwnerKeyDown(event, editable() ? search.query() : '')) {
+      if (tags.onFocusOwnerKeyDown(event, search.query())) {
         return
       }
       if (event.key === 'Enter') {
@@ -223,13 +219,35 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             return
           }
         }
-        if (editable() && search.query()) {
+        if (search.query()) {
           event.preventDefault()
           create()
           return
         }
       }
       inputBinding.binding.onKeyDown(event)
+    }
+
+    function onNonEditableTriggerKeyDown(event: KeyboardEvent): void {
+      if (state.locked() || event.isComposing) {
+        return
+      }
+      if (tags.onFocusOwnerKeyDown(event, '')) {
+        return
+      }
+      if (event.key !== 'Enter' || !state.open()) {
+        return
+      }
+      const highlighted = state
+        .items()
+        .find((item) => sameValue(item.value, state.highlightedValue()))
+      if (
+        highlighted &&
+        !state.itemDisabled(highlighted) &&
+        state.value().some((value) => sameValue(value, highlighted.value))
+      ) {
+        event.preventDefault()
+      }
     }
 
     return (
@@ -264,49 +282,6 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             }
           }}
         >
-          <Show when={!editable()}>
-            <div
-              {...state.field.ariaAttrs()}
-              id={state.field.id()}
-              role="combobox"
-              tabIndex={state.field.disabled() ? -1 : 0}
-              data-slot="focus"
-              data-invalid={state.field.invalid() ? '' : undefined}
-              aria-haspopup="listbox"
-              aria-controls={state.listboxId()}
-              aria-expanded={state.open() ? 'true' : 'false'}
-              aria-activedescendant={
-                state.open() && state.highlightedValue() !== undefined
-                  ? state.itemId(state.highlightedValue()!)
-                  : undefined
-              }
-              class={
-                styles.variants.variant === 'none'
-                  ? SELECT_FOCUS_SURFACE_BASE_CLASS
-                  : SELECT_FOCUS_SURFACE_CLASS
-              }
-              ref={(element) => {
-                state.setFocusOwner(element)
-                onCleanup(() => {
-                  if (state.focusOwner() === element) {
-                    state.setFocusOwner(undefined)
-                  }
-                })
-              }}
-              onKeyDown={onFocusOwnerKeyDown}
-              onFocus={(event) => state.field.emit('focus', event)}
-              onBlur={(event) => state.field.emit('blur', event)}
-            >
-              <span class="sr-only">
-                {tags.tags().length
-                  ? tags
-                      .tags()
-                      .map((tag) => tag.title)
-                      .join(', ')
-                  : local.placeholder}
-              </span>
-            </div>
-          </Show>
           <Show when={local.leadingIcon}>
             {(icon) => <Icon name={icon()} slotName="leading" {...styles.styles.leading} />}
           </Show>
@@ -356,7 +331,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                   callRef(local.inputRef, element)
                 }}
                 onPaste={(event) => tags.onPaste(event, inputBinding.composing())}
-                onKeyDown={onFocusOwnerKeyDown}
+                onKeyDown={onEditableInputKeyDown}
               />
             </Show>
           </div>
@@ -377,37 +352,62 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               <Icon name={local.closeIcon ?? 'icon-close'} />
             </button>
           </Show>
-          <button
-            type="button"
-            tabIndex={-1}
-            data-slot="trigger"
-            aria-label={local.loading ? 'Loading' : 'Toggle options'}
-            aria-controls={state.listboxId()}
-            aria-expanded={state.open() ? 'true' : 'false'}
-            aria-busy={local.loading ? 'true' : undefined}
-            data-loading={local.loading ? '' : undefined}
-            disabled={state.field.disabled() || Boolean(local.loading)}
-            {...styles.styles.trigger}
-            onPointerDown={(event) => {
-              event.preventDefault()
-              event.stopPropagation()
-              focusControl()
-            }}
-            onClick={(event) => {
-              event.stopPropagation()
-              state.setOpen(!state.open())
-            }}
+          <Show
+            when={editable()}
+            fallback={
+              <BaseSelect.Trigger<'button', T>
+                aria-label={local.loading ? 'Loading' : 'Toggle options'}
+                aria-busy={local.loading ? 'true' : undefined}
+                data-loading={local.loading ? '' : undefined}
+                disabled={Boolean(local.loading)}
+                {...styles.styles.trigger}
+                onKeyDown={onNonEditableTriggerKeyDown}
+                onClick={(event) => event.stopPropagation()}
+              >
+                <Icon
+                  name={
+                    local.loading
+                      ? (local.loadingIcon ?? 'icon-loading')
+                      : (local.trailingIcon ?? 'icon-chevron-down')
+                  }
+                  data-loading={local.loading ? '' : undefined}
+                  class={SELECT_LOADING_ICON_CLASS}
+                />
+              </BaseSelect.Trigger>
+            }
           >
-            <Icon
-              name={
-                local.loading
-                  ? (local.loadingIcon ?? 'icon-loading')
-                  : (local.trailingIcon ?? 'icon-chevron-down')
-              }
+            <button
+              type="button"
+              tabIndex={-1}
+              data-slot="trigger"
+              aria-label={local.loading ? 'Loading' : 'Toggle options'}
+              aria-controls={state.listboxId()}
+              aria-expanded={state.open() ? 'true' : 'false'}
+              aria-busy={local.loading ? 'true' : undefined}
               data-loading={local.loading ? '' : undefined}
-              class={SELECT_LOADING_ICON_CLASS}
-            />
-          </button>
+              disabled={state.field.disabled() || Boolean(local.loading)}
+              {...styles.styles.trigger}
+              onPointerDown={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
+                focusControl()
+              }}
+              onClick={(event) => {
+                event.stopPropagation()
+                state.setOpen(!state.open())
+              }}
+            >
+              <Icon
+                name={
+                  local.loading
+                    ? (local.loadingIcon ?? 'icon-loading')
+                    : (local.trailingIcon ?? 'icon-chevron-down')
+                }
+                data-loading={local.loading ? '' : undefined}
+                class={SELECT_LOADING_ICON_CLASS}
+              />
+            </button>
+          </Show>
         </BaseSelect.Control>
         <DefaultSelectContent
           {...local}
