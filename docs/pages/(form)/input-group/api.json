@@ -55,7 +55,14 @@
       "description": "Visual state frame driven by the grouped control.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": []
+      "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        }
+      ]
     }
   ],
   "props": {

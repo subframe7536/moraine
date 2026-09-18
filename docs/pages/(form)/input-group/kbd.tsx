@@ -1,4 +1,4 @@
-import { Icon, Input, InputGroup, Kbd } from '@src'
+import { Icon, Input, InputGroup, KbdGroup } from '@src'
 
 export function KeyboardShortcut() {
   return (
@@ -8,8 +8,7 @@ export function KeyboardShortcut() {
       </InputGroup.Leading>
       <Input aria-label="Search" placeholder="Search..." />
       <InputGroup.Trailing compact>
-        <Kbd value="command" size="sm" />
-        <Kbd value="K" size="sm" />
+        <KbdGroup items={['command', 'K']} />
       </InputGroup.Trailing>
     </InputGroup>
   )

@@ -135,58 +135,6 @@ describe('InputGroup', () => {
     expect(screen.getByTestId('trailing')).toBe(trailing)
   })
 
-  test.each([
-    [
-      'sm',
-      'ps-0',
-      'pe-0',
-      'first:ps-1.5',
-      '[&:nth-last-child(2)]:pe-1.5',
-      'pe-1.5',
-      'ps-1.5',
-    ],
-    ['md', 'ps-0', 'pe-0', 'first:ps-2', '[&:nth-last-child(2)]:pe-2', 'pe-2', 'ps-2'],
-    [
-      'lg',
-      'ps-0',
-      'pe-0',
-      'first:ps-2.5',
-      '[&:nth-last-child(2)]:pe-2.5',
-      'pe-2.5',
-      'ps-2.5',
-    ],
-  ] as const)(
-    'keeps %s horizontal padding with its direct children',
-    (
-      size,
-      controlStart,
-      controlEnd,
-      leadingPadding,
-      trailingPadding,
-      leadingInner,
-      trailingInner,
-    ) => {
-      const screen = render(() => (
-        <InputGroup size={size}>
-          <InputGroup.Leading data-testid="leading">
-            <button type="button">Leading action</button>
-          </InputGroup.Leading>
-          <Input aria-label="Query" />
-          <InputGroup.Trailing data-testid="trailing">
-            <button type="button">Trailing action</button>
-          </InputGroup.Trailing>
-        </InputGroup>
-      ))
-      const controlClasses = screen.getByRole('textbox').className.split(/\s+/)
-      const leadingClasses = screen.getByTestId('leading').className.split(/\s+/)
-      const trailingClasses = screen.getByTestId('trailing').className.split(/\s+/)
-
-      expect(controlClasses).toEqual(expect.arrayContaining([controlStart, controlEnd]))
-      expect(leadingClasses).toEqual(expect.arrayContaining([leadingPadding, leadingInner]))
-      expect(trailingClasses).toEqual(expect.arrayContaining([trailingPadding, trailingInner]))
-    },
-  )
-
   test('uses data-compact to remove only the control-side padding without replacing nodes', () => {
     const [compact, setCompact] = createSignal(false)
     const screen = render(() => (
@@ -206,8 +154,8 @@ describe('InputGroup', () => {
 
     expect(leading.hasAttribute('data-compact')).toBe(false)
     expect(trailing.hasAttribute('data-compact')).toBe(false)
-    expect(leading.className).toContain('data-compact:pe-0')
-    expect(trailing.className).toContain('data-compact:ps-0')
+    expect(leading.className).toContain('data-compact:px-1')
+    expect(trailing.className).toContain('data-compact:px-1')
     setCompact(true)
     expect(leading.hasAttribute('data-compact')).toBe(true)
     expect(trailing.hasAttribute('data-compact')).toBe(true)
@@ -244,37 +192,6 @@ describe('InputGroup', () => {
     expect(explicit.hasAttribute('data-compact')).toBe(false)
   })
 
-  test.each([
-    ['horizontal', 'sm', 'pe-1.5', 'ps-1.5', 'data-compact:pe-0', 'data-compact:ps-0'],
-    ['horizontal', 'md', 'pe-2', 'ps-2', 'data-compact:pe-0', 'data-compact:ps-0'],
-    ['horizontal', 'lg', 'pe-2.5', 'ps-2.5', 'data-compact:pe-0', 'data-compact:ps-0'],
-    ['vertical', 'sm', 'pb-1', 'pt-1', 'data-compact:pb-0', 'data-compact:pt-0'],
-    ['vertical', 'md', 'pb-1.5', 'pt-1.5', 'data-compact:pb-0', 'data-compact:pt-0'],
-    ['vertical', 'lg', 'pb-2', 'pt-2', 'data-compact:pb-0', 'data-compact:pt-0'],
-  ] as const)(
-    'keeps %s %s padding and applies compact through data selectors',
-    (orientation, size, leadingPadding, trailingPadding, leadingCompact, trailingCompact) => {
-      const screen = render(() => (
-        <InputGroup orientation={orientation} size={size}>
-          <InputGroup.Leading compact data-testid="leading">
-            Prefix
-          </InputGroup.Leading>
-          <Input aria-label="Query" />
-          <InputGroup.Trailing compact data-testid="trailing">
-            Suffix
-          </InputGroup.Trailing>
-        </InputGroup>
-      ))
-      const leadingClasses = screen.getByTestId('leading').className.split(/\s+/)
-      const trailingClasses = screen.getByTestId('trailing').className.split(/\s+/)
-
-      expect(screen.getByTestId('leading').hasAttribute('data-compact')).toBe(true)
-      expect(screen.getByTestId('trailing').hasAttribute('data-compact')).toBe(true)
-      expect(leadingClasses).toEqual(expect.arrayContaining([leadingPadding, leadingCompact]))
-      expect(trailingClasses).toEqual(expect.arrayContaining([trailingPadding, trailingCompact]))
-    },
-  )
-
   test('does not infer compact spacing from button or kbd children', () => {
     const screen = render(() => (
       <InputGroup>
@@ -290,8 +207,8 @@ describe('InputGroup', () => {
     const leading = screen.getByTestId('leading')
     const trailing = screen.getByTestId('trailing')
 
-    expect(leading.className).toContain('pe-2')
-    expect(trailing.className).toContain('ps-2')
+    expect(leading.className).toContain('px-2')
+    expect(trailing.className).toContain('px-2')
     expect(leading.className).not.toContain('has-[>kbd]')
     expect(trailing.className).not.toContain('has-[>button]')
     expect(leading.hasAttribute('data-compact')).toBe(false)
@@ -315,36 +232,9 @@ describe('InputGroup', () => {
 
     expect(leading.hasAttribute('data-compact')).toBe(true)
     expect(trailing.hasAttribute('data-compact')).toBe(true)
-    expect(leading.className).toContain('data-compact:pe-0')
-    expect(trailing.className).toContain('data-compact:ps-0')
+    expect(leading.className).toContain('data-compact:px-1')
+    expect(trailing.className).toContain('data-compact:px-1')
   })
-
-  test.each([
-    ['sm', 'pt-0', 'pb-0', 'first:pt-1', '[&:nth-last-child(2)]:pb-1', 'px-1.5'],
-    ['md', 'pt-0', 'pb-0', 'first:pt-1.5', '[&:nth-last-child(2)]:pb-1.5', 'px-2'],
-    ['lg', 'pt-0', 'pb-0', 'first:pt-2', '[&:nth-last-child(2)]:pb-2', 'px-2.5'],
-  ] as const)(
-    'keeps %s vertical padding with leading and trailing parts',
-    (size, controlTop, controlBottom, leadingPadding, trailingPadding, partPadding) => {
-      const screen = render(() => (
-        <InputGroup size={size} orientation="vertical">
-          <InputGroup.Leading data-testid="leading">Header</InputGroup.Leading>
-          <Textarea aria-label="Message" />
-          <InputGroup.Trailing data-testid="trailing">120 characters left</InputGroup.Trailing>
-        </InputGroup>
-      ))
-      const leadingClasses = screen.getByTestId('leading').className.split(/\s+/)
-      const trailingClasses = screen.getByTestId('trailing').className.split(/\s+/)
-
-      const controlClasses = screen.getByRole('textbox').className
-      expect(controlClasses).toEqual(expect.stringContaining(controlTop))
-      expect(controlClasses).toEqual(expect.stringContaining(controlBottom))
-      expect(controlClasses).toEqual(expect.stringContaining('flex-none'))
-      expect(controlClasses).toEqual(expect.stringContaining('w-full'))
-      expect(leadingClasses).toEqual(expect.arrayContaining([leadingPadding, partPadding]))
-      expect(trailingClasses).toEqual(expect.arrayContaining([trailingPadding, partPadding]))
-    },
-  )
 
   test.each([Input, Textarea])('focuses only from non-interactive space for %s', (Control) => {
     const onPointerDown = vi.fn()

@@ -38,12 +38,12 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
     },
     orientation: {
       horizontal: {
-        leading: 'data-compact:pe-0',
-        trailing: 'data-compact:ps-0',
+        leading: '',
+        trailing: '',
       },
       vertical: {
-        leading: 'w-full data-compact:pb-0',
-        trailing: 'w-full data-compact:pt-0',
+        leading: 'w-full',
+        trailing: 'w-full',
       },
     },
     variant: {
@@ -64,33 +64,33 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
   compoundVariants: [
     {
       variants: { orientation: 'horizontal', size: 'sm' },
-      leading: 'first:ps-1.5 pe-1.5',
-      trailing: '[&:nth-last-child(2)]:pe-1.5 ps-1.5',
+      leading: 'px-1.5 data-compact:px-0.5',
+      trailing: 'px-1.5 data-compact:px-0.5',
     },
     {
       variants: { orientation: 'horizontal', size: 'md' },
-      leading: 'first:ps-2 pe-2',
-      trailing: '[&:nth-last-child(2)]:pe-2 ps-2',
+      leading: 'px-2 data-compact:px-1',
+      trailing: 'px-2 data-compact:px-1',
     },
     {
       variants: { orientation: 'horizontal', size: 'lg' },
-      leading: 'first:ps-2.5 pe-2.5',
-      trailing: '[&:nth-last-child(2)]:pe-2.5 ps-2.5',
+      leading: 'px-2.5 data-compact:px-1.5',
+      trailing: 'px-2.5 data-compact:px-1.5',
     },
     {
       variants: { orientation: 'vertical', size: 'sm' },
-      leading: 'first:pt-1 px-1.5 pb-1',
-      trailing: '[&:nth-last-child(2)]:pb-1 px-1.5 pt-1',
+      leading: 'p-1.5 data-compact:p-0.5',
+      trailing: 'p-1.5 data-compact:p-0.5',
     },
     {
       variants: { orientation: 'vertical', size: 'md' },
-      leading: 'first:pt-1.5 px-2 pb-1.5',
-      trailing: '[&:nth-last-child(2)]:pb-1.5 px-2 pt-1.5',
+      leading: 'p-2 data-compact:p-1',
+      trailing: 'p-2 data-compact:p-1',
     },
     {
       variants: { orientation: 'vertical', size: 'lg' },
-      leading: 'first:pt-2 px-2.5 pb-2',
-      trailing: '[&:nth-last-child(2)]:pb-2 px-2.5 pt-2',
+      leading: 'p-2.5 data-compact:p-1.5',
+      trailing: 'p-2.5 data-compact:p-1.5',
     },
   ],
 })

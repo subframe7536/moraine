@@ -384,7 +384,7 @@
         "name": "createItem",
         "required": false,
         "type": "((input: string) => T) | undefined",
-        "description": "Factory used by every unmatched free-text creation path. Providing it implicitly enables the editable search input."
+        "description": "Factory used for unmatched free-text creation.\nProviding it also enables the editable search input."
       },
       {
         "name": "defaultOpen",

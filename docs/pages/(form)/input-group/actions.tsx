@@ -30,8 +30,8 @@ export function Actions() {
         </InputGroup.Trailing>
       </InputGroup>
       <InputGroup>
-        <InputGroup.Leading compact>https://</InputGroup.Leading>
-        <Input aria-label="Secure URL" placeholder="example.com" />
+        <InputGroup.Leading>https://</InputGroup.Leading>
+        <Input placeholder="example.com" class="-ml-1.5" aria-label="Secure URL" />
         <InputGroup.Trailing compact>
           <Button
             type="button"
