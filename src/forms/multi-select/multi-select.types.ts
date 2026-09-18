@@ -92,7 +92,10 @@ export namespace MultiSelectT {
     allowClear?: boolean
     /** Called when clear is triggered. */
     onClear?: () => void
-    /** Factory used by every unmatched free-text creation path. Providing it implicitly enables the editable search input. */
+    /**
+     * Factory used for unmatched free-text creation.
+     * Providing it also enables the editable search input.
+     */
     createItem?: (input: string) => TItem
     /** Maximum number of selected values (multiple/tags). */
     maxCount?: number

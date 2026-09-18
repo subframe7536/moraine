@@ -164,7 +164,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   ])
   const subtreeBranches = new Set<HTMLElement>()
 
-  /** Track this layer's own positioner plus all descendant submenu branches while forwarding registration upward. */
+  /**
+   * Track this layer's positioner and descendant submenu branches while
+   * forwarding branch registration to the parent layer.
+   */
   const registerLayerBranch = (element: HTMLElement): (() => void) => {
     subtreeBranches.add(element)
     const unregisterBranch = props.registerBranch(element)

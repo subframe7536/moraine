@@ -125,7 +125,10 @@ function createContextMenu(props: ContextMenuProps) {
     openFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2, strategy)
   }
 
-  /** Consume the deferred native contextmenu event emitted after dismissing from right-click or long-press input. */
+  /**
+   * Consume the deferred native `contextmenu` event emitted after dismissal
+   * from right-click or long-press input.
+   */
   const consumeSuppressedContextMenu = (event: MouseEvent): boolean => {
     const suppression = suppressedContextMenu
     if (!suppression) {
