@@ -225,9 +225,10 @@ describe('MultiSelect', () => {
     const screen = render(() => (
       <MultiSelect items={ITEMS} defaultValue={['apple']} allowClear loading />
     ))
-    expect(screen.getByRole('combobox', { name: 'Loading' }).getAttribute('data-slot')).toBe(
-      'trigger',
-    )
+    const trigger = screen.getByRole('combobox')
+    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.hasAttribute('data-loading')).toBe(true)
+    expect(trigger.getAttribute('aria-busy')).toBe('true')
   })
 
   test('keeps a read-only field browsable through its non-editable trigger', () => {

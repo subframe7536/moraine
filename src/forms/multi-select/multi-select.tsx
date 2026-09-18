@@ -356,7 +356,6 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             when={editable()}
             fallback={
               <BaseSelect.Trigger<'button', T>
-                aria-label={local.loading ? 'Loading' : 'Toggle options'}
                 aria-busy={local.loading ? 'true' : undefined}
                 data-loading={local.loading ? '' : undefined}
                 disabled={Boolean(local.loading)}
@@ -364,6 +363,14 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 onKeyDown={onNonEditableTriggerKeyDown}
                 onClick={(event) => event.stopPropagation()}
               >
+                <span class="sr-only">
+                  {tags.tags().length
+                    ? tags
+                        .tags()
+                        .map((tag) => tag.title)
+                        .join(', ')
+                    : (local.placeholder ?? 'Select options')}
+                </span>
                 <Icon
                   name={
                     local.loading
