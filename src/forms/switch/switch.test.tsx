@@ -2,23 +2,22 @@ import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-libra
 import { createComponent } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
-import { defaultTheme } from '../../theme/default-theme'
+import { MoraineProvider } from '../../provider'
 
 import { Switch } from './switch'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 function expectSwitchChecked(element: Element, checked: boolean): void {
   expect(element.getAttribute('aria-checked')).toBe(String(checked))
 }
 
 describe('Switch', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = baseRender(() => <Switch label="Test" />)
     const root = screen.container.querySelector('[data-slot="root"]')
-    expect(root?.className).toBe('')
+    expect(root?.className).not.toBe('')
   })
 
   test('forwards root ref and inner inputRef', () => {

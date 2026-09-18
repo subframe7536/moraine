@@ -3,57 +3,16 @@ import type { JSX } from 'solid-js'
 import type { IconT } from '../../elements/icon/icon.types.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types.ts'
 
+import type { StepperStyleSlot, StepperStyleVariant } from './stepper.style-types'
+
 export namespace StepperT {
   export type Kind = 'single'
 
   export type Value = string
 
-  export interface Slot<T = unknown> {
-    /**
-     * Stepper container that owns orientation, step state, and panel rendering.
-     */
-    root?: T
+  export type Slot<T = unknown> = StepperStyleSlot<T>
 
-    /** Step navigation header that contains all step triggers. */
-    header?: T
-
-    /** One step trigger and its connector. */
-    item?: T
-
-    /** Interactive step control users activate to select a step. */
-    trigger?: T
-
-    /** Step marker that communicates index, active state, or completion. */
-    indicator?: T
-
-    /** Icon rendered inside a completed or custom step indicator. */
-    icon?: T
-
-    /** Connector line between adjacent steps. */
-    separator?: T
-
-    /** Optional title and description column inside the trigger. */
-    wrapper?: T
-
-    /** Primary title text for a step. */
-    title?: T
-
-    /** Supporting description for a step. */
-    description?: T
-
-    /** Panel rendered for the active step content. */
-    content?: T
-  }
-
-  export interface Variant {
-    /** Layout axis used by the component Recipe. */
-    orientation?: 'horizontal' | 'vertical'
-
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-  }
+  export type Variant = StepperStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

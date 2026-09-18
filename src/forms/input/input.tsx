@@ -1,8 +1,8 @@
 import type { JSX } from 'solid-js'
 import { createMemo, mergeProps, onCleanup, onMount, splitProps } from 'solid-js'
 
+import { createStyles } from '../../provider/index.ts'
 import type { ModelModifiers } from '../../shared/input-modifiers.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
 import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import { useFormField, useFieldContext } from '../field/field-context.ts'
 import { useInputGroupContext } from '../input-group/input-group-context.ts'
@@ -10,8 +10,8 @@ import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
+import { inputRecipe } from './input.recipe'
 import type { InputProps, InputT } from './input.types.ts'
-
 /** Native text input with value modifiers and form field integration. */
 export function Input<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
   props: InputProps<M>,
@@ -44,7 +44,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
   ])
   const themeField = useFieldContext()
   const group = useInputGroupContext()
-  const resolved = createComponentStyles('input', local, {
+  const resolved = createStyles(inputRecipe, local, {
     inheritedVariants: () => ({
       grouped: Boolean(group),
       groupedOrientation: group?.orientation,
@@ -199,7 +199,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
         inputEl = element
         callRef(local.ref, element)
       }}
-      {...resolved.root}
+      {...resolved.styles.root}
       onInput={onInput}
       onChange={onChange}
       onBlur={onBlur}

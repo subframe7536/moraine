@@ -1,9 +1,10 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 import { Icon } from '../icon'
 
+import { badgeRecipe } from './badge.recipe'
 import type { BadgeProps } from './badge.types'
 
 /** Compact label component with leading/trailing icon slots and variant styles. */
@@ -32,22 +33,22 @@ export function Badge(props: BadgeProps): JSX.Element {
       return square()
     },
   })
-  const resolved = createComponentStyles('badge', styleProps)
+  const resolved = createStyles(badgeRecipe, styleProps)
 
   return (
-    <span data-slot="root" {...rest} {...resolved.root}>
+    <span data-slot="root" {...rest} {...resolved.styles.root}>
       <Show when={leading()}>
-        {(leading) => <Icon name={leading()} slotName="leading" {...resolved.slot('leading')} />}
+        {(leading) => <Icon name={leading()} slotName="leading" {...resolved.styles.leading} />}
       </Show>
 
       <Show when={hasChildren()}>
-        <span data-slot="label" {...resolved.slot('label')}>
+        <span data-slot="label" {...resolved.styles.label}>
           {resolvedChildren()}
         </span>
       </Show>
 
       <Show when={trailing()}>
-        <Icon name={trailing()} slotName="trailing" {...resolved.slot('trailing')} />
+        <Icon name={trailing()} slotName="trailing" {...resolved.styles.trailing} />
       </Show>
     </span>
   )

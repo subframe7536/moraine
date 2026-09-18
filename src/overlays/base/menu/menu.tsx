@@ -20,15 +20,15 @@ import { Icon } from '../../../elements/icon'
 import { KbdGroup } from '../../../elements/kbd'
 import { List } from '../../../elements/list'
 import type { ListProps } from '../../../elements/list'
+import { useCn } from '../../../provider/cn-context'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
-import { useCn } from '../../../shared/provider/cn-context'
 import { renderComponentOrElement } from '../../../shared/render-prop'
-import type { Cn } from '../../../shared/style/cn'
 import type { ClassValue, ElementProps } from '../../../shared/types'
 import { useControllableValue } from '../../../shared/use-controllable-value'
 import { useEventListener } from '../../../shared/use-event-listener'
 import { useTransitionPresence } from '../../../shared/use-transition-presence'
 import { callHandler, useId } from '../../../shared/utils'
+import type { Cn } from '../../../theme/style/cn'
 import { useFloatingPosition } from '../floating'
 import { useOverlayInteraction } from '../interaction'
 import {
@@ -164,7 +164,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   ])
   const subtreeBranches = new Set<HTMLElement>()
 
-  /** Track this layer's own positioner plus all descendant submenu branches while forwarding registration upward. */
+  /**
+   * Track this layer's positioner and descendant submenu branches while
+   * forwarding branch registration to the parent layer.
+   */
   const registerLayerBranch = (element: HTMLElement): (() => void) => {
     subtreeBranches.add(element)
     const unregisterBranch = props.registerBranch(element)

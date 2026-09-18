@@ -2,8 +2,8 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
-import { createTheme } from '../../theme'
+import { MoraineProvider } from '../../provider'
+import { defineTheme } from '../../theme'
 import { Dialog } from '../dialog/dialog'
 import { Sheet } from '../sheet/sheet'
 
@@ -60,7 +60,7 @@ describe.each([
     expect(document.body.querySelector('[data-slot="body"]')).toBeNull()
   })
 
-  test('renders every owned slot unstyled without a provider', () => {
+  test('renders recipe-backed default presentation without a provider', () => {
     render(() => (
       <Root defaultOpen>
         <Root.Trigger>Open</Root.Trigger>
@@ -79,9 +79,14 @@ describe.each([
       'body',
       'footer',
     ]
+    expect(document.body.querySelector<HTMLElement>('[data-slot="content"]')?.className).not.toBe(
+      '',
+    )
+    expect(document.body.querySelector<HTMLElement>('[data-slot="overlay"]')?.className).not.toBe(
+      '',
+    )
     const selector = slots.map((slot) => `[data-slot="${slot}"]`).join(',')
     for (const element of document.body.querySelectorAll<HTMLElement>(selector)) {
-      expect(element.className).toBe('')
       expect(element.getAttribute('style')).toBeNull()
     }
   })
@@ -89,7 +94,7 @@ describe.each([
   test('replaces Design while preserving content identity and focus', () => {
     const key = name === 'Dialog' ? 'dialog' : 'sheet'
     const [design, setDesign] = createSignal(
-      createTheme({
+      defineTheme({
         [key]: { base: { content: 'first-content' } },
       }),
     )
@@ -102,9 +107,10 @@ describe.each([
     ))
     const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
     content.focus()
-    setDesign(createTheme({ [key]: { base: { content: 'next-content' } } }))
+    setDesign(defineTheme({ [key]: { base: { content: 'next-content' } } }))
     expect(document.body.querySelector('[data-slot="content"]')).toBe(content)
-    expect(content.className).toBe('next-content')
+    expect(content.className).toContain('next-content')
+    expect(content.className).not.toContain('first-content')
     expect(document.activeElement).toBe(content)
   })
 })

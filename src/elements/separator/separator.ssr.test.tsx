@@ -1,9 +1,8 @@
 import { createSignal } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 import { hydrateFixture } from '../../test-utils/ssr-test'
-import { defaultTheme } from '../../theme/default-theme'
 
 import { Separator } from './separator'
 
@@ -15,7 +14,7 @@ describe('Separator SSR Hydration', () => {
       '/src/elements/separator/separator.ssr.fixture.tsx',
       'renderSeparatorFixture',
       () => (
-        <MoraineProvider theme={defaultTheme}>
+        <MoraineProvider>
           <Separator orientation={orientation()} />
         </MoraineProvider>
       ),

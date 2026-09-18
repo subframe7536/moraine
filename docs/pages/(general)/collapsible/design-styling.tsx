@@ -1,8 +1,7 @@
 import { Collapsible, MoraineProvider } from '@src'
-import { createTheme, defaultTheme } from '@src/theme'
+import { defineTheme } from '@src/theme'
 
-const theme = createTheme({
-  extends: defaultTheme,
+const theme = defineTheme({
   collapsible: {
     base: {
       root: 'w-full rounded-lg border border-border',

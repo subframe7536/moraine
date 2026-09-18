@@ -2,9 +2,8 @@ import { fireEvent, render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
-import { createTheme } from '../../theme'
-import { defaultTheme } from '../../theme/default-theme'
+import { MoraineProvider } from '../../provider'
+import { defineTheme } from '../../theme'
 
 import { Tabs } from './tabs'
 
@@ -271,7 +270,7 @@ describe('Tabs', () => {
 
   test('applies orientation/variant classes and class overrides', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Tabs
           orientation="vertical"
           variant="link"
@@ -299,7 +298,7 @@ describe('Tabs', () => {
 
   test('applies vertical pill indicator inset class', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Tabs orientation="vertical" items={ITEMS} />
       </MoraineProvider>
     ))
@@ -309,17 +308,17 @@ describe('Tabs', () => {
     expect(indicator?.className).toContain('inset-x-1')
   })
 
-  test('renders unstyled while retaining selection behavior without a provider', () => {
+  test('renders default styles while retaining selection behavior without a provider', () => {
     const screen = render(() => <Tabs items={ITEMS} />)
     for (const element of screen.container.querySelectorAll('[data-slot]')) {
-      expect(element.className).toBe('')
+      expect(element.className).not.toBe('')
     }
     fireEvent.click(screen.getByRole('tab', { name: 'Settings' }))
     expect(screen.getByRole('tabpanel').textContent).toBe('Settings content')
   })
 
   test('replaces Design without remounting the selected tab or panel', () => {
-    const [design, setDesign] = createSignal(createTheme())
+    const [design, setDesign] = createSignal(defineTheme())
     const screen = render(() => (
       <MoraineProvider theme={design()}>
         <Tabs items={ITEMS} defaultValue="settings" />
@@ -328,11 +327,11 @@ describe('Tabs', () => {
     const tab = screen.getByRole('tab', { name: 'Settings' })
     const panel = screen.getByRole('tabpanel')
     tab.focus()
-    setDesign(createTheme({ tabs: { base: { trigger: 'custom-tab' } } }))
+    setDesign(defineTheme({ tabs: { base: { trigger: 'custom-tab' } } }))
     expect(screen.getByRole('tab', { name: 'Settings' })).toBe(tab)
     expect(screen.getByRole('tabpanel')).toBe(panel)
     expect(document.activeElement).toBe(tab)
-    expect(tab.className).toBe('custom-tab')
+    expect(tab.className).toContain('custom-tab')
   })
 
   test('renders icon leading', () => {

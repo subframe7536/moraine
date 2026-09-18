@@ -2,8 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
-import { defaultTheme } from '../../theme/default-theme'
+import { MoraineProvider } from '../../provider'
 
 import { Accordion } from './accordion'
 import type { AccordionT } from './accordion.types'
@@ -28,14 +27,14 @@ const BASE_ITEMS: [AccordionT.Item, AccordionT.Item, AccordionT.Item] = [
 ]
 
 describe('Accordion', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = render(() => <Accordion items={BASE_ITEMS} defaultValue={['one']} />)
     const root = screen.container.firstElementChild
-    expect(root?.className).toBe('')
+    expect(root?.className).not.toBe('')
     const trigger = screen.getByRole('button', { name: 'One' })
-    expect(trigger.className).toBe('')
+    expect(trigger.className).not.toBe('')
     const content = screen.getByRole('region', { name: 'One' })
-    expect(content.className).toBe('')
+    expect(content.className).not.toBe('')
   })
 
   test('renders default expanded item in single mode', () => {
@@ -572,7 +571,7 @@ describe('Accordion', () => {
       }
 
       const screen = render(() => (
-        <MoraineProvider theme={defaultTheme}>
+        <MoraineProvider>
           <ControlledAccordion />
         </MoraineProvider>
       ))

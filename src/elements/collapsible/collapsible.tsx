@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createMemo, createSignal, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useDisclosureState } from '../../shared/use-disclosure-state'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
@@ -11,6 +11,7 @@ import { CollapsibleContent } from './collapsible-content'
 import type { CollapsibleContext } from './collapsible-context'
 import { CollapsibleProvider } from './collapsible-context'
 import { CollapsibleTrigger } from './collapsible-trigger'
+import { collapsibleRecipe } from './collapsible.recipe'
 import type { CollapsibleProps } from './collapsible.types'
 
 /** Expandable content section with optional height transitions. */
@@ -29,7 +30,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createComponentStyles('collapsible', local)
+  const resolved = createStyles(collapsibleRecipe, local)
   const rootId = useId(() => local.id, 'collapsible')
   const contentId = createMemo(() => `${rootId()}-content`)
   const triggerId = createMemo(() => `${rootId()}-trigger`)
@@ -92,7 +93,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
 
   return (
     <CollapsibleProvider value={context}>
-      <div id={rootId()} data-slot="root" {...dataAttrs()} {...rest} {...resolved.root}>
+      <div id={rootId()} data-slot="root" {...dataAttrs()} {...rest} {...resolved.styles.root}>
         {local.children}
       </div>
     </CollapsibleProvider>

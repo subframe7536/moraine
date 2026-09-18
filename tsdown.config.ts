@@ -4,7 +4,7 @@ import { unocss } from 'rolldown-plugin-unocss'
 import { defineConfig } from 'tsdown'
 import solid from 'vite-plugin-solid'
 
-import { DEFAULT_ICON_SHORTCUTS } from './src/shared/style/icons.ts'
+import { DEFAULT_ICON_SHORTCUTS } from './src/theme/style/icons.ts'
 import { variantGroupPlugin } from './vite-plugin-variant-group.ts'
 
 export default defineConfig([
@@ -16,6 +16,7 @@ export default defineConfig([
       unocss: './src/unocss/index.ts',
       tailwind: './src/tailwind/index.ts',
       theme: './src/theme.ts',
+      styles: './src/styles.ts',
     },
     plugins: [variantGroupPlugin(), solid()],
     root: 'src',
@@ -45,8 +46,10 @@ export default defineConfig([
       unocss({
         generateCSS: true,
         fileName: 'icon.css',
-        filter: { id: /[\\/]src[\\/]shared[\\/]style[\\/]icons\.ts$/ },
         config: {
+          content: {
+            pipeline: false,
+          },
           configFile: false,
           presets: [
             presetIcons({

@@ -3,9 +3,8 @@ import { createComponent, createSignal, onCleanup, onMount, Show } from 'solid-j
 import { describe, expect, test, vi } from 'vitest'
 
 import { Icon } from '../../elements/icon/index.ts'
-import { MoraineProvider } from '../../shared/provider/index.ts'
-import { createTheme } from '../../theme/create-theme.ts'
-import { defaultTheme } from '../../theme/default-theme.ts'
+import { MoraineProvider } from '../../provider/index.ts'
+import { defineTheme } from '../../theme/create-theme.ts'
 import { Field } from '../field'
 import { Input } from '../input/input.tsx'
 import { Textarea } from '../textarea/textarea.tsx'
@@ -14,7 +13,7 @@ import { InputGroup } from './input-group.tsx'
 import type { InputGroupT } from './input-group.types.ts'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 describe('InputGroup', () => {
   test.each([Input, Textarea])('allows %s to render outside an InputGroup', (Control) => {
@@ -45,9 +44,9 @@ describe('InputGroup', () => {
       </InputGroup>
     ))
     expect(group).toBe(screen.getByRole('group'))
-    expect(group?.className).toBe('')
-    expect(screen.getByRole('textbox').className).toBe('')
-    expect(screen.getByText('Prefix').className).toBe('')
+    expect(group?.className).not.toBe('')
+    expect(screen.getByRole('textbox').className).not.toBe('')
+    expect(screen.getByText('Prefix').className).not.toBe('')
   })
 
   test.each([Input, Textarea])(
@@ -184,7 +183,7 @@ describe('InputGroup', () => {
 
   test('resolves data-compact from theme defaults with explicit prop precedence', () => {
     const [theme, setTheme] = createSignal(
-      createTheme({ extends: defaultTheme, inputGroup: { defaults: { compact: true } } }),
+      defineTheme({ inputGroup: { defaultVariants: { compact: true } } }),
     )
     const screen = baseRender(() => (
       <MoraineProvider theme={theme()}>
@@ -202,7 +201,7 @@ describe('InputGroup', () => {
 
     expect(inherited.hasAttribute('data-compact')).toBe(true)
     expect(explicit.hasAttribute('data-compact')).toBe(false)
-    setTheme(createTheme({ extends: defaultTheme, inputGroup: { defaults: { compact: false } } }))
+    setTheme(defineTheme({ inputGroup: { defaultVariants: { compact: false } } }))
     expect(inherited.hasAttribute('data-compact')).toBe(false)
     expect(explicit.hasAttribute('data-compact')).toBe(false)
   })
@@ -389,7 +388,7 @@ describe('InputGroup', () => {
 
   test('updates theme defaults and group slot overrides without replacing children', () => {
     const [theme, setTheme] = createSignal(
-      createTheme({ extends: defaultTheme, inputGroup: { defaults: { size: 'sm' } } }),
+      defineTheme({ inputGroup: { defaultVariants: { size: 'sm' } } }),
     )
     const [leadingClass, setLeadingClass] = createSignal('first-leading')
     const screen = baseRender(() => (
@@ -408,7 +407,7 @@ describe('InputGroup', () => {
     expect(leading.className).toContain('first-leading')
     expect(leading.className).toContain('local-leading')
     expect(leading.style.color).toBe('blue')
-    setTheme(createTheme({ extends: defaultTheme, inputGroup: { defaults: { size: 'lg' } } }))
+    setTheme(defineTheme({ inputGroup: { defaultVariants: { size: 'lg' } } }))
     setLeadingClass('next-leading')
     expect(screen.getByRole('textbox')).toBe(input)
     expect(input.className).toContain('h-8.5')
@@ -418,10 +417,9 @@ describe('InputGroup', () => {
 
   test('resolves root orientation from theme variants and explicit reactive props', () => {
     const [theme, setTheme] = createSignal(
-      createTheme({
-        extends: defaultTheme,
+      defineTheme({
         inputGroup: {
-          defaults: { orientation: 'vertical' },
+          defaultVariants: { orientation: 'vertical' },
           variants: { orientation: { vertical: { leading: 'custom-header' } } },
         },
       }),
@@ -447,9 +445,8 @@ describe('InputGroup', () => {
     expect(inherited.className).toContain('custom-header')
     expect(explicit.getAttribute('data-orientation')).toBe('vertical')
     setTheme(
-      createTheme({
-        extends: defaultTheme,
-        inputGroup: { defaults: { orientation: 'horizontal' } },
+      defineTheme({
+        inputGroup: { defaultVariants: { orientation: 'horizontal' } },
       }),
     )
     expect(inherited.getAttribute('data-orientation')).toBe('vertical')

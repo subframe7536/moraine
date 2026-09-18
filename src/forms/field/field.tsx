@@ -1,4 +1,4 @@
-import type { Accessor, JSX, ValidComponent } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 import {
   children as resolveChildren,
   createMemo,
@@ -9,15 +9,16 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { createStyles } from '../../provider'
 import { hasNonEmptyJsxContent } from '../../shared/jsx-content'
-import { createComponentStyles } from '../../shared/provider'
 import { renderComponentOrElement } from '../../shared/render-prop'
+import type { ValidComponent } from '../../shared/types.ts'
 import { useId } from '../../shared/utils'
 
 import type { FieldBinding, FieldContextOptions, FieldPath } from './field-context'
 import { FieldProvider } from './field-context'
+import { fieldRecipe } from './field.recipe'
 import type { FieldProps, FieldT } from './field.types'
-
 /** Generic field layout and accessibility primitive. */
 export function Field<T extends ValidComponent = 'div'>(props: FieldProps<T>): JSX.Element {
   return renderField(props)
@@ -51,7 +52,7 @@ export function renderField<T extends ValidComponent = 'div'>(
     'class',
     'style',
   ])
-  const resolved = createComponentStyles('field', local)
+  const resolved = createStyles(fieldRecipe, local)
 
   type MergedProps = FieldT.Base<T> &
     FieldT.Variant & {
@@ -214,21 +215,21 @@ export function renderField<T extends ValidComponent = 'div'>(
     })
 
     return (
-      <Dynamic data-slot="root" {...rest} component={merged.as as any} {...resolved.root}>
-        <div data-slot="wrapper" {...resolved.slot('wrapper')}>
+      <Dynamic data-slot="root" {...rest} component={merged.as as any} {...resolved.styles.root}>
+        <div data-slot="wrapper" {...resolved.styles.wrapper}>
           <Show when={showLabel()}>
-            <div data-slot="labelWrapper" {...resolved.slot('labelWrapper')}>
+            <div data-slot="labelWrapper" {...resolved.styles.labelWrapper}>
               <label
                 id={`${ariaId()}-label`}
                 for={selectedControlId()}
                 data-slot="label"
                 data-required={merged.required ? '' : undefined}
-                {...resolved.slot('label')}
+                {...resolved.styles.label}
               >
                 {label()}
               </label>
               <Show when={showHint()}>
-                <span id={`${ariaId()}-hint`} data-slot="hint" {...resolved.slot('hint')}>
+                <span id={`${ariaId()}-hint`} data-slot="hint" {...resolved.styles.hint}>
                   {hint()}
                 </span>
               </Show>
@@ -238,7 +239,7 @@ export function renderField<T extends ValidComponent = 'div'>(
             <p
               id={`${ariaId()}-description`}
               data-slot="description"
-              {...resolved.slot('description')}
+              {...resolved.styles.description}
             >
               {description()}
             </p>
@@ -247,20 +248,20 @@ export function renderField<T extends ValidComponent = 'div'>(
         <div
           data-slot="container"
           data-has-text={showLabel() || showDescription() ? '' : undefined}
-          {...resolved.slot('container')}
+          {...resolved.styles.container}
         >
           {fieldChildren}
           <Show
             when={showError()}
             fallback={
               <Show when={showHelp()}>
-                <div id={`${ariaId()}-help`} data-slot="help" {...resolved.slot('help')}>
+                <div id={`${ariaId()}-help`} data-slot="help" {...resolved.styles.help}>
                   {help()}
                 </div>
               </Show>
             }
           >
-            <div id={`${ariaId()}-error`} data-slot="error" {...resolved.slot('error')}>
+            <div id={`${ariaId()}-error`} data-slot="error" {...resolved.styles.error}>
               {resolvedError()}
             </div>
           </Show>

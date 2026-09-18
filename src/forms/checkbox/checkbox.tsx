@@ -2,17 +2,17 @@ import type { JSX } from 'solid-js'
 import { Show, createEffect, createMemo, mergeProps, on, splitProps, untrack } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
+import { createStyles } from '../../provider'
+import { useCn } from '../../provider/cn-context'
 import { HiddenInput } from '../../shared/hidden-input'
-import { createComponentStyles } from '../../shared/provider'
-import { useCn } from '../../shared/provider/cn-context'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { isInteractiveTarget } from '../shared/is-interactive-target'
 import { useFormReset } from '../shared/use-form-reset'
 
+import { checkboxRecipe } from './checkbox.recipe'
 import type { CheckboxProps } from './checkbox.types'
-
 /** Single checkbox control with card and list variants and custom true/false values. */
 export function Checkbox<TTrue = boolean, TFalse = boolean>(
   props: CheckboxProps<TTrue, TFalse>,
@@ -51,7 +51,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     'onClick',
   ])
   const themeField = useFieldContext()
-  const resolved = createComponentStyles('checkbox', local, {
+  const resolved = createStyles(checkboxRecipe, local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })
 
@@ -322,8 +322,8 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   }
 
   return (
-    <div data-slot="root" {...rest} {...resolved.root} onClick={onRootClick}>
-      <div data-slot="container" {...resolved.slot('container')}>
+    <div data-slot="root" {...rest} {...resolved.styles.root} onClick={onRootClick}>
+      <div data-slot="container" {...resolved.styles.container}>
         <HiddenInput
           ref={(element) => {
             inputEl = element
@@ -364,10 +364,10 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           data-slot="control"
           data-invalid={field.invalid() ? '' : undefined}
           aria-checked={indeterminate() ? 'mixed' : Boolean(resolvedChecked())}
-          class={cn(resolved.slot('control').class, [
+          class={cn(resolved.styles.control.class, [
             resolved.variants.indicator === 'hidden' && 'sr-only',
           ])}
-          style={resolved.slot('control').style}
+          style={resolved.styles.control.style}
           onPointerDown={onPointerDown}
           onClick={onControlClick}
           onKeyDown={onControlKeyDown}
@@ -385,21 +385,21 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           <Show when={resolvedChecked() || indeterminate()}>
             <span
               data-slot="indicator"
-              {...resolved.slot('indicator')}
+              {...resolved.styles.indicator}
               data-checked={resolvedChecked() ? '' : undefined}
               data-disabled={field.disabled() ? '' : undefined}
               data-indeterminate={indeterminate() ? '' : undefined}
               data-readonly={readOnly() ? '' : undefined}
               data-required={field.required() ? '' : undefined}
             >
-              <Icon name={activeIcon()} {...resolved.slot('icon')} />
+              <Icon name={activeIcon()} {...resolved.styles.icon} />
             </span>
           </Show>
         </button>
       </div>
 
       <Show when={label() || description()}>
-        <div data-slot="wrapper" {...resolved.slot('wrapper')}>
+        <div data-slot="wrapper" {...resolved.styles.wrapper}>
           <Show when={label()}>
             <Show
               when={resolved.variants.variant === 'card'}
@@ -409,7 +409,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                   id={labelId()}
                   data-slot="label"
                   data-required={field.required() ? '' : undefined}
-                  {...resolved.slot('label')}
+                  {...resolved.styles.label}
                 >
                   {label()}
                 </label>
@@ -419,7 +419,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                 id={labelId()}
                 data-slot="label"
                 data-required={field.required() ? '' : undefined}
-                {...resolved.slot('label')}
+                {...resolved.styles.label}
               >
                 {label()}
               </p>
@@ -427,7 +427,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           </Show>
 
           <Show when={description()}>
-            <p id={descriptionId()} data-slot="description" {...resolved.slot('description')}>
+            <p id={descriptionId()} data-slot="description" {...resolved.styles.description}>
               {description()}
             </p>
           </Show>

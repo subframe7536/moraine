@@ -9,40 +9,14 @@ import type {
   FormRequiredOption,
 } from '../shared/form-options'
 
+import type { SwitchStyleSlot, SwitchStyleVariant } from './switch.style-types'
+
 export namespace SwitchT {
   export type Kind = 'single'
 
-  export interface Slot<T = unknown> {
-    /**
-     * Switch wrapper that coordinates input, track, thumb, and text content.
-     */
-    root?: T
+  export type Slot<T = unknown> = SwitchStyleSlot<T>
 
-    /** Visible switch track that shows checked and unchecked state. */
-    track?: T
-
-    /** Movable knob inside the switch track. */
-    thumb?: T
-
-    /** Checked, unchecked, or loading icon rendered inside the thumb. */
-    icon?: T
-
-    /** Inner layout wrapper used by switch list and card variants. */
-    wrapper?: T
-
-    /** Primary switch label text. */
-    label?: T
-
-    /** Supporting text associated with the switch. */
-    description?: T
-  }
-
-  export interface Variant {
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-  }
+  export type Variant = SwitchStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

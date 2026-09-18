@@ -2,11 +2,10 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 import { finishExitMotion } from '../../test-utils/overlay-test'
 import { renderWithTheme } from '../../test-utils/theme-render'
-import { createTheme } from '../../theme'
-import { defaultTheme } from '../../theme/default-theme'
+import { defineTheme } from '../../theme'
 
 import { Sheet } from './sheet'
 
@@ -511,8 +510,7 @@ describe('Sheet', () => {
   test('preserves Modal overlay behavior for provider slot overrides', () => {
     renderWithTheme(() => (
       <MoraineProvider
-        theme={createTheme({
-          extends: defaultTheme,
+        theme={defineTheme({
           sheet: { base: { overlay: 'bg-blue-500 provider-sheet-overlay' } },
         })}
       >

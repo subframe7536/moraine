@@ -2,20 +2,20 @@ import { render } from '@solidjs/testing-library'
 import { createSignal, onCleanup } from 'solid-js'
 import { describe, expect, test } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
-import { createTheme } from '../../theme'
+import { MoraineProvider } from '../../provider'
+import { defineTheme } from '../../theme'
 
 import { Icon } from './icon'
 import type { IconProps } from './icon.types.ts'
 
 describe('Icon', () => {
-  test('renders unstyled when provider is absent', () => {
-    const customDesign = createTheme({
+  test('uses the default recipe when provider is absent and applies theme overrides when provided', () => {
+    const customDesign = defineTheme({
       icon: { base: { root: 'design-icon' } },
     })
-    const unstyledScreen = render(() => <Icon name="i-lucide-search" />)
-    const unstyledIcon = unstyledScreen.container.querySelector('[data-slot="icon"]')
-    expect(unstyledIcon?.className).not.toContain('design-icon')
+    const defaultScreen = render(() => <Icon name="i-lucide-search" />)
+    const defaultIcon = defaultScreen.container.querySelector('[data-slot="icon"]')
+    expect(defaultIcon?.className).not.toContain('design-icon')
 
     const styledScreen = render(() => (
       <MoraineProvider theme={customDesign}>
@@ -164,7 +164,7 @@ describe('Icon', () => {
   })
 
   test('replaces Design root styling without remounting the icon', () => {
-    const [design, setDesign] = createSignal(createTheme({ icon: { base: { root: 'p-2' } } }))
+    const [design, setDesign] = createSignal(defineTheme({ icon: { base: { root: 'p-2' } } }))
     const screen = render(() => (
       <MoraineProvider theme={design()}>
         <Icon name="i-lucide-search" />
@@ -174,7 +174,7 @@ describe('Icon', () => {
 
     expect(icon.className).toContain('p-2')
 
-    setDesign(createTheme({ icon: { base: { root: 'p-4' } } }))
+    setDesign(defineTheme({ icon: { base: { root: 'p-4' } } }))
 
     expect(screen.container.querySelector('[data-slot="icon"]')).toBe(icon)
     expect(icon.className).toContain('p-4')

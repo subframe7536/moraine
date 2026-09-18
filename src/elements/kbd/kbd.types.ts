@@ -1,5 +1,7 @@
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
+import type { KbdStyleSlot, KbdStyleVariant } from './kbd.style-types'
+
 export const KBD_KEY_ALIASES = {
   alt: { text: 'Alt', label: 'Alt' },
   arrowdown: { text: '↓', label: 'Arrow Down' },
@@ -28,21 +30,9 @@ export const KBD_KEY_ALIASES = {
 export namespace KbdT {
   export type Kind = 'single'
 
-  export interface Slot<T = unknown> {
-    /** Keyboard keycap element. */
-    root?: T
-  }
+  export type Slot<T = unknown> = KbdStyleSlot<T>
 
-  export interface Variant {
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-    /** Visual treatment of the component.
-     * @default 'default'
-     */
-    variant?: 'default' | 'outline' | 'invert'
-  }
+  export type Variant = KbdStyleVariant
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
   export type BuiltinKbds = keyof typeof KBD_KEY_ALIASES

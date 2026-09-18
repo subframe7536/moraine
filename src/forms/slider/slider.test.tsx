@@ -2,14 +2,13 @@ import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-libra
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
-import { defaultTheme } from '../../theme/default-theme'
+import { MoraineProvider } from '../../provider'
 
 import { useSlider } from './hook'
 import { Slider } from './slider'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 function getThumbs(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll('[data-slot="thumb"]')) as HTMLElement[]
@@ -65,10 +64,10 @@ function mockTrackRect(target: HTMLElement): void {
 }
 
 describe('Slider', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = baseRender(() => <Slider />)
     const root = screen.container.querySelector('[data-slot="root"]')
-    expect(root?.className).toBe('')
+    expect(root?.className).not.toBe('')
   })
 
   test('forwards root ref and inner inputRef', () => {

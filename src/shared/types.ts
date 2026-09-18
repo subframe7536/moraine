@@ -1,8 +1,8 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { Component, JSX } from 'solid-js'
 
-import type { ClassValue } from './style/recipe'
+import type { ClassValue } from '../theme/style/recipe'
 
-export type { ClassValue } from './style/recipe'
+export type { ClassValue } from '../theme/style/recipe'
 
 export type SlotClassValue = ClassValue
 
@@ -29,9 +29,11 @@ export type ElementProps<T extends HTMLElement> = Omit<JSX.HTMLAttributes<T>, 's
  */
 export interface MoraineTypeConfig {}
 
-type Tags = MoraineTypeConfig extends { simpleHtmlTags: true }
+export type Tags = MoraineTypeConfig extends { simpleHtmlTags: true }
   ? keyof JSX.HTMLElementTags
   : keyof JSX.IntrinsicElements
+
+export type ValidComponent = Tags | Component<any> | (string & {})
 
 type CommonRootProps = { [x: string]: unknown }
 
@@ -54,22 +56,19 @@ type StrictedAttributes<T extends Tags> = T extends unknown
 
 type Override<A, B> = Omit<A, keyof B> & B
 
+type NullableVariantProps<Variant> = {
+  [K in keyof Variant]: Variant[K] | null
+}
+
 type ComponentBaseProps<Base, Variant, Classes, Styles> = Base &
-  ([Variant] extends [never] ? {} : Variant) & {
+  ([Variant] extends [never] ? {} : NullableVariantProps<Variant>) &
+  ([Classes] extends [never] ? {} : { classes?: Classes }) &
+  ([Styles] extends [never] ? {} : { styles?: Styles }) & {
     /** Class applied to the component root or trigger element. */
     class?: SlotClassValue
     /** Style applied to the component root or trigger element. */
     style?: SlotStyleValue
-  } & ([Classes] extends [never]
-    ? {}
-    : [Styles] extends [never]
-      ? {}
-      : {
-          /** Classes applied to the component slots. */
-          classes?: Classes
-          /** Styles applied to the component slots. */
-          styles?: Styles
-        })
+  }
 
 type RootProps<T extends ValidComponent> = string & {} extends T
   ? {}

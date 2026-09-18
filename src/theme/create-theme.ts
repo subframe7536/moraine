@@ -1,46 +1,62 @@
-import { slotRecipe } from '../shared/style/recipe'
-import type { ComponentRecipeConfig, SlotRecipeFn } from '../shared/style/recipe'
+import type { RecipeLayerConfig } from './style/recipe'
+import type { DefineThemeOptions, MoraineTheme } from './types'
 
-import type { ComponentThemeEntry, CreateThemeOptions, MoraineTheme, ThemeName } from './types'
+// Public subpath bundles may contain separate copies of this module. Use the
+// global symbol registry so a theme created from `moraine/theme` remains
+// readable by the resolver bundled into the main `moraine` entry.
+const THEME_LAYERS: unique symbol = Symbol.for('moraine.theme.layers') as never
 
-export function toThemeEntry<S extends object, V>(
-  recipe: SlotRecipeFn<S, V>,
-  parent?: ComponentThemeEntry<S, V>,
-): ComponentThemeEntry<S, V> {
-  const defaults = { ...parent?.defaults } as NonNullable<ComponentRecipeConfig<S, V>['defaults']>
-  const own = recipe.options.defaults
-  for (const key of Object.keys(own ?? {}) as (keyof typeof defaults)[]) {
-    const value = own?.[key]
-    if (value !== undefined) {
-      defaults[key] = value
-    }
-  }
-  return Object.freeze({
-    defaults:
-      parent?.defaults || own
-        ? (Object.freeze(defaults) as ComponentRecipeConfig<S, V>['defaults'])
-        : undefined,
-    recipes: Object.freeze([...(parent?.recipes ?? []), recipe]),
-  })
+export interface ThemeLayer {
+  readonly overrides: Readonly<Record<string, Readonly<Record<string, unknown>>>>
 }
 
-/** Extends component defaults and appends recipes to the parent theme. */
-export function createTheme(options: CreateThemeOptions = {}): MoraineTheme {
-  const theme = { ...options.extends }
-  for (const name of Object.keys(options) as (ThemeName | 'extends')[]) {
-    if (name === 'extends') {
-      continue
-    }
-    const config = options[name]
-    if (config === undefined) {
-      continue
-    }
-    // Each key pairs the config with its matching parent entry despite the widened types.
-    const recipe = slotRecipe(
-      config as ComponentRecipeConfig<Record<string, unknown>, Record<string, unknown>>,
-    )
-    const parent = theme[name]
-    Object.assign(theme, { [name]: toThemeEntry(recipe, parent) })
+type InternalTheme = MoraineTheme & {
+  readonly [THEME_LAYERS]: readonly ThemeLayer[]
+}
+
+function cloneAndFreeze(value: unknown): unknown {
+  if (!value || typeof value !== 'object') {
+    return value
   }
-  return Object.freeze(theme)
+  if (Array.isArray(value)) {
+    return Object.freeze(value.map((item) => cloneAndFreeze(item)))
+  }
+  const cloned: Record<string, unknown> = {}
+  for (const [key, val] of Object.entries(value)) {
+    cloned[key] = cloneAndFreeze(val)
+  }
+  return Object.freeze(cloned)
+}
+
+/** Creates an immutable layered Moraine theme override. */
+export function defineTheme(options: DefineThemeOptions = {}): MoraineTheme {
+  const { extends: parent, ...entries } = options
+  const overrides: Record<string, Readonly<Record<string, unknown>>> = {}
+  for (const [key, value] of Object.entries(entries)) {
+    if (value === undefined) {
+      continue
+    }
+    overrides[key] = cloneAndFreeze(value) as Readonly<Record<string, unknown>>
+  }
+  const layers = Object.freeze([
+    ...getThemeLayers(parent),
+    Object.freeze({ overrides: Object.freeze(overrides) }),
+  ])
+  return Object.freeze(
+    Object.defineProperty({}, THEME_LAYERS, { value: layers, enumerable: false }),
+  ) as MoraineTheme
+}
+
+export function getThemeLayers(theme: MoraineTheme | undefined): readonly ThemeLayer[] {
+  return theme ? (theme as InternalTheme)[THEME_LAYERS] : []
+}
+
+export function getThemeRecipeLayers<S extends object, V>(
+  theme: MoraineTheme,
+  key: string,
+): readonly RecipeLayerConfig<S, V>[] {
+  return getThemeLayers(theme).flatMap((layer) => {
+    const override = layer.overrides[key]
+    return override ? [override] : []
+  })
 }

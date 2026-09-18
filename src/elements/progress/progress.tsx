@@ -1,9 +1,10 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 import { renderComponentOrElement } from '../../shared/render-prop'
 
+import { progressRecipe } from './progress.recipe'
 import type { ProgressProps, ProgressT } from './progress.types'
 
 function resolveMaxValue(max: ProgressProps['max']): number {
@@ -39,7 +40,7 @@ export function Progress(props: ProgressProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createComponentStyles('progress', local)
+  const resolved = createStyles(progressRecipe, local)
 
   const orientation = () => resolved.variants.orientation
 
@@ -166,7 +167,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       data-slot="root"
       {...dataAttrs()}
       {...rest}
-      {...resolved.root}
+      {...resolved.styles.root}
     >
       <Show when={!isIndeterminate()}>
         {(_determinate) => {
@@ -177,8 +178,8 @@ export function Progress(props: ProgressProps): JSX.Element {
             <Show when={shouldRenderStatus()}>
               <div
                 data-slot="status"
-                class={resolved.slot('status').class}
-                style={{ ...statusStyle(), ...resolved.slot('status').style }}
+                class={resolved.styles.status.class}
+                style={{ ...statusStyle(), ...resolved.styles.status.style }}
                 {...dataAttrs()}
               >
                 <Show when={statusRender() !== undefined} fallback={`${percent() ?? 0}%`}>
@@ -194,11 +195,11 @@ export function Progress(props: ProgressProps): JSX.Element {
         }}
       </Show>
 
-      <div data-slot="track" {...resolved.slot('track')} {...dataAttrs()}>
+      <div data-slot="track" {...resolved.styles.track} {...dataAttrs()}>
         <div
           data-slot="indicator"
-          class={resolved.slot('indicator').class}
-          style={{ ...indicatorStyle(), ...resolved.slot('indicator').style }}
+          class={resolved.styles.indicator.class}
+          style={{ ...indicatorStyle(), ...resolved.styles.indicator.style }}
           {...dataAttrs()}
         />
       </div>
@@ -208,13 +209,13 @@ export function Progress(props: ProgressProps): JSX.Element {
           const stepRender = createMemo(() => local.stepRender)
 
           return (
-            <div data-slot="steps" {...resolved.slot('steps')} {...dataAttrs()}>
+            <div data-slot="steps" {...resolved.styles.steps} {...dataAttrs()}>
               <For each={steps()}>
                 {(step, index) => (
                   <div
                     data-slot="step"
                     data-state={stepState(index())}
-                    {...resolved.slot('step')}
+                    {...resolved.styles.step}
                     {...dataAttrs()}
                   >
                     <Show when={stepRender() !== undefined} fallback={step}>

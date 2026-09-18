@@ -2,8 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
-import { defaultTheme } from '../../theme/default-theme'
+import { MoraineProvider } from '../../provider'
 
 import { Checkbox } from './checkbox'
 
@@ -16,14 +15,14 @@ function getHiddenCheckbox(container: HTMLElement): HTMLInputElement {
 }
 
 describe('Checkbox', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = render(() => (
       <Checkbox variant="card" indicator="end" size="lg" label="Classes" />
     ))
     const root = screen.container.querySelector('[data-slot="root"]')
     const base = screen.container.querySelector('[data-slot="control"]')
-    expect(root?.className).toBe('')
-    expect(base?.className).toBe('')
+    expect(root?.className).not.toBe('')
+    expect(base?.className).not.toBe('')
   })
 
   test('exposes native inputRef', () => {
@@ -395,7 +394,7 @@ describe('Checkbox', () => {
 
   test('applies card variant, end indicator and size classes', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Checkbox
           variant="card"
           indicator="end"

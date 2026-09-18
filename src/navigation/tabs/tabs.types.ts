@@ -3,50 +3,14 @@ import type { JSX } from 'solid-js'
 import type { IconT } from '../../elements/icon/icon.types'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
+import type { TabsStyleSlot, TabsStyleVariant } from './tabs.style-types'
+
 export namespace TabsT {
   export type Kind = 'single'
 
-  export interface Slot<T = unknown> {
-    /**
-     * Tabs container that owns tab selection and panel rendering.
-     */
-    root?: T
+  export type Slot<T = unknown> = TabsStyleSlot<T>
 
-    /** Tablist that contains all tab triggers and the selection indicator. */
-    list?: T
-
-    /** Moving indicator aligned with the active tab trigger. */
-    indicator?: T
-
-    /** Tab button users activate to select a panel. */
-    trigger?: T
-
-    /** Optional icon rendered before a tab label. */
-    leading?: T
-
-    /** Text or custom label rendered inside a tab trigger. */
-    label?: T
-
-    /** Optional trailing content rendered after a tab label. */
-    trailing?: T
-
-    /** Tab panel rendered for the selected item. */
-    content?: T
-  }
-
-  export interface Variant {
-    /** Layout axis used by the component Recipe. */
-    orientation?: 'horizontal' | 'vertical'
-
-    /** Visual treatment of the component.
-     * @default 'pill'
-     */
-    variant?: 'pill' | 'link'
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-  }
+  export type Variant = TabsStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

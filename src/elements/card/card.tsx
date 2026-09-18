@@ -1,8 +1,9 @@
 import type { JSX } from 'solid-js'
 import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 
+import { cardRecipe } from './card.recipe'
 import type { CardProps } from './card.types'
 
 /** Structured content container with optional header, body, footer, and action slots. */
@@ -20,7 +21,7 @@ export function Card(props: CardProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createComponentStyles('card', local)
+  const resolved = createStyles(cardRecipe, local)
 
   const header = createMemo(() => local.header)
   const title = createMemo(() => local.title)
@@ -30,26 +31,22 @@ export function Card(props: CardProps): JSX.Element {
   const resolvedChildren = resolveChildren(() => local.children)
 
   return (
-    <div data-slot="root" {...rest} {...resolved.root}>
+    <div data-slot="root" {...rest} {...resolved.styles.root}>
       <Show when={header() || title() || description()}>
-        <div
-          data-slot="header"
-          data-action={action() ? '' : undefined}
-          {...resolved.slot('header')}
-        >
+        <div data-slot="header" data-action={action() ? '' : undefined} {...resolved.styles.header}>
           <Show when={title() || description()} fallback={header()}>
             <Show when={title()}>
-              <div data-slot="title" {...resolved.slot('title')}>
+              <div data-slot="title" {...resolved.styles.title}>
                 {title()}
               </div>
             </Show>
             <Show when={description()}>
-              <p data-slot="description" {...resolved.slot('description')}>
+              <p data-slot="description" {...resolved.styles.description}>
                 {description()}
               </p>
             </Show>
             <Show when={action()}>
-              <div data-slot="action" {...resolved.slot('action')}>
+              <div data-slot="action" {...resolved.styles.action}>
                 {action()}
               </div>
             </Show>
@@ -62,7 +59,7 @@ export function Card(props: CardProps): JSX.Element {
           <div
             data-slot="body"
             data-no-footer={!footer() ? '' : undefined}
-            {...resolved.slot('body')}
+            {...resolved.styles.body}
           >
             {body()}
           </div>
@@ -70,7 +67,7 @@ export function Card(props: CardProps): JSX.Element {
       </Show>
 
       <Show when={footer()}>
-        <div data-slot="footer" {...resolved.slot('footer')}>
+        <div data-slot="footer" {...resolved.styles.footer}>
           {footer()}
         </div>
       </Show>

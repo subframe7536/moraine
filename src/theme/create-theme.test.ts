@@ -1,74 +1,75 @@
 import { describe, expect, test } from 'vitest'
 
-import { cn } from '../shared/utils'
+import { getThemeRecipeLayers, getThemeLayers, defineTheme } from './create-theme'
 
-import { createTheme } from './create-theme'
+describe('defineTheme', () => {
+  test('creates opaque immutable themes and records only supplied overrides', () => {
+    const theme = defineTheme({ button: { base: { root: 'p-2' } } })
+    expect(Object.isFrozen(theme)).toBe(true)
+    expect(Object.keys(theme)).toEqual([])
+    expect(getThemeRecipeLayers(theme, 'button')).toEqual([{ base: { root: 'p-2' } }])
+    expect(getThemeRecipeLayers(theme, 'input')).toEqual([])
+  })
 
-describe('createTheme', () => {
-  test('supports empty themes and components without variants', () => {
-    expect(createTheme()).toEqual({})
-    const theme = createTheme({
-      collapsible: { base: { content: 'overflow-hidden' } },
-      button: undefined,
+  test('preserves ordered extends layers without mutating parent input', () => {
+    const config = { button: { base: { root: 'p-2' }, defaultVariants: { size: 'sm' } } } as const
+    const parent = defineTheme(config)
+    const child = defineTheme({
+      extends: parent,
+      button: { base: { label: 'font-bold' }, defaultVariants: { size: 'lg' } },
     })
-    expect(theme.collapsible?.recipes.flatMap((recipe) => recipe().classes.content)).toEqual([
-      'overflow-hidden',
+    expect(getThemeRecipeLayers(child, 'button')).toEqual([
+      { base: { root: 'p-2' }, defaultVariants: { size: 'sm' } },
+      { base: { label: 'font-bold' }, defaultVariants: { size: 'lg' } },
     ])
-    expect(theme.button).toBeUndefined()
-  })
-
-  test('preserves untouched components and parent inputs when extending', () => {
-    const config = {
-      button: { base: { root: 'p-2' }, defaults: { size: 'sm' } },
-      input: { base: { root: 'input-class' } },
-    } as const
-    const parent = createTheme(config)
-    const child = createTheme({
-      extends: parent,
-      button: { base: { label: 'font-bold' }, defaults: { size: 'lg' } },
-    })
-    expect(child.input?.recipes.flatMap((recipe) => recipe().classes.root)).toEqual(['input-class'])
-    expect(child.button?.defaults?.size).toBe('lg')
-    expect(parent.button?.defaults?.size).toBe('sm')
-    expect(
-      parent.button?.recipes.flatMap((recipe) => recipe().classes.label).filter(Boolean),
-    ).toEqual([])
-    expect(config.button.defaults.size).toBe('sm')
     expect(Object.isFrozen(config.button)).toBe(false)
-    expect(createTheme({ extends: child }).button?.defaults?.size).toBe('lg')
+    expect(Object.isFrozen(config.button.base)).toBe(false)
+    expect(Object.isFrozen(config.button.defaultVariants)).toBe(false)
+    expect(config.button.defaultVariants.size).toBe('sm')
   })
 
-  test('keeps non-undefined defaults and lets child defaults drive every recipe in order', () => {
-    const parent = createTheme({
+  test('does not freeze caller input objects or nested references', () => {
+    const base = { root: 'p-2' }
+    const variants = { size: { sm: { root: 'p-1' } } }
+    const compoundVariants = [{ variants: { size: 'sm' as const }, root: 'font-bold' }]
+    const defaultVariants = { size: 'sm' as const }
+    const config = {
       button: {
-        defaults: { size: 'sm', variant: 'outline' },
-        variants: {
-          size: {
-            sm: { root: 'p-2', label: 'text-sm' },
-            lg: { root: 'p-3', label: 'text-lg' },
-          },
-        },
-        compoundVariants: [{ variants: { size: 'lg', variant: 'outline' }, label: 'font-bold' }],
+        base,
+        variants,
+        compoundVariants,
+        defaultVariants,
+      },
+    }
+
+    defineTheme(config)
+
+    expect(Object.isFrozen(config)).toBe(false)
+    expect(Object.isFrozen(config.button)).toBe(false)
+    expect(Object.isFrozen(base)).toBe(false)
+    expect(Object.isFrozen(variants)).toBe(false)
+    expect(Object.isFrozen(variants.size)).toBe(false)
+    expect(Object.isFrozen(variants.size.sm)).toBe(false)
+    expect(Object.isFrozen(compoundVariants)).toBe(false)
+    expect(Object.isFrozen(compoundVariants[0])).toBe(false)
+    expect(Object.isFrozen(compoundVariants[0]!.variants)).toBe(false)
+    expect(Object.isFrozen(defaultVariants)).toBe(false)
+  })
+
+  test('retains layered overrides across extends', () => {
+    const base = defineTheme({ button: { base: { root: 'base' } } })
+    const middle = defineTheme({
+      extends: base,
+      button: {
+        base: { root: 'middle' },
       },
     })
-    const child = createTheme({
-      extends: parent,
-      button: {
-        defaults: { size: 'lg', variant: undefined },
-        base: { root: 'p-4', label: 'font-normal' },
-        variants: { size: { lg: { label: 'italic' } } },
-        compoundVariants: [{ variants: { size: 'lg' }, label: 'font-medium' }],
-      },
-    })
-    const entry = child.button!
-    const outputs = entry.recipes.map((recipe) => recipe(entry.defaults))
-    expect(entry.defaults).toEqual({ size: 'lg', variant: 'outline' })
-    expect(cn(...outputs.map((output) => output.classes.root))).toBe('p-4')
-    expect(cn(...outputs.map((output) => output.classes.label))).toBe('text-lg italic font-medium')
-    const small = createTheme({
-      extends: parent,
-      button: { base: { root: 'p-4' } },
-    }).button!
-    expect(cn(...small.recipes.map((recipe) => recipe(small.defaults).classes.root))).toBe('p-4')
+    const child = defineTheme({ extends: middle, button: { base: { root: 'child' } } })
+    expect(getThemeRecipeLayers(child, 'button')).toEqual([
+      { base: { root: 'base' } },
+      { base: { root: 'middle' } },
+      { base: { root: 'child' } },
+    ])
+    expect(getThemeLayers(child)).toHaveLength(3)
   })
 })

@@ -1,37 +1,17 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
 import type { PopperContentOptions, PopperPlacement, PopperProps } from '../base/popper.types'
 import type { ModalT } from '../modal/modal.types'
+
+import type { TooltipStyleSlot, TooltipStyleVariant } from './tooltip.style-types'
 
 export namespace TooltipT {
   export type Kind = 'composite'
 
-  export interface Slot<T = unknown> {
-    /** Positioning wrapper around the tooltip surface. */
-    positioner?: T
-    /** Element that opens the tooltip. */
-    trigger?: T
+  export type Slot<T = unknown> = TooltipStyleSlot<T>
 
-    /** Tooltip bubble positioned next to its trigger. */
-    content?: T
-
-    /** Primary text region inside the tooltip bubble. */
-    text?: T
-
-    /** Container for shortcut hints displayed beside tooltip text. */
-    kbds?: T
-
-    /** Individual keyboard key hint inside the tooltip. */
-    kbd?: T
-  }
-
-  export interface Variant {
-    /** Visual invert of the component.
-     * @default false
-     */
-    invert?: boolean
-  }
+  export type Variant = TooltipStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -72,7 +52,10 @@ export namespace TooltipT {
     children?: JSX.Element
   }
   export interface ContentBase {
-    /** Preferred placement relative to the trigger. @default 'top' */
+    /**
+     * Preferred placement relative to the trigger.
+     * @default 'top'
+     */
     side?: 'top' | 'right' | 'bottom' | 'left'
 
     /**

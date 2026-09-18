@@ -1,6 +1,8 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
+
+import type { CollapsibleStyleSlot, CollapsibleStyleVariant } from './collapsible.style-types'
 
 type CollapsibleTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
   ? HTMLElementTagNameMap[T]
@@ -9,22 +11,16 @@ type CollapsibleTriggerElementFor<T extends ValidComponent> = T extends keyof HT
 export namespace CollapsibleT {
   export type Kind = 'composite'
 
-  export interface Slot<T = unknown> {
-    /** Container that owns the trigger and expandable content. */
-    root?: T
-    /** Interactive element that toggles the content. */
-    trigger?: T
-    /** Outer wrapper that measures and animates the content height. */
-    contentWrapper?: T
-    /** Inner region that renders the collapsible content. */
-    content?: T
-  }
+  export type Slot<T = unknown> = CollapsibleStyleSlot<T>
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
   export type TriggerBase<T extends ValidComponent = 'button'> = {
-    /** Element or component to render as. @default 'button' */
+    /**
+     * Element or component to render as.
+     * @default 'button'
+     */
     as?: T
     type?: T extends 'a'
       ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>['type']
@@ -53,18 +49,33 @@ export namespace CollapsibleT {
   >
 
   export type ContentBase<T extends ValidComponent = 'div'> = {
-    /** Element or component to render inner content as. @default 'div' */
+    /**
+     * Element or component to render inner content as.
+     * @default 'div'
+     */
     as?: T
-    /** Whether to unmount content when closed. @default true */
+
+    /**
+     * Whether to unmount content when closed.
+     * @default true
+     */
     unmountOnHide?: boolean
-    /** Force mounting the content in the DOM even when closed. @default false */
+
+    /**
+     * Force mounting the content in the DOM even when closed.
+     * @default false
+     */
     forceMount?: boolean
+
     /** Additional class applied to the outer animated height wrapper. */
     wrapperClass?: string
+
     /** Additional style applied to the outer animated height wrapper. */
     wrapperStyle?: JSX.CSSProperties
+
     /** Ref callback for the outer animated height wrapper element. */
-    wrapperRef?: (element: HTMLDivElement | undefined) => void
+    wrapperRef?: (element: HTMLDivElement) => void
+
     /** Content to render. */
     children?: JSX.Element
   }
@@ -77,7 +88,7 @@ export namespace CollapsibleT {
     never
   >
 
-  export type Variant = never
+  export type Variant = CollapsibleStyleVariant
 
   export interface Item {}
   /**

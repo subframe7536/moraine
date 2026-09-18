@@ -1,10 +1,9 @@
 import { Button, Input, MoraineProvider } from '@src'
-import { createTheme, defaultTheme } from '@src/theme'
+import { defineTheme } from '@src/theme'
 import { createSignal } from 'solid-js'
 
-const roundedTheme = defaultTheme
-const squareTheme = createTheme({
-  extends: defaultTheme,
+const roundedTheme = defineTheme()
+const squareTheme = defineTheme({
   button: { variants: { size: { md: { root: 'rounded-none' } } } },
 })
 

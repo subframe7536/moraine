@@ -1,30 +1,20 @@
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
+import type { SeparatorStyleSlot, SeparatorStyleVariant } from './separator.style-types'
+
 export namespace SeparatorT {
   export type Kind = 'single'
 
-  export interface Slot<T = unknown> {
-    /** Visual divider element. */
-    root?: T
-  }
+  export type Slot<T = unknown> = SeparatorStyleSlot<T>
 
-  export interface Variant {
-    /** Layout axis used by the component Recipe. */
-    orientation?: 'horizontal' | 'vertical'
-  }
+  export type Variant = SeparatorStyleVariant
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
   export interface Item {}
 
   /** Base props for the Separator component. */
-  export interface Base {
-    /**
-     * The orientation of the separator.
-     * @default 'horizontal'
-     */
-    orientation?: 'horizontal' | 'vertical'
-  }
+  export interface Base {}
 
   /** Props for the Separator component. */
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles>

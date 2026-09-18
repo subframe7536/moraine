@@ -1,8 +1,7 @@
 import { Separator, MoraineProvider } from '@src'
-import { createTheme, defaultTheme } from '@src/theme'
+import { defineTheme } from '@src/theme'
 
-const theme = createTheme({
-  extends: defaultTheme,
+const theme = defineTheme({
   separator: { base: { root: 'bg-emerald-500' } },
 })
 

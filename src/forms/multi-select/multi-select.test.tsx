@@ -4,16 +4,15 @@ import { createSignal, untrack } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider/index.ts'
+import { MoraineProvider } from '../../provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
-import { defaultTheme } from '../../theme/default-theme.ts'
 import { createForm } from '../form/index.ts'
 
 import { MultiSelect } from './multi-select.tsx'
 import type { MultiSelectT } from './multi-select.types.ts'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 const ITEMS: MultiSelectT.Item[] = [
   { label: 'Apple', value: 'apple' },
@@ -432,7 +431,7 @@ describe('MultiSelect', () => {
           validate: 'input',
         }),
       (form) => (
-        <MoraineProvider theme={defaultTheme}>
+        <MoraineProvider>
           <form.Form>
             <form.Field name="choices" label="Choices">
               <MultiSelect items={ITEMS} defaultOpen />

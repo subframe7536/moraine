@@ -1,8 +1,9 @@
 import type { JSX } from 'solid-js'
 import { Show, createMemo, splitProps } from 'solid-js'
 
-import { createComponentStyles } from '../../shared/provider'
+import { createStyles } from '../../provider'
 
+import { kbdRecipe } from './kbd.recipe'
 import { KBD_KEY_ALIASES } from './kbd.types'
 import type { KbdProps, KbdT } from './kbd.types'
 
@@ -18,7 +19,7 @@ export function Kbd(props: KbdProps): JSX.Element {
     'class',
     'style',
   ])
-  const resolved = createComponentStyles('kbd', local)
+  const resolved = createStyles(kbdRecipe, local)
 
   const alias = createMemo(() =>
     local.symbol === false
@@ -33,7 +34,7 @@ export function Kbd(props: KbdProps): JSX.Element {
         data-slot={local.slotName ?? 'root'}
         aria-label={local.label ?? alias()?.label}
         {...rest}
-        {...resolved.root}
+        {...resolved.styles.root}
       >
         {text()}
       </kbd>

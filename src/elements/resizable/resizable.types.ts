@@ -4,6 +4,7 @@ import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
 import type { ResizableOrientation, ResizablePanelItem, ResizableSize } from './hook'
+import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.style-types'
 
 export namespace ResizableT {
   export type Kind = 'composite'
@@ -18,34 +19,19 @@ export namespace ResizableT {
     collapsed: boolean
   }
 
-  export interface Slot<T = unknown> {
-    /** Layout container that owns resizable panels and handles. */
-    root?: T
+  export type Slot<T = unknown> = ResizableStyleSlot<T>
 
-    /** Content pane whose size is controlled by adjacent resize handles. */
-    panel?: T
-
-    /** Visual separator between adjacent panels. */
-    divider?: T
-
-    /** Interactive target users drag or focus to resize panels. */
-    handle?: T
-
-    /** Extra hit target used when nested handles meet across axes. */
-    crossTarget?: T
-  }
-
-  export interface Variant {
-    /** Layout axis used by the component Recipe. */
-    orientation?: ResizableOrientation | null
-  }
+  export type Variant = ResizableStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
   /** Base props for the Resizable component. */
   export interface Base {
-    /** Axis along which panels resize. @default 'horizontal' */
+    /**
+     * Axis along which panels resize.
+     * @default 'horizontal'
+     */
     orientation?: ResizableOrientation
 
     /** Unique identifier for the resizable root. */
@@ -103,7 +89,10 @@ export namespace ResizableT {
      */
     action?: 'resize' | 'collapse'
 
-    /** Whether this handle participates in intersection resizing. @default false */
+    /**
+     * Whether this handle participates in intersection resizing.
+     * @default false
+     */
     intersection?: boolean
 
     /** Custom grip content, or a component receiving the live handle state. */

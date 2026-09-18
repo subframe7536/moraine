@@ -10,48 +10,17 @@ import type {
   FormValueOptions,
 } from '../shared/form-options'
 
+import type {
+  CheckboxGroupStyleSlot,
+  CheckboxGroupStyleVariant,
+} from './checkbox-group.style-types'
+
 export namespace CheckboxGroupT {
   export type Kind = 'single'
 
-  export interface Slot<T = unknown> {
-    /** Group container that owns checkbox collection state and layout. */
-    root?: T
-    /** Fieldset element that groups checkbox options for accessibility. */
-    fieldset?: T
-    /** Legend text that labels the checkbox group. */
-    legend?: T
-    /** Wrapper for one checkbox option in the group. */
-    item?: T
-    /** Text column for an option label and description. */
-    container?: T
-    /** Visible checkbox control for an individual option. */
-    control?: T
-    /** Visual checked or indeterminate state layer for an option. */
-    indicator?: T
-    /** Check or indeterminate icon rendered for an option state. */
-    icon?: T
-    /** Inner layout wrapper used by grouped checkbox variants. */
-    wrapper?: T
-    /** Primary label text for an option. */
-    label?: T
-    /** Supporting description for an option. */
-    description?: T
-  }
+  export type Slot<T = unknown> = CheckboxGroupStyleSlot<T>
 
-  export interface Variant {
-    /** Visual layout direction.
-     * @default 'vertical'
-     */
-    orientation?: 'horizontal' | 'vertical'
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-    /** Visual treatment of the component.
-     * @default 'list'
-     */
-    variant?: 'card' | 'table' | 'list'
-  }
+  export type Variant = CheckboxGroupStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

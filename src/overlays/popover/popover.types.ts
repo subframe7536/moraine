@@ -1,24 +1,17 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
 import type { PopperContentOptions, PopperProps } from '../base/popper.types'
 import type { ModalT } from '../modal/modal.types'
+
+import type { PopoverStyleSlot, PopoverStyleVariant } from './popover.style-types'
 
 export namespace PopoverT {
   export type Kind = 'composite'
 
-  export interface Slot<T = unknown> {
-    /** Element that opens the popover. */
-    trigger?: T
+  export type Slot<T = unknown> = PopoverStyleSlot<T>
 
-    /** Positioned popover panel anchored to the trigger. */
-    content?: T
-
-    /** Content body rendered inside the popover panel. */
-    body?: T
-  }
-
-  export type Variant = never
+  export type Variant = PopoverStyleVariant
   export type Mode = 'click' | 'hover'
 
   export type Classes = Slot<SlotClassValue>
@@ -64,7 +57,10 @@ export namespace PopoverT {
     children?: JSX.Element
   }
   export interface ContentBase {
-    /** Preferred placement relative to the trigger. @default 'bottom' */
+    /**
+     * Preferred placement relative to the trigger.
+     * @default 'bottom'
+     */
     side?: 'top' | 'right' | 'bottom' | 'left'
 
     ariaLabel?: string

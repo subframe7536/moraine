@@ -2,27 +2,15 @@ import type { JSX } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
+import type { KbdGroupStyleSlot, KbdGroupStyleVariant } from './kbd-group.style-types'
 import type { KbdT } from './kbd.types'
 
 export namespace KbdGroupT {
   export type Kind = 'single'
 
-  export interface Slot<T = unknown> {
-    /** KbdGroup root element. */
-    root?: T
+  export type Slot<T = unknown> = KbdGroupStyleSlot<T>
 
-    /** Generated Kbd item. */
-    item?: T
-  }
-
-  export interface Variant {
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-    /** Visual style variant applied to rendered shortcut keys. */
-    variant?: KbdT.Variant['variant']
-  }
+  export type Variant = KbdGroupStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

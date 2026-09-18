@@ -9,54 +9,14 @@ import type {
   FormValueOptions,
 } from '../shared/form-options'
 
+import type { RadioGroupStyleSlot, RadioGroupStyleVariant } from './radio-group.style-types'
+
 export namespace RadioGroupT {
   export type Kind = 'single'
 
-  export interface Slot<T = unknown> {
-    /**
-     * Radio group container that owns selection state and layout.
-     */
-    root?: T
+  export type Slot<T = unknown> = RadioGroupStyleSlot<T>
 
-    /** Wrapper for one radio option. */
-    item?: T
-
-    /** Visible radio control for an individual option. */
-    control?: T
-
-    /** Vertical alignment wrapper for the radio control. */
-    container?: T
-
-    /** Selected-state layer inside an option control. */
-    indicator?: T
-
-    /** Inner layout wrapper used by grouped radio variants. */
-    wrapper?: T
-
-    /** Primary label text for an option. */
-    label?: T
-
-    /** Supporting description for an option. */
-    description?: T
-  }
-
-  export interface Variant {
-    /** Layout axis used by the component Recipe. */
-    orientation?: 'horizontal' | 'vertical'
-
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-    /** Visual treatment of the component.
-     * @default 'list'
-     */
-    variant?: 'card' | 'table' | 'list'
-    /** Placement of the selection indicator.
-     * @default 'start'
-     */
-    indicator?: 'start' | 'end' | 'hidden'
-  }
+  export type Variant = RadioGroupStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

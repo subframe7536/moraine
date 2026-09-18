@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
+import { createStyles } from '../../provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callRef } from '../../shared/utils.ts'
 import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
@@ -20,6 +20,7 @@ import {
 } from '../shared/select/props.ts'
 import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
 
+import { selectRecipe } from './select.recipe'
 import type { SelectProps, SelectT } from './select.types.ts'
 
 /** Single, non-editable collection selection. */
@@ -30,11 +31,11 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
     SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
-  const styles = createComponentStyles('select', props, {
+  const styles = createStyles(selectRecipe, props, {
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
   })
-  const baseSelectStyles = createBaseSelectStyleProps(styles.slot)
+  const baseSelectStyles = createBaseSelectStyleProps((slot) => styles.styles[slot])
   const source = createMemo((prev: ReturnType<typeof createSource<T>> | undefined) =>
     createSource(local.items ?? [], undefined, prev),
   )
@@ -57,17 +58,17 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
       <>
         <BaseSelect.Control
           {...rootProps}
-          {...styles.slot('control')}
+          {...styles.styles.control}
           ref={(element) => callRef(local.ref, element)}
         >
-          <BaseSelect.Trigger<'button', T> {...styles.slot('trigger')}>
+          <BaseSelect.Trigger<'button', T> {...styles.styles.trigger}>
             <Show when={local.leadingIcon}>
-              {(icon) => <Icon name={icon()} slotName="leading" {...styles.slot('leading')} />}
+              {(icon) => <Icon name={icon()} slotName="leading" {...styles.styles.leading} />}
             </Show>
             <span
               data-slot="value"
               data-placeholder={!hasValue() ? '' : undefined}
-              {...styles.slot('value')}
+              {...styles.styles.value}
             >
               {selectedItem()?.label ?? (hasValue() ? String(state.value()[0]) : local.placeholder)}
             </span>
@@ -87,7 +88,7 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
               data-slot="clear"
               aria-label="Clear selection"
               tabIndex={-1}
-              {...styles.slot('clear')}
+              {...styles.styles.clear}
               disabled={state.locked()}
               onPointerDown={(event) => {
                 event.preventDefault()
@@ -106,7 +107,7 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
         <DefaultSelectContent
           {...local}
           view={source()}
-          slot={styles.slot}
+          slot={(slot) => styles.styles[slot]}
           renderEmpty={() =>
             local.emptyRender !== undefined
               ? renderComponentOrElement(local.emptyRender, {

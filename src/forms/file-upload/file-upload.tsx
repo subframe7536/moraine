@@ -1,4 +1,4 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 import {
   For,
   Show,
@@ -13,12 +13,14 @@ import {
 import { Dynamic } from 'solid-js/web'
 
 import { Icon } from '../../elements/icon'
+import { createStyles } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
-import { createComponentStyles } from '../../shared/provider'
+import type { ValidComponent } from '../../shared/types.ts'
 import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
+import { fileUploadRecipe } from './file-upload.recipe'
 import type { FileUploadProps, FileUploadT } from './file-upload.types'
 
 function isImageFile(file: File): boolean {
@@ -289,7 +291,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     'style',
   ])
   const themeField = useFieldContext()
-  const resolved = createComponentStyles('fileUpload', local, {
+  const resolved = createStyles(fileUploadRecipe, local, {
     inheritedVariants: () => ({ size: themeField?.size }),
   })
 
@@ -463,7 +465,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         type="button"
         aria-label={`Remove ${props.file.name}`}
         data-slot="fileRemove"
-        {...resolved.slot('fileRemove')}
+        {...resolved.styles.fileRemove}
         disabled={field.disabled() || readOnly()}
         onClick={() => {
           removeFileAt(props.index)
@@ -542,18 +544,18 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       <div
         data-slot="wrapper"
         data-dropzone={dropzone() ? '' : undefined}
-        {...resolved.slot('wrapper')}
+        {...resolved.styles.wrapper}
       >
-        <Icon name={merged.icon} slotName="icon" {...resolved.slot('icon')} />
+        <Icon name={merged.icon} slotName="icon" {...resolved.styles.icon} />
 
         <Show when={label()}>
-          <span id={labelId()} data-slot="label" {...resolved.slot('label')}>
+          <span id={labelId()} data-slot="label" {...resolved.styles.label}>
             {label()}
           </span>
         </Show>
 
         <Show when={description()}>
-          <span id={descriptionId()} data-slot="description" {...resolved.slot('description')}>
+          <span id={descriptionId()} data-slot="description" {...resolved.styles.description}>
             {description()}
           </span>
         </Show>
@@ -639,7 +641,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       {...(rest as Record<string, unknown>)}
       id={`${field.id()}-root`}
       component={merged.as as ValidComponent}
-      {...resolved.root}
+      {...resolved.styles.root}
     >
       <Show
         when={dropzone()}
@@ -648,7 +650,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
             type="button"
             data-slot="control"
             data-dropzone={dropzone() ? '' : undefined}
-            {...resolved.slot('control')}
+            {...resolved.styles.control}
             data-invalid={field.invalid() ? '' : undefined}
             disabled={field.disabled()}
             {...controlAriaAttrs()}
@@ -666,7 +668,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           {...controlAriaAttrs()}
           data-slot="control"
           data-dropzone={dropzone() ? '' : undefined}
-          {...resolved.slot('control')}
+          {...resolved.styles.control}
           data-dragging={dragging() ? '' : undefined}
           data-invalid={field.invalid() ? '' : undefined}
           onFocus={(event) => field.emit('focus', event)}
@@ -702,24 +704,24 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       />
 
       <Show when={preview() && selectedFiles().length > 0}>
-        <ul data-slot="files" {...resolved.slot('files')}>
+        <ul data-slot="files" {...resolved.styles.files}>
           <For each={selectedFiles()}>
             {(file, index) => (
-              <li data-slot="file" {...resolved.slot('file')}>
-                <span data-slot="filePreview" {...resolved.slot('filePreview')}>
+              <li data-slot="file" {...resolved.styles.file}>
+                <span data-slot="filePreview" {...resolved.styles.filePreview}>
                   <Show
                     when={previewUrls().get(file)}
-                    fallback={<Icon name={merged.fileIcon} class={resolved.slot('icon').class} />}
+                    fallback={<Icon name={merged.fileIcon} class={resolved.styles.icon.class} />}
                   >
                     {(url) => <img src={url()} alt={file.name} />}
                   </Show>
                 </span>
 
-                <div data-slot="fileMeta" {...resolved.slot('fileMeta')}>
-                  <span data-slot="fileName" {...resolved.slot('fileName')}>
+                <div data-slot="fileMeta" {...resolved.styles.fileMeta}>
+                  <span data-slot="fileName" {...resolved.styles.fileName}>
                     {file.name}
                   </span>
-                  <span data-slot="fileSize" {...resolved.slot('fileSize')}>
+                  <span data-slot="fileSize" {...resolved.styles.fileSize}>
                     {formatFileSize(file.size)}
                   </span>
                 </div>

@@ -9,43 +9,16 @@ import type {
   FormValueOptions,
 } from '../shared/form-options'
 
+import type { SliderStyleSlot, SliderStyleVariant } from './slider.style-types'
+
 export namespace SliderT {
   export type Kind = 'single'
 
   export type Value = number | number[]
 
-  export interface Slot<T = unknown> {
-    /**
-     * Slider container that owns track, range, thumbs, and labels.
-     */
-    root?: T
+  export type Slot<T = unknown> = SliderStyleSlot<T>
 
-    /** Background rail representing the full slider range. */
-    track?: T
-
-    /** Filled segment between the start of the range and active thumb values. */
-    range?: T
-
-    /** Visual marker for one slider step. */
-    divider?: T
-
-    /** Draggable handle for one slider value. */
-    thumb?: T
-  }
-
-  export interface Variant {
-    /** Layout axis used by the component Recipe. */
-    orientation?: 'horizontal' | 'vertical'
-
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-    /** Visual treatment of the component.
-     * @default 'default'
-     */
-    variant?: 'default' | 'bold'
-  }
+  export type Variant = SliderStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -62,9 +35,15 @@ export namespace SliderT {
       FormRequiredOption,
       FormDisableOption,
       FormReadOnlyOption {
-    /** Direction of keyboard and pointer value movement. @default 'horizontal' */
+    /**
+     * Direction of keyboard and pointer value movement.
+     * @default 'horizontal'
+     */
     orientation?: 'horizontal' | 'vertical'
-    /** Reverses value movement along the track. @default false */
+    /**
+     * Reverses value movement along the track.
+     * @default false
+     */
     inverted?: boolean
 
     /**

@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
+import { createStyles } from '../../provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef } from '../../shared/utils.ts'
 import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
@@ -23,8 +23,8 @@ import {
 import { useComboboxSearch } from '../shared/select/search.ts'
 import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
 
+import { comboboxRecipe } from './combobox.recipe'
 import type { ComboboxProps, ComboboxT } from './combobox.types.ts'
-
 /** Single collection selection with an editable query input. */
 export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
   props: ComboboxProps<T>,
@@ -35,11 +35,11 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
     SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
-  const styles = createComponentStyles('combobox', props, {
+  const styles = createStyles(comboboxRecipe, props, {
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
   })
-  const baseSelectStyles = createBaseSelectStyleProps(styles.slot)
+  const baseSelectStyles = createBaseSelectStyleProps((slot) => styles.styles[slot])
   const source = createMemo((prev: ReturnType<typeof createSource<T>> | undefined) =>
     createSource(local.items ?? [], undefined, prev),
   )
@@ -88,7 +88,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
       <>
         <BaseSelect.Control
           {...rootProps}
-          {...styles.slot('control')}
+          {...styles.styles.control}
           data-editable=""
           ref={(element) => callRef(local.ref, element)}
           onPointerDown={(event) => {
@@ -112,13 +112,13 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
           }}
         >
           <Show when={local.leadingIcon}>
-            {(icon) => <Icon name={icon()} slotName="leading" {...styles.slot('leading')} />}
+            {(icon) => <Icon name={icon()} slotName="leading" {...styles.styles.leading} />}
           </Show>
           <input
             {...input.binding}
             {...state.field.ariaAttrs()}
             data-slot="input"
-            {...styles.slot('input')}
+            {...styles.styles.input}
             placeholder={local.placeholder}
             ref={(element) => {
               input.binding.ref(element)
@@ -131,7 +131,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
               data-slot="clear"
               aria-label="Clear selection"
               tabIndex={-1}
-              {...styles.slot('clear')}
+              {...styles.styles.clear}
               disabled={state.locked()}
               onPointerDown={(event) => {
                 event.preventDefault()
@@ -156,7 +156,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
             aria-busy={local.loading ? 'true' : undefined}
             data-loading={local.loading ? '' : undefined}
             disabled={state.field.disabled() || Boolean(local.loading)}
-            {...styles.slot('trigger')}
+            {...styles.styles.trigger}
             onPointerDown={(event) => {
               event.preventDefault()
               event.stopPropagation()
@@ -182,7 +182,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
           {...local}
           view={search.view()}
           onExitComplete={() => search.setQuery('')}
-          slot={styles.slot}
+          slot={(slot) => styles.styles[slot]}
           renderEmpty={() =>
             local.emptyRender !== undefined
               ? renderComponentOrElement(local.emptyRender, {

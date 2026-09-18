@@ -36,6 +36,7 @@ import {
 } from 'moraine'
 import type {
   ButtonT,
+  BadgeT,
   ButtonGroupT,
   Cn,
   CnConfig,
@@ -50,10 +51,17 @@ import type {
   MultiSelectT,
   SelectT,
   SidebarFrameT,
-  SliderT,
+  Tags,
   TextareaT,
+  ValidComponent,
 } from 'moraine'
-import { atomicRecipe, createTheme, defaultTheme, emptyTheme, slotRecipe } from 'moraine/theme'
+import type {
+  buttonRecipe,
+  sliderRecipe as publicSliderRecipe,
+  RecipeSlots,
+  RecipeVariant,
+} from 'moraine/styles'
+import { defineTheme } from 'moraine/theme'
 import type { Component, JSX } from 'solid-js'
 import * as v from 'valibot'
 
@@ -78,6 +86,10 @@ export type RecipeVariants = [
   Assert<'search' extends keyof SelectT.Variant ? false : true>,
   Assert<'search' extends keyof ComboboxT.Variant ? false : true>,
   Assert<'search' extends keyof MultiSelectT.Variant ? false : true>,
+  Assert<'square' extends keyof BadgeT.Variant ? false : true>,
+  Assert<'grouped' extends keyof InputT.Variant ? false : true>,
+  Assert<'grouped' extends keyof TextareaT.Variant ? false : true>,
+  Assert<'compact' extends keyof InputGroupT.Variant ? false : true>,
 ]
 
 export type ReadOnlyContracts = [
@@ -131,7 +143,7 @@ const divRef = (element: HTMLDivElement) => element.focus()
 
 ;<Avatar text="MR" />
 ;<AvatarGroup items={[{ text: 'MR' }]} />
-;<Button onClick={() => undefined}>Save</Button>
+;<Button onClick={(event) => event.currentTarget.focus()}>Save</Button>
 ;<ButtonGroup>
   <Button>Copy</Button>
   <ButtonGroup.Separator orientation="vertical" class="bg-input" style={{ opacity: 0.8 }} />
@@ -152,13 +164,51 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<Button as={CustomRoot} />
 ;<Button as="input" type="checkbox" />
 
-;<Card aria-describedby="details" onClick={() => undefined} />
+;<Button
+  as="svg"
+  viewBox="0 0 24 24"
+  preserveAspectRatio="xMidYMid meet"
+  stroke-width={2}
+  shape-rendering="geometricPrecision"
+  ref={(element) => {
+    const svg: SVGSVGElement = element
+    void svg
+  }}
+/>
+// @ts-expect-error Lowercase event aliases remain excluded.
+;<Button as="svg" onclick={() => undefined} />
+// @ts-expect-error Lowercase keyboard aliases remain excluded.
+;<Button as="svg" onkeydown={() => undefined} />
+// @ts-expect-error Solid directive syntax remains excluded.
+;<Button as="svg" use:foo={foo} />
+// @ts-expect-error Solid namespaced event syntax remains excluded.
+;<Button as="svg" on:click={foo} />
+// @ts-expect-error Solid namespaced attribute syntax remains excluded.
+;<Button as="svg" attr:foo="bar" />
+
+;<Card
+  id="card"
+  role="region"
+  tabIndex={0}
+  aria-label="Card"
+  aria-describedby="details"
+  data-testid="card"
+  onClick={(event) => event.currentTarget.focus()}
+/>
 // @ts-expect-error Div roots reject anchor attributes.
 ;<Card href="/details" />
-// @ts-expect-error Lowercase event aliases are intentionally stripped.
+// @ts-expect-error Lowercase event aliases are intentionally excluded.
 ;<Card onclick={() => undefined} />
-// @ts-expect-error Solid directive prefixes are intentionally stripped.
+// @ts-expect-error Lowercase keyboard aliases are intentionally excluded.
+;<Card onkeydown={() => undefined} />
+// @ts-expect-error Lowercase pointer aliases are intentionally excluded.
+;<Card onpointerdown={() => undefined} />
+// @ts-expect-error Solid directive prefixes are intentionally excluded.
 ;<Card use:foo={foo} />
+// @ts-expect-error Solid namespaced event syntax is intentionally excluded.
+;<Card on:click={foo} />
+// @ts-expect-error Solid namespaced attribute syntax is intentionally excluded.
+;<Card attr:foo="bar" />
 
 ;<Icon name="i-lucide-search" aria-label="Search" data-testid="icon" />
 ;<Icon name="i-lucide-search" class="size-4" style={{ color: 'red' }} />
@@ -184,7 +234,6 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<KbdGroup items={['meta', 'k']} children={<Kbd value="meta" />} />
 
 ;<Separator class="my-2" style={{ color: 'red' }} />
-// @ts-expect-error Root-only components do not accept instance slot class maps.
 ;<Separator classes={{ root: 'my-2' }} />
 
 ;<List id="items" items={[1, 2]} itemRender={(context) => context.item} />
@@ -407,23 +456,24 @@ export type NativeTextSlots = [
 ;<InputGroup orientation="inline" />
 
 ;<MoraineProvider />
-;<MoraineProvider theme={defaultTheme} />
-;<MoraineProvider theme={emptyTheme} />
-// @ts-expect-error Undefined inherits; null is not a reset value.
+;<MoraineProvider />
 ;<MoraineProvider theme={null} />
 
-const theme = createTheme({
-  extends: defaultTheme,
-  button: { base: { root: 'rounded-lg' }, defaults: { size: 'sm' } },
-  commandPalette: { defaults: { descriptionPosition: 'trailing' } },
+const theme = defineTheme({
+  button: { base: { root: 'rounded-lg' }, defaultVariants: { size: 'sm' } },
+  commandPalette: { defaultVariants: { descriptionPosition: 'trailing' } },
   form: { base: { root: 'space-y-2' } },
-  field: { base: { root: 'space-y-2' }, defaults: { size: 'sm' } },
+  field: { base: { root: 'space-y-2' }, defaultVariants: { size: 'sm' } },
   icon: { base: { root: 'size-4' } },
   kbd: { base: { root: 'px-1' } },
   modal: { base: { content: 'p-4' } },
   combobox: { base: { control: 'min-w-48' } },
-  multiSelect: { defaults: { size: 'sm' } },
-  select: { defaults: { size: 'sm' } },
+  multiSelect: { defaultVariants: { size: 'sm' } },
+  select: { defaultVariants: { size: 'sm' } },
+  badge: { defaultVariants: { square: true } },
+  input: { defaultVariants: { grouped: true, groupedOrientation: 'horizontal' } },
+  inputGroup: { defaultVariants: { compact: true } },
+  textarea: { defaultVariants: { grouped: true, groupedOrientation: 'vertical' } },
   separator: {
     base: { root: 'border-t' },
     variants: { orientation: { vertical: { root: 'h-full' } } },
@@ -435,28 +485,29 @@ const theme = createTheme({
 </MoraineProvider>
 
 // @ts-expect-error Unknown component names are rejected.
-createTheme({ unknownComponent: {} })
+defineTheme({ unknownComponent: {} })
 // @ts-expect-error Old formField theme key is removed.
-createTheme({ formField: { base: { root: 'space-y-2' } } })
+defineTheme({ formField: { base: { root: 'space-y-2' } } })
 // @ts-expect-error List has no Theme slots.
-createTheme({ list: { base: { root: 'p-4' } } })
-createTheme({ collapsible: { base: { content: 'overflow-hidden' } } })
+defineTheme({ list: { base: { root: 'p-4' } } })
+defineTheme({ collapsible: { base: { content: 'overflow-hidden' } } })
 // @ts-expect-error Collapsible has no visual variants.
-createTheme({ collapsible: { defaults: { size: 'sm' } } })
+defineTheme({ collapsible: { defaultVariants: { size: 'sm' } } })
 // @ts-expect-error Unknown slots are rejected.
-createTheme({ button: { base: { missing: 'p-4' } } })
+defineTheme({ button: { base: { missing: 'p-4' } } })
 // @ts-expect-error Variant defaults are constrained to component variants.
-createTheme({ button: { defaults: { size: 'huge' } } })
+defineTheme({ button: { defaultVariants: { size: 'huge' } } })
 // @ts-expect-error Theme does not accept inline styles.
-createTheme({ button: { styles: { root: { color: 'red' } } } })
+defineTheme({ button: { styles: { root: { color: 'red' } } } })
 // @ts-expect-error Variant selectors are constrained.
-createTheme({ button: { variants: { size: { huge: { root: 'p-4' } } } } })
-createTheme({
+defineTheme({ button: { variants: { size: { huge: { root: 'p-4' } } } } })
+defineTheme({
   // @ts-expect-error Compound slots are constrained.
   button: { compoundVariants: [{ variants: { size: 'sm' }, missing: 'p-4' }] },
 })
-// @ts-expect-error Null is a suppression value for instances, not a Theme default.
-createTheme({ button: { defaults: { size: null } } })
+defineTheme({ button: { defaultVariants: { size: null } } })
+// @ts-expect-error ButtonGroup theme size is constrained to implemented recipe sizes.
+defineTheme({ buttonGroup: { defaultVariants: { size: 'icon-md' } } })
 
 const cnConfig = {
   cacheSize: 0,
@@ -465,36 +516,16 @@ const cnConfig = {
 } satisfies CnConfig
 const customCn: Cn = createCn(cnConfig)
 const scopedCn: Cn = useCn()
-const mergedClass: string | undefined = cn(customCn('p-2'), scopedCn('p-4'))
-const atomic = atomicRecipe({ variants: { size: { sm: 'p-2' } } })
-const slots = slotRecipe<ButtonT.Slot, ButtonT.Variant>({ base: { root: 'p-2' } })
-const atomicResult: string | undefined = atomic.resolve({ size: 'sm' }, customCn, 'p-4')
-const slotResult: string | undefined = slots.resolve({ size: 'sm' }, customCn).classes.root
-const emptySlots = slotRecipe<{ root: unknown }, never>({ base: { root: 'p-2' } })
-emptySlots.resolve(undefined, customCn)
-// @ts-expect-error resolve preserves inferred variant values.
-atomic.resolve({ size: 'invalid' }, customCn)
-// @ts-expect-error resolve preserves slot names.
-void slots.resolve(undefined, customCn).classes.unknown
-// @ts-expect-error Provider only accepts an extension object.
-;<MoraineProvider cnConfig={customCn} />
-;<MoraineProvider cnConfig={cnConfig}>
-  <Button class={mergedClass}>
-    {atomicResult}
-    {slotResult}
-  </Button>
-</MoraineProvider>
+const _mergedClass: string | undefined = cn(customCn('p-2'), scopedCn('p-4'))
+type ButtonRecipeSlots = RecipeSlots<typeof buttonRecipe>
+type SliderRecipeVariant = RecipeVariant<typeof publicSliderRecipe>
+const buttonRoot: keyof ButtonRecipeSlots = 'root'
+const sliderSize: SliderRecipeVariant['size'] = 'sm'
+void [buttonRoot, sliderSize]
 
-const sliderRecipe = slotRecipe<SliderT.Slot, SliderT.Variant>({
-  variants: { size: { sm: { '--s-size': '4px' }, lg: { '--s-size': '6px' } } },
-})
-sliderRecipe({ size: 'sm', variant: null })
-// @ts-expect-error Invalid component variant value.
-sliderRecipe({ size: 'huge' })
-// @ts-expect-error Invalid component variant dimension.
-sliderRecipe({ unknown: true })
-createTheme({ slider: sliderRecipe.options })
-slotRecipe<SliderT.Slot, SliderT.Variant>({
-  // @ts-expect-error Custom property names must start with --.
-  base: { size: '4px' },
-})
+export type DefaultTagAssertions = [
+  Assert<Tags extends keyof JSX.IntrinsicElements ? true : false>,
+  Assert<'svg' extends Tags ? true : false>,
+  Assert<'div' extends Tags ? true : false>,
+  Assert<ValidComponent extends Tags | ((props: any) => any) | (string & {}) ? true : false>,
+]

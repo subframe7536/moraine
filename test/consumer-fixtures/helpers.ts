@@ -120,12 +120,14 @@ const specifiers = [
   'moraine/unocss',
   'moraine/utils',
   'moraine/theme',
+  'moraine/styles',
   'moraine/virtualizer',
 ]
 
-const { createTheme, defaultTheme, emptyTheme } = await import('moraine/theme')
-if (Object.keys(createTheme()).length !== 0 || Object.keys(emptyTheme).length !== 0) throw new Error('Expected empty presentation')
-if (!defaultTheme.button) throw new Error('Official Theme is missing Button presentation')
+const { defineTheme } = await import('moraine/theme')
+const { buttonRecipe } = await import('moraine/styles')
+if (Object.keys(defineTheme()).length !== 0) throw new Error('Expected opaque Theme')
+if (buttonRecipe.key !== 'button') throw new Error('Button Recipe is missing')
 
 for (const specifier of specifiers) {
   import.meta.resolve(specifier)

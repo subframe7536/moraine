@@ -4,6 +4,8 @@ import type { IconT } from '../../elements/icon'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
+import type { BreadcrumbStyleSlot, BreadcrumbStyleVariant } from './breadcrumb.style-types'
+
 export namespace BreadcrumbT {
   export type Kind = 'single'
 
@@ -32,44 +34,9 @@ export namespace BreadcrumbT {
     disabled: boolean
   }
 
-  export interface Slot<T = unknown> {
-    /**
-     * Navigation container for the breadcrumb trail.
-     */
-    root?: T
+  export type Slot<T = unknown> = BreadcrumbStyleSlot<T>
 
-    /** Ordered list that contains breadcrumb items and separators. */
-    list?: T
-
-    /** Wrapper for one breadcrumb entry. */
-    item?: T
-
-    /** Clickable breadcrumb target for navigable entries. */
-    link?: T
-
-    /** Current page entry. */
-    page?: T
-
-    /** Optional icon rendered before a breadcrumb label. */
-    leading?: T
-
-    /** Breadcrumb item label text. */
-    label?: T
-
-    /** Visual divider between breadcrumb entries. */
-    separator?: T
-  }
-
-  export interface Variant {
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-    /** Visual wrap of the component.
-     * @default true
-     */
-    wrap?: boolean
-  }
+  export type Variant = BreadcrumbStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

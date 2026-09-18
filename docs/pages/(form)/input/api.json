@@ -153,7 +153,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+        "type": "ComponentSize | undefined",
         "description": "Visual size of the component.",
         "defaultValue": "md"
       },
@@ -183,7 +183,7 @@
       {
         "name": "variant",
         "required": false,
-        "type": "\"none\" | \"outline\" | \"ghost\" | \"subtle\" | undefined",
+        "type": "TextControlVariant | undefined",
         "description": "Visual treatment of the component.",
         "defaultValue": "outline"
       }

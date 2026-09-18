@@ -173,7 +173,7 @@ export default defineConfig<PresetWind4Theme>({
   },
   content: {
     pipeline: {
-      include: [/\.(?:[jt]sx|mdx?|class\.ts)(?:\?.*)?$/],
+      include: [/src|routes|pages/],
     },
   },
   preflights: [

@@ -1,7 +1,8 @@
 import type { Placement as FloatingPlacement } from '@floating-ui/dom'
-import type { Accessor, JSX, ValidComponent } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
+import type { ValidComponent } from '../../shared/types.ts'
 import type { ModalT } from '../modal/modal.types'
 
 export type PopperPlacement = FloatingPlacement
@@ -52,9 +53,15 @@ export interface PopperProps {
   children?: JSX.Element
 }
 export type PopperTriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T> & {
-  /** Whether the trigger describes the content. @default false */
+  /**
+   * Whether the trigger describes the content.
+   * @default false
+   */
   describeTrigger?: boolean
-  /** Whether clicking the trigger toggles the open state. @default true */
+  /**
+   * Whether clicking the trigger toggles the open state.
+   * @default true
+   */
   toggleOnClick?: boolean
 }
 export interface PopperContentOptions {

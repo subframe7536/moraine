@@ -10,7 +10,7 @@ import type { BaseSelectT } from './base-select.types.ts'
 export interface SearchValueOptions {
   /** Controlled query text. */
   searchValue?: string
-  /** Initial uncontrolled query text. @default '' */
+  /** Initial uncontrolled query text. */
   defaultSearchValue?: string
   /** Called after the query changes. */
   onSearch?: (value: string) => void
@@ -43,7 +43,7 @@ export interface BaseSelectSearchInputState {
 export function useSearchValue(options: SearchValueOptions = {}): SearchValue {
   const [text, setText] = useControllableValue<string>({
     value: () => options.searchValue,
-    defaultValue: () => options.defaultSearchValue ?? '',
+    defaultValue: () => options.defaultSearchValue,
   })
   const query = () => text() ?? ''
   function setQuery(value: string) {

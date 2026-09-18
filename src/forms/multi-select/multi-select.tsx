@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, createSignal, For, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
-import { createComponentStyles } from '../../shared/provider/index.ts'
+import { createStyles } from '../../provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef } from '../../shared/utils.ts'
 import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
@@ -24,8 +24,8 @@ import { useComboboxSearch } from '../shared/select/search.ts'
 import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
 import { createTagsField } from '../shared/select/tags-field.tsx'
 
+import { multiSelectRecipe } from './multi-select.recipe'
 import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
-
 /** Collection-backed multiple selection with tags and optional search or creation. */
 export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   props: MultiSelectProps<T>,
@@ -37,11 +37,11 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     BASE_SELECT_FORWARD_PROP_KEYS,
   )
   const field = useFieldContext()
-  const styles = createComponentStyles('multiSelect', props, {
+  const styles = createStyles(multiSelectRecipe, props, {
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field?.size }),
   })
-  const baseSelectStyles = createBaseSelectStyleProps(styles.slot)
+  const baseSelectStyles = createBaseSelectStyleProps((slot) => styles.styles[slot])
   const [created, setCreated] = createSignal<T[]>([])
   const source = createMemo((prev: ReturnType<typeof createSource<T>> | undefined) =>
     createSource(local.items ?? [], created(), prev),
@@ -136,7 +136,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       commitInput,
       tokenSeparators: () => local.tokenSeparators,
       locked: state.locked,
-      slot: styles.slot,
+      slot: (slot) => styles.styles[slot],
       closeIcon: () => local.closeIcon,
       resolve: (value) => {
         const item = source().byValue.get(value)
@@ -198,7 +198,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       <>
         <BaseSelect.Control
           {...rootProps}
-          {...styles.slot('control')}
+          {...styles.styles.control}
           data-tags={tags.tags().length ? '' : undefined}
           data-editable={editable() ? '' : undefined}
           ref={(element) => callRef(local.ref, element)}
@@ -227,9 +227,9 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           }}
         >
           <Show when={local.leadingIcon}>
-            {(icon) => <Icon name={icon()} slotName="leading" {...styles.slot('leading')} />}
+            {(icon) => <Icon name={icon()} slotName="leading" {...styles.styles.leading} />}
           </Show>
-          <div data-slot="tagsContainer" {...styles.slot('tagsContainer')}>
+          <div data-slot="tagsContainer" {...styles.styles.tagsContainer}>
             <For each={tags.visible()}>
               {(tag, index) => (
                 <Show
@@ -246,7 +246,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               )}
             </For>
             <Show when={tags.overflow() > 0}>
-              <span data-slot="tagOverflow" {...styles.slot('tagOverflow')}>
+              <span data-slot="tagOverflow" {...styles.styles.tagOverflow}>
                 +{tags.overflow()}
               </span>
             </Show>
@@ -255,7 +255,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               {...state.field.ariaAttrs()}
               data-slot="input"
               data-duplicate={isDuplicate() ? '' : undefined}
-              {...styles.slot('input')}
+              {...styles.styles.input}
               placeholder={tags.tags().length ? '' : local.placeholder}
               ref={(element) => {
                 inputBinding.binding.ref(element)
@@ -304,7 +304,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               data-slot="clear"
               aria-label="Clear selection"
               disabled={state.locked()}
-              {...styles.slot('clear')}
+              {...styles.styles.clear}
               onPointerDown={tags.isolatePointer}
               onClick={(event) => {
                 event.stopPropagation()
@@ -324,7 +324,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             aria-busy={local.loading ? 'true' : undefined}
             data-loading={local.loading ? '' : undefined}
             disabled={state.field.disabled() || Boolean(local.loading)}
-            {...styles.slot('trigger')}
+            {...styles.styles.trigger}
             onPointerDown={(event) => {
               event.preventDefault()
               event.stopPropagation()
@@ -350,7 +350,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           {...local}
           view={search.view()}
           onExitComplete={() => search.setQuery('')}
-          slot={styles.slot}
+          slot={(slot) => styles.styles[slot]}
           renderEmpty={() =>
             local.emptyRender !== undefined
               ? renderComponentOrElement(local.emptyRender, {

@@ -4,21 +4,20 @@ import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
+import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
-import { defaultTheme } from '../../theme/default-theme'
 import { createForm } from '../form'
 
 import { Input } from './input'
 
 const render: typeof baseRender = (ui, options) =>
-  baseRender(() => <MoraineProvider theme={defaultTheme}>{ui()}</MoraineProvider>, options)
+  baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 describe('Input', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = baseRender(() => <Input />)
     const root = screen.container.querySelector('[data-slot="root"]')
-    expect(root?.className).toBe('')
+    expect(root?.className).not.toBe('')
   })
 
   test('forwards ref to its only native element', () => {

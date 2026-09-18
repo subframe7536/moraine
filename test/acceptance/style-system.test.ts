@@ -1,32 +1,31 @@
 // @vitest-environment node
 
 import { globSync, readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { resolve } from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import { createTheme, defaultTheme, emptyTheme } from '../../src/theme'
+import * as stylesApi from '../../src/styles'
 import * as themeApi from '../../src/theme'
+import { defineTheme } from '../../src/theme'
+import { getThemeRecipeLayers } from '../../src/theme/create-theme'
 
 const root = resolve(import.meta.dirname, '../..')
 
 describe('Theme architecture', () => {
-  test('exports empty and official presentation through the theme entry', () => {
-    expect(Object.keys(themeApi).sort()).toEqual([
-      'atomicRecipe',
-      'createTheme',
-      'defaultTheme',
-      'emptyTheme',
-      'slotRecipe',
-    ])
-    expect(createTheme()).toEqual(emptyTheme)
-    expect(
-      defaultTheme.button?.recipes.map((recipe) => recipe({ size: 'sm' }).classes.root).join(' '),
-    ).toContain('h-7')
+  test('exposes only the supported Theme builder at runtime', () => {
+    expect(Object.keys(themeApi).sort()).toEqual(['defineTheme'])
+    expect(Object.keys(defineTheme())).toEqual([])
   })
 
-  test('keeps component imports independent of official Recipe modules', () => {
-    const violations = []
+  test('exports component recipe definitions through the styles entry', () => {
+    expect(stylesApi.buttonRecipe.key).toBe('button')
+    expect(stylesApi.buttonRecipe.slots).toContain('root')
+    expect(stylesApi.dialogRecipe.key).toBe('dialog')
+  })
+
+  test('keeps component runtime resolution recipe-symbol based', () => {
+    const violations: string[] = []
     for (const file of globSync('src/{elements,forms,navigation,overlays}/**/*.tsx', {
       cwd: root,
     })) {
@@ -34,47 +33,25 @@ describe('Theme architecture', () => {
         continue
       }
       const text = readFileSync(resolve(root, file), 'utf8')
-      const imports = [...text.matchAll(/from ['"]([^'"]+)['"]/g)].map((match) => match[1])
-      const importsRecipe = imports.some((specifier) => {
-        if (!specifier.includes('.class')) {
-          return false
-        }
-        return /\b(?:atomicRecipe|slotRecipe)\b/.test(
-          readFileSync(resolve(dirname(resolve(root, file)), specifier), 'utf8'),
-        )
-      })
-      if (importsRecipe || imports.some((specifier) => specifier.includes('default-theme'))) {
+      if (/createComponentStyles\(|resolved\.slot\(|dynamicStyles:|groupStyles:/.test(text)) {
         violations.push(file)
       }
     }
     expect(violations).toEqual([])
   })
 
-  test('leaves component transition timing to the host utility framework', () => {
-    const violations = []
-    for (const file of globSync('src/{elements,forms,navigation,overlays}/**/*.class.ts', {
-      cwd: root,
-    })) {
-      const text = readFileSync(resolve(root, file), 'utf8')
-      if (/\b(?:duration|ease)-/.test(text)) {
-        violations.push(file)
-      }
-    }
-    expect(violations).toEqual([])
-  })
-
-  test('compiles a variant-only slot and matching compound without a base inventory', () => {
-    const theme = createTheme({
+  test('records partial variant and compound overrides without a default recipe registry', () => {
+    const theme = defineTheme({
       button: {
         variants: { size: { sm: { label: 'text-sm' } } },
         compoundVariants: [{ variants: { size: 'sm' }, trailing: 'font-bold' }],
       },
     })
-    expect(theme.button?.recipes.map((recipe) => recipe({ size: 'sm' }))).toEqual([
-      { classes: { label: 'text-sm', trailing: 'font-bold' }, style: {} },
-    ])
-    expect(theme.button?.recipes.map((recipe) => recipe({ size: null }))).toEqual([
-      { classes: {}, style: {} },
+    expect(getThemeRecipeLayers(theme, 'button')).toEqual([
+      {
+        variants: { size: { sm: { label: 'text-sm' } } },
+        compoundVariants: [{ variants: { size: 'sm' }, trailing: 'font-bold' }],
+      },
     ])
   })
 })

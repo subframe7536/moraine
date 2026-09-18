@@ -2,9 +2,8 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
-import { createTheme } from '../../theme'
-import { defaultTheme } from '../../theme/default-theme'
+import { MoraineProvider } from '../../provider'
+import { defineTheme } from '../../theme'
 
 import { Collapsible } from './collapsible'
 
@@ -16,7 +15,7 @@ function renderCollapsible(props?: {
   onOpenChange?: (open: boolean) => void
 }) {
   return render(() => (
-    <MoraineProvider theme={defaultTheme}>
+    <MoraineProvider>
       <Collapsible
         open={props?.open}
         defaultOpen={props?.defaultOpen}
@@ -47,7 +46,7 @@ describe('Collapsible', () => {
 
     expect(root?.className).toBe('')
     expect(trigger?.className).toBe('')
-    expect(wrapper?.className).toBe('')
+    expect(wrapper?.className).toContain('data-transition:h-(--mo-collapsible-content-height)')
     expect(wrapper?.hasAttribute('data-transition')).toBe(true)
   })
 
@@ -514,7 +513,7 @@ describe('Collapsible', () => {
   })
 
   test('inherits Design slots and applies reactive root and child overrides in order', () => {
-    const parent = createTheme({
+    const parent = defineTheme({
       collapsible: {
         base: {
           root: 'p-1',
@@ -524,7 +523,7 @@ describe('Collapsible', () => {
         },
       },
     })
-    const design = createTheme({
+    const design = defineTheme({
       extends: parent,
       collapsible: { base: { trigger: 'text-red-500' } },
     })
@@ -582,7 +581,7 @@ describe('Collapsible', () => {
   })
 
   test('keeps an unstyled disclosure functional with transition state exposed', () => {
-    const design = createTheme({})
+    const design = defineTheme({})
     const screen = render(() => (
       <MoraineProvider theme={design}>
         <Collapsible defaultOpen transition>
@@ -593,7 +592,9 @@ describe('Collapsible', () => {
     ))
     expect(screen.getByRole('button').className).toBe('')
     expect(screen.getByText('Empty preset content').className).toBe('')
-    expect(screen.container.querySelector('[data-slot="content-wrapper"]')?.className).toBe('')
+    expect(screen.container.querySelector('[data-slot="content-wrapper"]')?.className).toContain(
+      'data-transition:h-(--mo-collapsible-content-height)',
+    )
     expect(
       screen.container
         .querySelector('[data-slot="content-wrapper"]')

@@ -1,4 +1,4 @@
-import type { Accessor, JSX, ValidComponent } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 import {
   Show,
   children as resolveChildren,
@@ -13,14 +13,16 @@ import {
 } from 'solid-js'
 
 import { KbdGroup } from '../../elements/kbd'
+import { createStyles } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
-import { createComponentStyles } from '../../shared/provider'
+import type { ValidComponent } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useId } from '../../shared/utils'
 import { resolveOverlayMenuSide } from '../base'
 import { createPopper, PopperTrigger, PopperContent, mergePopperElementProps } from '../base/popper'
 import type { PopperTriggerProps } from '../base/popper.types'
 
+import { tooltipRecipe } from './tooltip.recipe'
 import type { TooltipProps, TooltipT } from './tooltip.types'
 
 interface TooltipTimers {
@@ -328,7 +330,7 @@ function TooltipTrigger<T extends ValidComponent = 'button'>(
   props: TooltipT.TriggerProps<T>,
 ): JSX.Element {
   const context = useTooltipContext()
-  const resolved = createComponentStyles('tooltip', props, { rootSlot: 'trigger' })
+  const resolved = createStyles(tooltipRecipe, props, { rootSlot: 'trigger' })
   const popper = context.popper
   const triggerProps = mergeProps(
     mergePopperElementProps<HTMLElement>(
@@ -354,7 +356,7 @@ function TooltipTrigger<T extends ValidComponent = 'button'>(
       },
       props,
     ),
-    resolved.root,
+    resolved.styles.trigger,
     { context: popper, toggleOnClick: false, describeTrigger: true },
   ) as PopperTriggerProps<T> & { context: ReturnType<typeof createPopper> }
   return createComponent(PopperTrigger<T>, triggerProps)
@@ -386,15 +388,19 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       }
     },
   }
-  const positioner = createComponentStyles('tooltip', {
-    get classes() {
-      return local.classes
+  const positioner = createStyles(
+    tooltipRecipe,
+    {
+      get classes() {
+        return local.classes
+      },
+      get styles() {
+        return local.styles
+      },
     },
-    get styles() {
-      return local.styles
-    },
-  })
-  const resolved = createComponentStyles('tooltip', local, { rootSlot: 'content' })
+    { rootSlot: 'positioner' },
+  )
+  const resolved = createStyles(tooltipRecipe, local, { rootSlot: 'content' })
   return (
     <PopperContent
       context={behavior.popper}
@@ -403,8 +409,8 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       overflowPadding={4}
       role="tooltip"
       restoreFocusOnClose={false}
-      positionerClass={positioner.slot('positioner').class}
-      positionerStyle={positioner.slot('positioner').style}
+      positionerClass={positioner.styles.positioner.class}
+      positionerStyle={positioner.styles.positioner.style}
     >
       {(context) => {
         const contentProps = mergeProps(context.contentProps, contentEvents)
@@ -420,10 +426,10 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
             data-slot="content"
             data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'top')}
             data-instant-motion={behavior.instantMotion() ? '' : undefined}
-            {...resolved.root}
+            {...resolved.styles.content}
           >
             <Show when={typeof text() === 'string'} fallback={text()}>
-              <span data-slot="text" {...resolved.slot('text')}>
+              <span data-slot="text" {...resolved.styles.text}>
                 {text()}
               </span>
             </Show>
@@ -433,9 +439,9 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
                   variant={resolved.variants.invert ? 'invert' : undefined}
                   size="sm"
                   items={keys()}
-                  {...resolved.slot('kbds')}
-                  classes={{ item: resolved.slot('kbd').class }}
-                  styles={{ item: resolved.slot('kbd').style }}
+                  {...resolved.styles.kbds}
+                  classes={{ item: resolved.styles.kbd.class }}
+                  styles={{ item: resolved.styles.kbd.style }}
                 />
               )}
             </Show>

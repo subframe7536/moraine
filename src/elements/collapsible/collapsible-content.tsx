@@ -1,12 +1,14 @@
-import type { JSX, ValidComponent } from 'solid-js'
-import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
+import type { JSX } from 'solid-js'
+import { children as resolveChildren, createMemo, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { createComponentStyles } from '../../shared/provider'
-import { useCn } from '../../shared/provider/cn-context'
+import { createStyles } from '../../provider'
+import { useCn } from '../../provider/cn-context'
+import type { ValidComponent } from '../../shared/types.ts'
 import { callRef } from '../../shared/utils'
 
 import { useCollapsibleContext } from './collapsible-context'
+import { collapsibleRecipe } from './collapsible.recipe'
 import type { CollapsibleT } from './collapsible.types'
 
 type CollapsibleContentElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
@@ -37,9 +39,9 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     'wrapperRef',
   ])
   const context = useCollapsibleContext()
-  const resolved = createComponentStyles('collapsible', local, {
+  const resolved = createStyles(collapsibleRecipe, local, {
     rootSlot: 'content',
-    groupStyles: () => context.presentation,
+    inheritedStyles: () => context.presentation,
   })
   const customAs = createMemo(() => local.as)
   const unmount = createMemo(() => local.unmountOnHide ?? context.unmountOnHide())
@@ -58,26 +60,12 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
       {(_visible) => {
         const children = resolveChildren(() => local.children)
 
-        const handleInnerRef = (element: HTMLElement | undefined) => {
-          callRef(local.ref as ((el: HTMLElement | undefined) => void) | undefined, element)
-          if (element) {
-            onCleanup(() => {
-              callRef(local.ref as ((el: HTMLElement | undefined) => void) | undefined, undefined)
-            })
-          }
-        }
-
         return (
           <div
             ref={(element) => {
               context.setContentElement(element)
               context.contentPresence.setElement(element)
               callRef(local.wrapperRef, element)
-              if (element) {
-                onCleanup(() => {
-                  callRef(local.wrapperRef, undefined)
-                })
-              }
             }}
             id={context.contentId()}
             aria-labelledby={context.triggerId()}
@@ -85,10 +73,10 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
             data-transition={transition() ? '' : undefined}
             style={{
               '--mo-collapsible-content-height': `${context.contentHeight()}px`,
-              ...resolved.slot('contentWrapper').style,
+              ...resolved.styles.contentWrapper.style,
               ...local.wrapperStyle,
             }}
-            class={cn(resolved.slot('contentWrapper').class, local.wrapperClass)}
+            class={cn(resolved.styles.contentWrapper.class, local.wrapperClass)}
             {...context.dataAttrs()}
           >
             <Show
@@ -96,8 +84,8 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
               fallback={
                 <div
                   data-slot="content"
-                  {...resolved.root}
-                  ref={(el) => handleInnerRef(el)}
+                  {...resolved.styles.content}
+                  ref={(el) => callRef(local.ref, el as any)}
                   {...rest}
                 >
                   {children()}
@@ -109,8 +97,8 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
                   data-slot="content"
                   {...(rest as Record<string, unknown>)}
                   component={as() as ValidComponent}
-                  {...resolved.root}
-                  ref={(el: HTMLElement | undefined) => handleInnerRef(el)}
+                  {...resolved.styles.content}
+                  ref={(el: any) => callRef(local.ref, el)}
                 >
                   {children()}
                 </Dynamic>

@@ -1,6 +1,6 @@
 import { createMemo } from 'solid-js'
 
-import type { SlotBinding } from '../../../shared/provider/create-component-styles.ts'
+import type { SlotBinding } from '../../../provider/create-styles.ts'
 import type { BaseSelectT } from '../../base-select/base-select.types.ts'
 
 type SharedBaseSelectForwardProp = keyof Pick<

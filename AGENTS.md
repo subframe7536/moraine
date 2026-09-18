@@ -86,12 +86,12 @@ src/
 │   ├── popover/            # Popover.
 │   ├── sheet/              # Side or bottom sheet.
 │   └── tooltip/            # Tooltip.
+├── provider/              # Context providers (MoraineProvider, theme, cn context).
 ├── shared/                # Reusable internals that are not public components.
-│   ├── provider/          # Shared context providers (theme, cn class combiner context).
-│   └── style/             # Shared style tokens, recipe definitions, and cn utilities.
 ├── tailwind/               # Tailwind integration and generated style helpers.
 ├── test-utils/             # SSR, owner, overlay, and global test utilities.
 ├── theme/                  # Default theme configuration, types, and theme creation primitives.
+│   └── style/             # Shared style tokens, recipe definitions, and cn utilities.
 └── unocss/                 # UnoCSS integration and preset helpers.
 ```
 
@@ -101,7 +101,7 @@ Component directories normally contain the implementation (`{component}.tsx`), s
 
 - Create a `{component}.class.ts` file.
 - Reusable constant class should define as `*_CLASS` global variable
-- Use `recipe` from `src/shared/style/recipe.ts` to define variants.
+- Use `recipe` from `src/theme/style/recipe.ts` to define variants.
 - In components, capture `useCn()` during initialization and use that handle to combine classes. Pass `Cn` explicitly to plain rendering helpers. Use static `cn` or `createCn` for owner-independent tools.
 - No need to create memo for classes, just write them inplace
 - State-based class should use a pure class instead of adding a new variant in `recipe`.

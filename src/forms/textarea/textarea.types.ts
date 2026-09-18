@@ -10,26 +10,16 @@ import type {
   FormValueOptions,
 } from '../shared/form-options.ts'
 
+import type { TextareaStyleSlot, TextareaStyleVariant } from './textarea.style-types'
+
 export namespace TextareaT {
   export type Kind = 'single'
 
   export type Value = string | number | undefined
 
-  export interface Slot<T = unknown> {
-    /** Native textarea element. */
-    root?: T
-  }
+  export type Slot<T = unknown> = TextareaStyleSlot<T>
 
-  export interface Variant {
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-    /** Visual treatment of the component.
-     * @default 'outline'
-     */
-    variant?: 'outline' | 'subtle' | 'ghost' | 'none'
-  }
+  export type Variant = TextareaStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
@@ -41,10 +31,6 @@ export namespace TextareaT {
    */
   export interface Base<M extends ModelModifiers | undefined = ModelModifiers | undefined>
     extends
-      Omit<
-        JSX.TextareaHTMLAttributes<HTMLTextAreaElement>,
-        'value' | 'defaultValue' | 'ref' | 'size'
-      >,
       FormIdentityOptions,
       FormValueOptions<Value>,
       FormRequiredOption,

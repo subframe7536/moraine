@@ -1,4 +1,4 @@
-import type { JSX, ValidComponent } from 'solid-js'
+import type { JSX } from 'solid-js'
 import {
   children as resolveChildren,
   createMemo,
@@ -11,8 +11,9 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { createStyles } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
-import { createComponentStyles } from '../../shared/provider'
+import type { ValidComponent } from '../../shared/types.ts'
 import { useEventListener } from '../../shared/use-event-listener'
 import { useId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'
@@ -25,6 +26,7 @@ import {
   validateOverlayTrigger,
 } from '../base/trigger'
 
+import { contextMenuRecipe } from './context-menu.recipe'
 import type { ContextMenuProps, ContextMenuT } from './context-menu.types'
 
 const CONTEXT_MENU_LONG_PRESS_DELAY = 700
@@ -123,7 +125,10 @@ function createContextMenu(props: ContextMenuProps) {
     openFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2, strategy)
   }
 
-  /** Consume the deferred native contextmenu event emitted after dismissing from right-click or long-press input. */
+  /**
+   * Consume the deferred native `contextmenu` event emitted after dismissal
+   * from right-click or long-press input.
+   */
   const consumeSuppressedContextMenu = (event: MouseEvent): boolean => {
     const suppression = suppressedContextMenu
     if (!suppression) {
@@ -560,7 +565,7 @@ function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style'])
   const context = useContextMenuContext()
 
-  const resolved = createComponentStyles('contextMenu', local, { rootSlot: 'trigger' })
+  const resolved = createStyles(contextMenuRecipe, local, { rootSlot: 'trigger' })
   const binding = mergeMenuTriggerProps(rest, context.triggerProps)
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
@@ -569,7 +574,7 @@ function ContextMenuTrigger<T extends ValidComponent = 'div'>(
       component={(local.as as ValidComponent) ?? 'div'}
       type={undefined}
       {...binding}
-      {...resolved.root}
+      {...resolved.styles.trigger}
     >
       {children()}
     </Dynamic>
@@ -598,11 +603,11 @@ function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Element {
 
     local,
   )
-  const resolved = createComponentStyles('contextMenu', local, { rootSlot: 'content' })
+  const resolved = createStyles(contextMenuRecipe, local, { rootSlot: 'content' })
   return (
     <OverlayMenu<ContextMenuT.Item>
       {...context.menuProps}
-      slotBinding={resolved.slot}
+      slotBinding={(slot) => resolved.styles[slot]}
       size={resolved.variants.size ?? undefined}
       items={merged.items}
       checkedIcon={merged.checkedIcon}

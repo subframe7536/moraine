@@ -2,40 +2,14 @@ import type { JSX } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 
+import type { CardStyleSlot, CardStyleVariant } from './card.style-types'
+
 export namespace CardT {
   export type Kind = 'single'
 
-  export interface Slot<T = unknown> {
-    /**
-     * Card container that frames the header, body, and footer regions.
-     */
-    root?: T
+  export type Slot<T = unknown> = CardStyleSlot<T>
 
-    /** Top region for title, description, custom header content, and actions. */
-    header?: T
-
-    /** Primary heading rendered in the card header. */
-    title?: T
-
-    /** Supporting text rendered below the card title. */
-    description?: T
-
-    /** Header action region, typically used for buttons or menus. */
-    action?: T
-
-    /** Main content region for the card children. */
-    body?: T
-
-    /** Bottom region for secondary actions or summary content. */
-    footer?: T
-  }
-
-  export interface Variant {
-    /** Visual compact of the component.
-     * @default false
-     */
-    compact?: boolean
-  }
+  export type Variant = CardStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

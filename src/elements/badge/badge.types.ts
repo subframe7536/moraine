@@ -3,35 +3,14 @@ import type { JSX } from 'solid-js'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
 import type { IconT } from '../icon'
 
+import type { BadgeStyleSlot, BadgeStyleVariant } from './badge.style-types'
+
 export namespace BadgeT {
   export type Kind = 'single'
 
-  export interface Slot<T = unknown> {
-    /**
-     * Inline badge container that carries the variant, size, and interactive state.
-     */
-    root?: T
+  export type Slot<T = unknown> = BadgeStyleSlot<T>
 
-    /** Optional icon displayed before the badge label. */
-    leading?: T
-
-    /** Badge text or children content between the optional visuals. */
-    label?: T
-
-    /** Optional trailing icon displayed after the label. */
-    trailing?: T
-  }
-
-  export interface Variant {
-    /** Visual treatment of the component.
-     * @default 'subtle'
-     */
-    variant?: 'solid' | 'subtle' | 'surface' | 'outline'
-    /** Visual size of the component.
-     * @default 'md'
-     */
-    size?: 'sm' | 'md' | 'lg'
-  }
+  export type Variant = BadgeStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>

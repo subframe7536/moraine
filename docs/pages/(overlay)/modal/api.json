@@ -93,7 +93,7 @@
         "name": "Modal.Content",
         "category": "overlays",
         "polymorphic": false,
-        "description": "Standalone Modal presentation; composed overlays use the same unstyled surface.",
+        "description": "Standalone Modal presentation; composed overlays use the same recipe-backed surface.",
         "sourcePath": "src/overlays/modal/modal-content.tsx"
       },
       "slots": [],

@@ -2,22 +2,21 @@ import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
-import { MoraineProvider } from '../../shared/provider'
-import { createTheme } from '../../theme'
-import { defaultTheme } from '../../theme/default-theme'
+import { MoraineProvider } from '../../provider'
+import { defineTheme } from '../../theme'
 
 import { Separator } from './separator'
 
 describe('Separator', () => {
-  test('renders unstyled when provider is absent', () => {
+  test('renders component defaults when provider is absent', () => {
     const screen = render(() => <Separator />)
     const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
-    expect(root?.className).toBe('')
+    expect(root?.className).not.toBe('')
   })
 
   test('renders a single root element with default semantics and horizontal orientation', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Separator />
       </MoraineProvider>
     ))
@@ -36,7 +35,7 @@ describe('Separator', () => {
   test('updates orientation semantics and classes reactively', () => {
     const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Separator orientation={orientation()} />
       </MoraineProvider>
     ))
@@ -90,7 +89,7 @@ describe('Separator', () => {
 
   test('uses root color inheritance for the line', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Separator class="text-primary" />
       </MoraineProvider>
     ))
@@ -102,7 +101,7 @@ describe('Separator', () => {
 
   test('applies root class and style overrides', () => {
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Separator class="root-override" style={{ width: '200px' }} />
       </MoraineProvider>
     ))
@@ -113,7 +112,7 @@ describe('Separator', () => {
   })
 
   test('replaces Design root styling without remounting the separator', () => {
-    const [design, setDesign] = createSignal(createTheme({ separator: { base: { root: 'p-2' } } }))
+    const [design, setDesign] = createSignal(defineTheme({ separator: { base: { root: 'p-2' } } }))
     const screen = render(() => (
       <MoraineProvider theme={design()}>
         <Separator />
@@ -123,7 +122,7 @@ describe('Separator', () => {
 
     expect(root.className).toContain('p-2')
 
-    setDesign(createTheme({ separator: { base: { root: 'p-4' } } }))
+    setDesign(defineTheme({ separator: { base: { root: 'p-4' } } }))
 
     expect(screen.getByRole('separator')).toBe(root)
     expect(root.className).toContain('p-4')
@@ -133,7 +132,7 @@ describe('Separator', () => {
   test('keeps the root element stable when orientation changes', () => {
     const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>('horizontal')
     const screen = render(() => (
-      <MoraineProvider theme={defaultTheme}>
+      <MoraineProvider>
         <Separator orientation={orientation()} />
       </MoraineProvider>
     ))
