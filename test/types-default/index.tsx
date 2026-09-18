@@ -43,6 +43,7 @@ import type {
   CommandPaletteT,
   ComboboxT,
   DialogT,
+  DropdownMenuT,
   FieldT,
   FormT,
   InputGroupT,
@@ -96,6 +97,26 @@ export type ReadOnlyContracts = [
   Assert<'readOnly' extends keyof SelectT.Props ? true : false>,
   Assert<'readOnly' extends keyof MultiSelectT.Props ? true : false>,
 ]
+
+const destructiveMenuItem: DropdownMenuT.Item = {
+  label: 'Delete',
+  variant: 'destructive',
+}
+void destructiveMenuItem
+
+const removedColorMenuItem: DropdownMenuT.Item = {
+  label: 'Delete',
+  // @ts-expect-error `color` was replaced by `variant`.
+  color: 'destructive',
+}
+void removedColorMenuItem
+
+const invalidMenuItemVariant: DropdownMenuT.Item = {
+  label: 'Delete',
+  // @ts-expect-error Menu item variants are limited to default and destructive.
+  variant: 'danger',
+}
+void invalidMenuItemVariant
 
 export type SlotContracts = [
   Assert<'root' extends keyof ButtonT.Slot ? true : false>,

@@ -921,10 +921,57 @@ describe('DropdownMenu', () => {
       (el) => el.textContent?.includes('Disabled action'),
     ) as HTMLElement
 
+    fireEvent.pointerDown(disabledItem)
     fireEvent.click(disabledItem)
 
     expect(onCheckedChange).toHaveBeenCalledWith(true)
     expect(onDisabledSelect).not.toHaveBeenCalled()
+    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+  })
+
+  test('keeps dropdown menu open when clicking or pressing on a disabled item', async () => {
+    const onSelect = vi.fn()
+
+    render(() => (
+      <DropdownMenu defaultOpen>
+        <DropdownMenu.Trigger as="button" type="button">
+          Options
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'Manage access',
+              disabled: true,
+              onSelect,
+            },
+            {
+              label: 'Delete',
+              variant: 'destructive',
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    })
+
+    const items = Array.from(document.body.querySelectorAll<HTMLElement>('[data-slot="item"]'))
+    const disabledItem = items[0]!
+    const destructiveItem = items[1]!
+
+    expect(disabledItem.getAttribute('data-disabled')).toBe('')
+    expect(disabledItem.className).not.toContain('pointer-events-none')
+    expect(destructiveItem.getAttribute('data-destructive')).toBe('')
+    expect(destructiveItem.className).toContain('data-destructive:text-destructive')
+
+    fireEvent.pointerDown(disabledItem)
+    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+
+    fireEvent.click(disabledItem)
+    expect(onSelect).not.toHaveBeenCalled()
+    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
   })
 
   test('supports radio items with grouped selection and disabled prevention', async () => {
@@ -1003,7 +1050,7 @@ describe('DropdownMenu', () => {
           Actions
         </DropdownMenu.Trigger>
         <DropdownMenu.Content
-          items={[{ label: 'Delete', color: 'destructive', icon: 'icon-trash-2' }]}
+          items={[{ label: 'Delete', variant: 'destructive', icon: 'icon-trash-2' }]}
         />
       </DropdownMenu>
     ))
@@ -1025,18 +1072,18 @@ describe('DropdownMenu', () => {
         <DropdownMenu.Content
           items={[
             { label: 'Default' },
-            { label: 'Leaf', color: 'destructive' },
-            { label: 'Checkbox', type: 'checkbox', color: 'destructive' },
+            { label: 'Leaf', variant: 'destructive' },
+            { label: 'Checkbox', type: 'checkbox', variant: 'destructive' },
             {
               label: 'Radio',
               type: 'radio',
               group: 'choice',
               value: 'radio',
-              color: 'destructive',
+              variant: 'destructive',
             },
             {
               label: 'Submenu',
-              color: 'destructive',
+              variant: 'destructive',
               children: [{ label: 'Nested action' }],
             },
           ]}
@@ -1052,7 +1099,7 @@ describe('DropdownMenu', () => {
     expect(items[0]?.hasAttribute('data-destructive')).toBe(false)
     for (const item of items.slice(1)) {
       expect(item.getAttribute('data-destructive')).toBe('')
-      expect(item.hasAttribute('data-color')).toBe(false)
+      expect(item.hasAttribute('data-variant')).toBe(false)
     }
   })
 

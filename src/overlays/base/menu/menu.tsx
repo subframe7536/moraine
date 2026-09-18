@@ -479,7 +479,13 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     itemId: Accessor<string>
   }): Pick<
     JSX.HTMLAttributes<HTMLDivElement>,
-    'onClick' | 'onFocus' | 'onKeyDown' | 'onPointerEnter' | 'onPointerMove' | 'onPointerLeave'
+    | 'onClick'
+    | 'onFocus'
+    | 'onKeyDown'
+    | 'onPointerDown'
+    | 'onPointerEnter'
+    | 'onPointerMove'
+    | 'onPointerLeave'
   > {
     const highlight = (): void => {
       layer.closeSubmenus()
@@ -508,6 +514,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
     return {
       onClick: (event) => {
+        if (options.disabled()) {
+          event.preventDefault()
+          return
+        }
         const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onClick)
         if (!defaultPrevented) {
           options.activate()
@@ -515,7 +525,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       },
       onFocus: (event) => {
         const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onFocus)
-        if (!defaultPrevented) {
+        if (!defaultPrevented && !options.disabled()) {
           layer.closeSubmenus()
           layer.setHighlightedItemId(options.itemId())
         }
@@ -530,6 +540,12 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         ) {
           event.preventDefault()
           options.activate()
+        }
+      },
+      onPointerDown: (event) => {
+        const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerDown)
+        if (!defaultPrevented && options.disabled()) {
+          event.preventDefault()
         }
       },
       onPointerEnter: (event) => {
@@ -594,7 +610,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       <div
         id={itemId()}
         data-slot="item"
-        data-destructive={itemProps.item.color === 'destructive' ? '' : undefined}
+        data-destructive={itemProps.item.variant === 'destructive' ? '' : undefined}
         role="menuitem"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
@@ -669,7 +685,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       <div
         id={itemId()}
         data-slot="item"
-        data-destructive={itemProps.item.color === 'destructive' ? '' : undefined}
+        data-destructive={itemProps.item.variant === 'destructive' ? '' : undefined}
         role="menuitemcheckbox"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
@@ -763,7 +779,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       <div
         id={itemId()}
         data-slot="item"
-        data-destructive={itemProps.item.color === 'destructive' ? '' : undefined}
+        data-destructive={itemProps.item.variant === 'destructive' ? '' : undefined}
         role="menuitemradio"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
@@ -866,6 +882,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     )
 
     const onPointerMove = (): void => {
+      if (itemProps.item.disabled) {
+        layer.focusContent()
+        return
+      }
+
       layer.closeSubmenus(submenuId())
       layer.setHighlightedItemId(submenuId())
       clearOpenTimeout()
@@ -892,7 +913,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         <div
           id={submenuId()}
           data-slot="item"
-          data-destructive={itemProps.item.color === 'destructive' ? '' : undefined}
+          data-destructive={itemProps.item.variant === 'destructive' ? '' : undefined}
           role="menuitem"
           tabIndex={layer.highlightedItemId() === submenuId() ? 0 : -1}
           aria-haspopup="menu"
@@ -908,6 +929,12 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             callRef(itemAttributes()?.ref, itemElement)
           }}
           {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
+          onPointerDown={(event) => {
+            const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerDown)
+            if (!defaultPrevented && itemProps.item.disabled) {
+              event.preventDefault()
+            }
+          }}
           onClick={(event) => {
             const { defaultPrevented } = callHandler(event, itemAttributes()?.onClick)
             if (defaultPrevented || itemProps.item.disabled) {
@@ -919,7 +946,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           }}
           onFocus={(event) => {
             const { defaultPrevented } = callHandler(event, itemAttributes()?.onFocus)
-            if (defaultPrevented) {
+            if (defaultPrevented || itemProps.item.disabled) {
               return
             }
 

@@ -130,12 +130,6 @@
         "description": "Nested menu items for creating submenus."
       },
       {
-        "name": "color",
-        "required": false,
-        "type": "NonNullable<\"default\" | \"destructive\" | undefined> | undefined",
-        "description": "Color theme variant for the menu item."
-      },
-      {
         "name": "defaultChecked",
         "required": false,
         "type": "boolean | undefined",
@@ -220,6 +214,13 @@
         "required": false,
         "type": "string | undefined",
         "description": "Radio item value reported by onValueChange and used for grouped selection."
+      },
+      {
+        "name": "variant",
+        "required": false,
+        "type": "\"default\" | \"destructive\" | undefined",
+        "description": "Visual treatment of the menu item.",
+        "defaultValue": "default"
       }
     ]
   },
@@ -533,7 +534,7 @@
           {
             "name": "size",
             "required": false,
-            "type": "NonNullable<\"sm\" | \"md\" | \"lg\" | undefined> | ComponentSize | undefined",
+            "type": "ComponentSize | undefined",
             "description": "Menu item size variant.",
             "defaultValue": "md"
           },

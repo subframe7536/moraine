@@ -22,7 +22,7 @@ export function Basic() {
               onSelect: () => setMessage('Rename selected.'),
             },
             { type: 'separator' },
-            { label: 'Delete', color: 'destructive', icon: 'i-lucide:trash-2' },
+            { label: 'Delete', variant: 'destructive', icon: 'i-lucide:trash-2' },
           ]}
         />
       </ContextMenu>

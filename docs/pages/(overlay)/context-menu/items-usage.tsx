@@ -17,7 +17,7 @@ export function ItemsUsage() {
               children: [
                 { label: 'Copy path', icon: 'i-lucide:copy' },
                 { label: 'Rename file', icon: 'i-lucide:edit-2' },
-                { label: 'Delete', icon: 'i-lucide:trash-2', color: 'destructive' },
+                { label: 'Delete', icon: 'i-lucide:trash-2', variant: 'destructive' },
               ],
             },
           ]}

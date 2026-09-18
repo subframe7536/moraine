@@ -25,7 +25,7 @@ export function Basic() {
             { type: 'separator' },
             {
               label: 'Delete',
-              color: 'destructive',
+              variant: 'destructive',
               icon: 'i-lucide:trash-2',
               onSelect: () => setMessage('Deleted.'),
             },

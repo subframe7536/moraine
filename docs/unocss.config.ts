@@ -133,10 +133,10 @@ export default defineConfig<PresetWind4Theme>({
             active: 'hsl(215 27.9% 27%)',
           },
           destructive: {
-            DEFAULT: 'hsl(0 62.8% 30.6%)',
+            DEFAULT: 'hsl(0 84.2% 60.2%)',
             foreground: 'hsl(210 20% 98%)',
-            hover: 'hsl(0 62.8% 35.6%)',
-            active: 'hsl(0 62.8% 40.6%)',
+            hover: 'hsl(0 84.2% 65.2%)',
+            active: 'hsl(0 84.2% 70.2%)',
           },
           border: 'hsl(215 27.9% 18.9%)',
           input: 'hsl(215 27.9% 24.9%)',

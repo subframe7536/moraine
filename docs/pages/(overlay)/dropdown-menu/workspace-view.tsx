@@ -95,7 +95,7 @@ export function WorkspaceView() {
           <DropdownMenu.Trigger as={Button} variant="outline" leading="i-lucide:sliders-horizontal">
             View
           </DropdownMenu.Trigger>
-          <DropdownMenu.Content items={items()} class="max-w-[calc(100vw-2rem)] w-72" />
+          <DropdownMenu.Content items={items()} />
         </DropdownMenu>
       </div>
       <ul class="divide-border divide-y">

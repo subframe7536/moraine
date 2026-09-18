@@ -110,7 +110,7 @@ describe('ContextMenu', () => {
         <ContextMenu.Content
           items={[
             { label: 'Rename', onSelect },
-            { label: 'Delete', color: 'destructive' },
+            { label: 'Delete', variant: 'destructive' },
           ]}
         />
       </ContextMenu>
@@ -1387,10 +1387,57 @@ describe('ContextMenu', () => {
       (el) => el.textContent?.includes('Disabled action'),
     ) as HTMLElement
 
+    fireEvent.pointerDown(disabledItem)
     fireEvent.click(disabledItem)
 
     expect(onCheckedChange).toHaveBeenCalledWith(true)
     expect(onDisabledSelect).not.toHaveBeenCalled()
+    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+  })
+
+  test('keeps context menu open when clicking or pressing on a disabled item', async () => {
+    const onSelect = vi.fn()
+
+    const screen = render(() => (
+      <ContextMenu>
+        <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
+        <ContextMenu.Content
+          items={[
+            {
+              label: 'Manage access',
+              disabled: true,
+              onSelect,
+            },
+            {
+              label: 'Move to trash',
+              variant: 'destructive',
+            },
+          ]}
+        />
+      </ContextMenu>
+    ))
+
+    fireEvent.contextMenu(screen.getByText('Row Item'), { clientX: 24, clientY: 32 })
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    })
+
+    const items = Array.from(document.body.querySelectorAll<HTMLElement>('[data-slot="item"]'))
+    const disabledItem = items[0]!
+    const destructiveItem = items[1]!
+
+    expect(disabledItem.getAttribute('data-disabled')).toBe('')
+    expect(disabledItem.className).not.toContain('pointer-events-none')
+    expect(destructiveItem.getAttribute('data-destructive')).toBe('')
+    expect(destructiveItem.className).toContain('data-destructive:text-destructive')
+
+    fireEvent.pointerDown(disabledItem)
+    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+
+    fireEvent.click(disabledItem)
+    expect(onSelect).not.toHaveBeenCalled()
+    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
   })
 
   test('supports radio items with grouped keyboard selection and disabled prevention', async () => {
@@ -1457,7 +1504,7 @@ describe('ContextMenu', () => {
       <ContextMenu>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content
-          items={[{ label: 'Delete', color: 'destructive', icon: 'icon-trash-2' }]}
+          items={[{ label: 'Delete', variant: 'destructive', icon: 'icon-trash-2' }]}
         />
       </ContextMenu>
     ))

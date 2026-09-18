@@ -6,12 +6,7 @@ import type { ComponentOrElement } from '../../../shared/render-prop'
 import type { SlotClassValue, SlotStyleValue, ElementProps } from '../../../shared/types'
 
 import type { OverlayMenuFocusStrategy, OverlayMenuAnchorRect } from './menu.utils'
-import type { OverlayMenuStyleSlot } from './style-types'
-
-export interface OverlayMenuItemVariantProps {
-  color?: 'default' | 'destructive'
-  size?: 'sm' | 'md' | 'lg'
-}
+import type { OverlayMenuStyleSlot, OverlayMenuStyleVariant } from './style-types'
 
 export type OverlayMenuSide = 'top' | 'right' | 'bottom' | 'left'
 
@@ -64,9 +59,11 @@ export interface OverlayMenuSharedItem<TItem> {
   kbds?: string[]
 
   /**
-   * Color theme variant for the menu item.
+   * Visual treatment of the menu item.
+   *
+   * @default 'default'
    */
-  color?: NonNullable<OverlayMenuItemVariantProps['color']>
+  variant?: 'default' | 'destructive'
 
   /**
    * Whether the item is non-interactive.
@@ -232,7 +229,7 @@ export interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TIte
    * Menu item size variant.
    * @default 'md'
    */
-  size?: NonNullable<OverlayMenuItemVariantProps['size']>
+  size?: OverlayMenuStyleVariant['size']
 
   /** Slot style overrides for menu sections. */
   styles?: OverlayMenuSharedStyles

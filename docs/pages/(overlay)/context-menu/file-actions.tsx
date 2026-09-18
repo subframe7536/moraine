@@ -52,7 +52,7 @@ export function FileActions() {
     {
       label: 'Move to trash',
       icon: 'i-lucide:trash-2',
-      color: 'destructive',
+      variant: 'destructive',
       onSelect: () => {
         setDeleted(true)
         setStatus('Project brief.pdf moved to trash.')
@@ -93,7 +93,7 @@ export function FileActions() {
               <Icon name="i-lucide:star" class="text-primary size-4" />
             </Show>
           </ContextMenu.Trigger>
-          <ContextMenu.Content items={items()} class="max-w-[calc(100vw-2rem)] w-72" />
+          <ContextMenu.Content items={items()} />
         </ContextMenu>
       </Show>
       <p role="status" class="text-xs text-muted-foreground">
