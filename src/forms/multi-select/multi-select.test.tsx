@@ -446,14 +446,35 @@ describe('MultiSelect', () => {
     expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(2)
   })
 
-  test('control focus ring highlights only when search input is enabled', () => {
-    const screenNoSearch = render(() => <MultiSelect items={ITEMS} />)
-    const controlNoSearch = screenNoSearch.container.querySelector('[data-slot="control"]')!
-    expect(controlNoSearch.hasAttribute('data-editable')).toBe(false)
+  test('shows the non-editable control focus ring for keyboard focus but not pointer focus', () => {
+    const screen = render(() => <MultiSelect items={ITEMS} />)
+    const control = screen.container.querySelector('[data-slot="control"]')!
+    const input = screen.getByRole('combobox')
+    const nativeMatches = input.matches.bind(input)
+    const matches = vi.spyOn(input, 'matches').mockImplementation((selector) =>
+      selector === ':focus-visible' ? true : nativeMatches(selector),
+    )
 
-    const screenSearch = render(() => <MultiSelect items={ITEMS} search />)
-    const controlSearch = screenSearch.container.querySelector('[data-slot="control"]')!
-    expect(controlSearch.hasAttribute('data-editable')).toBe(true)
+    expect(control.hasAttribute('data-editable')).toBe(false)
+
+    input.focus()
+    expect(document.activeElement).toBe(input)
+    expect(control.hasAttribute('data-focus-visible')).toBe(true)
+
+    input.blur()
+    expect(control.hasAttribute('data-focus-visible')).toBe(false)
+
+    fireEvent.pointerDown(control, { pointerType: 'mouse' })
+    expect(document.activeElement).toBe(input)
+    expect(control.hasAttribute('data-focus-visible')).toBe(false)
+
+    matches.mockRestore()
+  })
+
+  test('keeps editable MultiSelect on the existing focus-within path', () => {
+    const screen = render(() => <MultiSelect items={ITEMS} search />)
+    const control = screen.container.querySelector('[data-slot="control"]')!
+    expect(control.hasAttribute('data-editable')).toBe(true)
   })
 
   test('pressing Enter on a duplicate tag does not delete previously created tag', () => {

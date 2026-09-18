@@ -283,13 +283,26 @@ describe('Select', () => {
     expect(getInput(form)).toEqual({ choice: null })
   })
 
-  test('does not highlight focus ring without search input', () => {
+  test('shows the control focus ring for keyboard focus but not pointer focus', () => {
     const screen = render(() => <Select items={ITEMS} />)
     const control = screen.container.querySelector('[data-slot="control"]')!
     const trigger = screen.getByRole('combobox')
-    expect(control.hasAttribute('data-editable')).toBe(false)
-    expect(control.className).not.toMatch(/(?:^|\s)focus-within:/)
-    expect(control.className).toContain('data-editable:focus-within:')
-    expect(trigger.className).not.toContain('ring-')
+    const nativeMatches = trigger.matches.bind(trigger)
+    const matches = vi.spyOn(trigger, 'matches').mockImplementation((selector) =>
+      selector === ':focus-visible' ? true : nativeMatches(selector),
+    )
+
+    trigger.focus()
+    expect(document.activeElement).toBe(trigger)
+    expect(control.hasAttribute('data-focus-visible')).toBe(true)
+
+    trigger.blur()
+    expect(control.hasAttribute('data-focus-visible')).toBe(false)
+
+    fireEvent.pointerDown(trigger, { pointerType: 'mouse' })
+    expect(document.activeElement).toBe(trigger)
+    expect(control.hasAttribute('data-focus-visible')).toBe(false)
+
+    matches.mockRestore()
   })
 })
