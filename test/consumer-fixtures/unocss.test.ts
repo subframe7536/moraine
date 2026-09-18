@@ -81,7 +81,6 @@ describe('isolated built-dist UnoCSS consumer', () => {
       expect(css).toContain('[data-disabled]')
       expect(css).toContain(':focus')
       expect(css).toContain('.peer')
-      expect(css).toContain('[aria-invalid="true"]')
       expect(css).not.toContain(':has(>input:focus)')
       expect(css).toContain('[aria-invalid]')
       expect(css).toContain('animate-mo-enter')

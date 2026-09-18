@@ -312,7 +312,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 tags.tags().length === 0 && local.placeholder ? (
                   <span
                     data-slot="placeholder"
-                    class="text-muted-foreground/70 min-w-12 flex-1 py-0.5"
+                    class="text-muted-foreground/70 py-0.5 flex-1 min-w-12"
                   >
                     {local.placeholder}
                   </span>

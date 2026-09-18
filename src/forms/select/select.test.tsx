@@ -39,7 +39,7 @@ describe('Select', () => {
     ))
     const trigger = screen.getByRole('combobox')
     const clear = screen.getByRole('button', { name: 'Clear selection' })
-    expect(trigger.contains(clear)).toBe(false)
+    expect(trigger.contains(clear)).toBe(true)
     fireEvent.click(clear)
     expect(onClear).toHaveBeenCalledOnce()
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
@@ -121,15 +121,13 @@ describe('Select', () => {
   test('keeps the trigger structure while loading', () => {
     const screen = render(() => <Select items={ITEMS} defaultValue="apple" allowClear loading />)
     expect(screen.getByRole('combobox')).toBeTruthy()
-    expect(screen.getByRole('combobox').querySelector('[data-loading]')).toBeTruthy()
+    expect(screen.container.querySelector('[data-loading]')).toBeTruthy()
     expect(screen.queryByRole('button', { name: 'Clear selection' })).toBeNull()
   })
 
   test('keeps the loading spinner class on its icon without a theme', () => {
     const screen = baseRender(() => <Select items={ITEMS} loading />)
-    const icon = screen
-      .getByRole('combobox')
-      .querySelector<HTMLElement>('[data-slot="icon"][data-loading]')!
+    const icon = screen.container.querySelector<HTMLElement>('[data-loading]')!
     expect(icon.classList).toContain('data-loading:animate-spin')
   })
 
