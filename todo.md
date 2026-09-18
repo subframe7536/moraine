@@ -17,12 +17,10 @@
 - [x] better way to define slot styles. current cannot "go to definition"
 - [x] type instantiation reduce, including `MoraineTypeConfig`
 - [ ] a better way to define destructive item in menu
+- [ ] metric adjust across all sizes
 - [ ] sidebar-frame styling is broken, more useful usage and example
-- [ ] polish button-group of border color when press
-- [ ] cleanup types to make memory less
 - [ ] correct document page's focus loop
   - [ ] also audit all components
-- [ ] metric adjust across all sizes
 
 # V1
 
