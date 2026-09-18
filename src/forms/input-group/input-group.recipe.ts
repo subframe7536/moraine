@@ -38,14 +38,12 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
     },
     orientation: {
       horizontal: {
-        leading:
-          'first:ps-2 data-compact:pe-0 has-[>button]:first:ps-1 has-[>button]:pe-0 has-[>kbd]:first:ps-1.5 has-[>kbd]:pe-0',
-        trailing:
-          '[&:nth-last-child(2)]:pe-2 data-compact:ps-0 has-[>button]:ps-0 [&:nth-last-child(2):has(>button)]:pe-1 has-[>kbd]:ps-0 [&:nth-last-child(2):has(>kbd)]:pe-1.5',
+        leading: 'data-compact:pe-0',
+        trailing: 'data-compact:ps-0',
       },
       vertical: {
-        leading: 'w-full first:pt-1.5 data-compact:pb-0',
-        trailing: 'w-full [&:nth-last-child(2)]:pb-1.5 data-compact:pt-0',
+        leading: 'w-full data-compact:pb-0',
+        trailing: 'w-full data-compact:pt-0',
       },
     },
     variant: {

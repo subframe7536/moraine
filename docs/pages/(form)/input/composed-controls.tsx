@@ -11,7 +11,7 @@ export function ComposedControls() {
           <Icon name="i-lucide:key-round" />
         </InputGroup.Leading>
         <Input type={showPassword() ? 'text' : 'password'} placeholder="Enter secret token" />
-        <InputGroup.Trailing>
+        <InputGroup.Trailing compact>
           <Button
             variant="ghost"
             size="icon-xs"

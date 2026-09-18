@@ -25,7 +25,7 @@ InputGroup (root)
 └── InputGroup.Trailing (trailing slot, repeat as needed)
 ```
 
-Place zero or more `Leading` parts first, then one `Input` or `Textarea`, then zero or more `Trailing` parts. `orientation` belongs to `InputGroup` and determines whether all parts sit beside or above/below the control. `Leading` and `Trailing` accept `compact` to remove the gap beside the control. Both parts accept ordinary JSX, including `Icon`, `Button`, and `Kbd`.
+Place zero or more `Leading` parts first, then one `Input` or `Textarea`, then zero or more `Trailing` parts. `orientation` belongs to `InputGroup` and determines whether all parts sit beside or above/below the control. `Leading` and `Trailing` accept `compact` to remove the control-side padding. Child type never changes spacing implicitly; use `compact` explicitly when a `Button`, `Kbd`, or other addon should sit tighter against the control. Both parts accept ordinary JSX.
 
 ## Playground
 
@@ -108,13 +108,13 @@ Supporting content accepts plain text and JSX without a dedicated text component
 
 ### Button
 
-Use the existing `Button` component for copy, toggle, and submit actions. Keep each button's state and disabled behavior explicit.
+Use the existing `Button` component for copy, toggle, and submit actions. Add `compact` to the containing part when the button should sit tighter against the control; keep each button's state and disabled behavior explicit.
 
 <Preview path="./actions" />
 
 ### Kbd
 
-Use `Kbd` to show a shortcut without changing the input's keyboard behavior.
+Use `Kbd` to show a shortcut without changing the input's keyboard behavior. Add `compact` to the containing part when the shortcut should sit tighter against the control.
 
 <Preview path="./kbd" />
 

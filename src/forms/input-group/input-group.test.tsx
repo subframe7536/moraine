@@ -275,28 +275,48 @@ describe('InputGroup', () => {
     },
   )
 
-  test('keeps direct buttons close to the control and group edge', () => {
+  test('does not infer compact spacing from button or kbd children', () => {
     const screen = render(() => (
       <InputGroup>
         <InputGroup.Leading data-testid="leading">
-          <button type="button">Leading action</button>
+          <kbd>⌘K</kbd>
         </InputGroup.Leading>
         <Input aria-label="Query" />
         <InputGroup.Trailing data-testid="trailing">
-          <button type="button">Trailing action</button>
+          <button type="button">Action</button>
         </InputGroup.Trailing>
       </InputGroup>
     ))
+    const leading = screen.getByTestId('leading')
+    const trailing = screen.getByTestId('trailing')
 
-    expect(screen.getByTestId('leading').className).toEqual(
-      expect.stringContaining('has-[>button]:pe-0'),
-    )
-    expect(screen.getByTestId('trailing').className).toEqual(
-      expect.stringContaining('has-[>button]:ps-0'),
-    )
-    expect(screen.getByTestId('trailing').className).toEqual(
-      expect.stringContaining('[&:nth-last-child(2):has(>button)]:pe-1'),
-    )
+    expect(leading.className).toContain('pe-2')
+    expect(trailing.className).toContain('ps-2')
+    expect(leading.className).not.toContain('has-[>kbd]')
+    expect(trailing.className).not.toContain('has-[>button]')
+    expect(leading.hasAttribute('data-compact')).toBe(false)
+    expect(trailing.hasAttribute('data-compact')).toBe(false)
+  })
+
+  test('uses compact explicitly for button and kbd children', () => {
+    const screen = render(() => (
+      <InputGroup>
+        <InputGroup.Leading compact data-testid="leading">
+          <kbd>⌘K</kbd>
+        </InputGroup.Leading>
+        <Input aria-label="Query" />
+        <InputGroup.Trailing compact data-testid="trailing">
+          <button type="button">Action</button>
+        </InputGroup.Trailing>
+      </InputGroup>
+    ))
+    const leading = screen.getByTestId('leading')
+    const trailing = screen.getByTestId('trailing')
+
+    expect(leading.hasAttribute('data-compact')).toBe(true)
+    expect(trailing.hasAttribute('data-compact')).toBe(true)
+    expect(leading.className).toContain('data-compact:pe-0')
+    expect(trailing.className).toContain('data-compact:ps-0')
   })
 
   test.each([

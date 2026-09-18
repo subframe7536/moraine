@@ -7,7 +7,7 @@ export function KeyboardShortcut() {
         <Icon name="i-lucide:search" />
       </InputGroup.Leading>
       <Input aria-label="Search" placeholder="Search..." />
-      <InputGroup.Trailing>
+      <InputGroup.Trailing compact>
         <Kbd value="command" size="sm" />
         <Kbd value="K" size="sm" />
       </InputGroup.Trailing>

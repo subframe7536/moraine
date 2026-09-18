@@ -17,7 +17,7 @@ export function Actions() {
     <div class="gap-4 grid max-w-md w-full">
       <InputGroup>
         <Input aria-label="Profile URL" value={targetURL} readOnly />
-        <InputGroup.Trailing>
+        <InputGroup.Trailing compact>
           <Button
             type="button"
             size="icon-xs"
@@ -32,7 +32,7 @@ export function Actions() {
       <InputGroup>
         <InputGroup.Leading compact>https://</InputGroup.Leading>
         <Input aria-label="Secure URL" placeholder="example.com" />
-        <InputGroup.Trailing>
+        <InputGroup.Trailing compact>
           <Button
             type="button"
             size="icon-xs"
@@ -49,7 +49,7 @@ export function Actions() {
       </InputGroup>
       <InputGroup>
         <Input aria-label="Search" placeholder="Type to search..." />
-        <InputGroup.Trailing>
+        <InputGroup.Trailing compact>
           <Button type="button" size="xs" variant="secondary">
             Search
           </Button>
