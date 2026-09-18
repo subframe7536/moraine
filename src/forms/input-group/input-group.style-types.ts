@@ -9,6 +9,9 @@ export interface InputGroupStyleSlot<T = unknown> {
 
   /** Content at the logical end or below the control. */
   trailing?: T
+
+  /** Visual state frame driven by the grouped control. */
+  frame?: T
 }
 
 export interface InputGroupStyleVariant extends InputStyleVariant {

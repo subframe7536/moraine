@@ -66,6 +66,7 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
         onPointerDown={onPointerDown}
       >
         {local.children}
+        <span aria-hidden="true" data-slot="frame" {...resolved.styles.frame} />
       </div>
     </InputGroupProvider>
   )

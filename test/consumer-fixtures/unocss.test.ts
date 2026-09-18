@@ -47,7 +47,8 @@ describe('isolated built-dist UnoCSS consumer', () => {
       const requiredTokens = [
         'data-disabled:opacity-64',
         'focus:ring-3',
-        '[&:has(>input:focus)]:ring-3',
+        'peer-focus:ring-3',
+        'peer-aria-invalid:border-destructive',
         'aria-invalid:border-destructive',
         'data-expanded:animate-mo-enter',
         'data-closed:animate-mo-exit',
@@ -79,7 +80,9 @@ describe('isolated built-dist UnoCSS consumer', () => {
       const { css } = await generator.generate(tokens, { preflights: true })
       expect(css).toContain('[data-disabled]')
       expect(css).toContain(':focus')
-      expect(css).toContain(':has(>input:focus)')
+      expect(css).toContain('.peer')
+      expect(css).toContain('[aria-invalid="true"]')
+      expect(css).not.toContain(':has(>input:focus)')
       expect(css).toContain('[aria-invalid]')
       expect(css).toContain('animate-mo-enter')
       expect(css).toContain('animate-mo-exit')

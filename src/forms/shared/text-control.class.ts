@@ -6,7 +6,7 @@ export const TEXT_CONTROL_GROUPED = {
     root: 'focus:border-ring focus:ring-3 focus:ring-ring/50 data-invalid:border-destructive data-invalid:ring-3 data-invalid:ring-destructive/20 dark:data-invalid:border-destructive/50 dark:data-invalid:ring-destructive/40 focus:data-invalid:border-destructive focus:data-invalid:ring-3 focus:data-invalid:ring-destructive/20 dark:focus:data-invalid:border-destructive/50 dark:focus:data-invalid:ring-destructive/40',
   },
   true: {
-    root: 'flex-1 w-0 rounded-none border-0 bg-transparent shadow-none disabled:opacity-100 dark:bg-transparent',
+    root: 'peer flex-1 w-0 rounded-none border-0 bg-transparent shadow-none dark:bg-transparent',
   },
 } as const
 

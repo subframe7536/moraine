@@ -49,6 +49,13 @@
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
+    },
+    {
+      "name": "frame",
+      "description": "Visual state frame driven by the grouped control.",
+      "cssVariables": [],
+      "dataAttributes": [],
+      "ariaAttributes": []
     }
   ],
   "props": {

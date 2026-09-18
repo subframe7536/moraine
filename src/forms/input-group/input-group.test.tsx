@@ -43,10 +43,12 @@ describe('InputGroup', () => {
         <Input />
       </InputGroup>
     ))
+    const frame = group?.querySelector<HTMLElement>('[data-slot="frame"]')
     expect(group).toBe(screen.getByRole('group'))
     expect(group?.className).not.toBe('')
     expect(screen.getByRole('textbox').className).not.toBe('')
     expect(screen.getByText('Prefix').className).not.toBe('')
+    expect(frame?.className).not.toBe('')
   })
 
   test.each([Input, Textarea])(
@@ -69,11 +71,30 @@ describe('InputGroup', () => {
       ))
       const group = screen.getByRole('group')
       const control = screen.getByRole('textbox')
+      const frame = group.querySelector<HTMLElement>('[data-slot="frame"]')!
       expect(group.className).toContain('bg-input/30')
+      expect(group.className).not.toContain(':has(>input:focus)')
+      expect(control.className).toContain('peer')
       expect(control.className).toContain('border-0')
       expect(control.className).not.toContain('border-input')
       expect(control.className).not.toContain('shadow-xs')
       expect(control.hasAttribute('data-input-group-control')).toBe(false)
+      expect(frame.getAttribute('aria-hidden')).toBe('true')
+      expect(frame.className).toContain('peer-focus:ring-3')
+      expect(frame.className).toContain('peer-aria-invalid:border-destructive')
+    },
+  )
+
+  test.each([Input, Textarea])(
+    'keeps the grouped none variant frame free of its normal focus ring for %s',
+    (Control) => {
+      const screen = render(() => (
+        <InputGroup variant="none">
+          <Control />
+        </InputGroup>
+      ))
+      const frame = screen.getByRole('group').querySelector<HTMLElement>('[data-slot="frame"]')!
+      expect(frame.className).toContain('peer-focus:ring-0')
     },
   )
 
@@ -93,9 +114,10 @@ describe('InputGroup', () => {
     const input = screen.getByRole('textbox')
     const leading = screen.getByTestId('leading')
     const trailing = screen.getByTestId('trailing')
+    const frame = group.querySelector('[data-slot="frame"]')!
     expect(group.getAttribute('dir')).toBe('rtl')
     expect(group.getAttribute('data-orientation')).toBe('horizontal')
-    expect(Array.from(group.children)).toEqual([leading, input, trailing])
+    expect(Array.from(group.children)).toEqual([leading, input, trailing, frame])
     expect(group.className).not.toMatch(/\border-/)
     expect(leading.className).not.toMatch(/(?:^|\s)-m(?:[setb]?)-/)
     expect(trailing.className).not.toMatch(/(?:^|\s)-m(?:[setb]?)-/)
@@ -114,9 +136,25 @@ describe('InputGroup', () => {
   })
 
   test.each([
-    ['sm', 'ps-0', 'pe-0', 'first:ps-1.5', 'last:pe-1.5', 'pe-1.5', 'ps-1.5'],
-    ['md', 'ps-0', 'pe-0', 'first:ps-2', 'last:pe-2', 'pe-2', 'ps-2'],
-    ['lg', 'ps-0', 'pe-0', 'first:ps-2.5', 'last:pe-2.5', 'pe-2.5', 'ps-2.5'],
+    [
+      'sm',
+      'ps-0',
+      'pe-0',
+      'first:ps-1.5',
+      '[&:nth-last-child(2)]:pe-1.5',
+      'pe-1.5',
+      'ps-1.5',
+    ],
+    ['md', 'ps-0', 'pe-0', 'first:ps-2', '[&:nth-last-child(2)]:pe-2', 'pe-2', 'ps-2'],
+    [
+      'lg',
+      'ps-0',
+      'pe-0',
+      'first:ps-2.5',
+      '[&:nth-last-child(2)]:pe-2.5',
+      'pe-2.5',
+      'ps-2.5',
+    ],
   ] as const)(
     'keeps %s horizontal padding with its direct children',
     (
@@ -257,14 +295,14 @@ describe('InputGroup', () => {
       expect.stringContaining('has-[>button]:ps-0'),
     )
     expect(screen.getByTestId('trailing').className).toEqual(
-      expect.stringContaining('has-[>button]:last:pe-1'),
+      expect.stringContaining('[&:nth-last-child(2):has(>button)]:pe-1'),
     )
   })
 
   test.each([
-    ['sm', 'pt-0', 'pb-0', 'first:pt-1', 'last:pb-1', 'px-1.5'],
-    ['md', 'pt-0', 'pb-0', 'first:pt-1.5', 'last:pb-1.5', 'px-2'],
-    ['lg', 'pt-0', 'pb-0', 'first:pt-2', 'last:pb-2', 'px-2.5'],
+    ['sm', 'pt-0', 'pb-0', 'first:pt-1', '[&:nth-last-child(2)]:pb-1', 'px-1.5'],
+    ['md', 'pt-0', 'pb-0', 'first:pt-1.5', '[&:nth-last-child(2)]:pb-1.5', 'px-2'],
+    ['lg', 'pt-0', 'pb-0', 'first:pt-2', '[&:nth-last-child(2)]:pb-2', 'px-2.5'],
   ] as const)(
     'keeps %s vertical padding with leading and trailing parts',
     (size, controlTop, controlBottom, leadingPadding, trailingPadding, partPadding) => {
@@ -344,18 +382,21 @@ describe('InputGroup', () => {
         <Input disabled={disabled()} readOnly />
       </InputGroup>
     ))
+    const group = screen.getByRole('group')
     const control = screen.getByRole('textbox') as HTMLInputElement
     const focus = vi.spyOn(control, 'focus')
-    fireEvent.pointerDown(screen.getByRole('group'), { button: 0 })
+    fireEvent.pointerDown(group, { button: 0 })
     expect(focus).not.toHaveBeenCalled()
     setCancel(false)
     setDisabled(true)
-    fireEvent.pointerDown(screen.getByRole('group'), { button: 0 })
+    fireEvent.pointerDown(group, { button: 0 })
     expect(focus).not.toHaveBeenCalled()
+    expect(group.className).not.toContain('opacity-64')
+    expect(control.className).toContain('disabled:opacity-64')
     fireEvent.click(screen.getByRole('button'))
     expect(action).toHaveBeenCalledOnce()
     setDisabled(false)
-    fireEvent.pointerDown(screen.getByRole('group'), { button: 0 })
+    fireEvent.pointerDown(group, { button: 0 })
     expect(focus).toHaveBeenCalledOnce()
   })
 
@@ -393,7 +434,10 @@ describe('InputGroup', () => {
     const [leadingClass, setLeadingClass] = createSignal('first-leading')
     const screen = baseRender(() => (
       <MoraineProvider theme={theme()}>
-        <InputGroup classes={{ leading: leadingClass() }} styles={{ leading: { color: 'red' } }}>
+        <InputGroup
+          classes={{ leading: leadingClass(), frame: 'theme-frame' }}
+          styles={{ leading: { color: 'red' }, frame: { color: 'green' } }}
+        >
           <InputGroup.Leading class="local-leading" style={{ color: 'blue' }}>
             Suffix
           </InputGroup.Leading>
@@ -403,10 +447,13 @@ describe('InputGroup', () => {
     ))
     const input = screen.getByRole('textbox')
     const leading = screen.getByText('Suffix')
+    const frame = screen.getByRole('group').querySelector<HTMLElement>('[data-slot="frame"]')!
     expect(input.className).toContain('h-6.5')
     expect(leading.className).toContain('first-leading')
     expect(leading.className).toContain('local-leading')
     expect(leading.style.color).toBe('blue')
+    expect(frame.className).toContain('theme-frame')
+    expect(frame.style.color).toBe('green')
     setTheme(defineTheme({ inputGroup: { defaultVariants: { size: 'lg' } } }))
     setLeadingClass('next-leading')
     expect(screen.getByRole('textbox')).toBe(input)
