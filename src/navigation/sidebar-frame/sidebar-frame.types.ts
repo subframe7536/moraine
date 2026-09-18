@@ -25,11 +25,17 @@ export namespace SidebarFrameT {
   export type Styles = Slot<SlotStyleValue>
 
   export interface Base {
-    /** Side occupied by the sidebar. @default 'left' */
+    /**
+     * Side occupied by the sidebar.
+     * @default 'left'
+     */
     side?: 'left' | 'right'
     /** Controlled mobile mode. When omitted, `matchMedia` determines the value. */
     isMobile?: boolean
-    /** Main scroll offset that changes `scrolled` to true. @default 60 */
+    /**
+     * Main scroll offset that changes `scrolled` to true.
+     * @default 60
+     */
     scrollThreshold?: number
     children?: JSX.Element
   }

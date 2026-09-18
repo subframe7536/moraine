@@ -35,9 +35,15 @@ export namespace SliderT {
       FormRequiredOption,
       FormDisableOption,
       FormReadOnlyOption {
-    /** Direction of keyboard and pointer value movement. @default 'horizontal' */
+    /**
+     * Direction of keyboard and pointer value movement.
+     * @default 'horizontal'
+     */
     orientation?: 'horizontal' | 'vertical'
-    /** Reverses value movement along the track. @default false */
+    /**
+     * Reverses value movement along the track.
+     * @default false
+     */
     inverted?: boolean
 
     /**

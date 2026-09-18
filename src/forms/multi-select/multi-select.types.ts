@@ -138,7 +138,10 @@ export namespace MultiSelectT {
      * or `true` when non-editable.
      */
     openOnControlClick?: boolean
-    /** Whether the collection can be filtered through the editable input. @default false */
+    /**
+     * Whether the collection can be filtered through the editable input.
+     * @default false
+     */
     search?: boolean
     /** Optional inner input element ref. */
     inputRef?: Ref<HTMLInputElement>

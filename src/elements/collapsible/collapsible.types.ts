@@ -17,7 +17,10 @@ export namespace CollapsibleT {
   export type Styles = Slot<SlotStyleValue>
 
   export type TriggerBase<T extends ValidComponent = 'button'> = {
-    /** Element or component to render as. @default 'button' */
+    /**
+     * Element or component to render as.
+     * @default 'button'
+     */
     as?: T
     type?: T extends 'a'
       ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>['type']
@@ -58,7 +61,10 @@ export namespace CollapsibleT {
      */
     unmountOnHide?: boolean
 
-    /** Force mounting the content in the DOM even when closed. @default false */
+    /**
+     * Force mounting the content in the DOM even when closed.
+     * @default false
+     */
     forceMount?: boolean
 
     /** Additional class applied to the outer animated height wrapper. */

@@ -10,9 +10,9 @@ export { cn } from '../theme/style/cn'
  * 1. Returns `deterministicId` if provided
  * 2. Falls back to a generated identifier with a prefix
  *
- * @param deterministicId - Optional explicit ID to use
- * @param prefix - Prefix for generated IDs (default: 'mo')
- * @returns A unique string identifier
+ * @param deterministicId - Optional explicit ID to use.
+ * @param prefix - Prefix for generated IDs. Defaults to `'mo'`.
+ * @returns A unique string identifier.
  *
  * @example
  * ```tsx

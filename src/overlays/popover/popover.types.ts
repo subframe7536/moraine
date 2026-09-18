@@ -57,7 +57,10 @@ export namespace PopoverT {
     children?: JSX.Element
   }
   export interface ContentBase {
-    /** Preferred placement relative to the trigger. @default 'bottom' */
+    /**
+     * Preferred placement relative to the trigger.
+     * @default 'bottom'
+     */
     side?: 'top' | 'right' | 'bottom' | 'left'
 
     ariaLabel?: string

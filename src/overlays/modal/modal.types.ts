@@ -65,7 +65,10 @@ export namespace ModalT {
   export type Props = Base
 
   export type TriggerBase<T extends ValidComponent = 'button'> = {
-    /** Element or component to render as. @default 'button' */
+    /**
+     * Element or component to render as.
+     * @default 'button'
+     */
     as?: T
     type?: T extends 'a'
       ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>['type']

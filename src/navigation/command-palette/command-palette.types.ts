@@ -190,7 +190,7 @@ export namespace CommandPaletteT {
     listboxProps?: ElementProps<HTMLDivElement>
     /** Additional attributes for a command row. */
     itemProps?: (context: ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined
-    /** Additional props of input */
+    /** Additional attributes for the search input. */
     inputProps?: JSX.HTMLAttributes<HTMLInputElement>
   }
 

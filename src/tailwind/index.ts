@@ -18,7 +18,10 @@ import {
 } from '../theme/style/theme'
 
 export interface MorainePluginOptions {
-  /** Emit default page background and text colors. @default true */
+  /**
+   * Emit default page background and text colors.
+   * @default true
+   */
   globalStyles?: boolean
   /**
    * Emit `icon-*` utility stubs so Tailwind's scanner recognises them.

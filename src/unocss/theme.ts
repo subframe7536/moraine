@@ -66,11 +66,15 @@ export type MoraineColorVariables = {
 export interface MoraineColorVariablesOptions {
   activeAdjustment?: number
   dark?: MoraineColorVariables
-  /** @default '.dark' */
+  /**
+   * @default '.dark'
+   */
   darkSelector?: string
   hoverAdjustment?: number
   light?: MoraineColorVariables
-  /** @default ':root' */
+  /**
+   * @default ':root'
+   */
   lightSelector?: string
 }
 

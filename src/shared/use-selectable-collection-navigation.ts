@@ -6,28 +6,31 @@ type Orientation = 'horizontal' | 'vertical'
 /**
  * Options for the selectable collection navigation hook.
  *
- * @template TItem - The type of items in the collection
- * @template TValue - The string or number used to identify an item
+ * @template TItem - Item type in the collection.
+ * @template TValue - String or number used to identify an item.
  */
 export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends string | number> {
-  /** Accessor returning the array of items in the collection */
+  /** Accessor returning the items in the collection. */
   items: Accessor<TItem[]>
-  /** Function to extract the unique value identifier from an item */
+  /** Returns the unique value that identifies an item. */
   getValue: (item: TItem) => TValue
-  /** Optional function to determine if an item is disabled */
+  /** Returns whether an item is disabled. */
   isDisabled?: (item: TItem) => boolean
-  /** Whether arrow-key navigation wraps from the ends (default: false) */
+  /**
+   * Whether arrow-key navigation wraps from the ends.
+   * @default false
+   */
   loop?: Accessor<boolean>
   /**
    * Activation mode for keyboard navigation:
-   * - 'automatic': Arrow keys immediately select the item
-   * - 'manual': Arrow keys only focus, Enter/Space activates
+   * - `automatic`: arrow keys immediately select the item.
+   * - `manual`: arrow keys only focus; Enter or Space activates the item.
    * @default 'automatic'
    */
   activationMode?: Accessor<ActivationMode>
-  /** Optional callback to focus an item by its value */
+  /** Focuses an item by its value. */
   focusValue?: (value: TValue) => void
-  /** Callback when an item is selected */
+  /** Called when an item is selected. */
   onSelect: (value: TValue) => void
   /**
    * Optional function to detect RTL direction.
@@ -49,11 +52,11 @@ export interface UseSelectableCollectionNavigationOptions<TItem, TValue extends 
  * like Tabs, Select, Accordion, and RadioGroup. Handles arrow keys, Home/End,
  * Enter/Space, and supports both automatic and manual activation modes.
  *
- * @template TItem - The type of items in the collection
- * @template TValue - The string or number used to identify an item
+ * @template TItem - The item type in the collection.
+ * @template TValue - The string or number used to identify an item.
  *
- * @param options - Configuration options for the navigation behavior
- * @returns Object with navigation methods
+ * @param options - Configuration for the navigation behavior.
+ * @returns Navigation methods for the collection.
  *
  * @example
  * ```tsx

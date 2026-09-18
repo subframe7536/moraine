@@ -80,7 +80,10 @@ export namespace ComboboxT {
     openOnControlClick?: boolean
     /** Optional inner input element ref. */
     inputRef?: Ref<HTMLInputElement>
-    /** Loading icon. @default 'icon-loading' */
+    /**
+     * Loading icon.
+     * @default 'icon-loading'
+     */
     loadingIcon?: IconT.Name
     /** Leading icon. */
     leadingIcon?: IconT.Name

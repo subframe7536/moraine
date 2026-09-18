@@ -3,12 +3,13 @@ import { createContext, useContext } from 'solid-js'
 /**
  * Creates a typed context provider with optional fallback.
  *
- * When defaultValue is NOT provided: context is required (throws if missing)
- * When defaultValue IS provided: context is optional (returns defaultValue if missing)
+ * Without `defaultValue`, the context is required and the hook throws when
+ * no provider is present. With `defaultValue`, the context is optional and
+ * the hook returns that fallback when no provider is present.
  *
- * @param name - The name of the context (used in error messages)
- * @param defaultValue - Optional default value for optional contexts
- * @returns A tuple of [Provider, useContextHook]
+ * @param name - Context name used in error messages.
+ * @param defaultValue - Optional fallback value for optional contexts.
+ * @returns A tuple containing the Provider and its context hook.
  *
  * @example
  * ```tsx

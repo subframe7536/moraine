@@ -53,9 +53,15 @@ export interface PopperProps {
   children?: JSX.Element
 }
 export type PopperTriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T> & {
-  /** Whether the trigger describes the content. @default false */
+  /**
+   * Whether the trigger describes the content.
+   * @default false
+   */
   describeTrigger?: boolean
-  /** Whether clicking the trigger toggles the open state. @default true */
+  /**
+   * Whether clicking the trigger toggles the open state.
+   * @default true
+   */
   toggleOnClick?: boolean
 }
 export interface PopperContentOptions {

@@ -28,7 +28,10 @@ export namespace ResizableT {
 
   /** Base props for the Resizable component. */
   export interface Base {
-    /** Axis along which panels resize. @default 'horizontal' */
+    /**
+     * Axis along which panels resize.
+     * @default 'horizontal'
+     */
     orientation?: ResizableOrientation
 
     /** Unique identifier for the resizable root. */

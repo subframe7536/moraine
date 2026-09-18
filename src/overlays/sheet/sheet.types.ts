@@ -21,7 +21,10 @@ export namespace SheetT {
    */
   export interface Base extends ModalT.Base {}
   export interface ContentBase {
-    /** Edge from which the sheet opens. @default 'right' */
+    /**
+     * Edge from which the sheet opens.
+     * @default 'right'
+     */
     side?: 'top' | 'right' | 'bottom' | 'left'
 
     /** Whether to render the overlay element. */

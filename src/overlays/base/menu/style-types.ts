@@ -48,6 +48,9 @@ export interface OverlayMenuStyleSlot<T = unknown> {
 }
 
 export interface OverlayMenuStyleVariant {
-  /** Visual size of menu items. @default 'md' */
+  /**
+   * Visual size of menu items.
+   * @default 'md'
+   */
   size?: ComponentSize
 }

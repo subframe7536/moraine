@@ -44,13 +44,19 @@ export type SelectVirtualRenderProps<T extends BaseSelectT.Item> = ListT.Virtual
 export interface SearchProps<T extends BaseSelectT.Item> {
   /** Controlled search text. */
   searchValue?: string
-  /** Initial search text. @default '' */
+  /**
+   * Initial search text.
+   * @default ''
+   */
   defaultSearchValue?: string
   /** Called when search text changes. */
   onSearch?: (value: string) => void
   /** Maximum committed search length. */
   searchMaxLength?: number
-  /** Filtering strategy or predicate receiving the raw item. @default true */
+  /**
+   * Filtering strategy or predicate receiving the raw item.
+   * @default true
+   */
   filterItem?:
     | boolean
     | 'startsWith'
@@ -71,10 +77,19 @@ export interface ContentProps<T extends BaseSelectT.Item> {
   scrollToItem?: (item: T, entryIndex: number) => void
   /** Called once when scrolling reaches the bottom. */
   onScrollBottom?: () => void
-  /** Bottom threshold in pixels. @default 20 */
+  /**
+   * Bottom threshold in pixels.
+   * @default 20
+   */
   scrollBottomThreshold?: number
-  /** Anchor gap in pixels. @default 0 */
+  /**
+   * Anchor gap in pixels.
+   * @default 0
+   */
   gutter?: number
-  /** Collision padding in pixels. @default 4 */
+  /**
+   * Collision padding in pixels.
+   * @default 4
+   */
   overflowPadding?: number
 }
