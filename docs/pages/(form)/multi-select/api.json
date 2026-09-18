@@ -47,6 +47,12 @@
       "cssVariables": [],
       "dataAttributes": [
         {
+          "name": "data-invalid",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field or form has a validation error."
+        },
+        {
           "name": "data-loading",
           "required": false,
           "type": "string | undefined",
@@ -54,6 +60,12 @@
         }
       ],
       "ariaAttributes": [
+        {
+          "name": "aria-activedescendant",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
         {
           "name": "aria-busy",
           "required": false,
@@ -73,10 +85,22 @@
           "description": "Indicates whether the controlled content is expanded."
         },
         {
+          "name": "aria-haspopup",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Accessibility attribute forwarded by the rendered component."
+        },
+        {
           "name": "aria-label",
           "required": false,
           "type": "boolean | string | undefined",
           "description": "Provides an accessible label when visible text is not sufficient."
+        },
+        {
+          "name": "role",
+          "required": false,
+          "type": "string",
+          "description": "Defines the semantic role exposed to assistive technology."
         }
       ]
     },
@@ -443,7 +467,7 @@
         "name": "inputRef",
         "required": false,
         "type": "Ref<HTMLInputElement> | undefined",
-        "description": "Optional inner input element ref."
+        "description": "Optional editable inner input element ref. Not assigned in non-editable mode."
       },
       {
         "name": "isItemDisabled",

@@ -147,7 +147,12 @@ export interface DemoProps { title: string }
     expect(result?.componentDocs.get('input')?.slots.map((slot) => slot.name)).toEqual(['root'])
     expect(result?.componentDocs.get('textarea')?.slots.map((slot) => slot.name)).toEqual(['root'])
     const inputGroup = result?.componentDocs.get('input-group')
-    expect(inputGroup?.slots.map((slot) => slot.name)).toEqual(['root', 'leading', 'trailing'])
+    expect(inputGroup?.slots.map((slot) => slot.name)).toEqual([
+      'root',
+      'leading',
+      'trailing',
+      'frame',
+    ])
     expect(inputGroup?.props.own.find((prop) => prop.name === 'orientation')?.defaultValue).toBe(
       'horizontal',
     )

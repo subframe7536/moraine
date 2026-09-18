@@ -45,7 +45,14 @@
       "name": "trigger",
       "description": "Primary select-like popup activator.",
       "cssVariables": [],
-      "dataAttributes": [],
+      "dataAttributes": [
+        {
+          "name": "data-invalid",
+          "required": false,
+          "type": "string | undefined",
+          "description": "Present when the field or form has a validation error."
+        }
+      ],
       "ariaAttributes": [
         {
           "name": "aria-activedescendant",

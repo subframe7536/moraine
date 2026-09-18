@@ -72,6 +72,27 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
             >
               {selectedItem()?.label ?? (hasValue() ? String(state.value()[0]) : local.placeholder)}
             </span>
+            <Show when={!local.loading && local.allowClear && hasValue()}>
+              <button
+                type="button"
+                data-slot="clear"
+                aria-label="Clear selection"
+                tabIndex={-1}
+                {...styles.styles.clear}
+                disabled={state.locked()}
+                onPointerDown={(event) => {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  state.focusOwner()?.focus()
+                }}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  clear()
+                }}
+              >
+                <Icon name={local.closeIcon ?? 'icon-close'} />
+              </button>
+            </Show>
             <Icon
               name={
                 local.loading
@@ -82,27 +103,6 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
               class={SELECT_LOADING_ICON_CLASS}
             />
           </BaseSelect.Trigger>
-          <Show when={!local.loading && local.allowClear && hasValue()}>
-            <button
-              type="button"
-              data-slot="clear"
-              aria-label="Clear selection"
-              tabIndex={-1}
-              {...styles.styles.clear}
-              disabled={state.locked()}
-              onPointerDown={(event) => {
-                event.preventDefault()
-                event.stopPropagation()
-                state.focusOwner()?.focus()
-              }}
-              onClick={(event) => {
-                event.stopPropagation()
-                clear()
-              }}
-            >
-              <Icon name={local.closeIcon ?? 'icon-close'} />
-            </button>
-          </Show>
         </BaseSelect.Control>
         <DefaultSelectContent
           {...local}

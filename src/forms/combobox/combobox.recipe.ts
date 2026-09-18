@@ -1,10 +1,10 @@
 import { defineRecipe } from '../../theme/style/recipe.ts'
 import {
-  SELECT_FAMILY_SLOTS,
   FIELD_INPUT_CLASS,
   FIELD_SIZES,
   FIELD_VARIANTS,
   SECONDARY_TRIGGER_CLASS,
+  SELECT_FAMILY_SLOTS,
 } from '../shared/select/select-field.class.ts'
 
 import type { ComboboxStyleSlot, ComboboxStyleVariant } from './combobox.style-types'

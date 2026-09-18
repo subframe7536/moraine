@@ -129,7 +129,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     const tags = createTagsField<Value>({
       values: state.value,
       change: state.change,
-      getInput: () => state.focusOwner() as HTMLInputElement | undefined,
+      getFocusOwner: state.focusOwner,
       maxVisible: () => local.maxTagCount,
       query: search.query,
       setQuery: search.setQuery,
@@ -175,7 +175,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       return state.value().some((value) => sameValue(value, query))
     }
 
-    function focusInput(): void {
+    function focusControl(): void {
       state.focusOwner()?.focus()
     }
     function clear(): void {
@@ -191,7 +191,63 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       )
       search.setQuery('')
       local.onClear?.()
-      focusInput()
+      focusControl()
+    }
+
+    function onEditableInputKeyDown(event: KeyboardEvent): void {
+      if (inputBinding.composing() || event.isComposing || state.locked()) {
+        return
+      }
+      if (tags.onFocusOwnerKeyDown(event, search.query())) {
+        return
+      }
+      if (event.key === 'Enter') {
+        if (isDuplicate()) {
+          event.preventDefault()
+          return
+        }
+        if (state.open()) {
+          const highlighted = state
+            .items()
+            .find((item) => sameValue(item.value, state.highlightedValue()))
+          if (highlighted && !state.itemDisabled(highlighted)) {
+            if (state.value().some((value) => sameValue(value, highlighted.value))) {
+              event.preventDefault()
+              return
+            }
+            inputBinding.binding.onKeyDown(event)
+            return
+          }
+        }
+        if (search.query()) {
+          event.preventDefault()
+          create()
+          return
+        }
+      }
+      inputBinding.binding.onKeyDown(event)
+    }
+
+    function onNonEditableTriggerKeyDown(event: KeyboardEvent): void {
+      if (state.locked() || event.isComposing) {
+        return
+      }
+      if (tags.onFocusOwnerKeyDown(event, '')) {
+        return
+      }
+      if (event.key !== 'Enter' || !state.open()) {
+        return
+      }
+      const highlighted = state
+        .items()
+        .find((item) => sameValue(item.value, state.highlightedValue()))
+      if (
+        highlighted &&
+        !state.itemDisabled(highlighted) &&
+        state.value().some((value) => sameValue(value, highlighted.value))
+      ) {
+        event.preventDefault()
+      }
     }
 
     return (
@@ -211,7 +267,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               event.pointerType !== 'pen'
             ) {
               event.preventDefault()
-              focusInput()
+              focusControl()
             }
           }}
           onClick={(event) => {
@@ -221,7 +277,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               !state.locked() &&
               (local.openOnControlClick ?? !editable())
             ) {
-              focusInput()
+              focusControl()
               state.setOpen(true)
             }
           }}
@@ -250,52 +306,34 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 +{tags.overflow()}
               </span>
             </Show>
-            <input
-              {...inputBinding.binding}
-              {...state.field.ariaAttrs()}
-              data-slot="input"
-              data-duplicate={isDuplicate() ? '' : undefined}
-              {...styles.styles.input}
-              placeholder={tags.tags().length ? '' : local.placeholder}
-              ref={(element) => {
-                inputBinding.binding.ref(element)
-                callRef(local.inputRef, element)
-              }}
-              onPaste={(event) => tags.onPaste(event, inputBinding.composing())}
-              onKeyDown={(event) => {
-                if (inputBinding.composing() || event.isComposing || state.locked()) {
-                  return
-                }
-                if (tags.onInputKeyDown(event, search.query())) {
-                  return
-                }
-                if (event.key === 'Enter') {
-                  if (isDuplicate()) {
-                    event.preventDefault()
-                    return
-                  }
-                  if (state.open()) {
-                    const highlighted = state
-                      .items()
-                      .find((item) => sameValue(item.value, state.highlightedValue()))
-                    if (highlighted && !state.itemDisabled(highlighted)) {
-                      if (state.value().some((value) => sameValue(value, highlighted.value))) {
-                        event.preventDefault()
-                        return
-                      }
-                      inputBinding.binding.onKeyDown(event)
-                      return
-                    }
-                  }
-                  if (editable() && search.query()) {
-                    event.preventDefault()
-                    create()
-                    return
-                  }
-                }
-                inputBinding.binding.onKeyDown(event)
-              }}
-            />
+            <Show
+              when={editable()}
+              fallback={
+                <Show when={tags.tags().length === 0 && local.placeholder}>
+                  <span
+                    data-slot="placeholder"
+                    class="text-muted-foreground/70 py-0.5 flex-1 min-w-12"
+                  >
+                    {local.placeholder}
+                  </span>
+                </Show>
+              }
+            >
+              <input
+                {...inputBinding.binding}
+                {...state.field.ariaAttrs()}
+                data-slot="input"
+                data-duplicate={isDuplicate() ? '' : undefined}
+                {...styles.styles.input}
+                placeholder={tags.tags().length ? '' : local.placeholder}
+                ref={(element) => {
+                  inputBinding.binding.ref(element)
+                  callRef(local.inputRef, element)
+                }}
+                onPaste={(event) => tags.onPaste(event, inputBinding.composing())}
+                onKeyDown={onEditableInputKeyDown}
+              />
+            </Show>
           </div>
           <Show when={local.allowClear && (tags.tags().length > 0 || Boolean(search.query()))}>
             <button
@@ -314,37 +352,69 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               <Icon name={local.closeIcon ?? 'icon-close'} />
             </button>
           </Show>
-          <button
-            type="button"
-            tabIndex={-1}
-            data-slot="trigger"
-            aria-label={local.loading ? 'Loading' : 'Toggle options'}
-            aria-controls={state.listboxId()}
-            aria-expanded={state.open() ? 'true' : 'false'}
-            aria-busy={local.loading ? 'true' : undefined}
-            data-loading={local.loading ? '' : undefined}
-            disabled={state.field.disabled() || Boolean(local.loading)}
-            {...styles.styles.trigger}
-            onPointerDown={(event) => {
-              event.preventDefault()
-              event.stopPropagation()
-              focusInput()
-            }}
-            onClick={(event) => {
-              event.stopPropagation()
-              state.setOpen(!state.open())
-            }}
+          <Show
+            when={editable()}
+            fallback={
+              <BaseSelect.Trigger<'button', T>
+                aria-busy={local.loading ? 'true' : undefined}
+                data-loading={local.loading ? '' : undefined}
+                disabled={Boolean(local.loading)}
+                {...styles.styles.trigger}
+                onKeyDown={onNonEditableTriggerKeyDown}
+                onClick={(event) => event.stopPropagation()}
+              >
+                <span class="sr-only">
+                  {tags.tags().length
+                    ? tags
+                        .tags()
+                        .map((tag) => tag.title)
+                        .join(', ')
+                    : (local.placeholder ?? 'Select options')}
+                </span>
+                <Icon
+                  name={
+                    local.loading
+                      ? (local.loadingIcon ?? 'icon-loading')
+                      : (local.trailingIcon ?? 'icon-chevron-down')
+                  }
+                  data-loading={local.loading ? '' : undefined}
+                  class={SELECT_LOADING_ICON_CLASS}
+                />
+              </BaseSelect.Trigger>
+            }
           >
-            <Icon
-              name={
-                local.loading
-                  ? (local.loadingIcon ?? 'icon-loading')
-                  : (local.trailingIcon ?? 'icon-chevron-down')
-              }
+            <button
+              type="button"
+              tabIndex={-1}
+              data-slot="trigger"
+              aria-label={local.loading ? 'Loading' : 'Toggle options'}
+              aria-controls={state.listboxId()}
+              aria-expanded={state.open() ? 'true' : 'false'}
+              aria-busy={local.loading ? 'true' : undefined}
               data-loading={local.loading ? '' : undefined}
-              class={SELECT_LOADING_ICON_CLASS}
-            />
-          </button>
+              disabled={state.field.disabled() || Boolean(local.loading)}
+              {...styles.styles.trigger}
+              onPointerDown={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
+                focusControl()
+              }}
+              onClick={(event) => {
+                event.stopPropagation()
+                state.setOpen(!state.open())
+              }}
+            >
+              <Icon
+                name={
+                  local.loading
+                    ? (local.loadingIcon ?? 'icon-loading')
+                    : (local.trailingIcon ?? 'icon-chevron-down')
+                }
+                data-loading={local.loading ? '' : undefined}
+                class={SELECT_LOADING_ICON_CLASS}
+              />
+            </button>
+          </Show>
         </BaseSelect.Control>
         <DefaultSelectContent
           {...local}

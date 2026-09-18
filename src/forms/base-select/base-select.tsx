@@ -523,6 +523,7 @@ function BaseSelectTrigger<
       id={state.field.id()}
       role="combobox"
       data-slot="trigger"
+      data-invalid={state.field.invalid() ? '' : undefined}
       aria-haspopup="listbox"
       aria-controls={state.listboxId()}
       aria-expanded={state.open() ? 'true' : 'false'}
