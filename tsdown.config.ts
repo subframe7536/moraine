@@ -46,8 +46,10 @@ export default defineConfig([
       unocss({
         generateCSS: true,
         fileName: 'icon.css',
-        filter: { id: /[\\/]src[\\/]theme[\\/]style[\\/]icons\.ts$/ },
         config: {
+          content: {
+            pipeline: false,
+          },
           configFile: false,
           presets: [
             presetIcons({

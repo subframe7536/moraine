@@ -21,7 +21,7 @@ export default defineConfig<PresetWind4Theme>({
   transformers: [transformerVariantGroup()],
   content: {
     pipeline: {
-      include: ['**/*.tsx', '**/*.class.ts', 'node_modules/**/*.*'],
+      include: ['**/*.tsx', '**/*.recipe.ts', '**/*.class.ts', 'node_modules/**/*.*'],
     },
   },
 })

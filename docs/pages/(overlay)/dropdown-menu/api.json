@@ -533,7 +533,7 @@
           {
             "name": "size",
             "required": false,
-            "type": "\"sm\" | \"md\" | \"lg\" | undefined",
+            "type": "NonNullable<\"sm\" | \"md\" | \"lg\" | undefined> | ComponentSize | undefined",
             "description": "Menu item size variant.",
             "defaultValue": "md"
           },
