@@ -1,7 +1,7 @@
 import { INPUT_VARIANT, TEXT_SIZE_VARIANT } from '../../../shared/recipe-common.class.ts'
 
 export const FIELD_CONTROL_CLASS =
-  'text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] items-center data-editable:focus-within:(outline-none border-ring ring-3 ring-ring/50) data-editable:focus-within:data-invalid:(border-destructive ring-destructive/20) data-invalid:(border-destructive ring-3 ring-destructive/20) data-disabled:(opacity-64 pointer-events-none) dark:data-editable:focus-within:data-invalid:(border-destructive/50 ring-destructive/40) dark:data-invalid:(border-destructive/50 ring-destructive/40)'
+  'relative text-foreground outline-none rounded-md flex gap-1.5 w-full transition-[colors,box-shadow] items-center data-editable:focus-within:(outline-none border-ring ring-3 ring-ring/50) data-editable:focus-within:data-invalid:(border-destructive ring-destructive/20) data-invalid:(border-destructive ring-3 ring-destructive/20) data-disabled:(opacity-64 pointer-events-none) dark:data-editable:focus-within:data-invalid:(border-destructive/50 ring-destructive/40) dark:data-invalid:(border-destructive/50 ring-destructive/40)'
 
 export const FIELD_INPUT_CLASS =
   'outline-none bg-transparent flex-1 w-full disabled:(opacity-64 pointer-events-none) read-only:cursor-pointer'
@@ -46,6 +46,13 @@ export const FIELD_VARIANTS = {
   none: { control: INPUT_VARIANT.none },
 } as const
 
+export const SELECT_TRIGGER_FIELD_VARIANTS = {
+  outline: { ...FIELD_VARIANTS.outline, trigger: SELECT_TRIGGER_FOCUS_CLASS },
+  subtle: { ...FIELD_VARIANTS.subtle, trigger: SELECT_TRIGGER_FOCUS_CLASS },
+  ghost: { ...FIELD_VARIANTS.ghost, trigger: SELECT_TRIGGER_FOCUS_CLASS },
+  none: FIELD_VARIANTS.none,
+} as const
+
 export const FIELD_SIZES = {
   sm: {
     control: `${TEXT_SIZE_VARIANT.sm} pe-1.5 ps-2`,
@@ -64,7 +71,7 @@ export const FIELD_SIZES = {
   },
 } as const
 
-export const TAG_FIELD_CONTROL_CLASS = `${FIELD_CONTROL_CLASS} relative data-tags:ps-1`
+export const TAG_FIELD_CONTROL_CLASS = `${FIELD_CONTROL_CLASS} data-tags:ps-1`
 export const TAG_FIELD_INPUT_CLASS = `${FIELD_INPUT_CLASS} min-w-12 py-0.5 data-duplicate:text-destructive`
 
 export const TAG_SLOTS = {
@@ -76,7 +83,22 @@ export const TAG_SLOTS = {
 } as const
 
 export const TAG_SIZES = {
-  sm: { ...FIELD_SIZES.sm, tagsContainer: TEXT_SIZE_VARIANT.sm, tag: TEXT_SIZE_VARIANT.sm },
-  md: { ...FIELD_SIZES.md, tagsContainer: TEXT_SIZE_VARIANT.md, tag: TEXT_SIZE_VARIANT.md },
-  lg: { ...FIELD_SIZES.lg, tagsContainer: TEXT_SIZE_VARIANT.lg, tag: TEXT_SIZE_VARIANT.lg },
+  sm: {
+    ...FIELD_SIZES.sm,
+    tagsContainer: TEXT_SIZE_VARIANT.sm,
+    tag: TEXT_SIZE_VARIANT.sm,
+    tagOverflow: TEXT_SIZE_VARIANT.sm,
+  },
+  md: {
+    ...FIELD_SIZES.md,
+    tagsContainer: TEXT_SIZE_VARIANT.md,
+    tag: TEXT_SIZE_VARIANT.md,
+    tagOverflow: TEXT_SIZE_VARIANT.md,
+  },
+  lg: {
+    ...FIELD_SIZES.lg,
+    tagsContainer: TEXT_SIZE_VARIANT.lg,
+    tag: TEXT_SIZE_VARIANT.lg,
+    tagOverflow: TEXT_SIZE_VARIANT.lg,
+  },
 } as const

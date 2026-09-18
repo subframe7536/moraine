@@ -309,14 +309,14 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             <Show
               when={editable()}
               fallback={
-                tags.tags().length === 0 && local.placeholder ? (
+                <Show when={tags.tags().length === 0 && local.placeholder}>
                   <span
                     data-slot="placeholder"
                     class="text-muted-foreground/70 py-0.5 flex-1 min-w-12"
                   >
                     {local.placeholder}
                   </span>
-                ) : undefined
+                </Show>
               }
             >
               <input

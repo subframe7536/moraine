@@ -1,10 +1,8 @@
-import { TEXT_SIZE_VARIANT } from '../../shared/recipe-common.class.ts'
 import { defineRecipe } from '../../theme/style/recipe.ts'
 import {
-  SELECT_FAMILY_SLOTS,
-  FIELD_VARIANTS,
   SECONDARY_TRIGGER_CLASS,
-  SELECT_TRIGGER_FOCUS_CLASS,
+  SELECT_FAMILY_SLOTS,
+  SELECT_TRIGGER_FIELD_VARIANTS,
   TAG_FIELD_CONTROL_CLASS,
   TAG_FIELD_INPUT_CLASS,
   TAG_SIZES,
@@ -12,13 +10,6 @@ import {
 } from '../shared/select/select-field.class.ts'
 
 import type { MultiSelectStyleSlot, MultiSelectStyleVariant } from './multi-select.style-types'
-
-const MULTI_SELECT_VARIANTS = {
-  outline: { ...FIELD_VARIANTS.outline, trigger: SELECT_TRIGGER_FOCUS_CLASS },
-  subtle: { ...FIELD_VARIANTS.subtle, trigger: SELECT_TRIGGER_FOCUS_CLASS },
-  ghost: { ...FIELD_VARIANTS.ghost, trigger: SELECT_TRIGGER_FOCUS_CLASS },
-  none: FIELD_VARIANTS.none,
-} as const
 
 export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<
   MultiSelectStyleSlot,
@@ -34,11 +25,7 @@ export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<
   },
   defaultVariants: { variant: 'outline', size: 'md' },
   variants: {
-    variant: MULTI_SELECT_VARIANTS,
-    size: {
-      sm: { ...TAG_SIZES.sm, tagOverflow: TEXT_SIZE_VARIANT.sm },
-      md: { ...TAG_SIZES.md, tagOverflow: TEXT_SIZE_VARIANT.md },
-      lg: { ...TAG_SIZES.lg, tagOverflow: TEXT_SIZE_VARIANT.lg },
-    },
+    variant: SELECT_TRIGGER_FIELD_VARIANTS,
+    size: TAG_SIZES,
   },
 })
