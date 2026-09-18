@@ -94,7 +94,9 @@ describe('SidebarFrame', () => {
     expect(screen.getByText('Navigation')).toBeTruthy()
     expect(screen.getByText('Footer')).toBeTruthy()
     expect(screen.container.querySelector('[data-slot="root"]')?.className).toContain('flex')
-    expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain('w-64')
+    const sidebarClass = screen.container.querySelector('[data-slot="sidebar"]')?.className
+    expect(sidebarClass).toContain('w-64')
+    expect(sidebarClass).toContain('min-size-0')
     expect(screen.container.querySelector('[data-slot="main"]')?.className).toContain('flex-1')
   })
 
@@ -150,6 +152,18 @@ describe('SidebarFrame', () => {
     )
     fireEvent.click(screen.getByText('Toggle'))
     await waitFor(() => expect(document.body.textContent).toContain('Navigation'))
+  })
+
+  test('ignores matchMedia updates when isMobile is controlled', async () => {
+    window.matchMedia = createMatchMediaMock(true)
+    const screen = render(() => (
+      <SidebarFrame isMobile={false}>
+        <FrameContent />
+      </SidebarFrame>
+    ))
+
+    expect(screen.container.querySelector('[data-slot="sidebar"]')).toHaveProperty('hidden', false)
+    expect(screen.getByText('Navigation')).toBeTruthy()
   })
 
   test('toggles desktop visibility and updates scroll state', () => {

@@ -9,11 +9,11 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
   base: {
     root: 'flex h-screen max-h-full min-h-0 overflow-hidden',
     sidebar:
-      'opacity-100 flex flex-col h-full min-h-0 translate-x-0 transition-[width,opacity,transform] overflow-hidden data-closed:(opacity-0 w-0 pointer-events-none) motion-reduce:transition-none [[data-frame-resizable]_&]:border-0! [&:not([data-mobile])]:(shrink-0 max-w-[45%] w-64)',
+      'opacity-100 flex flex-col h-full min-size-0 translate-x-0 transition-[width,opacity,transform] overflow-hidden data-closed:(opacity-0 w-0 pointer-events-none) motion-reduce:transition-none [[data-frame-resizable]_&]:border-0! w-64 shrink-0 max-w-[45%] data-mobile:(w-full max-w-none shrink)',
     sidebarHeader: 'flex gap-2 p-2',
     sidebarBody: 'flex-1 min-h-0 overflow-y-auto',
     sidebarFooter: 'flex gap-2 p-2',
-    main: 'flex-1 h-full min-h-0 min-w-0 overflow-y-auto',
+    main: 'flex-1 h-full min-h-0 min-w-0 overflow-y-auto bg-background',
   },
   defaultVariants: {
     side: 'left',
@@ -31,25 +31,27 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
       },
     },
     variant: {
-      default: {},
+      default: {
+        root: 'bg-card',
+      },
       floating: {
-        root: 'p-2 gap-2',
-        sidebar: 'border border-border/80 rounded-lg bg-card shadow-sm overflow-hidden',
+        root: 'p-2',
+        sidebar: 'bg-card border border-border/80 rounded-lg shadow-sm overflow-hidden',
       },
       inset: {
-        root: 'p-2 gap-2',
-        main: 'rounded-xl bg-background shadow-sm',
+        root: 'bg-card p-2',
+        main: 'rounded-xl border border-border/80 shadow-sm',
       },
     },
   },
   compoundVariants: [
     {
       variants: { variant: 'default', side: 'left' },
-      sidebar: '[&:not([data-mobile])]:(border-r border-border)',
+      sidebar: 'border-r border-border data-mobile:border-0',
     },
     {
       variants: { variant: 'default', side: 'right' },
-      sidebar: '[&:not([data-mobile])]:(border-l border-border)',
+      sidebar: 'border-l border-border data-mobile:border-0',
     },
   ],
 })
