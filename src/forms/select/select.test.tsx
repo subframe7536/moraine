@@ -283,26 +283,16 @@ describe('Select', () => {
     expect(getInput(form)).toEqual({ choice: null })
   })
 
-  test('shows the control focus ring for keyboard focus but not pointer focus', () => {
+  test('keeps keyboard focus styling on the trigger without parent focus state', () => {
     const screen = render(() => <Select items={ITEMS} />)
     const control = screen.container.querySelector('[data-slot="control"]')!
     const trigger = screen.getByRole('combobox')
-    const nativeMatches = trigger.matches.bind(trigger)
-    const matches = vi.spyOn(trigger, 'matches').mockImplementation((selector) =>
-      selector === ':focus-visible' ? true : nativeMatches(selector),
-    )
+
+    expect(trigger.tagName).toBe('BUTTON')
+    expect(trigger.className).toContain('focus-visible:after:')
+    expect(control.hasAttribute('data-focus-visible')).toBe(false)
 
     trigger.focus()
     expect(document.activeElement).toBe(trigger)
-    expect(control.hasAttribute('data-focus-visible')).toBe(true)
-
-    trigger.blur()
-    expect(control.hasAttribute('data-focus-visible')).toBe(false)
-
-    fireEvent.pointerDown(trigger, { pointerType: 'mouse' })
-    expect(document.activeElement).toBe(trigger)
-    expect(control.hasAttribute('data-focus-visible')).toBe(false)
-
-    matches.mockRestore()
   })
 })

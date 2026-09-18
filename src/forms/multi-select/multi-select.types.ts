@@ -146,7 +146,7 @@ export namespace MultiSelectT {
      * @default false
      */
     search?: boolean
-    /** Optional inner input element ref. */
+    /** Optional editable inner input element ref. Not assigned in non-editable mode. */
     inputRef?: Ref<HTMLInputElement>
   }
 

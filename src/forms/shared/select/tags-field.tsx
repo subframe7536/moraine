@@ -18,7 +18,7 @@ export interface TagsFieldOptions<TValue> {
   values: Accessor<readonly TValue[]>
   resolve: (value: TValue) => TagsFieldEntry<TValue>
   change: (values: TValue[]) => void
-  getInput: Accessor<HTMLInputElement | undefined>
+  getFocusOwner: Accessor<HTMLElement | undefined>
   maxVisible?: Accessor<number | undefined>
   query: Accessor<string>
   setQuery: (value: string) => string
@@ -50,7 +50,7 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
     }
     options.change(options.values().filter((_, valueIndex) => valueIndex !== index))
     if (restoreInputFocus) {
-      options.getInput()?.focus()
+      options.getFocusOwner()?.focus()
     }
     return true
   }
@@ -62,10 +62,10 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
         return
       }
     }
-    options.getInput()?.focus()
+    options.getFocusOwner()?.focus()
   }
 
-  function onInputKeyDown(event: KeyboardEvent, inputValue: string): boolean {
+  function onFocusOwnerKeyDown(event: KeyboardEvent, inputValue: string): boolean {
     if (event.key === 'Backspace' && !inputValue) {
       for (let index = tags().length - 1; index >= 0; index -= 1) {
         if (remove(index)) {
@@ -74,9 +74,12 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
         }
       }
     }
-    if (event.key === 'ArrowLeft' && event.currentTarget instanceof HTMLInputElement) {
-      const input = event.currentTarget
-      if (input.selectionStart === 0 && input.selectionEnd === 0) {
+    if (event.key === 'ArrowLeft') {
+      const target = event.currentTarget
+      const atStart =
+        !(target instanceof HTMLInputElement) ||
+        (target.selectionStart === 0 && target.selectionEnd === 0)
+      if (atStart) {
         for (let index = tags().length - 1; index >= 0; index -= 1) {
           if (tags()[index]?.removable && removeButtons[index]) {
             event.preventDefault()
@@ -108,7 +111,7 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
   function isolatePointer(event: PointerEvent): void {
     event.preventDefault()
     event.stopPropagation()
-    options.getInput()?.focus()
+    options.getFocusOwner()?.focus()
   }
 
   function nextSeparator(text: string, deferAmbiguousEnd: boolean) {
@@ -203,7 +206,7 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
     visible,
     overflow: () => tags().length - visible().length,
     remove,
-    onInputKeyDown,
+    onFocusOwnerKeyDown,
     onRemoveKeyDown,
     isolatePointer,
     tokenize,

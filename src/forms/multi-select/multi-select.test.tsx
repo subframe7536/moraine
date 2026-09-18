@@ -21,21 +21,23 @@ const ITEMS: MultiSelectT.Item[] = [
 ]
 
 describe('MultiSelect', () => {
-  test('keeps stable control/tag/input/trigger anatomy and one physical input', () => {
+  test('uses a select-only focus surface without a physical input when non-editable', () => {
     const screen = render(() => <MultiSelect items={ITEMS} defaultValue={['apple']} />)
     const control = screen.container.querySelector('[data-slot="control"]')!
-    expect(control.querySelectorAll('input[data-slot="input"]')).toHaveLength(1)
+    const focus = screen.getByRole('combobox')
+
+    expect(focus.tagName).toBe('DIV')
+    expect(focus.getAttribute('data-slot')).toBe('focus')
+    expect(control.querySelectorAll('input[data-slot="input"]')).toHaveLength(0)
     expect(control.querySelector('[data-slot="tagsContainer"]')).toBeTruthy()
     expect(control.querySelector('[data-slot="tag"]')?.textContent).toContain('Apple')
     expect(screen.getByRole('button', { name: 'Toggle options' }).tabIndex).toBe(-1)
   })
 
-  test('uses a read-only focus owner in non-editable mode with typeahead navigation', () => {
+  test('keeps typeahead navigation on the non-editable focus surface', () => {
     const screen = render(() => <MultiSelect items={ITEMS} defaultSearchValue="hidden" />)
-    const input = screen.getByRole('combobox') as HTMLInputElement
-    expect(input.readOnly).toBe(true)
-    expect(input.value).toBe('')
-    fireEvent.keyDown(input, { key: 'b' })
+    const focus = screen.getByRole('combobox')
+    fireEvent.keyDown(focus, { key: 'b' })
     expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe('Banana')
   })
 
@@ -373,25 +375,29 @@ describe('MultiSelect', () => {
     expect(document.activeElement).toBe(screen.getByRole('combobox'))
 
     const keyboard = render(() => <MultiSelect items={ITEMS} defaultValue={['apple', 'banana']} />)
-    const input = keyboard.getByRole('combobox') as HTMLInputElement
-    input.focus()
-    input.setSelectionRange(0, 0)
-    fireEvent.keyDown(input, { key: 'ArrowLeft' })
+    const focus = keyboard.getByRole('combobox')
+    focus.focus()
+    fireEvent.keyDown(focus, { key: 'ArrowLeft' })
     const banana = keyboard.getByRole('button', { name: 'Remove Banana' })
     expect(document.activeElement).toBe(banana)
     fireEvent.keyDown(banana, { key: 'Backspace' })
     await Promise.resolve()
     expect(document.activeElement).toBe(keyboard.getByRole('button', { name: 'Remove Apple' }))
-    input.focus()
-    fireEvent.keyDown(input, { key: 'Backspace' })
+    focus.focus()
+    fireEvent.keyDown(focus, { key: 'Backspace' })
     expect(keyboard.queryByRole('button', { name: 'Remove Apple' })).toBeNull()
   })
 
-  test('hides the placeholder after a tag is committed', () => {
-    const screen = render(() => (
+  test('renders a non-editable placeholder and hides it after a tag is committed', () => {
+    const empty = render(() => <MultiSelect items={ITEMS} placeholder="Choose fruit" />)
+    expect(empty.container.querySelector('[data-slot="placeholder"]')?.textContent).toBe(
+      'Choose fruit',
+    )
+
+    const selected = render(() => (
       <MultiSelect items={ITEMS} placeholder="Choose fruit" defaultValue={['apple']} />
     ))
-    expect(screen.getByRole('combobox').getAttribute('placeholder')).toBe('')
+    expect(selected.container.querySelector('[data-slot="placeholder"]')).toBeNull()
   })
 
   test('serializes created values and restores uncontrolled values on form reset', async () => {
@@ -446,35 +452,28 @@ describe('MultiSelect', () => {
     expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(2)
   })
 
-  test('shows the non-editable control focus ring for keyboard focus but not pointer focus', () => {
+  test('uses direct focus-visible styling on the non-editable focus surface', () => {
     const screen = render(() => <MultiSelect items={ITEMS} />)
     const control = screen.container.querySelector('[data-slot="control"]')!
-    const input = screen.getByRole('combobox')
-    const nativeMatches = input.matches.bind(input)
-    const matches = vi.spyOn(input, 'matches').mockImplementation((selector) =>
-      selector === ':focus-visible' ? true : nativeMatches(selector),
-    )
+    const focus = screen.getByRole('combobox')
 
     expect(control.hasAttribute('data-editable')).toBe(false)
-
-    input.focus()
-    expect(document.activeElement).toBe(input)
-    expect(control.hasAttribute('data-focus-visible')).toBe(true)
-
-    input.blur()
-    expect(control.hasAttribute('data-focus-visible')).toBe(false)
+    expect(focus.getAttribute('data-slot')).toBe('focus')
+    expect(focus.className).toContain('focus-visible:')
+    expect(control.querySelector('input[data-slot="input"]')).toBeNull()
 
     fireEvent.pointerDown(control, { pointerType: 'mouse' })
-    expect(document.activeElement).toBe(input)
-    expect(control.hasAttribute('data-focus-visible')).toBe(false)
-
-    matches.mockRestore()
+    expect(document.activeElement).toBe(focus)
   })
 
   test('keeps editable MultiSelect on the existing focus-within path', () => {
     const screen = render(() => <MultiSelect items={ITEMS} search />)
     const control = screen.container.querySelector('[data-slot="control"]')!
+    const input = screen.getByRole('combobox')
+
     expect(control.hasAttribute('data-editable')).toBe(true)
+    expect(input.tagName).toBe('INPUT')
+    expect(control.querySelectorAll('input[data-slot="input"]')).toHaveLength(1)
   })
 
   test('pressing Enter on a duplicate tag does not delete previously created tag', () => {
@@ -499,7 +498,7 @@ describe('MultiSelect', () => {
   test('pressing Enter on a duplicate item from items collection does not delete the tag', () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect items={ITEMS} defaultValue={['apple']} onChange={onChange} />
+      <MultiSelect search items={ITEMS} defaultValue={['apple']} onChange={onChange} />
     ))
     const input = screen.getByRole('combobox')
     fireEvent.input(input, { target: { value: 'apple' } })
@@ -527,7 +526,7 @@ describe('MultiSelect', () => {
   test('pressing Enter on a highlighted already-selected option does not deselect it', () => {
     const onChange = vi.fn()
     const screen = render(() => (
-      <MultiSelect items={ITEMS} defaultValue={['apple']} onChange={onChange} defaultOpen />
+      <MultiSelect search items={ITEMS} defaultValue={['apple']} onChange={onChange} defaultOpen />
     ))
     const input = screen.getByRole('combobox')
     // 'app' matches 'apple', which is already selected

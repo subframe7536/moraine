@@ -427,24 +427,7 @@ export function BaseSelect<T extends BaseSelectT.Item = BaseSelectT.Item>(
 function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
   const state = useSelectState()
   const cn = useCn()
-  const [focusVisible, setFocusVisible] = createSignal(false)
-  const [local, rest] = splitProps(props, [
-    'children',
-    'class',
-    'style',
-    'ref',
-    'onFocusIn',
-    'onFocusOut',
-  ])
-  let pointerActive = false
-
-  function markPointerActive(): void {
-    pointerActive = true
-    queueMicrotask(() => {
-      pointerActive = false
-    })
-  }
-
+  const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
   return (
     <div
       {...rest}
@@ -453,26 +436,10 @@ function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
       data-readonly={state.field.readOnly() ? '' : undefined}
       data-required={state.field.required() ? '' : undefined}
       data-invalid={state.field.invalid() ? '' : undefined}
-      data-focus-visible={focusVisible() ? '' : undefined}
-      onFocusIn={(event) => {
-        callHandler(event, local.onFocusIn)
-        const target = event.target
-        setFocusVisible(
-          !pointerActive && target instanceof Element && target.matches(':focus-visible'),
-        )
-      }}
-      onFocusOut={(event) => {
-        callHandler(event, local.onFocusOut)
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-          setFocusVisible(false)
-        }
-      }}
       ref={(element) => {
         state.setAnchor(element)
-        element.addEventListener('pointerdown', markPointerActive, true)
         callRef(local.ref, element)
         onCleanup(() => {
-          element.removeEventListener('pointerdown', markPointerActive, true)
           if (state.anchor() === element) {
             state.setAnchor(undefined)
           }
@@ -556,6 +523,7 @@ function BaseSelectTrigger<
       id={state.field.id()}
       role="combobox"
       data-slot="trigger"
+      data-invalid={state.field.invalid() ? '' : undefined}
       aria-haspopup="listbox"
       aria-controls={state.listboxId()}
       aria-expanded={state.open() ? 'true' : 'false'}

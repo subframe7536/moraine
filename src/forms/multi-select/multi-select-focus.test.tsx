@@ -14,7 +14,7 @@ const ITEMS: MultiSelectT.Item[] = [
   { label: 'Banana', value: 'banana' },
 ]
 
-test('secondary trigger restores the non-editable combobox focus owner', () => {
+test('secondary trigger restores the non-editable focus surface', () => {
   const screen = render(() => (
     <>
       <button type="button">Outside</button>
@@ -22,7 +22,7 @@ test('secondary trigger restores the non-editable combobox focus owner', () => {
     </>
   ))
   const outside = screen.getByRole('button', { name: 'Outside' })
-  const input = screen.getByRole('combobox')
+  const focus = screen.getByRole('combobox')
   const trigger = screen.getByRole('button', { name: 'Toggle options' })
 
   outside.focus()
@@ -31,8 +31,8 @@ test('secondary trigger restores the non-editable combobox focus owner', () => {
   fireEvent.pointerDown(trigger, { pointerType: 'mouse' })
   fireEvent.click(trigger)
 
-  expect(document.activeElement).toBe(input)
-  expect(input.getAttribute('aria-expanded')).toBe('true')
+  expect(document.activeElement).toBe(focus)
+  expect(focus.getAttribute('aria-expanded')).toBe('true')
 
   fireEvent.keyDown(document.activeElement!, { key: 'b' })
   fireEvent.keyDown(document.activeElement!, { key: 'Enter' })

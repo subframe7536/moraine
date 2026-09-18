@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createMemo, createSignal, For, Show, splitProps } from 'solid-js'
+import { createMemo, createSignal, For, onCleanup, Show, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon/index.ts'
 import { createStyles } from '../../provider/index.ts'
@@ -21,7 +21,11 @@ import {
   MULTI_SELECT_LOCAL_PROP_KEYS,
 } from '../shared/select/props.ts'
 import { useComboboxSearch } from '../shared/select/search.ts'
-import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
+import {
+  SELECT_FOCUS_SURFACE_BASE_CLASS,
+  SELECT_FOCUS_SURFACE_CLASS,
+  SELECT_LOADING_ICON_CLASS,
+} from '../shared/select/select-field.class.ts'
 import { createTagsField } from '../shared/select/tags-field.tsx'
 
 import { multiSelectRecipe } from './multi-select.recipe'
@@ -129,7 +133,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
     const tags = createTagsField<Value>({
       values: state.value,
       change: state.change,
-      getInput: () => state.focusOwner() as HTMLInputElement | undefined,
+      getFocusOwner: state.focusOwner,
       maxVisible: () => local.maxTagCount,
       query: search.query,
       setQuery: search.setQuery,
@@ -175,7 +179,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       return state.value().some((value) => sameValue(value, query))
     }
 
-    function focusInput(): void {
+    function focusControl(): void {
       state.focusOwner()?.focus()
     }
     function clear(): void {
@@ -191,7 +195,41 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       )
       search.setQuery('')
       local.onClear?.()
-      focusInput()
+      focusControl()
+    }
+
+    function onFocusOwnerKeyDown(event: KeyboardEvent): void {
+      if (inputBinding.composing() || event.isComposing || state.locked()) {
+        return
+      }
+      if (tags.onFocusOwnerKeyDown(event, editable() ? search.query() : '')) {
+        return
+      }
+      if (event.key === 'Enter') {
+        if (isDuplicate()) {
+          event.preventDefault()
+          return
+        }
+        if (state.open()) {
+          const highlighted = state
+            .items()
+            .find((item) => sameValue(item.value, state.highlightedValue()))
+          if (highlighted && !state.itemDisabled(highlighted)) {
+            if (state.value().some((value) => sameValue(value, highlighted.value))) {
+              event.preventDefault()
+              return
+            }
+            inputBinding.binding.onKeyDown(event)
+            return
+          }
+        }
+        if (editable() && search.query()) {
+          event.preventDefault()
+          create()
+          return
+        }
+      }
+      inputBinding.binding.onKeyDown(event)
     }
 
     return (
@@ -211,7 +249,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               event.pointerType !== 'pen'
             ) {
               event.preventDefault()
-              focusInput()
+              focusControl()
             }
           }}
           onClick={(event) => {
@@ -221,11 +259,54 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               !state.locked() &&
               (local.openOnControlClick ?? !editable())
             ) {
-              focusInput()
+              focusControl()
               state.setOpen(true)
             }
           }}
         >
+          <Show when={!editable()}>
+            <div
+              {...state.field.ariaAttrs()}
+              id={state.field.id()}
+              role="combobox"
+              tabIndex={state.field.disabled() ? -1 : 0}
+              data-slot="focus"
+              data-invalid={state.field.invalid() ? '' : undefined}
+              aria-haspopup="listbox"
+              aria-controls={state.listboxId()}
+              aria-expanded={state.open() ? 'true' : 'false'}
+              aria-activedescendant={
+                state.open() && state.highlightedValue() !== undefined
+                  ? state.itemId(state.highlightedValue()!)
+                  : undefined
+              }
+              class={
+                styles.variants.variant === 'none'
+                  ? SELECT_FOCUS_SURFACE_BASE_CLASS
+                  : SELECT_FOCUS_SURFACE_CLASS
+              }
+              ref={(element) => {
+                state.setFocusOwner(element)
+                onCleanup(() => {
+                  if (state.focusOwner() === element) {
+                    state.setFocusOwner(undefined)
+                  }
+                })
+              }}
+              onKeyDown={onFocusOwnerKeyDown}
+              onFocus={(event) => state.field.emit('focus', event)}
+              onBlur={(event) => state.field.emit('blur', event)}
+            >
+              <span class="sr-only">
+                {tags.tags().length
+                  ? tags
+                      .tags()
+                      .map((tag) => tag.title)
+                      .join(', ')
+                  : local.placeholder}
+              </span>
+            </div>
+          </Show>
           <Show when={local.leadingIcon}>
             {(icon) => <Icon name={icon()} slotName="leading" {...styles.styles.leading} />}
           </Show>
@@ -250,52 +331,34 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 +{tags.overflow()}
               </span>
             </Show>
-            <input
-              {...inputBinding.binding}
-              {...state.field.ariaAttrs()}
-              data-slot="input"
-              data-duplicate={isDuplicate() ? '' : undefined}
-              {...styles.styles.input}
-              placeholder={tags.tags().length ? '' : local.placeholder}
-              ref={(element) => {
-                inputBinding.binding.ref(element)
-                callRef(local.inputRef, element)
-              }}
-              onPaste={(event) => tags.onPaste(event, inputBinding.composing())}
-              onKeyDown={(event) => {
-                if (inputBinding.composing() || event.isComposing || state.locked()) {
-                  return
-                }
-                if (tags.onInputKeyDown(event, search.query())) {
-                  return
-                }
-                if (event.key === 'Enter') {
-                  if (isDuplicate()) {
-                    event.preventDefault()
-                    return
-                  }
-                  if (state.open()) {
-                    const highlighted = state
-                      .items()
-                      .find((item) => sameValue(item.value, state.highlightedValue()))
-                    if (highlighted && !state.itemDisabled(highlighted)) {
-                      if (state.value().some((value) => sameValue(value, highlighted.value))) {
-                        event.preventDefault()
-                        return
-                      }
-                      inputBinding.binding.onKeyDown(event)
-                      return
-                    }
-                  }
-                  if (editable() && search.query()) {
-                    event.preventDefault()
-                    create()
-                    return
-                  }
-                }
-                inputBinding.binding.onKeyDown(event)
-              }}
-            />
+            <Show
+              when={editable()}
+              fallback={
+                tags.tags().length === 0 && local.placeholder ? (
+                  <span
+                    data-slot="placeholder"
+                    class="text-muted-foreground/70 min-w-12 flex-1 py-0.5"
+                  >
+                    {local.placeholder}
+                  </span>
+                ) : undefined
+              }
+            >
+              <input
+                {...inputBinding.binding}
+                {...state.field.ariaAttrs()}
+                data-slot="input"
+                data-duplicate={isDuplicate() ? '' : undefined}
+                {...styles.styles.input}
+                placeholder={tags.tags().length ? '' : local.placeholder}
+                ref={(element) => {
+                  inputBinding.binding.ref(element)
+                  callRef(local.inputRef, element)
+                }}
+                onPaste={(event) => tags.onPaste(event, inputBinding.composing())}
+                onKeyDown={onFocusOwnerKeyDown}
+              />
+            </Show>
           </div>
           <Show when={local.allowClear && (tags.tags().length > 0 || Boolean(search.query()))}>
             <button
@@ -328,7 +391,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             onPointerDown={(event) => {
               event.preventDefault()
               event.stopPropagation()
-              focusInput()
+              focusControl()
             }}
             onClick={(event) => {
               event.stopPropagation()
