@@ -369,8 +369,21 @@ const divRef = (element: HTMLDivElement) => element.focus()
     <SidebarFrame.SidebarBody>Navigation</SidebarFrame.SidebarBody>
     <SidebarFrame.SidebarFooter>Footer</SidebarFrame.SidebarFooter>
   </SidebarFrame.Sidebar>
-  <SidebarFrame.Main>Main</SidebarFrame.Main>
+  <SidebarFrame.Main>
+    <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+    Main
+  </SidebarFrame.Main>
 </SidebarFrame>
+;<SidebarFrame.Trigger as={Button} variant="ghost" size="sm" leading="i-lucide-menu">
+  Toggle
+</SidebarFrame.Trigger>
+;<SidebarFrame.Trigger as={CustomRoot} required="sidebar">
+  Toggle
+</SidebarFrame.Trigger>
+// @ts-expect-error Required custom component props remain required through `as`.
+;<SidebarFrame.Trigger as={CustomRoot} />
+// @ts-expect-error Invalid Button props remain rejected.
+;<SidebarFrame.Trigger as={Button} variant="invalid" />
 
 const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
 ;<Field label="Email" name="email" description="Standalone field">

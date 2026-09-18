@@ -18,6 +18,7 @@ import { createMediaQuery } from '../../shared/use-media-query'
 import { callHandler } from '../../shared/utils'
 
 import { SidebarFrameProvider, useSidebarFrameContext } from './sidebar-frame-context'
+import { SidebarFrameTrigger } from './sidebar-frame-trigger'
 import { sidebarFrameRecipe } from './sidebar-frame.recipe'
 import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types'
 
@@ -211,3 +212,4 @@ SidebarFrame.SidebarHeader = SidebarFrameSidebarHeader
 SidebarFrame.SidebarBody = SidebarFrameSidebarBody
 SidebarFrame.SidebarFooter = SidebarFrameSidebarFooter
 SidebarFrame.Main = SidebarFrameMain
+SidebarFrame.Trigger = SidebarFrameTrigger

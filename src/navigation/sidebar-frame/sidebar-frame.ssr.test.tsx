@@ -23,6 +23,7 @@ function FixtureContent() {
         </SidebarFrame.SidebarFooter>
       </SidebarFrame.Sidebar>
       <SidebarFrame.Main data-open={frame.isOpen() ? '' : undefined}>
+        <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
         <h1>Main content</h1>
       </SidebarFrame.Main>
     </>
@@ -52,4 +53,8 @@ test('replaces the SSR desktop layout without retaining duplicate mobile content
   )
   expect(container.querySelectorAll('h1')).toHaveLength(1)
   expect(container.querySelector('[data-slot="main"] h1')?.textContent).toBe('Main content')
+  expect(container.querySelectorAll('[data-slot="trigger"]')).toHaveLength(1)
+  expect(container.querySelector('[data-slot="trigger"]')?.getAttribute('aria-expanded')).toBe(
+    'false',
+  )
 })

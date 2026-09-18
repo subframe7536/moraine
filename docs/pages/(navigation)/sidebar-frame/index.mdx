@@ -69,21 +69,36 @@ SidebarFrame
 │   ├── SidebarFrame.SidebarHeader
 │   ├── SidebarFrame.SidebarBody
 │   └── SidebarFrame.SidebarFooter
-└── SidebarFrame.Main
+├── SidebarFrame.Main
+└── SidebarFrame.Trigger
 ```
 
-Call `useSidebarFrame()` from a descendant component to read `isMobile`, `isOpen`, and `scrolled`, or to call `setOpen` and `toggle`. A global application header belongs outside the frame. For desktop resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
+`SidebarFrame.Trigger` can appear anywhere inside `SidebarFrame` to toggle sidebar visibility, without requiring a structural placement inside `SidebarFrame.Main`. Composing with `<SidebarFrame.Trigger as={Button} ... />` is the recommended way to obtain standard Moraine button styling.
+
+Call `useSidebarFrame()` from a descendant component for advanced access to `isMobile`, `isOpen`, `scrolled`, `setOpen`, and `toggle`. A global application header belongs outside the frame. For desktop resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
 
 ## Examples
 
+### Responsive usage
+
 <Preview path="./responsive-usage" />
+
+### Slots and side
 
 <Preview path="./slots-usage" />
 
+### Frame render
+
 <Preview path="./frame-render" />
+
+### Mobile Sheet and desktop Resizable
 
 <Preview path="./sheet-resizable-render" />
 
+### Forced mobile mode
+
 <Preview path="./forced-mobile" />
+
+### Header and footer slots
 
 <Preview path="./header-footer-slots" />
