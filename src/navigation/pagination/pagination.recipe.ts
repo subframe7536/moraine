@@ -9,7 +9,7 @@ export const paginationRecipe = /* @__PURE__ */ defineRecipe<
   base: {
     root: 'mx-auto flex w-full justify-center',
     list: 'flex gap-1 items-center justify-center',
-    listItem: 'flex items-center justify-center data-ellipsis:size-9',
+    listItem: 'flex items-center justify-center',
     item: 'outline-none',
     prev: 'data-text:ps-2!',
     next: 'data-text:pe-2!',
@@ -21,5 +21,21 @@ export const paginationRecipe = /* @__PURE__ */ defineRecipe<
     variant: 'ghost',
     activeVariant: 'outline',
     controlVariant: 'ghost',
+  },
+  variants: {
+    size: {
+      sm: {
+        listItem: 'data-ellipsis:size-7',
+        ellipsis: 'text-sm',
+      },
+      md: {
+        listItem: 'data-ellipsis:size-8',
+        ellipsis: 'text-sm',
+      },
+      lg: {
+        listItem: 'data-ellipsis:size-9',
+        ellipsis: 'text-base',
+      },
+    },
   },
 })

@@ -191,6 +191,28 @@ describe('KbdGroup', () => {
     }
   })
 
+  test.each([
+    ['sm', 'text-[11px]', 'h-4.5'],
+    ['md', 'text-xs', 'h-5'],
+    ['lg', 'text-sm', 'h-5.5'],
+  ] as const)(
+    'applies %s size to group root and propagates resolved size to child keycaps',
+    (size, rootText, itemHeight) => {
+      const view = render(() => (
+        <MoraineProvider>
+          <KbdGroup items={['Ctrl', 'K']} size={size} />
+        </MoraineProvider>
+      ))
+      const root = view.container.querySelector('[data-slot="root"]')
+      const items = view.container.querySelectorAll('[data-slot="item"]')
+
+      expect(root?.className).toContain(rootText)
+      for (const item of items) {
+        expect(item.className).toContain(itemHeight)
+      }
+    },
+  )
+
   test('applies root and item slot customizations', () => {
     const view = render(() => (
       <KbdGroup

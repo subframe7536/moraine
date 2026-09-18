@@ -1255,15 +1255,18 @@ describe('InputNumber', () => {
     expect(screen.getByRole('spinbutton')).toBe(input)
   })
 
-  test('applies size classes', () => {
-    const screen = render(() => <InputNumber size="lg" />)
+  test.each([
+    ['sm', 'h-7', 'text-xs', 'leading-4'],
+    ['md', 'h-8', 'text-sm', 'leading-5'],
+    ['lg', 'h-9', 'text-base', 'leading-6'],
+  ] as const)('applies %s size classes', (size, rootHeight, textClass, leadingClass) => {
+    const screen = render(() => <InputNumber size={size} />)
     const root = screen.container.querySelector('[data-slot="root"]')
     const base = screen.container.querySelector('[data-slot="input"]')
 
-    expect(root?.className).toContain('h-9')
-    expect(base?.className).toContain('text-sm')
-    expect(base?.className).toContain('leading-5')
-    expect(base?.className).toContain('px-3')
+    expect(root?.className).toContain(rootHeight)
+    expect(base?.className).toContain(textClass)
+    expect(base?.className).toContain(leadingClass)
   })
 
   test.each([

@@ -40,7 +40,7 @@ export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
       },
       lg: {
         root: 'text-base rounded-lg h-9',
-        input: 'text-sm leading-5 px-3',
+        input: 'text-base leading-6 px-3',
         increment: 'text-base',
         decrement: 'text-base',
         controls: 'w-10',

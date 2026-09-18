@@ -14,7 +14,7 @@ export const breadcrumbRecipe = /* @__PURE__ */ defineRecipe<
 >('breadcrumb', {
   base: {
     root: 'min-w-0 relative',
-    list: 'text-sm text-muted-foreground flex gap-1.5 break-words items-center',
+    list: 'text-muted-foreground flex gap-1.5 break-words items-center',
     item: 'inline-flex items-center gap-1',
     link: `${BREADCRUMB_LINK_CLASS} ${BREADCRUMB_DISABLED_CLASS}`,
     page: `${BREADCRUMB_PAGE_CLASS} ${BREADCRUMB_DISABLED_CLASS}`,
@@ -29,16 +29,13 @@ export const breadcrumbRecipe = /* @__PURE__ */ defineRecipe<
   variants: {
     size: {
       sm: {
-        link: 'text-xs',
-        page: 'text-xs',
+        list: 'text-xs',
       },
       md: {
-        link: 'text-sm',
-        page: 'text-sm',
+        list: 'text-sm',
       },
       lg: {
-        link: 'text-base',
-        page: 'text-base',
+        list: 'text-base',
       },
     },
     wrap: {

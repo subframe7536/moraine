@@ -1,6 +1,6 @@
 ## Fix
 
-- [ ] metric adjust across all sizes
+- [x] metric adjust across all sizes
 - [ ] sidebar-frame styling is broken, more useful usage and example
 - [ ] correct document page's focus loop
   - [ ] also audit all components

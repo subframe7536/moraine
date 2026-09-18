@@ -29,6 +29,17 @@ import type { BreadcrumbT } from 'moraine'
 <Playground
   controls={[
     { kind: 'input', prop: 'separator', label: 'Separator', defaultValue: 'i-lucide:chevron-right' },
+    {
+      kind: 'select',
+      prop: 'size',
+      label: 'Size',
+      defaultValue: 'md',
+      options: [
+        { label: 'Small', value: 'sm' },
+        { label: 'Medium', value: 'md' },
+        { label: 'Large', value: 'lg' },
+      ],
+    },
     { kind: 'switch', prop: 'wrap', label: 'Wrap items', defaultValue: false },
   ]}
 >
@@ -45,6 +56,7 @@ import type { BreadcrumbT } from 'moraine'
         items={TRAIL_ITEMS}
         separator={props.separator || 'i-lucide:chevron-right'}
         wrap={props.wrap}
+        size={props.size}
       />
     )
 

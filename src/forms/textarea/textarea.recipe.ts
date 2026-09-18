@@ -11,13 +11,13 @@ export const textareaRecipe = /* @__PURE__ */ defineRecipe<
   TextareaStyleSlot,
   TextareaRecipeVariant
 >('textarea', {
-  base: { root: `${TEXT_CONTROL_CLASS} rounded-md resize-y data-autoresize:resize-none` },
+  base: { root: `${TEXT_CONTROL_CLASS} resize-y data-autoresize:resize-none` },
   defaultVariants: { size: 'md', variant: 'outline', grouped: false },
   variants: {
     size: {
-      sm: { root: 'text-xs leading-4 px-1.5 py-1 min-h-14' },
-      md: { root: 'text-sm leading-5 px-2 py-1.5 min-h-16' },
-      lg: { root: 'text-base leading-6 px-2.5 py-2 min-h-18' },
+      sm: { root: 'text-xs rounded-sm leading-4 px-1.5 py-1 min-h-14' },
+      md: { root: 'text-sm rounded-md leading-5 px-2 py-1.5 min-h-16' },
+      lg: { root: 'text-base rounded-lg leading-6 px-2.5 py-2 min-h-18' },
     },
     variant: { outline: {}, subtle: {}, ghost: {}, none: {} },
     grouped: TEXT_CONTROL_GROUPED,

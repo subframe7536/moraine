@@ -25,24 +25,12 @@ export const fieldRecipe = /* @__PURE__ */ defineRecipe<FieldStyleSlot, FieldSty
       size: {
         sm: {
           root: 'text-xs',
-          description: 'text-xs leading-normal',
-          error: 'text-xs leading-normal',
-          hint: 'text-xs',
-          help: 'text-xs leading-normal',
         },
         md: {
           root: 'text-sm',
-          description: 'text-sm leading-normal',
-          error: 'text-sm leading-normal',
-          hint: 'text-sm',
-          help: 'text-sm leading-normal',
         },
         lg: {
           root: 'text-base',
-          description: 'text-base leading-normal',
-          error: 'text-base leading-normal',
-          hint: 'text-base',
-          help: 'text-base leading-normal',
         },
       },
       orientation: {
@@ -63,7 +51,18 @@ export const fieldRecipe = /* @__PURE__ */ defineRecipe<FieldStyleSlot, FieldSty
         label:
           "data-required:before:(text-destructive me-0.5 content-['*']) data-required:after:content-none",
       },
-      { variants: { orientation: 'vertical' }, container: 'data-has-text:mt-1.5' },
+      {
+        variants: { orientation: 'vertical', size: 'sm' },
+        container: 'data-has-text:mt-1.5',
+      },
+      {
+        variants: { orientation: 'vertical', size: 'md' },
+        container: 'data-has-text:mt-2',
+      },
+      {
+        variants: { orientation: 'vertical', size: 'lg' },
+        container: 'data-has-text:mt-2.5',
+      },
     ],
   },
 )

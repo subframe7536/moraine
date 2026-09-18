@@ -339,10 +339,7 @@ describe('Breadcrumb', () => {
       '[data-slot="separator"] [data-slot="icon"]',
     ) as HTMLElement | null
 
-    expect(list?.className).toContain('text-sm')
-    if (textClass) {
-      expect(link?.className).toContain(textClass)
-    }
+    expect(list?.className).toContain(textClass)
     expect(leading?.style.fontSize).toBe('')
     expect(separator?.style.fontSize).toBe('')
   })

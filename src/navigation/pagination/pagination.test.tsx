@@ -431,6 +431,39 @@ describe('Pagination', () => {
     }
   })
 
+  test.each([
+    ['sm', 'data-ellipsis:size-7', 'text-sm'],
+    ['md', 'data-ellipsis:size-8', 'text-sm'],
+    ['lg', 'data-ellipsis:size-9', 'text-base'],
+  ] as const)(
+    'scales ellipsis list item footprint and icon typography for size %s',
+    (size, listItemSize, ellipsisTypography) => {
+      const screen = renderWithTheme(() => (
+        <Pagination
+          size={size}
+          page={5}
+          total={100}
+          itemsPerPage={10}
+          siblingCount={1}
+          showControls={false}
+        />
+      ))
+
+      const ellipsisItems = screen.container.querySelectorAll(
+        'li[data-slot="list-item"][data-ellipsis]',
+      )
+      const ellipsisIcons = screen.container.querySelectorAll('[data-slot="ellipsis"]')
+
+      expect(ellipsisItems.length).toBe(2)
+      for (const item of ellipsisItems) {
+        expect(item.className).toContain(listItemSize)
+      }
+      for (const icon of ellipsisIcons) {
+        expect(icon.className).toContain(ellipsisTypography)
+      }
+    },
+  )
+
   test('does not expose pagination-specific icon/label slots', () => {
     const screen = renderWithTheme(() => <Pagination total={30} itemsPerPage={10} showControls />)
 
