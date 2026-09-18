@@ -267,7 +267,7 @@
           {
             "name": "wrapperRef",
             "required": false,
-            "type": "((element: HTMLDivElement | undefined) => void) | undefined",
+            "type": "((element: HTMLDivElement) => void) | undefined",
             "description": "Ref callback for the outer animated height wrapper element."
           },
           {

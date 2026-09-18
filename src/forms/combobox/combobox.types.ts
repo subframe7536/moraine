@@ -73,7 +73,10 @@ export namespace ComboboxT {
     allowClear?: boolean
     /** Called once when clear is triggered. */
     onClear?: () => void
-    /** Whether ordinary control/input pointer clicks open the popup. @default false */
+    /**
+     * Whether ordinary control/input pointer clicks open the popup.
+     * @default false
+     */
     openOnControlClick?: boolean
     /** Optional inner input element ref. */
     inputRef?: Ref<HTMLInputElement>
@@ -81,9 +84,15 @@ export namespace ComboboxT {
     loadingIcon?: IconT.Name
     /** Leading icon. */
     leadingIcon?: IconT.Name
-    /** Popup toggle icon. @default 'icon-chevron-down' */
+    /**
+     * Popup toggle icon.
+     * @default 'icon-chevron-down'
+     */
     trailingIcon?: IconT.Name
-    /** Clear icon. @default 'icon-close' */
+    /**
+     * Clear icon.
+     * @default 'icon-close'
+     */
     closeIcon?: IconT.Name
   }
   export type Props<TItem extends Item = Item> = BaseProps<

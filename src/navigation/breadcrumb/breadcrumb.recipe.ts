@@ -53,4 +53,4 @@ export const breadcrumbRecipe = /* @__PURE__ */ defineRecipe<
       },
     },
   },
-} as const)
+})

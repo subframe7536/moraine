@@ -2,8 +2,6 @@ import { defineRecipe } from '../../theme/style/recipe'
 
 import type { PaginationStyleSlot, PaginationStyleVariant } from './pagination.style-types'
 
-export const PAGINATION_CONTROL_LABEL_CLASS = 'hidden sm:block'
-
 export const paginationRecipe = /* @__PURE__ */ defineRecipe<
   PaginationStyleSlot,
   PaginationStyleVariant
@@ -16,7 +14,7 @@ export const paginationRecipe = /* @__PURE__ */ defineRecipe<
     prev: 'data-text:ps-2!',
     next: 'data-text:pe-2!',
     ellipsis: '',
-    controlLabel: PAGINATION_CONTROL_LABEL_CLASS,
+    controlLabel: 'hidden sm:block',
   },
   defaultVariants: {
     size: 'md',
@@ -24,4 +22,4 @@ export const paginationRecipe = /* @__PURE__ */ defineRecipe<
     activeVariant: 'outline',
     controlVariant: 'ghost',
   },
-} as const)
+})

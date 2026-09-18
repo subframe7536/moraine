@@ -33,4 +33,4 @@ export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<
       lg: { ...TAG_SIZES.lg, tagOverflow: TEXT_SIZE_VARIANT.lg },
     },
   },
-} as const)
+})

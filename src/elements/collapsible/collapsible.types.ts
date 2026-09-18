@@ -46,18 +46,30 @@ export namespace CollapsibleT {
   >
 
   export type ContentBase<T extends ValidComponent = 'div'> = {
-    /** Element or component to render inner content as. @default 'div' */
+    /**
+     * Element or component to render inner content as.
+     * @default 'div'
+     */
     as?: T
-    /** Whether to unmount content when closed. @default true */
+
+    /**
+     * Whether to unmount content when closed.
+     * @default true
+     */
     unmountOnHide?: boolean
+
     /** Force mounting the content in the DOM even when closed. @default false */
     forceMount?: boolean
+
     /** Additional class applied to the outer animated height wrapper. */
     wrapperClass?: string
+
     /** Additional style applied to the outer animated height wrapper. */
     wrapperStyle?: JSX.CSSProperties
+
     /** Ref callback for the outer animated height wrapper element. */
-    wrapperRef?: (element: HTMLDivElement | undefined) => void
+    wrapperRef?: (element: HTMLDivElement) => void
+
     /** Content to render. */
     children?: JSX.Element
   }

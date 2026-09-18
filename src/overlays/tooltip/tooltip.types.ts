@@ -52,7 +52,10 @@ export namespace TooltipT {
     children?: JSX.Element
   }
   export interface ContentBase {
-    /** Preferred placement relative to the trigger. @default 'top' */
+    /**
+     * Preferred placement relative to the trigger.
+     * @default 'top'
+     */
     side?: 'top' | 'right' | 'bottom' | 'left'
 
     /**

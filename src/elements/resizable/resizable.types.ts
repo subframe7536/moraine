@@ -86,7 +86,10 @@ export namespace ResizableT {
      */
     action?: 'resize' | 'collapse'
 
-    /** Whether this handle participates in intersection resizing. @default false */
+    /**
+     * Whether this handle participates in intersection resizing.
+     * @default false
+     */
     intersection?: boolean
 
     /** Custom grip content, or a component receiving the live handle state. */

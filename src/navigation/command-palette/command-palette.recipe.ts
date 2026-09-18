@@ -43,4 +43,4 @@ export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
       },
     },
   },
-} as const)
+})

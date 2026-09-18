@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
+import { children as resolveChildren, createMemo, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
@@ -60,26 +60,12 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
       {(_visible) => {
         const children = resolveChildren(() => local.children)
 
-        const handleInnerRef = (element: HTMLElement | undefined) => {
-          callRef(local.ref as ((el: HTMLElement | undefined) => void) | undefined, element)
-          if (element) {
-            onCleanup(() => {
-              callRef(local.ref as ((el: HTMLElement | undefined) => void) | undefined, undefined)
-            })
-          }
-        }
-
         return (
           <div
             ref={(element) => {
               context.setContentElement(element)
               context.contentPresence.setElement(element)
               callRef(local.wrapperRef, element)
-              if (element) {
-                onCleanup(() => {
-                  callRef(local.wrapperRef, undefined)
-                })
-              }
             }}
             id={context.contentId()}
             aria-labelledby={context.triggerId()}
@@ -99,7 +85,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
                 <div
                   data-slot="content"
                   {...resolved.styles.content}
-                  ref={(el) => handleInnerRef(el)}
+                  ref={(el) => callRef(local.ref, el as any)}
                   {...rest}
                 >
                   {children()}
@@ -112,7 +98,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
                   {...(rest as Record<string, unknown>)}
                   component={as() as ValidComponent}
                   {...resolved.styles.content}
-                  ref={(el: HTMLElement | undefined) => handleInnerRef(el)}
+                  ref={(el: any) => callRef(local.ref, el)}
                 >
                   {children()}
                 </Dynamic>

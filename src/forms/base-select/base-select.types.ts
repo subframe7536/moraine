@@ -32,6 +32,7 @@ export namespace BaseSelectT {
   export type Variant = BaseSelectStyleVariant
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+
   /** Form identity and state forwarded to the selection machine. */
   export interface FieldProps
     extends FormIdentityOptions, FormDisableOption, FormReadOnlyOption, FormRequiredOption {}
@@ -39,8 +40,13 @@ export namespace BaseSelectT {
   export interface DisclosureProps {
     /** Controlled popup state. */
     open?: boolean
-    /** Initial popup state. @default false */
+
+    /**
+     * Initial popup state.
+     * @default false
+     */
     defaultOpen?: boolean
+
     /** Called when popup state changes. */
     onOpenChange?: (open: boolean) => void
   }
@@ -48,6 +54,7 @@ export namespace BaseSelectT {
   export interface ItemBehaviorProps<TItem extends Item> {
     /** Machine-readable text for matching; does not change visual labels. */
     itemToLabelString?: (item: TItem) => string
+
     /** Additional disabled policy evaluated against the current selection. */
     isItemDisabled?: (item: TItem, values: readonly TItem['value'][]) => boolean
   }
@@ -85,7 +92,10 @@ export namespace BaseSelectT {
     multiple?: boolean
     /** Controlled selection. Single mode uses at most the first value. */
     value?: readonly TValue[]
-    /** Initial selection. @default [] */
+    /**
+     * Initial selection.
+     * @default []
+     */
     defaultValue?: readonly TValue[]
     /** Called when selection changes. */
     onChange?: (value: TValue[]) => void
@@ -123,9 +133,15 @@ export namespace BaseSelectT {
   export type ContentProps = PartProps & {
     /** Called once after an open popup completes its exit. */
     onExitComplete?: () => void
-    /** Gap between anchor and popup. @default 0 */
+    /**
+     * Gap between anchor and popup.
+     * @default 0
+     */
     gutter?: number
-    /** Viewport collision padding. @default 4 */
+    /**
+     * Viewport collision padding.
+     * @default 4
+     */
     overflowPadding?: number
   }
   export type ItemProps<TItem extends Item = Item> = Omit<PartProps, 'children'> & {
