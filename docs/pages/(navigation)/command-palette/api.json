@@ -385,7 +385,7 @@
         "name": "inputProps",
         "required": false,
         "type": "JSX.HTMLAttributes<HTMLInputElement> | undefined",
-        "description": "Additional props of input"
+        "description": "Additional attributes for the search input."
       },
       {
         "name": "inputRef",

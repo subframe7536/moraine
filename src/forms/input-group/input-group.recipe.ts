@@ -8,68 +8,89 @@ export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
   InputGroupRecipeVariant
 >('inputGroup', {
   base: {
-    root: 'flex flex-wrap w-full items-center overflow-hidden cursor-text transition-[colors,box-shadow] [&:has(>input:focus)]:border-ring [&:has(>textarea:focus)]:border-ring [&:has(>input:focus)]:ring-3 [&:has(>textarea:focus)]:ring-3 [&:has(>input:focus)]:ring-ring/50 [&:has(>textarea:focus)]:ring-ring/50 [&:has(>input[aria-invalid=true])]:border-destructive [&:has(>textarea[aria-invalid=true])]:border-destructive [&:has(>input[aria-invalid=true])]:ring-3 [&:has(>textarea[aria-invalid=true])]:ring-3 [&:has(>input[aria-invalid=true])]:ring-destructive/20 [&:has(>textarea[aria-invalid=true])]:ring-destructive/20 dark:[&:has(>input[aria-invalid=true])]:border-destructive/50 dark:[&:has(>textarea[aria-invalid=true])]:border-destructive/50 dark:[&:has(>input[aria-invalid=true])]:ring-destructive/40 dark:[&:has(>textarea[aria-invalid=true])]:ring-destructive/40 [&:has(>input:disabled)]:opacity-64 [&:has(>textarea:disabled)]:opacity-64',
+    root: 'relative flex flex-wrap w-full items-center cursor-text transition-[colors,box-shadow]',
     leading: 'flex shrink-0 items-center text-muted-foreground',
     trailing: 'flex shrink-0 items-center text-muted-foreground',
+    frame:
+      'absolute pointer-events-none transition-[colors,box-shadow] peer-focus:(border-ring ring-3 ring-ring/50) peer-aria-invalid:(border-destructive ring-3 ring-destructive/20) dark:peer-aria-invalid:(border-destructive/50 ring-destructive/40)',
   },
   defaultVariants: { size: 'md', variant: 'outline', orientation: 'horizontal', compact: false },
   variants: {
     size: {
-      sm: { root: 'text-xs rounded-sm min-h-7', leading: 'gap-1', trailing: 'gap-1' },
-      md: { root: 'text-sm rounded-md min-h-8', leading: 'gap-1.5', trailing: 'gap-1.5' },
-      lg: { root: 'text-base rounded-lg min-h-9', leading: 'gap-2', trailing: 'gap-2' },
+      sm: {
+        root: 'text-xs rounded-sm min-h-7',
+        leading: 'gap-1',
+        trailing: 'gap-1',
+        frame: 'rounded-sm',
+      },
+      md: {
+        root: 'text-sm rounded-md min-h-8',
+        leading: 'gap-1.5',
+        trailing: 'gap-1.5',
+        frame: 'rounded-md',
+      },
+      lg: {
+        root: 'text-base rounded-lg min-h-9',
+        leading: 'gap-2',
+        trailing: 'gap-2',
+        frame: 'rounded-lg',
+      },
     },
     orientation: {
       horizontal: {
-        leading:
-          'first:ps-2 data-compact:pe-0 has-[>button]:first:ps-1 has-[>button]:pe-0 has-[>kbd]:first:ps-1.5 has-[>kbd]:pe-0',
-        trailing:
-          'last:pe-2 data-compact:ps-0 has-[>button]:last:pe-1 has-[>button]:ps-0 has-[>kbd]:last:pe-1.5 has-[>kbd]:ps-0',
+        leading: '',
+        trailing: '',
       },
       vertical: {
-        leading: 'w-full first:pt-1.5 data-compact:pb-0',
-        trailing: 'w-full last:pb-1.5 data-compact:pt-0',
+        leading: 'w-full',
+        trailing: 'w-full',
       },
     },
     variant: {
-      outline: { root: INPUT_VARIANT.outline },
-      subtle: { root: INPUT_VARIANT.subtle },
-      ghost: { root: INPUT_VARIANT.ghost },
+      outline: {
+        root: INPUT_VARIANT.outline,
+        frame: '-inset-px border border-transparent',
+      },
+      subtle: {
+        root: INPUT_VARIANT.subtle,
+        frame: '-inset-px border border-transparent',
+      },
+      ghost: { root: INPUT_VARIANT.ghost, frame: 'inset-0' },
       none: {
-        root: '[&:has(>input:focus)]:ring-0 [&:has(>textarea:focus)]:ring-0',
+        frame: 'inset-0 peer-focus:ring-0',
       },
     },
   },
   compoundVariants: [
     {
       variants: { orientation: 'horizontal', size: 'sm' },
-      leading: 'first:ps-1.5 pe-1.5',
-      trailing: 'last:pe-1.5 ps-1.5',
+      leading: 'px-1.5 data-compact:px-0.5',
+      trailing: 'px-1.5 data-compact:px-0.5',
     },
     {
       variants: { orientation: 'horizontal', size: 'md' },
-      leading: 'first:ps-2 pe-2',
-      trailing: 'last:pe-2 ps-2',
+      leading: 'px-2 data-compact:px-1',
+      trailing: 'px-2 data-compact:px-1',
     },
     {
       variants: { orientation: 'horizontal', size: 'lg' },
-      leading: 'first:ps-2.5 pe-2.5',
-      trailing: 'last:pe-2.5 ps-2.5',
+      leading: 'px-2.5 data-compact:px-1.5',
+      trailing: 'px-2.5 data-compact:px-1.5',
     },
     {
       variants: { orientation: 'vertical', size: 'sm' },
-      leading: 'first:pt-1 px-1.5 pb-1',
-      trailing: 'last:pb-1 px-1.5 pt-1',
+      leading: 'p-1.5 data-compact:p-0.5',
+      trailing: 'p-1.5 data-compact:p-0.5',
     },
     {
       variants: { orientation: 'vertical', size: 'md' },
-      leading: 'first:pt-1.5 px-2 pb-1.5',
-      trailing: 'last:pb-1.5 px-2 pt-1.5',
+      leading: 'p-2 data-compact:p-1',
+      trailing: 'p-2 data-compact:p-1',
     },
     {
       variants: { orientation: 'vertical', size: 'lg' },
-      leading: 'first:pt-2 px-2.5 pb-2',
-      trailing: 'last:pb-2 px-2.5 pt-2',
+      leading: 'p-2.5 data-compact:p-1.5',
+      trailing: 'p-2.5 data-compact:p-1.5',
     },
   ],
 })

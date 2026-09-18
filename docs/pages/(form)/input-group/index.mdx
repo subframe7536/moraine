@@ -25,7 +25,7 @@ InputGroup (root)
 └── InputGroup.Trailing (trailing slot, repeat as needed)
 ```
 
-Place zero or more `Leading` parts first, then one `Input` or `Textarea`, then zero or more `Trailing` parts. `orientation` belongs to `InputGroup` and determines whether all parts sit beside or above/below the control. `Leading` and `Trailing` accept `compact` to remove the gap beside the control. Both parts accept ordinary JSX, including `Icon`, `Button`, and `Kbd`.
+Place zero or more `Leading` parts first, then one `Input` or `Textarea`, then zero or more `Trailing` parts. `orientation` belongs to `InputGroup` and determines whether all parts sit beside or above/below the control. `Leading` and `Trailing` accept `compact` to use denser padding for the part. Child type never changes spacing implicitly; use `compact` explicitly when a `Button`, `Kbd`, or other addon should occupy less surrounding space. Both parts accept ordinary JSX.
 
 ## Playground
 
@@ -88,7 +88,7 @@ Place zero or more `Leading` parts first, then one `Input` or `Textarea`, then z
 
 ### Compact
 
-Set `compact` on a `Leading` or `Trailing` part when its content should sit directly beside the control text. The part keeps its outer-edge padding while removing only the padding on the side that faces the control. This is useful for URL protocols, domain suffixes, currency symbols, and similar inline text.
+Set `compact` on a `Leading` or `Trailing` part to reduce its padding while keeping the same layout role. In horizontal groups it uses smaller inline padding; in vertical groups it uses smaller padding on all sides. This is useful for compact buttons, keyboard shortcuts, inline prefixes or suffixes, and other addons that need less surrounding space.
 
 <Preview path="./compact" />
 
@@ -108,13 +108,13 @@ Supporting content accepts plain text and JSX without a dedicated text component
 
 ### Button
 
-Use the existing `Button` component for copy, toggle, and submit actions. Keep each button's state and disabled behavior explicit.
+Use the existing `Button` component for copy, toggle, and submit actions. Add `compact` to the containing part when the button should use denser surrounding padding; keep each button's state and disabled behavior explicit.
 
 <Preview path="./actions" />
 
 ### Kbd
 
-Use `Kbd` to show a shortcut without changing the input's keyboard behavior.
+Use `Kbd` to show a shortcut without changing the input's keyboard behavior. Add `compact` to the containing part when the shortcut should use denser surrounding padding.
 
 <Preview path="./kbd" />
 
@@ -150,7 +150,7 @@ Horizontal Leading and Trailing positions follow the inherited `dir`; vertical p
 
 ### Styling and forms
 
-`InputGroup` owns the shared border, background, radius, and focus/invalid/disabled appearance. Set its `size` and `variant` to style the group. The native control's `variant` applies when it is outside a group.
+`InputGroup` owns the shared border, background, radius, and focus/invalid frame. Set its `size` and `variant` to style the group. Disabled presentation remains on the native `Input` or `Textarea`, and the native control's `variant` applies when it is outside a group.
 
 Size precedence is the control's explicit size, group size, Field size, then theme defaults. `classes.leading`, `classes.trailing`, and their style equivalents set group-wide presentation; each part's `class` and `style` override it.
 

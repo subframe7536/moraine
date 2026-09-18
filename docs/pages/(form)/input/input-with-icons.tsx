@@ -16,7 +16,7 @@ export function InputWithIcons() {
           defaultValue="my_super_secret_token_123"
           placeholder="Enter password"
         />
-        <InputGroup.Trailing>
+        <InputGroup.Trailing compact>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -37,7 +37,7 @@ export function InputWithIcons() {
           onInput={(e) => setQuery(e.currentTarget.value)}
           placeholder="Search documents..."
         />
-        <InputGroup.Trailing>
+        <InputGroup.Trailing compact>
           <Show when={query()}>
             <Button
               variant="ghost"

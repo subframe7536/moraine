@@ -30,27 +30,27 @@ export const textareaRecipe = /* @__PURE__ */ defineRecipe<
     { variants: { grouped: false, variant: 'none' }, ...TEXT_CONTROL_VARIANT.none },
     {
       variants: { grouped: true, groupedOrientation: 'horizontal', size: 'sm' },
-      root: 'ps-0 pe-0 first:ps-1.5 last:pe-1.5',
+      root: 'ps-0 pe-0 first:ps-1.5 [&:nth-last-child(2)]:pe-1.5',
     },
     {
       variants: { grouped: true, groupedOrientation: 'horizontal', size: 'md' },
-      root: 'ps-0 pe-0 first:ps-2 last:pe-2',
+      root: 'ps-0 pe-0 first:ps-2 [&:nth-last-child(2)]:pe-2',
     },
     {
       variants: { grouped: true, groupedOrientation: 'horizontal', size: 'lg' },
-      root: 'ps-0 pe-0 first:ps-2.5 last:pe-2.5',
+      root: 'ps-0 pe-0 first:ps-2.5 [&:nth-last-child(2)]:pe-2.5',
     },
     {
       variants: { grouped: true, groupedOrientation: 'vertical', size: 'sm' },
-      root: 'flex-none w-full pt-0 pb-0 first:pt-1 last:pb-1',
+      root: 'flex-none w-full pt-0 pb-0 first:pt-1 [&:nth-last-child(2)]:pb-1',
     },
     {
       variants: { grouped: true, groupedOrientation: 'vertical', size: 'md' },
-      root: 'flex-none w-full pt-0 pb-0 first:pt-1.5 last:pb-1.5',
+      root: 'flex-none w-full pt-0 pb-0 first:pt-1.5 [&:nth-last-child(2)]:pb-1.5',
     },
     {
       variants: { grouped: true, groupedOrientation: 'vertical', size: 'lg' },
-      root: 'flex-none w-full pt-0 pb-0 first:pt-2 last:pb-2',
+      root: 'flex-none w-full pt-0 pb-0 first:pt-2 [&:nth-last-child(2)]:pb-2',
     },
   ],
 })

@@ -5,7 +5,7 @@ export function DropdownActions() {
     <div class="gap-4 grid max-w-sm w-full">
       <InputGroup>
         <Input aria-label="File name" placeholder="Enter file name" />
-        <InputGroup.Trailing>
+        <InputGroup.Trailing compact>
           <DropdownMenu placement="bottom-end">
             <DropdownMenu.Trigger as={Button} type="button" variant="ghost" size="icon-xs">
               <Icon name="i-lucide:ellipsis" />
@@ -23,7 +23,7 @@ export function DropdownActions() {
       </InputGroup>
       <InputGroup>
         <Input aria-label="Search query" placeholder="Enter search query" />
-        <InputGroup.Trailing>
+        <InputGroup.Trailing compact>
           <DropdownMenu placement="bottom-end">
             <DropdownMenu.Trigger
               as={Button}

@@ -1,4 +1,4 @@
-import { Icon, Input, InputGroup, Kbd } from '@src'
+import { Icon, Input, InputGroup, KbdGroup } from '@src'
 
 export function KeyboardShortcut() {
   return (
@@ -7,9 +7,8 @@ export function KeyboardShortcut() {
         <Icon name="i-lucide:search" />
       </InputGroup.Leading>
       <Input aria-label="Search" placeholder="Search..." />
-      <InputGroup.Trailing>
-        <Kbd value="command" size="sm" />
-        <Kbd value="K" size="sm" />
+      <InputGroup.Trailing compact>
+        <KbdGroup items={['command', 'K']} />
       </InputGroup.Trailing>
     </InputGroup>
   )

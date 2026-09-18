@@ -9,7 +9,7 @@ export function TextContent() {
         <InputGroup.Trailing>USD</InputGroup.Trailing>
       </InputGroup>
       <InputGroup>
-        <InputGroup.Leading compact>https://</InputGroup.Leading>
+        <InputGroup.Leading>https://</InputGroup.Leading>
         <Input aria-label="Website" placeholder="example.com" />
         <InputGroup.Trailing compact>.com</InputGroup.Trailing>
       </InputGroup>
