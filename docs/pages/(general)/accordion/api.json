@@ -222,13 +222,6 @@
         "defaultValue": "true"
       },
       {
-        "name": "loopFocus",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether arrow-key focus wraps from the last trigger to the first and vice versa.\nAlias for `loop`.",
-        "defaultValue": "true"
-      },
-      {
         "name": "multiple",
         "required": false,
         "type": "boolean | undefined",

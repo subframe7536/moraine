@@ -82,7 +82,7 @@ export namespace AccordionT {
      * Whether arrow-key focus wraps from the last trigger to the first and vice versa.
      * @default true
      */
-    loopFocus?: boolean
+    loop?: boolean
 
     /**
      * Callback when the expanded item values change.

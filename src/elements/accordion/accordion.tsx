@@ -32,7 +32,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     'defaultValue',
     'multiple',
     'collapsible',
-    'loopFocus',
+    'loop',
     'onChange',
     'items',
     'disabled',
@@ -50,7 +50,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
     {
       multiple: false,
       collapsible: true,
-      loopFocus: true,
+      loop: true,
       unmountOnHide: true,
       trailing: 'icon-chevron-down',
     },
@@ -175,7 +175,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
     const nextIndex = currentIndex + direction
 
-    if (!merged.loopFocus && (nextIndex < 0 || nextIndex >= enabledTriggers.length)) {
+    if (!merged.loop && (nextIndex < 0 || nextIndex >= enabledTriggers.length)) {
       return
     }
 

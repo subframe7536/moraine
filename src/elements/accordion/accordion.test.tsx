@@ -321,8 +321,8 @@ describe('Accordion', () => {
     expect(document.activeElement).toBe(triggerThree)
   })
 
-  test('does not wrap trigger focus when loopFocus=false', async () => {
-    const screen = render(() => <Accordion items={BASE_ITEMS} loopFocus={false} />)
+  test('does not wrap trigger focus when loop=false', async () => {
+    const screen = render(() => <Accordion items={BASE_ITEMS} loop={false} />)
 
     const triggerOne = screen.getByRole('button', { name: 'One' })
     const triggerThree = screen.getByRole('button', { name: 'Three' })
