@@ -33,5 +33,7 @@ export type SimpleTagAssertions = [
   Assert<Tags extends keyof JSX.HTMLElementTags ? true : false>,
   Assert<'svg' extends Tags ? false : true>,
   Assert<'div' extends Tags ? true : false>,
-  Assert<ValidComponent extends Tags | ((props: any) => any) | (string & {}) ? true : false>,
+  Assert<Tags extends ValidComponent ? true : false>,
+  Assert<((props: any) => any) extends ValidComponent ? true : false>,
+  Assert<(string & {}) extends ValidComponent ? true : false>,
 ]

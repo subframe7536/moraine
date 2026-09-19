@@ -561,5 +561,7 @@ export type DefaultTagAssertions = [
   Assert<Tags extends keyof JSX.IntrinsicElements ? true : false>,
   Assert<'svg' extends Tags ? true : false>,
   Assert<'div' extends Tags ? true : false>,
-  Assert<ValidComponent extends Tags | ((props: any) => any) | (string & {}) ? true : false>,
+  Assert<Tags extends ValidComponent ? true : false>,
+  Assert<((props: any) => any) extends ValidComponent ? true : false>,
+  Assert<(string & {}) extends ValidComponent ? true : false>,
 ]
