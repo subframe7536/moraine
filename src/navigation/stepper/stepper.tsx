@@ -36,6 +36,7 @@ export function Stepper(props: StepperProps): JSX.Element {
     'linear',
     'disabled',
     'clickable',
+    'loop',
     'size',
     'classes',
     'styles',
@@ -51,6 +52,7 @@ export function Stepper(props: StepperProps): JSX.Element {
 
       linear: true,
       clickable: false,
+      loop: false,
     },
     local,
   )
@@ -120,7 +122,7 @@ export function Stepper(props: StepperProps): JSX.Element {
     items: normalizedItems,
     getValue: (entry) => entry.value,
     isDisabled: isItemDisabled,
-    loop: () => false,
+    loop: () => merged.loop,
     activationMode: () => merged.activationMode ?? 'automatic',
     focusValue: (value) => triggerRefs.get(value)?.focus(),
     onSelect: selectStep,

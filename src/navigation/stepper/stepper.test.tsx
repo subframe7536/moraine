@@ -161,6 +161,28 @@ describe('Stepper', () => {
     expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('false')
   })
 
+  test('wraps from the last step to the first on ArrowRight when loop=true', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <Stepper
+        items={ITEMS}
+        defaultValue="checkout"
+        linear={false}
+        loop
+        clickable
+        onChange={onChange}
+      />
+    ))
+
+    const checkout = screen.getByRole('tab', { name: 'Checkout' })
+    checkout.focus()
+
+    fireEvent.keyDown(checkout, { key: 'ArrowRight' })
+
+    expect(onChange).toHaveBeenCalledWith('address')
+    expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
+  })
+
   test('supports Home and End keyboard navigation when clickable', () => {
     const onChange = vi.fn()
     const screen = render(() => (

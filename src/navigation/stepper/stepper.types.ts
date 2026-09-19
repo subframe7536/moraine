@@ -118,6 +118,12 @@ export namespace StepperT {
      * @default false
      */
     clickable?: boolean
+
+    /**
+     * Whether keyboard navigation loops around when reaching the ends.
+     * @default false
+     */
+    loop?: boolean
   }
 
   /**
