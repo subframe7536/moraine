@@ -134,6 +134,28 @@ describe('RadioGroup', () => {
     expect(onChange).toHaveBeenCalledWith('A')
   })
 
+  test('does not wrap selection when loop is false', () => {
+    const onChange = vi.fn()
+    const screen = render(() => (
+      <RadioGroup items={['A', 'B']} defaultValue="A" loop={false} onChange={onChange} />
+    ))
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
+
+    radioA.focus()
+    fireEvent.keyDown(radioA, { key: 'ArrowUp' })
+    expect(radioA.checked).toBe(true)
+    expect(radioB.checked).toBe(false)
+    expect(onChange).not.toHaveBeenCalled()
+
+    fireEvent.keyDown(radioA, { key: 'ArrowDown' })
+    expect(radioB.checked).toBe(true)
+    expect(onChange).toHaveBeenCalledWith('B')
+
+    fireEvent.keyDown(radioB, { key: 'ArrowDown' })
+    expect(radioB.checked).toBe(true)
+  })
+
   test('selects with Space on keyup and ignores Enter', async () => {
     const onChange = vi.fn()
     const screen = render(() => <RadioGroup items={['A', 'B']} onChange={onChange} />)

@@ -49,6 +49,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     'readOnly',
     'orientation',
     'items',
+    'loop',
     'onChange',
     'variant',
     'indicator',
@@ -68,6 +69,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       get orientation() {
         return resolved.variants.orientation
       },
+      loop: true,
     },
     local,
   )
@@ -218,7 +220,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     items: normalizedItems,
     getValue: (item) => item.id,
     isDisabled: (item) => item.disabled || field.disabled(),
-    loop: () => true,
+    loop: () => merged.loop,
     focusValue: (id) => inputRefs.get(id)?.focus(),
     onSelect: (id) => {
       const item = normalizedItems().find((candidate) => candidate.id === id)

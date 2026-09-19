@@ -68,6 +68,12 @@ export namespace RadioGroupT {
     items?: (string | Item)[]
 
     /**
+     * Whether keyboard navigation loops around when reaching the ends.
+     * @default true
+     */
+    loop?: boolean
+
+    /**
      * Callback when the selected value changes.
      */
     onChange?: (value: string) => void
