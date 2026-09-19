@@ -1,21 +1,20 @@
 import type { Accessor } from 'solid-js'
 import { createMemo, createSignal, untrack } from 'solid-js'
 
-export interface UseControllableValueOptions<T> {
+export interface UseControllableValueOptions<T extends {} | null> {
   value: Accessor<T | undefined>
   defaultValue: Accessor<T>
 }
 
 type ControllableValueUpdate<T> = T | ((previous: T) => T)
 
-export function useControllableValue<T>(options: UseControllableValueOptions<T>) {
+export function useControllableValue<T extends {} | null>(options: UseControllableValueOptions<T>) {
   const [uncontrolledValue, setUncontrolledValue] = createSignal<T>(untrack(options.defaultValue))
   const controlledValue = createMemo(() => options.value())
-
-  const value: Accessor<T> = () => {
+  const value = createMemo<T>(() => {
     const controlled = controlledValue()
     return controlled === undefined ? uncontrolledValue() : controlled
-  }
+  })
 
   function setValue(update: ControllableValueUpdate<T>): void {
     untrack(() => {

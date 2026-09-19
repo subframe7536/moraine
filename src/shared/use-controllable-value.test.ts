@@ -2,7 +2,21 @@ import type { Accessor } from 'solid-js'
 import { createMemo, createRenderEffect, createRoot, createSignal } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
-import { useControllableValue } from './use-controllable-value'
+import {
+  useControllableValue,
+  type UseControllableValueOptions,
+} from './use-controllable-value'
+
+type ConcreteOptions = UseControllableValueOptions<string>
+const invalidDefault: ConcreteOptions = {
+  value: () => undefined,
+  // @ts-expect-error The uncontrolled fallback must be concrete.
+  defaultValue: () => undefined,
+}
+void invalidDefault
+
+// @ts-expect-error Undefined cannot be part of the resolved state type.
+type InvalidOptions = UseControllableValueOptions<string | undefined>
 
 describe('useControllableValue', () => {
   it('uses the initial default value for the lifetime of uncontrolled state', () => {
@@ -89,6 +103,37 @@ describe('useControllableValue', () => {
 
       expect(initial).toBeNaN()
       expect(evaluations).toBe(1)
+      dispose()
+    })
+  })
+
+  it('does not publish equal resolved values across controlled mode transitions', () => {
+    createRoot((dispose) => {
+      const [controlledValue, setControlledValue] = createSignal<boolean>()
+      const [value] = useControllableValue({
+        value: controlledValue,
+        defaultValue: () => false,
+      })
+      let evaluations = 0
+
+      createRenderEffect(() => {
+        value()
+        evaluations += 1
+      })
+
+      expect(evaluations).toBe(1)
+
+      setControlledValue(false)
+      expect(evaluations).toBe(1)
+
+      setControlledValue(true)
+      expect(evaluations).toBe(2)
+
+      setControlledValue(false)
+      expect(evaluations).toBe(3)
+
+      setControlledValue(undefined)
+      expect(evaluations).toBe(3)
       dispose()
     })
   })
