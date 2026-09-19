@@ -20,6 +20,7 @@ function FixtureContent() {
         </SidebarFrame.SidebarFooter>
       </SidebarFrame.Sidebar>
       <SidebarFrame.Main data-open={frame.isOpen() ? '' : undefined}>
+        <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
         <h1>Main content</h1>
       </SidebarFrame.Main>
     </>

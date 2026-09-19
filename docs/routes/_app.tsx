@@ -116,12 +116,12 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           >
             <div class="flex gap-1 min-w-0 items-center">
               <Show when={frame.isMobile()}>
-                <Button
+                <SidebarFrame.Trigger
+                  as={Button}
                   variant="ghost"
                   size="sm"
                   leading="i-lucide-menu"
                   aria-label="Toggle sidebar"
-                  onClick={frame.toggle}
                 />
               </Show>
             </div>

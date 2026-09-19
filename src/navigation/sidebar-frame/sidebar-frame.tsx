@@ -14,10 +14,12 @@ import {
 import { Sheet } from '../../overlays/sheet'
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
+import { useControllableValue } from '../../shared/use-controllable-value'
 import { createMediaQuery } from '../../shared/use-media-query'
 import { callHandler } from '../../shared/utils'
 
 import { SidebarFrameProvider, useSidebarFrameContext } from './sidebar-frame-context'
+import { SidebarFrameTrigger } from './sidebar-frame-trigger'
 import { sidebarFrameRecipe } from './sidebar-frame.recipe'
 import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types'
 
@@ -159,20 +161,20 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
     local,
   )
 
-  const [internalIsMobile, setInternalIsMobile] = createSignal(false)
-  const [isOpen, setOpen] = createSignal(untrack(() => local.isMobile !== true))
-  const [scrolled, setScrolled] = createSignal(false)
   const mediaMatches = createMediaQuery('(max-width: 768px)', false)
+  const [isMobileValue, setIsMobile] = useControllableValue<boolean>({
+    value: () => local.isMobile,
+    defaultValue: mediaMatches,
+  })
+  const isMobile = createMemo(() => Boolean(isMobileValue()))
+  const [isOpen, setOpen] = createSignal(untrack(() => !isMobile()))
+  const [scrolled, setScrolled] = createSignal(false)
 
   createEffect(
     on(mediaMatches, (matches) => {
-      if (local.isMobile === undefined) {
-        setInternalIsMobile(matches)
-      }
+      setIsMobile(matches)
     }),
   )
-
-  const isMobile = createMemo(() => local.isMobile ?? internalIsMobile())
 
   createEffect(
     on(isMobile, (mobile) => {
@@ -211,3 +213,4 @@ SidebarFrame.SidebarHeader = SidebarFrameSidebarHeader
 SidebarFrame.SidebarBody = SidebarFrameSidebarBody
 SidebarFrame.SidebarFooter = SidebarFrameSidebarFooter
 SidebarFrame.Main = SidebarFrameMain
+SidebarFrame.Trigger = SidebarFrameTrigger

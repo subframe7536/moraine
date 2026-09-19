@@ -67,9 +67,7 @@ function FrameContent() {
         <SidebarFrame.SidebarFooter>Footer</SidebarFrame.SidebarFooter>
       </SidebarFrame.Sidebar>
       <SidebarFrame.Main>
-        <button type="button" onClick={context.toggle}>
-          Toggle
-        </button>
+        <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
         <span data-testid="scroll-state">{context.scrolled() ? 'on' : 'off'}</span>
       </SidebarFrame.Main>
     </>
@@ -96,7 +94,9 @@ describe('SidebarFrame', () => {
     expect(screen.getByText('Navigation')).toBeTruthy()
     expect(screen.getByText('Footer')).toBeTruthy()
     expect(screen.container.querySelector('[data-slot="root"]')?.className).toContain('flex')
-    expect(screen.container.querySelector('[data-slot="sidebar"]')?.className).toContain('w-64')
+    const sidebarClass = screen.container.querySelector('[data-slot="sidebar"]')?.className
+    expect(sidebarClass).toContain('w-64')
+    expect(sidebarClass).toContain('min-size-0')
     expect(screen.container.querySelector('[data-slot="main"]')?.className).toContain('flex-1')
   })
 
@@ -154,6 +154,18 @@ describe('SidebarFrame', () => {
     await waitFor(() => expect(document.body.textContent).toContain('Navigation'))
   })
 
+  test('ignores matchMedia updates when isMobile is controlled', async () => {
+    window.matchMedia = createMatchMediaMock(true)
+    const screen = render(() => (
+      <SidebarFrame isMobile={false}>
+        <FrameContent />
+      </SidebarFrame>
+    ))
+
+    expect(screen.container.querySelector('[data-slot="sidebar"]')).toHaveProperty('hidden', false)
+    expect(screen.getByText('Navigation')).toBeTruthy()
+  })
+
   test('toggles desktop visibility and updates scroll state', () => {
     const screen = render(() => (
       <SidebarFrame isMobile={false} scrollThreshold={10}>
@@ -207,5 +219,194 @@ describe('SidebarFrame', () => {
     expect(screen.getByTestId('main').style.color).toBe('red')
     expect(mainRef).toBe(screen.getByTestId('main'))
     expect(onScroll).toHaveBeenCalledOnce()
+  })
+})
+
+describe('SidebarFrame.Trigger', () => {
+  test('renders a default button with open/closed state attributes and aria-expanded', () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile={false}>
+        <SidebarFrame.Sidebar>Sidebar</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    const trigger = screen.getByRole('button', { name: 'Toggle' })
+    expect(trigger.tagName).toBe('BUTTON')
+    expect(trigger.getAttribute('type')).toBe('button')
+    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(trigger.getAttribute('data-open')).toBe('')
+    expect(trigger.hasAttribute('data-closed')).toBe(false)
+    expect(trigger.hasAttribute('aria-haspopup')).toBe(false)
+    expect(trigger.hasAttribute('aria-controls')).toBe(false)
+  })
+
+  test('reflects initial closed state when mobile', () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile>
+        <SidebarFrame.Sidebar>Sidebar</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    const trigger = screen.getByRole('button', { name: 'Toggle' })
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(trigger.getAttribute('data-closed')).toBe('')
+    expect(trigger.hasAttribute('data-open')).toBe(false)
+  })
+
+  test('toggles desktop visibility, aria-expanded, and state attributes on click', () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile={false}>
+        <SidebarFrame.Sidebar>Sidebar</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    const trigger = screen.getByRole('button', { name: 'Toggle' })
+    const sidebar = screen.container.querySelector('[data-slot="sidebar"]') as HTMLDivElement
+
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(sidebar.hasAttribute('data-closed')).toBe(false)
+
+    fireEvent.click(trigger)
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(trigger.getAttribute('data-closed')).toBe('')
+    expect(trigger.hasAttribute('data-open')).toBe(false)
+    expect(sidebar.getAttribute('data-closed')).toBe('')
+
+    fireEvent.click(trigger)
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(trigger.getAttribute('data-open')).toBe('')
+    expect(trigger.hasAttribute('data-closed')).toBe(false)
+    expect(sidebar.hasAttribute('data-closed')).toBe(false)
+  })
+
+  test('opens mobile sheet on trigger click', async () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile>
+        <SidebarFrame.Sidebar>Navigation</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    const trigger = screen.getByRole('button', { name: 'Toggle' })
+    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+
+    fireEvent.click(trigger)
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    })
+  })
+
+  test('composes consumer onClick and allows preventDefault to stop toggle', () => {
+    const onClick = vi.fn((event: MouseEvent) => {
+      event.preventDefault()
+    })
+    const screen = render(() => (
+      <SidebarFrame isMobile={false}>
+        <SidebarFrame.Sidebar>Sidebar</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger onClick={onClick}>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    const trigger = screen.getByRole('button', { name: 'Toggle' })
+    fireEvent.click(trigger)
+
+    expect(onClick).toHaveBeenCalledOnce()
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(trigger.getAttribute('data-open')).toBe('')
+  })
+
+  test('calls consumer onClick when default is not prevented', () => {
+    const onClick = vi.fn()
+    const screen = render(() => (
+      <SidebarFrame isMobile={false}>
+        <SidebarFrame.Sidebar>Sidebar</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger onClick={onClick}>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    const trigger = screen.getByRole('button', { name: 'Toggle' })
+    fireEvent.click(trigger)
+
+    expect(onClick).toHaveBeenCalledOnce()
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+  })
+
+  test('does not toggle when disabled and exposes data-disabled', () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile={false}>
+        <SidebarFrame.Sidebar>Sidebar</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger disabled>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    const trigger = screen.getByRole('button', { name: 'Toggle' })
+    expect(trigger.hasAttribute('disabled')).toBe(true)
+    expect(trigger.getAttribute('data-disabled')).toBe('')
+
+    fireEvent.click(trigger)
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  })
+
+  test('supports non-native root with Enter and Space keyboard activation', () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile={false}>
+        <SidebarFrame.Sidebar>Sidebar</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger as="div">Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    const trigger = screen.getByRole('button', { name: 'Toggle' })
+    expect(trigger.tagName).toBe('DIV')
+    expect(trigger.getAttribute('tabindex')).toBe('0')
+    expect(trigger.getAttribute('role')).toBe('button')
+
+    fireEvent.keyDown(trigger, { key: 'Enter' })
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+
+    fireEvent.keyDown(trigger, { key: ' ' })
+    fireEvent.keyUp(trigger, { key: ' ' })
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  })
+
+  test('non-native root disabled state prevents keyboard activation', () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile={false}>
+        <SidebarFrame.Sidebar>Sidebar</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger as="div" disabled>
+            Toggle
+          </SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    const trigger = screen.getByText('Toggle')
+    expect(trigger.getAttribute('aria-disabled')).toBe('true')
+    expect(trigger.getAttribute('data-disabled')).toBe('')
+    expect(trigger.hasAttribute('tabindex')).toBe(false)
+
+    fireEvent.keyDown(trigger, { key: 'Enter' })
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
   })
 })
