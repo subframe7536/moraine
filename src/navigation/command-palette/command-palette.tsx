@@ -1,4 +1,4 @@
-import type { Component, JSX } from 'solid-js'
+import type { JSX } from 'solid-js'
 import {
   For,
   Show,
@@ -12,7 +12,7 @@ import {
 
 import { Icon } from '../../elements/icon'
 import { List } from '../../elements/list'
-import type { ListProps, ListT } from '../../elements/list'
+import type { ListT } from '../../elements/list'
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
@@ -543,14 +543,6 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     )
   }
 
-  type CommandListEntry = CommandPaletteT.VirtualEntry<TItem> | NormalizedGroup<TItem>
-  const listEntries = createMemo<readonly CommandListEntry[]>(() =>
-    merged.virtualRender ? virtualEntries() : visibleGroups(),
-  )
-  const RuntimeList = List as unknown as Component<
-    ListProps<CommandListEntry, 'div', HTMLDivElement> & JSX.HTMLAttributes<HTMLDivElement>
-  >
-
   return (
     <div ref={(el) => callRef(local.ref, el)} data-slot="root" {...resolved.styles.root} {...rest}>
       <div data-slot="inputWrapper" {...resolved.styles.inputWrapper}>
@@ -566,7 +558,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           {...merged.inputProps}
           ref={(el) => {
             setInputElement(el)
-            callRef((merged.inputProps as any)?.ref, el)
+            callRef(merged.inputProps?.ref, el)
             callRef(local.inputRef, el)
           }}
           data-slot="input"
@@ -581,13 +573,13 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           maxLength={merged.searchMaxLength}
           value={currentSearchTerm()}
           onInput={(event) => {
-            const { defaultPrevented } = callHandler(event, merged.inputProps?.onInput as any)
+            const { defaultPrevented } = callHandler(event, merged.inputProps?.onInput)
             if (!defaultPrevented) {
               applySearchValue(event.currentTarget.value)
             }
           }}
           onKeyDown={(event) => {
-            const { defaultPrevented } = callHandler(event, merged.inputProps?.onKeyDown as any)
+            const { defaultPrevented } = callHandler(event, merged.inputProps?.onKeyDown)
             if (!defaultPrevented) {
               handleKeyDown(event)
             }
@@ -619,74 +611,85 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           </div>
         }
       >
-        <RuntimeList
-          as="div"
-          items={listEntries()}
-          itemRender={(context) => (
-            <Show
-              when={merged.virtualRender}
-              fallback={
+        <Show
+          when={merged.virtualRender}
+          fallback={
+            <List
+              as="div"
+              items={visibleGroups()}
+              itemRender={(context) => (
                 <div data-slot="group" {...resolved.styles.group}>
-                  <Show when={(context.item as NormalizedGroup<TItem>).label}>
+                  <Show when={context.item.label}>
                     <span data-slot="label" {...resolved.styles.label}>
-                      {(context.item as NormalizedGroup<TItem>).label}
+                      {context.item.label}
                     </span>
                   </Show>
 
-                  <For each={(context.item as NormalizedGroup<TItem>).items}>
-                    {(item) => renderVisibleItem(item)}
-                  </For>
+                  <For each={context.item.items}>{(item) => renderVisibleItem(item)}</For>
                 </div>
-              }
-            >
-              <Show
-                when={(context.item as CommandPaletteT.VirtualEntry<TItem>).type === 'label'}
-                fallback={
-                  <Show
-                    when={visibleItemByKey().get(
-                      (context.item as CommandPaletteT.VirtualEntry<TItem>).key,
-                    )}
-                  >
-                    {(item) => renderVisibleItem(item(), context.props)}
-                  </Show>
-                }
-              >
-                <div
-                  role="presentation"
-                  data-slot="group"
-                  {...context.props}
-                  style={{
-                    ...context.props?.style,
-                    ...resolved.styles.group.style,
-                  }}
-                  class={cn(resolved.styles.group.class, context.props?.class)}
-                >
-                  <span data-slot="label" {...resolved.styles.label}>
-                    {(context.item as CommandPaletteT.VirtualLabelEntry<TItem>).label}
-                  </span>
-                </div>
-              </Show>
-            </Show>
-          )}
-          virtualRender={
-            merged.virtualRender as
-              | Component<ListT.VirtualRenderProps<CommandListEntry, HTMLElement, HTMLDivElement>>
-              | undefined
+              )}
+              id={listboxId()}
+              role="listbox"
+              data-slot="listbox"
+              {...merged.listboxProps}
+              ref={(element: HTMLDivElement) => {
+                listboxElement = element
+                callRef(merged.listboxProps?.ref, element)
+              }}
+              style={{
+                ...merged.listboxProps?.style,
+                ...resolved.styles.listbox.style,
+              }}
+              class={cn(resolved.styles.listbox.class, merged.listboxProps?.class)}
+            />
           }
-          id={listboxId()}
-          role="listbox"
-          data-slot="listbox"
-          {...merged.listboxProps}
-          ref={(element: HTMLDivElement) => {
-            listboxElement = element
-            callRef(merged.listboxProps?.ref, element)
-          }}
-          style={{
-            ...merged.listboxProps?.style,
-            ...resolved.styles.listbox.style,
-          }}
-          class={cn(resolved.styles.listbox.class, merged.listboxProps?.class)}
-        />
+        >
+          {(virtualRender) => (
+            <List
+              as="div"
+              items={virtualEntries()}
+              virtualRender={virtualRender()}
+              itemRender={(context) => (
+                <Show
+                  when={context.item.type === 'label'}
+                  fallback={
+                    <Show when={visibleItemByKey().get(context.item.key)}>
+                      {(item) => renderVisibleItem(item(), context.props)}
+                    </Show>
+                  }
+                >
+                  <div
+                    role="presentation"
+                    data-slot="group"
+                    {...context.props}
+                    style={{
+                      ...context.props?.style,
+                      ...resolved.styles.group.style,
+                    }}
+                    class={cn(resolved.styles.group.class, context.props?.class)}
+                  >
+                    <span data-slot="label" {...resolved.styles.label}>
+                      {context.item.type === 'label' ? context.item.label : ''}
+                    </span>
+                  </div>
+                </Show>
+              )}
+              id={listboxId()}
+              role="listbox"
+              data-slot="listbox"
+              {...merged.listboxProps}
+              ref={(element: HTMLDivElement) => {
+                listboxElement = element
+                callRef(merged.listboxProps?.ref, element)
+              }}
+              style={{
+                ...merged.listboxProps?.style,
+                ...resolved.styles.listbox.style,
+              }}
+              class={cn(resolved.styles.listbox.class, merged.listboxProps?.class)}
+            />
+          )}
+        </Show>
       </Show>
 
       <Show when={merged.footerRender !== undefined}>

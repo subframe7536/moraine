@@ -15,7 +15,7 @@ import { Dynamic, Portal } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
-import type { SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types.ts'
+import type { ValidComponent } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
@@ -134,20 +134,8 @@ export function createPopper(props: PopperProps): PopperContext {
 export function PopperTrigger<T extends ValidComponent = 'button'>(
   props: PopperTriggerProps<T> & { context: PopperContext },
 ): JSX.Element {
-  type RuntimeTriggerProps = {
-    context: PopperContext
-    as?: ValidComponent
-    disabled?: boolean
-    children?: JSX.Element
-    class?: SlotClassValue
-    style?: SlotStyleValue
-    describeTrigger?: boolean
-    toggleOnClick?: boolean
-    ref?: (element: HTMLElement | undefined) => void
-  } & Record<string, unknown>
-
   const cn = useCn()
-  const [local, rest] = splitProps(props as RuntimeTriggerProps, [
+  const [local, rest] = splitProps(props, [
     'context',
     'as',
     'disabled',
@@ -159,7 +147,7 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     'ref',
   ])
   const context = untrack(() => props.context)
-  const tag = () => (local.as as ValidComponent) ?? 'button'
+  const tag = () => local.as ?? 'button'
   const disabled = () => Boolean(local.disabled || context.options.disabled)
   const interaction = useButtonInteraction(
     {
@@ -469,7 +457,13 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
   return (
     <Show when={contentMounted()}>
       {(_present) => {
-        const children = resolveChildren(() => props.children as JSX.Element)
+        const content = resolveChildren(() =>
+          renderComponentOrElement(props.children, {
+            close: () => context.setOpen(false),
+            contentProps,
+            currentPlacement,
+          }),
+        )
         return (
           <Portal>
             <div
@@ -486,11 +480,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
               style={{ visibility: 'hidden', ...props.positionerStyle }}
               class={cn('left-0 top-0 absolute', props.positionerClass)}
             >
-              {renderComponentOrElement(children() as PopperContentProps['children'], {
-                close: () => context.setOpen(false),
-                contentProps,
-                currentPlacement,
-              })}
+              {content()}
             </div>
           </Portal>
         )

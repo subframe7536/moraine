@@ -34,7 +34,6 @@ export namespace ListT {
     readonly entries: readonly TItem[]
     /** Current scroll container, or undefined while it is not mounted. */
     readonly scrollElement: TScrollElement | undefined
-    /** Renders an item and forwards optional attributes to its final row element. */
     render: (item: TItem, index: number, props?: RowProps<TItemElement>) => JSX.Element
   }
 
@@ -53,14 +52,16 @@ export namespace ListT {
     /** Renders one collection item. */
     itemRender: ComponentOrElement<ItemRenderProps<TItem, TItemElement>>
     /** Replaces normal iteration with caller-controlled virtual rendering. */
-    virtualRender?: Component<VirtualRenderProps<TItem, HTMLElement, TItemElement>>
+    virtualRender?: Component<VirtualRenderProps<TItem, any, TItemElement>>
+    /** Receives the mounted list element. */
+    ref?: (element: any) => void
   }
 
   export type Props<
     TItem,
     T extends ValidComponent = 'ul',
     TItemElement extends HTMLElement = HTMLElement,
-  > = BaseProps<T, Base<TItem, T, TItemElement>, Variant, never, never>
+  > = BaseProps<T, Base<TItem, T, TItemElement>, Variant, never, never, 'ul'>
 }
 
 export type ListProps<

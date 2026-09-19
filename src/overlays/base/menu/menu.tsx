@@ -19,7 +19,6 @@ import { Portal } from 'solid-js/web'
 import { Icon } from '../../../elements/icon'
 import { KbdGroup } from '../../../elements/kbd'
 import { List } from '../../../elements/list'
-import type { ListProps } from '../../../elements/list'
 import { useCn } from '../../../provider/cn-context'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
 import { renderComponentOrElement } from '../../../shared/render-prop'
@@ -27,7 +26,7 @@ import type { ClassValue, ElementProps } from '../../../shared/types'
 import { useControllableValue } from '../../../shared/use-controllable-value'
 import { useEventListener } from '../../../shared/use-event-listener'
 import { useTransitionPresence } from '../../../shared/use-transition-presence'
-import { callHandler, useId } from '../../../shared/utils'
+import { callHandler, callRef, useId } from '../../../shared/utils'
 import type { Cn } from '../../../theme/style/cn'
 import { useFloatingPosition } from '../floating'
 import { useOverlayInteraction } from '../interaction'
@@ -73,15 +72,6 @@ type OverlayMenuListEntry<TItem> =
   | { type: 'contentTop' }
   | { type: 'group'; group: OverlayMenuResolvedGroup<TItem> }
   | { type: 'contentBottom' }
-
-function callRef<T extends HTMLElement>(
-  ref: T | ((element: T) => void) | undefined,
-  element: T,
-): void {
-  if (typeof ref === 'function') {
-    ref(element)
-  }
-}
 
 function resolveMenuSlot(
   props: Pick<OverlayMenuSharedProps<never>, 'slotBinding' | 'classes' | 'styles'>,
@@ -1171,11 +1161,6 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     )
   }
 
-  const RuntimeList = List as unknown as import('solid-js').Component<
-    ListProps<OverlayMenuListEntry<TItem>, 'div', HTMLDivElement> &
-      JSX.HTMLAttributes<HTMLDivElement>
-  >
-
   const contentSlot = () => ({
     class: cn(resolveSlot('content').class, props.contentProps?.class),
     style: {
@@ -1201,7 +1186,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       data-slot="positioner"
       class={'left-0 top-0 absolute'}
     >
-      <RuntimeList
+      <List
         as="div"
         items={listEntries()}
         itemRender={(context) => renderListEntry(context.item)}

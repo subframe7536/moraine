@@ -17,15 +17,7 @@ export const [ModalOverlayProvider, useModalOverlayContext] = createContextProvi
 
 /** Backdrop layer for modal dialogs. */
 export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
-  type RuntimeProps = ModalT.OverlayBase & {
-    class?: ModalT.Classes['overlay']
-    style?: JSX.CSSProperties
-    classes?: Partial<ModalT.Classes>
-    styles?: Partial<ModalT.Styles>
-    ref?: (element: HTMLDivElement | undefined) => void
-  } & Record<string, unknown>
-
-  const [local, rest] = splitProps(props as RuntimeProps, [
+  const [local, rest] = splitProps(props, [
     'class',
     'style',
     'classes',

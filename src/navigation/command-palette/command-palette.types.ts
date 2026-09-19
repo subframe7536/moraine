@@ -1,9 +1,15 @@
-import type { Component, JSX, Ref } from 'solid-js'
+import type { Component, Ref } from 'solid-js'
 
 import type { IconT } from '../../elements/icon'
 import type { ListT } from '../../elements/list'
 import type { ComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, ElementProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type {
+  BaseProps,
+  ElementProps,
+  InputElementProps,
+  SlotClassValue,
+  SlotStyleValue,
+} from '../../shared/types'
 
 import type {
   CommandPaletteStyleSlot,
@@ -191,7 +197,7 @@ export namespace CommandPaletteT {
     /** Additional attributes for a command row. */
     itemProps?: (context: ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined
     /** Additional attributes for the search input. */
-    inputProps?: JSX.HTMLAttributes<HTMLInputElement>
+    inputProps?: InputElementProps
   }
 
   export type Props<TItem extends Item = Item> = BaseProps<

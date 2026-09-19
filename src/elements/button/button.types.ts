@@ -77,11 +77,12 @@ export namespace ButtonT {
    * Props for the Button component.
    */
   export type Props<T extends ValidComponent = 'button'> = BaseProps<
-    [ValidComponent] extends [T] ? 'button' : T,
+    T,
     Base<T>,
     Variant,
     Classes,
-    Styles
+    Styles,
+    'button'
   >
 }
 

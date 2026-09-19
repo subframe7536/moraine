@@ -12,12 +12,12 @@ export type ComponentOrElement<TProps extends object = Record<never, never>> =
  * Mounts component values with the provided props and returns static JSX unchanged.
  */
 export function renderComponentOrElement<TProps extends object>(
-  value: ComponentOrElement<TProps>,
+  value: unknown,
   props: TProps,
 ): JSX.Element {
   if (typeof value === 'function') {
-    return createComponent(value, props)
+    return createComponent(value as Component<TProps>, props)
   }
 
-  return value
+  return value as JSX.Element
 }

@@ -5,12 +5,11 @@ import { Dynamic } from 'solid-js/web'
 import { Icon } from '../../elements/icon'
 import type { IconT } from '../../elements/icon'
 import { createStyles } from '../../provider'
-import type { ComponentOrElement } from '../../shared/render-prop'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { callRef } from '../../shared/utils'
 
 import { breadcrumbRecipe } from './breadcrumb.recipe'
-import type { BreadcrumbProps, BreadcrumbT } from './breadcrumb.types'
+import type { BreadcrumbProps } from './breadcrumb.types'
 
 /** Breadcrumb navigation trail with separator icons and optional wrapping. */
 export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
@@ -93,21 +92,18 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                     }
                   >
                     {(renderer) =>
-                      renderComponentOrElement(
-                        renderer() as ComponentOrElement<BreadcrumbT.ItemRenderProps>,
-                        {
-                          item,
-                          get index() {
-                            return index()
-                          },
-                          get current() {
-                            return isCurrent()
-                          },
-                          get disabled() {
-                            return isDisabled()
-                          },
+                      renderComponentOrElement(renderer(), {
+                        item,
+                        get index() {
+                          return index()
                         },
-                      )
+                        get current() {
+                          return isCurrent()
+                        },
+                        get disabled() {
+                          return isDisabled()
+                        },
+                      })
                     }
                   </Show>
                 </li>

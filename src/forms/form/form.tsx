@@ -10,7 +10,6 @@ import { splitProps } from 'solid-js'
 import { createStyles } from '../../provider'
 import type { ValidComponent } from '../../shared/types.ts'
 import { callHandler } from '../../shared/utils'
-import type { FieldProps } from '../field'
 import { renderField } from '../field/field'
 
 import { useFormischFieldBinding } from './form-field-binding'
@@ -70,9 +69,9 @@ export function createForm<TSchema extends FormSchema>(
     // oxlint-disable-next-line subf/solid-reactivity -- Formisch tracks the path accessor passed to useField.
     const binding = useFormischFieldBinding(
       store,
-      () => (typeof props.name === 'string' ? [props.name] : props.name) as unknown as RequiredPath,
+      () => (typeof props.name === 'string' ? [props.name] : props.name) as RequiredPath,
     )
-    return renderField(props as unknown as FieldProps<T>, () => binding)
+    return renderField(props, () => binding)
   }
 
   return Object.assign(store, {

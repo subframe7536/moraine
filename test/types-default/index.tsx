@@ -7,11 +7,13 @@ import {
   Button,
   ButtonGroup,
   Card,
+  Collapsible,
   Combobox,
   ContextMenu,
   Dialog,
   DropdownMenu,
   Field,
+  FileUpload,
   Icon,
   Input,
   InputGroup,
@@ -436,6 +438,70 @@ const divRef = (element: HTMLDivElement) => element.focus()
 ;<SidebarFrame.Trigger as={CustomRoot} />
 // @ts-expect-error Invalid Button props remain rejected.
 ;<SidebarFrame.Trigger as={Button} variant="invalid" />
+;<SidebarFrame.Trigger
+  onClick={(event) => {
+    const button: HTMLButtonElement = event.currentTarget
+    void button
+  }}
+>
+  Toggle
+</SidebarFrame.Trigger>
+
+;<Collapsible>
+  <Collapsible.Trigger
+    onClick={(event) => {
+      const button: HTMLButtonElement = event.currentTarget
+      void button
+    }}
+  >
+    Toggle
+  </Collapsible.Trigger>
+  <Collapsible.Content
+    ref={(element) => {
+      const div: HTMLElement | undefined = element
+      void div
+    }}
+    onClick={(event) => {
+      const div: HTMLDivElement = event.currentTarget
+      void div
+    }}
+  >
+    Content
+  </Collapsible.Content>
+</Collapsible>
+
+;<ContextMenu.Trigger
+  onClick={(event) => {
+    const div: HTMLDivElement = event.currentTarget
+    void div
+  }}
+>
+  Open context menu
+</ContextMenu.Trigger>
+
+;<List
+  items={[]}
+  itemRender={(context) => context.item}
+  ref={(element) => {
+    const list: any = element
+    void list
+  }}
+  onClick={(event) => {
+    const ul: HTMLUListElement = event.currentTarget
+    void ul
+  }}
+/>
+
+;<FileUpload
+  ref={(element) => {
+    const div: HTMLElement = element
+    void div
+  }}
+  onClick={(event) => {
+    const element: HTMLElement = event.currentTarget
+    void element
+  }}
+/>
 
 const rootOnlyForm = createForm({ schema: v.object({ email: v.string() }) })
 ;<Field label="Email" name="email" description="Standalone field">

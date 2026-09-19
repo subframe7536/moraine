@@ -1,6 +1,12 @@
 import type { JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
+import type {
+  BaseProps,
+  SlotClassValue,
+  SlotStyleValue,
+  TriggerBase as SharedTriggerBase,
+  ValidComponent,
+} from '../../shared/types'
 
 import type { CollapsibleStyleSlot, CollapsibleStyleVariant } from './collapsible.style-types'
 
@@ -12,24 +18,15 @@ export namespace CollapsibleT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export type TriggerBase<T extends ValidComponent = 'button'> = {
-    /**
-     * Element or component to render as.
-     * @default 'button'
-     */
-    as?: T
-    /** Whether this trigger is disabled. */
-    disabled?: boolean
-    /** Trigger label and visual content. */
-    children?: JSX.Element
-  }
+  export type TriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T>
 
   export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
     T,
     TriggerBase<T>,
     never,
     never,
-    never
+    never,
+    'button'
   >
 
   export type ContentBase<T extends ValidComponent = 'div'> = {
@@ -60,6 +57,9 @@ export namespace CollapsibleT {
     /** Ref callback for the outer animated height wrapper element. */
     wrapperRef?: (element: HTMLDivElement) => void
 
+    /** Receives the mounted content element and `undefined` when it unmounts. */
+    ref?: (element: HTMLElement | undefined) => void
+
     /** Content to render. */
     children?: JSX.Element
   }
@@ -69,7 +69,8 @@ export namespace CollapsibleT {
     ContentBase<T>,
     never,
     never,
-    never
+    never,
+    'div'
   >
 
   export type Variant = CollapsibleStyleVariant

@@ -867,13 +867,11 @@ describe('CommandPalette', () => {
     renderWithTheme(() => (
       <CommandPalette
         groups={GROUPS}
-        inputProps={
-          {
-            name: 'command-search',
-            'aria-label': 'Command Search',
-            'data-track': 'command-input',
-          } as JSX.InputHTMLAttributes<HTMLInputElement>
-        }
+        inputProps={{
+          name: 'command-search',
+          'aria-label': 'Command Search',
+          'data-track': 'command-input',
+        }}
         listboxProps={{
           ref: listboxRef,
           'data-track': 'command-list',

@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 import { children as resolveChildren, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
@@ -16,12 +16,13 @@ export function ModalClose<T extends ValidComponent = 'button'>(
   const cn = useCn()
   const [local, rest] = splitProps(props, ['as', 'disabled', 'children', 'class', 'style'])
   const context = useModalContext()
+  const tag: Accessor<ValidComponent> = () => local.as ?? 'button'
   const interaction = useButtonInteraction(
     {
       disabled: () => Boolean(local.disabled),
       disabledForComponent: true,
       onPress: () => () => context.updateOpen(false),
-      tag: () => local.as ?? 'button',
+      tag,
     },
     rest,
   )
@@ -31,7 +32,7 @@ export function ModalClose<T extends ValidComponent = 'button'>(
     <Dynamic
       data-slot="close"
       {...interaction}
-      component={(local.as as ValidComponent) ?? 'button'}
+      component={tag()}
       class={cn(local.class)}
       style={local.style}
     >

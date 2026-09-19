@@ -1,6 +1,12 @@
 import type { Accessor, JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
+import type {
+  BaseProps,
+  SlotClassValue,
+  SlotStyleValue,
+  TriggerBase as SharedTriggerBase,
+  ValidComponent,
+} from '../../shared/types'
 
 import type { SidebarFrameStyleSlot, SidebarFrameStyleVariant } from './sidebar-frame.style-types'
 
@@ -52,24 +58,15 @@ export namespace SidebarFrameT {
   export type SidebarFooterProps = BaseProps<'div', RegionBase, never, never, never>
   export type MainProps = BaseProps<'div', RegionBase, never, never, never>
 
-  export type TriggerBase<T extends ValidComponent = 'button'> = {
-    /**
-     * Element or component to render as.
-     * @default 'button'
-     */
-    as?: T
-    /** Whether this trigger is disabled. */
-    disabled?: boolean
-    /** Trigger label and visual content. */
-    children?: JSX.Element
-  }
+  export type TriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T>
 
   export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
     T,
     TriggerBase<T>,
     never,
     never,
-    never
+    never,
+    'button'
   >
 }
 

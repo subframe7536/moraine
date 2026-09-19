@@ -1,7 +1,12 @@
 import type { JSX } from 'solid-js'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
-import type { BaseProps, SlotClassValue, ValidComponent } from '../../shared/types.ts'
+import type {
+  BaseProps,
+  SlotClassValue,
+  TriggerBase as SharedTriggerBase,
+  ValidComponent,
+} from '../../shared/types.ts'
 
 import type { ModalStyleSlot, ModalStyleVariant } from './modal.style-types'
 
@@ -60,26 +65,15 @@ export namespace ModalT {
 
   export type Props = Base
 
-  export type TriggerBase<T extends ValidComponent = 'button'> = {
-    /**
-     * Element or component to render as.
-     * @default 'button'
-     */
-    as?: T
-    /** Whether this trigger is disabled. */
-    disabled?: boolean
-    /** Trigger label and visual content. */
-    children?: JSX.Element
-    /** Receives the mounted trigger element and `undefined` when it unmounts. */
-    ref?: (element: HTMLElement | undefined) => void
-  }
+  export type TriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T>
 
   export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
-    [ValidComponent] extends [T] ? 'button' : T,
+    T,
     TriggerBase<T>,
     never,
     never,
-    never
+    never,
+    'button'
   >
 
   export interface OverlayBase {

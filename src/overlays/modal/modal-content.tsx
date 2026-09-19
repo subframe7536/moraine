@@ -39,22 +39,7 @@ export function ModalContent(props: ModalT.ContentProps): JSX.Element {
 /** Shared modal DOM, presence, focus, and recipe-backed presentation behavior. */
 export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
   const cn = useCn()
-  type RuntimeProps = ModalT.ContentBase & {
-    surfaceRender?: () => SurfaceContent
-    class?: ModalT.Classes['content']
-    style?: JSX.CSSProperties
-    classes?: Partial<ModalT.Classes>
-    styles?: Partial<ModalT.Styles>
-    ref?: (element: HTMLDivElement | undefined) => void
-    onKeyDown?: JSX.EventHandlerUnion<HTMLDivElement, KeyboardEvent>
-    overlay?: boolean
-    overlayScroll?: boolean
-    overlayRef?: (element: HTMLDivElement | undefined) => void
-    overlayClass?: string
-    overlayStyle?: JSX.CSSProperties
-  } & Record<string, unknown>
-
-  const [local, rest] = splitProps(props as RuntimeProps, [
+  const [local, rest] = splitProps(props, [
     'ref',
     'overlay',
     'overlayScroll',
@@ -110,7 +95,11 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
   )
 
   const renderContent = (surface?: SurfaceContent): JSX.Element => {
-    const body = resolveChildren(() => (surface?.children ?? local.children) as JSX.Element)
+    const body = resolveChildren(() =>
+      renderComponentOrElement(surface?.children ?? local.children, {
+        close: () => context.updateOpen(false),
+      }),
+    )
 
     return (
       <div
@@ -140,9 +129,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
         style={{ ...local.styles?.content, ...local.style }}
         onKeyDown={onContentKeyDown}
       >
-        {renderComponentOrElement(body() as ModalT.ContentBase['children'], {
-          close: () => context.updateOpen(false),
-        })}
+        {body()}
       </div>
     )
   }

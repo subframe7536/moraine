@@ -24,7 +24,6 @@ import { acquireBodyScrollLock } from '../../overlays/base/utils.ts'
 import { useCn } from '../../provider/cn-context.ts'
 import { createStyles } from '../../provider/create-styles.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { createTypeahead } from '../../shared/typeahead.ts'
 import type { ValidComponent } from '../../shared/types.ts'
@@ -462,12 +461,8 @@ function BaseSelectTrigger<
   const state = useSelectState<TItem>()
   const cn = useCn()
   const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style', 'disabled', 'ref'])
-  const child = resolveChildren(() => local.children)
-  const resolvedChildren = createMemo(() =>
-    renderComponentOrElement(
-      child() as ComponentOrElement<BaseSelectT.TriggerState<TItem>>,
-      state.presentation,
-    ),
+  const resolvedChildren = resolveChildren(() =>
+    renderComponentOrElement(local.children, state.presentation),
   )
   const tag = () => local.as ?? 'button'
   const eventProps = mergeProps(rest, {
@@ -710,7 +705,6 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
     'onPointerMove',
     'onPointerDown',
   ])
-  const child = resolveChildren(() => local.children as JSX.Element)
   const item = () => local.item
   const selected = () => state.value().includes(item().value)
   const highlighted = () => sameValue(state.highlightedValue(), item().value)
@@ -729,15 +723,12 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       return disabled()
     },
   }
-  const resolvedChildren = createMemo(() => {
-    const value = child()
-    if (value === undefined) {
+  const resolvedChildren = resolveChildren(() => {
+    const children = local.children
+    if (children === undefined) {
       return item().label
     }
-    return renderComponentOrElement(
-      value as ComponentOrElement<BaseSelectT.ItemState<T>>,
-      presentation,
-    )
+    return renderComponentOrElement(children, presentation)
   })
   return (
     <div

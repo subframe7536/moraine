@@ -13,7 +13,7 @@ import type { IconT } from '../icon'
 
 import { useButtonGroupContext } from './button-group-context'
 import { buttonRecipe } from './button.recipe'
-import type { ButtonProps, ButtonT } from './button.types'
+import type { ButtonProps } from './button.types'
 
 /**
  * Button component with polymorphic `as` support and loading state.
@@ -50,7 +50,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     },
   })
 
-  const tag = createMemo(() => (local.as as ValidComponent) ?? 'button')
+  const tag = createMemo<ValidComponent>(() => local.as ?? 'button')
 
   const isDisabledOrLoading = () => isLoading() || Boolean(local.disabled)
   const leading = createMemo(() => local.leading)
@@ -96,7 +96,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   const child = resolveChildren(() => local.children)
   const resolvedChildren = createMemo(() =>
-    renderComponentOrElement(child() as ButtonT.Base['children'], {
+    renderComponentOrElement(child(), {
       get loading() {
         return isLoading()
       },

@@ -1,11 +1,5 @@
 import type { JSX } from 'solid-js'
-import {
-  Show,
-  children as resolveChildren,
-  createComponent,
-  mergeProps,
-  splitProps,
-} from 'solid-js'
+import { Show, children as resolveChildren, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import { createStyles } from '../../provider'
@@ -28,16 +22,14 @@ function DialogTrigger<T extends ValidComponent = 'button'>(
   props: DialogT.TriggerProps<T>,
 ): JSX.Element {
   const resolved = createStyles(dialogRecipe, props, { rootSlot: 'trigger' })
-  const partProps = mergeProps(props, resolved.styles.trigger) as DialogT.TriggerProps<T>
-  return createComponent(Modal.Trigger<T>, partProps)
+  return <Modal.Trigger {...props} {...resolved.styles.trigger} />
 }
 
 function DialogClose<T extends ValidComponent = 'button'>(
   props: DialogT.CloseProps<T>,
 ): JSX.Element {
   const resolved = createStyles(dialogRecipe, props, { rootSlot: 'close' })
-  const partProps = mergeProps(props, resolved.styles.close) as DialogT.CloseProps<T>
-  return createComponent(Modal.Close<T>, partProps)
+  return <Modal.Close {...props} {...resolved.styles.close} />
 }
 
 function DialogContent(props: DialogT.ContentProps): JSX.Element {

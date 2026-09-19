@@ -65,7 +65,8 @@ export namespace FieldT {
     Base<T>,
     Variant,
     Classes,
-    Styles
+    Styles,
+    'div'
   >
 }
 

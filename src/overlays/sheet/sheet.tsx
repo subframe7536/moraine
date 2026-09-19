@@ -1,11 +1,5 @@
 import type { JSX } from 'solid-js'
-import {
-  Show,
-  children as resolveChildren,
-  createComponent,
-  mergeProps,
-  splitProps,
-} from 'solid-js'
+import { Show, children as resolveChildren, mergeProps, splitProps } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import { createStyles } from '../../provider'
@@ -28,14 +22,12 @@ function SheetTrigger<T extends ValidComponent = 'button'>(
   props: SheetT.TriggerProps<T>,
 ): JSX.Element {
   const resolved = createStyles(sheetRecipe, props, { rootSlot: 'trigger' })
-  const partProps = mergeProps(props, resolved.styles.trigger) as SheetT.TriggerProps<T>
-  return createComponent(Modal.Trigger<T>, partProps)
+  return <Modal.Trigger {...props} {...resolved.styles.trigger} />
 }
 
 function SheetClose<T extends ValidComponent = 'button'>(props: SheetT.CloseProps<T>): JSX.Element {
   const resolved = createStyles(sheetRecipe, props, { rootSlot: 'close' })
-  const partProps = mergeProps(props, resolved.styles.close) as SheetT.CloseProps<T>
-  return createComponent(Modal.Close<T>, partProps)
+  return <Modal.Close {...props} {...resolved.styles.close} />
 }
 
 function SheetContent(props: SheetT.ContentProps): JSX.Element {
