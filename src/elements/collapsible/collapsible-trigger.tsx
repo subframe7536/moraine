@@ -15,7 +15,14 @@ import type { CollapsibleT } from './collapsible.types'
 export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
   props: CollapsibleT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'disabled', 'children', 'class', 'style', 'ref'])
+  const [local, rest] = splitProps(props, [
+    'as',
+    'disabled',
+    'children',
+    'class',
+    'style',
+    'ref' as any,
+  ])
   const context = useCollapsibleContext()
   const resolved = createStyles(collapsibleRecipe, local, {
     rootSlot: 'trigger',

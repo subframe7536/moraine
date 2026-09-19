@@ -57,9 +57,6 @@ export namespace CollapsibleT {
     /** Ref callback for the outer animated height wrapper element. */
     wrapperRef?: (element: HTMLDivElement) => void
 
-    /** Receives the mounted content element and `undefined` when it unmounts. */
-    ref?: (element: HTMLElement | undefined) => void
-
     /** Content to render. */
     children?: JSX.Element
   }

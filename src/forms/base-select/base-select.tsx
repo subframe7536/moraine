@@ -460,14 +460,25 @@ function BaseSelectTrigger<
 >(props: BaseSelectT.TriggerProps<T, TItem>): JSX.Element {
   const state = useSelectState<TItem>()
   const cn = useCn()
-  const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style', 'disabled', 'ref'])
+  const [local, rest] = splitProps(props, [
+    'as',
+    'children',
+    'class',
+    'style',
+    'disabled',
+    'onPointerDown',
+    'onKeyDown',
+    'onFocus',
+    'onBlur',
+    'ref' as any,
+  ])
   const resolvedChildren = resolveChildren(() =>
     renderComponentOrElement(local.children, state.presentation),
   )
   const tag = () => local.as ?? 'button'
   const eventProps = mergeProps(rest, {
     onPointerDown(event: PointerEvent) {
-      callHandler(event, rest.onPointerDown)
+      callHandler(event, local.onPointerDown)
       if (
         !event.defaultPrevented &&
         !state.field.disabled() &&
@@ -479,17 +490,17 @@ function BaseSelectTrigger<
       }
     },
     onKeyDown(event: KeyboardEvent) {
-      callHandler(event, rest.onKeyDown)
+      callHandler(event, local.onKeyDown)
       state.keyDown(event)
     },
     onFocus(event: FocusEvent) {
-      callHandler(event, rest.onFocus)
+      callHandler(event, local.onFocus)
       if (!event.defaultPrevented) {
         state.field.emit('focus', event)
       }
     },
     onBlur(event: FocusEvent) {
-      callHandler(event, rest.onBlur)
+      callHandler(event, local.onBlur)
       if (!event.defaultPrevented) {
         state.field.emit('blur', event)
       }

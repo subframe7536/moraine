@@ -95,15 +95,12 @@ export type DefaultTag<T extends ValidComponent, TDefault extends ValidComponent
 export type TriggerBase<T extends ValidComponent = 'button'> = {
   /**
    * Element or component to render as.
-   * @default 'button'
    */
   as?: T
   /** Whether this trigger is disabled. */
   disabled?: boolean
   /** Trigger label and visual content. */
   children?: JSX.Element
-  /** Receives the mounted trigger element and `undefined` when it unmounts. */
-  ref?: (element: HTMLElement | undefined) => void
 }
 
 export type BaseProps<

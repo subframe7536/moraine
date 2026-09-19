@@ -38,7 +38,14 @@ function useModalTriggerBinding(
 export function ModalTrigger<T extends ValidComponent = 'button'>(
   props: ModalT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['as', 'disabled', 'children', 'class', 'style', 'ref'])
+  const [local, rest] = splitProps(props, [
+    'as',
+    'disabled',
+    'children',
+    'class',
+    'style',
+    'ref' as any,
+  ])
   const tag = createMemo(() => local.as ?? 'button')
   const disabled = () => Boolean(local.disabled)
   const binding = useModalTriggerBinding(() => local.ref)

@@ -439,6 +439,10 @@ const divRef = (element: HTMLDivElement) => element.focus()
 // @ts-expect-error Invalid Button props remain rejected.
 ;<SidebarFrame.Trigger as={Button} variant="invalid" />
 ;<SidebarFrame.Trigger
+  ref={(element) => {
+    const button: HTMLButtonElement = element
+    void button
+  }}
   onClick={(event) => {
     const button: HTMLButtonElement = event.currentTarget
     void button
@@ -446,9 +450,43 @@ const divRef = (element: HTMLDivElement) => element.focus()
 >
   Toggle
 </SidebarFrame.Trigger>
+;<SidebarFrame.Trigger
+  as="a"
+  ref={(element) => {
+    const anchor: HTMLAnchorElement = element
+    void anchor
+  }}
+>
+  Toggle
+</SidebarFrame.Trigger>
+
+;<Modal.Trigger
+  ref={(element) => {
+    const button: HTMLButtonElement = element
+    void button
+  }}
+/>
+;<Modal.Trigger
+  as="a"
+  ref={(element) => {
+    const anchor: HTMLAnchorElement = element
+    void anchor
+  }}
+/>
+;<Modal.Trigger
+  as="svg"
+  ref={(element) => {
+    const svg: SVGSVGElement = element
+    void svg
+  }}
+/>
 
 ;<Collapsible>
   <Collapsible.Trigger
+    ref={(element) => {
+      const button: HTMLButtonElement = element
+      void button
+    }}
     onClick={(event) => {
       const button: HTMLButtonElement = event.currentTarget
       void button
@@ -456,9 +494,18 @@ const divRef = (element: HTMLDivElement) => element.focus()
   >
     Toggle
   </Collapsible.Trigger>
+  <Collapsible.Trigger
+    as="a"
+    ref={(element) => {
+      const anchor: HTMLAnchorElement = element
+      void anchor
+    }}
+  >
+    Toggle
+  </Collapsible.Trigger>
   <Collapsible.Content
     ref={(element) => {
-      const div: HTMLElement | undefined = element
+      const div: HTMLDivElement = element
       void div
     }}
     onClick={(event) => {
@@ -468,9 +515,22 @@ const divRef = (element: HTMLDivElement) => element.focus()
   >
     Content
   </Collapsible.Content>
+  <Collapsible.Content
+    as="section"
+    ref={(element) => {
+      const section: HTMLElement = element
+      void section
+    }}
+  >
+    Content
+  </Collapsible.Content>
 </Collapsible>
 
 ;<ContextMenu.Trigger
+  ref={(element) => {
+    const div: HTMLDivElement = element
+    void div
+  }}
   onClick={(event) => {
     const div: HTMLDivElement = event.currentTarget
     void div
@@ -483,12 +543,21 @@ const divRef = (element: HTMLDivElement) => element.focus()
   items={[]}
   itemRender={(context) => context.item}
   ref={(element) => {
-    const list: any = element
+    const list: HTMLUListElement = element
     void list
   }}
   onClick={(event) => {
     const ul: HTMLUListElement = event.currentTarget
     void ul
+  }}
+/>
+;<List
+  as="div"
+  items={[]}
+  itemRender={(context) => String(context.item)}
+  ref={(element) => {
+    const list: HTMLDivElement = element
+    void list
   }}
 />
 

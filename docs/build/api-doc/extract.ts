@@ -1083,6 +1083,16 @@ class DeclarationAnalyzer {
         originModule: 'Moraine',
       })
     }
+    if (name === 'BaseProps' && typeArguments.length >= 5) {
+      const asProperty = properties.find((property) => property.name === 'as')
+      if (asProperty && asProperty.defaultValue === undefined) {
+        const elementArg = typeArguments[5] ?? typeArguments[0]!
+        const defaultTag = formatType(contextValue(elementArg, context)).replace(/^['"]|['"]$/g, '')
+        if (defaultTag && defaultTag !== 'T' && defaultTag !== 'TElement') {
+          asProperty.defaultValue = defaultTag
+        }
+      }
+    }
     return properties
   }
 

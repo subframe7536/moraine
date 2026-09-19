@@ -21,7 +21,7 @@ export function List<
     'items',
     'itemRender',
     'virtualRender',
-    'ref',
+    'ref' as any,
     'class',
     'style',
   ])
@@ -61,7 +61,7 @@ export function List<
         }
       >
         {(virtualRender) => (
-          <Dynamic<Component<ListT.VirtualRenderProps<TItem, any, TItemElement>>>
+          <Dynamic<Component<ListT.VirtualRenderProps<TItem, HTMLElement, TItemElement>>>
             component={virtualRender()}
             entries={local.items ?? []}
             scrollElement={scrollElement()}

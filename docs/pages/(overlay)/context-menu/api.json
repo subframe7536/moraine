@@ -317,7 +317,7 @@
             "required": false,
             "type": "\"div\" | undefined",
             "description": "Element or component to render as.",
-            "defaultValue": "button"
+            "defaultValue": "div"
           },
           {
             "name": "children",
@@ -340,8 +340,7 @@
           {
             "name": "ref",
             "required": false,
-            "type": "((element: HTMLElement | undefined) => void) | undefined",
-            "description": "Receives the mounted trigger element and `undefined` when it unmounts."
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
           },
           {
             "name": "style",

@@ -39,8 +39,7 @@
       {
         "name": "ref",
         "required": false,
-        "type": "((element: any) => void) | undefined",
-        "description": "Receives the mounted list element."
+        "type": "JSX.HTMLElementTags[\"ul\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
       },
       {
         "name": "style",
@@ -50,7 +49,7 @@
       {
         "name": "virtualRender",
         "required": false,
-        "type": "Component<ListT.VirtualRenderProps<TItem, any, TItemElement>> | undefined",
+        "type": "Component<ListT.VirtualRenderProps<TItem, HTMLElement, TItemElement>> | undefined",
         "description": "Replaces normal iteration with caller-controlled virtual rendering."
       }
     ],

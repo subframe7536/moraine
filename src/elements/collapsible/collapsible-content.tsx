@@ -21,7 +21,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     'children',
     'class',
     'style',
-    'ref',
+    'ref' as any,
     'unmountOnHide',
     'forceMount',
     'wrapperClass',

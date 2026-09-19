@@ -52,9 +52,7 @@ export namespace ListT {
     /** Renders one collection item. */
     itemRender: ComponentOrElement<ItemRenderProps<TItem, TItemElement>>
     /** Replaces normal iteration with caller-controlled virtual rendering. */
-    virtualRender?: Component<VirtualRenderProps<TItem, any, TItemElement>>
-    /** Receives the mounted list element. */
-    ref?: (element: any) => void
+    virtualRender?: Component<VirtualRenderProps<TItem, HTMLElement, TItemElement>>
   }
 
   export type Props<

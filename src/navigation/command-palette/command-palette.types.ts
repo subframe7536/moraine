@@ -88,7 +88,7 @@ export namespace CommandPaletteT {
 
   export type VirtualRenderProps<TItem extends Item = Item> = ListT.VirtualRenderProps<
     VirtualEntry<TItem>,
-    HTMLDivElement,
+    HTMLElement,
     HTMLDivElement
   >
 

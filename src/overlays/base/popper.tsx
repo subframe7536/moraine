@@ -144,7 +144,7 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     'style',
     'describeTrigger',
     'toggleOnClick',
-    'ref',
+    'ref' as any,
   ])
   const context = untrack(() => props.context)
   const tag = () => local.as ?? 'button'
