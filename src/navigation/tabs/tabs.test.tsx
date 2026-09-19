@@ -692,6 +692,46 @@ describe('Tabs', () => {
     expect(reads).toEqual({ content: 1, icon: 1, items: 1, label: 1 })
   })
 
+  test('keeps the no-request fallback dynamic until the user selects a tab', async () => {
+    const [items, setItems] = createSignal([
+      { label: 'One', value: 'one', content: 'Panel one', disabled: true },
+      { label: 'Two', value: 'two', content: 'Panel two' },
+    ])
+    const screen = render(() => <Tabs items={items()} />)
+
+    expect(screen.getByRole('tab', { name: 'Two' }).getAttribute('aria-selected')).toBe('true')
+
+    setItems([
+      { label: 'One', value: 'one', content: 'Panel one' },
+      { label: 'Two', value: 'two', content: 'Panel two' },
+    ])
+    await Promise.resolve()
+    expect(screen.getByRole('tab', { name: 'One' }).getAttribute('aria-selected')).toBe('true')
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Two' }))
+    setItems([
+      { label: 'Zero', value: 'zero', content: 'Panel zero' },
+      { label: 'One', value: 'one', content: 'Panel one' },
+      { label: 'Two', value: 'two', content: 'Panel two' },
+    ])
+    await Promise.resolve()
+    expect(screen.getByRole('tab', { name: 'Two' }).getAttribute('aria-selected')).toBe('true')
+  })
+
+  test('restores preserved uncontrolled tab state after controlled mode is removed', () => {
+    const [value, setValue] = createSignal<string | undefined>()
+    const screen = render(() => <Tabs items={ITEMS} value={value()} />)
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Settings' }))
+    expect(screen.getByRole('tab', { name: 'Settings' }).getAttribute('aria-selected')).toBe('true')
+
+    setValue('overview')
+    expect(screen.getByRole('tab', { name: 'Overview' }).getAttribute('aria-selected')).toBe('true')
+
+    setValue(undefined)
+    expect(screen.getByRole('tab', { name: 'Settings' }).getAttribute('aria-selected')).toBe('true')
+  })
+
   test('keeps empty and all-disabled collections out of the tab order', () => {
     const empty = render(() => <Tabs items={[]} />)
     expect(empty.queryAllByRole('tab')).toHaveLength(0)

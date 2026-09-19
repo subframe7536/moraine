@@ -63,7 +63,6 @@ export function Accordion(props: AccordionProps): JSX.Element {
     value: () => merged.value,
     defaultValue: () => merged.defaultValue ?? [],
   })
-  const resolvedSelectedValues = createMemo(() => selectedValues() ?? [])
   const items = createMemo(() => merged.items ?? [])
   const allocatedIdOccurrences = new Map<string, Set<number>>()
   let rootElement: HTMLDivElement | undefined
@@ -124,7 +123,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
   }
 
   function toggleValue(itemValue: string): void {
-    const currentValue = resolvedSelectedValues()
+    const currentValue = selectedValues()
     const isOpen = currentValue.includes(itemValue)
 
     if (merged.multiple) {
@@ -240,7 +239,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
           const disabled = createMemo(() => Boolean(merged.disabled || item.disabled))
           const leading = createMemo(() => item.leading)
           const label = createMemo(() => item.label)
-          const expanded = createMemo(() => resolvedSelectedValues().includes(itemValue()))
+          const expanded = createMemo(() => selectedValues().includes(itemValue()))
           const [contentExpanded, setContentExpanded] = createSignal(untrack(expanded))
           const itemDataAttrs = createMemo(() => ({
             'data-closed': expanded() ? undefined : '',

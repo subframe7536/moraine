@@ -41,11 +41,10 @@ export interface BaseSelectSearchInputState {
 
 /** Creates controlled or uncontrolled query state for a custom searchable picker. */
 export function useSearchValue(options: SearchValueOptions = {}): SearchValue {
-  const [text, setText] = useControllableValue<string>({
+  const [query, setText] = useControllableValue<string>({
     value: () => options.searchValue,
-    defaultValue: () => options.defaultSearchValue,
+    defaultValue: () => options.defaultSearchValue ?? '',
   })
-  const query = () => text() ?? ''
   function setQuery(value: string) {
     const next =
       options.searchMaxLength === undefined ? value : value.slice(0, options.searchMaxLength)

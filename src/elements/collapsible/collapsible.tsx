@@ -38,18 +38,17 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     value: () => local.open,
     defaultValue: () => Boolean(local.defaultOpen),
   })
-  const resolvedOpen = createMemo(() => Boolean(open()))
   const { contentHeight, dataAttrs, disabled, setContentElement } = useDisclosureState({
-    open: resolvedOpen,
+    open,
     disabled: () => Boolean(local.disabled),
   })
-  const contentPresence = useTransitionPresence({ open: resolvedOpen })
+  const contentPresence = useTransitionPresence({ open })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const transition = createMemo(() => Boolean(local.transition))
   const unmountOnHide = createMemo(() => local.unmountOnHide ?? true)
 
   function setOpen(nextOpen: boolean): void {
-    if (disabled() || nextOpen === resolvedOpen()) {
+    if (disabled() || nextOpen === open()) {
       return
     }
 
@@ -58,7 +57,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   }
 
   function toggleContent(): void {
-    setOpen(!resolvedOpen())
+    setOpen(!open())
   }
 
   const context: CollapsibleContext = {
@@ -73,7 +72,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     rootId,
     triggerId,
     contentId,
-    open: resolvedOpen,
+    open,
     setOpen,
     toggle: toggleContent,
     disabled,

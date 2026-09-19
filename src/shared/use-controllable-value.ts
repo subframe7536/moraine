@@ -3,35 +3,28 @@ import { createMemo, createSignal, untrack } from 'solid-js'
 
 export interface UseControllableValueOptions<T> {
   value: Accessor<T | undefined>
-  defaultValue?: Accessor<T | undefined>
+  defaultValue: Accessor<T>
 }
 
-type ControllableValueUpdate<T> = T | undefined | ((previous: T | undefined) => T | undefined)
+type ControllableValueUpdate<T> = T | ((previous: T) => T)
 
 export function useControllableValue<T>(options: UseControllableValueOptions<T>) {
-  const [uncontrolledValue, setUncontrolledValue] = createSignal<T | undefined>(
-    untrack(() => options.defaultValue?.()),
-  )
+  const [uncontrolledValue, setUncontrolledValue] = createSignal<T>(untrack(options.defaultValue))
   const controlledValue = createMemo(() => options.value())
-  const isControlled = createMemo(() => controlledValue() !== undefined)
 
-  const value = createMemo<T | undefined>(() => {
-    if (isControlled()) {
-      return controlledValue()
-    }
-
-    return uncontrolledValue()
-  })
+  const value: Accessor<T> = () => {
+    const controlled = controlledValue()
+    return controlled === undefined ? uncontrolledValue() : controlled
+  }
 
   function setValue(update: ControllableValueUpdate<T>): void {
     untrack(() => {
-      const currentValue = value()
+      const controlled = controlledValue()
+      const currentValue = controlled === undefined ? uncontrolledValue() : controlled
       const nextValue =
-        typeof update === 'function'
-          ? (update as (previous: T | undefined) => T | undefined)(currentValue)
-          : update
+        typeof update === 'function' ? (update as (previous: T) => T)(currentValue) : update
 
-      if (Object.is(nextValue, currentValue) || isControlled()) {
+      if (Object.is(nextValue, currentValue) || controlled !== undefined) {
         return
       }
 

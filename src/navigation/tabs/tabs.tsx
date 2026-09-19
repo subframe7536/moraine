@@ -67,9 +67,9 @@ export function Tabs(props: TabsProps): JSX.Element {
   )
 
   const rootId = useId(() => merged.id, 'tabs')
-  const [requestedValue, setRequestedValue] = useControllableValue<string>({
+  const [requestedValue, setRequestedValue] = useControllableValue<string | null>({
     value: () => merged.value,
-    defaultValue: () => merged.defaultValue,
+    defaultValue: () => merged.defaultValue ?? null,
   })
   const normalizedItems = createMemo<NormalizedTabItem[]>(() => {
     const occurrences = new Map<string, number>()
@@ -96,7 +96,7 @@ export function Tabs(props: TabsProps): JSX.Element {
   const selectedItem = createMemo(() => {
     const candidate = requestedValue()
 
-    if (candidate !== undefined) {
+    if (candidate !== null) {
       const requestedItem = normalizedItems().find(
         (item) => item.value === candidate && !item.disabled,
       )

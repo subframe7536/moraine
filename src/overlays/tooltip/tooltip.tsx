@@ -281,7 +281,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
 
   createEffect(
     on(
-      () => Boolean(open()) && !merged.disabled,
+      () => open() && !merged.disabled,
       (isResolvedOpen) => {
         const id = tooltipId()
         if (isResolvedOpen) {

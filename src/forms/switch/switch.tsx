@@ -187,7 +187,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   createEffect(
     on(checked, (isChecked) => {
       if (inputEl) {
-        inputEl.checked = Boolean(isChecked)
+        inputEl.checked = isChecked
       }
     }),
   )
@@ -269,7 +269,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         type="checkbox"
         name={field.name()}
         value={merged.value}
-        checked={Boolean(checked())}
+        checked={checked()}
         required={field.required()}
         disabled={field.disabled()}
         readonly={readOnly()}
@@ -281,12 +281,12 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           event.stopPropagation()
 
           if (field.disabled() || readOnly()) {
-            event.currentTarget.checked = Boolean(checked())
+            event.currentTarget.checked = checked()
             return
           }
 
           onChange(event.currentTarget.checked)
-          event.currentTarget.checked = Boolean(checked())
+          event.currentTarget.checked = checked()
         }}
       />
 
@@ -297,7 +297,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         disabled={field.disabled()}
         data-slot="track"
         data-invalid={field.invalid() ? '' : undefined}
-        aria-checked={Boolean(checked())}
+        aria-checked={checked()}
         {...switchAriaAttrs()}
         {...resolved.styles.track}
         onPointerDown={onPointerDown}

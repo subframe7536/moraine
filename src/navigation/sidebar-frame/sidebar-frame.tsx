@@ -3,7 +3,6 @@ import {
   Show,
   children as resolveChildren,
   createEffect,
-  createMemo,
   createSignal,
   mergeProps,
   on,
@@ -162,11 +161,10 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
   )
 
   const mediaMatches = createMediaQuery('(max-width: 768px)', false)
-  const [isMobileValue, setIsMobile] = useControllableValue<boolean>({
+  const [isMobile, setIsMobile] = useControllableValue<boolean>({
     value: () => local.isMobile,
     defaultValue: mediaMatches,
   })
-  const isMobile = createMemo(() => Boolean(isMobileValue()))
   const [isOpen, setOpen] = createSignal(untrack(() => !isMobile()))
   const [scrolled, setScrolled] = createSignal(false)
 

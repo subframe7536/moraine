@@ -298,7 +298,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       : Number(merged.largeStep) || stepValue() * 10,
   )
 
-  const currentValue = createMemo(() => clamp(resolvedValue() ?? 0, minValue(), maxValue()))
+  const currentValue = createMemo(() => clamp(resolvedValue(), minValue(), maxValue()))
   const formattedValue = createMemo(() => formatLocaleNumber(currentValue(), merged.locale))
   const initialResetValue = untrack(currentValue)
 

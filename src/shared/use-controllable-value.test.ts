@@ -1,3 +1,4 @@
+import type { Accessor } from 'solid-js'
 import { createMemo, createRenderEffect, createRoot, createSignal } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
@@ -34,8 +35,8 @@ describe('useControllableValue', () => {
         defaultValue: () => 1,
       })
 
-      setValue((previous) => (previous ?? 0) + 1)
-      setValue((previous) => (previous ?? 0) + 1)
+      setValue((previous) => previous + 1)
+      setValue((previous) => previous + 1)
 
       expect(value()).toBe(3)
       dispose()
@@ -92,22 +93,18 @@ describe('useControllableValue', () => {
     })
   })
 
-  it('stores undefined as an uncontrolled value across mode transitions', () => {
+  it('keeps the resolved API concrete', () => {
     createRoot((dispose) => {
-      const [controlledValue, setControlledValue] = createSignal<string>()
-      const [value, setValue] = useControllableValue({
-        value: controlledValue,
+      const [value, setValue] = useControllableValue<string>({
+        value: () => undefined,
         defaultValue: () => 'default',
       })
+      const accessor: Accessor<string> = value
+      const setter: (update: string | ((previous: string) => string)) => void = setValue
 
-      setValue(undefined)
-      expect(value()).toBeUndefined()
-
-      setControlledValue('controlled')
-      expect(value()).toBe('controlled')
-
-      setControlledValue(undefined)
-      expect(value()).toBeUndefined()
+      expect(accessor()).toBe('default')
+      setter((previous) => `${previous}-next`)
+      expect(value()).toBe('default-next')
       dispose()
     })
   })

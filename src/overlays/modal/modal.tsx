@@ -30,7 +30,7 @@ export function Modal(props: ModalProps): JSX.Element {
   })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
-  const presence = useTransitionPresence({ open: () => Boolean(open()) })
+  const presence = useTransitionPresence({ open })
   const [contentRegistrations, setContentRegistrations] = createSignal<Set<number>>(new Set())
   let nextContentRegistrationId = 0
   const dismissible = createMemo(() => props.dismissible ?? true)
@@ -44,7 +44,7 @@ export function Modal(props: ModalProps): JSX.Element {
   let closeCycleActive = false
 
   const updateOpen = (nextOpen: boolean): void => {
-    if (nextOpen === !!open()) {
+    if (nextOpen === open()) {
       return
     }
 
@@ -223,7 +223,7 @@ export function Modal(props: ModalProps): JSX.Element {
   })
 
   const context = {
-    open: () => Boolean(open()),
+    open,
     presence,
     contentId,
     updateOpen,
