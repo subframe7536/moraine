@@ -35,11 +35,10 @@ import type { DropdownMenuProps, DropdownMenuT } from './dropdown-menu.types'
 function createDropdownMenu(props: DropdownMenuProps) {
   const resolvedId = useId(() => props.id, 'dropdownmenu')
   const contentId = createMemo(() => `${resolvedId()}-content`)
-  const [openState, setOpenState] = useControllableValue<boolean>({
+  const [isOpen, setOpenState] = useControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
   })
-  const isOpen = createMemo(() => Boolean(openState()))
   const [autoFocusStrategy, setAutoFocusStrategy] =
     createSignal<OverlayMenuFocusStrategy>('content')
   const trigger = createOverlayTriggerRef()

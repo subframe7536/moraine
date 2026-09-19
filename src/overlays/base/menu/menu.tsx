@@ -637,11 +637,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   function CheckboxMenuItem(itemProps: { item: TItem }): JSX.Element {
     const itemId = useId(undefined, `${props.id}-checkbox`)
     const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
-    const [checkedState, setCheckedState] = useControllableValue<boolean>({
+    const [checked, setCheckedState] = useControllableValue<boolean>({
       value: () => itemProps.item.checked,
       defaultValue: () => itemProps.item.defaultChecked ?? false,
     })
-    const checked = createMemo(() => Boolean(checkedState()))
     const itemAttributes = createMemo(() =>
       props.itemProps?.(getItemRenderProps(itemProps.item, false, true, false)),
     )
@@ -724,7 +723,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         return radioGroupValues()[itemProps.item.group] === itemProps.item.value
       }
 
-      return Boolean(checkedState())
+      return checkedState()
     })
     const itemAttributes = createMemo(() =>
       props.itemProps?.(getItemRenderProps(itemProps.item, false, false, true)),
@@ -810,11 +809,10 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     const submenuId = useId(undefined, `${props.id}-sub`)
     const submenuContentId = createMemo(() => `${submenuId()}-content`)
     const [triggerElement, setTriggerElement] = createSignal<HTMLDivElement | undefined>(undefined)
-    const [openState, setOpenState] = useControllableValue<boolean>({
+    const [isOpen, setOpenState] = useControllableValue<boolean>({
       value: () => itemProps.item.open,
       defaultValue: () => itemProps.item.defaultOpen ?? false,
     })
-    const isOpen = createMemo(() => Boolean(openState()))
     const [autoFocusStrategy, setAutoFocusStrategy] = createSignal<OverlayMenuFocusStrategy>('none')
     const contentPresence = useTransitionPresence({
       open: isOpen,

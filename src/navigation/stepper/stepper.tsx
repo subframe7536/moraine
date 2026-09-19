@@ -56,9 +56,9 @@ export function Stepper(props: StepperProps): JSX.Element {
   )
 
   const id = useId(() => merged.id, 'stepper')
-  const [requestedValue, setRequestedValue] = useControllableValue<StepperT.Value>({
+  const [requestedValue, setRequestedValue] = useControllableValue<StepperT.Value | null>({
     value: () => merged.value,
-    defaultValue: () => merged.defaultValue,
+    defaultValue: () => merged.defaultValue ?? null,
   })
   const triggerRefs = new Map<StepperT.Value, HTMLButtonElement>()
 
@@ -92,7 +92,7 @@ export function Stepper(props: StepperProps): JSX.Element {
 
   const resolvedValue = createMemo(() => {
     const value = requestedValue()
-    if (value === undefined) {
+    if (value === null) {
       const firstEnabled = normalizedItems().find((entry) => !entry.item.disabled)
       return firstEnabled?.value ?? normalizedItems()[0]?.value
     }

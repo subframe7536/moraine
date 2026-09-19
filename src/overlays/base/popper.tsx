@@ -104,7 +104,7 @@ export function createPopper(props: PopperProps): PopperContext {
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
   })
-  const isOpen = createMemo(() => Boolean(open()) && !props.disabled)
+  const isOpen = createMemo(() => open() && !props.disabled)
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
   const contentPresence = useTransitionPresence({ open: isOpen })

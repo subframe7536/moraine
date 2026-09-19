@@ -101,16 +101,15 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     },
     defaultValue: () => initial,
   })
-  const value = createMemo(() => normalize(selection() ?? []))
+  const value = createMemo(() => normalize(selection()))
   const itemDisabled = (item: T) => {
     const canonical = itemByValue().get(item.value) ?? item
     return Boolean(canonical.disabled || props.isItemDisabled?.(canonical, value()))
   }
-  const [openValue, setOpenValue] = useControllableValue<boolean>({
+  const [open, setOpenValue] = useControllableValue<boolean>({
     value: () => props.open,
     defaultValue: () => props.defaultOpen ?? false,
   })
-  const open = () => openValue() ?? false
   const [highlightedValue, setHighlightedValue] = createSignal<T['value']>()
   const [anchor, setAnchor] = createSignal<HTMLElement>()
   const [focusOwner, setFocusOwner] = createSignal<HTMLElement>()

@@ -152,7 +152,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     defaultValue: () => initialDefaultChecked,
   })
 
-  const resolvedChecked = createMemo<boolean | undefined>(() => {
+  const resolvedChecked = createMemo<boolean>(() => {
     const value = checked()
 
     return value === 'indeterminate' ? false : value
@@ -220,7 +220,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   createEffect(
     on([resolvedChecked, indeterminate], ([checked, isIndeterminate]) => {
       if (inputEl) {
-        inputEl.checked = Boolean(checked)
+        inputEl.checked = checked
         inputEl.indeterminate = isIndeterminate
       }
     }),
@@ -333,7 +333,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           type="checkbox"
           name={field.name()}
           value={merged.value}
-          checked={Boolean(resolvedChecked())}
+          checked={resolvedChecked()}
           required={field.required()}
           disabled={field.disabled()}
           readonly={readOnly()}
@@ -345,13 +345,13 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
             event.stopPropagation()
 
             if (field.disabled() || readOnly()) {
-              event.currentTarget.checked = Boolean(resolvedChecked())
+              event.currentTarget.checked = resolvedChecked()
               event.currentTarget.indeterminate = indeterminate()
               return
             }
 
             onChange(event.currentTarget.checked)
-            event.currentTarget.checked = Boolean(resolvedChecked())
+            event.currentTarget.checked = resolvedChecked()
             event.currentTarget.indeterminate = indeterminate()
           }}
         />
@@ -363,7 +363,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           disabled={field.disabled()}
           data-slot="control"
           data-invalid={field.invalid() ? '' : undefined}
-          aria-checked={indeterminate() ? 'mixed' : Boolean(resolvedChecked())}
+          aria-checked={indeterminate() ? 'mixed' : resolvedChecked()}
           class={cn(resolved.styles.control.class, [
             resolved.variants.indicator === 'hidden' && 'sr-only',
           ])}

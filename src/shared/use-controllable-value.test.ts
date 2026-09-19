@@ -1,7 +1,26 @@
-import { createMemo, createRenderEffect, createRoot, createSignal } from 'solid-js'
+import type { Accessor } from 'solid-js'
+import { createMemo, createRenderEffect, createRoot, createSignal, untrack } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
-import { useControllableValue } from './use-controllable-value'
+import {
+  useControllableValue,
+  type UseControllableValueOptions,
+} from './use-controllable-value'
+
+type ConcreteOptions = UseControllableValueOptions<string>
+const invalidDefault: ConcreteOptions = {
+  value: () => undefined,
+  // @ts-expect-error The uncontrolled fallback must be concrete.
+  defaultValue: () => undefined,
+}
+void invalidDefault
+
+// @ts-expect-error Undefined cannot be part of the resolved state type.
+const invalidOptions: UseControllableValueOptions<string | undefined> = {
+  value: () => undefined,
+  defaultValue: () => 'default',
+}
+void invalidOptions
 
 describe('useControllableValue', () => {
   it('uses the initial default value for the lifetime of uncontrolled state', () => {
@@ -34,8 +53,8 @@ describe('useControllableValue', () => {
         defaultValue: () => 1,
       })
 
-      setValue((previous) => (previous ?? 0) + 1)
-      setValue((previous) => (previous ?? 0) + 1)
+      setValue((previous) => previous + 1)
+      setValue((previous) => previous + 1)
 
       expect(value()).toBe(3)
       dispose()
@@ -92,22 +111,53 @@ describe('useControllableValue', () => {
     })
   })
 
-  it('stores undefined as an uncontrolled value across mode transitions', () => {
+  it('does not publish equal resolved values across controlled mode transitions', () => {
     createRoot((dispose) => {
-      const [controlledValue, setControlledValue] = createSignal<string>()
-      const [value, setValue] = useControllableValue({
+      const [controlledValue, setControlledValue] = createSignal<boolean>()
+      const [value] = useControllableValue({
         value: controlledValue,
-        defaultValue: () => 'default',
+        defaultValue: () => false,
+      })
+      let evaluations = 0
+      const observedValue = createMemo(() => {
+        evaluations += 1
+        return value()
       })
 
-      setValue(undefined)
-      expect(value()).toBeUndefined()
+      expect(untrack(observedValue)).toBe(false)
+      expect(evaluations).toBe(1)
 
-      setControlledValue('controlled')
-      expect(value()).toBe('controlled')
+      setControlledValue(false)
+      expect(untrack(observedValue)).toBe(false)
+      expect(evaluations).toBe(1)
+
+      setControlledValue(true)
+      expect(untrack(observedValue)).toBe(true)
+      expect(evaluations).toBe(2)
+
+      setControlledValue(false)
+      expect(untrack(observedValue)).toBe(false)
+      expect(evaluations).toBe(3)
 
       setControlledValue(undefined)
-      expect(value()).toBeUndefined()
+      expect(untrack(observedValue)).toBe(false)
+      expect(evaluations).toBe(3)
+      dispose()
+    })
+  })
+
+  it('keeps the resolved API concrete', () => {
+    createRoot((dispose) => {
+      const [value, setValue] = useControllableValue<string>({
+        value: () => undefined,
+        defaultValue: () => 'default',
+      })
+      const accessor: Accessor<string> = value
+      const setter: (update: string | ((previous: string) => string)) => void = setValue
+
+      expect(accessor()).toBe('default')
+      setter((previous) => `${previous}-next`)
+      expect(value()).toBe('default-next')
       dispose()
     })
   })

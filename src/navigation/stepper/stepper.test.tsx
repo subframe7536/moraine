@@ -343,6 +343,43 @@ describe('Stepper', () => {
     expect(screen.getByRole('tabpanel').textContent).toContain('Shipping content')
   })
 
+  test('keeps the no-request fallback dynamic until the user selects a step', () => {
+    const [items, setItems] = createSignal([
+      { ...ITEMS[0], disabled: true },
+      { ...ITEMS[1] },
+      { ...ITEMS[2] },
+    ])
+    const screen = render(() => <Stepper items={items()} linear={false} clickable />)
+
+    expect(screen.getByRole('tab', { name: 'Shipping' }).getAttribute('aria-selected')).toBe('true')
+
+    setItems([{ ...ITEMS[0] }, { ...ITEMS[1] }, { ...ITEMS[2] }])
+    expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
+    setItems([
+      { title: 'Account', value: 'account', content: 'Account content' },
+      { ...ITEMS[0] },
+      { ...ITEMS[1] },
+      { ...ITEMS[2] },
+    ])
+    expect(screen.getByRole('tab', { name: 'Shipping' }).getAttribute('aria-selected')).toBe('true')
+  })
+
+  test('restores preserved uncontrolled step state after controlled mode is removed', () => {
+    const [value, setValue] = createSignal<string | undefined>()
+    const screen = render(() => <Stepper items={ITEMS} value={value()} linear={false} clickable />)
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
+    expect(screen.getByRole('tab', { name: 'Shipping' }).getAttribute('aria-selected')).toBe('true')
+
+    setValue('address')
+    expect(screen.getByRole('tab', { name: 'Address' }).getAttribute('aria-selected')).toBe('true')
+
+    setValue(undefined)
+    expect(screen.getByRole('tab', { name: 'Shipping' }).getAttribute('aria-selected')).toBe('true')
+  })
+
   test('applies style overrides', () => {
     const screen = render(() => (
       <Stepper

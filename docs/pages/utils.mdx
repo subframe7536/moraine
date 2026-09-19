@@ -45,12 +45,12 @@ import { useListVirtualizer } from 'moraine/virtualizer'
 
 ### `useControllableValue`
 
-Bridge controlled and uncontrolled state with a single accessor/setter pair.
+Bridge controlled and uncontrolled state with a single accessor/setter pair. `value` may return `undefined` to indicate uncontrolled mode, while the required `defaultValue` accessor supplies a concrete fallback. The returned accessor always resolves to `T`, the setter accepts only `T` or `(previous: T) => T`, and controlled/uncontrolled mode may change reactively.
 
 ```tsx
 const [value, setValue] = useControllableValue({
   value: () => props.value,
-  defaultValue: () => props.defaultValue,
+  defaultValue: () => props.defaultValue ?? '',
 })
 ```
 
