@@ -78,6 +78,11 @@ export namespace BaseSelectT {
       Variant {
     /** Current flat navigation collection. */
     items?: readonly TItem[]
+    /**
+     * Whether arrow-key navigation wraps from the ends.
+     * @default true
+     */
+    loop?: boolean
     /** Native form value; return undefined to omit a selected value from submission. */
     serializeValue?: (value: TItem['value']) => string | undefined
     /** Classes for popup parts. */

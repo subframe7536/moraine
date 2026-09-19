@@ -390,6 +390,46 @@ describe('BaseSelect composition', () => {
     fireEvent.keyDown(screen.getByRole('combobox'), { key: 's' })
     expect(change).toHaveBeenCalledWith([2])
   })
+  test('arrow navigation respects loop=false', () => {
+    const screen = render(() => (
+      <BaseSelect items={items} loop={false} defaultOpen>
+        <Parts />
+      </BaseSelect>
+    ))
+    const combobox = screen.getByRole('combobox')
+    // Highlight first item
+    fireEvent.keyDown(combobox, { key: 'Home' })
+    expect(within(document.body).getAllByRole('option')[0]?.getAttribute('data-highlighted')).toBe(
+      '',
+    )
+
+    // Up arrow at first item should NOT wrap to last item when loop=false
+    fireEvent.keyDown(combobox, { key: 'ArrowUp' })
+    expect(within(document.body).getAllByRole('option')[0]?.getAttribute('data-highlighted')).toBe(
+      '',
+    )
+
+    // Down arrow should move to next item
+    fireEvent.keyDown(combobox, { key: 'ArrowDown' })
+    expect(within(document.body).getAllByRole('option')[1]?.getAttribute('data-highlighted')).toBe(
+      '',
+    )
+  })
+  test('arrow navigation does not crash when items array is empty', () => {
+    const screen = render(() => (
+      <BaseSelect items={[]} defaultOpen>
+        <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
+        <BaseSelect.Content>
+          <BaseSelect.Listbox />
+        </BaseSelect.Content>
+      </BaseSelect>
+    ))
+    const combobox = screen.getByRole('combobox')
+    expect(() => {
+      fireEvent.keyDown(combobox, { key: 'ArrowDown' })
+      fireEvent.keyDown(combobox, { key: 'ArrowUp' })
+    }).not.toThrow()
+  })
 })
 describe('canonical collection and search view', () => {
   test.each([false, true])(

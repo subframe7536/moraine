@@ -229,7 +229,13 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
       event.preventDefault()
       setOpen(true)
       const items = enabled()
+      if (items.length === 0) {
+        setHighlightedValue(undefined)
+        return
+      }
       const current = items.findIndex((item) => sameValue(item.value, highlightedValue()))
+      const shouldLoop = props.loop ?? true
+      const nextIndex = current + (key === 'ArrowUp' ? -1 : 1)
       const index =
         key === 'Home'
           ? 0
@@ -237,9 +243,13 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
             ? items.length - 1
             : current < 0
               ? key === 'ArrowUp'
-                ? items.length - 1
+                ? shouldLoop
+                  ? items.length - 1
+                  : 0
                 : 0
-              : (current + (key === 'ArrowUp' ? -1 : 1) + items.length) % items.length
+              : shouldLoop
+                ? (nextIndex + items.length) % items.length
+                : Math.max(0, Math.min(items.length - 1, nextIndex))
       setHighlightedValue(items[index] ? items[index].value : undefined)
       return
     }
