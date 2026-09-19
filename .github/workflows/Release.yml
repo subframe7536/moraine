@@ -20,6 +20,11 @@ jobs:
       - uses: nubjs/setup-nub@v0
         with:
           nub-version: 0.7.5
+          cache: true
+          cache-dependency-path: |
+            package.json
+            nub.lock
+            nub.jsonc
 
       - run: nub ci
       - run: nub publish --provenance --no-git-checks
