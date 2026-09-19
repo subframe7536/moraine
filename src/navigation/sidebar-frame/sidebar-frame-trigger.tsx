@@ -13,27 +13,24 @@ import type { SidebarFrameT } from './sidebar-frame.types'
 export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
   props: SidebarFrameT.TriggerProps<T>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as any, [
+  const [local, rest] = splitProps(props, [
     'as',
-    'type',
     'disabled',
     'children',
     'class',
     'style',
-    'ref',
+    'ref' as any,
   ])
   const context = useSidebarFrameContext()
-  const tag = createMemo(() => (local.as as ValidComponent) ?? 'button')
+  const tag = createMemo(() => local.as ?? 'button')
   const disabled = () => Boolean(local.disabled)
 
-  const interactionProps = useButtonInteraction<SidebarFrameT.TriggerElementFor<T>>(
+  const interactionProps = useButtonInteraction(
     {
       disabled,
       disabledForComponent: true,
       onPress: () => context.toggle,
       tag,
-      type: () => local.type,
-      typeForComponent: true,
     },
     rest,
   )

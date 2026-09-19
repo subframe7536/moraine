@@ -139,51 +139,6 @@
         "defaultValue": "icon-loading"
       },
       {
-        "name": "onBlur",
-        "required": false,
-        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, FocusEvent> | undefined"
-      },
-      {
-        "name": "onClick",
-        "required": false,
-        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, MouseEvent> | undefined"
-      },
-      {
-        "name": "onContextMenu",
-        "required": false,
-        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, MouseEvent> | undefined"
-      },
-      {
-        "name": "onKeyDown",
-        "required": false,
-        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, KeyboardEvent> | undefined"
-      },
-      {
-        "name": "onKeyUp",
-        "required": false,
-        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, KeyboardEvent> | undefined"
-      },
-      {
-        "name": "onPointerCancel",
-        "required": false,
-        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, PointerEvent> | undefined"
-      },
-      {
-        "name": "onPointerDown",
-        "required": false,
-        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, PointerEvent> | undefined"
-      },
-      {
-        "name": "onPointerLeave",
-        "required": false,
-        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, PointerEvent> | undefined"
-      },
-      {
-        "name": "onPointerUp",
-        "required": false,
-        "type": "JSX.EventHandlerUnion<ButtonElementFor<\"button\">, PointerEvent> | undefined"
-      },
-      {
         "name": "ref",
         "required": false,
         "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
@@ -191,7 +146,7 @@
       {
         "name": "size",
         "required": false,
-        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | null | undefined",
+        "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | \"icon-xs\" | \"icon-sm\" | \"icon-md\" | \"icon-lg\" | \"icon-xl\" | undefined",
         "description": "Visual size of the component.",
         "defaultValue": "md"
       },
@@ -216,12 +171,6 @@
         "required": false,
         "type": "IconT.Name",
         "description": "Trailing visual content, usually an icon."
-      },
-      {
-        "name": "type",
-        "required": false,
-        "type": "\"button\" extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : \"button\" extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : \"button\" extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : never | undefined",
-        "description": "Native type attribute for supported native roots."
       },
       {
         "name": "variant",

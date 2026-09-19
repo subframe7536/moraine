@@ -297,7 +297,6 @@ export function FileUpload<T extends ValidComponent = 'div'>(
 
   const merged = mergeProps(
     {
-      as: 'div' as T,
       accept: '*',
       multiple: false,
       dropzone: true,
@@ -305,7 +304,6 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       icon: 'icon-upload' as const,
       fileIcon: 'icon-file' as const,
     },
-
     local,
   )
   const label = createMemo(() => merged.label)
@@ -638,9 +636,9 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       data-slot="root"
       data-disabled={field.disabled() ? '' : undefined}
       data-readonly={readOnly() ? '' : undefined}
-      {...(rest as Record<string, unknown>)}
+      {...rest}
       id={`${field.id()}-root`}
-      component={merged.as as ValidComponent}
+      component={local.as ?? 'div'}
       {...resolved.styles.root}
     >
       <Show

@@ -332,51 +332,6 @@
             "description": "Whether this trigger is disabled."
           },
           {
-            "name": "onBlur",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<SidebarFrameT.TriggerElementFor<\"button\">, FocusEvent> | undefined"
-          },
-          {
-            "name": "onClick",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<SidebarFrameT.TriggerElementFor<\"button\">, MouseEvent> | undefined"
-          },
-          {
-            "name": "onContextMenu",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<SidebarFrameT.TriggerElementFor<\"button\">, MouseEvent> | undefined"
-          },
-          {
-            "name": "onKeyDown",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<SidebarFrameT.TriggerElementFor<\"button\">, KeyboardEvent> | undefined"
-          },
-          {
-            "name": "onKeyUp",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<SidebarFrameT.TriggerElementFor<\"button\">, KeyboardEvent> | undefined"
-          },
-          {
-            "name": "onPointerCancel",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<SidebarFrameT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
-          },
-          {
-            "name": "onPointerDown",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<SidebarFrameT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
-          },
-          {
-            "name": "onPointerMove",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<SidebarFrameT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
-          },
-          {
-            "name": "onPointerUp",
-            "required": false,
-            "type": "JSX.EventHandlerUnion<SidebarFrameT.TriggerElementFor<\"button\">, PointerEvent> | undefined"
-          },
-          {
             "name": "ref",
             "required": false,
             "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
@@ -385,11 +340,6 @@
             "name": "style",
             "required": false,
             "type": "SlotStyleValue | undefined"
-          },
-          {
-            "name": "type",
-            "required": false,
-            "type": "\"button\" extends \"a\" ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>[\"type\"] : \"button\" extends \"button\" ? JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] : \"button\" extends \"input\" ? JSX.InputHTMLAttributes<HTMLInputElement>[\"type\"] : JSX.ButtonHTMLAttributes<HTMLButtonElement>[\"type\"] | undefined"
           }
         ],
         "inherited": []

@@ -11,6 +11,14 @@ import { callRef } from '../../shared/utils'
 import { paginationRecipe } from './pagination.recipe'
 import type { PaginationProps } from './pagination.types'
 
+interface InteractiveProps {
+  as?: ValidComponent
+  href?: string
+  rel?: string
+  type?: 'button'
+  disabled?: boolean
+}
+
 const MAX_SIBLING_COUNT = 100
 const ELLIPSIS = -1
 
@@ -50,14 +58,6 @@ function getPaginationItems(page: number, count: number, siblingCount: number): 
     return [1, ELLIPSIS, ...createRange(count - (2 + siblingCount * 2), count)]
   }
   return [1, ELLIPSIS, ...createRange(left, right), ELLIPSIS, count]
-}
-
-interface InteractiveProps {
-  as: ValidComponent
-  href?: string
-  rel?: string
-  type?: 'button'
-  disabled?: boolean
 }
 
 function getSize(size: string | null | undefined, text?: string): ButtonProps['size'] {
@@ -289,8 +289,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
               {...resolved.styles.next}
               classes={{ label: merged.nextText ? resolved.styles.controlLabel.class : undefined }}
               onClick={(event) => selectPage(currentPage() + 1, event)}
-              {...getControlProps(currentPage() + 1, currentPage() >= pageCount(), 'next')}
               trailing={merged.nextText ? merged.nextIcon : undefined}
+              {...getControlProps(currentPage() + 1, currentPage() >= pageCount(), 'next')}
             >
               <Show when={merged.nextText} fallback={<Icon name={merged.nextIcon} />}>
                 {merged.nextText}

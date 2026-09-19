@@ -36,5 +36,4 @@ export interface ButtonStyleVariant {
     | 'icon-md'
     | 'icon-lg'
     | 'icon-xl'
-    | null
 }

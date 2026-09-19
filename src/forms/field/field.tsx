@@ -1,12 +1,5 @@
 import type { Accessor, JSX } from 'solid-js'
-import {
-  children as resolveChildren,
-  createMemo,
-  createSignal,
-  mergeProps,
-  Show,
-  splitProps,
-} from 'solid-js'
+import { children as resolveChildren, createMemo, createSignal, Show, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
@@ -18,7 +11,7 @@ import { useId } from '../../shared/utils'
 import type { FieldBinding, FieldContextOptions, FieldPath } from './field-context'
 import { FieldProvider } from './field-context'
 import { fieldRecipe } from './field.recipe'
-import type { FieldProps, FieldT } from './field.types'
+import type { FieldProps } from './field.types'
 /** Generic field layout and accessibility primitive. */
 export function Field<T extends ValidComponent = 'div'>(props: FieldProps<T>): JSX.Element {
   return renderField(props)
@@ -54,27 +47,12 @@ export function renderField<T extends ValidComponent = 'div'>(
   ])
   const resolved = createStyles(fieldRecipe, local)
 
-  type MergedProps = FieldT.Base<T> &
-    FieldT.Variant & {
-      classes?: FieldT.Classes
-      styles?: FieldT.Styles
-      class?: string
-      style?: JSX.CSSProperties
-    }
-
-  const merged = mergeProps(
-    {
-      as: 'div' as T,
-      required: false,
-    },
-    local,
-  ) as MergedProps
-
-  const label = createMemo(() => merged.label)
-  const description = createMemo(() => merged.description)
-  const hint = createMemo(() => merged.hint)
-  const help = createMemo(() => merged.help)
-  const error = createMemo(() => merged.error)
+  const isRequired = () => Boolean(local.required)
+  const label = createMemo(() => local.label)
+  const description = createMemo(() => local.description)
+  const hint = createMemo(() => local.hint)
+  const help = createMemo(() => local.help)
+  const error = createMemo(() => local.error)
   const activeBinding = () => binding?.()
 
   const ariaId = useId(() => local.id, 'field')
@@ -83,7 +61,7 @@ export function renderField<T extends ValidComponent = 'div'>(
   >([])
 
   const standalonePath = createMemo<FieldPath | undefined>(() => {
-    const name = merged.name
+    const name = local.name
     if (Array.isArray(name)) {
       return name.length > 0 ? name : undefined
     }
@@ -129,7 +107,7 @@ export function renderField<T extends ValidComponent = 'div'>(
       return false
     }
     if (typeof value === 'string') {
-      return value.length > 0
+      return value !== ''
     }
     return true
   })
@@ -164,7 +142,7 @@ export function renderField<T extends ValidComponent = 'div'>(
       return resolvedError()
     },
     get name() {
-      return merged.name
+      return local.name
     },
     get path() {
       return standalonePath()
@@ -185,13 +163,13 @@ export function renderField<T extends ValidComponent = 'div'>(
       return help()
     },
     get disabled() {
-      return merged.disabled
+      return local.disabled
     },
     get readOnly() {
-      return merged.readOnly
+      return local.readOnly
     },
     get required() {
-      return merged.required
+      return isRequired()
     },
     get ariaId() {
       return ariaId()
@@ -207,15 +185,16 @@ export function renderField<T extends ValidComponent = 'div'>(
   }
 
   function RenderFieldRoot(): JSX.Element {
-    const body = resolveChildren(() => merged.children as JSX.Element)
-    const fieldChildren = renderComponentOrElement<FieldT.RenderContext>(body(), {
-      get error() {
-        return resolvedError()
-      },
-    })
+    const fieldChildren = resolveChildren(() =>
+      renderComponentOrElement(local.children, {
+        get error() {
+          return resolvedError()
+        },
+      }),
+    )
 
     return (
-      <Dynamic data-slot="root" {...rest} component={merged.as as any} {...resolved.styles.root}>
+      <Dynamic data-slot="root" {...rest} component={local.as ?? 'div'} {...resolved.styles.root}>
         <div data-slot="wrapper" {...resolved.styles.wrapper}>
           <Show when={showLabel()}>
             <div data-slot="labelWrapper" {...resolved.styles.labelWrapper}>
@@ -223,7 +202,7 @@ export function renderField<T extends ValidComponent = 'div'>(
                 id={`${ariaId()}-label`}
                 for={selectedControlId()}
                 data-slot="label"
-                data-required={merged.required ? '' : undefined}
+                data-required={isRequired() ? '' : undefined}
                 {...resolved.styles.label}
               >
                 {label()}
@@ -250,7 +229,7 @@ export function renderField<T extends ValidComponent = 'div'>(
           data-has-text={showLabel() || showDescription() ? '' : undefined}
           {...resolved.styles.container}
         >
-          {fieldChildren}
+          {fieldChildren()}
           <Show
             when={showError()}
             fallback={

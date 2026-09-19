@@ -35,5 +35,5 @@ export type SimpleTagAssertions = [
   Assert<'div' extends Tags ? true : false>,
   Assert<Tags extends ValidComponent ? true : false>,
   Assert<((props: any) => any) extends ValidComponent ? true : false>,
-  Assert<(string & {}) extends ValidComponent ? true : false>,
+  Assert<string & {} extends ValidComponent ? true : false>,
 ]

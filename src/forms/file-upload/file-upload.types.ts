@@ -130,7 +130,8 @@ export namespace FileUploadT {
     Base<T>,
     Variant,
     Classes,
-    Styles
+    Styles,
+    'div'
   >
 }
 

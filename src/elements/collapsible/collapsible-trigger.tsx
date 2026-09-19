@@ -1,5 +1,5 @@
-import type { JSX } from 'solid-js'
-import { children as resolveChildren, createMemo, onCleanup, Show, splitProps } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
+import { children as resolveChildren, onCleanup, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
@@ -11,100 +11,65 @@ import { useCollapsibleContext } from './collapsible-context'
 import { collapsibleRecipe } from './collapsible.recipe'
 import type { CollapsibleT } from './collapsible.types'
 
-type CollapsibleTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
-  ? HTMLElementTagNameMap[T]
-  : HTMLElement
-
 /** Interactive trigger button for expanding/collapsing collapsible content. */
 export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
   props: CollapsibleT.TriggerProps<T>,
 ): JSX.Element {
-  type RuntimeProps = CollapsibleT.TriggerBase<T> & {
-    class?: string
-    style?: JSX.CSSProperties
-    ref?: (element: CollapsibleTriggerElementFor<T> | undefined) => void
-  } & Record<string, unknown>
-
-  const [local, rest] = splitProps(props as RuntimeProps, [
+  const [local, rest] = splitProps(props, [
     'as',
-    'type',
     'disabled',
     'children',
     'class',
     'style',
-    'ref',
+    'ref' as any,
   ])
   const context = useCollapsibleContext()
   const resolved = createStyles(collapsibleRecipe, local, {
     rootSlot: 'trigger',
     inheritedStyles: () => context.presentation,
   })
-  const customAs = createMemo(() => local.as)
-  const tag = createMemo(() => customAs() ?? 'button')
+  const tag: Accessor<ValidComponent> = () => local.as ?? 'button'
   const disabled = () => Boolean(context.disabled() || local.disabled)
 
   const handleRef = (element: HTMLElement | undefined) => {
     context.setTriggerElement(element)
-    callRef(local.ref as ((el: HTMLElement | undefined) => void) | undefined, element)
+    callRef(local.ref, element)
 
     if (element) {
       onCleanup(() => {
         if (context.triggerElement() === element) {
           context.setTriggerElement(undefined)
         }
-        callRef(local.ref as ((el: HTMLElement | undefined) => void) | undefined, undefined)
+        callRef(local.ref, undefined)
       })
     }
   }
 
-  const interactionProps = useButtonInteraction<CollapsibleTriggerElementFor<T>>(
+  const interactionProps = useButtonInteraction(
     {
       disabled,
       disabledForComponent: true,
       onPress: () => context.toggle,
       tag,
-      type: () => local.type,
-      typeForComponent: true,
     },
     rest,
   )
   const children = resolveChildren(() => local.children)
 
   return (
-    <Show
-      when={customAs()}
-      fallback={
-        <button
-          id={context.triggerId()}
-          data-slot="trigger"
-          {...(interactionProps as JSX.ButtonHTMLAttributes<HTMLButtonElement>)}
-          {...resolved.styles.trigger}
-          aria-controls={context.open() ? context.contentId() : undefined}
-          aria-expanded={context.open()}
-          {...context.dataAttrs()}
-          data-disabled={disabled() ? '' : undefined}
-          ref={(el) => handleRef(el)}
-        >
-          {children()}
-        </button>
-      }
+    <Dynamic
+      id={context.triggerId()}
+      data-slot="trigger"
+      {...interactionProps}
+      component={tag()}
+      {...resolved.styles.trigger}
+      aria-controls={context.open() ? context.contentId() : undefined}
+      aria-expanded={context.open()}
+      {...context.dataAttrs()}
+      data-disabled={disabled() ? '' : undefined}
+      ref={handleRef}
     >
-      {(as) => (
-        <Dynamic
-          id={context.triggerId()}
-          data-slot="trigger"
-          {...(interactionProps as Record<string, unknown>)}
-          component={as() as ValidComponent}
-          {...resolved.styles.trigger}
-          aria-controls={context.open() ? context.contentId() : undefined}
-          aria-expanded={context.open()}
-          {...context.dataAttrs()}
-          data-disabled={disabled() ? '' : undefined}
-          ref={(el: HTMLElement | undefined) => handleRef(el)}
-        >
-          {children()}
-        </Dynamic>
-      )}
-    </Show>
+      {children()}
+    </Dynamic>
   )
 }

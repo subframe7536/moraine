@@ -138,24 +138,22 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
   const [local, rest] = splitProps(props, [
     'context',
     'as',
-    'type',
     'disabled',
     'children',
     'class',
     'style',
     'describeTrigger',
     'toggleOnClick',
+    'ref' as any,
   ])
   const context = untrack(() => props.context)
-  const tag = () => (local.as as ValidComponent) ?? 'button'
+  const tag = () => local.as ?? 'button'
   const disabled = () => Boolean(local.disabled || context.options.disabled)
   const interaction = useButtonInteraction(
     {
       disabled,
       disabledForComponent: true,
       tag,
-      type: () => local.type,
-      typeForComponent: true,
       onPress: () =>
         (local.toggleOnClick ?? true) ? () => context.setOpen(!context.isOpen()) : undefined,
     },
@@ -188,12 +186,12 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
       style={local.style}
       ref={(element: HTMLElement) => {
         context.setTriggerElement(element)
-        callRef(rest.ref, element)
+        callRef(local.ref, element)
         onCleanup(() => {
           if (context.triggerElement() === element) {
             context.setTriggerElement(undefined)
           }
-          callRef(rest.ref, undefined)
+          callRef(local.ref, undefined)
         })
       }}
     >
@@ -459,7 +457,13 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
   return (
     <Show when={contentMounted()}>
       {(_present) => {
-        const children = resolveChildren(() => props.children as JSX.Element)
+        const content = resolveChildren(() =>
+          renderComponentOrElement(props.children, {
+            close: () => context.setOpen(false),
+            contentProps,
+            currentPlacement,
+          }),
+        )
         return (
           <Portal>
             <div
@@ -476,11 +480,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
               style={{ visibility: 'hidden', ...props.positionerStyle }}
               class={cn('left-0 top-0 absolute', props.positionerClass)}
             >
-              {renderComponentOrElement(children() as PopperContentProps['children'], {
-                close: () => context.setOpen(false),
-                contentProps,
-                currentPlacement,
-              })}
+              {content()}
             </div>
           </Portal>
         )

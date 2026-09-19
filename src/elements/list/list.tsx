@@ -5,6 +5,7 @@ import { Dynamic } from 'solid-js/web'
 import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import type { ValidComponent } from '../../shared/types.ts'
+import { callRef } from '../../shared/utils'
 
 import type { ListProps, ListT } from './list.types'
 
@@ -15,15 +16,12 @@ export function List<
   TItemElement extends HTMLElement = HTMLElement,
 >(props: ListProps<TItem, T, TItemElement>): JSX.Element {
   const cn = useCn()
-  type RuntimeListProps = ListProps<TItem, T, TItemElement> & {
-    ref?: (element: TItemElement | undefined) => void
-  }
-  const [local, rest] = splitProps(props as RuntimeListProps, [
+  const [local, rest] = splitProps(props, [
     'as',
     'items',
     'itemRender',
     'virtualRender',
-    'ref',
+    'ref' as any,
     'class',
     'style',
   ])
@@ -34,12 +32,10 @@ export function List<
       role="list"
       data-slot="root"
       {...rest}
-      component={(local.as as ValidComponent) ?? 'ul'}
-      ref={(element: HTMLUListElement) => {
+      component={local.as ?? 'ul'}
+      ref={(element: HTMLElement) => {
         setScrollElement(() => element)
-        if (typeof local.ref === 'function') {
-          local.ref(element)
-        }
+        callRef(local.ref, element)
       }}
       class={cn(local.class)}
       style={local.style}

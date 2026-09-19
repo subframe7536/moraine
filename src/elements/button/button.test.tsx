@@ -113,6 +113,31 @@ describe('Button', () => {
     expect(link.hasAttribute('type')).toBe(false)
   })
 
+  test('forwards an explicit custom component type prop', () => {
+    const CustomRoot = (props: { type?: 'special'; children?: JSX.Element }) => (
+      <div data-testid="custom-root" data-type={props.type}>
+        {props.children}
+      </div>
+    )
+    const screen = render(() => (
+      <Button as={CustomRoot} type="special">
+        Custom
+      </Button>
+    ))
+
+    expect(screen.getByTestId('custom-root').getAttribute('data-type')).toBe('special')
+  })
+
+  test('preserves type through a nested Button component root', () => {
+    const screen = render(() => (
+      <Button as={Button} type="submit">
+        Submit
+      </Button>
+    ))
+
+    expect(screen.getByRole('button', { name: 'Submit' }).getAttribute('type')).toBe('submit')
+  })
+
   test('renders component defaults when provider is absent', () => {
     const screen = render(() => (
       <Button variant="destructive" size="sm">

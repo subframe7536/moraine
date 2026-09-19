@@ -45,6 +45,12 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: nubjs/setup-nub@v0
+        with:
+          cache: true
+          cache-dependency-path: |
+            package.json
+            nub.lock
+            nub.jsonc
 
       - run: nub ci
 
@@ -57,6 +63,12 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: nubjs/setup-nub@v0
+        with:
+          cache: true
+          cache-dependency-path: |
+            package.json
+            nub.lock
+            nub.jsonc
 
       - run: nub ci
 

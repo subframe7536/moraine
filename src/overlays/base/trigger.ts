@@ -6,7 +6,7 @@ import { callHandler, callRef } from '../../shared/utils'
 
 /** Props that an overlay render prop must forward to its trigger root. */
 export type OverlayTriggerProps = Omit<
-  ElementProps<HTMLElement>,
+  ElementProps,
   'children' | 'class' | 'disabled' | 'onContextMenu' | 'ref' | 'style'
 > & {
   /** Class applied to the trigger root. */

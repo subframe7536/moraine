@@ -571,7 +571,7 @@ function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
   return (
     <Dynamic
-      component={(local.as as ValidComponent) ?? 'div'}
+      component={local.as ?? 'div'}
       type={undefined}
       {...binding}
       {...resolved.styles.trigger}

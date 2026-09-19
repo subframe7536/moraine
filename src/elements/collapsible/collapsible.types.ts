@@ -1,12 +1,14 @@
 import type { JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
+import type {
+  BaseProps,
+  SlotClassValue,
+  SlotStyleValue,
+  TriggerBase as SharedTriggerBase,
+  ValidComponent,
+} from '../../shared/types'
 
 import type { CollapsibleStyleSlot, CollapsibleStyleVariant } from './collapsible.style-types'
-
-type CollapsibleTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
-  ? HTMLElementTagNameMap[T]
-  : HTMLElement
 
 export namespace CollapsibleT {
   export type Kind = 'composite'
@@ -16,36 +18,15 @@ export namespace CollapsibleT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export type TriggerBase<T extends ValidComponent = 'button'> = {
-    /**
-     * Element or component to render as.
-     * @default 'button'
-     */
-    as?: T
-    type?: T extends 'a'
-      ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>['type']
-      : T extends 'button'
-        ? JSX.ButtonHTMLAttributes<HTMLButtonElement>['type']
-        : T extends 'input'
-          ? JSX.InputHTMLAttributes<HTMLInputElement>['type']
-          : never
-    /** Whether this trigger is disabled. */
-    disabled?: boolean
-    onClick?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, MouseEvent>
-    onKeyDown?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, KeyboardEvent>
-    onKeyUp?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, KeyboardEvent>
-    onBlur?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, FocusEvent>
-    onPointerDown?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, PointerEvent>
-    /** Trigger label and visual content. */
-    children?: JSX.Element
-  }
+  export type TriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T>
 
   export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
     T,
     TriggerBase<T>,
     never,
     never,
-    never
+    never,
+    'button'
   >
 
   export type ContentBase<T extends ValidComponent = 'div'> = {
@@ -85,7 +66,8 @@ export namespace CollapsibleT {
     ContentBase<T>,
     never,
     never,
-    never
+    never,
+    'div'
   >
 
   export type Variant = CollapsibleStyleVariant

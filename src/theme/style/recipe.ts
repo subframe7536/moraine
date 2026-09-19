@@ -177,10 +177,9 @@ export function resolveRecipe<S extends object, V>(
 ): RecipeResult<S> {
   const layers = 'layers' in recipe ? recipe.layers : [recipe.config]
   const defaults = getRecipeDefaultVariants(recipe) as Record<string, unknown>
-  const supplied = variants as Record<string, unknown> | undefined
   const suppliedValues: Record<string, unknown> = {}
-  for (const key of Object.keys(supplied ?? {})) {
-    suppliedValues[key] = supplied?.[key]
+  for (const key of Object.keys(variants ?? {})) {
+    suppliedValues[key] = (variants as Record<string, unknown> | undefined)?.[key]
   }
   const keys = new Set<string>([
     ...Object.keys(defaults),

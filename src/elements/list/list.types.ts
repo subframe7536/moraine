@@ -34,7 +34,6 @@ export namespace ListT {
     readonly entries: readonly TItem[]
     /** Current scroll container, or undefined while it is not mounted. */
     readonly scrollElement: TScrollElement | undefined
-    /** Renders an item and forwards optional attributes to its final row element. */
     render: (item: TItem, index: number, props?: RowProps<TItemElement>) => JSX.Element
   }
 
@@ -60,7 +59,7 @@ export namespace ListT {
     TItem,
     T extends ValidComponent = 'ul',
     TItemElement extends HTMLElement = HTMLElement,
-  > = BaseProps<T, Base<TItem, T, TItemElement>, Variant, never, never>
+  > = BaseProps<T, Base<TItem, T, TItemElement>, Variant, never, never, 'ul'>
 }
 
 export type ListProps<

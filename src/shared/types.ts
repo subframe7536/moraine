@@ -8,10 +8,18 @@ export type SlotClassValue = ClassValue
 
 export type SlotStyleValue = JSX.CSSProperties
 
-export type ElementProps<T extends HTMLElement> = Omit<JSX.HTMLAttributes<T>, 'style'> & {
+export type ElementProps<
+  T extends HTMLElement = HTMLElement,
+  A extends JSX.HTMLAttributes<T> = JSX.HTMLAttributes<T>,
+> = Omit<A, 'style'> & {
   style?: JSX.CSSProperties
   [key: `data-${string}`]: string | number | boolean | undefined
 }
+
+export type InputElementProps = ElementProps<
+  HTMLInputElement,
+  JSX.InputHTMLAttributes<HTMLInputElement>
+>
 
 /**
  * Type-only configuration for the public root-props surface.
@@ -21,8 +29,8 @@ export type ElementProps<T extends HTMLElement> = Omit<JSX.HTMLAttributes<T>, 's
  * ```ts
  * declare module 'moraine' {
  *   interface MoraineTypeConfig {
- *     simpleRootAttributes?: boolean
- *     simpleHtmlTags?: boolean
+ *     simpleRootAttributes: true
+ *     simpleHtmlTags: true
  *   }
  * }
  * ```
@@ -70,17 +78,39 @@ type ComponentBaseProps<Base, Variant, Classes, Styles> = Base &
     style?: SlotStyleValue
   }
 
-type RootProps<T extends ValidComponent> = string & {} extends T
-  ? {}
-  : T extends Tags
-    ? MoraineTypeConfig extends { simpleRootAttributes: true }
-      ? CommonRootProps
-      : StrictedAttributes<T>
-    : T extends (props: infer P) => any
-      ? P
-      : CommonRootProps
+type RootProps<T extends ValidComponent> = T extends Tags
+  ? MoraineTypeConfig extends { simpleRootAttributes: true }
+    ? CommonRootProps
+    : StrictedAttributes<T>
+  : T extends (props: infer P) => any
+    ? P
+    : CommonRootProps
 
-export type BaseProps<TElement extends ValidComponent, Base, Variant, Classes, Styles> = Override<
-  RootProps<TElement>,
+export type DefaultTag<T extends ValidComponent, TDefault extends ValidComponent> = [
+  ValidComponent,
+] extends [T]
+  ? TDefault
+  : T
+
+export type TriggerBase<T extends ValidComponent = 'button'> = {
+  /**
+   * Element or component to render as.
+   */
+  as?: T
+  /** Whether this trigger is disabled. */
+  disabled?: boolean
+  /** Trigger label and visual content. */
+  children?: JSX.Element
+}
+
+export type BaseProps<
+  TElement extends ValidComponent,
+  Base,
+  Variant,
+  Classes,
+  Styles,
+  TDefault extends ValidComponent = TElement,
+> = Override<
+  RootProps<DefaultTag<TElement, TDefault>>,
   ComponentBaseProps<Base, Variant, Classes, Styles>
 >

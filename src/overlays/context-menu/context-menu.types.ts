@@ -59,7 +59,14 @@ export namespace ContextMenuT {
   /**
    * Props for the ContextMenu component.
    */
-  export type TriggerProps<T extends ValidComponent = 'div'> = ModalT.TriggerProps<T>
+  export type TriggerProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    ModalT.TriggerBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
   export type ContentProps = BaseProps<'div', ContentBase, Variant, Classes, Styles>
   export type Props = Base
 }

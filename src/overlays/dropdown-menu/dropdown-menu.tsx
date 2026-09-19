@@ -216,7 +216,7 @@ function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu'))
   return (
     <Dynamic
-      component={(local.as as ValidComponent) ?? 'button'}
+      component={local.as ?? 'button'}
       type={local.as === undefined || local.as === 'button' ? 'button' : undefined}
       {...binding}
       {...resolved.styles.trigger}

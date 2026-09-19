@@ -1,24 +1,11 @@
-import type { JSX } from 'solid-js'
-
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
 import type { IconT } from '../icon'
 
 import type { ButtonStyleSlot, ButtonStyleVariant } from './button.style-types'
 
-type IsUnion<T, U = T> = T extends unknown ? ([U] extends [T] ? false : true) : never
-
-type ButtonElementFor<T extends ValidComponent> =
-  IsUnion<T> extends true
-    ? HTMLElement
-    : T extends keyof HTMLElementTagNameMap
-      ? HTMLElementTagNameMap[T]
-      : HTMLElement
-
 export namespace ButtonT {
   export type Kind = 'single'
-
-  export type ElementFor<T extends ValidComponent> = ButtonElementFor<T>
 
   export type Slot<T = unknown> = ButtonStyleSlot<T>
   export type Variant = ButtonStyleVariant
@@ -38,29 +25,10 @@ export namespace ButtonT {
      */
     as?: T
 
-    /** Native type attribute for supported native roots. */
-    type?: T extends 'a'
-      ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>['type']
-      : T extends 'button'
-        ? JSX.ButtonHTMLAttributes<HTMLButtonElement>['type']
-        : T extends 'input'
-          ? JSX.InputHTMLAttributes<HTMLInputElement>['type']
-          : never
-
     /**
      * Disabled state, including for non-button polymorphic roots.
      */
     disabled?: boolean
-
-    onClick?: JSX.EventHandlerUnion<ButtonElementFor<T>, MouseEvent>
-    onKeyDown?: JSX.EventHandlerUnion<ButtonElementFor<T>, KeyboardEvent>
-    onKeyUp?: JSX.EventHandlerUnion<ButtonElementFor<T>, KeyboardEvent>
-    onBlur?: JSX.EventHandlerUnion<ButtonElementFor<T>, FocusEvent>
-    onPointerDown?: JSX.EventHandlerUnion<ButtonElementFor<T>, PointerEvent>
-    onPointerUp?: JSX.EventHandlerUnion<ButtonElementFor<T>, PointerEvent>
-    onPointerCancel?: JSX.EventHandlerUnion<ButtonElementFor<T>, PointerEvent>
-    onPointerLeave?: JSX.EventHandlerUnion<ButtonElementFor<T>, PointerEvent>
-    onContextMenu?: JSX.EventHandlerUnion<ButtonElementFor<T>, MouseEvent>
 
     /**
      * Root `data-slot` name
@@ -103,9 +71,7 @@ export namespace ButtonT {
        */
       loading: boolean
     }>
-  } & (T extends 'a'
-    ? Pick<JSX.AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'target' | 'rel'>
-    : {})
+  }
 
   /**
    * Props for the Button component.
@@ -115,7 +81,8 @@ export namespace ButtonT {
     Base<T>,
     Variant,
     Classes,
-    Styles
+    Styles,
+    'button'
   >
 }
 

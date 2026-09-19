@@ -24,7 +24,6 @@ import { acquireBodyScrollLock } from '../../overlays/base/utils.ts'
 import { useCn } from '../../provider/cn-context.ts'
 import { createStyles } from '../../provider/create-styles.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
-import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { createTypeahead } from '../../shared/typeahead.ts'
 import type { ValidComponent } from '../../shared/types.ts'
@@ -461,18 +460,25 @@ function BaseSelectTrigger<
 >(props: BaseSelectT.TriggerProps<T, TItem>): JSX.Element {
   const state = useSelectState<TItem>()
   const cn = useCn()
-  const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style', 'type', 'disabled'])
-  const child = resolveChildren(() => local.children)
-  const resolvedChildren = createMemo(() =>
-    renderComponentOrElement(
-      child() as ComponentOrElement<BaseSelectT.TriggerState<TItem>>,
-      state.presentation,
-    ),
+  const [local, rest] = splitProps(props, [
+    'as',
+    'children',
+    'class',
+    'style',
+    'disabled',
+    'onPointerDown',
+    'onKeyDown',
+    'onFocus',
+    'onBlur',
+    'ref' as any,
+  ])
+  const resolvedChildren = resolveChildren(() =>
+    renderComponentOrElement(local.children, state.presentation),
   )
   const tag = () => local.as ?? 'button'
   const eventProps = mergeProps(rest, {
     onPointerDown(event: PointerEvent) {
-      callHandler(event, rest.onPointerDown)
+      callHandler(event, local.onPointerDown)
       if (
         !event.defaultPrevented &&
         !state.field.disabled() &&
@@ -484,17 +490,17 @@ function BaseSelectTrigger<
       }
     },
     onKeyDown(event: KeyboardEvent) {
-      callHandler(event, rest.onKeyDown)
+      callHandler(event, local.onKeyDown)
       state.keyDown(event)
     },
     onFocus(event: FocusEvent) {
-      callHandler(event, rest.onFocus)
+      callHandler(event, local.onFocus)
       if (!event.defaultPrevented) {
         state.field.emit('focus', event)
       }
     },
     onBlur(event: FocusEvent) {
-      callHandler(event, rest.onBlur)
+      callHandler(event, local.onBlur)
       if (!event.defaultPrevented) {
         state.field.emit('blur', event)
       }
@@ -503,8 +509,6 @@ function BaseSelectTrigger<
   const binding = useButtonInteraction(
     {
       tag,
-      type: () => local.type ?? 'button',
-      typeForComponent: true,
       disabledForComponent: true,
       disabled: () => state.field.disabled() || Boolean(local.disabled),
       onPress: () => () => {
@@ -538,12 +542,12 @@ function BaseSelectTrigger<
       }}
       ref={(element: HTMLElement) => {
         state.setFocusOwner(element)
-        callRef(rest.ref, element)
+        callRef(local.ref, element)
         onCleanup(() => {
           if (state.focusOwner() === element) {
             state.setFocusOwner(undefined)
           }
-          callRef(rest.ref, undefined)
+          callRef(local.ref, undefined)
         })
       }}
     >
@@ -712,7 +716,6 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
     'onPointerMove',
     'onPointerDown',
   ])
-  const child = resolveChildren(() => local.children as JSX.Element)
   const item = () => local.item
   const selected = () => state.value().includes(item().value)
   const highlighted = () => sameValue(state.highlightedValue(), item().value)
@@ -731,15 +734,12 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       return disabled()
     },
   }
-  const resolvedChildren = createMemo(() => {
-    const value = child()
-    if (value === undefined) {
+  const resolvedChildren = resolveChildren(() => {
+    const children = local.children
+    if (children === undefined) {
       return item().label
     }
-    return renderComponentOrElement(
-      value as ComponentOrElement<BaseSelectT.ItemState<T>>,
-      presentation,
-    )
+    return renderComponentOrElement(children, presentation)
   })
   return (
     <div

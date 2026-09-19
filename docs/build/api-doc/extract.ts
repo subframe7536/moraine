@@ -483,6 +483,14 @@ function formatType(value: TypeValue, seen = new Set<string>()): string {
     }
   }
 
+  if (value.node.type === 'TSConditionalType') {
+    const trueFormatted = formatType({ ...value, node: value.node.trueType }, seen)
+    const falseFormatted = formatType({ ...value, node: value.node.falseType }, seen)
+    if (trueFormatted === falseFormatted) {
+      return trueFormatted
+    }
+  }
+
   const edits: TextEdit[] = []
   walkAst(value.node, (current) => {
     if (current.type === 'TSLiteralType') {
@@ -1053,7 +1061,7 @@ class DeclarationAnalyzer {
     }
 
     const properties = await this.#resolveNamedProperties(name, typeArguments, context, visited)
-    if (name === 'BaseProps' && typeArguments.length === 5) {
+    if (name === 'BaseProps' && typeArguments.length >= 5) {
       // BaseProps maps variant fields into nullable public props. Resolve the
       // original Variant argument as well so its JSDoc (especially @default)
       // remains attached after the mapped type is expanded.
@@ -1063,16 +1071,27 @@ class DeclarationAnalyzer {
     }
     if (
       name === 'BaseProps' &&
-      typeArguments.length === 5 &&
+      typeArguments.length >= 5 &&
       !properties.some((property) => property.name === 'ref')
     ) {
-      const elementType = formatType(contextValue(typeArguments[0]!, context))
+      const elementArg = typeArguments[5] ?? typeArguments[0]!
+      const elementType = formatType(contextValue(elementArg, context))
       properties.push({
         name: 'ref',
         optional: true,
         typeText: `JSX.HTMLElementTags[${elementType}] extends { ref?: infer Ref; } ? Ref : never | undefined`,
         originModule: 'Moraine',
       })
+    }
+    if (name === 'BaseProps' && typeArguments.length >= 5) {
+      const asProperty = properties.find((property) => property.name === 'as')
+      if (asProperty && asProperty.defaultValue === undefined) {
+        const elementArg = typeArguments[5] ?? typeArguments[0]!
+        const defaultTag = formatType(contextValue(elementArg, context)).replace(/^['"]|['"]$/g, '')
+        if (defaultTag && defaultTag !== 'T' && defaultTag !== 'TElement') {
+          asProperty.defaultValue = defaultTag
+        }
+      }
     }
     return properties
   }

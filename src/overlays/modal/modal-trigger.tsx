@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { children as resolveChildren, createMemo, onCleanup, onMount, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import type { SlotClassValue, ValidComponent } from '../../shared/types.ts'
+import type { ValidComponent } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callRef } from '../../shared/utils'
 import { validateOverlayTrigger } from '../base/trigger'
@@ -38,34 +38,23 @@ function useModalTriggerBinding(
 export function ModalTrigger<T extends ValidComponent = 'button'>(
   props: ModalT.TriggerProps<T>,
 ): JSX.Element {
-  type RuntimeProps = ModalT.TriggerBase<T> & {
-    class?: SlotClassValue
-    style?: JSX.CSSProperties
-    ref?: (element: ModalT.TriggerElementFor<T> | undefined) => void
-  } & Record<string, unknown>
-
-  const [local, rest] = splitProps(props as RuntimeProps, [
+  const [local, rest] = splitProps(props, [
     'as',
-    'type',
     'disabled',
     'children',
     'class',
     'style',
-    'ref',
+    'ref' as any,
   ])
-  const tag = createMemo(() => (local.as as ValidComponent) ?? 'button')
+  const tag = createMemo(() => local.as ?? 'button')
   const disabled = () => Boolean(local.disabled)
-  const binding = useModalTriggerBinding(
-    () => local.ref as ((element: HTMLElement | undefined) => void) | undefined,
-  )
-  const interactionProps = useButtonInteraction<ModalT.TriggerElementFor<T>>(
+  const binding = useModalTriggerBinding(() => local.ref)
+  const interactionProps = useButtonInteraction(
     {
       disabled,
       disabledForComponent: true,
       onPress: () => binding.onPress,
       tag,
-      type: () => local.type,
-      typeForComponent: true,
     },
     rest,
   )
