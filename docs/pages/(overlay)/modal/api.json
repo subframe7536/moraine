@@ -248,7 +248,8 @@
           {
             "name": "ref",
             "required": false,
-            "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+            "type": "((element: HTMLElement | undefined) => void) | undefined",
+            "description": "Receives the mounted trigger element and `undefined` when it unmounts."
           },
           {
             "name": "style",
@@ -299,7 +300,8 @@
           {
             "name": "ref",
             "required": false,
-            "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+            "type": "((element: HTMLElement | undefined) => void) | undefined",
+            "description": "Receives the mounted trigger element and `undefined` when it unmounts."
           },
           {
             "name": "style",
