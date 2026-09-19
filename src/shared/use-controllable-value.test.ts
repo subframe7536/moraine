@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createMemo, createRenderEffect, createRoot, createSignal } from 'solid-js'
+import { createMemo, createRenderEffect, createRoot, createSignal, untrack } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -124,23 +124,23 @@ describe('useControllableValue', () => {
         return value()
       })
 
-      expect(observedValue()).toBe(false)
+      expect(untrack(observedValue)).toBe(false)
       expect(evaluations).toBe(1)
 
       setControlledValue(false)
-      expect(observedValue()).toBe(false)
+      expect(untrack(observedValue)).toBe(false)
       expect(evaluations).toBe(1)
 
       setControlledValue(true)
-      expect(observedValue()).toBe(true)
+      expect(untrack(observedValue)).toBe(true)
       expect(evaluations).toBe(2)
 
       setControlledValue(false)
-      expect(observedValue()).toBe(false)
+      expect(untrack(observedValue)).toBe(false)
       expect(evaluations).toBe(3)
 
       setControlledValue(undefined)
-      expect(observedValue()).toBe(false)
+      expect(untrack(observedValue)).toBe(false)
       expect(evaluations).toBe(3)
       dispose()
     })
