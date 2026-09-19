@@ -19,15 +19,10 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 /** Button component with polymorphic `as` support and loading state. */
 export function Button(props: ButtonProps): JSX.Element
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
-  type RuntimeProps = ButtonT.Props<T> & {
-    type?: string
-  } & Record<string, unknown>
-
   const cn = useCn()
   const group = useButtonGroupContext()
-  const [local, rest] = splitProps(props as RuntimeProps, [
+  const [local, rest] = splitProps(props, [
     'as',
-    'type',
     'variant',
     'size',
     'classes',
@@ -95,7 +90,6 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       disabled: isDisabledOrLoading,
       onClick: () => onClick,
       tag,
-      type: () => local.type,
     },
     rest,
   )

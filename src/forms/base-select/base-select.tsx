@@ -464,7 +464,6 @@ function BaseSelectTrigger<
     children?: JSX.Element | ((state: BaseSelectT.TriggerState<TItem>) => JSX.Element)
     class?: SlotClassValue
     style?: SlotStyleValue
-    type?: string
     disabled?: boolean
     ref?: (element: HTMLElement | undefined) => void
     onPointerDown?: JSX.EventHandlerUnion<HTMLElement, PointerEvent>
@@ -480,7 +479,6 @@ function BaseSelectTrigger<
     'children',
     'class',
     'style',
-    'type',
     'disabled',
     'ref',
   ])
@@ -525,8 +523,6 @@ function BaseSelectTrigger<
   const binding = useButtonInteraction(
     {
       tag,
-      type: () => local.type ?? 'button',
-      typeForComponent: true,
       disabledForComponent: true,
       disabled: () => state.field.disabled() || Boolean(local.disabled),
       onPress: () => () => {

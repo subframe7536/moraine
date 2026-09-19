@@ -16,7 +16,6 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
   props: CollapsibleT.TriggerProps<T>,
 ): JSX.Element {
   type RuntimeProps = CollapsibleT.TriggerBase<T> & {
-    type?: string
     class?: string
     style?: JSX.CSSProperties
     ref?: (element: HTMLElement | undefined) => void
@@ -24,7 +23,6 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
 
   const [local, rest] = splitProps(props as RuntimeProps, [
     'as',
-    'type',
     'disabled',
     'children',
     'class',
@@ -60,8 +58,6 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
       disabledForComponent: true,
       onPress: () => context.toggle,
       tag,
-      type: () => local.type,
-      typeForComponent: true,
     },
     rest,
   )

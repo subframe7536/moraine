@@ -4,16 +4,13 @@ import { mergeProps } from 'solid-js'
 import type { ValidComponent } from './types.ts'
 import { callHandler } from './utils'
 
-export interface UseButtonInteractionOptions<T extends HTMLElement = HTMLElement> {
+export interface UseButtonInteractionOptions {
   disabled: Accessor<boolean>
   /** Whether custom component roots should receive the disabled prop. */
   disabledForComponent?: boolean
-  onClick?: Accessor<JSX.EventHandlerUnion<T, MouseEvent> | undefined>
+  onClick?: Accessor<JSX.EventHandlerUnion<HTMLElement, MouseEvent> | undefined>
   onPress?: Accessor<(() => void) | undefined>
   tag: Accessor<ValidComponent>
-  type?: Accessor<string | undefined>
-  /** Whether custom component roots should receive the type prop. */
-  typeForComponent?: boolean
 }
 
 function dispatchKeyboardClick(target: HTMLElement, event: KeyboardEvent): void {
@@ -33,10 +30,10 @@ function dispatchKeyboardClick(target: HTMLElement, event: KeyboardEvent): void 
 }
 
 /** Shared native and non-native button activation behavior. */
-export function useButtonInteraction<T extends HTMLElement = HTMLElement>(
-  options: UseButtonInteractionOptions<T>,
+export function useButtonInteraction(
+  options: UseButtonInteractionOptions,
   props: Record<string, unknown>,
-): JSX.HTMLAttributes<T> {
+): JSX.HTMLAttributes<HTMLElement> {
   const isNativeButton = () => {
     const tag = options.tag()
     return typeof tag === 'string' && (tag === 'button' || tag === 'input')
@@ -69,7 +66,7 @@ export function useButtonInteraction<T extends HTMLElement = HTMLElement>(
       spaceKeyDownArmed = false
     }
 
-    const { defaultPrevented } = callHandler<T, KeyboardEvent>(event, props.onKeyDown)
+    const { defaultPrevented } = callHandler<HTMLElement, KeyboardEvent>(event, props.onKeyDown)
     if (defaultPrevented || !isCurrentTarget || !needsButtonRole()) {
       return
     }
@@ -104,7 +101,7 @@ export function useButtonInteraction<T extends HTMLElement = HTMLElement>(
       return
     }
 
-    const { defaultPrevented } = callHandler<T, KeyboardEvent>(event, props.onKeyUp)
+    const { defaultPrevented } = callHandler<HTMLElement, KeyboardEvent>(event, props.onKeyUp)
     if (!shouldActivate || defaultPrevented) {
       return
     }
@@ -116,18 +113,9 @@ export function useButtonInteraction<T extends HTMLElement = HTMLElement>(
   const interactionProps = mergeProps(props, {
     get type() {
       if (isNativeButton()) {
-        return options.type?.() ?? 'button'
+        return props.type ?? 'button'
       }
-
-      const tag = options.tag()
-      if (
-        (typeof tag === 'string' && tag === 'a') ||
-        (typeof tag !== 'string' && options.typeForComponent)
-      ) {
-        return options.type?.()
-      }
-
-      return undefined
+      return props.type
     },
     get role() {
       return props.role ?? (needsButtonRole() ? 'button' : undefined)
@@ -146,7 +134,7 @@ export function useButtonInteraction<T extends HTMLElement = HTMLElement>(
     },
     onBlur(event: FocusEvent): void {
       spaceKeyDownArmed = false
-      callHandler<T, FocusEvent>(event, props.onBlur)
+      callHandler<HTMLElement, FocusEvent>(event, props.onBlur)
     },
     onClick(event: MouseEvent): void {
       if (options.disabled()) {
@@ -154,7 +142,7 @@ export function useButtonInteraction<T extends HTMLElement = HTMLElement>(
         return
       }
 
-      const { defaultPrevented } = callHandler<T, MouseEvent>(
+      const { defaultPrevented } = callHandler<HTMLElement, MouseEvent>(
         event,
         options.onClick?.() ?? props.onClick,
       )
@@ -170,9 +158,9 @@ export function useButtonInteraction<T extends HTMLElement = HTMLElement>(
         return
       }
 
-      callHandler<T, PointerEvent>(event, props.onPointerDown)
+      callHandler<HTMLElement, PointerEvent>(event, props.onPointerDown)
     },
   })
 
-  return interactionProps as JSX.HTMLAttributes<T>
+  return interactionProps as JSX.HTMLAttributes<HTMLElement>
 }

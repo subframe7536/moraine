@@ -14,7 +14,6 @@ export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
   props: SidebarFrameT.TriggerProps<T>,
 ): JSX.Element {
   type RuntimeProps = SidebarFrameT.TriggerBase<T> & {
-    type?: string
     class?: string
     style?: JSX.CSSProperties
     ref?: (element: HTMLElement | undefined) => void
@@ -22,7 +21,6 @@ export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
 
   const [local, rest] = splitProps(props as RuntimeProps, [
     'as',
-    'type',
     'disabled',
     'children',
     'class',
@@ -39,8 +37,6 @@ export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
       disabledForComponent: true,
       onPress: () => context.toggle,
       tag,
-      type: () => local.type,
-      typeForComponent: true,
     },
     rest,
   )

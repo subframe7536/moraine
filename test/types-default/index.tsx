@@ -151,6 +151,10 @@ const InteractiveCustomRoot: Component<{
   onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
   children?: JSX.Element
 }> = (props) => <div data-required={props.required}>{props.children}</div>
+const TypedCustomRoot: Component<{
+  type?: 'special'
+  children?: JSX.Element
+}> = (props) => <div data-type={props.type}>{props.children}</div>
 const modalContentContext: ModalT.ContentContext = { close: () => undefined }
 modalContentContext.close()
 
@@ -196,6 +200,7 @@ const divRef = (element: HTMLDivElement) => element.focus()
 // @ts-expect-error Button<'a'> exposes anchor props and rejects button-only props.
 ;<Button as="a" formAction="/submit" />
 ;<Button as={CustomRoot} required="yes" />
+;<Button as={TypedCustomRoot} type="special" />
 // @ts-expect-error Custom roots do not gain undeclared DOM event props.
 ;<Button as={CustomRoot} required="yes" onClick={() => undefined} />
 ;<Button

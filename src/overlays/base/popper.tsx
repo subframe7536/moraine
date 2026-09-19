@@ -137,7 +137,6 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
   type RuntimeTriggerProps = {
     context: PopperContext
     as?: ValidComponent
-    type?: string
     disabled?: boolean
     children?: JSX.Element
     class?: SlotClassValue
@@ -151,7 +150,6 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
   const [local, rest] = splitProps(props as RuntimeTriggerProps, [
     'context',
     'as',
-    'type',
     'disabled',
     'children',
     'class',
@@ -168,8 +166,6 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
       disabled,
       disabledForComponent: true,
       tag,
-      type: () => local.type,
-      typeForComponent: true,
       onPress: () =>
         (local.toggleOnClick ?? true) ? () => context.setOpen(!context.isOpen()) : undefined,
     },

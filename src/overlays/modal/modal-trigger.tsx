@@ -39,7 +39,6 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
   props: ModalT.TriggerProps<T>,
 ): JSX.Element {
   type RuntimeProps = ModalT.TriggerBase<T> & {
-    type?: string
     class?: SlotClassValue
     style?: JSX.CSSProperties
     ref?: (element: HTMLElement | undefined) => void
@@ -47,7 +46,6 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
 
   const [local, rest] = splitProps(props as RuntimeProps, [
     'as',
-    'type',
     'disabled',
     'children',
     'class',
@@ -63,8 +61,6 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
       disabledForComponent: true,
       onPress: () => binding.onPress,
       tag,
-      type: () => local.type,
-      typeForComponent: true,
     },
     rest,
   )
