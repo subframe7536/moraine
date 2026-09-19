@@ -16,7 +16,11 @@ const invalidDefault: ConcreteOptions = {
 void invalidDefault
 
 // @ts-expect-error Undefined cannot be part of the resolved state type.
-type InvalidOptions = UseControllableValueOptions<string | undefined>
+const invalidOptions: UseControllableValueOptions<string | undefined> = {
+  value: () => undefined,
+  defaultValue: () => 'default',
+}
+void invalidOptions
 
 describe('useControllableValue', () => {
   it('uses the initial default value for the lifetime of uncontrolled state', () => {
@@ -115,24 +119,28 @@ describe('useControllableValue', () => {
         defaultValue: () => false,
       })
       let evaluations = 0
-
-      createRenderEffect(() => {
-        value()
+      const observedValue = createMemo(() => {
         evaluations += 1
+        return value()
       })
 
+      expect(observedValue()).toBe(false)
       expect(evaluations).toBe(1)
 
       setControlledValue(false)
+      expect(observedValue()).toBe(false)
       expect(evaluations).toBe(1)
 
       setControlledValue(true)
+      expect(observedValue()).toBe(true)
       expect(evaluations).toBe(2)
 
       setControlledValue(false)
+      expect(observedValue()).toBe(false)
       expect(evaluations).toBe(3)
 
       setControlledValue(undefined)
+      expect(observedValue()).toBe(false)
       expect(evaluations).toBe(3)
       dispose()
     })
