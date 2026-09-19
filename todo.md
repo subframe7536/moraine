@@ -1,11 +1,10 @@
 ## Fix
 
-- [x] metric adjust across all sizes
-- [ ] sidebar-frame styling is broken, more useful usage and example
 - [ ] cleanup useControllableValue, accessor should not returns undefined, so also remove all useless createMemo around it
 - [ ] cleanup ElementFor and onXXX types, or maybe unify
-- [ ] correct document page's focus loop
-  - [ ] also audit all components
+- [ ] correct document page's focus loop and refresh scroll retention (during dev)
+  - [ ] also audit all components focus loop
+- [ ] docs polish
 
 # V1
 
