@@ -755,6 +755,7 @@ export function HeadingWithAnchor(props: {
     <Dynamic
       component={comp()}
       id={props.id}
+      tabIndex={-1}
       class={cn(MARKDOWN_ANCHOR_HEADING_CLASS, `docs-${comp()}`, props.class)}
     >
       {props.children}

@@ -221,8 +221,9 @@ export function CodeBlock(props: CodeBlockProps) {
             contentRef = el
             queueMicrotask(updateExpandable)
           }}
+          tabIndex={-1}
           class={cn(
-            'scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent overscroll-x-contain h-full overflow-x-auto',
+            'scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent outline-none overscroll-x-contain h-full overflow-x-auto',
             isExpandable() && !isExpanded() && 'pointer-events-none',
           )}
           inert={isExpandable() && !isExpanded() ? true : undefined}
@@ -230,7 +231,10 @@ export function CodeBlock(props: CodeBlockProps) {
           <Show
             when={props.html}
             fallback={
-              <pre class="scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent text-sm leading-relaxed font-mono m-0 p-4 overflow-x-auto">
+              <pre
+                tabIndex={-1}
+                class="scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent text-sm leading-relaxed font-mono m-0 p-4 outline-none overflow-x-auto"
+              >
                 <code class={props.lang ? `language-${props.lang}` : undefined}>
                   {props.code ?? props.children}
                 </code>
@@ -239,7 +243,8 @@ export function CodeBlock(props: CodeBlockProps) {
           >
             {(html) => (
               <div
-                class="text-sm leading-relaxed font-mono p-4 overflow-x-auto [&_pre]:m-0 [&_pre]:p-0 [&_pre]:border-0! [&_pre]:rounded-none! [&_pre]:bg-transparent!"
+                tabIndex={-1}
+                class="text-sm leading-relaxed font-mono p-4 outline-none overflow-x-auto [&_pre]:m-0 [&_pre]:p-0 [&_pre]:outline-none [&_pre]:border-0! [&_pre]:rounded-none! [&_pre]:bg-transparent!"
                 // oxlint-disable-next-line subf/solid-no-innerhtml
                 innerHTML={html()}
               />

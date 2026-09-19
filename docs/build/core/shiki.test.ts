@@ -81,6 +81,15 @@ describe('docs shiki code highlighter', () => {
     expect(html).toContain('shiki')
   })
 
+  test('renders pre tag with tabindex="-1" so codeblock does not receive tab focus', async () => {
+    const html = await renderDocsCodeHtml({
+      code: 'const a = 1',
+      language: 'ts',
+    })
+    expect(html).toContain('tabindex="-1"')
+    expect(html).not.toContain('tabindex="0"')
+  })
+
   test('reuses singleton highlighter instance', async () => {
     const h1 = await getDocsHighlighter()
     const h2 = await getDocsHighlighter()

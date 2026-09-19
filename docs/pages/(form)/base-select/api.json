@@ -161,6 +161,13 @@
         "description": "Machine-readable text for matching; does not change visual labels."
       },
       {
+        "name": "loop",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether arrow-key navigation wraps from the ends.",
+        "defaultValue": "true"
+      },
+      {
         "name": "multiple",
         "required": false,
         "type": "boolean | undefined",

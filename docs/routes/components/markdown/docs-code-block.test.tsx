@@ -78,4 +78,30 @@ describe('CodeBlock', () => {
     expect(wrapper?.className).toContain('opacity-0')
     expect(wrapper?.className).toContain('group-hover:opacity-100')
   })
+
+  test('ensures code block container and pre have tabindex="-1" and are not focusable', () => {
+    const html = '<pre class="shiki" tabindex="-1"><code>const a = 1</code></pre>'
+    const screen = render(() => <CodeBlock html={html} code="const a = 1" />)
+
+    const pre = screen.container.querySelector('pre')
+    expect(pre).not.toBeNull()
+    expect(pre?.getAttribute('tabindex')).toBe('-1')
+
+    const scrollContainer = screen.container.querySelector('.overflow-x-auto')
+    expect(scrollContainer?.getAttribute('tabindex')).toBe('-1')
+
+    // Only copy button should be focusable via Tab
+    const focusable = screen.container.querySelectorAll(
+      'button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    )
+    expect(focusable.length).toBe(1)
+    expect(focusable[0]?.getAttribute('aria-label')).toBe('Copy code')
+  })
+
+  test('fallback pre has tabindex="-1"', () => {
+    const screen = render(() => <CodeBlock code="const a = 1" />)
+    const pre = screen.container.querySelector('pre')
+    expect(pre).not.toBeNull()
+    expect(pre?.getAttribute('tabindex')).toBe('-1')
+  })
 })

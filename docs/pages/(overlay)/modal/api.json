@@ -148,6 +148,13 @@
             "name": "styles",
             "required": false,
             "type": "ModalT.Styles | undefined"
+          },
+          {
+            "name": "trapFocus",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether keyboard focus should be trapped within the content.",
+            "defaultValue": "true"
           }
         ],
         "inherited": []

@@ -86,6 +86,7 @@ function createDocsCommandItem(
   return (
     <a
       href={context.item.href}
+      tabIndex={-1}
       aria-label={`${context.item.description}: ${context.item.label}`}
       class="flex flex-1 flex-col min-w-0"
       onClick={(event) => {

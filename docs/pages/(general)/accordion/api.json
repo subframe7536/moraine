@@ -215,10 +215,17 @@
         "description": "Array of accordion items to render."
       },
       {
-        "name": "loopFocus",
+        "name": "loop",
         "required": false,
         "type": "boolean | undefined",
         "description": "Whether arrow-key focus wraps from the last trigger to the first and vice versa.",
+        "defaultValue": "true"
+      },
+      {
+        "name": "loopFocus",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether arrow-key focus wraps from the last trigger to the first and vice versa.\nAlias for `loop`.",
         "defaultValue": "true"
       },
       {

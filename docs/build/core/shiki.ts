@@ -185,6 +185,13 @@ export async function renderDocsCodeHtml(options: DocsCodeRenderOptions): Promis
     })
   }
 
+  transformers.push({
+    name: 'moraine:no-tabindex',
+    pre(node) {
+      node.properties.tabindex = -1
+    },
+  })
+
   return highlighter.codeToHtml(options.code, {
     lang,
     themes: {

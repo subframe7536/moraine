@@ -327,6 +327,13 @@
         "defaultValue": "true"
       },
       {
+        "name": "loop",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether keyboard navigation loops around when reaching the ends.",
+        "defaultValue": "false"
+      },
+      {
         "name": "onChange",
         "required": false,
         "type": "((value: StepperT.Value) => void) | undefined",

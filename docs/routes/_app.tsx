@@ -19,6 +19,7 @@ import { DocsCommandPalette } from './components/layout/docs-command-palette'
 import { Sidebar, SidebarHeader } from './components/layout/sidebar'
 import { DOCS_MDX_COMPONENTS } from './components/markdown/mdx-components'
 import { getDocsPages } from './docs-route'
+import { useScrollRetention } from './hooks/use-scroll-retention'
 import { useTheme } from './hooks/use-theme'
 
 function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
@@ -74,11 +75,23 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
     }
   }
 
+  useScrollRetention({
+    element: mainEl,
+    path: () => location.pathname,
+  })
+
   function FrameContent() {
     const frame = useSidebarFrame()
 
     return (
       <>
+        <a
+          href="#main-content"
+          class="z-toast text-foreground px-4 py-2 rounded-md bg-background transition-transform left-1/2 top-2 fixed focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
+        >
+          Skip to main content
+        </a>
+
         <SidebarFrame.Sidebar>
           <SidebarFrame.SidebarHeader>
             <SidebarHeader
@@ -101,12 +114,6 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
         </SidebarFrame.Sidebar>
 
         <SidebarFrame.Main ref={(element) => setMainEl(element)}>
-          <a
-            href="#main-content"
-            class="z-toast text-foreground px-4 py-2 rounded-md bg-background transition-transform left-1/2 top-2 fixed focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
-          >
-            Skip to main content
-          </a>
           <header
             data-scrolled={frame.scrolled() ? '' : undefined}
             class={cn(
@@ -157,7 +164,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
             </div>
           </header>
 
-          <main id="main-content" tabindex="-1" class="min-w-0" data-docs-main>
+          <main id="main-content" class="min-w-0" data-docs-main>
             <Suspense fallback={<div class="px-5 py-8 min-h-screen sm:px-8" />}>
               {props.children}
             </Suspense>

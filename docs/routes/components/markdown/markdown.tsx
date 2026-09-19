@@ -138,7 +138,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
                 <a
                   href="/styling#component-kinds"
                   aria-label={`${kind() === 'single' ? 'Single' : 'Composite'} component: styling guide`}
-                  class="text-xs text-muted-foreground px-2 py-0.5 border border-border rounded-md bg-muted/40 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+                  class="text-xs text-muted-foreground px-2 py-0.5 border border-border rounded-md bg-muted/40 transition-colors hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
                 >
                   {kind() === 'single' ? 'Single' : 'Composite'}
                 </a>
@@ -146,7 +146,9 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
             </Show>
           </div>
 
-          <h1 class="text-2xl font-bold mt-3 sm:text-3xl">{input.frontmatter.title}</h1>
+          <h1 class="text-2xl font-bold mt-3 outline-none sm:text-3xl" tabIndex={-1}>
+            {input.frontmatter.title}
+          </h1>
 
           <p class="text-sm text-muted-foreground mt-2 max-w-3xl sm:text-base">
             {input.frontmatter.description}

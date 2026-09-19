@@ -229,6 +229,13 @@
         "description": "Array of items to render in the group."
       },
       {
+        "name": "loop",
+        "required": false,
+        "type": "boolean | undefined",
+        "description": "Whether keyboard navigation loops around when reaching the ends.",
+        "defaultValue": "true"
+      },
+      {
         "name": "name",
         "required": false,
         "type": "string | undefined",

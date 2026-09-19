@@ -84,6 +84,7 @@ export function createDocsHastPlugin() {
           const slug = createHeadingSlug(headingText)
 
           ctx.setProperty(node, 'id', slug)
+          ctx.setProperty(node, 'tabindex', -1)
           ctx.setProperty(
             node,
             'class',
