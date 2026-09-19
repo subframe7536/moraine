@@ -27,7 +27,7 @@ import { HiddenInput } from '../../shared/hidden-input.tsx'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { createTypeahead } from '../../shared/typeahead.ts'
-import type { ValidComponent } from '../../shared/types.ts'
+import type { SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction.ts'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
@@ -459,10 +459,32 @@ function BaseSelectTrigger<
   T extends ValidComponent = 'button',
   TItem extends BaseSelectT.Item = BaseSelectT.Item,
 >(props: BaseSelectT.TriggerProps<T, TItem>): JSX.Element {
+  type RuntimeTriggerProps = {
+    as?: ValidComponent
+    children?: JSX.Element | ((state: BaseSelectT.TriggerState<TItem>) => JSX.Element)
+    class?: SlotClassValue
+    style?: SlotStyleValue
+    type?: string
+    disabled?: boolean
+    ref?: (element: HTMLElement | undefined) => void
+    onPointerDown?: JSX.EventHandlerUnion<HTMLElement, PointerEvent>
+    onKeyDown?: JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>
+    onFocus?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
+    onBlur?: JSX.EventHandlerUnion<HTMLElement, FocusEvent>
+  } & Record<string, unknown>
+
   const state = useSelectState<TItem>()
   const cn = useCn()
-  const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style', 'type', 'disabled'])
-  const child = resolveChildren(() => local.children)
+  const [local, rest] = splitProps(props as RuntimeTriggerProps, [
+    'as',
+    'children',
+    'class',
+    'style',
+    'type',
+    'disabled',
+    'ref',
+  ])
+  const child = resolveChildren(() => local.children as JSX.Element)
   const resolvedChildren = createMemo(() =>
     renderComponentOrElement(
       child() as ComponentOrElement<BaseSelectT.TriggerState<TItem>>,
@@ -538,12 +560,12 @@ function BaseSelectTrigger<
       }}
       ref={(element: HTMLElement) => {
         state.setFocusOwner(element)
-        callRef(rest.ref, element)
+        callRef(local.ref, element)
         onCleanup(() => {
           if (state.focusOwner() === element) {
             state.setFocusOwner(undefined)
           }
-          callRef(rest.ref, undefined)
+          callRef(local.ref, undefined)
         })
       }}
     >

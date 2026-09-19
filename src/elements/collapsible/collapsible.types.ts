@@ -4,10 +4,6 @@ import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '
 
 import type { CollapsibleStyleSlot, CollapsibleStyleVariant } from './collapsible.style-types'
 
-type CollapsibleTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
-  ? HTMLElementTagNameMap[T]
-  : HTMLElement
-
 export namespace CollapsibleT {
   export type Kind = 'composite'
 
@@ -22,20 +18,8 @@ export namespace CollapsibleT {
      * @default 'button'
      */
     as?: T
-    type?: T extends 'a'
-      ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>['type']
-      : T extends 'button'
-        ? JSX.ButtonHTMLAttributes<HTMLButtonElement>['type']
-        : T extends 'input'
-          ? JSX.InputHTMLAttributes<HTMLInputElement>['type']
-          : never
     /** Whether this trigger is disabled. */
     disabled?: boolean
-    onClick?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, MouseEvent>
-    onKeyDown?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, KeyboardEvent>
-    onKeyUp?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, KeyboardEvent>
-    onBlur?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, FocusEvent>
-    onPointerDown?: JSX.EventHandlerUnion<CollapsibleTriggerElementFor<T>, PointerEvent>
     /** Trigger label and visual content. */
     children?: JSX.Element
   }

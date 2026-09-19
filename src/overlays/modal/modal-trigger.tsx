@@ -39,9 +39,10 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
   props: ModalT.TriggerProps<T>,
 ): JSX.Element {
   type RuntimeProps = ModalT.TriggerBase<T> & {
+    type?: string
     class?: SlotClassValue
     style?: JSX.CSSProperties
-    ref?: (element: ModalT.TriggerElementFor<T> | undefined) => void
+    ref?: (element: HTMLElement | undefined) => void
   } & Record<string, unknown>
 
   const [local, rest] = splitProps(props as RuntimeProps, [
@@ -55,10 +56,8 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
   ])
   const tag = createMemo(() => (local.as as ValidComponent) ?? 'button')
   const disabled = () => Boolean(local.disabled)
-  const binding = useModalTriggerBinding(
-    () => local.ref as ((element: HTMLElement | undefined) => void) | undefined,
-  )
-  const interactionProps = useButtonInteraction<ModalT.TriggerElementFor<T>>(
+  const binding = useModalTriggerBinding(() => local.ref)
+  const interactionProps = useButtonInteraction(
     {
       disabled,
       disabledForComponent: true,

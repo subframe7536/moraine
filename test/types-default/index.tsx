@@ -146,6 +146,11 @@ export type PublicEntryIsolation = [
 const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (props) => (
   <section data-required={props.required}>{props.children}</section>
 )
+const InteractiveCustomRoot: Component<{
+  required: string
+  onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
+  children?: JSX.Element
+}> = (props) => <div data-required={props.required}>{props.children}</div>
 const modalContentContext: ModalT.ContentContext = { close: () => undefined }
 modalContentContext.close()
 
@@ -164,7 +169,14 @@ const divRef = (element: HTMLDivElement) => element.focus()
 
 ;<Avatar text="MR" />
 ;<AvatarGroup items={[{ text: 'MR' }]} />
-;<Button onClick={(event) => event.currentTarget.focus()}>Save</Button>
+;<Button
+  onClick={(event) => {
+    const button: HTMLButtonElement = event.currentTarget
+    button.focus()
+  }}
+>
+  Save
+</Button>
 ;<ButtonGroup>
   <Button>Copy</Button>
   <ButtonGroup.Separator orientation="vertical" class="bg-input" style={{ opacity: 0.8 }} />
@@ -175,12 +187,25 @@ const divRef = (element: HTMLDivElement) => element.focus()
   href="/docs"
   target="_blank"
   rel="noreferrer"
-  onClick={() => undefined}
+  onClick={(event) => {
+    const anchor: HTMLAnchorElement = event.currentTarget
+    void anchor
+  }}
   ref={(element) => acceptAnchor(element)}
 />
 // @ts-expect-error Button<'a'> exposes anchor props and rejects button-only props.
 ;<Button as="a" formAction="/submit" />
 ;<Button as={CustomRoot} required="yes" />
+// @ts-expect-error Custom roots do not gain undeclared DOM event props.
+;<Button as={CustomRoot} required="yes" onClick={() => undefined} />
+;<Button
+  as={InteractiveCustomRoot}
+  required="yes"
+  onClick={(event) => {
+    const div: HTMLDivElement = event.currentTarget
+    void div
+  }}
+/>
 // @ts-expect-error Required custom component props remain required through `as`.
 ;<Button as={CustomRoot} />
 ;<Button as="input" type="checkbox" />
@@ -193,6 +218,10 @@ const divRef = (element: HTMLDivElement) => element.focus()
   shape-rendering="geometricPrecision"
   ref={(element) => {
     const svg: SVGSVGElement = element
+    void svg
+  }}
+  onClick={(event) => {
+    const svg: SVGSVGElement = event.currentTarget
     void svg
   }}
 />
@@ -278,6 +307,24 @@ const divRef = (element: HTMLDivElement) => element.focus()
 </Dialog>
 // @ts-expect-error Required custom component props must be supplied to the trigger.
 ;<Dialog.Trigger as={CustomRoot} />
+// @ts-expect-error Custom trigger roots do not gain undeclared DOM event props.
+;<Dialog.Trigger as={CustomRoot} required="dialog" onClick={() => undefined} />
+;<Dialog.Trigger
+  as={InteractiveCustomRoot}
+  required="dialog"
+  onClick={(event) => {
+    const div: HTMLDivElement = event.currentTarget
+    void div
+  }}
+/>
+;<Dialog.Trigger
+  as="a"
+  href="/docs"
+  onClick={(event) => {
+    const anchor: HTMLAnchorElement = event.currentTarget
+    void anchor
+  }}
+/>
 
 ;<Popover>
   <Popover.Trigger as={CustomRoot} data-testid="popover-trigger" required="popover">
@@ -563,5 +610,5 @@ export type DefaultTagAssertions = [
   Assert<'div' extends Tags ? true : false>,
   Assert<Tags extends ValidComponent ? true : false>,
   Assert<((props: any) => any) extends ValidComponent ? true : false>,
-  Assert<(string & {}) extends ValidComponent ? true : false>,
+  Assert<string & {} extends ValidComponent ? true : false>,
 ]

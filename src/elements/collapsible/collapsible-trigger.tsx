@@ -11,18 +11,15 @@ import { useCollapsibleContext } from './collapsible-context'
 import { collapsibleRecipe } from './collapsible.recipe'
 import type { CollapsibleT } from './collapsible.types'
 
-type CollapsibleTriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
-  ? HTMLElementTagNameMap[T]
-  : HTMLElement
-
 /** Interactive trigger button for expanding/collapsing collapsible content. */
 export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
   props: CollapsibleT.TriggerProps<T>,
 ): JSX.Element {
   type RuntimeProps = CollapsibleT.TriggerBase<T> & {
+    type?: string
     class?: string
     style?: JSX.CSSProperties
-    ref?: (element: CollapsibleTriggerElementFor<T> | undefined) => void
+    ref?: (element: HTMLElement | undefined) => void
   } & Record<string, unknown>
 
   const [local, rest] = splitProps(props as RuntimeProps, [
@@ -45,19 +42,19 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
 
   const handleRef = (element: HTMLElement | undefined) => {
     context.setTriggerElement(element)
-    callRef(local.ref as ((el: HTMLElement | undefined) => void) | undefined, element)
+    callRef(local.ref, element)
 
     if (element) {
       onCleanup(() => {
         if (context.triggerElement() === element) {
           context.setTriggerElement(undefined)
         }
-        callRef(local.ref as ((el: HTMLElement | undefined) => void) | undefined, undefined)
+        callRef(local.ref, undefined)
       })
     }
   }
 
-  const interactionProps = useButtonInteraction<CollapsibleTriggerElementFor<T>>(
+  const interactionProps = useButtonInteraction(
     {
       disabled,
       disabledForComponent: true,

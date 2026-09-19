@@ -11,10 +11,6 @@ import { useCollapsibleContext } from './collapsible-context'
 import { collapsibleRecipe } from './collapsible.recipe'
 import type { CollapsibleT } from './collapsible.types'
 
-type CollapsibleContentElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
-  ? HTMLElementTagNameMap[T]
-  : HTMLElement
-
 /** Panel containing the expandable collapsible content. */
 export function CollapsibleContent<T extends ValidComponent = 'div'>(
   props: CollapsibleT.ContentProps<T>,
@@ -23,7 +19,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
   type RuntimeProps = CollapsibleT.ContentBase<T> & {
     class?: string
     style?: JSX.CSSProperties
-    ref?: (element: CollapsibleContentElementFor<T> | undefined) => void
+    ref?: (element: Element | undefined) => void
   } & Record<string, unknown>
 
   const [local, rest] = splitProps(props as RuntimeProps, [
@@ -85,7 +81,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
                 <div
                   data-slot="content"
                   {...resolved.styles.content}
-                  ref={(el) => callRef(local.ref, el as any)}
+                  ref={(el) => callRef(local.ref, el)}
                   {...rest}
                 >
                   {children()}
@@ -98,7 +94,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
                   {...(rest as Record<string, unknown>)}
                   component={as() as ValidComponent}
                   {...resolved.styles.content}
-                  ref={(el: any) => callRef(local.ref, el)}
+                  ref={(el: Element) => callRef(local.ref, el)}
                 >
                   {children()}
                 </Dynamic>

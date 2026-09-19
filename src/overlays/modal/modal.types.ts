@@ -8,10 +8,6 @@ import type { ModalStyleSlot, ModalStyleVariant } from './modal.style-types'
 export namespace ModalT {
   export type Kind = 'composite'
 
-  export type TriggerElementFor<T extends ValidComponent> = T extends keyof HTMLElementTagNameMap
-    ? HTMLElementTagNameMap[T]
-    : HTMLElement
-
   export interface ContentContext {
     /** Closes the modal. */
     close: () => void
@@ -70,24 +66,8 @@ export namespace ModalT {
      * @default 'button'
      */
     as?: T
-    type?: T extends 'a'
-      ? JSX.AnchorHTMLAttributes<HTMLAnchorElement>['type']
-      : T extends 'button'
-        ? JSX.ButtonHTMLAttributes<HTMLButtonElement>['type']
-        : T extends 'input'
-          ? JSX.InputHTMLAttributes<HTMLInputElement>['type']
-          : JSX.ButtonHTMLAttributes<HTMLButtonElement>['type']
     /** Whether this trigger is disabled. */
     disabled?: boolean
-    onClick?: JSX.EventHandlerUnion<TriggerElementFor<T>, MouseEvent>
-    onKeyDown?: JSX.EventHandlerUnion<TriggerElementFor<T>, KeyboardEvent>
-    onKeyUp?: JSX.EventHandlerUnion<TriggerElementFor<T>, KeyboardEvent>
-    onBlur?: JSX.EventHandlerUnion<TriggerElementFor<T>, FocusEvent>
-    onPointerDown?: JSX.EventHandlerUnion<TriggerElementFor<T>, PointerEvent>
-    onPointerUp?: JSX.EventHandlerUnion<TriggerElementFor<T>, PointerEvent>
-    onPointerMove?: JSX.EventHandlerUnion<TriggerElementFor<T>, PointerEvent>
-    onPointerCancel?: JSX.EventHandlerUnion<TriggerElementFor<T>, PointerEvent>
-    onContextMenu?: JSX.EventHandlerUnion<TriggerElementFor<T>, MouseEvent>
     /** Trigger label and visual content. */
     children?: JSX.Element
   }

@@ -15,13 +15,17 @@ import { useButtonGroupContext } from './button-group-context'
 import { buttonRecipe } from './button.recipe'
 import type { ButtonProps, ButtonT } from './button.types'
 
-/**
- * Button component with polymorphic `as` support and loading state.
- */
+export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element
+/** Button component with polymorphic `as` support and loading state. */
+export function Button(props: ButtonProps): JSX.Element
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
+  type RuntimeProps = ButtonT.Props<T> & {
+    type?: string
+  } & Record<string, unknown>
+
   const cn = useCn()
   const group = useButtonGroupContext()
-  const [local, rest] = splitProps(props, [
+  const [local, rest] = splitProps(props as RuntimeProps, [
     'as',
     'type',
     'variant',
@@ -43,11 +47,11 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     inheritedVariants: () => group ?? undefined,
   })
 
-  const { isLoading, onClick } = useLoadingAutoClick<ButtonT.ElementFor<T>>({
+  const { isLoading, onClick } = useLoadingAutoClick<HTMLElement>({
     loading: () => local.loading,
     loadingAuto: () => local.loadingAuto,
     get onClick() {
-      return rest.onClick as JSX.EventHandlerUnion<ButtonT.ElementFor<T>, MouseEvent> | undefined
+      return rest.onClick as JSX.EventHandlerUnion<HTMLElement, MouseEvent> | undefined
     },
   })
 
@@ -86,7 +90,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     return trailing()
   })
 
-  const interactionProps = useButtonInteraction<ButtonT.ElementFor<T>>(
+  const interactionProps = useButtonInteraction(
     {
       disabled: isDisabledOrLoading,
       onClick: () => onClick,

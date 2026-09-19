@@ -13,8 +13,19 @@ import type { ModalT } from './modal.types'
 export function ModalClose<T extends ValidComponent = 'button'>(
   props: ModalT.CloseProps<T>,
 ): JSX.Element {
+  type RuntimeCloseProps = ModalT.CloseProps<T> & {
+    type?: string
+  }
+
   const cn = useCn()
-  const [local, rest] = splitProps(props, ['as', 'type', 'disabled', 'children', 'class', 'style'])
+  const [local, rest] = splitProps(props as RuntimeCloseProps, [
+    'as',
+    'type',
+    'disabled',
+    'children',
+    'class',
+    'style',
+  ])
   const context = useModalContext()
   const interaction = useButtonInteraction(
     {

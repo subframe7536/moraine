@@ -15,7 +15,7 @@ import { Dynamic, Portal } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
-import type { ValidComponent } from '../../shared/types.ts'
+import type { SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
@@ -134,8 +134,21 @@ export function createPopper(props: PopperProps): PopperContext {
 export function PopperTrigger<T extends ValidComponent = 'button'>(
   props: PopperTriggerProps<T> & { context: PopperContext },
 ): JSX.Element {
+  type RuntimeTriggerProps = {
+    context: PopperContext
+    as?: ValidComponent
+    type?: string
+    disabled?: boolean
+    children?: JSX.Element
+    class?: SlotClassValue
+    style?: SlotStyleValue
+    describeTrigger?: boolean
+    toggleOnClick?: boolean
+    ref?: (element: HTMLElement | undefined) => void
+  } & Record<string, unknown>
+
   const cn = useCn()
-  const [local, rest] = splitProps(props, [
+  const [local, rest] = splitProps(props as RuntimeTriggerProps, [
     'context',
     'as',
     'type',
@@ -145,6 +158,7 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     'style',
     'describeTrigger',
     'toggleOnClick',
+    'ref',
   ])
   const context = untrack(() => props.context)
   const tag = () => (local.as as ValidComponent) ?? 'button'
@@ -188,12 +202,12 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
       style={local.style}
       ref={(element: HTMLElement) => {
         context.setTriggerElement(element)
-        callRef(rest.ref, element)
+        callRef(local.ref, element)
         onCleanup(() => {
           if (context.triggerElement() === element) {
             context.setTriggerElement(undefined)
           }
-          callRef(rest.ref, undefined)
+          callRef(local.ref, undefined)
         })
       }}
     >
