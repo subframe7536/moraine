@@ -15,9 +15,6 @@ import { useButtonGroupContext } from './button-group-context'
 import { buttonRecipe } from './button.recipe'
 import type { ButtonProps, ButtonT } from './button.types'
 
-export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element
-/** Button component with polymorphic `as` support and loading state. */
-export function Button(props: ButtonProps): JSX.Element
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
   const cn = useCn()
   const group = useButtonGroupContext()

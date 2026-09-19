@@ -21,8 +21,8 @@ export type ElementProps<T extends HTMLElement> = Omit<JSX.HTMLAttributes<T>, 's
  * ```ts
  * declare module 'moraine' {
  *   interface MoraineTypeConfig {
- *     simpleRootAttributes?: boolean
- *     simpleHtmlTags?: boolean
+ *     simpleRootAttributes: true
+ *     simpleHtmlTags: true
  *   }
  * }
  * ```
