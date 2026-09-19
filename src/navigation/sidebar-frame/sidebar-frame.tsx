@@ -37,6 +37,7 @@ function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
       aria-hidden={
         contentProps.mobile ? !context.isOpen() : context.isMobile() || !context.isOpen()
       }
+      inert={!contentProps.mobile && !context.isOpen() ? true : undefined}
       {...rest}
       class={cn(context.resolved.styles.sidebar.class, local.class)}
       style={{ ...context.resolved.styles.sidebar.style, ...local.style }}
