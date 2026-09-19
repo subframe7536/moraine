@@ -91,7 +91,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
               {(as) => (
                 <Dynamic
                   data-slot="content"
-                  {...(rest as Record<string, unknown>)}
+                  {...rest}
                   component={as() as ValidComponent}
                   {...resolved.styles.content}
                   ref={(el: Element) => callRef(local.ref, el)}

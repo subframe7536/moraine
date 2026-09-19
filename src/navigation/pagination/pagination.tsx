@@ -11,15 +11,16 @@ import { callRef } from '../../shared/utils'
 import { paginationRecipe } from './pagination.recipe'
 import type { PaginationProps } from './pagination.types'
 
-const MAX_SIBLING_COUNT = 100
-const ELLIPSIS = -1
-
-type PaginationButtonProps = ButtonProps<ValidComponent> & {
-  onClick?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+interface InteractiveProps {
+  as?: ValidComponent
+  href?: string
+  rel?: string
   type?: 'button'
+  disabled?: boolean
 }
 
-const PaginationButton = Button as (props: PaginationButtonProps) => JSX.Element
+const MAX_SIBLING_COUNT = 100
+const ELLIPSIS = -1
 
 function clampPage(page: number, count: number): number {
   return Math.min(Math.max(page, 1), Math.max(count, 1))
@@ -57,14 +58,6 @@ function getPaginationItems(page: number, count: number, siblingCount: number): 
     return [1, ELLIPSIS, ...createRange(count - (2 + siblingCount * 2), count)]
   }
   return [1, ELLIPSIS, ...createRange(left, right), ELLIPSIS, count]
-}
-
-interface InteractiveProps {
-  as: ValidComponent
-  href?: string
-  rel?: string
-  type?: 'button'
-  disabled?: boolean
 }
 
 function getSize(size: string | null | undefined, text?: string): ButtonProps['size'] {
@@ -225,7 +218,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       <ul data-slot="list" {...resolved.styles.list}>
         <Show when={merged.showControls}>
           <li data-slot="list-item" {...resolved.styles.listItem}>
-            <PaginationButton
+            <Button
               data-slot="prev"
               variant={resolved.variants.controlVariant}
               size={getSize(resolved.variants.size, merged.prevText)}
@@ -240,7 +233,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
               <Show when={merged.prevText} fallback={<Icon name={merged.prevIcon} />}>
                 {merged.prevText}
               </Show>
-            </PaginationButton>
+            </Button>
           </li>
         </Show>
 
@@ -264,7 +257,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                     />
                   }
                 >
-                  <PaginationButton
+                  <Button
                     data-slot="item"
                     variant={
                       isActive() ? resolved.variants.activeVariant : resolved.variants.variant
@@ -278,7 +271,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                     {...getItemProps(item)}
                   >
                     {item}
-                  </PaginationButton>
+                  </Button>
                 </Show>
               </li>
             )
@@ -287,7 +280,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
 
         <Show when={merged.showControls}>
           <li data-slot="list-item" {...resolved.styles.listItem}>
-            <PaginationButton
+            <Button
               data-slot="next"
               variant={resolved.variants.controlVariant}
               size={getSize(resolved.variants.size, merged.nextText)}
@@ -296,13 +289,13 @@ export function Pagination(props: PaginationProps): JSX.Element {
               {...resolved.styles.next}
               classes={{ label: merged.nextText ? resolved.styles.controlLabel.class : undefined }}
               onClick={(event) => selectPage(currentPage() + 1, event)}
-              {...getControlProps(currentPage() + 1, currentPage() >= pageCount(), 'next')}
               trailing={merged.nextText ? merged.nextIcon : undefined}
+              {...getControlProps(currentPage() + 1, currentPage() >= pageCount(), 'next')}
             >
               <Show when={merged.nextText} fallback={<Icon name={merged.nextIcon} />}>
                 {merged.nextText}
               </Show>
-            </PaginationButton>
+            </Button>
           </li>
         </Show>
       </ul>

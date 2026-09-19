@@ -638,7 +638,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       data-slot="root"
       data-disabled={field.disabled() ? '' : undefined}
       data-readonly={readOnly() ? '' : undefined}
-      {...(rest as Record<string, unknown>)}
+      {...rest}
       id={`${field.id()}-root`}
       component={merged.as as ValidComponent}
       {...resolved.styles.root}

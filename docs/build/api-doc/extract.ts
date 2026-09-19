@@ -483,6 +483,14 @@ function formatType(value: TypeValue, seen = new Set<string>()): string {
     }
   }
 
+  if (value.node.type === 'TSConditionalType') {
+    const trueFormatted = formatType({ ...value, node: value.node.trueType }, seen)
+    const falseFormatted = formatType({ ...value, node: value.node.falseType }, seen)
+    if (trueFormatted === falseFormatted) {
+      return trueFormatted
+    }
+  }
+
   const edits: TextEdit[] = []
   walkAst(value.node, (current) => {
     if (current.type === 'TSLiteralType') {

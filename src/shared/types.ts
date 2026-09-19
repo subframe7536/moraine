@@ -70,15 +70,13 @@ type ComponentBaseProps<Base, Variant, Classes, Styles> = Base &
     style?: SlotStyleValue
   }
 
-type RootProps<T extends ValidComponent> = string & {} extends T
-  ? {}
-  : T extends Tags
-    ? MoraineTypeConfig extends { simpleRootAttributes: true }
-      ? CommonRootProps
-      : StrictedAttributes<T>
-    : T extends (props: infer P) => any
-      ? P
-      : CommonRootProps
+type RootProps<T extends ValidComponent> = T extends Tags
+  ? MoraineTypeConfig extends { simpleRootAttributes: true }
+    ? CommonRootProps
+    : StrictedAttributes<T>
+  : T extends (props: infer P) => any
+    ? P
+    : CommonRootProps
 
 export type BaseProps<TElement extends ValidComponent, Base, Variant, Classes, Styles> = Override<
   RootProps<TElement>,

@@ -70,10 +70,12 @@ export namespace ModalT {
     disabled?: boolean
     /** Trigger label and visual content. */
     children?: JSX.Element
+    /** Receives the mounted trigger element and `undefined` when it unmounts. */
+    ref?: (element: HTMLElement | undefined) => void
   }
 
   export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
-    T,
+    [ValidComponent] extends [T] ? 'button' : T,
     TriggerBase<T>,
     never,
     never,

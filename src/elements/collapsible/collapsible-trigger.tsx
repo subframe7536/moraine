@@ -86,7 +86,7 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
         <Dynamic
           id={context.triggerId()}
           data-slot="trigger"
-          {...(interactionProps as Record<string, unknown>)}
+          {...interactionProps}
           component={as() as ValidComponent}
           {...resolved.styles.trigger}
           aria-controls={context.open() ? context.contentId() : undefined}

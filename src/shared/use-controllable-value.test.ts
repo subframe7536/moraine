@@ -2,10 +2,8 @@ import type { Accessor } from 'solid-js'
 import { createMemo, createRenderEffect, createRoot, createSignal, untrack } from 'solid-js'
 import { describe, expect, it } from 'vitest'
 
-import {
-  useControllableValue,
-  type UseControllableValueOptions,
-} from './use-controllable-value'
+import { useControllableValue } from './use-controllable-value'
+import type { UseControllableValueOptions } from './use-controllable-value'
 
 type ConcreteOptions = UseControllableValueOptions<string>
 const invalidDefault: ConcreteOptions = {
