@@ -101,6 +101,12 @@ export namespace ModalT {
 
     /** Id of the element that describes the modal content. */
     ariaDescribedBy?: string
+
+    /**
+     * Whether keyboard focus should be trapped within the content.
+     * @default true
+     */
+    trapFocus?: boolean
   }
 
   export type ContentProps = BaseProps<'div', ContentBase, Variant, Classes, Styles>

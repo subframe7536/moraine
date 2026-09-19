@@ -1140,6 +1140,76 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
+  test('traps focus from container element to first and last focusables', async () => {
+    const screen = render(() => (
+      <Modal defaultOpen>
+        <Modal.Content data-testid="modal-content">
+          <button type="button" data-testid="first-btn">
+            First
+          </button>
+          <button type="button" data-testid="last-btn">
+            Last
+          </button>
+        </Modal.Content>
+      </Modal>
+    ))
+    await Promise.resolve()
+    await Promise.resolve()
+    const content = document.body.querySelector('[data-testid="modal-content"]') as HTMLElement
+    const first = document.body.querySelector('[data-testid="first-btn"]') as HTMLButtonElement
+    const last = document.body.querySelector('[data-testid="last-btn"]') as HTMLButtonElement
+
+    content.focus()
+    const forwardEvent = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      key: 'Tab',
+    })
+    content.dispatchEvent(forwardEvent)
+    expect(forwardEvent.defaultPrevented).toBe(true)
+    expect(document.activeElement).toBe(first)
+
+    content.focus()
+    const backwardEvent = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      key: 'Tab',
+      shiftKey: true,
+    })
+    content.dispatchEvent(backwardEvent)
+    expect(backwardEvent.defaultPrevented).toBe(true)
+    expect(document.activeElement).toBe(last)
+    screen.unmount()
+  })
+
+  test('does not trap focus when trapFocus is false', async () => {
+    const screen = render(() => (
+      <Modal defaultOpen>
+        <Modal.Content trapFocus={false}>
+          <button type="button" data-testid="first-btn">
+            First
+          </button>
+          <button type="button" data-testid="last-btn">
+            Last
+          </button>
+        </Modal.Content>
+      </Modal>
+    ))
+    await Promise.resolve()
+    await Promise.resolve()
+    const last = document.body.querySelector('[data-testid="last-btn"]') as HTMLButtonElement
+    last.focus()
+
+    const forwardEvent = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      key: 'Tab',
+    })
+    last.dispatchEvent(forwardEvent)
+    expect(forwardEvent.defaultPrevented).toBe(false)
+    screen.unmount()
+  })
+
   test('does not restore focus to a trigger that became disabled while open', async () => {
     const [disabled, setDisabled] = createSignal(false)
     const screen = render(() => (

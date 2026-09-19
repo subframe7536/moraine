@@ -56,6 +56,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     'styles',
     'onKeyDown',
     'surfaceRender',
+    'trapFocus',
   ])
   const context = useModalContext()
   const isInsideOverlay = useModalOverlayContext()
@@ -71,7 +72,9 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     if (event.defaultPrevented) {
       return
     }
-    trapFocusInContainer(event, context.contentElement())
+    if (local.trapFocus !== false) {
+      trapFocusInContainer(event, context.contentElement())
+    }
   }
 
   const renderOverlay = (content?: JSX.Element): JSX.Element => (

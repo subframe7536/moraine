@@ -607,7 +607,11 @@ export function trapFocusInContainer(
   const activeElement = document.activeElement
 
   if (event.shiftKey) {
-    if (activeElement === container || activeElement === firstFocusable) {
+    if (
+      activeElement === container ||
+      activeElement === firstFocusable ||
+      !container.contains(activeElement)
+    ) {
       event.preventDefault()
       lastFocusable.focus()
     }
@@ -615,7 +619,11 @@ export function trapFocusInContainer(
     return
   }
 
-  if (activeElement === lastFocusable) {
+  if (
+    activeElement === container ||
+    activeElement === lastFocusable ||
+    !container.contains(activeElement)
+  ) {
     event.preventDefault()
     firstFocusable.focus()
   }
