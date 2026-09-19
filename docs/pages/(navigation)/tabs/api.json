@@ -221,13 +221,6 @@
         "description": "Array of tabs to display."
       },
       {
-        "name": "keyboardLoop",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether arrow-key navigation wraps from the ends.\nAlias for `loop`.",
-        "defaultValue": "true"
-      },
-      {
         "name": "loop",
         "required": false,
         "type": "boolean | undefined",

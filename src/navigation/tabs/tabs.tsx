@@ -46,7 +46,7 @@ export function Tabs(props: TabsProps): JSX.Element {
     'orientation',
     'activationMode',
     'disabled',
-    'keyboardLoop',
+    'loop',
     'onChange',
     'items',
     'variant',
@@ -141,7 +141,7 @@ export function Tabs(props: TabsProps): JSX.Element {
     items: normalizedItems,
     getValue: (item) => item.instanceKey,
     isDisabled: (item) => Boolean(merged.disabled || item.disabled),
-    loop: () => merged.keyboardLoop ?? true,
+    loop: () => merged.loop ?? true,
     activationMode: () => merged.activationMode ?? 'automatic',
     focusValue: (key) => {
       setHighlightedKey(key)

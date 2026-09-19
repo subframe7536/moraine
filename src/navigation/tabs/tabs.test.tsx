@@ -241,10 +241,10 @@ describe('Tabs', () => {
     expect(onChange).toHaveBeenCalledWith('three')
   })
 
-  test('respects keyboardLoop=false at boundaries', async () => {
+  test('respects loop=false at boundaries', async () => {
     const screen = render(() => (
       <Tabs
-        keyboardLoop={false}
+        loop={false}
         items={[
           { label: 'One', value: 'one', content: 'Panel one' },
           { label: 'Two', value: 'two', content: 'Panel two' },

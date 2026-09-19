@@ -88,7 +88,7 @@ export namespace TabsT {
      * Whether arrow-key navigation wraps from the ends.
      * @default true
      */
-    keyboardLoop?: boolean
+    loop?: boolean
 
     /**
      * Callback when the active tab changes.
