@@ -35,7 +35,7 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
         root: 'bg-card',
       },
       floating: {
-        root: 'p-2',
+        root: 'p-2 bg-background',
         sidebar: 'bg-card border border-border/80 rounded-lg shadow-sm overflow-hidden',
       },
       inset: {
