@@ -6,11 +6,29 @@ on:
       - main
     paths:
       - 'src/**'
+      - 'test/**'
+      - '.node-version'
+      - 'package.json'
+      - 'nub.jsonc'
+      - 'nub.lock'
+      - 'tsconfig.json'
+      - 'tsdown.config.ts'
+      - 'vitest.config.ts'
+      - '.github/workflows/CI.yml'
   pull_request:
     branches:
       - main
     paths:
       - 'src/**'
+      - 'test/**'
+      - '.node-version'
+      - 'package.json'
+      - 'nub.jsonc'
+      - 'nub.lock'
+      - 'tsconfig.json'
+      - 'tsdown.config.ts'
+      - 'vitest.config.ts'
+      - '.github/workflows/CI.yml'
 
 permissions:
   contents: read
