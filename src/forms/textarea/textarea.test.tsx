@@ -188,6 +188,44 @@ describe('Textarea', () => {
     expect(maxLimited.rows).toBe(3)
   })
 
+  test('measures and schedules autoresize with the textarea owner window', () => {
+    vi.useFakeTimers()
+    const iframe = document.createElement('iframe')
+    document.body.append(iframe)
+    const ownerDocument = iframe.contentDocument!
+    const ownerWindow = iframe.contentWindow!
+    const container = ownerDocument.createElement('div')
+    ownerDocument.body.append(container)
+    const getComputedStyle = vi.spyOn(ownerWindow, 'getComputedStyle').mockReturnValue({
+      paddingTop: '4px',
+      paddingBottom: '4px',
+      lineHeight: '16px',
+    } as CSSStyleDeclaration)
+    const globalGetComputedStyle = vi.spyOn(window, 'getComputedStyle')
+    const setTimeout = vi.spyOn(ownerWindow, 'setTimeout')
+    const clearTimeout = vi.spyOn(ownerWindow, 'clearTimeout')
+    const [value, setValue] = createSignal('Initial')
+
+    const screen = render(
+      () => <Textarea value={value()} autoResize autoResizeDelay={25} rows={2} maxRows={4} />,
+      { container, baseElement: ownerDocument.body },
+    )
+    const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
+    Object.defineProperty(textarea, 'scrollHeight', { configurable: true, value: 72 })
+
+    expect(textarea.ownerDocument).toBe(ownerDocument)
+    expect(setTimeout).toHaveBeenCalled()
+    vi.runAllTimers()
+    expect(getComputedStyle).toHaveBeenCalledWith(textarea)
+    expect(globalGetComputedStyle).not.toHaveBeenCalled()
+    expect(textarea.rows).toBe(4)
+
+    setValue('Pending resize')
+    screen.unmount()
+    expect(clearTimeout).toHaveBeenCalled()
+    iframe.remove()
+  })
+
   test('applies classes.root override', () => {
     const screen = render(() => <Textarea classes={{ root: 'root-override' }} />)
     const root = screen.container.querySelector('[data-slot="root"]')
