@@ -352,14 +352,16 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
 
     const form = element.form
     const onFormData = (event: Event) => {
-      const name = field.name()
-      if (!name || field.disabled()) {
-        return
-      }
-      const formData = (event as FormDataEvent).formData
-      for (const current of serialized()) {
-        formData.append(name, current)
-      }
+      untrack(() => {
+        const name = field.name()
+        if (!name || field.disabled()) {
+          return
+        }
+        const formData = (event as FormDataEvent).formData
+        for (const current of serialized()) {
+          formData.append(name, current)
+        }
+      })
     }
     form?.addEventListener('formdata', onFormData)
 
