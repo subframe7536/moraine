@@ -266,8 +266,9 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   }
   createEffect(
     on(
-      [value, field.value, () => props.value !== undefined],
-      ([current, formValue, controlled]) => {
+      [value, field.value, field.required, () => props.value !== undefined],
+      ([current, formValue, required, controlled]) => {
+        syncExternalFormControlValidity(required, current.length > 0)
         if (!controlled) {
           return
         }
@@ -354,27 +355,10 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
       event.preventDefault()
       focusOwner()?.focus()
     }
-    const onFormData = (event: Event) => {
-      untrack(() => {
-        if (event.target !== element.form) {
-          return
-        }
-        const name = field.name()
-        if (!name || field.disabled()) {
-          return
-        }
-        const formData = (event as FormDataEvent).formData
-        for (const current of serialized()) {
-          formData.append(name, current)
-        }
-      })
-    }
     element.addEventListener('invalid', onInvalid)
-    element.ownerDocument.addEventListener('formdata', onFormData, true)
 
     onCleanup(() => {
       element.removeEventListener('invalid', onInvalid)
-      element.ownerDocument.removeEventListener('formdata', onFormData, true)
       element.required = false
       element.setCustomValidity('')
       if (externalFormControl === element) {
@@ -384,8 +368,26 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   }
 
   createEffect(
-    on([field.required, value], ([required, selected]) => {
-      syncExternalFormControlValidity(required, selected.length > 0)
+    on(usesExternalFormControl, (usesExternal) => {
+      const element = externalFormControl
+      const form = usesExternal ? element?.form : undefined
+      if (!form) {
+        return
+      }
+      const onFormData = (event: Event) => {
+        untrack(() => {
+          const name = field.name()
+          if (!name || field.disabled()) {
+            return
+          }
+          const formData = (event as FormDataEvent).formData
+          for (const current of serialized()) {
+            formData.append(name, current)
+          }
+        })
+      }
+      form.addEventListener('formdata', onFormData)
+      onCleanup(() => form.removeEventListener('formdata', onFormData))
     }),
   )
 
