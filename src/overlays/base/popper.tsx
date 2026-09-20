@@ -350,12 +350,13 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
       }
 
       options.onPointerDownOutside?.(interactEvent)
+      const nativeDefaultPrevented = event.defaultPrevented
 
       if (options.modal) {
         event.preventDefault()
       }
 
-      if (interactEvent.defaultPrevented) {
+      if (nativeDefaultPrevented || interactEvent.defaultPrevented) {
         return
       }
 
