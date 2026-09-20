@@ -71,8 +71,8 @@ export function useBaseSelectSearchInput(
   transformInput: (value: string) => string = (value) => value,
 ) {
   const { query, setQuery } = search
-  const [composing, setComposing] = createSignal(false)
-  const [draft, setDraft] = createSignal('')
+  const [compositionDraft, setCompositionDraft] = createSignal<string>()
+  const composing = () => compositionDraft() !== undefined
   function commit(value: string) {
     const next = setQuery(transformInput(value))
     if (next.trim()) {
@@ -87,30 +87,25 @@ export function useBaseSelectSearchInput(
       return
     }
     if (composing() || event.isComposing) {
-      setDraft(target.value)
+      setCompositionDraft(target.value)
       return
     }
     commit(target.value)
   }
   function startComposition(value: string) {
-    setDraft(value)
-    setComposing(true)
+    setCompositionDraft(value)
   }
   function endComposition(value: string) {
     if (!composing()) {
       return undefined
     }
-    setComposing(false)
+    setCompositionDraft(undefined)
     return value
   }
   function discardComposition() {
-    if (!composing()) {
-      return
-    }
-    setComposing(false)
-    setDraft('')
+    setCompositionDraft(undefined)
   }
-  createEffect(on([], () => state.registerCompositionDiscarder(discardComposition)))
+  state.registerCompositionDiscarder(discardComposition)
   createEffect(
     on(query, (current, previous) => {
       if (previous !== undefined && current !== previous) {
@@ -123,7 +118,6 @@ export function useBaseSelectSearchInput(
     setQuery,
     commit,
     composing,
-    setDraft,
     endComposition,
     discardComposition,
     input,
@@ -157,7 +151,7 @@ export function useBaseSelectSearchInput(
         return options.searchMaxLength
       },
       get value() {
-        return composing() ? draft() : display()
+        return compositionDraft() ?? display()
       },
       ref(element: HTMLInputElement) {
         state.setFocusOwner(element)

@@ -116,6 +116,26 @@ describe('Combobox', () => {
     expect(input.getAttribute('aria-autocomplete')).toBe('none')
   })
 
+  test('validates required selection and submits with the form', () => {
+    const screen = render(() => (
+      <form>
+        <Combobox name="fruit" items={ITEMS} required />
+      </form>
+    ))
+    const form = screen.container.querySelector('form')!
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    expect(form.checkValidity()).toBe(false)
+    expect(document.activeElement).toBe(input)
+
+    fireEvent.input(input, { target: { value: 'app' } })
+    expect(form.checkValidity()).toBe(false)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle options' }))
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
+    expect(form.checkValidity()).toBe(true)
+    expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
+  })
+
   test('clear and trigger coexist and clear does not open', () => {
     const onClear = vi.fn()
     const screen = render(() => (
@@ -193,6 +213,8 @@ describe('Combobox', () => {
     const form = screen.container.querySelector('form')!
     const input = screen.getByRole('combobox')
     fireEvent.input(input, { target: { value: 'ba' } })
+
+    expect(input.getAttribute('name')).toBeNull()
     expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
     fireEvent.reset(form)
     expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
