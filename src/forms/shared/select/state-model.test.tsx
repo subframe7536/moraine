@@ -11,6 +11,12 @@ const items = [
   { value: 'GB', label: 'United Kingdom' },
 ]
 
+function collectFormData(form: HTMLFormElement): FormData {
+  const data = new FormData(form)
+  form.dispatchEvent(Object.assign(new Event('formdata'), { formData: data }))
+  return data
+}
+
 describe('Select family state ownership', () => {
   test('BaseSelect normalizes single selection and Control stays non-interactive', () => {
     const onChange = vi.fn()
@@ -52,8 +58,8 @@ describe('Select family state ownership', () => {
     for (const input of screen.getAllByRole('combobox')) {
       fireEvent.input(input, { target: { value: 'Kingdom' } })
     }
-    expect(new FormData(screen.container.querySelector('form')!).getAll('single')).toEqual(['US'])
-    expect(new FormData(screen.container.querySelector('form')!).getAll('multiple')).toEqual([
+    expect(collectFormData(screen.container.querySelector('form')!).getAll('single')).toEqual(['US'])
+    expect(collectFormData(screen.container.querySelector('form')!).getAll('multiple')).toEqual([
       'US',
       'remote',
     ])
