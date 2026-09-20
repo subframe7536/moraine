@@ -272,6 +272,46 @@ describe('InputGroup', () => {
     expect(document.activeElement).toBe(screen.getByRole('button'))
   })
 
+  test('does not redirect focus from interactive addons in an iframe', () => {
+    const iframe = document.createElement('iframe')
+    document.body.append(iframe)
+    const iframeDocument = iframe.contentDocument!
+    const container = iframeDocument.createElement('div')
+    iframeDocument.body.append(container)
+    const screen = render(
+      () => (
+        <InputGroup>
+          <Input aria-label="Message" />
+          <InputGroup.Trailing>
+            <button type="button">Action</button>
+            <a href="#details">Details</a>
+          </InputGroup.Trailing>
+        </InputGroup>
+      ),
+      { container, baseElement: iframeDocument.body },
+    )
+    const control = screen.getByRole('textbox')
+    const button = screen.getByRole('button', { name: 'Action' })
+    const link = screen.getByRole('link', { name: 'Details' })
+
+    for (const target of [button, link]) {
+      target.focus()
+      const event = new iframeDocument.defaultView!.MouseEvent('pointerdown', {
+        bubbles: true,
+        button: 0,
+        cancelable: true,
+      })
+
+      expect(target.dispatchEvent(event)).toBe(true)
+      expect(event.defaultPrevented).toBe(false)
+      expect(iframeDocument.activeElement).toBe(target)
+      expect(iframeDocument.activeElement).not.toBe(control)
+    }
+
+    screen.unmount()
+    iframe.remove()
+  })
+
   test('respects root pointer cancellation and disabled controls without disabling parts', () => {
     const [cancel, setCancel] = createSignal(true)
     const [disabled, setDisabled] = createSignal(false)

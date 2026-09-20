@@ -1,6 +1,13 @@
 /** Returns whether a pointer target belongs to a nested interactive control. */
 export function isInteractiveTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof Element)) {
+  if (
+    !target ||
+    typeof target !== 'object' ||
+    !('nodeType' in target) ||
+    target.nodeType !== 1 ||
+    !('closest' in target) ||
+    typeof target.closest !== 'function'
+  ) {
     return false
   }
 
