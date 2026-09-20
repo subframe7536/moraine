@@ -2,13 +2,13 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { createOutsidePressHandlers, getTransformOrigin } from './utils'
 
-function pointerEvent(pointerId: number): PointerEvent {
+function pointerEvent(pointerId: number, defaultPrevented = false): PointerEvent {
   return {
     button: 0,
     clientX: 0,
     clientY: 0,
     ctrlKey: false,
-    defaultPrevented: false,
+    defaultPrevented,
     pointerId,
     pointerType: 'touch',
     target: document.body,
@@ -48,10 +48,7 @@ describe('createOutsidePressHandlers', () => {
       onPress,
     })
 
-    handlers.pointerdown({
-      ...pointerEvent(1),
-      defaultPrevented: true,
-    } as PointerEvent)
+    handlers.pointerdown(pointerEvent(1, true))
     expect(vi.getTimerCount()).toBe(0)
 
     handlers.pointerdown(pointerEvent(2))
