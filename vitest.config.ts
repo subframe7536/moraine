@@ -33,6 +33,16 @@ export default defineConfig({
     sequence: { groupOrder: 0 },
     environment: 'jsdom',
     globals: true,
+    passWithNoTests: true,
+    forceRerunTriggers: [
+      ...configDefaults.forceRerunTriggers,
+      '**/{vitest,vite}.config.*',
+      '**/package.json',
+      '**/tsconfig*.json',
+      '**/tsdown.config.*',
+      '**/vite-plugin-variant-group.*',
+      '**/src/test-utils/**',
+    ],
     server: {
       deps: {
         inline: ['@solidjs/router', 'satteri'],

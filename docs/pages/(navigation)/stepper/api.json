@@ -132,14 +132,7 @@
       "description": "Icon rendered inside a completed or custom step indicator.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        }
-      ]
+      "ariaAttributes": []
     },
     {
       "name": "separator",

@@ -84,7 +84,7 @@
         "name": "modal",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Whether the content traps focus and hides outside content from assistive technology.",
+        "description": "Whether the content traps focus and hides outside content from assistive technology.\nThis is enabled only when Popover.Content composes Popover.Close; otherwise the Popover\nremains non-modal so assistive-technology users retain a dismissal route.",
         "defaultValue": "false"
       },
       {
@@ -241,6 +241,57 @@
             "name": "styles",
             "required": false,
             "type": "PopoverT.Styles | undefined"
+          }
+        ],
+        "inherited": []
+      }
+    },
+    {
+      "component": {
+        "key": "popover-close",
+        "name": "Popover.Close",
+        "category": "overlays",
+        "polymorphic": true,
+        "description": "Closes the current Popover and enables its modal accessibility behavior when composed in Content.",
+        "sourcePath": "src/overlays/popover/popover.tsx"
+      },
+      "slots": [],
+      "props": {
+        "own": [
+          {
+            "name": "as",
+            "required": false,
+            "type": "\"button\" | undefined",
+            "description": "Element or component to render as.",
+            "defaultValue": "button"
+          },
+          {
+            "name": "children",
+            "required": false,
+            "type": "JSX.Element",
+            "description": "Trigger label and visual content."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "disabled",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether this trigger is disabled."
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
+            "name": "style",
+            "required": false,
+            "type": "SlotStyleValue | undefined"
           }
         ],
         "inherited": []

@@ -171,14 +171,7 @@
       "description": "Non-interactive marker for skipped page ranges.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        }
-      ]
+      "ariaAttributes": []
     },
     {
       "name": "controlLabel",

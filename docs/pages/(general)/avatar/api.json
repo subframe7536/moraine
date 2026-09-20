@@ -89,14 +89,7 @@
       "description": "Icon fallback shown when no image or text fallback is available.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        }
-      ]
+      "ariaAttributes": []
     },
     {
       "name": "badge",

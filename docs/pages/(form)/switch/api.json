@@ -98,14 +98,7 @@
       "description": "Checked, unchecked, or loading icon rendered inside the thumb.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        }
-      ]
+      "ariaAttributes": []
     },
     {
       "name": "wrapper",

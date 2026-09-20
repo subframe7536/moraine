@@ -62,14 +62,7 @@
       "description": "Optional icon or visual placed before the item label.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        }
-      ]
+      "ariaAttributes": []
     },
     {
       "name": "label",
@@ -83,14 +76,7 @@
       "description": "Optional icon placed after the label, commonly used for the disclosure indicator.",
       "cssVariables": [],
       "dataAttributes": [],
-      "ariaAttributes": [
-        {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        }
-      ]
+      "ariaAttributes": []
     },
     {
       "name": "content",
@@ -105,6 +91,12 @@
       ],
       "dataAttributes": [],
       "ariaAttributes": [
+        {
+          "name": "aria-hidden",
+          "required": false,
+          "type": "boolean | string | undefined",
+          "description": "Hides decorative content from assistive technology."
+        },
         {
           "name": "aria-labelledby",
           "required": false,

@@ -61,6 +61,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - uses: nubjs/setup-nub@v0
         with:
@@ -72,4 +74,17 @@ jobs:
 
       - run: nub ci
 
-      - run: nub run test
+      - name: Run tests
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_REF="${{ github.base_ref }}"
+            if git rev-parse --verify "origin/$BASE_REF" >/dev/null 2>&1; then
+              nub run test --changed "origin/$BASE_REF"
+            else
+              nub run test --changed "$BASE_REF"
+            fi
+          elif [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ] && git rev-parse --verify "${{ github.event.before }}" >/dev/null 2>&1; then
+            nub run test --changed ${{ github.event.before }}
+          else
+            nub run test
+          fi
