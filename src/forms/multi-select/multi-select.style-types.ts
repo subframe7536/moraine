@@ -32,7 +32,7 @@ export interface MultiSelectControlStyleSlot<T = unknown> {
   /** Button used to remove one selected value. */
   tagRemove?: T
 
-  /** Counter shown when selected tags exceed the visible limit. */
+  /** Default counter for selected tags beyond the visible limit. */
   tagOverflow?: T
 }
 export interface MultiSelectStyleSlot<T = unknown>

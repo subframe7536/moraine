@@ -1,5 +1,6 @@
-import { MultiSelect } from '@src'
+import { Icon, MultiSelect, Tooltip } from '@src'
 import type { MultiSelectT } from '@src'
+import { For } from 'solid-js'
 
 const TECH_STACK: MultiSelectT.Item[] = [
   { label: 'SolidJS', value: 'solid', icon: 'i-lucide:atom' },
@@ -37,12 +38,33 @@ export function MaxCountMaxTagCount() {
           items={TECH_STACK}
           defaultValue={['solid', 'ts', 'tailwind']}
           maxTagCount={1}
+          tagOverflow={(props) => (
+            <Tooltip openDelay={200}>
+              <Tooltip.Trigger
+                as="span"
+                data-slot="tagOverflow"
+                class="text-muted-foreground px-1 flex cursor-default items-center"
+              >
+                +{props.count}
+              </Tooltip.Trigger>
+              <Tooltip.Content class="p-2 flex gap-1">
+                <For each={props.tags}>
+                  {(tag) => (
+                    <span class="px-2 py-1 rounded bg-muted flex gap-1.5 items-center">
+                      {tag.label}
+                      <Icon name="i-lucide:x" class="text-muted-foreground size-3.5" />
+                    </span>
+                  )}
+                </For>
+              </Tooltip.Content>
+            </Tooltip>
+          )}
           placeholder="Select tags..."
           search
           openOnControlClick
         />
         <p class="text-xs text-muted-foreground">
-          Visual only: collapses excess tags into a +N badge.
+          Visual only: hover +N to inspect the collapsed tags.
         </p>
       </div>
     </div>

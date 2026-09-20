@@ -1,11 +1,12 @@
 import { getInput } from '@formisch/solid'
 import { fireEvent, render as baseRender, within } from '@solidjs/testing-library'
-import { createSignal, untrack } from 'solid-js'
+import { createSignal, For, untrack } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { Field } from '../field/field.tsx'
 import { createForm } from '../form/index.ts'
 
 import { MultiSelect } from './multi-select.tsx'
@@ -214,23 +215,95 @@ describe('MultiSelect', () => {
     expect(onChange).toHaveBeenLastCalledWith([])
   })
 
-  test('maxTagCount is visual only and unresolved values stay removable', () => {
+  test('renders the default overflow count without changing the field description', () => {
+    const items = [
+      { label: 'Apple', value: 'apple' },
+      { label: 'Banana', value: 'banana' },
+      { label: 'Cherry', value: 'cherry' },
+    ]
+    const [values, setValues] = createSignal(['apple', 'banana', 'cherry'])
+    const [maxTagCount, setMaxTagCount] = createSignal(1)
     const screen = render(() => (
       <form>
-        <MultiSelect
-          name="fruit"
-          items={ITEMS}
-          defaultValue={['apple', 'missing', 'banana']}
-          maxTagCount={1}
-        />
+        <Field id="fruits" description="Choose every fruit you want">
+          <MultiSelect
+            search
+            name="fruit"
+            items={items}
+            value={values()}
+            onChange={setValues}
+            maxTagCount={maxTagCount()}
+          />
+        </Field>
       </form>
     ))
-    expect(screen.container.querySelector('[data-slot="tagOverflow"]')?.textContent).toBe('+2')
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    const overflow = () => screen.container.querySelector('[data-slot="tagOverflow"]')
+    expect(overflow()?.textContent).toBe('+2')
+    expect(overflow()?.getAttribute('aria-label')).toBe('2 additional selections')
+    expect(input.getAttribute('aria-describedby')).toBe('fruits-description')
     expect(new FormData(screen.container.querySelector('form')!).getAll('fruit')).toEqual([
       'apple',
-      'missing',
       'banana',
+      'cherry',
     ])
+
+    input.focus()
+    input.setSelectionRange(0, 0)
+    fireEvent.keyDown(input, { key: 'ArrowLeft' })
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Remove Apple' }))
+    input.focus()
+    fireEvent.keyDown(input, { key: 'Backspace' })
+    expect(untrack(values)).toEqual(['apple', 'banana'])
+    expect(overflow()?.textContent).toBe('+1')
+    setMaxTagCount(2)
+    expect(overflow()).toBeNull()
+    expect(input.getAttribute('aria-describedby')).toBe('fruits-description')
+    setMaxTagCount(1)
+    expect(overflow()?.textContent).toBe('+1')
+  })
+
+  test('exposes reactive hidden tags to a custom overflow renderer', () => {
+    const [items, setItems] = createSignal([
+      { label: 'Apple', value: 'apple' },
+      { label: 'Banana', value: 'banana' },
+      { label: 'Cherry', value: 'cherry' },
+    ])
+    const [maxTagCount, setMaxTagCount] = createSignal(1)
+    const screen = render(() => (
+      <MultiSelect
+        items={items()}
+        defaultValue={['apple', 'banana', 'cherry']}
+        maxTagCount={maxTagCount()}
+        tagOverflow={(props) => (
+          <span data-testid="custom-overflow">
+            {props.count}:
+            <For each={props.tags}>
+              {(tag) => (
+                <span>
+                  {tag.label}/{tag.item?.label}/{tag.value};
+                </span>
+              )}
+            </For>
+          </span>
+        )}
+      />
+    ))
+    const overflow = () => screen.getByTestId('custom-overflow')
+    expect(overflow().textContent).toBe('2:Banana/Banana/banana;Cherry/Cherry/cherry;')
+    expect(screen.container.querySelector('[data-slot="tagOverflow"]')).toBeNull()
+
+    setItems([
+      { label: 'Apple', value: 'apple' },
+      { label: 'Plantain', value: 'banana' },
+      { label: 'Cherry', value: 'cherry' },
+    ])
+    expect(overflow().textContent).toBe('2:Plantain/Plantain/banana;Cherry/Cherry/cherry;')
+
+    setMaxTagCount(2)
+    expect(overflow().textContent).toBe('1:Cherry/Cherry/cherry;')
+    setMaxTagCount(3)
+    expect(screen.queryByTestId('custom-overflow')).toBeNull()
   })
 
   test('loading keeps the non-editable trigger mounted', () => {
