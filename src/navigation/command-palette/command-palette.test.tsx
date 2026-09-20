@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor, within } from '@solidjs/testing-library'
 import { For, createSignal } from 'solid-js'
 import type { JSX } from 'solid-js'
-import { describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { Dialog } from '../../overlays/dialog'
 import { MoraineProvider } from '../../provider'
@@ -16,6 +16,10 @@ function renderWithTheme(ui: () => JSX.Element) {
 }
 
 const body = () => within(document.body)
+
+afterEach(() => {
+  vi.useRealTimers()
+})
 
 const GROUPS: CommandPaletteT.Group[] = [
   {
@@ -274,6 +278,88 @@ describe('CommandPalette', () => {
     fireEvent.keyDown(input, { key: 'Enter' })
 
     expect(onSelect).toHaveBeenCalledTimes(1)
+  })
+
+  test('does not activate a command from composition Enter events', () => {
+    vi.useFakeTimers()
+    const onSelect = vi.fn()
+    const onClose = vi.fn()
+    const onCompositionStart = vi.fn()
+    const onCompositionEnd = vi.fn()
+    const screen = renderWithTheme(() => (
+      <CommandPalette
+        groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]}
+        disableFilter
+        onSelect={onSelect}
+        onClose={onClose}
+        inputProps={{ onCompositionStart, onCompositionEnd }}
+      />
+    ))
+    const input = screen.getByRole('combobox')
+
+    fireEvent.compositionStart(input)
+    fireEvent.input(input, { target: { value: '候補' } })
+    const composingEnter = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      key: 'Enter',
+    })
+    input.dispatchEvent(composingEnter)
+
+    fireEvent.compositionEnd(input)
+    const completionEnter = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      key: 'Enter',
+    })
+    input.dispatchEvent(completionEnter)
+
+    expect((input as HTMLInputElement).value).toBe('候補')
+    expect(onCompositionStart).toHaveBeenCalledOnce()
+    expect(onCompositionEnd).toHaveBeenCalledOnce()
+    expect(composingEnter.defaultPrevented).toBe(false)
+    expect(completionEnter.defaultPrevented).toBe(false)
+    expect(onSelect).not.toHaveBeenCalled()
+    expect(onClose).not.toHaveBeenCalled()
+
+    vi.advanceTimersByTime(100)
+    const intentionalEnter = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      key: 'Enter',
+    })
+    input.dispatchEvent(intentionalEnter)
+
+    expect(intentionalEnter.defaultPrevented).toBe(true)
+    expect(onSelect).toHaveBeenCalledOnce()
+    expect(onClose).toHaveBeenCalledOnce()
+  })
+
+  test('restarts and disposes the composition Enter guard', () => {
+    vi.useFakeTimers()
+    const screen = renderWithTheme(() => (
+      <CommandPalette groups={[{ id: 'g', items: [{ value: 'action', label: 'Action' }] }]} />
+    ))
+    const input = screen.getByRole('combobox')
+
+    fireEvent.compositionStart(input)
+    fireEvent.compositionEnd(input)
+    vi.advanceTimersByTime(50)
+    fireEvent.compositionStart(input)
+    fireEvent.compositionEnd(input)
+    vi.advanceTimersByTime(50)
+
+    const guardedEnter = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      key: 'Enter',
+    })
+    input.dispatchEvent(guardedEnter)
+    expect(guardedEnter.defaultPrevented).toBe(false)
+
+    expect(vi.getTimerCount()).toBeGreaterThan(0)
+    screen.unmount()
+    expect(vi.getTimerCount()).toBe(0)
   })
 
   test('supports overriding built-in icons', async () => {

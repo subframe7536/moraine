@@ -7,12 +7,14 @@ import {
   createSignal,
   mergeProps,
   on,
+  onCleanup,
   splitProps,
 } from 'solid-js'
 
 import { Icon } from '../../elements/icon'
 import { List } from '../../elements/list'
 import type { ListT } from '../../elements/list'
+import { createCompositionState, isComposingKeyEvent } from '../../overlays/base/utils'
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
@@ -173,7 +175,20 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   const activeDescendantId = createMemo(() =>
     activeKey() ? `${listboxId()}-${encodeURIComponent(String(activeKey()))}` : undefined,
   )
+  const composition = createCompositionState()
   const warnedDuplicateValues = new Set<string>()
+
+  function handleCompositionStart(): void {
+    composition.onCompositionStart()
+  }
+
+  function handleCompositionEnd(): void {
+    composition.onCompositionEnd()
+  }
+
+  onCleanup(() => {
+    composition.dispose()
+  })
 
   const warnDuplicateValue = (value: string): void => {
     if (process.env.NODE_ENV === 'production' || warnedDuplicateValues.has(value)) {
@@ -353,6 +368,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   function handleKeyDown(event: KeyboardEvent): void {
+    if (isComposingKeyEvent(event, composition)) {
+      return
+    }
+
     if (event.key === ' ' || event.key === 'Spacebar') {
       return
     }
@@ -577,6 +596,14 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
             if (!defaultPrevented) {
               applySearchValue(event.currentTarget.value)
             }
+          }}
+          onCompositionStart={(event) => {
+            callHandler(event, merged.inputProps?.onCompositionStart)
+            handleCompositionStart()
+          }}
+          onCompositionEnd={(event) => {
+            callHandler(event, merged.inputProps?.onCompositionEnd)
+            handleCompositionEnd()
           }}
           onKeyDown={(event) => {
             const { defaultPrevented } = callHandler(event, merged.inputProps?.onKeyDown)
