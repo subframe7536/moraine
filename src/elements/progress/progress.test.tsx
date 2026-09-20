@@ -415,7 +415,7 @@ describe('Progress', () => {
     expect(horizontalIndicator.className).toContain('rtl:animate-carousel')
     expect(horizontalIndicator.className).not.toContain('animate-carousel-inverse')
     expect(verticalIndicator.className).toContain('animate-carousel-vertical')
-    expect(verticalIndicator.className).toContain('animate-direction-reverse')
+    expect(verticalIndicator.className).toContain('[animation-direction:reverse]')
     expect(verticalIndicator.className).not.toContain('animate-carousel-inverse-vertical')
   })
 

@@ -93,7 +93,7 @@ export const progressRecipe = /* @__PURE__ */ defineRecipe<ProgressStyleSlot, Pr
           orientation: 'vertical',
           animation: 'reverse',
         },
-        indicator: 'data-indeterminate:(animate-carousel-vertical animate-direction-reverse)',
+        indicator: 'data-indeterminate:(animate-carousel-vertical [animation-direction:reverse])',
       },
       {
         variants: {
