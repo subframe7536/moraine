@@ -15,6 +15,12 @@ import { MultiSelect } from '../multi-select/multi-select.tsx'
 import { BaseSelect, useSelectState } from './base-select.tsx'
 import { useBaseSelectSearchInput, useSearchValue } from './utils.ts'
 
+function collectFormData(form: HTMLFormElement): FormData {
+  const data = new FormData(form)
+  form.dispatchEvent(Object.assign(new Event('formdata'), { formData: data }))
+  return data
+}
+
 const items = [
   { value: 1, label: 'Alpha', extra: 'first' },
   { value: 2, label: 'Beta', extra: 'second' },
@@ -192,7 +198,7 @@ describe('BaseSelect selection and form', () => {
     )
     fireEvent.click(within(document.body).getAllByRole('option', { hidden: true })[0]!)
     expect(change).toHaveBeenLastCalledWith([1])
-    expect(new FormData(screen.container.querySelector('form')!).getAll('choice')).toEqual(['1'])
+    expect(collectFormData(screen.container.querySelector('form')!).getAll('choice')).toEqual(['1'])
     expect(screen.getByRole('combobox').getAttribute('aria-expanded')).toBe(String(multiple))
     if (multiple) {
       fireEvent.click(within(document.body).getAllByRole('option', { hidden: true })[0]!)
@@ -489,14 +495,14 @@ describe('canonical collection and search view', () => {
       expect(
         within(document.body).getAllByRole('option', { hidden: true })[0]!.textContent,
       ).toContain('Beta')
-      expect(new FormData(screen.container.querySelector('form')!).getAll('choice')).toEqual(['1'])
+      expect(collectFormData(screen.container.querySelector('form')!).getAll('choice')).toEqual(['1'])
       if (multiple) {
         expect(screen.container.querySelector('[data-slot="tag"]')?.textContent).toContain('Alpha')
       }
       fireEvent.input(screen.getByRole('combobox'), { target: { value: 'missing' } })
       expect(within(document.body).getByText('No items')).not.toBeNull()
       expect(within(document.body).getByRole('listbox', { hidden: true })).not.toBeNull()
-      expect(new FormData(screen.container.querySelector('form')!).getAll('choice')).toEqual(['1'])
+      expect(collectFormData(screen.container.querySelector('form')!).getAll('choice')).toEqual(['1'])
     },
   )
 })
@@ -540,7 +546,7 @@ test('virtual rows remain a small view of canonical selection and compose both r
     within(document.body).getAllByRole('option', { hidden: true })[0]!.getAttribute('aria-setsize'),
   ).toBe(String(leaves.filter((item) => item.label.includes('Item 2')).length))
   expect(screen.container.querySelector('[data-slot="tag"]')?.textContent).toContain('Item 3999')
-  expect(new FormData(screen.container.querySelector('form')!).getAll('virtual')).toEqual(['3999'])
+  expect(collectFormData(screen.container.querySelector('form')!).getAll('virtual')).toEqual(['3999'])
   expect(screen.container.querySelectorAll('input[type="hidden"]')).toHaveLength(0)
 })
 
@@ -695,7 +701,7 @@ test('does not serialize an empty single selection as a named value', () => {
     </form>
   ))
 
-  expect(new FormData(screen.container.querySelector('form')!).getAll('choice')).toEqual([])
+  expect(collectFormData(screen.container.querySelector('form')!).getAll('choice')).toEqual([])
 })
 
 test('reuses the validation control as the single-select form input', () => {
