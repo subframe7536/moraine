@@ -99,7 +99,7 @@ export function useTextControlValue<
       return
     }
 
-    restoreValue(getExternalValue())
+    restoreValue(options.value())
   }
 
   function onCompositionStart(): void {
