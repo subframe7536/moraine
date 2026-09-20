@@ -1,8 +1,14 @@
 import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
+import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { Field } from '../field'
+import { FieldProvider } from '../field/field-context'
+import type { FieldBinding } from '../field/field-context'
+import { createForm } from '../form'
 
 import { useSlider } from './hook'
 import { Slider } from './slider'
@@ -238,6 +244,59 @@ describe('Slider', () => {
     }
   })
 
+  test('uses inherited RTL direction for visual placement, pointer, and keyboard movement', () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <div dir="rtl">
+        <Slider defaultValue={45} onValueChange={onValueChange} />
+      </div>
+    ))
+    const thumb = getThumbs(screen.container)[0]!
+    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+    const range = screen.container.querySelector('[data-slot="range"]') as HTMLElement
+    mockPointerCapture(track)
+    mockTrackRect(track)
+
+    expect(track.closest('[dir]')?.getAttribute('dir')).toBe('rtl')
+    expect(thumb.style.right).toBe('45%')
+    expect(range.style.right).toBe('0%')
+    expect(range.style.left).toBe('55%')
+
+    fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+    expect(onValueChange).toHaveBeenLastCalledWith(44)
+
+    fireEvent.pointerDown(track, { button: 0, clientX: 0, pointerId: 1 })
+    expect(onValueChange).toHaveBeenLastCalledWith(100)
+  })
+
+  test('lets a root LTR direction override an inherited RTL direction', () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <div dir="rtl">
+        <Slider dir="ltr" defaultValue={45} onValueChange={onValueChange} />
+      </div>
+    ))
+    const thumb = getThumbs(screen.container)[0]!
+
+    expect(thumb.style.left).toBe('45%')
+
+    fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+    expect(onValueChange).toHaveBeenLastCalledWith(46)
+  })
+
+  test('uses an RTL direction set on the Slider root', () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => (
+      <Slider dir="rtl" defaultValue={45} onValueChange={onValueChange} />
+    ))
+    const thumb = getThumbs(screen.container)[0]!
+
+    expect(thumb.style.right).toBe('45%')
+
+    fireEvent.keyDown(thumb, { key: 'ArrowRight' })
+    expect(onValueChange).toHaveBeenLastCalledWith(44)
+  })
+
   test('PageUp and PageDown move by one tenth of the range snapped to step', async () => {
     const onValueChange = vi.fn()
     const screen = render(() => (
@@ -369,6 +428,104 @@ describe('Slider', () => {
 
     expect(onChange).toHaveBeenLastCalledWith([20, 79])
     expect(Array.isArray(onChange.mock.calls[0]?.[0])).toBe(true)
+  })
+
+  test('gives range thumbs stable identities in accessible value text', () => {
+    const range = render(() => <Slider defaultValue={[20, 80]} />)
+    const labelledRange = render(() => (
+      <Field label="Price">
+        <Slider defaultValue={[20, 80]} />
+      </Field>
+    ))
+    const multiThumb = render(() => <Slider defaultValue={[20, 50, 80]} />)
+
+    expect(getThumbs(range.container).map((thumb) => thumb.getAttribute('aria-valuetext'))).toEqual(
+      ['20 start range', '80 end range'],
+    )
+
+    const fieldLabel = labelledRange.getByText('Price')
+    const labelledThumbs = getThumbs(labelledRange.container)
+    expect(labelledThumbs[0]?.getAttribute('aria-labelledby')).toBe(fieldLabel.id)
+    expect(labelledThumbs[1]?.getAttribute('aria-labelledby')).toBe(fieldLabel.id)
+    expect(labelledThumbs.map((thumb) => thumb.getAttribute('aria-valuetext'))).toEqual([
+      '20 start range',
+      '80 end range',
+    ])
+
+    expect(
+      getThumbs(multiThumb.container).map((thumb) => thumb.getAttribute('aria-valuetext')),
+    ).toEqual(['20 thumb 1 of 3', '50 thumb 2 of 3', '80 thumb 3 of 3'])
+  })
+
+  test('emits Field boundaries and commits range values only when focus leaves the slider', () => {
+    const emit = vi.fn()
+    const onChange = vi.fn()
+    const binding: FieldBinding = {
+      emit,
+      setValue: vi.fn(),
+    }
+    const screen = render(() => (
+      <FieldProvider value={{ ariaId: 'range-field', binding }}>
+        <Slider defaultValue={[20, 80]} onChange={onChange} />
+      </FieldProvider>
+    ))
+    const [first, second] = getThumbs(screen.container)
+    const outside = document.createElement('button')
+
+    fireEvent.focus(first!, { relatedTarget: outside })
+    fireEvent.keyDown(first!, { key: 'ArrowRight' })
+    fireEvent.blur(first!, { relatedTarget: second })
+    fireEvent.focus(second!, { relatedTarget: first })
+
+    expect(emit.mock.calls.filter(([type]) => type === 'focus' || type === 'blur')).toEqual([
+      ['focus', expect.any(FocusEvent)],
+    ])
+    expect(onChange).not.toHaveBeenCalled()
+
+    fireEvent.blur(second!, { relatedTarget: outside })
+
+    expect(emit.mock.calls.filter(([type]) => type === 'focus' || type === 'blur')).toEqual([
+      ['focus', expect.any(FocusEvent)],
+      ['blur', expect.any(FocusEvent)],
+    ])
+    expect(onChange).toHaveBeenLastCalledWith([21, 80])
+  })
+
+  test('keeps Formisch blur validation dormant while range focus moves between thumbs', async () => {
+    const schema = v.object({
+      range: v.pipe(
+        v.array(v.number()),
+        v.check((values) => (values[1] ?? 0) - (values[0] ?? 0) >= 70, 'Range is too narrow.'),
+      ),
+    })
+    const onChange = vi.fn()
+    const { screen, value: form } = renderWithOwner(
+      () => createForm({ schema, initialInput: { range: [20, 80] }, validate: 'blur' }),
+      (form) => (
+        <form.Form>
+          <form.Field name="range" label="Price">
+            <Slider defaultValue={[20, 80]} onChange={onChange} />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const [first, second] = getThumbs(screen.container)
+    const outside = document.createElement('button')
+
+    fireEvent.focus(first!, { relatedTarget: outside })
+    expect(form.isTouched).toBe(true)
+
+    fireEvent.keyDown(first!, { key: 'ArrowRight' })
+    fireEvent.blur(first!, { relatedTarget: second })
+    fireEvent.focus(second!, { relatedTarget: first })
+
+    expect(onChange).not.toHaveBeenCalled()
+    expect(screen.queryByText('Range is too narrow.')).toBeNull()
+
+    fireEvent.blur(second!, { relatedTarget: outside })
+
+    await waitFor(() => expect(screen.getByText('Range is too narrow.')).not.toBeNull())
+    expect(onChange).toHaveBeenLastCalledWith([21, 80])
   })
 
   test('moves overlapping thumbs in both directions', async () => {

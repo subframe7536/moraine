@@ -90,11 +90,11 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       merged.onChange?.(value)
       field.emit('change')
     },
-    onFocus() {
-      field.emit('focus')
+    onFocus(event) {
+      field.emit('focus', event)
     },
-    onBlur() {
-      field.emit('blur')
+    onBlur(event) {
+      field.emit('blur', event)
     },
     onValueReset(value) {
       field.setFormValue(value)
@@ -139,7 +139,13 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           data-multiple={slider.currentValues().length > 1 ? '' : undefined}
           data-inverted={merged.inverted ? '' : undefined}
           data-dragging={slider.dragging() ? '' : undefined}
-          style={{ ...slider.rangeStyle(), ...resolved.styles.range.style }}
+          style={{
+            left: slider.rangeStyle().left,
+            right: slider.rangeStyle().right,
+            top: slider.rangeStyle().top,
+            bottom: slider.rangeStyle().bottom,
+            ...resolved.styles.range.style,
+          }}
           class={resolved.styles.range.class}
         />
 
@@ -149,6 +155,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               <div
                 data-slot="divider"
                 style={{
+                  left: slider.getDividerStyle(dividerIndex).left,
+                  right: slider.getDividerStyle(dividerIndex).right,
+                  top: slider.getDividerStyle(dividerIndex).top,
+                  bottom: slider.getDividerStyle(dividerIndex).bottom,
                   ...slider.getDividerStyle(dividerIndex),
                   ...resolved.styles.divider.style,
                 }}
@@ -180,7 +190,13 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             data-required={field.required() ? '' : undefined}
             role="slider"
             tabIndex={field.disabled() ? undefined : 0}
-            style={{ ...slider.thumbStyles()[thumbIndex], ...resolved.styles.thumb.style }}
+            style={{
+              left: slider.thumbStyles()[thumbIndex]?.left,
+              right: slider.thumbStyles()[thumbIndex]?.right,
+              top: slider.thumbStyles()[thumbIndex]?.top,
+              bottom: slider.thumbStyles()[thumbIndex]?.bottom,
+              ...resolved.styles.thumb.style,
+            }}
             class={resolved.styles.thumb.class}
             aria-valuemin={slider.getThumbMinValue(thumbIndex)}
             aria-valuenow={slider.currentValues()[thumbIndex] ?? merged.min}
@@ -208,8 +224,8 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               slider.onThumbKeyDown(thumbIndex, event)
             }}
             onKeyUp={slider.onThumbKeyUp}
-            onFocus={() => {
-              slider.onThumbFocus(thumbIndex)
+            onFocus={(event) => {
+              slider.onThumbFocus(thumbIndex, event)
             }}
             onBlur={slider.onThumbBlur}
           >
