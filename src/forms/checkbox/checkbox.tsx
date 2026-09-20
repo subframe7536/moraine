@@ -284,6 +284,19 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     }
   }
 
+  function onControlFocus(event: FocusEvent): void {
+    if (merged.fieldBind !== false) {
+      field.emit('focus', event)
+    }
+  }
+
+  function onControlBlur(event: FocusEvent): void {
+    enterPressed = false
+    if (merged.fieldBind !== false) {
+      field.emit('blur', event)
+    }
+  }
+
   const onPointerDown: JSX.EventHandler<HTMLButtonElement, PointerEvent> = (event) => {
     const { defaultPrevented } = callHandler(event, merged.onPointerDown)
     if (defaultPrevented) {
@@ -373,9 +386,8 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           onClick={onControlClick}
           onKeyDown={onControlKeyDown}
           onKeyUp={onControlKeyUp}
-          onBlur={() => {
-            enterPressed = false
-          }}
+          onFocus={onControlFocus}
+          onBlur={onControlBlur}
           {...checkboxAriaAttrs()}
           data-checked={resolvedChecked() ? '' : undefined}
           data-disabled={field.disabled() ? '' : undefined}
