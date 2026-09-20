@@ -1,7 +1,7 @@
 import type { Accessor } from 'solid-js'
 
 /**
- * Lightweight registry of currently open dismissible overlays. The stack
+ * Lightweight registry of currently present interactive overlays. The stack
  * preserves push order so that nested overlays (e.g. a popover opened from
  * inside a modal) layer correctly and only the topmost overlay reacts to
  * Escape, outside pointerdown, and outside focusin.

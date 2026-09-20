@@ -13,7 +13,7 @@ export interface ModalContext {
   setTriggerElement: (element: HTMLElement | undefined) => void
   contentElement: Accessor<HTMLDivElement | undefined>
   setContentElement: (element: HTMLDivElement | undefined) => void
-  registerContent: () => () => void
+  registerContent: (trapFocus: Accessor<boolean>) => () => void
   contentPresent: Accessor<boolean>
   isPresent: Accessor<boolean>
 }

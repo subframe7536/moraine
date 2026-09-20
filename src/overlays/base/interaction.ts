@@ -16,6 +16,7 @@ export interface OverlayInteractionContext {
 export interface OverlayInteractionOptions {
   containsTarget?: (target: Node) => boolean
   contentElement?: Accessor<HTMLElement | undefined>
+  /** Whether this layer participates in the overlay stack and document interactions. */
   enabled: Accessor<boolean>
   onActivate?: (context: OverlayInteractionContext) => void
   onDeactivate?: (context: OverlayInteractionContext) => void
@@ -24,7 +25,6 @@ export interface OverlayInteractionOptions {
   onFocusOutside?: (event: FocusEvent, context: OverlayInteractionContext) => void
   onPointerDownInside?: (event: PointerEvent, context: OverlayInteractionContext) => void
   onPointerOutside?: (event: PointerEvent, context: OverlayInteractionContext) => void
-  outsidePressEvent?: 'pointerdown' | 'tap'
   requireContent?: boolean
   triggerElement?: Accessor<HTMLElement | undefined>
 }
@@ -70,13 +70,6 @@ export function useOverlayInteraction(options: OverlayInteractionOptions): void 
             .some((pathTarget) => pathTarget instanceof Node && isInside(pathTarget))
           if (target instanceof Node && (isInside(target) || pathIsInside)) {
             options.onPointerDownInside?.(event, context)
-            return
-          }
-
-          if (options.outsidePressEvent === 'pointerdown') {
-            if (context.isTop()) {
-              options.onPointerOutside?.(event, context)
-            }
             return
           }
 

@@ -32,11 +32,18 @@ export function Modal(props: ModalProps): JSX.Element {
   const [contentElement, setContentElement] = createSignal<HTMLDivElement | undefined>()
   const presence = useTransitionPresence({ open })
   const [contentRegistrations, setContentRegistrations] = createSignal<Set<number>>(new Set())
+  const contentTrapFocus = new Map<number, () => boolean>()
   let nextContentRegistrationId = 0
   const dismissible = createMemo(() => props.dismissible ?? true)
   const contentMounted = createMemo(() => contentRegistrations().size > 0)
   const isPresent = createMemo(() => contentMounted() && presence.present())
   const contentPresent = isPresent
+  const shouldContainFocus = () => {
+    for (const trapFocus of contentTrapFocus.values()) {
+      if (trapFocus()) return true
+    }
+    return false
+  }
   let capturedTrigger: HTMLElement | undefined
   let capturedRestoreTarget: HTMLElement | undefined
   let lastFocusedElement: HTMLElement | undefined
@@ -128,6 +135,7 @@ export function Modal(props: ModalProps): JSX.Element {
       lastFocusedElement = undefined
     },
     onPointerDownInside: (event, context) => {
+      if (!shouldContainFocus()) return
       const target = event.target
       const currentContent = contentElement()
       if (
@@ -177,6 +185,7 @@ export function Modal(props: ModalProps): JSX.Element {
       }
     },
     onFocusOutside: () => {
+      if (!shouldContainFocus()) return
       const currentContent = contentElement()
       queueMicrotask(() => {
         if (lastFocusedElement?.isConnected && currentContent?.contains(lastFocusedElement)) {
@@ -232,9 +241,10 @@ export function Modal(props: ModalProps): JSX.Element {
     setTriggerElement,
     contentElement,
     setContentElement,
-    registerContent: () => {
+    registerContent: (trapFocus: () => boolean) => {
       const registrationId = nextContentRegistrationId++
       let active = true
+      contentTrapFocus.set(registrationId, trapFocus)
       setContentRegistrations((current) => {
         const next = new Set(current)
         next.add(registrationId)
@@ -247,6 +257,7 @@ export function Modal(props: ModalProps): JSX.Element {
         }
 
         active = false
+        contentTrapFocus.delete(registrationId)
         setContentRegistrations((current) => {
           const next = new Set(current)
           next.delete(registrationId)

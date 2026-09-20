@@ -64,7 +64,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
   const renderOutsideOverlay = createMemo(() => !overlayScroll())
   const hasOverlay = createMemo(() => Boolean(props.overlay))
   const presence = context.presence
-  const unregisterContent = context.registerContent()
+  const unregisterContent = context.registerContent(() => local.trapFocus !== false)
   onCleanup(unregisterContent)
 
   const onContentKeyDown = (event: KeyboardEvent): void => {

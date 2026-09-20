@@ -1388,26 +1388,25 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
     contentElement: () => rootLayerState()?.contentElement(),
     triggerElement: () => merged.triggerElement,
     onPointerOutside: (event) => {
-      if (!event.defaultPrevented) {
-        closeRoot()
-      }
+      if (merged.open && !event.defaultPrevented) closeRoot()
     },
     onFocusOutside: (event) => {
-      if (!event.defaultPrevented) {
-        closeRoot()
-      }
+      if (merged.open && !event.defaultPrevented) closeRoot()
     },
     onEscape: (event, context) => {
       const target = event.target
-      if ((target instanceof Node && context.isInside(target)) || event.defaultPrevented) {
+      if (
+        !merged.open ||
+        (target instanceof Node && context.isInside(target)) ||
+        event.defaultPrevented
+      ) {
         return
       }
 
       event.preventDefault()
       closeRoot()
     },
-    enabled: () => merged.open,
-    outsidePressEvent: 'pointerdown',
+    enabled: contentPresence.present,
     requireContent: true,
   })
 

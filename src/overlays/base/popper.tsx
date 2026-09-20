@@ -236,6 +236,15 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
   const contentMounted = createMemo(
     () => contentPresence.present() || (options.forceMount && !context.options.disabled),
   )
+  let restoreFocusAfterClose = true
+
+  createEffect(
+    on(context.isOpen, (open) => {
+      if (open) {
+        restoreFocusAfterClose = true
+      }
+    }),
+  )
 
   createEffect(
     on(
@@ -361,6 +370,9 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
       }
 
       if (options.dismissible) {
+        if (!options.modal) {
+          restoreFocusAfterClose = false
+        }
         setOpen(false)
         return
       }
@@ -383,6 +395,9 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
       }
 
       if (options.closeOnOutsideFocus && options.dismissible) {
+        if (!options.modal) {
+          restoreFocusAfterClose = false
+        }
         setOpen(false)
         return
       }
@@ -418,7 +433,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     onDeactivate: (context) => {
       // Restore focus while this entry is still topmost so lower overlays
       // treat the resulting focus event as owned by the closing layer.
-      if (options.restoreFocusOnClose && context.isTop()) {
+      if (options.restoreFocusOnClose && restoreFocusAfterClose && context.isTop()) {
         focusTrigger(triggerElement())
       }
     },
