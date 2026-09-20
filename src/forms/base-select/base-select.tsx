@@ -521,7 +521,8 @@ function BaseSelectTrigger<
       tag,
       disabledForComponent: true,
       disabled: () => state.field.disabled() || Boolean(local.disabled),
-      onPress: () => () => {
+      element: state.focusOwner,
+      onPress: () => {
         state.focusOwner()?.focus()
         state.setOpen(!state.open())
       },
