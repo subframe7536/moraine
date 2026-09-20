@@ -16,3 +16,18 @@ export function renderComboboxFixture(): string {
     />
   ))
 }
+
+export function renderReadOnlyComboboxFixture(): string {
+  return renderToString(() => (
+    <Combobox
+      id="read-only-fruit"
+      name="read-only-fruit"
+      value="banana"
+      readOnly
+      items={[
+        { value: 'apple', label: 'Apple' },
+        { value: 'banana', label: 'Banana' },
+      ]}
+    />
+  ))
+}

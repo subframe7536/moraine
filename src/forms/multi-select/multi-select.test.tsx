@@ -50,6 +50,18 @@ describe('MultiSelect', () => {
     expect(input.readOnly).toBe(false)
   })
 
+  test('matches autocomplete semantics to editable read-only state', () => {
+    const editable = render(() => <MultiSelect items={ITEMS} search />)
+    const editableInput = editable.getByRole<HTMLInputElement>('combobox')
+    expect(editableInput.getAttribute('aria-autocomplete')).toBe('list')
+
+    const readOnly = render(() => <MultiSelect items={ITEMS} search readOnly />)
+    const readOnlyInput = readOnly.getByRole<HTMLInputElement>('combobox')
+    expect(readOnlyInput.readOnly).toBe(true)
+    expect(readOnlyInput.getAttribute('aria-readonly')).toBe('true')
+    expect(readOnlyInput.getAttribute('aria-autocomplete')).toBe('none')
+  })
+
   test('control click opens by default and the non-editable trigger toggles', () => {
     const screen = render(() => <MultiSelect items={ITEMS} />)
     const trigger = screen.getByRole('combobox')
