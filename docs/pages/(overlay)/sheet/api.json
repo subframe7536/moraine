@@ -318,6 +318,13 @@
             "type": "boolean | undefined",
             "description": "Whether to enable transition animations.",
             "defaultValue": "true"
+          },
+          {
+            "name": "trapFocus",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether the sheet behaves as a modal surface, including focus containment,\noutside-content isolation, and body scroll locking.",
+            "defaultValue": "true"
           }
         ],
         "inherited": []

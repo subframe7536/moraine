@@ -153,7 +153,7 @@
             "name": "trapFocus",
             "required": false,
             "type": "boolean | undefined",
-            "description": "Whether keyboard focus should be trapped within the content.",
+            "description": "Whether this surface behaves as a modal dialog: it traps and receives focus,\nhides outside content from assistive technology, and locks body scroll.",
             "defaultValue": "true"
           }
         ],

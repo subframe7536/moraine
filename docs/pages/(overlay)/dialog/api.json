@@ -305,6 +305,13 @@
             "required": false,
             "type": "JSX.Element",
             "description": "Primary title displayed in the dialog header."
+          },
+          {
+            "name": "trapFocus",
+            "required": false,
+            "type": "boolean | undefined",
+            "description": "Whether the dialog behaves as a modal surface, including focus containment,\noutside-content isolation, and body scroll locking.",
+            "defaultValue": "true"
           }
         ],
         "inherited": []

@@ -126,6 +126,13 @@
       "props": {
         "own": [
           {
+            "name": "ariaLabel",
+            "required": false,
+            "type": "string | undefined",
+            "description": "Accessible name for the mobile navigation Sheet. Native aria-label takes precedence;\ntitle is used when neither native aria-label nor this prop is provided.",
+            "defaultValue": "Sidebar navigation"
+          },
+          {
             "name": "children",
             "required": false,
             "type": "JSX.Element"

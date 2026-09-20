@@ -157,6 +157,12 @@
         "defaultValue": "false"
       },
       {
+        "name": "form",
+        "required": false,
+        "type": "string | undefined",
+        "description": "The ID of an external form that owns the native spinbutton."
+      },
+      {
         "name": "holdRepeat",
         "required": false,
         "type": "boolean | undefined",
