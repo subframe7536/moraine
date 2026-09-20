@@ -28,6 +28,7 @@ import type {
   PopperContentAttributes,
   PopperContentProps,
   PopperInteractOutsideEvent,
+  PopperPointerDownOutsideEvent,
   PopperTriggerProps,
 } from './popper.types'
 import {
@@ -340,19 +341,29 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     triggerElement,
     requireContent: true,
     onPointerOutside: (event) => {
-      options.onPointerDownOutside?.(event)
+      const interactEvent: PopperPointerDownOutsideEvent = {
+        defaultPrevented: false,
+        originalEvent: event,
+        preventDefault() {
+          this.defaultPrevented = true
+        },
+      }
 
-      if (event.defaultPrevented) {
+      options.onPointerDownOutside?.(interactEvent)
+
+      if (options.modal) {
+        event.preventDefault()
+      }
+
+      if (interactEvent.defaultPrevented) {
         return
       }
 
       if (options.dismissible) {
-        event.preventDefault()
         setOpen(false)
         return
       }
 
-      event.preventDefault()
       options.onClosePrevent?.()
     },
     onFocusOutside: (event) => {
@@ -376,10 +387,10 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
       }
 
       if (!options.dismissible) {
-        event.preventDefault()
         options.onClosePrevent?.()
 
         if (options.modal) {
+          event.preventDefault()
           const currentContent = contentElement()
           queueMicrotask(() => {
             focusContent(currentContent)

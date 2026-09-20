@@ -401,8 +401,14 @@ describe('Popover', () => {
     ))
 
     await new Promise((resolve) => setTimeout(resolve, 0))
-    fireEvent.pointerDown(screen.getByTestId('outside'))
+    const event = new PointerEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      pointerType: 'mouse',
+    })
+    screen.getByTestId('outside').dispatchEvent(event)
 
+    expect(event.defaultPrevented).toBe(false)
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
@@ -486,10 +492,49 @@ describe('Popover', () => {
       </>
     ))
 
-    fireEvent.pointerDown(screen.getByTestId('outside'))
+    const event = new PointerEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      pointerType: 'mouse',
+    })
+    screen.getByTestId('outside').dispatchEvent(event)
 
+    expect(event.defaultPrevented).toBe(false)
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
 
+    await finishExitMotion()
+
+    await waitFor(() => {
+      expect(onOpenChange).toHaveBeenCalledWith(false)
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    })
+  })
+
+  test('prevents native outside pointer default action only for modal popovers', async () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">
+          Outside target
+        </button>
+        <Popover defaultOpen modal onOpenChange={onOpenChange}>
+          <Popover.Trigger as="button" type="button">
+            Trigger
+          </Popover.Trigger>
+          <Popover.Content>{'Modal'}</Popover.Content>
+        </Popover>
+      </>
+    ))
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    const event = new PointerEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      pointerType: 'mouse',
+    })
+    screen.getByTestId('outside').dispatchEvent(event)
+
+    expect(event.defaultPrevented).toBe(true)
     await finishExitMotion()
 
     await waitFor(() => {
