@@ -39,6 +39,27 @@ describe('createOutsidePressHandlers', () => {
     expect(onPress).not.toHaveBeenCalled()
   })
 
+  test('ignores cancelled touch presses without poisoning the next tap', () => {
+    vi.useFakeTimers()
+    const onPress = vi.fn()
+    const handlers = createOutsidePressHandlers({
+      isEnabled: () => true,
+      isInside: () => false,
+      onPress,
+    })
+
+    handlers.pointerdown({
+      ...pointerEvent(1),
+      defaultPrevented: true,
+    } as PointerEvent)
+    expect(vi.getTimerCount()).toBe(0)
+
+    handlers.pointerdown(pointerEvent(2))
+    handlers.pointerup(pointerEvent(2))
+
+    expect(onPress).toHaveBeenCalledTimes(1)
+  })
+
   test('does not let a replaced pointer timeout clear the newer press', () => {
     vi.useFakeTimers()
     const onPress = vi.fn()
