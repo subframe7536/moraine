@@ -41,6 +41,11 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
       context.open() ||
       (context.transition() && context.contentPresence.present()),
   )
+  const closed = createMemo(() => !context.open())
+  const exiting = createMemo(
+    () => closed() && context.transition() && context.contentPresence.present(),
+  )
+  const hidden = createMemo(() => closed() && !exiting())
 
   return (
     <Show when={shouldRender()}>
@@ -56,8 +61,11 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
             }}
             id={context.contentId()}
             aria-labelledby={context.triggerId()}
+            aria-hidden={closed() ? true : undefined}
             data-slot="content-wrapper"
             data-transition={context.transition() ? '' : undefined}
+            hidden={hidden()}
+            inert={closed() ? true : undefined}
             style={{
               '--mo-collapsible-content-height': `${context.contentHeight()}px`,
               ...resolved.styles.contentWrapper.style,

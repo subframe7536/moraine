@@ -410,17 +410,190 @@ describe('Collapsible', () => {
     expect(screen.getByTestId('unmount-false-content')).not.toBeNull()
   })
 
+  test('hides retained closed content from visual, keyboard, and accessibility trees', () => {
+    const screen = render(() => (
+      <Collapsible defaultOpen={false} unmountOnHide={false}>
+        <Collapsible.Trigger>Keep Mounted Trigger</Collapsible.Trigger>
+        <Collapsible.Content>
+          <a href="/details">Retained details</a>
+        </Collapsible.Content>
+      </Collapsible>
+    ))
+    const wrapper = screen.container.querySelector<HTMLElement>('[data-slot="content-wrapper"]')!
+    const trigger = screen.getByRole('button', { name: 'Keep Mounted Trigger' })
+
+    expect(wrapper.hidden).toBe(true)
+    expect(wrapper.getAttribute('aria-hidden')).toBe('true')
+    expect(wrapper.inert).toBe(true)
+    expect(screen.queryByRole('link', { name: 'Retained details' })).toBeNull()
+    expect(screen.getByRole('link', { name: 'Retained details', hidden: true })).not.toBeNull()
+
+    fireEvent.click(trigger)
+
+    expect(wrapper.hidden).toBe(false)
+    expect(wrapper.hasAttribute('aria-hidden')).toBe(false)
+    expect(wrapper.inert).not.toBe(true)
+    expect(screen.getByRole('link', { name: 'Retained details' })).not.toBeNull()
+  })
+
   test('forceMount on Collapsible.Content keeps content mounted in DOM when closed', () => {
     const screen = render(() => (
       <Collapsible defaultOpen={false}>
         <Collapsible.Trigger>Force Mount Trigger</Collapsible.Trigger>
         <Collapsible.Content forceMount>
-          <div data-testid="force-mount-content">Force Mounted</div>
+          <a href="/details" data-testid="force-mount-content">
+            Force Mounted
+          </a>
         </Collapsible.Content>
       </Collapsible>
     ))
+    const wrapper = screen.container.querySelector<HTMLElement>('[data-slot="content-wrapper"]')!
 
     expect(screen.getByTestId('force-mount-content')).not.toBeNull()
+    expect(wrapper.hidden).toBe(true)
+    expect(wrapper.getAttribute('aria-hidden')).toBe('true')
+    expect(wrapper.inert).toBe(true)
+    expect(screen.queryByRole('link', { name: 'Force Mounted' })).toBeNull()
+  })
+
+  test('keeps retained content inaccessible during and after an exit transition', async () => {
+    const screen = render(() => (
+      <Collapsible defaultOpen transition unmountOnHide={false}>
+        <Collapsible.Trigger>Retained transition trigger</Collapsible.Trigger>
+        <Collapsible.Content>
+          <a href="/details">Retained transition details</a>
+        </Collapsible.Content>
+      </Collapsible>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Retained transition trigger' })
+    const wrapper = screen.container.querySelector<HTMLElement>('[data-slot="content-wrapper"]')!
+
+    fireEvent.click(trigger)
+    await Promise.resolve()
+
+    expect(wrapper.hidden).toBe(false)
+    expect(wrapper.getAttribute('aria-hidden')).toBe('true')
+    expect(wrapper.inert).toBe(true)
+    expect(screen.queryByRole('link', { name: 'Retained transition details' })).toBeNull()
+
+    fireEvent.animationEnd(wrapper, { animationName: 'accordion-up' })
+    await Promise.resolve()
+
+    expect(wrapper.hidden).toBe(true)
+    expect(
+      screen.getByRole('link', { name: 'Retained transition details', hidden: true }),
+    ).not.toBeNull()
+  })
+
+  test('keeps force-mounted content inaccessible during and after an exit transition', async () => {
+    const screen = render(() => (
+      <Collapsible defaultOpen transition>
+        <Collapsible.Trigger>Force Mount Trigger</Collapsible.Trigger>
+        <Collapsible.Content forceMount>
+          <a href="/details">Force-mounted details</a>
+        </Collapsible.Content>
+      </Collapsible>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Force Mount Trigger' })
+    const wrapper = screen.container.querySelector<HTMLElement>('[data-slot="content-wrapper"]')!
+
+    fireEvent.click(trigger)
+
+    expect(wrapper.hidden).toBe(false)
+    expect(wrapper.getAttribute('aria-hidden')).toBe('true')
+    expect(wrapper.inert).toBe(true)
+    expect(screen.queryByRole('link', { name: 'Force-mounted details' })).toBeNull()
+
+    await Promise.resolve()
+    fireEvent.animationEnd(wrapper, { animationName: 'accordion-up' })
+    await Promise.resolve()
+
+    expect(wrapper.hidden).toBe(true)
+    expect(screen.getByRole('link', { name: 'Force-mounted details', hidden: true })).not.toBeNull()
+
+    fireEvent.click(trigger)
+
+    expect(wrapper.hidden).toBe(false)
+    expect(wrapper.hasAttribute('aria-hidden')).toBe(false)
+    expect(wrapper.inert).not.toBe(true)
+    expect(screen.getByRole('link', { name: 'Force-mounted details' })).not.toBeNull()
+  })
+
+  test('restores trigger focus when a controlled close hides focused content', () => {
+    const [open, setOpen] = createSignal(true)
+    const screen = render(() => (
+      <Collapsible open={open()}>
+        <Collapsible.Trigger>Controlled trigger</Collapsible.Trigger>
+        <Collapsible.Content>
+          <a href="/details">Controlled details</a>
+        </Collapsible.Content>
+      </Collapsible>
+    ))
+    const trigger = screen.getByRole('button', { name: 'Controlled trigger' })
+    const link = screen.getByRole('link', { name: 'Controlled details' })
+
+    link.focus()
+    expect(document.activeElement).toBe(link)
+
+    setOpen(false)
+
+    expect(document.activeElement).toBe(trigger)
+  })
+
+  test('does not restore trigger focus after focus leaves open content', () => {
+    const [open, setOpen] = createSignal(true)
+    const screen = render(() => (
+      <>
+        <button>Outside</button>
+        <Collapsible open={open()}>
+          <Collapsible.Trigger>Controlled trigger</Collapsible.Trigger>
+          <Collapsible.Content>
+            <a href="/details">Controlled details</a>
+          </Collapsible.Content>
+        </Collapsible>
+      </>
+    ))
+    const outside = screen.getByRole('button', { name: 'Outside' })
+    const link = screen.getByRole('link', { name: 'Controlled details' })
+
+    link.focus()
+    outside.focus()
+    setOpen(false)
+
+    expect(document.activeElement).toBe(outside)
+  })
+
+  test('restores focus within the content owner document on controlled close', () => {
+    const iframe = document.createElement('iframe')
+    document.body.append(iframe)
+    const iframeDocument = iframe.contentDocument!
+    const container = iframeDocument.createElement('div')
+    iframeDocument.body.append(container)
+    const [open, setOpen] = createSignal(true)
+    const screen = render(
+      () => (
+        <Collapsible open={open()}>
+          <Collapsible.Trigger>Frame trigger</Collapsible.Trigger>
+          <Collapsible.Content>
+            <a href="/details">Frame details</a>
+          </Collapsible.Content>
+        </Collapsible>
+      ),
+      { container, baseElement: iframeDocument.body },
+    )
+    const trigger = screen.getByRole('button', { name: 'Frame trigger' })
+    const link = screen.getByRole('link', { name: 'Frame details' })
+
+    link.focus()
+    expect(iframeDocument.activeElement).toBe(link)
+
+    setOpen(false)
+
+    expect(iframeDocument.activeElement).toBe(trigger)
+    expect(document.activeElement).toBe(iframe)
+
+    screen.unmount()
+    iframe.remove()
   })
 
   test('polymorphic Collapsible.Content with as="section", custom wrapperClass and refs', () => {
