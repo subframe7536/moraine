@@ -14,11 +14,12 @@ import {
 } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
+import { containsComposed, getActiveElement, isNode } from '../../overlays/base/dom'
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { HiddenInput } from '../../shared/hidden-input'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
-import { callRef, useId } from '../../shared/utils'
+import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
@@ -59,6 +60,8 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     'class',
     'style',
     'ref',
+    'onFocusIn',
+    'onFocusOut',
   ])
   const themeField = useFieldContext()
   const resolved = createStyles(radioGroupRecipe, local, {
@@ -302,6 +305,34 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     },
   )
 
+  const onGroupFocusIn: JSX.EventHandler<HTMLDivElement, FocusEvent> = (event) => {
+    const { defaultPrevented } = callHandler(event, local.onFocusIn)
+    if (defaultPrevented) {
+      return
+    }
+
+    const relatedTarget = event.relatedTarget
+    if (isNode(relatedTarget) && containsComposed(event.currentTarget, relatedTarget)) {
+      return
+    }
+
+    field.emit('focus', event)
+  }
+
+  const onGroupFocusOut: JSX.EventHandler<HTMLDivElement, FocusEvent> = (event) => {
+    const { defaultPrevented } = callHandler(event, local.onFocusOut)
+    if (defaultPrevented) {
+      return
+    }
+
+    const relatedTarget = event.relatedTarget
+    if (isNode(relatedTarget) && containsComposed(event.currentTarget, relatedTarget)) {
+      return
+    }
+
+    field.emit('blur', event)
+  }
+
   return (
     <div
       ref={(element) => {
@@ -316,6 +347,8 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       {...groupAriaAttrs()}
       {...rest}
       {...resolved.styles.root}
+      onFocusIn={onGroupFocusIn}
+      onFocusOut={onGroupFocusOut}
     >
       <For each={normalizedItems()}>
         {(item) => {
@@ -325,9 +358,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
           onCleanup(() => {
             const input = inputRefs.get(item.id)
             const shouldRestoreFocus =
-              typeof document !== 'undefined' &&
-              input !== undefined &&
-              document.activeElement === input
+              input !== undefined && getActiveElement(input.ownerDocument) === input
             inputRefs.delete(item.id)
 
             if (shouldRestoreFocus) {
