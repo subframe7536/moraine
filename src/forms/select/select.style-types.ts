@@ -17,7 +17,7 @@ export interface SelectControlStyleSlot<T = unknown> {
   /** Primary interactive button that toggles the popup. */
   trigger?: T
 
-  /** Button used to clear the selected value. */
+  /** Pointer-only affordance used to clear the selected value. */
   clear?: T
 }
 export interface SelectStyleSlot<T = unknown>

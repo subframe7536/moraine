@@ -73,7 +73,7 @@ export namespace SelectT {
     placeholder?: string
     /** Whether the select is in a loading state. */
     loading?: boolean
-    /** Show a clear button when a value is selected. */
+    /** Show a pointer clear affordance when a value is selected. */
     allowClear?: boolean
     /** Called when clear is triggered. */
     onClear?: () => void
@@ -89,7 +89,7 @@ export namespace SelectT {
      * @default 'icon-chevron-down'
      */
     trailingIcon?: IconT.Name
-    /** Icon used when the action button clears the selection. */
+    /** Icon used by the clear affordance. */
     closeIcon?: IconT.Name
   }
 

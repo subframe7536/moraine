@@ -73,25 +73,23 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
               {selectedItem()?.label ?? (hasValue() ? String(state.value()[0]) : local.placeholder)}
             </span>
             <Show when={!local.loading && local.allowClear && hasValue()}>
-              <button
-                type="button"
+              <span
                 data-slot="clear"
-                aria-label="Clear selection"
-                tabIndex={-1}
+                aria-hidden="true"
                 {...styles.styles.clear}
-                disabled={state.locked()}
                 onPointerDown={(event) => {
                   event.preventDefault()
                   event.stopPropagation()
                   state.focusOwner()?.focus()
                 }}
                 onClick={(event) => {
+                  event.preventDefault()
                   event.stopPropagation()
                   clear()
                 }}
               >
                 <Icon name={local.closeIcon ?? 'icon-close'} />
-              </button>
+              </span>
             </Show>
             <Icon
               name={
