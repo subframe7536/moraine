@@ -297,7 +297,7 @@ describe('Button', () => {
       </Button>
     ))
 
-    const button = screen.getByRole('button', { name: 'LLabelT' })
+    const button = screen.getByRole('button', { name: 'Label' })
     expect(screen.queryByTestId('leading-icon')).not.toBeNull()
     expect(screen.queryByTestId('trailing-icon')).not.toBeNull()
     expect(button.textContent).toBe('LLabelT')
