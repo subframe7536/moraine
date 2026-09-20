@@ -108,7 +108,7 @@ export function useBaseSelectSearchInput(
   function discardComposition() {
     setCompositionDraft(undefined)
   }
-  createEffect(on([], () => state.registerCompositionDiscarder(discardComposition)))
+  state.registerCompositionDiscarder(discardComposition)
   createEffect(
     on(query, (current, previous) => {
       if (previous !== undefined && current !== previous) {
