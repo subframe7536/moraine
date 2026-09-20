@@ -1,4 +1,5 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
+import type { JSX } from 'solid-js'
 import { createComponent, createSignal } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
@@ -76,6 +77,9 @@ describe('Popover', () => {
 
     expect(trigger?.tagName).toBe('BUTTON')
     expect(trigger?.getAttribute('type')).toBe('button')
+    expect(trigger?.getAttribute('aria-haspopup')).toBe('dialog')
+    expect(trigger?.getAttribute('aria-expanded')).toBe('true')
+    expect(document.getElementById(trigger?.getAttribute('aria-controls') ?? '')).not.toBeNull()
   })
 
   test('renders an anchor trigger root', () => {
@@ -91,6 +95,32 @@ describe('Popover', () => {
     const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLAnchorElement
     expect(trigger.tagName).toBe('A')
     expect(trigger.getAttribute('href')).toBe('#options')
+    expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
+  })
+
+  test('keeps trigger ARIA state reactive through controlled open and exit presence', async () => {
+    const [open, setOpen] = createSignal(false)
+    const screen = render(() => (
+      <Popover open={open()}>
+        <Popover.Trigger>Trigger</Popover.Trigger>
+        <Popover.Content>Content</Popover.Content>
+      </Popover>
+    ))
+    const trigger = screen.getByRole<HTMLButtonElement>('button', { name: 'Trigger' })
+
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(trigger.hasAttribute('aria-controls')).toBe(false)
+    setOpen(true)
+    await waitFor(() => {
+      expect(trigger.getAttribute('aria-expanded')).toBe('true')
+      expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
+    })
+
+    setOpen(false)
+    await waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'))
+    expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
+    await finishExitMotion()
+    await waitFor(() => expect(trigger.hasAttribute('aria-controls')).toBe(false))
   })
 
   test('supports hover mode and renders content', () => {
@@ -152,6 +182,96 @@ describe('Popover', () => {
     fireEvent.click(trigger, { detail: 0 })
     expect(onOpenChange).toHaveBeenCalledTimes(1)
     expect(onOpenChange).toHaveBeenLastCalledWith(true)
+  })
+
+  test('bridges keyboard-open hover content and cancels its close timer', async () => {
+    vi.useFakeTimers()
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <>
+        <Popover mode="hover" openDelay={0} closeDelay={50} onOpenChange={onOpenChange}>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Content>
+            <button type="button" data-testid="popover-action">
+              Action
+            </button>
+          </Popover.Content>
+        </Popover>
+        <button type="button" data-testid="following-page-control">
+          Next
+        </button>
+      </>
+    ))
+    const trigger = screen.getByRole<HTMLButtonElement>('button', { name: 'Trigger' })
+    trigger.focus()
+    await vi.advanceTimersByTimeAsync(0)
+    const action = document.body.querySelector<HTMLButtonElement>('[data-testid="popover-action"]')!
+
+    const forward = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Tab' })
+    trigger.dispatchEvent(forward)
+    expect(forward.defaultPrevented).toBe(true)
+    expect(document.activeElement).toBe(action)
+
+    await vi.advanceTimersByTimeAsync(50)
+    expect(document.body.querySelector('[data-testid="popover-action"]')).not.toBeNull()
+    expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true)
+
+    const reverse = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      key: 'Tab',
+      shiftKey: true,
+    })
+    action.dispatchEvent(reverse)
+    expect(reverse.defaultPrevented).toBe(true)
+    expect(document.activeElement).toBe(trigger)
+
+    const enterAgain = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      key: 'Tab',
+    })
+    trigger.dispatchEvent(enterAgain)
+    expect(document.activeElement).toBe(action)
+
+    const leaveForward = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      key: 'Tab',
+    })
+    action.dispatchEvent(leaveForward)
+    expect(leaveForward.defaultPrevented).toBe(true)
+    expect(document.activeElement).toBe(screen.getByTestId('following-page-control'))
+
+    await vi.advanceTimersByTimeAsync(50)
+    expect(onOpenChange).toHaveBeenLastCalledWith(false)
+  })
+
+  test('does not bridge a controlled hover popover that rejected opening', async () => {
+    vi.useFakeTimers()
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <>
+        <Popover mode="hover" open={false} openDelay={0} onOpenChange={onOpenChange}>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Content>
+            <button type="button">Action</button>
+          </Popover.Content>
+        </Popover>
+        <button type="button" data-testid="following-page-control">
+          Next
+        </button>
+      </>
+    ))
+    const trigger = screen.getByRole<HTMLButtonElement>('button', { name: 'Trigger' })
+    trigger.focus()
+    await vi.advanceTimersByTimeAsync(0)
+
+    const forward = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Tab' })
+    trigger.dispatchEvent(forward)
+    expect(forward.defaultPrevented).toBe(false)
+    expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(true)
+    expect(document.body.querySelector('[role="dialog"]')).toBeNull()
   })
 
   test('cancels hover timers when mode or disabled changes', async () => {
@@ -521,7 +641,10 @@ describe('Popover', () => {
           <Popover.Trigger as="button" type="button">
             Trigger
           </Popover.Trigger>
-          <Popover.Content>{'Modal'}</Popover.Content>
+          <Popover.Content>
+            Modal
+            <Popover.Close>Close</Popover.Close>
+          </Popover.Content>
         </Popover>
       </>
     ))
@@ -540,6 +663,139 @@ describe('Popover', () => {
     await waitFor(() => {
       expect(onOpenChange).toHaveBeenCalledWith(false)
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    })
+  })
+
+  test('keeps modal behavior through exit presence when closed from its content', async () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Popover defaultOpen modal onOpenChange={onOpenChange}>
+        <Popover.Trigger>Trigger</Popover.Trigger>
+        <Popover.Content>
+          Modal content
+          <Popover.Close>Close</Popover.Close>
+        </Popover.Content>
+      </Popover>
+    ))
+    const trigger = screen.getByRole<HTMLButtonElement>('button', { name: 'Trigger' })
+    const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
+
+    await waitFor(() => expect(content.getAttribute('aria-modal')).toBe('true'))
+    expect(document.body.style.overflow).toBe('hidden')
+    fireEvent.click(document.body.querySelector('[data-slot="close"]')!)
+    expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(false)
+    expect(content.hasAttribute('data-closed')).toBe(true)
+    expect(content.getAttribute('aria-modal')).toBe('true')
+
+    await finishExitMotion(content)
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.activeElement).toBe(trigger)
+    })
+    screen.unmount()
+  })
+
+  test('resolves a custom Popover.Close DOM root before applying native button defaults', () => {
+    const onSubmit = vi.fn()
+    const CustomButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
+      <button {...props} />
+    )
+    const screen = render(() => (
+      <Popover defaultOpen>
+        <Popover.Trigger>Trigger</Popover.Trigger>
+        <Popover.Content>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault()
+              onSubmit()
+            }}
+          >
+            <Popover.Close as={CustomButton}>Close</Popover.Close>
+          </form>
+        </Popover.Content>
+      </Popover>
+    ))
+    const close = document.body.querySelector<HTMLButtonElement>('[data-slot="close"]')!
+
+    expect(close.type).toBe('button')
+    fireEvent.click(close)
+    expect(onSubmit).not.toHaveBeenCalled()
+    screen.unmount()
+  })
+
+  test('closes an uncontrolled modal popover with Escape and restores its trigger', async () => {
+    const screen = render(() => (
+      <Popover defaultOpen modal>
+        <Popover.Trigger>Trigger</Popover.Trigger>
+        <Popover.Content>
+          Modal content
+          <Popover.Close>Close</Popover.Close>
+        </Popover.Content>
+      </Popover>
+    ))
+    const trigger = screen.getByRole<HTMLButtonElement>('button', { name: 'Trigger' })
+    const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
+
+    await waitFor(() => expect(content.getAttribute('aria-modal')).toBe('true'))
+    content.focus()
+    fireEvent.keyDown(content, { key: 'Escape' })
+    expect(content.hasAttribute('data-closed')).toBe(true)
+
+    await finishExitMotion(content)
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.activeElement).toBe(trigger)
+    })
+    screen.unmount()
+  })
+
+  test('falls back to non-modal behavior when modal content has no Popover.Close', async () => {
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">
+          Outside
+        </button>
+        <Popover defaultOpen modal>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+          <Popover.Content>Modal request without a close route</Popover.Content>
+        </Popover>
+      </>
+    ))
+    const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
+    await Promise.resolve()
+
+    expect(content.getAttribute('aria-modal')).toBeNull()
+    expect(screen.getByTestId('outside').getAttribute('aria-hidden')).toBeNull()
+    expect(document.body.style.overflow).toBe('')
+  })
+
+  test('keeps a parent modal popover open when a nested modal Popover.Close is used', async () => {
+    const outerChanges = vi.fn()
+    const innerChanges = vi.fn()
+    render(() => (
+      <Popover defaultOpen modal onOpenChange={outerChanges}>
+        <Popover.Trigger>Outer trigger</Popover.Trigger>
+        <Popover.Content>
+          <Popover.Close>Close outer</Popover.Close>
+          <Popover defaultOpen modal onOpenChange={innerChanges}>
+            <Popover.Trigger>Inner trigger</Popover.Trigger>
+            <Popover.Content>
+              <Popover.Close>Close inner</Popover.Close>
+            </Popover.Content>
+          </Popover>
+        </Popover.Content>
+      </Popover>
+    ))
+
+    const closeInner = Array.from(
+      document.body.querySelectorAll<HTMLElement>('[data-slot="close"]'),
+    ).find((element) => element.textContent === 'Close inner')!
+    fireEvent.click(closeInner)
+    await finishExitMotion()
+    await waitFor(() => {
+      expect(innerChanges).toHaveBeenCalledExactlyOnceWith(false)
+      expect(outerChanges).not.toHaveBeenCalled()
+      expect(document.body.textContent).toContain('Close outer')
     })
   })
 

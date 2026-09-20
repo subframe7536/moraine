@@ -46,6 +46,7 @@ let popperTestPlacementAccessor: Accessor<string> | undefined
 export function mergePopperElementProps<T extends HTMLElement>(
   internal: JSX.HTMLAttributes<T>,
   user: Record<string, unknown>,
+  overrides: JSX.HTMLAttributes<T> = {},
 ): JSX.HTMLAttributes<T> {
   const handlers: JSX.HTMLAttributes<T> = {}
   for (const key of [
@@ -64,20 +65,26 @@ export function mergePopperElementProps<T extends HTMLElement>(
       }
     }
   }
-  const contentProps = mergeProps(internal, user, handlers, {
-    ref: (element: T | undefined) => {
-      if (!element) {
-        return
-      }
-      callRef(internal.ref, element)
-      callRef(user.ref, element)
-      onCleanup(() => {
-        if (typeof user.ref === 'function') {
-          ;(user.ref as (element: T | undefined) => void)(undefined)
+  const contentProps = mergeProps(
+    internal,
+    user,
+    handlers,
+    {
+      ref: (element: T | undefined) => {
+        if (!element) {
+          return
         }
-      })
+        callRef(internal.ref, element)
+        callRef(user.ref, element)
+        onCleanup(() => {
+          if (typeof user.ref === 'function') {
+            ;(user.ref as (element: T | undefined) => void)(undefined)
+          }
+        })
+      },
     },
-  })
+    overrides,
+  )
   return contentProps as JSX.HTMLAttributes<T>
 }
 
@@ -166,9 +173,13 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
   )
   const binding = mergeProps(
     {
-      'aria-haspopup': true,
+      get 'aria-haspopup'() {
+        return local.describeTrigger ? undefined : true
+      },
       get 'aria-controls'() {
-        return context.contentPresence.present() ? context.contentId() : undefined
+        return !local.describeTrigger && context.contentPresence.present()
+          ? context.contentId()
+          : undefined
       },
       get 'aria-describedby'() {
         return local.describeTrigger && context.contentPresence.present()
@@ -176,7 +187,7 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
           : undefined
       },
       get 'aria-expanded'() {
-        return context.isOpen() ? 'true' : 'false'
+        return local.describeTrigger ? undefined : context.isOpen() ? 'true' : 'false'
       },
       'data-slot': 'trigger',
     },

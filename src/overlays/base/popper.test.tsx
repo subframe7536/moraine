@@ -1146,13 +1146,24 @@ describe('Floating component context isolation', () => {
         expect(document.querySelector('[aria-label="Inner panel"]')).not.toBeNull(),
       )
       const inner = document.querySelector('[aria-label="Outer panel"] button') as HTMLButtonElement
-      expect(inner.getAttribute('aria-controls')).not.toBe(outer.getAttribute('aria-controls'))
       expect(
         document.getElementById(outer.getAttribute('aria-controls')!)?.getAttribute('aria-label'),
       ).toBe('Outer panel')
-      expect(
-        document.getElementById(inner.getAttribute('aria-controls')!)?.getAttribute('aria-label'),
-      ).toBe('Inner panel')
+      if (kind === 'popover') {
+        expect(inner.getAttribute('aria-controls')).not.toBe(outer.getAttribute('aria-controls'))
+        expect(
+          document.getElementById(inner.getAttribute('aria-controls')!)?.getAttribute('aria-label'),
+        ).toBe('Inner panel')
+      } else {
+        expect(inner.getAttribute('aria-haspopup')).toBeNull()
+        expect(inner.getAttribute('aria-controls')).toBeNull()
+        expect(inner.getAttribute('aria-expanded')).toBeNull()
+        expect(
+          document
+            .getElementById(inner.getAttribute('aria-describedby')!)
+            ?.getAttribute('aria-label'),
+        ).toBe('Inner panel')
+      }
       fireEvent.click(inner)
       expect(innerChanges).toHaveBeenCalledExactlyOnceWith(false)
       expect(outerChanges).not.toHaveBeenCalled()
