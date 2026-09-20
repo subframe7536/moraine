@@ -234,6 +234,97 @@ describe('Textarea', () => {
     expect(getInput(form)).toEqual({ value: 'Accepted' })
   })
 
+  test('defers controlled rollback until composition completes', async () => {
+    const screen = render(() => <Textarea value="Locked" />)
+    const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
+
+    fireEvent.compositionStart(textarea)
+    fireEvent.input(textarea, {
+      target: { value: '拼' },
+      currentTarget: { value: '拼' },
+    })
+
+    expect(textarea.value).toBe('拼')
+
+    fireEvent.compositionEnd(textarea)
+    fireEvent.input(textarea, {
+      target: { value: '拼音' },
+      currentTarget: { value: '拼音' },
+    })
+
+    expect(textarea.value).toBe('拼音')
+    await Promise.resolve()
+    expect(textarea.value).toBe('Locked')
+  })
+
+  test('keeps a lazy controlled composition draft until change commits it once', async () => {
+    const [value, setValue] = createSignal('')
+    const onValueChange = vi.fn((nextValue: string) => setValue(nextValue))
+    const screen = render(() => (
+      <Textarea value={value()} modelModifiers={{ lazy: true }} onValueChange={onValueChange} />
+    ))
+    const textarea = screen.getByRole<HTMLTextAreaElement>('textbox')
+
+    fireEvent.compositionStart(textarea)
+    fireEvent.input(textarea, {
+      target: { value: '拼音' },
+      currentTarget: { value: '拼音' },
+    })
+    fireEvent.compositionEnd(textarea)
+    await Promise.resolve()
+
+    expect(textarea.value).toBe('拼音')
+    expect(onValueChange).not.toHaveBeenCalled()
+
+    fireEvent.change(textarea, {
+      target: { value: '拼音' },
+      currentTarget: { value: '拼音' },
+    })
+
+    expect(onValueChange).toHaveBeenCalledTimes(1)
+    expect(onValueChange).toHaveBeenCalledWith('拼音')
+    expect(textarea.value).toBe('拼音')
+  })
+
+  test('keeps a lazy Formisch composition draft until change commits it once', async () => {
+    const onValueChange = vi.fn()
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.string() }),
+          initialInput: { value: '' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="value" label="Value">
+            <Textarea modelModifiers={{ lazy: true }} onValueChange={onValueChange} />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const textarea = screen.getByLabelText<HTMLTextAreaElement>('Value')
+
+    fireEvent.compositionStart(textarea)
+    fireEvent.input(textarea, {
+      target: { value: '拼音' },
+      currentTarget: { value: '拼音' },
+    })
+    fireEvent.compositionEnd(textarea)
+    await Promise.resolve()
+
+    expect(textarea.value).toBe('拼音')
+    expect(getInput(form)).toEqual({ value: '' })
+    expect(onValueChange).not.toHaveBeenCalled()
+
+    fireEvent.change(textarea, {
+      target: { value: '拼音' },
+      currentTarget: { value: '拼音' },
+    })
+
+    expect(onValueChange).toHaveBeenCalledTimes(1)
+    expect(getInput(form)).toEqual({ value: '拼音' })
+  })
+
   test('resizes for external Formisch values and reactive row constraints', () => {
     vi.useFakeTimers()
     vi.spyOn(window, 'getComputedStyle').mockImplementation(

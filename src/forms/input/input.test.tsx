@@ -218,6 +218,57 @@ describe('Input', () => {
     expect(calls).toEqual(['value:拼', 'input', 'change:拼音'])
   })
 
+  test('defers rejected controlled rollback until composition commits', async () => {
+    const onValueChange = vi.fn()
+    const screen = render(() => <Input value="Locked" onValueChange={onValueChange} />)
+    const input = screen.getByRole<HTMLInputElement>('textbox')
+
+    fireEvent.compositionStart(input)
+    fireEvent.input(input, {
+      target: { value: '拼' },
+      currentTarget: { value: '拼' },
+    })
+
+    expect(input.value).toBe('拼')
+
+    fireEvent.compositionEnd(input)
+    fireEvent.input(input, {
+      target: { value: '拼音' },
+      currentTarget: { value: '拼音' },
+    })
+
+    expect(input.value).toBe('拼音')
+    await Promise.resolve()
+    expect(onValueChange).toHaveBeenLastCalledWith('拼音')
+    expect(input.value).toBe('Locked')
+  })
+
+  test('applies the latest controlled value after composition ends', async () => {
+    const [value, setValue] = createSignal('Initial')
+    const screen = render(() => (
+      <Input value={value()} onValueChange={(nextValue) => setValue(`${nextValue}!`)} />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('textbox')
+
+    fireEvent.compositionStart(input)
+    fireEvent.input(input, {
+      target: { value: '拼' },
+      currentTarget: { value: '拼' },
+    })
+
+    expect(input.value).toBe('拼')
+
+    fireEvent.compositionEnd(input)
+    fireEvent.input(input, {
+      target: { value: '拼音' },
+      currentTarget: { value: '拼音' },
+    })
+
+    expect(input.value).toBe('拼音')
+    await Promise.resolve()
+    expect(input.value).toBe('拼音!')
+  })
+
   test('does not publish programmatic value property changes without a native event', () => {
     const onValueChange = vi.fn()
     const screen = render(() => <Input onValueChange={onValueChange} />)
@@ -282,6 +333,103 @@ describe('Input', () => {
     })
     expect(onValueChange).toHaveBeenCalledWith('Draft')
     expect(input.value).toBe('Locked')
+  })
+
+  test('keeps a lazy controlled composition draft until change commits it once', async () => {
+    const [value, setValue] = createSignal('')
+    const onValueChange = vi.fn((nextValue: string) => setValue(nextValue))
+    const screen = render(() => (
+      <Input value={value()} modelModifiers={{ lazy: true }} onValueChange={onValueChange} />
+    ))
+    const input = screen.getByRole<HTMLInputElement>('textbox')
+
+    fireEvent.compositionStart(input)
+    fireEvent.input(input, { target: { value: '拼音' }, currentTarget: { value: '拼音' } })
+    fireEvent.compositionEnd(input)
+    await Promise.resolve()
+
+    expect(input.value).toBe('拼音')
+    expect(onValueChange).not.toHaveBeenCalled()
+
+    fireEvent.change(input, { target: { value: '拼音' }, currentTarget: { value: '拼音' } })
+
+    expect(onValueChange).toHaveBeenCalledTimes(1)
+    expect(onValueChange).toHaveBeenCalledWith('拼音')
+    expect(input.value).toBe('拼音')
+  })
+
+  test('keeps a lazy Formisch composition draft until change commits it once', async () => {
+    const onValueChange = vi.fn()
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.string() }),
+          initialInput: { value: '' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="value" label="Value">
+            <Input modelModifiers={{ lazy: true }} onValueChange={onValueChange} />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const input = screen.getByLabelText<HTMLInputElement>('Value')
+
+    fireEvent.compositionStart(input)
+    fireEvent.input(input, { target: { value: '拼音' }, currentTarget: { value: '拼音' } })
+    fireEvent.compositionEnd(input)
+    await Promise.resolve()
+
+    expect(input.value).toBe('拼音')
+    expect(getInput(form)).toEqual({ value: '' })
+    expect(onValueChange).not.toHaveBeenCalled()
+
+    fireEvent.change(input, { target: { value: '拼音' }, currentTarget: { value: '拼音' } })
+
+    expect(onValueChange).toHaveBeenCalledTimes(1)
+    expect(getInput(form)).toEqual({ value: '拼音' })
+  })
+
+  test('applies real external updates over a retained lazy composition draft', async () => {
+    const [value, setValue] = createSignal('Initial')
+    const controlled = render(() => <Input value={value()} modelModifiers={{ lazy: true }} />)
+    const controlledInput = controlled.getByRole<HTMLInputElement>('textbox')
+
+    fireEvent.compositionStart(controlledInput)
+    fireEvent.input(controlledInput, { target: { value: '草稿' } })
+    fireEvent.compositionEnd(controlledInput)
+    await Promise.resolve()
+    expect(controlledInput.value).toBe('草稿')
+
+    setValue('External')
+    expect(controlledInput.value).toBe('External')
+    controlled.unmount()
+
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ value: v.string() }),
+          initialInput: { value: 'Initial' },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="value" label="Value">
+            <Input modelModifiers={{ lazy: true }} />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const formInput = screen.getByLabelText<HTMLInputElement>('Value')
+
+    fireEvent.compositionStart(formInput)
+    fireEvent.input(formInput, { target: { value: '草稿' } })
+    fireEvent.compositionEnd(formInput)
+    await Promise.resolve()
+    expect(formInput.value).toBe('草稿')
+
+    setInput(form, { path: ['value'], input: 'External' })
+    expect(formInput.value).toBe('External')
   })
 
   test('accepts synchronous controlled updates from onValueChange', async () => {

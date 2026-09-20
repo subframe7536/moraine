@@ -56,6 +56,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     'onInput',
     'onBlur',
     'onFocus',
+    'onCompositionStart',
+    'onCompositionEnd',
     'classes',
     'styles',
     'class',
@@ -216,6 +218,16 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     callHandler(event, merged.onFocus)
   }
 
+  const onCompositionStart: JSX.EventHandler<HTMLTextAreaElement, CompositionEvent> = (event) => {
+    textControl.onCompositionStart()
+    callHandler(event, merged.onCompositionStart)
+  }
+
+  const onCompositionEnd: JSX.EventHandler<HTMLTextAreaElement, CompositionEvent> = (event) => {
+    textControl.onCompositionEnd()
+    callHandler(event, merged.onCompositionEnd)
+  }
+
   createEffect(
     on(
       [
@@ -293,6 +305,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       onChange={onChange}
       onBlur={onBlur}
       onFocus={onFocus}
+      onCompositionStart={onCompositionStart}
+      onCompositionEnd={onCompositionEnd}
     />
   )
 }
