@@ -12,6 +12,12 @@ export interface PopperInteractOutsideEvent {
   preventDefault: () => void
 }
 
+export interface PopperPointerDownOutsideEvent {
+  defaultPrevented: boolean
+  originalEvent: PointerEvent
+  preventDefault: () => void
+}
+
 export interface PopperContentAttributes {
   'aria-describedby'?: string
   'aria-labelledby'?: string
@@ -134,8 +140,11 @@ export interface PopperContentOptions {
   /** Called when focus moves outside the content and trigger. */
   onInteractOutside?: (event: PopperInteractOutsideEvent) => void
 
-  /** Called when a pointer press starts outside the content and trigger. */
-  onPointerDownOutside?: (event: PointerEvent) => void
+  /**
+   * Called when a pointer press starts outside the content and trigger.
+   * Calling preventDefault blocks Popper's default dismissal without cancelling the native pointer event.
+   */
+  onPointerDownOutside?: (event: PopperPointerDownOutsideEvent) => void
 
   /**
    * Whether the content may overlap its trigger while remaining inside the viewport.

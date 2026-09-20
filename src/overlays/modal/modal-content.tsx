@@ -64,7 +64,8 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
   const renderOutsideOverlay = createMemo(() => !overlayScroll())
   const hasOverlay = createMemo(() => Boolean(props.overlay))
   const presence = context.presence
-  const unregisterContent = context.registerContent()
+  // oxlint-disable-next-line subf/solid-reactivity -- The accessor is stored and read from overlay event handlers so each interaction observes the current prop.
+  const unregisterContent = context.registerContent(() => local.trapFocus !== false)
   onCleanup(unregisterContent)
 
   const onContentKeyDown = (event: KeyboardEvent): void => {

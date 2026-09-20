@@ -100,6 +100,7 @@ export function createOutsidePressHandlers(options: OutsidePressOptions): Outsid
 
       const target = event.target
       if (
+        event.defaultPrevented ||
         event.button !== 0 ||
         event.ctrlKey ||
         !(target instanceof Node) ||

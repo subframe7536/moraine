@@ -619,6 +619,11 @@ describe('ContextMenu', () => {
         pointerId: 8,
         pointerType: 'touch',
       })
+      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+      fireEvent.pointerUp(document.body, {
+        pointerId: 8,
+        pointerType: 'touch',
+      })
       expect(document.body.querySelector('[data-slot="content"][data-closed]')).not.toBeNull()
     } finally {
       vi.useRealTimers()
@@ -652,6 +657,7 @@ describe('ContextMenu', () => {
       expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
 
       fireEvent.pointerDown(document.body, { pointerId: 10, pointerType: 'touch' })
+      fireEvent.pointerUp(document.body, { pointerId: 10, pointerType: 'touch' })
       await finishMenuExitMotion()
       fireEvent.pointerDown(row, {
         pointerId: 11,

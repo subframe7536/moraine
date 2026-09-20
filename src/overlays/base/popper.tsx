@@ -28,6 +28,7 @@ import type {
   PopperContentAttributes,
   PopperContentProps,
   PopperInteractOutsideEvent,
+  PopperPointerDownOutsideEvent,
   PopperTriggerProps,
 } from './popper.types'
 import {
@@ -235,6 +236,15 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
   const contentMounted = createMemo(
     () => contentPresence.present() || (options.forceMount && !context.options.disabled),
   )
+  let restoreFocusAfterClose = true
+
+  createEffect(
+    on(context.isOpen, (open) => {
+      if (open) {
+        restoreFocusAfterClose = true
+      }
+    }),
+  )
 
   createEffect(
     on(
@@ -340,19 +350,33 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     triggerElement,
     requireContent: true,
     onPointerOutside: (event) => {
-      options.onPointerDownOutside?.(event)
+      const interactEvent: PopperPointerDownOutsideEvent = {
+        defaultPrevented: false,
+        originalEvent: event,
+        preventDefault() {
+          this.defaultPrevented = true
+        },
+      }
 
-      if (event.defaultPrevented) {
+      options.onPointerDownOutside?.(interactEvent)
+      const nativeDefaultPrevented = event.defaultPrevented
+
+      if (options.modal) {
+        event.preventDefault()
+      }
+
+      if (nativeDefaultPrevented || interactEvent.defaultPrevented) {
         return
       }
 
       if (options.dismissible) {
-        event.preventDefault()
+        if (!options.modal) {
+          restoreFocusAfterClose = false
+        }
         setOpen(false)
         return
       }
 
-      event.preventDefault()
       options.onClosePrevent?.()
     },
     onFocusOutside: (event) => {
@@ -371,15 +395,18 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
       }
 
       if (options.closeOnOutsideFocus && options.dismissible) {
+        if (!options.modal) {
+          restoreFocusAfterClose = false
+        }
         setOpen(false)
         return
       }
 
       if (!options.dismissible) {
-        event.preventDefault()
         options.onClosePrevent?.()
 
         if (options.modal) {
+          event.preventDefault()
           const currentContent = contentElement()
           queueMicrotask(() => {
             focusContent(currentContent)
@@ -406,7 +433,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     onDeactivate: (context) => {
       // Restore focus while this entry is still topmost so lower overlays
       // treat the resulting focus event as owned by the closing layer.
-      if (options.restoreFocusOnClose && context.isTop()) {
+      if (options.restoreFocusOnClose && restoreFocusAfterClose && context.isTop()) {
         focusTrigger(triggerElement())
       }
     },

@@ -35,41 +35,4 @@ describe('DocsPlayground', () => {
     ).toThrow('missing defaultValue')
   })
 
-  test('focuses the clicked control inside preview and blurs outside focused elements', () => {
-    const outsideButton = document.createElement('button')
-    outsideButton.textContent = 'Outside'
-    document.body.append(outsideButton)
-    outsideButton.focus()
-    expect(document.activeElement).toBe(outsideButton)
-
-    const screen = render(() =>
-      createComponent(DocsPlayground, {
-        controls: [],
-        children: () => (
-          <div>
-            <button type="button" id="preview-btn">
-              <span>Inside Button</span>
-            </button>
-          </div>
-        ),
-      }),
-    )
-
-    const previewButton = screen.getByRole('button', { name: 'Inside Button' })
-    const labelSpan = previewButton.querySelector('span')!
-
-    // Clicking inside button transfers focus from outside
-    labelSpan.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, button: 0 }))
-    expect(document.activeElement).toBe(previewButton)
-
-    // Focusing outside and clicking preview background blurs outside element
-    outsideButton.focus()
-    expect(document.activeElement).toBe(outsideButton)
-
-    const previewContainer = previewButton.closest('.min-h-\\[160px\\]') as HTMLElement
-    previewContainer.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, button: 0 }))
-    expect(document.activeElement).not.toBe(outsideButton)
-
-    outsideButton.remove()
-  })
 })

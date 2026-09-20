@@ -96,6 +96,28 @@ test('BaseSelect.Control exposes inherited field state attributes', () => {
   expect(control.getAttribute('data-invalid')).toBe('')
 })
 
+test('uses completed primary presses for outside dismissal', () => {
+  const screen = render(() => (
+    <>
+      <button type="button" data-testid="outside">Outside</button>
+      <BaseSelect items={items} defaultOpen>
+        <Parts />
+      </BaseSelect>
+    </>
+  ))
+  const trigger = screen.getByRole('combobox')
+  const outside = screen.getByTestId('outside')
+
+  fireEvent.pointerDown(outside, { button: 2, pointerType: 'mouse' })
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
+
+  fireEvent.pointerDown(outside, { pointerId: 1, pointerType: 'touch' })
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
+
+  fireEvent.pointerUp(outside, { pointerId: 1, pointerType: 'touch' })
+  expect(trigger.getAttribute('aria-expanded')).toBe('false')
+})
+
 test('supports a custom searchable Control without BaseSelect.Trigger', () => {
   function SearchControl() {
     const state = useSelectState()
