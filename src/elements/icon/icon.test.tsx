@@ -64,10 +64,11 @@ describe('Icon', () => {
     expect(icon?.style.fontSize).toBe('20px')
   })
 
-  test('renders element icons without coupling to svg selectors', () => {
+  test('renders element icons inside an attribute-owning wrapper', () => {
     const screen = render(() => <Icon name={<span data-testid="custom-icon">X</span>} />)
 
     expect(screen.getByTestId('custom-icon').textContent).toBe('X')
+    expect(screen.getByTestId('custom-icon').parentElement?.dataset.slot).toBe('icon')
   })
 
   test('renders JSX names in the icon slot', () => {
@@ -104,13 +105,15 @@ describe('Icon', () => {
 
   test('forwards reactive attributes to renderers with default parameters', () => {
     const [label, setLabel] = createSignal('Before')
-    const Glyph = (props: Omit<IconProps, 'name'> = {}) => <span aria-label={props['aria-label']} />
+    const Glyph = (props: Omit<IconProps, 'name'> = {}) => (
+      <svg aria-hidden={props['aria-hidden']} aria-label={props['aria-label']} role={props.role} />
+    )
     const screen = render(() => <Icon name={Glyph} aria-label={label()} />)
-    const glyph = screen.container.querySelector('span')!
+    const glyph = screen.getByRole('img', { name: 'Before' })
     expect(glyph.getAttribute('aria-label')).toBe('Before')
     setLabel('After')
     expect(glyph.getAttribute('aria-label')).toBe('After')
-    expect(screen.container.querySelector('span')).toBe(glyph)
+    expect(screen.getByRole('img', { name: 'After' })).toBe(glyph)
   })
 
   test('passes through HTML attributes to the span element', () => {
@@ -125,14 +128,53 @@ describe('Icon', () => {
     expect(icon?.title).toBe('Search icon')
   })
 
-  test('sets aria-hidden by default and respects aria-label', () => {
+  test('hides decorative string and raw JSX icons from the accessibility tree', () => {
     const screen1 = render(() => <Icon name="i-lucide-search" />)
     const icon1 = screen1.container.querySelector('[data-slot="icon"]')
     expect(icon1?.getAttribute('aria-hidden')).toBe('true')
 
-    const screen2 = render(() => <Icon name="i-lucide-search" aria-label="Search" />)
+    const screen2 = render(() => (
+      <Icon
+        name={
+          <svg aria-label="Raw search glyph">
+            <title>Raw search glyph</title>
+          </svg>
+        }
+      />
+    ))
     const icon2 = screen2.container.querySelector('[data-slot="icon"]')
-    expect(icon2?.hasAttribute('aria-hidden')).toBe(false)
+    expect(icon2?.getAttribute('aria-hidden')).toBe('true')
+    expect(screen2.queryByRole('img', { name: 'Raw search glyph' })).toBeNull()
+  })
+
+  test('exposes labelled string and raw JSX icons as images', () => {
+    const stringScreen = render(() => <Icon name="i-lucide-search" aria-label="Search" />)
+    const stringIcon = stringScreen.getByRole('img', { name: 'Search' })
+    expect(stringIcon.dataset.slot).toBe('icon')
+    expect(stringIcon.hasAttribute('aria-hidden')).toBe(false)
+
+    const rawScreen = render(() => (
+      <Icon
+        name={
+          <svg data-testid="raw-svg">
+            <title>Unrelated SVG title</title>
+            <path d="M0 0h1" />
+          </svg>
+        }
+        aria-label="Search"
+      />
+    ))
+    const rawIcon = rawScreen.getByRole('img', { name: 'Search' })
+    expect(rawIcon.dataset.slot).toBe('icon')
+    expect(rawScreen.getByTestId('raw-svg').parentElement).toBe(rawIcon)
+
+    const labelledByScreen = render(() => (
+      <>
+        <span id="icon-label">Labelled search</span>
+        <Icon name="i-lucide-search" aria-labelledby="icon-label" />
+      </>
+    ))
+    expect(labelledByScreen.getByRole('img', { name: 'Labelled search' }).dataset.slot).toBe('icon')
   })
 
   test('keeps aria-hidden in sync with a reactive aria-label', () => {
@@ -154,6 +196,28 @@ describe('Icon', () => {
     const icon = screen.container.querySelector('[data-slot="icon"]')
 
     expect(icon?.getAttribute('aria-hidden')).toBe('false')
+  })
+
+  test('preserves caller-supplied roles and raw SVG labels when explicitly exposed', () => {
+    const roleScreen = render(() => (
+      <Icon name="i-lucide-search" aria-label="Search" role="status" />
+    ))
+    expect(roleScreen.getByRole('status').getAttribute('aria-label')).toBe('Search')
+
+    const svgScreen = render(() => (
+      <Icon
+        name={
+          <svg aria-label="Custom SVG label" role="img">
+            <path d="M0 0h1" />
+          </svg>
+        }
+        aria-hidden={false}
+      />
+    ))
+    expect(svgScreen.getByRole('img', { name: 'Custom SVG label' })).not.toBeNull()
+    expect(
+      svgScreen.container.querySelector('[data-slot="icon"]')?.getAttribute('aria-hidden'),
+    ).toBe('false')
   })
 
   test('applies direct root class overrides', () => {

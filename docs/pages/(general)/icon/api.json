@@ -29,7 +29,7 @@
         "name": "name",
         "required": false,
         "type": "IconT.Name",
-        "description": "Icon source. Strings should be Uno icon classes such as `i-lucide-search`\nor app-config aliases such as `icon-search`.\nNon-string values can be JSX nodes or render functions."
+        "description": "Icon source. Strings should be Uno icon classes such as `i-lucide-search`\nor app-config aliases such as `icon-search`.\nNon-string values can be JSX nodes or render functions.\nWrap Icon in Solid control flow instead of passing a control-flow node as `name`."
       },
       {
         "name": "ref",
