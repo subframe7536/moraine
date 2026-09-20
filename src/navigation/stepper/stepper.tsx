@@ -199,6 +199,7 @@ export function Stepper(props: StepperProps): JSX.Element {
             const titleId = createMemo(() => `${contentId()}-step-${entry.index}-title`)
             const descriptionId = createMemo(() => `${contentId()}-step-${entry.index}-description`)
             const selected = createMemo(() => resolvedValue() === entry.value)
+            const panelMounted = createMemo(() => selected() && Boolean(entry.item.content))
 
             return (
               <div
@@ -216,7 +217,7 @@ export function Stepper(props: StepperProps): JSX.Element {
                   type="button"
                   role="tab"
                   tabIndex={selected() ? 0 : -1}
-                  aria-controls={contentId()}
+                  aria-controls={panelMounted() ? contentId() : undefined}
                   aria-selected={selected()}
                   data-selected={selected() ? '' : undefined}
                   data-slot="trigger"

@@ -18,6 +18,7 @@ test.each([false, true])(
     const panel = container.querySelector('[role="tabpanel"]')!
     expect(panel.getAttribute('aria-labelledby')).toBe(triggers[0]!.id)
     expect(triggers[0]!.getAttribute('aria-controls')).toBe(panel.id)
+    expect(triggers[1]!.hasAttribute('aria-controls')).toBe(false)
     expect(panel.textContent).toBe('First panel')
     expect(read).not.toHaveBeenCalled()
     triggers[0]!.focus()
