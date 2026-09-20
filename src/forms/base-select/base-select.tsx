@@ -117,28 +117,9 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   })
   const locked = () => field.disabled() || field.readOnly()
   let formInput: HTMLInputElement | undefined
-  const [externalFormControl, setExternalFormControl] = createSignal<HTMLInputElement>()
-  const [externalFormControlClaimed, setExternalFormControlClaimed] = createSignal(false)
-
-  function claimFormControl(): void {
-    if (!props.multiple) {
-      setExternalFormControlClaimed(true)
-    }
-  }
-
-  function registerFormControl(element: HTMLInputElement): VoidFunction {
-    if (props.multiple) {
-      return () => {}
-    }
-    setExternalFormControlClaimed(true)
-    setExternalFormControl(element)
-    return () => {
-      if (untrack(externalFormControl) === element) {
-        setExternalFormControl(undefined)
-        setExternalFormControlClaimed(false)
-      }
-    }
-  }
+  let externalFormControl: HTMLInputElement | undefined
+  let formControlClaims = 0
+  const [usesExternalFormControl, setUsesExternalFormControl] = createSignal(false)
 
   function setOpen(next: boolean) {
     if (next && field.disabled()) {
@@ -337,57 +318,69 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   const hasSelection = () => value().length > 0
   const primarySerializedValue = () => serialized()[0] ?? ''
 
-  createEffect(() => {
-    const input = externalFormControl()
-    if (!input) {
+  function syncExternalFormControlValidity(required: boolean, selected: boolean): void {
+    if (!externalFormControl) {
       return
     }
-    const missing = field.required() && !hasSelection()
-    input.required = missing
-    input.setCustomValidity(missing ? 'Please select an option.' : '')
-  })
+    const missing = required && !selected
+    externalFormControl.required = missing
+    externalFormControl.setCustomValidity(missing ? 'Please select an option.' : '')
+  }
 
-  createEffect(
-    on(externalFormControl, (input) => {
-      if (!input) {
+  function claimFormControl(): VoidFunction {
+    if (props.multiple) {
+      return () => {}
+    }
+    formControlClaims += 1
+    if (formControlClaims === 1) {
+      setUsesExternalFormControl(true)
+    }
+    return () => {
+      formControlClaims -= 1
+      if (formControlClaims === 0) {
+        setUsesExternalFormControl(false)
+      }
+    }
+  }
+
+  function registerFormControl(element: HTMLInputElement): VoidFunction {
+    if (props.multiple) {
+      return () => {}
+    }
+    externalFormControl = element
+    untrack(() => syncExternalFormControlValidity(field.required(), hasSelection()))
+
+    const form = element.form
+    const onFormData = (event: Event) => {
+      const name = field.name()
+      if (!name || field.disabled()) {
         return
       }
-      const onInvalid = (event: Event) => {
-        event.preventDefault()
-        focusOwner()?.focus()
+      const formData = (event as FormDataEvent).formData
+      for (const current of serialized()) {
+        formData.append(name, current)
       }
-      input.addEventListener('invalid', onInvalid)
-      onCleanup(() => {
-        input.removeEventListener('invalid', onInvalid)
-        input.required = false
-        input.setCustomValidity('')
-      })
-    }),
-  )
+    }
+    form?.addEventListener('formdata', onFormData)
+
+    return () => {
+      form?.removeEventListener('formdata', onFormData)
+      element.required = false
+      element.setCustomValidity('')
+      if (externalFormControl === element) {
+        externalFormControl = undefined
+      }
+    }
+  }
 
   createEffect(
-    on(externalFormControl, (input) => {
-      const form = input?.form
-      if (!form) {
-        return
-      }
-      const onFormData = (event: Event) => {
-        const name = field.name()
-        if (!name || field.disabled()) {
-          return
-        }
-        const formData = (event as FormDataEvent).formData
-        for (const current of serialized()) {
-          formData.append(name, current)
-        }
-      }
-      form.addEventListener('formdata', onFormData)
-      onCleanup(() => form.removeEventListener('formdata', onFormData))
+    on([field.required, value], ([required, selected]) => {
+      syncExternalFormControlValidity(required, selected.length > 0)
     }),
   )
 
   useFormReset(
-    () => externalFormControl()?.form ?? formInput?.form,
+    () => externalFormControl?.form ?? formInput?.form,
     () => {
       discardComposition()
       setSelection(initial)
@@ -440,7 +433,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     claimFormControl,
     registerFormControl,
     formControls: () => (
-      <Show when={!externalFormControlClaimed()}>
+      <Show when={!usesExternalFormControl()}>
         <HiddenInput
           ref={(element) => {
             formInput = element
