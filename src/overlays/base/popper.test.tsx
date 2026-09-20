@@ -317,6 +317,211 @@ describe('Popper primitives', () => {
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
   })
 
+  test('dismisses press-less outside clicks while retaining inside and cancelled click behavior', async () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside" onClick={(event) => event.preventDefault()}>
+          Cancelled outside
+        </button>
+        <PopperFixture
+          defaultOpen
+          onOpenChange={onOpenChange}
+          contentRender={(popper) => (
+            <>
+              <PopperTrigger context={popper} type="button">
+                Open
+              </PopperTrigger>
+              <PopperContent context={popper}>
+                {(context) => (
+                  <div data-slot="content" {...context.contentProps}>
+                    <button type="button" data-testid="inside">
+                      Inside
+                    </button>
+                  </div>
+                )}
+              </PopperContent>
+            </>
+          )}
+        />
+      </>
+    ))
+    const outside = screen.getByTestId('outside')
+    const inside = document.body.querySelector('[data-testid="inside"]')!
+
+    fireEvent.click(inside, { detail: 0 })
+    fireEvent.click(outside, { detail: 0 })
+    expect(onOpenChange).not.toHaveBeenCalled()
+
+    const uncancelledOutside = document.createElement('button')
+    document.body.append(uncancelledOutside)
+    fireEvent.click(uncancelledOutside, { detail: 0 })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+
+    screen.unmount()
+    uncancelledOutside.remove()
+  })
+
+  test('does not replay an outside pointer dismissal as a click against a newly opened layer', async () => {
+    const [firstOpen, setFirstOpen] = createSignal(true)
+    const [secondOpen, setSecondOpen] = createSignal(false)
+    const onSecondOpenChange = vi.fn((open: boolean) => setSecondOpen(open))
+    const outside = document.createElement('button')
+    document.body.append(outside)
+    const screen = render(() => (
+      <>
+        <PopperFixture
+          open={firstOpen()}
+          onOpenChange={(open) => {
+            setFirstOpen(open)
+            if (!open) {
+              setSecondOpen(true)
+            }
+          }}
+          contentRender={(popper) => (
+            <>
+              <PopperTrigger context={popper}>First</PopperTrigger>
+              <PopperContent context={popper}>
+                {(context) => <div {...context.contentProps}>First content</div>}
+              </PopperContent>
+            </>
+          )}
+        />
+        <PopperFixture
+          open={secondOpen()}
+          onOpenChange={onSecondOpenChange}
+          contentRender={(popper) => (
+            <>
+              <PopperTrigger context={popper}>Second</PopperTrigger>
+              <PopperContent context={popper}>
+                {(context) => <div {...context.contentProps}>Second content</div>}
+              </PopperContent>
+            </>
+          )}
+        />
+      </>
+    ))
+
+    fireEvent.pointerDown(outside, { pointerType: 'mouse' })
+    fireEvent.pointerUp(outside, { pointerType: 'mouse' })
+    fireEvent.click(outside, { detail: 1 })
+
+    expect(onSecondOpenChange).not.toHaveBeenCalled()
+    screen.unmount()
+    outside.remove()
+  })
+
+  test('keeps pointer-click suppression through a delayed release', async () => {
+    const [firstOpen, setFirstOpen] = createSignal(true)
+    const [secondOpen, setSecondOpen] = createSignal(false)
+    const onSecondOpenChange = vi.fn((open: boolean) => setSecondOpen(open))
+    const outside = document.createElement('button')
+    document.body.append(outside)
+    const screen = render(() => (
+      <>
+        <PopperFixture
+          open={firstOpen()}
+          onOpenChange={(open) => {
+            setFirstOpen(open)
+            if (!open) {
+              setSecondOpen(true)
+            }
+          }}
+          contentRender={(popper) => (
+            <>
+              <PopperTrigger context={popper}>First</PopperTrigger>
+              <PopperContent context={popper}>
+                {(context) => <div {...context.contentProps}>First content</div>}
+              </PopperContent>
+            </>
+          )}
+        />
+        <PopperFixture
+          open={secondOpen()}
+          onOpenChange={onSecondOpenChange}
+          contentRender={(popper) => (
+            <>
+              <PopperTrigger context={popper}>Second</PopperTrigger>
+              <PopperContent context={popper}>
+                {(context) => <div {...context.contentProps}>Second content</div>}
+              </PopperContent>
+            </>
+          )}
+        />
+      </>
+    ))
+
+    fireEvent.pointerDown(outside, { pointerType: 'mouse' })
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    fireEvent.pointerUp(outside, { pointerType: 'mouse' })
+    fireEvent.click(outside, { detail: 1 })
+
+    expect(onSecondOpenChange).not.toHaveBeenCalled()
+
+    fireEvent.pointerDown(outside, { pointerType: 'mouse' })
+    fireEvent.pointerUp(outside, { pointerType: 'mouse' })
+    fireEvent.click(outside, { detail: 1 })
+
+    expect(onSecondOpenChange).toHaveBeenCalledWith(false)
+    screen.unmount()
+    outside.remove()
+  })
+
+  test('clears stale pointer-click suppression when a different target clicks first', async () => {
+    const [firstOpen, setFirstOpen] = createSignal(true)
+    const [secondOpen, setSecondOpen] = createSignal(false)
+    const onSecondOpenChange = vi.fn((open: boolean) => setSecondOpen(open))
+    const firstOutside = document.createElement('button')
+    const secondOutside = document.createElement('button')
+    document.body.append(firstOutside, secondOutside)
+    const screen = render(() => (
+      <>
+        <PopperFixture
+          open={firstOpen()}
+          onOpenChange={(open) => {
+            setFirstOpen(open)
+            if (!open) {
+              setSecondOpen(true)
+            }
+          }}
+          contentRender={(popper) => (
+            <>
+              <PopperTrigger context={popper}>First</PopperTrigger>
+              <PopperContent context={popper}>
+                {(context) => <div {...context.contentProps}>First content</div>}
+              </PopperContent>
+            </>
+          )}
+        />
+        <PopperFixture
+          open={secondOpen()}
+          onOpenChange={onSecondOpenChange}
+          contentRender={(popper) => (
+            <>
+              <PopperTrigger context={popper}>Second</PopperTrigger>
+              <PopperContent context={popper}>
+                {(context) => <div {...context.contentProps}>Second content</div>}
+              </PopperContent>
+            </>
+          )}
+        />
+      </>
+    ))
+
+    fireEvent.pointerDown(firstOutside, { pointerType: 'mouse' })
+    fireEvent.click(secondOutside, { detail: 1 })
+    expect(onSecondOpenChange).toHaveBeenCalledWith(false)
+
+    onSecondOpenChange.mockClear()
+    setSecondOpen(true)
+    fireEvent.click(firstOutside, { detail: 1 })
+    expect(onSecondOpenChange).toHaveBeenCalledWith(false)
+
+    screen.unmount()
+    firstOutside.remove()
+    secondOutside.remove()
+  })
+
   test('ignores secondary pointer dismissal and prevents handled Escape', async () => {
     const outside = document.createElement('button')
     document.body.append(outside)
@@ -407,6 +612,9 @@ describe('Popper primitives', () => {
     fireEvent.keyDown(content, { key: 'Escape' })
     expect(onOpenChange).not.toHaveBeenCalled()
     fireEvent.compositionEnd(content)
+    fireEvent.keyDown(content, { key: 'Escape' })
+    expect(onOpenChange).not.toHaveBeenCalled()
+    await new Promise((resolve) => setTimeout(resolve, 100))
     fireEvent.keyDown(content, { key: 'Escape' })
     expect(onOpenChange).toHaveBeenCalledWith(false)
     screen.unmount()

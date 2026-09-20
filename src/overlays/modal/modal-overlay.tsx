@@ -34,7 +34,7 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
   return (
     <Show when={presence.present()}>
       {(_present) => (
-        <Portal>
+        <Portal mount={context.triggerElement()?.ownerDocument.body}>
           <div
             {...rest}
             data-slot="overlay"

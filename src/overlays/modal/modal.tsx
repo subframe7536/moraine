@@ -4,6 +4,7 @@ import { createEffect, createMemo, createSignal, on, onCleanup, untrack } from '
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
 import { useId } from '../../shared/utils'
+import { containsComposed, getActiveElement, isHTMLElement, isNode } from '../base/dom'
 import { useOverlayInteraction } from '../base/interaction'
 import {
   acquireAriaHideOutside,
@@ -90,7 +91,11 @@ export function Modal(props: ModalProps): JSX.Element {
       }
       const preventScroll = props.preventScroll
 
-      const releaseScrollLock = preventScroll === false ? undefined : acquireBodyScrollLock()
+      const currentContent = contentElement()
+      const releaseScrollLock =
+        preventScroll === false || !currentContent
+          ? undefined
+          : acquireBodyScrollLock(currentContent)
       onCleanup(() => {
         releaseScrollLock?.()
       })
@@ -126,12 +131,12 @@ export function Modal(props: ModalProps): JSX.Element {
     enabled: isPresent,
     contentElement,
     triggerElement,
-    onActivate: () => {
+    onActivate: (context) => {
       capturedTrigger = untrack(triggerElement)
-      const activeElement = document.activeElement
+      const activeElement = getActiveElement(context.entry.ownerDocument!)
       capturedRestoreTarget =
         capturedTrigger ??
-        (activeElement instanceof HTMLElement && activeElement !== document.body
+        (isHTMLElement(activeElement) && activeElement !== context.entry.ownerDocument?.body
           ? activeElement
           : undefined)
       lastFocusedElement = undefined
@@ -143,9 +148,9 @@ export function Modal(props: ModalProps): JSX.Element {
       const target = event.target
       const currentContent = contentElement()
       if (
-        target instanceof Node &&
+        isNode(target) &&
         currentContent &&
-        (currentContent.contains(target) || event.composedPath().includes(currentContent))
+        (containsComposed(currentContent, target) || event.composedPath().includes(currentContent))
       ) {
         queueMicrotask(() => {
           untrack(() => {
@@ -153,8 +158,8 @@ export function Modal(props: ModalProps): JSX.Element {
               return
             }
 
-            const activeElement = document.activeElement
-            if (activeElement instanceof Node && currentContent.contains(activeElement)) {
+            const activeElement = getActiveElement(currentContent.ownerDocument)
+            if (activeElement && containsComposed(currentContent, activeElement)) {
               return
             }
 
@@ -184,7 +189,7 @@ export function Modal(props: ModalProps): JSX.Element {
     onFocusInside: (event) => {
       const target = event.target
       const currentContent = contentElement()
-      if (target instanceof HTMLElement && currentContent?.contains(target)) {
+      if (isHTMLElement(target) && currentContent && containsComposed(currentContent, target)) {
         lastFocusedElement = target
       }
     },

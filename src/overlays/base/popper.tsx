@@ -304,7 +304,8 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
             positioner.isConnected &&
             content.isConnected
           ) {
-            const contentZIndex = getComputedStyle(content).zIndex
+            const contentZIndex =
+              content.ownerDocument.defaultView?.getComputedStyle(content).zIndex
             if (contentZIndex && contentZIndex !== 'auto') {
               positioner.style.zIndex = contentZIndex
             }
@@ -327,7 +328,8 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
           if (!currentContent || !currentPositioner) {
             return
           }
-          const releaseScrollLock = modal || preventScroll ? acquireBodyScrollLock() : undefined
+          const releaseScrollLock =
+            modal || preventScroll ? acquireBodyScrollLock(currentContent) : undefined
           let active = true
           let releaseAriaHide: (() => void) | undefined
           if (modal) {
@@ -496,7 +498,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
           }),
         )
         return (
-          <Portal>
+          <Portal mount={triggerElement()?.ownerDocument.body}>
             <div
               ref={(element) => {
                 setPositionerElement(element)

@@ -147,7 +147,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
           <Show
             when={isInsideOverlay}
             fallback={
-              <Portal>
+              <Portal mount={context.triggerElement()?.ownerDocument.body}>
                 <Show when={overlayScroll()}>
                   {(_value) => renderOverlay(renderContent(surface))}
                 </Show>

@@ -822,6 +822,9 @@ describe('Modal primitives', () => {
 
     fireEvent.compositionEnd(editor)
     fireEvent.keyDown(editor, { key: 'Escape' })
+    expect(onOpenChange).not.toHaveBeenCalled()
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    fireEvent.keyDown(editor, { key: 'Escape' })
     expect(onOpenChange).toHaveBeenCalledWith(false)
     screen.unmount()
   })

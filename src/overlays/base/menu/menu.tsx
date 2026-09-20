@@ -28,6 +28,7 @@ import { useEventListener } from '../../../shared/use-event-listener'
 import { useTransitionPresence } from '../../../shared/use-transition-presence'
 import { callHandler, callRef, useId } from '../../../shared/utils'
 import type { Cn } from '../../../theme/style/cn'
+import { containsComposed, isNode } from '../dom'
 import { useFloatingPosition } from '../floating'
 import { useOverlayInteraction } from '../interaction'
 import {
@@ -274,7 +275,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
       queueMicrotask(() => {
         if (positioner.isConnected && content.isConnected) {
-          const contentZIndex = getComputedStyle(content).zIndex
+          const contentZIndex = content.ownerDocument.defaultView?.getComputedStyle(content).zIndex
           if (contentZIndex && contentZIndex !== 'auto') {
             positioner.style.zIndex = contentZIndex
           }
@@ -330,24 +331,25 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         }
         const onAutoFocusHandled = props.onAutoFocusHandled
         let frameId = 0
+        const ownerWindow = layer.contentElement()?.ownerDocument.defaultView
 
         const runAutoFocus = () => {
           focusLayerFromStrategy(layer, focusStrategy ?? 'none')
           onAutoFocusHandled?.()
         }
 
-        if (typeof window === 'undefined' || typeof window.requestAnimationFrame !== 'function') {
+        if (typeof ownerWindow?.requestAnimationFrame !== 'function') {
           queueMicrotask(runAutoFocus)
           return
         }
 
-        frameId = window.requestAnimationFrame(() => {
+        frameId = ownerWindow.requestAnimationFrame(() => {
           runAutoFocus()
         })
 
         onCleanup(() => {
           if (frameId !== 0) {
-            window.cancelAnimationFrame(frameId)
+            ownerWindow.cancelAnimationFrame(frameId)
           }
         })
       },
@@ -955,7 +957,8 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               return
             }
 
-            const openKey = resolveDirection() === 'rtl' ? 'ArrowLeft' : 'ArrowRight'
+            const openKey =
+              resolveDirection(triggerElement()) === 'rtl' ? 'ArrowLeft' : 'ArrowRight'
 
             if (event.key === openKey || event.key === 'Enter' || event.key === ' ') {
               event.preventDefault()
@@ -1050,7 +1053,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         </div>
 
         <Show when={contentPresence.present()}>
-          <Portal>
+          <Portal mount={triggerElement()?.ownerDocument.body}>
             <OverlayMenuLayer<TItem>
               id={submenuContentId()}
               ariaLabelledBy={submenuId()}
@@ -1072,7 +1075,9 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               contentTop={props.contentTop}
               contentBottom={props.contentBottom}
               getReferenceElement={() => triggerElement()}
-              placement={resolveDirection() === 'rtl' ? 'left-start' : 'right-start'}
+              placement={
+                resolveDirection(triggerElement()) === 'rtl' ? 'left-start' : 'right-start'
+              }
               gutter={-2}
               shift={-4}
               overflowPadding={props.overflowPadding}
@@ -1310,11 +1315,15 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
             if (pendingFocus === 'trigger') {
               focusTrigger(triggerElement)
             } else if (triggerElement) {
-              const focusableElements = getFocusableElements(document.body).filter(
-                (element) => ![...branches].some((branch) => branch.contains(element)),
+              const focusableElements = getFocusableElements(
+                triggerElement.ownerDocument.body,
+              ).filter(
+                (element) => ![...branches].some((branch) => containsComposed(branch, element)),
               )
               const triggerIndexes = focusableElements.flatMap((element, index) =>
-                element === triggerElement || triggerElement.contains(element) ? [index] : [],
+                element === triggerElement || containsComposed(triggerElement, element)
+                  ? [index]
+                  : [],
               )
               const triggerIndex = triggerIndexes[triggerIndexes.length - 1]
               if (triggerIndex !== undefined) {
@@ -1341,17 +1350,20 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
   )
 
   createEffect(
-    on(contentPresence.present, (present) => {
-      if (!present || !merged.preventScroll) {
-        return
-      }
+    on(
+      [contentPresence.present, () => rootLayerState()?.contentElement()],
+      ([present, content]) => {
+        if (!present || !merged.preventScroll || !content) {
+          return
+        }
 
-      const releaseBodyScrollLock = acquireBodyScrollLock()
+        const releaseBodyScrollLock = acquireBodyScrollLock(content)
 
-      onCleanup(() => {
-        releaseBodyScrollLock?.()
-      })
-    }),
+        onCleanup(() => {
+          releaseBodyScrollLock?.()
+        })
+      },
+    ),
   )
 
   const containsTarget = (node: Node): boolean => {
@@ -1399,11 +1411,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
     },
     onEscape: (event, context) => {
       const target = event.target
-      if (
-        !merged.open ||
-        (target instanceof Node && context.isInside(target)) ||
-        event.defaultPrevented
-      ) {
+      if (!merged.open || (isNode(target) && context.isInside(target)) || event.defaultPrevented) {
         return
       }
 
@@ -1426,7 +1434,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
 
   return (
     <Show when={contentPresence.present()}>
-      <Portal>
+      <Portal mount={merged.triggerElement?.ownerDocument.body}>
         <Show when={merged.preventScroll}>
           <div data-slot="overlay" aria-hidden="true" {...resolveMenuSlot(merged, 'overlay', cn)} />
         </Show>
