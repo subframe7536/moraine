@@ -350,9 +350,15 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     externalFormControl = element
     untrack(() => syncExternalFormControlValidity(field.required(), hasSelection()))
 
-    const form = element.form
+    const onInvalid = (event: Event) => {
+      event.preventDefault()
+      focusOwner()?.focus()
+    }
     const onFormData = (event: Event) => {
       untrack(() => {
+        if (event.target !== element.form) {
+          return
+        }
         const name = field.name()
         if (!name || field.disabled()) {
           return
@@ -363,10 +369,12 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
         }
       })
     }
-    form?.addEventListener('formdata', onFormData)
+    element.addEventListener('invalid', onInvalid)
+    element.ownerDocument.addEventListener('formdata', onFormData, true)
 
     return () => {
-      form?.removeEventListener('formdata', onFormData)
+      element.removeEventListener('invalid', onInvalid)
+      element.ownerDocument.removeEventListener('formdata', onFormData, true)
       element.required = false
       element.setCustomValidity('')
       if (externalFormControl === element) {
