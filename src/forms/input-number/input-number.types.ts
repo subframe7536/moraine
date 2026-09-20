@@ -32,6 +32,11 @@ export namespace InputNumberT {
   export interface Base
     extends FormIdentityOptions, FormDisableOption, FormRequiredOption, FormReadOnlyOption {
     /**
+     * The ID of an external form that owns the native spinbutton.
+     */
+    form?: string
+
+    /**
      * Controlled displayed value.
      */
     value?: string | number
