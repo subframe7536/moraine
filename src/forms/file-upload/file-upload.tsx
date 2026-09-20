@@ -686,6 +686,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         id={field.id()}
         ref={(element) => {
           hiddenInputEl = element
+          field.setControlRef(element)
           callRef(local.inputRef, element)
         }}
         name={field.name()}

@@ -63,7 +63,6 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     () => props,
     () => ({
       defaultId: id(),
-      bind: false,
       initialValue: selectionToFormValue(initial, props.multiple === true),
     }),
   )
@@ -553,10 +552,12 @@ function BaseSelectTrigger<
       }}
       ref={(element: HTMLElement) => {
         state.setFocusOwner(element)
+        state.field.setControlRef(element)
         callRef(local.ref, element)
         onCleanup(() => {
           if (state.focusOwner() === element) {
             state.setFocusOwner(undefined)
+            state.field.setControlRef(undefined)
           }
           callRef(local.ref, undefined)
         })

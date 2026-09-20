@@ -285,6 +285,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       {...textControl.valueProps()}
       ref={(element) => {
         textareaEl = element
+        field.setControlRef(element)
         callRef(local.ref, element)
       }}
       {...resolved.styles.root}

@@ -197,6 +197,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       {...textControl.valueProps()}
       ref={(element) => {
         inputEl = element
+        field.setControlRef(element)
         callRef(local.ref, element)
       }}
       {...resolved.styles.root}

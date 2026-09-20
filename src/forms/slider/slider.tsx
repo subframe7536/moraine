@@ -216,6 +216,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             <HiddenInput
               ref={(element) => {
                 if (thumbIndex === 0) {
+                  field.setControlRef(element)
                   callRef(local.inputRef, element)
                 }
               }}

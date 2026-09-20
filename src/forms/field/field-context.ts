@@ -1,5 +1,5 @@
 import type { Accessor, JSX } from 'solid-js'
-import { createEffect, createMemo, on, onCleanup, onMount } from 'solid-js'
+import { createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
 
@@ -74,6 +74,7 @@ export interface UseFormFieldReturn {
   invalid: Accessor<boolean>
   ariaAttrs: Accessor<JSX.AriaAttributes>
   runtimeState: Accessor<FieldRuntimeState>
+  setControlRef: (element: HTMLElement | undefined) => void
   setFormValue: (value: unknown) => void
   emit: (type: FieldBindingEvent, event?: Event) => void
 }
@@ -100,6 +101,7 @@ export function useFormField(
   const fieldProps = createMemo(() => props?.() ?? {})
   const bind = createMemo(() => options().bind ?? true)
   const localId = createMemo(() => fieldProps().id ?? options().defaultId)
+  const [controlElement, setControlElement] = createSignal<HTMLElement>()
 
   if (fieldContext?.registerControl) {
     const unregister = fieldContext.registerControl({ id: localId, bind })
@@ -132,15 +134,15 @@ export function useFormField(
   })
 
   createEffect(
-    on([path, bind, id, () => fieldContext?.binding?.controlRef], ([, bound, controlId, ref]) => {
-      if (!bound || !ref) {
-        return
-      }
-      const element = document.getElementById(controlId)
-      if (element) {
+    on(
+      [path, bind, controlElement, () => fieldContext?.binding?.controlRef],
+      ([, bound, element, ref]) => {
+        if (!bound || !element || !ref) {
+          return
+        }
         ref(element)
-      }
-    }),
+      },
+    ),
   )
 
   onMount(() => {
@@ -201,6 +203,7 @@ export function useFormField(
     invalid,
     ariaAttrs,
     runtimeState,
+    setControlRef: setControlElement,
     setFormValue,
     emit,
   }

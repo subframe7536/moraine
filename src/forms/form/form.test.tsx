@@ -1,5 +1,5 @@
 import { getInput } from '@formisch/solid'
-import { fireEvent, waitFor } from '@solidjs/testing-library'
+import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
@@ -153,6 +153,40 @@ describe('Form', () => {
     expect(onSubmit).not.toHaveBeenCalled()
     expect(document.activeElement).toBe(input)
     expect(screen.container.querySelector('form')?.hasAttribute('novalidate')).toBe(true)
+  })
+
+  test('focuses an invalid control inside its shadow root', async () => {
+    const lightControl = document.createElement('input')
+    lightControl.id = 'shadow-email'
+    const host = document.createElement('div')
+    const shadow = host.attachShadow({ mode: 'open' })
+    document.body.append(lightControl, host)
+    const screen = render(
+      () => {
+        const form = createForm({ schema: Schema, initialInput: { email: '', enabled: false } })
+        return (
+          <form.Form>
+            <form.Field name="email" label="Email">
+              <Input id="shadow-email" />
+            </form.Field>
+            <Button type="submit">Save</Button>
+          </form.Form>
+        )
+      },
+      { container: shadow as unknown as HTMLElement },
+    )
+
+    const formElement = shadow.querySelector('form')!
+    const input = shadow.querySelector<HTMLInputElement>('#shadow-email')!
+    fireEvent.submit(formElement)
+
+    await waitFor(() => expect(shadow.querySelector('[data-slot="error"]')).not.toBeNull())
+    expect(shadow.activeElement).toBe(input)
+    expect(document.activeElement).toBe(host)
+
+    screen.unmount()
+    lightControl.remove()
+    host.remove()
   })
 
   test('preserves the native submitter and exposes exact async submitting state', async () => {

@@ -917,6 +917,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         id={field.id()}
         ref={(e) => {
           inputEl = e
+          field.setControlRef(e)
           callRef(local.inputRef, e)
         }}
         name={field.name()}
