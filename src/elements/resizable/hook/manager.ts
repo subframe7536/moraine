@@ -69,12 +69,14 @@ interface DragHandleSnapshot {
 }
 
 interface DragSession {
+  ownerDocument: Document
   handles: DragHandleSnapshot[]
   startX: number
   startY: number
   lastX: number
   lastY: number
   captureElement?: HTMLElement | null
+  selectionSnapshot?: { userSelect: string; webkitUserSelect: string }
   cleanup: () => void
 }
 
@@ -96,15 +98,14 @@ interface HandleSnapshotsByOrientation {
 /**
  * Single-instance manager state for all registered resizable handles.
  * This is intentionally module-scoped so intersection and drag coordination
- * work across related roots in one global session.
+ * work across related roots in one document while sessions stay isolated by owner document.
  *
  * Tests should isolate this module state via module reset (e.g. `vi.resetModules()`).
  */
 const registeredHandles = new Map<symbol, RegisteredHandleEntry>()
-let dragSession: DragSession | null = null
+const dragSessions = new Map<Document, DragSession>()
 let managerState = 0
 const crossHoverRefCount = new Map<symbol, number>()
-let documentUserSelectSnapshot: { userSelect: string; webkitUserSelect: string } | null = null
 
 function resolveOrientationFlag(orientation: ResizableOrientation): OrientationFlag {
   return orientation === 'horizontal' ? ORIENTATION_FLAG_HORIZONTAL : ORIENTATION_FLAG_VERTICAL
@@ -171,18 +172,18 @@ function setHandleCrossHovered(handle: ResizableHandleRegistration, hovered: boo
   handle.setCrossHovered(nextCount > 0)
 }
 
-function lockDocumentTextSelection(): void {
-  if (documentUserSelectSnapshot || typeof document === 'undefined') {
+function lockDocumentTextSelection(session: DragSession): void {
+  if (session.selectionSnapshot) {
     return
   }
 
-  const body = document.body
+  const body = session.ownerDocument.body
   if (!body) {
     return
   }
 
   const style = body.style as CSSStyleDeclaration & { webkitUserSelect: string }
-  documentUserSelectSnapshot = {
+  session.selectionSnapshot = {
     userSelect: style.userSelect,
     webkitUserSelect: style.webkitUserSelect,
   }
@@ -191,21 +192,21 @@ function lockDocumentTextSelection(): void {
   style.webkitUserSelect = 'none'
 }
 
-function unlockDocumentTextSelection(): void {
-  if (!documentUserSelectSnapshot || typeof document === 'undefined') {
+function unlockDocumentTextSelection(session: DragSession): void {
+  if (!session.selectionSnapshot) {
     return
   }
 
-  const body = document.body
+  const body = session.ownerDocument.body
   if (!body) {
-    documentUserSelectSnapshot = null
+    session.selectionSnapshot = undefined
     return
   }
 
   const style = body.style as CSSStyleDeclaration & { webkitUserSelect: string }
-  style.userSelect = documentUserSelectSnapshot.userSelect
-  style.webkitUserSelect = documentUserSelectSnapshot.webkitUserSelect
-  documentUserSelectSnapshot = null
+  style.userSelect = session.selectionSnapshot.userSelect
+  style.webkitUserSelect = session.selectionSnapshot.webkitUserSelect
+  session.selectionSnapshot = undefined
 }
 
 function runScheduledIntersectionsRefresh(): void {
@@ -222,14 +223,17 @@ export function scheduleResizableHandleIntersectionsRefresh(): void {
   queueMicrotask(runScheduledIntersectionsRefresh)
 }
 
-function clearDragSession(event: PointerEvent | TouchEvent | MouseEvent): void {
-  if (!dragSession) {
+function clearDragSession(
+  ownerDocument: Document,
+  event: PointerEvent | TouchEvent | MouseEvent,
+): void {
+  const current = dragSessions.get(ownerDocument)
+  if (!current) {
     return
   }
 
-  const current = dragSession
-  dragSession = null
-  unlockDocumentTextSelection()
+  dragSessions.delete(ownerDocument)
+  unlockDocumentTextSelection(current)
 
   for (const dragHandle of current.handles) {
     dragHandle.handle.setDragging(false)
@@ -239,8 +243,9 @@ function clearDragSession(event: PointerEvent | TouchEvent | MouseEvent): void {
   current.cleanup()
 }
 
-function onPointerMove(event: PointerEvent): void {
-  if (!dragSession) {
+function onPointerMove(ownerDocument: Document, event: PointerEvent): void {
+  const current = dragSessions.get(ownerDocument)
+  if (!current) {
     return
   }
 
@@ -248,12 +253,12 @@ function onPointerMove(event: PointerEvent): void {
     event.preventDefault()
   }
 
-  const deltaX = event.clientX - dragSession.lastX
-  const deltaY = event.clientY - dragSession.lastY
-  dragSession.lastX = event.clientX
-  dragSession.lastY = event.clientY
+  const deltaX = event.clientX - current.lastX
+  const deltaY = event.clientY - current.lastY
+  current.lastX = event.clientX
+  current.lastY = event.clientY
 
-  for (const dragHandle of dragSession.handles) {
+  for (const dragHandle of current.handles) {
     const deltaPx = isHorizontalOrientation(dragHandle.orientation) ? deltaX : deltaY
     dragHandle.handle.onDrag(deltaPx, resolveDragAltKey(dragHandle.altKeyMode, event))
   }
@@ -283,6 +288,17 @@ function resolveRegisteredRootElement(entry: RegisteredHandleEntry): HTMLElement
   const nextRoot = resolveTopMostRootElement(entry.handle)
   entry.rootElement = nextRoot
   return nextRoot
+}
+
+function resolveHandleOwnerDocument(handle: ResizableHandleRegistration): Document | undefined {
+  return handle.getElement()?.ownerDocument
+}
+
+function createDragEndEvent(ownerDocument: Document): MouseEvent {
+  const ownerWindow = ownerDocument.defaultView
+  const MouseEventCtor = ownerWindow?.MouseEvent ?? MouseEvent
+
+  return new MouseEventCtor('mouseup')
 }
 
 function resolveIntersectionTargetByPointerEdge(
@@ -355,8 +371,13 @@ function resolveDragHandles(
   target: ResizableHandleIntersectionTarget,
   event: PointerEvent,
 ): ResizableHandleRegistration[] {
+  const ownerDocument = resolveHandleOwnerDocument(baseHandle)
   const secondaryHandle = resolveSecondaryDragHandle(baseHandle, target, event)
-  if (!secondaryHandle || secondaryHandle.id === baseHandle.id) {
+  if (
+    !secondaryHandle ||
+    secondaryHandle.id === baseHandle.id ||
+    resolveHandleOwnerDocument(secondaryHandle) !== ownerDocument
+  ) {
     return [baseHandle]
   }
 
@@ -488,7 +509,7 @@ export function refreshResizableHandleIntersections(): void {
     entry.handle.setEndIntersection(null)
   }
 
-  const handlesByRoot = new Map<HTMLElement, HandleSnapshotsByOrientation>()
+  const handlesByDocument = new Map<Document, Map<HTMLElement, HandleSnapshotsByOrientation>>()
 
   for (const entry of registeredHandles.values()) {
     const element = entry.handle.getElement()
@@ -507,6 +528,7 @@ export function refreshResizableHandleIntersections(): void {
       rect: element.getBoundingClientRect(),
     }
 
+    const handlesByRoot = handlesByDocument.get(element.ownerDocument) ?? new Map()
     const scopedHandles = handlesByRoot.get(rootElement) ?? createRootSnapshotBuckets()
 
     if (isHorizontalOrientation(snapshot.orientation)) {
@@ -520,43 +542,46 @@ export function refreshResizableHandleIntersections(): void {
     }
 
     handlesByRoot.set(rootElement, scopedHandles)
+    handlesByDocument.set(element.ownerDocument, handlesByRoot)
   }
 
-  for (const scopedHandles of handlesByRoot.values()) {
-    for (const horizontal of scopedHandles.horizontal) {
-      assignIntersectionsFromBucket({
-        primary: horizontal,
-        candidatesByEdge: scopedHandles.verticalByBottom,
-        primaryEdge: RECT_EDGE_TOP,
-        secondaryEdge: RECT_EDGE_BOTTOM,
-        target: RESIZABLE_HANDLE_TARGET_START,
-      })
+  for (const handlesByRoot of handlesByDocument.values()) {
+    for (const scopedHandles of handlesByRoot.values()) {
+      for (const horizontal of scopedHandles.horizontal) {
+        assignIntersectionsFromBucket({
+          primary: horizontal,
+          candidatesByEdge: scopedHandles.verticalByBottom,
+          primaryEdge: RECT_EDGE_TOP,
+          secondaryEdge: RECT_EDGE_BOTTOM,
+          target: RESIZABLE_HANDLE_TARGET_START,
+        })
 
-      assignIntersectionsFromBucket({
-        primary: horizontal,
-        candidatesByEdge: scopedHandles.verticalByTop,
-        primaryEdge: RECT_EDGE_BOTTOM,
-        secondaryEdge: RECT_EDGE_TOP,
-        target: RESIZABLE_HANDLE_TARGET_END,
-      })
-    }
+        assignIntersectionsFromBucket({
+          primary: horizontal,
+          candidatesByEdge: scopedHandles.verticalByTop,
+          primaryEdge: RECT_EDGE_BOTTOM,
+          secondaryEdge: RECT_EDGE_TOP,
+          target: RESIZABLE_HANDLE_TARGET_END,
+        })
+      }
 
-    for (const vertical of scopedHandles.vertical) {
-      assignIntersectionsFromBucket({
-        primary: vertical,
-        candidatesByEdge: scopedHandles.horizontalByRight,
-        primaryEdge: RECT_EDGE_LEFT,
-        secondaryEdge: RECT_EDGE_RIGHT,
-        target: RESIZABLE_HANDLE_TARGET_START,
-      })
+      for (const vertical of scopedHandles.vertical) {
+        assignIntersectionsFromBucket({
+          primary: vertical,
+          candidatesByEdge: scopedHandles.horizontalByRight,
+          primaryEdge: RECT_EDGE_LEFT,
+          secondaryEdge: RECT_EDGE_RIGHT,
+          target: RESIZABLE_HANDLE_TARGET_START,
+        })
 
-      assignIntersectionsFromBucket({
-        primary: vertical,
-        candidatesByEdge: scopedHandles.horizontalByLeft,
-        primaryEdge: RECT_EDGE_RIGHT,
-        secondaryEdge: RECT_EDGE_LEFT,
-        target: RESIZABLE_HANDLE_TARGET_END,
-      })
+        assignIntersectionsFromBucket({
+          primary: vertical,
+          candidatesByEdge: scopedHandles.horizontalByLeft,
+          primaryEdge: RECT_EDGE_RIGHT,
+          secondaryEdge: RECT_EDGE_LEFT,
+          target: RESIZABLE_HANDLE_TARGET_END,
+        })
+      }
     }
   }
 }
@@ -572,8 +597,12 @@ export function registerResizableHandle(handle: ResizableHandleRegistration): ()
     crossHoverRefCount.delete(handle.id)
     registeredHandles.delete(handle.id)
 
-    if (dragSession?.handles.some((sessionHandle) => sessionHandle.handle.id === handle.id)) {
-      clearDragSession(new MouseEvent('mouseup'))
+    for (const [ownerDocument, session] of dragSessions) {
+      if (!session.handles.some((sessionHandle) => sessionHandle.handle.id === handle.id)) {
+        continue
+      }
+
+      clearDragSession(ownerDocument, createDragEndEvent(ownerDocument))
     }
 
     scheduleResizableHandleIntersectionsRefresh()
@@ -611,8 +640,18 @@ export function startResizableHandleDrag(
     return
   }
 
-  if (dragSession) {
-    clearDragSession(event)
+  const ownerDocument = resolveHandleOwnerDocument(handle) ?? captureElement?.ownerDocument
+  if (!ownerDocument) {
+    return
+  }
+
+  if (handles.some((dragHandle) => resolveHandleOwnerDocument(dragHandle) !== ownerDocument)) {
+    return
+  }
+
+  const previousSession = dragSessions.get(ownerDocument)
+  if (previousSession) {
+    clearDragSession(ownerDocument, event)
   }
 
   const dragHandles = handles.map(createDragHandleSnapshot)
@@ -626,23 +665,24 @@ export function startResizableHandleDrag(
   const cleanupCapture =
     captureElement && typeof captureElement.addEventListener === 'function'
       ? attachEventListenerMap(captureElement, {
-          pointermove: onPointerMove,
-          pointerup: clearDragSession,
-          pointercancel: clearDragSession,
+          pointermove: (nextEvent) => onPointerMove(ownerDocument, nextEvent),
+          pointerup: (nextEvent) => clearDragSession(ownerDocument, nextEvent),
+          pointercancel: (nextEvent) => clearDragSession(ownerDocument, nextEvent),
         })
       : undefined
 
-  const cleanupWindow =
-    typeof window === 'undefined'
-      ? () => {}
-      : attachEventListenerMap(window, {
-          pointermove: onPointerMove,
-          pointerup: clearDragSession,
-          pointercancel: clearDragSession,
-          contextmenu: clearDragSession,
-        })
+  const ownerWindow = ownerDocument.defaultView
+  const cleanupWindow = !ownerWindow
+    ? () => {}
+    : attachEventListenerMap(ownerWindow, {
+        pointermove: (nextEvent) => onPointerMove(ownerDocument, nextEvent),
+        pointerup: (nextEvent) => clearDragSession(ownerDocument, nextEvent),
+        pointercancel: (nextEvent) => clearDragSession(ownerDocument, nextEvent),
+        contextmenu: (nextEvent) => clearDragSession(ownerDocument, nextEvent),
+      })
 
-  dragSession = {
+  const session: DragSession = {
+    ownerDocument,
     handles: dragHandles,
     startX: event.clientX,
     startY: event.clientY,
@@ -654,7 +694,8 @@ export function startResizableHandleDrag(
       cleanupWindow()
     },
   }
-  lockDocumentTextSelection()
+  dragSessions.set(ownerDocument, session)
+  lockDocumentTextSelection(session)
 
   for (const dragHandle of dragHandles) {
     dragHandle.handle.setDragging(true)
