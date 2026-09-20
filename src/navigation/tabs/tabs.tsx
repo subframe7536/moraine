@@ -320,7 +320,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 type="button"
                 role="tab"
                 tabIndex={highlighted() ? 0 : -1}
-                aria-controls={getContentId(item.instanceKey)}
+                aria-controls={selected() ? getContentId(item.instanceKey) : undefined}
                 aria-selected={selected()}
                 data-selected={selected() ? '' : undefined}
                 data-highlighted={highlighted() && !selected() ? '' : undefined}
