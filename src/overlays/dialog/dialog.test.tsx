@@ -154,6 +154,31 @@ describe('Dialog', () => {
     expect(trigger.querySelector('button')).toBeNull()
   })
 
+  test('inherits Modal trigger dialog semantics through exit presence', async () => {
+    const [open, setOpen] = createSignal(true)
+    const screen = render(() => (
+      <Dialog open={open()}>
+        <Dialog.Trigger as="a" href="/details">
+          Open
+        </Dialog.Trigger>
+        <Dialog.Content body="Body" />
+      </Dialog>
+    ))
+    const trigger = screen.getByRole('link', { name: 'Open' })
+
+    expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
+
+    setOpen(false)
+    await Promise.resolve()
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
+    await finishExitMotion()
+    expect(trigger.hasAttribute('aria-controls')).toBe(false)
+    screen.unmount()
+  })
+
   test('renders custom header slot and overrides default title/description section', () => {
     render(() => (
       <Dialog open>
@@ -210,6 +235,56 @@ describe('Dialog', () => {
     expect(content.getAttribute('aria-labelledby')).toBeNull()
     expect(content.getAttribute('aria-describedby')).toBeNull()
     expectAriaReferencesToResolve(content)
+  })
+
+  test('preserves native ARIA naming attributes over generated Dialog relationships', () => {
+    render(() => (
+      <Dialog open>
+        <Dialog.Content
+          title="Generated title"
+          description="Generated description"
+          aria-label="Native dialog label"
+          aria-labelledby="custom-dialog-title"
+          aria-describedby="custom-dialog-description"
+          body={
+            <>
+              <h2 id="custom-dialog-title">Custom title</h2>
+              <p id="custom-dialog-description">Custom description</p>
+            </>
+          }
+        />
+      </Dialog>
+    ))
+
+    const content = document.body.querySelector('[data-slot="content"]')!
+    expect(content.getAttribute('aria-label')).toBe('Native dialog label')
+    expect(content.getAttribute('aria-labelledby')).toBe('custom-dialog-title')
+    expect(content.getAttribute('aria-describedby')).toBe('custom-dialog-description')
+    expectAriaReferencesToResolve(content)
+  })
+
+  test('inherits non-modal trapFocus false behavior', async () => {
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">
+          Outside
+        </button>
+        <Dialog defaultOpen>
+          <Dialog.Content trapFocus={false} title="Dialog" body="Body" />
+        </Dialog>
+      </>
+    ))
+    const outside = screen.getByTestId<HTMLButtonElement>('outside')
+    outside.focus()
+    await Promise.resolve()
+    await Promise.resolve()
+
+    const content = document.body.querySelector('[data-slot="content"]')!
+    expect(content.getAttribute('aria-modal')).toBeNull()
+    expect(outside.getAttribute('aria-hidden')).toBeNull()
+    expect(document.body.style.overflow).toBe('')
+    expect(document.activeElement).toBe(outside)
+    screen.unmount()
   })
 
   test('preserves numeric zero title and description content', () => {

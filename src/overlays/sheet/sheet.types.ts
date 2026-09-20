@@ -34,6 +34,13 @@ export namespace SheetT {
     ariaLabel?: string
 
     /**
+     * Whether the sheet behaves as a modal surface, including focus containment,
+     * outside-content isolation, and body scroll locking.
+     * @default true
+     */
+    trapFocus?: boolean
+
+    /**
      * Primary title displayed in the sheet header.
      */
     title?: JSX.Element

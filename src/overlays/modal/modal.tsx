@@ -47,9 +47,14 @@ export function Modal(props: ModalProps): JSX.Element {
     }
     return false
   }
+  const isModal = createMemo(() => {
+    contentRegistrations()
+    return shouldContainFocus()
+  })
   let capturedTrigger: HTMLElement | undefined
   let capturedRestoreTarget: HTMLElement | undefined
   let lastFocusedElement: HTMLElement | undefined
+  let restoreFocusOnDeactivate = false
   let hadOpenContent = false
   let closeCycleActive = false
 
@@ -85,13 +90,12 @@ export function Modal(props: ModalProps): JSX.Element {
   )
 
   createEffect(
-    on(isPresent, (present) => {
-      if (!present || typeof document === 'undefined') {
+    on([isPresent, isModal, contentElement], ([present, modal, currentContent]) => {
+      if (!present || !modal || typeof document === 'undefined') {
         return
       }
       const preventScroll = props.preventScroll
 
-      const currentContent = contentElement()
       const releaseScrollLock =
         preventScroll === false || !currentContent
           ? undefined
@@ -103,8 +107,8 @@ export function Modal(props: ModalProps): JSX.Element {
   )
 
   createEffect(
-    on([isPresent, contentElement], ([present, currentContent]) => {
-      if (!present || typeof document === 'undefined') {
+    on([isPresent, isModal, contentElement], ([present, modal, currentContent]) => {
+      if (!present || !modal || typeof document === 'undefined') {
         return
       }
       if (!currentContent) {
@@ -132,13 +136,19 @@ export function Modal(props: ModalProps): JSX.Element {
     contentElement,
     triggerElement,
     onActivate: (context) => {
-      capturedTrigger = untrack(triggerElement)
-      const activeElement = getActiveElement(context.entry.ownerDocument!)
-      capturedRestoreTarget =
-        capturedTrigger ??
-        (isHTMLElement(activeElement) && activeElement !== context.entry.ownerDocument?.body
-          ? activeElement
-          : undefined)
+      restoreFocusOnDeactivate = shouldContainFocus()
+      if (restoreFocusOnDeactivate) {
+        capturedTrigger = untrack(triggerElement)
+        const activeElement = getActiveElement(context.entry.ownerDocument!)
+        capturedRestoreTarget =
+          capturedTrigger ??
+          (isHTMLElement(activeElement) && activeElement !== context.entry.ownerDocument?.body
+            ? activeElement
+            : undefined)
+      } else {
+        capturedTrigger = undefined
+        capturedRestoreTarget = undefined
+      }
       lastFocusedElement = undefined
     },
     onPointerDownInside: (event, context) => {
@@ -178,12 +188,16 @@ export function Modal(props: ModalProps): JSX.Element {
       }
 
       if (dismissible()) {
-        event.preventDefault()
+        if (shouldContainFocus()) {
+          event.preventDefault()
+        }
         updateOpen(false)
         return
       }
 
-      event.preventDefault()
+      if (shouldContainFocus()) {
+        event.preventDefault()
+      }
       props.onClosePrevent?.()
     },
     onFocusInside: (event) => {
@@ -225,6 +239,9 @@ export function Modal(props: ModalProps): JSX.Element {
       props.onClosePrevent?.()
     },
     onDeactivate: () => {
+      if (!restoreFocusOnDeactivate) {
+        return
+      }
       const trigger = capturedTrigger
       const restoreTarget = capturedRestoreTarget
 
@@ -278,6 +295,7 @@ export function Modal(props: ModalProps): JSX.Element {
     },
     contentPresent,
     isPresent,
+    isModal,
   }
 
   return <ModalProvider value={context}>{props.children}</ModalProvider>

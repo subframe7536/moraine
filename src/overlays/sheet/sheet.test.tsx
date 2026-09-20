@@ -82,6 +82,31 @@ describe('Sheet', () => {
     screen.unmount()
   })
 
+  test('inherits Modal trigger dialog semantics through exit presence', async () => {
+    const [open, setOpen] = createSignal(true)
+    const screen = render(() => (
+      <Sheet open={open()}>
+        <Sheet.Trigger as="a" href="/details">
+          Open
+        </Sheet.Trigger>
+        <Sheet.Content body="Body" />
+      </Sheet>
+    ))
+    const trigger = screen.getByRole('link', { name: 'Open' })
+
+    expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
+
+    setOpen(false)
+    await Promise.resolve()
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
+    await finishExitMotion()
+    expect(trigger.hasAttribute('aria-controls')).toBe(false)
+    screen.unmount()
+  })
+
   test('applies inset without transition state', () => {
     renderWithTheme(() => (
       <Sheet open>
@@ -166,6 +191,56 @@ describe('Sheet', () => {
     expect(content.getAttribute('aria-labelledby')).toBeNull()
     expect(content.getAttribute('aria-describedby')).toBeNull()
     expectAriaReferencesToResolve(content)
+  })
+
+  test('preserves native ARIA naming attributes over generated Sheet relationships', () => {
+    render(() => (
+      <Sheet open>
+        <Sheet.Content
+          title="Generated title"
+          description="Generated description"
+          aria-label="Native sheet label"
+          aria-labelledby="custom-sheet-title"
+          aria-describedby="custom-sheet-description"
+          body={
+            <>
+              <h2 id="custom-sheet-title">Custom title</h2>
+              <p id="custom-sheet-description">Custom description</p>
+            </>
+          }
+        />
+      </Sheet>
+    ))
+
+    const content = document.body.querySelector('[data-slot="content"]')!
+    expect(content.getAttribute('aria-label')).toBe('Native sheet label')
+    expect(content.getAttribute('aria-labelledby')).toBe('custom-sheet-title')
+    expect(content.getAttribute('aria-describedby')).toBe('custom-sheet-description')
+    expectAriaReferencesToResolve(content)
+  })
+
+  test('inherits non-modal trapFocus false behavior', async () => {
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">
+          Outside
+        </button>
+        <Sheet defaultOpen>
+          <Sheet.Content trapFocus={false} title="Sheet" body="Body" />
+        </Sheet>
+      </>
+    ))
+    const outside = screen.getByTestId<HTMLButtonElement>('outside')
+    outside.focus()
+    await Promise.resolve()
+    await Promise.resolve()
+
+    const content = document.body.querySelector('[data-slot="content"]')!
+    expect(content.getAttribute('aria-modal')).toBeNull()
+    expect(outside.getAttribute('aria-hidden')).toBeNull()
+    expect(document.body.style.overflow).toBe('')
+    expect(document.activeElement).toBe(outside)
+    screen.unmount()
   })
 
   test('preserves numeric zero in every shell content slot', () => {
