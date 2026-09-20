@@ -6,7 +6,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  DEV,
   For,
   Show,
   mergeProps,
@@ -43,8 +42,6 @@ import { useFormReset } from '../shared/use-form-reset.ts'
 
 import { baseSelectRecipe } from './base-select.recipe'
 import type { BaseSelectProps, BaseSelectT } from './base-select.types.ts'
-
-const FORM_VALUE_EXISTS = DEV ? 'moraine:selection-exists' : '1'
 
 function selectionToFormValue<T extends BaseSelectT.Value>(
   values: readonly T[],
@@ -119,7 +116,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     inheritedVariants: () => ({ size: field.size() ?? undefined }),
   })
   const locked = () => field.disabled() || field.readOnly()
-  let validationInput: HTMLInputElement | undefined
+  let formInput: HTMLInputElement | undefined
 
   function setOpen(next: boolean) {
     if (next && field.disabled()) {
@@ -315,16 +312,18 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
       return serialized === undefined ? [] : [serialized]
     })
   })
-  const validationValue = () => (value().length ? FORM_VALUE_EXISTS : '')
+  const hasSelection = () => value().length > 0
+  const primarySerializedValue = () => serialized()[0] ?? ''
   useFormReset(
-    () => validationInput?.form,
+    () => formInput?.form,
     () => {
       discardComposition()
       setSelection(initial)
       const next = props.value !== undefined ? normalize(props.value) : initial
       field.setFormValue(selectionToFormValue(next, props.multiple === true))
-      if (validationInput) {
-        validationInput.value = validationValue()
+      if (formInput) {
+        formInput.checked = next.length > 0
+        formInput.value = primarySerializedValue()
       }
       props.onReset?.()
     },
@@ -370,27 +369,31 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
       <>
         <HiddenInput
           ref={(element) => {
-            validationInput = element
+            formInput = element
           }}
-          type="text"
+          type="checkbox"
           aria-hidden="true"
           autocomplete="off"
           disabled={field.disabled()}
           required={field.required()}
           tabIndex={-1}
-          value={validationValue()}
+          checked={hasSelection()}
+          name={serialized().length > 0 ? field.name() : undefined}
+          value={primarySerializedValue()}
           onInput={(event) => {
-            event.currentTarget.value = validationValue()
+            event.currentTarget.checked = hasSelection()
+            event.currentTarget.value = primarySerializedValue()
           }}
           onChange={(event) => {
-            event.currentTarget.value = validationValue()
+            event.currentTarget.checked = hasSelection()
+            event.currentTarget.value = primarySerializedValue()
           }}
           onInvalid={(event) => {
             event.preventDefault()
             focusOwner()?.focus()
           }}
         />
-        <For each={serialized()}>
+        <For each={serialized().slice(1)}>
           {(value) => (
             <HiddenInput
               type="hidden"
