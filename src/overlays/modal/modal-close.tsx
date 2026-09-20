@@ -21,7 +21,7 @@ export function ModalClose<T extends ValidComponent = 'button'>(
     {
       disabled: () => Boolean(local.disabled),
       disabledForComponent: true,
-      onPress: () => () => context.updateOpen(false),
+      onPress: () => context.updateOpen(false),
       tag,
     },
     rest,

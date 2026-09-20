@@ -53,7 +53,8 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
     {
       disabled,
       disabledForComponent: true,
-      onPress: () => binding.onPress,
+      element: binding.context.triggerElement,
+      onPress: binding.onPress,
       tag,
     },
     rest,

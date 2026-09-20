@@ -138,6 +138,35 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'Submit' }).getAttribute('type')).toBe('submit')
   })
 
+  test('resolves native button semantics from a polymorphic component DOM root', () => {
+    const CustomButton = (props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) => (
+      <button {...props} />
+    )
+    const screen = render(() => (
+      <Button as={CustomButton} disabled>
+        Custom native button
+      </Button>
+    ))
+    const button = screen.getByRole('button', { name: 'Custom native button' })
+
+    expect(button.hasAttribute('disabled')).toBe(true)
+    expect(button.hasAttribute('aria-disabled')).toBe(false)
+  })
+
+  test('preserves explicit tabIndex on native button and link roots', () => {
+    const screen = render(() => (
+      <>
+        <Button tabIndex={-1}>Native button</Button>
+        <Button as="a" href="/docs" tabIndex={-1}>
+          Native link
+        </Button>
+      </>
+    ))
+
+    expect(screen.getByRole('button', { name: 'Native button' }).getAttribute('tabindex')).toBe('-1')
+    expect(screen.getByRole('link', { name: 'Native link' }).getAttribute('tabindex')).toBe('-1')
+  })
+
   test('renders component defaults when provider is absent', () => {
     const screen = render(() => (
       <Button variant="destructive" size="sm">
@@ -475,7 +504,8 @@ describe('Button', () => {
 
     expect(button.getAttribute('aria-busy')).toBe('true')
     expect(button.hasAttribute('data-loading')).toBe(true)
-    expect(button.hasAttribute('disabled')).toBe(true)
+    expect(button.hasAttribute('disabled')).toBe(false)
+    expect(button.getAttribute('aria-disabled')).toBe('true')
     expect(screen.queryByTestId('trailing-icon')).toBeNull()
     expect(leadingSlot).toBeNull()
     expect(trailingSlot).not.toBeNull()
@@ -554,7 +584,7 @@ describe('Button', () => {
     })
   })
 
-  test('suppresses repeated activation while an automatic action is pending', async () => {
+  test('suppresses repeated activation while automatic loading keeps focus', async () => {
     const deferred = createDeferred()
     const onClick = vi.fn(() => deferred.promise)
     const screen = render(() => (
@@ -564,14 +594,20 @@ describe('Button', () => {
     ))
     const button = screen.getByRole('button', { name: 'Submit once' })
 
+    button.focus()
     button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
     button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
 
     expect(onClick).toHaveBeenCalledTimes(1)
-    expect(button.hasAttribute('disabled')).toBe(true)
+    expect(button.hasAttribute('disabled')).toBe(false)
+    expect(button.getAttribute('aria-disabled')).toBe('true')
+    expect(document.activeElement).toBe(button)
 
     deferred.resolve()
-    await waitFor(() => expect(button.hasAttribute('disabled')).toBe(false))
+    await waitFor(() => {
+      expect(button.hasAttribute('aria-disabled')).toBe(false)
+      expect(document.activeElement).toBe(button)
+    })
   })
 
   test('updates component children during auto loading lifecycle', async () => {
@@ -762,7 +798,7 @@ describe('Button', () => {
       expect(onpointerdown).not.toHaveBeenCalled()
     })
 
-    test('blocks keyboard and click interactions and removes tabIndex when loading for non-native button', async () => {
+    test('blocks loading interactions while keeping a non-native button focusable', async () => {
       const onclick = vi.fn()
       const screen = render(() => (
         <Button as="div" loading onClick={onclick}>
@@ -773,12 +809,14 @@ describe('Button', () => {
       const button = screen.getByRole('button', { name: 'Loading' })
       expect(button.getAttribute('aria-disabled')).toBe('true')
       expect(button.getAttribute('aria-busy')).toBe('true')
-      expect(button.hasAttribute('tabIndex')).toBe(false)
+      expect(button.getAttribute('tabindex')).toBe('0')
 
+      button.focus()
       fireEvent.keyDown(button, { key: ' ' })
       fireEvent.click(button)
 
       expect(onclick).not.toHaveBeenCalled()
+      expect(document.activeElement).toBe(button)
     })
 
     test('suppresses native-root handlers after becoming disabled', () => {

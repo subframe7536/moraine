@@ -4,12 +4,20 @@ import { mergeProps } from 'solid-js'
 import type { ValidComponent } from './types.ts'
 import { callHandler } from './utils'
 
+const BUTTON_INPUT_TYPES = new Set(['button', 'color', 'file', 'image', 'reset', 'submit'])
+
 export interface UseButtonInteractionOptions {
   disabled: Accessor<boolean>
-  /** Whether custom component roots should receive the disabled prop. */
+  /** Resolved DOM root for polymorphic components when available. */
+  element?: Accessor<HTMLElement | undefined>
+  /** Whether disabled interaction should remain keyboard focusable. */
+  focusableWhenDisabled?: Accessor<boolean>
+  /** Whether custom component roots should receive disabled before their DOM root resolves. */
   disabledForComponent?: boolean
-  onClick?: Accessor<JSX.EventHandlerUnion<HTMLElement, MouseEvent> | undefined>
-  onPress?: Accessor<(() => void) | undefined>
+  /** Replaces the caller click handler while preserving Button interaction semantics. */
+  onClickOverride?: JSX.EventHandlerUnion<HTMLElement, MouseEvent>
+  /** Semantic action performed after an uncancelled click. */
+  onPress?: () => void
   tag: Accessor<ValidComponent>
 }
 
@@ -34,21 +42,56 @@ export function useButtonInteraction(
   options: UseButtonInteractionOptions,
   props: Record<string, unknown>,
 ): JSX.HTMLAttributes<HTMLElement> {
+  const isFocusableWhenDisabled = () =>
+    options.disabled() && Boolean(options.focusableWhenDisabled?.())
+
   const isNativeButton = () => {
-    const tag = options.tag()
-    return typeof tag === 'string' && (tag === 'button' || tag === 'input')
-  }
-  const needsButtonRole = () => {
-    if (isNativeButton()) {
+    const element = options.element?.()
+    if (element) {
+      const tagName = element.tagName.toLowerCase()
+      if (tagName === 'button') {
+        return true
+      }
+      if (tagName === 'input') {
+        const type =
+          typeof props.type === 'string' ? props.type : (element as HTMLInputElement).type
+        return BUTTON_INPUT_TYPES.has(type.toLowerCase())
+      }
       return false
-    }
-    if (props.href === undefined) {
-      return true
     }
 
     const tag = options.tag()
-    return typeof tag === 'string' && tag !== 'a'
+    if (typeof tag !== 'string') {
+      return false
+    }
+
+    const tagName = tag.toLowerCase()
+    if (tagName === 'button') {
+      return true
+    }
+    if (tagName === 'input') {
+      const type = typeof props.type === 'string' ? props.type : 'button'
+      return BUTTON_INPUT_TYPES.has(type.toLowerCase())
+    }
+    return false
   }
+
+  const isNativeLink = () => {
+    const hasHref = props.href !== undefined
+    const element = options.element?.()
+    if (element) {
+      return element.tagName.toLowerCase() === 'a' && (hasHref || element.hasAttribute('href'))
+    }
+
+    const tag = options.tag()
+    if (typeof tag === 'string') {
+      return tag.toLowerCase() === 'a' && hasHref
+    }
+
+    return hasHref
+  }
+
+  const needsButtonRole = () => !isNativeButton() && !isNativeLink()
   let spaceKeyDownArmed = false
 
   const onKeyDown = (event: KeyboardEvent): void => {
@@ -121,16 +164,38 @@ export function useButtonInteraction(
       return props.role ?? (needsButtonRole() ? 'button' : undefined)
     },
     get tabIndex() {
-      return needsButtonRole() && !options.disabled() ? (props.tabIndex ?? 0) : undefined
+      if (!needsButtonRole()) {
+        return props.tabIndex
+      }
+
+      if (props.tabIndex !== undefined) {
+        return props.tabIndex
+      }
+
+      return !options.disabled() || isFocusableWhenDisabled() ? 0 : undefined
     },
     get 'aria-disabled'() {
-      return !isNativeButton() && options.disabled() ? true : undefined
+      if (!options.disabled()) {
+        return props['aria-disabled']
+      }
+
+      if (!isNativeButton() || isFocusableWhenDisabled()) {
+        return true
+      }
+
+      return props['aria-disabled']
     },
     get disabled() {
+      if (isNativeButton()) {
+        return options.disabled() && !isFocusableWhenDisabled()
+      }
+
       const tag = options.tag()
-      return isNativeButton() || (typeof tag !== 'string' && options.disabledForComponent)
-        ? options.disabled()
-        : undefined
+      if (!options.element?.() && typeof tag !== 'string' && options.disabledForComponent) {
+        return options.disabled() && !isFocusableWhenDisabled()
+      }
+
+      return undefined
     },
     onBlur(event: FocusEvent): void {
       spaceKeyDownArmed = false
@@ -144,10 +209,10 @@ export function useButtonInteraction(
 
       const { defaultPrevented } = callHandler<HTMLElement, MouseEvent>(
         event,
-        options.onClick?.() ?? props.onClick,
+        options.onClickOverride ?? props.onClick,
       )
       if (!defaultPrevented) {
-        options.onPress?.()?.()
+        options.onPress?.()
       }
     },
     onKeyDown,

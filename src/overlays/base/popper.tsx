@@ -154,9 +154,13 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     {
       disabled,
       disabledForComponent: true,
+      element: context.triggerElement,
       tag,
-      onPress: () =>
-        (local.toggleOnClick ?? true) ? () => context.setOpen(!context.isOpen()) : undefined,
+      onPress: () => {
+        if (local.toggleOnClick ?? true) {
+          context.setOpen(!context.isOpen())
+        }
+      },
     },
     rest,
   )

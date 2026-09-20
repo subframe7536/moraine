@@ -49,7 +49,8 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
     {
       disabled,
       disabledForComponent: true,
-      onPress: () => context.toggle,
+      element: context.triggerElement,
+      onPress: context.toggle,
       tag,
     },
     rest,

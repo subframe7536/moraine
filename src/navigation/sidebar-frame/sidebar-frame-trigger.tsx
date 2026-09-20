@@ -29,7 +29,7 @@ export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
     {
       disabled,
       disabledForComponent: true,
-      onPress: () => context.toggle,
+      onPress: context.toggle,
       tag,
     },
     rest,

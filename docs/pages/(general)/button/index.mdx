@@ -20,6 +20,7 @@ import type { ButtonT } from 'moraine'
 
 - **Polymorphic Rendering**: Render as a `<button>`, anchor, or custom Solid component while retaining Moraine styling.
 - **Optional Promise-Driven Loading**: Set `loadingAuto` to derive loading state from a promise-returning `onClick`. It is disabled by default.
+- **Stable Loading Focus**: Loading buttons block activation while remaining focusable, so async actions do not reset keyboard position.
 - **Controlled Loading**: Use `loading` directly when loading state comes from external state.
 - **Loading Placement**: The loading icon replaces the leading icon first, or the trailing icon when no leading icon is present.
 - **Icon Buttons**: Icon-only sizes are available; provide `aria-label` or another accessible name for icon-only controls.
@@ -93,19 +94,19 @@ root (<button> or polymorphic element)
 
 ### Loading
 
-Use `loading` when application state owns the pending operation. `loadingAuto` is opt-in: when enabled, a promise returned by `onClick` drives the visual loading state. It does not change how you handle errors or application completion.
+Use `loading` when application state owns the pending operation. `loadingAuto` is opt-in: when enabled, a promise returned by `onClick` drives the visual loading state. Loading suppresses additional activation without applying native `disabled`, so a focused button keeps its keyboard position. Explicit `disabled` still uses native disabled semantics where available.
 
 <Preview path="./loading-usage" />
 
 ### Icons and polymorphism
 
-Leading and trailing content can be icons or custom elements. Icon-only buttons need `aria-label` or another accessible name. When rendering with `as`, the caller owns the target element's semantics, navigation behavior, and relevant attributes.
+Leading and trailing content can be icons or custom elements. Icon-only buttons need `aria-label` or another accessible name. Polymorphic roots without native link semantics receive button role and keyboard activation; anchors with `href` keep native link behavior. When a custom component forwards its root ref, Moraine resolves native button semantics from the rendered DOM element.
 
 <Preview path="./icons-polymorphism" />
 
 ### Keyboard interaction
 
-Native button keyboard behavior applies when the root is a button. Polymorphic roots inherit the semantics and keyboard behavior of the element or component you provide.
+Native button keyboard behavior applies when the rendered root is a button. Non-link polymorphic roots receive button semantics and Enter/Space activation; anchors with `href` preserve native link keyboard behavior.
 
 | Key                                 | Description                                     |
 | ----------------------------------- | ----------------------------------------------- |
