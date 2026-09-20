@@ -254,10 +254,17 @@ export function Accordion(props: AccordionProps): JSX.Element {
             open: contentExpanded,
             disabled,
           })
-          const contentPresence = useTransitionPresence({ open: expanded })
+          const [contentHidden, setContentHidden] = createSignal(!untrack(expanded))
+          const contentPresence = useTransitionPresence({
+            open: expanded,
+            onExitComplete: () => {
+              setContentHidden(true)
+            },
+          })
           const triggerId = createMemo(() => `${rootId()}-${itemIdSegment}-trigger`)
           const contentId = createMemo(() => `${rootId()}-${itemIdSegment}-content`)
           let contentElement: HTMLDivElement | undefined
+          let triggerElement: HTMLButtonElement | undefined
           let spaceKeyDown = false
 
           function renderContent(): JSX.Element {
@@ -286,10 +293,14 @@ export function Accordion(props: AccordionProps): JSX.Element {
           createEffect(
             on(expanded, (isExpanded) => {
               if (!isExpanded) {
+                if (contentElement?.contains(contentElement.ownerDocument.activeElement)) {
+                  triggerElement?.focus()
+                }
                 setContentExpanded(false)
                 return
               }
 
+              setContentHidden(false)
               openContentElement(isExpanded)
             }),
           )
@@ -367,6 +378,9 @@ export function Accordion(props: AccordionProps): JSX.Element {
             >
               <h3 data-slot="header" {...resolved.styles.header} {...itemDataAttrs()}>
                 <button
+                  ref={(element) => {
+                    triggerElement = element
+                  }}
                   id={triggerId()}
                   type="button"
                   aria-controls={expanded() ? contentId() : undefined}
@@ -420,6 +434,9 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   id={contentId()}
                   role="region"
                   aria-labelledby={triggerId()}
+                  aria-hidden={!expanded() ? true : undefined}
+                  hidden={contentHidden()}
+                  inert={!expanded() ? true : undefined}
                   data-slot="content"
                   class={resolved.styles.content.class}
                   style={{
