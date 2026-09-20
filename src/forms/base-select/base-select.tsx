@@ -327,25 +327,25 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     externalFormControl.setCustomValidity(missing ? 'Please select an option.' : '')
   }
 
-  function claimFormControl(): VoidFunction {
+  function claimFormControl(): void {
     if (props.multiple) {
-      return () => {}
+      return
     }
     formControlClaims += 1
     if (formControlClaims === 1) {
       setUsesExternalFormControl(true)
     }
-    return () => {
+    onCleanup(() => {
       formControlClaims -= 1
       if (formControlClaims === 0) {
         setUsesExternalFormControl(false)
       }
-    }
+    })
   }
 
-  function registerFormControl(element: HTMLInputElement): VoidFunction {
+  function registerFormControl(element: HTMLInputElement): void {
     if (props.multiple) {
-      return () => {}
+      return
     }
     externalFormControl = element
     untrack(() => syncExternalFormControlValidity(field.required(), hasSelection()))
@@ -372,7 +372,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     element.addEventListener('invalid', onInvalid)
     element.ownerDocument.addEventListener('formdata', onFormData, true)
 
-    return () => {
+    onCleanup(() => {
       element.removeEventListener('invalid', onInvalid)
       element.ownerDocument.removeEventListener('formdata', onFormData, true)
       element.required = false
@@ -380,7 +380,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
       if (externalFormControl === element) {
         externalFormControl = undefined
       }
-    }
+    })
   }
 
   createEffect(
