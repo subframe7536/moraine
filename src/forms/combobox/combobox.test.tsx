@@ -43,6 +43,7 @@ describe('Combobox', () => {
     expect(trigger.getAttribute('data-slot')).toBe('trigger')
     expect(trigger.tabIndex).toBe(-1)
     expect(trigger.getAttribute('role')).toBeNull()
+    expect(screen.container.querySelectorAll('input')).toHaveLength(1)
     expect(screen.container.querySelectorAll('input[data-slot="input"]')).toHaveLength(1)
   })
 
@@ -114,6 +115,27 @@ describe('Combobox', () => {
     expect(input.readOnly).toBe(true)
     expect(input.getAttribute('aria-readonly')).toBe('true')
     expect(input.getAttribute('aria-autocomplete')).toBe('none')
+  })
+
+
+  test('uses the visible input for required validation without an extra proxy input', () => {
+    const screen = render(() => (
+      <form>
+        <Combobox name="fruit" items={ITEMS} required />
+      </form>
+    ))
+    const form = screen.container.querySelector('form')!
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    expect(screen.container.querySelectorAll('input')).toHaveLength(1)
+    expect(form.checkValidity()).toBe(false)
+    expect(document.activeElement).toBe(input)
+
+    fireEvent.input(input, { target: { value: 'app' } })
+    expect(form.checkValidity()).toBe(false)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle options' }))
+    fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Apple' }))
+    expect(form.checkValidity()).toBe(true)
   })
 
   test('clear and trigger coexist and clear does not open', () => {
@@ -193,9 +215,18 @@ describe('Combobox', () => {
     const form = screen.container.querySelector('form')!
     const input = screen.getByRole('combobox')
     fireEvent.input(input, { target: { value: 'ba' } })
-    expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
+
+    function formData(): FormData {
+      const data = new FormData(form)
+      form.dispatchEvent(Object.assign(new Event('formdata'), { formData: data }))
+      return data
+    }
+
+    expect(screen.container.querySelectorAll('input')).toHaveLength(1)
+    expect(input.getAttribute('name')).toBeNull()
+    expect(formData().getAll('fruit')).toEqual(['apple'])
     fireEvent.reset(form)
-    expect(new FormData(form).getAll('fruit')).toEqual(['apple'])
+    expect(formData().getAll('fruit')).toEqual(['apple'])
   })
 
   test('keeps Form.Field selection values scalar across falsey changes and reset', async () => {
