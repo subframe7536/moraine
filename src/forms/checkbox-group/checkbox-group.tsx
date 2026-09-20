@@ -219,6 +219,50 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     },
   )
 
+  function isVisualControl(
+    fieldset: HTMLFieldSetElement,
+    target: EventTarget | null,
+  ): target is HTMLElement {
+    const HTMLElement = fieldset.ownerDocument.defaultView?.HTMLElement
+    return (
+      HTMLElement !== undefined &&
+      target instanceof HTMLElement &&
+      target.matches('[data-slot="control"]')
+    )
+  }
+
+  function isFocusWithinFieldset(
+    fieldset: HTMLFieldSetElement,
+    target: EventTarget | null,
+  ): boolean {
+    const Node = fieldset.ownerDocument.defaultView?.Node
+    return Node !== undefined && target instanceof Node && fieldset.contains(target)
+  }
+
+  function onFieldsetFocusIn(event: FocusEvent): void {
+    const fieldset = event.currentTarget as HTMLFieldSetElement
+    if (!isVisualControl(fieldset, event.target)) {
+      return
+    }
+    if (isFocusWithinFieldset(fieldset, event.relatedTarget)) {
+      return
+    }
+
+    field.emit('focus', event)
+  }
+
+  function onFieldsetFocusOut(event: FocusEvent): void {
+    const fieldset = event.currentTarget as HTMLFieldSetElement
+    if (!isVisualControl(fieldset, event.target)) {
+      return
+    }
+    if (isFocusWithinFieldset(fieldset, event.relatedTarget)) {
+      return
+    }
+
+    field.emit('blur', event)
+  }
+
   return (
     <div id={`${groupId()}-root`} data-slot="root" {...rest} {...resolved.styles.root}>
       <fieldset
@@ -228,6 +272,8 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         id={groupId()}
         data-slot="fieldset"
         disabled={field.disabled()}
+        onFocusIn={onFieldsetFocusIn}
+        onFocusOut={onFieldsetFocusOut}
         aria-labelledby={
           field.ariaAttrs()['aria-labelledby'] ?? (legend() ? legendId() : undefined)
         }
