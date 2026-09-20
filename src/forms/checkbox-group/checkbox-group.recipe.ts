@@ -40,10 +40,10 @@ export const checkboxGroupRecipe = /* @__PURE__ */ defineRecipe<
     },
     variant: {
       card: { fieldset: 'gap-2' },
+      list: { fieldset: 'gap-2' },
       table: {
         item: 'border border-muted rounded-none relative',
       },
-      list: { fieldset: 'gap-2' },
     },
   },
   compoundVariants: [

@@ -2,7 +2,7 @@
 title: Field
 description: A generic layout and accessibility primitive for labels, descriptions, messages, and inherited control state.
 sidebar:
-  order: 0
+  order: 1
 search:
   tags: [field, label, description, error, accessibility, form control]
 ---
@@ -14,7 +14,10 @@ import { Field, Input } from 'moraine'
 import type { FieldT } from 'moraine'
 ```
 
-`Field` is independent of Formisch and any other form library. It provides presentation, control registration, inherited state, and ARIA relationships. Use `form.Field` from `createForm()` when the field should bind to a Formisch schema.
+`Field` is a standalone presentational component with no form validation or form integration.
+It is used only for rendering field UI, registering controls, inheriting state, and establishing ARIA relationships.
+
+For form integration, use `form.Field` returned by `createForm()`.
 
 ## Features
 
