@@ -32,14 +32,17 @@ describe('Select', () => {
     expect(control.querySelector('input[data-slot="input"]')).toBeNull()
   })
 
-  test('clear is a sibling and never opens the popup', () => {
+  test('clear stays inside the trigger without nesting an interactive control', () => {
     const onClear = vi.fn()
     const screen = render(() => (
       <Select items={ITEMS} defaultValue="apple" allowClear onClear={onClear} />
     ))
     const trigger = screen.getByRole('combobox')
-    const clear = screen.getByRole('button', { name: 'Clear selection' })
+    const clear = screen.container.querySelector<HTMLElement>('[data-slot="clear"]')!
+    expect(clear.tagName).toBe('SPAN')
+    expect(clear.getAttribute('aria-hidden')).toBe('true')
     expect(trigger.contains(clear)).toBe(true)
+    expect(trigger.querySelector('button')).toBeNull()
     fireEvent.click(clear)
     expect(onClear).toHaveBeenCalledOnce()
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
@@ -122,7 +125,7 @@ describe('Select', () => {
     const screen = render(() => <Select items={ITEMS} defaultValue="apple" allowClear loading />)
     expect(screen.getByRole('combobox')).toBeTruthy()
     expect(screen.container.querySelector('[data-loading]')).toBeTruthy()
-    expect(screen.queryByRole('button', { name: 'Clear selection' })).toBeNull()
+    expect(screen.container.querySelector('[data-slot="clear"]')).toBeNull()
   })
 
   test('keeps the loading spinner class on its icon without a theme', () => {
@@ -243,7 +246,7 @@ describe('Select', () => {
 
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Empty' }))
     expect(getInput(form)).toEqual({ choice: '' })
-    fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
+    fireEvent.click(screen.container.querySelector<HTMLElement>('[data-slot="clear"]')!)
     expect(getInput(form)).toEqual({ choice: null })
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Zero' }))
     expect(getInput(form)).toEqual({ choice: 0 })

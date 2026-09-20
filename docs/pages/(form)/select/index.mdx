@@ -88,16 +88,17 @@ import type { SelectT } from 'moraine'
 
 ```text
 control
-├── trigger
-│   ├── leading (optional)
-│   ├── value
-│   └── trailing (chevron / loading icon)
-└── clear (optional)
+└── trigger
+    ├── leading (optional)
+    ├── value
+    ├── clear (optional)
+    └── trailing (chevron / loading icon)
 ```
 
-The control slot is the outer visual field and floating anchor. The trigger slot is the primary
-interactive button. The value slot displays the selected label or `String(value)` for an unresolved
-value. Clear is a sibling action that clears the selection without toggling the popup.
+The control slot is the outer visual field and floating anchor. The trigger slot is the sole
+interactive button and focus owner. The value slot displays the selected label or `String(value)`
+for an unresolved value. Clear is a pointer-only affordance inside the trigger that clears the
+selection without toggling the popup.
 
 ## Usage
 

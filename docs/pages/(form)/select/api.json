@@ -236,15 +236,15 @@
     },
     {
       "name": "clear",
-      "description": "Button used to clear the selected value.",
+      "description": "Pointer-only affordance used to clear the selected value.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": [
         {
-          "name": "aria-label",
+          "name": "aria-hidden",
           "required": false,
           "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
+          "description": "Hides decorative content from assistive technology."
         }
       ]
     },
@@ -324,7 +324,7 @@
         "name": "allowClear",
         "required": false,
         "type": "boolean | undefined",
-        "description": "Show a clear button when a value is selected."
+        "description": "Show a pointer clear affordance when a value is selected."
       },
       {
         "name": "class",
@@ -341,7 +341,7 @@
         "name": "closeIcon",
         "required": false,
         "type": "IconT.Name",
-        "description": "Icon used when the action button clears the selection."
+        "description": "Icon used by the clear affordance."
       },
       {
         "name": "closeOnSelect",
