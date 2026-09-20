@@ -1,5 +1,12 @@
 import type { JSX } from 'solid-js'
-import { Show, children as resolveChildren, createMemo, splitProps } from 'solid-js'
+import {
+  Show,
+  children as resolveChildren,
+  createMemo,
+  createSignal,
+  onCleanup,
+  splitProps,
+} from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
@@ -7,6 +14,7 @@ import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import type { ValidComponent } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
+import { callRef } from '../../shared/utils'
 import { useLoadingAutoClick } from '../../shared/use-loading-auto'
 import { Icon } from '../icon'
 import type { IconT } from '../icon'
@@ -21,7 +29,7 @@ import type { ButtonProps } from './button.types'
 export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T>): JSX.Element {
   const cn = useCn()
   const group = useButtonGroupContext()
-  const [local, rest] = splitProps(props, [
+  const [local, rest] = splitProps(props as ButtonProps<T> & { ref?: unknown }, [
     'as',
     'variant',
     'size',
@@ -30,6 +38,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     'class',
     'style',
     'slotName',
+    'ref',
     'disabled',
     'loading',
     'loadingAuto',
@@ -51,6 +60,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   })
 
   const tag = createMemo<ValidComponent>(() => local.as ?? 'button')
+  const [rootElement, setRootElement] = createSignal<HTMLElement>()
 
   const isDisabledOrLoading = () => isLoading() || Boolean(local.disabled)
   const leading = createMemo(() => local.leading)
@@ -88,7 +98,9 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
   const interactionProps = useButtonInteraction(
     {
       disabled: isDisabledOrLoading,
-      onClick: () => onClick,
+      element: rootElement,
+      focusableWhenDisabled: () => isLoading() && !local.disabled,
+      onClickOverride: onClick,
       tag,
     },
     rest,
@@ -115,6 +127,16 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
       data-disabled={local.disabled ? '' : undefined}
       {...interactionProps}
       component={tag()}
+      ref={(element: HTMLElement) => {
+        setRootElement(element)
+        callRef(local.ref, element)
+        onCleanup(() => {
+          if (rootElement() === element) {
+            setRootElement(undefined)
+          }
+          callRef(local.ref, undefined)
+        })
+      }}
       {...resolved.styles.root}
     >
       <Show when={resolvedLeading()}>
