@@ -98,6 +98,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     }),
     () => ({
       bind: false,
+      focus: true,
       defaultId: groupId(),
       initialValue: initialDefaultValue,
     }),
@@ -171,6 +172,12 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
 
     return normalizedItems().find((item) => !item.disabled && !field.disabled())?.id
   })
+
+  createEffect(
+    on(tabbableItemId, (itemId) => {
+      field.setControlRef(itemId ? inputRefs.get(itemId) : undefined)
+    }),
+  )
   const groupAriaAttrs = createMemo(() => field.ariaAttrs())
 
   function isSelected(item: NormalizedRadioGroupItem): boolean {

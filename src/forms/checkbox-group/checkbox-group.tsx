@@ -7,6 +7,7 @@ import {
   createSignal,
   mergeProps,
   on,
+  onCleanup,
   splitProps,
   untrack,
 } from 'solid-js'
@@ -129,6 +130,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     }),
     () => ({
       bind: false,
+      focus: true,
       defaultId: groupId(),
       initialValue: initialDefaultValue,
     }),
@@ -136,6 +138,25 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
 
   const [uncontrolledValue, setUncontrolledValue] = createSignal<string[]>(initialDefaultValue)
   let fieldsetEl: HTMLFieldSetElement | undefined
+
+  createEffect(() => {
+    items().map((item) => (typeof item === 'string' ? false : item.disabled))
+    field.disabled()
+    let cancelled = false
+
+    queueMicrotask(() => {
+      if (cancelled) {
+        return
+      }
+      field.setControlRef(
+        fieldsetEl?.querySelector<HTMLElement>('[data-slot="control"]:not(:disabled)') ?? undefined,
+      )
+    })
+
+    onCleanup(() => {
+      cancelled = true
+    })
+  })
 
   const selectedValues = createMemo(() => controlledValue() ?? uncontrolledValue())
   const legendId = createMemo(() => `${groupId()}-legend`)

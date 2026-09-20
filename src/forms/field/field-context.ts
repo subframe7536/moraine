@@ -57,6 +57,7 @@ export interface UseFormFieldProps {
 
 export interface UseFormFieldOptions {
   bind?: boolean
+  focus?: boolean
   defaultId: string
   defaultAriaAttrs?: Record<string, string | boolean | undefined>
   initialValue?: unknown
@@ -100,6 +101,7 @@ export function useFormField(
   const options = createMemo(() => opts())
   const fieldProps = createMemo(() => props?.() ?? {})
   const bind = createMemo(() => options().bind ?? true)
+  const focus = createMemo(() => options().focus ?? bind())
   const localId = createMemo(() => fieldProps().id ?? options().defaultId)
   const [controlElement, setControlElement] = createSignal<HTMLElement>()
 
@@ -135,9 +137,9 @@ export function useFormField(
 
   createEffect(
     on(
-      [path, bind, controlElement, () => fieldContext?.binding?.controlRef],
-      ([, bound, element, ref]) => {
-        if (!bound || !element || !ref) {
+      [path, focus, controlElement, () => fieldContext?.binding?.controlRef],
+      ([, shouldRegister, element, ref]) => {
+        if (!shouldRegister || !element || !ref) {
           return
         }
         ref(element)

@@ -1,6 +1,6 @@
 import { getInput } from '@formisch/solid'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { For, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -8,7 +8,11 @@ import { Button } from '../../elements/button'
 import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { defineTheme } from '../../theme'
+import { Checkbox } from '../checkbox'
+import { CheckboxGroup } from '../checkbox-group'
 import { Input } from '../input'
+import { RadioGroup } from '../radio-group'
+import { Slider } from '../slider'
 import { Switch } from '../switch'
 
 import { createForm } from './'
@@ -153,6 +157,279 @@ describe('Form', () => {
     expect(onSubmit).not.toHaveBeenCalled()
     expect(document.activeElement).toBe(input)
     expect(screen.container.querySelector('form')?.hasAttribute('novalidate')).toBe(true)
+  })
+
+  test('re-reads live DOM order when invalid fields are reordered between submissions', async () => {
+    const schema = v.object({
+      first: v.pipe(v.string(), v.nonEmpty('First is required.')),
+      second: v.pipe(v.string(), v.nonEmpty('Second is required.')),
+    })
+    const labels = { first: 'First', second: 'Second' } as const
+    const [order, setOrder] = createSignal<('first' | 'second')[]>(['first', 'second'])
+    const { screen } = renderWithOwner(
+      () => createForm({ schema, initialInput: { first: '', second: '' } }),
+      (form) => (
+        <form.Form>
+          <For each={order()}>
+            {(name) => (
+              <form.Field name={name} label={labels[name]}>
+                <Input />
+              </form.Field>
+            )}
+          </For>
+        </form.Form>
+      ),
+    )
+
+    fireEvent.submit(screen.container.querySelector('form')!)
+
+    await waitFor(() => expect(screen.getByText('First is required.')).not.toBeNull())
+    expect(document.activeElement).toBe(screen.getByLabelText('First'))
+
+    setOrder(['second', 'first'])
+    fireEvent.submit(screen.container.querySelector('form')!)
+
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('Second')))
+    expect(document.activeElement).toBe(screen.getByLabelText('Second'))
+  })
+
+  test('rechecks whether invalid controls are enabled between submissions', async () => {
+    const schema = v.object({
+      first: v.pipe(v.string(), v.nonEmpty('First is required.')),
+      second: v.pipe(v.string(), v.nonEmpty('Second is required.')),
+    })
+    const [firstDisabled, setFirstDisabled] = createSignal(true)
+    const { screen } = renderWithOwner(
+      () => createForm({ schema, initialInput: { first: '', second: '' } }),
+      (form) => (
+        <form.Form>
+          <form.Field name="first" label="First">
+            <Input disabled={firstDisabled()} />
+          </form.Field>
+          <form.Field name="second" label="Second">
+            <Input />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    fireEvent.submit(screen.container.querySelector('form')!)
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('Second')))
+
+    setFirstDisabled(false)
+    fireEvent.submit(screen.container.querySelector('form')!)
+
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('First')))
+  })
+
+  test('focuses the visible checkbox before a later invalid text input', async () => {
+    const schema = v.object({
+      accepted: v.pipe(
+        v.boolean(),
+        v.check((value: boolean) => value, 'Accept the terms.'),
+      ),
+      email: v.pipe(v.string(), v.nonEmpty('Email is required.')),
+    })
+    const { screen } = renderWithOwner(
+      () => createForm({ schema, initialInput: { accepted: false, email: '' } }),
+      (form) => (
+        <form.Form>
+          <form.Field name="accepted" label="Terms">
+            <Checkbox label="Accept" />
+          </form.Field>
+          <form.Field name="email" label="Email">
+            <Input />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    fireEvent.submit(screen.container.querySelector('form')!)
+
+    const checkbox = screen.getByRole('checkbox', { name: 'Terms' })
+    await waitFor(() => expect(document.activeElement).toBe(checkbox))
+    expect(screen.container.querySelector<HTMLInputElement>('input[type="checkbox"]')).not.toBe(
+      document.activeElement,
+    )
+  })
+
+  test('focuses the visible switch before a later invalid text input', async () => {
+    const schema = v.object({
+      enabled: v.pipe(
+        v.boolean(),
+        v.check((value: boolean) => value, 'Enable the setting.'),
+      ),
+      email: v.pipe(v.string(), v.nonEmpty('Email is required.')),
+    })
+    const { screen } = renderWithOwner(
+      () => createForm({ schema, initialInput: { enabled: false, email: '' } }),
+      (form) => (
+        <form.Form>
+          <form.Field name="enabled" label="Setting">
+            <Switch />
+          </form.Field>
+          <form.Field name="email" label="Email">
+            <Input />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    fireEvent.submit(screen.container.querySelector('form')!)
+
+    const switchControl = screen.getByRole('switch', { name: 'Setting' })
+    await waitFor(() => expect(document.activeElement).toBe(switchControl))
+    expect(screen.container.querySelector<HTMLInputElement>('input[type="checkbox"]')).not.toBe(
+      document.activeElement,
+    )
+  })
+
+  test('focuses the first slider thumb before a later invalid text input', async () => {
+    const schema = v.object({
+      score: v.pipe(v.number(), v.minValue(1, 'Choose a score.')),
+      email: v.pipe(v.string(), v.nonEmpty('Email is required.')),
+    })
+    const { screen } = renderWithOwner(
+      () => createForm({ schema, initialInput: { score: 0, email: '' } }),
+      (form) => (
+        <form.Form>
+          <form.Field name="score" label="Score">
+            <Slider min={0} max={10} />
+          </form.Field>
+          <form.Field name="email" label="Email">
+            <Input />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    fireEvent.submit(screen.container.querySelector('form')!)
+
+    const thumb = screen.container.querySelector<HTMLElement>('[data-slot="thumb"]')!
+    await waitFor(() => expect(document.activeElement).toBe(thumb))
+  })
+
+  test('focuses the first enabled radio in an invalid group', async () => {
+    const schema = v.object({
+      plan: v.pipe(v.string(), v.nonEmpty('Choose a plan.')),
+      email: v.pipe(v.string(), v.nonEmpty('Email is required.')),
+    })
+    const { screen } = renderWithOwner(
+      () => createForm({ schema, initialInput: { plan: '', email: '' } }),
+      (form) => (
+        <form.Form>
+          <form.Field name="plan" label="Plan">
+            <RadioGroup
+              items={[
+                { label: 'Unavailable', value: 'unavailable', disabled: true },
+                { label: 'Standard', value: 'standard' },
+              ]}
+            />
+          </form.Field>
+          <form.Field name="email" label="Email">
+            <Input />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    fireEvent.submit(screen.container.querySelector('form')!)
+
+    const enabledRadio = screen.getByRole('radio', { name: 'Standard' })
+    await waitFor(() => expect(document.activeElement).toBe(enabledRadio))
+  })
+
+  test('focuses the first enabled checkbox in an invalid checkbox group', async () => {
+    const schema = v.object({
+      choices: v.pipe(v.array(v.string()), v.minLength(1, 'Choose an option.')),
+      email: v.pipe(v.string(), v.nonEmpty('Email is required.')),
+    })
+    const { screen } = renderWithOwner(
+      () => createForm({ schema, initialInput: { choices: [], email: '' } }),
+      (form) => (
+        <form.Form>
+          <form.Field name="choices" label="Choices">
+            <CheckboxGroup
+              items={[
+                { label: 'Unavailable', value: 'unavailable', disabled: true },
+                { label: 'Standard', value: 'standard' },
+              ]}
+            />
+          </form.Field>
+          <form.Field name="email" label="Email">
+            <Input />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    fireEvent.submit(screen.container.querySelector('form')!)
+
+    const enabledCheckbox = screen
+      .getAllByRole<HTMLButtonElement>('checkbox')
+      .find((control) => !control.disabled)!
+    await waitFor(() => expect(document.activeElement).toBe(enabledCheckbox))
+  })
+
+  test('uses DOM order for nested invalid paths and skips disabled controls', async () => {
+    const schema = v.object({
+      profile: v.object({ name: v.pipe(v.string(), v.nonEmpty('Name is required.')) }),
+      title: v.pipe(v.string(), v.nonEmpty('Title is required.')),
+    })
+    const { screen } = renderWithOwner(
+      () => createForm({ schema, initialInput: { profile: { name: '' }, title: '' } }),
+      (form) => (
+        <form.Form>
+          <form.Field name="title" label="Title">
+            <Input />
+          </form.Field>
+          <form.Field name={['profile', 'name']} label="Name">
+            <Input disabled />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+
+    fireEvent.submit(screen.container.querySelector('form')!)
+
+    await waitFor(() => expect(screen.getByText('Title is required.')).not.toBeNull())
+    expect(document.activeElement).toBe(screen.getByLabelText('Title'))
+  })
+
+  test('focuses the visual first invalid field inside an iframe document', async () => {
+    const schema = v.object({
+      first: v.pipe(v.string(), v.nonEmpty('First is required.')),
+      second: v.pipe(v.string(), v.nonEmpty('Second is required.')),
+    })
+    const frame = document.createElement('iframe')
+    document.body.append(frame)
+    const frameDocument = frame.contentDocument!
+
+    try {
+      const screen = render(
+        () => {
+          const form = createForm({ schema, initialInput: { first: '', second: '' } })
+          return (
+            <form.Form>
+              <form.Field name="second" label="Second">
+                <Input />
+              </form.Field>
+              <form.Field name="first" label="First">
+                <Input />
+              </form.Field>
+            </form.Form>
+          )
+        },
+        { container: frameDocument.body },
+      )
+
+      fireEvent.submit(frameDocument.querySelector('form')!)
+
+      await waitFor(() => expect(frameDocument.querySelector('[data-slot="error"]')).not.toBeNull())
+      expect(frameDocument.activeElement).toBe(screen.getByLabelText('Second'))
+    } finally {
+      frame.remove()
+    }
   })
 
   test('focuses an invalid control inside its shadow root', async () => {

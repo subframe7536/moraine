@@ -5,17 +5,20 @@ import {
   reset as resetForm,
 } from '@formisch/solid'
 import type { JSX } from 'solid-js'
-import { splitProps } from 'solid-js'
+import { onCleanup, splitProps, untrack } from 'solid-js'
 
 import { createStyles } from '../../provider'
 import type { ValidComponent } from '../../shared/types.ts'
-import { callHandler } from '../../shared/utils'
+import { callHandler, callRef } from '../../shared/utils'
 import { renderField } from '../field/field'
 
 import { useFormischFieldBinding } from './form-field-binding'
 import { formRecipe } from './form.recipe'
 import type { FormProps, FormT } from './form.types'
+import { createInvalidFocusManager } from './invalid-focus-manager'
+import type { InvalidFocusManager } from './invalid-focus-manager'
 interface InternalFormProps<TSchema extends FormSchema> extends FormProps<TSchema> {
+  focusManager: InvalidFocusManager
   of: FormStore<TSchema>
 }
 
@@ -23,12 +26,15 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
   const [local, formProps] = splitProps(props, [
     'class',
     'style',
+    'ref',
+    'focusManager',
     'of',
     'onSubmit',
     'onReset',
     'children',
   ])
   const resolved = createStyles(formRecipe, local)
+  untrack(() => local.focusManager.attach(local.of))
 
   const onReset: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
     const form = local.of
@@ -40,9 +46,21 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
     }, 0)
   }
 
+  const onSubmitCapture = (): void => {
+    local.focusManager.requestFocus()
+  }
+
   return (
     <FormischForm
       {...formProps}
+      ref={(element) => {
+        element.addEventListener('submit', onSubmitCapture, true)
+        callRef(local.ref, element)
+        onCleanup(() => {
+          element.removeEventListener('submit', onSubmitCapture, true)
+          callRef(local.ref, undefined)
+        })
+      }}
       of={local.of}
       onSubmit={local.onSubmit ?? (() => {})}
       onReset={onReset}
@@ -60,8 +78,11 @@ export function createForm<TSchema extends FormSchema>(
   config: FormConfig<TSchema>,
 ): FormT.Instance<TSchema> {
   const store = createFormischForm(config)
+  const focusManager = createInvalidFocusManager()
 
-  const BoundForm = (props: FormT.Props<TSchema>): JSX.Element => <FormRoot of={store} {...props} />
+  const BoundForm = (props: FormT.Props<TSchema>): JSX.Element => (
+    <FormRoot {...props} focusManager={focusManager} of={store} />
+  )
 
   const BoundField = <T extends ValidComponent = 'div'>(
     props: FormT.FieldProps<TSchema, T>,
@@ -70,6 +91,7 @@ export function createForm<TSchema extends FormSchema>(
     const binding = useFormischFieldBinding(
       store,
       () => (typeof props.name === 'string' ? [props.name] : props.name) as RequiredPath,
+      focusManager,
     )
     return renderField(props, () => binding)
   }

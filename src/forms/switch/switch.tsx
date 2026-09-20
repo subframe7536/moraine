@@ -271,7 +271,6 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       <HiddenInput
         ref={(element) => {
           inputEl = element
-          field.setControlRef(element)
           callRef(local.inputRef, element)
         }}
         id={`${field.id()}-input`}
@@ -300,6 +299,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       />
 
       <button
+        ref={field.setControlRef}
         id={field.id()}
         type="button"
         role="switch"

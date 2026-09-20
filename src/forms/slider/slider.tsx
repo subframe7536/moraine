@@ -178,6 +178,9 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                 next[thumbIndex] = element
                 return next
               })
+              if (thumbIndex === 0) {
+                field.setControlRef(element)
+              }
             }}
             data-slot="thumb"
             data-inverted={merged.inverted ? '' : undefined}
@@ -232,7 +235,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
             <HiddenInput
               ref={(element) => {
                 if (thumbIndex === 0) {
-                  field.setControlRef(element)
                   callRef(local.inputRef, element)
                 }
               }}
