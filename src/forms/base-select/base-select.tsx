@@ -133,7 +133,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     setExternalFormControlClaimed(true)
     setExternalFormControl(element)
     return () => {
-      if (externalFormControl() === element) {
+      if (untrack(externalFormControl) === element) {
         setExternalFormControl(undefined)
         setExternalFormControlClaimed(false)
       }
