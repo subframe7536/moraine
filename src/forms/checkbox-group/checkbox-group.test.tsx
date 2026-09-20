@@ -5,6 +5,8 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
+import { FieldProvider } from '../field/field-context'
+import type { FieldBinding } from '../field/field-context'
 import { createForm } from '../form'
 
 import { CheckboxGroup } from './checkbox-group'
@@ -120,6 +122,71 @@ describe('CheckboxGroup', () => {
     expect(onChange).toHaveBeenCalledTimes(2)
     expect(onChange).toHaveBeenLastCalledWith([])
     expectCheckboxChecked(checkboxA, false)
+  })
+
+  test('emits Field focus and blur only at visual group boundaries', () => {
+    const emit = vi.fn()
+    const binding: FieldBinding = {
+      emit,
+      setValue: vi.fn(),
+    }
+    const screen = render(() => (
+      <FieldProvider value={{ ariaId: 'checkbox-group-field', binding }}>
+        <CheckboxGroup items={['A', 'B']} />
+      </FieldProvider>
+    ))
+    const controls = screen.getAllByRole('checkbox')
+    const first = controls[0]!
+    const second = controls[1]!
+    const hidden = getHiddenCheckbox(screen.container, 'A')
+    const outside = document.createElement('button')
+
+    fireEvent.focusIn(hidden, { relatedTarget: outside })
+    fireEvent.focusOut(hidden, { relatedTarget: outside })
+    expect(emit).not.toHaveBeenCalled()
+
+    fireEvent.focusIn(first, { relatedTarget: outside })
+    fireEvent.focusOut(first, { relatedTarget: second })
+    fireEvent.focusIn(second, { relatedTarget: first })
+
+    expect(emit).toHaveBeenCalledExactlyOnceWith('focus', expect.any(FocusEvent))
+
+    fireEvent.focusOut(second, { relatedTarget: outside })
+
+    expect(emit).toHaveBeenNthCalledWith(2, 'blur', expect.any(FocusEvent))
+  })
+
+  test('keeps Formisch validation dormant while focus moves within a group', async () => {
+    const schema = v.object({
+      choices: v.pipe(v.array(v.string()), v.minLength(1, 'Choose an option.')),
+    })
+    const { screen, value: form } = renderWithOwner(
+      () => createForm({ schema, initialInput: { choices: [] }, validate: 'blur' }),
+      (form) => (
+        <form.Form>
+          <form.Field name="choices" label="Choices">
+            <CheckboxGroup items={['A', 'B']} />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const controls = screen.getAllByRole('checkbox')
+    const first = controls[0]!
+    const second = controls[1]!
+    const outside = document.createElement('button')
+
+    fireEvent.focusIn(first, { relatedTarget: outside })
+    expect(form.isTouched).toBe(true)
+
+    fireEvent.focusOut(first, { relatedTarget: second })
+    fireEvent.focusIn(second, { relatedTarget: first })
+
+    expect(screen.queryByText('Choose an option.')).toBeNull()
+
+    fireEvent.focusOut(second, { relatedTarget: outside })
+
+    await waitFor(() => expect(screen.getByText('Choose an option.')).not.toBeNull())
+    expect(second.getAttribute('aria-invalid')).toBe('true')
   })
 
   test('does not toggle disabled group or item', async () => {

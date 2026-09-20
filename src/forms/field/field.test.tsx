@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { Show, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Input } from '../input'
@@ -23,6 +23,7 @@ function Probe() {
   }))
   return (
     <button
+      ref={field.setControlRef}
       id={field.id()}
       data-name={field.name()}
       data-value={String(field.value())}
@@ -32,6 +33,18 @@ function Probe() {
         field.emit('change', new Event('change'))
       }}
     />
+  )
+}
+
+function DynamicProbe(props: { replacement: boolean }) {
+  const field = useFormField(undefined, () => ({ defaultId: 'dynamic-control' }))
+  return (
+    <Show
+      when={props.replacement}
+      fallback={<button ref={field.setControlRef} data-testid="first-control" />}
+    >
+      <button ref={field.setControlRef} data-testid="second-control" />
+    </Show>
   )
 }
 
@@ -117,5 +130,90 @@ describe('Field', () => {
   test('works without a binding', () => {
     const screen = render(() => <HookProbe />)
     expect(screen.getByRole('button').dataset.value).toBe('undefined')
+  })
+
+  test('delivers the mounted control element to a binding', () => {
+    const controlRef = vi.fn()
+    const binding: FieldBinding = {
+      controlRef,
+      setValue: vi.fn(),
+      emit: vi.fn(),
+    }
+    const screen = render(() => <HookProbe binding={binding} />)
+
+    expect(controlRef).toHaveBeenCalledWith(screen.getByRole('button'))
+  })
+
+  test('updates a binding when its mounted control is replaced', () => {
+    const controlRef = vi.fn()
+    const binding: FieldBinding = {
+      controlRef,
+      setValue: vi.fn(),
+      emit: vi.fn(),
+    }
+    let replace!: () => void
+    const screen = render(() => {
+      const [replacement, setReplacement] = createSignal(false)
+      replace = () => setReplacement(true)
+      return (
+        <FieldProvider value={{ ariaId: 'dynamic', binding }}>
+          <DynamicProbe replacement={replacement()} />
+        </FieldProvider>
+      )
+    })
+
+    expect(controlRef).toHaveBeenLastCalledWith(screen.getByTestId('first-control'))
+    replace()
+    expect(controlRef).toHaveBeenLastCalledWith(screen.getByTestId('second-control'))
+  })
+
+  test('delivers a control in a shadow root instead of a same-ID light-DOM element', () => {
+    const controlRef = vi.fn()
+    const binding: FieldBinding = {
+      controlRef,
+      setValue: vi.fn(),
+      emit: vi.fn(),
+    }
+    const lightControl = document.createElement('button')
+    lightControl.id = 'probe-control'
+    const host = document.createElement('div')
+    const shadow = host.attachShadow({ mode: 'open' })
+    document.body.append(lightControl, host)
+
+    const screen = render(() => <HookProbe binding={binding} />, {
+      container: shadow as unknown as HTMLElement,
+    })
+
+    expect(controlRef).toHaveBeenLastCalledWith(shadow.querySelector('button'))
+    expect(controlRef).not.toHaveBeenCalledWith(lightControl)
+
+    screen.unmount()
+    lightControl.remove()
+    host.remove()
+  })
+
+  test('delivers a control in another document instead of a same-ID light-DOM element', () => {
+    const controlRef = vi.fn()
+    const binding: FieldBinding = {
+      controlRef,
+      setValue: vi.fn(),
+      emit: vi.fn(),
+    }
+    const lightControl = document.createElement('button')
+    lightControl.id = 'probe-control'
+    const frame = document.createElement('iframe')
+    document.body.append(lightControl, frame)
+    const frameDocument = frame.contentDocument!
+
+    const screen = render(() => <HookProbe binding={binding} />, {
+      container: frameDocument.body,
+    })
+
+    expect(controlRef).toHaveBeenLastCalledWith(frameDocument.querySelector('button'))
+    expect(controlRef).not.toHaveBeenCalledWith(lightControl)
+
+    screen.unmount()
+    lightControl.remove()
+    frame.remove()
   })
 })

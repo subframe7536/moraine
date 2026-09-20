@@ -173,6 +173,14 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
     void number
     return item?.email ?? props.label
   }}
+  tagOverflow={(props) => {
+    const count: number = props.count
+    const item: UserItem | undefined = props.tags[0]?.item
+    const value: number | undefined = props.tags[0]?.value
+    void count
+    void value
+    return item?.email ?? props.tags[0]?.label
+  }}
 />
 // @ts-expect-error A factory must supply every required consumer field.
 ;<MultiSelect<UserItem> createItem={(input) => ({ value: input.length, label: input })} />

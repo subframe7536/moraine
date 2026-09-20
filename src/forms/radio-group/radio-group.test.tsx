@@ -7,6 +7,8 @@ import { describe, expect, test, vi } from 'vitest'
 import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
 import { Field } from '../field'
+import { FieldProvider } from '../field/field-context'
+import type { FieldBinding } from '../field/field-context'
 import { createForm } from '../form'
 
 import { RadioGroup } from './radio-group'
@@ -183,6 +185,66 @@ describe('RadioGroup', () => {
 
     expect(enter.defaultPrevented).toBe(false)
     expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('forwards Field focus boundaries only when focus enters or leaves the group', () => {
+    const emit = vi.fn()
+    const binding: FieldBinding = {
+      emit,
+      setValue: vi.fn(),
+    }
+    const screen = render(() => (
+      <>
+        <FieldProvider value={{ ariaId: 'plan-field', binding }}>
+          <RadioGroup items={['A', 'B']} />
+        </FieldProvider>
+        <button type="button">Outside</button>
+      </>
+    ))
+    const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
+    const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
+
+    radioA.focus()
+    expect(emit).toHaveBeenNthCalledWith(1, 'focus', expect.any(FocusEvent))
+
+    radioB.focus()
+    expect(emit).toHaveBeenCalledTimes(1)
+
+    screen.getByRole('button', { name: 'Outside' }).focus()
+    expect(emit).toHaveBeenNthCalledWith(2, 'blur', expect.any(FocusEvent))
+  })
+
+  test('marks a Form.Field radio group touched on entry and validates only after focus leaves', async () => {
+    const schema = v.object({
+      plan: v.pipe(
+        v.string(),
+        v.check((value) => value === 'pro', 'Choose the Pro plan.'),
+      ),
+    })
+    const { screen, value: form } = renderWithOwner(
+      () => createForm({ schema, initialInput: { plan: 'basic' }, validate: 'blur' }),
+      (form) => (
+        <form.Form>
+          <form.Field name="plan" label="Plan">
+            <RadioGroup items={['basic', 'pro']} />
+          </form.Field>
+          <button type="button">Outside</button>
+        </form.Form>
+      ),
+    )
+    const basic = screen.getByRole<HTMLInputElement>('radio', { name: 'basic' })
+    const pro = screen.getByRole<HTMLInputElement>('radio', { name: 'pro' })
+
+    basic.focus()
+    expect(form.isTouched).toBe(true)
+
+    pro.focus()
+    expect(screen.queryByText('Choose the Pro plan.')).toBeNull()
+
+    screen.getByRole('button', { name: 'Outside' }).focus()
+
+    await waitFor(() => expect(screen.getByText('Choose the Pro plan.')).not.toBeNull())
+    expect(screen.getByRole('radiogroup').getAttribute('aria-invalid')).toBe('true')
   })
 
   test('allows Shift+Arrow navigation and ignores Alt/Ctrl/Meta navigation', async () => {
@@ -397,6 +459,62 @@ describe('RadioGroup', () => {
     await Promise.resolve()
 
     expect(document.activeElement).toBe(screen.getByRole<HTMLInputElement>('radio', { name: 'A' }))
+  })
+
+  test('restores focus after removing a focused item inside an open shadow root', async () => {
+    const host = document.createElement('div')
+    const shadow = host.attachShadow({ mode: 'open' })
+    document.body.append(host)
+    try {
+      const [items, setItems] = createSignal<(string | { value: string; label: string })[]>([
+        'A',
+        'B',
+      ])
+      const screen = render(() => <RadioGroup value="B" items={items()} />, {
+        container: shadow as unknown as HTMLElement,
+      })
+      const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
+
+      radioB.focus()
+      setItems((current) => current.filter((item) => item !== 'B'))
+      await Promise.resolve()
+
+      expect(shadow.activeElement).toBe(screen.getByRole<HTMLInputElement>('radio', { name: 'A' }))
+      screen.unmount()
+    } finally {
+      host.remove()
+    }
+  })
+
+  test('restores focus after removing a focused item in its owner document', async () => {
+    const frame = document.createElement('iframe')
+    document.body.append(frame)
+    const frameDocument = frame.contentDocument
+    if (!frameDocument) {
+      throw new TypeError('Expected iframe owner document')
+    }
+
+    try {
+      const [items, setItems] = createSignal<(string | { value: string; label: string })[]>([
+        'A',
+        'B',
+      ])
+      const screen = render(() => <RadioGroup value="B" items={items()} />, {
+        container: frameDocument.body,
+      })
+      const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
+
+      radioB.focus()
+      setItems((current) => current.filter((item) => item !== 'B'))
+      await Promise.resolve()
+
+      expect(frameDocument.activeElement).toBe(
+        screen.getByRole<HTMLInputElement>('radio', { name: 'A' }),
+      )
+      screen.unmount()
+    } finally {
+      frame.remove()
+    }
   })
 
   test('applies horizontal table layout classes', () => {

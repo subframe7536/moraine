@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createMemo, createSignal, splitProps } from 'solid-js'
+import { createEffect, createMemo, createSignal, on, onCleanup, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
@@ -44,8 +44,57 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   })
   const contentPresence = useTransitionPresence({ open })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
+  const [contentElement, setCurrentContentElement] = createSignal<HTMLDivElement | undefined>()
   const transition = createMemo(() => Boolean(local.transition))
   const unmountOnHide = createMemo(() => local.unmountOnHide ?? true)
+  let contentHasFocus = false
+  let removeContentFocusListeners: (() => void) | undefined
+
+  function restoreTriggerFocus(): void {
+    const content = contentElement()
+
+    if (contentHasFocus || content?.contains(content.ownerDocument.activeElement)) {
+      contentHasFocus = false
+      triggerElement()?.focus()
+    }
+  }
+
+  createEffect(
+    on(open, (isOpen) => {
+      if (!isOpen) {
+        restoreTriggerFocus()
+      }
+    }),
+  )
+
+  function setTrackedContentElement(element: HTMLDivElement | undefined): void {
+    removeContentFocusListeners?.()
+    removeContentFocusListeners = undefined
+    setCurrentContentElement(element)
+
+    if (!element) {
+      return
+    }
+
+    contentHasFocus = element.contains(element.ownerDocument.activeElement)
+    const onFocusIn = () => {
+      contentHasFocus = true
+    }
+    const onFocusOut = (event: FocusEvent) => {
+      if (open() && !element.contains(event.relatedTarget as Node | null)) {
+        contentHasFocus = false
+      }
+    }
+    element.addEventListener('focusin', onFocusIn)
+    element.addEventListener('focusout', onFocusOut)
+    removeContentFocusListeners = () => {
+      element.removeEventListener('focusin', onFocusIn)
+      element.removeEventListener('focusout', onFocusOut)
+    }
+    setContentElement(element)
+  }
+
+  onCleanup(() => removeContentFocusListeners?.())
 
   function setOpen(nextOpen: boolean): void {
     if (disabled() || nextOpen === open()) {
@@ -80,11 +129,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     unmountOnHide,
     dataAttrs,
     contentHeight,
-    setContentElement: (element) => {
-      if (element) {
-        setContentElement(element)
-      }
-    },
+    setContentElement: setTrackedContentElement,
     contentPresence,
     triggerElement,
     setTriggerElement,

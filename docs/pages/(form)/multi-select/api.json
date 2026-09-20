@@ -303,7 +303,7 @@
     },
     {
       "name": "tagOverflow",
-      "description": "Counter shown when selected tags exceed the visible limit.",
+      "description": "Default counter shown when selected tags exceed the visible limit.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
@@ -534,7 +534,7 @@
         "name": "maxTagCount",
         "required": false,
         "type": "number | undefined",
-        "description": "Maximum visible tags before showing +N (visual only)."
+        "description": "Maximum visible tags before collapsing the remainder into a +N summary."
       },
       {
         "name": "name",
@@ -671,6 +671,12 @@
         "name": "styles",
         "required": false,
         "type": "MultiSelectT.Styles | undefined"
+      },
+      {
+        "name": "tagOverflow",
+        "required": false,
+        "type": "ComponentOrElement<MultiSelectT.TagOverflowRenderProps<T>>",
+        "description": "Custom renderer for tags hidden by `maxTagCount`."
       },
       {
         "name": "tagRender",

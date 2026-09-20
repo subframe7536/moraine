@@ -262,6 +262,7 @@ describe('Modal primitives', () => {
     expect(trigger.tagName).toBe('BUTTON')
     expect(trigger.type).toBe('button')
     expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
 
@@ -270,6 +271,13 @@ describe('Modal primitives', () => {
     expect(onOpenChange).toHaveBeenCalledWith(true)
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
+
+    fireEvent.keyDown(document, { key: 'Escape' })
+
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
+    await finishExitMotion()
+    expect(trigger.hasAttribute('aria-controls')).toBe(false)
     screen.unmount()
   })
 
@@ -398,6 +406,7 @@ describe('Modal primitives', () => {
 
     expect(divTrigger.getAttribute('role')).toBe('button')
     expect(divTrigger.getAttribute('tabindex')).toBe('0')
+    expect(divTrigger.getAttribute('aria-haspopup')).toBe('dialog')
     expect(triggerElement).toBe(divTrigger)
     expect(buttonTrigger.tagName).toBe('BUTTON')
     expect(buttonTrigger.className).toContain('border')
@@ -420,6 +429,56 @@ describe('Modal primitives', () => {
     expect(document.body.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(
       'Named modal',
     )
+  })
+
+  test('preserves explicit native ARIA naming attributes through exit presence', async () => {
+    const [open, setOpen] = createSignal(true)
+    const screen = render(() => (
+      <Modal open={open()}>
+        <Modal.Content
+          aria-label="Native label"
+          aria-labelledby="native-title"
+          aria-describedby="native-description"
+          ariaLabel="Camel label"
+          ariaLabelledBy="camel-title"
+          ariaDescribedBy="camel-description"
+        >
+          <h2 id="native-title">Native title</h2>
+          <p id="native-description">Native description</p>
+        </Modal.Content>
+      </Modal>
+    ))
+
+    const content = document.body.querySelector('[role="dialog"]')!
+    expect(content.getAttribute('aria-label')).toBe('Native label')
+    expect(content.getAttribute('aria-labelledby')).toBe('native-title')
+    expect(content.getAttribute('aria-describedby')).toBe('native-description')
+
+    setOpen(false)
+    await Promise.resolve()
+    expect(content.getAttribute('aria-label')).toBe('Native label')
+    expect(content.getAttribute('aria-labelledby')).toBe('native-title')
+    expect(content.getAttribute('aria-describedby')).toBe('native-description')
+    await finishExitMotion(content as HTMLElement)
+    screen.unmount()
+  })
+
+  test('focuses the first input when a modal opens', async () => {
+    const screen = render(() => (
+      <Modal defaultOpen>
+        <Modal.Content>
+          <input aria-label="Search" data-testid="search" />
+          <button type="button">Other</button>
+        </Modal.Content>
+      </Modal>
+    ))
+
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        document.body.querySelector<HTMLInputElement>('[data-testid="search"]'),
+      ),
+    )
+    screen.unmount()
   })
 
   test('does not acquire modal resources when an open root has no surfaces', async () => {
@@ -822,6 +881,9 @@ describe('Modal primitives', () => {
 
     fireEvent.compositionEnd(editor)
     fireEvent.keyDown(editor, { key: 'Escape' })
+    expect(onOpenChange).not.toHaveBeenCalled()
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    fireEvent.keyDown(editor, { key: 'Escape' })
     expect(onOpenChange).toHaveBeenCalledWith(false)
     screen.unmount()
   })
@@ -1182,7 +1244,7 @@ describe('Modal primitives', () => {
     screen.unmount()
   })
 
-  test('does not contain or trap focus when trapFocus is false', async () => {
+  test('keeps trapFocus false surfaces consistently non-modal', async () => {
     const screen = render(() => (
       <>
         <button type="button" data-testid="outside">
@@ -1200,9 +1262,16 @@ describe('Modal primitives', () => {
         </Modal>
       </>
     ))
+    const outside = screen.getByTestId<HTMLButtonElement>('outside')
+    outside.focus()
     await Promise.resolve()
     await Promise.resolve()
+    const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
     const last = document.body.querySelector('[data-testid="last-btn"]') as HTMLButtonElement
+    expect(content.getAttribute('aria-modal')).toBeNull()
+    expect(outside.getAttribute('aria-hidden')).toBeNull()
+    expect(document.body.style.overflow).toBe('')
+    expect(document.activeElement).toBe(outside)
     last.focus()
 
     const forwardEvent = new KeyboardEvent('keydown', {
@@ -1213,10 +1282,18 @@ describe('Modal primitives', () => {
     last.dispatchEvent(forwardEvent)
     expect(forwardEvent.defaultPrevented).toBe(false)
 
-    const outside = screen.getByTestId('outside')
     outside.focus()
     await Promise.resolve()
     expect(document.activeElement).toBe(outside)
+
+    const pointerDown = new PointerEvent('pointerdown', {
+      bubbles: true,
+      button: 0,
+      cancelable: true,
+      pointerType: 'mouse',
+    })
+    outside.dispatchEvent(pointerDown)
+    expect(pointerDown.defaultPrevented).toBe(false)
     screen.unmount()
   })
 

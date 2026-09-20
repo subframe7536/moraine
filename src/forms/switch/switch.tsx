@@ -232,6 +232,14 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     }
   }
 
+  function onTrackFocus(event: FocusEvent): void {
+    field.emit('focus', event)
+  }
+
+  function onTrackBlur(event: FocusEvent): void {
+    field.emit('blur', event)
+  }
+
   const resolvedIconName = createMemo<IconT.Name | undefined>(() => {
     if (merged.loading) {
       return loadingIcon()
@@ -291,6 +299,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       />
 
       <button
+        ref={field.setControlRef}
         id={field.id()}
         type="button"
         role="switch"
@@ -301,6 +310,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         {...switchAriaAttrs()}
         {...resolved.styles.track}
         onPointerDown={onPointerDown}
+        onFocus={onTrackFocus}
+        onBlur={onTrackBlur}
         data-checked={checked() ? '' : undefined}
         data-unchecked={!checked() ? '' : undefined}
         data-disabled={field.disabled() ? '' : undefined}

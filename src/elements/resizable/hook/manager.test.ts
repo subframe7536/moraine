@@ -48,7 +48,7 @@ function createTestHandle(input: {
   rect: RectInput
   altKeyMode?: boolean | 'only'
 }): TestHandle {
-  const element = document.createElement('button')
+  const element = input.rootElement.ownerDocument.createElement('button')
   input.rootElement.appendChild(element)
 
   const rectSpy = vi.fn(() => createRect(input.rect))
@@ -108,8 +108,8 @@ function createPointerEvent(type: string, init: MouseEventInit): PointerEvent {
   return new EventCtor(type, init)
 }
 
-function createRootElement(): HTMLDivElement {
-  const element = document.createElement('div')
+function createRootElement(ownerDocument = document): HTMLDivElement {
+  const element = ownerDocument.createElement('div')
   element.setAttribute('data-slot', 'root')
   element.setAttribute('data-resizable-root', '')
   return element
@@ -484,5 +484,95 @@ describe('handle-manager', () => {
     unregisterBase()
     unregisterStart()
     unregisterEnd()
+  })
+
+  test('keeps drag listeners, selection locks, and handles scoped to each owner document', async () => {
+    const { RESIZABLE_HANDLE_TARGET_HANDLE, registerResizableHandle, startResizableHandleDrag } =
+      await import('./manager')
+    const iframe = document.createElement('iframe')
+    const hostRoot = createRootElement()
+    document.body.append(hostRoot, iframe)
+    const iframeDocument = iframe.contentDocument
+    const iframeWindow = iframe.contentWindow
+
+    if (!iframeDocument || !iframeWindow) {
+      throw new TypeError('Expected iframe owner document and window')
+    }
+
+    const iframeRoot = createRootElement(iframeDocument)
+    iframeDocument.body.append(iframeRoot)
+    const hostHandle = createTestHandle({
+      orientation: 'horizontal',
+      rootElement: hostRoot,
+      rect: { top: 0, right: 100, bottom: 1, left: 0 },
+    })
+    const iframeHandle = createTestHandle({
+      orientation: 'horizontal',
+      rootElement: iframeRoot,
+      rect: { top: 0, right: 100, bottom: 1, left: 0 },
+    })
+    const unregisterHost = registerResizableHandle(hostHandle.registration)
+    let unregisterIframe: (() => void) | undefined = registerResizableHandle(
+      iframeHandle.registration,
+    )
+    const iframeGlobal = iframeWindow as Window & typeof globalThis
+    const FramePointerEvent = iframeGlobal.PointerEvent ?? iframeGlobal.MouseEvent
+    const createIframePointerEvent = (type: string, init: MouseEventInit) =>
+      new FramePointerEvent(type, init)
+
+    try {
+      document.body.style.userSelect = 'text'
+      iframeDocument.body.style.userSelect = 'all'
+
+      startResizableHandleDrag(
+        iframeHandle.registration,
+        createIframePointerEvent('pointerdown', { clientX: 0, clientY: 0 }),
+        RESIZABLE_HANDLE_TARGET_HANDLE,
+      )
+
+      expect(iframeDocument.body.style.userSelect).toBe('none')
+      expect(document.body.style.userSelect).toBe('text')
+      expect(iframeHandle.draggingEvents).toEqual([true])
+
+      iframeWindow.dispatchEvent(
+        createIframePointerEvent('pointermove', { clientX: 30, clientY: 0 }),
+      )
+      window.dispatchEvent(createPointerEvent('pointermove', { clientX: 30, clientY: 0 }))
+
+      expect(iframeHandle.dragCalls).toEqual([{ deltaPx: 30, altKey: false }])
+      expect(hostHandle.dragCalls).toEqual([])
+
+      startResizableHandleDrag(
+        hostHandle.registration,
+        createPointerEvent('pointerdown', { clientX: 0, clientY: 0 }),
+        RESIZABLE_HANDLE_TARGET_HANDLE,
+      )
+
+      expect(document.body.style.userSelect).toBe('none')
+      expect(iframeHandle.draggingEvents).toEqual([true])
+      expect(hostHandle.draggingEvents).toEqual([true])
+
+      window.dispatchEvent(createPointerEvent('pointermove', { clientX: 20, clientY: 0 }))
+      unregisterIframe()
+      unregisterIframe = undefined
+      iframeWindow.dispatchEvent(
+        createIframePointerEvent('pointermove', { clientX: 60, clientY: 0 }),
+      )
+
+      expect(hostHandle.dragCalls).toEqual([{ deltaPx: 20, altKey: false }])
+      expect(iframeHandle.draggingEvents).toEqual([true, false])
+      expect(iframeHandle.dragCalls).toEqual([{ deltaPx: 30, altKey: false }])
+      expect(iframeDocument.body.style.userSelect).toBe('all')
+      expect(document.body.style.userSelect).toBe('none')
+
+      window.dispatchEvent(createPointerEvent('contextmenu', { clientX: 20, clientY: 0 }))
+
+      expect(hostHandle.draggingEvents).toEqual([true, false])
+      expect(document.body.style.userSelect).toBe('text')
+    } finally {
+      unregisterHost()
+      unregisterIframe?.()
+      iframe.remove()
+    }
   })
 })

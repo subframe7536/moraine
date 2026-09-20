@@ -19,6 +19,19 @@ if (!(globalThis as Record<string, unknown>).ResizeObserver) {
 }
 
 describe('Tabs', () => {
+  function expectControlsResolve(container: HTMLElement): void {
+    for (const trigger of container.querySelectorAll<HTMLElement>('[role="tab"]')) {
+      const controls = trigger.getAttribute('aria-controls')
+
+      if (controls) {
+        const matches = Array.from(container.querySelectorAll<HTMLElement>('[id]')).filter(
+          (element) => element.id === controls,
+        )
+        expect(matches).toHaveLength(1)
+      }
+    }
+  }
+
   test('defers unselected panel JSX and reads it once when selected', () => {
     let reads = 0
     const [value, setValue] = createSignal('first')
@@ -117,15 +130,64 @@ describe('Tabs', () => {
     const second = screen.getByRole('tab', { name: 'Second duplicate' })
 
     expect(first.id).not.toBe(second.id)
-    expect(first.getAttribute('aria-controls')).not.toBe(second.getAttribute('aria-controls'))
     expect(screen.container.querySelectorAll('[role="tab"][aria-selected="true"]')).toHaveLength(1)
     expect(screen.getAllByRole('tabpanel')).toHaveLength(1)
-    expect(screen.getByRole('tabpanel').textContent).toBe('First panel')
+    const panel = screen.getByRole('tabpanel')
+    expect(panel.textContent).toBe('First panel')
+    expect(first.getAttribute('aria-controls')).toBe(panel.id)
+    expect(second.getAttribute('aria-controls')).toBeNull()
+    expectControlsResolve(screen.container)
 
     fireEvent.click(second)
     expect(first.getAttribute('aria-selected')).toBe('true')
     expect(second.getAttribute('aria-selected')).toBe('false')
     expect(onChange).not.toHaveBeenCalled()
+  })
+
+  test('only links controls to mounted panels as selection changes', () => {
+    const [value, setValue] = createSignal('one')
+    const screen = render(() => (
+      <Tabs
+        value={value()}
+        items={[
+          { label: 'One', value: 'one', content: 'Panel one' },
+          { label: 'Two', value: 'two', content: 'Panel two' },
+        ]}
+      />
+    ))
+    const one = screen.getByRole('tab', { name: 'One' })
+    const two = screen.getByRole('tab', { name: 'Two' })
+
+    expect(one.getAttribute('aria-controls')).toBe(screen.getByRole('tabpanel').id)
+    expect(two.getAttribute('aria-controls')).toBeNull()
+    expectControlsResolve(screen.container)
+
+    setValue('two')
+
+    expect(one.getAttribute('aria-controls')).toBeNull()
+    expect(two.getAttribute('aria-controls')).toBe(screen.getByRole('tabpanel').id)
+    expectControlsResolve(screen.container)
+  })
+
+  test('links selected tabs with empty content while leaving inactive tabs unlinked', () => {
+    const screen = render(() => (
+      <Tabs
+        defaultValue="empty"
+        items={[
+          { label: 'Content', value: 'content', content: 'Content panel' },
+          { label: 'Empty', value: 'empty' },
+        ]}
+      />
+    ))
+    const content = screen.getByRole('tab', { name: 'Content' })
+    const empty = screen.getByRole('tab', { name: 'Empty' })
+    const panel = screen.getByRole('tabpanel')
+
+    expect(panel.textContent).toBe('')
+    expect(content.getAttribute('aria-controls')).toBeNull()
+    expect(empty.getAttribute('aria-controls')).toBe(panel.id)
+    expect(panel.getAttribute('aria-labelledby')).toBe(empty.id)
+    expectControlsResolve(screen.container)
   })
 
   test('changes selection with horizontal arrow keys and wraps by default', async () => {

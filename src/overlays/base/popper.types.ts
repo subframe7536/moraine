@@ -14,7 +14,7 @@ export interface PopperInteractOutsideEvent {
 
 export interface PopperPointerDownOutsideEvent {
   defaultPrevented: boolean
-  originalEvent: PointerEvent
+  originalEvent: MouseEvent | PointerEvent
   preventDefault: () => void
 }
 
@@ -141,8 +141,8 @@ export interface PopperContentOptions {
   onInteractOutside?: (event: PopperInteractOutsideEvent) => void
 
   /**
-   * Called when a pointer press starts outside the content and trigger.
-   * Calling preventDefault blocks Popper's default dismissal without cancelling the native pointer event.
+   * Called when an outside pointer press or press-less click activates outside the content and trigger.
+   * Calling preventDefault blocks Popper's default dismissal without cancelling the native event.
    */
   onPointerDownOutside?: (event: PopperPointerDownOutsideEvent) => void
 

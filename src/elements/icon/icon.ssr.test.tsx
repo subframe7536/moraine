@@ -5,7 +5,7 @@ import { hydrateFixture } from '../../test-utils/ssr-test.ts'
 
 import { IconHydrationFixture } from './icon.ssr.fixture.tsx'
 
-test('hydrates class, conditional JSX, and component icons with reactive props', () => {
+test('hydrates class, caller-controlled JSX, and component icons with reactive props', () => {
   const [label, setLabel] = createSignal('Status')
   const [visible, setVisible] = createSignal(true)
   const { container } = hydrateFixture(
@@ -15,7 +15,9 @@ test('hydrates class, conditional JSX, and component icons with reactive props',
   )
   const glyph = container.querySelector('[data-testid="component-icon"]')!
   expect(container.querySelector('.i-lucide-check')?.getAttribute('aria-hidden')).toBe('true')
-  expect(container.querySelector('[data-testid="jsx-icon"] path')).not.toBeNull()
+  const jsxIcon = container.querySelector('[data-testid="jsx-icon"]')!
+  expect(jsxIcon.parentElement?.getAttribute('aria-hidden')).toBe('true')
+  expect(jsxIcon.querySelector('path')).not.toBeNull()
   setLabel('Updated status')
   expect(container.querySelector('[data-testid="component-icon"]')).toBe(glyph)
   expect(glyph.getAttribute('aria-label')).toBe('Updated status')

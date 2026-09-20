@@ -1,5 +1,5 @@
 import type { Accessor, JSX } from 'solid-js'
-import { createEffect, createMemo, on, onCleanup, onMount } from 'solid-js'
+import { createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
 
@@ -57,6 +57,7 @@ export interface UseFormFieldProps {
 
 export interface UseFormFieldOptions {
   bind?: boolean
+  focus?: boolean
   defaultId: string
   defaultAriaAttrs?: Record<string, string | boolean | undefined>
   initialValue?: unknown
@@ -74,6 +75,7 @@ export interface UseFormFieldReturn {
   invalid: Accessor<boolean>
   ariaAttrs: Accessor<JSX.AriaAttributes>
   runtimeState: Accessor<FieldRuntimeState>
+  setControlRef: (element: HTMLElement | undefined) => void
   setFormValue: (value: unknown) => void
   emit: (type: FieldBindingEvent, event?: Event) => void
 }
@@ -99,7 +101,9 @@ export function useFormField(
   const options = createMemo(() => opts())
   const fieldProps = createMemo(() => props?.() ?? {})
   const bind = createMemo(() => options().bind ?? true)
+  const focus = createMemo(() => options().focus ?? bind())
   const localId = createMemo(() => fieldProps().id ?? options().defaultId)
+  const [controlElement, setControlElement] = createSignal<HTMLElement>()
 
   if (fieldContext?.registerControl) {
     const unregister = fieldContext.registerControl({ id: localId, bind })
@@ -132,15 +136,15 @@ export function useFormField(
   })
 
   createEffect(
-    on([path, bind, id, () => fieldContext?.binding?.controlRef], ([, bound, controlId, ref]) => {
-      if (!bound || !ref) {
-        return
-      }
-      const element = document.getElementById(controlId)
-      if (element) {
+    on(
+      [path, focus, controlElement, () => fieldContext?.binding?.controlRef],
+      ([, shouldRegister, element, ref]) => {
+        if (!shouldRegister || !element || !ref) {
+          return
+        }
         ref(element)
-      }
-    }),
+      },
+    ),
   )
 
   onMount(() => {
@@ -201,6 +205,7 @@ export function useFormField(
     invalid,
     ariaAttrs,
     runtimeState,
+    setControlRef: setControlElement,
     setFormValue,
     emit,
   }

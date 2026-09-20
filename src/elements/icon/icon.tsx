@@ -12,12 +12,28 @@ import type { IconProps } from './icon.types'
 /** Renders an icon from a UnoCSS icon class, JSX element, or render function. */
 export function Icon(props: IconProps): JSX.Element {
   const cn = useCn()
-  const [local, rest] = splitProps(props, ['name', 'class', 'style', 'size', 'slotName'])
+  const [local, rest] = splitProps(props, [
+    'name',
+    'class',
+    'style',
+    'size',
+    'slotName',
+    'aria-hidden',
+    'role',
+  ])
   const resolved = createStyles(iconRecipe, local)
 
   const name = createMemo(() => local.name)
+  const accessibilityProps = createMemo(() => {
+    const labelled = Boolean(rest['aria-label'] || rest['aria-labelledby'])
 
-  const componentProps = createMemo<{ component: ValidComponent }>(() => {
+    return {
+      'aria-hidden': local['aria-hidden'] ?? (labelled ? undefined : true),
+      role: local.role ?? (labelled ? 'img' : undefined),
+    }
+  })
+
+  const componentProps = createMemo<{ children?: JSX.Element; component: ValidComponent }>(() => {
     const value = name()
 
     if (typeof value === 'string') {
@@ -26,22 +42,23 @@ export function Icon(props: IconProps): JSX.Element {
 
     if (typeof value === 'function') {
       return {
-        // Dynamic invokes components untracked; JSX accessors must stay reactive.
+        // Dynamic invokes components untracked; render zero-argument functions through JSX.
         component:
           value.length > 0 ? value : (props: Omit<IconProps, 'name'>) => <>{value(props)}</>,
       }
     }
 
     return {
-      component: () => value,
+      children: value,
+      component: 'div',
     }
   })
 
   return (
     <Dynamic
       data-slot={local.slotName ?? 'icon'}
-      aria-hidden={rest['aria-label'] ? undefined : true}
       {...rest}
+      {...accessibilityProps()}
       {...componentProps()}
       style={{
         'font-size': typeof local.size === 'number' ? `${local.size}px` : local.size,

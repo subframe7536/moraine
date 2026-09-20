@@ -36,6 +36,8 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     'onInput',
     'onBlur',
     'onFocus',
+    'onCompositionStart',
+    'onCompositionEnd',
     'variant',
     'classes',
     'styles',
@@ -154,6 +156,16 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     callHandler(event, merged.onFocus)
   }
 
+  const onCompositionStart: JSX.EventHandler<HTMLInputElement, CompositionEvent> = (event) => {
+    textControl.onCompositionStart()
+    callHandler(event, merged.onCompositionStart)
+  }
+
+  const onCompositionEnd: JSX.EventHandler<HTMLInputElement, CompositionEvent> = (event) => {
+    textControl.onCompositionEnd()
+    callHandler(event, merged.onCompositionEnd)
+  }
+
   let autofocusTimer: ReturnType<typeof setTimeout> | undefined
 
   onCleanup(() => {
@@ -197,6 +209,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       {...textControl.valueProps()}
       ref={(element) => {
         inputEl = element
+        field.setControlRef(element)
         callRef(local.ref, element)
       }}
       {...resolved.styles.root}
@@ -204,6 +217,8 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       onChange={onChange}
       onBlur={onBlur}
       onFocus={onFocus}
+      onCompositionStart={onCompositionStart}
+      onCompositionEnd={onCompositionEnd}
     />
   )
 }

@@ -88,6 +88,7 @@ export const MULTI_SELECT_LOCAL_PROP_KEYS = [
   ...COMBOBOX_LOCAL_PROP_KEYS,
   'search',
   'tagRender',
+  'tagOverflow',
   'createItem',
   'maxCount',
   'maxTagCount',

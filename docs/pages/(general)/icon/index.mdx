@@ -46,6 +46,14 @@ root (dynamic icon element)
 
 For string icon names, `Icon` renders a `<div>` by default and applies the string as a class. JSX nodes and components are rendered through Solid's dynamic component mechanism. The root receives `data-slot="icon"` unless `slotName` overrides it.
 
+Solid control-flow nodes such as `<Show>`, `<For>`, and `<Switch>` are not supported as the top-level `name` value. Keep control flow outside `Icon` so it owns whether the component is rendered:
+
+```tsx
+<Show when={visible()}>
+  <Icon name={<StatusGlyph />} />
+</Show>
+```
+
 ## Usage
 
 ### Icon sources

@@ -1,5 +1,14 @@
 import type { JSX } from 'solid-js'
-import { createEffect, createMemo, mergeProps, on, onCleanup, onMount, splitProps } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  mergeProps,
+  on,
+  onCleanup,
+  onMount,
+  splitProps,
+  untrack,
+} from 'solid-js'
 
 import { createStyles } from '../../provider/index.ts'
 import type { ModelModifiers } from '../../shared/input-modifiers.ts'
@@ -56,6 +65,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     'onInput',
     'onBlur',
     'onFocus',
+    'onCompositionStart',
+    'onCompositionEnd',
     'classes',
     'styles',
     'class',
@@ -156,7 +167,15 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
 
     textareaEl.style.overflow = 'hidden'
 
-    const styles = window.getComputedStyle(textareaEl)
+    const ownerWindow = textareaEl.ownerDocument.defaultView
+    const styles = ownerWindow
+      ? ownerWindow.getComputedStyle(textareaEl)
+      : typeof getComputedStyle === 'function'
+        ? getComputedStyle(textareaEl)
+        : undefined
+    if (!styles) {
+      return
+    }
     const padding = getVerticalPadding(styles)
     const lineHeight = getLineHeight(styles)
 
@@ -166,17 +185,26 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     textareaEl.style.overflow = maxRows > 0 && nextRows > maxRows ? 'auto' : 'hidden'
   }
 
-  let autoResizeTimer: ReturnType<typeof setTimeout> | undefined
+  let cancelAutoResizeTimer: (() => void) | undefined
 
   function scheduleAutoResize(delay = 0): void {
-    if (autoResizeTimer !== undefined) {
-      clearTimeout(autoResizeTimer)
+    cancelAutoResizeTimer?.()
+
+    const ownerWindow = textareaEl?.ownerDocument.defaultView
+    if (ownerWindow) {
+      const timer = ownerWindow.setTimeout(() => {
+        cancelAutoResizeTimer = undefined
+        untrack(autoResize)
+      }, delay)
+      cancelAutoResizeTimer = () => ownerWindow.clearTimeout(timer)
+      return
     }
 
-    autoResizeTimer = setTimeout(() => {
-      autoResizeTimer = undefined
-      autoResize()
+    const timer = setTimeout(() => {
+      cancelAutoResizeTimer = undefined
+      untrack(autoResize)
     }, delay)
+    cancelAutoResizeTimer = () => clearTimeout(timer)
   }
 
   const onInput: JSX.EventHandler<HTMLTextAreaElement, InputEvent> = (event) => {
@@ -216,6 +244,16 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     callHandler(event, merged.onFocus)
   }
 
+  const onCompositionStart: JSX.EventHandler<HTMLTextAreaElement, CompositionEvent> = (event) => {
+    textControl.onCompositionStart()
+    callHandler(event, merged.onCompositionStart)
+  }
+
+  const onCompositionEnd: JSX.EventHandler<HTMLTextAreaElement, CompositionEvent> = (event) => {
+    textControl.onCompositionEnd()
+    callHandler(event, merged.onCompositionEnd)
+  }
+
   createEffect(
     on(
       [
@@ -236,9 +274,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     if (autofocusTimer !== undefined) {
       clearTimeout(autofocusTimer)
     }
-    if (autoResizeTimer !== undefined) {
-      clearTimeout(autoResizeTimer)
-    }
+    cancelAutoResizeTimer?.()
+    cancelAutoResizeTimer = undefined
   })
 
   useFormReset(
@@ -285,6 +322,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       {...textControl.valueProps()}
       ref={(element) => {
         textareaEl = element
+        field.setControlRef(element)
         callRef(local.ref, element)
       }}
       {...resolved.styles.root}
@@ -292,6 +330,8 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       onChange={onChange}
       onBlur={onBlur}
       onFocus={onFocus}
+      onCompositionStart={onCompositionStart}
+      onCompositionEnd={onCompositionEnd}
     />
   )
 }

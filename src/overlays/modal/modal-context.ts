@@ -16,6 +16,7 @@ export interface ModalContext {
   registerContent: (trapFocus: Accessor<boolean>) => () => void
   contentPresent: Accessor<boolean>
   isPresent: Accessor<boolean>
+  isModal: Accessor<boolean>
 }
 
 export const [ModalProvider, useModalContext] = createContextProvider<ModalContext>('Modal')

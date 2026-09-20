@@ -6,6 +6,7 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider/index.ts'
 import { renderWithOwner } from '../../test-utils/owner-render.tsx'
+import { Field } from '../field/field.tsx'
 import { createForm } from '../form/index.ts'
 
 import { Combobox } from './combobox.tsx'
@@ -45,6 +46,14 @@ describe('Combobox', () => {
     expect(screen.container.querySelectorAll('input[data-slot="input"]')).toHaveLength(1)
   })
 
+  test('announces list autocomplete for an editable input', () => {
+    const screen = render(() => <Combobox items={ITEMS} />)
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    expect(input.readOnly).toBe(false)
+    expect(input.getAttribute('aria-readonly')).toBeNull()
+    expect(input.getAttribute('aria-autocomplete')).toBe('list')
+  })
+
   test('control clicks do not open by default', () => {
     const screen = render(() => <Combobox items={ITEMS} />)
     const control = screen.container.querySelector<HTMLElement>('[data-slot="control"]')!
@@ -80,11 +89,31 @@ describe('Combobox', () => {
     expect(input.getAttribute('aria-expanded')).toBe('false')
   })
 
-  test('keeps a read-only field browsable through its secondary trigger', () => {
+  test('keeps a read-only field browsable without promising autocomplete', () => {
     const screen = render(() => <Combobox items={ITEMS} readOnly />)
-    const input = screen.getByRole('combobox')
-    fireEvent.click(screen.getByRole('button', { name: 'Toggle options' }))
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    const trigger = screen.getByRole('button', { name: 'Toggle options' })
+    expect(input.readOnly).toBe(true)
+    expect(input.getAttribute('aria-readonly')).toBe('true')
+    expect(input.getAttribute('aria-autocomplete')).toBe('none')
+    expect(trigger.getAttribute('aria-controls')).toBe(input.getAttribute('aria-controls'))
+    fireEvent.click(trigger)
     expect(input.getAttribute('aria-expanded')).toBe('true')
+    const listbox = within(document.body).getByRole('listbox', { hidden: true })
+    expect(listbox.id).toBe(input.getAttribute('aria-controls'))
+    expect(listbox.getAttribute('aria-readonly')).toBe('true')
+  })
+
+  test('inherits read-only autocomplete semantics from Field', () => {
+    const screen = render(() => (
+      <Field readOnly>
+        <Combobox items={ITEMS} />
+      </Field>
+    ))
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    expect(input.readOnly).toBe(true)
+    expect(input.getAttribute('aria-readonly')).toBe('true')
+    expect(input.getAttribute('aria-autocomplete')).toBe('none')
   })
 
   test('clear and trigger coexist and clear does not open', () => {

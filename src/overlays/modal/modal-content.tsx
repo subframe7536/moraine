@@ -67,6 +67,19 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
   // oxlint-disable-next-line subf/solid-reactivity -- The accessor is stored and read from overlay event handlers so each interaction observes the current prop.
   const unregisterContent = context.registerContent(() => local.trapFocus !== false)
   onCleanup(unregisterContent)
+  const nativeAriaLabel = () => rest['aria-label']
+  const nativeAriaLabelledBy = () => rest['aria-labelledby']
+  const nativeAriaDescribedBy = () => rest['aria-describedby']
+  const ariaLabel = (surface?: SurfaceContent) =>
+    nativeAriaLabel() ?? surface?.ariaLabel ?? local.ariaLabel
+  const ariaLabelledBy = (surface?: SurfaceContent) => {
+    const explicitLabel = ariaLabel(surface)
+    const explicitLabelledBy = nativeAriaLabelledBy() ?? local.ariaLabelledBy
+
+    return explicitLabelledBy ?? (explicitLabel === undefined ? surface?.ariaLabelledBy : undefined)
+  }
+  const ariaDescribedBy = (surface?: SurfaceContent) =>
+    nativeAriaDescribedBy() ?? surface?.ariaDescribedBy ?? local.ariaDescribedBy
 
   const onContentKeyDown = (event: KeyboardEvent): void => {
     callHandler(event, local.onKeyDown)
@@ -123,10 +136,10 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
         }}
         id={context.contentId()}
         role="dialog"
-        aria-modal="true"
-        aria-label={surface?.ariaLabel ?? local.ariaLabel}
-        aria-labelledby={surface?.ariaLabelledBy ?? local.ariaLabelledBy}
-        aria-describedby={surface?.ariaDescribedBy ?? local.ariaDescribedBy}
+        aria-modal={context.isModal() ? 'true' : undefined}
+        aria-label={ariaLabel(surface)}
+        aria-labelledby={ariaLabelledBy(surface)}
+        aria-describedby={ariaDescribedBy(surface)}
         tabIndex={-1}
         data-slot="content"
         class={cn(local.classes?.content, local.class)}
@@ -147,7 +160,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
           <Show
             when={isInsideOverlay}
             fallback={
-              <Portal>
+              <Portal mount={context.triggerElement()?.ownerDocument.body}>
                 <Show when={overlayScroll()}>
                   {(_value) => renderOverlay(renderContent(surface))}
                 </Show>

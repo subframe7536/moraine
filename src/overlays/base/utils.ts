@@ -1,27 +1,37 @@
 import type { Placement } from '@floating-ui/dom'
 
+import {
+  containsComposed,
+  getActiveElement,
+  getComposedElementAncestors,
+  getComposedElementDescendants,
+  isHTMLElement,
+  isNode,
+} from './dom'
 import type { OverlayMenuSide } from './menu'
 import { containsOverlayContentAbove } from './overlay-stack'
 
 const FOCUSABLE_SELECTOR_PARTS = [
   'a[href]',
   'area[href]',
-  'button:not([disabled])',
-  'input:not([disabled]):not([type="hidden"])',
-  'select:not([disabled])',
-  'textarea:not([disabled])',
+  'button',
+  'input:not([type="hidden"])',
+  'select',
+  'textarea',
   'iframe',
   'object',
   'embed',
   'audio[controls]',
   'video[controls]',
-  '[contenteditable]',
-  '[tabindex]:not([tabindex="-1"])',
+  'summary',
+  '[contenteditable]:not([contenteditable="false"])',
+  '[tabindex]',
 ] as const
 
 export const FOCUSABLE_SELECTOR = FOCUSABLE_SELECTOR_PARTS.join(',')
 
 export interface CompositionState {
+  dispose: () => void
   isComposing: () => boolean
   onCompositionStart: () => void
   onCompositionEnd: () => void
@@ -29,14 +39,33 @@ export interface CompositionState {
 
 export function createCompositionState(): CompositionState {
   let composing = false
+  let endCompositionTimeout: ReturnType<typeof setTimeout> | undefined
+
+  const clearEndCompositionTimeout = (): void => {
+    if (endCompositionTimeout !== undefined) {
+      clearTimeout(endCompositionTimeout)
+      endCompositionTimeout = undefined
+    }
+  }
 
   return {
+    dispose: () => {
+      clearEndCompositionTimeout()
+      composing = false
+    },
     isComposing: () => composing,
     onCompositionStart: () => {
+      clearEndCompositionTimeout()
       composing = true
     },
     onCompositionEnd: () => {
-      composing = false
+      clearEndCompositionTimeout()
+      // Safari can dispatch the Escape that cancels IME conversion immediately
+      // after compositionend. Keep this bounded guard through that key event.
+      endCompositionTimeout = setTimeout(() => {
+        composing = false
+        endCompositionTimeout = undefined
+      }, 100)
     },
   }
 }
@@ -103,7 +132,7 @@ export function createOutsidePressHandlers(options: OutsidePressOptions): Outsid
         event.defaultPrevented ||
         event.button !== 0 ||
         event.ctrlKey ||
-        !(target instanceof Node) ||
+        !isNode(target) ||
         options.isInside(target) ||
         !options.isEnabled()
       ) {
@@ -201,13 +230,19 @@ interface AriaHideLayer {
 }
 
 const ariaHiddenStates = new WeakMap<Element, AriaHiddenState>()
-const ariaHideLayers: AriaHideLayer[] = []
+const ariaHideLayers = new WeakMap<Document, AriaHideLayer[]>()
 
 /** Hides every body branch outside the target from assistive technology. */
 export function acquireAriaHideOutside(
   target: Element,
-  root: HTMLElement = document.body,
+  root: HTMLElement = target.ownerDocument.body,
 ): () => void {
+  const ownerDocument = root.ownerDocument
+  let layers = ariaHideLayers.get(ownerDocument)
+  if (!layers) {
+    layers = []
+    ariaHideLayers.set(ownerDocument, layers)
+  }
   const hiddenElements = new Set<Element>()
 
   const hide = (element: Element): void => {
@@ -254,13 +289,15 @@ export function acquireAriaHideOutside(
     hide(element)
   }
 
-  ariaHideLayers[ariaHideLayers.length - 1]?.observer.disconnect()
+  layers[layers.length - 1]?.observer.disconnect()
 
   for (const child of root.children) {
     walk(child)
   }
 
-  const observer = new MutationObserver((records) => {
+  const MutationObserverConstructor =
+    ownerDocument.defaultView?.MutationObserver ?? MutationObserver
+  const observer = new MutationObserverConstructor((records) => {
     for (const record of records) {
       if (record.type !== 'childList') {
         continue
@@ -282,7 +319,7 @@ export function acquireAriaHideOutside(
     }
   })
   const layer: AriaHideLayer = { hiddenElements, observer, root, target, walk }
-  ariaHideLayers.push(layer)
+  layers.push(layer)
   observer.observe(root, { childList: true, subtree: true })
 
   let released = false
@@ -314,14 +351,14 @@ export function acquireAriaHideOutside(
       ariaHiddenStates.delete(element)
     }
 
-    const index = ariaHideLayers.indexOf(layer)
-    const wasTopLayer = index === ariaHideLayers.length - 1
+    const index = layers.indexOf(layer)
+    const wasTopLayer = index === layers.length - 1
     if (index !== -1) {
-      ariaHideLayers.splice(index, 1)
+      layers.splice(index, 1)
     }
 
     if (wasTopLayer) {
-      const previousLayer = ariaHideLayers[ariaHideLayers.length - 1]
+      const previousLayer = layers[layers.length - 1]
       if (previousLayer) {
         for (const child of previousLayer.root.children) {
           previousLayer.walk(child)
@@ -334,20 +371,23 @@ export function acquireAriaHideOutside(
 
 /** Locks the body and, when supplied, the reference element's scrollable ancestors. */
 export function acquireBodyScrollLock(referenceElement?: HTMLElement): () => void {
-  if (typeof document === 'undefined') {
+  const ownerDocument = referenceElement?.ownerDocument
+  if (!ownerDocument) {
     return () => undefined
   }
 
-  const elements = [document.body]
+  const elements = [ownerDocument.body]
   for (
-    let element = referenceElement?.parentElement;
-    element && element !== document.body;
+    let element = referenceElement.parentElement;
+    element && element !== ownerDocument.body;
     element = element.parentElement
   ) {
-    const style = getComputedStyle(element)
+    const style = ownerDocument.defaultView?.getComputedStyle(element)
     if (
       scrollLocks.has(element) ||
-      /(auto|scroll|overlay)/.test(`${style.overflow} ${style.overflowX} ${style.overflowY}`)
+      /(auto|scroll|overlay)/.test(
+        `${style?.overflow ?? ''} ${style?.overflowX ?? ''} ${style?.overflowY ?? ''}`,
+      )
     ) {
       elements.push(element)
     }
@@ -360,7 +400,7 @@ export function acquireBodyScrollLock(referenceElement?: HTMLElement): () => voi
       continue
     }
     const properties = ['overflow', 'overflow-x', 'overflow-y']
-    if (element === document.body) {
+    if (element === ownerDocument.body) {
       properties.push('padding-right')
     }
     scrollLocks.set(element, {
@@ -371,12 +411,12 @@ export function acquireBodyScrollLock(referenceElement?: HTMLElement): () => voi
         priority: element.style.getPropertyPriority(property),
       })),
     })
-    if (element === document.body) {
-      const view = document.defaultView
+    if (element === ownerDocument.body) {
+      const view = ownerDocument.defaultView
       const scrollbarWidth = Math.max(
         0,
-        (view?.innerWidth ?? document.documentElement.clientWidth) -
-          document.documentElement.clientWidth,
+        (view?.innerWidth ?? ownerDocument.documentElement.clientWidth) -
+          ownerDocument.documentElement.clientWidth,
       )
       if (scrollbarWidth > 0) {
         const currentPadding = Number.parseFloat(
@@ -416,40 +456,72 @@ export function acquireBodyScrollLock(referenceElement?: HTMLElement): () => voi
 }
 
 export function getFocusableElements(container: HTMLElement): HTMLElement[] {
-  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
-    (element) => {
-      if (element.tabIndex < 0) {
-        return false
-      }
-
-      if (element.hasAttribute('disabled') || element.getAttribute('aria-hidden') === 'true') {
-        return false
-      }
-
-      if (element.closest('[aria-hidden="true"], [hidden], [inert]')) {
-        return false
-      }
-
-      let ancestor: HTMLElement | null = element
-      while (ancestor) {
-        if ((ancestor as HTMLElement & { inert?: boolean }).inert === true) {
-          return false
-        }
-
-        const style = ancestor.ownerDocument.defaultView?.getComputedStyle(ancestor)
-        if (
-          style?.display === 'none' ||
-          style?.visibility === 'hidden' ||
-          style?.visibility === 'collapse'
-        ) {
-          return false
-        }
-        ancestor = ancestor.parentElement
-      }
-
-      return true
-    },
+  const candidates = getComposedElementDescendants(container).filter(
+    (element): element is HTMLElement =>
+      isHTMLElement(element) &&
+      element.matches(FOCUSABLE_SELECTOR) &&
+      isSequentiallyFocusable(element),
   )
+  const radioGroups = new Map<string, Map<HTMLFormElement | null, HTMLInputElement[]>>()
+
+  for (const candidate of candidates) {
+    if (isRadioInput(candidate) && candidate.name) {
+      const forms =
+        radioGroups.get(candidate.name) ?? new Map<HTMLFormElement | null, HTMLInputElement[]>()
+      const group = forms.get(candidate.form) ?? []
+      group.push(candidate)
+      forms.set(candidate.form, group)
+      radioGroups.set(candidate.name, forms)
+    }
+  }
+
+  return candidates.filter((candidate) => {
+    if (!isRadioInput(candidate) || !candidate.name) {
+      return true
+    }
+
+    const group = radioGroups.get(candidate.name)?.get(candidate.form) ?? []
+    return (group.find((radio) => radio.checked) ?? group[0]) === candidate
+  })
+}
+
+function isRadioInput(element: HTMLElement): element is HTMLInputElement {
+  return element.localName === 'input' && (element as HTMLInputElement).type === 'radio'
+}
+
+function isSequentiallyFocusable(element: HTMLElement): boolean {
+  if (element.tabIndex < 0 || element.matches(':disabled')) {
+    return false
+  }
+
+  for (const ancestor of getComposedElementAncestors(element)) {
+    if (
+      ancestor.getAttribute('aria-hidden') === 'true' ||
+      ancestor.hasAttribute('hidden') ||
+      ancestor.hasAttribute('inert') ||
+      (ancestor as HTMLElement & { inert?: boolean }).inert === true
+    ) {
+      return false
+    }
+
+    const style = ancestor.ownerDocument.defaultView?.getComputedStyle(ancestor)
+    if (
+      style?.display === 'none' ||
+      style?.visibility === 'hidden' ||
+      style?.visibility === 'collapse'
+    ) {
+      return false
+    }
+
+    if (ancestor.localName === 'details' && !ancestor.hasAttribute('open')) {
+      const summary = Array.from(ancestor.children).find((child) => child.localName === 'summary')
+      if (summary === undefined || (element !== summary && !summary.contains(element))) {
+        return false
+      }
+    }
+  }
+
+  return true
 }
 
 export function focusWithoutScrolling(element: HTMLElement | undefined): void {
@@ -469,8 +541,15 @@ export function focusContent(container: HTMLElement | undefined): void {
     return
   }
 
-  const [firstFocusable] = getFocusableElements(container)
-  focusWithoutScrolling(firstFocusable ?? container)
+  const focusableElements = getFocusableElements(container)
+  for (const focusable of focusableElements) {
+    focusWithoutScrolling(focusable)
+    if (getActiveElement(container.ownerDocument) === focusable) {
+      return
+    }
+  }
+
+  focusWithoutScrolling(container)
 }
 
 export function focusTrigger(triggerElement: HTMLElement | undefined): boolean {
@@ -492,22 +571,21 @@ export function focusTrigger(triggerElement: HTMLElement | undefined): boolean {
   }
 
   focusWithoutScrolling(target)
-  return document.activeElement === target
+  return getActiveElement(target.ownerDocument) === target
 }
 
 export function resolveDirection(element?: Element): 'ltr' | 'rtl' {
-  if (typeof document === 'undefined') {
-    return 'ltr'
-  }
-
-  if (element && typeof getComputedStyle === 'function') {
-    const direction = getComputedStyle(element).direction
+  const ownerDocument = element?.ownerDocument
+  if (element) {
+    const direction = ownerDocument?.defaultView?.getComputedStyle(element).direction
     if (direction === 'ltr' || direction === 'rtl') {
       return direction
     }
   }
 
-  return (document.dir || document.documentElement.dir || 'ltr') === 'rtl' ? 'rtl' : 'ltr'
+  return (ownerDocument?.dir || ownerDocument?.documentElement.dir || 'ltr') === 'rtl'
+    ? 'rtl'
+    : 'ltr'
 }
 
 export interface TransformOriginOptions {
@@ -605,13 +683,14 @@ export function trapFocusInContainer(
     return
   }
 
-  const activeElement = document.activeElement
+  const activeElement = getActiveElement(container.ownerDocument)
 
   if (event.shiftKey) {
     if (
       activeElement === container ||
       activeElement === firstFocusable ||
-      !container.contains(activeElement)
+      !activeElement ||
+      !containsComposed(container, activeElement)
     ) {
       event.preventDefault()
       lastFocusable.focus()
@@ -623,7 +702,8 @@ export function trapFocusInContainer(
   if (
     activeElement === container ||
     activeElement === lastFocusable ||
-    !container.contains(activeElement)
+    !activeElement ||
+    !containsComposed(container, activeElement)
   ) {
     event.preventDefault()
     firstFocusable.focus()

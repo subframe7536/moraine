@@ -29,6 +29,13 @@ export namespace DialogT {
     ariaLabel?: string
 
     /**
+     * Whether the dialog behaves as a modal surface, including focus containment,
+     * outside-content isolation, and body scroll locking.
+     * @default true
+     */
+    trapFocus?: boolean
+
+    /**
      * Primary title displayed in the dialog header.
      */
     title?: JSX.Element

@@ -16,15 +16,15 @@ export function IconHydrationFixture(props: { label?: string; visible?: boolean 
   return (
     <>
       <Icon name="i-lucide-check" />
-      <Icon
-        name={
-          <Show when={props.visible ?? true}>
+      <Show when={props.visible ?? true}>
+        <Icon
+          name={
             <svg data-testid="jsx-icon">
               <path d="M0 0h1" />
             </svg>
-          </Show>
-        }
-      />
+          }
+        />
+      </Show>
       <Icon name={Glyph} aria-label={props.label ?? 'Status'} />
     </>
   )

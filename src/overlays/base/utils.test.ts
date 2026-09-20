@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 
-import { createOutsidePressHandlers, getTransformOrigin } from './utils'
+import {
+  createCompositionState,
+  createOutsidePressHandlers,
+  getFocusableElements,
+  getTransformOrigin,
+} from './utils'
 
 function pointerEvent(pointerId: number, defaultPrevented = false): PointerEvent {
   return {
@@ -73,6 +78,77 @@ describe('createOutsidePressHandlers', () => {
     handlers.pointerup(pointerEvent(1))
 
     expect(onPress).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('createCompositionState', () => {
+  test('keeps the composition guard through the Safari composition-end Escape ordering', () => {
+    vi.useFakeTimers()
+    const state = createCompositionState()
+
+    state.onCompositionStart()
+    state.onCompositionEnd()
+    expect(state.isComposing()).toBe(true)
+
+    vi.advanceTimersByTime(99)
+    expect(state.isComposing()).toBe(true)
+    vi.advanceTimersByTime(1)
+    expect(state.isComposing()).toBe(false)
+
+    state.onCompositionStart()
+    state.onCompositionEnd()
+    state.dispose()
+    vi.advanceTimersByTime(100)
+    expect(state.isComposing()).toBe(false)
+  })
+})
+
+describe('getFocusableElements', () => {
+  test('uses native disabled, details, and radio-group tab rules', () => {
+    const container = document.createElement('div')
+    container.innerHTML = `
+      <fieldset disabled>
+        <legend><button id="legend">Legend</button></legend>
+        <input id="fieldset-input" />
+      </fieldset>
+      <details>
+        <summary id="summary">Summary <a id="summary-link" href="/help">Help</a></summary>
+        <button id="details-button">Hidden</button>
+      </details>
+      <input id="first-radio" type="radio" name="unchecked" />
+      <input id="second-radio" type="radio" name="unchecked" />
+      <input id="unchecked-radio" type="radio" name="checked" />
+      <input id="checked-radio" type="radio" name="checked" checked />
+    `
+    document.body.append(container)
+
+    expect(getFocusableElements(container).map((element) => element.id)).toEqual([
+      'legend',
+      'summary',
+      'summary-link',
+      'first-radio',
+      'checked-radio',
+    ])
+
+    container.remove()
+  })
+
+  test('traverses open shadow roots and excludes inert slotted ancestors', () => {
+    const container = document.createElement('div')
+    const host = document.createElement('div')
+    const slottedButton = document.createElement('button')
+    const shadowRoot = host.attachShadow({ mode: 'open' })
+    shadowRoot.append(document.createElement('slot'))
+    host.append(slottedButton)
+    container.append(host)
+    document.body.append(container)
+
+    expect(getFocusableElements(container)).toEqual([slottedButton])
+
+    host.setAttribute('inert', '')
+    expect(getFocusableElements(container)).toEqual([])
+
+    container.remove()
   })
 })
 

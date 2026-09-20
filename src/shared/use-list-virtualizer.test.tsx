@@ -297,6 +297,114 @@ describe('useListVirtualizer', () => {
     scrollElement.remove()
   })
 
+  test('uses logical horizontal row placement for LTR and RTL lists', async () => {
+    const ltrScrollElement = document.createElement('div')
+    const rtlScrollElement = document.createElement('div')
+    document.body.append(ltrScrollElement, rtlScrollElement)
+    const entries = [20, 35, 25]
+
+    const ltrScreen = render(() => {
+      const virtualizer = useListVirtualizer<number>({
+        estimateSize: (size) => size,
+        horizontal: true,
+        observeElementOffset: (_instance, callback) => callback(0, false),
+        observeElementRect: (_instance, callback) => callback({ width: 100, height: 20 }),
+        scrollMargin: 4,
+      })
+      const VirtualRender = virtualizer.virtualRender
+
+      return createComponent(VirtualRender, {
+        entries,
+        scrollElement: ltrScrollElement,
+        render: (size, index, props) => (
+          <div {...props} data-row={index}>
+            {size}
+          </div>
+        ),
+      })
+    })
+
+    const rtlScreen = render(() => {
+      const virtualizer = useListVirtualizer<number>({
+        estimateSize: (size) => size,
+        horizontal: true,
+        isRtl: true,
+        observeElementOffset: (_instance, callback) => callback(0, false),
+        observeElementRect: (_instance, callback) => callback({ width: 100, height: 20 }),
+        scrollMargin: 4,
+      })
+      const VirtualRender = virtualizer.virtualRender
+
+      return createComponent(VirtualRender, {
+        entries,
+        scrollElement: rtlScrollElement,
+        render: (size, index, props) => (
+          <div {...props} data-row={index}>
+            {size}
+          </div>
+        ),
+      })
+    })
+
+    await Promise.resolve()
+
+    const ltrFirst = ltrScreen.container.querySelector<HTMLElement>('[data-row="0"]')!
+    const ltrSecond = ltrScreen.container.querySelector<HTMLElement>('[data-row="1"]')!
+    expect(ltrFirst.style.left).toBe('0px')
+    expect(ltrFirst.style.right).toBe('')
+    expect(ltrSecond.style.transform).toBe('translateX(20px)')
+
+    const rtlFirst = rtlScreen.container.querySelector<HTMLElement>('[data-row="0"]')!
+    const rtlSecond = rtlScreen.container.querySelector<HTMLElement>('[data-row="1"]')!
+    expect(rtlFirst.style.left).toBe('')
+    expect(rtlFirst.style.right).toBe('0px')
+    expect(rtlFirst.style.transform).toBe('translateX(0px)')
+    expect(rtlSecond.style.transform).toBe('translateX(-20px)')
+
+    ltrScreen.unmount()
+    rtlScreen.unmount()
+    ltrScrollElement.remove()
+    rtlScrollElement.remove()
+  })
+
+  test('scrolls horizontal RTL indexes with negative physical offsets', async () => {
+    const scrollElement = document.createElement('div')
+    const scrollTo = vi.fn()
+    Object.defineProperties(scrollElement, {
+      clientWidth: { configurable: true, value: 50 },
+      scrollTo: { configurable: true, value: scrollTo },
+      scrollWidth: { configurable: true, value: 110 },
+    })
+    document.body.append(scrollElement)
+    let virtualizer: ReturnType<typeof useListVirtualizer<number>> | undefined
+
+    const screen = render(() => {
+      virtualizer = useListVirtualizer<number>({
+        estimateSize: (size) => size,
+        horizontal: true,
+        isRtl: true,
+        observeElementOffset: (_instance, callback) => callback(0, false),
+        observeElementRect: (_instance, callback) => callback({ width: 50, height: 20 }),
+      })
+      const VirtualRender = virtualizer.virtualRender
+
+      return createComponent(VirtualRender, {
+        entries: [20, 35, 25, 30],
+        scrollElement,
+        render: (size, _index, props) => <div {...props}>{size}</div>,
+      })
+    })
+
+    await Promise.resolve()
+    scrollTo.mockClear()
+
+    virtualizer?.scrollToIndex(2, { align: 'start' })
+    expect(scrollTo).toHaveBeenCalledWith({ behavior: 'auto', left: -55 })
+
+    screen.unmount()
+    scrollElement.remove()
+  })
+
   test('supports zero items when ResizeObserver is unavailable', async () => {
     const scrollElement = document.createElement('div')
     document.body.append(scrollElement)

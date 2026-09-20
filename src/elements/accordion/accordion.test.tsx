@@ -550,6 +550,99 @@ describe('Accordion', () => {
     expect(keepMountedScreen.queryByText('Content one')).not.toBeNull()
   })
 
+  test('keeps retained closed content out of tab order and the accessibility tree', async () => {
+    const screen = render(() => (
+      <Accordion
+        items={[
+          {
+            value: 'one',
+            label: 'One',
+            content: (
+              <>
+                <input aria-label="Panel input" />
+                <a href="#panel-link">Panel link</a>
+              </>
+            ),
+          },
+        ]}
+        unmountOnHide={false}
+      />
+    ))
+    const trigger = screen.getByRole('button', { name: 'One' })
+    const content = screen.container.querySelector('[data-slot="content"]') as HTMLDivElement
+
+    expect(content.hidden).toBe(true)
+    expect(content.getAttribute('aria-hidden')).toBe('true')
+    expect((content as HTMLDivElement & { inert?: boolean }).inert).toBe(true)
+    expect(screen.queryByRole('textbox', { name: 'Panel input' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Panel link' })).toBeNull()
+
+    fireEvent.click(trigger)
+    await Promise.resolve()
+
+    expect(content.hidden).toBe(false)
+    expect(content.hasAttribute('aria-hidden')).toBe(false)
+    expect((content as HTMLDivElement & { inert?: boolean }).inert).toBeFalsy()
+    expect(screen.getByRole('textbox', { name: 'Panel input' })).not.toBeNull()
+    expect(screen.getByRole('link', { name: 'Panel link' })).not.toBeNull()
+
+    fireEvent.click(trigger)
+    await Promise.resolve()
+
+    expect(content.getAttribute('aria-hidden')).toBe('true')
+    expect((content as HTMLDivElement & { inert?: boolean }).inert).toBe(true)
+    expect(screen.queryByRole('textbox', { name: 'Panel input' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Panel link' })).toBeNull()
+
+    fireEvent.animationEnd(content, { animationName: 'accordion-up' })
+
+    expect(content.hidden).toBe(true)
+  })
+
+  test('restores focus to the trigger when a controlled update closes its panel', async () => {
+    let setValue: ((value: string[]) => void) | undefined
+    const iframe = document.createElement('iframe')
+    document.body.append(iframe)
+    const ownerDocument = iframe.contentDocument
+
+    if (!ownerDocument) {
+      throw new TypeError('Expected iframe document')
+    }
+
+    const ControlledAccordion = () => {
+      const [value, setControlledValue] = createSignal(['one'])
+      setValue = setControlledValue
+
+      return (
+        <Accordion
+          items={[
+            {
+              value: 'one',
+              label: 'One',
+              content: <input aria-label="Panel input" />,
+            },
+          ]}
+          value={value()}
+          onChange={setControlledValue}
+          unmountOnHide={false}
+        />
+      )
+    }
+    try {
+      const screen = render(() => <ControlledAccordion />, { container: ownerDocument.body })
+      const trigger = screen.getByRole('button', { name: 'One' })
+      const input = screen.getByRole('textbox', { name: 'Panel input' })
+
+      input.focus()
+      setValue?.([])
+      await Promise.resolve()
+
+      expect(ownerDocument.activeElement).toBe(trigger)
+    } finally {
+      iframe.remove()
+    }
+  })
+
   test('controlled item opens from empty value with measured height', async () => {
     const scrollHeight = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(48)
 
@@ -583,7 +676,7 @@ describe('Accordion', () => {
       fireEvent.click(triggerOne)
       await Promise.resolve()
 
-      const contentOne = screen.getByRole('region', { name: 'One' })
+      const contentOne = screen.container.querySelector('#settings-one-content') as HTMLDivElement
 
       expect(screen.getByTestId('open-value').textContent).toBe('one')
       await waitFor(() => {
@@ -629,7 +722,7 @@ describe('Accordion', () => {
       fireEvent.click(triggerTwo)
       await Promise.resolve()
 
-      const contentOne = screen.getByRole('region', { name: 'One' })
+      const contentOne = screen.container.querySelector('#settings-one-content') as HTMLDivElement
       const contentTwo = screen.getByRole('region', { name: 'Two' })
 
       expect(contentOne.getAttribute('data-closed')).toBe('')

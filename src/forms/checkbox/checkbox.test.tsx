@@ -1,8 +1,13 @@
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
+import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { FieldProvider } from '../field/field-context'
+import type { FieldBinding } from '../field/field-context'
+import { createForm } from '../form'
 
 import { Checkbox } from './checkbox'
 
@@ -95,6 +100,72 @@ describe('Checkbox', () => {
     expect(enterDown.defaultPrevented).toBe(true)
     expect(onChange).toHaveBeenCalledTimes(1)
     expectCheckboxChecked(checkbox, true)
+  })
+
+  test('forwards visual focus boundaries to a bound Field only when enabled', () => {
+    const emit = vi.fn()
+    const binding: FieldBinding = {
+      emit,
+      setValue: vi.fn(),
+    }
+    const screen = render(() => (
+      <FieldProvider value={{ ariaId: 'checkbox-field', binding }}>
+        <Checkbox label="Bound checkbox" />
+      </FieldProvider>
+    ))
+    const control = screen.getByRole('checkbox', { name: 'Bound checkbox' })
+
+    fireEvent.focus(control)
+    fireEvent.blur(control)
+
+    expect(emit).toHaveBeenNthCalledWith(1, 'focus', expect.any(FocusEvent))
+    expect(emit).toHaveBeenNthCalledWith(2, 'blur', expect.any(FocusEvent))
+
+    const hiddenInput = getHiddenCheckbox(screen.container)
+    fireEvent.focus(hiddenInput)
+    fireEvent.blur(hiddenInput)
+
+    expect(emit).toHaveBeenCalledTimes(2)
+
+    const unbound = render(() => (
+      <FieldProvider value={{ ariaId: 'checkbox-field', binding }}>
+        <Checkbox fieldBind={false} label="Unbound checkbox" />
+      </FieldProvider>
+    ))
+    const unboundControl = unbound.getByRole('checkbox', { name: 'Unbound checkbox' })
+
+    fireEvent.focus(unboundControl)
+    fireEvent.blur(unboundControl)
+
+    expect(emit).toHaveBeenCalledTimes(2)
+  })
+
+  test('marks a Form.Field checkbox touched on visual focus and validates on blur', async () => {
+    const schema = v.object({
+      terms: v.pipe(
+        v.boolean(),
+        v.check((checked) => checked, 'Accept the terms.'),
+      ),
+    })
+    const { screen, value: form } = renderWithOwner(
+      () => createForm({ schema, initialInput: { terms: false }, validate: 'blur' }),
+      (form) => (
+        <form.Form>
+          <form.Field name="terms" label="Terms">
+            <Checkbox />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const control = screen.getByRole('checkbox', { name: 'Terms' })
+
+    fireEvent.focus(control)
+    expect(form.isTouched).toBe(true)
+
+    fireEvent.blur(control)
+
+    await waitFor(() => expect(screen.getByText('Accept the terms.')).not.toBeNull())
+    expect(control.getAttribute('aria-invalid')).toBe('true')
   })
 
   test('lets a canceled root click prevent control activation', async () => {

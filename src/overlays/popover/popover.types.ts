@@ -30,11 +30,18 @@ export namespace PopoverT {
     | 'disabled'
     | 'placement'
     | 'forceMount'
-    | 'modal'
     | 'preventScroll'
     | 'dismissible'
     | 'onClosePrevent'
   > {
+    /**
+     * Whether the content traps focus and hides outside content from assistive technology.
+     * This is enabled only when Popover.Content composes Popover.Close; otherwise the Popover
+     * remains non-modal so assistive-technology users retain a dismissal route.
+     * @default false
+     */
+    modal?: boolean
+
     /**
      * Interaction mode for triggering the popover.
      * @default 'click'
@@ -72,6 +79,7 @@ export namespace PopoverT {
    * Props for the Popover component.
    */
   export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
+  export type CloseProps<T extends ValidComponent = 'button'> = ModalT.CloseProps<T>
   export type ContentProps = BaseProps<'div', ContentBase, Variant, Classes, Styles>
   export type Props = Base
 }

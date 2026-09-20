@@ -139,7 +139,9 @@ export function useBaseSelectSearchInput(
         return state.open() ? ('true' as const) : ('false' as const)
       },
       'aria-haspopup': 'listbox' as const,
-      'aria-autocomplete': 'list' as const,
+      get 'aria-autocomplete'() {
+        return state.field.readOnly() ? ('none' as const) : ('list' as const)
+      },
       get 'aria-activedescendant'() {
         return state.open() && state.highlightedValue() !== undefined
           ? state.itemId(state.highlightedValue()!)

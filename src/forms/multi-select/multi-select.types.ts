@@ -49,6 +49,18 @@ export namespace MultiSelectT {
     onClose: () => void
   }
 
+  export type TagOverflowEntry<TItem extends Item = Item> = Pick<
+    TagRenderProps<TItem>,
+    'item' | 'value' | 'label'
+  >
+
+  export interface TagOverflowRenderProps<TItem extends Item = Item> {
+    /** Number of selected tags hidden by `maxTagCount`. */
+    count: number
+    /** Hidden tags in selection order. */
+    tags: readonly TagOverflowEntry<TItem>[]
+  }
+
   export interface EmptyRenderProps<TItem extends Item = Item> {
     /** Current input/search text. */
     inputValue: string
@@ -99,7 +111,7 @@ export namespace MultiSelectT {
     createItem?: (input: string) => TItem
     /** Maximum number of selected values (multiple/tags). */
     maxCount?: number
-    /** Maximum visible tags before showing +N (visual only). */
+    /** Maximum visible tags before collapsing the remainder into a +N summary. */
     maxTagCount?: number
     /**
      * Strings that commit completed input tokens through `createItem` or an exact source match.
@@ -109,6 +121,8 @@ export namespace MultiSelectT {
     tokenSeparators?: string[]
     /** Custom renderer for each selected tag. */
     tagRender?: ComponentOrElement<TagRenderProps<TItem>>
+    /** Custom renderer for tags hidden by `maxTagCount`. */
+    tagOverflow?: ComponentOrElement<TagOverflowRenderProps<TItem>>
     /** Custom renderer for the empty state when current filtered result has no matches. */
     emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
     /**

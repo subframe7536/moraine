@@ -62,6 +62,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
         let cleanupAutoUpdate: (() => void) | undefined
         let updatePosition: () => Promise<void>
         let committed: (() => boolean) | undefined
+        const ownerWindow = floating.ownerDocument.defaultView
         const ownedStyles = new Map<
           string,
           { element: HTMLElement; value: string; priority: string; applied: string }
@@ -93,7 +94,7 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
         }
         const cancelPositioned = (): void => {
           if (positionedFrame !== undefined) {
-            cancelAnimationFrame(positionedFrame)
+            ownerWindow?.cancelAnimationFrame(positionedFrame)
           }
           if (positionedTimeout !== undefined) {
             clearTimeout(positionedTimeout)
@@ -314,8 +315,8 @@ export function useFloatingPosition(options: FloatingPositionOptions): void {
                   if (!options.deferPositioned) {
                     publishPositioned(true)
                   } else if (positionedFrame === undefined && positionedTimeout === undefined) {
-                    if (typeof requestAnimationFrame === 'function') {
-                      positionedFrame = requestAnimationFrame(markPositioned)
+                    if (typeof ownerWindow?.requestAnimationFrame === 'function') {
+                      positionedFrame = ownerWindow.requestAnimationFrame(markPositioned)
                     }
                     positionedTimeout = setTimeout(markPositioned, 16)
                   }

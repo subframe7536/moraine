@@ -1,5 +1,5 @@
 import type { JSX, Setter } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
 
 import { useFormReset } from '../../shared/use-form-reset'
 import type { SliderT } from '../slider.types'
@@ -34,8 +34,8 @@ type UseSliderProps<TValue extends SliderValue> = {
 
 type UseSliderOptions<TValue extends SliderValue> = {
   disabled?: () => boolean | undefined
-  onBlur?: () => void
-  onFocus?: () => void
+  onBlur?: (event: FocusEvent) => void
+  onFocus?: (event: FocusEvent) => void
   onValueCommit?: (value: TValue) => void
   onValueInput?: (value: TValue) => void
   onValueReset?: (value: TValue) => void
@@ -53,8 +53,8 @@ export type UseSliderReturn<TValue extends SliderValue = SliderValue> = {
   getThumbMinValue: (index: number) => number
   getThumbValueText: (index: number) => string
   onPointerCancel: (event: PointerEvent) => void
-  onThumbBlur: () => void
-  onThumbFocus: (index: number) => void
+  onThumbBlur: (event: FocusEvent) => void
+  onThumbFocus: (index: number, event: FocusEvent) => void
   onThumbKeyDown: (index: number, event: KeyboardEvent) => void
   onThumbKeyUp: (event: KeyboardEvent) => void
   onThumbPointerDown: (index: number, event: PointerEvent) => void
@@ -65,7 +65,7 @@ export type UseSliderReturn<TValue extends SliderValue = SliderValue> = {
   onTrackPointerUp: (event: PointerEvent) => void
   rangeStyle: () => JSX.CSSProperties
   setThumbRefs: Setter<Array<HTMLDivElement | undefined>>
-  setTrackRef: Setter<HTMLDivElement | undefined>
+  setTrackRef: (element: HTMLDivElement | undefined) => void
   thumbStyles: () => JSX.CSSProperties[]
 }
 
@@ -98,7 +98,8 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     return Math.max(calcPageSize, step)
   })
   const [thumbRefs, setThumbRefs] = createSignal<Array<HTMLDivElement | undefined>>([])
-  const [trackElement, setTrackRef] = createSignal<HTMLDivElement | undefined>(undefined)
+  const [trackElement, setTrackElement] = createSignal<HTMLDivElement | undefined>(undefined)
+  const [direction, setDirection] = createSignal<'ltr' | 'rtl'>('ltr')
   const [activeThumbIndexState, setActiveThumbIndexState] = createSignal<number | undefined>(
     undefined,
   )
@@ -118,13 +119,34 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     setActiveThumbIndexState(index)
   }
 
-  const isRTL = () =>
-    typeof document === 'undefined'
-      ? false
-      : (document.dir || document.documentElement.dir || 'ltr') === 'rtl'
+  function resolveDirection(track = trackElement()): 'ltr' | 'rtl' {
+    const ownerDocument = track?.ownerDocument
+    const localDirection = track?.closest<HTMLElement>('[dir]')?.getAttribute('dir')
+    if (localDirection === 'ltr' || localDirection === 'rtl') {
+      return localDirection
+    }
+
+    const direction = track && ownerDocument?.defaultView?.getComputedStyle(track).direction
+    if (direction === 'ltr' || direction === 'rtl') {
+      return direction
+    }
+
+    return (ownerDocument?.dir || ownerDocument?.documentElement?.dir || 'ltr') === 'rtl'
+      ? 'rtl'
+      : 'ltr'
+  }
+
+  function setTrackRef(element: HTMLDivElement | undefined): void {
+    setTrackElement(element)
+    setDirection(resolveDirection(element))
+  }
+
+  onMount(() => {
+    setDirection(resolveDirection())
+  })
 
   const getSliderEdges = createMemo(() =>
-    resolveSliderEdges(merged.orientation, merged.inverted, isRTL()),
+    resolveSliderEdges(merged.orientation, merged.inverted, direction() === 'rtl'),
   )
   const isActionDisabled = createMemo(() => options.disabled?.() || merged.readOnly)
   const currentValues = createMemo(() => getControlledValues() ?? displayValues())
@@ -274,9 +296,9 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
         ? merged.inverted
           ? [merged.min, merged.max]
           : [merged.max, merged.min]
-        : merged.inverted
-          ? [merged.max, merged.min]
-          : [merged.min, merged.max]
+        : getSliderEdges().startEdge === 'left'
+          ? [merged.min, merged.max]
+          : [merged.max, merged.min]
 
     const value = linearScale(input, output)
     const offset = orientation === 'vertical' ? rect.top : rect.left
@@ -393,7 +415,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
 
   function focusThumb(index: number): void {
     const thumb = thumbRefs()[index]
-    if (!thumb || document.activeElement === thumb) {
+    if (!thumb || thumb.ownerDocument.activeElement === thumb) {
       return
     }
 
@@ -510,10 +532,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
       key === 'ArrowLeft' || key === 'ArrowDown' || key === 'Left' || key === 'Down'
     const isPageUp = key === 'PageUp'
     const isPageDown = key === 'PageDown'
-    const isLTR = () =>
-      typeof document === 'undefined'
-        ? true
-        : (document.dir || document.documentElement.dir || 'ltr') !== 'rtl'
+    const isLTR = () => direction() === 'ltr'
 
     if (
       !isIncrementKey &&
@@ -538,39 +557,40 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
       return
     }
 
-    let direction = 0
+    let movementDirection = 0
     if (isPageUp) {
-      direction = 1
+      movementDirection = 1
     } else if (isPageDown) {
-      direction = -1
+      movementDirection = -1
     } else if (merged.orientation === 'vertical') {
       if (key === 'ArrowDown' || key === 'Down') {
-        direction = merged.inverted ? 1 : -1
+        movementDirection = merged.inverted ? 1 : -1
       } else if (key === 'ArrowUp' || key === 'Up') {
-        direction = merged.inverted ? -1 : 1
+        movementDirection = merged.inverted ? -1 : 1
       } else if (isIncrementKey) {
-        direction = isLTR() ? 1 : -1
+        movementDirection = isLTR() ? 1 : -1
       } else if (isDecrementKey) {
-        direction = isLTR() ? -1 : 1
+        movementDirection = isLTR() ? -1 : 1
       }
     } else if (isIncrementKey) {
-      direction = isLTR() ? 1 : -1
+      movementDirection = isLTR() ? 1 : -1
     } else if (isDecrementKey) {
-      direction = isLTR() ? -1 : 1
+      movementDirection = isLTR() ? -1 : 1
     }
 
     const stepSize = isPageUp || isPageDown || event.shiftKey ? pageSize() : keyboardStep()
 
     const oldValue = interactionValues()[index] ?? merged.min
-    const candidateValue = oldValue + direction * stepSize
+    const candidateValue = oldValue + movementDirection * stepSize
     applyThumbValue(index, candidateValue)
     const newValue = interactionValues()[index] ?? merged.min
 
     if (!merged.allowThumbCrossing && interactionValues().length > 1 && newValue === oldValue) {
       const atGlobalBoundary =
-        (direction > 0 && oldValue === merged.max) || (direction < 0 && oldValue === merged.min)
+        (movementDirection > 0 && oldValue === merged.max) ||
+        (movementDirection < 0 && oldValue === merged.min)
       if (!atGlobalBoundary) {
-        const adjacentIndex = direction > 0 ? index + 1 : index - 1
+        const adjacentIndex = movementDirection > 0 ? index + 1 : index - 1
         if (adjacentIndex >= 0 && adjacentIndex < interactionValues().length) {
           focusThumb(adjacentIndex)
         }
@@ -578,9 +598,18 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     }
   }
 
-  function onThumbFocus(index: number): void {
+  function isThumbTarget(target: EventTarget | null): boolean {
+    return thumbRefs().some((thumb) => {
+      const Node = thumb?.ownerDocument.defaultView?.Node
+      return Node !== undefined && target instanceof Node && thumb?.contains(target)
+    })
+  }
+
+  function onThumbFocus(index: number, event: FocusEvent): void {
     lastUsedThumbIndex = index
-    options.onFocus?.()
+    if (!isThumbTarget(event.relatedTarget)) {
+      options.onFocus?.(event)
+    }
   }
 
   function onThumbKeyUp(event: KeyboardEvent): void {
@@ -610,8 +639,13 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     commitPendingValues()
   }
 
-  function onThumbBlur(): void {
-    options.onBlur?.()
+  function onThumbBlur(event: FocusEvent): void {
+    if (isThumbTarget(event.relatedTarget)) {
+      suppressNextBlurCommit = false
+      return
+    }
+
+    options.onBlur?.(event)
 
     if (suppressNextBlurCommit) {
       suppressNextBlurCommit = false
@@ -631,7 +665,16 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
   }
 
   function getThumbValueText(index: number): string {
-    return String(currentValues()[index] ?? merged.min)
+    const values = currentValues()
+    const value = values[index] ?? merged.min
+    if (values.length === 2) {
+      return `${value} ${index === 0 ? 'start' : 'end'} range`
+    }
+    if (values.length > 2) {
+      return `${value} thumb ${index + 1} of ${values.length}`
+    }
+
+    return String(value)
   }
 
   return {

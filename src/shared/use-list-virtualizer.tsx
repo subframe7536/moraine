@@ -20,6 +20,22 @@ import { createStore, reconcile } from 'solid-js/store'
 
 import type { ListT } from '../elements/list/list.types'
 
+function scrollElementWithRtl<TScrollElement extends HTMLElement, TItemElement extends HTMLElement>(
+  offset: number,
+  { adjustments = 0, behavior }: { adjustments?: number; behavior?: ScrollBehavior },
+  instance: Virtualizer<TScrollElement, TItemElement>,
+): void {
+  if (instance.options.horizontal && instance.options.isRtl) {
+    instance.scrollElement?.scrollTo?.({
+      behavior,
+      left: -(offset + adjustments),
+    })
+    return
+  }
+
+  elementScroll(offset, { adjustments, behavior }, instance)
+}
+
 export type ListVirtualizerOptions<
   TItem,
   TScrollElement extends HTMLElement = HTMLElement,
@@ -29,12 +45,14 @@ export type ListVirtualizerOptions<
     VirtualizerOptions<TScrollElement, TItemElement>,
     'observeElementRect' | 'observeElementOffset' | 'scrollToFn'
   >,
-  'count' | 'estimateSize' | 'getItemKey' | 'getScrollElement' | 'indexAttribute'
+  'count' | 'estimateSize' | 'getItemKey' | 'getScrollElement' | 'indexAttribute' | 'isRtl'
 > & {
   /** Estimated row size before its element has been measured. */
   estimateSize: (item: TItem, index: number) => number
   /** Stable row key. The item index is used by default. */
   getItemKey?: (item: TItem, index: number) => string | number | bigint
+  /** Enables RTL horizontal placement and scrolling. Must match the scroll container's `dir`. */
+  isRtl?: boolean
 }
 
 export type VirtualRenderProps<
@@ -86,7 +104,7 @@ export function useListVirtualizer<
       {
         observeElementRect,
         observeElementOffset,
-        scrollToFn: elementScroll,
+        scrollToFn: scrollElementWithRtl,
       },
       options,
       {
@@ -165,7 +183,7 @@ export function useListVirtualizer<
     })
 
     const contentStyle = (): JSX.CSSProperties =>
-      options.horizontal
+      virtualizer.options.horizontal
         ? {
             height: '100%',
             position: 'relative',
@@ -178,14 +196,20 @@ export function useListVirtualizer<
           }
 
     const rowStyle = (virtualItem: VirtualItem): JSX.CSSProperties =>
-      options.horizontal
+      virtualizer.options.horizontal
         ? {
             height: '100%',
-            left: '0',
             position: 'absolute',
+            get right() {
+              return virtualizer.options.isRtl ? '0' : undefined
+            },
             top: '0',
             get transform() {
-              return `translateX(${virtualItem.start - virtualizer.options.scrollMargin}px)`
+              const offset = virtualItem.start - virtualizer.options.scrollMargin
+              return `translateX(${virtualizer.options.isRtl ? -offset : offset}px)`
+            },
+            get left() {
+              return virtualizer.options.isRtl ? undefined : '0'
             },
           }
         : {

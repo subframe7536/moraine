@@ -163,6 +163,13 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       () => (editable() ? search.query() : ''),
       tags.tokenize,
     )
+    const overflowTags = () => tags.tags().slice(tags.visible().length)
+    const overflowRenderTags = (): readonly MultiSelectT.TagOverflowEntry<T>[] =>
+      overflowTags().map((tag) => ({
+        item: source().byValue.get(tag.value),
+        value: tag.value,
+        label: tag.label,
+      }))
     const isDuplicate = () => {
       const query = search.query().trim()
       if (!query) {
@@ -302,9 +309,27 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               )}
             </For>
             <Show when={tags.overflow() > 0}>
-              <span data-slot="tagOverflow" {...styles.styles.tagOverflow}>
-                +{tags.overflow()}
-              </span>
+              <Show
+                when={local.tagOverflow !== undefined}
+                fallback={
+                  <span
+                    data-slot="tagOverflow"
+                    aria-label={`${tags.overflow()} additional selections`}
+                    {...styles.styles.tagOverflow}
+                  >
+                    +{tags.overflow()}
+                  </span>
+                }
+              >
+                {renderComponentOrElement(local.tagOverflow, {
+                  get count() {
+                    return tags.overflow()
+                  },
+                  get tags() {
+                    return overflowRenderTags()
+                  },
+                } satisfies MultiSelectT.TagOverflowRenderProps<T>)}
+              </Show>
             </Show>
             <Show
               when={editable()}

@@ -103,7 +103,8 @@ export namespace ModalT {
     ariaDescribedBy?: string
 
     /**
-     * Whether keyboard focus should be trapped within the content.
+     * Whether this surface behaves as a modal dialog: it traps and receives focus,
+     * hides outside content from assistive technology, and locks body scroll.
      * @default true
      */
     trapFocus?: boolean

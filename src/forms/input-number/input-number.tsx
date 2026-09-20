@@ -14,10 +14,12 @@ import {
 
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
+import { getActiveElement } from '../../overlays/base/dom'
 import { createStyles } from '../../provider'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
+import { mergeAriaTokens } from '../shared/merge-aria-tokens'
 import { useFormReset } from '../shared/use-form-reset'
 
 import { inputNumberRecipe } from './input-number.recipe'
@@ -25,6 +27,7 @@ import type { InputNumberProps } from './input-number.types'
 type ControlKind = 'increment' | 'decrement'
 type InputNumberControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
   [key: `data-${string}`]: string | undefined
+  [key: `on:${string}`]: unknown
 }
 
 interface PressRepeatState {
@@ -64,23 +67,47 @@ function getThousandsSeparator(locale?: string): string {
  * Examples: "-", ".", "-.", "1.", "1.2", "-0.", locale-specific separators
  */
 function isPartialNumber(value: string, locale?: string): boolean {
-  if (value === '' || value === '-' || value === '+') {
+  const normalized = normalizeLocalizedNumerals(value)
+  if (normalized === '' || normalized === '-' || normalized === '+') {
     return true
   }
 
   const decimalSep = getDecimalSeparator(locale)
+  const normalizedDecimalSep = normalizeLocalizedNumerals(decimalSep)
 
   // Just a decimal separator
-  if (value === decimalSep || value === `-${decimalSep}` || value === `+${decimalSep}`) {
+  if (
+    normalized === normalizedDecimalSep ||
+    normalized === `-${normalizedDecimalSep}` ||
+    normalized === `+${normalizedDecimalSep}`
+  ) {
     return true
   }
 
   // Ends with decimal separator (e.g., "1.", "1.2.")
-  if (value.endsWith(decimalSep)) {
+  if (normalized.endsWith(normalizedDecimalSep)) {
     return true
   }
 
   return false
+}
+
+/** Normalizes the common non-ASCII digits and separators emitted by supported locales. */
+function normalizeLocalizedNumerals(value: string): string {
+  return value
+    .replace(/[\u0660-\u0669]/g, (digit) => String((digit.codePointAt(0) ?? 0) - 0x0660))
+    .replace(/[\u06F0-\u06F9]/g, (digit) => String((digit.codePointAt(0) ?? 0) - 0x06f0))
+    .replace(/[\uFF10-\uFF19]/g, (digit) => String((digit.codePointAt(0) ?? 0) - 0xff10))
+    .replaceAll('\u066B', '.')
+    .replaceAll('\uFF0E', '.')
+    .replaceAll('\uFF0C', ',')
+    .replaceAll('\u066C', '')
+    .replaceAll('\u2212', '-')
+    .replaceAll('\uFF0D', '-')
+    .replaceAll('\uFF0B', '+')
+    .replaceAll('\u061C', '')
+    .replaceAll('\u200E', '')
+    .replaceAll('\u200F', '')
 }
 
 /**
@@ -96,7 +123,7 @@ function parseLocaleNumber(value: string, locale?: string): number | undefined {
   const thousandsSep = getThousandsSeparator(locale)
 
   // Normalize: remove thousands separators and replace decimal separator with '.'
-  let normalized = value
+  let normalized = normalizeLocalizedNumerals(value)
   if (thousandsSep) {
     normalized = normalized.replaceAll(thousandsSep, '')
   }
@@ -173,6 +200,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'inputRef',
     'id',
     'name',
+    'form',
     'value',
     'defaultValue',
     'rawValue',
@@ -206,6 +234,13 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'disabled',
     'required',
     'readOnly',
+    'aria-label',
+    'aria-labelledby',
+    'aria-describedby',
+    'aria-invalid',
+    'aria-required',
+    'aria-disabled',
+    'aria-readonly',
     'size',
     'variant',
     'classes',
@@ -313,6 +348,22 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     'data-readonly': readOnly() ? '' : undefined,
     'data-required': field.required() ? '' : undefined,
   }))
+  const inputAriaAttrs = createMemo(() => {
+    const generated = field.ariaAttrs()
+    return {
+      'aria-label': local['aria-label'],
+      'aria-invalid':
+        local['aria-invalid'] !== undefined ? local['aria-invalid'] : generated['aria-invalid'],
+      'aria-required':
+        local['aria-required'] !== undefined ? local['aria-required'] : generated['aria-required'],
+      'aria-disabled':
+        local['aria-disabled'] !== undefined ? local['aria-disabled'] : generated['aria-disabled'],
+      'aria-readonly':
+        local['aria-readonly'] !== undefined ? local['aria-readonly'] : generated['aria-readonly'],
+      'aria-describedby': mergeAriaTokens(local['aria-describedby'], generated['aria-describedby']),
+      'aria-labelledby': mergeAriaTokens(local['aria-labelledby'], generated['aria-labelledby']),
+    }
+  })
 
   // Explicit controlled props remain authoritative for Field integrations.
   createEffect(
@@ -442,6 +493,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
   const selectionState = {
     count: 0,
+    ownerDocument: undefined as Document | undefined,
     userSelect: '',
     webkitUserSelect: '',
   }
@@ -486,30 +538,37 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   }
 
   function lockSelection(): void {
-    if (typeof document === 'undefined') {
+    const ownerDocument = inputEl?.ownerDocument
+    if (!ownerDocument) {
       return
     }
 
     if (selectionState.count === 0) {
-      selectionState.userSelect = document.body.style.getPropertyValue('user-select')
-      selectionState.webkitUserSelect = document.body.style.getPropertyValue('-webkit-user-select')
-      document.body.style.setProperty('user-select', 'none')
-      document.body.style.setProperty('-webkit-user-select', 'none')
+      selectionState.ownerDocument = ownerDocument
+      selectionState.userSelect = ownerDocument.body.style.getPropertyValue('user-select')
+      selectionState.webkitUserSelect =
+        ownerDocument.body.style.getPropertyValue('-webkit-user-select')
+      ownerDocument.body.style.setProperty('user-select', 'none')
+      ownerDocument.body.style.setProperty('-webkit-user-select', 'none')
     }
 
     selectionState.count += 1
   }
 
   function unlockSelection(): void {
-    if (typeof document === 'undefined' || selectionState.count === 0) {
+    if (selectionState.count === 0) {
       return
     }
 
     selectionState.count -= 1
 
     if (selectionState.count === 0) {
-      document.body.style.setProperty('user-select', selectionState.userSelect)
-      document.body.style.setProperty('-webkit-user-select', selectionState.webkitUserSelect)
+      const ownerDocument = selectionState.ownerDocument
+      if (ownerDocument) {
+        ownerDocument.body.style.setProperty('user-select', selectionState.userSelect)
+        ownerDocument.body.style.setProperty('-webkit-user-select', selectionState.webkitUserSelect)
+      }
+      selectionState.ownerDocument = undefined
     }
   }
 
@@ -780,11 +839,11 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       },
       ...resolved.styles[kind],
       onClick: (event) => onControlClick(kind, event),
-      onPointerDown: (event) => onControlPointerDown(kind, event),
-      onPointerUp: (event) => onControlPointerUp(kind, event),
-      onPointerCancel: (event) => onControlPointerCancel(kind, event),
-      onLostPointerCapture: (event: PointerEvent) => onControlPointerCancel(kind, event),
-      onPointerLeave: () => onControlPointerLeave(kind),
+      'on:pointerdown': (event: PointerEvent) => onControlPointerDown(kind, event),
+      'on:pointerup': (event: PointerEvent) => onControlPointerUp(kind, event),
+      'on:pointercancel': (event: PointerEvent) => onControlPointerCancel(kind, event),
+      'on:lostpointercapture': (event: PointerEvent) => onControlPointerCancel(kind, event),
+      'on:pointerleave': () => onControlPointerLeave(kind),
       onContextMenu: onControlContextMenu,
     }
   }
@@ -819,9 +878,11 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   }
 
   const onWheel: JSX.EventHandler<HTMLInputElement, WheelEvent> = (event) => {
+    const ownerDocument = inputEl?.ownerDocument
     if (
       !merged.wheel ||
-      document.activeElement !== inputEl ||
+      !ownerDocument ||
+      getActiveElement(ownerDocument) !== inputEl ||
       field.disabled() ||
       readOnly() ||
       event.ctrlKey
@@ -917,9 +978,11 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         id={field.id()}
         ref={(e) => {
           inputEl = e
+          field.setControlRef(e)
           callRef(local.inputRef, e)
         }}
         name={field.name()}
+        form={merged.form}
         value={inputText()}
         required={field.required()}
         disabled={field.disabled()}
@@ -975,6 +1038,10 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
           }
         }}
         onKeyDown={(event) => {
+          if (event.isComposing || event.which === 229 || event.keyCode === 229) {
+            return
+          }
+
           if (field.disabled() || readOnly()) {
             return
           }
@@ -1038,7 +1105,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         onFocus={onFocus}
         onWheel={onWheel}
         {...dataAttrs()}
-        {...field.ariaAttrs()}
+        {...inputAriaAttrs()}
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>

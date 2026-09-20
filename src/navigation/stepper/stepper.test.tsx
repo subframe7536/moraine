@@ -1,5 +1,6 @@
 import { fireEvent, render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -93,6 +94,69 @@ describe('Stepper', () => {
     fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
 
     expect(getSelectedPanel()?.textContent).toContain('Shipping content')
+  })
+
+  test('only links tabs to panels that are mounted', () => {
+    const screen = render(() => (
+      <Stepper
+        items={[
+          { value: 'first', title: 'First', content: 'First content' },
+          { value: 'second', title: 'Second', content: 'Second content' },
+          { value: 'empty', title: 'Empty' },
+        ]}
+        defaultValue="first"
+        linear={false}
+        clickable
+      />
+    ))
+    const first = screen.getByRole('tab', { name: 'First' })
+    const second = screen.getByRole('tab', { name: 'Second' })
+    const empty = screen.getByRole('tab', { name: 'Empty' })
+
+    expect(first.getAttribute('aria-controls')).toBe(screen.getByRole('tabpanel').id)
+    expect(second.hasAttribute('aria-controls')).toBe(false)
+    expect(empty.hasAttribute('aria-controls')).toBe(false)
+
+    fireEvent.click(second)
+
+    expect(first.hasAttribute('aria-controls')).toBe(false)
+    expect(second.getAttribute('aria-controls')).toBe(screen.getByRole('tabpanel').id)
+    expect(empty.hasAttribute('aria-controls')).toBe(false)
+
+    fireEvent.click(empty)
+
+    expect(screen.queryByRole('tabpanel')).toBeNull()
+    for (const trigger of screen.getAllByRole('tab')) {
+      const controlledId = trigger.getAttribute('aria-controls')
+      if (controlledId) {
+        expect(screen.container.querySelector(`#${controlledId}`)).not.toBeNull()
+      }
+    }
+  })
+
+  test('updates aria-controls when panel content is added or removed', () => {
+    const [content, setContent] = createSignal<JSX.Element>()
+    const screen = render(() => (
+      <Stepper
+        items={[{ value: 'dynamic', title: 'Dynamic', content: content() }]}
+        defaultValue="dynamic"
+      />
+    ))
+    const trigger = screen.getByRole('tab', { name: 'Dynamic' })
+
+    expect(trigger.hasAttribute('aria-controls')).toBe(false)
+
+    setContent('Dynamic content')
+
+    const panel = screen.getByRole('tabpanel')
+    expect(screen.getByRole('tab', { name: 'Dynamic' }).getAttribute('aria-controls')).toBe(
+      panel.id,
+    )
+
+    setContent(undefined)
+
+    expect(screen.queryByRole('tabpanel')).toBeNull()
+    expect(screen.getByRole('tab', { name: 'Dynamic' }).hasAttribute('aria-controls')).toBe(false)
   })
 
   test('supports controlled value and emits onChange with item value', () => {

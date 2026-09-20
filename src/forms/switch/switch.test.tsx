@@ -1,8 +1,13 @@
 import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
 import { createComponent } from 'solid-js'
+import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
+import { renderWithOwner } from '../../test-utils/owner-render'
+import { FieldProvider } from '../field/field-context'
+import type { FieldBinding } from '../field/field-context'
+import { createForm } from '../form'
 
 import { Switch } from './switch'
 
@@ -77,6 +82,62 @@ describe('Switch', () => {
       expectSwitchChecked(switchInput, true)
     },
   )
+
+  test('forwards visual focus boundaries to a bound Field without changing value', () => {
+    const emit = vi.fn()
+    const onChange = vi.fn()
+    const binding: FieldBinding = {
+      emit,
+      setValue: vi.fn(),
+    }
+    const screen = render(() => (
+      <FieldProvider value={{ ariaId: 'switch-field', binding }}>
+        <Switch label="Bound switch" onChange={onChange} />
+      </FieldProvider>
+    ))
+    const track = screen.getByRole('switch', { name: 'Bound switch' })
+    const hiddenInput = screen.container.querySelector('[data-slot="input"]') as HTMLInputElement
+
+    fireEvent.focus(track)
+    fireEvent.blur(track)
+
+    expect(emit).toHaveBeenNthCalledWith(1, 'focus', expect.any(FocusEvent))
+    expect(emit).toHaveBeenNthCalledWith(2, 'blur', expect.any(FocusEvent))
+    expect(onChange).not.toHaveBeenCalled()
+
+    fireEvent.focus(hiddenInput)
+    fireEvent.blur(hiddenInput)
+
+    expect(emit).toHaveBeenCalledTimes(2)
+  })
+
+  test('marks a Form.Field switch touched on visual focus and validates on blur', async () => {
+    const schema = v.object({
+      enabled: v.pipe(
+        v.boolean(),
+        v.check((checked) => checked, 'Enable the setting.'),
+      ),
+    })
+    const { screen, value: form } = renderWithOwner(
+      () => createForm({ schema, initialInput: { enabled: false }, validate: 'blur' }),
+      (form) => (
+        <form.Form>
+          <form.Field name="enabled" label="Enabled">
+            <Switch />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const track = screen.getByRole('switch', { name: 'Enabled' })
+
+    fireEvent.focus(track)
+    expect(form.isTouched).toBe(true)
+
+    fireEvent.blur(track)
+
+    await waitFor(() => expect(screen.getByText('Enable the setting.')).not.toBeNull())
+    expect(track.getAttribute('aria-invalid')).toBe('true')
+  })
 
   test('does not toggle when disabled', async () => {
     const onChange = vi.fn()

@@ -22,7 +22,7 @@ import type { MultiSelectT } from 'moraine'
 - **Interactive tag field**: Displays selected items as removable chips with optional overflow badge.
 - **Optional search & creation**: `search` filters; `createItem` constructs a `TItem` for free-form input.
 - **Unified tokenization**: Separators (comma, space) and paste reuse the same collection-aware creation path.
-- **Separate limits**: `maxCount` limits total selections; `maxTagCount` collapses visual tags into a `+N` badge.
+- **Separate limits**: `maxCount` limits total selections; `maxTagCount` collapses visual tags into a customizable `+N` summary.
 
 ## Playground
 
@@ -103,7 +103,7 @@ control
 │   ├── tag (×n)
 │   │   ├── tagLabel
 │   │   └── tagRemove
-│   ├── tagOverflow (optional)
+│   ├── tagOverflow (optional, renderable)
 │   └── input
 ├── clear (optional)
 └── trigger
@@ -153,7 +153,8 @@ Use `tagRender` to customize chip presentation with colors, status dots, badges,
 ### Selection and display limits
 
 `maxCount` is a behavioral constraint preventing additional selections. `maxTagCount` is purely
-visual: surplus selections stay committed and are summarized in a `+N` badge.
+visual: surplus selections stay committed and are summarized in a `+N` badge. Use `tagOverflow`
+to render the hidden tags in a Tooltip or another custom presentation.
 
 <Preview path="./max-count-max-tag-count" />
 

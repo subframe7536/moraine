@@ -6,6 +6,7 @@ import { describe, expect, expectTypeOf, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
 import { renderWithOwner } from '../../test-utils/owner-render'
+import { Field } from '../field'
 import { createForm } from '../form'
 
 import { InputNumber } from './input-number'
@@ -63,6 +64,58 @@ describe('InputNumber', () => {
 
     fireEvent.click(increment)
     expect(onIncrementClick).toHaveBeenCalledWith('increment-payload', expect.any(MouseEvent))
+  })
+
+  test('places caller naming and Field relationships on the spinbutton', () => {
+    const screen = render(() => (
+      <>
+        <span id="caller-description">Caller description</span>
+        <InputNumber aria-label="Standalone quantity" />
+        <Field label="Field quantity" description="Field description">
+          <InputNumber aria-describedby="caller-description" />
+        </Field>
+      </>
+    ))
+    const standalone = screen.getByRole<HTMLInputElement>('spinbutton', {
+      name: 'Standalone quantity',
+    })
+    const fieldInput = screen.getByRole<HTMLInputElement>('spinbutton', { name: 'Field quantity' })
+    const root = standalone.closest('[data-slot="root"]')
+
+    expect(root?.getAttribute('aria-label')).toBeNull()
+    expect(standalone.getAttribute('aria-label')).toBe('Standalone quantity')
+    expect(fieldInput.getAttribute('aria-labelledby')).toBe(screen.getByText('Field quantity').id)
+    expect(fieldInput.getAttribute('aria-describedby')).toContain('caller-description')
+    expect(fieldInput.getAttribute('aria-describedby')).toContain(
+      screen.getByText('Field description').id,
+    )
+  })
+
+  test('associates the native spinbutton with an external form and resets through it', async () => {
+    const externalForm = document.createElement('form')
+    externalForm.id = 'external-form'
+    document.body.append(externalForm)
+
+    try {
+      const screen = render(() => (
+        <InputNumber form="external-form" name="quantity" defaultValue={4} />
+      ))
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+
+      expect(spinbutton.getAttribute('form')).toBe('external-form')
+      expect(spinbutton.closest('[data-slot="root"]')?.getAttribute('form')).toBeNull()
+      expect(new FormData(externalForm).get('quantity')).toBe('4')
+
+      fireEvent.input(spinbutton, { target: { value: '7' } })
+      expect(new FormData(externalForm).get('quantity')).toBe('7')
+
+      externalForm.reset()
+      await Promise.resolve()
+
+      expect(spinbutton.value).toBe('4')
+    } finally {
+      externalForm.remove()
+    }
   })
 
   test('exposes required, disabled and readonly state through aria and data attributes', () => {
@@ -277,6 +330,50 @@ describe('InputNumber', () => {
     expect(onRawValueChange).toHaveBeenCalledWith(7)
   })
 
+  test.each(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', 'Enter'])(
+    'does not handle %s while an IME composition is active',
+    (key) => {
+      const onRawValueChange = vi.fn()
+      const screen = render(() => (
+        <InputNumber
+          defaultValue={5}
+          minValue={0}
+          maxValue={10}
+          onRawValueChange={onRawValueChange}
+        />
+      ))
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+      const event = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key })
+      Object.defineProperty(event, 'isComposing', { value: true })
+
+      spinbutton.dispatchEvent(event)
+
+      expect(event.defaultPrevented).toBe(false)
+      expect(spinbutton.value).toBe('5')
+      expect(onRawValueChange).not.toHaveBeenCalled()
+    },
+  )
+
+  test('does not handle composition fallback key events', () => {
+    const onRawValueChange = vi.fn()
+    const screen = render(() => (
+      <InputNumber defaultValue={5} onRawValueChange={onRawValueChange} />
+    ))
+    const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+    const event = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      key: 'ArrowUp',
+    })
+    Object.defineProperty(event, 'which', { value: 229 })
+
+    spinbutton.dispatchEvent(event)
+
+    expect(event.defaultPrevented).toBe(false)
+    expect(spinbutton.value).toBe('5')
+    expect(onRawValueChange).not.toHaveBeenCalled()
+  })
+
   test('does not change value with wheel by default', () => {
     const screen = render(() => <InputNumber defaultValue={5} />)
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
@@ -320,6 +417,66 @@ describe('InputNumber', () => {
 
     expect(spinbutton.value).toBe('5')
     expect(wheelDownEvent.defaultPrevented).toBe(true)
+  })
+
+  test('uses the input owner document for wheel and selection locks', () => {
+    const frame = document.createElement('iframe')
+    document.body.append(frame)
+    const frameDocument = frame.contentDocument
+    const frameWindow = frame.contentWindow
+    if (!frameDocument || !frameWindow) {
+      throw new TypeError('Expected iframe owner document and window')
+    }
+
+    const parentSelection = document.body.style.getPropertyValue('user-select')
+    const frameSelection = frameDocument.body.style.getPropertyValue('user-select')
+    document.body.style.setProperty('user-select', 'text')
+    frameDocument.body.style.setProperty('user-select', 'text')
+
+    try {
+      const screen = render(() => <InputNumber defaultValue={1} wheel />, {
+        container: frameDocument.body,
+      })
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+      const increment = screen.getByRole<HTMLButtonElement>('button', { name: 'Increment' })
+      const iframeGlobal = frameWindow as Window & typeof globalThis
+      const FrameWheelEvent = iframeGlobal.WheelEvent ?? WheelEvent
+      const FramePointerEvent = iframeGlobal.PointerEvent ?? iframeGlobal.MouseEvent
+      const createFramePointerEvent = (type: string, pointerId: number) => {
+        const event = new FramePointerEvent(type, { bubbles: true, button: 0, cancelable: true })
+        Object.defineProperties(event, {
+          pointerId: { value: pointerId },
+          pointerType: { value: 'mouse' },
+        })
+        return event
+      }
+      const wheelEvent = new FrameWheelEvent('wheel', {
+        bubbles: true,
+        cancelable: true,
+        deltaY: -1,
+      })
+
+      spinbutton.focus()
+      spinbutton.dispatchEvent(wheelEvent)
+      expect(spinbutton.value).toBe('2')
+      expect(wheelEvent.defaultPrevented).toBe(true)
+
+      increment.dispatchEvent(createFramePointerEvent('pointerdown', 1))
+      expect(frameDocument.body.style.getPropertyValue('user-select')).toBe('none')
+      expect(document.body.style.getPropertyValue('user-select')).toBe('text')
+
+      increment.dispatchEvent(createFramePointerEvent('pointercancel', 1))
+      expect(frameDocument.body.style.getPropertyValue('user-select')).toBe('text')
+
+      increment.dispatchEvent(createFramePointerEvent('pointerdown', 2))
+      expect(frameDocument.body.style.getPropertyValue('user-select')).toBe('none')
+      screen.unmount()
+      expect(frameDocument.body.style.getPropertyValue('user-select')).toBe('text')
+    } finally {
+      document.body.style.setProperty('user-select', parentSelection)
+      frameDocument.body.style.setProperty('user-select', frameSelection)
+      frame.remove()
+    }
   })
 
   test('does not change value with enabled wheel when disabled or readOnly', () => {
@@ -1583,6 +1740,52 @@ describe('InputNumber', () => {
 
       fireEvent.click(decrementButton)
       expect(spinbutton.value).toBe('10,5')
+    })
+
+    test.each([
+      ['fa-IR', '۱۲٫۳۴', 12.34],
+      ['ar-EG', '١٢٬٣٤٥٫٦', 12345.6],
+      ['ja-JP-u-nu-fullwide', '１２，３４５．６', 12345.6],
+    ])('commits localized numerals for %s', (locale, localizedValue, expectedValue) => {
+      const onRawValueChange = vi.fn()
+      const screen = render(() => (
+        <InputNumber defaultValue={0} locale={locale} onRawValueChange={onRawValueChange} />
+      ))
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
+
+      fireEvent.input(spinbutton, { target: { value: localizedValue } })
+      fireEvent.blur(spinbutton)
+
+      const formattedValue = new Intl.NumberFormat(locale, {
+        useGrouping: false,
+        maximumFractionDigits: 20,
+      }).format(expectedValue)
+      expect(onRawValueChange).toHaveBeenCalledWith(expectedValue)
+      expect(spinbutton.value).toBe(formattedValue)
+      expect(spinbutton.getAttribute('aria-valuetext')).toBe(formattedValue)
+    })
+
+    test('clamps Persian numeral input and synchronizes the numeric Formisch value', () => {
+      const { screen, value: form } = renderWithOwner(
+        () =>
+          createForm({
+            schema: v.object({ quantity: v.number() }),
+            initialInput: { quantity: 0 },
+          }),
+        (form) => (
+          <form.Form>
+            <form.Field name="quantity" label="Quantity">
+              <InputNumber locale="fa-IR" maxValue={10} />
+            </form.Field>
+          </form.Form>
+        ),
+      )
+      const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton', { name: 'Quantity' })
+
+      fireEvent.input(spinbutton, { target: { value: '۱۲٫۳۴' } })
+
+      expect(getInput(form)).toEqual({ quantity: 10 })
+      expect(spinbutton.getAttribute('aria-valuetext')).toBe('۱۰')
     })
   })
 })

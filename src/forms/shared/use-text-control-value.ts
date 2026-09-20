@@ -1,5 +1,5 @@
 import type { Accessor } from 'solid-js'
-import { createEffect, createMemo, on, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
 
 import type { ModelModifiers, ModifierValue } from '../../shared/input-modifiers'
 import { applyInputModifiers } from '../../shared/input-modifiers'
@@ -29,6 +29,10 @@ export function useTextControlValue<
 >(options: UseTextControlValueOptions<TValue, M>) {
   const initialDefaultValue = untrack(options.defaultValue)
   const isLazy = createMemo(() => Boolean(options.modelModifiers()?.lazy))
+  const [composing, setComposing] = createSignal(false)
+  let compositionVersion = 0
+  let preserveLazyCompositionDraft = false
+  let lazyCompositionExternalValue: TValue | undefined
 
   createEffect(
     on([options.value, () => options.getFormPath?.()], ([value]) => {
@@ -38,25 +42,30 @@ export function useTextControlValue<
     }),
   )
 
-  const valueProps = createMemo<{
-    value?: TValue
-    defaultValue?: TValue
-  }>(() => {
+  function getExternalValue(): TValue | undefined {
     const controlledValue = options.value()
     if (controlledValue !== undefined) {
-      return { value: controlledValue }
+      return controlledValue
     }
 
     const formValue = options.getFormValue()
     if (formValue !== undefined) {
-      return { value: formValue as TValue }
+      return formValue as TValue
     }
 
+    return undefined
+  }
+
+  const initialValue = untrack(() => getExternalValue() ?? initialDefaultValue)
+  const valueProps = createMemo<{
+    value?: TValue
+    defaultValue?: TValue
+  }>(() => {
     if (initialDefaultValue !== undefined) {
-      return { value: initialDefaultValue, defaultValue: initialDefaultValue }
+      return { value: initialValue, defaultValue: initialDefaultValue }
     }
 
-    return {}
+    return initialValue !== undefined ? { value: initialValue } : {}
   })
 
   function applyValue(value: string): ModifierValue<M> {
@@ -64,6 +73,7 @@ export function useTextControlValue<
   }
 
   function updateValue(value: string): void {
+    preserveLazyCompositionDraft = false
     const nextValue = applyValue(value)
     const controlledValue = options.value()
 
@@ -76,8 +86,7 @@ export function useTextControlValue<
     }
   }
 
-  function restoreControlledValue(): void {
-    const value = options.value()
+  function restoreValue(value: TValue | undefined): void {
     const element = options.getElement()
 
     if (element && value !== undefined && options.shouldRestoreValue?.() !== false) {
@@ -85,10 +94,59 @@ export function useTextControlValue<
     }
   }
 
+  function restoreControlledValue(): void {
+    if (composing()) {
+      return
+    }
+
+    restoreValue(options.value())
+  }
+
+  function onCompositionStart(): void {
+    compositionVersion += 1
+    if (isLazy()) {
+      preserveLazyCompositionDraft = true
+      lazyCompositionExternalValue = getExternalValue()
+    }
+    setComposing(true)
+  }
+
+  function onCompositionEnd(): void {
+    const version = compositionVersion
+    queueMicrotask(() => {
+      if (compositionVersion === version) {
+        setComposing(false)
+      }
+    })
+  }
+
+  createEffect(
+    on(
+      [options.value, options.getFormValue, composing, isLazy],
+      ([controlledValue, formValue, isComposing, lazy]) => {
+        if (!isComposing) {
+          const externalValue =
+            controlledValue !== undefined ? controlledValue : (formValue as TValue | undefined)
+          const preserveDraft =
+            lazy &&
+            preserveLazyCompositionDraft &&
+            Object.is(externalValue, lazyCompositionExternalValue)
+
+          if (!preserveDraft) {
+            preserveLazyCompositionDraft = false
+            restoreValue(externalValue)
+          }
+        }
+      },
+    ),
+  )
+
   return {
     applyValue,
     initialDefaultValue,
     isLazy,
+    onCompositionEnd,
+    onCompositionStart,
     restoreControlledValue,
     updateValue,
     valueProps,
