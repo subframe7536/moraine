@@ -167,6 +167,37 @@ describe('List', () => {
     expect(screen.getByText('Result 41').getAttribute('data-index')).toBe('40')
   })
 
+  test('keeps horizontal virtual rows and the scroll container in RTL directions', async () => {
+    const screen = render(() => {
+      const virtualRendering = useListVirtualizer<number, HTMLElement, HTMLDivElement>({
+        estimateSize: () => 20,
+        horizontal: true,
+        isRtl: true,
+        observeElementOffset: (_instance, callback) => callback(0, false),
+        observeElementRect: (_instance, callback) => callback({ width: 100, height: 24 }),
+        scrollMargin: 4,
+      })
+
+      return (
+        <List<number, 'div', HTMLDivElement>
+          as="div"
+          dir="rtl"
+          items={[20, 35, 25]}
+          virtualRender={virtualRendering.virtualRender}
+          itemRender={(context) => <div {...context.props}>{context.item}</div>}
+        />
+      )
+    })
+
+    await waitFor(() => {
+      const first = screen.getByText('20')
+      expect(first.style.right).toBe('0px')
+      expect(first.style.transform).toBe('translateX(0px)')
+    })
+
+    expect(screen.getByRole('list').getAttribute('dir')).toBe('rtl')
+  })
+
   test('provides measured dynamic rows with consistent gaps', async () => {
     const items = [
       { id: 'first', label: 'First', size: 24 },
