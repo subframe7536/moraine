@@ -117,9 +117,6 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   })
   const locked = () => field.disabled() || field.readOnly()
   let formInput: HTMLInputElement | undefined
-  let externalFormControl: HTMLInputElement | undefined
-  let formControlClaims = 0
-  const [usesExternalFormControl, setUsesExternalFormControl] = createSignal(false)
 
   function setOpen(next: boolean) {
     if (next && field.disabled()) {
@@ -266,9 +263,8 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   }
   createEffect(
     on(
-      [value, field.value, field.required, () => props.value !== undefined],
-      ([current, formValue, required, controlled]) => {
-        syncExternalFormControlValidity(required, current.length > 0)
+      [value, field.value, () => props.value !== undefined],
+      ([current, formValue, controlled]) => {
         if (!controlled) {
           return
         }
@@ -319,80 +315,8 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   const hasSelection = () => value().length > 0
   const primarySerializedValue = () => serialized()[0] ?? ''
 
-  function syncExternalFormControlValidity(required: boolean, selected: boolean): void {
-    if (!externalFormControl) {
-      return
-    }
-    const missing = required && !selected
-    externalFormControl.required = missing
-    externalFormControl.setCustomValidity(missing ? 'Please select an option.' : '')
-  }
-
-  function claimFormControl(): void {
-    if (props.multiple) {
-      return
-    }
-    formControlClaims += 1
-    if (formControlClaims === 1) {
-      setUsesExternalFormControl(true)
-    }
-    onCleanup(() => {
-      formControlClaims -= 1
-      if (formControlClaims === 0) {
-        setUsesExternalFormControl(false)
-      }
-    })
-  }
-
-  function registerFormControl(element: HTMLInputElement): void {
-    if (props.multiple) {
-      return
-    }
-    externalFormControl = element
-    untrack(() => syncExternalFormControlValidity(field.required(), hasSelection()))
-
-    const onInvalid = (event: Event) => {
-      event.preventDefault()
-      focusOwner()?.focus()
-    }
-    element.addEventListener('invalid', onInvalid)
-
-    onCleanup(() => {
-      element.removeEventListener('invalid', onInvalid)
-      element.required = false
-      element.setCustomValidity('')
-      if (externalFormControl === element) {
-        externalFormControl = undefined
-      }
-    })
-  }
-
-  createEffect(
-    on(usesExternalFormControl, (usesExternal) => {
-      const element = externalFormControl
-      const form = usesExternal ? element?.form : undefined
-      if (!form) {
-        return
-      }
-      const onFormData = (event: Event) => {
-        untrack(() => {
-          const name = field.name()
-          if (!name || field.disabled()) {
-            return
-          }
-          const formData = (event as FormDataEvent).formData
-          for (const current of serialized()) {
-            formData.append(name, current)
-          }
-        })
-      }
-      form.addEventListener('formdata', onFormData)
-      onCleanup(() => form.removeEventListener('formdata', onFormData))
-    }),
-  )
-
   useFormReset(
-    () => externalFormControl?.form ?? formInput?.form,
+    () => formInput?.form,
     () => {
       discardComposition()
       setSelection(initial)
@@ -442,10 +366,8 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     presentation,
     itemDisabled,
     registerCompositionDiscarder,
-    claimFormControl,
-    registerFormControl,
     formControls: () => (
-      <Show when={!usesExternalFormControl()}>
+      <>
         <HiddenInput
           ref={(element) => {
             formInput = element
@@ -483,7 +405,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
             />
           )}
         </For>
-      </Show>
+      </>
     ),
   }
 }

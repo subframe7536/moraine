@@ -35,8 +35,6 @@ export interface BaseSelectSearchInputState {
   locked: Accessor<boolean>
   focusOwner: Accessor<HTMLElement | undefined>
   setFocusOwner: (element: HTMLElement | undefined) => void
-  claimFormControl: () => void
-  registerFormControl: (element: HTMLInputElement) => void
   registerCompositionDiscarder: (discard: () => void) => void
   keyDown: (event: KeyboardEvent, textInput?: boolean) => void
 }
@@ -73,7 +71,6 @@ export function useBaseSelectSearchInput(
   transformInput: (value: string) => string = (value) => value,
 ) {
   const { query, setQuery } = search
-  state.claimFormControl()
   const [compositionDraft, setCompositionDraft] = createSignal<string>()
   const composing = () => compositionDraft() !== undefined
   function commit(value: string) {
@@ -158,7 +155,6 @@ export function useBaseSelectSearchInput(
       },
       ref(element: HTMLInputElement) {
         state.setFocusOwner(element)
-        state.registerFormControl(element)
         onCleanup(() => {
           if (state.focusOwner() === element) {
             state.setFocusOwner(undefined)
