@@ -227,6 +227,21 @@ describe('BaseSelect selection and form', () => {
     fireEvent.keyDown(screen.getByRole('combobox'), { key: 'Enter' })
     expect(change).not.toHaveBeenCalled()
   })
+  test.each([
+    [false, false],
+    [false, true],
+    [true, false],
+    [true, true],
+  ])('exposes listbox read-only semantics, multiple=%s readOnly=%s', (multiple, readOnly) => {
+    render(() => (
+      <BaseSelect items={items} defaultOpen multiple={multiple} readOnly={readOnly}>
+        <Parts />
+      </BaseSelect>
+    ))
+    const listbox = within(document.body).getByRole('listbox', { hidden: true })
+    expect(listbox.getAttribute('aria-readonly')).toBe(readOnly ? 'true' : null)
+    expect(listbox.getAttribute('aria-multiselectable')).toBe(multiple ? 'true' : null)
+  })
   test('disabled items cannot be selected and closeOnSelect can be overridden', () => {
     const change = vi.fn()
     const screen = render(() => (

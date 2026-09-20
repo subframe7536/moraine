@@ -640,7 +640,7 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   })
   return (
     <Show when={presence.present()}>
-      <Portal>
+      <Portal mount={(state.anchor() ?? state.focusOwner())?.ownerDocument.body}>
         <div data-slot="positioner" ref={setPositioner}>
           <div
             {...rest}
@@ -694,6 +694,7 @@ function BaseSelectListbox(props: BaseSelectT.PartProps): JSX.Element {
       role="listbox"
       tabIndex={-1}
       data-slot="listbox"
+      aria-readonly={state.field.readOnly() || undefined}
       aria-multiselectable={state.props.multiple ? 'true' : undefined}
       ref={(element) => {
         setListbox(element)

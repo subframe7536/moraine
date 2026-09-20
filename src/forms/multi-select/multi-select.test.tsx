@@ -236,6 +236,9 @@ describe('MultiSelect', () => {
     const trigger = screen.getByRole('combobox')
     fireEvent.click(trigger)
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(
+      within(document.body).getByRole('listbox', { hidden: true }).getAttribute('aria-readonly'),
+    ).toBe('true')
   })
 
   test('creates free-form items with Enter and the default comma separator', () => {

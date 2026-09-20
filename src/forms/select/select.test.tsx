@@ -59,6 +59,14 @@ describe('Select', () => {
     expect(document.activeElement).toBe(screen.getByRole('combobox'))
   })
 
+  test('inherits read-only listbox semantics', () => {
+    const screen = render(() => <Select items={ITEMS} defaultOpen readOnly />)
+    expect(screen.getByRole('combobox').getAttribute('aria-readonly')).toBe('true')
+    expect(
+      within(document.body).getByRole('listbox', { hidden: true }).getAttribute('aria-readonly'),
+    ).toBe('true')
+  })
+
   test('keeps typeahead without exposing search state', () => {
     const onChange = vi.fn()
     const screen = render(() => <Select items={ITEMS} onChange={onChange} />)

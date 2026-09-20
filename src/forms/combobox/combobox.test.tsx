@@ -85,6 +85,9 @@ describe('Combobox', () => {
     const input = screen.getByRole('combobox')
     fireEvent.click(screen.getByRole('button', { name: 'Toggle options' }))
     expect(input.getAttribute('aria-expanded')).toBe('true')
+    expect(
+      within(document.body).getByRole('listbox', { hidden: true }).getAttribute('aria-readonly'),
+    ).toBe('true')
   })
 
   test('clear and trigger coexist and clear does not open', () => {
