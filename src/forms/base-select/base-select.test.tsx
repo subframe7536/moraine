@@ -99,7 +99,9 @@ test('BaseSelect.Control exposes inherited field state attributes', () => {
 test('uses completed primary presses for outside dismissal', () => {
   const screen = render(() => (
     <>
-      <button type="button" data-testid="outside">Outside</button>
+      <button type="button" data-testid="outside">
+        Outside
+      </button>
       <BaseSelect items={items} defaultOpen>
         <Parts />
       </BaseSelect>

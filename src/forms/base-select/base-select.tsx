@@ -617,10 +617,14 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
         positioner()?.contains(node),
       ),
     onPointerOutside: (event) => {
-      if (state.open() && !event.defaultPrevented) state.setOpen(false)
+      if (state.open() && !event.defaultPrevented) {
+        state.setOpen(false)
+      }
     },
     onFocusOutside: (event) => {
-      if (state.open() && !event.defaultPrevented) state.setOpen(false)
+      if (state.open() && !event.defaultPrevented) {
+        state.setOpen(false)
+      }
     },
     onEscape: (event) => {
       if (state.open() && !event.defaultPrevented) {

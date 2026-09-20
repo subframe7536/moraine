@@ -61,4 +61,3 @@ test('shows the generated kind in the header and updates it with page metadata',
   expect(view.getByText('Page content')).toBeTruthy()
   expect(childrenReads).toBe(1)
 })
-

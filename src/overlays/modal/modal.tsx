@@ -40,7 +40,9 @@ export function Modal(props: ModalProps): JSX.Element {
   const contentPresent = isPresent
   const shouldContainFocus = () => {
     for (const trapFocus of contentTrapFocus.values()) {
-      if (trapFocus()) return true
+      if (trapFocus()) {
+        return true
+      }
     }
     return false
   }
@@ -135,7 +137,9 @@ export function Modal(props: ModalProps): JSX.Element {
       lastFocusedElement = undefined
     },
     onPointerDownInside: (event, context) => {
-      if (!shouldContainFocus()) return
+      if (!shouldContainFocus()) {
+        return
+      }
       const target = event.target
       const currentContent = contentElement()
       if (
@@ -185,7 +189,9 @@ export function Modal(props: ModalProps): JSX.Element {
       }
     },
     onFocusOutside: () => {
-      if (!shouldContainFocus()) return
+      if (!shouldContainFocus()) {
+        return
+      }
       const currentContent = contentElement()
       queueMicrotask(() => {
         if (lastFocusedElement?.isConnected && currentContent?.contains(lastFocusedElement)) {

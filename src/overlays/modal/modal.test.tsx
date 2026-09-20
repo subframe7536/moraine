@@ -1185,11 +1185,17 @@ describe('Modal primitives', () => {
   test('does not contain or trap focus when trapFocus is false', async () => {
     const screen = render(() => (
       <>
-        <button type="button" data-testid="outside">Outside</button>
+        <button type="button" data-testid="outside">
+          Outside
+        </button>
         <Modal defaultOpen>
           <Modal.Content trapFocus={false}>
-            <button type="button" data-testid="first-btn">First</button>
-            <button type="button" data-testid="last-btn">Last</button>
+            <button type="button" data-testid="first-btn">
+              First
+            </button>
+            <button type="button" data-testid="last-btn">
+              Last
+            </button>
           </Modal.Content>
         </Modal>
       </>

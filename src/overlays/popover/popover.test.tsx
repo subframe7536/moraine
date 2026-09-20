@@ -546,9 +546,13 @@ describe('Popover', () => {
   test('does not restore focus after non-modal outside pointer dismissal', async () => {
     const screen = render(() => (
       <>
-        <button type="button" data-testid="outside">Outside target</button>
+        <button type="button" data-testid="outside">
+          Outside target
+        </button>
         <Popover defaultOpen>
-          <Popover.Trigger as="button" type="button">Trigger</Popover.Trigger>
+          <Popover.Trigger as="button" type="button">
+            Trigger
+          </Popover.Trigger>
           <Popover.Content>{'Content'}</Popover.Content>
         </Popover>
       </>

@@ -34,5 +34,4 @@ describe('DocsPlayground', () => {
       normalizeDocsPlaygroundControls([{ kind: 'switch', prop: 'disabled', label: 'Disabled' }]),
     ).toThrow('missing defaultValue')
   })
-
 })

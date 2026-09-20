@@ -1503,9 +1503,13 @@ describe('DropdownMenu', () => {
     const onOpenChange = vi.fn()
     const screen = render(() => (
       <>
-        <button type="button" data-testid="outside">Outside</button>
+        <button type="button" data-testid="outside">
+          Outside
+        </button>
         <DropdownMenu defaultOpen preventScroll={false} onOpenChange={onOpenChange}>
-          <DropdownMenu.Trigger as="button" type="button">Actions</DropdownMenu.Trigger>
+          <DropdownMenu.Trigger as="button" type="button">
+            Actions
+          </DropdownMenu.Trigger>
           <DropdownMenu.Content items={[{ label: 'Archive' }]} />
         </DropdownMenu>
       </>
@@ -1527,13 +1531,19 @@ describe('DropdownMenu', () => {
     const secondChange = vi.fn()
     const screen = render(() => (
       <>
-        <button type="button" data-testid="outside">Outside</button>
+        <button type="button" data-testid="outside">
+          Outside
+        </button>
         <DropdownMenu defaultOpen preventScroll={false} onOpenChange={firstChange}>
-          <DropdownMenu.Trigger as="button" type="button">First</DropdownMenu.Trigger>
+          <DropdownMenu.Trigger as="button" type="button">
+            First
+          </DropdownMenu.Trigger>
           <DropdownMenu.Content items={[{ label: 'First item' }]} />
         </DropdownMenu>
         <DropdownMenu defaultOpen preventScroll={false} onOpenChange={secondChange}>
-          <DropdownMenu.Trigger as="button" type="button">Second</DropdownMenu.Trigger>
+          <DropdownMenu.Trigger as="button" type="button">
+            Second
+          </DropdownMenu.Trigger>
           <DropdownMenu.Content items={[{ label: 'Second item' }]} />
         </DropdownMenu>
       </>

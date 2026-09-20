@@ -163,7 +163,9 @@ describe('Button', () => {
       </>
     ))
 
-    expect(screen.getByRole('button', { name: 'Native button' }).getAttribute('tabindex')).toBe('-1')
+    expect(screen.getByRole('button', { name: 'Native button' }).getAttribute('tabindex')).toBe(
+      '-1',
+    )
     expect(screen.getByRole('link', { name: 'Native link' }).getAttribute('tabindex')).toBe('-1')
   })
 
