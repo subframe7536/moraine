@@ -1499,6 +1499,61 @@ describe('DropdownMenu', () => {
     })
   })
 
+  test('uses completed primary presses for outside dismissal', async () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">Outside</button>
+        <DropdownMenu defaultOpen preventScroll={false} onOpenChange={onOpenChange}>
+          <DropdownMenu.Trigger as="button" type="button">Actions</DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Archive' }]} />
+        </DropdownMenu>
+      </>
+    ))
+    const outside = screen.getByTestId('outside')
+
+    fireEvent.pointerDown(outside, { button: 2, pointerType: 'mouse' })
+    expect(onOpenChange).not.toHaveBeenCalled()
+
+    fireEvent.pointerDown(outside, { pointerId: 1, pointerType: 'touch' })
+    expect(onOpenChange).not.toHaveBeenCalled()
+
+    fireEvent.pointerUp(outside, { pointerId: 1, pointerType: 'touch' })
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('keeps a closing menu above lower overlays until exit completes', async () => {
+    const firstChange = vi.fn()
+    const secondChange = vi.fn()
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">Outside</button>
+        <DropdownMenu defaultOpen preventScroll={false} onOpenChange={firstChange}>
+          <DropdownMenu.Trigger as="button" type="button">First</DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'First item' }]} />
+        </DropdownMenu>
+        <DropdownMenu defaultOpen preventScroll={false} onOpenChange={secondChange}>
+          <DropdownMenu.Trigger as="button" type="button">Second</DropdownMenu.Trigger>
+          <DropdownMenu.Content items={[{ label: 'Second item' }]} />
+        </DropdownMenu>
+      </>
+    ))
+
+    const secondContent = Array.from(
+      document.body.querySelectorAll<HTMLElement>('[data-slot="content"]'),
+    ).find((content) => content.textContent?.includes('Second item'))!
+    fireEvent.keyDown(secondContent, { key: 'Escape' })
+    expect(secondChange).toHaveBeenCalledWith(false)
+
+    fireEvent.pointerDown(screen.getByTestId('outside'), { pointerType: 'mouse' })
+    expect(firstChange).not.toHaveBeenCalled()
+
+    await finishMenuExitMotion()
+
+    fireEvent.pointerDown(screen.getByTestId('outside'), { pointerType: 'mouse' })
+    expect(firstChange).toHaveBeenCalledWith(false)
+  })
+
   test('closes on Tab and moves focus in document order', async () => {
     const screen = render(() => (
       <>

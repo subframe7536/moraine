@@ -543,6 +543,31 @@ describe('Popover', () => {
     })
   })
 
+  test('does not restore focus after non-modal outside pointer dismissal', async () => {
+    const screen = render(() => (
+      <>
+        <button type="button" data-testid="outside">Outside target</button>
+        <Popover defaultOpen>
+          <Popover.Trigger as="button" type="button">Trigger</Popover.Trigger>
+          <Popover.Content>{'Content'}</Popover.Content>
+        </Popover>
+      </>
+    ))
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    const outside = screen.getByTestId('outside')
+    fireEvent.pointerDown(outside, { pointerType: 'mouse' })
+    outside.focus()
+    expect(document.activeElement).toBe(outside)
+
+    await finishExitMotion()
+
+    await waitFor(() => {
+      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.activeElement).toBe(outside)
+    })
+  })
+
   test('keeps lower popovers open when the top popover finishes closing', async () => {
     const onFirstOpenChange = vi.fn()
     const onSecondOpenChange = vi.fn()
