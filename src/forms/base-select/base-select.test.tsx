@@ -541,7 +541,7 @@ test('virtual rows remain a small view of canonical selection and compose both r
   ).toBe(String(leaves.filter((item) => item.label.includes('Item 2')).length))
   expect(screen.container.querySelector('[data-slot="tag"]')?.textContent).toContain('Item 3999')
   expect(new FormData(screen.container.querySelector('form')!).getAll('virtual')).toEqual(['3999'])
-  expect(screen.container.querySelectorAll('input[type="hidden"]')).toHaveLength(1)
+  expect(screen.container.querySelectorAll('input[type="hidden"]')).toHaveLength(0)
 })
 
 test('owns Form context synchronization and treats an unmatched empty field as no selection', () => {
@@ -696,4 +696,77 @@ test('does not serialize an empty single selection as a named value', () => {
   ))
 
   expect(new FormData(screen.container.querySelector('form')!).getAll('choice')).toEqual([])
+})
+
+test('reuses the validation control as the single-select form input', () => {
+  const screen = render(() => (
+    <form>
+      <BaseSelect
+        name="choice"
+        items={[{ value: 'apple', label: 'Apple' }]}
+        defaultValue={['apple']}
+        required
+      >
+        <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
+      </BaseSelect>
+    </form>
+  ))
+
+  const form = screen.container.querySelector('form')!
+  const inputs = form.querySelectorAll('input')
+  expect(inputs).toHaveLength(1)
+  expect(inputs[0]?.type).toBe('checkbox')
+  expect(inputs[0]?.checked).toBe(true)
+  expect(inputs[0]?.name).toBe('choice')
+  expect(inputs[0]?.value).toBe('apple')
+  expect(form.checkValidity()).toBe(true)
+  expect(new FormData(form).getAll('choice')).toEqual(['apple'])
+})
+
+test('only adds hidden inputs for additional multi-select values', () => {
+  const screen = render(() => (
+    <form>
+      <BaseSelect
+        multiple
+        name="choice"
+        items={[
+          { value: 'apple', label: 'Apple' },
+          { value: 'orange', label: 'Orange' },
+          { value: 'pear', label: 'Pear' },
+        ]}
+        defaultValue={['apple', 'orange', 'pear']}
+        required
+      >
+        <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
+      </BaseSelect>
+    </form>
+  ))
+
+  const form = screen.container.querySelector('form')!
+  expect(form.querySelectorAll('input')).toHaveLength(3)
+  expect(form.querySelectorAll('input[type="hidden"]')).toHaveLength(2)
+  expect(new FormData(form).getAll('choice')).toEqual(['apple', 'orange', 'pear'])
+})
+
+test('supports an empty-string value with required validation and form submission', () => {
+  const screen = render(() => (
+    <form>
+      <BaseSelect
+        name="choice"
+        items={[{ value: '', label: 'Empty value' }]}
+        defaultValue={['']}
+        required
+      >
+        <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
+      </BaseSelect>
+    </form>
+  ))
+
+  const form = screen.container.querySelector('form')!
+  const input = form.querySelector<HTMLInputElement>('input')!
+  expect(input.type).toBe('checkbox')
+  expect(input.checked).toBe(true)
+  expect(input.value).toBe('')
+  expect(form.checkValidity()).toBe(true)
+  expect(new FormData(form).getAll('choice')).toEqual([''])
 })
