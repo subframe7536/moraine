@@ -329,13 +329,16 @@ export function FileUpload<T extends ValidComponent = 'div'>(
   )
 
   let hiddenInputEl: HTMLInputElement | undefined
+  let controlEl: HTMLElement | undefined
 
   const [selectedFiles, setSelectedFiles] = createSignal<File[]>([])
   const [dragging, setDragging] = createSignal(false)
+  const [nativeInvalid, setNativeInvalid] = createSignal(false)
   const [previewUrls, setPreviewUrls] = createSignal<Map<File, string>>(new Map())
 
   const labelId = createMemo(() => `${field.id()}-label`)
   const descriptionId = createMemo(() => (description() ? `${field.id()}-description` : undefined))
+  const invalid = createMemo(() => field.invalid() || nativeInvalid())
   const controlAriaAttrs = createMemo(() => {
     const attrs = { ...field.ariaAttrs() }
     const describedBy = [attrs['aria-describedby'], descriptionId()].filter(Boolean).join(' ')
@@ -349,6 +352,9 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       } else {
         attrs['aria-label'] = 'File upload'
       }
+    }
+    if (invalid()) {
+      attrs['aria-invalid'] = 'true'
     }
 
     return attrs
@@ -381,8 +387,20 @@ export function FileUpload<T extends ValidComponent = 'div'>(
 
   function commitSelectedFiles(files: File[]): void {
     setSelectedFiles(files)
+    setNativeInvalid(false)
     syncNativeInputFiles(hiddenInputEl, files)
     emitValueChange(files)
+  }
+
+  function setControlElement(element: HTMLElement): void {
+    controlEl = element
+    field.setControlRef(element)
+    onCleanup(() => {
+      if (controlEl === element) {
+        controlEl = undefined
+        field.setControlRef(undefined)
+      }
+    })
   }
 
   function openFileDialog(): void {
@@ -531,6 +549,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     () => hiddenInputEl?.form,
     () => {
       setDragging(false)
+      setNativeInvalid(false)
       setSelectedFiles([])
       syncNativeInputFiles(hiddenInputEl, [])
       field.setFormValue(merged.multiple ? [] : null)
@@ -645,11 +664,12 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         when={dropzone()}
         fallback={
           <button
+            ref={setControlElement}
             type="button"
             data-slot="control"
             data-dropzone={dropzone() ? '' : undefined}
             {...resolved.styles.control}
-            data-invalid={field.invalid() ? '' : undefined}
+            data-invalid={invalid() ? '' : undefined}
             disabled={field.disabled()}
             {...controlAriaAttrs()}
             onFocus={(event) => field.emit('focus', event)}
@@ -661,6 +681,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         }
       >
         <div
+          ref={setControlElement}
           role="button"
           tabIndex={field.disabled() ? undefined : 0}
           {...controlAriaAttrs()}
@@ -668,7 +689,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           data-dropzone={dropzone() ? '' : undefined}
           {...resolved.styles.control}
           data-dragging={dragging() ? '' : undefined}
-          data-invalid={field.invalid() ? '' : undefined}
+          data-invalid={invalid() ? '' : undefined}
           onFocus={(event) => field.emit('focus', event)}
           onBlur={(event) => field.emit('blur', event)}
           onClick={onControlClick}
@@ -686,7 +707,6 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         id={field.id()}
         ref={(element) => {
           hiddenInputEl = element
-          field.setControlRef(element)
           callRef(local.inputRef, element)
         }}
         name={field.name()}
@@ -695,11 +715,17 @@ export function FileUpload<T extends ValidComponent = 'div'>(
         required={field.required()}
         disabled={field.disabled()}
         readonly={readOnly()}
+        tabIndex={-1}
+        aria-hidden="true"
         onChange={(event) => {
           const files = Array.from(event.currentTarget.files ?? [])
           processIncomingFiles(files)
         }}
-        {...controlAriaAttrs()}
+        onInvalid={(event) => {
+          event.preventDefault()
+          setNativeInvalid(true)
+          controlEl?.focus()
+        }}
       />
 
       <Show when={preview() && selectedFiles().length > 0}>

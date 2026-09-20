@@ -171,6 +171,30 @@ describe('FileUpload', () => {
     expect(screen.getByText('PNG, JPG up to 2MB')).not.toBeNull()
   })
 
+  test.each([true, false])(
+    'keeps the visible picker as the only focus and validation target (dropzone=%s)',
+    async (dropzone) => {
+      const screen = render(() => <FileUpload dropzone={dropzone} required label="Attachments" />)
+      const control = screen.getByRole('button', { name: 'Attachments' })
+      const input = getFileInput(screen.container)
+
+      expect(control.tabIndex).toBe(0)
+      expect(input.tabIndex).toBe(-1)
+      expect(input.getAttribute('aria-hidden')).toBe('true')
+
+      fireEvent.invalid(input)
+
+      expect(document.activeElement).toBe(control)
+      expect(control.getAttribute('aria-invalid')).toBe('true')
+      expect(control.getAttribute('data-invalid')).toBe('')
+
+      await setInputFiles(input, [createFile('attachment.txt')])
+
+      expect(control.hasAttribute('aria-invalid')).toBe(false)
+      expect(control.hasAttribute('data-invalid')).toBe(false)
+    },
+  )
+
   test('single mode emits File | null', async () => {
     const onValueChange = vi.fn()
     const screen = render(() => <FileUpload onValueChange={onValueChange} />)
@@ -672,6 +696,39 @@ describe('FileUpload', () => {
     fireEvent.submit(formElement)
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(2))
     expect(onSubmit.mock.calls[1]?.[0]).toEqual({ attachment: null })
+  })
+
+  test('uses the visible picker for Field validation focus and feedback', async () => {
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({
+            attachment: v.pipe(
+              v.any(),
+              v.check((value) => value instanceof File, 'Choose an attachment.'),
+            ),
+          }),
+          initialInput: { attachment: null },
+        }),
+      (form) => (
+        <form.Form>
+          <form.Field name="attachment" label="Attachment">
+            <FileUpload />
+          </form.Field>
+        </form.Form>
+      ),
+    )
+    const formElement = screen.container.querySelector('form')!
+    const control = screen.getByRole('button', { name: 'Attachment' })
+    const input = getFileInput(screen.container)
+
+    fireEvent.submit(formElement)
+
+    await waitFor(() => expect(screen.getByText('Choose an attachment.')).not.toBeNull())
+    expect(document.activeElement).toBe(control)
+    expect(control.getAttribute('aria-invalid')).toBe('true')
+    expect(control.getAttribute('data-invalid')).toBe('')
+    expect(input.getAttribute('aria-hidden')).toBe('true')
   })
 
   test('provides a fallback accessible name and links label and description', () => {
