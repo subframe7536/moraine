@@ -52,7 +52,16 @@ export namespace SidebarFrameT {
     children?: JSX.Element
   }
 
-  export type SidebarProps = BaseProps<'div', RegionBase, never, never, never>
+  export interface SidebarBase extends RegionBase {
+    /**
+     * Accessible name for the mobile navigation Sheet. Native aria-label takes precedence;
+     * title is used when neither native aria-label nor this prop is provided.
+     * @default 'Sidebar navigation'
+     */
+    ariaLabel?: string
+  }
+
+  export type SidebarProps = BaseProps<'div', SidebarBase, never, never, never>
   export type SidebarHeaderProps = BaseProps<'div', RegionBase, never, never, never>
   export type SidebarBodyProps = BaseProps<'div', RegionBase, never, never, never>
   export type SidebarFooterProps = BaseProps<'div', RegionBase, never, never, never>

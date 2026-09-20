@@ -1,4 +1,4 @@
-import { waitFor } from '@solidjs/testing-library'
+import { fireEvent, waitFor } from '@solidjs/testing-library'
 import { afterEach, expect, test, vi } from 'vitest'
 
 import { hydrateFixture } from '../../test-utils/ssr-test'
@@ -56,5 +56,12 @@ test('replaces the SSR desktop layout without retaining duplicate mobile content
   expect(container.querySelectorAll('[data-slot="trigger"]')).toHaveLength(1)
   expect(container.querySelector('[data-slot="trigger"]')?.getAttribute('aria-expanded')).toBe(
     'false',
+  )
+
+  fireEvent.click(container.querySelector('[data-slot="trigger"]')!)
+  await waitFor(() =>
+    expect(document.body.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(
+      'Sidebar navigation',
+    ),
   )
 })

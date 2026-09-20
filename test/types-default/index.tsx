@@ -421,7 +421,7 @@ const divRef = (element: HTMLDivElement) => element.focus()
 </Resizable>
 
 ;<SidebarFrame isMobile={false}>
-  <SidebarFrame.Sidebar>
+  <SidebarFrame.Sidebar ariaLabel="Sidebar navigation">
     <SidebarFrame.SidebarHeader>Header</SidebarFrame.SidebarHeader>
     <SidebarFrame.SidebarBody>Navigation</SidebarFrame.SidebarBody>
     <SidebarFrame.SidebarFooter>Footer</SidebarFrame.SidebarFooter>

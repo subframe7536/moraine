@@ -25,8 +25,10 @@ import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types'
 function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
   const cn = useCn()
   const context = useSidebarFrameContext()
-  const [local, rest] = splitProps(props, ['children', 'class', 'style'])
+  const [local, rest] = splitProps(props, ['ariaLabel', 'children', 'class', 'style'])
   const content = resolveChildren(() => local.children)
+  const mobileAriaLabel = () =>
+    rest['aria-label'] ?? local.ariaLabel ?? rest.title ?? 'Sidebar navigation'
 
   const SidebarContent = (contentProps: { mobile: boolean }) => (
     <div
@@ -56,7 +58,12 @@ function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
       <SidebarContent mobile={false} />
       <Show when={context.isMobile()}>
         <Sheet open={context.isOpen()} onOpenChange={context.setOpen}>
-          <Sheet.Content side={context.side} close={false} body={<SidebarContent mobile />} />
+          <Sheet.Content
+            side={context.side}
+            close={false}
+            ariaLabel={mobileAriaLabel()}
+            body={<SidebarContent mobile />}
+          />
         </Sheet>
       </Show>
     </>

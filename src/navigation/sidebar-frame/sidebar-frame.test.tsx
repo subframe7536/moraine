@@ -2,6 +2,7 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
+import { finishExitMotion } from '../../test-utils/overlay-test'
 import { renderWithTheme } from '../../test-utils/theme-render'
 
 import { SidebarFrame } from './sidebar-frame'
@@ -131,9 +132,52 @@ describe('SidebarFrame', () => {
     fireEvent.click(screen.getByText('Toggle'))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="content"]')?.getAttribute('aria-label')).toBe(
+        'Sidebar navigation',
+      )
       expect(document.body.textContent).toContain('Navigation')
     })
+  })
+
+  test('uses the custom Sidebar accessible name for the mobile Sheet', async () => {
+    const screen = render(() => (
+      <SidebarFrame isMobile>
+        <SidebarFrame.Sidebar ariaLabel="Project navigation">Navigation</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
+    await waitFor(() =>
+      expect(document.body.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(
+        'Project navigation',
+      ),
+    )
+  })
+
+  test.each([
+    [
+      'native aria-label',
+      { 'aria-label': 'Workspace navigation', ariaLabel: 'Project navigation' },
+      'Workspace navigation',
+    ],
+    ['native title', { title: 'Billing navigation' }, 'Billing navigation'],
+  ] as const)('prefers the Sidebar %s when naming the mobile Sheet', async (_case, props, name) => {
+    const screen = render(() => (
+      <SidebarFrame isMobile>
+        <SidebarFrame.Sidebar {...props}>Navigation</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
+    await waitFor(() =>
+      expect(document.body.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(name),
+    )
   })
 
   test('derives mobile mode from matchMedia when it is uncontrolled', async () => {
@@ -164,6 +208,30 @@ describe('SidebarFrame', () => {
 
     expect(screen.container.querySelector('[data-slot="sidebar"]')).toHaveProperty('hidden', false)
     expect(screen.getByText('Navigation')).toBeTruthy()
+  })
+
+  test('keeps the named Sheet behavior when mobile mode changes dynamically', async () => {
+    const [mobile, setMobile] = createSignal(false)
+    const screen = render(() => (
+      <SidebarFrame isMobile={mobile()}>
+        <SidebarFrame.Sidebar ariaLabel="Account navigation">Navigation</SidebarFrame.Sidebar>
+        <SidebarFrame.Main>
+          <SidebarFrame.Trigger>Toggle</SidebarFrame.Trigger>
+        </SidebarFrame.Main>
+      </SidebarFrame>
+    ))
+
+    setMobile(true)
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
+    await waitFor(() =>
+      expect(document.body.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(
+        'Account navigation',
+      ),
+    )
+
+    setMobile(false)
+    await finishExitMotion()
+    await waitFor(() => expect(document.body.querySelector('[role="dialog"]')).toBeNull())
   })
 
   test('toggles desktop visibility and updates scroll state', () => {
