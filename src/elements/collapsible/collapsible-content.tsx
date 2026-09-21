@@ -7,13 +7,8 @@ import type { ValidComponent } from '../../shared/types.ts'
 import { callRef } from '../../shared/utils'
 
 import { useCollapsibleContext } from './collapsible-context'
-import { collapsibleRecipe } from './collapsible.recipe'
+import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS, collapsibleRecipe } from './collapsible.recipe'
 import type { CollapsibleT } from './collapsible.types'
-
-// The height wrapper is implementation-only: it needs library styling for
-// measurement and presence, but is not a stable family styling responsibility.
-const COLLAPSIBLE_CONTENT_WRAPPER_CLASS =
-  'data-transition:h-(--mo-collapsible-content-height) data-transition:overflow-hidden data-transition:data-expanded:animate-accordion-down data-transition:data-closed:h-0 data-transition:data-closed:animate-accordion-up data-transition:motion-reduce:animate-none'
 
 /** Panel containing the expandable collapsible content. */
 export function CollapsibleContent<T extends ValidComponent = 'div'>(
