@@ -13,10 +13,6 @@ import type { InputNumberStyleSlot, InputNumberStyleVariant } from './input-numb
 
 export namespace InputNumberT {
   export type Kind = 'single'
-
-  export type Orientation = 'horizontal' | 'vertical'
-  export type PointerType = 'mouse' | 'touch' | 'pen'
-
   export type Slot<T = unknown> = InputNumberStyleSlot<T>
 
   export type Variant = InputNumberStyleVariant
@@ -24,7 +20,7 @@ export namespace InputNumberT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
+  export type PointerType = 'mouse' | 'touch' | 'pen'
 
   /**
    * Base props for the InputNumber component.
@@ -211,4 +207,4 @@ export namespace InputNumberT {
 /**
  * Props for the InputNumber component.
  */
-export interface InputNumberProps extends InputNumberT.Props {}
+export type InputNumberProps = InputNumberT.Props

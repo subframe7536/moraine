@@ -4,7 +4,7 @@ import type { Accessor } from 'solid-js'
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import type { UseFormFieldReturn } from '../field/field-context.ts'
 
-import type { BaseSelectT } from './base-select.types.ts'
+import type { BaseSelectValue } from './base-select.types.ts'
 
 /** Query-state options shared by searchable selection controls. */
 export interface SearchValueOptions {
@@ -30,8 +30,8 @@ export interface BaseSelectSearchInputState {
   listboxId: Accessor<string>
   open: Accessor<boolean>
   setOpen: (next: boolean) => void
-  highlightedValue: Accessor<BaseSelectT.Value | undefined>
-  itemId: (value: BaseSelectT.Value) => string
+  highlightedValue: Accessor<BaseSelectValue | undefined>
+  itemId: (value: BaseSelectValue) => string
   locked: Accessor<boolean>
   focusOwner: Accessor<HTMLElement | undefined>
   setFocusOwner: (element: HTMLElement | undefined) => void

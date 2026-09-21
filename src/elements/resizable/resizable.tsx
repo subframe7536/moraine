@@ -104,6 +104,9 @@ interface HandlePart {
   content: () => ResizableT.HandleBase['children']
 }
 
+// Resizable is intentionally a centralized descriptor-rendering composite: its parts describe
+// layout entries and the root owns the coordinated DOM. Direct part class/style values are still
+// applied as the final instance overrides when that DOM is rendered.
 type ResizablePart = PanelPart | HandlePart
 
 function isResizablePart(value: unknown): value is ResizablePart {
@@ -934,7 +937,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                     toggleHandleCollapse(index)
                   }
 
-                  const handleContext: ResizableT.HandleContext = {
+                  const handleContext: ResizableT.HandleRenderProps = {
                     get orientation() {
                       return orientation()
                     },

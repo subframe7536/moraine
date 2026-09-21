@@ -3,7 +3,10 @@ import type { Accessor } from 'solid-js'
 import { createContextProvider } from '../../shared/create-context-provider'
 import type { useTransitionPresence } from '../../shared/use-transition-presence'
 
+import type { ModalT } from './modal.types'
+
 export interface ModalContext {
+  readonly presentation: { classes?: ModalT.Classes; styles?: ModalT.Styles }
   open: Accessor<boolean>
   presence: ReturnType<typeof useTransitionPresence>
   contentId: Accessor<string>

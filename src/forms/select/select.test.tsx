@@ -9,7 +9,6 @@ import { renderWithOwner } from '../../test-utils/owner-render.tsx'
 import { createForm } from '../form/index.ts'
 
 import { Select } from './select.tsx'
-import type { SelectT } from './select.types.ts'
 
 const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
@@ -77,7 +76,7 @@ describe('Select', () => {
   test('renders unresolved, empty-string, and numeric values', () => {
     const [value, setValue] = createSignal<string | number | null>('missing')
     const screen = render(() => (
-      <Select<SelectT.Item<string | number>>
+      <Select
         items={[
           { label: 'Empty', value: '' },
           { label: 'One', value: 1 },

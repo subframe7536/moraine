@@ -123,6 +123,8 @@ SidebarFrame
 
 `SidebarFrame.Trigger` can appear anywhere inside `SidebarFrame` to toggle sidebar visibility, without requiring a structural placement inside `SidebarFrame.Main`. Composing with `<SidebarFrame.Trigger as={Button} ... />` is the recommended way to obtain standard Moraine button styling.
 
+Root `classes` and `styles` provide defaults for `root`, `sidebar`, `sidebarHeader`, `sidebarBody`, `sidebarFooter`, and `main`. Each styled region resolves those defaults with the Theme and `cnConfig` from its own nearest `MoraineProvider`, including the mobile Sheet fallback. SidebarFrame presentation is not forwarded into the internal Sheet family.
+
 Call `useSidebarFrame()` from a descendant component for advanced access to `isMobile`, `isOpen`, `scrolled`, `setOpen`, and `toggle`. A global application header belongs outside the frame. For desktop resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
 
 ## Examples

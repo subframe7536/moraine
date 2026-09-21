@@ -38,6 +38,7 @@ const [PopoverProvider, usePopoverContext] = createContextProvider<{
   invalidateHoverTimers: () => void
   hasClose: () => boolean
   registerClose: () => () => void
+  presentation: { classes?: PopoverT.Classes; styles?: PopoverT.Styles }
 }>('Popover')
 
 /** Click-triggered floating content panel anchored to a trigger element. */
@@ -167,6 +168,9 @@ export function Popover(props: PopoverProps): JSX.Element {
     invalidateHoverTimers,
     hasClose,
     registerClose,
+    get presentation() {
+      return { classes: merged.classes, styles: merged.styles }
+    },
   }
   return <PopoverProvider value={behavior}>{merged.children}</PopoverProvider>
 }
@@ -175,7 +179,10 @@ function PopoverTrigger<T extends ValidComponent = 'button'>(
   props: PopoverT.TriggerProps<T>,
 ): JSX.Element {
   const context = usePopoverContext()
-  const resolved = createStyles(popoverRecipe, props, { rootSlot: 'trigger' })
+  const resolved = createStyles(popoverRecipe, props, {
+    rootSlot: 'trigger',
+    inheritedStyles: () => context.presentation,
+  })
   const popper = context.popper
   const triggerProps = mergeProps(
     mergePopperElementProps<HTMLElement>(
@@ -311,7 +318,10 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       }
     },
   }
-  const resolved = createStyles(popoverRecipe, local, { rootSlot: 'content' })
+  const resolved = createStyles(popoverRecipe, local, {
+    rootSlot: 'content',
+    inheritedStyles: () => behavior.presentation,
+  })
 
   return (
     <PopperContent

@@ -30,9 +30,13 @@ export type ModalSurfaceProps = Omit<ModalT.ContentProps, 'children'> & {
 
 /** Standalone Modal presentation; composed overlays use the same recipe-backed surface. */
 export function ModalContent(props: ModalT.ContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['class', 'style', 'classes', 'styles'])
+  const [local, rest] = splitProps(props, ['class', 'style'])
 
-  const resolved = createStyles(modalRecipe, local, { rootSlot: 'content' })
+  const context = useModalContext()
+  const resolved = createStyles(modalRecipe, local, {
+    rootSlot: 'content',
+    inheritedStyles: () => context.presentation,
+  })
   return <ModalSurface {...rest} {...resolved.styles.content} />
 }
 
@@ -52,8 +56,6 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     'ariaDescribedBy',
     'class',
     'style',
-    'classes',
-    'styles',
     'onKeyDown',
     'surfaceRender',
     'trapFocus',
@@ -104,8 +106,8 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
           local.overlayRef?.(undefined)
         })
       }}
-      class={cn(local.overlayClass, local.classes?.overlay)}
-      style={{ ...local.styles?.overlay, ...local.overlayStyle }}
+      class={cn(local.overlayClass)}
+      style={local.overlayStyle}
     >
       {content}
     </div>
@@ -142,8 +144,8 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
         aria-describedby={ariaDescribedBy(surface)}
         tabIndex={-1}
         data-slot="content"
-        class={cn(local.classes?.content, local.class)}
-        style={{ ...local.styles?.content, ...local.style }}
+        class={cn(local.class)}
+        style={local.style}
         onKeyDown={onContentKeyDown}
       >
         {body()}

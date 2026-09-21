@@ -21,8 +21,6 @@ export namespace SwitchT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
-
   /**
    * Base props for the Switch component.
    */
@@ -119,7 +117,4 @@ export namespace SwitchT {
 /**
  * Props for the Switch component.
  */
-export interface SwitchProps<TTrue = boolean, TFalse = boolean> extends SwitchT.Props<
-  TTrue,
-  TFalse
-> {}
+export type SwitchProps<TTrue = boolean, TFalse = boolean> = SwitchT.Props<TTrue, TFalse>

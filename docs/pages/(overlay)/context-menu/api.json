@@ -108,7 +108,7 @@
       "ariaAttributes": []
     },
     {
-      "name": "itemSub",
+      "name": "itemSubIndicator",
       "description": "Indicator shown when a menu item opens a submenu.",
       "cssVariables": [],
       "dataAttributes": [],
@@ -232,6 +232,12 @@
         "type": "JSX.Element"
       },
       {
+        "name": "classes",
+        "required": false,
+        "type": "ContextMenuT.Classes | undefined",
+        "description": "Family slot class defaults for this ContextMenu instance."
+      },
+      {
         "name": "defaultOpen",
         "required": false,
         "type": "boolean | undefined",
@@ -296,6 +302,12 @@
         "type": "number | undefined",
         "description": "Cross-axis or alignment offset relative to the anchor.",
         "defaultValue": "0"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "ContextMenuT.Styles | undefined",
+        "description": "Family slot style defaults for this ContextMenu instance."
       }
     ],
     "inherited": []
@@ -378,7 +390,7 @@
           {
             "name": "classes",
             "required": false,
-            "type": "ContextMenuT.Classes | undefined"
+            "type": "ContextMenuT.ContentClasses | undefined"
           },
           {
             "name": "contentBottom",
@@ -496,7 +508,7 @@
           {
             "name": "styles",
             "required": false,
-            "type": "ContextMenuT.Styles | undefined"
+            "type": "ContextMenuT.ContentStyles | undefined"
           },
           {
             "name": "submenuIcon",

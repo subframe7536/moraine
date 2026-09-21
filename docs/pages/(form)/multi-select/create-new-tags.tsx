@@ -10,7 +10,7 @@ const INITIAL_TOPICS: MultiSelectT.Item[] = [
 ]
 
 export function CreateNewTags() {
-  const [tags, setTags] = createSignal<MultiSelectT.Value[]>(['solid'])
+  const [tags, setTags] = createSignal<MultiSelectT.Item['value'][]>(['solid'])
 
   return (
     <div class="max-w-md w-full space-y-2">

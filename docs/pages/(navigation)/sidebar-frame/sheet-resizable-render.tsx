@@ -73,7 +73,7 @@ function EditorContent() {
     <SidebarFrame.Main class="bg-card/30 flex flex-col h-full">
       {/* Tab bar */}
       <div class="text-xs border-b border-border/60 bg-muted/40 flex shrink-0 h-9 items-center">
-        <div class="font-medium px-3 border-r border-t-2 border-border/60 border-t-primary bg-background flex gap-2 h-full items-center">
+        <div class="font-medium px-3 border-r border-border/60 border-t-2 border-t-primary bg-background flex gap-2 h-full items-center">
           <Icon name="i-lucide:file-code" class="text-blue-500 size-3.5" />
           <span>sidebar-frame.tsx</span>
           <Icon name="i-lucide:x" class="opacity-60 size-3 cursor-pointer hover:opacity-100" />

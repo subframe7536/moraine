@@ -11,20 +11,14 @@ export interface SheetStyleSlot<T = unknown> {
   /** Top region for sheet title and description. */
   header?: T
 
-  /** Inner wrapper that arranges sheet header, body, footer, and actions. */
-  wrapper?: T
-
   /** Accessible title for the sheet. */
   title?: T
 
   /** Supporting text associated with the sheet title. */
   description?: T
 
-  /** Header action region, usually paired with the close control. */
-  actions?: T
-
-  /** Button that dismisses the sheet. */
-  close?: T
+  /** Automatic close affordance owned by Sheet.Content. */
+  contentClose?: T
 
   /** Main sheet content region. */
   body?: T

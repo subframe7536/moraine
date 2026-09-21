@@ -27,6 +27,8 @@ export const KBD_KEY_ALIASES = {
   win: { text: '⊞', label: 'Windows' },
 } as const
 
+type BuiltinKbd = keyof typeof KBD_KEY_ALIASES
+
 export namespace KbdT {
   export type Kind = 'single'
 
@@ -35,10 +37,7 @@ export namespace KbdT {
   export type Variant = KbdStyleVariant
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type BuiltinKbds = keyof typeof KBD_KEY_ALIASES
-  export type Key = BuiltinKbds | (string & {})
-
-  export interface Item {}
+  export type Key = BuiltinKbd | (string & {})
 
   /** Base props for the Kbd component. */
   export interface Base {
@@ -56,8 +55,8 @@ export namespace KbdT {
   }
 
   /** Props for the Kbd component. */
-  export type Props = BaseProps<'kbd', Base, Variant, never, never>
+  export type Props = BaseProps<'kbd', Base, Variant, Classes, Styles>
 }
 
 /** Props for the Kbd component. */
-export interface KbdProps extends KbdT.Props {}
+export type KbdProps = KbdT.Props

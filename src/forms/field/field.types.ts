@@ -5,17 +5,10 @@ import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '
 
 import type { FieldStyleSlot, FieldStyleVariant } from './field.style-types'
 
+type FieldPath = readonly (string | number)[]
+
 export namespace FieldT {
   export type Kind = 'single'
-  export type Path = readonly (string | number)[]
-  export type Name = string | Path
-
-  /** Props passed to Field children when provided as a render function. */
-  export interface RenderContext {
-    /** The current effective error for the field. */
-    error?: JSX.Element
-  }
-
   export type Slot<T = unknown> = FieldStyleSlot<T>
 
   export type Variant = FieldStyleVariant
@@ -23,7 +16,13 @@ export namespace FieldT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
+  export type Name = string | FieldPath
+
+  /** Props passed to Field children when provided as a render function. */
+  export interface RenderProps {
+    /** The current effective error for the field. */
+    error?: JSX.Element
+  }
 
   /** Base props for the Field component. */
   export interface Base<T extends ValidComponent = 'div'> {
@@ -56,7 +55,7 @@ export namespace FieldT {
     /** Whether controls inherit a read-only state. */
     readOnly?: boolean
     /** Children of the field, can be a render function. */
-    children?: ComponentOrElement<RenderContext>
+    children?: ComponentOrElement<RenderProps>
   }
 
   /** Props for the Field component. */

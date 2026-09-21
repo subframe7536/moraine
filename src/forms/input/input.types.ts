@@ -14,16 +14,13 @@ import type { InputStyleSlot, InputStyleVariant } from './input.style-types'
 
 export namespace InputT {
   export type Kind = 'single'
-
-  export type Value = string | number | undefined
-
   export type Slot<T = unknown> = InputStyleSlot<T>
   export type Variant = InputStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
+  export type Value = string | number | undefined
 
   /**
    * Base props for the Input component.
@@ -123,6 +120,5 @@ export namespace InputT {
 /**
  * Props for the Input component.
  */
-export interface InputProps<
-  M extends ModelModifiers | undefined = ModelModifiers | undefined,
-> extends InputT.Props<M> {}
+export type InputProps<M extends ModelModifiers | undefined = ModelModifiers | undefined> =
+  InputT.Props<M>

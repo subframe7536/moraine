@@ -18,7 +18,7 @@ export const overlayMenuRecipeOptions = {
       'text-sm ms-auto inline-flex shrink-0 gap-2 pointer-events-none items-center justify-end',
     itemKbds: '',
     itemIndicator: 'flex shrink-0 size-4 pointer-events-none items-center justify-center',
-    itemSub: '',
+    itemSubIndicator: '',
     label: 'text-xs text-muted-foreground font-medium px-2 py-1.5 inline-flex',
     separator: 'my-1 bg-border h-px -mx-1',
   },

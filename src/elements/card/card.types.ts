@@ -14,8 +14,6 @@ export namespace CardT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
-
   /**
    * Base props for the Card component.
    */
@@ -66,4 +64,4 @@ export namespace CardT {
 /**
  * Props for the Card component.
  */
-export interface CardProps extends CardT.Props {}
+export type CardProps = CardT.Props

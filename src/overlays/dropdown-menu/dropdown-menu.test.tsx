@@ -277,6 +277,46 @@ describe('DropdownMenu', () => {
     expect(document.activeElement).toBe(subTrigger)
   })
 
+  test('applies itemSubIndicator presentation inside submenu layers', async () => {
+    render(() => (
+      <DropdownMenu defaultOpen classes={{ itemSubIndicator: 'custom-sub-indicator' }}>
+        <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
+        <DropdownMenu.Content
+          items={[
+            {
+              label: 'More',
+              children: [
+                {
+                  label: 'Deeper',
+                  children: [{ label: 'Nested action' }],
+                },
+              ],
+            },
+          ]}
+        />
+      </DropdownMenu>
+    ))
+
+    const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
+    fireEvent.keyDown(content, { key: 'ArrowDown' })
+    const subTrigger = await waitFor(() => {
+      const highlighted = document.body.querySelector<HTMLElement>(
+        '[data-slot="item"][data-highlighted]',
+      )
+      expect(highlighted).not.toBeNull()
+      return highlighted!
+    })
+    fireEvent.keyDown(subTrigger, { key: 'ArrowRight' })
+
+    await waitFor(() => {
+      const indicators = document.body.querySelectorAll('[data-slot="itemSubIndicator"]')
+      expect(indicators).toHaveLength(2)
+      for (const indicator of indicators) {
+        expect(indicator.classList).toContain('custom-sub-indicator')
+      }
+    })
+  })
+
   test('dismisses the deepest submenu first', async () => {
     const closeOrder: string[] = []
     const originalSetAttribute = HTMLElement.prototype.setAttribute

@@ -88,4 +88,4 @@ export namespace RadioGroupT {
 /**
  * Props for the RadioGroup component.
  */
-export interface RadioGroupProps extends RadioGroupT.Props {}
+export type RadioGroupProps = RadioGroupT.Props

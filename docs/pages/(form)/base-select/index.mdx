@@ -117,4 +117,8 @@ for this editable composition.
 ### Styling
 
 BaseSelect exposes `control`, `trigger`, `content`, `listbox`, `item`, `group`, `groupLabel`,
-`separator`, and `empty`. Part-local class and style values have final precedence.
+`separator`, and `empty`. Its headless root accepts family `classes` and `styles`, but no direct root
+`class` or `style`. Every rendered part resolves the raw family defaults together with the Theme and
+`cnConfig` from its own nearest `MoraineProvider`, so nested providers and portaled content remain
+local. A part's direct `class` is passed last to the active class merger for its primary slot; actual
+conflict resolution still follows that merger's configuration.

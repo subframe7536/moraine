@@ -388,7 +388,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     onNavigationKeyDown(event, activeKey(), 'vertical')
   }
 
-  function getContext(): CommandPaletteT.BaseContext<TItem> {
+  function getContext() {
     return {
       get searchTerm() {
         return currentSearchTerm()

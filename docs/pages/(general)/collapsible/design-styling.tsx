@@ -6,8 +6,7 @@ const theme = defineTheme({
     base: {
       root: 'w-full rounded-lg border border-border',
       trigger: 'w-full px-4 py-3 text-left font-medium text-blue-600',
-      contentWrapper: 'border-t border-border',
-      content: 'p-4 text-sm text-muted-foreground',
+      content: 'border-t border-border p-4 text-sm text-muted-foreground',
     },
   },
 })

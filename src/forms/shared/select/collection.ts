@@ -1,6 +1,6 @@
 import { DEV } from 'solid-js'
 
-import type { BaseSelectT } from '../../base-select/base-select.types.ts'
+import type { BaseSelectT, BaseSelectValue } from '../../base-select/base-select.types.ts'
 
 import type { SelectEntry, SelectGroup, SelectView, SelectRow } from './types.ts'
 
@@ -16,11 +16,11 @@ export function isGroup<T extends BaseSelectT.Item>(
   )
 }
 
-const warnedDuplicateValues = new Map<string, Set<BaseSelectT.Value>>()
+const warnedDuplicateValues = new Map<string, Set<BaseSelectValue>>()
 
 export function diagnoseDuplicateValue(
   owner: 'BaseSelect' | 'Select',
-  value: BaseSelectT.Value,
+  value: BaseSelectValue,
 ): void {
   if (!DEV) {
     return
@@ -45,7 +45,7 @@ export function diagnoseDuplicateItems(items: readonly BaseSelectT.Item[]): void
   if (!DEV) {
     return
   }
-  const values = new Set<BaseSelectT.Value>()
+  const values = new Set<BaseSelectValue>()
   for (const item of items) {
     if (values.has(item.value)) {
       diagnoseDuplicateValue('BaseSelect', item.value)
@@ -55,7 +55,7 @@ export function diagnoseDuplicateItems(items: readonly BaseSelectT.Item[]): void
   }
 }
 
-export function itemRowKey(value: BaseSelectT.Value): string {
+export function itemRowKey(value: BaseSelectValue): string {
   return `item:${typeof value}:${encodeURIComponent(String(value))}`
 }
 
@@ -166,7 +166,7 @@ export function labelString<T extends BaseSelectT.Item>(
 }
 
 /** Converts a public scalar selection into BaseSelect's internal selection array. */
-export function singleValueToSelection<T extends BaseSelectT.Value>(
+export function singleValueToSelection<T extends BaseSelectValue>(
   value: T | null | undefined,
 ): T[] | undefined {
   if (value === undefined) {
@@ -184,14 +184,11 @@ export function serializeSourceValue<T extends BaseSelectT.Item>(
 }
 
 /** JavaScript Map/Set equality for raw selection values. */
-export function sameValue(
-  a: BaseSelectT.Value | undefined,
-  b: BaseSelectT.Value | undefined,
-): boolean {
+export function sameValue(a: BaseSelectValue | undefined, b: BaseSelectValue | undefined): boolean {
   return a === b || Object.is(a, b)
 }
 
-export function normalizeSelection<T extends BaseSelectT.Value>(
+export function normalizeSelection<T extends BaseSelectValue>(
   values: readonly T[],
   multiple: boolean,
 ): T[] {
@@ -207,7 +204,7 @@ export function normalizeSelection<T extends BaseSelectT.Value>(
   return normalized
 }
 
-export function selectionEqual<T extends BaseSelectT.Value>(
+export function selectionEqual<T extends BaseSelectValue>(
   left: readonly T[],
   right: readonly T[],
 ): boolean {

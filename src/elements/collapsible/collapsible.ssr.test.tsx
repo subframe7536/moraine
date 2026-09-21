@@ -29,16 +29,16 @@ describe('Collapsible SSR Hydration', () => {
     const trigger = container.querySelector('[data-slot="trigger"]')!
     expect(trigger).not.toBeNull()
     expect(contentMounts).toBe(0)
-    expect(container.querySelector('[data-slot="content"]')).toBeNull()
+    expect(container.querySelector('[data-slot="content-wrapper"]')).toBeNull()
 
     fireEvent.click(trigger)
-    const contentWrapper = container.querySelector('[data-slot="content-wrapper"]')!
+    const wrapper = container.querySelector('[data-slot="content-wrapper"]')!
     expect(contentMounts).toBe(1)
-    expect(trigger.getAttribute('aria-controls')).toBe(contentWrapper.id)
-    expect(contentWrapper.getAttribute('aria-labelledby')).toBe(trigger.id)
+    expect(trigger.getAttribute('aria-controls')).toBe(wrapper.id)
+    expect(wrapper.getAttribute('aria-labelledby')).toBe(trigger.id)
 
     fireEvent.click(trigger)
-    expect(container.querySelector('[data-slot="content"]')).toBeNull()
+    expect(container.querySelector('[data-slot="content-wrapper"]')).toBeNull()
     fireEvent.click(trigger)
     expect(contentMounts).toBe(2)
   })

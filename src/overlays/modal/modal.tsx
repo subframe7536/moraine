@@ -260,6 +260,9 @@ export function Modal(props: ModalProps): JSX.Element {
   })
 
   const context = {
+    get presentation() {
+      return { classes: props.classes, styles: props.styles }
+    },
     open,
     presence,
     contentId,

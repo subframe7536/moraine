@@ -7,15 +7,13 @@ import type { IconStyleSlot, IconStyleVariant } from './icon.style-types'
 export namespace IconT {
   export type Kind = 'single'
 
-  export type Name = string | JSX.Element | Component<Omit<IconProps, 'name'>>
-
   export type Slot<T = unknown> = IconStyleSlot<T>
   export type Variant = IconStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
+  export type Name = string | JSX.Element | Component<Omit<IconProps, 'name'>>
   /**
    * Base props for the Icon component.
    */
@@ -44,10 +42,10 @@ export namespace IconT {
   /**
    * Props for the Icon component.
    */
-  export type Props = BaseProps<'div', Base, Variant, never, never>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /**
  * Props for the Icon component.
  */
-export interface IconProps extends IconT.Props {}
+export type IconProps = IconT.Props

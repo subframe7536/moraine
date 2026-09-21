@@ -52,24 +52,24 @@ const regionOptions: SelectT.Item[] = [
   { label: 'Europe', value: 'europe' },
 ]
 
-let selected: SelectT.Value | null = null
+let selected: SelectT.Item['value'] | null = null
 ```
 
 ### Namespace Reference
 
-Each `XxxT` namespace exposes the following members depending on the component's capabilities:
+Every `XxxT` namespace starts with the same style header. Unsupported capabilities use `never` rather than placeholder objects. Component-specific domain, collection, and render-prop types follow only when they model real public behavior.
 
-| Member    | Description                                                                                        |
-| --------- | -------------------------------------------------------------------------------------------------- |
-| `Kind`    | Component composition model: literal `'single'` or `'composite'`.                                  |
-| `Slot`    | Generic documented map of presentation slots.                                                      |
-| `Variant` | Nullable visual variant options. Passing `null` clears default theme variants.                     |
-| `Item`    | Data model for items or option objects in collection components (`Select`, `List`, etc.).          |
-| `Value`   | Domain type of the component's controlled value.                                                   |
-| `Classes` | Typed map from slot name to CSS class string: `Partial<Record<keyof Slot, string>>`.               |
-| `Styles`  | Typed map from slot name to inline style object: `Partial<Record<keyof Slot, JSX.CSSProperties>>`. |
-| `Base`    | Component-specific base/business props without root HTML attributes.                               |
-| `Props`   | Final public props shape (identical to `XxxProps`).                                                |
+| Member    | Description                                                                       |
+| --------- | --------------------------------------------------------------------------------- |
+| `Kind`    | Component composition model: literal `'single'` or `'composite'`.                 |
+| `Slot`    | Generic documented map of presentation slots, or `never` for headless components. |
+| `Variant` | Nullable visual variant options, or `never` when unavailable.                     |
+| `Classes` | Typed slot-class overrides, or `never` when unavailable.                          |
+| `Styles`  | Typed slot-style overrides, or `never` when unavailable.                          |
+| `Item`    | Data model for genuine collection components such as `Select` and `Tabs`.         |
+| `Value`   | Domain type only when the component has meaningful value semantics.               |
+| `Base`    | Component-specific base/business props without root HTML attributes.              |
+| `Props`   | Final public props shape (identical to `XxxProps`).                               |
 
 ### Component Kinds (`XxxT.Kind`)
 
@@ -154,7 +154,7 @@ On text inputs and textareas, native attributes target the inner editable elemen
 
 ### Headless Composite Roots (`Dialog`, `Sheet`, `Modal`)
 
-Some composite primitives (such as `Dialog`, `Sheet`, `Modal`, `ContextMenu`, and `DropdownMenu`) are state and context providers without a DOM root element of their own. Their root components accept only behavioral and state props (`open`, `onOpenChange`, `defaultOpen`). DOM attributes, classes, and styles belong on their respective `Trigger` and `Content` subcomponents.
+Some composite primitives (such as `Dialog`, `Sheet`, `Modal`, `Popover`, `Tooltip`, `ContextMenu`, `DropdownMenu`, and `BaseSelect`) are state and context providers without a DOM root element of their own. Their roots accept typed family `classes` and `styles` as instance defaults, but do not accept direct `class` or `style` because there is no root DOM element. DOM attributes and direct presentation belong on rendered parts. One-slot parts expose only `class` and `style`; multi-slot parts expose a scoped slot map containing only the slots they control.
 
 ## Polymorphic Rendering (`as` Prop)
 

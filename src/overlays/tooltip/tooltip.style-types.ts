@@ -1,7 +1,4 @@
 export interface TooltipStyleSlot<T = unknown> {
-  /** Positioning wrapper around the tooltip surface. */
-  positioner?: T
-
   /** Element that opens the tooltip. */
   trigger?: T
 

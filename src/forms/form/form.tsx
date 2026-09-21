@@ -26,6 +26,8 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
   const [local, formProps] = splitProps(props, [
     'class',
     'style',
+    'classes',
+    'styles',
     'ref',
     'focusManager',
     'of',

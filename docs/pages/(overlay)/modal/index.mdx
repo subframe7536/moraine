@@ -20,7 +20,7 @@ import type { ModalT } from 'moraine'
 ## Features
 
 - **Composable Primitives**: `Modal`, `Modal.Trigger`, `Modal.Overlay`, and `Modal.Content` separate state, trigger, backdrop overlay, and content responsibilities.
-- **Overridable Defaults**: `Modal.Overlay` and `Modal.Content` provide default layout, surface, and transition classes. Supplying a custom content `class` replaces the default content class set.
+- **Overridable Defaults**: Root `classes` and `styles` provide instance defaults for the `overlay` and `content` slots; each rendered part accepts direct `class` and `style`.
 - **Focus Management**: Keeps focus within the active modal surface and restores focus when it closes.
 - **Scroll Lock & Portal Rendering**: Portals modal overlay and content, and prevents background body scrolling while open.
 - **Dismissal & Overlay Control**: Configure outside/Escape dismissal and optional overlay rendering.
@@ -55,9 +55,9 @@ import type { ModalT } from 'moraine'
                 </p>
               </div>
               <div class="flex gap-2 justify-end">
-                <Button size="sm" variant="outline" onClick={context.close}>
+                <Modal.Close as={Button} size="sm" variant="outline">
                   Got it
-                </Button>
+                </Modal.Close>
               </div>
             </div>
           )}
@@ -86,13 +86,13 @@ Modal (state provider)
 
 ### Composition
 
-`Modal` is a state provider, not a DOM root. Compose `Modal.Trigger` with `Modal.Overlay` and `Modal.Content`; the overlay and content are portaled and coordinate exit motion and focus behavior. Use `Dialog` or `Sheet` when their structured shell is a closer fit.
+`Modal` is a state and presentation provider, not a DOM root. It accepts family `classes` and `styles`, but no direct root `class` or `style`. Compose `Modal.Trigger` with `Modal.Overlay` and `Modal.Content`; the one-slot Overlay and Content parts expose only direct `class` and `style`. Their portaled DOM coordinates exit motion and focus behavior. Use `Dialog` or `Sheet` when their structured shell is a closer fit.
 
 <Preview path="./modal-composition" />
 
 ### State, styling, and exit lifecycle
 
-Use `open` with `onOpenChange` for controlled visibility. `Modal.Content` applies default popup classes only when its `class` is omitted; provide a class when the application owns the content animation. `onExitComplete` waits for the registered overlay and content exit presence to finish.
+Use `open` with `onOpenChange` for controlled visibility. `Modal.Content` merges its direct `class` after family defaults through the active Moraine class merger; an empty value does not disable the recipe. `onExitComplete` waits for the registered overlay and content exit presence to finish.
 
 <Preview path="./modal-lifecycle" />
 

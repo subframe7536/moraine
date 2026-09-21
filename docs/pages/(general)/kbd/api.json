@@ -33,6 +33,11 @@
         "description": "Class applied to the component root or trigger element."
       },
       {
+        "name": "classes",
+        "required": false,
+        "type": "KbdT.Classes | undefined"
+      },
+      {
         "name": "label",
         "required": false,
         "type": "string | undefined",
@@ -60,6 +65,11 @@
         "name": "style",
         "required": false,
         "type": "SlotStyleValue | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "KbdT.Styles | undefined"
       },
       {
         "name": "symbol",

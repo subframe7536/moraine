@@ -5,7 +5,7 @@ import { createStyles } from '../../provider'
 
 import { kbdRecipe } from './kbd.recipe'
 import { KBD_KEY_ALIASES } from './kbd.types'
-import type { KbdProps, KbdT } from './kbd.types'
+import type { KbdProps } from './kbd.types'
 
 /** Keyboard keycap component with configurable size, variant, and accessible label. */
 export function Kbd(props: KbdProps): JSX.Element {
@@ -18,13 +18,15 @@ export function Kbd(props: KbdProps): JSX.Element {
     'variant',
     'class',
     'style',
+    'classes',
+    'styles',
   ])
   const resolved = createStyles(kbdRecipe, local)
 
   const alias = createMemo(() =>
     local.symbol === false
       ? undefined
-      : KBD_KEY_ALIASES[local.value.toLowerCase() as KbdT.BuiltinKbds],
+      : KBD_KEY_ALIASES[local.value.toLowerCase() as keyof typeof KBD_KEY_ALIASES],
   )
   const text = createMemo(() => alias()?.text ?? local.value)
 

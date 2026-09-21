@@ -14,65 +14,9 @@ export namespace CollapsibleT {
   export type Kind = 'composite'
 
   export type Slot<T = unknown> = CollapsibleStyleSlot<T>
-
+  export type Variant = CollapsibleStyleVariant
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-
-  export type TriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T>
-
-  export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
-    T,
-    TriggerBase<T>,
-    never,
-    never,
-    never,
-    'button'
-  >
-
-  export type ContentBase<T extends ValidComponent = 'div'> = {
-    /**
-     * Element or component to render inner content as.
-     * @default 'div'
-     */
-    as?: T
-
-    /**
-     * Whether to unmount content when closed.
-     * @default true
-     */
-    unmountOnHide?: boolean
-
-    /**
-     * Force mounting the content in the DOM even when closed.
-     * @default false
-     */
-    forceMount?: boolean
-
-    /** Additional class applied to the outer animated height wrapper. */
-    wrapperClass?: string
-
-    /** Additional style applied to the outer animated height wrapper. */
-    wrapperStyle?: JSX.CSSProperties
-
-    /** Ref callback for the outer animated height wrapper element. */
-    wrapperRef?: (element: HTMLDivElement) => void
-
-    /** Content to render. */
-    children?: JSX.Element
-  }
-
-  export type ContentProps<T extends ValidComponent = 'div'> = BaseProps<
-    T,
-    ContentBase<T>,
-    never,
-    never,
-    never,
-    'div'
-  >
-
-  export type Variant = CollapsibleStyleVariant
-
-  export interface Item {}
   /**
    * Base props for the Collapsible component.
    */
@@ -125,10 +69,53 @@ export namespace CollapsibleT {
   /**
    * Props for the Collapsible component.
    */
-  export type Props = BaseProps<'div', Base, never, Classes, Styles>
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
+
+  export type TriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T>
+
+  export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
+    T,
+    TriggerBase<T>,
+    never,
+    never,
+    never,
+    'button'
+  >
+
+  export type ContentBase<T extends ValidComponent = 'div'> = {
+    /**
+     * Element or component to render inner content as.
+     * @default 'div'
+     */
+    as?: T
+
+    /**
+     * Whether to unmount content when closed.
+     * @default true
+     */
+    unmountOnHide?: boolean
+
+    /**
+     * Force mounting the content in the DOM even when closed.
+     * @default false
+     */
+    forceMount?: boolean
+
+    /** Content to render. */
+    children?: JSX.Element
+  }
+
+  export type ContentProps<T extends ValidComponent = 'div'> = BaseProps<
+    T,
+    ContentBase<T>,
+    never,
+    never,
+    never,
+    'div'
+  >
 }
 
 /**
  * Props for the Collapsible component.
  */
-export interface CollapsibleProps extends CollapsibleT.Props {}
+export type CollapsibleProps = CollapsibleT.Props

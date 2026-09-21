@@ -4,7 +4,6 @@ import type {
   FormStore,
   SubmitEventHandler,
 } from '@formisch/solid'
-import type * as Formisch from '@formisch/solid'
 import type { JSX } from 'solid-js'
 
 import type {
@@ -17,18 +16,22 @@ import type { FieldProps as StandaloneFieldProps } from '../field'
 
 import type { FormStyleSlot, FormStyleVariant } from './form.style-types'
 
+type SchemaPath<TValue> = TValue extends readonly (infer TItem)[]
+  ? readonly [number] | readonly [number, ...SchemaPath<NonNullable<TItem>>]
+  : TValue extends Record<PropertyKey, unknown>
+    ? {
+        [TKey in Extract<keyof TValue, string | number>]:
+          | readonly [TKey]
+          | readonly [TKey, ...SchemaPath<NonNullable<TValue[TKey]>>]
+      }[Extract<keyof TValue, string | number>]
+    : never
+
 export namespace FormT {
   export type Kind = 'single'
-
-  type SchemaPath<TValue> = TValue extends readonly (infer TItem)[]
-    ? readonly [number] | readonly [number, ...SchemaPath<NonNullable<TItem>>]
-    : TValue extends Record<PropertyKey, unknown>
-      ? {
-          [TKey in Extract<keyof TValue, string | number>]:
-            | readonly [TKey]
-            | readonly [TKey, ...SchemaPath<NonNullable<TValue[TKey]>>]
-        }[Extract<keyof TValue, string | number>]
-      : never
+  export type Slot<T = unknown> = FormStyleSlot<T>
+  export type Variant = FormStyleVariant
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
 
   export type FieldName<TSchema extends FormSchema> = NonNullable<
     TSchema['~types']
@@ -40,15 +43,6 @@ export namespace FormT {
     Form: (props: Props<TSchema>) => JSX.Element
     Field: <T extends ValidComponent = 'div'>(props: FieldProps<TSchema, T>) => JSX.Element
   }
-
-  export type ValidationMode = Formisch.ValidationMode
-
-  export type Slot<T = unknown> = FormStyleSlot<T>
-
-  export type Variant = FormStyleVariant
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-  export interface Item {}
 
   export interface Base<TSchema extends FormSchema = FormSchema> extends Omit<
     FormischFormProps<TSchema>,
@@ -63,8 +57,8 @@ export namespace FormT {
     'form',
     Base<TSchema>,
     Variant,
-    never,
-    never
+    Classes,
+    Styles
   >
 
   export type FieldProps<

@@ -15,8 +15,6 @@ export namespace BadgeT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
-
   /**
    * Base props for the Badge component.
    */
@@ -49,4 +47,4 @@ export namespace BadgeT {
 /**
  * Props for the Badge component.
  */
-export interface BadgeProps extends BadgeT.Props {}
+export type BadgeProps = BadgeT.Props

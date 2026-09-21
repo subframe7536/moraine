@@ -1,4 +1,4 @@
-import type { JSX, Ref } from 'solid-js'
+import type { JSX } from 'solid-js'
 import {
   createEffect,
   createMemo,
@@ -189,13 +189,9 @@ function addDecimal(value: number, amount: number): number {
   return (multipliedValue + multipliedAmount) / multiplier
 }
 
-type RootProps = InputNumberProps & {
-  ref?: Ref<HTMLDivElement>
-}
-
 /** Numeric input with increment/decrement controls, step, and min/max constraints. */
 export function InputNumber(props: InputNumberProps): JSX.Element {
-  const [local, rest] = splitProps(props as RootProps, [
+  const [local, rest] = splitProps(props, [
     'ref',
     'inputRef',
     'id',

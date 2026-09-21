@@ -22,7 +22,7 @@ export interface CollapsibleContext {
     'data-expanded'?: string
   }>
   contentHeight: Accessor<number>
-  setContentElement: (element: HTMLDivElement | undefined) => void
+  setContentElement: (element: HTMLElement | undefined) => void
   contentPresence: ReturnType<typeof useTransitionPresence>
   triggerElement: Accessor<HTMLElement | undefined>
   setTriggerElement: (element: HTMLElement | undefined) => void

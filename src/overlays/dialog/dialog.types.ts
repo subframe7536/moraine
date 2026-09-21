@@ -15,12 +15,29 @@ export namespace DialogT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export interface Item {}
 
   /**
    * Base props for the Dialog component.
    */
-  export interface Base extends ModalT.Base {}
+  export interface Base extends Omit<ModalT.Base, 'classes' | 'styles'> {
+    /** Family slot class defaults for this Dialog instance. */
+    classes?: Classes
+    /** Family slot style defaults for this Dialog instance. */
+    styles?: Styles
+  }
+  export type Props = Base
+
+  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
+  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
+
+  export type ContentClasses = Pick<
+    Classes,
+    'overlay' | 'content' | 'header' | 'title' | 'description' | 'contentClose' | 'body' | 'footer'
+  >
+  export type ContentStyles = Pick<
+    Styles,
+    'overlay' | 'content' | 'header' | 'title' | 'description' | 'contentClose' | 'body' | 'footer'
+  >
   export interface ContentBase {
     /** Whether to render the overlay element. */
     overlay?: boolean
@@ -88,13 +105,13 @@ export namespace DialogT {
   /**
    * Props for the Dialog component.
    */
-  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
+  export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
+
+  export type CloseBase<T extends ValidComponent = 'button'> = ModalT.CloseBase<T>
   export type CloseProps<T extends ValidComponent = 'button'> = ModalT.CloseProps<T>
-  export type ContentProps = BaseProps<'div', ContentBase, Variant, Classes, Styles>
-  export type Props = Base
 }
 
 /**
  * Props for the Dialog component.
  */
-export interface DialogProps extends DialogT.Props {}
+export type DialogProps = DialogT.Props

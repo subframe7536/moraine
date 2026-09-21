@@ -90,7 +90,7 @@
       {
         "name": "value",
         "required": true,
-        "type": "BaseSelectT.Value",
+        "type": "string | number",
         "description": "Unique selection and form value."
       }
     ]
@@ -107,7 +107,7 @@
         "name": "classes",
         "required": false,
         "type": "BaseSelectT.Classes | undefined",
-        "description": "Classes for popup parts."
+        "description": "Family slot class defaults for this BaseSelect instance."
       },
       {
         "name": "closeOnSelect",
@@ -125,7 +125,7 @@
       {
         "name": "defaultValue",
         "required": false,
-        "type": "readonly BaseSelectT.ItemValue<T>[] | undefined",
+        "type": "readonly T[\"value\"][] | undefined",
         "description": "Initial selection.",
         "defaultValue": "[]"
       },
@@ -182,7 +182,7 @@
       {
         "name": "onChange",
         "required": false,
-        "type": "((value: BaseSelectT.ItemValue<T>[]) => void) | undefined",
+        "type": "((value: T[\"value\"][]) => void) | undefined",
         "description": "Called when selection changes."
       },
       {
@@ -234,12 +234,12 @@
         "name": "styles",
         "required": false,
         "type": "BaseSelectT.Styles | undefined",
-        "description": "Styles for popup parts."
+        "description": "Family slot style defaults for this BaseSelect instance."
       },
       {
         "name": "value",
         "required": false,
-        "type": "readonly BaseSelectT.ItemValue<T>[] | undefined",
+        "type": "readonly T[\"value\"][] | undefined",
         "description": "Controlled selection. Single mode uses at most the first value."
       }
     ],
@@ -258,9 +258,20 @@
       "props": {
         "own": [
           {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
             "name": "style",
             "required": false,
-            "type": "JSX.CSSProperties | undefined"
+            "type": "SlotStyleValue | undefined"
           }
         ],
         "inherited": []
@@ -287,7 +298,7 @@
           {
             "name": "children",
             "required": false,
-            "type": "JSX.Element | ((state: BaseSelectT.TriggerState<TItem>) => JSX.Element)",
+            "type": "JSX.Element | ((state: BaseSelectT.TriggerRenderProps<TItem>) => JSX.Element)",
             "description": "Label or reactive presentation function."
           },
           {
@@ -328,6 +339,12 @@
       "props": {
         "own": [
           {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
+          },
+          {
             "name": "gutter",
             "required": false,
             "type": "number | undefined",
@@ -348,9 +365,14 @@
             "defaultValue": "4"
           },
           {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
             "name": "style",
             "required": false,
-            "type": "JSX.CSSProperties | undefined"
+            "type": "SlotStyleValue | undefined"
           }
         ],
         "inherited": []
@@ -390,8 +412,14 @@
           {
             "name": "children",
             "required": false,
-            "type": "JSX.Element | ((state: BaseSelectT.ItemState<T>) => JSX.Element)",
+            "type": "JSX.Element | ((state: BaseSelectT.ItemRenderProps<T>) => JSX.Element)",
             "description": "Visual content or reactive row presentation."
+          },
+          {
+            "name": "class",
+            "required": false,
+            "type": "SlotClassValue",
+            "description": "Class applied to the component root or trigger element."
           },
           {
             "name": "item",
@@ -400,9 +428,14 @@
             "description": "Raw item belonging to the current navigation collection."
           },
           {
+            "name": "ref",
+            "required": false,
+            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          },
+          {
             "name": "style",
             "required": false,
-            "type": "JSX.CSSProperties | undefined"
+            "type": "SlotStyleValue | undefined"
           }
         ],
         "inherited": []

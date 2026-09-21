@@ -74,7 +74,7 @@ import type { ContextMenuT } from 'moraine'
 
 ## Anatomy
 
-`ContextMenu` owns state and context without adding a DOM element. `ContextMenu.Trigger` owns its attributes, events, ref, and styling; `ContextMenu.Content` owns the floating surface and presentation props. Put native surface attributes directly on Content.
+`ContextMenu` owns state and family presentation without adding a DOM element. Root `classes` and `styles` provide instance defaults for the shared menu slot vocabulary. Trigger is a one-slot part with direct `class` and `style`; Content's scoped `classes` and `styles` cover every menu presentation slot except `trigger`, including nested submenu layers. Put native surface attributes directly on Content.
 
 ```text
 Root (context only)
@@ -88,7 +88,10 @@ Root (context only)
             ├── itemWrapper
             │   ├── itemLabel
             │   └── itemDescription
-            └── itemTrailing
+            ├── itemTrailing
+            ├── itemKbds
+            ├── itemIndicator
+            └── itemSubIndicator
 ```
 
 ## Usage

@@ -4,6 +4,8 @@
 - [x] cleanup ElementFor and onXXX types, or maybe unify
 - [x] correct document page's focus loop and refresh scroll retention (during dev)
   - [x] also audit all components focus loop
+- [ ] builtin icon names auto completion support for `IconT.Name`
+  - [ ] in toaster docs, use custom icon in provider
 - [ ] docs polish
 
 # V1

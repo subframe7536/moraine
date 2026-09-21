@@ -99,7 +99,7 @@
       {
         "name": "children",
         "required": false,
-        "type": "ComponentOrElement<FieldT.RenderContext>",
+        "type": "ComponentOrElement<FieldT.RenderProps>",
         "description": "Children of the field, can be a render function."
       },
       {

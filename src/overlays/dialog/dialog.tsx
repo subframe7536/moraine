@@ -10,26 +10,41 @@ import { Modal } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'
 
+import { DialogPresentationProvider, useDialogPresentation } from './dialog-context'
 import { dialogRecipe } from './dialog.recipe'
 import type { DialogProps, DialogT } from './dialog.types'
 
 /** Dialog state and context. Trigger, Content, and Close own their respective DOM. */
 export function Dialog(props: DialogProps): JSX.Element {
-  return <Modal {...props} />
+  const [local, rest] = splitProps(props, ['classes', 'styles', 'children'])
+  return (
+    <DialogPresentationProvider
+      value={{
+        get presentation() {
+          return { classes: local.classes, styles: local.styles }
+        },
+      }}
+    >
+      <Modal {...rest}>{local.children}</Modal>
+    </DialogPresentationProvider>
+  )
 }
 
 function DialogTrigger<T extends ValidComponent = 'button'>(
   props: DialogT.TriggerProps<T>,
 ): JSX.Element {
-  const resolved = createStyles(dialogRecipe, props, { rootSlot: 'trigger' })
+  const family = useDialogPresentation()
+  const resolved = createStyles(dialogRecipe, props, {
+    rootSlot: 'trigger',
+    inheritedStyles: () => family.presentation,
+  })
   return <Modal.Trigger {...props} {...resolved.styles.trigger} />
 }
 
 function DialogClose<T extends ValidComponent = 'button'>(
   props: DialogT.CloseProps<T>,
 ): JSX.Element {
-  const resolved = createStyles(dialogRecipe, props, { rootSlot: 'close' })
-  return <Modal.Close {...props} {...resolved.styles.close} />
+  return <Modal.Close {...props} />
 }
 
 function DialogContent(props: DialogT.ContentProps): JSX.Element {
@@ -53,12 +68,16 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
   ])
 
   const context = useModalContext()
+  const family = useDialogPresentation()
   const merged = mergeProps(
     { overlay: true, close: true, closeIcon: 'icon-close' as const },
 
     local,
   )
-  const resolved = createStyles(dialogRecipe, local, { rootSlot: 'content' })
+  const resolved = createStyles(dialogRecipe, local, {
+    rootSlot: 'content',
+    inheritedStyles: () => family.presentation,
+  })
   const overlayScroll = () =>
     resolved.variants.scrollable && merged.overlay && !resolved.variants.fullscreen
 
@@ -90,10 +109,7 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
             ? `${context.contentId()}-description`
             : undefined
         const hasHeader = () =>
-          hasCustomHeader() ||
-          hasJsxContent(title()) ||
-          hasJsxContent(description()) ||
-          merged.close
+          hasCustomHeader() || hasJsxContent(title()) || hasJsxContent(description())
 
         return {
           ariaLabel: merged.ariaLabel,
@@ -107,32 +123,19 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
                     when={hasCustomHeader()}
                     fallback={
                       <>
-                        <Show when={hasJsxContent(title()) || hasJsxContent(description())}>
-                          <div
-                            data-slot="wrapper"
-                            data-close={merged.close ? '' : undefined}
-                            {...resolved.styles.wrapper}
-                          >
-                            <Show when={hasJsxContent(title())}>
-                              <h2 id={titleId()} data-slot="title" {...resolved.styles.title}>
-                                {title()}
-                              </h2>
-                            </Show>
-                            <Show when={hasJsxContent(description())}>
-                              <p
-                                id={descriptionId()}
-                                data-slot="description"
-                                {...resolved.styles.description}
-                              >
-                                {description()}
-                              </p>
-                            </Show>
-                          </div>
+                        <Show when={hasJsxContent(title())}>
+                          <h2 id={titleId()} data-slot="title" {...resolved.styles.title}>
+                            {title()}
+                          </h2>
                         </Show>
-                        <Show when={merged.close}>
-                          <Modal.Close aria-label="Close" {...resolved.styles.close}>
-                            <Icon name={closeIcon()} />
-                          </Modal.Close>
+                        <Show when={hasJsxContent(description())}>
+                          <p
+                            id={descriptionId()}
+                            data-slot="description"
+                            {...resolved.styles.description}
+                          >
+                            {description()}
+                          </p>
                         </Show>
                       </>
                     }
@@ -140,6 +143,15 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
                     {header()}
                   </Show>
                 </div>
+              </Show>
+              <Show when={merged.close}>
+                <Modal.Close
+                  data-slot="contentClose"
+                  aria-label="Close"
+                  {...resolved.styles.contentClose}
+                >
+                  <Icon name={closeIcon()} />
+                </Modal.Close>
               </Show>
               <Show when={hasJsxContent(body())}>
                 <div

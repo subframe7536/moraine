@@ -4,6 +4,7 @@ import type { ComponentOrElement } from '../../shared/render-prop'
 import type {
   BaseProps,
   SlotClassValue,
+  SlotStyleValue,
   TriggerBase as SharedTriggerBase,
   ValidComponent,
 } from '../../shared/types.ts'
@@ -12,8 +13,12 @@ import type { ModalStyleSlot, ModalStyleVariant } from './modal.style-types'
 
 export namespace ModalT {
   export type Kind = 'composite'
+  export type Slot<T = unknown> = ModalStyleSlot<T>
+  export type Variant = ModalStyleVariant
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
 
-  export interface ContentContext {
+  export interface ContentRenderProps {
     /** Closes the modal. */
     close: () => void
   }
@@ -54,14 +59,13 @@ export namespace ModalT {
 
     /** Composed trigger and content primitives. */
     children?: JSX.Element
+
+    /** Family slot class defaults for this Modal instance. */
+    classes?: Classes
+
+    /** Family slot style defaults for this Modal instance. */
+    styles?: Styles
   }
-
-  export type Slot<T = unknown> = ModalStyleSlot<T>
-  export type Variant = ModalStyleVariant
-
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<JSX.CSSProperties>
-  export interface Item {}
 
   export type Props = Base
 
@@ -87,11 +91,11 @@ export namespace ModalT {
     children?: JSX.Element
   }
 
-  export type OverlayProps = BaseProps<'div', OverlayBase, Variant, Classes, Styles>
+  export type OverlayProps = BaseProps<'div', OverlayBase, Variant, never, never>
 
   export interface ContentBase {
     /** Component or element rendered inside the modal content surface. */
-    children: ComponentOrElement<ContentContext>
+    children: ComponentOrElement<ContentRenderProps>
 
     /** Accessible name used when no visible label is available. */
     ariaLabel?: string
@@ -110,8 +114,17 @@ export namespace ModalT {
     trapFocus?: boolean
   }
 
-  export type ContentProps = BaseProps<'div', ContentBase, Variant, Classes, Styles>
-  export type CloseProps<T extends ValidComponent = 'button'> = TriggerProps<T>
+  export type ContentProps = BaseProps<'div', ContentBase, Variant, never, never>
+
+  export type CloseBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T>
+  export type CloseProps<T extends ValidComponent = 'button'> = BaseProps<
+    T,
+    CloseBase<T>,
+    never,
+    never,
+    never,
+    'button'
+  >
 }
 
 /** Props for the Modal component. */

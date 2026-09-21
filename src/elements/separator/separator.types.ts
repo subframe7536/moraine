@@ -11,8 +11,6 @@ export namespace SeparatorT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
-
   /** Base props for the Separator component. */
   export interface Base {}
 
@@ -21,4 +19,4 @@ export namespace SeparatorT {
 }
 
 /** Props for the Separator component. */
-export interface SeparatorProps extends SeparatorT.Props {}
+export type SeparatorProps = SeparatorT.Props

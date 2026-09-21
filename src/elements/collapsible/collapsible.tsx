@@ -44,7 +44,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
   })
   const contentPresence = useTransitionPresence({ open })
   const [triggerElement, setTriggerElement] = createSignal<HTMLElement | undefined>()
-  const [contentElement, setCurrentContentElement] = createSignal<HTMLDivElement | undefined>()
+  const [contentElement, setCurrentContentElement] = createSignal<HTMLElement | undefined>()
   const transition = createMemo(() => Boolean(local.transition))
   const unmountOnHide = createMemo(() => local.unmountOnHide ?? true)
   let contentHasFocus = false
@@ -67,7 +67,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     }),
   )
 
-  function setTrackedContentElement(element: HTMLDivElement | undefined): void {
+  function setTrackedContentElement(element: HTMLElement | undefined): void {
     removeContentFocusListeners?.()
     removeContentFocusListeners = undefined
     setCurrentContentElement(element)

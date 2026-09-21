@@ -16,6 +16,8 @@ export function Icon(props: IconProps): JSX.Element {
     'name',
     'class',
     'style',
+    'classes',
+    'styles',
     'size',
     'slotName',
     'aria-hidden',

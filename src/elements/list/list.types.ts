@@ -5,8 +5,12 @@ import type { BaseProps, ValidComponent } from '../../shared/types'
 
 export namespace ListT {
   export type Kind = 'single'
-
+  // oxlint-disable-next-line no-unused-vars -- Mandatory public style header keeps the generic Slot signature.
+  export type Slot<T = unknown> = never
   export type Variant = never
+  export type Classes = never
+  export type Styles = never
+
   export type RowProps<TItemElement extends HTMLElement = HTMLElement> = Omit<
     JSX.HTMLAttributes<TItemElement>,
     'ref' | 'style'
@@ -59,7 +63,7 @@ export namespace ListT {
     TItem,
     T extends ValidComponent = 'ul',
     TItemElement extends HTMLElement = HTMLElement,
-  > = BaseProps<T, Base<TItem, T, TItemElement>, Variant, never, never, 'ul'>
+  > = BaseProps<T, Base<TItem, T, TItemElement>, Variant, Classes, Styles, 'ul'>
 }
 
 export type ListProps<

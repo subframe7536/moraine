@@ -25,11 +25,6 @@ interface FileRejection {
 
 export namespace FileUploadT {
   export type Kind = 'single'
-
-  export type Value = File | File[] | null
-  export type Error = FileError
-  export type Rejection = FileRejection
-
   export type Slot<T = unknown> = FileUploadStyleSlot<T>
 
   export type Variant = FileUploadStyleVariant
@@ -37,7 +32,9 @@ export namespace FileUploadT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
+  export type Value = File | File[] | null
+  export type Error = FileError
+  export type Rejection = FileRejection
 
   /** Base props for the FileUpload component. */
   export interface Base<T extends ValidComponent = 'div'>
@@ -121,7 +118,7 @@ export namespace FileUploadT {
     onValueChange?: (value: Value) => void
 
     /** Callback when files are rejected (e.g., due to type or count). */
-    onFileReject?: (files: FileRejection[]) => void
+    onFileReject?: (files: Rejection[]) => void
   }
 
   /** Props for the FileUpload component. */

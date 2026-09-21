@@ -16,26 +16,22 @@ import type {
   CommandPaletteStyleVariant,
 } from './command-palette.style-types'
 
+interface CommandPaletteBaseRenderProps<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
+  searchTerm: string
+  loading: boolean
+  hasItems: boolean
+  groups: CommandPaletteT.Group<TItem>[]
+  visibleGroups: CommandPaletteT.Group<TItem>[]
+}
+
 export namespace CommandPaletteT {
   export type Kind = 'single'
-
-  export type DescriptionPosition = 'bottom' | 'trailing'
-
   export type Slot<T = unknown> = CommandPaletteStyleSlot<T>
 
   export type Variant = CommandPaletteStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-
-  export interface Group<TItem extends Item = Item> {
-    /** Unique identifier for the group. */
-    id: string
-    /** Display name for the group header. */
-    label?: string
-    /** Items belonging to this group. */
-    items?: TItem[]
-  }
 
   export interface Item {
     /** Unique value for the item. */
@@ -56,6 +52,15 @@ export namespace CommandPaletteT {
     alwaysShow?: boolean
     /** Callback triggered when the item is selected. */
     onSelect?: () => void
+  }
+
+  export interface Group<TItem extends Item = Item> {
+    /** Unique identifier for the group. */
+    id: string
+    /** Display name for the group header. */
+    label?: string
+    /** Items belonging to this group. */
+    items?: TItem[]
   }
 
   export interface VirtualLabelEntry<TItem extends Item = Item> {
@@ -92,15 +97,9 @@ export namespace CommandPaletteT {
     HTMLDivElement
   >
 
-  export interface BaseContext<TItem extends Item = Item> {
-    searchTerm: string
-    loading: boolean
-    hasItems: boolean
-    groups: Group<TItem>[]
-    visibleGroups: Group<TItem>[]
-  }
-
-  export interface ItemRenderProps<TItem extends Item = Item> extends BaseContext<TItem> {
+  export interface ItemRenderProps<
+    TItem extends Item = Item,
+  > extends CommandPaletteBaseRenderProps<TItem> {
     item: TItem
     group: Group<TItem>
     focused: boolean
@@ -110,8 +109,8 @@ export namespace CommandPaletteT {
     disabled: boolean
   }
 
-  export type EmptyRenderProps<TItem extends Item = Item> = BaseContext<TItem>
-  export type FooterRenderProps<TItem extends Item = Item> = BaseContext<TItem>
+  export type EmptyRenderProps<TItem extends Item = Item> = CommandPaletteBaseRenderProps<TItem>
+  export type FooterRenderProps<TItem extends Item = Item> = CommandPaletteBaseRenderProps<TItem>
 
   export interface Base<TItem extends Item = Item> {
     /** Ref forwarded to the root `<div>` element. */
@@ -209,6 +208,5 @@ export namespace CommandPaletteT {
   >
 }
 
-export interface CommandPaletteProps<
-  TItem extends CommandPaletteT.Item = CommandPaletteT.Item,
-> extends CommandPaletteT.Props<TItem> {}
+export type CommandPaletteProps<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> =
+  CommandPaletteT.Props<TItem>

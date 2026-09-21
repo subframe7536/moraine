@@ -73,9 +73,9 @@ describe('Collapsible', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
     expect(root?.hasAttribute('data-expanded')).toBe(true)
     expect(screen.getByTestId('content')).not.toBeNull()
-    const contentWrapper = screen.container.querySelector('[data-slot="content-wrapper"]')!
-    expect(trigger.getAttribute('aria-controls')).toBe(contentWrapper.id)
-    expect(contentWrapper.getAttribute('aria-labelledby')).toBe(trigger.id)
+    const wrapper = screen.container.querySelector('[data-slot="content-wrapper"]')!
+    expect(trigger.getAttribute('aria-controls')).toBe(wrapper.id)
+    expect(wrapper.getAttribute('aria-labelledby')).toBe(trigger.id)
 
     fireEvent.click(trigger)
     expect(screen.queryByTestId('content')).toBeNull()
@@ -91,9 +91,9 @@ describe('Collapsible', () => {
     ).toBe(true)
 
     const trigger = screen.getByTestId('trigger-control')
-    const contentWrapper = screen.container.querySelector('[data-slot="content-wrapper"]')
+    const wrapper = screen.container.querySelector('[data-slot="content-wrapper"]')
 
-    expect(trigger?.getAttribute('aria-controls')).toBe(contentWrapper?.getAttribute('id'))
+    expect(trigger?.getAttribute('aria-controls')).toBe(wrapper?.getAttribute('id'))
   })
 
   test('allows callers to override generated root state attributes', () => {
@@ -267,11 +267,9 @@ describe('Collapsible', () => {
     fireEvent.click(trigger)
     await Promise.resolve()
 
-    const contentWrapper = screen.container.querySelector(
-      '[data-slot="content-wrapper"]',
-    ) as HTMLElement
+    const content = screen.container.querySelector('[data-slot="content-wrapper"]') as HTMLElement
 
-    expect(trigger.getAttribute('aria-controls')).toBe(contentWrapper.id)
+    expect(trigger.getAttribute('aria-controls')).toBe(content.id)
 
     fireEvent.click(trigger)
     await Promise.resolve()
@@ -282,12 +280,10 @@ describe('Collapsible', () => {
   test('transition defaults to false and closed content unmounts immediately', async () => {
     const screen = renderCollapsible({ defaultOpen: true })
     const trigger = screen.getByTestId('trigger-control')
-    const contentWrapper = screen.container.querySelector(
-      '[data-slot="content-wrapper"]',
-    ) as HTMLElement
+    const content = screen.container.querySelector('[data-slot="content-wrapper"]') as HTMLElement
 
-    expect(contentWrapper.className).not.toContain('transition-[height]')
-    expect(contentWrapper.className).not.toContain('duration-200')
+    expect(content.className).not.toContain('transition-[height]')
+    expect(content.className).not.toContain('duration-200')
 
     fireEvent.click(trigger)
     await Promise.resolve()
@@ -298,21 +294,19 @@ describe('Collapsible', () => {
   test('transition=true keeps content mounted until close transition ends', async () => {
     const screen = renderCollapsible({ defaultOpen: true, transition: true })
     const trigger = screen.getByTestId('trigger-control')
-    const contentWrapper = screen.container.querySelector(
-      '[data-slot="content-wrapper"]',
-    ) as HTMLElement
+    const content = screen.container.querySelector('[data-slot="content-wrapper"]') as HTMLElement
 
-    expect(contentWrapper.className).toContain('data-expanded:animate-accordion-down')
-    expect(contentWrapper.className).toContain('data-closed:animate-accordion-up')
+    expect(content.className).toContain('data-expanded:animate-accordion-down')
+    expect(content.className).toContain('data-closed:animate-accordion-up')
 
     fireEvent.click(trigger)
     await Promise.resolve()
 
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
-    expect(contentWrapper.getAttribute('data-closed')).toBe('')
+    expect(content.getAttribute('data-closed')).toBe('')
     expect(screen.queryByTestId('content')).not.toBeNull()
 
-    fireEvent.animationEnd(contentWrapper, { animationName: 'accordion-up' })
+    fireEvent.animationEnd(content, { animationName: 'accordion-up' })
     await Promise.resolve()
 
     expect(screen.queryByTestId('content')).toBeNull()
@@ -596,9 +590,8 @@ describe('Collapsible', () => {
     iframe.remove()
   })
 
-  test('polymorphic Collapsible.Content with as="section", custom wrapperClass and refs', () => {
+  test('keeps the animated wrapper internal while forwarding Content polymorphism and ref', () => {
     let contentRef: HTMLElement | undefined
-    let wrapperRef: HTMLDivElement | undefined
 
     const screen = render(() => (
       <Collapsible defaultOpen>
@@ -606,8 +599,6 @@ describe('Collapsible', () => {
         <Collapsible.Content
           as="section"
           class="custom-section-class"
-          wrapperClass="custom-wrapper-class"
-          wrapperRef={(el) => (wrapperRef = el)}
           ref={(el) => (contentRef = el)}
         >
           <p>Section Body</p>
@@ -615,14 +606,15 @@ describe('Collapsible', () => {
       </Collapsible>
     ))
 
+    const wrapper = screen.container.querySelector<HTMLElement>('[data-slot="content-wrapper"]')!
     const section = screen.container.querySelector('section[data-slot="content"]')!
-    const wrapper = screen.container.querySelector('[data-slot="content-wrapper"]')!
 
     expect(section).not.toBeNull()
     expect(section.className).toContain('custom-section-class')
-    expect(wrapper.className).toContain('custom-wrapper-class')
     expect(contentRef).toBe(section)
-    expect(wrapperRef).toBe(wrapper)
+    expect(section.hasAttribute('data-expanded')).toBe(false)
+    expect(wrapper.hasAttribute('data-expanded')).toBe(true)
+    expect(wrapper.contains(section)).toBe(true)
   })
 
   test('evaluates Collapsible.Trigger and lazy Collapsible.Content children once', async () => {
@@ -667,7 +659,7 @@ describe('Collapsible', () => {
         <Collapsible.Trigger class="custom-trigger-class" style={{ padding: '20px' }}>
           Trigger
         </Collapsible.Trigger>
-        <Collapsible.Content wrapperClass="custom-content-class" wrapperStyle={{ padding: '30px' }}>
+        <Collapsible.Content class="custom-content-class" style={{ padding: '30px' }}>
           Content
         </Collapsible.Content>
       </Collapsible>
@@ -675,14 +667,14 @@ describe('Collapsible', () => {
 
     const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
     const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement
-    const wrapper = screen.container.querySelector('[data-slot="content-wrapper"]') as HTMLElement
+    const content = screen.container.querySelector('[data-slot="content"]') as HTMLElement
 
     expect(root.className).toContain('custom-root-class')
     expect(root.style.padding).toBe('10px')
     expect(trigger.className).toContain('custom-trigger-class')
     expect(trigger.style.padding).toBe('20px')
-    expect(wrapper.className).toContain('custom-content-class')
-    expect(wrapper.style.padding).toBe('30px')
+    expect(content.className).toContain('custom-content-class')
+    expect(content.style.padding).toBe('30px')
   })
 
   test('inherits Design slots and applies reactive root and child overrides in order', () => {
@@ -691,7 +683,6 @@ describe('Collapsible', () => {
         base: {
           root: 'p-1',
           trigger: 'p-1 text-blue-500',
-          contentWrapper: 'p-1',
           content: 'p-1',
         },
       },
@@ -706,11 +697,10 @@ describe('Collapsible', () => {
         <Collapsible
           defaultOpen
           class="p-4"
-          classes={{ root: 'p-2', trigger: 'p-2 font-bold', contentWrapper: 'p-2', content: 'p-2' }}
+          classes={{ root: 'p-2', trigger: 'p-2 font-bold', content: 'p-2' }}
           styles={{
             root: { color: 'red' },
             trigger: { color: 'red', 'background-color': 'black' },
-            contentWrapper: { color: 'red' },
             content: { color: 'red' },
           }}
           style={{ color: 'blue' }}
@@ -718,12 +708,7 @@ describe('Collapsible', () => {
           <Collapsible.Trigger class={padding()} style={{ color: 'blue' }}>
             Toggle styled
           </Collapsible.Trigger>
-          <Collapsible.Content
-            class={padding()}
-            style={{ color: 'blue' }}
-            wrapperClass={padding()}
-            wrapperStyle={{ color: 'blue' }}
-          >
+          <Collapsible.Content class={padding()} style={{ color: 'blue' }}>
             Styled content
           </Collapsible.Content>
         </Collapsible>
@@ -738,17 +723,21 @@ describe('Collapsible', () => {
     expect(trigger.style.backgroundColor).toBe('black')
     expect(trigger.className).toContain('text-red-500')
     expect(trigger.className).not.toContain('text-blue-500')
-    for (const element of [root, trigger, wrapper, content]) {
+    for (const element of [root, trigger, content]) {
       expect(element.style.color).toBe('blue')
       expect(element.hasAttribute('classes')).toBe(false)
       expect(element.hasAttribute('styles')).toBe(false)
     }
-    for (const element of [trigger, wrapper, content]) {
+    for (const element of [trigger, content]) {
       expect(element.className).toContain('p-3')
       expect(element.className).not.toContain('p-2')
     }
+    expect(wrapper.className).not.toContain('p-1')
+    expect(wrapper.className).not.toContain('p-2')
+    expect(wrapper.className).not.toContain('p-3')
+    expect(wrapper.style.color).toBe('')
     setPadding('p-5')
-    for (const element of [trigger, wrapper, content]) {
+    for (const element of [trigger, content]) {
       expect(element.className).toContain('p-5')
     }
   })

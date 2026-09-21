@@ -132,7 +132,7 @@ describe('Sheet', () => {
     expect(content?.className).toContain('content-class')
   })
 
-  test('renders default shell with title, description, actions, body, footer and close button', () => {
+  test('renders default shell with title, description, body, footer and close button', () => {
     render(() => (
       <Sheet open>
         <Sheet.Trigger as="button" type="button">
@@ -141,7 +141,6 @@ describe('Sheet', () => {
         <Sheet.Content
           title="Panel"
           description="Panel description"
-          action={<button type="button">Action</button>}
           body="Sheet body"
           footer="Sheet footer"
         />
@@ -150,10 +149,9 @@ describe('Sheet', () => {
 
     expect(document.body.textContent).toContain('Panel')
     expect(document.body.textContent).toContain('Panel description')
-    expect(document.body.textContent).toContain('Action')
     expect(document.body.textContent).toContain('Sheet body')
     expect(document.body.textContent).toContain('Sheet footer')
-    expect(document.body.querySelector('[data-slot="close"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="contentClose"]')).not.toBeNull()
   })
 
   test('only references mounted default title and description nodes', () => {
@@ -246,13 +244,12 @@ describe('Sheet', () => {
   test('preserves numeric zero in every shell content slot', () => {
     render(() => (
       <Sheet open>
-        <Sheet.Content title={0} description={0} action={0} body={0} footer={0} />
+        <Sheet.Content title={0} description={0} body={0} footer={0} />
       </Sheet>
     ))
 
     expect(document.body.querySelector('[data-slot="title"]')?.textContent).toBe('0')
     expect(document.body.querySelector('[data-slot="description"]')?.textContent).toBe('0')
-    expect(document.body.querySelector('[data-slot="actions"]')?.textContent).toBe('0')
     expect(document.body.querySelector('[data-slot="body"]')?.textContent).toBe('0')
     expect(document.body.querySelector('[data-slot="footer"]')?.textContent).toBe('0')
     expectAriaReferencesToResolve(document.body.querySelector('[data-slot="content"]')!)
@@ -287,12 +284,11 @@ describe('Sheet', () => {
   test('distinguishes empty shell content from false presence', () => {
     const empty = render(() => (
       <Sheet open>
-        <Sheet.Content title="" description="" action="" body="" footer="" close={false} />
+        <Sheet.Content title="" description="" body="" footer="" close={false} />
       </Sheet>
     ))
     expect(document.body.querySelector('[data-slot="title"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="description"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-slot="actions"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="body"]')).not.toBeNull()
     expect(document.body.querySelector('[data-slot="footer"]')).not.toBeNull()
     empty.unmount()
@@ -302,7 +298,6 @@ describe('Sheet', () => {
         <Sheet.Content
           title={false}
           description={false}
-          action={false}
           body={false}
           footer={false}
           close={false}
@@ -316,7 +311,6 @@ describe('Sheet', () => {
 
   test('evaluates every getter-backed shell JSX prop once', () => {
     const reads = {
-      action: 0,
       body: 0,
       children: 0,
       close: 0,
@@ -342,10 +336,6 @@ describe('Sheet', () => {
             reads.header += 1
             return undefined
           },
-          get action() {
-            reads.action += 1
-            return <div>Action</div>
-          },
           get body() {
             reads.body += 1
             return <div>Body</div>
@@ -367,7 +357,6 @@ describe('Sheet', () => {
     ))
 
     expect(reads).toEqual({
-      action: 1,
       body: 1,
       children: 0,
       close: 1,
@@ -422,7 +411,7 @@ describe('Sheet', () => {
     await waitFor(() => {
       expect(document.body.style.overflow).toBe('hidden')
     })
-    fireEvent.click(document.body.querySelector('[data-slot="close"]')!)
+    fireEvent.click(document.body.querySelector('[data-slot="contentClose"]')!)
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
 
     screen.unmount()
@@ -471,6 +460,48 @@ describe('Sheet', () => {
     expect(document.body.querySelector('[data-testid="custom-close"]')?.textContent).toBe('X')
   })
 
+  test('keeps automatic Content close and explicit Close styling separate', () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Sheet open onOpenChange={onOpenChange} classes={{ contentClose: 'automatic-close' }}>
+        <Sheet.Content header={<div>Custom header</div>} body="Body" />
+        <Sheet.Close data-testid="explicit-sheet-close" class="explicit-close">
+          Explicit close
+        </Sheet.Close>
+      </Sheet>
+    ))
+
+    const automatic = document.body.querySelector<HTMLElement>('[data-slot="contentClose"]')!
+    const explicit = screen.getByTestId('explicit-sheet-close')
+    expect(automatic.className).toContain('automatic-close')
+    expect(automatic.className).toContain('absolute')
+    expect(explicit.className).toContain('explicit-close')
+    expect(explicit.className).not.toContain('automatic-close')
+    expect(explicit.className).not.toContain('absolute')
+
+    fireEvent.click(explicit)
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
+  test('keeps structured section padding symmetric around the corner close', () => {
+    renderWithTheme(() => (
+      <Sheet open>
+        <Sheet.Content title="Title" body="Body" footer="Footer" />
+      </Sheet>
+    ))
+
+    const header = document.body.querySelector('[data-slot="header"]') as HTMLElement
+    const body = document.body.querySelector('[data-slot="body"]') as HTMLElement
+    const footer = document.body.querySelector('[data-slot="footer"]') as HTMLElement
+
+    expect(header.className).toContain('p-4')
+    expect(body.className).toContain('px-4')
+    expect(footer.className).toContain('p-4')
+    expect(header.className).not.toContain('pe-14')
+    expect(body.className).not.toContain('pe-14')
+    expect(footer.className).not.toContain('pe-14')
+  })
+
   test('hides close button when close=false', () => {
     render(() => (
       <Sheet open>
@@ -481,7 +512,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    expect(document.body.querySelector('[data-slot="close"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="contentClose"]')).toBeNull()
   })
 
   test('renders body content and keeps shell sections', () => {
@@ -523,7 +554,7 @@ describe('Sheet', () => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
     })
 
-    const closeButton = document.body.querySelector('[data-slot="close"]') as HTMLElement
+    const closeButton = document.body.querySelector('[data-slot="contentClose"]') as HTMLElement
     fireEvent.click(closeButton)
 
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()

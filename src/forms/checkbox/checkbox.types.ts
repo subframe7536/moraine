@@ -21,8 +21,6 @@ export namespace CheckboxT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
-
   /** Base props for the Checkbox component. */
   export interface Base<TTrue = boolean, TFalse = boolean>
     extends FormIdentityOptions, FormDisableOption, FormRequiredOption, FormReadOnlyOption {
@@ -104,7 +102,4 @@ export namespace CheckboxT {
 }
 
 /** Props for the Checkbox component. */
-export interface CheckboxProps<TTrue = boolean, TFalse = boolean> extends CheckboxT.Props<
-  TTrue,
-  TFalse
-> {}
+export type CheckboxProps<TTrue = boolean, TFalse = boolean> = CheckboxT.Props<TTrue, TFalse>

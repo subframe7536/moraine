@@ -8,6 +8,13 @@ import type {
   InputGroupStyleVariant,
 } from './input-group.style-types'
 
+type InputGroupPartVariant = Pick<InputGroupRecipeVariant, 'compact'>
+
+interface InputGroupPartBase {
+  /** Icons, text, buttons, or other caller-owned content. */
+  children?: JSX.Element
+}
+
 export namespace InputGroupT {
   export type Kind = 'composite'
 
@@ -23,14 +30,11 @@ export namespace InputGroupT {
   }
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 
-  export type PartVariant = Pick<InputGroupRecipeVariant, 'compact'>
+  export interface LeadingBase extends InputGroupPartBase {}
+  export type LeadingProps = BaseProps<'div', LeadingBase, InputGroupPartVariant, never, never>
 
-  export interface PartBase {
-    /** Icons, text, buttons, or other caller-owned content. */
-    children?: JSX.Element
-  }
-  export type LeadingProps = BaseProps<'div', PartBase, PartVariant, never, never>
-  export type TrailingProps = BaseProps<'div', PartBase, PartVariant, never, never>
+  export interface TrailingBase extends InputGroupPartBase {}
+  export type TrailingProps = BaseProps<'div', TrailingBase, InputGroupPartVariant, never, never>
 }
 
 export type InputGroupProps = InputGroupT.Props

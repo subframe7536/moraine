@@ -69,18 +69,17 @@ import type { DialogT } from 'moraine'
 
 ## Anatomy
 
-`Dialog` owns state and context without adding a DOM element. `Dialog.Trigger` owns its attributes, events, ref, and styling; `Dialog.Content` owns the floating surface and presentation props. `Dialog.Close` closes the nearest root, and Content children fill the body unless an explicit `body` prop is provided.
+`Dialog` owns state and family presentation without adding a DOM element. Root `classes` and `styles` provide defaults for this Dialog instance. `Dialog.Trigger` owns its attributes, events, ref, and direct styling; `Dialog.Content` owns the floating surface and its scoped presentation props. Content children fill the body unless an explicit `body` prop is provided.
 
 ```text
 Root (context only)
 ├── Trigger
 ├── overlay
 └── content
-    ├── header
-    │   ├── wrapper
-    │   │   ├── title
-    │   │   └── description
-    │   └── close
+    ├── header (optional)
+    │   ├── title
+    │   └── description
+    ├── contentClose (optional)
     ├── body
     └── footer
 ```
@@ -89,6 +88,11 @@ Root (context only)
 - `overlay`: Optional backdrop.
 - `content`: Modal surface.
 - `header` / `body` / `footer`: Structured content regions.
+- `contentClose`: Content-owned convenience close affordance.
+
+`Dialog.Close` is a behavior primitive that closes the nearest Dialog or Modal. It accepts its own `class` and `style`, but does not own a Dialog family slot or receive the automatic corner-close recipe. With `close={true}`, `Dialog.Content` renders `contentClose` even when `header` supplies custom content; the custom header replaces only the default title and description contents.
+
+Dialog and Sheet intentionally share structured slot vocabulary, but retain separate recipes, Theme keys, and visual layouts.
 
 ## Usage
 

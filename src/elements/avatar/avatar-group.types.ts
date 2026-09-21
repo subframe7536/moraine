@@ -32,4 +32,4 @@ export namespace AvatarGroupT {
 }
 
 /** Props for the AvatarGroup component. */
-export interface AvatarGroupProps extends AvatarGroupT.Props {}
+export type AvatarGroupProps = AvatarGroupT.Props

@@ -512,6 +512,9 @@ function createContextMenu(props: ContextMenuProps) {
   } as OverlayTriggerProps
 
   return {
+    get presentation() {
+      return { classes: props.classes, styles: props.styles }
+    },
     triggerProps,
     triggerElement: trigger.element,
     menuProps: {
@@ -565,7 +568,10 @@ function ContextMenuTrigger<T extends ValidComponent = 'div'>(
   const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style'])
   const context = useContextMenuContext()
 
-  const resolved = createStyles(contextMenuRecipe, local, { rootSlot: 'trigger' })
+  const resolved = createStyles(contextMenuRecipe, local, {
+    rootSlot: 'trigger',
+    inheritedStyles: () => context.presentation,
+  })
   const binding = mergeMenuTriggerProps(rest, context.triggerProps)
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'ContextMenu'))
@@ -603,7 +609,10 @@ function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Element {
 
     local,
   )
-  const resolved = createStyles(contextMenuRecipe, local, { rootSlot: 'content' })
+  const resolved = createStyles(contextMenuRecipe, local, {
+    rootSlot: 'content',
+    inheritedStyles: () => context.presentation,
+  })
   return (
     <OverlayMenu<ContextMenuT.Item>
       {...context.menuProps}

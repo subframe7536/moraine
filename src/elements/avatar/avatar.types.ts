@@ -6,8 +6,6 @@ import type { AvatarStyleSlot, AvatarStyleVariant } from './avatar.style-types'
 export namespace AvatarT {
   export type Kind = 'single'
 
-  export type Status = 'idle' | 'loading' | 'loaded' | 'error'
-
   export type Slot<T = unknown> = AvatarStyleSlot<T>
 
   export type Variant = AvatarStyleVariant
@@ -15,7 +13,7 @@ export namespace AvatarT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
+  export type Status = 'idle' | 'loading' | 'loaded' | 'error'
 
   /** Base props for the Avatar component. */
   export interface Base {
@@ -49,4 +47,4 @@ export namespace AvatarT {
 }
 
 /** Props for the Avatar component. */
-export interface AvatarProps extends AvatarT.Props {}
+export type AvatarProps = AvatarT.Props

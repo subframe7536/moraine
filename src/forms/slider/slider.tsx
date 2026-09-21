@@ -1,4 +1,4 @@
-import type { JSX, Ref } from 'solid-js'
+import type { JSX } from 'solid-js'
 import { For, mergeProps, onMount, Show, splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
@@ -9,15 +9,12 @@ import { useFormField, useFieldContext } from '../field/field-context'
 import { useSlider } from './hook'
 import { sliderRecipe } from './slider.recipe'
 import type { SliderProps, SliderT } from './slider.types'
-type RootProps<TValue = SliderT.Value> = SliderProps<TValue> & {
-  ref?: Ref<HTMLDivElement>
-}
 
 /** Range slider component with single or multi-thumb support and step markers. */
 export function Slider<TValue extends SliderT.Value = SliderT.Value>(
   props: SliderProps<TValue>,
 ): JSX.Element {
-  const [local, rest] = splitProps(props as RootProps<TValue>, [
+  const [local, rest] = splitProps(props, [
     'ref',
     'inputRef',
     'id',
