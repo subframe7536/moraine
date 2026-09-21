@@ -4,12 +4,12 @@ import type { IconT } from '../../../elements/icon/index.ts'
 import type { ListT } from '../../../elements/list/index.ts'
 import type { ComponentOrElement } from '../../../shared/render-prop.ts'
 import type { ElementProps } from '../../../shared/types.ts'
-import type { BaseSelectT } from '../../base-select/base-select.types.ts'
+import type { BaseSelectT, BaseSelectValue } from '../../base-select/base-select.types.ts'
 
 import type { SelectControlStyleVariant, SelectItemStyleSlot } from './style-types.ts'
 
 export interface SelectItem<
-  V extends BaseSelectT.Value = BaseSelectT.Value,
+  V extends BaseSelectValue = BaseSelectValue,
 > extends BaseSelectT.Item<V> {
   /** Leading item icon. */
   icon?: IconT.Name
@@ -66,9 +66,9 @@ export interface SearchProps<T extends BaseSelectT.Item> {
 }
 export interface ContentProps<T extends BaseSelectT.Item> {
   /** Custom item presentation. */
-  itemRender?: ComponentOrElement<BaseSelectT.ItemState<T>>
+  itemRender?: ComponentOrElement<BaseSelectT.ItemRenderProps<T>>
   /** Additional row attributes. */
-  itemProps?: (state: BaseSelectT.ItemState<T>) => ElementProps<HTMLDivElement> | undefined
+  itemProps?: (state: BaseSelectT.ItemRenderProps<T>) => ElementProps<HTMLDivElement> | undefined
   /** Additional listbox attributes. */
   listboxProps?: ElementProps<HTMLDivElement>
   /** Virtual rendering adapter. */

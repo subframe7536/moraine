@@ -14,9 +14,6 @@ import type { TextareaStyleSlot, TextareaStyleVariant } from './textarea.style-t
 
 export namespace TextareaT {
   export type Kind = 'single'
-
-  export type Value = string | number | undefined
-
   export type Slot<T = unknown> = TextareaStyleSlot<T>
 
   export type Variant = TextareaStyleVariant
@@ -24,7 +21,7 @@ export namespace TextareaT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
+  export type Value = string | number | undefined
 
   /**
    * Base props for the Textarea component.
@@ -136,6 +133,5 @@ export namespace TextareaT {
 /**
  * Props for the Textarea component.
  */
-export interface TextareaProps<
-  M extends ModelModifiers | undefined = ModelModifiers | undefined,
-> extends TextareaT.Props<M> {}
+export type TextareaProps<M extends ModelModifiers | undefined = ModelModifiers | undefined> =
+  TextareaT.Props<M>

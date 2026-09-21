@@ -25,8 +25,7 @@ export namespace DropdownMenuT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type ContentClasses = Omit<Classes, 'trigger'>
-  export type ContentStyles = Omit<Styles, 'trigger'>
+
   export interface Item extends OverlayMenuSharedItem<Item> {}
   export type ItemRenderProps = OverlayMenuSharedItemRenderProps<Item>
 
@@ -52,6 +51,13 @@ export namespace DropdownMenuT {
     /** Family slot style defaults for this DropdownMenu instance. */
     styles?: Styles
   }
+  export type Props = Base
+
+  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
+  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
+
+  export type ContentClasses = Omit<Classes, 'trigger'>
+  export type ContentStyles = Omit<Styles, 'trigger'>
   export interface ContentBase extends Omit<
     OverlayMenuRootProps<Item>,
     keyof Base | 'classes' | 'styles' | 'itemProps' | 'itemRender' | 'contentProps'
@@ -65,12 +71,10 @@ export namespace DropdownMenuT {
   /**
    * Props for the DropdownMenu component.
    */
-  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
   export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
-  export type Props = Base
 }
 
 /**
  * Props for the DropdownMenu component.
  */
-export interface DropdownMenuProps extends DropdownMenuT.Props {}
+export type DropdownMenuProps = DropdownMenuT.Props

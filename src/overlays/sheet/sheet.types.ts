@@ -14,15 +14,6 @@ export namespace SheetT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type ContentClasses = Pick<
-    Classes,
-    'overlay' | 'content' | 'header' | 'title' | 'description' | 'contentClose' | 'body' | 'footer'
-  >
-  export type ContentStyles = Pick<
-    Styles,
-    'overlay' | 'content' | 'header' | 'title' | 'description' | 'contentClose' | 'body' | 'footer'
-  >
-  export interface Item {}
 
   /**
    * Base props for the Sheet component.
@@ -33,6 +24,19 @@ export namespace SheetT {
     /** Family slot style defaults for this Sheet instance. */
     styles?: Styles
   }
+  export type Props = Base
+
+  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
+  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
+
+  export type ContentClasses = Pick<
+    Classes,
+    'overlay' | 'content' | 'header' | 'title' | 'description' | 'contentClose' | 'body' | 'footer'
+  >
+  export type ContentStyles = Pick<
+    Styles,
+    'overlay' | 'content' | 'header' | 'title' | 'description' | 'contentClose' | 'body' | 'footer'
+  >
   export interface ContentBase {
     /**
      * Edge from which the sheet opens.
@@ -97,13 +101,13 @@ export namespace SheetT {
   /**
    * Props for the Sheet component.
    */
-  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
-  export type CloseProps<T extends ValidComponent = 'button'> = ModalT.CloseProps<T>
   export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
-  export type Props = Base
+
+  export type CloseBase<T extends ValidComponent = 'button'> = ModalT.CloseBase<T>
+  export type CloseProps<T extends ValidComponent = 'button'> = ModalT.CloseProps<T>
 }
 
 /**
  * Props for the Sheet component.
  */
-export interface SheetProps extends SheetT.Props {}
+export type SheetProps = SheetT.Props

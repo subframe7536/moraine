@@ -446,6 +446,31 @@ export declare function Invalid(props: InvalidProps): JSX.Element
     await rm(invalidRoot, { recursive: true, force: true })
   })
 
+  test('treats a never Slot contract as an unavailable style capability', async () => {
+    const projectRoot = await createTempProject()
+    await writeProjectDts(
+      projectRoot,
+      `
+export declare namespace HeadlessT {
+  type Kind = 'single'
+  type Slot<T = unknown> = never
+  type Variant = never
+  type Classes = never
+  type Styles = never
+  interface Base {}
+  type Props = Base
+}
+export declare function Headless(props: HeadlessT.Props): JSX.Element
+`,
+    )
+
+    const doc = (await generateApiDoc(projectRoot))?.componentDocs.get('headless')
+    expect(doc?.component.kind).toBe('single')
+    expect(doc?.slots).toEqual([])
+
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
   test('handles alias items, non-jsx declarations and region-based category/sourcePath', async () => {
     const projectRoot = await createTempProject()
     await writeProjectDts(
@@ -773,6 +798,38 @@ export declare function EmptySlots(props: EmptySlotsT.Props): JSX.Element
     const props = resultProps(await generateApiDoc(projectRoot), 'empty-slots')
 
     expect(props.map((prop) => prop.name)).toEqual(['open'])
+
+    await rm(projectRoot, { recursive: true, force: true })
+  })
+
+  test('omits slot override props when public BaseProps aliases resolve to never', async () => {
+    const projectRoot = await createTempProject()
+    await writeProjectDts(
+      projectRoot,
+      `
+type BaseProps<Element, Base, Variant, Classes, Styles> = Base &
+  ([Variant] extends [never] ? {} : Variant) &
+  ([Classes] extends [never] ? {} : { classes?: Classes }) &
+  ([Styles] extends [never] ? {} : { styles?: Styles })
+
+export declare namespace HeadlessT {
+  type Kind = 'single'
+  type Slot<T = unknown> = never
+  type Variant = never
+  type Classes = never
+  type Styles = never
+  interface Base {
+    open?: boolean
+  }
+  type Props = BaseProps<'ul', Base, Variant, Classes, Styles>
+}
+
+export declare function Headless(props: HeadlessT.Props): JSX.Element
+`,
+    )
+
+    const props = resultProps(await generateApiDoc(projectRoot), 'headless')
+    expect(props.map((prop) => prop.name)).toEqual(['open', 'ref'])
 
     await rm(projectRoot, { recursive: true, force: true })
   })

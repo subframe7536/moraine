@@ -40,9 +40,14 @@ import {
 import { useFormReset } from '../shared/use-form-reset.ts'
 
 import { baseSelectRecipe } from './base-select.recipe'
-import type { BaseSelectProps, BaseSelectT } from './base-select.types.ts'
+import type {
+  BaseSelectPartProps,
+  BaseSelectProps,
+  BaseSelectT,
+  BaseSelectValue,
+} from './base-select.types.ts'
 
-function selectionToFormValue<T extends BaseSelectT.Value>(
+function selectionToFormValue<T extends BaseSelectValue>(
   values: readonly T[],
   multiple: boolean,
 ): T[] | T | null {
@@ -108,7 +113,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   const [anchor, setAnchor] = createSignal<HTMLElement>()
   const [focusOwner, setFocusOwner] = createSignal<HTMLElement>()
   const listboxId = () => `${field.id()}-listbox`
-  const itemId = (value: BaseSelectT.Value) =>
+  const itemId = (value: BaseSelectValue) =>
     `${listboxId()}-${encodeURIComponent(`${typeof value}:${String(value)}`)}`
   const styleState = createStyles(baseSelectRecipe, props, {
     rootSlot: 'control',
@@ -336,7 +341,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
       props.onReset?.()
     },
   )
-  const presentation: BaseSelectT.TriggerState<T> = {
+  const presentation: BaseSelectT.TriggerRenderProps<T> = {
     get open() {
       return open()
     },
@@ -679,7 +684,7 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
     </Show>
   )
 }
-function BaseSelectListbox(props: BaseSelectT.PartProps): JSX.Element {
+function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectState()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
   const resolved = createStyles(baseSelectRecipe, local, {
@@ -750,7 +755,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
   const selected = () => state.value().includes(item().value)
   const highlighted = () => sameValue(state.highlightedValue(), item().value)
   const disabled = () => state.itemDisabled(item())
-  const presentation: BaseSelectT.ItemState<T> = {
+  const presentation: BaseSelectT.ItemRenderProps<T> = {
     get item() {
       return item()
     },
@@ -822,7 +827,7 @@ const GroupContext = createContext<{
   labelId: Accessor<string | undefined>
   setLabelId: (id: string | undefined) => void
 }>()
-function BaseSelectGroup(props: BaseSelectT.PartProps): JSX.Element {
+function BaseSelectGroup(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectState()
   const [labelId, setLabelId] = createSignal<string>()
   const resolved = createStyles(baseSelectRecipe, props, {
@@ -844,7 +849,7 @@ function BaseSelectGroup(props: BaseSelectT.PartProps): JSX.Element {
     </GroupContext.Provider>
   )
 }
-function BaseSelectGroupLabel(props: BaseSelectT.PartProps): JSX.Element {
+function BaseSelectGroupLabel(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectState()
   const group = useContext(GroupContext)
   const id = useId(() => props.id, 'select-group-label')
@@ -865,7 +870,7 @@ function BaseSelectGroupLabel(props: BaseSelectT.PartProps): JSX.Element {
     </div>
   )
 }
-function BaseSelectSeparator(props: BaseSelectT.PartProps): JSX.Element {
+function BaseSelectSeparator(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectState()
   const resolved = createStyles(baseSelectRecipe, props, {
     rootSlot: 'separator',
@@ -882,7 +887,7 @@ function BaseSelectSeparator(props: BaseSelectT.PartProps): JSX.Element {
     />
   )
 }
-function BaseSelectEmpty(props: BaseSelectT.PartProps): JSX.Element {
+function BaseSelectEmpty(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectState()
   const resolved = createStyles(baseSelectRecipe, props, {
     rootSlot: 'empty',

@@ -36,4 +36,4 @@ export namespace KbdGroupT {
 }
 
 /** Props for the KbdGroup component. */
-export interface KbdGroupProps extends KbdGroupT.Props {}
+export type KbdGroupProps = KbdGroupT.Props

@@ -1,10 +1,11 @@
 import type { JSX } from 'solid-js'
 
-import type { ModalT } from '../../overlays/modal/modal.types.ts'
 import type {
+  BaseProps,
   ElementProps,
   SlotClassValue,
   SlotStyleValue,
+  TriggerBase as SharedTriggerBase,
   ValidComponent,
 } from '../../shared/types.ts'
 import type {
@@ -16,10 +17,98 @@ import type {
 
 import type { BaseSelectStyleSlot, BaseSelectStyleVariant } from './base-select.style-types'
 
+export type BaseSelectValue = string | number
+
+/**
+ * Form identity and state forwarded to the selection machine.
+ * @internal
+ */
+export interface BaseSelectFieldProps
+  extends FormIdentityOptions, FormDisableOption, FormReadOnlyOption, FormRequiredOption {}
+
+/**
+ * Controlled and uncontrolled popup state.
+ * @internal
+ */
+export interface BaseSelectDisclosureProps {
+  /** Controlled popup state. */
+  open?: boolean
+
+  /**
+   * Initial popup state.
+   * @default false
+   */
+  defaultOpen?: boolean
+
+  /** Called when popup state changes. */
+  onOpenChange?: (open: boolean) => void
+}
+
+/**
+ * Item policies used by navigation, filtering, and selection.
+ * @internal
+ */
+export interface BaseSelectItemBehaviorProps<TItem extends BaseSelectT.Item> {
+  /** Machine-readable text for matching; does not change visual labels. */
+  itemToLabelString?: (item: TItem) => string
+
+  /** Additional disabled policy evaluated against the current selection. */
+  isItemDisabled?: (item: TItem, values: readonly TItem['value'][]) => boolean
+}
+
+/**
+ * Selection behavior forwarded by visual single-value wrappers.
+ * @internal
+ */
+export interface BaseSelectCloseOnSelectOption {
+  /** Close after selection. Defaults to true for single, false for multiple. */
+  closeOnSelect?: boolean
+}
+
+/**
+ * Reset notification forwarded by higher-level collection controls.
+ * @internal
+ */
+export interface BaseSelectResetProps {
+  /** Post-reset notification after an unprevented native form reset. */
+  onReset?: () => void
+}
+
+/**
+ * Controlled and uncontrolled selection state.
+ * @internal
+ */
+export interface BaseSelectSelection<TValue extends BaseSelectValue> {
+  /** Whether selecting an item toggles multiple values. */
+  multiple?: boolean
+
+  /** Controlled selection. Single mode uses at most the first value. */
+  value?: readonly TValue[]
+
+  /**
+   * Initial selection.
+   * @default []
+   */
+  defaultValue?: readonly TValue[]
+
+  /** Called when selection changes. */
+  onChange?: (value: TValue[]) => void
+}
+
+/**
+ * Shared props for unmodelled structural parts.
+ * @internal
+ */
+export type BaseSelectPartProps = ElementProps<HTMLDivElement>
+
 export namespace BaseSelectT {
   export type Kind = 'composite'
-  export type Value = string | number
-  export interface Item<TValue extends Value = Value> {
+  export type Slot<T = unknown> = BaseSelectStyleSlot<T>
+  export type Variant = BaseSelectStyleVariant
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
+
+  export interface Item<TValue extends string | number = string | number> {
     /** Unique selection and form value. */
     value: TValue
     /** Visual label. */
@@ -27,54 +116,36 @@ export namespace BaseSelectT {
     /** Whether this item cannot be selected. */
     disabled?: boolean
   }
-  export type ItemValue<TItem extends Item> = TItem['value']
-  export type Slot<T = unknown> = BaseSelectStyleSlot<T>
-  export type Variant = BaseSelectStyleVariant
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
 
-  /** Form identity and state forwarded to the selection machine. */
-  export interface FieldProps
-    extends FormIdentityOptions, FormDisableOption, FormReadOnlyOption, FormRequiredOption {}
-  /** Controlled and uncontrolled popup state. */
-  export interface DisclosureProps {
-    /** Controlled popup state. */
-    open?: boolean
+  export interface TriggerRenderProps<TItem extends Item = Item> {
+    /** Whether the popup is open. */
+    open: boolean
+    /** Current selected value or values. */
+    value: readonly TItem['value'][]
+    /** Whether the control is disabled. */
+    disabled: boolean
+    /** Whether selection is read-only. */
+    readOnly: boolean
+  }
 
-    /**
-     * Initial popup state.
-     * @default false
-     */
-    defaultOpen?: boolean
+  export interface ItemRenderProps<TItem extends Item = Item> {
+    /** Canonical raw item. */
+    item: TItem
+    /** Whether selected. */
+    selected: boolean
+    /** Whether highlighted. */
+    highlighted: boolean
+    /** Whether disabled. */
+    disabled: boolean
+  }
 
-    /** Called when popup state changes. */
-    onOpenChange?: (open: boolean) => void
-  }
-  /** Item policies used by navigation, filtering, and selection. */
-  export interface ItemBehaviorProps<TItem extends Item> {
-    /** Machine-readable text for matching; does not change visual labels. */
-    itemToLabelString?: (item: TItem) => string
-
-    /** Additional disabled policy evaluated against the current selection. */
-    isItemDisabled?: (item: TItem, values: readonly TItem['value'][]) => boolean
-  }
-  /** Selection behavior that visual single-value wrappers may forward. */
-  export interface CloseOnSelectOption {
-    /** Close after selection. Defaults to true for single, false for multiple. */
-    closeOnSelect?: boolean
-  }
-  /** Reset notification forwarded by higher-level collection controls. */
-  export interface ResetProps {
-    /** Post-reset notification after an unprevented native form reset. */
-    onReset?: () => void
-  }
   export interface Base<TItem extends Item>
     extends
-      FieldProps,
-      DisclosureProps,
-      ItemBehaviorProps<TItem>,
-      CloseOnSelectOption,
-      ResetProps,
+      BaseSelectFieldProps,
+      BaseSelectDisclosureProps,
+      BaseSelectItemBehaviorProps<TItem>,
+      BaseSelectCloseOnSelectOption,
+      BaseSelectResetProps,
       Variant {
     /** Current flat navigation collection. */
     items?: readonly TItem[]
@@ -92,50 +163,25 @@ export namespace BaseSelectT {
     /** Composed trigger and popup parts. */
     children?: JSX.Element
   }
-  export interface Selection<TValue extends Value> {
-    /** Whether selecting an item toggles multiple values. */
-    multiple?: boolean
-    /** Controlled selection. Single mode uses at most the first value. */
-    value?: readonly TValue[]
-    /**
-     * Initial selection.
-     * @default []
-     */
-    defaultValue?: readonly TValue[]
-    /** Called when selection changes. */
-    onChange?: (value: TValue[]) => void
-  }
-  export type Props<TItem extends Item = Item> = Base<TItem> & Selection<ItemValue<TItem>>
-  export interface TriggerState<TItem extends Item = Item> {
-    /** Whether the popup is open. */
-    open: boolean
-    /** Current selected value or values. */
-    value: readonly ItemValue<TItem>[]
-    /** Whether the control is disabled. */
-    disabled: boolean
-    /** Whether selection is read-only. */
-    readOnly: boolean
-  }
-  export type TriggerProps<T extends ValidComponent = 'button', TItem extends Item = Item> = Omit<
-    ModalT.TriggerProps<T>,
+  export type Props<TItem extends Item = Item> = Base<TItem> & BaseSelectSelection<TItem['value']>
+
+  export type TriggerBase<T extends ValidComponent = 'button', TItem extends Item = Item> = Omit<
+    SharedTriggerBase<T>,
     'children'
   > & {
     /** Label or reactive presentation function. */
-    children?: JSX.Element | ((state: TriggerState<TItem>) => JSX.Element)
+    children?: JSX.Element | ((state: TriggerRenderProps<TItem>) => JSX.Element)
   }
-  export interface ItemState<TItem extends Item = Item> {
-    /** Canonical raw item. */
-    item: TItem
-    /** Whether selected. */
-    selected: boolean
-    /** Whether highlighted. */
-    highlighted: boolean
-    /** Whether disabled. */
-    disabled: boolean
-  }
-  export type PartProps = ElementProps<HTMLDivElement>
-  export type ControlProps = PartProps
-  export type ContentProps = PartProps & {
+
+  export type TriggerProps<
+    T extends ValidComponent = 'button',
+    TItem extends Item = Item,
+  > = BaseProps<T, TriggerBase<T, TItem>, never, never, never, 'button'>
+
+  export interface ControlBase {}
+  export type ControlProps = BaseProps<'div', ControlBase, never, never, never>
+
+  export interface ContentBase {
     /** Called once after an open popup completes its exit. */
     onExitComplete?: () => void
     /**
@@ -149,12 +195,21 @@ export namespace BaseSelectT {
      */
     overflowPadding?: number
   }
-  export type ItemProps<TItem extends Item = Item> = Omit<PartProps, 'children'> & {
+  export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
+
+  export interface ItemBase<TItem extends Item = Item> {
     /** Raw item belonging to the current navigation collection. */
     item: TItem
     /** Visual content or reactive row presentation. */
-    children?: JSX.Element | ((state: ItemState<TItem>) => JSX.Element)
+    children?: JSX.Element | ((state: ItemRenderProps<TItem>) => JSX.Element)
   }
+  export type ItemProps<TItem extends Item = Item> = BaseProps<
+    'div',
+    ItemBase<TItem>,
+    never,
+    never,
+    never
+  >
 }
 export type BaseSelectProps<TItem extends BaseSelectT.Item = BaseSelectT.Item> =
   BaseSelectT.Props<TItem>

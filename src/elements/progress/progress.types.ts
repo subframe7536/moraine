@@ -6,6 +6,13 @@ import type { ProgressStyleSlot, ProgressStyleVariant } from './progress.style-t
 export namespace ProgressT {
   export type Kind = 'single'
 
+  export type Slot<T = unknown> = ProgressStyleSlot<T>
+
+  export type Variant = ProgressStyleVariant
+
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
+
   export interface StatusRenderProps {
     /** Current progress percentage (0-100). */
     percent?: number
@@ -19,15 +26,6 @@ export namespace ProgressT {
     /** The state of the step relative to the active step. */
     state: 'active' | 'first' | 'last' | 'other'
   }
-
-  export type Slot<T = unknown> = ProgressStyleSlot<T>
-
-  export type Variant = ProgressStyleVariant
-
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
-
-  export interface Item {}
 
   /** Base props for the Progress component. */
   export interface Base {
@@ -69,4 +67,4 @@ export namespace ProgressT {
 }
 
 /** Props for the Progress component. */
-export interface ProgressProps extends ProgressT.Props {}
+export type ProgressProps = ProgressT.Props

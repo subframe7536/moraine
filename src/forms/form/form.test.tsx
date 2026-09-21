@@ -89,6 +89,30 @@ describe('Form', () => {
     expect(element.style.width).toBe('200px')
   })
 
+  test('applies root slot overrides without leaking style props to the native form', () => {
+    const { screen } = renderWithOwner(
+      () => createForm({ schema: Schema }),
+      (form) => (
+        <form.Form
+          aria-label="Styled form"
+          classes={{ root: 'slot-class' }}
+          styles={{ root: { height: '18px', color: 'blue' } }}
+          class="native-class"
+          style={{ width: '20px', color: 'red' }}
+        />
+      ),
+    )
+    const element = screen.getByRole('form')
+
+    expect(element.className).toContain('slot-class')
+    expect(element.className).toContain('native-class')
+    expect(element.style.height).toBe('18px')
+    expect(element.style.width).toBe('20px')
+    expect(element.style.color).toBe('red')
+    expect(element.hasAttribute('classes')).toBe(false)
+    expect(element.hasAttribute('styles')).toBe(false)
+  })
+
   test('replaces Design root styling without remounting the bound form', () => {
     const { screen, value } = renderWithOwner(
       () => {

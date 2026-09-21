@@ -12,13 +12,10 @@ export namespace PopoverT {
   export type Slot<T = unknown> = PopoverStyleSlot<T>
 
   export type Variant = PopoverStyleVariant
-  export type Mode = 'click' | 'hover'
-
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type ContentClasses = Pick<Classes, 'content' | 'body'>
-  export type ContentStyles = Pick<Styles, 'content' | 'body'>
-  export interface Item {}
+
+  export type Mode = 'click' | 'hover'
 
   /**
    * Base props for the Popover component.
@@ -71,6 +68,13 @@ export namespace PopoverT {
     /** Family slot style defaults for this Popover instance. */
     styles?: Styles
   }
+  export type Props = Base
+
+  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
+  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
+
+  export type ContentClasses = Pick<Classes, 'content' | 'body'>
+  export type ContentStyles = Pick<Styles, 'content' | 'body'>
   export interface ContentBase {
     /**
      * Preferred placement relative to the trigger.
@@ -86,13 +90,13 @@ export namespace PopoverT {
   /**
    * Props for the Popover component.
    */
-  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
-  export type CloseProps<T extends ValidComponent = 'button'> = ModalT.CloseProps<T>
   export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
-  export type Props = Base
+
+  export type CloseBase<T extends ValidComponent = 'button'> = ModalT.CloseBase<T>
+  export type CloseProps<T extends ValidComponent = 'button'> = ModalT.CloseProps<T>
 }
 
 /**
  * Props for the Popover component.
  */
-export interface PopoverProps extends PopoverT.Props {}
+export type PopoverProps = PopoverT.Props

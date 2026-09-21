@@ -132,7 +132,7 @@
           {
             "name": "children",
             "required": false,
-            "type": "ComponentOrElement<ModalT.ContentContext>",
+            "type": "ComponentOrElement<ModalT.ContentRenderProps>",
             "description": "Component or element rendered inside the modal content surface."
           },
           {

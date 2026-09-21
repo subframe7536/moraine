@@ -37,6 +37,11 @@
         "description": "Class applied to the component root or trigger element."
       },
       {
+        "name": "classes",
+        "required": false,
+        "type": "FormT.Classes | undefined"
+      },
+      {
         "name": "onSubmit",
         "required": false,
         "type": "SubmitEventHandler<TSchema> | undefined",
@@ -46,6 +51,11 @@
         "name": "style",
         "required": false,
         "type": "SlotStyleValue | undefined"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "FormT.Styles | undefined"
       }
     ],
     "inherited": []

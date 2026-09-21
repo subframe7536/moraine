@@ -7,15 +7,14 @@ import type { StepperStyleSlot, StepperStyleVariant } from './stepper.style-type
 
 export namespace StepperT {
   export type Kind = 'single'
-
-  export type Value = string
-
   export type Slot<T = unknown> = StepperStyleSlot<T>
 
   export type Variant = StepperStyleVariant
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+
+  export type Value = string
 
   /**
    * An individual step in the stepper.
@@ -135,4 +134,4 @@ export namespace StepperT {
 /**
  * Props for the Stepper component.
  */
-export interface StepperProps extends StepperT.Props {}
+export type StepperProps = StepperT.Props

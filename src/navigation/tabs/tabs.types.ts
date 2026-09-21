@@ -110,4 +110,4 @@ export namespace TabsT {
 /**
  * Props for the Tabs component.
  */
-export interface TabsProps extends TabsT.Props {}
+export type TabsProps = TabsT.Props

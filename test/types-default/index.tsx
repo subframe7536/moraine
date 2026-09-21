@@ -1,5 +1,6 @@
 import './base-select'
 import './composite-styling'
+import './component-namespaces'
 
 import {
   Avatar,
@@ -158,8 +159,8 @@ const TypedCustomRoot: Component<{
   type?: 'special'
   children?: JSX.Element
 }> = (props) => <div data-type={props.type}>{props.children}</div>
-const modalContentContext: ModalT.ContentContext = { close: () => undefined }
-modalContentContext.close()
+const modalContentRenderProps: ModalT.ContentRenderProps = { close: () => undefined }
+modalContentRenderProps.close()
 
 const foo = () => undefined
 const acceptSpan = (element: HTMLSpanElement) => element.focus()
@@ -270,11 +271,9 @@ const divRef = (element: HTMLDivElement) => element.focus()
 
 ;<Icon name="i-lucide-search" aria-label="Search" data-testid="icon" />
 ;<Icon name="i-lucide-search" class="size-4" style={{ color: 'red' }} />
-// @ts-expect-error Root-only components do not accept instance slot class maps.
 ;<Icon name="i-lucide-search" classes={{ root: 'size-4' }} />
 
 ;<Kbd value="K" class="px-2" style={{ color: 'red' }} />
-// @ts-expect-error Root-only components do not accept instance slot style maps.
 ;<Kbd value="K" styles={{ root: { color: 'red' } }} />
 
 ;<KbdGroup items={['meta', 'k']} />
@@ -601,7 +600,6 @@ void (null as unknown as OldFormField)
 void (null as unknown as OldFormFieldT)
 void (null as unknown as OldFormFieldProps)
 ;<rootOnlyForm.Form class="space-y-2" style={{ color: 'red' }} />
-// @ts-expect-error The bound Form component does not accept instance slot style maps.
 ;<rootOnlyForm.Form styles={{ root: { color: 'red' } }} />
 
 ;<Input
@@ -659,10 +657,10 @@ void (null as unknown as OldFormFieldProps)
 
 export type NativeTextSlots = [
   Assert<'orientation' extends keyof InputGroupT.Variant ? true : false>,
-  Assert<'orientation' extends keyof InputGroupT.PartVariant ? false : true>,
-  Assert<'compact' extends keyof InputGroupT.PartVariant ? true : false>,
-  Assert<'align' extends keyof InputGroupT.PartVariant ? false : true>,
-  Assert<'orientation' extends keyof InputGroupT.PartBase ? false : true>,
+  Assert<'orientation' extends keyof InputGroupT.LeadingProps ? false : true>,
+  Assert<'compact' extends keyof InputGroupT.LeadingProps ? true : false>,
+  Assert<'align' extends keyof InputGroupT.LeadingProps ? false : true>,
+  Assert<'orientation' extends keyof InputGroupT.LeadingBase ? false : true>,
   Assert<keyof InputT.Slot extends 'root' ? true : false>,
   Assert<keyof TextareaT.Slot extends 'root' ? true : false>,
   Assert<InputGroupT.Kind extends 'composite' ? true : false>,

@@ -80,7 +80,7 @@ export namespace CheckboxGroupT {
 }
 
 /** Props for the CheckboxGroup component. */
-export interface CheckboxGroupProps<TTrue = boolean, TFalse = boolean> extends CheckboxGroupT.Props<
+export type CheckboxGroupProps<TTrue = boolean, TFalse = boolean> = CheckboxGroupT.Props<
   TTrue,
   TFalse
-> {}
+>

@@ -9,7 +9,14 @@ import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.styl
 export namespace ResizableT {
   export type Kind = 'composite'
 
-  export interface HandleContext {
+  export type Slot<T = unknown> = ResizableStyleSlot<T>
+
+  export type Variant = ResizableStyleVariant
+
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
+
+  export interface HandleRenderProps {
     orientation: ResizableOrientation
     disabled: boolean
     action: 'resize' | 'collapse'
@@ -18,13 +25,6 @@ export namespace ResizableT {
     canCollapse: boolean
     collapsed: boolean
   }
-
-  export type Slot<T = unknown> = ResizableStyleSlot<T>
-
-  export type Variant = ResizableStyleVariant
-
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<SlotStyleValue>
 
   /** Base props for the Resizable component. */
   export interface Base {
@@ -96,11 +96,11 @@ export namespace ResizableT {
     intersection?: boolean
 
     /** Custom grip content, or a component receiving the live handle state. */
-    children?: ComponentOrElement<HandleContext>
+    children?: ComponentOrElement<HandleRenderProps>
   }
 
   export type HandleProps = BaseProps<'div', HandleBase, never, never, never>
 }
 
 /** Props for the Resizable component. */
-export interface ResizableProps extends ResizableT.Props {}
+export type ResizableProps = ResizableT.Props

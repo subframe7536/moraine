@@ -14,8 +14,6 @@ export namespace ButtonGroupT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
-
   /** Base props for the ButtonGroup component. */
   export interface Base {
     /** Optional identifier for the group root. */
@@ -25,6 +23,9 @@ export namespace ButtonGroupT {
     /** Buttons or compatible controls rendered as a cohesive group. */
     children?: JSX.Element
   }
+
+  /** Props for the ButtonGroup component. */
+  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 
   /** Base props for the ButtonGroup.Separator component. */
   export interface SeparatorBase extends Omit<SeparatorT.Base, 'orientation'> {
@@ -37,9 +38,6 @@ export namespace ButtonGroupT {
 
   /** Props for the ButtonGroup.Separator component. */
   export type SeparatorProps = BaseProps<'div', SeparatorBase, SeparatorT.Variant, never, never>
-
-  /** Props for the ButtonGroup component. */
-  export type Props = BaseProps<'div', Base, Variant, Classes, Styles>
 }
 
 /** Props for the ButtonGroup component. */

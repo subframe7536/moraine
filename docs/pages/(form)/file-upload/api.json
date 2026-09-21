@@ -310,7 +310,7 @@
       {
         "name": "onFileReject",
         "required": false,
-        "type": "((files: FileRejection[]) => void) | undefined",
+        "type": "((files: FileUploadT.Rejection[]) => void) | undefined",
         "description": "Callback when files are rejected (e.g., due to type or count)."
       },
       {

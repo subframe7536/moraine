@@ -13,8 +13,6 @@ export namespace ButtonT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
-
   /**
    * Base props for the Button component.
    */

@@ -4,6 +4,7 @@ import type { ComponentOrElement } from '../../shared/render-prop'
 import type {
   BaseProps,
   SlotClassValue,
+  SlotStyleValue,
   TriggerBase as SharedTriggerBase,
   ValidComponent,
 } from '../../shared/types.ts'
@@ -12,8 +13,12 @@ import type { ModalStyleSlot, ModalStyleVariant } from './modal.style-types'
 
 export namespace ModalT {
   export type Kind = 'composite'
+  export type Slot<T = unknown> = ModalStyleSlot<T>
+  export type Variant = ModalStyleVariant
+  export type Classes = Slot<SlotClassValue>
+  export type Styles = Slot<SlotStyleValue>
 
-  export interface ContentContext {
+  export interface ContentRenderProps {
     /** Closes the modal. */
     close: () => void
   }
@@ -62,13 +67,6 @@ export namespace ModalT {
     styles?: Styles
   }
 
-  export type Slot<T = unknown> = ModalStyleSlot<T>
-  export type Variant = ModalStyleVariant
-
-  export type Classes = Slot<SlotClassValue>
-  export type Styles = Slot<JSX.CSSProperties>
-  export interface Item {}
-
   export type Props = Base
 
   export type TriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T>
@@ -97,7 +95,7 @@ export namespace ModalT {
 
   export interface ContentBase {
     /** Component or element rendered inside the modal content surface. */
-    children: ComponentOrElement<ContentContext>
+    children: ComponentOrElement<ContentRenderProps>
 
     /** Accessible name used when no visible label is available. */
     ariaLabel?: string
@@ -117,7 +115,16 @@ export namespace ModalT {
   }
 
   export type ContentProps = BaseProps<'div', ContentBase, Variant, never, never>
-  export type CloseProps<T extends ValidComponent = 'button'> = TriggerProps<T>
+
+  export type CloseBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T>
+  export type CloseProps<T extends ValidComponent = 'button'> = BaseProps<
+    T,
+    CloseBase<T>,
+    never,
+    never,
+    never,
+    'button'
+  >
 }
 
 /** Props for the Modal component. */

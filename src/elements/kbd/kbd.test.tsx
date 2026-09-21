@@ -105,6 +105,27 @@ describe('Kbd', () => {
     expect(root?.style.width).toBe('200px')
   })
 
+  test('applies root slot overrides without leaking style props to the DOM', () => {
+    const view = render(() => (
+      <Kbd
+        value="K"
+        classes={{ root: 'slot-class' }}
+        styles={{ root: { height: '18px', color: 'blue' } }}
+        class="native-class"
+        style={{ width: '20px', color: 'red' }}
+      />
+    ))
+    const root = view.container.querySelector<HTMLElement>('[data-slot="root"]')!
+
+    expect(root.className).toContain('slot-class')
+    expect(root.className).toContain('native-class')
+    expect(root.style.height).toBe('18px')
+    expect(root.style.width).toBe('20px')
+    expect(root.style.color).toBe('red')
+    expect(root.hasAttribute('classes')).toBe(false)
+    expect(root.hasAttribute('styles')).toBe(false)
+  })
+
   test('replaces Design root styling without remounting the keycap', () => {
     const [design, setDesign] = createSignal(defineTheme({ kbd: { base: { root: 'p-2' } } }))
     const view = render(() => (

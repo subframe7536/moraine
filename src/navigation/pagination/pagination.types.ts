@@ -15,8 +15,6 @@ export namespace PaginationT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
-
   /**
    * Base props for the Pagination component.
    */
@@ -122,4 +120,4 @@ export namespace PaginationT {
 /**
  * Props for the Pagination component.
  */
-export interface PaginationProps extends PaginationT.Props {}
+export type PaginationProps = PaginationT.Props

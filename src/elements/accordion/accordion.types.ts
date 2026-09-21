@@ -122,4 +122,4 @@ export namespace AccordionT {
 /**
  * Props for the Accordion component.
  */
-export interface AccordionProps extends AccordionT.Props {}
+export type AccordionProps = AccordionT.Props

@@ -937,7 +937,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                     toggleHandleCollapse(index)
                   }
 
-                  const handleContext: ResizableT.HandleContext = {
+                  const handleContext: ResizableT.HandleRenderProps = {
                     get orientation() {
                       return orientation()
                     },

@@ -15,9 +15,6 @@ export namespace TooltipT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
-  export type ContentClasses = Pick<Classes, 'content' | 'text' | 'kbds' | 'kbd'>
-  export type ContentStyles = Pick<Styles, 'content' | 'text' | 'kbds' | 'kbd'>
-  export interface Item {}
 
   /**
    * Base props for the Tooltip component.
@@ -59,6 +56,13 @@ export namespace TooltipT {
     /** Family slot style defaults for this Tooltip instance. */
     styles?: Styles
   }
+  export type Props = Base
+
+  export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
+  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
+
+  export type ContentClasses = Pick<Classes, 'content' | 'text' | 'kbds' | 'kbd'>
+  export type ContentStyles = Pick<Styles, 'content' | 'text' | 'kbds' | 'kbd'>
   export interface ContentBase {
     /**
      * Preferred placement relative to the trigger.
@@ -83,12 +87,10 @@ export namespace TooltipT {
   /**
    * Props for the Tooltip component.
    */
-  export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
   export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
-  export type Props = Base
 }
 
 /**
  * Props for the Tooltip component.
  */
-export interface TooltipProps extends TooltipT.Props {}
+export type TooltipProps = TooltipT.Props

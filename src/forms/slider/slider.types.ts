@@ -13,9 +13,6 @@ import type { SliderStyleSlot, SliderStyleVariant } from './slider.style-types'
 
 export namespace SliderT {
   export type Kind = 'single'
-
-  export type Value = number | number[]
-
   export type Slot<T = unknown> = SliderStyleSlot<T>
 
   export type Variant = SliderStyleVariant
@@ -23,7 +20,7 @@ export namespace SliderT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item {}
+  export type Value = number | number[]
 
   /**
    * Base props for the Slider component.
@@ -107,4 +104,4 @@ export namespace SliderT {
 /**
  * Props for the Slider component.
  */
-export interface SliderProps<TValue = SliderT.Value> extends SliderT.Props<TValue> {}
+export type SliderProps<TValue = SliderT.Value> = SliderT.Props<TValue>

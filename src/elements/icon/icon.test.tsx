@@ -227,6 +227,27 @@ describe('Icon', () => {
     expect(icon?.className).toContain('root-override')
   })
 
+  test('applies slot overrides without leaking style props to the DOM', () => {
+    const screen = render(() => (
+      <Icon
+        name="i-lucide-search"
+        classes={{ root: 'slot-class' }}
+        styles={{ root: { height: '18px', color: 'blue' } }}
+        class="native-class"
+        style={{ width: '20px', color: 'red' }}
+      />
+    ))
+    const icon = screen.container.querySelector<HTMLElement>('[data-slot="icon"]')!
+
+    expect(icon.className).toContain('slot-class')
+    expect(icon.className).toContain('native-class')
+    expect(icon.style.height).toBe('18px')
+    expect(icon.style.width).toBe('20px')
+    expect(icon.style.color).toBe('red')
+    expect(icon.hasAttribute('classes')).toBe(false)
+    expect(icon.hasAttribute('styles')).toBe(false)
+  })
+
   test('replaces Design root styling without remounting the icon', () => {
     const [design, setDesign] = createSignal(defineTheme({ icon: { base: { root: 'p-2' } } }))
     const screen = render(() => (

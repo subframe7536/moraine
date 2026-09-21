@@ -56,7 +56,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
   let atBottom = false
   function renderItem(entryItem: T, rowProps?: ListT.RowProps<HTMLDivElement>) {
     const item = () => props.view.byValue?.get(entryItem.value) ?? entryItem
-    const presentation: BaseSelectT.ItemState<T> = {
+    const presentation: BaseSelectT.ItemRenderProps<T> = {
       get item() {
         return item()
       },

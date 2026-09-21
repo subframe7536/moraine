@@ -371,7 +371,7 @@
           {
             "name": "children",
             "required": false,
-            "type": "ComponentOrElement<ResizableT.HandleContext>",
+            "type": "ComponentOrElement<ResizableT.HandleRenderProps>",
             "description": "Custom grip content, or a component receiving the live handle state."
           },
           {

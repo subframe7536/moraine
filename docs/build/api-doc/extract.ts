@@ -1060,7 +1060,20 @@ class DeclarationAnalyzer {
       })
     }
 
-    const properties = await this.#resolveNamedProperties(name, typeArguments, context, visited)
+    let properties = await this.#resolveNamedProperties(name, typeArguments, context, visited)
+    if (name === 'BaseProps' && typeArguments.length >= 5) {
+      const [classesUnavailable, stylesUnavailable] = await Promise.all([
+        this.#isNeverValue(contextValue(typeArguments[3]!, context)),
+        this.#isNeverValue(contextValue(typeArguments[4]!, context)),
+      ])
+      if (classesUnavailable || stylesUnavailable) {
+        properties = properties.filter(
+          (property) =>
+            (!classesUnavailable || property.name !== 'classes') &&
+            (!stylesUnavailable || property.name !== 'styles'),
+        )
+      }
+    }
     if (name === 'BaseProps' && typeArguments.length >= 5) {
       // BaseProps maps variant fields into nullable public props. Resolve the
       // original Variant argument as well so its JSDoc (especially @default)
@@ -1094,6 +1107,55 @@ class DeclarationAnalyzer {
       }
     }
     return properties
+  }
+
+  async #isNeverValue(value: TypeValue, visited = new Set<string>()): Promise<boolean> {
+    const node = value.node
+    if (node.type === 'TSNeverKeyword') {
+      return true
+    }
+    if (node.type === 'TSParenthesizedType') {
+      return this.#isNeverValue(withTypeNode(value, node.typeAnnotation), visited)
+    }
+    if (node.type !== 'TSTypeReference' || node.typeArguments) {
+      return false
+    }
+    const name = entityNameToText(node.typeName)
+    if (!name) {
+      return false
+    }
+    const substitution = value.env.get(name)
+    if (substitution) {
+      return this.#isNeverValue(substitution, visited)
+    }
+    const context: ResolveContext = {
+      unit: value.unit,
+      namespace: value.namespace,
+      env: value.env,
+    }
+    const declarations = await this.#findDeclarations(name, context)
+    for (const declaration of declarations) {
+      const key = `${declaration.unit.fileName}:${declaration.node.start}:${declaration.node.end}`
+      if (visited.has(key) || declaration.node.type !== 'TSTypeAliasDeclaration') {
+        continue
+      }
+      const nextVisited = new Set(visited).add(key)
+      const env = DeclarationAnalyzer.#declarationEnvironment(declaration, [], context)
+      if (
+        await this.#isNeverValue(
+          {
+            node: declaration.node.typeAnnotation,
+            unit: declaration.unit,
+            namespace: declaration.namespace,
+            env,
+          },
+          nextVisited,
+        )
+      ) {
+        return true
+      }
+    }
+    return false
   }
 
   async resolveProperties(
@@ -1297,6 +1359,12 @@ class DeclarationAnalyzer {
     const declarations = unit.declarations.get(`${namespace}.Slot`) ?? []
     const docs: SlotDefinitionDoc[] = []
     for (const declaration of declarations) {
+      if (
+        declaration.node.type === 'TSTypeAliasDeclaration' &&
+        declaration.node.typeAnnotation.type === 'TSNeverKeyword'
+      ) {
+        continue
+      }
       const properties = await this.#resolveNamedProperties(
         `${namespace}.Slot`,
         [],

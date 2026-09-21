@@ -305,7 +305,7 @@
       {
         "name": "value",
         "required": true,
-        "type": "SelectT.Value",
+        "type": "string | number",
         "description": "Unique selection and form value."
       }
     ]
@@ -389,13 +389,13 @@
       {
         "name": "itemProps",
         "required": false,
-        "type": "((state: BaseSelectT.ItemState<T>) => ElementProps<HTMLDivElement> | undefined) | undefined",
+        "type": "((state: BaseSelectT.ItemRenderProps<T>) => ElementProps<HTMLDivElement> | undefined) | undefined",
         "description": "Additional row attributes."
       },
       {
         "name": "itemRender",
         "required": false,
-        "type": "ComponentOrElement<BaseSelectT.ItemState<T>>",
+        "type": "ComponentOrElement<BaseSelectT.ItemRenderProps<T>>",
         "description": "Custom item presentation."
       },
       {
