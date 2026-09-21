@@ -10,7 +10,7 @@ export function NestedOverlays() {
         title="Workspace settings"
         description="Review help before confirming your workspace changes."
       >
-        <div class="flex flex-wrap gap-3 items-center">
+        <div class="flex flex-wrap gap-3 items-center justify-end">
           <Popover>
             <Popover.Trigger as={Button} variant="outline">
               View settings help

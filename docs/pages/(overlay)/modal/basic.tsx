@@ -1,4 +1,4 @@
-import { Button, Input, Modal, InputGroup, Icon } from '@src'
+import { Button, Input, Modal, InputGroup, Icon, Field } from '@src'
 
 export function Basic() {
   return (
@@ -9,7 +9,7 @@ export function Basic() {
       <Modal.Overlay />
       <Modal.Content ariaLabel="Invite Teammate">
         {(context) => (
-          <div class="p-6 b-(1 border) rounded-2xl bg-card flex flex-col gap-4 max-w-md w-full shadow-xl">
+          <div class="p-4 b-(1 border) rounded-2xl bg-card flex flex-col gap-4">
             <div>
               <h3 class="text-base text-foreground font-semibold">Invite to Workspace</h3>
               <p class="text-xs text-muted-foreground">
@@ -17,20 +17,19 @@ export function Basic() {
               </p>
             </div>
 
-            <div class="space-y-1">
-              <label class="text-xs text-muted-foreground font-medium">Colleague Email</label>
+            <Field label="Colleague Email">
               <InputGroup>
                 <InputGroup.Leading>
                   <Icon name="i-lucide:mail" />
                 </InputGroup.Leading>
                 <Input placeholder="colleague@company.com" />
               </InputGroup>
-            </div>
+            </Field>
 
             <div class="pt-2 border-t border-border flex gap-2 justify-end">
-              <Button variant="outline" onClick={context.close}>
+              <Modal.Close as={Button} variant="outline">
                 Cancel
-              </Button>
+              </Modal.Close>
               <Button
                 variant="default"
                 onClick={() => {
