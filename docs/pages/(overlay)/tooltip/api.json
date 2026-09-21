@@ -1,263 +1,478 @@
 {
-  "component": {
-    "key": "tooltip",
-    "name": "Tooltip",
-    "category": "overlays",
-    "polymorphic": false,
-    "description": "Hover-triggered informational overlay anchored to a trigger element.",
-    "sourcePath": "src/overlays/tooltip/tooltip.tsx",
-    "kind": "composite"
-  },
-  "slots": [
+  "key": "tooltip",
+  "name": "Tooltip",
+  "category": "overlays",
+  "kind": "composite",
+  "sourcePath": "src/overlays/tooltip/tooltip.tsx",
+  "parts": [
     {
-      "name": "trigger",
-      "description": "Element that opens the tooltip.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "content",
-      "description": "Tooltip bubble positioned next to its trigger.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "text",
-      "description": "Primary text region inside the tooltip bubble.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "kbds",
-      "description": "Container for shortcut hints displayed beside tooltip text.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "kbd",
-      "description": "Individual keyboard key hint inside the tooltip.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    }
-  ],
-  "props": {
-    "own": [
-      {
-        "name": "children",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Composed trigger and content primitives."
+      "id": "tooltip",
+      "name": "Tooltip",
+      "access": {
+        "kind": "export",
+        "name": "Tooltip",
+        "package": "moraine"
       },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "TooltipT.Classes | undefined",
-        "description": "Family slot class defaults for this Tooltip instance."
-      },
-      {
-        "name": "closeDelay",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Delay in milliseconds before closing after leaving trigger or content.",
-        "defaultValue": "200"
-      },
-      {
-        "name": "defaultOpen",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Initial open state when uncontrolled.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether trigger interactions and content rendering are disabled.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "forceMount",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether content remains mounted while closed.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "id",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Unique identifier used to derive the content id."
-      },
-      {
-        "name": "instantOpenDelay",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Delay in milliseconds to skip the open delay for the next trigger after closing.",
-        "defaultValue": "300"
-      },
-      {
-        "name": "onOpenChange",
-        "required": false,
-        "type": "((open: boolean) => void) | undefined",
-        "description": "Called whenever the open state changes."
-      },
-      {
-        "name": "open",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Controlled open state."
-      },
-      {
-        "name": "openDelay",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Delay in milliseconds before opening on hover or focus.",
-        "defaultValue": "600"
-      },
-      {
-        "name": "placement",
-        "required": false,
-        "type": "Placement | undefined",
-        "description": "Preferred content placement relative to the trigger.",
-        "defaultValue": "top"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "TooltipT.Styles | undefined",
-        "description": "Family slot style defaults for this Tooltip instance."
-      }
-    ],
-    "inherited": []
-  },
-  "primitives": [
-    {
-      "component": {
-        "key": "tooltip-trigger",
-        "name": "Tooltip.Trigger",
-        "category": "overlays",
-        "polymorphic": true,
-        "sourcePath": "src/overlays/tooltip/tooltip.tsx"
-      },
-      "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "as",
-            "required": false,
-            "type": "\"button\" | undefined",
-            "description": "Element or component to render as.",
-            "defaultValue": "button"
+      "sourcePath": "src/overlays/tooltip/tooltip.tsx",
+      "props": [
+        {
+          "name": "closeDelay",
+          "optional": true,
+          "type": {
+            "text": "number"
           },
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element",
-            "description": "Trigger label and visual content."
+          "description": "Delay in milliseconds before closing after leaving trigger or content.",
+          "default": {
+            "kind": "literal",
+            "value": 200
           },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
+          "group": "behavior"
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
           },
-          {
-            "name": "disabled",
-            "required": false,
-            "type": "boolean | undefined",
-            "description": "Whether this trigger is disabled."
+          "description": "Whether trigger interactions and content rendering are disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
           },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          "group": "behavior"
+        },
+        {
+          "name": "forceMount",
+          "optional": true,
+          "type": {
+            "text": "boolean"
           },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
+          "description": "Whether content remains mounted while closed.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Unique identifier used to derive the content id.",
+          "group": "behavior"
+        },
+        {
+          "name": "instantOpenDelay",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Delay in milliseconds to skip the open delay for the next trigger after closing.",
+          "default": {
+            "kind": "literal",
+            "value": 300
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "openDelay",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Delay in milliseconds before opening on hover or focus.",
+          "default": {
+            "kind": "literal",
+            "value": 600
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "placement",
+          "optional": true,
+          "type": {
+            "text": "PopperPlacement"
+          },
+          "description": "Preferred content placement relative to the trigger.",
+          "default": {
+            "kind": "literal",
+            "value": "top"
+          },
+          "group": "behavior",
+          "traits": [
+            "positioning"
+          ]
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Composed trigger and content primitives.",
+          "group": "rendering"
+        },
+        {
+          "name": "defaultOpen",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Initial open state when uncontrolled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "state",
+          "state": {
+            "key": "open",
+            "role": "default"
           }
-        ],
-        "inherited": []
-      }
+        },
+        {
+          "name": "onOpenChange",
+          "optional": true,
+          "type": {
+            "text": "(open: boolean) => void"
+          },
+          "description": "Called whenever the open state changes.",
+          "group": "state",
+          "traits": [
+            "callback"
+          ],
+          "state": {
+            "key": "open",
+            "role": "change"
+          }
+        },
+        {
+          "name": "open",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Controlled open state.",
+          "group": "state",
+          "state": {
+            "key": "open",
+            "role": "value"
+          }
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this Tooltip instance.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this Tooltip instance.",
+          "group": "styling"
+        }
+      ],
+      "slots": [
+        {
+          "name": "content",
+          "description": "Tooltip bubble positioned next to its trigger."
+        },
+        {
+          "name": "kbd",
+          "description": "Individual keyboard key hint inside the tooltip."
+        },
+        {
+          "name": "kbds",
+          "description": "Container for shortcut hints displayed beside tooltip text."
+        },
+        {
+          "name": "text",
+          "description": "Primary text region inside the tooltip bubble."
+        },
+        {
+          "name": "trigger",
+          "description": "Element that opens the tooltip."
+        }
+      ],
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "data-instant-motion",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        },
+        {
+          "target": "root",
+          "attributes": [
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "tooltip"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
     },
     {
-      "component": {
-        "key": "tooltip-content",
-        "name": "Tooltip.Content",
-        "category": "overlays",
-        "polymorphic": false,
-        "sourcePath": "src/overlays/tooltip/tooltip.tsx"
+      "id": "tooltip-content",
+      "name": "Tooltip.Content",
+      "access": {
+        "kind": "attached",
+        "root": "Tooltip",
+        "member": "Content"
       },
+      "sourcePath": "src/overlays/tooltip/tooltip.tsx",
+      "description": "Props for the Tooltip component.",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "kbds",
+          "optional": true,
+          "type": {
+            "text": "string[]"
+          },
+          "description": "Keyboard shortcuts to display next to the text.",
+          "group": "behavior"
+        },
+        {
+          "name": "side",
+          "optional": true,
+          "type": {
+            "text": "'top' | 'right' | 'bottom' | 'left'"
+          },
+          "description": "Preferred placement relative to the trigger.",
+          "default": {
+            "kind": "literal",
+            "value": "top"
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "text",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Primary text content or element to display.",
+          "group": "behavior"
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Text content when text is undefined.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "ContentClasses"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "invert",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Visual invert of the component.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "ContentStyles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
+        }
+      ],
       "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element",
-            "description": "Text content when text is undefined."
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "data-instant-motion",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "tooltip"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tooltip-trigger",
+      "name": "Tooltip.Trigger",
+      "access": {
+        "kind": "attached",
+        "root": "Tooltip",
+        "member": "Trigger"
+      },
+      "sourcePath": "src/overlays/tooltip/tooltip.tsx",
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      ],
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "button",
+        "asProp": "as",
+        "polymorphic": {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      },
+      "props": [
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
           },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
+          "description": "Whether this trigger is disabled.",
+          "group": "behavior"
+        },
+        {
+          "name": "as",
+          "optional": true,
+          "type": {
+            "text": "s"
           },
-          {
-            "name": "classes",
-            "required": false,
-            "type": "TooltipT.ContentClasses | undefined"
-          },
-          {
-            "name": "invert",
-            "required": false,
-            "type": "boolean | undefined",
-            "description": "Visual invert of the component.",
-            "defaultValue": "false"
-          },
-          {
-            "name": "kbds",
-            "required": false,
-            "type": "string[] | undefined",
-            "description": "Keyboard shortcuts to display next to the text."
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "side",
-            "required": false,
-            "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined",
-            "description": "Preferred placement relative to the trigger.",
-            "defaultValue": "top"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
-          },
-          {
-            "name": "styles",
-            "required": false,
-            "type": "TooltipT.ContentStyles | undefined"
-          },
-          {
-            "name": "text",
-            "required": false,
-            "type": "JSX.Element",
-            "description": "Primary text content or element to display."
+          "description": "Element or component to render as.",
+          "group": "rendering",
+          "default": {
+            "kind": "literal",
+            "value": "button"
           }
-        ],
-        "inherited": []
-      }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Trigger label and visual content.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "data-instant-motion",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        },
+        {
+          "target": "trigger",
+          "attributes": [
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "tooltip"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

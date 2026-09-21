@@ -1,63 +1,152 @@
 {
-  "component": {
-    "key": "form",
-    "name": "Form",
-    "category": "forms",
-    "polymorphic": false,
-    "sourcePath": "src/forms/form/form.tsx",
-    "kind": "single"
-  },
-  "slots": [
+  "key": "form",
+  "name": "Form",
+  "category": "forms",
+  "kind": "single",
+  "sourcePath": "src/forms/form/form.tsx",
+  "parts": [
     {
-      "name": "root",
-      "description": "Form root container.",
-      "cssVariables": [],
-      "dataAttributes": [
+      "id": "form-field",
+      "name": "form.Field",
+      "access": {
+        "kind": "factory-member",
+        "factory": "createForm",
+        "member": "Field"
+      },
+      "sourcePath": "src/forms/form/form.tsx",
+      "generics": [
         {
-          "name": "data-submitting",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "name": "TSchema",
+          "constraint": "FormSchema",
+          "default": "FormSchema"
+        },
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
         }
       ],
-      "ariaAttributes": []
+      "props": [
+        {
+          "name": "name",
+          "optional": false,
+          "type": {
+            "text": "FieldName<TSchema>"
+          },
+          "group": "form"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "root",
+          "attributes": [
+            {
+              "name": "data-submitting",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "form-form",
+      "name": "form.Form",
+      "access": {
+        "kind": "factory-member",
+        "factory": "createForm",
+        "member": "Form"
+      },
+      "sourcePath": "src/forms/form/form.tsx",
+      "generics": [
+        {
+          "name": "TSchema",
+          "constraint": "FormSchema",
+          "default": "FormSchema"
+        }
+      ],
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "form",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "onSubmit",
+          "optional": true,
+          "type": {
+            "text": "SubmitEventHandler<TSchema>"
+          },
+          "description": "Called with validated schema output and the native submit event.",
+          "group": "form",
+          "traits": [
+            "callback"
+          ]
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
+        }
+      ],
+      "slots": [
+        {
+          "name": "root",
+          "description": "Form root container."
+        }
+      ],
+      "runtime": [
+        {
+          "target": "root",
+          "attributes": [
+            {
+              "name": "data-submitting",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        }
+      ]
     }
-  ],
-  "props": {
-    "own": [
-      {
-        "name": "children",
-        "required": false,
-        "type": "JSX.Element"
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "FormT.Classes | undefined"
-      },
-      {
-        "name": "onSubmit",
-        "required": false,
-        "type": "SubmitEventHandler<TSchema> | undefined",
-        "description": "Called with validated schema output and the native submit event."
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "FormT.Styles | undefined"
-      }
-    ],
-    "inherited": []
-  }
+  ]
 }

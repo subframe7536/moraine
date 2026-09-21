@@ -1,58 +1,126 @@
 {
-  "component": {
-    "key": "list",
-    "name": "List",
-    "category": "elements",
-    "polymorphic": true,
-    "description": "Headless polymorphic list with optional caller-controlled virtualization.",
-    "sourcePath": "src/elements/list/list.tsx",
-    "kind": "single"
-  },
-  "slots": [],
-  "props": {
-    "own": [
-      {
-        "name": "as",
-        "required": false,
-        "type": "\"ul\" | undefined",
-        "description": "Root element or component.",
-        "defaultValue": "ul"
+  "key": "list",
+  "name": "List",
+  "category": "elements",
+  "kind": "single",
+  "sourcePath": "src/elements/list/list.tsx",
+  "parts": [
+    {
+      "id": "list",
+      "name": "List",
+      "access": {
+        "kind": "export",
+        "name": "List",
+        "package": "moraine"
       },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
+      "sourcePath": "src/elements/list/list.tsx",
+      "generics": [
+        {
+          "name": "TItem"
+        },
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'ul'"
+        },
+        {
+          "name": "TItemElement",
+          "constraint": "HTMLElement",
+          "default": "HTMLElement"
+        }
+      ],
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "ul",
+        "asProp": "as",
+        "polymorphic": {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'ul'"
+        }
       },
-      {
-        "name": "itemRender",
-        "required": false,
-        "type": "ComponentOrElement<ListT.ItemRenderProps<TItem, TItemElement>>",
-        "description": "Renders one collection item."
-      },
-      {
-        "name": "items",
-        "required": false,
-        "type": "readonly TItem[] | undefined",
-        "description": "Reactive collection rendered by the list."
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"ul\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "virtualRender",
-        "required": false,
-        "type": "Component<ListT.VirtualRenderProps<TItem, HTMLElement, TItemElement>> | undefined",
-        "description": "Replaces normal iteration with caller-controlled virtual rendering."
-      }
-    ],
-    "inherited": []
-  }
+      "props": [
+        {
+          "name": "items",
+          "optional": true,
+          "type": {
+            "text": "readonly TItem[]"
+          },
+          "description": "Reactive collection rendered by the list.",
+          "group": "data"
+        },
+        {
+          "name": "as",
+          "optional": true,
+          "type": {
+            "text": "T"
+          },
+          "description": "Root element or component.",
+          "default": {
+            "kind": "literal",
+            "value": "ul"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "itemRender",
+          "optional": false,
+          "type": {
+            "text": "ComponentOrElement<ItemRenderProps<TItem, TItemElement>>"
+          },
+          "description": "Renders one collection item.",
+          "group": "rendering",
+          "traits": [
+            "render-prop"
+          ]
+        },
+        {
+          "name": "virtualRender",
+          "optional": true,
+          "type": {
+            "text": "Component<VirtualRenderProps<TItem, HTMLElement, TItemElement>>"
+          },
+          "description": "Replaces normal iteration with caller-controlled virtual rendering.",
+          "group": "rendering",
+          "traits": [
+            "render-prop"
+          ]
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "root",
+          "attributes": [
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "list"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

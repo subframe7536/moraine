@@ -1,126 +1,132 @@
 {
-  "component": {
-    "key": "kbd-group",
-    "name": "KbdGroup",
-    "category": "elements",
-    "polymorphic": false,
-    "description": "Data-driven renderer for one simultaneous keyboard shortcut.",
-    "sourcePath": "src/elements/kbd/kbd-group.tsx",
-    "kind": "single"
-  },
-  "slots": [
+  "key": "kbd-group",
+  "name": "KbdGroup",
+  "category": "elements",
+  "description": "Props for the KbdGroup component.",
+  "kind": "single",
+  "sourcePath": "src/elements/kbd/kbd-group.tsx",
+  "parts": [
     {
-      "name": "root",
-      "description": "KbdGroup root element.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "item",
-      "description": "Generated Kbd item.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": [
+      "id": "kbd-group",
+      "name": "KbdGroup",
+      "access": {
+        "kind": "export",
+        "name": "KbdGroup",
+        "package": "moraine"
+      },
+      "sourcePath": "src/elements/kbd/kbd-group.tsx",
+      "description": "Props for the KbdGroup component.",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "kbd",
+        "polymorphic": false
+      },
+      "props": [
         {
-          "name": "aria-label",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
+          "name": "separator",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Inline content rendered between keys.",
+          "default": {
+            "kind": "literal",
+            "value": "+"
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "items",
+          "optional": false,
+          "type": {
+            "text": "Item[]"
+          },
+          "description": "Keyboard keys displayed as one simultaneous shortcut.",
+          "group": "data"
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "never"
+          },
+          "description": "KbdGroup is data-driven and does not accept composed children.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": {
+            "text": "'sm' | 'md' | 'lg'"
+          },
+          "description": "Visual size of the component.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          },
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "variant",
+          "optional": true,
+          "type": {
+            "text": "KbdStyleVariant['variant']"
+          },
+          "description": "Visual style variant applied to rendered shortcut keys.",
+          "group": "styling"
         }
-      ]
+      ],
+      "slots": [
+        {
+          "name": "item",
+          "description": "Generated Kbd item."
+        },
+        {
+          "name": "root",
+          "description": "KbdGroup root element."
+        }
+      ],
+      "runtime": []
     }
   ],
   "item": {
-    "props": [
-      {
-        "name": "label",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Accessible label for assistive technology."
-      },
-      {
-        "name": "slotName",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Data slot used by the rendered keycap."
-      },
-      {
-        "name": "symbol",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to resolve known key aliases to symbols.",
-        "defaultValue": "true"
-      },
-      {
-        "name": "value",
-        "required": true,
-        "type": "KbdT.Key",
-        "description": "Value displayed by the keycap or resolved through the static key aliases."
-      }
-    ]
-  },
-  "props": {
-    "own": [
-      {
-        "name": "children",
-        "required": false,
-        "type": "never | undefined",
-        "description": "KbdGroup is data-driven and does not accept composed children."
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "KbdGroupT.Classes | undefined"
-      },
-      {
-        "name": "items",
-        "required": true,
-        "type": "KbdGroupT.Item[]",
-        "description": "Keyboard keys displayed as one simultaneous shortcut."
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"kbd\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "separator",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Inline content rendered between keys.",
-        "defaultValue": "+"
-      },
-      {
-        "name": "size",
-        "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
-        "description": "Visual size of the component.",
-        "defaultValue": "md"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "KbdGroupT.Styles | undefined"
-      },
-      {
-        "name": "variant",
-        "required": false,
-        "type": "\"default\" | \"outline\" | \"invert\" | undefined",
-        "description": "Visual style variant applied to rendered shortcut keys."
-      }
-    ],
-    "inherited": []
+    "name": "Item",
+    "props": []
   }
 }

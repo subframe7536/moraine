@@ -1,150 +1,183 @@
 {
-  "component": {
-    "key": "card",
-    "name": "Card",
-    "category": "elements",
-    "polymorphic": false,
-    "description": "Structured content container with optional header, body, footer, and action slots.",
-    "sourcePath": "src/elements/card/card.tsx",
-    "kind": "single"
-  },
-  "slots": [
+  "key": "card",
+  "name": "Card",
+  "category": "elements",
+  "description": "Props for the Card component.",
+  "kind": "single",
+  "sourcePath": "src/elements/card/card.tsx",
+  "parts": [
     {
-      "name": "root",
-      "description": "Card container that frames the header, body, and footer regions.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "header",
-      "description": "Top region for title, description, custom header content, and actions.",
-      "cssVariables": [],
-      "dataAttributes": [
+      "id": "card",
+      "name": "Card",
+      "access": {
+        "kind": "export",
+        "name": "Card",
+        "package": "moraine"
+      },
+      "sourcePath": "src/elements/card/card.tsx",
+      "description": "Props for the Card component.",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
         {
-          "name": "data-action",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "name": "action",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Actions of the card.",
+          "group": "behavior"
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Children of the card.",
+          "group": "rendering"
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Description of the card.",
+          "group": "rendering"
+        },
+        {
+          "name": "footer",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Footer of the card.",
+          "group": "rendering"
+        },
+        {
+          "name": "header",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Header of the card.",
+          "group": "rendering"
+        },
+        {
+          "name": "title",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Title of the card.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "compact",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Visual compact of the component.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
         }
       ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "title",
-      "description": "Primary heading rendered in the card header.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "description",
-      "description": "Supporting text rendered below the card title.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "action",
-      "description": "Header action region, typically used for buttons or menus.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "body",
-      "description": "Main content region for the card children.",
-      "cssVariables": [],
-      "dataAttributes": [
+      "slots": [
         {
-          "name": "data-no-footer",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "name": "action",
+          "description": "Header action region, typically used for buttons or menus."
+        },
+        {
+          "name": "body",
+          "description": "Main content region for the card children."
+        },
+        {
+          "name": "description",
+          "description": "Supporting text rendered below the card title."
+        },
+        {
+          "name": "footer",
+          "description": "Bottom region for secondary actions or summary content."
+        },
+        {
+          "name": "header",
+          "description": "Top region for title, description, custom header content, and actions."
+        },
+        {
+          "name": "root",
+          "description": "Card container that frames the header, body, and footer regions."
+        },
+        {
+          "name": "title",
+          "description": "Primary heading rendered in the card header."
         }
       ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "footer",
-      "description": "Bottom region for secondary actions or summary content.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
+      "runtime": [
+        {
+          "target": "body",
+          "attributes": [
+            {
+              "name": "data-no-footer",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        },
+        {
+          "target": "header",
+          "attributes": [
+            {
+              "name": "data-action",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        }
+      ]
     }
-  ],
-  "props": {
-    "own": [
-      {
-        "name": "action",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Actions of the card."
-      },
-      {
-        "name": "children",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Children of the card."
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "CardT.Classes | undefined"
-      },
-      {
-        "name": "compact",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to use a compact layout.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "description",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Description of the card."
-      },
-      {
-        "name": "footer",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Footer of the card."
-      },
-      {
-        "name": "header",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Header of the card."
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "CardT.Styles | undefined"
-      },
-      {
-        "name": "title",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Title of the card."
-      }
-    ],
-    "inherited": []
-  }
+  ]
 }

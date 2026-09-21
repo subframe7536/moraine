@@ -1,405 +1,675 @@
 {
-  "component": {
-    "key": "resizable",
-    "name": "Resizable",
-    "category": "elements",
-    "polymorphic": false,
-    "description": "Resizable panel layout with draggable dividers and keyboard support.",
-    "sourcePath": "src/elements/resizable/resizable.tsx",
-    "kind": "composite"
-  },
-  "slots": [
+  "key": "resizable",
+  "name": "Resizable",
+  "category": "elements",
+  "description": "Props for the Resizable component.",
+  "kind": "composite",
+  "sourcePath": "src/elements/resizable/resizable.tsx",
+  "parts": [
     {
-      "name": "root",
-      "description": "Layout container that owns resizable panels and handles.",
-      "cssVariables": [],
-      "dataAttributes": [
+      "id": "resizable",
+      "name": "Resizable",
+      "access": {
+        "kind": "export",
+        "name": "Resizable",
+        "package": "moraine"
+      },
+      "sourcePath": "src/elements/resizable/resizable.tsx",
+      "description": "Props for the Resizable component.",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
         {
-          "name": "data-resizable-root",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Identifies the root container of a resizable layout."
+          "name": "disable",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the resizable component is disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Unique identifier for the resizable root.",
+          "group": "behavior"
+        },
+        {
+          "name": "keyboardDelta",
+          "optional": true,
+          "type": {
+            "text": "ResizableSize"
+          },
+          "description": "The amount to resize when using keyboard shortcuts.",
+          "default": {
+            "kind": "literal",
+            "value": "10%"
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "onHandleKeyDown",
+          "optional": true,
+          "type": {
+            "text": "(context: { event: KeyboardEvent handleIndex: number sizes: number[] }) => void"
+          },
+          "description": "Callback when a key is pressed on a handle.",
+          "group": "behavior",
+          "traits": [
+            "callback"
+          ]
+        },
+        {
+          "name": "onResize",
+          "optional": true,
+          "type": {
+            "text": "(sizes: number[]) => void"
+          },
+          "description": "Callback when any panel is resized.",
+          "group": "behavior",
+          "traits": [
+            "callback"
+          ]
+        },
+        {
+          "name": "onResizeEnd",
+          "optional": true,
+          "type": {
+            "text": "(sizes: number[]) => void"
+          },
+          "description": "Callback when a resize operation ends.",
+          "group": "behavior",
+          "traits": [
+            "callback"
+          ]
+        },
+        {
+          "name": "onResizeStart",
+          "optional": true,
+          "type": {
+            "text": "(sizes: number[]) => void"
+          },
+          "description": "Callback when a resize operation starts.",
+          "group": "behavior",
+          "traits": [
+            "callback"
+          ]
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Ordered `Resizable.Panel` and `Resizable.Handle` children.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "orientation",
+          "optional": true,
+          "type": {
+            "text": "'horizontal' | 'vertical' | null"
+          },
+          "description": "Layout axis used by the component Recipe.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
         }
       ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "panel",
-      "description": "Content pane whose size is controlled by adjacent resize handles.",
-      "cssVariables": [],
-      "dataAttributes": [
+      "slots": [
         {
-          "name": "data-collapsed",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the panel or section is collapsed."
+          "name": "crossTarget",
+          "description": "Extra hit target used when nested handles meet across axes."
         },
         {
-          "name": "data-expanded",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the panel, accordion, or menu is expanded."
+          "name": "divider",
+          "description": "Visual separator between adjacent panels."
         },
         {
-          "name": "data-resizing",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present while resizable handles are actively dragging."
+          "name": "handle",
+          "description": "Interactive target users drag or focus to resize panels."
         },
         {
-          "name": "data-transitioning",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "name": "panel",
+          "description": "Content pane whose size is controlled by adjacent resize handles."
+        },
+        {
+          "name": "root",
+          "description": "Layout container that owns resizable panels and handles."
         }
       ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "divider",
-      "description": "Visual separator between adjacent panels.",
-      "cssVariables": [],
-      "dataAttributes": [
+      "runtime": [
         {
-          "name": "data-active",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the item or trigger is active."
+          "target": "crossTarget",
+          "attributes": [
+            {
+              "name": "data-resizable-handle-end-target",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-resizable-handle-start-target",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
         },
         {
-          "name": "data-cross",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "target": "divider",
+          "attributes": [
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-orientation",
+              "kind": "aria",
+              "description": "Communicates horizontal or vertical orientation."
+            },
+            {
+              "name": "aria-valuemax",
+              "kind": "aria",
+              "description": "Defines the maximum value for range-like controls."
+            },
+            {
+              "name": "aria-valuemin",
+              "kind": "aria",
+              "description": "Defines the minimum value for range-like controls."
+            },
+            {
+              "name": "aria-valuenow",
+              "kind": "aria",
+              "description": "Defines the current numeric value for range-like controls."
+            },
+            {
+              "name": "data-active",
+              "kind": "data",
+              "description": "Present when the item or trigger is active."
+            },
+            {
+              "name": "data-cross",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-dragging",
+              "kind": "data",
+              "description": "Present while the related thumb or handle is being dragged."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "separator"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
         },
         {
-          "name": "data-dragging",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present while the related thumb or handle is being dragged."
-        }
-      ],
-      "ariaAttributes": [
-        {
-          "name": "aria-controls",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References the controlled element while the related content is mounted."
+          "target": "handle",
+          "attributes": [
+            {
+              "name": "data-collapse",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
         },
         {
-          "name": "aria-disabled",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates that the control is disabled."
+          "target": "panel",
+          "attributes": [
+            {
+              "name": "data-collapsed",
+              "kind": "data",
+              "description": "Present when the panel or section is collapsed."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "description": "Present when the panel, accordion, or menu is expanded."
+            },
+            {
+              "name": "data-resizing",
+              "kind": "data",
+              "description": "Present while resizable handles are actively dragging."
+            },
+            {
+              "name": "data-transitioning",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
         },
         {
-          "name": "aria-orientation",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Communicates horizontal or vertical orientation."
-        },
-        {
-          "name": "aria-valuemax",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Defines the maximum value for range-like controls."
-        },
-        {
-          "name": "aria-valuemin",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Defines the minimum value for range-like controls."
-        },
-        {
-          "name": "aria-valuenow",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Defines the current numeric value for range-like controls."
-        },
-        {
-          "name": "role",
-          "required": false,
-          "type": "string",
-          "description": "Defines the semantic role exposed to assistive technology."
+          "target": "root",
+          "attributes": [
+            {
+              "name": "data-resizable-root",
+              "kind": "data",
+              "description": "Identifies the root container of a resizable layout."
+            }
+          ]
         }
       ]
     },
     {
-      "name": "handle",
-      "description": "Interactive target users drag or focus to resize panels.",
-      "cssVariables": [],
-      "dataAttributes": [
+      "id": "resizable-handle",
+      "name": "Resizable.Handle",
+      "access": {
+        "kind": "attached",
+        "root": "Resizable",
+        "member": "Handle"
+      },
+      "sourcePath": "src/elements/resizable/resizable.tsx",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
         {
-          "name": "data-collapse",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
-        }
-      ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "crossTarget",
-      "description": "Extra hit target used when nested handles meet across axes.",
-      "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-resizable-handle-end-target",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "name": "action",
+          "optional": true,
+          "type": {
+            "text": "'resize' | 'collapse'"
+          },
+          "description": "Handle interaction behavior.",
+          "default": {
+            "kind": "literal",
+            "value": "resize"
+          },
+          "group": "behavior"
         },
         {
-          "name": "data-resizable-handle-start-target",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "name": "intersection",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether this handle participates in intersection resizing.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "ComponentOrElement<HandleRenderProps>"
+          },
+          "description": "Custom grip content, or a component receiving the live handle state.",
+          "group": "rendering",
+          "traits": [
+            "render-prop"
+          ]
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
         }
       ],
-      "ariaAttributes": []
-    }
-  ],
-  "props": {
-    "own": [
-      {
-        "name": "children",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Ordered `Resizable.Panel` and `Resizable.Handle` children."
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "ResizableT.Classes | undefined"
-      },
-      {
-        "name": "disable",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the resizable component is disabled.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "id",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Unique identifier for the resizable root."
-      },
-      {
-        "name": "keyboardDelta",
-        "required": false,
-        "type": "ResizableSize | undefined",
-        "description": "The amount to resize when using keyboard shortcuts.",
-        "defaultValue": "10%"
-      },
-      {
-        "name": "onHandleKeyDown",
-        "required": false,
-        "type": "((context: { event: KeyboardEvent; handleIndex: number; sizes: number[]; }) => void) | undefined",
-        "description": "Callback when a key is pressed on a handle."
-      },
-      {
-        "name": "onResize",
-        "required": false,
-        "type": "((sizes: number[]) => void) | undefined",
-        "description": "Callback when any panel is resized."
-      },
-      {
-        "name": "onResizeEnd",
-        "required": false,
-        "type": "((sizes: number[]) => void) | undefined",
-        "description": "Callback when a resize operation ends."
-      },
-      {
-        "name": "onResizeStart",
-        "required": false,
-        "type": "((sizes: number[]) => void) | undefined",
-        "description": "Callback when a resize operation starts."
-      },
-      {
-        "name": "orientation",
-        "required": false,
-        "type": "ResizableOrientation | \"horizontal\" | \"vertical\" | null | undefined",
-        "description": "Axis along which panels resize.",
-        "defaultValue": "horizontal"
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "ResizableT.Styles | undefined"
-      }
-    ],
-    "inherited": []
-  },
-  "primitives": [
-    {
-      "component": {
-        "key": "resizable-panel",
-        "name": "Resizable.Panel",
-        "category": "elements",
-        "polymorphic": false,
-        "sourcePath": "src/elements/resizable/resizable.tsx"
-      },
       "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element",
-            "description": "Content rendered inside the panel."
-          },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "collapsible",
-            "required": false,
-            "type": "boolean | undefined",
-            "description": "Whether the panel is collapsible.\nThis prop is reactive; toggling `true/false` can be used as a simple collapse signal.",
-            "defaultValue": "false"
-          },
-          {
-            "name": "collapsibleMin",
-            "required": false,
-            "type": "ResizableSize | undefined",
-            "description": "Size of the panel when collapsed.\nOnly works when `collapsible` is true.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
-            "defaultValue": "0"
-          },
-          {
-            "name": "defaultSize",
-            "required": false,
-            "type": "ResizableSize | undefined",
-            "description": "Default size of the panel (uncontrolled).\n- Use string as percent, like `20%`\n- Use number as px, like `328`"
-          },
-          {
-            "name": "max",
-            "required": false,
-            "type": "ResizableSize | undefined",
-            "description": "Maximum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
-            "defaultValue": "1"
-          },
-          {
-            "name": "min",
-            "required": false,
-            "type": "ResizableSize | undefined",
-            "description": "Minimum size of the panel.\n- Use string as percent, like `20%`\n- Use number as px, like `328`",
-            "defaultValue": "0"
-          },
-          {
-            "name": "onCollapse",
-            "required": false,
-            "type": "((size: number) => void) | undefined",
-            "description": "Callback when the panel is collapsed."
-          },
-          {
-            "name": "onExpand",
-            "required": false,
-            "type": "((size: number) => void) | undefined",
-            "description": "Callback when the panel is expanded."
-          },
-          {
-            "name": "onResize",
-            "required": false,
-            "type": "((size: number) => void) | undefined",
-            "description": "Callback when the panel is resized."
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "resizable",
-            "required": false,
-            "type": "boolean | undefined",
-            "description": "Whether the panel is resizable.",
-            "defaultValue": "true"
-          },
-          {
-            "name": "size",
-            "required": false,
-            "type": "ResizableSize | undefined",
-            "description": "Current size of the panel (controlled).\n- Use string as percent, like `20%`\n- Use number as px, like `328`"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
-          }
-        ],
-        "inherited": []
-      }
+      "runtime": [
+        {
+          "target": "crossTarget",
+          "attributes": [
+            {
+              "name": "data-resizable-handle-end-target",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-resizable-handle-start-target",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        },
+        {
+          "target": "divider",
+          "attributes": [
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-orientation",
+              "kind": "aria",
+              "description": "Communicates horizontal or vertical orientation."
+            },
+            {
+              "name": "aria-valuemax",
+              "kind": "aria",
+              "description": "Defines the maximum value for range-like controls."
+            },
+            {
+              "name": "aria-valuemin",
+              "kind": "aria",
+              "description": "Defines the minimum value for range-like controls."
+            },
+            {
+              "name": "aria-valuenow",
+              "kind": "aria",
+              "description": "Defines the current numeric value for range-like controls."
+            },
+            {
+              "name": "data-active",
+              "kind": "data",
+              "description": "Present when the item or trigger is active."
+            },
+            {
+              "name": "data-cross",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-dragging",
+              "kind": "data",
+              "description": "Present while the related thumb or handle is being dragged."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "separator"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "handle",
+          "attributes": [
+            {
+              "name": "data-collapse",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        },
+        {
+          "target": "panel",
+          "attributes": [
+            {
+              "name": "data-collapsed",
+              "kind": "data",
+              "description": "Present when the panel or section is collapsed."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "description": "Present when the panel, accordion, or menu is expanded."
+            },
+            {
+              "name": "data-resizing",
+              "kind": "data",
+              "description": "Present while resizable handles are actively dragging."
+            },
+            {
+              "name": "data-transitioning",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        },
+        {
+          "target": "root",
+          "attributes": [
+            {
+              "name": "data-resizable-root",
+              "kind": "data",
+              "description": "Identifies the root container of a resizable layout."
+            }
+          ]
+        }
+      ]
     },
     {
-      "component": {
-        "key": "resizable-handle",
-        "name": "Resizable.Handle",
-        "category": "elements",
-        "polymorphic": false,
-        "sourcePath": "src/elements/resizable/resizable.tsx"
+      "id": "resizable-panel",
+      "name": "Resizable.Panel",
+      "access": {
+        "kind": "attached",
+        "root": "Resizable",
+        "member": "Panel"
       },
+      "sourcePath": "src/elements/resizable/resizable.tsx",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Content rendered inside the panel.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
       "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "action",
-            "required": false,
-            "type": "\"resize\" | \"collapse\" | undefined",
-            "description": "Handle interaction behavior.",
-            "defaultValue": "resize"
-          },
-          {
-            "name": "children",
-            "required": false,
-            "type": "ComponentOrElement<ResizableT.HandleRenderProps>",
-            "description": "Custom grip content, or a component receiving the live handle state."
-          },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "intersection",
-            "required": false,
-            "type": "boolean | undefined",
-            "description": "Whether this handle participates in intersection resizing.",
-            "defaultValue": "false"
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
-          }
-        ],
-        "inherited": []
-      }
+      "runtime": [
+        {
+          "target": "crossTarget",
+          "attributes": [
+            {
+              "name": "data-resizable-handle-end-target",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-resizable-handle-start-target",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        },
+        {
+          "target": "divider",
+          "attributes": [
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-orientation",
+              "kind": "aria",
+              "description": "Communicates horizontal or vertical orientation."
+            },
+            {
+              "name": "aria-valuemax",
+              "kind": "aria",
+              "description": "Defines the maximum value for range-like controls."
+            },
+            {
+              "name": "aria-valuemin",
+              "kind": "aria",
+              "description": "Defines the minimum value for range-like controls."
+            },
+            {
+              "name": "aria-valuenow",
+              "kind": "aria",
+              "description": "Defines the current numeric value for range-like controls."
+            },
+            {
+              "name": "data-active",
+              "kind": "data",
+              "description": "Present when the item or trigger is active."
+            },
+            {
+              "name": "data-cross",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-dragging",
+              "kind": "data",
+              "description": "Present while the related thumb or handle is being dragged."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "separator"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "handle",
+          "attributes": [
+            {
+              "name": "data-collapse",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        },
+        {
+          "target": "panel",
+          "attributes": [
+            {
+              "name": "data-collapsed",
+              "kind": "data",
+              "description": "Present when the panel or section is collapsed."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "description": "Present when the panel, accordion, or menu is expanded."
+            },
+            {
+              "name": "data-resizing",
+              "kind": "data",
+              "description": "Present while resizable handles are actively dragging."
+            },
+            {
+              "name": "data-transitioning",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        },
+        {
+          "target": "root",
+          "attributes": [
+            {
+              "name": "data-resizable-root",
+              "kind": "data",
+              "description": "Identifies the root container of a resizable layout."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

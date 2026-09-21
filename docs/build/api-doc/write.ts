@@ -1,11 +1,12 @@
 import { mkdirSync } from 'node:fs'
-import { writeFile, unlink } from 'node:fs/promises'
+import { rename, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import { collectFiles, collectMarkdownFiles, resolveDocsPageContext } from '../core/paths'
 
 import { clearApiDocCache } from './load'
-import type { GenerationResult } from './types'
+import type { ComponentApi, GenerationResult } from './types'
+import { validateAllComponentApis } from './validate'
 
 function getPageDirectoryByKey(pagesRoot: string): Map<string, string> {
   const pageDirectories = new Map<string, string>()
@@ -16,52 +17,132 @@ function getPageDirectoryByKey(pagesRoot: string): Map<string, string> {
   return pageDirectories
 }
 
-async function removeStaleApiJson(pagesRoot: string): Promise<void> {
-  await Promise.all(
-    collectFiles(pagesRoot, (file) => path.basename(file) === 'api.json').map((file) =>
-      unlink(file).catch(() => undefined),
-    ),
-  )
+function sortComponentApi(component: ComponentApi): ComponentApi {
+  const sortedParts = [...component.parts]
+    .sort((a, b) => {
+      const aIsRoot = a.id === component.key
+      const bIsRoot = b.id === component.key
+      if (aIsRoot !== bIsRoot) {
+        return aIsRoot ? -1 : 1
+      }
+      return a.id.localeCompare(b.id)
+    })
+    .map((part) => {
+      const sortedProps = [...part.props].sort((a, b) => {
+        if (a.group !== b.group) {
+          return a.group.localeCompare(b.group)
+        }
+        return a.name.localeCompare(b.name)
+      })
+      const sortedSlots = [...part.slots].sort((a, b) => a.name.localeCompare(b.name))
+      const sortedRuntime = [...part.runtime]
+        .sort((a, b) => a.target.localeCompare(b.target))
+        .map((target) => ({
+          target: target.target,
+          attributes: [...target.attributes].sort((a, b) => a.name.localeCompare(b.name)),
+        }))
+
+      return Object.assign({}, part, {
+        props: sortedProps,
+        slots: sortedSlots,
+        runtime: sortedRuntime,
+      })
+    })
+
+  const sortedItem = component.item
+    ? {
+        ...component.item,
+        props: [...component.item.props].sort((a, b) => a.name.localeCompare(b.name)),
+      }
+    : undefined
+
+  return {
+    ...component,
+    parts: sortedParts,
+    ...(sortedItem ? { item: sortedItem } : {}),
+  }
 }
 
 export async function writeJsonFiles(pagesRoot: string, result: GenerationResult): Promise<void> {
   const projectRoot = path.dirname(path.dirname(pagesRoot))
+
+  // 1. Validate complete generation result before modifying ANY file on disk
+  const allComponents = [...result.componentDocs.values()].map(sortComponentApi)
+  validateAllComponentApis(allComponents)
+
+  // 2. Prepare serialized outputs in memory
   const pageDirectoryByKey = getPageDirectoryByKey(pagesRoot)
-  const embeddedComponentKeys = new Set(
-    [...result.componentDocs.values()]
-      .filter((doc) => pageDirectoryByKey.has(doc.component.key))
-      .flatMap((doc) => doc.primitives?.map((primitive) => primitive.component.key) ?? []),
-  )
   const apiIndexDoc = {
-    components: result.indexDoc.components.filter((component) =>
-      pageDirectoryByKey.has(component.key),
-    ),
+    components: [...result.indexDoc.components]
+      .filter((c) => pageDirectoryByKey.has(c.key))
+      .sort((a, b) => a.key.localeCompare(b.key)),
+  }
+  const serializedIndex = `${JSON.stringify(apiIndexDoc, null, 2)}\n`
+
+  const filesToWrite: Array<{
+    targetPath: string
+    content: string
+  }> = [
+    {
+      targetPath: path.join(pagesRoot, '_api-index.json'),
+      content: serializedIndex,
+    },
+  ]
+
+  for (const component of allComponents) {
+    const pageDir = pageDirectoryByKey.get(component.key)
+    if (!pageDir) {
+      console.warn(
+        `[api-doc] No docs page found for "${component.key}", skipping colocated api.json`,
+      )
+      continue
+    }
+
+    const targetPath = path.join(pageDir, 'api.json')
+    const content = `${JSON.stringify(component, null, 2)}\n`
+    filesToWrite.push({ targetPath, content })
   }
 
-  mkdirSync(pagesRoot, { recursive: true })
-  await removeStaleApiJson(pagesRoot)
-  await writeFile(
-    path.join(pagesRoot, '_api-index.json'),
-    JSON.stringify(apiIndexDoc, null, 2),
-    'utf8',
-  )
+  // 3. Stage writes: write to temporary sibling files
+  const stagedFiles: Array<{ tempPath: string; targetPath: string }> = []
+  const uniqueId = `${Date.now()}-${Math.random().toString(36).slice(2)}`
 
-  const writes = [...result.componentDocs.entries()].flatMap(([key, doc]) => {
-    const pageDirectory = pageDirectoryByKey.get(key)
-    if (!pageDirectory) {
-      if (!embeddedComponentKeys.has(key)) {
-        console.warn(`[api-doc] No docs page found for "${key}", skipping colocated api.json`)
-      }
-      return []
+  mkdirSync(pagesRoot, { recursive: true })
+
+  try {
+    for (const item of filesToWrite) {
+      const tempPath = `${item.targetPath}.tmp.${uniqueId}`
+      mkdirSync(path.dirname(tempPath), { recursive: true })
+      await writeFile(tempPath, item.content, 'utf8')
+      stagedFiles.push({ tempPath, targetPath: item.targetPath })
     }
-    return [
-      (async () => {
-        await writeFile(path.join(pageDirectory, 'api.json'), JSON.stringify(doc, null, 2), 'utf8')
-      })(),
-    ]
-  })
-  await Promise.all(writes)
+
+    // 4. Atomically rename all temporary files to target files
+    for (const staged of stagedFiles) {
+      await rename(staged.tempPath, staged.targetPath)
+    }
+  } catch (error) {
+    // If any staged write or rename fails, clean up all temporary files and rethrow
+    for (const staged of stagedFiles) {
+      await unlink(staged.tempPath).catch(() => undefined)
+    }
+    throw error
+  }
+
+  // 5. Remove stale generated api.json files last
+  const writtenTargets = new Set(filesToWrite.map((f) => path.resolve(f.targetPath)))
+  const existingApiJsonFiles = collectFiles(pagesRoot, (file) => path.basename(file) === 'api.json')
+
+  for (const file of existingApiJsonFiles) {
+    if (!writtenTargets.has(path.resolve(file))) {
+      await unlink(file).catch(() => undefined)
+    }
+  }
+
+  // 6. Clear caches
   clearApiDocCache(projectRoot)
 
-  console.log(`[api-doc] Generated ${writes.length} colocated component api docs to ${pagesRoot}`)
+  console.log(
+    `[api-doc] Generated ${filesToWrite.length - 1} colocated component api docs to ${pagesRoot}`,
+  )
 }

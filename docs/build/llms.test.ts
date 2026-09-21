@@ -119,38 +119,45 @@ describe('llms.txt generation', () => {
         projectRoot,
         'docs/pages/(general)/button/api.json',
         JSON.stringify({
-          component: {
-            key: 'button',
-            name: 'Button',
-            category: 'elements',
-            polymorphic: false,
-          },
-          slots: [
+          key: 'button',
+          name: 'Button',
+          category: 'elements',
+          kind: 'single',
+          sourcePath: 'src/elements/button/button.tsx',
+          parts: [
             {
-              name: 'root',
-              cssVariables: [],
-              dataAttributes: [],
-              ariaAttributes: [
+              id: 'button',
+              name: 'Button',
+              access: { kind: 'export', name: 'Button', package: 'moraine' },
+              sourcePath: 'src/elements/button/button.tsx',
+              props: [
                 {
-                  name: 'aria-label',
-                  required: false,
-                  type: 'string | undefined',
-                  description: 'Accessible label.',
+                  name: 'variant',
+                  optional: true,
+                  type: { text: '"default" | "outline"' },
+                  description: 'Visual variant.',
+                  group: 'styling',
+                },
+              ],
+              slots: [
+                {
+                  name: 'root',
+                },
+              ],
+              runtime: [
+                {
+                  target: 'root',
+                  attributes: [
+                    {
+                      name: 'aria-label',
+                      kind: 'aria',
+                      description: 'Accessible label.',
+                    },
+                  ],
                 },
               ],
             },
           ],
-          props: {
-            own: [
-              {
-                name: 'variant',
-                required: false,
-                type: '"default" | "outline"',
-                description: 'Visual variant.',
-              },
-            ],
-            inherited: [],
-          },
         }),
       )
 
@@ -172,8 +179,11 @@ describe('llms.txt generation', () => {
       expect(button).toContain('function Basic()')
       expect(button).toContain('## API')
       expect(button).toContain('| variant | "default" \\| "outline" | — | Visual variant. |')
-      expect(button).toContain('#### `root`')
-      expect(button).toContain('##### ARIA Attributes')
+      expect(button).toContain('### Slots')
+      expect(button).toContain('- `root`')
+      expect(button).toContain('### Runtime Attributes')
+      expect(button).toContain('##### Target: `root`')
+      expect(button).toContain('| aria-label | aria | — | Accessible label. |')
       expect(button).toMatch(/^---\ntitle: Button\ndescription: Button page description\./)
       expect(button).toContain('\n---\n\n# Button\n')
       expect(button).toContain('## Examples')

@@ -1,356 +1,600 @@
 {
-  "component": {
-    "key": "sidebar-frame",
-    "name": "SidebarFrame",
-    "category": "navigation",
-    "polymorphic": false,
-    "description": "Responsive sidebar layout with a mobile Sheet fallback.",
-    "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
-    "kind": "composite"
-  },
-  "slots": [
+  "key": "sidebar-frame",
+  "name": "SidebarFrame",
+  "category": "navigation",
+  "kind": "composite",
+  "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
+  "parts": [
     {
-      "name": "root",
-      "description": "Frame that contains the sidebar and main regions.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
+      "id": "sidebar-frame",
+      "name": "SidebarFrame",
+      "access": {
+        "kind": "export",
+        "name": "SidebarFrame",
+        "package": "moraine"
+      },
+      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "isMobile",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Controlled mobile mode. When omitted, `matchMedia` determines the value.",
+          "group": "behavior"
+        },
+        {
+          "name": "scrollThreshold",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Main scroll offset that changes `scrolled` to true.",
+          "default": {
+            "kind": "literal",
+            "value": 60
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "side",
+          "optional": true,
+          "type": {
+            "text": "'left' | 'right'"
+          },
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "variant",
+          "optional": true,
+          "type": {
+            "text": "'default' | 'floating' | 'inset'"
+          },
+          "group": "styling"
+        }
+      ],
+      "slots": [
+        {
+          "name": "main",
+          "description": "Main application content region."
+        },
+        {
+          "name": "root",
+          "description": "Frame that contains the sidebar and main regions."
+        },
+        {
+          "name": "sidebar",
+          "description": "Sidebar region, rendered in a Sheet on mobile."
+        },
+        {
+          "name": "sidebarBody",
+          "description": "Scrollable content region inside the sidebar."
+        },
+        {
+          "name": "sidebarFooter",
+          "description": "Footer region inside the sidebar."
+        },
+        {
+          "name": "sidebarHeader",
+          "description": "Header region inside the sidebar."
+        }
+      ],
+      "runtime": [
+        {
+          "target": "sidebar",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-mobile",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        }
+      ]
     },
     {
-      "name": "sidebar",
-      "description": "Sidebar region, rendered in a Sheet on mobile.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "sidebarHeader",
-      "description": "Header region inside the sidebar.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "sidebarBody",
-      "description": "Scrollable content region inside the sidebar.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "sidebarFooter",
-      "description": "Footer region inside the sidebar.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "main",
-      "description": "Main application content region.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    }
-  ],
-  "props": {
-    "own": [
-      {
-        "name": "children",
-        "required": false,
-        "type": "JSX.Element"
+      "id": "sidebar-frame-main",
+      "name": "SidebarFrame.Main",
+      "access": {
+        "kind": "attached",
+        "root": "SidebarFrame",
+        "member": "Main"
       },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
+      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
       },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "SidebarFrameT.Classes | undefined"
-      },
-      {
-        "name": "isMobile",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Controlled mobile mode. When omitted, `matchMedia` determines the value."
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "scrollThreshold",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Main scroll offset that changes `scrolled` to true.",
-        "defaultValue": "60"
-      },
-      {
-        "name": "side",
-        "required": false,
-        "type": "\"right\" | \"left\" | undefined",
-        "description": "Side occupied by the sidebar.",
-        "defaultValue": "left"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "SidebarFrameT.Styles | undefined"
-      },
-      {
-        "name": "variant",
-        "required": false,
-        "type": "\"default\" | \"floating\" | \"inset\" | undefined"
-      }
-    ],
-    "inherited": []
-  },
-  "primitives": [
-    {
-      "component": {
-        "key": "sidebar-frame-sidebar",
-        "name": "SidebarFrame.Sidebar",
-        "category": "navigation",
-        "polymorphic": false,
-        "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
-      },
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
       "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "ariaLabel",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Accessible name for the mobile navigation Sheet. Native aria-label takes precedence;\ntitle is used when neither native aria-label nor this prop is provided.",
-            "defaultValue": "Sidebar navigation"
-          },
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element"
-          },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
-          }
-        ],
-        "inherited": []
-      }
+      "runtime": [
+        {
+          "target": "sidebar",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-mobile",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        }
+      ]
     },
     {
-      "component": {
-        "key": "sidebar-frame-sidebar-header",
-        "name": "SidebarFrame.SidebarHeader",
-        "category": "navigation",
-        "polymorphic": false,
-        "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
+      "id": "sidebar-frame-sidebar",
+      "name": "SidebarFrame.Sidebar",
+      "access": {
+        "kind": "attached",
+        "root": "SidebarFrame",
+        "member": "Sidebar"
       },
+      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "ariaLabel",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Accessible name for the mobile navigation Sheet. Native aria-label takes precedence;\ntitle is used when neither native aria-label nor this prop is provided.",
+          "default": {
+            "kind": "literal",
+            "value": "Sidebar navigation"
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
       "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element"
-          },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
-          }
-        ],
-        "inherited": []
-      }
+      "runtime": [
+        {
+          "target": "sidebar",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-mobile",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        }
+      ]
     },
     {
-      "component": {
-        "key": "sidebar-frame-sidebar-body",
-        "name": "SidebarFrame.SidebarBody",
-        "category": "navigation",
-        "polymorphic": false,
-        "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
+      "id": "sidebar-frame-sidebar-body",
+      "name": "SidebarFrame.SidebarBody",
+      "access": {
+        "kind": "attached",
+        "root": "SidebarFrame",
+        "member": "SidebarBody"
       },
+      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
       "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element"
-          },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
-          }
-        ],
-        "inherited": []
-      }
+      "runtime": [
+        {
+          "target": "sidebar",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-mobile",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        }
+      ]
     },
     {
-      "component": {
-        "key": "sidebar-frame-sidebar-footer",
-        "name": "SidebarFrame.SidebarFooter",
-        "category": "navigation",
-        "polymorphic": false,
-        "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
+      "id": "sidebar-frame-sidebar-footer",
+      "name": "SidebarFrame.SidebarFooter",
+      "access": {
+        "kind": "attached",
+        "root": "SidebarFrame",
+        "member": "SidebarFooter"
       },
+      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
       "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element"
-          },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
-          }
-        ],
-        "inherited": []
-      }
+      "runtime": [
+        {
+          "target": "sidebar",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-mobile",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        }
+      ]
     },
     {
-      "component": {
-        "key": "sidebar-frame-main",
-        "name": "SidebarFrame.Main",
-        "category": "navigation",
-        "polymorphic": false,
-        "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
+      "id": "sidebar-frame-sidebar-header",
+      "name": "SidebarFrame.SidebarHeader",
+      "access": {
+        "kind": "attached",
+        "root": "SidebarFrame",
+        "member": "SidebarHeader"
       },
+      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
       "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element"
-          },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
-          }
-        ],
-        "inherited": []
-      }
+      "runtime": [
+        {
+          "target": "sidebar",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-mobile",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        }
+      ]
     },
     {
-      "component": {
-        "key": "sidebar-frame-trigger",
-        "name": "SidebarFrame.Trigger",
-        "category": "navigation",
-        "polymorphic": true,
-        "description": "Interactive trigger button for toggling sidebar visibility.",
-        "sourcePath": "src/navigation/sidebar-frame/sidebar-frame-trigger.tsx"
+      "id": "sidebar-frame-trigger",
+      "name": "SidebarFrame.Trigger",
+      "access": {
+        "kind": "attached",
+        "root": "SidebarFrame",
+        "member": "Trigger"
       },
-      "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "as",
-            "required": false,
-            "type": "\"button\" | undefined",
-            "description": "Element or component to render as.",
-            "defaultValue": "button"
+      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      ],
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "button",
+        "asProp": "as",
+        "polymorphic": {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      },
+      "props": [
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
           },
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element",
-            "description": "Trigger label and visual content."
+          "description": "Whether this trigger is disabled.",
+          "group": "behavior"
+        },
+        {
+          "name": "as",
+          "optional": true,
+          "type": {
+            "text": "T"
           },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "disabled",
-            "required": false,
-            "type": "boolean | undefined",
-            "description": "Whether this trigger is disabled."
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
+          "description": "Element or component to render as.",
+          "group": "rendering",
+          "default": {
+            "kind": "literal",
+            "value": "button"
           }
-        ],
-        "inherited": []
-      }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Trigger label and visual content.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "sidebar",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-mobile",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, createSignal, onMount, Show, untrack } from 'solid-js'
 
 import { Button } from '../../../../src'
-import type { ComponentDoc } from '../../../build/api-doc/types'
+import type { ComponentApi } from '../../../build/api-doc/types'
 import type { DocsRouteMetadata, FrontmatterData } from '../../../build/markdown/types'
 import type { OnThisPageEntry } from '../../hooks/use-table-of-contents'
 
@@ -12,7 +12,7 @@ import { OnThisPage } from './on-this-page'
 
 const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/main'
 
-export type ExamplePageApiDoc = ComponentDoc
+export type ExamplePageApiDoc = ComponentApi
 
 export interface DocsMdxCodeTabItem {
   label: string
@@ -79,7 +79,7 @@ export function useDocsPage(metadata?: DocsRouteMetadata): void {
 
 export function Markdown(input: RenderExampleMarkdownPageInput) {
   useDocsPage(untrack(() => input.metadata))
-  const component = () => input.apiDoc?.component
+  const component = () => input.apiDoc
   const componentKey = () => input.frontmatter.componentKey ?? component()?.key
   const category = () => input.frontmatter.category ?? component()?.category
   const githubSourceHref = () => {

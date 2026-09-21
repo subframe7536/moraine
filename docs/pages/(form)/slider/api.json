@@ -1,348 +1,481 @@
 {
-  "component": {
-    "key": "slider",
-    "name": "Slider",
-    "category": "forms",
-    "polymorphic": false,
-    "description": "Range slider component with single or multi-thumb support and step markers.",
-    "sourcePath": "src/forms/slider/slider.tsx",
-    "kind": "single"
-  },
-  "slots": [
+  "key": "slider",
+  "name": "Slider",
+  "category": "forms",
+  "description": "Props for the Slider component.",
+  "kind": "single",
+  "sourcePath": "src/forms/slider/slider.tsx",
+  "parts": [
     {
-      "name": "root",
-      "description": "Slider container that owns track, range, thumbs, and labels.",
-      "cssVariables": [],
-      "dataAttributes": [
+      "id": "slider",
+      "name": "Slider",
+      "access": {
+        "kind": "export",
+        "name": "Slider",
+        "package": "moraine"
+      },
+      "sourcePath": "src/forms/slider/slider.tsx",
+      "description": "Props for the Slider component.",
+      "generics": [
         {
-          "name": "data-disabled",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component, slot, or item is disabled."
-        },
-        {
-          "name": "data-dragging",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present while the related thumb or handle is being dragged."
-        },
-        {
-          "name": "data-invalid",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field or form has a validation error."
-        },
-        {
-          "name": "data-readonly",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field is in read-only mode."
-        },
-        {
-          "name": "data-required",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field input is required."
+          "name": "TValue",
+          "default": "Value"
         }
       ],
-      "ariaAttributes": [
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
         {
-          "name": "role",
-          "required": false,
-          "type": "string",
-          "description": "Defines the semantic role exposed to assistive technology."
-        }
-      ]
-    },
-    {
-      "name": "track",
-      "description": "Background rail representing the full slider range.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "range",
-      "description": "Filled segment between the start of the range and active thumb values.",
-      "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-dragging",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present while the related thumb or handle is being dragged."
+          "name": "allowThumbCrossing",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether dragging can continue across another thumb when there is no minimum gap.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          },
+          "group": "behavior"
         },
         {
-          "name": "data-inverted",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
         },
         {
-          "name": "data-multiple",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "name": "divider",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether to show visual step dividers on the track, only applicable when `step` is defined and greater than 0.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "The ID of the input element.",
+          "group": "behavior"
+        },
+        {
+          "name": "inputRef",
+          "optional": true,
+          "type": {
+            "text": "Ref<HTMLInputElement>"
+          },
+          "description": "Optional inner input element ref.",
+          "group": "behavior"
+        },
+        {
+          "name": "inverted",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Reverses value movement along the track.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "max",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Maximum value of the slider.",
+          "default": {
+            "kind": "literal",
+            "value": 100
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "min",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Minimum value of the slider.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "minStepsBetweenThumbs",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Minimum steps required between thumbs in a multi-thumb slider.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "step",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Step increment between values.\nWhen omitted, pointer movement is continuous.",
+          "group": "behavior"
+        },
+        {
+          "name": "name",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "The name of the input element, used for form submission.",
+          "group": "form"
+        },
+        {
+          "name": "readOnly",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is read-only.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "form"
+        },
+        {
+          "name": "required",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is required.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "form"
+        },
+        {
+          "name": "defaultValue",
+          "optional": true,
+          "type": {
+            "text": "TValue"
+          },
+          "description": "The default value of the input (uncontrolled).",
+          "group": "state",
+          "state": {
+            "key": "value",
+            "role": "default"
+          }
+        },
+        {
+          "name": "onChange",
+          "optional": true,
+          "type": {
+            "text": "(value: TValue) => void"
+          },
+          "description": "Callback when the slider selection change is committed.",
+          "group": "state",
+          "traits": [
+            "callback"
+          ],
+          "state": {
+            "key": "value",
+            "role": "change"
+          }
+        },
+        {
+          "name": "onValueChange",
+          "optional": true,
+          "type": {
+            "text": "(value: TValue) => void"
+          },
+          "description": "Callback when the slider selection changes during interaction.",
+          "group": "state",
+          "traits": [
+            "callback"
+          ],
+          "state": {
+            "key": "value",
+            "role": "change"
+          }
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": {
+            "text": "TValue"
+          },
+          "description": "The current value of the input (controlled).",
+          "group": "state",
+          "state": {
+            "key": "value",
+            "role": "value"
+          }
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "orientation",
+          "optional": true,
+          "type": {
+            "text": "'horizontal' | 'vertical'"
+          },
+          "description": "Layout axis used by the component Recipe.",
+          "group": "styling"
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": {
+            "text": "'sm' | 'md' | 'lg'"
+          },
+          "description": "Visual size of the component.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          },
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "variant",
+          "optional": true,
+          "type": {
+            "text": "'default' | 'bold'"
+          },
+          "description": "Visual treatment of the component.",
+          "default": {
+            "kind": "literal",
+            "value": "default"
+          },
+          "group": "styling"
         }
       ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "divider",
-      "description": "Visual marker for one slider step.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "thumb",
-      "description": "Draggable handle for one slider value.",
-      "cssVariables": [],
-      "dataAttributes": [
+      "slots": [
         {
-          "name": "data-disabled",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component, slot, or item is disabled."
+          "name": "divider",
+          "description": "Visual marker for one slider step."
         },
         {
-          "name": "data-dragging",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present while the related thumb or handle is being dragged."
+          "name": "range",
+          "description": "Filled segment between the start of the range and active thumb values."
         },
         {
-          "name": "data-invalid",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field or form has a validation error."
+          "name": "root",
+          "description": "Slider container that owns track, range, thumbs, and labels."
         },
         {
-          "name": "data-inverted",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "name": "thumb",
+          "description": "Draggable handle for one slider value."
         },
         {
-          "name": "data-readonly",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field is in read-only mode."
-        },
-        {
-          "name": "data-required",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field input is required."
+          "name": "track",
+          "description": "Background rail representing the full slider range."
         }
       ],
-      "ariaAttributes": [
+      "runtime": [
         {
-          "name": "aria-label",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
+          "target": "range",
+          "attributes": [
+            {
+              "name": "data-dragging",
+              "kind": "data",
+              "description": "Present while the related thumb or handle is being dragged."
+            },
+            {
+              "name": "data-inverted",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-multiple",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
         },
         {
-          "name": "aria-orientation",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Communicates horizontal or vertical orientation."
+          "target": "root",
+          "attributes": [
+            {
+              "name": "aria-orientation",
+              "kind": "aria",
+              "description": "Communicates horizontal or vertical orientation."
+            },
+            {
+              "name": "aria-valuetext",
+              "kind": "aria",
+              "description": "Provides human-readable text for the current value."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-dragging",
+              "kind": "data",
+              "description": "Present while the related thumb or handle is being dragged."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "description": "Present when the field input is required."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "group"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
         },
         {
-          "name": "aria-valuemax",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Defines the maximum value for range-like controls."
-        },
-        {
-          "name": "aria-valuemin",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Defines the minimum value for range-like controls."
-        },
-        {
-          "name": "aria-valuenow",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Defines the current numeric value for range-like controls."
-        },
-        {
-          "name": "aria-valuetext",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides human-readable text for the current value."
-        },
-        {
-          "name": "role",
-          "required": false,
-          "type": "string",
-          "description": "Defines the semantic role exposed to assistive technology."
+          "target": "thumb",
+          "attributes": [
+            {
+              "name": "aria-label",
+              "kind": "aria",
+              "description": "Provides an accessible label when visible text is not sufficient."
+            },
+            {
+              "name": "aria-orientation",
+              "kind": "aria",
+              "description": "Communicates horizontal or vertical orientation."
+            },
+            {
+              "name": "aria-valuemax",
+              "kind": "aria",
+              "description": "Defines the maximum value for range-like controls."
+            },
+            {
+              "name": "aria-valuemin",
+              "kind": "aria",
+              "description": "Defines the minimum value for range-like controls."
+            },
+            {
+              "name": "aria-valuenow",
+              "kind": "aria",
+              "description": "Defines the current numeric value for range-like controls."
+            },
+            {
+              "name": "aria-valuetext",
+              "kind": "aria",
+              "description": "Provides human-readable text for the current value."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-dragging",
+              "kind": "data",
+              "description": "Present while the related thumb or handle is being dragged."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-inverted",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "description": "Present when the field input is required."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "slider"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
         }
       ]
     }
-  ],
-  "props": {
-    "own": [
-      {
-        "name": "allowThumbCrossing",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether dragging can continue across another thumb when there is no minimum gap.",
-        "defaultValue": "true"
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "SliderT.Classes | undefined"
-      },
-      {
-        "name": "defaultValue",
-        "required": false,
-        "type": "TValue | undefined",
-        "description": "The default value of the input (uncontrolled)."
-      },
-      {
-        "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the input is disabled.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "divider",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to show visual step dividers on the track, only applicable when `step` is defined and greater than 0.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "id",
-        "required": false,
-        "type": "string | undefined",
-        "description": "The ID of the input element."
-      },
-      {
-        "name": "inputRef",
-        "required": false,
-        "type": "Ref<HTMLInputElement> | undefined",
-        "description": "Optional inner input element ref."
-      },
-      {
-        "name": "inverted",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Reverses value movement along the track.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "max",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Maximum value of the slider.",
-        "defaultValue": "100"
-      },
-      {
-        "name": "min",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Minimum value of the slider.",
-        "defaultValue": "0"
-      },
-      {
-        "name": "minStepsBetweenThumbs",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Minimum steps required between thumbs in a multi-thumb slider.",
-        "defaultValue": "0"
-      },
-      {
-        "name": "name",
-        "required": false,
-        "type": "string | undefined",
-        "description": "The name of the input element, used for form submission."
-      },
-      {
-        "name": "onChange",
-        "required": false,
-        "type": "((value: TValue) => void) | undefined",
-        "description": "Callback when the slider selection change is committed."
-      },
-      {
-        "name": "onValueChange",
-        "required": false,
-        "type": "((value: TValue) => void) | undefined",
-        "description": "Callback when the slider selection changes during interaction."
-      },
-      {
-        "name": "orientation",
-        "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined",
-        "description": "Direction of keyboard and pointer value movement.",
-        "defaultValue": "horizontal"
-      },
-      {
-        "name": "readOnly",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the input is read-only.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "required",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the input is required.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "size",
-        "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
-        "description": "Visual size of the component.",
-        "defaultValue": "md"
-      },
-      {
-        "name": "step",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Step increment between values.\nWhen omitted, pointer movement is continuous."
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "SliderT.Styles | undefined"
-      },
-      {
-        "name": "value",
-        "required": false,
-        "type": "TValue | undefined",
-        "description": "The current value of the input (controlled)."
-      },
-      {
-        "name": "variant",
-        "required": false,
-        "type": "\"default\" | \"bold\" | undefined",
-        "description": "Visual treatment of the component.",
-        "defaultValue": "default"
-      }
-    ],
-    "inherited": []
-  }
+  ]
 }

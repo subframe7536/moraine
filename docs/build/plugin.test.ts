@@ -17,34 +17,48 @@ const TRANSFORM_CONTEXT = {
   },
 }
 
-const D_MTS_SAMPLE = `
-export declare namespace ButtonT {
-  interface Slot {
-    root: 'root'
-  }
-}
-
-interface ButtonProps {
-  /** Button label. */
-  label: string
-}
-
-export declare function Button(props: ButtonProps): JSX.Element
-`
-
 async function createTempProject(): Promise<string> {
   return mkdtemp(path.join(await realpath(tmpdir()), 'moraine-docs-build-plugin-'))
 }
 
 async function seedDocsProject(projectRoot: string): Promise<void> {
-  await writeFile(
-    path.join(projectRoot, 'package.json'),
-    JSON.stringify({ exports: { '.': { types: './dist/index.d.mts' } } }),
-  )
-  await mkdir(path.join(projectRoot, 'dist'), { recursive: true })
+  await mkdir(path.join(projectRoot, 'src/elements/button'), { recursive: true })
   await mkdir(path.join(projectRoot, 'docs/pages/(general)/button'), { recursive: true })
 
-  await writeFile(path.join(projectRoot, 'dist/index.d.mts'), D_MTS_SAMPLE, 'utf8')
+  await writeFile(
+    path.join(projectRoot, 'src/index.ts'),
+    "export * from './elements/index.ts'\n",
+    'utf8',
+  )
+  await writeFile(
+    path.join(projectRoot, 'src/elements/index.ts'),
+    "export * from './button'\n",
+    'utf8',
+  )
+  await writeFile(
+    path.join(projectRoot, 'src/elements/button/index.ts'),
+    "export { Button } from './button.tsx'\nexport type { ButtonProps, ButtonT } from './button.tsx'\n",
+    'utf8',
+  )
+  await writeFile(
+    path.join(projectRoot, 'src/elements/button/button.tsx'),
+    `
+export namespace ButtonT {
+  export type Kind = 'single'
+  export interface Slot {
+    root: 'root'
+  }
+}
+export interface ButtonProps {
+  /** Button label. */
+  label: string
+}
+export function Button(props: ButtonProps) {
+  return <button>{props.label}</button>
+}
+`,
+    'utf8',
+  )
   await writeFile(
     path.join(projectRoot, 'docs/pages/(general)/button/index.mdx'),
     `---
@@ -70,18 +84,22 @@ search:
 }
 
 describe('docsBuildPlugin', () => {
-  test('regenerates after a non-root declaration changes and preserves docs on invalid declarations', async () => {
+  test('regenerates after source changes and preserves docs on invalid source', async () => {
     const projectRoot = await createTempProject()
     await seedDocsProject(projectRoot)
     try {
+      const sourceFile = path.join(projectRoot, 'src/elements/button/button.tsx')
       await writeFile(
-        path.join(projectRoot, 'dist/index.d.mts'),
-        `export { Button } from './button.mjs'`,
-      )
-      const declaration = path.join(projectRoot, 'dist/button.d.mts')
-      await writeFile(
-        declaration,
-        `export declare function Button(props: { first: string }): JSX.Element`,
+        sourceFile,
+        `
+export namespace ButtonT {
+  export type Kind = 'single'
+}
+export interface ButtonProps {
+  first: string
+}
+export function Button(props: ButtonProps) { return <button /> }
+`,
       )
       const plugin = docsBuildPlugin({ projectRoot })
       const configResolved = plugin.configResolved as (config: { root: string }) => Promise<void>
@@ -91,22 +109,22 @@ describe('docsBuildPlugin', () => {
       const future = new Date(Date.now() + 60_000)
       await utimes(indexPath, future, future)
       await writeFile(
-        declaration,
-        `export declare function Button(props: { second: boolean }): JSX.Element`,
+        sourceFile,
+        `
+export namespace ButtonT {
+  export type Kind = 'single'
+}
+export interface ButtonProps {
+  second: boolean
+}
+export function Button(props: ButtonProps) { return <button /> }
+`,
       )
       await configResolved({ root: path.join(projectRoot, 'docs') })
       const generated = await readFile(apiPath, 'utf8')
-      expect(JSON.parse(generated).props.own[0].name).toBe('second')
-      await writeFile(declaration, 'export declare function Button(')
-      await expect(configResolved({ root: path.join(projectRoot, 'docs') })).rejects.toThrow(
-        'Failed to parse',
-      )
-      expect(await readFile(apiPath, 'utf8')).toBe(generated)
-      await rm(declaration)
-      await writeFile(path.join(projectRoot, 'dist/button.mjs'), 'export function Button() {}')
-      await expect(configResolved({ root: path.join(projectRoot, 'docs') })).rejects.toThrow(
-        'Cannot resolve declaration import "./button.mjs"',
-      )
+      expect(JSON.parse(generated).parts[0].props[0].name).toBe('second')
+      await writeFile(sourceFile, 'export function Button(')
+      await expect(configResolved({ root: path.join(projectRoot, 'docs') })).rejects.toThrow()
       expect(await readFile(apiPath, 'utf8')).toBe(generated)
     } finally {
       await rm(projectRoot, { recursive: true, force: true })

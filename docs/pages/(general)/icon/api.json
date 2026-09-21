@@ -1,70 +1,102 @@
 {
-  "component": {
-    "key": "icon",
-    "name": "Icon",
-    "category": "elements",
-    "polymorphic": false,
-    "description": "Renders an icon from a UnoCSS icon class, JSX element, or render function.",
-    "sourcePath": "src/elements/icon/icon.tsx",
-    "kind": "single"
-  },
-  "slots": [
+  "key": "icon",
+  "name": "Icon",
+  "category": "elements",
+  "description": "Props for the Icon component.",
+  "kind": "single",
+  "sourcePath": "src/elements/icon/icon.tsx",
+  "parts": [
     {
-      "name": "root",
-      "description": "Rendered icon element.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
+      "id": "icon",
+      "name": "Icon",
+      "access": {
+        "kind": "export",
+        "name": "Icon",
+        "package": "moraine"
+      },
+      "sourcePath": "src/elements/icon/icon.tsx",
+      "description": "Props for the Icon component.",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "slotName",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Data slot for styling.",
+          "default": {
+            "kind": "literal",
+            "value": "icon"
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "name",
+          "optional": false,
+          "type": {
+            "text": "Name"
+          },
+          "description": "Icon source. Strings should be Uno icon classes such as `i-lucide-search`\nor app-config aliases such as `icon-search`.\nNon-string values can be JSX nodes or render functions.\nWrap Icon in Solid control flow instead of passing a control-flow node as `name`.",
+          "group": "form"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": {
+            "text": "string | number"
+          },
+          "description": "Explicit icon size override. Omit to inherit the surrounding font size.\nNumbers are interpreted as px.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
+        }
+      ],
+      "slots": [
+        {
+          "name": "root",
+          "description": "Rendered icon element."
+        }
+      ],
+      "runtime": []
     }
-  ],
-  "props": {
-    "own": [
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "IconT.Classes | undefined"
-      },
-      {
-        "name": "name",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Icon source. Strings should be Uno icon classes such as `i-lucide-search`\nor app-config aliases such as `icon-search`.\nNon-string values can be JSX nodes or render functions.\nWrap Icon in Solid control flow instead of passing a control-flow node as `name`."
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "size",
-        "required": false,
-        "type": "string | number | undefined",
-        "description": "Explicit icon size override. Omit to inherit the surrounding font size.\nNumbers are interpreted as px."
-      },
-      {
-        "name": "slotName",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Data slot for styling.",
-        "defaultValue": "icon"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "IconT.Styles | undefined"
-      }
-    ],
-    "inherited": []
-  }
+  ]
 }

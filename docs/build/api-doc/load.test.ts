@@ -45,4 +45,11 @@ describe('loadApiDocIndex', () => {
     clearApiDocCache(projectRoot)
     expect(loadApiDocIndex(projectRoot)?.components[0]?.key).toBe('second')
   })
+
+  test('throws on malformed index json instead of silently returning null', async () => {
+    const projectRoot = await createTempProject()
+    await writeFile(path.join(projectRoot, 'docs/pages/_api-index.json'), 'invalid json {', 'utf8')
+
+    expect(() => loadApiDocIndex(projectRoot)).toThrow('Malformed index document')
+  })
 })

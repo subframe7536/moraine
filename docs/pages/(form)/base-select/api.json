@@ -1,525 +1,2655 @@
 {
-  "component": {
-    "key": "base-select",
-    "name": "BaseSelect",
-    "category": "forms",
-    "polymorphic": false,
-    "description": "Public selection primitive for a flat navigation collection.",
-    "sourcePath": "src/forms/base-select/base-select.tsx",
-    "kind": "composite"
-  },
-  "slots": [
+  "key": "base-select",
+  "name": "BaseSelect",
+  "category": "forms",
+  "kind": "composite",
+  "sourcePath": "src/forms/base-select/base-select.tsx",
+  "parts": [
     {
-      "name": "control",
-      "description": "Optional non-interactive layout container and floating anchor.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
+      "id": "base-select",
+      "name": "BaseSelect",
+      "access": {
+        "kind": "export",
+        "name": "BaseSelect",
+        "package": "moraine"
+      },
+      "sourcePath": "src/forms/base-select/base-select.tsx",
+      "generics": [
+        {
+          "name": "TItem",
+          "constraint": "Item",
+          "default": "Item"
+        }
+      ],
+      "props": [
+        {
+          "name": "closeOnSelect",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Close after selection. Defaults to true for single, false for multiple.",
+          "group": "behavior"
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "The ID of the input element.",
+          "group": "behavior"
+        },
+        {
+          "name": "loop",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether arrow-key navigation wraps from the ends.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "multiple",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether selecting an item toggles multiple values.",
+          "group": "behavior"
+        },
+        {
+          "name": "isItemDisabled",
+          "optional": true,
+          "type": {
+            "text": "(item: TItem, values: readonly TItem['value'][]) => boolean"
+          },
+          "description": "Additional disabled policy evaluated against the current selection.",
+          "group": "data",
+          "traits": [
+            "callback"
+          ]
+        },
+        {
+          "name": "items",
+          "optional": true,
+          "type": {
+            "text": "readonly TItem[]"
+          },
+          "description": "Current flat navigation collection.",
+          "group": "data"
+        },
+        {
+          "name": "itemToLabelString",
+          "optional": true,
+          "type": {
+            "text": "(item: TItem) => string"
+          },
+          "description": "Machine-readable text for matching; does not change visual labels.",
+          "group": "data",
+          "traits": [
+            "callback"
+          ]
+        },
+        {
+          "name": "name",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "The name of the input element, used for form submission.",
+          "group": "form"
+        },
+        {
+          "name": "onReset",
+          "optional": true,
+          "type": {
+            "text": "() => void"
+          },
+          "description": "Post-reset notification after an unprevented native form reset.",
+          "group": "form",
+          "traits": [
+            "callback"
+          ]
+        },
+        {
+          "name": "readOnly",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is read-only.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "form"
+        },
+        {
+          "name": "required",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is required.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "form"
+        },
+        {
+          "name": "serializeValue",
+          "optional": true,
+          "type": {
+            "text": "(value: TItem['value']) => string | undefined"
+          },
+          "description": "Native form value; return undefined to omit a selected value from submission.",
+          "group": "form",
+          "traits": [
+            "callback"
+          ]
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Composed trigger and popup parts.",
+          "group": "rendering"
+        },
+        {
+          "name": "defaultOpen",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Initial popup state.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "state",
+          "state": {
+            "key": "open",
+            "role": "default"
+          }
+        },
+        {
+          "name": "defaultValue",
+          "optional": true,
+          "type": {
+            "text": "readonly TItem['value'][]"
+          },
+          "description": "Initial selection.",
+          "default": {
+            "kind": "expression",
+            "text": "[]"
+          },
+          "group": "state",
+          "state": {
+            "key": "value",
+            "role": "default"
+          }
+        },
+        {
+          "name": "onChange",
+          "optional": true,
+          "type": {
+            "text": "(value: TItem['value'][]) => void"
+          },
+          "description": "Called when selection changes.",
+          "group": "state",
+          "traits": [
+            "callback"
+          ],
+          "state": {
+            "key": "value",
+            "role": "change"
+          }
+        },
+        {
+          "name": "onOpenChange",
+          "optional": true,
+          "type": {
+            "text": "(open: boolean) => void"
+          },
+          "description": "Called when popup state changes.",
+          "group": "state",
+          "traits": [
+            "callback"
+          ],
+          "state": {
+            "key": "open",
+            "role": "change"
+          }
+        },
+        {
+          "name": "open",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Controlled popup state.",
+          "group": "state",
+          "state": {
+            "key": "open",
+            "role": "value"
+          }
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": {
+            "text": "readonly TItem['value'][]"
+          },
+          "description": "Controlled selection. Single mode uses at most the first value.",
+          "group": "state",
+          "state": {
+            "key": "value",
+            "role": "value"
+          }
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this BaseSelect instance.",
+          "group": "styling"
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": {
+            "text": "'sm' | 'md' | 'lg'"
+          },
+          "description": "Popup and item size.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          },
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this BaseSelect instance.",
+          "group": "styling"
+        }
+      ],
+      "slots": [
+        {
+          "name": "content",
+          "description": "Floating popup panel."
+        },
+        {
+          "name": "control",
+          "description": "Optional non-interactive layout container and floating anchor."
+        },
+        {
+          "name": "empty",
+          "description": "Empty collection message."
+        },
+        {
+          "name": "group",
+          "description": "Group container."
+        },
+        {
+          "name": "groupLabel",
+          "description": "Group heading."
+        },
+        {
+          "name": "item",
+          "description": "Selectable row."
+        },
+        {
+          "name": "listbox",
+          "description": "Scrollable listbox."
+        },
+        {
+          "name": "separator",
+          "description": "Decorative divider."
+        },
+        {
+          "name": "trigger",
+          "description": "Primary select-like popup activator."
+        }
+      ],
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        },
+        {
+          "target": "control",
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "description": "Present when the field input is required."
+            }
+          ]
+        },
+        {
+          "target": "group",
+          "attributes": [
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "group"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "item",
+          "attributes": [
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-selected",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates the currently selected option or tab."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-highlighted",
+              "kind": "data",
+              "description": "Present when the item is highlighted by pointer or keyboard navigation."
+            },
+            {
+              "name": "data-selected",
+              "kind": "data",
+              "description": "Present when the item or tab is selected."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "option"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "listbox",
+          "attributes": [
+            {
+              "name": "aria-multiselectable",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-readonly",
+              "kind": "aria",
+              "description": "Indicates that the control value cannot be changed by the user."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "listbox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "root",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "separator",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "presentation"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "trigger",
+          "attributes": [
+            {
+              "name": "aria-activedescendant",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "aria-haspopup",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "combobox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
     },
     {
-      "name": "trigger",
-      "description": "Primary select-like popup activator.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
+      "id": "base-select-content",
+      "name": "BaseSelect.Content",
+      "access": {
+        "kind": "attached",
+        "root": "BaseSelect",
+        "member": "Content"
+      },
+      "sourcePath": "src/forms/base-select/base-select.tsx",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "gutter",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Gap between anchor and popup.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          },
+          "group": "behavior",
+          "traits": [
+            "positioning"
+          ]
+        },
+        {
+          "name": "onExitComplete",
+          "optional": true,
+          "type": {
+            "text": "() => void"
+          },
+          "description": "Called once after an open popup completes its exit.",
+          "group": "behavior",
+          "traits": [
+            "callback"
+          ]
+        },
+        {
+          "name": "overflowPadding",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Viewport collision padding.",
+          "default": {
+            "kind": "literal",
+            "value": 4
+          },
+          "group": "behavior",
+          "traits": [
+            "positioning"
+          ]
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        },
+        {
+          "target": "control",
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "description": "Present when the field input is required."
+            }
+          ]
+        },
+        {
+          "target": "group",
+          "attributes": [
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "group"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "item",
+          "attributes": [
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-selected",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates the currently selected option or tab."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-highlighted",
+              "kind": "data",
+              "description": "Present when the item is highlighted by pointer or keyboard navigation."
+            },
+            {
+              "name": "data-selected",
+              "kind": "data",
+              "description": "Present when the item or tab is selected."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "option"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "listbox",
+          "attributes": [
+            {
+              "name": "aria-multiselectable",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-readonly",
+              "kind": "aria",
+              "description": "Indicates that the control value cannot be changed by the user."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "listbox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "separator",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "presentation"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "trigger",
+          "attributes": [
+            {
+              "name": "aria-activedescendant",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "aria-haspopup",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "combobox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
     },
     {
-      "name": "content",
-      "description": "Floating popup panel.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
+      "id": "base-select-control",
+      "name": "BaseSelect.Control",
+      "access": {
+        "kind": "attached",
+        "root": "BaseSelect",
+        "member": "Control"
+      },
+      "sourcePath": "src/forms/base-select/base-select.tsx",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        },
+        {
+          "target": "control",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "description": "Present when the field input is required."
+            }
+          ]
+        },
+        {
+          "target": "group",
+          "attributes": [
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "group"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "item",
+          "attributes": [
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-selected",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates the currently selected option or tab."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-highlighted",
+              "kind": "data",
+              "description": "Present when the item is highlighted by pointer or keyboard navigation."
+            },
+            {
+              "name": "data-selected",
+              "kind": "data",
+              "description": "Present when the item or tab is selected."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "option"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "listbox",
+          "attributes": [
+            {
+              "name": "aria-multiselectable",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-readonly",
+              "kind": "aria",
+              "description": "Indicates that the control value cannot be changed by the user."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "listbox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "separator",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "presentation"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "trigger",
+          "attributes": [
+            {
+              "name": "aria-activedescendant",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "aria-haspopup",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "combobox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
     },
     {
-      "name": "listbox",
-      "description": "Scrollable listbox.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
+      "id": "base-select-empty",
+      "name": "BaseSelect.Empty",
+      "access": {
+        "kind": "attached",
+        "root": "BaseSelect",
+        "member": "Empty"
+      },
+      "sourcePath": "src/forms/base-select/base-select.tsx",
+      "props": [],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        },
+        {
+          "target": "control",
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "description": "Present when the field input is required."
+            }
+          ]
+        },
+        {
+          "target": "empty",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "group",
+          "attributes": [
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "group"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "item",
+          "attributes": [
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-selected",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates the currently selected option or tab."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-highlighted",
+              "kind": "data",
+              "description": "Present when the item is highlighted by pointer or keyboard navigation."
+            },
+            {
+              "name": "data-selected",
+              "kind": "data",
+              "description": "Present when the item or tab is selected."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "option"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "listbox",
+          "attributes": [
+            {
+              "name": "aria-multiselectable",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-readonly",
+              "kind": "aria",
+              "description": "Indicates that the control value cannot be changed by the user."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "listbox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "separator",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "presentation"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "trigger",
+          "attributes": [
+            {
+              "name": "aria-activedescendant",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "aria-haspopup",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "combobox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
     },
     {
-      "name": "item",
-      "description": "Selectable row.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
+      "id": "base-select-group",
+      "name": "BaseSelect.Group",
+      "access": {
+        "kind": "attached",
+        "root": "BaseSelect",
+        "member": "Group"
+      },
+      "sourcePath": "src/forms/base-select/base-select.tsx",
+      "props": [],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        },
+        {
+          "target": "control",
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "description": "Present when the field input is required."
+            }
+          ]
+        },
+        {
+          "target": "group",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "group"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "item",
+          "attributes": [
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-selected",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates the currently selected option or tab."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-highlighted",
+              "kind": "data",
+              "description": "Present when the item is highlighted by pointer or keyboard navigation."
+            },
+            {
+              "name": "data-selected",
+              "kind": "data",
+              "description": "Present when the item or tab is selected."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "option"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "listbox",
+          "attributes": [
+            {
+              "name": "aria-multiselectable",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-readonly",
+              "kind": "aria",
+              "description": "Indicates that the control value cannot be changed by the user."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "listbox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "separator",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "presentation"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "trigger",
+          "attributes": [
+            {
+              "name": "aria-activedescendant",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "aria-haspopup",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "combobox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
     },
     {
-      "name": "group",
-      "description": "Group container.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
+      "id": "base-select-group-label",
+      "name": "BaseSelect.GroupLabel",
+      "access": {
+        "kind": "attached",
+        "root": "BaseSelect",
+        "member": "GroupLabel"
+      },
+      "sourcePath": "src/forms/base-select/base-select.tsx",
+      "props": [],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        },
+        {
+          "target": "control",
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "description": "Present when the field input is required."
+            }
+          ]
+        },
+        {
+          "target": "group",
+          "attributes": [
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "group"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "group-label",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "item",
+          "attributes": [
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-selected",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates the currently selected option or tab."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-highlighted",
+              "kind": "data",
+              "description": "Present when the item is highlighted by pointer or keyboard navigation."
+            },
+            {
+              "name": "data-selected",
+              "kind": "data",
+              "description": "Present when the item or tab is selected."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "option"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "listbox",
+          "attributes": [
+            {
+              "name": "aria-multiselectable",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-readonly",
+              "kind": "aria",
+              "description": "Indicates that the control value cannot be changed by the user."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "listbox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "separator",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "presentation"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "trigger",
+          "attributes": [
+            {
+              "name": "aria-activedescendant",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "aria-haspopup",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "combobox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
     },
     {
-      "name": "groupLabel",
-      "description": "Group heading.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
+      "id": "base-select-item",
+      "name": "BaseSelect.Item",
+      "access": {
+        "kind": "attached",
+        "root": "BaseSelect",
+        "member": "Item"
+      },
+      "sourcePath": "src/forms/base-select/base-select.tsx",
+      "generics": [
+        {
+          "name": "TItem",
+          "constraint": "Item",
+          "default": "Item"
+        }
+      ],
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "item",
+          "optional": false,
+          "type": {
+            "text": "TItem"
+          },
+          "description": "Raw item belonging to the current navigation collection.",
+          "group": "behavior"
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element | ((state: ItemRenderProps<TItem>) => JSX.Element)"
+          },
+          "description": "Visual content or reactive row presentation.",
+          "group": "rendering",
+          "traits": [
+            "render-prop",
+            "callback"
+          ]
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        },
+        {
+          "target": "control",
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "description": "Present when the field input is required."
+            }
+          ]
+        },
+        {
+          "target": "group",
+          "attributes": [
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "group"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "item",
+          "attributes": [
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "aria-selected",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates the currently selected option or tab."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-highlighted",
+              "kind": "data",
+              "description": "Present when the item is highlighted by pointer or keyboard navigation."
+            },
+            {
+              "name": "data-selected",
+              "kind": "data",
+              "description": "Present when the item or tab is selected."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "option"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "listbox",
+          "attributes": [
+            {
+              "name": "aria-multiselectable",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-readonly",
+              "kind": "aria",
+              "description": "Indicates that the control value cannot be changed by the user."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "listbox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "separator",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "presentation"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "trigger",
+          "attributes": [
+            {
+              "name": "aria-activedescendant",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "aria-haspopup",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "combobox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
     },
     {
-      "name": "separator",
-      "description": "Decorative divider.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
+      "id": "base-select-listbox",
+      "name": "BaseSelect.Listbox",
+      "access": {
+        "kind": "attached",
+        "root": "BaseSelect",
+        "member": "Listbox"
+      },
+      "sourcePath": "src/forms/base-select/base-select.tsx",
+      "props": [],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        },
+        {
+          "target": "control",
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "description": "Present when the field input is required."
+            }
+          ]
+        },
+        {
+          "target": "group",
+          "attributes": [
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "group"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "item",
+          "attributes": [
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-selected",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates the currently selected option or tab."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-highlighted",
+              "kind": "data",
+              "description": "Present when the item is highlighted by pointer or keyboard navigation."
+            },
+            {
+              "name": "data-selected",
+              "kind": "data",
+              "description": "Present when the item or tab is selected."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "option"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "listbox",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "aria-multiselectable",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-readonly",
+              "kind": "aria",
+              "description": "Indicates that the control value cannot be changed by the user."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "listbox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "separator",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "presentation"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "trigger",
+          "attributes": [
+            {
+              "name": "aria-activedescendant",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "aria-haspopup",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "combobox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
     },
     {
-      "name": "empty",
-      "description": "Empty collection message.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
+      "id": "base-select-separator",
+      "name": "BaseSelect.Separator",
+      "access": {
+        "kind": "attached",
+        "root": "BaseSelect",
+        "member": "Separator"
+      },
+      "sourcePath": "src/forms/base-select/base-select.tsx",
+      "props": [],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        },
+        {
+          "target": "control",
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "description": "Present when the field input is required."
+            }
+          ]
+        },
+        {
+          "target": "group",
+          "attributes": [
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "group"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "item",
+          "attributes": [
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-selected",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates the currently selected option or tab."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-highlighted",
+              "kind": "data",
+              "description": "Present when the item is highlighted by pointer or keyboard navigation."
+            },
+            {
+              "name": "data-selected",
+              "kind": "data",
+              "description": "Present when the item or tab is selected."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "option"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "listbox",
+          "attributes": [
+            {
+              "name": "aria-multiselectable",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-readonly",
+              "kind": "aria",
+              "description": "Indicates that the control value cannot be changed by the user."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "listbox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "separator",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "presentation"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "trigger",
+          "attributes": [
+            {
+              "name": "aria-activedescendant",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "aria-haspopup",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "combobox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "base-select-trigger",
+      "name": "BaseSelect.Trigger",
+      "access": {
+        "kind": "attached",
+        "root": "BaseSelect",
+        "member": "Trigger"
+      },
+      "sourcePath": "src/forms/base-select/base-select.tsx",
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        },
+        {
+          "name": "TItem",
+          "constraint": "Item",
+          "default": "Item"
+        }
+      ],
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "button",
+        "asProp": "as",
+        "polymorphic": {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      },
+      "props": [
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether this trigger is disabled.",
+          "group": "behavior"
+        },
+        {
+          "name": "as",
+          "optional": true,
+          "type": {
+            "text": "T"
+          },
+          "description": "Element or component to render as.",
+          "group": "rendering",
+          "default": {
+            "kind": "literal",
+            "value": "button"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element | ((state: TriggerRenderProps<TItem>) => JSX.Element)"
+          },
+          "description": "Label or reactive presentation function.",
+          "group": "rendering",
+          "traits": [
+            "render-prop",
+            "callback"
+          ]
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        },
+        {
+          "target": "control",
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "description": "Present when the field input is required."
+            }
+          ]
+        },
+        {
+          "target": "group",
+          "attributes": [
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "group"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "item",
+          "attributes": [
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-selected",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates the currently selected option or tab."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-highlighted",
+              "kind": "data",
+              "description": "Present when the item is highlighted by pointer or keyboard navigation."
+            },
+            {
+              "name": "data-selected",
+              "kind": "data",
+              "description": "Present when the item or tab is selected."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "option"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "listbox",
+          "attributes": [
+            {
+              "name": "aria-multiselectable",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-readonly",
+              "kind": "aria",
+              "description": "Indicates that the control value cannot be changed by the user."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "listbox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "separator",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "presentation"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "trigger",
+          "attributes": [
+            {
+              "name": "aria-activedescendant",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "values": [
+                "true",
+                "false"
+              ],
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "aria-haspopup",
+              "kind": "aria",
+              "description": "Accessibility attribute forwarded by the rendered component."
+            },
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "combobox"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
     }
   ],
   "item": {
+    "name": "Item",
+    "generics": [
+      {
+        "name": "TValue",
+        "constraint": "string | number",
+        "default": "string | number"
+      }
+    ],
     "props": [
       {
         "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
+        "optional": true,
+        "type": {
+          "text": "boolean"
+        },
         "description": "Whether this item cannot be selected."
       },
       {
         "name": "label",
-        "required": false,
-        "type": "JSX.Element",
+        "optional": false,
+        "type": {
+          "text": "JSX.Element"
+        },
         "description": "Visual label."
       },
       {
         "name": "value",
-        "required": true,
-        "type": "string | number",
+        "optional": false,
+        "type": {
+          "text": "TValue"
+        },
         "description": "Unique selection and form value."
       }
     ]
-  },
-  "props": {
-    "own": [
-      {
-        "name": "children",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Composed trigger and popup parts."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "BaseSelectT.Classes | undefined",
-        "description": "Family slot class defaults for this BaseSelect instance."
-      },
-      {
-        "name": "closeOnSelect",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Close after selection. Defaults to true for single, false for multiple."
-      },
-      {
-        "name": "defaultOpen",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Initial popup state.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "defaultValue",
-        "required": false,
-        "type": "readonly T[\"value\"][] | undefined",
-        "description": "Initial selection.",
-        "defaultValue": "[]"
-      },
-      {
-        "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the input is disabled.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "id",
-        "required": false,
-        "type": "string | undefined",
-        "description": "The ID of the input element."
-      },
-      {
-        "name": "isItemDisabled",
-        "required": false,
-        "type": "((item: T, values: readonly T[\"value\"][]) => boolean) | undefined",
-        "description": "Additional disabled policy evaluated against the current selection."
-      },
-      {
-        "name": "items",
-        "required": false,
-        "type": "readonly T[] | undefined",
-        "description": "Current flat navigation collection."
-      },
-      {
-        "name": "itemToLabelString",
-        "required": false,
-        "type": "((item: T) => string) | undefined",
-        "description": "Machine-readable text for matching; does not change visual labels."
-      },
-      {
-        "name": "loop",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether arrow-key navigation wraps from the ends.",
-        "defaultValue": "true"
-      },
-      {
-        "name": "multiple",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether selecting an item toggles multiple values."
-      },
-      {
-        "name": "name",
-        "required": false,
-        "type": "string | undefined",
-        "description": "The name of the input element, used for form submission."
-      },
-      {
-        "name": "onChange",
-        "required": false,
-        "type": "((value: T[\"value\"][]) => void) | undefined",
-        "description": "Called when selection changes."
-      },
-      {
-        "name": "onOpenChange",
-        "required": false,
-        "type": "((open: boolean) => void) | undefined",
-        "description": "Called when popup state changes."
-      },
-      {
-        "name": "onReset",
-        "required": false,
-        "type": "(() => void) | undefined",
-        "description": "Post-reset notification after an unprevented native form reset."
-      },
-      {
-        "name": "open",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Controlled popup state."
-      },
-      {
-        "name": "readOnly",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the input is read-only.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "required",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the input is required.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "serializeValue",
-        "required": false,
-        "type": "((value: T[\"value\"]) => string | undefined) | undefined",
-        "description": "Native form value; return undefined to omit a selected value from submission."
-      },
-      {
-        "name": "size",
-        "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
-        "description": "Popup and item size.",
-        "defaultValue": "md"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "BaseSelectT.Styles | undefined",
-        "description": "Family slot style defaults for this BaseSelect instance."
-      },
-      {
-        "name": "value",
-        "required": false,
-        "type": "readonly T[\"value\"][] | undefined",
-        "description": "Controlled selection. Single mode uses at most the first value."
-      }
-    ],
-    "inherited": []
-  },
-  "primitives": [
-    {
-      "component": {
-        "key": "base-select-control",
-        "name": "BaseSelect.Control",
-        "category": "forms",
-        "polymorphic": false,
-        "sourcePath": "src/forms/base-select/base-select.tsx"
-      },
-      "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
-          }
-        ],
-        "inherited": []
-      }
-    },
-    {
-      "component": {
-        "key": "base-select-trigger",
-        "name": "BaseSelect.Trigger",
-        "category": "forms",
-        "polymorphic": true,
-        "sourcePath": "src/forms/base-select/base-select.tsx"
-      },
-      "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "as",
-            "required": false,
-            "type": "\"button\" | undefined",
-            "description": "Element or component to render as.",
-            "defaultValue": "button"
-          },
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element | ((state: BaseSelectT.TriggerRenderProps<TItem>) => JSX.Element)",
-            "description": "Label or reactive presentation function."
-          },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "disabled",
-            "required": false,
-            "type": "boolean | undefined",
-            "description": "Whether this trigger is disabled."
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
-          }
-        ],
-        "inherited": []
-      }
-    },
-    {
-      "component": {
-        "key": "base-select-content",
-        "name": "BaseSelect.Content",
-        "category": "forms",
-        "polymorphic": false,
-        "sourcePath": "src/forms/base-select/base-select.tsx"
-      },
-      "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "gutter",
-            "required": false,
-            "type": "number | undefined",
-            "description": "Gap between anchor and popup.",
-            "defaultValue": "0"
-          },
-          {
-            "name": "onExitComplete",
-            "required": false,
-            "type": "(() => void) | undefined",
-            "description": "Called once after an open popup completes its exit."
-          },
-          {
-            "name": "overflowPadding",
-            "required": false,
-            "type": "number | undefined",
-            "description": "Viewport collision padding.",
-            "defaultValue": "4"
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
-          }
-        ],
-        "inherited": []
-      }
-    },
-    {
-      "component": {
-        "key": "base-select-listbox",
-        "name": "BaseSelect.Listbox",
-        "category": "forms",
-        "polymorphic": false,
-        "sourcePath": "src/forms/base-select/base-select.tsx"
-      },
-      "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "style",
-            "required": false,
-            "type": "JSX.CSSProperties | undefined"
-          }
-        ],
-        "inherited": []
-      }
-    },
-    {
-      "component": {
-        "key": "base-select-item",
-        "name": "BaseSelect.Item",
-        "category": "forms",
-        "polymorphic": false,
-        "sourcePath": "src/forms/base-select/base-select.tsx"
-      },
-      "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element | ((state: BaseSelectT.ItemRenderProps<T>) => JSX.Element)",
-            "description": "Visual content or reactive row presentation."
-          },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "item",
-            "required": true,
-            "type": "T",
-            "description": "Raw item belonging to the current navigation collection."
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
-          }
-        ],
-        "inherited": []
-      }
-    },
-    {
-      "component": {
-        "key": "base-select-group",
-        "name": "BaseSelect.Group",
-        "category": "forms",
-        "polymorphic": false,
-        "sourcePath": "src/forms/base-select/base-select.tsx"
-      },
-      "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "style",
-            "required": false,
-            "type": "JSX.CSSProperties | undefined"
-          }
-        ],
-        "inherited": []
-      }
-    },
-    {
-      "component": {
-        "key": "base-select-group-label",
-        "name": "BaseSelect.GroupLabel",
-        "category": "forms",
-        "polymorphic": false,
-        "sourcePath": "src/forms/base-select/base-select.tsx"
-      },
-      "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "style",
-            "required": false,
-            "type": "JSX.CSSProperties | undefined"
-          }
-        ],
-        "inherited": []
-      }
-    },
-    {
-      "component": {
-        "key": "base-select-separator",
-        "name": "BaseSelect.Separator",
-        "category": "forms",
-        "polymorphic": false,
-        "sourcePath": "src/forms/base-select/base-select.tsx"
-      },
-      "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "style",
-            "required": false,
-            "type": "JSX.CSSProperties | undefined"
-          }
-        ],
-        "inherited": []
-      }
-    },
-    {
-      "component": {
-        "key": "base-select-empty",
-        "name": "BaseSelect.Empty",
-        "category": "forms",
-        "polymorphic": false,
-        "sourcePath": "src/forms/base-select/base-select.tsx"
-      },
-      "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "style",
-            "required": false,
-            "type": "JSX.CSSProperties | undefined"
-          }
-        ],
-        "inherited": []
-      }
-    }
-  ]
+  }
 }

@@ -5,13 +5,39 @@ import { Dynamic } from 'solid-js/web'
 import { Badge, Icon, Input, Select, cn } from '../../../../src'
 import { InputGroup } from '../../../../src/forms/input-group/index.ts'
 import { createMediaQuery } from '../../../../src/shared/use-media-query'
-import { getApiReferenceTocEntries } from '../../../build/api-doc/reference-sections'
-import type { ApiAttributeDoc, ComponentDoc, PropDoc, SlotDoc } from '../../../build/api-doc/types'
+import {
+  createApiReferenceModel,
+  getApiReferenceTocEntries,
+} from '../../../build/api-doc/presentation'
+import type {
+  PresentationPropItem,
+  PresentationRuntimeTargetItem,
+  PresentationSlotItem,
+} from '../../../build/api-doc/presentation'
+import type { ComponentApi } from '../../../build/api-doc/types'
 import {
   MARKDOWN_ANCHOR_HEADING_CLASS,
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
   MARKDOWN_ANCHOR_LINK_CLASS,
 } from '../../../build/markdown/shared.class'
+
+export interface ApiAttributeDoc {
+  name: string
+  type: string
+  description?: string
+  required?: boolean
+}
+
+export interface SlotReferenceDoc {
+  name: string
+  description?: string
+  cssVariables: ApiAttributeDoc[]
+  dataAttributes: ApiAttributeDoc[]
+  ariaAttributes: ApiAttributeDoc[]
+}
+
+export type SlotDoc = SlotReferenceDoc
+export type PropDoc = PresentationPropItem
 
 export interface PropsTableProps {
   sections: PropsTableSection[]
@@ -31,17 +57,18 @@ export interface PropsTableSection {
   id: string
   heading: string
   description?: string
+  accessText?: string
   nameColumn?: string
   badges?: string[]
   props: PropDoc[]
   slots?: SlotReferenceDoc[]
   groups?: {
-    description: string
+    id?: string
+    heading: string
+    description?: string
     props: PropDoc[]
   }[]
 }
-
-export type SlotReferenceDoc = SlotDoc
 
 type AttributeGroupKind = 'css' | 'data' | 'aria'
 
@@ -93,81 +120,131 @@ function getAttributeGroupTone(kind: AttributeGroupKind): {
   }
 }
 
+function buildSlotReferenceDocs(
+  slots?: PresentationSlotItem[],
+  runtime?: PresentationRuntimeTargetItem[],
+): SlotReferenceDoc[] {
+  const slotMap = new Map<string, SlotReferenceDoc>()
+
+  for (const slot of slots ?? []) {
+    slotMap.set(slot.name, {
+      name: slot.name,
+      ...(slot.description ? { description: slot.description } : {}),
+      cssVariables: [],
+      dataAttributes: [],
+      ariaAttributes: [],
+    })
+  }
+
+  for (const target of runtime ?? []) {
+    let slot = slotMap.get(target.target)
+    if (!slot) {
+      slot = {
+        name: target.target,
+        cssVariables: [],
+        dataAttributes: [],
+        ariaAttributes: [],
+      }
+      slotMap.set(target.target, slot)
+    }
+
+    for (const attr of target.attributes) {
+      const doc: ApiAttributeDoc = {
+        name: attr.name,
+        type: attr.values && attr.values.length > 0 ? attr.values.join(' | ') : 'string',
+        ...(attr.description ? { description: attr.description } : {}),
+      }
+
+      if (attr.kind === 'css') {
+        slot.cssVariables.push(doc)
+      } else if (attr.kind === 'data') {
+        slot.dataAttributes.push(doc)
+      } else if (attr.kind === 'aria' || attr.kind === 'role') {
+        slot.ariaAttributes.push(doc)
+      }
+    }
+  }
+
+  return [...slotMap.values()]
+}
+
 export function createDocsApiReferenceModel(
-  apiDoc: ComponentDoc | undefined,
+  apiDoc: ComponentApi | undefined,
 ): DocsApiReferenceModel {
   const sections: PropsTableSection[] = []
-  const ownProps = apiDoc?.props.own ?? []
-  const inheritedProps = apiDoc?.props.inherited ?? []
-  const itemDoc = apiDoc?.item
-  const hasSlots = Boolean(apiDoc?.slots.length)
-
   if (!apiDoc) {
     return { sections }
   }
 
-  if (hasSlots) {
-    sections.push({
-      id: 'attributes',
-      heading: 'Attributes',
-      slots: apiDoc.slots,
-      props: [],
-    })
+  const model = createApiReferenceModel(apiDoc)
+  if (!model) {
+    return { sections }
   }
 
-  if (ownProps.length > 0) {
-    sections.push({
-      id: 'api-props',
-      heading: 'Props',
-      props: ownProps,
-    })
-  }
+  if (model.kind === 'single') {
+    const rootPart = model.parts[0]
+    if (rootPart) {
+      for (const group of rootPart.propGroups) {
+        sections.push({
+          id: group.id,
+          heading: group.heading,
+          props: group.props,
+        })
+      }
 
-  if (itemDoc) {
-    sections.push({
-      id: 'api-items',
-      heading: 'Items',
-      description: itemDoc.description,
-      props: itemDoc.props,
-    })
-  }
+      const slots = buildSlotReferenceDocs(rootPart.slots, rootPart.runtime)
+      if (slots.length > 0) {
+        sections.push({
+          id: `api-${rootPart.id}-attributes`,
+          heading: 'Attributes',
+          slots,
+          props: [],
+        })
+      }
+    }
 
-  if (inheritedProps.length > 0) {
-    sections.push({
-      id: 'api-inherited',
-      heading: 'Inherited',
-      props: [],
-      groups: inheritedProps.map((group) => ({
-        description: `From ${group.from}`,
-        props: group.props,
-      })),
-    })
-  }
-
-  for (const primitive of apiDoc.primitives ?? []) {
-    if (primitive.slots.length > 0) {
+    if (model.item) {
       sections.push({
-        id: `api-${primitive.component.key}-attributes`,
-        heading: `${primitive.component.name} Attributes`,
-        slots: primitive.slots,
-        props: [],
+        id: model.item.id,
+        heading: model.item.heading,
+        description: model.item.description,
+        props: model.item.props,
       })
     }
-    sections.push({
-      id: `api-${primitive.component.key}`,
-      heading: primitive.component.name,
-      props: primitive.props.own,
-      groups: primitive.props.inherited.map((group) => ({
-        description: `From ${group.from}`,
-        props: group.props,
-      })),
-    })
+  } else {
+    for (const part of model.parts) {
+      const slots = buildSlotReferenceDocs(part.slots, part.runtime)
+      const allProps = part.propGroups.flatMap((g) => g.props)
+
+      sections.push({
+        id: part.id,
+        heading: part.heading,
+        description: part.description,
+        accessText: part.accessText,
+        props: allProps,
+        groups: part.propGroups.map((g) => ({
+          id: g.id,
+          heading: g.heading,
+          props: g.props,
+        })),
+        slots: slots.length > 0 ? slots : undefined,
+      })
+    }
+
+    if (model.item) {
+      sections.push({
+        id: model.item.id,
+        heading: model.item.heading,
+        description: model.item.description,
+        props: model.item.props,
+      })
+    }
   }
 
   return { sections }
 }
 
-export function getDocsApiReferenceTocEntries(apiDoc: ComponentDoc | undefined) {
+export function getDocsApiReferenceTocEntries(apiDoc: ComponentApi | undefined) {
   return getApiReferenceTocEntries(apiDoc)
 }
 
@@ -206,7 +283,7 @@ function PropRows(tableProps: {
               <tr class="border-t border-border/40 transition-colors hover:bg-muted/30">
                 <td class="text-xs text-primary font-medium font-mono px-3.5 py-2.5 whitespace-nowrap">
                   {prop.name}
-                  {prop.required ? '*' : ''}
+                  {!prop.optional ? '*' : ''}
                 </td>
                 <Show when={!tableProps.minimal}>
                   <td class="px-3.5 py-2.5">
@@ -218,7 +295,7 @@ function PropRows(tableProps: {
                 <Show when={!tableProps.minimal}>
                   <td class="text-xs text-muted-foreground px-3.5 py-2.5">
                     <Show
-                      when={prop.defaultValue}
+                      when={prop.defaultValue !== undefined}
                       fallback={<span class="text-muted-foreground/60">—</span>}
                     >
                       <code class="font-mono px-1.5 py-0.5 border border-border/40 rounded-md bg-muted/70">
@@ -777,6 +854,14 @@ function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.El
         {sectionProps.section.heading}
       </HeadingWithAnchor>
 
+      <Show when={sectionProps.section.accessText}>
+        <div class="mb-3 mt-1">
+          <code class="text-xs text-muted-foreground font-mono px-2 py-1 border border-border/40 rounded-md bg-muted/60">
+            {sectionProps.section.accessText}
+          </code>
+        </div>
+      </Show>
+
       <Show when={sectionProps.section.description}>
         {(description) => (
           <div
@@ -788,7 +873,11 @@ function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.El
       </Show>
 
       <Show
-        when={sectionProps.section.slots?.length}
+        when={
+          sectionProps.section.slots?.length &&
+          !sectionProps.section.groups?.length &&
+          !sectionProps.section.props.length
+        }
         fallback={
           <Show
             when={!sectionProps.section.badges?.length}
@@ -803,24 +892,39 @@ function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.El
             <Show
               when={sectionProps.section.groups?.length}
               fallback={
-                <PropRows
-                  props={sectionProps.section.props}
-                  nameColumn={sectionProps.section.nameColumn}
-                />
+                <Show when={sectionProps.section.props.length > 0}>
+                  <PropRows
+                    props={sectionProps.section.props}
+                    nameColumn={sectionProps.section.nameColumn}
+                  />
+                </Show>
               }
             >
               <For each={sectionProps.section.groups}>
                 {(group) => (
-                  <>
-                    <div
-                      class="text-sm text-muted-foreground"
-                      // oxlint-disable-next-line subf/solid-no-innerhtml
-                      innerHTML={group.description}
-                    />
+                  <div class="mt-4">
+                    <h4 class="text-xs text-foreground tracking-wider font-semibold mb-2 uppercase">
+                      {group.heading}
+                    </h4>
+                    <Show when={group.description}>
+                      <div
+                        class="text-sm text-muted-foreground mb-2"
+                        // oxlint-disable-next-line subf/solid-no-innerhtml
+                        innerHTML={group.description}
+                      />
+                    </Show>
                     <PropRows props={group.props} nameColumn={sectionProps.section.nameColumn} />
-                  </>
+                  </div>
                 )}
               </For>
+            </Show>
+            <Show when={sectionProps.section.slots?.length}>
+              <div class="mt-6">
+                <h4 class="text-xs text-foreground tracking-wider font-semibold mb-2 uppercase">
+                  Attributes
+                </h4>
+                <AttributesSection section={sectionProps.section} />
+              </div>
             </Show>
           </Show>
         }
@@ -832,7 +936,7 @@ function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.El
 }
 
 interface DocsApiReferenceProps {
-  apiDoc?: ComponentDoc
+  apiDoc?: ComponentApi
 }
 
 export const DocsApiReference = (props: DocsApiReferenceProps) => {
