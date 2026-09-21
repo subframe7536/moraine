@@ -5,10 +5,7 @@ export interface CollapsibleStyleSlot<T = unknown> {
   /** Interactive element that toggles the content. */
   trigger?: T
 
-  /** Outer wrapper that measures and animates the content height. */
-  contentWrapper?: T
-
-  /** Inner region that renders the collapsible content. */
+  /** Public region containing the collapsible content. */
   content?: T
 }
 

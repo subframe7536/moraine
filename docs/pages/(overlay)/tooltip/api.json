@@ -10,13 +10,6 @@
   },
   "slots": [
     {
-      "name": "positioner",
-      "description": "Positioning wrapper around the tooltip surface.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
       "name": "trigger",
       "description": "Element that opens the tooltip.",
       "cssVariables": [],
@@ -59,6 +52,12 @@
         "required": false,
         "type": "JSX.Element",
         "description": "Composed trigger and content primitives."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "TooltipT.Classes | undefined",
+        "description": "Family slot class defaults for this Tooltip instance."
       },
       {
         "name": "closeDelay",
@@ -126,6 +125,12 @@
         "type": "Placement | undefined",
         "description": "Preferred content placement relative to the trigger.",
         "defaultValue": "top"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "TooltipT.Styles | undefined",
+        "description": "Family slot style defaults for this Tooltip instance."
       }
     ],
     "inherited": []
@@ -207,7 +212,7 @@
           {
             "name": "classes",
             "required": false,
-            "type": "TooltipT.Classes | undefined"
+            "type": "TooltipT.ContentClasses | undefined"
           },
           {
             "name": "invert",
@@ -242,7 +247,7 @@
           {
             "name": "styles",
             "required": false,
-            "type": "TooltipT.Styles | undefined"
+            "type": "TooltipT.ContentStyles | undefined"
           },
           {
             "name": "text",

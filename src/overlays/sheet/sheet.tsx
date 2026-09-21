@@ -10,24 +10,39 @@ import { Modal } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'
 
+import { SheetPresentationProvider, useSheetPresentation } from './sheet-context'
 import { sheetRecipe } from './sheet.recipe'
 import type { SheetProps, SheetT } from './sheet.types'
 
 /** Sheet state and context. Trigger, Content, and Close own their respective DOM. */
 export function Sheet(props: SheetProps): JSX.Element {
-  return <Modal {...props} />
+  const [local, rest] = splitProps(props, ['classes', 'styles', 'children'])
+  return (
+    <SheetPresentationProvider
+      value={{
+        get presentation() {
+          return { classes: local.classes, styles: local.styles }
+        },
+      }}
+    >
+      <Modal {...rest}>{local.children}</Modal>
+    </SheetPresentationProvider>
+  )
 }
 
 function SheetTrigger<T extends ValidComponent = 'button'>(
   props: SheetT.TriggerProps<T>,
 ): JSX.Element {
-  const resolved = createStyles(sheetRecipe, props, { rootSlot: 'trigger' })
+  const family = useSheetPresentation()
+  const resolved = createStyles(sheetRecipe, props, {
+    rootSlot: 'trigger',
+    inheritedStyles: () => family.presentation,
+  })
   return <Modal.Trigger {...props} {...resolved.styles.trigger} />
 }
 
 function SheetClose<T extends ValidComponent = 'button'>(props: SheetT.CloseProps<T>): JSX.Element {
-  const resolved = createStyles(sheetRecipe, props, { rootSlot: 'close' })
-  return <Modal.Close {...props} {...resolved.styles.close} />
+  return <Modal.Close {...props} />
 }
 
 function SheetContent(props: SheetT.ContentProps): JSX.Element {
@@ -43,7 +58,6 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
     'header',
     'body',
     'footer',
-    'action',
     'children',
     'classes',
     'styles',
@@ -52,6 +66,7 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
   ])
 
   const context = useModalContext()
+  const family = useSheetPresentation()
 
   const merged = mergeProps(
     {
@@ -64,7 +79,10 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
     local,
   )
 
-  const resolved = createStyles(sheetRecipe, local, { rootSlot: 'content' })
+  const resolved = createStyles(sheetRecipe, local, {
+    rootSlot: 'content',
+    inheritedStyles: () => family.presentation,
+  })
 
   return (
     <ModalSurface
@@ -79,7 +97,6 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
         const title = createLazyMemo(() => merged.title)
         const description = createLazyMemo(() => merged.description)
         const header = createLazyMemo(() => merged.header)
-        const action = createLazyMemo(() => merged.action)
         const closeContent = createLazyMemo(() => merged.close)
         const body = createLazyMemo(() => {
           const explicitBody = merged.body
@@ -95,11 +112,7 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
           !hasCustomHeader() && hasJsxContent(description())
             ? `${context.contentId()}-description`
             : undefined
-        const hasDefaultHeader = () =>
-          hasJsxContent(title()) ||
-          hasJsxContent(description()) ||
-          hasJsxContent(action()) ||
-          closeContent() !== false
+        const hasDefaultHeader = () => hasJsxContent(title()) || hasJsxContent(description())
 
         return {
           ariaLabel: merged.ariaLabel,
@@ -113,40 +126,19 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
                     when={hasCustomHeader()}
                     fallback={
                       <>
-                        <div data-slot="wrapper" {...resolved.styles.wrapper}>
-                          <Show when={hasJsxContent(title())}>
-                            <h2 id={titleId()} data-slot="title" {...resolved.styles.title}>
-                              {title()}
-                            </h2>
-                          </Show>
-
-                          <Show when={hasJsxContent(description())}>
-                            <p
-                              id={descriptionId()}
-                              data-slot="description"
-                              {...resolved.styles.description}
-                            >
-                              {description()}
-                            </p>
-                          </Show>
-                        </div>
-
-                        <Show when={hasJsxContent(action())}>
-                          <div data-slot="actions" {...resolved.styles.actions}>
-                            {action()}
-                          </div>
+                        <Show when={hasJsxContent(title())}>
+                          <h2 id={titleId()} data-slot="title" {...resolved.styles.title}>
+                            {title()}
+                          </h2>
                         </Show>
-
-                        <Show when={closeContent() !== false}>
-                          <Modal.Close
-                            data-slot="close"
-                            aria-label="Close"
-                            {...resolved.styles.close}
+                        <Show when={hasJsxContent(description())}>
+                          <p
+                            id={descriptionId()}
+                            data-slot="description"
+                            {...resolved.styles.description}
                           >
-                            <Show when={closeContent() === true} fallback={closeContent()}>
-                              <Icon name="icon-close" />
-                            </Show>
-                          </Modal.Close>
+                            {description()}
+                          </p>
                         </Show>
                       </>
                     }
@@ -154,6 +146,18 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
                     {header()}
                   </Show>
                 </div>
+              </Show>
+
+              <Show when={closeContent() !== false}>
+                <Modal.Close
+                  data-slot="contentClose"
+                  aria-label="Close"
+                  {...resolved.styles.contentClose}
+                >
+                  <Show when={closeContent() === true} fallback={closeContent()}>
+                    <Icon name="icon-close" />
+                  </Show>
+                </Modal.Close>
               </Show>
 
               <Show when={hasJsxContent(body())}>

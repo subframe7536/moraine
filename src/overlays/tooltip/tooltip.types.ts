@@ -15,6 +15,8 @@ export namespace TooltipT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type ContentClasses = Pick<Classes, 'content' | 'text' | 'kbds' | 'kbd'>
+  export type ContentStyles = Pick<Styles, 'content' | 'text' | 'kbds' | 'kbd'>
   export interface Item {}
 
   /**
@@ -50,6 +52,12 @@ export namespace TooltipT {
 
     /** Composed trigger and content primitives. */
     children?: JSX.Element
+
+    /** Family slot class defaults for this Tooltip instance. */
+    classes?: Classes
+
+    /** Family slot style defaults for this Tooltip instance. */
+    styles?: Styles
   }
   export interface ContentBase {
     /**
@@ -76,7 +84,7 @@ export namespace TooltipT {
    * Props for the Tooltip component.
    */
   export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
-  export type ContentProps = BaseProps<'div', ContentBase, Variant, Classes, Styles>
+  export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
   export type Props = Base
 }
 

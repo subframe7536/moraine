@@ -14,7 +14,7 @@ export function useDisclosureState(options: UseDisclosureStateOptions) {
     'data-expanded': options.open() ? '' : undefined,
   }))
   const [contentHeight, setContentHeight] = createSignal(0)
-  let contentEl: HTMLDivElement | undefined
+  let contentEl: HTMLElement | undefined
   let resizeObserver: ResizeObserver | undefined
 
   function measureContentHeight(element = contentEl): void {
@@ -41,9 +41,12 @@ export function useDisclosureState(options: UseDisclosureStateOptions) {
     }),
   )
 
-  function setContentElement(element: HTMLDivElement): void {
+  function setContentElement(element: HTMLElement | undefined): void {
     resizeObserver?.disconnect()
     contentEl = element
+    if (!element) {
+      return
+    }
     measureContentHeight(element)
     queueContentHeightMeasurement(element)
 

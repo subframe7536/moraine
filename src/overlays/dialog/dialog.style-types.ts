@@ -11,17 +11,14 @@ export interface DialogStyleSlot<T = unknown> {
   /** Top region for dialog title and description. */
   header?: T
 
-  /** Inner card wrapper that arranges dialog header, body, and footer. */
-  wrapper?: T
-
   /** Accessible title for the dialog. */
   title?: T
 
   /** Supporting text associated with the dialog title. */
   description?: T
 
-  /** Button that dismisses the dialog. */
-  close?: T
+  /** Automatic close affordance owned by Dialog.Content. */
+  contentClose?: T
 
   /** Main dialog content region. */
   body?: T

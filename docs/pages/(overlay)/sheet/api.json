@@ -38,13 +38,6 @@
       "ariaAttributes": []
     },
     {
-      "name": "wrapper",
-      "description": "Inner wrapper that arranges sheet header, body, footer, and actions.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
       "name": "title",
       "description": "Accessible title for the sheet.",
       "cssVariables": [],
@@ -59,15 +52,8 @@
       "ariaAttributes": []
     },
     {
-      "name": "actions",
-      "description": "Header action region, usually paired with the close control.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "close",
-      "description": "Button that dismisses the sheet.",
+      "name": "contentClose",
+      "description": "Automatic close affordance owned by Sheet.Content.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
@@ -94,6 +80,12 @@
         "required": false,
         "type": "JSX.Element",
         "description": "Composed trigger and content primitives."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "SheetT.Classes | undefined",
+        "description": "Family slot class defaults for this Sheet instance."
       },
       {
         "name": "defaultOpen",
@@ -145,6 +137,12 @@
         "type": "boolean | undefined",
         "description": "Whether body scroll should be locked while the shell is present.",
         "defaultValue": "true"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "SheetT.Styles | undefined",
+        "description": "Family slot style defaults for this Sheet instance."
       }
     ],
     "inherited": []
@@ -212,12 +210,6 @@
       "props": {
         "own": [
           {
-            "name": "action",
-            "required": false,
-            "type": "JSX.Element",
-            "description": "Additional action elements to render in the header."
-          },
-          {
             "name": "ariaLabel",
             "required": false,
             "type": "string | undefined",
@@ -244,7 +236,7 @@
           {
             "name": "classes",
             "required": false,
-            "type": "SheetT.Classes | undefined"
+            "type": "SheetT.ContentClasses | undefined"
           },
           {
             "name": "close",
@@ -304,7 +296,7 @@
           {
             "name": "styles",
             "required": false,
-            "type": "SheetT.Styles | undefined"
+            "type": "SheetT.ContentStyles | undefined"
           },
           {
             "name": "title",

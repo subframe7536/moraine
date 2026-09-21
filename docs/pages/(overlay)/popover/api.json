@@ -40,6 +40,12 @@
         "description": "Composed trigger and content primitives."
       },
       {
+        "name": "classes",
+        "required": false,
+        "type": "PopoverT.Classes | undefined",
+        "description": "Family slot class defaults for this Popover instance."
+      },
+      {
         "name": "closeDelay",
         "required": false,
         "type": "number | undefined",
@@ -132,6 +138,12 @@
         "type": "boolean | undefined",
         "description": "Whether body scroll should be locked while the content is present.",
         "defaultValue": "false"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "PopoverT.Styles | undefined",
+        "description": "Family slot style defaults for this Popover instance."
       }
     ],
     "inherited": []
@@ -218,7 +230,7 @@
           {
             "name": "classes",
             "required": false,
-            "type": "PopoverT.Classes | undefined"
+            "type": "PopoverT.ContentClasses | undefined"
           },
           {
             "name": "ref",
@@ -240,7 +252,7 @@
           {
             "name": "styles",
             "required": false,
-            "type": "PopoverT.Styles | undefined"
+            "type": "PopoverT.ContentStyles | undefined"
           }
         ],
         "inherited": []

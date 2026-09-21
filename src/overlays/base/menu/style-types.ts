@@ -44,7 +44,7 @@ export interface OverlayMenuStyleSlot<T = unknown> {
   itemIndicator?: T
 
   /** Indicator shown when a menu item opens a submenu. */
-  itemSub?: T
+  itemSubIndicator?: T
 }
 
 export interface OverlayMenuStyleVariant {

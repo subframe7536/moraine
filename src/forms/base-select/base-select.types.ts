@@ -85,9 +85,9 @@ export namespace BaseSelectT {
     loop?: boolean
     /** Native form value; return undefined to omit a selected value from submission. */
     serializeValue?: (value: TItem['value']) => string | undefined
-    /** Classes for popup parts. */
+    /** Family slot class defaults for this BaseSelect instance. */
     classes?: Classes
-    /** Styles for popup parts. */
+    /** Family slot style defaults for this BaseSelect instance. */
     styles?: Styles
     /** Composed trigger and popup parts. */
     children?: JSX.Element

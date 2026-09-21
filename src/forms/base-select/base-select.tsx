@@ -20,7 +20,6 @@ import { Dynamic, Portal } from 'solid-js/web'
 import { useFloatingPosition } from '../../overlays/base/floating.ts'
 import { useOverlayInteraction } from '../../overlays/base/interaction.ts'
 import { acquireBodyScrollLock } from '../../overlays/base/utils.ts'
-import { useCn } from '../../provider/cn-context.ts'
 import { createStyles } from '../../provider/create-styles.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
@@ -111,10 +110,18 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   const listboxId = () => `${field.id()}-listbox`
   const itemId = (value: BaseSelectT.Value) =>
     `${listboxId()}-${encodeURIComponent(`${typeof value}:${String(value)}`)}`
-  const styles = createStyles(baseSelectRecipe, props, {
+  const styleState = createStyles(baseSelectRecipe, props, {
     rootSlot: 'control',
     inheritedVariants: () => ({ size: field.size() ?? undefined }),
   })
+  const stylePresentation = {
+    get classes() {
+      return props.classes
+    },
+    get styles() {
+      return props.styles
+    },
+  }
   const locked = () => field.disabled() || field.readOnly()
   let formInput: HTMLInputElement | undefined
 
@@ -358,7 +365,10 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     listboxId,
     itemId,
     field,
-    styles,
+    stylePresentation,
+    get styleSize() {
+      return styleState.variants.size
+    },
     locked,
     change,
     select,
@@ -437,8 +447,12 @@ export function BaseSelect<T extends BaseSelectT.Item = BaseSelectT.Item>(
 
 function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
   const state = useSelectState()
-  const cn = useCn()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
+  const resolved = createStyles(baseSelectRecipe, local, {
+    rootSlot: 'control',
+    inheritedStyles: () => state.stylePresentation,
+    inheritedVariants: () => ({ size: state.styleSize }),
+  })
   return (
     <div
       {...rest}
@@ -456,11 +470,7 @@ function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
           }
         })
       }}
-      class={cn(state.styles.styles.control.class, local.class)}
-      style={{
-        ...state.styles.styles.control.style,
-        ...local.style,
-      }}
+      {...resolved.styles.control}
     >
       {local.children}
     </div>
@@ -472,7 +482,6 @@ function BaseSelectTrigger<
   TItem extends BaseSelectT.Item = BaseSelectT.Item,
 >(props: BaseSelectT.TriggerProps<T, TItem>): JSX.Element {
   const state = useSelectState<TItem>()
-  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'as',
     'children',
@@ -485,6 +494,11 @@ function BaseSelectTrigger<
     'onBlur',
     'ref' as any,
   ])
+  const resolved = createStyles(baseSelectRecipe, local, {
+    rootSlot: 'trigger',
+    inheritedStyles: () => state.stylePresentation,
+    inheritedVariants: () => ({ size: state.styleSize }),
+  })
   const resolvedChildren = resolveChildren(() =>
     renderComponentOrElement(local.children, state.presentation),
   )
@@ -549,11 +563,7 @@ function BaseSelectTrigger<
           ? state.itemId(state.highlightedValue()!)
           : undefined
       }
-      class={cn(state.styles.styles.trigger.class, local.class)}
-      style={{
-        ...state.styles.styles.trigger.style,
-        ...local.style,
-      }}
+      {...resolved.styles.trigger}
       ref={(element: HTMLElement) => {
         state.setFocusOwner(element)
         state.field.setControlRef(element)
@@ -574,7 +584,6 @@ function BaseSelectTrigger<
 
 function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   const state = useSelectState()
-  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'children',
     'ref',
@@ -584,6 +593,11 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
     'overflowPadding',
     'onExitComplete',
   ])
+  const resolved = createStyles(baseSelectRecipe, local, {
+    rootSlot: 'content',
+    inheritedStyles: () => state.stylePresentation,
+    inheritedVariants: () => ({ size: state.styleSize }),
+  })
   const presence = useTransitionPresence({
     open: state.open,
     onExitComplete: () => {
@@ -656,11 +670,7 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
               presence.setElement(element)
               callRef(local.ref, element)
             }}
-            class={cn(state.styles.styles.content.class, local.class)}
-            style={{
-              ...state.styles.styles.content.style,
-              ...local.style,
-            }}
+            {...resolved.styles.content}
           >
             {local.children}
           </div>
@@ -671,8 +681,12 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
 }
 function BaseSelectListbox(props: BaseSelectT.PartProps): JSX.Element {
   const state = useSelectState()
-  const cn = useCn()
   const [local, rest] = splitProps(props, ['children', 'class', 'style', 'ref'])
+  const resolved = createStyles(baseSelectRecipe, local, {
+    rootSlot: 'listbox',
+    inheritedStyles: () => state.stylePresentation,
+    inheritedVariants: () => ({ size: state.styleSize }),
+  })
   const [listbox, setListbox] = createSignal<HTMLDivElement>()
   createEffect(
     on([state.highlightedValue, state.open, listbox], ([key, open, element]) => {
@@ -709,11 +723,7 @@ function BaseSelectListbox(props: BaseSelectT.PartProps): JSX.Element {
           }
         })
       }}
-      class={cn(state.styles.styles.listbox.class, local.class)}
-      style={{
-        ...state.styles.styles.listbox.style,
-        ...local.style,
-      }}
+      {...resolved.styles.listbox}
     >
       {local.children}
     </div>
@@ -721,7 +731,6 @@ function BaseSelectListbox(props: BaseSelectT.PartProps): JSX.Element {
 }
 function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps<T>): JSX.Element {
   const state = useSelectState<T>()
-  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'item',
     'children',
@@ -732,6 +741,11 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
     'onPointerMove',
     'onPointerDown',
   ])
+  const resolved = createStyles(baseSelectRecipe, local, {
+    rootSlot: 'item',
+    inheritedStyles: () => state.stylePresentation,
+    inheritedVariants: () => ({ size: state.styleSize }),
+  })
   const item = () => local.item
   const selected = () => state.value().includes(item().value)
   const highlighted = () => sameValue(state.highlightedValue(), item().value)
@@ -770,11 +784,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       data-selected={selected() ? '' : undefined}
       data-highlighted={highlighted() ? '' : undefined}
       data-disabled={disabled() ? '' : undefined}
-      class={cn(state.styles.styles.item.class, local.class)}
-      style={{
-        ...state.styles.styles.item.style,
-        ...local.style,
-      }}
+      {...resolved.styles.item}
       onPointerMove={(event) => {
         callHandler(event, local.onPointerMove)
         if (
@@ -814,8 +824,12 @@ const GroupContext = createContext<{
 }>()
 function BaseSelectGroup(props: BaseSelectT.PartProps): JSX.Element {
   const state = useSelectState()
-  const cn = useCn()
   const [labelId, setLabelId] = createSignal<string>()
+  const resolved = createStyles(baseSelectRecipe, props, {
+    rootSlot: 'group',
+    inheritedStyles: () => state.stylePresentation,
+    inheritedVariants: () => ({ size: state.styleSize }),
+  })
   return (
     <GroupContext.Provider value={{ labelId, setLabelId }}>
       <div
@@ -823,11 +837,7 @@ function BaseSelectGroup(props: BaseSelectT.PartProps): JSX.Element {
         role="group"
         aria-labelledby={labelId() ?? props['aria-labelledby']}
         data-slot="group"
-        class={cn(state.styles.styles.group.class, props.class)}
-        style={{
-          ...state.styles.styles.group.style,
-          ...props.style,
-        }}
+        {...resolved.styles.group}
       >
         {props.children}
       </div>
@@ -836,9 +846,13 @@ function BaseSelectGroup(props: BaseSelectT.PartProps): JSX.Element {
 }
 function BaseSelectGroupLabel(props: BaseSelectT.PartProps): JSX.Element {
   const state = useSelectState()
-  const cn = useCn()
   const group = useContext(GroupContext)
   const id = useId(() => props.id, 'select-group-label')
+  const resolved = createStyles(baseSelectRecipe, props, {
+    rootSlot: 'groupLabel',
+    inheritedStyles: () => state.stylePresentation,
+    inheritedVariants: () => ({ size: state.styleSize }),
+  })
   createEffect(
     on(id, (value) => {
       group?.setLabelId(value)
@@ -846,51 +860,38 @@ function BaseSelectGroupLabel(props: BaseSelectT.PartProps): JSX.Element {
     }),
   )
   return (
-    <div
-      {...props}
-      id={id()}
-      data-slot="groupLabel"
-      class={cn(state.styles.styles.groupLabel.class, props.class)}
-      style={{
-        ...state.styles.styles.groupLabel.style,
-        ...props.style,
-      }}
-    >
+    <div {...props} id={id()} data-slot="groupLabel" {...resolved.styles.groupLabel}>
       {props.children}
     </div>
   )
 }
 function BaseSelectSeparator(props: BaseSelectT.PartProps): JSX.Element {
   const state = useSelectState()
-  const cn = useCn()
+  const resolved = createStyles(baseSelectRecipe, props, {
+    rootSlot: 'separator',
+    inheritedStyles: () => state.stylePresentation,
+    inheritedVariants: () => ({ size: state.styleSize }),
+  })
   return (
     <div
       {...props}
       role="presentation"
       aria-hidden="true"
       data-slot="separator"
-      class={cn(state.styles.styles.separator.class, props.class)}
-      style={{
-        ...state.styles.styles.separator.style,
-        ...props.style,
-      }}
+      {...resolved.styles.separator}
     />
   )
 }
 function BaseSelectEmpty(props: BaseSelectT.PartProps): JSX.Element {
   const state = useSelectState()
-  const cn = useCn()
+  const resolved = createStyles(baseSelectRecipe, props, {
+    rootSlot: 'empty',
+    inheritedStyles: () => state.stylePresentation,
+    inheritedVariants: () => ({ size: state.styleSize }),
+  })
   return (
     <Show when={state.items().length === 0}>
-      <div
-        {...props}
-        data-slot="empty"
-        class={cn(state.styles.styles.empty.class, props.class)}
-        style={{
-          ...state.styles.styles.empty.style,
-          ...props.style,
-        }}
-      >
+      <div {...props} data-slot="empty" {...resolved.styles.empty}>
         {props.children}
       </div>
     </Show>

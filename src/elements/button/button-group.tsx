@@ -46,7 +46,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
 
 /** Explicit semantic divider for adjacent ButtonGroup parts. */
 function ButtonGroupSeparator(props: ButtonGroupT.SeparatorProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['orientation', 'classes', 'styles', 'class', 'style'])
+  const [local, rest] = splitProps(props, ['orientation', 'class', 'style'])
   const group = useButtonGroupContext()
   const resolved = createStyles(buttonGroupRecipe, local, {
     rootSlot: 'separator',

@@ -79,7 +79,7 @@ describe('Dialog', () => {
     expect(document.body.textContent).toContain('Please confirm')
     expect(document.body.textContent).toContain('Modal body')
     expect(document.body.textContent).toContain('Modal footer')
-    expect(document.body.querySelector('[data-slot="close"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="contentClose"]')).not.toBeNull()
 
     const content = document.body.querySelector('[data-slot="content"]')
     expect(content?.tagName).toBe('DIV')
@@ -450,7 +450,7 @@ describe('Dialog', () => {
       expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
     })
 
-    const closeButton = document.body.querySelector('[data-slot="close"]') as HTMLElement
+    const closeButton = document.body.querySelector('[data-slot="contentClose"]') as HTMLElement
     fireEvent.click(closeButton)
 
     expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
@@ -679,6 +679,29 @@ describe('Dialog', () => {
     expect(document.body.querySelector('[data-testid="custom-close"]')?.textContent).toBe('X')
   })
 
+  test('keeps automatic Content close and explicit Close styling separate', () => {
+    const onOpenChange = vi.fn()
+    const screen = render(() => (
+      <Dialog open onOpenChange={onOpenChange} classes={{ contentClose: 'automatic-close' }}>
+        <Dialog.Content header={<div>Custom header</div>} body="Body" />
+        <Dialog.Close data-testid="explicit-dialog-close" class="explicit-close">
+          Explicit close
+        </Dialog.Close>
+      </Dialog>
+    ))
+
+    const automatic = document.body.querySelector<HTMLElement>('[data-slot="contentClose"]')!
+    const explicit = screen.getByTestId('explicit-dialog-close')
+    expect(automatic.className).toContain('automatic-close')
+    expect(automatic.className).toContain('absolute')
+    expect(explicit.className).toContain('explicit-close')
+    expect(explicit.className).not.toContain('automatic-close')
+    expect(explicit.className).not.toContain('absolute')
+
+    fireEvent.click(explicit)
+    expect(onOpenChange).toHaveBeenCalledWith(false)
+  })
+
   test('hides close button when close=false', () => {
     render(() => (
       <Dialog open>
@@ -689,7 +712,7 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    expect(document.body.querySelector('[data-slot="close"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="contentClose"]')).toBeNull()
   })
 
   test('prevents close when dismissible=false and emits onClosePrevent', async () => {
@@ -825,40 +848,36 @@ describe('Dialog', () => {
           classes={{
             content: 'custom-content-class',
             header: 'custom-header-class',
-            wrapper: 'custom-wrapper-class',
             title: 'custom-title-class',
             description: 'custom-desc-class',
             body: 'custom-body-class',
             footer: 'custom-footer-class',
-            close: 'custom-close-class',
+            contentClose: 'custom-close-class',
           }}
           styles={{
             content: { 'border-width': '3px' },
             header: { 'padding-top': '20px' },
-            wrapper: { opacity: '0.9' },
             title: { 'letter-spacing': '1px' },
             description: { 'line-height': '1.5' },
             body: { 'font-size': '15px' },
             footer: { 'margin-top': '10px' },
-            close: { opacity: '0.8' },
+            contentClose: { opacity: '0.8' },
           }}
         />
       </Dialog>
     ))
 
     const header = document.body.querySelector('[data-slot="header"]') as HTMLElement
-    const wrapper = document.body.querySelector('[data-slot="wrapper"]') as HTMLElement
     const title = document.body.querySelector('[data-slot="title"]') as HTMLElement
     const description = document.body.querySelector('[data-slot="description"]') as HTMLElement
     const body = document.body.querySelector('[data-slot="body"]') as HTMLElement
     const footer = document.body.querySelector('[data-slot="footer"]') as HTMLElement
-    const close = document.body.querySelector('[data-slot="close"]') as HTMLElement
+    const close = document.body.querySelector('[data-slot="contentClose"]') as HTMLElement
 
     const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
 
     expect(content.className).toContain('custom-content-class')
     expect(header.className).toContain('custom-header-class')
-    expect(wrapper.className).toContain('custom-wrapper-class')
     expect(title.className).toContain('custom-title-class')
     expect(description.className).toContain('custom-desc-class')
     expect(body.className).toContain('custom-body-class')
@@ -867,7 +886,6 @@ describe('Dialog', () => {
 
     expect(content.style.borderWidth).toBe('3px')
     expect(header.style.paddingTop).toBe('20px')
-    expect(wrapper.style.opacity).toBe('0.9')
     expect(title.style.letterSpacing).toBe('1px')
     expect(description.style.lineHeight).toBe('1.5')
     expect(body.style.fontSize).toBe('15px')
@@ -900,6 +918,25 @@ describe('Dialog', () => {
     const bodyWithBoth = document.body.querySelector('[data-slot="body"]') as HTMLElement
     expect(bodyWithBoth.hasAttribute('data-header')).toBe(true)
     expect(bodyWithBoth.className).toContain('pb-2')
+  })
+
+  test('keeps structured section padding symmetric around the corner close', () => {
+    renderWithTheme(() => (
+      <Dialog open>
+        <Dialog.Content title="Title" body="Body" footer="Footer" />
+      </Dialog>
+    ))
+
+    const header = document.body.querySelector('[data-slot="header"]') as HTMLElement
+    const body = document.body.querySelector('[data-slot="body"]') as HTMLElement
+    const footer = document.body.querySelector('[data-slot="footer"]') as HTMLElement
+
+    expect(header.className).toContain('p-6')
+    expect(body.className).toContain('px-6')
+    expect(footer.className).toContain('p-6')
+    expect(header.className).not.toContain('pe-12')
+    expect(body.className).not.toContain('pe-14')
+    expect(footer.className).not.toContain('pe-14')
   })
 
   test('escape only closes the topmost overlay when dialogs are nested', async () => {

@@ -1,0 +1,130 @@
+import {
+  ButtonGroup,
+  Collapsible,
+  ContextMenu,
+  Dialog,
+  DropdownMenu,
+  Modal,
+  Popover,
+  Sheet,
+  Tooltip,
+} from 'moraine'
+import { defineTheme } from 'moraine/theme'
+
+;<Dialog classes={{ trigger: 'trigger', body: 'body' }} styles={{ content: { width: '20rem' } }} />
+// @ts-expect-error A headless root has no primary DOM element.
+;<Dialog class="root" />
+;<Dialog.Trigger class="trigger" />
+// @ts-expect-error A one-slot Trigger has no slot map.
+;<Dialog.Trigger classes={{ trigger: 'trigger' }} />
+;<Dialog.Content
+  classes={{ overlay: 'overlay', body: 'body', contentClose: 'close' }}
+  class="content"
+/>
+// @ts-expect-error Dialog.Content cannot configure Dialog.Trigger.
+;<Dialog.Content classes={{ trigger: 'trigger' }} />
+;<Dialog.Close class="close" />
+// @ts-expect-error Dialog.Close is behavior-only.
+;<Dialog.Close classes={{ contentClose: 'close' }} />
+
+;<Sheet classes={{ trigger: 'trigger', body: 'body' }} />
+// @ts-expect-error A headless root has no primary DOM element.
+;<Sheet style={{ color: 'red' }} />
+;<Sheet.Trigger class="trigger" />
+// @ts-expect-error A one-slot Trigger has no slot map.
+;<Sheet.Trigger classes={{ trigger: 'trigger' }} />
+;<Sheet.Content classes={{ overlay: 'overlay', body: 'body', contentClose: 'close' }} />
+// @ts-expect-error Sheet.Content cannot configure Sheet.Trigger.
+;<Sheet.Content classes={{ trigger: 'trigger' }} />
+;<Sheet.Close class="close" />
+// @ts-expect-error Sheet.Close is behavior-only.
+;<Sheet.Close styles={{ contentClose: { color: 'red' } }} />
+// @ts-expect-error Sheet header actions are no longer a public Content prop.
+;<Sheet.Content action="action" />
+
+;<Modal classes={{ overlay: 'overlay', content: 'content' }} />
+// @ts-expect-error A headless root has no primary DOM element.
+;<Modal class="root" />
+;<Modal.Overlay class="overlay" />
+// @ts-expect-error Modal.Overlay is a one-slot part.
+;<Modal.Overlay classes={{ overlay: 'overlay' }} />
+;<Modal.Content class="content">Content</Modal.Content>
+// @ts-expect-error Modal.Content is a one-slot part.
+;<Modal.Content classes={{ content: 'content' }}>Content</Modal.Content>
+
+;<Popover classes={{ trigger: 'trigger', body: 'body' }} />
+// @ts-expect-error A headless root has no primary DOM element.
+;<Popover class="root" />
+;<Popover.Trigger class="trigger" />
+// @ts-expect-error Popover.Trigger is a one-slot part.
+;<Popover.Trigger classes={{ trigger: 'trigger' }} />
+;<Popover.Content classes={{ content: 'content', body: 'body' }} />
+// @ts-expect-error Popover.Content cannot configure Popover.Trigger.
+;<Popover.Content classes={{ trigger: 'trigger' }} />
+
+;<Tooltip classes={{ trigger: 'trigger', text: 'text' }} />
+// @ts-expect-error A headless root has no primary DOM element.
+;<Tooltip class="root" />
+;<Tooltip.Trigger class="trigger" />
+// @ts-expect-error Tooltip.Trigger is a one-slot part.
+;<Tooltip.Trigger classes={{ trigger: 'trigger' }} />
+;<Tooltip.Content classes={{ content: 'content', text: 'text', kbds: 'kbds', kbd: 'kbd' }} />
+// @ts-expect-error Tooltip.Content cannot configure Tooltip.Trigger.
+;<Tooltip.Content classes={{ trigger: 'trigger' }} />
+
+;<DropdownMenu classes={{ trigger: 'trigger', itemSubIndicator: 'submenu' }} />
+// @ts-expect-error A headless root has no primary DOM element.
+;<DropdownMenu class="root" />
+;<DropdownMenu.Trigger class="trigger" />
+// @ts-expect-error DropdownMenu.Trigger is a one-slot part.
+;<DropdownMenu.Trigger classes={{ trigger: 'trigger' }} />
+;<DropdownMenu.Content items={[]} classes={{ content: 'content', itemSubIndicator: 'submenu' }} />
+// @ts-expect-error DropdownMenu.Content cannot configure DropdownMenu.Trigger.
+;<DropdownMenu.Content items={[]} classes={{ trigger: 'trigger' }} />
+
+;<ContextMenu classes={{ trigger: 'trigger', itemSubIndicator: 'submenu' }} />
+// @ts-expect-error A headless root has no primary DOM element.
+;<ContextMenu class="root" />
+;<ContextMenu.Trigger class="trigger" />
+// @ts-expect-error ContextMenu.Trigger is a one-slot part.
+;<ContextMenu.Trigger classes={{ trigger: 'trigger' }} />
+;<ContextMenu.Content items={[]} classes={{ content: 'content', itemSubIndicator: 'submenu' }} />
+// @ts-expect-error ContextMenu.Content cannot configure ContextMenu.Trigger.
+;<ContextMenu.Content items={[]} classes={{ trigger: 'trigger' }} />
+
+;<ButtonGroup.Separator class="separator" />
+// @ts-expect-error ButtonGroup.Separator is a one-slot part.
+;<ButtonGroup.Separator classes={{ separator: 'separator' }} />
+;<Collapsible.Content class="content">Content</Collapsible.Content>
+// @ts-expect-error Collapsible.Content is a one-slot part.
+;<Collapsible.Content classes={{ content: 'content' }}>Content</Collapsible.Content>
+// @ts-expect-error Removed with the extra Collapsible wrapper DOM.
+;<Collapsible.Content wrapperClass="wrapper" />
+// @ts-expect-error Removed with the extra Collapsible wrapper DOM.
+;<Collapsible.Content wrapperStyle={{ color: 'red' }} />
+// @ts-expect-error Removed with the extra Collapsible wrapper DOM.
+;<Collapsible.Content wrapperRef={() => undefined} />
+
+defineTheme({ dialog: { base: { contentClose: 'close' } } })
+defineTheme({ sheet: { base: { contentClose: 'close' } } })
+defineTheme({ dropdownMenu: { base: { itemSubIndicator: 'submenu' } } })
+defineTheme({ contextMenu: { base: { itemSubIndicator: 'submenu' } } })
+
+// @ts-expect-error Dialog.wrapper was removed.
+defineTheme({ dialog: { base: { wrapper: 'wrapper' } } })
+// @ts-expect-error Dialog.close was replaced by contentClose.
+defineTheme({ dialog: { base: { close: 'close' } } })
+// @ts-expect-error Sheet.wrapper was removed.
+defineTheme({ sheet: { base: { wrapper: 'wrapper' } } })
+// @ts-expect-error Sheet.actions was removed.
+defineTheme({ sheet: { base: { actions: 'actions' } } })
+// @ts-expect-error Sheet.close was replaced by contentClose.
+defineTheme({ sheet: { base: { close: 'close' } } })
+// @ts-expect-error Tooltip.positioner is internal implementation styling.
+defineTheme({ tooltip: { base: { positioner: 'positioner' } } })
+// @ts-expect-error Menu itemSub was renamed to itemSubIndicator.
+defineTheme({ dropdownMenu: { base: { itemSub: 'submenu' } } })
+// @ts-expect-error Menu itemSub was renamed to itemSubIndicator.
+defineTheme({ contextMenu: { base: { itemSub: 'submenu' } } })
+// @ts-expect-error Collapsible.contentWrapper is internal and not configurable.
+defineTheme({ collapsible: { base: { contentWrapper: 'wrapper' } } })

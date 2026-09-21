@@ -130,7 +130,20 @@ Interactive surfaces use semantic `hover` and `active` colors. Each hover token 
 
 ## Override component styles
 
-Theme recipe classes merge first, followed by inherited composition styles, instance `classes`, and root `class`. Inline styles follow the same precedence: recipe/theme CSS variables, inherited styles, instance `styles[slot]`, then the instance root `style`. Pass CSS property objects to inline style props.
+Moraine separates family presentation from the DOM element that finally renders each slot:
+
+| Override surface                | Responsibility                                      |
+| ------------------------------- | --------------------------------------------------- |
+| Theme                           | Library or application defaults for the family      |
+| Composite root `classes/styles` | Defaults for that family instance                   |
+| Part `classes/styles`           | Overrides for the family slots controlled by a part |
+| Part `class/style`              | Direct override for the part's primary DOM slot     |
+
+DOM-owning composite roots, such as `InputGroup`, `ButtonGroup`, `Collapsible`, and `SidebarFrame`, use `class` and `style` for their primary root slot and `classes` and `styles` for family-instance defaults. Headless roots, such as `Dialog`, `Sheet`, `Modal`, `Popover`, `Tooltip`, and the menu families, have no root DOM element: they accept family `classes` and `styles`, but intentionally do not accept root `class` or `style`.
+
+A part that controls one visual slot exposes only direct `class` and `style`. A multi-slot part exposes a scoped `classes` and `styles` map containing only the slots it can render. For example, `Dialog.Trigger` has direct overrides only, while `Dialog.Content` can configure `overlay`, `content`, `header`, `title`, `description`, `contentClose`, `body`, and `footer`.
+
+Class inputs are passed to the active Moraine `cn` merger in this order: built-in recipe, nearest Provider Theme, composite-root family defaults, part-local slot overrides, then direct part `class` for the primary slot. This ordering does not mean every later class always replaces every earlier class: conflict resolution depends on `cnConfig`, and unknown or non-conflicting classes can coexist. Existing recipe merge boundaries remain significant. Inline style properties use true overwrite precedence in the corresponding order: recipe or Theme CSS variables, family `styles[slot]`, part `styles[slot]`, then direct primary `style`.
 
 ```tsx
 <Button class="bg-red-500" style={{ borderColor: 'red' }} classes={{ label: 'text-white' }}>
@@ -138,13 +151,17 @@ Theme recipe classes merge first, followed by inherited composition styles, inst
 </Button>
 ```
 
-Root-only components (`Icon`, `Kbd`, `Separator`, and the bound `form.Form`) expose direct `class` and `style`. Their Theme entries still have a `root` slot. Overlay roots own behavior and children; put DOM attributes and presentation on their Trigger and Content parts.
+Root-only components (`Icon`, `Kbd`, `Separator`, and the bound `form.Form`) expose direct `class` and `style`. Their Theme entries still have a `root` slot.
+
+Each rendered composite part resolves its recipe and nearest `MoraineProvider` itself. Family-instance defaults still flow from the nearest matching family root, including through a Portal, while an inner Provider supplies that part's Theme and `cnConfig`. A nested instance of the same family starts a new presentation scope and does not inherit the outer instance's overrides.
+
+CSS variables are slot-targeted. Portal DOM does not inherit variables from a trigger or layout root, so apply a variable to each affected slot explicitly—for example, `styles={{ content: { '--x': '...' }, overlay: { '--y': '...' } }}`. Moraine does not copy root variables across a family. Empty override values do not disable built-in recipes, and this API does not add an unstyled or replacement mode.
 
 ## Component kinds
 
 The `Single` or `Composite` label in each component page header comes from its `XxxT.Kind` type. It describes how you compose the component, not how many DOM elements or presentation slots it renders.
 
-**Single** components expose their configuration through one component's props. `Card` is single even though it has header, body, and footer slots; `ButtonGroup` is single even though it groups children. Apply root styles with `class` and `style`, and use `classes` and `styles` for named slots when the component supports them.
+**Single** components expose their configuration through one component's props. `Card` is single even though it has header, body, and footer slots. Apply root styles with `class` and `style`, and use `classes` and `styles` for named slots when the component supports them.
 
 ```tsx
 <Card title="Account" class="max-w-md" classes={{ body: 'space-y-4' }}>
@@ -163,12 +180,12 @@ The `Single` or `Composite` label in each component page header comes from its `
 </SidebarFrame>
 ```
 
-`Dialog` also has a composite API, but its root only provides state and context. Put presentation on `Dialog.Trigger` and `Dialog.Content`; the root has no DOM element to style.
+`Dialog` also has a composite API. Its headless root supplies family-instance defaults, while its rendered parts own DOM attributes and direct overrides.
 
 ```tsx
-<Dialog>
+<Dialog classes={{ content: 'max-w-lg', body: 'space-y-4' }}>
   <Dialog.Trigger class="font-semibold">Edit profile</Dialog.Trigger>
-  <Dialog.Content title="Profile" class="max-w-lg" classes={{ body: 'space-y-4' }}>
+  <Dialog.Content title="Profile" class="shadow-xl">
     Profile settings
   </Dialog.Content>
 </Dialog>

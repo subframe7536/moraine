@@ -121,11 +121,6 @@
             "description": "Class applied to the component root or trigger element."
           },
           {
-            "name": "classes",
-            "required": false,
-            "type": "ButtonGroupT.Classes | undefined"
-          },
-          {
             "name": "orientation",
             "required": false,
             "type": "\"horizontal\" | \"vertical\" | undefined",
@@ -141,11 +136,6 @@
             "name": "style",
             "required": false,
             "type": "SlotStyleValue | undefined"
-          },
-          {
-            "name": "styles",
-            "required": false,
-            "type": "ButtonGroupT.Styles | undefined"
           }
         ],
         "inherited": []

@@ -38,13 +38,6 @@
       "ariaAttributes": []
     },
     {
-      "name": "wrapper",
-      "description": "Inner card wrapper that arranges dialog header, body, and footer.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
       "name": "title",
       "description": "Accessible title for the dialog.",
       "cssVariables": [],
@@ -59,8 +52,8 @@
       "ariaAttributes": []
     },
     {
-      "name": "close",
-      "description": "Button that dismisses the dialog.",
+      "name": "contentClose",
+      "description": "Automatic close affordance owned by Dialog.Content.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
@@ -87,6 +80,12 @@
         "required": false,
         "type": "JSX.Element",
         "description": "Composed trigger and content primitives."
+      },
+      {
+        "name": "classes",
+        "required": false,
+        "type": "DialogT.Classes | undefined",
+        "description": "Family slot class defaults for this Dialog instance."
       },
       {
         "name": "defaultOpen",
@@ -138,6 +137,12 @@
         "type": "boolean | undefined",
         "description": "Whether body scroll should be locked while the shell is present.",
         "defaultValue": "true"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "DialogT.Styles | undefined",
+        "description": "Family slot style defaults for this Dialog instance."
       }
     ],
     "inherited": []
@@ -231,7 +236,7 @@
           {
             "name": "classes",
             "required": false,
-            "type": "DialogT.Classes | undefined"
+            "type": "DialogT.ContentClasses | undefined"
           },
           {
             "name": "close",
@@ -298,7 +303,7 @@
           {
             "name": "styles",
             "required": false,
-            "type": "DialogT.Styles | undefined"
+            "type": "DialogT.ContentStyles | undefined"
           },
           {
             "name": "title",

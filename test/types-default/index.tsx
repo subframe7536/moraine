@@ -1,4 +1,5 @@
 import './base-select'
+import './composite-styling'
 
 import {
   Avatar,

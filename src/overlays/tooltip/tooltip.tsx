@@ -25,6 +25,10 @@ import type { PopperTriggerProps } from '../base/popper.types'
 import { tooltipRecipe } from './tooltip.recipe'
 import type { TooltipProps, TooltipT } from './tooltip.types'
 
+// This wrapper needs library transition styling, but has no stable user/Theme override value.
+// Internal visual elements do not become family slots solely because they render DOM.
+const TOOLTIP_POSITIONER_CLASS = 'has-[[data-instant-motion]]:data-positioned:transition-transform'
+
 interface TooltipTimers {
   close?: ReturnType<typeof setTimeout>
   open?: ReturnType<typeof setTimeout>
@@ -95,6 +99,7 @@ const [TooltipProvider, useTooltipContext] = createContextProvider<{
   dismiss: () => void
   resetPress: () => void
   keepOpen: () => void
+  presentation: { classes?: TooltipT.Classes; styles?: TooltipT.Styles }
 }>('Tooltip')
 
 /** Hover-triggered informational overlay anchored to a trigger element. */
@@ -322,6 +327,9 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       clearCloseTimer()
       clearSkipDelay(tooltipId())
     },
+    get presentation() {
+      return { classes: merged.classes, styles: merged.styles }
+    },
   }
   return <TooltipProvider value={behavior}>{merged.children}</TooltipProvider>
 }
@@ -330,7 +338,10 @@ function TooltipTrigger<T extends ValidComponent = 'button'>(
   props: TooltipT.TriggerProps<T>,
 ): JSX.Element {
   const context = useTooltipContext()
-  const resolved = createStyles(tooltipRecipe, props, { rootSlot: 'trigger' })
+  const resolved = createStyles(tooltipRecipe, props, {
+    rootSlot: 'trigger',
+    inheritedStyles: () => context.presentation,
+  })
   const popper = context.popper
   const triggerProps = mergeProps(
     mergePopperElementProps<HTMLElement>(
@@ -388,19 +399,10 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       }
     },
   }
-  const positioner = createStyles(
-    tooltipRecipe,
-    {
-      get classes() {
-        return local.classes
-      },
-      get styles() {
-        return local.styles
-      },
-    },
-    { rootSlot: 'positioner' },
-  )
-  const resolved = createStyles(tooltipRecipe, local, { rootSlot: 'content' })
+  const resolved = createStyles(tooltipRecipe, local, {
+    rootSlot: 'content',
+    inheritedStyles: () => behavior.presentation,
+  })
   return (
     <PopperContent
       context={behavior.popper}
@@ -409,8 +411,7 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
       overflowPadding={4}
       role="tooltip"
       restoreFocusOnClose={false}
-      positionerClass={positioner.styles.positioner.class}
-      positionerStyle={positioner.styles.positioner.style}
+      positionerClass={TOOLTIP_POSITIONER_CLASS}
     >
       {(context) => {
         const contentProps = mergeProps(context.contentProps, contentEvents)

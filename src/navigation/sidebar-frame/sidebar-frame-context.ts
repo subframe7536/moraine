@@ -1,13 +1,14 @@
 import type { Accessor } from 'solid-js'
 
-import type { CreateStylesResult } from '../../provider/create-styles'
 import { createContextProvider } from '../../shared/create-context-provider'
 
-import type { sidebarFrameRecipe } from './sidebar-frame.recipe'
 import type { SidebarFrameT } from './sidebar-frame.types'
 
 export interface SidebarFrameContext extends SidebarFrameT.Context {
-  resolved: CreateStylesResult<typeof sidebarFrameRecipe>
+  readonly presentation: {
+    classes?: SidebarFrameT.Classes
+    styles?: SidebarFrameT.Styles
+  }
   scrollThreshold: Accessor<number>
   setScrolled: (scrolled: boolean) => void
 }

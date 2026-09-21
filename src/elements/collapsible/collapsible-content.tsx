@@ -3,7 +3,6 @@ import { children as resolveChildren, createMemo, Show, splitProps } from 'solid
 import { Dynamic } from 'solid-js/web'
 
 import { createStyles } from '../../provider'
-import { useCn } from '../../provider/cn-context'
 import type { ValidComponent } from '../../shared/types.ts'
 import { callRef } from '../../shared/utils'
 
@@ -11,11 +10,15 @@ import { useCollapsibleContext } from './collapsible-context'
 import { collapsibleRecipe } from './collapsible.recipe'
 import type { CollapsibleT } from './collapsible.types'
 
+// The height wrapper is implementation-only: it needs library styling for
+// measurement and presence, but is not a stable family styling responsibility.
+const COLLAPSIBLE_CONTENT_WRAPPER_CLASS =
+  'data-transition:h-(--mo-collapsible-content-height) data-transition:overflow-hidden data-transition:data-expanded:animate-accordion-down data-transition:data-closed:h-0 data-transition:data-closed:animate-accordion-up data-transition:motion-reduce:animate-none'
+
 /** Panel containing the expandable collapsible content. */
 export function CollapsibleContent<T extends ValidComponent = 'div'>(
   props: CollapsibleT.ContentProps<T>,
 ): JSX.Element {
-  const cn = useCn()
   const [local, rest] = splitProps(props, [
     'as',
     'children',
@@ -24,9 +27,6 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
     'ref' as any,
     'unmountOnHide',
     'forceMount',
-    'wrapperClass',
-    'wrapperStyle',
-    'wrapperRef',
   ])
   const context = useCollapsibleContext()
   const resolved = createStyles(collapsibleRecipe, local, {
@@ -54,10 +54,9 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
 
         return (
           <div
-            ref={(element) => {
+            ref={(element: HTMLElement) => {
               context.setContentElement(element)
               context.contentPresence.setElement(element)
-              callRef(local.wrapperRef, element)
             }}
             id={context.contentId()}
             aria-labelledby={context.triggerId()}
@@ -68,10 +67,8 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
             inert={closed() ? true : undefined}
             style={{
               '--mo-collapsible-content-height': `${context.contentHeight()}px`,
-              ...resolved.styles.contentWrapper.style,
-              ...local.wrapperStyle,
             }}
-            class={cn(resolved.styles.contentWrapper.class, local.wrapperClass)}
+            class={COLLAPSIBLE_CONTENT_WRAPPER_CLASS}
             {...context.dataAttrs()}
           >
             <Dynamic
@@ -79,7 +76,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
               {...rest}
               component={local.as ?? 'div'}
               {...resolved.styles.content}
-              ref={(el: HTMLElement) => callRef(local.ref, el)}
+              ref={(element: HTMLElement) => callRef(local.ref, element)}
             >
               {children()}
             </Dynamic>

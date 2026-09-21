@@ -36,7 +36,7 @@ export namespace ButtonGroupT {
   }
 
   /** Props for the ButtonGroup.Separator component. */
-  export type SeparatorProps = BaseProps<'div', SeparatorBase, SeparatorT.Variant, Classes, Styles>
+  export type SeparatorProps = BaseProps<'div', SeparatorBase, SeparatorT.Variant, never, never>
 
   /** Props for the ButtonGroup component. */
   export type Props = BaseProps<'div', Base, Variant, Classes, Styles>

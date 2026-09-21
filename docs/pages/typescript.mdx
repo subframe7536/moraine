@@ -154,7 +154,7 @@ On text inputs and textareas, native attributes target the inner editable elemen
 
 ### Headless Composite Roots (`Dialog`, `Sheet`, `Modal`)
 
-Some composite primitives (such as `Dialog`, `Sheet`, `Modal`, `ContextMenu`, and `DropdownMenu`) are state and context providers without a DOM root element of their own. Their root components accept only behavioral and state props (`open`, `onOpenChange`, `defaultOpen`). DOM attributes, classes, and styles belong on their respective `Trigger` and `Content` subcomponents.
+Some composite primitives (such as `Dialog`, `Sheet`, `Modal`, `Popover`, `Tooltip`, `ContextMenu`, `DropdownMenu`, and `BaseSelect`) are state and context providers without a DOM root element of their own. Their roots accept typed family `classes` and `styles` as instance defaults, but do not accept direct `class` or `style` because there is no root DOM element. DOM attributes and direct presentation belong on rendered parts. One-slot parts expose only `class` and `style`; multi-slot parts expose a scoped slot map containing only the slots they control.
 
 ## Polymorphic Rendering (`as` Prop)
 

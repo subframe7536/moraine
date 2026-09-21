@@ -33,6 +33,12 @@
         "description": "Composed trigger and content primitives."
       },
       {
+        "name": "classes",
+        "required": false,
+        "type": "ModalT.Classes | undefined",
+        "description": "Family slot class defaults for this Modal instance."
+      },
+      {
         "name": "defaultOpen",
         "required": false,
         "type": "boolean | undefined",
@@ -82,6 +88,12 @@
         "type": "boolean | undefined",
         "description": "Whether body scroll should be locked while the shell is present.",
         "defaultValue": "true"
+      },
+      {
+        "name": "styles",
+        "required": false,
+        "type": "ModalT.Styles | undefined",
+        "description": "Family slot style defaults for this Modal instance."
       }
     ],
     "inherited": []
@@ -130,11 +142,6 @@
             "description": "Class applied to the component root or trigger element."
           },
           {
-            "name": "classes",
-            "required": false,
-            "type": "ModalT.Classes | undefined"
-          },
-          {
             "name": "ref",
             "required": false,
             "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
@@ -143,11 +150,6 @@
             "name": "style",
             "required": false,
             "type": "SlotStyleValue | undefined"
-          },
-          {
-            "name": "styles",
-            "required": false,
-            "type": "ModalT.Styles | undefined"
           },
           {
             "name": "trapFocus",
@@ -185,11 +187,6 @@
             "description": "Class applied to the component root or trigger element."
           },
           {
-            "name": "classes",
-            "required": false,
-            "type": "ModalT.Classes | undefined"
-          },
-          {
             "name": "ref",
             "required": false,
             "type": "((element: HTMLDivElement | undefined) => void) | undefined",
@@ -205,11 +202,6 @@
             "name": "style",
             "required": false,
             "type": "SlotStyleValue | undefined"
-          },
-          {
-            "name": "styles",
-            "required": false,
-            "type": "ModalT.Styles | undefined"
           }
         ],
         "inherited": []

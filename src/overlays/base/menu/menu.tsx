@@ -431,7 +431,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
         <span data-slot="itemTrailing" {...resolveSlot('itemTrailing')}>
           <Show when={contentProps.hasChildren}>
-            <Icon name={props.submenuIcon} class={resolveSlot('itemSub').class} />
+            <Icon
+              name={props.submenuIcon}
+              data-slot="itemSubIndicator"
+              {...resolveSlot('itemSubIndicator')}
+            />
           </Show>
 
           <Show when={!contentProps.hasChildren}>

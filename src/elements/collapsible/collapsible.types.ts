@@ -48,15 +48,6 @@ export namespace CollapsibleT {
      */
     forceMount?: boolean
 
-    /** Additional class applied to the outer animated height wrapper. */
-    wrapperClass?: string
-
-    /** Additional style applied to the outer animated height wrapper. */
-    wrapperStyle?: JSX.CSSProperties
-
-    /** Ref callback for the outer animated height wrapper element. */
-    wrapperRef?: (element: HTMLDivElement) => void
-
     /** Content to render. */
     children?: JSX.Element
   }

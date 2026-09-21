@@ -23,7 +23,7 @@ import type { SheetT } from 'moraine'
 - **4 Edge Slide Directions**: Opens smoothly from `right` (inspector panel), `left` (mobile navigation), `bottom` (action sheet), or `top` (notification drawer).
 - **Focus Containment & Trapping**: Maintains keyboard Tab focus within the active drawer and restores focus upon dismissal.
 - **Scroll Lock & Backdrop Overlay**: Freezes background viewport scrolling and provides a dark backdrop.
-- **Structured Content Slots**: Predefined slots for `title`, `description`, `body`, `actions`, `footer`, and `close`.
+- **Structured Content Slots**: Predefined slots for `title`, `description`, `body`, `footer`, and `contentClose`.
 - **Dismissible & Outside Interaction Control**: Supports click-outside and Escape dismiss with prevention callbacks.
 
 ## Playground
@@ -85,7 +85,7 @@ import type { SheetT } from 'moraine'
 
 ## Anatomy
 
-`Sheet` owns state and context without adding a DOM element. `Sheet.Trigger` owns its attributes, events, ref, and styling; `Sheet.Content` owns the floating surface and presentation props. `Sheet.Close` closes the nearest root, and Content children fill the body unless an explicit `body` prop is provided.
+`Sheet` owns state and family presentation without adding a DOM element. Root `classes` and `styles` provide defaults for this Sheet instance. `Sheet.Trigger` owns its attributes, events, ref, and direct styling; `Sheet.Content` owns the floating surface and its scoped presentation props. Content children fill the body unless an explicit `body` prop is provided.
 
 Hierarchical slot and element structure:
 
@@ -94,12 +94,10 @@ Root (context only)
 ├── Trigger (button opening drawer)
 ├── overlay (dark backdrop screen)
 └── content (sliding drawer panel)
-    ├── header (top region)
-    │   ├── wrapper
-    │   │   ├── title (accessible drawer title)
-    │   │   └── description (subheading text)
-    │   ├── actions (optional custom toolbar buttons)
-    │   └── close (top-right close icon button)
+    ├── header (optional top region)
+    │   ├── title (accessible drawer title)
+    │   └── description (subheading text)
+    ├── contentClose (optional top-right close icon button)
     ├── body (scrollable main content area)
     └── footer (bottom actions / buttons)
 ```
@@ -108,11 +106,15 @@ Root (context only)
 - `overlay`: Backdrop element handling click-to-dismiss.
 - `content`: Sliding sheet element positioned along viewport edges.
 
+`Sheet.Close` is a behavior primitive with its own `class` and `style`; it has no Sheet family slot and does not receive the automatic corner-close recipe. With `close={true}`, `Sheet.Content` renders `contentClose` independently of a custom `header`. Put primary application actions in `footer`, or supply a specialized custom header when needed.
+
+Sheet and Dialog share structured slot names but retain separate recipes, Theme keys, and visual layouts.
+
 ## Usage
 
 ### Structured drawer
 
-Use `side` to choose the viewport edge, then compose title, description, body, actions, and footer through the provided regions. Sheet is the structured alternative to manually composing a Modal surface.
+Use `side` to choose the viewport edge, then compose title, description, body, and footer through the provided regions. Sheet is the structured alternative to manually composing a Modal surface.
 
 <Preview path="./drawer-usage" />
 

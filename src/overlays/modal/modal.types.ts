@@ -54,6 +54,12 @@ export namespace ModalT {
 
     /** Composed trigger and content primitives. */
     children?: JSX.Element
+
+    /** Family slot class defaults for this Modal instance. */
+    classes?: Classes
+
+    /** Family slot style defaults for this Modal instance. */
+    styles?: Styles
   }
 
   export type Slot<T = unknown> = ModalStyleSlot<T>
@@ -87,7 +93,7 @@ export namespace ModalT {
     children?: JSX.Element
   }
 
-  export type OverlayProps = BaseProps<'div', OverlayBase, Variant, Classes, Styles>
+  export type OverlayProps = BaseProps<'div', OverlayBase, Variant, never, never>
 
   export interface ContentBase {
     /** Component or element rendered inside the modal content surface. */
@@ -110,7 +116,7 @@ export namespace ModalT {
     trapFocus?: boolean
   }
 
-  export type ContentProps = BaseProps<'div', ContentBase, Variant, Classes, Styles>
+  export type ContentProps = BaseProps<'div', ContentBase, Variant, never, never>
   export type CloseProps<T extends ValidComponent = 'button'> = TriggerProps<T>
 }
 

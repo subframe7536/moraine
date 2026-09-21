@@ -24,15 +24,8 @@
       "ariaAttributes": []
     },
     {
-      "name": "contentWrapper",
-      "description": "Outer wrapper that measures and animates the content height.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
       "name": "content",
-      "description": "Inner region that renders the collapsible content.",
+      "description": "Public region containing the collapsible content.",
       "cssVariables": [],
       "dataAttributes": [],
       "ariaAttributes": []
@@ -227,24 +220,6 @@
             "type": "boolean | undefined",
             "description": "Whether to unmount content when closed.",
             "defaultValue": "true"
-          },
-          {
-            "name": "wrapperClass",
-            "required": false,
-            "type": "string | undefined",
-            "description": "Additional class applied to the outer animated height wrapper."
-          },
-          {
-            "name": "wrapperRef",
-            "required": false,
-            "type": "((element: HTMLDivElement) => void) | undefined",
-            "description": "Ref callback for the outer animated height wrapper element."
-          },
-          {
-            "name": "wrapperStyle",
-            "required": false,
-            "type": "JSX.CSSProperties | undefined",
-            "description": "Additional style applied to the outer animated height wrapper."
           }
         ],
         "inherited": []

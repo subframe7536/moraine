@@ -16,6 +16,8 @@ export namespace PopoverT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type ContentClasses = Pick<Classes, 'content' | 'body'>
+  export type ContentStyles = Pick<Styles, 'content' | 'body'>
   export interface Item {}
 
   /**
@@ -62,6 +64,12 @@ export namespace PopoverT {
 
     /** Composed trigger and content primitives. */
     children?: JSX.Element
+
+    /** Family slot class defaults for this Popover instance. */
+    classes?: Classes
+
+    /** Family slot style defaults for this Popover instance. */
+    styles?: Styles
   }
   export interface ContentBase {
     /**
@@ -80,7 +88,7 @@ export namespace PopoverT {
    */
   export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
   export type CloseProps<T extends ValidComponent = 'button'> = ModalT.CloseProps<T>
-  export type ContentProps = BaseProps<'div', ContentBase, Variant, Classes, Styles>
+  export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
   export type Props = Base
 }
 

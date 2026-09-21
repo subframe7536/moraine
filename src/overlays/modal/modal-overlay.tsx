@@ -17,19 +17,14 @@ export const [ModalOverlayProvider, useModalOverlayContext] = createContextProvi
 
 /** Backdrop layer for modal dialogs. */
 export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    'class',
-    'style',
-    'classes',
-    'styles',
-    'ref',
-    'children',
-    'scrollable',
-  ])
+  const [local, rest] = splitProps(props, ['class', 'style', 'ref', 'children', 'scrollable'])
 
   const context = useModalContext()
   const presence = context.presence
-  const resolved = createStyles(modalRecipe, local, { rootSlot: 'overlay' })
+  const resolved = createStyles(modalRecipe, local, {
+    rootSlot: 'overlay',
+    inheritedStyles: () => context.presentation,
+  })
 
   return (
     <Show when={presence.present()}>

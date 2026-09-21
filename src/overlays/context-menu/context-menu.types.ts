@@ -25,6 +25,8 @@ export namespace ContextMenuT {
 
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
+  export type ContentClasses = Omit<Classes, 'trigger'>
+  export type ContentStyles = Omit<Styles, 'trigger'>
   export interface Item extends OverlayMenuSharedItem<Item> {}
   export type ItemRenderProps = OverlayMenuSharedItemRenderProps<Item>
 
@@ -45,6 +47,10 @@ export namespace ContextMenuT {
     | 'overflowPadding'
   > {
     children?: JSX.Element
+    /** Family slot class defaults for this ContextMenu instance. */
+    classes?: Classes
+    /** Family slot style defaults for this ContextMenu instance. */
+    styles?: Styles
   }
   export interface ContentBase extends Omit<
     OverlayMenuRootProps<Item>,
@@ -67,7 +73,7 @@ export namespace ContextMenuT {
     never,
     'div'
   >
-  export type ContentProps = BaseProps<'div', ContentBase, Variant, Classes, Styles>
+  export type ContentProps = BaseProps<'div', ContentBase, Variant, ContentClasses, ContentStyles>
   export type Props = Base
 }
 

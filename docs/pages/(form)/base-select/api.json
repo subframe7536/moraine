@@ -107,7 +107,7 @@
         "name": "classes",
         "required": false,
         "type": "BaseSelectT.Classes | undefined",
-        "description": "Classes for popup parts."
+        "description": "Family slot class defaults for this BaseSelect instance."
       },
       {
         "name": "closeOnSelect",
@@ -234,7 +234,7 @@
         "name": "styles",
         "required": false,
         "type": "BaseSelectT.Styles | undefined",
-        "description": "Styles for popup parts."
+        "description": "Family slot style defaults for this BaseSelect instance."
       },
       {
         "name": "value",

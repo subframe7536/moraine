@@ -93,7 +93,7 @@ describe('Dialog SSR Hydration', () => {
     expect(document.body.querySelector('[data-testid="server-header"]')).not.toBeNull()
     expect(document.body.querySelector('[data-testid="server-body"]')).not.toBeNull()
     expect(document.body.querySelector('[data-testid="server-footer"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-testid="server-close-icon"]')).toBeNull()
+    expect(document.body.querySelector('[data-testid="server-close-icon"]')).not.toBeNull()
 
     fireEvent.keyDown(content, { key: 'Escape' })
     await finishExitMotion()
@@ -110,7 +110,7 @@ describe('Dialog SSR Hydration', () => {
     expectAriaReferencesToResolve(defaultContent)
     expect(document.body.querySelector('[data-testid="default-close-icon"]')).not.toBeNull()
 
-    fireEvent.click(document.body.querySelector('[data-slot="close"]')!)
+    fireEvent.click(document.body.querySelector('[data-slot="contentClose"]')!)
     await finishExitMotion()
     await waitFor(() => {
       expect(document.body.querySelector('[data-slot="content"]')).toBeNull()

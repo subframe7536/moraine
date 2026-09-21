@@ -104,6 +104,9 @@ interface HandlePart {
   content: () => ResizableT.HandleBase['children']
 }
 
+// Resizable is intentionally a centralized descriptor-rendering composite: its parts describe
+// layout entries and the root owns the coordinated DOM. Direct part class/style values are still
+// applied as the final instance overrides when that DOM is rendered.
 type ResizablePart = PanelPart | HandlePart
 
 function isResizablePart(value: unknown): value is ResizablePart {

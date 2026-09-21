@@ -159,6 +159,9 @@ function createDropdownMenu(props: DropdownMenuProps) {
   }
 
   return {
+    get presentation() {
+      return { classes: props.classes, styles: props.styles }
+    },
     triggerProps,
     triggerElement: trigger.element,
     menuProps: {
@@ -210,7 +213,10 @@ function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
   const [local, rest] = splitProps(props, ['as', 'children', 'class', 'style'])
   const context = useDropdownMenuContext()
 
-  const resolved = createStyles(dropdownMenuRecipe, local, { rootSlot: 'trigger' })
+  const resolved = createStyles(dropdownMenuRecipe, local, {
+    rootSlot: 'trigger',
+    inheritedStyles: () => context.presentation,
+  })
   const binding = mergeMenuTriggerProps(rest, context.triggerProps)
   const children = resolveChildren(() => local.children)
   onMount(() => validateOverlayTrigger(context.triggerElement(), 'DropdownMenu'))
@@ -248,7 +254,10 @@ function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Element {
 
     local,
   )
-  const resolved = createStyles(dropdownMenuRecipe, local, { rootSlot: 'content' })
+  const resolved = createStyles(dropdownMenuRecipe, local, {
+    rootSlot: 'content',
+    inheritedStyles: () => context.presentation,
+  })
   return (
     <OverlayMenu<DropdownMenuT.Item>
       {...context.menuProps}
