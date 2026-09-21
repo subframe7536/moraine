@@ -146,16 +146,21 @@ describe('llms.txt generation', () => {
               ],
               runtime: [
                 {
-                  target: 'root',
+                  name: 'root',
+                  slot: 'root',
+                  selector: '[data-slot="root"]',
+                  element: 'button',
                   attributes: [
                     {
                       name: 'aria-label',
                       kind: 'aria',
+                      value: { kind: 'dynamic' },
                       description: 'Accessible label.',
                     },
                   ],
                 },
               ],
+              cssVariables: [],
             },
           ],
         }),
@@ -183,9 +188,10 @@ describe('llms.txt generation', () => {
       expect(button).toContain('| variant | "default" \\| "outline" | — | Visual variant. |')
       expect(button).toContain('### Slots')
       expect(button).toContain('- `root`')
-      expect(button).toContain('### Runtime Attributes')
-      expect(button).toContain('##### Target: `root`')
-      expect(button).toContain('| aria-label | aria | — | Accessible label. |')
+      expect(button).toContain('### Anatomy')
+      expect(button).toContain('| root | [data-slot="root"] | button | — |')
+      expect(button).toContain('### Accessibility')
+      expect(button).toContain('| aria-label | root | Dynamic | Accessible label. |')
       expect(button).toMatch(/^---\ntitle: Button\ndescription: Button page description\./)
       expect(button).toContain('\n---\n\n# Button\n')
       expect(button).toContain('## Examples')

@@ -14,7 +14,11 @@ import type { Plugin } from 'vite'
 
 import { loadComponentApiDoc, loadApiDocIndex } from './api-doc/load'
 import { createApiReferenceModel } from './api-doc/presentation'
-import type { PresentationPropItem, PresentationRuntimeAttributeItem } from './api-doc/presentation'
+import type {
+  PresentationPartSection,
+  PresentationPropItem,
+  PresentationRuntimeAttributeItem,
+} from './api-doc/presentation'
 import type { ComponentApi } from './api-doc/types'
 import { resolveDocsPageContext } from './core/paths'
 import { readFrontmatterData } from './markdown/frontmatter'
@@ -163,17 +167,58 @@ function renderPropTable(props: readonly PresentationPropItem[], nameColumn = 'P
   return renderTable(rows, [nameColumn, 'Type', 'Default', 'Description'])
 }
 
-function renderRuntimeAttributeTable(
-  attributes: readonly PresentationRuntimeAttributeItem[],
-  nameColumn = 'Attribute',
-) {
+function renderRuntimeAttributeTable(attributes: readonly PresentationRuntimeAttributeItem[]) {
   const rows = attributes.map((attribute) => [
     attribute.name,
-    attribute.kind,
-    attribute.values?.join(', ') || '—',
+    attribute.targets.join(', '),
+    attribute.value,
     attribute.description || '—',
   ])
-  return renderTable(rows, [nameColumn, 'Kind', 'Values', 'Description'])
+  return renderTable(rows, ['Attribute', 'Target', 'Value', 'Description'])
+}
+
+function renderDomStyling(part: PresentationPartSection): string[] {
+  const output: string[] = []
+  output.push('### Anatomy', '')
+  if (!part.rendersDom) {
+    output.push('This part does not render DOM.', '')
+  } else if (part.anatomy?.length) {
+    output.push(
+      renderTable(
+        part.anatomy.map((target) => [
+          target.name,
+          target.selector ?? '—',
+          target.element ?? '—',
+          target.description ?? target.condition ?? '—',
+        ]),
+        ['Target', 'Selector', 'Element', 'Purpose'],
+      ),
+      '',
+    )
+  }
+
+  if (part.dataAttributes?.length) {
+    output.push('### Data attributes', '', renderRuntimeAttributeTable(part.dataAttributes), '')
+  }
+  if (part.accessibility?.length) {
+    output.push('### Accessibility', '', renderRuntimeAttributeTable(part.accessibility), '')
+  }
+  if (part.cssVariables?.length) {
+    output.push(
+      '### CSS variables',
+      '',
+      renderTable(
+        part.cssVariables.map((variable) => [
+          variable.name,
+          variable.target,
+          variable.description ?? '—',
+        ]),
+        ['Variable', 'Target', 'Description'],
+      ),
+      '',
+    )
+  }
+  return output
 }
 
 function renderApiReference(apiDoc: ComponentApi): string {
@@ -188,26 +233,14 @@ function renderApiReference(apiDoc: ComponentApi): string {
   if (model.kind === 'single') {
     const rootPart = model.parts[0]
     if (rootPart) {
+      output.push(...renderDomStyling(rootPart))
+
       if (rootPart.slots && rootPart.slots.length > 0) {
         output.push('### Slots', '')
         for (const slot of rootPart.slots) {
           output.push(`- \`${slot.name}\`${slot.description ? `: ${slot.description}` : ''}`)
         }
         output.push('')
-      }
-
-      if (rootPart.runtime && rootPart.runtime.length > 0) {
-        output.push('### Runtime Attributes', '')
-        for (const target of rootPart.runtime) {
-          if (target.attributes.length > 0) {
-            output.push(
-              `##### Target: \`${target.target}\``,
-              '',
-              renderRuntimeAttributeTable(target.attributes),
-              '',
-            )
-          }
-        }
       }
 
       if (rootPart.propGroups.length > 0) {
@@ -227,6 +260,10 @@ function renderApiReference(apiDoc: ComponentApi): string {
         output.push(part.description, '')
       }
 
+      output.push(
+        ...renderDomStyling(part).map((line) => (line.startsWith('### ') ? `#${line}` : line)),
+      )
+
       for (const group of part.propGroups) {
         output.push(`**${group.heading}**`, '', renderPropTable(group.props), '')
       }
@@ -237,20 +274,6 @@ function renderApiReference(apiDoc: ComponentApi): string {
           output.push(`- \`${slot.name}\`${slot.description ? `: ${slot.description}` : ''}`)
         }
         output.push('')
-      }
-
-      if (part.runtime && part.runtime.length > 0) {
-        output.push('#### Runtime Attributes', '')
-        for (const target of part.runtime) {
-          if (target.attributes.length > 0) {
-            output.push(
-              `##### Target: \`${target.target}\``,
-              '',
-              renderRuntimeAttributeTable(target.attributes),
-              '',
-            )
-          }
-        }
       }
     }
   }

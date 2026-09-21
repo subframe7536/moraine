@@ -25,6 +25,7 @@ test('shows the generated kind in the header and updates it with page metadata',
         props: [],
         slots: [],
         runtime: [],
+        cssVariables: [],
       },
     ],
   })

@@ -28,6 +28,7 @@ const BUTTON_API_DOC: ComponentApi = {
       ],
       slots: [],
       runtime: [],
+      cssVariables: [],
     },
   ],
 }

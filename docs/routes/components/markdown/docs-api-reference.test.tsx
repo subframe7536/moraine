@@ -1,11 +1,11 @@
-import { fireEvent, render } from '@solidjs/testing-library'
+import { render } from '@solidjs/testing-library'
 import { expect, test } from 'vitest'
 
 import type { ComponentApi } from '../../../build/api-doc/types.ts'
 
 import { DocsApiReference } from './docs-api-reference.tsx'
 
-test('shows the selected slot attribute tables', () => {
+test('shows anatomy and separates data from accessibility metadata', () => {
   const apiDoc: ComponentApi = {
     key: 'example',
     name: 'Example',
@@ -22,33 +22,39 @@ test('shows the selected slot attribute tables', () => {
         slots: [{ name: 'root' }, { name: 'track' }],
         runtime: [
           {
-            target: 'track',
+            name: 'track',
+            slot: 'track',
+            selector: '[data-slot="track"]',
+            element: 'div',
             attributes: [
               {
                 name: 'data-checked',
                 kind: 'data',
-                values: ['true', 'false'],
+                value: { kind: 'presence' },
                 description: 'Present when checked.',
               },
               {
                 name: 'aria-checked',
                 kind: 'aria',
+                value: { kind: 'boolean' },
                 description: 'Exposes the checked state.',
               },
             ],
           },
         ],
+        cssVariables: [],
       },
     ],
   }
   const view = render(() => <DocsApiReference apiDoc={apiDoc} />)
 
-  fireEvent.click(view.getByText('track').closest('button')!)
-
   expect(view.getByRole('heading', { name: 'Data Attributes' })).toBeTruthy()
-  expect(view.getByRole('heading', { name: 'ARIA Attributes' })).toBeTruthy()
+  expect(view.getByRole('heading', { name: 'Accessibility' })).toBeTruthy()
+  expect(view.getByText('[data-slot="track"]')).toBeTruthy()
+  expect(view.getByText('Presence')).toBeTruthy()
   expect(view.getByText('data-checked')).toBeTruthy()
   expect(view.getByText('aria-checked')).toBeTruthy()
+  expect(document.getElementById('dom-styling')).toBeTruthy()
   view.unmount()
 })
 
@@ -90,6 +96,7 @@ test('renders prop groups, required markers, and literal defaults (empty string,
         ],
         slots: [],
         runtime: [],
+        cssVariables: [],
       },
     ],
   }
@@ -99,12 +106,13 @@ test('renders prop groups, required markers, and literal defaults (empty string,
   // Verify section title is API (level 2) and Props (level 3)
   expect(view.getByRole('heading', { name: /^API/, level: 2 })).toBeTruthy()
   expect(view.getByRole('heading', { name: /^Props/, level: 3 })).toBeTruthy()
+  expect(document.getElementById('api-props')).toBeTruthy()
 
   // Verify group headings are internal headings (level 4), not section titles (level 3)
   expect(view.getByRole('heading', { name: /Styling/, level: 4 })).toBeTruthy()
   expect(view.getByRole('heading', { name: /Data/, level: 4 })).toBeTruthy()
   expect(view.getByRole('heading', { name: /Behavior/, level: 4 })).toBeTruthy()
-  expect(view.queryByRole('heading', { name: /Styling/, level: 3 })).toBeNull()
+  expect(view.queryByRole('heading', { name: /^Styling/, level: 3 })).toBeNull()
 
   // Verify required marker
   expect(view.getByText('variant*')).toBeTruthy()
@@ -143,6 +151,7 @@ test('renders composite components with part headings and access text', () => {
         ],
         slots: [],
         runtime: [],
+        cssVariables: [],
       },
       {
         id: 'dialog-trigger',
@@ -159,6 +168,7 @@ test('renders composite components with part headings and access text', () => {
         ],
         slots: [],
         runtime: [],
+        cssVariables: [],
       },
     ],
   }

@@ -1,4 +1,4 @@
-import type { ComponentApi, DefaultValue, PropApi } from './types'
+import type { ComponentApi, DefaultValue, PropApi, RuntimeAttributeValueApi } from './types'
 
 export interface PresentationPropItem {
   name: string
@@ -16,14 +16,26 @@ export interface PresentationSlotItem {
 
 export interface PresentationRuntimeAttributeItem {
   name: string
-  kind: 'data' | 'aria' | 'role' | 'css'
-  values?: string[]
+  kind: 'data' | 'aria' | 'role'
+  targets: string[]
+  value: string
   description?: string
 }
 
 export interface PresentationRuntimeTargetItem {
+  name: string
+  slot?: string
+  selector?: string
+  element?: string
+  description?: string
+  condition?: string
+}
+
+export interface PresentationCssVariableItem {
+  name: string
   target: string
-  attributes: PresentationRuntimeAttributeItem[]
+  description?: string
+  condition?: string
 }
 
 export interface PresentationPropGroupSection {
@@ -39,9 +51,13 @@ export interface PresentationPartSection {
   partName: string
   description?: string
   accessText?: string
+  rendersDom: boolean
   propGroups: PresentationPropGroupSection[]
   slots?: PresentationSlotItem[]
-  runtime?: PresentationRuntimeTargetItem[]
+  anatomy?: PresentationRuntimeTargetItem[]
+  dataAttributes?: PresentationRuntimeAttributeItem[]
+  accessibility?: PresentationRuntimeAttributeItem[]
+  cssVariables?: PresentationCssVariableItem[]
 }
 
 export interface PresentationItemSection {
@@ -101,6 +117,60 @@ const GROUP_ORDER: Array<{ group: string; label: string }> = [
   { group: 'styling', label: 'Styling' },
 ]
 
+export function formatRuntimeValue(value: RuntimeAttributeValueApi): string {
+  if (value.kind === 'presence') {
+    return 'Presence'
+  }
+  if (value.kind === 'literal') {
+    return value.value
+  }
+  if (value.kind === 'enum') {
+    return value.values.join(' | ')
+  }
+  if (value.kind === 'boolean') {
+    return 'boolean'
+  }
+  return 'Dynamic'
+}
+
+function groupRuntimeAttributes(
+  part: ComponentApi['parts'][number],
+  kind: 'data' | 'accessibility',
+): PresentationRuntimeAttributeItem[] {
+  const grouped = new Map<string, PresentationRuntimeAttributeItem>()
+  for (const target of part.runtime) {
+    for (const attribute of target.attributes) {
+      const matches =
+        kind === 'data'
+          ? attribute.kind === 'data'
+          : attribute.kind === 'aria' || attribute.kind === 'role'
+      if (!matches) {
+        continue
+      }
+      const value = formatRuntimeValue(attribute.value)
+      const key = `${attribute.kind}:${attribute.name}:${value}:${attribute.description ?? ''}`
+      const existing = grouped.get(key)
+      if (existing) {
+        existing.targets.push(target.name)
+      } else {
+        grouped.set(key, {
+          name: attribute.name,
+          kind: attribute.kind,
+          targets: [target.name],
+          value,
+          ...(attribute.description ? { description: attribute.description } : {}),
+        })
+      }
+    }
+  }
+  return [...grouped.values()].sort((left, right) => {
+    const nameOrder = left.name.localeCompare(right.name)
+    return nameOrder === 0
+      ? left.targets.join(',').localeCompare(right.targets.join(','))
+      : nameOrder
+  })
+}
+
 export function createApiReferenceModel(
   component: ComponentApi | undefined,
 ): ApiReferencePresentationModel | null {
@@ -146,18 +216,21 @@ export function createApiReferenceModel(
       return item
     })
 
-    const runtime: PresentationRuntimeTargetItem[] = (part.runtime ?? []).map((r) => ({
-      target: r.target,
-      attributes: r.attributes.map((a) => {
-        const attr: PresentationRuntimeAttributeItem = { name: a.name, kind: a.kind }
-        if (a.values) {
-          attr.values = a.values
-        }
-        if (a.description) {
-          attr.description = a.description
-        }
-        return attr
-      }),
+    const anatomy: PresentationRuntimeTargetItem[] = part.runtime.map((target) => ({
+      name: target.name,
+      ...(target.slot ? { slot: target.slot } : {}),
+      ...(target.selector ? { selector: target.selector } : {}),
+      ...(target.element ? { element: target.element } : {}),
+      ...(target.description ? { description: target.description } : {}),
+      ...(target.condition ? { condition: target.condition } : {}),
+    }))
+    const dataAttributes = groupRuntimeAttributes(part, 'data')
+    const accessibility = groupRuntimeAttributes(part, 'accessibility')
+    const cssVariables: PresentationCssVariableItem[] = part.cssVariables.map((variable) => ({
+      name: variable.name,
+      target: variable.target,
+      ...(variable.description ? { description: variable.description } : {}),
+      ...(variable.condition ? { condition: variable.condition } : {}),
     }))
 
     let accessText: string | undefined
@@ -175,9 +248,13 @@ export function createApiReferenceModel(
       partName: part.name,
       ...(part.description ? { description: part.description } : {}),
       ...(accessText ? { accessText } : {}),
+      rendersDom: part.rendering?.rendersDom !== false,
       propGroups,
       ...(slots.length > 0 ? { slots } : {}),
-      ...(runtime.length > 0 ? { runtime } : {}),
+      ...(anatomy.length > 0 ? { anatomy } : {}),
+      ...(dataAttributes.length > 0 ? { dataAttributes } : {}),
+      ...(accessibility.length > 0 ? { accessibility } : {}),
+      ...(cssVariables.length > 0 ? { cssVariables } : {}),
     })
   }
 
@@ -224,11 +301,12 @@ export function getApiReferenceTocEntries(component: ComponentApi | undefined): 
     if (rootPart) {
       if (
         (rootPart.slots && rootPart.slots.length > 0) ||
-        (rootPart.runtime && rootPart.runtime.length > 0)
+        (rootPart.anatomy && rootPart.anatomy.length > 0) ||
+        rootPart.rendersDom === false
       ) {
         entries.push({
-          id: 'attributes',
-          label: 'Attributes',
+          id: 'dom-styling',
+          label: 'DOM & Styling',
           level: 2,
         })
       }
