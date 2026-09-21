@@ -185,8 +185,40 @@ function renderApiReference(apiDoc: ComponentApi): string {
   const output = ['## API', '']
   output.push(`Composition: ${model.kind}`, '')
 
-  for (const part of model.parts) {
-    if (model.kind === 'composite') {
+  if (model.kind === 'single') {
+    const rootPart = model.parts[0]
+    if (rootPart) {
+      if (rootPart.slots && rootPart.slots.length > 0) {
+        output.push('### Slots', '')
+        for (const slot of rootPart.slots) {
+          output.push(`- \`${slot.name}\`${slot.description ? `: ${slot.description}` : ''}`)
+        }
+        output.push('')
+      }
+
+      if (rootPart.runtime && rootPart.runtime.length > 0) {
+        output.push('### Runtime Attributes', '')
+        for (const target of rootPart.runtime) {
+          if (target.attributes.length > 0) {
+            output.push(
+              `##### Target: \`${target.target}\``,
+              '',
+              renderRuntimeAttributeTable(target.attributes),
+              '',
+            )
+          }
+        }
+      }
+
+      if (rootPart.propGroups.length > 0) {
+        output.push('### Props', '')
+        for (const group of rootPart.propGroups) {
+          output.push(`**${group.heading}**`, '', renderPropTable(group.props), '')
+        }
+      }
+    }
+  } else {
+    for (const part of model.parts) {
       output.push(`### ${part.heading}`, '')
       if (part.accessText) {
         output.push(`\`${part.accessText}\``, '')
@@ -194,33 +226,30 @@ function renderApiReference(apiDoc: ComponentApi): string {
       if (part.description) {
         output.push(part.description, '')
       }
-    }
 
-    for (const group of part.propGroups) {
-      const headingLevel = model.kind === 'composite' ? '####' : '###'
-      output.push(`${headingLevel} ${group.heading}`, '', renderPropTable(group.props), '')
-    }
-
-    if (part.slots && part.slots.length > 0) {
-      const headingLevel = model.kind === 'composite' ? '####' : '###'
-      output.push(`${headingLevel} Slots`, '')
-      for (const slot of part.slots) {
-        output.push(`- \`${slot.name}\`${slot.description ? `: ${slot.description}` : ''}`)
+      for (const group of part.propGroups) {
+        output.push(`**${group.heading}**`, '', renderPropTable(group.props), '')
       }
-      output.push('')
-    }
 
-    if (part.runtime && part.runtime.length > 0) {
-      const headingLevel = model.kind === 'composite' ? '####' : '###'
-      output.push(`${headingLevel} Runtime Attributes`, '')
-      for (const target of part.runtime) {
-        if (target.attributes.length > 0) {
-          output.push(
-            `##### Target: \`${target.target}\``,
-            '',
-            renderRuntimeAttributeTable(target.attributes),
-            '',
-          )
+      if (part.slots && part.slots.length > 0) {
+        output.push('#### Slots', '')
+        for (const slot of part.slots) {
+          output.push(`- \`${slot.name}\`${slot.description ? `: ${slot.description}` : ''}`)
+        }
+        output.push('')
+      }
+
+      if (part.runtime && part.runtime.length > 0) {
+        output.push('#### Runtime Attributes', '')
+        for (const target of part.runtime) {
+          if (target.attributes.length > 0) {
+            output.push(
+              `##### Target: \`${target.target}\``,
+              '',
+              renderRuntimeAttributeTable(target.attributes),
+              '',
+            )
+          }
         }
       }
     }

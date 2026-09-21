@@ -90,7 +90,7 @@ describe('createDocsMdxOptions', () => {
       sections: [
         { id: 'button', label: 'Button', level: 1 },
         { id: 'api-reference', label: 'API', level: 1 },
-        { id: 'api-button-styling', label: 'Styling', level: 2 },
+        { id: 'api-props', label: 'Props', level: 2 },
       ],
     })
     expect(extension?.routeConfig?.metadata).toEqual({
@@ -134,7 +134,7 @@ describe('createDocsMdxOptions', () => {
       sections: [
         { id: 'usage', label: 'Usage', level: 1 },
         { id: 'api-reference', label: 'API', level: 1 },
-        { id: 'api-button-styling', label: 'Styling', level: 2 },
+        { id: 'api-props', label: 'Props', level: 2 },
       ],
     })
   })

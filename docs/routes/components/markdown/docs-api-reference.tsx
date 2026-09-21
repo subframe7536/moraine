@@ -184,21 +184,26 @@ export function createDocsApiReferenceModel(
   if (model.kind === 'single') {
     const rootPart = model.parts[0]
     if (rootPart) {
-      for (const group of rootPart.propGroups) {
-        sections.push({
-          id: group.id,
-          heading: group.heading,
-          props: group.props,
-        })
-      }
-
       const slots = buildSlotReferenceDocs(rootPart.slots, rootPart.runtime)
       if (slots.length > 0) {
         sections.push({
-          id: `api-${rootPart.id}-attributes`,
+          id: 'attributes',
           heading: 'Attributes',
           slots,
           props: [],
+        })
+      }
+
+      if (rootPart.propGroups.length > 0) {
+        sections.push({
+          id: 'api-props',
+          heading: 'Props',
+          props: rootPart.propGroups.flatMap((g) => g.props),
+          groups: rootPart.propGroups.map((g) => ({
+            id: g.id,
+            heading: g.heading,
+            props: g.props,
+          })),
         })
       }
     }
@@ -903,7 +908,7 @@ function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.El
               <For each={sectionProps.section.groups}>
                 {(group) => (
                   <div class="mt-4">
-                    <h4 class="text-xs text-foreground tracking-wider font-semibold mb-2 uppercase">
+                    <h4 class="text-xs text-foreground tracking-wider font-bold mb-2 uppercase">
                       {group.heading}
                     </h4>
                     <Show when={group.description}>
@@ -920,7 +925,7 @@ function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.El
             </Show>
             <Show when={sectionProps.section.slots?.length}>
               <div class="mt-6">
-                <h4 class="text-xs text-foreground tracking-wider font-semibold mb-2 uppercase">
+                <h4 class="text-xs text-foreground tracking-wider font-bold mb-2 uppercase">
                   Attributes
                 </h4>
                 <AttributesSection section={sectionProps.section} />

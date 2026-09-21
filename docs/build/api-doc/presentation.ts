@@ -222,20 +222,20 @@ export function getApiReferenceTocEntries(component: ComponentApi | undefined): 
     // Single component: root part
     const rootPart = model.parts[0]
     if (rootPart) {
-      for (const group of rootPart.propGroups) {
-        entries.push({
-          id: group.id,
-          label: group.heading,
-          level: 2,
-        })
-      }
       if (
         (rootPart.slots && rootPart.slots.length > 0) ||
         (rootPart.runtime && rootPart.runtime.length > 0)
       ) {
         entries.push({
-          id: `api-${rootPart.id}-attributes`,
+          id: 'attributes',
           label: 'Attributes',
+          level: 2,
+        })
+      }
+      if (rootPart.propGroups.length > 0) {
+        entries.push({
+          id: 'api-props',
+          label: 'Props',
           level: 2,
         })
       }

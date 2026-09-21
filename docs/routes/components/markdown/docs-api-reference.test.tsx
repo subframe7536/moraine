@@ -96,10 +96,15 @@ test('renders prop groups, required markers, and literal defaults (empty string,
 
   const view = render(() => <DocsApiReference apiDoc={apiDoc} />)
 
-  // Verify group headings
-  expect(view.getByRole('heading', { name: /Styling/ })).toBeTruthy()
-  expect(view.getByRole('heading', { name: /Data/ })).toBeTruthy()
-  expect(view.getByRole('heading', { name: /Behavior/ })).toBeTruthy()
+  // Verify section title is API (level 2) and Props (level 3)
+  expect(view.getByRole('heading', { name: /^API/, level: 2 })).toBeTruthy()
+  expect(view.getByRole('heading', { name: /^Props/, level: 3 })).toBeTruthy()
+
+  // Verify group headings are internal headings (level 4), not section titles (level 3)
+  expect(view.getByRole('heading', { name: /Styling/, level: 4 })).toBeTruthy()
+  expect(view.getByRole('heading', { name: /Data/, level: 4 })).toBeTruthy()
+  expect(view.getByRole('heading', { name: /Behavior/, level: 4 })).toBeTruthy()
+  expect(view.queryByRole('heading', { name: /Styling/, level: 3 })).toBeNull()
 
   // Verify required marker
   expect(view.getByText('variant*')).toBeTruthy()
@@ -108,6 +113,9 @@ test('renders prop groups, required markers, and literal defaults (empty string,
   expect(view.getByText('""')).toBeTruthy()
   expect(view.getByText('0')).toBeTruthy()
   expect(view.getByText('false')).toBeTruthy()
+
+  // Verify import statement is not rendered under Props for single component
+  expect(view.queryByText("import { Button } from 'moraine'")).toBeNull()
 
   view.unmount()
 })
