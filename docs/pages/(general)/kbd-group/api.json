@@ -106,7 +106,7 @@
           "name": "variant",
           "optional": true,
           "type": {
-            "text": "KbdStyleVariant['variant']"
+            "text": "'default' | 'outline' | 'invert'"
           },
           "description": "Visual style variant applied to rendered shortcut keys.",
           "group": "styling"

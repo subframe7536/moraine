@@ -84,7 +84,7 @@
           "name": "size",
           "optional": true,
           "type": {
-            "text": " | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'"
+            "text": "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'"
           },
           "description": "Visual size of the component.",
           "default": {

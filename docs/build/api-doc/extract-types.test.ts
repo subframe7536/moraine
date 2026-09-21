@@ -247,4 +247,55 @@ export namespace NeverT {
     expect(propNames).not.toContain('variant')
     expect(propNames).not.toContain('size')
   })
+
+  test('expands indexed access types in CheckboxGroup and Pagination', async () => {
+    const checkboxGroupModule = await extractor.loadModule(
+      'src/forms/checkbox-group/checkbox-group.types.ts',
+    )
+    expect(checkboxGroupModule).toBeDefined()
+
+    const cbPart = await extractor.extractPart(
+      checkboxGroupModule!,
+      'CheckboxGroupT',
+      'Props',
+      'CheckboxGroup',
+      true,
+    )
+    const cbItem = await extractor.extractItem(checkboxGroupModule!, 'CheckboxGroupT')
+
+    // Verify CheckboxGroup props have expanded types rather than CheckboxProps<...>['...']
+    const indicatorProp = cbPart.props.find((p) => p.name === 'indicator')
+    expect(indicatorProp?.type.text).toBe("'start' | 'end' | 'hidden'")
+
+    const checkedIconProp = cbPart.props.find((p) => p.name === 'checkedIcon')
+    expect(checkedIconProp?.type.text).toBe('IconT.Name')
+
+    const indeterminateIconProp = cbPart.props.find((p) => p.name === 'indeterminateIcon')
+    expect(indeterminateIconProp?.type.text).toBe('IconT.Name')
+
+    // Verify CheckboxGroup item props have expanded types
+    const itemCheckedIcon = cbItem?.props.find((p) => p.name === 'checkedIcon')
+    expect(itemCheckedIcon?.type.text).toBe('IconT.Name')
+
+    const itemIndeterminate = cbItem?.props.find((p) => p.name === 'indeterminate')
+    expect(itemIndeterminate?.type.text).toBe('boolean')
+
+    // Verify Pagination variants expanded from ButtonStyleVariant['variant']
+    const paginationModule = await extractor.loadModule(
+      'src/navigation/pagination/pagination.types.ts',
+    )
+    expect(paginationModule).toBeDefined()
+
+    const paginationPart = await extractor.extractPart(
+      paginationModule!,
+      'PaginationT',
+      'Props',
+      'Pagination',
+      true,
+    )
+    const variantProp = paginationPart.props.find((p) => p.name === 'variant')
+    expect(variantProp?.type.text).toBe(
+      "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+    )
+  })
 })

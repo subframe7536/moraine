@@ -229,7 +229,7 @@
           "name": "activeVariant",
           "optional": true,
           "type": {
-            "text": "ButtonStyleVariant['variant']"
+            "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
           },
           "description": "Visual variant for the active page button.",
           "default": {
@@ -260,7 +260,7 @@
           "name": "controlVariant",
           "optional": true,
           "type": {
-            "text": "ButtonStyleVariant['variant']"
+            "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
           },
           "description": "Visual variant for the previous/next control buttons.",
           "default": {
@@ -304,7 +304,7 @@
           "name": "variant",
           "optional": true,
           "type": {
-            "text": "ButtonStyleVariant['variant']"
+            "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
           },
           "description": "Visual variant for the page buttons.",
           "default": {

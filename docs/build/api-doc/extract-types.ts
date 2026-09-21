@@ -26,6 +26,7 @@ export interface ParsedModule {
 
 export class TypeExtractor {
   readonly #modules = new Map<string, ParsedModule>()
+  readonly #indexedAccessStack = new Set<string>()
   readonly projectRoot: string
 
   constructor(projectRoot: string) {
@@ -124,13 +125,17 @@ export class TypeExtractor {
     fromModule: ParsedModule,
     name: string,
     fromNamespace?: ESTree.TSModuleDeclaration,
-  ): Promise<{ module: ParsedModule; node: ESTree.Declaration } | null> {
+  ): Promise<{
+    module: ParsedModule
+    node: ESTree.Declaration
+    nsNode?: ESTree.TSModuleDeclaration
+  } | null> {
     // 1. Check inside current namespace if provided
     if (fromNamespace && fromNamespace.body?.type === 'TSModuleBlock') {
       for (const stmt of fromNamespace.body.body) {
         const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
         if (decl && 'id' in decl && (decl as any).id?.name === name) {
-          return { module: fromModule, node: decl as ESTree.Declaration }
+          return { module: fromModule, node: decl as ESTree.Declaration, nsNode: fromNamespace }
         }
       }
     }
@@ -145,7 +150,7 @@ export class TypeExtractor {
         for (const stmt of ns.node.body.body) {
           const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
           if (decl && 'id' in decl && (decl as any).id?.name === memberName) {
-            return { module: ns.module, node: decl as ESTree.Declaration }
+            return { module: ns.module, node: decl as ESTree.Declaration, nsNode: ns.node }
           }
         }
       }
@@ -489,9 +494,10 @@ export class TypeExtractor {
 
   async #handleBaseProps(
     module: ParsedModule,
-    nsNode: ESTree.TSModuleDeclaration,
+    nsNode: ESTree.TSModuleDeclaration | undefined,
     typeRef: ESTree.TSTypeReference,
     existingGenerics: GenericParameterApi[],
+    substitutions?: Map<string, string>,
   ): Promise<{
     props: PropApi[]
     rendering: RenderingApi
@@ -539,13 +545,23 @@ export class TypeExtractor {
 
     // 1. Resolve Base props
     if (baseNode) {
-      const baseProps = await this.#resolvePropertiesFromType(module, nsNode, baseNode)
+      const baseProps = await this.#resolvePropertiesFromType(
+        module,
+        nsNode,
+        baseNode,
+        substitutions,
+      )
       props.push(...baseProps)
     }
 
     // 2. Resolve Variant props
     if (variantNode && !(await this.#isNeverType(module, nsNode, variantNode))) {
-      const variantProps = await this.#resolvePropertiesFromType(module, nsNode, variantNode)
+      const variantProps = await this.#resolvePropertiesFromType(
+        module,
+        nsNode,
+        variantNode,
+        substitutions,
+      )
       for (const vp of variantProps) {
         vp.group = 'styling'
         const existingIdx = props.findIndex((p) => p.name === vp.name)
@@ -629,7 +645,7 @@ export class TypeExtractor {
 
   async #isNeverType(
     module: ParsedModule,
-    nsNode: ESTree.TSModuleDeclaration,
+    nsNode: ESTree.TSModuleDeclaration | undefined,
     node?: ESTree.TSType,
   ): Promise<boolean> {
     if (!node) {
@@ -643,7 +659,11 @@ export class TypeExtractor {
       if (name) {
         const sym = await this.resolveSymbol(module, name, nsNode)
         if (sym && sym.node.type === 'TSTypeAliasDeclaration') {
-          return this.#isNeverType(sym.module, nsNode, sym.node.typeAnnotation)
+          return this.#isNeverType(
+            sym.module,
+            sym.nsNode ?? (sym.module === module ? nsNode : undefined),
+            sym.node.typeAnnotation,
+          )
         }
       }
     }
@@ -652,90 +672,11 @@ export class TypeExtractor {
 
   async #resolvePropertiesFromType(
     module: ParsedModule,
-    nsNode: ESTree.TSModuleDeclaration,
+    nsNode: ESTree.TSModuleDeclaration | undefined,
     node: ESTree.TSType,
+    substitutions?: Map<string, string>,
   ): Promise<PropApi[]> {
-    if (node.type === 'TSTypeLiteral') {
-      return TypeExtractor.#extractPropertiesFromTypeLiteral(module.source, node)
-    }
-
-    if (node.type === 'TSIntersectionType') {
-      const result: PropApi[] = []
-      for (const t of node.types) {
-        const sub = await this.#resolvePropertiesFromType(module, nsNode, t)
-        result.push(...sub)
-      }
-      return result
-    }
-
-    if (node.type === 'TSTypeReference') {
-      const typeName = entityNameToText(node.typeName)
-      if (!typeName) {
-        return []
-      }
-
-      if (typeName === 'Omit' && node.typeArguments?.params.length === 2) {
-        const targetType = node.typeArguments.params[0]!
-        const omittedKeys = TypeExtractor.#extractStringLiteralUnion(node.typeArguments.params[1]!)
-        const targetProps = await this.#resolvePropertiesFromType(module, nsNode, targetType)
-        return targetProps.filter((p) => !omittedKeys.has(p.name))
-      }
-
-      if (typeName === 'Pick' && node.typeArguments?.params.length === 2) {
-        const targetType = node.typeArguments.params[0]!
-        const pickedKeys = TypeExtractor.#extractStringLiteralUnion(node.typeArguments.params[1]!)
-        const targetProps = await this.#resolvePropertiesFromType(module, nsNode, targetType)
-        return targetProps.filter((p) => pickedKeys.has(p.name))
-      }
-
-      if (
-        (typeName === 'Partial' || typeName === 'Required') &&
-        node.typeArguments?.params.length === 1
-      ) {
-        const targetType = node.typeArguments.params[0]!
-        const targetProps = await this.#resolvePropertiesFromType(module, nsNode, targetType)
-        return targetProps.map((p) => Object.assign({}, p, { optional: typeName === 'Partial' }))
-      }
-
-      const sym = await this.resolveSymbol(module, typeName, nsNode)
-      if (sym) {
-        let childSubstitutions: Map<string, string> | undefined
-        const declTypeParams =
-          (sym.node as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters
-            ?.params ?? []
-        const typeArgs = node.typeArguments?.params ?? []
-        if (declTypeParams.length > 0 && typeArgs.length > 0) {
-          childSubstitutions = new Map()
-          for (let i = 0; i < declTypeParams.length; i++) {
-            const param = declTypeParams[i]
-            const arg = typeArgs[i]
-            if (param && arg) {
-              const paramName =
-                typeof param.name === 'string'
-                  ? param.name
-                  : (((param.name as any)?.name as string | undefined) ?? '')
-              let formattedArg = TypeExtractor.#formatTypeText(module.source, arg)
-              const aliasSym = await this.resolveSymbol(module, formattedArg, nsNode)
-              if (aliasSym && aliasSym.node.type === 'TSTypeAliasDeclaration') {
-                formattedArg = TypeExtractor.#formatTypeText(
-                  aliasSym.module.source,
-                  aliasSym.node.typeAnnotation,
-                )
-              }
-              childSubstitutions.set(paramName, formattedArg)
-            }
-          }
-        }
-        return this.#resolvePropertiesFromDeclaration(
-          sym.module,
-          sym.node,
-          nsNode,
-          childSubstitutions,
-        )
-      }
-    }
-
-    return []
+    return this.#resolvePropertiesFromTypeNode(module, node, nsNode, substitutions)
   }
 
   async #resolvePropertiesFromDeclaration(
@@ -828,7 +769,7 @@ export class TypeExtractor {
                 const inherited = await this.#resolvePropertiesFromDeclaration(
                   sym.module,
                   sym.node,
-                  nsNode,
+                  sym.nsNode ?? (sym.module === module ? nsNode : undefined),
                   childSubstitutions,
                 )
                 for (const p of inherited) {
@@ -847,7 +788,7 @@ export class TypeExtractor {
 
       for (const member of decl.body.body) {
         if (member.type === 'TSPropertySignature') {
-          const prop = TypeExtractor.#convertPropertySignature(module.source, member, substitutions)
+          const prop = await this.#convertPropertySignature(module, member, nsNode, substitutions)
           if (prop) {
             const existingIdx = props.findIndex((p) => p.name === prop.name)
             if (existingIdx >= 0) {
@@ -862,7 +803,7 @@ export class TypeExtractor {
       const typeAnn = decl.typeAnnotation
       if (typeAnn.type === 'TSTypeLiteral') {
         props.push(
-          ...TypeExtractor.#extractPropertiesFromTypeLiteral(module.source, typeAnn, substitutions),
+          ...(await this.#extractPropertiesFromTypeLiteral(module, typeAnn, nsNode, substitutions)),
         )
       } else if (typeAnn.type === 'TSIntersectionType') {
         for (const t of typeAnn.types) {
@@ -887,7 +828,7 @@ export class TypeExtractor {
     substitutions?: Map<string, string>,
   ): Promise<PropApi[]> {
     if (node.type === 'TSTypeLiteral') {
-      return TypeExtractor.#extractPropertiesFromTypeLiteral(module.source, node, substitutions)
+      return this.#extractPropertiesFromTypeLiteral(module, node, nsNode, substitutions)
     }
     if (node.type === 'TSIntersectionType') {
       const res: PropApi[] = []
@@ -900,6 +841,10 @@ export class TypeExtractor {
       const name = entityNameToText(node.typeName)
       if (!name) {
         return []
+      }
+      if (name === 'BaseProps') {
+        const basePropsRes = await this.#handleBaseProps(module, nsNode, node, [], substitutions)
+        return basePropsRes.props
       }
       if (name === 'Omit' && node.typeArguments?.params.length === 2) {
         const target = node.typeArguments.params[0]!
@@ -923,6 +868,16 @@ export class TypeExtractor {
         )
         return targetProps.filter((p) => pickedKeys.has(p.name))
       }
+      if ((name === 'Partial' || name === 'Required') && node.typeArguments?.params.length === 1) {
+        const targetType = node.typeArguments.params[0]!
+        const targetProps = await this.#resolvePropertiesFromTypeNode(
+          module,
+          targetType,
+          nsNode,
+          substitutions,
+        )
+        return targetProps.map((p) => Object.assign({}, p, { optional: name === 'Partial' }))
+      }
 
       const sym = await this.resolveSymbol(module, name, nsNode)
       if (sym) {
@@ -931,29 +886,36 @@ export class TypeExtractor {
           (sym.node as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters
             ?.params ?? []
         const typeArgs = node.typeArguments?.params ?? []
-        if (declTypeParams.length > 0 && typeArgs.length > 0) {
+        if (declTypeParams.length > 0) {
           childSubstitutions = new Map(substitutions)
           for (let i = 0; i < declTypeParams.length; i++) {
             const param = declTypeParams[i]
             const arg = typeArgs[i]
-            if (param && arg) {
+            if (param) {
               const paramName =
                 typeof param.name === 'string'
                   ? param.name
                   : (((param.name as any)?.name as string | undefined) ?? '')
-              let formattedArg = TypeExtractor.#formatTypeText(module.source, arg)
-              if (substitutions && substitutions.has(formattedArg)) {
-                formattedArg = substitutions.get(formattedArg)!
-              } else {
-                const aliasSym = await this.resolveSymbol(module, formattedArg, nsNode)
-                if (aliasSym && aliasSym.node.type === 'TSTypeAliasDeclaration') {
-                  formattedArg = TypeExtractor.#formatTypeText(
-                    aliasSym.module.source,
-                    aliasSym.node.typeAnnotation,
-                  )
+              if (arg) {
+                let formattedArg = TypeExtractor.#formatTypeText(module.source, arg)
+                if (substitutions && substitutions.has(formattedArg)) {
+                  formattedArg = substitutions.get(formattedArg)!
+                } else {
+                  const aliasSym = await this.resolveSymbol(module, formattedArg, nsNode)
+                  if (aliasSym && aliasSym.node.type === 'TSTypeAliasDeclaration') {
+                    formattedArg = TypeExtractor.#formatTypeText(
+                      aliasSym.module.source,
+                      aliasSym.node.typeAnnotation,
+                    )
+                  }
                 }
+                childSubstitutions.set(paramName, formattedArg)
+              } else if (param.default) {
+                childSubstitutions.set(
+                  paramName,
+                  TypeExtractor.#formatTypeText(module.source, param.default),
+                )
               }
-              childSubstitutions.set(paramName, formattedArg)
             }
           }
         } else if (substitutions) {
@@ -962,7 +924,7 @@ export class TypeExtractor {
         return this.#resolvePropertiesFromDeclaration(
           sym.module,
           sym.node,
-          nsNode,
+          sym.nsNode ?? (sym.module === module ? nsNode : undefined),
           childSubstitutions,
         )
       }
@@ -970,15 +932,16 @@ export class TypeExtractor {
     return []
   }
 
-  static #extractPropertiesFromTypeLiteral(
-    source: ParsedSource,
+  async #extractPropertiesFromTypeLiteral(
+    module: ParsedModule,
     literal: ESTree.TSTypeLiteral,
+    nsNode?: ESTree.TSModuleDeclaration,
     substitutions?: Map<string, string>,
-  ): PropApi[] {
+  ): Promise<PropApi[]> {
     const props: PropApi[] = []
     for (const member of literal.members) {
       if (member.type === 'TSPropertySignature') {
-        const prop = TypeExtractor.#convertPropertySignature(source, member, substitutions)
+        const prop = await this.#convertPropertySignature(module, member, nsNode, substitutions)
         if (prop) {
           props.push(prop)
         }
@@ -987,11 +950,12 @@ export class TypeExtractor {
     return props
   }
 
-  static #convertPropertySignature(
-    source: ParsedSource,
+  async #convertPropertySignature(
+    module: ParsedModule,
     sig: ESTree.TSPropertySignature,
+    nsNode?: ESTree.TSModuleDeclaration,
     substitutions?: Map<string, string>,
-  ): PropApi | null {
+  ): Promise<PropApi | null> {
     const name = getIdentifierName(sig.key)
     if (!name) {
       return null
@@ -999,7 +963,12 @@ export class TypeExtractor {
 
     const optional = sig.optional === true
     let typeText = sig.typeAnnotation
-      ? TypeExtractor.#formatTypeText(source, sig.typeAnnotation.typeAnnotation)
+      ? await this.#resolveTypeText(
+          module,
+          sig.typeAnnotation.typeAnnotation,
+          nsNode,
+          substitutions,
+        )
       : 'unknown'
 
     if (substitutions && substitutions.size > 0) {
@@ -1008,7 +977,7 @@ export class TypeExtractor {
       }
     }
 
-    const jsdoc = getJsDoc(source, sig)
+    const jsdoc = getJsDoc(module.source, sig)
     const defaultValue =
       jsdoc.defaultValue !== undefined
         ? TypeExtractor.#parseDefaultValue(jsdoc.defaultValue)
@@ -1026,6 +995,104 @@ export class TypeExtractor {
       group,
       ...(traits.length > 0 ? { traits } : {}),
       ...(state ? { state } : {}),
+    }
+  }
+
+  async #resolveTypeText(
+    module: ParsedModule,
+    node: ESTree.TSType,
+    nsNode?: ESTree.TSModuleDeclaration,
+    substitutions?: Map<string, string>,
+  ): Promise<string> {
+    if (node.type === 'TSIndexedAccessType') {
+      const resolved = await this.#resolveIndexedAccessType(module, node, nsNode, substitutions)
+      if (resolved) {
+        return resolved
+      }
+    }
+
+    if (node.type === 'TSUnionType') {
+      const parts = await Promise.all(
+        node.types.map((t) => this.#resolveTypeText(module, t, nsNode, substitutions)),
+      )
+      return parts.join(' | ')
+    }
+
+    if (node.type === 'TSIntersectionType') {
+      const parts = await Promise.all(
+        node.types.map((t) => this.#resolveTypeText(module, t, nsNode, substitutions)),
+      )
+      return parts.join(' & ')
+    }
+
+    if (node.type === 'TSArrayType') {
+      const inner = await this.#resolveTypeText(module, node.elementType, nsNode, substitutions)
+      return `${inner}[]`
+    }
+
+    if (node.type === 'TSParenthesizedType') {
+      const inner = await this.#resolveTypeText(module, node.typeAnnotation, nsNode, substitutions)
+      return `(${inner})`
+    }
+
+    return TypeExtractor.#formatTypeText(module.source, node)
+  }
+
+  async #resolveIndexedAccessType(
+    module: ParsedModule,
+    node: ESTree.TSIndexedAccessType,
+    nsNode?: ESTree.TSModuleDeclaration,
+    substitutions?: Map<string, string>,
+  ): Promise<string | null> {
+    const rawKey = `${module.filePath}:${nodeText(module.source, node)}`
+    if (this.#indexedAccessStack.has(rawKey)) {
+      return null
+    }
+    this.#indexedAccessStack.add(rawKey)
+    try {
+      if (node.indexType.type === 'TSUnionType') {
+        const results: string[] = []
+        for (const t of node.indexType.types) {
+          const sub = await this.#resolveIndexedAccessType(
+            module,
+            { ...node, indexType: t },
+            nsNode,
+            substitutions,
+          )
+          if (sub) {
+            results.push(sub)
+          }
+        }
+        if (results.length > 0) {
+          return results.join(' | ')
+        }
+      }
+
+      let indexName: string | undefined
+      if (
+        node.indexType.type === 'TSLiteralType' &&
+        typeof (node.indexType.literal as { value?: unknown }).value === 'string'
+      ) {
+        indexName = (node.indexType.literal as { value: string }).value
+      }
+      if (!indexName) {
+        return null
+      }
+
+      const props = await this.#resolvePropertiesFromTypeNode(
+        module,
+        node.objectType,
+        nsNode,
+        substitutions,
+      )
+      const targetProp = props.find((p) => p.name === indexName)
+      if (targetProp) {
+        return targetProp.type.text
+      }
+
+      return null
+    } finally {
+      this.#indexedAccessStack.delete(rawKey)
     }
   }
 

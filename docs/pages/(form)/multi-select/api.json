@@ -273,7 +273,7 @@
           "name": "filterItem",
           "optional": true,
           "type": {
-            "text": " | boolean | 'startsWith' | 'endsWith' | 'contains' | ((query: string, item: TItem) => boolean)"
+            "text": "boolean | 'startsWith' | 'endsWith' | 'contains' | ((query: string, item: TItem) => boolean)"
           },
           "description": "Filtering strategy or predicate receiving the raw item.",
           "default": {

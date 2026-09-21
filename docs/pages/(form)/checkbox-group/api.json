@@ -58,7 +58,7 @@
           "name": "indicator",
           "optional": true,
           "type": {
-            "text": "CheckboxProps<TTrue, TFalse>['indicator']"
+            "text": "'start' | 'end' | 'hidden'"
           },
           "description": "Default indicator position for all items.",
           "group": "behavior"
@@ -120,7 +120,7 @@
           "name": "checkedIcon",
           "optional": true,
           "type": {
-            "text": "CheckboxProps<TTrue, TFalse>['checkedIcon']"
+            "text": "IconT.Name"
           },
           "description": "Default checked icon for all items.",
           "group": "rendering"
@@ -129,7 +129,7 @@
           "name": "indeterminateIcon",
           "optional": true,
           "type": {
-            "text": "CheckboxProps<TTrue, TFalse>['indeterminateIcon']"
+            "text": "IconT.Name"
           },
           "description": "Default indeterminate icon for all items.",
           "group": "rendering"
@@ -339,7 +339,7 @@
         "name": "checkedIcon",
         "optional": true,
         "type": {
-          "text": "CheckboxProps<TTrue, TFalse>['checkedIcon']"
+          "text": "IconT.Name"
         },
         "description": "Custom checked icon for this item."
       },
@@ -363,7 +363,7 @@
         "name": "indeterminate",
         "optional": true,
         "type": {
-          "text": "CheckboxProps<TTrue, TFalse>['indeterminate']"
+          "text": "boolean"
         },
         "description": "Whether the item is indeterminate."
       },
@@ -371,7 +371,7 @@
         "name": "indeterminateIcon",
         "optional": true,
         "type": {
-          "text": "CheckboxProps<TTrue, TFalse>['indeterminateIcon']"
+          "text": "IconT.Name"
         },
         "description": "Custom indeterminate icon for this item."
       },
