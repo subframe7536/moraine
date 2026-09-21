@@ -460,7 +460,7 @@ describe('Accordion', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
-  test('disabled state applies data-disabled to root and disabled item parts', () => {
+  test('disabled state stays on root, item, and trigger owners', () => {
     const rootDisabledScreen = render(() => (
       <Accordion items={BASE_ITEMS} disabled defaultValue={['one']} />
     ))
@@ -473,9 +473,9 @@ describe('Accordion', () => {
 
     expect(root?.getAttribute('data-disabled')).toBe('')
     expect(item?.getAttribute('data-disabled')).toBe('')
-    expect(header?.getAttribute('data-disabled')).toBe('')
+    expect(header?.hasAttribute('data-disabled')).toBe(false)
     expect(trigger.getAttribute('data-disabled')).toBe('')
-    expect(content.getAttribute('data-disabled')).toBe('')
+    expect(content.hasAttribute('data-disabled')).toBe(false)
 
     const itemDisabledScreen = render(() => (
       <Accordion
@@ -497,9 +497,9 @@ describe('Accordion', () => {
     const contentOne = itemDisabledScreen.getByRole('region', { name: 'One' })
 
     expect(itemNodes[0]?.getAttribute('data-disabled')).toBe('')
-    expect(headerNodes[0]?.getAttribute('data-disabled')).toBe('')
+    expect(headerNodes[0]?.hasAttribute('data-disabled')).toBe(false)
     expect(triggerOne.getAttribute('data-disabled')).toBe('')
-    expect(contentOne.getAttribute('data-disabled')).toBe('')
+    expect(contentOne.hasAttribute('data-disabled')).toBe(false)
     expect(itemNodes[1]?.hasAttribute('data-disabled')).toBe(false)
     expect(headerNodes[1]?.hasAttribute('data-disabled')).toBe(false)
     expect(triggerTwo.hasAttribute('data-disabled')).toBe(false)

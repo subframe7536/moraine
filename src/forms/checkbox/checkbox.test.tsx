@@ -63,13 +63,18 @@ describe('Checkbox', () => {
     ))
 
     const checkbox = screen.getByRole('checkbox', { name: 'Custom' })
+    const root = screen.container.querySelector('[data-slot="root"]')!
 
     expectCheckboxChecked(checkbox, true)
+    expect(root.getAttribute('data-checked')).toBe('')
+    expect(root.hasAttribute('data-unchecked')).toBe(false)
     expect(screen.getByTestId('checked-icon').textContent).toBe('C')
 
     fireEvent.click(checkbox)
 
     expectCheckboxChecked(checkbox, false)
+    expect(root.hasAttribute('data-checked')).toBe(false)
+    expect(root.getAttribute('data-unchecked')).toBe('')
   })
 
   test('toggles once from the native Space sequence and never from Enter', async () => {
@@ -205,6 +210,7 @@ describe('Checkbox', () => {
       <Checkbox
         checked="indeterminate"
         label="Select all"
+        description="Selection summary"
         checkedIcon={<span data-testid="checked-icon">C</span>}
         indeterminateIcon={<span data-testid="indeterminate-icon">I</span>}
       />
@@ -213,12 +219,18 @@ describe('Checkbox', () => {
     const checkbox = screen.getByRole('checkbox', { name: 'Select all' })
     const input = getHiddenCheckbox(screen.container)
     const control = screen.container.querySelector('[data-slot="control"]')
+    const root = screen.container.querySelector('[data-slot="root"]')
+    const indicator = screen.container.querySelector('[data-slot="indicator"]')
+    const description = screen.getByText('Selection summary')
 
     await waitFor(() => {
       expect(input.indeterminate).toBe(true)
       expect(input.checked).toBe(false)
       expectCheckboxChecked(checkbox, 'mixed')
       expect(control?.getAttribute('data-indeterminate')).not.toBeNull()
+      expect(root?.getAttribute('data-indeterminate')).toBe('')
+      expect(indicator?.getAttribute('data-indeterminate')).toBe('')
+      expect(description?.hasAttribute('data-indeterminate')).toBe(false)
       expect(screen.getByTestId('indeterminate-icon').textContent).toBe('I')
     })
   })

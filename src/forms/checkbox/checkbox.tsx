@@ -335,7 +335,19 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   }
 
   return (
-    <div data-slot="root" {...rest} {...resolved.styles.root} onClick={onRootClick}>
+    <div
+      {...rest}
+      data-slot="root"
+      data-checked={resolvedChecked() ? '' : undefined}
+      data-unchecked={!resolvedChecked() && !indeterminate() ? '' : undefined}
+      data-indeterminate={indeterminate() ? '' : undefined}
+      data-disabled={field.disabled() ? '' : undefined}
+      data-readonly={readOnly() ? '' : undefined}
+      data-required={field.required() ? '' : undefined}
+      data-invalid={field.invalid() ? '' : undefined}
+      {...resolved.styles.root}
+      onClick={onRootClick}
+    >
       <div data-slot="container" {...resolved.styles.container}>
         <HiddenInput
           ref={(element) => {
@@ -390,6 +402,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           onBlur={onControlBlur}
           {...checkboxAriaAttrs()}
           data-checked={resolvedChecked() ? '' : undefined}
+          data-unchecked={!resolvedChecked() && !indeterminate() ? '' : undefined}
           data-disabled={field.disabled() ? '' : undefined}
           data-indeterminate={indeterminate() ? '' : undefined}
           data-readonly={readOnly() ? '' : undefined}
@@ -402,8 +415,6 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
               data-checked={resolvedChecked() ? '' : undefined}
               data-disabled={field.disabled() ? '' : undefined}
               data-indeterminate={indeterminate() ? '' : undefined}
-              data-readonly={readOnly() ? '' : undefined}
-              data-required={field.required() ? '' : undefined}
             >
               <Icon name={activeIcon()} {...resolved.styles.icon} />
             </span>

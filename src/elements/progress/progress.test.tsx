@@ -200,31 +200,33 @@ describe('Progress', () => {
     expect(indicator.style.transform).toBe('translateX(-66.67%)')
   })
 
-  test('synchronizes loading, complete, and indeterminate data across rendered parts', () => {
+  test('keeps overall progress on root, animation state on indicator, and local step state', () => {
     const [value, setValue] = createSignal<number | null>(25)
     const screen = render(() => (
       <Progress value={value()} status max={['Waiting', 'Working', 'Done']} />
     ))
-    const allParts = () =>
-      screen.container.querySelectorAll(
-        '[data-slot="root"], [data-slot="status"], [data-slot="track"], [data-slot="indicator"], [data-slot="steps"], [data-slot="step"]',
-      )
+    const root = screen.container.querySelector('[data-slot="root"]')!
+    const indicator = screen.container.querySelector('[data-slot="indicator"]')!
+    const structuralParts = screen.container.querySelectorAll(
+      '[data-slot="status"], [data-slot="track"], [data-slot="steps"], [data-slot="step"]',
+    )
 
-    for (const part of allParts()) {
-      expect(part.getAttribute('data-progress')).toBe('complete')
+    expect(root.getAttribute('data-progress')).toBe('complete')
+    expect(indicator.getAttribute('data-progress')).toBe('complete')
+    for (const part of structuralParts) {
+      expect(part.hasAttribute('data-progress')).toBe(false)
       expect(part.hasAttribute('data-indeterminate')).toBe(false)
     }
 
     setValue(1)
-    for (const part of allParts()) {
-      expect(part.getAttribute('data-progress')).toBe('loading')
-    }
+    expect(root.getAttribute('data-progress')).toBe('loading')
+    expect(indicator.getAttribute('data-progress')).toBe('loading')
 
     setValue(null)
-    for (const part of allParts()) {
-      expect(part.hasAttribute('data-indeterminate')).toBe(true)
-      expect(part.hasAttribute('data-progress')).toBe(false)
-    }
+    expect(root.getAttribute('data-indeterminate')).toBe('')
+    expect(indicator.getAttribute('data-indeterminate')).toBe('')
+    expect(root.hasAttribute('data-progress')).toBe(false)
+    expect(indicator.hasAttribute('data-progress')).toBe(false)
   })
 
   test('preserves renderer instances while the normalized value updates', () => {

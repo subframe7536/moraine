@@ -263,8 +263,15 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
   return (
     <div
       ref={(element) => callRef(local.ref, element)}
-      data-slot="root"
       {...rest}
+      data-slot="root"
+      data-checked={checked() ? '' : undefined}
+      data-unchecked={!checked() ? '' : undefined}
+      data-disabled={field.disabled() ? '' : undefined}
+      data-readonly={readOnly() ? '' : undefined}
+      data-required={field.required() ? '' : undefined}
+      data-invalid={field.invalid() ? '' : undefined}
+      data-loading={merged.loading ? '' : undefined}
       {...resolved.styles.root}
       onClick={onRootClick}
     >
@@ -320,8 +327,8 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         <span
           data-slot="thumb"
           data-checked={checked() ? '' : undefined}
+          data-unchecked={!checked() ? '' : undefined}
           data-disabled={field.disabled() ? '' : undefined}
-          data-readonly={readOnly() ? '' : undefined}
           {...resolved.styles.thumb}
         >
           <Show when={resolvedIconName()} keyed>

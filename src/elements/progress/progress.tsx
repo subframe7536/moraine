@@ -159,6 +159,7 @@ export function Progress(props: ProgressProps): JSX.Element {
 
   return (
     <div
+      {...rest}
       role="progressbar"
       aria-valuemin={minValue}
       aria-valuemax={resolvedMax()}
@@ -166,7 +167,6 @@ export function Progress(props: ProgressProps): JSX.Element {
       aria-valuetext={valueText()}
       data-slot="root"
       {...dataAttrs()}
-      {...rest}
       {...resolved.styles.root}
     >
       <Show when={!isIndeterminate()}>
@@ -180,7 +180,6 @@ export function Progress(props: ProgressProps): JSX.Element {
                 data-slot="status"
                 class={resolved.styles.status.class}
                 style={{ ...statusStyle(), ...resolved.styles.status.style }}
-                {...dataAttrs()}
               >
                 <Show when={statusRender() !== undefined} fallback={`${percent() ?? 0}%`}>
                   {renderComponentOrElement(statusRender(), {
@@ -195,7 +194,7 @@ export function Progress(props: ProgressProps): JSX.Element {
         }}
       </Show>
 
-      <div data-slot="track" {...resolved.styles.track} {...dataAttrs()}>
+      <div data-slot="track" {...resolved.styles.track}>
         <div
           data-slot="indicator"
           class={resolved.styles.indicator.class}
@@ -209,15 +208,10 @@ export function Progress(props: ProgressProps): JSX.Element {
           const stepRender = createMemo(() => local.stepRender)
 
           return (
-            <div data-slot="steps" {...resolved.styles.steps} {...dataAttrs()}>
+            <div data-slot="steps" {...resolved.styles.steps}>
               <For each={steps()}>
                 {(step, index) => (
-                  <div
-                    data-slot="step"
-                    data-state={stepState(index())}
-                    {...resolved.styles.step}
-                    {...dataAttrs()}
-                  >
+                  <div data-slot="step" data-state={stepState(index())} {...resolved.styles.step}>
                     <Show when={stepRender() !== undefined} fallback={step}>
                       {renderComponentOrElement(stepRender(), {
                         get step() {

@@ -285,7 +285,16 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
   }
 
   return (
-    <div id={`${groupId()}-root`} data-slot="root" {...rest} {...resolved.styles.root}>
+    <div
+      {...rest}
+      id={`${groupId()}-root`}
+      data-slot="root"
+      data-disabled={field.disabled() ? '' : undefined}
+      data-readonly={merged.readOnly ? '' : undefined}
+      data-required={field.required() ? '' : undefined}
+      data-invalid={field.invalid() ? '' : undefined}
+      {...resolved.styles.root}
+    >
       <fieldset
         ref={(element) => {
           fieldsetEl = element

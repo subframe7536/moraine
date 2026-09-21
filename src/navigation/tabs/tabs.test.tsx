@@ -528,7 +528,7 @@ describe('Tabs', () => {
     fireEvent.keyDown(two, { key: 'Enter' })
     expect(two.getAttribute('aria-selected')).toBe('true')
     expect(two.getAttribute('tabindex')).toBe('0')
-    expect(two.getAttribute('data-highlighted')).toBe(null)
+    expect(two.getAttribute('data-highlighted')).toBe('')
     expect(three.getAttribute('tabindex')).toBe('-1')
   })
 

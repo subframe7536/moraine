@@ -466,6 +466,8 @@ function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
       data-readonly={state.field.readOnly() ? '' : undefined}
       data-required={state.field.required() ? '' : undefined}
       data-invalid={state.field.invalid() ? '' : undefined}
+      data-expanded={state.open() ? '' : undefined}
+      data-closed={state.open() ? undefined : ''}
       ref={(element) => {
         state.setAnchor(element)
         callRef(local.ref, element)
@@ -560,6 +562,9 @@ function BaseSelectTrigger<
       role="combobox"
       data-slot="trigger"
       data-invalid={state.field.invalid() ? '' : undefined}
+      data-expanded={state.open() ? '' : undefined}
+      data-closed={state.open() ? undefined : ''}
+      data-disabled={state.field.disabled() || local.disabled ? '' : undefined}
       aria-haspopup="listbox"
       aria-controls={state.listboxId()}
       aria-expanded={state.open() ? 'true' : 'false'}

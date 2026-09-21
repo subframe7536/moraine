@@ -106,6 +106,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
 
   return (
     <div
+      {...rest}
       ref={(element) => callRef(local.ref, element)}
       id={`${field.id()}-root`}
       role="group"
@@ -115,9 +116,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       data-invalid={field.invalid() ? '' : undefined}
       data-readonly={merged.readOnly ? '' : undefined}
       data-required={field.required() ? '' : undefined}
+      data-inverted={merged.inverted ? '' : undefined}
+      data-multiple={slider.currentValues().length > 1 ? '' : undefined}
       {...field.ariaAttrs()}
       {...resolved.styles.root}
-      {...rest}
     >
       <div
         ref={(element) => {
@@ -135,7 +137,6 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           data-slot="range"
           data-multiple={slider.currentValues().length > 1 ? '' : undefined}
           data-inverted={merged.inverted ? '' : undefined}
-          data-dragging={slider.dragging() ? '' : undefined}
           style={{
             left: slider.rangeStyle().left,
             right: slider.rangeStyle().right,

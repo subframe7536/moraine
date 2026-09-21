@@ -219,6 +219,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
   return (
     <div
+      {...rest}
       ref={(element) => {
         rootElement = element
         callRef(local.ref, element)
@@ -226,7 +227,6 @@ export function Accordion(props: AccordionProps): JSX.Element {
       id={rootId()}
       data-slot="root"
       data-disabled={merged.disabled ? '' : undefined}
-      {...rest}
       {...resolved.styles.root}
     >
       <For each={items()}>
@@ -376,7 +376,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
               style={resolved.styles.item.style}
               {...itemDataAttrs()}
             >
-              <h3 data-slot="header" {...resolved.styles.header} {...itemDataAttrs()}>
+              <h3 data-slot="header" {...resolved.styles.header}>
                 <button
                   ref={(element) => {
                     triggerElement = element
@@ -443,7 +443,8 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     '--mo-collapsible-content-height': `${contentHeight()}px`,
                     ...resolved.styles.content.style,
                   }}
-                  {...contentDataAttrs()}
+                  data-closed={contentDataAttrs()['data-closed']}
+                  data-expanded={contentDataAttrs()['data-expanded']}
                 >
                   {renderContent()}
                 </div>

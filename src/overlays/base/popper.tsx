@@ -189,6 +189,15 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
       get 'aria-expanded'() {
         return local.describeTrigger ? undefined : context.isOpen() ? 'true' : 'false'
       },
+      get 'data-closed'() {
+        return context.isOpen() ? undefined : ''
+      },
+      get 'data-disabled'() {
+        return disabled() ? '' : undefined
+      },
+      get 'data-expanded'() {
+        return context.isOpen() ? '' : undefined
+      },
       'data-slot': 'trigger',
     },
     interaction,

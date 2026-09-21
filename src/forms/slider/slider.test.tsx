@@ -1046,11 +1046,12 @@ describe('Slider', () => {
     expect(document.activeElement).not.toBe(thumb)
   })
 
-  test('sets data-dragging during active thumb drag', () => {
+  test('keeps dragging state on the root and active thumb', () => {
     const screen = render(() => <Slider defaultValue={20} variant="bold" />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
     const range = screen.container.querySelector('[data-slot="range"]') as HTMLElement
+    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
     mockPointerCapture(thumb)
     mockTrackRect(track)
 
@@ -1064,7 +1065,9 @@ describe('Slider', () => {
       clientY: 0,
     })
 
-    expect(range.getAttribute('data-dragging')).toBe('')
+    expect(root.getAttribute('data-dragging')).toBe('')
+    expect(thumb.getAttribute('data-dragging')).toBe('')
+    expect(range.getAttribute('data-dragging')).toBeNull()
 
     fireEvent.pointerUp(thumb, {
       pointerId: 1,
@@ -1074,6 +1077,8 @@ describe('Slider', () => {
 
     expect(track.getAttribute('data-dragging')).toBeNull()
     expect(range.getAttribute('data-dragging')).toBeNull()
+    expect(root.getAttribute('data-dragging')).toBeNull()
+    expect(thumb.getAttribute('data-dragging')).toBeNull()
   })
 
   describe('commit semantics', () => {

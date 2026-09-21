@@ -648,6 +648,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
 
   return (
     <Dynamic
+      {...rest}
       role="group"
       aria-labelledby={field.ariaAttrs()['aria-labelledby'] ?? (label() ? labelId() : undefined)}
       aria-label={field.ariaAttrs()['aria-labelledby'] || label() ? undefined : 'File upload'}
@@ -655,7 +656,8 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       data-slot="root"
       data-disabled={field.disabled() ? '' : undefined}
       data-readonly={readOnly() ? '' : undefined}
-      {...rest}
+      data-required={field.required() ? '' : undefined}
+      data-invalid={invalid() ? '' : undefined}
       id={`${field.id()}-root`}
       component={local.as ?? 'div'}
       {...resolved.styles.root}

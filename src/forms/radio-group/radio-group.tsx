@@ -379,7 +379,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               component={variant() === 'list' ? 'div' : 'label'}
               id={item.id}
               data-slot="item"
-              data-checked={variant() === 'list' ? undefined : selected() ? '' : undefined}
+              data-checked={selected() ? '' : undefined}
               data-disabled={disabled() ? '' : undefined}
               {...resolved.styles.item}
             >
@@ -439,10 +439,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                       data-slot="indicator"
                       {...resolved.styles.indicator}
                       data-checked={selected() ? '' : undefined}
-                      data-invalid={field.invalid() ? '' : undefined}
-                      data-disabled={disabled() ? '' : undefined}
-                      data-readonly={readOnly() ? '' : undefined}
-                      data-required={field.required() ? '' : undefined}
                     />
                   </Show>
                 </div>

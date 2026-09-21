@@ -276,7 +276,13 @@ export function Tabs(props: TabsProps): JSX.Element {
   )
 
   return (
-    <div id={rootId()} data-slot="root" {...resolved.styles.root} {...rest}>
+    <div
+      {...rest}
+      id={rootId()}
+      data-slot="root"
+      data-disabled={merged.disabled ? '' : undefined}
+      {...resolved.styles.root}
+    >
       <div
         ref={(e) => (listRef = e)}
         role="tablist"
@@ -323,7 +329,8 @@ export function Tabs(props: TabsProps): JSX.Element {
                 aria-controls={selected() ? getContentId(item.instanceKey) : undefined}
                 aria-selected={selected()}
                 data-selected={selected() ? '' : undefined}
-                data-highlighted={highlighted() && !selected() ? '' : undefined}
+                data-highlighted={highlighted() ? '' : undefined}
+                data-disabled={merged.disabled || item.disabled ? '' : undefined}
                 disabled={Boolean(merged.disabled || item.disabled)}
                 data-slot="trigger"
                 {...resolved.styles.trigger}
