@@ -215,17 +215,33 @@ export function validateComponentApi(component: ComponentApi): ValidationIssue[]
       seenSlotNames.add(slot.name)
     }
 
-    // Validate runtime targets do not expose internal DOM
-    const FORBIDDEN_TARGETS = new Set(['wrapper', 'contentWrapper', 'positioner', 'portal'])
+    const seenRuntimeTargets = new Set<string>()
     for (const rt of part.runtime) {
-      if (FORBIDDEN_TARGETS.has(rt.target)) {
+      if (seenRuntimeTargets.has(rt.name)) {
         issues.push({
           severity: 'error',
           componentKey: key,
           partId: part.id,
-          message: `Runtime target exposes forbidden internal DOM target "${rt.target}".`,
+          message: `Duplicate runtime target "${rt.name}".`,
         })
       }
+      seenRuntimeTargets.add(rt.name)
+    }
+
+    if (part.rendering?.rendersDom === false && part.runtime.length > 0) {
+      issues.push({
+        severity: 'error',
+        componentKey: key,
+        partId: part.id,
+        message: 'Context-only part must not publish DOM targets.',
+      })
+    } else if (part.rendering?.rendersDom !== false && part.runtime.length === 0) {
+      issues.push({
+        severity: 'error',
+        componentKey: key,
+        partId: part.id,
+        message: 'DOM-rendering part must publish at least one public DOM target.',
+      })
     }
   }
 

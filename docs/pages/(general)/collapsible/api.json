@@ -176,7 +176,146 @@
           "description": "Interactive element that toggles the content."
         }
       ],
-      "runtime": []
+      "runtime": [
+        {
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "div",
+          "attributes": []
+        }
+      ],
+      "cssVariables": []
+    },
+    {
+      "id": "collapsible-trigger",
+      "name": "Collapsible.Trigger",
+      "access": {
+        "kind": "attached",
+        "root": "Collapsible",
+        "member": "Trigger"
+      },
+      "sourcePath": "src/elements/collapsible/collapsible-trigger.tsx",
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      ],
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "button",
+        "asProp": "as",
+        "polymorphic": {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      },
+      "props": [
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether this trigger is disabled.",
+          "group": "behavior"
+        },
+        {
+          "name": "as",
+          "optional": true,
+          "type": {
+            "text": "T"
+          },
+          "description": "Element or component to render as.",
+          "group": "rendering",
+          "default": {
+            "kind": "literal",
+            "value": "button"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Trigger label and visual content.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "name": "trigger",
+          "slot": "trigger",
+          "selector": "[data-slot=\"trigger\"]",
+          "element": "button",
+          "attributes": [
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when disclosure or transition content is closed."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the panel, accordion, or menu is expanded."
+            }
+          ]
+        }
+      ],
+      "cssVariables": []
     },
     {
       "id": "collapsible-content",
@@ -186,7 +325,7 @@
         "root": "Collapsible",
         "member": "Content"
       },
-      "sourcePath": "src/elements/collapsible/collapsible.tsx",
+      "sourcePath": "src/elements/collapsible/collapsible-content.tsx",
       "generics": [
         {
           "name": "T",
@@ -273,87 +412,73 @@
         }
       ],
       "slots": [],
-      "runtime": []
-    },
-    {
-      "id": "collapsible-trigger",
-      "name": "Collapsible.Trigger",
-      "access": {
-        "kind": "attached",
-        "root": "Collapsible",
-        "member": "Trigger"
-      },
-      "sourcePath": "src/elements/collapsible/collapsible.tsx",
-      "generics": [
+      "runtime": [
         {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
+          "name": "content",
+          "slot": "content",
+          "selector": "[data-slot=\"content-wrapper\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when disclosure or transition content is closed."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the panel, accordion, or menu is expanded."
+            },
+            {
+              "name": "data-transition",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present while a target participates in a visibility transition."
+            }
+          ]
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
+      "cssVariables": [
+        {
+          "name": "--mo-collapsible-content-height",
+          "target": "content",
+          "description": "Custom property declared on the content target.",
+          "condition": "Conditional"
         }
-      },
-      "props": [
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether this trigger is disabled.",
-          "group": "behavior"
-        },
-        {
-          "name": "as",
-          "optional": true,
-          "type": {
-            "text": "T"
-          },
-          "description": "Element or component to render as.",
-          "group": "rendering",
-          "default": {
-            "kind": "literal",
-            "value": "button"
-          }
-        },
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Trigger label and visual content.",
-          "group": "rendering"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
-        }
-      ],
-      "slots": [],
-      "runtime": []
+      ]
     }
   ]
 }

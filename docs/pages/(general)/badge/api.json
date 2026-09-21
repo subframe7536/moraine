@@ -139,7 +139,76 @@
           "description": "Optional trailing icon displayed after the label."
         }
       ],
-      "runtime": []
+      "runtime": [
+        {
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "span",
+          "attributes": []
+        },
+        {
+          "name": "leading",
+          "slot": "leading",
+          "selector": "[data-slot=\"leading\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "img"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "name": "label",
+          "slot": "label",
+          "selector": "[data-slot=\"label\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "trailing",
+          "slot": "trailing",
+          "selector": "[data-slot=\"trailing\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "img"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ],
+      "cssVariables": []
     }
   ]
 }

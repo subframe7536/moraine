@@ -241,60 +241,225 @@
       ],
       "runtime": [
         {
-          "target": "content",
-          "attributes": [
-            {
-              "name": "--mo-collapsible-content-height",
-              "kind": "css",
-              "description": "CSS custom property exposed by this element."
-            },
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "description": "References the element that labels the control or region."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "region"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "root",
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "div",
           "attributes": [
             {
               "name": "data-disabled",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the component, slot, or item is disabled."
             }
           ]
         },
         {
-          "target": "trigger",
+          "name": "item",
+          "slot": "item",
+          "selector": "[data-slot=\"item\"]",
+          "element": "div",
+          "attributes": [
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when disclosure or transition content is closed."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the panel, accordion, or menu is expanded."
+            }
+          ]
+        },
+        {
+          "name": "header",
+          "slot": "header",
+          "selector": "[data-slot=\"header\"]",
+          "element": "h3",
+          "attributes": []
+        },
+        {
+          "name": "trigger",
+          "slot": "trigger",
+          "selector": "[data-slot=\"trigger\"]",
+          "element": "button",
           "attributes": [
             {
               "name": "aria-controls",
               "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "References the controlled element while the related content is mounted."
             },
             {
               "name": "aria-expanded",
               "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
               "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when disclosure or transition content is closed."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the panel, accordion, or menu is expanded."
             }
           ]
+        },
+        {
+          "name": "leading",
+          "slot": "leading",
+          "selector": "[data-slot=\"leading\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "img"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "name": "label",
+          "slot": "label",
+          "selector": "[data-slot=\"label\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "trailing",
+          "slot": "trailing",
+          "selector": "[data-slot=\"trailing\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "img"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "name": "content",
+          "slot": "content",
+          "selector": "[data-slot=\"content\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "Present when disclosure or transition content is closed."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "Present when the panel, accordion, or menu is expanded."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "region"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ],
+      "cssVariables": [
+        {
+          "name": "--mo-collapsible-content-height",
+          "target": "content",
+          "description": "Custom property declared on the content target.",
+          "condition": "Conditional"
         }
       ]
     }

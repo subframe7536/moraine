@@ -346,7 +346,97 @@
           "description": "Native text input element."
         }
       ],
-      "runtime": []
+      "runtime": [
+        {
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "input",
+          "attributes": [
+            {
+              "name": "aria-describedby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References descriptive text associated with the control."
+            },
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-invalid",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that the field has a validation error."
+            },
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "aria-readonly",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that the control value cannot be changed by the user."
+            },
+            {
+              "name": "aria-required",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that user input is required."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field input is required."
+            }
+          ]
+        }
+      ],
+      "cssVariables": []
     }
   ]
 }

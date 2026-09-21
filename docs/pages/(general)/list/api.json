@@ -108,19 +108,23 @@
       "slots": [],
       "runtime": [
         {
-          "target": "root",
+          "name": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "ul",
           "attributes": [
             {
               "name": "role",
               "kind": "role",
-              "values": [
-                "list"
-              ],
+              "value": {
+                "kind": "literal",
+                "value": "list"
+              },
               "description": "Defines the semantic role exposed to assistive technology."
             }
           ]
         }
-      ]
+      ],
+      "cssVariables": []
     }
   ]
 }

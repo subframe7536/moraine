@@ -292,7 +292,7 @@ export class TypeExtractor {
       if (name) {
         const resolved = await this.resolveSymbol(ns.module, name, ns.node)
         if (resolved) {
-          return TypeExtractor.#extractSlotProperties(resolved.module, resolved.node)
+          return this.#extractSlotProperties(resolved.module, resolved.node, resolved.nsNode)
         }
       }
     }
@@ -300,9 +300,39 @@ export class TypeExtractor {
     return []
   }
 
-  static #extractSlotProperties(module: ParsedModule, node: ESTree.Declaration): SlotApi[] {
-    const slots: SlotApi[] = []
+  async #extractSlotProperties(
+    module: ParsedModule,
+    node: ESTree.Declaration,
+    namespace?: ESTree.TSModuleDeclaration,
+    seen = new Set<string>(),
+  ): Promise<SlotApi[]> {
+    const slots = new Map<string, SlotApi>()
+    const declarationName = 'id' in node ? getIdentifierName(node.id) : undefined
+    const visitKey = `${module.filePath}:${declarationName ?? node.start}`
+    if (seen.has(visitKey)) {
+      return []
+    }
+    seen.add(visitKey)
+
     if (node.type === 'TSInterfaceDeclaration') {
+      for (const heritage of node.extends ?? []) {
+        const name = entityNameToText(heritage.expression)
+        if (!name) {
+          continue
+        }
+        const resolved = await this.resolveSymbol(module, name, namespace)
+        if (!resolved) {
+          continue
+        }
+        for (const slot of await this.#extractSlotProperties(
+          resolved.module,
+          resolved.node,
+          resolved.nsNode,
+          seen,
+        )) {
+          slots.set(slot.name, slot)
+        }
+      }
       for (const member of node.body.body) {
         if (member.type === 'TSPropertySignature') {
           const name = getIdentifierName(member.key)
@@ -310,15 +340,40 @@ export class TypeExtractor {
             continue
           }
           const jsdoc = getJsDoc(module.source, member)
-          slots.push({
+          slots.set(name, {
             name,
             ...(jsdoc.description ? { description: jsdoc.description } : {}),
           })
         }
       }
+    } else if (node.type === 'TSTypeAliasDeclaration') {
+      const references =
+        node.typeAnnotation.type === 'TSIntersectionType'
+          ? node.typeAnnotation.types
+          : [node.typeAnnotation]
+      for (const reference of references) {
+        if (reference.type !== 'TSTypeReference') {
+          continue
+        }
+        const name = entityNameToText(reference.typeName)
+        if (!name) {
+          continue
+        }
+        const resolved = await this.resolveSymbol(module, name, namespace)
+        if (!resolved) {
+          continue
+        }
+        for (const slot of await this.#extractSlotProperties(
+          resolved.module,
+          resolved.node,
+          resolved.nsNode,
+          seen,
+        )) {
+          slots.set(slot.name, slot)
+        }
+      }
     }
-    slots.sort((a, b) => a.name.localeCompare(b.name))
-    return slots
+    return [...slots.values()].sort((a, b) => a.name.localeCompare(b.name))
   }
 
   async extractItem(module: ParsedModule, namespaceName: string): Promise<ItemApi | undefined> {

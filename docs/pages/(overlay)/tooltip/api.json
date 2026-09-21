@@ -14,6 +14,9 @@
         "package": "moraine"
       },
       "sourcePath": "src/overlays/tooltip/tooltip.tsx",
+      "rendering": {
+        "rendersDom": false
+      },
       "props": [
         {
           "name": "closeDelay",
@@ -201,36 +204,155 @@
           "description": "Element that opens the tooltip."
         }
       ],
-      "runtime": [
+      "runtime": [],
+      "cssVariables": []
+    },
+    {
+      "id": "tooltip-trigger",
+      "name": "Tooltip.Trigger",
+      "access": {
+        "kind": "attached",
+        "root": "Tooltip",
+        "member": "Trigger"
+      },
+      "sourcePath": "src/overlays/tooltip/tooltip.tsx",
+      "generics": [
         {
-          "target": "content",
-          "attributes": [
-            {
-              "name": "data-instant-motion",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-side",
-              "kind": "data",
-              "description": "Stores the resolved floating or drawer content side."
-            }
-          ]
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      ],
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "button",
+        "asProp": "as",
+        "polymorphic": {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      },
+      "props": [
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether this trigger is disabled.",
+          "group": "behavior"
         },
         {
-          "target": "root",
+          "name": "as",
+          "optional": true,
+          "type": {
+            "text": "s"
+          },
+          "description": "Element or component to render as.",
+          "group": "rendering",
+          "default": {
+            "kind": "literal",
+            "value": "button"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Trigger label and visual content.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "name": "trigger",
+          "slot": "trigger",
+          "element": "button",
           "attributes": [
             {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "tooltip"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
+              "name": "aria-controls",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-describedby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References descriptive text associated with the control."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "aria-haspopup",
+              "kind": "aria",
+              "value": {
+                "kind": "literal",
+                "value": "true"
+              },
+              "description": "Communicates the type of popup controlled by the trigger."
+            },
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when disclosure or transition content is closed."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the panel, accordion, or menu is expanded."
             }
-          ]
+          ],
+          "selector": "[data-slot=\"trigger\"]"
         }
-      ]
+      ],
+      "cssVariables": []
     },
     {
       "id": "tooltip-content",
@@ -341,138 +463,47 @@
       "slots": [],
       "runtime": [
         {
-          "target": "content",
+          "name": "content",
+          "slot": "content",
+          "selector": "[data-slot=\"content\"]",
+          "element": "div",
           "attributes": [
+            {
+              "name": "aria-label",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "Provides an accessible label when visible text is not sufficient."
+            },
             {
               "name": "data-instant-motion",
               "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when enter and exit motion should complete immediately."
             },
             {
               "name": "data-side",
               "kind": "data",
-              "description": "Stores the resolved floating or drawer content side."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "tooltip"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "tooltip-trigger",
-      "name": "Tooltip.Trigger",
-      "access": {
-        "kind": "attached",
-        "root": "Tooltip",
-        "member": "Trigger"
-      },
-      "sourcePath": "src/overlays/tooltip/tooltip.tsx",
-      "generics": [
-        {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
-      "props": [
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether this trigger is disabled.",
-          "group": "behavior"
-        },
-        {
-          "name": "as",
-          "optional": true,
-          "type": {
-            "text": "s"
-          },
-          "description": "Element or component to render as.",
-          "group": "rendering",
-          "default": {
-            "kind": "literal",
-            "value": "button"
-          }
-        },
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Trigger label and visual content.",
-          "group": "rendering"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
-        }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "target": "content",
-          "attributes": [
-            {
-              "name": "data-instant-motion",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-side",
-              "kind": "data",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Stores the resolved floating or drawer content side."
             }
           ]
         },
         {
-          "target": "trigger",
-          "attributes": [
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "tooltip"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
+          "name": "text",
+          "slot": "text",
+          "selector": "[data-slot=\"text\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": []
         }
-      ]
+      ],
+      "cssVariables": []
     }
   ]
 }

@@ -96,7 +96,34 @@
           "description": "Rendered icon element."
         }
       ],
-      "runtime": []
+      "runtime": [
+        {
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"icon\"]",
+          "element": "div",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "img"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ],
+      "cssVariables": []
     }
   ]
 }

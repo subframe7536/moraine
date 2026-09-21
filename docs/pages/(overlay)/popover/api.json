@@ -14,6 +14,9 @@
         "package": "moraine"
       },
       "sourcePath": "src/overlays/popover/popover.tsx",
+      "rendering": {
+        "rendersDom": false
+      },
       "props": [
         {
           "name": "closeDelay",
@@ -244,44 +247,16 @@
           "description": "Element that opens the popover."
         }
       ],
-      "runtime": [
-        {
-          "target": "content",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "description": "Provides an accessible label when visible text is not sufficient."
-            },
-            {
-              "name": "data-side",
-              "kind": "data",
-              "description": "Stores the resolved floating or drawer content side."
-            }
-          ]
-        },
-        {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "dialog"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        }
-      ]
+      "runtime": [],
+      "cssVariables": []
     },
     {
-      "id": "popover-close",
-      "name": "Popover.Close",
+      "id": "popover-trigger",
+      "name": "Popover.Trigger",
       "access": {
         "kind": "attached",
         "root": "Popover",
-        "member": "Close"
+        "member": "Trigger"
       },
       "sourcePath": "src/overlays/popover/popover.tsx",
       "generics": [
@@ -315,7 +290,7 @@
           "name": "as",
           "optional": true,
           "type": {
-            "text": ""
+            "text": "u"
           },
           "description": "Element or component to render as.",
           "group": "rendering",
@@ -355,34 +330,75 @@
       "slots": [],
       "runtime": [
         {
-          "target": "close",
+          "name": "trigger",
+          "slot": "trigger",
+          "element": "button",
           "attributes": [
             {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "dialog"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "content",
-          "attributes": [
-            {
-              "name": "aria-label",
+              "name": "aria-controls",
               "kind": "aria",
-              "description": "Provides an accessible label when visible text is not sufficient."
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References the controlled element while the related content is mounted."
             },
             {
-              "name": "data-side",
+              "name": "aria-describedby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References descriptive text associated with the control."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "aria-haspopup",
+              "kind": "aria",
+              "value": {
+                "kind": "enum",
+                "values": [
+                  "dialog",
+                  "true"
+                ]
+              },
+              "description": "Communicates the type of popup controlled by the trigger."
+            },
+            {
+              "name": "data-closed",
               "kind": "data",
-              "description": "Stores the resolved floating or drawer content side."
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when disclosure or transition content is closed."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the panel, accordion, or menu is expanded."
             }
-          ]
+          ],
+          "selector": "[data-slot=\"trigger\"]"
         }
-      ]
+      ],
+      "cssVariables": []
     },
     {
       "id": "popover-content",
@@ -470,37 +486,47 @@
       "slots": [],
       "runtime": [
         {
-          "target": "content",
+          "name": "content",
+          "slot": "content",
+          "selector": "[data-slot=\"content\"]",
+          "element": "div",
           "attributes": [
             {
               "name": "aria-label",
               "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Provides an accessible label when visible text is not sufficient."
             },
             {
               "name": "data-side",
               "kind": "data",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Stores the resolved floating or drawer content side."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "dialog"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
             }
           ]
+        },
+        {
+          "name": "body",
+          "slot": "body",
+          "selector": "[data-slot=\"body\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": []
         }
-      ]
+      ],
+      "cssVariables": []
     },
     {
-      "id": "popover-trigger",
-      "name": "Popover.Trigger",
+      "id": "popover-close",
+      "name": "Popover.Close",
       "access": {
         "kind": "attached",
         "root": "Popover",
-        "member": "Trigger"
+        "member": "Close"
       },
       "sourcePath": "src/overlays/popover/popover.tsx",
       "generics": [
@@ -534,7 +560,7 @@
           "name": "as",
           "optional": true,
           "type": {
-            "text": "u"
+            "text": ""
           },
           "description": "Element or component to render as.",
           "group": "rendering",
@@ -574,34 +600,13 @@
       "slots": [],
       "runtime": [
         {
-          "target": "content",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "description": "Provides an accessible label when visible text is not sufficient."
-            },
-            {
-              "name": "data-side",
-              "kind": "data",
-              "description": "Stores the resolved floating or drawer content side."
-            }
-          ]
-        },
-        {
-          "target": "trigger",
-          "attributes": [
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "dialog"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
+          "name": "close",
+          "selector": "[data-slot=\"close\"]",
+          "element": "button",
+          "attributes": []
         }
-      ]
+      ],
+      "cssVariables": []
     }
   ]
 }

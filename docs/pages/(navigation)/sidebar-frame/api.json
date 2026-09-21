@@ -131,92 +131,14 @@
       ],
       "runtime": [
         {
-          "target": "sidebar",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "data-closed",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-mobile",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "sidebar-frame-main",
-      "name": "SidebarFrame.Main",
-      "access": {
-        "kind": "attached",
-        "root": "SidebarFrame",
-        "member": "Main"
-      },
-      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
-      "props": [
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "group": "rendering"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "div",
+          "attributes": []
         }
       ],
-      "slots": [],
-      "runtime": [
-        {
-          "target": "sidebar",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "data-closed",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-mobile",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        }
-      ]
+      "cssVariables": []
     },
     {
       "id": "sidebar-frame-sidebar",
@@ -276,158 +198,39 @@
       "slots": [],
       "runtime": [
         {
-          "target": "sidebar",
+          "name": "sidebar",
+          "slot": "sidebar",
+          "selector": "[data-slot=\"sidebar\"]",
+          "element": "div",
           "attributes": [
             {
               "name": "aria-hidden",
               "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
               "description": "Hides decorative content from assistive technology."
             },
             {
               "name": "data-closed",
               "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when disclosure or transition content is closed."
             },
             {
               "name": "data-mobile",
               "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present on the mobile rendering path."
             }
           ]
-        }
-      ]
-    },
-    {
-      "id": "sidebar-frame-sidebar-body",
-      "name": "SidebarFrame.SidebarBody",
-      "access": {
-        "kind": "attached",
-        "root": "SidebarFrame",
-        "member": "SidebarBody"
-      },
-      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
-      "props": [
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "group": "rendering"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
         }
       ],
-      "slots": [],
-      "runtime": [
-        {
-          "target": "sidebar",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "data-closed",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-mobile",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "sidebar-frame-sidebar-footer",
-      "name": "SidebarFrame.SidebarFooter",
-      "access": {
-        "kind": "attached",
-        "root": "SidebarFrame",
-        "member": "SidebarFooter"
-      },
-      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
-      "props": [
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "group": "rendering"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
-        }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "target": "sidebar",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "data-closed",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-mobile",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        }
-      ]
+      "cssVariables": []
     },
     {
       "id": "sidebar-frame-sidebar-header",
@@ -474,26 +277,176 @@
       "slots": [],
       "runtime": [
         {
-          "target": "sidebar",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "data-closed",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-mobile",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
+          "name": "sidebarHeader",
+          "slot": "sidebarHeader",
+          "selector": "[data-slot=\"sidebarHeader\"]",
+          "element": "div",
+          "attributes": []
         }
-      ]
+      ],
+      "cssVariables": []
+    },
+    {
+      "id": "sidebar-frame-sidebar-body",
+      "name": "SidebarFrame.SidebarBody",
+      "access": {
+        "kind": "attached",
+        "root": "SidebarFrame",
+        "member": "SidebarBody"
+      },
+      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "name": "sidebarBody",
+          "slot": "sidebarBody",
+          "selector": "[data-slot=\"sidebarBody\"]",
+          "element": "div",
+          "attributes": []
+        }
+      ],
+      "cssVariables": []
+    },
+    {
+      "id": "sidebar-frame-sidebar-footer",
+      "name": "SidebarFrame.SidebarFooter",
+      "access": {
+        "kind": "attached",
+        "root": "SidebarFrame",
+        "member": "SidebarFooter"
+      },
+      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "name": "sidebarFooter",
+          "slot": "sidebarFooter",
+          "selector": "[data-slot=\"sidebarFooter\"]",
+          "element": "div",
+          "attributes": []
+        }
+      ],
+      "cssVariables": []
+    },
+    {
+      "id": "sidebar-frame-main",
+      "name": "SidebarFrame.Main",
+      "access": {
+        "kind": "attached",
+        "root": "SidebarFrame",
+        "member": "Main"
+      },
+      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "name": "main",
+          "slot": "main",
+          "selector": "[data-slot=\"main\"]",
+          "element": "div",
+          "attributes": []
+        }
+      ],
+      "cssVariables": []
     },
     {
       "id": "sidebar-frame-trigger",
@@ -503,7 +456,7 @@
         "root": "SidebarFrame",
         "member": "Trigger"
       },
-      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx",
+      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame-trigger.tsx",
       "generics": [
         {
           "name": "T",
@@ -575,26 +528,46 @@
       "slots": [],
       "runtime": [
         {
-          "target": "sidebar",
+          "name": "trigger",
+          "selector": "[data-slot=\"trigger\"]",
+          "element": "button",
           "attributes": [
             {
-              "name": "aria-hidden",
+              "name": "aria-expanded",
               "kind": "aria",
-              "description": "Hides decorative content from assistive technology."
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates whether the controlled content is expanded."
             },
             {
               "name": "data-closed",
               "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when disclosure or transition content is closed."
             },
             {
-              "name": "data-mobile",
+              "name": "data-disabled",
               "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-open",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the disclosure, popover, or overlay is open."
             }
           ]
         }
-      ]
+      ],
+      "cssVariables": []
     }
   ]
 }

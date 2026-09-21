@@ -14,6 +14,9 @@
         "package": "moraine"
       },
       "sourcePath": "src/overlays/modal/modal.tsx",
+      "rendering": {
+        "rendersDom": false
+      },
       "props": [
         {
           "name": "dismissible",
@@ -158,87 +161,8 @@
           "description": "Fixed backdrop that contains the modal shell."
         }
       ],
-      "runtime": []
-    },
-    {
-      "id": "modal-close",
-      "name": "Modal.Close",
-      "access": {
-        "kind": "attached",
-        "root": "Modal",
-        "member": "Close"
-      },
-      "sourcePath": "src/overlays/modal/modal.tsx",
-      "generics": [
-        {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
-      "props": [
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether this trigger is disabled.",
-          "group": "behavior"
-        },
-        {
-          "name": "as",
-          "optional": true,
-          "type": {
-            "text": "T"
-          },
-          "description": "Element or component to render as.",
-          "group": "rendering",
-          "default": {
-            "kind": "literal",
-            "value": "button"
-          }
-        },
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Trigger label and visual content.",
-          "group": "rendering"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
-        }
-      ],
-      "slots": [],
-      "runtime": []
+      "runtime": [],
+      "cssVariables": []
     },
     {
       "id": "modal-content",
@@ -248,7 +172,7 @@
         "root": "Modal",
         "member": "Content"
       },
-      "sourcePath": "src/overlays/modal/modal.tsx",
+      "sourcePath": "src/overlays/modal/modal-content.tsx",
       "rendering": {
         "rendersDom": true,
         "defaultElement": "div",
@@ -327,7 +251,122 @@
         }
       ],
       "slots": [],
-      "runtime": []
+      "runtime": [
+        {
+          "name": "overlay",
+          "slot": "overlay",
+          "selector": "[data-slot=\"overlay\"]",
+          "element": "div",
+          "attributes": [
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when disclosure or transition content is closed."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the panel, accordion, or menu is expanded."
+            },
+            {
+              "name": "data-overlay-scroll",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when scrolling is owned by the overlay."
+            }
+          ]
+        },
+        {
+          "name": "content",
+          "slot": "content",
+          "selector": "[data-slot=\"content\"]",
+          "element": "div",
+          "attributes": [
+            {
+              "name": "aria-describedby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References descriptive text associated with the control."
+            },
+            {
+              "name": "aria-label",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "Provides an accessible label when visible text is not sufficient."
+            },
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "aria-modal",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Identifies modal content that traps interaction outside the dialog."
+            },
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when disclosure or transition content is closed."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the panel, accordion, or menu is expanded."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "dialog"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ],
+      "cssVariables": []
     },
     {
       "id": "modal-overlay",
@@ -337,7 +376,7 @@
         "root": "Modal",
         "member": "Overlay"
       },
-      "sourcePath": "src/overlays/modal/modal.tsx",
+      "sourcePath": "src/overlays/modal/modal-overlay.tsx",
       "rendering": {
         "rendersDom": true,
         "defaultElement": "div",
@@ -394,7 +433,50 @@
         }
       ],
       "slots": [],
-      "runtime": []
+      "runtime": [
+        {
+          "name": "overlay",
+          "slot": "overlay",
+          "selector": "[data-slot=\"overlay\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when disclosure or transition content is closed."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the panel, accordion, or menu is expanded."
+            },
+            {
+              "name": "data-overlay-scroll",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when scrolling is owned by the overlay."
+            }
+          ]
+        }
+      ],
+      "cssVariables": []
     },
     {
       "id": "modal-trigger",
@@ -404,7 +486,7 @@
         "root": "Modal",
         "member": "Trigger"
       },
-      "sourcePath": "src/overlays/modal/modal.tsx",
+      "sourcePath": "src/overlays/modal/modal-trigger.tsx",
       "generics": [
         {
           "name": "T",
@@ -474,7 +556,137 @@
         }
       ],
       "slots": [],
-      "runtime": []
+      "runtime": [
+        {
+          "name": "trigger",
+          "selector": "[data-slot=\"trigger\"]",
+          "element": "button",
+          "attributes": [
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "aria-haspopup",
+              "kind": "aria",
+              "value": {
+                "kind": "literal",
+                "value": "dialog"
+              },
+              "description": "Communicates the type of popup controlled by the trigger."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            }
+          ]
+        }
+      ],
+      "cssVariables": []
+    },
+    {
+      "id": "modal-close",
+      "name": "Modal.Close",
+      "access": {
+        "kind": "attached",
+        "root": "Modal",
+        "member": "Close"
+      },
+      "sourcePath": "src/overlays/modal/modal-close.tsx",
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      ],
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "button",
+        "asProp": "as",
+        "polymorphic": {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      },
+      "props": [
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether this trigger is disabled.",
+          "group": "behavior"
+        },
+        {
+          "name": "as",
+          "optional": true,
+          "type": {
+            "text": "T"
+          },
+          "description": "Element or component to render as.",
+          "group": "rendering",
+          "default": {
+            "kind": "literal",
+            "value": "button"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Trigger label and visual content.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "name": "close",
+          "selector": "[data-slot=\"close\"]",
+          "element": "button",
+          "attributes": []
+        }
+      ],
+      "cssVariables": []
     }
   ]
 }

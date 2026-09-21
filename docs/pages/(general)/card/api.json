@@ -158,26 +158,80 @@
       ],
       "runtime": [
         {
-          "target": "body",
-          "attributes": [
-            {
-              "name": "data-no-footer",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "div",
+          "attributes": []
         },
         {
-          "target": "header",
+          "name": "header",
+          "slot": "header",
+          "selector": "[data-slot=\"header\"]",
+          "element": "div",
+          "condition": "Conditional",
           "attributes": [
             {
               "name": "data-action",
               "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Stores the action performed by this interactive target."
             }
           ]
+        },
+        {
+          "name": "title",
+          "slot": "title",
+          "selector": "[data-slot=\"title\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "description",
+          "slot": "description",
+          "selector": "[data-slot=\"description\"]",
+          "element": "p",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "action",
+          "slot": "action",
+          "selector": "[data-slot=\"action\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "body",
+          "slot": "body",
+          "selector": "[data-slot=\"body\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "data-no-footer",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when footer content is absent."
+            }
+          ]
+        },
+        {
+          "name": "footer",
+          "slot": "footer",
+          "selector": "[data-slot=\"footer\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": []
         }
-      ]
+      ],
+      "cssVariables": []
     }
   ]
 }

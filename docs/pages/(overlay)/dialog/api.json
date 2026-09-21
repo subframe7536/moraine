@@ -14,6 +14,9 @@
         "package": "moraine"
       },
       "sourcePath": "src/overlays/dialog/dialog.tsx",
+      "rendering": {
+        "rendersDom": false
+      },
       "props": [
         {
           "name": "dismissible",
@@ -186,46 +189,16 @@
           "description": "Element that opens the dialog."
         }
       ],
-      "runtime": [
-        {
-          "target": "body",
-          "attributes": [
-            {
-              "name": "data-footer",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-header",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-scroll",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        },
-        {
-          "target": "contentClose",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "description": "Provides an accessible label when visible text is not sufficient."
-            }
-          ]
-        }
-      ]
+      "runtime": [],
+      "cssVariables": []
     },
     {
-      "id": "dialog-close",
-      "name": "Dialog.Close",
+      "id": "dialog-trigger",
+      "name": "Dialog.Trigger",
       "access": {
         "kind": "attached",
         "root": "Dialog",
-        "member": "Close"
+        "member": "Trigger"
       },
       "sourcePath": "src/overlays/dialog/dialog.tsx",
       "generics": [
@@ -259,7 +232,7 @@
           "name": "as",
           "optional": true,
           "type": {
-            "text": "b"
+            "text": "n"
           },
           "description": "Element or component to render as.",
           "group": "rendering",
@@ -299,36 +272,48 @@
       "slots": [],
       "runtime": [
         {
-          "target": "body",
+          "name": "trigger",
+          "slot": "trigger",
+          "selector": "[data-slot=\"trigger\"]",
+          "element": "button",
           "attributes": [
             {
-              "name": "data-footer",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-header",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-scroll",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        },
-        {
-          "target": "contentClose",
-          "attributes": [
-            {
-              "name": "aria-label",
+              "name": "aria-controls",
               "kind": "aria",
-              "description": "Provides an accessible label when visible text is not sufficient."
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates whether the controlled content is expanded."
+            },
+            {
+              "name": "aria-haspopup",
+              "kind": "aria",
+              "value": {
+                "kind": "literal",
+                "value": "dialog"
+              },
+              "description": "Communicates the type of popup controlled by the trigger."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
             }
           ]
         }
-      ]
+      ],
+      "cssVariables": []
     },
     {
       "id": "dialog-content",
@@ -523,44 +508,211 @@
       "slots": [],
       "runtime": [
         {
-          "target": "body",
-          "attributes": [
-            {
-              "name": "data-footer",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-header",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-scroll",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
+          "name": "header",
+          "slot": "header",
+          "selector": "[data-slot=\"header\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": []
         },
         {
-          "target": "contentClose",
+          "name": "title",
+          "slot": "title",
+          "selector": "[data-slot=\"title\"]",
+          "element": "h2",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "description",
+          "slot": "description",
+          "selector": "[data-slot=\"description\"]",
+          "element": "p",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "contentClose",
+          "slot": "contentClose",
+          "selector": "[data-slot=\"contentClose\"]",
+          "element": "div",
+          "condition": "Conditional",
           "attributes": [
             {
               "name": "aria-label",
               "kind": "aria",
+              "value": {
+                "kind": "literal",
+                "value": "Close"
+              },
               "description": "Provides an accessible label when visible text is not sufficient."
             }
           ]
+        },
+        {
+          "name": "body",
+          "slot": "body",
+          "selector": "[data-slot=\"body\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "data-footer",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component renders footer content."
+            },
+            {
+              "name": "data-header",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component renders header content."
+            },
+            {
+              "name": "data-scroll",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the content region owns scrolling."
+            }
+          ]
+        },
+        {
+          "name": "footer",
+          "slot": "footer",
+          "selector": "[data-slot=\"footer\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "overlay",
+          "slot": "overlay",
+          "selector": "[data-slot=\"overlay\"]",
+          "element": "div",
+          "attributes": [
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when disclosure or transition content is closed."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the panel, accordion, or menu is expanded."
+            },
+            {
+              "name": "data-overlay-scroll",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when scrolling is owned by the overlay."
+            }
+          ]
+        },
+        {
+          "name": "content",
+          "slot": "content",
+          "selector": "[data-slot=\"content\"]",
+          "element": "div",
+          "attributes": [
+            {
+              "name": "aria-describedby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References descriptive text associated with the control."
+            },
+            {
+              "name": "aria-label",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "Provides an accessible label when visible text is not sufficient."
+            },
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "aria-modal",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Identifies modal content that traps interaction outside the dialog."
+            },
+            {
+              "name": "data-closed",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when disclosure or transition content is closed."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the panel, accordion, or menu is expanded."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "dialog"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
         }
-      ]
+      ],
+      "cssVariables": []
     },
     {
-      "id": "dialog-trigger",
-      "name": "Dialog.Trigger",
+      "id": "dialog-close",
+      "name": "Dialog.Close",
       "access": {
         "kind": "attached",
         "root": "Dialog",
-        "member": "Trigger"
+        "member": "Close"
       },
       "sourcePath": "src/overlays/dialog/dialog.tsx",
       "generics": [
@@ -594,7 +746,7 @@
           "name": "as",
           "optional": true,
           "type": {
-            "text": "n"
+            "text": "b"
           },
           "description": "Element or component to render as.",
           "group": "rendering",
@@ -634,36 +786,13 @@
       "slots": [],
       "runtime": [
         {
-          "target": "body",
-          "attributes": [
-            {
-              "name": "data-footer",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-header",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-scroll",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        },
-        {
-          "target": "contentClose",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "description": "Provides an accessible label when visible text is not sufficient."
-            }
-          ]
+          "name": "close",
+          "selector": "[data-slot=\"close\"]",
+          "element": "button",
+          "attributes": []
         }
-      ]
+      ],
+      "cssVariables": []
     }
   ]
 }

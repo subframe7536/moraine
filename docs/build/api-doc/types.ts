@@ -41,16 +41,35 @@ export type AccessApi =
   | { kind: 'attached'; root: string; member: string }
   | { kind: 'factory-member'; factory: string; member: string }
 
+export type RuntimeAttributeValueApi =
+  | { kind: 'presence' }
+  | { kind: 'literal'; value: string }
+  | { kind: 'enum'; values: string[] }
+  | { kind: 'boolean' }
+  | { kind: 'dynamic' }
+
 export interface RuntimeAttributeApi {
   name: string
-  kind: 'data' | 'aria' | 'role' | 'css'
-  values?: string[]
+  kind: 'data' | 'aria' | 'role'
+  value: RuntimeAttributeValueApi
   description?: string
 }
 
 export interface RuntimeTargetApi {
-  target: string
+  name: string
+  slot?: string
+  selector?: string
+  element?: string
+  description?: string
+  condition?: string
   attributes: RuntimeAttributeApi[]
+}
+
+export interface CssVariableApi {
+  name: string
+  target: string
+  description?: string
+  condition?: string
 }
 
 export interface SlotApi {
@@ -87,6 +106,7 @@ export interface PartApi {
   props: PropApi[]
   slots: SlotApi[]
   runtime: RuntimeTargetApi[]
+  cssVariables: CssVariableApi[]
 }
 
 export interface ItemPropertyApi {
@@ -131,4 +151,5 @@ export interface IndexDoc {
 export interface GenerationResult {
   indexDoc: IndexDoc
   componentDocs: Map<string, ComponentApi>
+  diagnostics: string[]
 }

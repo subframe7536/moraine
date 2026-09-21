@@ -6,6 +6,111 @@
   "sourcePath": "src/forms/form/form.tsx",
   "parts": [
     {
+      "id": "form-form",
+      "name": "form.Form",
+      "access": {
+        "kind": "factory-member",
+        "factory": "createForm",
+        "member": "Form"
+      },
+      "sourcePath": "src/forms/form/form.tsx",
+      "generics": [
+        {
+          "name": "TSchema",
+          "constraint": "FormSchema",
+          "default": "FormSchema"
+        }
+      ],
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "form",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "onSubmit",
+          "optional": true,
+          "type": {
+            "text": "SubmitEventHandler<TSchema>"
+          },
+          "description": "Called with validated schema output and the native submit event.",
+          "group": "form",
+          "traits": [
+            "callback"
+          ]
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
+        }
+      ],
+      "slots": [
+        {
+          "name": "root",
+          "description": "Form root container."
+        }
+      ],
+      "runtime": [
+        {
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "form",
+          "attributes": [
+            {
+              "name": "data-submitting",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present while the form is being submitted."
+            }
+          ]
+        }
+      ],
+      "cssVariables": []
+    },
+    {
       "id": "form-field",
       "name": "form.Field",
       "access": {
@@ -13,7 +118,7 @@
         "factory": "createForm",
         "member": "Field"
       },
-      "sourcePath": "src/forms/form/form.tsx",
+      "sourcePath": "src/forms/field/field.tsx",
       "generics": [
         {
           "name": "TSchema",
@@ -211,114 +316,14 @@
       "slots": [],
       "runtime": [
         {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "data-submitting",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "form-form",
-      "name": "form.Form",
-      "access": {
-        "kind": "factory-member",
-        "factory": "createForm",
-        "member": "Form"
-      },
-      "sourcePath": "src/forms/form/form.tsx",
-      "generics": [
-        {
-          "name": "TSchema",
-          "constraint": "FormSchema",
-          "default": "FormSchema"
-        }
-      ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "form",
-        "polymorphic": false
-      },
-      "props": [
-        {
-          "name": "onSubmit",
-          "optional": true,
-          "type": {
-            "text": "SubmitEventHandler<TSchema>"
-          },
-          "description": "Called with validated schema output and the native submit event.",
-          "group": "form",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "group": "rendering"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
-        }
-      ],
-      "slots": [
-        {
           "name": "root",
-          "description": "Form root container."
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "div",
+          "attributes": []
         }
       ],
-      "runtime": [
-        {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "data-submitting",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        }
-      ]
+      "cssVariables": []
     }
   ]
 }

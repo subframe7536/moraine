@@ -76,29 +76,40 @@
       ],
       "runtime": [
         {
-          "target": "root",
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "div",
           "attributes": [
             {
               "name": "aria-orientation",
               "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Communicates horizontal or vertical orientation."
             },
             {
               "name": "data-orientation",
               "kind": "data",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Stores the rendered orientation (horizontal or vertical)."
             },
             {
               "name": "role",
               "kind": "role",
-              "values": [
-                "separator"
-              ],
+              "value": {
+                "kind": "literal",
+                "value": "separator"
+              },
               "description": "Defines the semantic role exposed to assistive technology."
             }
           ]
         }
-      ]
+      ],
+      "cssVariables": []
     }
   ]
 }

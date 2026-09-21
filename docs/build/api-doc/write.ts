@@ -18,36 +18,30 @@ function getPageDirectoryByKey(pagesRoot: string): Map<string, string> {
 }
 
 function sortComponentApi(component: ComponentApi): ComponentApi {
-  const sortedParts = [...component.parts]
-    .sort((a, b) => {
-      const aIsRoot = a.id === component.key
-      const bIsRoot = b.id === component.key
-      if (aIsRoot !== bIsRoot) {
-        return aIsRoot ? -1 : 1
+  const sortedParts = component.parts.map((part) => {
+    const sortedProps = [...part.props].sort((a, b) => {
+      if (a.group !== b.group) {
+        return a.group.localeCompare(b.group)
       }
-      return a.id.localeCompare(b.id)
+      return a.name.localeCompare(b.name)
     })
-    .map((part) => {
-      const sortedProps = [...part.props].sort((a, b) => {
-        if (a.group !== b.group) {
-          return a.group.localeCompare(b.group)
-        }
-        return a.name.localeCompare(b.name)
-      })
-      const sortedSlots = [...part.slots].sort((a, b) => a.name.localeCompare(b.name))
-      const sortedRuntime = [...part.runtime]
-        .sort((a, b) => a.target.localeCompare(b.target))
-        .map((target) => ({
-          target: target.target,
-          attributes: [...target.attributes].sort((a, b) => a.name.localeCompare(b.name)),
-        }))
+    const sortedSlots = [...part.slots]
+    const sortedRuntime = part.runtime.map((target) => ({
+      ...target,
+      attributes: [...target.attributes].sort((a, b) => a.name.localeCompare(b.name)),
+    }))
+    const sortedCssVariables = [...part.cssVariables].sort((a, b) => {
+      const targetOrder = a.target.localeCompare(b.target)
+      return targetOrder === 0 ? a.name.localeCompare(b.name) : targetOrder
+    })
 
-      return Object.assign({}, part, {
-        props: sortedProps,
-        slots: sortedSlots,
-        runtime: sortedRuntime,
-      })
+    return Object.assign({}, part, {
+      props: sortedProps,
+      slots: sortedSlots,
+      runtime: sortedRuntime,
+      cssVariables: sortedCssVariables,
     })
+  })
 
   const sortedItem = component.item
     ? {
@@ -67,6 +61,11 @@ export async function writeJsonFiles(pagesRoot: string, result: GenerationResult
   const projectRoot = path.dirname(path.dirname(pagesRoot))
 
   // 1. Validate complete generation result before modifying ANY file on disk
+  if (result.diagnostics.length > 0) {
+    throw new Error(
+      `[api-doc] Runtime extraction produced diagnostics:\n${result.diagnostics.map((diagnostic) => `- ${diagnostic}`).join('\n')}`,
+    )
+  }
   const allComponents = [...result.componentDocs.values()].map(sortComponentApi)
   validateAllComponentApis(allComponents)
 

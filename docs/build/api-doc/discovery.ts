@@ -14,6 +14,13 @@ export interface DiscoveredPart {
   typesPath: string
   namespaceName: string
   propsTypeName: string
+  implementationName: string
+  runtimeSourcePath?: string
+  runtimeImplementationName?: string
+  runtimeSlotNames?: string[]
+  runtimeAllowHostFallback?: boolean
+  runtimeDelegateRootTargets?: Record<string, string>
+  rendersDom?: false
   isRoot: boolean
 }
 
@@ -56,22 +63,69 @@ const REGISTRY_SPECIAL_COMPONENTS: Record<
           typesPath,
           namespaceName: 'FormT',
           propsTypeName: 'Props',
+          implementationName: 'FormRoot',
           isRoot: true,
         },
         {
           id: 'form-field',
           name: 'form.Field',
           access: { kind: 'factory-member', factory: 'createForm', member: 'Field' },
-          sourcePath,
+          sourcePath: 'src/forms/field/field.tsx',
           typesPath,
           namespaceName: 'FormT',
           propsTypeName: 'FieldProps',
+          implementationName: 'renderField',
           isRoot: false,
         },
       ],
     }
   },
 }
+
+const CONTEXT_ONLY_ROOTS = new Set([
+  'BaseSelect',
+  'ContextMenu',
+  'Dialog',
+  'DropdownMenu',
+  'Modal',
+  'Popover',
+  'Sheet',
+  'Tooltip',
+])
+
+const ROOT_IMPLEMENTATION_OVERRIDES = new Map([['Field', 'renderField']])
+
+const ROOT_RUNTIME_OVERRIDES = new Map<string, Pick<DiscoveredPart, 'runtimeDelegateRootTargets'>>([
+  ['CheckboxGroup', { runtimeDelegateRootTargets: { Checkbox: 'item' } }],
+])
+
+const ATTACHED_RUNTIME_OVERRIDES = new Map<
+  string,
+  Pick<
+    DiscoveredPart,
+    | 'runtimeSourcePath'
+    | 'runtimeImplementationName'
+    | 'runtimeSlotNames'
+    | 'runtimeAllowHostFallback'
+  >
+>([
+  [
+    'Resizable.Panel',
+    {
+      runtimeImplementationName: 'Resizable',
+      runtimeSlotNames: ['panel'],
+      runtimeAllowHostFallback: false,
+    },
+  ],
+  [
+    'Resizable.Handle',
+    {
+      runtimeImplementationName: 'Resizable',
+      runtimeSlotNames: ['divider', 'crossTarget', 'handle'],
+      runtimeAllowHostFallback: false,
+    },
+  ],
+])
 
 function resolveFilePath(baseDir: string, relativePath: string): string | null {
   const fullPath = path.resolve(baseDir, relativePath)
@@ -90,11 +144,17 @@ function resolveFilePath(baseDir: string, relativePath: string): string | null {
   return null
 }
 
+interface AttachedMember {
+  member: string
+  implementationName: string
+  sourcePath: string
+}
+
 async function findAttachedMembers(
   projectRoot: string,
   sourcePath: string,
   componentName: string,
-): Promise<string[]> {
+): Promise<AttachedMember[]> {
   const absolutePath = path.join(projectRoot, sourcePath)
   if (!existsSync(absolutePath)) {
     return []
@@ -106,7 +166,24 @@ async function findAttachedMembers(
     content,
     absolutePath.endsWith('.tsx') ? 'tsx' : 'ts',
   )
-  const members: string[] = []
+  const members: AttachedMember[] = []
+  const importedSources = new Map<string, string>()
+
+  for (const statement of parsed.program.body) {
+    if (statement.type !== 'ImportDeclaration' || typeof statement.source.value !== 'string') {
+      continue
+    }
+    const resolved = resolveFilePath(path.dirname(absolutePath), statement.source.value)
+    if (!resolved) {
+      continue
+    }
+    const resolvedSourcePath = toPosixPath(path.relative(projectRoot, resolved))
+    for (const specifier of statement.specifiers) {
+      if (specifier.local.type === 'Identifier') {
+        importedSources.set(specifier.local.name, resolvedSourcePath)
+      }
+    }
+  }
 
   for (const statement of parsed.program.body) {
     if (
@@ -119,7 +196,15 @@ async function findAttachedMembers(
       statement.expression.left.object.name === componentName &&
       statement.expression.left.property.type === 'Identifier'
     ) {
-      members.push(statement.expression.left.property.name)
+      const right = statement.expression.right
+      if (right.type !== 'Identifier') {
+        continue
+      }
+      members.push({
+        member: statement.expression.left.property.name,
+        implementationName: right.name,
+        sourcePath: importedSources.get(right.name) ?? sourcePath,
+      })
     }
   }
 
@@ -250,6 +335,9 @@ export async function discoverPublicComponents(
           typesPath: relTypesPath,
           namespaceName,
           propsTypeName: 'Props',
+          implementationName: ROOT_IMPLEMENTATION_OVERRIDES.get(componentName) ?? componentName,
+          ...ROOT_RUNTIME_OVERRIDES.get(componentName),
+          ...(CONTEXT_ONLY_ROOTS.has(componentName) ? { rendersDom: false as const } : {}),
           isRoot: true,
         }
 
@@ -257,19 +345,22 @@ export async function discoverPublicComponents(
         const attachedMembers = await findAttachedMembers(projectRoot, relSourcePath, componentName)
         const parts: DiscoveredPart[] = [rootPart]
 
-        for (const member of attachedMembers) {
-          const memberPartName = `${componentName}.${member}`
-          const memberId = `${key}-${toKebabCase(member)}`
-          const memberPropsTypeName = `${member}Props`
+        for (const attached of attachedMembers) {
+          const memberPartName = `${componentName}.${attached.member}`
+          const memberId = `${key}-${toKebabCase(attached.member)}`
+          const memberPropsTypeName = `${attached.member}Props`
+          const runtimeOverride = ATTACHED_RUNTIME_OVERRIDES.get(memberPartName)
 
           parts.push({
             id: memberId,
             name: memberPartName,
-            access: { kind: 'attached', root: componentName, member },
-            sourcePath: relSourcePath,
+            access: { kind: 'attached', root: componentName, member: attached.member },
+            sourcePath: attached.sourcePath,
             typesPath: relTypesPath,
             namespaceName,
             propsTypeName: memberPropsTypeName,
+            implementationName: attached.implementationName,
+            ...runtimeOverride,
             isRoot: false,
           })
         }

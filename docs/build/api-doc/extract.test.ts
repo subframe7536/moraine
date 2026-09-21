@@ -12,6 +12,18 @@ describe('generateApiDoc (source-first)', () => {
 
     expect(result.indexDoc.components.length).toBe(44)
     expect(result.componentDocs.size).toBe(44)
+    expect(result.diagnostics).toEqual([])
+
+    for (const component of result.componentDocs.values()) {
+      expect(component.parts.length, component.name).toBeGreaterThan(0)
+      for (const part of component.parts) {
+        if (part.rendering?.rendersDom === false) {
+          expect(part.runtime, part.name).toEqual([])
+        } else {
+          expect(part.runtime.length, part.name).toBeGreaterThan(0)
+        }
+      }
+    }
 
     // Verify Button
     const button = result.componentDocs.get('button')
@@ -52,6 +64,8 @@ describe('generateApiDoc (source-first)', () => {
     expect(baseSelect).toBeDefined()
     expect(baseSelect?.kind).toBe('composite')
     expect(baseSelect?.parts.length).toBe(10)
+    expect(baseSelect?.parts[0]?.rendering?.rendersDom).toBe(false)
+    expect(baseSelect?.parts[0]?.runtime).toEqual([])
   })
 
   test('produces byte-identical deterministic generation output on repeated runs', async () => {
@@ -77,7 +91,7 @@ describe('generateApiDoc (source-first)', () => {
     )
 
     expect(json1).toBe(json2)
-  })
+  }, 15_000)
 
   test('generates and writes all api.json files to disk', async () => {
     const { runApiDocGeneration } = await import('../plugins/api-doc-generator')

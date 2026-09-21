@@ -335,145 +335,358 @@
       ],
       "runtime": [
         {
-          "target": "range",
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "div",
           "attributes": [
             {
-              "name": "data-dragging",
-              "kind": "data",
-              "description": "Present while the related thumb or handle is being dragged."
-            },
-            {
-              "name": "data-inverted",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-multiple",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        },
-        {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "aria-orientation",
+              "name": "aria-describedby",
               "kind": "aria",
-              "description": "Communicates horizontal or vertical orientation."
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References descriptive text associated with the control."
             },
             {
-              "name": "aria-valuetext",
+              "name": "aria-disabled",
               "kind": "aria",
-              "description": "Provides human-readable text for the current value."
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-invalid",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that the field has a validation error."
+            },
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "aria-readonly",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that the control value cannot be changed by the user."
+            },
+            {
+              "name": "aria-required",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that user input is required."
             },
             {
               "name": "data-disabled",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the component, slot, or item is disabled."
             },
             {
               "name": "data-dragging",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present while the related thumb or handle is being dragged."
             },
             {
               "name": "data-invalid",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-inverted",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component direction or range is inverted."
+            },
+            {
+              "name": "data-multiple",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the control contains or selects multiple values."
             },
             {
               "name": "data-readonly",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the field is in read-only mode."
             },
             {
               "name": "data-required",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the field input is required."
             },
             {
               "name": "role",
               "kind": "role",
-              "values": [
-                "group"
-              ],
+              "value": {
+                "kind": "literal",
+                "value": "group"
+              },
               "description": "Defines the semantic role exposed to assistive technology."
             }
           ]
         },
         {
-          "target": "thumb",
+          "name": "track",
+          "slot": "track",
+          "selector": "[data-slot=\"track\"]",
+          "element": "div",
+          "attributes": []
+        },
+        {
+          "name": "range",
+          "slot": "range",
+          "selector": "[data-slot=\"range\"]",
+          "element": "div",
           "attributes": [
+            {
+              "name": "data-inverted",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component direction or range is inverted."
+            },
+            {
+              "name": "data-multiple",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the control contains or selects multiple values."
+            }
+          ]
+        },
+        {
+          "name": "divider",
+          "slot": "divider",
+          "selector": "[data-slot=\"divider\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "thumb",
+          "slot": "thumb",
+          "selector": "[data-slot=\"thumb\"]",
+          "element": "div",
+          "attributes": [
+            {
+              "name": "aria-describedby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References descriptive text associated with the control."
+            },
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-invalid",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that the field has a validation error."
+            },
             {
               "name": "aria-label",
               "kind": "aria",
+              "value": {
+                "kind": "literal",
+                "value": "Thumb"
+              },
               "description": "Provides an accessible label when visible text is not sufficient."
+            },
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References the element that labels the control or region."
             },
             {
               "name": "aria-orientation",
               "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Communicates horizontal or vertical orientation."
+            },
+            {
+              "name": "aria-readonly",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that the control value cannot be changed by the user."
+            },
+            {
+              "name": "aria-required",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that user input is required."
             },
             {
               "name": "aria-valuemax",
               "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Defines the maximum value for range-like controls."
             },
             {
               "name": "aria-valuemin",
               "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Defines the minimum value for range-like controls."
             },
             {
               "name": "aria-valuenow",
               "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Defines the current numeric value for range-like controls."
             },
             {
               "name": "aria-valuetext",
               "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Provides human-readable text for the current value."
             },
             {
               "name": "data-disabled",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the component, slot, or item is disabled."
             },
             {
               "name": "data-dragging",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present while the related thumb or handle is being dragged."
             },
             {
               "name": "data-invalid",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the field or form has a validation error."
             },
             {
               "name": "data-inverted",
               "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component direction or range is inverted."
             },
             {
               "name": "data-readonly",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the field is in read-only mode."
             },
             {
               "name": "data-required",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the field input is required."
             },
             {
               "name": "role",
               "kind": "role",
-              "values": [
-                "slider"
-              ],
+              "value": {
+                "kind": "literal",
+                "value": "slider"
+              },
               "description": "Defines the semantic role exposed to assistive technology."
             }
           ]
+        }
+      ],
+      "cssVariables": [
+        {
+          "name": "--s-len",
+          "target": "root",
+          "description": "Custom property declared by the component recipe on the root target.",
+          "condition": "Variant-dependent"
+        },
+        {
+          "name": "--s-marker-position",
+          "target": "root",
+          "description": "Custom property declared by the component recipe on the root target.",
+          "condition": "Variant-dependent"
+        },
+        {
+          "name": "--s-offset",
+          "target": "root",
+          "description": "Custom property declared by the component recipe on the root target.",
+          "condition": "Variant-dependent"
+        },
+        {
+          "name": "--s-size",
+          "target": "root",
+          "description": "Custom property declared by the component recipe on the root target.",
+          "condition": "Variant-dependent"
+        },
+        {
+          "name": "--s-thumb-size",
+          "target": "root",
+          "description": "Custom property declared by the component recipe on the root target.",
+          "condition": "Variant-dependent"
         }
       ]
     }

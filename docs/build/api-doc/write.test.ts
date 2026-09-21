@@ -29,7 +29,16 @@ describe('writeJsonFiles', () => {
           },
         ],
         slots: [{ name: 'root' }],
-        runtime: [],
+        runtime: [
+          {
+            name: 'root',
+            slot: 'root',
+            selector: '[data-slot="root"]',
+            element: 'div',
+            attributes: [],
+          },
+        ],
+        cssVariables: [],
       },
     ],
   }
@@ -60,6 +69,7 @@ describe('writeJsonFiles', () => {
         ],
       },
       componentDocs: new Map([['demo', validComponent]]),
+      diagnostics: [],
     }
 
     await writeJsonFiles(pagesRoot, result)
@@ -97,6 +107,7 @@ describe('writeJsonFiles', () => {
     const failingResult: GenerationResult = {
       indexDoc: { components: [] },
       componentDocs: new Map([['demo', invalidComponent]]),
+      diagnostics: [],
     }
 
     await expect(writeJsonFiles(pagesRoot, failingResult)).rejects.toThrow(

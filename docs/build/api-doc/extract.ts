@@ -46,16 +46,28 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
         part.name,
         part.isRoot,
       )
+      if (part.rendersDom === false) {
+        partData.rendering = { rendersDom: false }
+      }
 
       const targetFallback = part.isRoot
         ? 'root'
         : toKebabCase(part.name.includes('.') ? part.name.split('.').pop()! : part.name)
 
-      const runtime = await runtimeExtractor.extractRuntimeMetadata(
-        part.sourcePath,
-        slotNamesSet,
-        targetFallback,
-      )
+      const runtime =
+        partData.rendering?.rendersDom === false
+          ? { targets: [], cssVariables: [] }
+          : await runtimeExtractor.extractRuntimeMetadata({
+              sourcePath: part.runtimeSourcePath ?? part.sourcePath,
+              implementationName: part.runtimeImplementationName ?? part.implementationName,
+              publicSlotNames: part.runtimeSlotNames
+                ? new Set(part.runtimeSlotNames)
+                : slotNamesSet,
+              targetFallback,
+              allowHostFallback: part.runtimeAllowHostFallback ?? true,
+              delegateRootTargets: part.runtimeDelegateRootTargets,
+              defaultElement: partData.rendering?.defaultElement,
+            })
 
       parts.push({
         id: part.id,
@@ -67,7 +79,8 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
         ...(partData.rendering ? { rendering: partData.rendering } : {}),
         props: partData.props,
         slots: part.isRoot ? slots : [],
-        runtime,
+        runtime: runtime.targets,
+        cssVariables: runtime.cssVariables,
       })
     }
 
@@ -108,5 +121,6 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
   return {
     indexDoc: { components: indexComponents },
     componentDocs,
+    diagnostics: [...runtimeExtractor.diagnostics],
   }
 }

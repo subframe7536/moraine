@@ -430,85 +430,236 @@
       ],
       "runtime": [
         {
-          "target": "control",
-          "attributes": [
-            {
-              "name": "data-dragging",
-              "kind": "data",
-              "description": "Present while the related thumb or handle is being dragged."
-            },
-            {
-              "name": "data-dropzone",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-invalid",
-              "kind": "data",
-              "description": "Present when the field or form has a validation error."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "button"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "fileRemove",
+          "name": "fileRemove",
+          "slot": "fileRemove",
+          "selector": "[data-slot=\"fileRemove\"]",
+          "element": "button",
           "attributes": [
             {
               "name": "aria-label",
               "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Provides an accessible label when visible text is not sufficient."
             }
           ]
         },
         {
-          "target": "root",
+          "name": "wrapper",
+          "slot": "wrapper",
+          "selector": "[data-slot=\"wrapper\"]",
+          "element": "div",
+          "attributes": [
+            {
+              "name": "data-dropzone",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the target is an active file dropzone."
+            }
+          ]
+        },
+        {
+          "name": "icon",
+          "slot": "icon",
+          "selector": "[data-slot=\"icon\"]",
+          "element": "div",
           "attributes": [
             {
               "name": "aria-hidden",
               "kind": "aria",
-              "values": [
-                "true"
-              ],
+              "value": {
+                "kind": "boolean"
+              },
               "description": "Hides decorative content from assistive technology."
             },
             {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "img"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "name": "label",
+          "slot": "label",
+          "selector": "[data-slot=\"label\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "description",
+          "slot": "description",
+          "selector": "[data-slot=\"description\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "div",
+          "attributes": [
+            {
               "name": "aria-label",
               "kind": "aria",
+              "value": {
+                "kind": "literal",
+                "value": "File upload"
+              },
               "description": "Provides an accessible label when visible text is not sufficient."
             },
             {
               "name": "aria-labelledby",
               "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "References the element that labels the control or region."
             },
             {
               "name": "data-disabled",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field or form has a validation error."
             },
             {
               "name": "data-readonly",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field input is required."
             },
             {
               "name": "role",
               "kind": "role",
-              "values": [
-                "group"
-              ],
+              "value": {
+                "kind": "literal",
+                "value": "group"
+              },
               "description": "Defines the semantic role exposed to assistive technology."
             }
           ]
+        },
+        {
+          "name": "control",
+          "slot": "control",
+          "selector": "[data-slot=\"control\"]",
+          "element": "button",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "data-dragging",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present while the related thumb or handle is being dragged."
+            },
+            {
+              "name": "data-dropzone",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the target is an active file dropzone."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "button"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "name": "files",
+          "slot": "files",
+          "selector": "[data-slot=\"files\"]",
+          "element": "ul",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "file",
+          "slot": "file",
+          "selector": "[data-slot=\"file\"]",
+          "element": "li",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "filePreview",
+          "slot": "filePreview",
+          "selector": "[data-slot=\"filePreview\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "fileMeta",
+          "slot": "fileMeta",
+          "selector": "[data-slot=\"fileMeta\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "fileName",
+          "slot": "fileName",
+          "selector": "[data-slot=\"fileName\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "fileSize",
+          "slot": "fileSize",
+          "selector": "[data-slot=\"fileSize\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": []
         }
-      ]
+      ],
+      "cssVariables": []
     }
   ]
 }

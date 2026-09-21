@@ -339,99 +339,226 @@
       ],
       "runtime": [
         {
-          "target": "label",
-          "attributes": [
-            {
-              "name": "data-required",
-              "kind": "data",
-              "description": "Present when the field input is required."
-            }
-          ]
-        },
-        {
-          "target": "root",
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "div",
           "attributes": [
             {
               "name": "data-checked",
               "kind": "data",
-              "description": "Present when the item or toggle is checked."
-            },
-            {
-              "name": "data-loading",
-              "kind": "data",
-              "description": "Present when the component or async operation is loading."
-            },
-            {
-              "name": "data-unchecked",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        },
-        {
-          "target": "thumb",
-          "attributes": [
-            {
-              "name": "data-checked",
-              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the item or toggle is checked."
             },
             {
               "name": "data-disabled",
               "kind": "data",
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-readonly",
-              "kind": "data",
-              "description": "Present when the field is in read-only mode."
-            }
-          ]
-        },
-        {
-          "target": "track",
-          "attributes": [
-            {
-              "name": "aria-checked",
-              "kind": "aria",
-              "description": "Accessibility attribute forwarded by the rendered component."
-            },
-            {
-              "name": "data-checked",
-              "kind": "data",
-              "description": "Present when the item or toggle is checked."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the component, slot, or item is disabled."
             },
             {
               "name": "data-invalid",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-loading",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component or async operation is loading."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field input is required."
+            },
+            {
+              "name": "data-unchecked",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the checkbox, radio item, or switch is unchecked."
+            }
+          ]
+        },
+        {
+          "name": "track",
+          "slot": "track",
+          "selector": "[data-slot=\"track\"]",
+          "element": "button",
+          "attributes": [
+            {
+              "name": "aria-checked",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "Communicates the checked, unchecked, or mixed state of a control."
+            },
+            {
+              "name": "data-checked",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the item or toggle is checked."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the field or form has a validation error."
             },
             {
               "name": "data-readonly",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the field is in read-only mode."
             },
             {
               "name": "data-unchecked",
               "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the checkbox, radio item, or switch is unchecked."
             },
             {
               "name": "role",
               "kind": "role",
-              "values": [
-                "switch"
-              ],
+              "value": {
+                "kind": "literal",
+                "value": "switch"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "name": "thumb",
+          "slot": "thumb",
+          "selector": "[data-slot=\"thumb\"]",
+          "element": "span",
+          "attributes": [
+            {
+              "name": "data-checked",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the item or toggle is checked."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-unchecked",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the checkbox, radio item, or switch is unchecked."
+            }
+          ]
+        },
+        {
+          "name": "wrapper",
+          "slot": "wrapper",
+          "selector": "[data-slot=\"wrapper\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "label",
+          "slot": "label",
+          "selector": "[data-slot=\"label\"]",
+          "element": "label",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "data-required",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field input is required."
+            }
+          ]
+        },
+        {
+          "name": "description",
+          "slot": "description",
+          "selector": "[data-slot=\"description\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "icon",
+          "slot": "icon",
+          "selector": "[data-slot=\"icon\"]",
+          "element": "div",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "img"
+              },
               "description": "Defines the semantic role exposed to assistive technology."
             }
           ]
         }
-      ]
+      ],
+      "cssVariables": []
     }
   ]
 }

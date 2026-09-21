@@ -164,73 +164,149 @@
       ],
       "runtime": [
         {
-          "target": "page",
-          "attributes": [
-            {
-              "name": "aria-current",
-              "kind": "aria",
-              "description": "Marks the current item in a set or navigation trail."
-            },
-            {
-              "name": "aria-disabled",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Indicates that the control is disabled."
-            },
-            {
-              "name": "data-current",
-              "kind": "data",
-              "description": "Present when the item represents the current location or step."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "link"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "root",
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "nav",
           "attributes": [
             {
               "name": "aria-label",
               "kind": "aria",
+              "value": {
+                "kind": "literal",
+                "value": "breadcrumb"
+              },
               "description": "Provides an accessible label when visible text is not sufficient."
             }
           ]
         },
         {
-          "target": "separator",
+          "name": "list",
+          "slot": "list",
+          "selector": "[data-slot=\"list\"]",
+          "element": "ol",
+          "attributes": []
+        },
+        {
+          "name": "item",
+          "slot": "item",
+          "selector": "[data-slot=\"item\"]",
+          "element": "li",
+          "attributes": []
+        },
+        {
+          "name": "page",
+          "slot": "page",
+          "selector": "[data-slot=\"page\"]",
+          "element": "nav",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "aria-current",
+              "kind": "aria",
+              "value": {
+                "kind": "literal",
+                "value": "page"
+              },
+              "description": "Marks the current item in a set or navigation trail."
+            },
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "data-current",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the item represents the current location or step."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "link"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "name": "leading",
+          "slot": "leading",
+          "selector": "[data-slot=\"leading\"]",
+          "element": "nav",
+          "condition": "Conditional",
           "attributes": [
             {
               "name": "aria-hidden",
               "kind": "aria",
-              "values": [
-                "true"
-              ],
+              "value": {
+                "kind": "boolean"
+              },
               "description": "Hides decorative content from assistive technology."
             },
             {
               "name": "role",
               "kind": "role",
-              "values": [
-                "presentation"
-              ],
+              "value": {
+                "kind": "literal",
+                "value": "img"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "name": "label",
+          "slot": "label",
+          "selector": "[data-slot=\"label\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "separator",
+          "slot": "separator",
+          "selector": "[data-slot=\"separator\"]",
+          "element": "li",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "presentation"
+              },
               "description": "Defines the semantic role exposed to assistive technology."
             }
           ]
         }
-      ]
+      ],
+      "cssVariables": []
     }
   ],
   "item": {

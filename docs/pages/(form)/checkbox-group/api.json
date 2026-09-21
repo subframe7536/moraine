@@ -300,26 +300,364 @@
       ],
       "runtime": [
         {
-          "target": "fieldset",
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "div",
           "attributes": [
             {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "description": "References the element that labels the control or region."
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field input is required."
             }
           ]
         },
         {
-          "target": "legend",
+          "name": "fieldset",
+          "slot": "fieldset",
+          "selector": "[data-slot=\"fieldset\"]",
+          "element": "fieldset",
+          "attributes": [
+            {
+              "name": "aria-describedby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References descriptive text associated with the control."
+            },
+            {
+              "name": "aria-disabled",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that the control is disabled."
+            },
+            {
+              "name": "aria-invalid",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that the field has a validation error."
+            },
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "aria-readonly",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that the control value cannot be changed by the user."
+            },
+            {
+              "name": "aria-required",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Indicates that user input is required."
+            }
+          ]
+        },
+        {
+          "name": "legend",
+          "slot": "legend",
+          "selector": "[data-slot=\"legend\"]",
+          "element": "legend",
+          "condition": "Conditional",
           "attributes": [
             {
               "name": "data-required",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the field input is required."
             }
           ]
+        },
+        {
+          "name": "item",
+          "slot": "item",
+          "selector": "[data-slot=\"item\"]",
+          "element": "div",
+          "attributes": [
+            {
+              "name": "data-checked",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the item or toggle is checked."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-indeterminate",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the checkbox or progress state is indeterminate."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field input is required."
+            },
+            {
+              "name": "data-unchecked",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the checkbox, radio item, or switch is unchecked."
+            }
+          ]
+        },
+        {
+          "name": "container",
+          "slot": "container",
+          "selector": "[data-slot=\"container\"]",
+          "element": "div",
+          "attributes": []
+        },
+        {
+          "name": "control",
+          "slot": "control",
+          "selector": "[data-slot=\"control\"]",
+          "element": "button",
+          "attributes": [
+            {
+              "name": "aria-checked",
+              "kind": "aria",
+              "value": {
+                "kind": "literal",
+                "value": "mixed"
+              },
+              "description": "Communicates the checked, unchecked, or mixed state of a control."
+            },
+            {
+              "name": "data-checked",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the item or toggle is checked."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-indeterminate",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the checkbox or progress state is indeterminate."
+            },
+            {
+              "name": "data-invalid",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field or form has a validation error."
+            },
+            {
+              "name": "data-readonly",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field is in read-only mode."
+            },
+            {
+              "name": "data-required",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field input is required."
+            },
+            {
+              "name": "data-unchecked",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the checkbox, radio item, or switch is unchecked."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "checkbox"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "name": "indicator",
+          "slot": "indicator",
+          "selector": "[data-slot=\"indicator\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "data-checked",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the item or toggle is checked."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-indeterminate",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the checkbox or progress state is indeterminate."
+            }
+          ]
+        },
+        {
+          "name": "wrapper",
+          "slot": "wrapper",
+          "selector": "[data-slot=\"wrapper\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "label",
+          "slot": "label",
+          "selector": "[data-slot=\"label\"]",
+          "element": "label",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "data-required",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the field input is required."
+            }
+          ]
+        },
+        {
+          "name": "description",
+          "slot": "description",
+          "selector": "[data-slot=\"description\"]",
+          "element": "p",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "icon",
+          "slot": "icon",
+          "selector": "[data-slot=\"icon\"]",
+          "element": "div",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "img"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
         }
-      ]
+      ],
+      "cssVariables": []
     }
   ],
   "item": {

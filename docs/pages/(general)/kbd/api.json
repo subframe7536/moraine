@@ -137,16 +137,24 @@
       ],
       "runtime": [
         {
-          "target": "root",
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "kbd",
+          "condition": "Conditional",
           "attributes": [
             {
               "name": "aria-label",
               "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Provides an accessible label when visible text is not sufficient."
             }
           ]
         }
-      ]
+      ],
+      "cssVariables": []
     }
   ]
 }

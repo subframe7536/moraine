@@ -229,93 +229,171 @@
       ],
       "runtime": [
         {
-          "target": "content",
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "div",
           "attributes": [
             {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "description": "References the element that labels the control or region."
-            },
-            {
-              "name": "data-selected",
+              "name": "data-disabled",
               "kind": "data",
-              "description": "Present when the item or tab is selected."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "tabpanel"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
             }
           ]
         },
         {
-          "target": "indicator",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Hides decorative content from assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "list",
+          "name": "list",
+          "slot": "list",
+          "selector": "[data-slot=\"list\"]",
+          "element": "div",
           "attributes": [
             {
               "name": "aria-orientation",
               "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Communicates horizontal or vertical orientation."
             },
             {
               "name": "role",
               "kind": "role",
-              "values": [
-                "tablist"
-              ],
+              "value": {
+                "kind": "literal",
+                "value": "tablist"
+              },
               "description": "Defines the semantic role exposed to assistive technology."
             }
           ]
         },
         {
-          "target": "trigger",
+          "name": "indicator",
+          "slot": "indicator",
+          "selector": "[data-slot=\"indicator\"]",
+          "element": "div",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Hides decorative content from assistive technology."
+            }
+          ]
+        },
+        {
+          "name": "trigger",
+          "slot": "trigger",
+          "selector": "[data-slot=\"trigger\"]",
+          "element": "button",
           "attributes": [
             {
               "name": "aria-controls",
               "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "References the controlled element while the related content is mounted."
             },
             {
               "name": "aria-selected",
               "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
               "description": "Indicates the currently selected option or tab."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the component, slot, or item is disabled."
             },
             {
               "name": "data-highlighted",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the item is highlighted by pointer or keyboard navigation."
             },
             {
               "name": "data-selected",
               "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
               "description": "Present when the item or tab is selected."
             },
             {
               "name": "role",
               "kind": "role",
-              "values": [
-                "tab"
-              ],
+              "value": {
+                "kind": "literal",
+                "value": "tab"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "name": "leading",
+          "slot": "leading",
+          "selector": "[data-slot=\"leading\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "label",
+          "slot": "label",
+          "selector": "[data-slot=\"label\"]",
+          "element": "span",
+          "condition": "Conditional",
+          "attributes": []
+        },
+        {
+          "name": "content",
+          "slot": "content",
+          "selector": "[data-slot=\"content\"]",
+          "element": "div",
+          "condition": "Conditional",
+          "attributes": [
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "data-selected",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the item or tab is selected."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "tabpanel"
+              },
               "description": "Defines the semantic role exposed to assistive technology."
             }
           ]
         }
-      ]
+      ],
+      "cssVariables": []
     }
   ],
   "item": {

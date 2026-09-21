@@ -125,42 +125,56 @@
       ],
       "runtime": [
         {
-          "target": "frame",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Hides decorative content from assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "root",
+          "name": "root",
+          "slot": "root",
+          "selector": "[data-slot=\"root\"]",
+          "element": "div",
           "attributes": [
             {
               "name": "data-input-group",
               "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Identifies a control rendered within an input group."
             },
             {
               "name": "data-orientation",
               "kind": "data",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Stores the rendered orientation (horizontal or vertical)."
             },
             {
               "name": "role",
               "kind": "role",
-              "values": [
-                "group"
-              ],
+              "value": {
+                "kind": "literal",
+                "value": "group"
+              },
               "description": "Defines the semantic role exposed to assistive technology."
             }
           ]
+        },
+        {
+          "name": "frame",
+          "slot": "frame",
+          "selector": "[data-slot=\"frame\"]",
+          "element": "span",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "value": {
+                "kind": "boolean"
+              },
+              "description": "Hides decorative content from assistive technology."
+            }
+          ]
         }
-      ]
+      ],
+      "cssVariables": []
     },
     {
       "id": "input-group-leading",
@@ -170,7 +184,7 @@
         "root": "InputGroup",
         "member": "Leading"
       },
-      "sourcePath": "src/forms/input-group/input-group.tsx",
+      "sourcePath": "src/forms/input-group/input-group-parts.tsx",
       "rendering": {
         "rendersDom": true,
         "defaultElement": "div",
@@ -221,42 +235,31 @@
       "slots": [],
       "runtime": [
         {
-          "target": "frame",
+          "name": "leading",
+          "slot": "leading",
+          "selector": "[data-slot=\"leading\"]",
+          "element": "div",
           "attributes": [
             {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Hides decorative content from assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "data-input-group",
+              "name": "data-compact",
               "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "Present when the component uses its compact presentation."
             },
             {
               "name": "data-orientation",
               "kind": "data",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Stores the rendered orientation (horizontal or vertical)."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "group"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
             }
           ]
         }
-      ]
+      ],
+      "cssVariables": []
     },
     {
       "id": "input-group-trailing",
@@ -266,7 +269,7 @@
         "root": "InputGroup",
         "member": "Trailing"
       },
-      "sourcePath": "src/forms/input-group/input-group.tsx",
+      "sourcePath": "src/forms/input-group/input-group-parts.tsx",
       "rendering": {
         "rendersDom": true,
         "defaultElement": "div",
@@ -317,42 +320,31 @@
       "slots": [],
       "runtime": [
         {
-          "target": "frame",
+          "name": "trailing",
+          "slot": "trailing",
+          "selector": "[data-slot=\"trailing\"]",
+          "element": "div",
           "attributes": [
             {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Hides decorative content from assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "data-input-group",
+              "name": "data-compact",
               "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
+              "value": {
+                "kind": "dynamic"
+              },
+              "description": "Present when the component uses its compact presentation."
             },
             {
               "name": "data-orientation",
               "kind": "data",
+              "value": {
+                "kind": "dynamic"
+              },
               "description": "Stores the rendered orientation (horizontal or vertical)."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "group"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
             }
           ]
         }
-      ]
+      ],
+      "cssVariables": []
     }
   ]
 }
