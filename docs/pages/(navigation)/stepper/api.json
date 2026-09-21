@@ -1,373 +1,470 @@
 {
-  "component": {
-    "key": "stepper",
-    "name": "Stepper",
-    "category": "navigation",
-    "polymorphic": false,
-    "description": "Tab-structured step navigation with configurable orientation and separator layout.",
-    "sourcePath": "src/navigation/stepper/stepper.tsx",
-    "kind": "single"
-  },
-  "slots": [
+  "key": "stepper",
+  "name": "Stepper",
+  "category": "navigation",
+  "description": "Props for the Stepper component.",
+  "kind": "single",
+  "sourcePath": "src/navigation/stepper/stepper.tsx",
+  "parts": [
     {
-      "name": "root",
-      "description": "Stepper container that owns orientation, step state, and panel rendering.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "header",
-      "description": "Step navigation header that contains all step triggers.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": [
+      "id": "stepper",
+      "name": "Stepper",
+      "access": {
+        "kind": "export",
+        "name": "Stepper",
+        "package": "moraine"
+      },
+      "sourcePath": "src/navigation/stepper/stepper.tsx",
+      "description": "Props for the Stepper component.",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
         {
-          "name": "aria-orientation",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Communicates horizontal or vertical orientation."
+          "name": "activationMode",
+          "optional": true,
+          "type": {
+            "text": "'automatic' | 'manual'"
+          },
+          "description": "Whether keyboard activation happens immediately or only after confirmation.",
+          "default": {
+            "kind": "literal",
+            "value": "automatic"
+          },
+          "group": "behavior"
         },
         {
-          "name": "role",
-          "required": false,
-          "type": "string",
-          "description": "Defines the semantic role exposed to assistive technology."
-        }
-      ]
-    },
-    {
-      "name": "item",
-      "description": "One step trigger and its connector.",
-      "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-disabled",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component, slot, or item is disabled."
+          "name": "clickable",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether steps are clickable for navigation.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
         },
         {
-          "name": "data-state",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the entire stepper is disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Unique identifier for the stepper root element.",
+          "group": "behavior"
+        },
+        {
+          "name": "linear",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether to enforce linear navigation (must complete steps in order).",
+          "default": {
+            "kind": "literal",
+            "value": true
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "loop",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether keyboard navigation loops around when reaching the ends.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "items",
+          "optional": true,
+          "type": {
+            "text": "Item[]"
+          },
+          "description": "Array of steps to display.",
+          "group": "data"
+        },
+        {
+          "name": "defaultValue",
+          "optional": true,
+          "type": {
+            "text": "Value"
+          },
+          "description": "Default active step value for uncontrolled usage.",
+          "group": "state",
+          "state": {
+            "key": "value",
+            "role": "default"
+          }
+        },
+        {
+          "name": "onChange",
+          "optional": true,
+          "type": {
+            "text": "(value: Value) => void"
+          },
+          "description": "Callback when the active step changes.",
+          "group": "state",
+          "traits": [
+            "callback"
+          ],
+          "state": {
+            "key": "value",
+            "role": "change"
+          }
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": {
+            "text": "Value"
+          },
+          "description": "Controlled active step value.",
+          "group": "state",
+          "state": {
+            "key": "value",
+            "role": "value"
+          }
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "orientation",
+          "optional": true,
+          "type": {
+            "text": "'horizontal' | 'vertical'"
+          },
+          "description": "Layout axis used by the component Recipe.",
+          "group": "styling"
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": {
+            "text": "'sm' | 'md' | 'lg'"
+          },
+          "description": "Visual size of the component.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          },
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
         }
       ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "trigger",
-      "description": "Interactive step control users activate to select a step.",
-      "cssVariables": [],
-      "dataAttributes": [
+      "slots": [
         {
-          "name": "data-clickable",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "name": "content",
+          "description": "Panel rendered for the active step content."
         },
         {
-          "name": "data-selected",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the item or tab is selected."
+          "name": "description",
+          "description": "Supporting description for a step."
         },
         {
-          "name": "data-state",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
+          "name": "header",
+          "description": "Step navigation header that contains all step triggers."
+        },
+        {
+          "name": "icon",
+          "description": "Icon rendered inside a completed or custom step indicator."
+        },
+        {
+          "name": "indicator",
+          "description": "Step marker that communicates index, active state, or completion."
+        },
+        {
+          "name": "item",
+          "description": "One step trigger and its connector."
+        },
+        {
+          "name": "root",
+          "description": "Stepper container that owns orientation, step state, and panel rendering."
+        },
+        {
+          "name": "separator",
+          "description": "Connector line between adjacent steps."
+        },
+        {
+          "name": "title",
+          "description": "Primary title text for a step."
+        },
+        {
+          "name": "trigger",
+          "description": "Interactive step control users activate to select a step."
+        },
+        {
+          "name": "wrapper",
+          "description": "Optional title and description column inside the trigger."
         }
       ],
-      "ariaAttributes": [
+      "runtime": [
         {
-          "name": "aria-controls",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References the controlled element while the related content is mounted."
+          "target": "content",
+          "attributes": [
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "data-selected",
+              "kind": "data",
+              "description": "Present when the item or tab is selected."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "tabpanel"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
         },
         {
-          "name": "aria-describedby",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References descriptive text associated with the control."
+          "target": "header",
+          "attributes": [
+            {
+              "name": "aria-orientation",
+              "kind": "aria",
+              "description": "Communicates horizontal or vertical orientation."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "tablist"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
         },
         {
-          "name": "aria-labelledby",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References the element that labels the control or region."
+          "target": "indicator",
+          "attributes": [
+            {
+              "name": "data-state",
+              "kind": "data",
+              "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
+            }
+          ]
         },
         {
-          "name": "aria-selected",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates the currently selected option or tab."
+          "target": "item",
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-state",
+              "kind": "data",
+              "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
+            }
+          ]
         },
         {
-          "name": "role",
-          "required": false,
-          "type": "string",
-          "description": "Defines the semantic role exposed to assistive technology."
-        }
-      ]
-    },
-    {
-      "name": "indicator",
-      "description": "Step marker that communicates index, active state, or completion.",
-      "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-state",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
-        }
-      ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "icon",
-      "description": "Icon rendered inside a completed or custom step indicator.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "separator",
-      "description": "Connector line between adjacent steps.",
-      "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-disabled",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component, slot, or item is disabled."
+          "target": "separator",
+          "attributes": [
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-state",
+              "kind": "data",
+              "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
+            }
+          ]
         },
         {
-          "name": "data-state",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
-        }
-      ],
-      "ariaAttributes": [
-        {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
-        }
-      ]
-    },
-    {
-      "name": "wrapper",
-      "description": "Optional title and description column inside the trigger.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "title",
-      "description": "Primary title text for a step.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "description",
-      "description": "Supporting description for a step.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "content",
-      "description": "Panel rendered for the active step content.",
-      "cssVariables": [],
-      "dataAttributes": [
-        {
-          "name": "data-selected",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the item or tab is selected."
-        }
-      ],
-      "ariaAttributes": [
-        {
-          "name": "aria-labelledby",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References the element that labels the control or region."
-        },
-        {
-          "name": "role",
-          "required": false,
-          "type": "string",
-          "description": "Defines the semantic role exposed to assistive technology."
+          "target": "trigger",
+          "attributes": [
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-describedby",
+              "kind": "aria",
+              "description": "References descriptive text associated with the control."
+            },
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "aria-selected",
+              "kind": "aria",
+              "description": "Indicates the currently selected option or tab."
+            },
+            {
+              "name": "data-clickable",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            },
+            {
+              "name": "data-selected",
+              "kind": "data",
+              "description": "Present when the item or tab is selected."
+            },
+            {
+              "name": "data-state",
+              "kind": "data",
+              "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "tab"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
         }
       ]
     }
   ],
   "item": {
+    "name": "Item",
+    "description": "An individual step in the stepper.",
     "props": [
       {
         "name": "class",
-        "required": false,
-        "type": "string | undefined",
+        "optional": true,
+        "type": {
+          "text": "string"
+        },
         "description": "Additional class name for the step item."
       },
       {
         "name": "content",
-        "required": false,
-        "type": "JSX.Element",
+        "optional": true,
+        "type": {
+          "text": "JSX.Element"
+        },
         "description": "Content to display when the step is active."
       },
       {
         "name": "description",
-        "required": false,
-        "type": "JSX.Element",
+        "optional": true,
+        "type": {
+          "text": "JSX.Element"
+        },
         "description": "Secondary description of the step."
       },
       {
         "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
+        "optional": true,
+        "type": {
+          "text": "boolean"
+        },
         "description": "Whether the step is disabled.",
-        "defaultValue": "false"
+        "default": {
+          "kind": "literal",
+          "value": false
+        }
       },
       {
         "name": "icon",
-        "required": false,
-        "type": "IconT.Name",
+        "optional": true,
+        "type": {
+          "text": "IconT.Name"
+        },
         "description": "Icon to display in the step indicator.",
-        "defaultValue": "index + 1"
+        "default": {
+          "kind": "expression",
+          "text": "index + 1"
+        }
       },
       {
         "name": "title",
-        "required": false,
-        "type": "JSX.Element",
+        "optional": true,
+        "type": {
+          "text": "JSX.Element"
+        },
         "description": "Title of the step."
       },
       {
         "name": "value",
-        "required": false,
-        "type": "StepperT.Value | undefined",
+        "optional": true,
+        "type": {
+          "text": "Value"
+        },
         "description": "Unique value for the step.",
-        "defaultValue": "index of the item"
+        "default": {
+          "kind": "expression",
+          "text": "index of the item"
+        }
       }
-    ],
-    "description": "An individual step in the stepper."
-  },
-  "props": {
-    "own": [
-      {
-        "name": "activationMode",
-        "required": false,
-        "type": "\"manual\" | \"automatic\" | undefined",
-        "description": "Whether keyboard activation happens immediately or only after confirmation.",
-        "defaultValue": "automatic"
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "StepperT.Classes | undefined"
-      },
-      {
-        "name": "clickable",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether steps are clickable for navigation.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "defaultValue",
-        "required": false,
-        "type": "StepperT.Value | undefined",
-        "description": "Default active step value for uncontrolled usage."
-      },
-      {
-        "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the entire stepper is disabled.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "id",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Unique identifier for the stepper root element."
-      },
-      {
-        "name": "items",
-        "required": false,
-        "type": "StepperT.Item[] | undefined",
-        "description": "Array of steps to display."
-      },
-      {
-        "name": "linear",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to enforce linear navigation (must complete steps in order).",
-        "defaultValue": "true"
-      },
-      {
-        "name": "loop",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether keyboard navigation loops around when reaching the ends.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "onChange",
-        "required": false,
-        "type": "((value: StepperT.Value) => void) | undefined",
-        "description": "Callback when the active step changes."
-      },
-      {
-        "name": "orientation",
-        "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined",
-        "description": "The orientation of the stepper.",
-        "defaultValue": "horizontal"
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "size",
-        "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
-        "description": "Visual size of the component.",
-        "defaultValue": "md"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "StepperT.Styles | undefined"
-      },
-      {
-        "name": "value",
-        "required": false,
-        "type": "StepperT.Value | undefined",
-        "description": "Controlled active step value."
-      }
-    ],
-    "inherited": []
+    ]
   }
 }

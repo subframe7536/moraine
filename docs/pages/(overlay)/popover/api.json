@@ -1,313 +1,607 @@
 {
-  "component": {
-    "key": "popover",
-    "name": "Popover",
-    "category": "overlays",
-    "polymorphic": false,
-    "description": "Click-triggered floating content panel anchored to a trigger element.",
-    "sourcePath": "src/overlays/popover/popover.tsx",
-    "kind": "composite"
-  },
-  "slots": [
+  "key": "popover",
+  "name": "Popover",
+  "category": "overlays",
+  "kind": "composite",
+  "sourcePath": "src/overlays/popover/popover.tsx",
+  "parts": [
     {
-      "name": "trigger",
-      "description": "Element that opens the popover.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "content",
-      "description": "Positioned popover panel anchored to the trigger.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "body",
-      "description": "Content body rendered inside the popover panel.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    }
-  ],
-  "props": {
-    "own": [
-      {
-        "name": "children",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Composed trigger and content primitives."
+      "id": "popover",
+      "name": "Popover",
+      "access": {
+        "kind": "export",
+        "name": "Popover",
+        "package": "moraine"
       },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "PopoverT.Classes | undefined",
-        "description": "Family slot class defaults for this Popover instance."
-      },
-      {
-        "name": "closeDelay",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Delay in milliseconds before closing in hover mode.",
-        "defaultValue": "100"
-      },
-      {
-        "name": "defaultOpen",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Initial open state when uncontrolled.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether trigger interactions and content rendering are disabled.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "dismissible",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether outside interaction and Escape dismiss the content.",
-        "defaultValue": "true"
-      },
-      {
-        "name": "forceMount",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether content remains mounted while closed.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "id",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Unique identifier used to derive the content id."
-      },
-      {
-        "name": "modal",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the content traps focus and hides outside content from assistive technology.\nThis is enabled only when Popover.Content composes Popover.Close; otherwise the Popover\nremains non-modal so assistive-technology users retain a dismissal route.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "mode",
-        "required": false,
-        "type": "PopoverT.Mode | undefined",
-        "description": "Interaction mode for triggering the popover.",
-        "defaultValue": "click"
-      },
-      {
-        "name": "onClosePrevent",
-        "required": false,
-        "type": "(() => void) | undefined",
-        "description": "Called when a dismissal attempt is blocked."
-      },
-      {
-        "name": "onOpenChange",
-        "required": false,
-        "type": "((open: boolean) => void) | undefined",
-        "description": "Called whenever the open state changes."
-      },
-      {
-        "name": "open",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Controlled open state."
-      },
-      {
-        "name": "openDelay",
-        "required": false,
-        "type": "number | undefined",
-        "description": "Delay in milliseconds before opening in hover mode.",
-        "defaultValue": "100"
-      },
-      {
-        "name": "placement",
-        "required": false,
-        "type": "Placement | undefined",
-        "description": "Preferred content placement relative to the trigger.",
-        "defaultValue": "bottom"
-      },
-      {
-        "name": "preventScroll",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether body scroll should be locked while the content is present.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "PopoverT.Styles | undefined",
-        "description": "Family slot style defaults for this Popover instance."
-      }
-    ],
-    "inherited": []
-  },
-  "primitives": [
-    {
-      "component": {
-        "key": "popover-trigger",
-        "name": "Popover.Trigger",
-        "category": "overlays",
-        "polymorphic": true,
-        "sourcePath": "src/overlays/popover/popover.tsx"
-      },
-      "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "as",
-            "required": false,
-            "type": "\"button\" | undefined",
-            "description": "Element or component to render as.",
-            "defaultValue": "button"
+      "sourcePath": "src/overlays/popover/popover.tsx",
+      "props": [
+        {
+          "name": "closeDelay",
+          "optional": true,
+          "type": {
+            "text": "number"
           },
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element",
-            "description": "Trigger label and visual content."
+          "description": "Delay in milliseconds before closing in hover mode.",
+          "default": {
+            "kind": "literal",
+            "value": 100
           },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
+          "group": "behavior"
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
           },
-          {
-            "name": "disabled",
-            "required": false,
-            "type": "boolean | undefined",
-            "description": "Whether this trigger is disabled."
+          "description": "Whether trigger interactions and content rendering are disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
           },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
+          "group": "behavior"
+        },
+        {
+          "name": "dismissible",
+          "optional": true,
+          "type": {
+            "text": "boolean"
           },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
+          "description": "Whether outside interaction and Escape dismiss the content.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "forceMount",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether content remains mounted while closed.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Unique identifier used to derive the content id.",
+          "group": "behavior"
+        },
+        {
+          "name": "modal",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the content traps focus and hides outside content from assistive technology.\nThis is enabled only when Popover.Content composes Popover.Close; otherwise the Popover\nremains non-modal so assistive-technology users retain a dismissal route.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "mode",
+          "optional": true,
+          "type": {
+            "text": "Mode"
+          },
+          "description": "Interaction mode for triggering the popover.",
+          "default": {
+            "kind": "literal",
+            "value": "click"
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "onClosePrevent",
+          "optional": true,
+          "type": {
+            "text": "() => void"
+          },
+          "description": "Called when a dismissal attempt is blocked.",
+          "group": "behavior",
+          "traits": [
+            "callback"
+          ]
+        },
+        {
+          "name": "openDelay",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Delay in milliseconds before opening in hover mode.",
+          "default": {
+            "kind": "literal",
+            "value": 100
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "placement",
+          "optional": true,
+          "type": {
+            "text": "PopperPlacement"
+          },
+          "description": "Preferred content placement relative to the trigger.",
+          "default": {
+            "kind": "literal",
+            "value": "bottom"
+          },
+          "group": "behavior",
+          "traits": [
+            "positioning"
+          ]
+        },
+        {
+          "name": "preventScroll",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether body scroll should be locked while the content is present.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Composed trigger and content primitives.",
+          "group": "rendering"
+        },
+        {
+          "name": "defaultOpen",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Initial open state when uncontrolled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "state",
+          "state": {
+            "key": "open",
+            "role": "default"
           }
-        ],
-        "inherited": []
-      }
+        },
+        {
+          "name": "onOpenChange",
+          "optional": true,
+          "type": {
+            "text": "(open: boolean) => void"
+          },
+          "description": "Called whenever the open state changes.",
+          "group": "state",
+          "traits": [
+            "callback"
+          ],
+          "state": {
+            "key": "open",
+            "role": "change"
+          }
+        },
+        {
+          "name": "open",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Controlled open state.",
+          "group": "state",
+          "state": {
+            "key": "open",
+            "role": "value"
+          }
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this Popover instance.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this Popover instance.",
+          "group": "styling"
+        }
+      ],
+      "slots": [
+        {
+          "name": "body",
+          "description": "Content body rendered inside the popover panel."
+        },
+        {
+          "name": "content",
+          "description": "Positioned popover panel anchored to the trigger."
+        },
+        {
+          "name": "trigger",
+          "description": "Element that opens the popover."
+        }
+      ],
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "aria-label",
+              "kind": "aria",
+              "description": "Provides an accessible label when visible text is not sufficient."
+            },
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        },
+        {
+          "target": "root",
+          "attributes": [
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "dialog"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
     },
     {
-      "component": {
-        "key": "popover-content",
-        "name": "Popover.Content",
-        "category": "overlays",
-        "polymorphic": false,
-        "sourcePath": "src/overlays/popover/popover.tsx"
+      "id": "popover-close",
+      "name": "Popover.Close",
+      "access": {
+        "kind": "attached",
+        "root": "Popover",
+        "member": "Close"
       },
-      "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "ariaLabel",
-            "required": false,
-            "type": "string | undefined"
+      "sourcePath": "src/overlays/popover/popover.tsx",
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      ],
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "button",
+        "asProp": "as",
+        "polymorphic": {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      },
+      "props": [
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
           },
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element",
-            "description": "Body content."
+          "description": "Whether this trigger is disabled.",
+          "group": "behavior"
+        },
+        {
+          "name": "as",
+          "optional": true,
+          "type": {
+            "text": ""
           },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "classes",
-            "required": false,
-            "type": "PopoverT.ContentClasses | undefined"
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "side",
-            "required": false,
-            "type": "\"bottom\" | \"top\" | \"right\" | \"left\" | undefined",
-            "description": "Preferred placement relative to the trigger.",
-            "defaultValue": "bottom"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
-          },
-          {
-            "name": "styles",
-            "required": false,
-            "type": "PopoverT.ContentStyles | undefined"
+          "description": "Element or component to render as.",
+          "group": "rendering",
+          "default": {
+            "kind": "literal",
+            "value": "button"
           }
-        ],
-        "inherited": []
-      }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Trigger label and visual content.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "close",
+          "attributes": [
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "dialog"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        },
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "aria-label",
+              "kind": "aria",
+              "description": "Provides an accessible label when visible text is not sufficient."
+            },
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        }
+      ]
     },
     {
-      "component": {
-        "key": "popover-close",
-        "name": "Popover.Close",
-        "category": "overlays",
-        "polymorphic": true,
-        "description": "Closes the current Popover and enables its modal accessibility behavior when composed in Content.",
-        "sourcePath": "src/overlays/popover/popover.tsx"
+      "id": "popover-content",
+      "name": "Popover.Content",
+      "access": {
+        "kind": "attached",
+        "root": "Popover",
+        "member": "Content"
       },
+      "sourcePath": "src/overlays/popover/popover.tsx",
+      "description": "Props for the Popover component.",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "ariaLabel",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "side",
+          "optional": true,
+          "type": {
+            "text": "'top' | 'right' | 'bottom' | 'left'"
+          },
+          "description": "Preferred placement relative to the trigger.",
+          "default": {
+            "kind": "literal",
+            "value": "bottom"
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Body content.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "ContentClasses"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "ContentStyles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
+        }
+      ],
       "slots": [],
-      "props": {
-        "own": [
-          {
-            "name": "as",
-            "required": false,
-            "type": "\"button\" | undefined",
-            "description": "Element or component to render as.",
-            "defaultValue": "button"
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "aria-label",
+              "kind": "aria",
+              "description": "Provides an accessible label when visible text is not sufficient."
+            },
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "dialog"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "popover-trigger",
+      "name": "Popover.Trigger",
+      "access": {
+        "kind": "attached",
+        "root": "Popover",
+        "member": "Trigger"
+      },
+      "sourcePath": "src/overlays/popover/popover.tsx",
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      ],
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "button",
+        "asProp": "as",
+        "polymorphic": {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
+        }
+      },
+      "props": [
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
           },
-          {
-            "name": "children",
-            "required": false,
-            "type": "JSX.Element",
-            "description": "Trigger label and visual content."
+          "description": "Whether this trigger is disabled.",
+          "group": "behavior"
+        },
+        {
+          "name": "as",
+          "optional": true,
+          "type": {
+            "text": "u"
           },
-          {
-            "name": "class",
-            "required": false,
-            "type": "SlotClassValue",
-            "description": "Class applied to the component root or trigger element."
-          },
-          {
-            "name": "disabled",
-            "required": false,
-            "type": "boolean | undefined",
-            "description": "Whether this trigger is disabled."
-          },
-          {
-            "name": "ref",
-            "required": false,
-            "type": "JSX.HTMLElementTags[\"button\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-          },
-          {
-            "name": "style",
-            "required": false,
-            "type": "SlotStyleValue | undefined"
+          "description": "Element or component to render as.",
+          "group": "rendering",
+          "default": {
+            "kind": "literal",
+            "value": "button"
           }
-        ],
-        "inherited": []
-      }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Trigger label and visual content.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "content",
+          "attributes": [
+            {
+              "name": "aria-label",
+              "kind": "aria",
+              "description": "Provides an accessible label when visible text is not sufficient."
+            },
+            {
+              "name": "data-side",
+              "kind": "data",
+              "description": "Stores the resolved floating or drawer content side."
+            }
+          ]
+        },
+        {
+          "target": "trigger",
+          "attributes": [
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "dialog"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

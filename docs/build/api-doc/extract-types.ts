@@ -1,0 +1,1215 @@
+import { existsSync, readFileSync, statSync } from 'node:fs'
+import path from 'node:path'
+
+import type { ESTree } from 'vite'
+
+import { entityNameToText, getIdentifierName, getJsDoc, nodeText, parseTypeScript } from './ast'
+import type { ParsedSource } from './ast'
+import { classifyPropGroup, derivePropTraits, deriveStateRelation } from './classify'
+import type {
+  DefaultValue,
+  GenericParameterApi,
+  ItemApi,
+  ItemPropertyApi,
+  PropApi,
+  RenderingApi,
+  SlotApi,
+} from './types'
+
+export interface ParsedModule {
+  filePath: string
+  source: ParsedSource
+  declarations: Map<string, ESTree.Declaration>
+  namespaces: Map<string, ESTree.TSModuleDeclaration>
+  imports: Map<string, { importedName: string; specifier: string }>
+}
+
+export class TypeExtractor {
+  readonly #modules = new Map<string, ParsedModule>()
+  readonly #indexedAccessStack = new Set<string>()
+  readonly projectRoot: string
+
+  constructor(projectRoot: string) {
+    this.projectRoot = projectRoot
+  }
+
+  async loadModule(filePath: string): Promise<ParsedModule | null> {
+    const absolutePath = path.isAbsolute(filePath)
+      ? filePath
+      : path.resolve(this.projectRoot, filePath)
+    if (!existsSync(absolutePath)) {
+      return null
+    }
+
+    const cached = this.#modules.get(absolutePath)
+    if (cached) {
+      return cached
+    }
+
+    const content = readFileSync(absolutePath, 'utf8')
+    const source = await parseTypeScript(
+      absolutePath,
+      content,
+      /\.tsx?$/.test(absolutePath) ? (absolutePath.endsWith('.tsx') ? 'tsx' : 'ts') : 'ts',
+    )
+
+    const declarations = new Map<string, ESTree.Declaration>()
+    const namespaces = new Map<string, ESTree.TSModuleDeclaration>()
+    const imports = new Map<string, { importedName: string; specifier: string }>()
+
+    for (const stmt of source.program.body) {
+      if (stmt.type === 'ImportDeclaration') {
+        const specifier = stmt.source.value
+        for (const spec of stmt.specifiers) {
+          const local = getIdentifierName(spec.local)
+          if (!local) {
+            continue
+          }
+          const imported =
+            spec.type === 'ImportSpecifier' ? (getIdentifierName(spec.imported) ?? local) : '*'
+          imports.set(local, { importedName: imported, specifier })
+        }
+      } else if (stmt.type === 'ExportNamedDeclaration') {
+        if (stmt.declaration) {
+          TypeExtractor.#indexDeclaration(stmt.declaration, declarations, namespaces)
+        }
+        if (stmt.source?.value) {
+          const specifier = stmt.source.value
+          for (const spec of stmt.specifiers) {
+            const local = getIdentifierName(spec.local)
+            const exported = getIdentifierName(spec.exported) ?? local
+            if (exported && local) {
+              imports.set(exported, { importedName: local, specifier })
+            }
+          }
+        }
+      } else if (
+        stmt.type === 'TSInterfaceDeclaration' ||
+        stmt.type === 'TSTypeAliasDeclaration' ||
+        stmt.type === 'TSModuleDeclaration'
+      ) {
+        TypeExtractor.#indexDeclaration(stmt, declarations, namespaces)
+      }
+    }
+
+    const parsed: ParsedModule = {
+      filePath: absolutePath,
+      source,
+      declarations,
+      namespaces,
+      imports,
+    }
+
+    this.#modules.set(absolutePath, parsed)
+    return parsed
+  }
+
+  static #indexDeclaration(
+    decl: ESTree.Declaration,
+    declarations: Map<string, ESTree.Declaration>,
+    namespaces: Map<string, ESTree.TSModuleDeclaration>,
+  ) {
+    if (
+      decl.type === 'TSModuleDeclaration' &&
+      'kind' in decl &&
+      decl.kind !== 'global' &&
+      decl.id.type === 'Identifier'
+    ) {
+      namespaces.set(decl.id.name, decl)
+    } else if ('id' in decl && decl.id && decl.id.type === 'Identifier') {
+      declarations.set(decl.id.name, decl)
+    }
+  }
+
+  async resolveSymbol(
+    fromModule: ParsedModule,
+    name: string,
+    fromNamespace?: ESTree.TSModuleDeclaration,
+  ): Promise<{
+    module: ParsedModule
+    node: ESTree.Declaration
+    nsNode?: ESTree.TSModuleDeclaration
+  } | null> {
+    // 1. Check inside current namespace if provided
+    if (fromNamespace && fromNamespace.body?.type === 'TSModuleBlock') {
+      for (const stmt of fromNamespace.body.body) {
+        const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
+        if (decl && 'id' in decl && (decl as any).id?.name === name) {
+          return { module: fromModule, node: decl as ESTree.Declaration, nsNode: fromNamespace }
+        }
+      }
+    }
+
+    // 2. Handle qualified names like ModalT.Base or BaseSelectT.Item
+    if (name.includes('.')) {
+      const dotIndex = name.indexOf('.')
+      const nsName = name.slice(0, dotIndex)
+      const memberName = name.slice(dotIndex + 1)
+      const ns = await this.resolveNamespace(fromModule, nsName)
+      if (ns && ns.node.body?.type === 'TSModuleBlock') {
+        for (const stmt of ns.node.body.body) {
+          const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
+          if (decl && 'id' in decl && (decl as any).id?.name === memberName) {
+            return { module: ns.module, node: decl as ESTree.Declaration, nsNode: ns.node }
+          }
+        }
+      }
+      return null
+    }
+
+    // 3. Module-level declarations
+    if (fromModule.declarations.has(name)) {
+      return { module: fromModule, node: fromModule.declarations.get(name)! }
+    }
+
+    // 4. Imports
+    const imp = fromModule.imports.get(name)
+    if (!imp) {
+      return null
+    }
+
+    const targetPath = this.#resolveSpecifier(fromModule.filePath, imp.specifier)
+    if (!targetPath) {
+      return null
+    }
+
+    const targetModule = await this.loadModule(targetPath)
+    if (!targetModule) {
+      return null
+    }
+
+    return this.resolveSymbol(targetModule, imp.importedName)
+  }
+
+  async resolveNamespace(
+    fromModule: ParsedModule,
+    name: string,
+  ): Promise<{ module: ParsedModule; node: ESTree.TSModuleDeclaration } | null> {
+    if (fromModule.namespaces.has(name)) {
+      return { module: fromModule, node: fromModule.namespaces.get(name)! }
+    }
+
+    const imp = fromModule.imports.get(name)
+    if (!imp) {
+      return null
+    }
+
+    const targetPath = this.#resolveSpecifier(fromModule.filePath, imp.specifier)
+    if (!targetPath) {
+      return null
+    }
+
+    const targetModule = await this.loadModule(targetPath)
+    if (!targetModule) {
+      return null
+    }
+
+    return this.resolveNamespace(targetModule, imp.importedName)
+  }
+
+  #resolveSpecifier(importerPath: string, specifier: string): string | null {
+    const tryCandidates = (basePath: string): string | null => {
+      const candidates = [
+        `${basePath}.ts`,
+        `${basePath}.tsx`,
+        path.join(basePath, 'index.ts'),
+        path.join(basePath, 'index.tsx'),
+        basePath,
+      ]
+      for (const candidate of candidates) {
+        if (existsSync(candidate)) {
+          try {
+            if (statSync(candidate).isFile()) {
+              return candidate
+            }
+          } catch {
+            // ignore
+          }
+        }
+      }
+      return null
+    }
+
+    if (specifier.startsWith('.')) {
+      const dir = path.dirname(importerPath)
+      const direct = path.resolve(dir, specifier)
+      return tryCandidates(direct)
+    } else if (specifier.startsWith('@src/')) {
+      const rel = specifier.slice('@src/'.length)
+      const direct = path.resolve(this.projectRoot, 'src', rel)
+      return tryCandidates(direct)
+    }
+    return null
+  }
+
+  async extractKind(module: ParsedModule, namespaceName: string): Promise<'single' | 'composite'> {
+    const ns = await this.resolveNamespace(module, namespaceName)
+    if (!ns || !ns.node.body || ns.node.body.type !== 'TSModuleBlock') {
+      return 'single'
+    }
+
+    for (const stmt of ns.node.body.body) {
+      const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
+      if (
+        decl?.type === 'TSTypeAliasDeclaration' &&
+        decl.id.name === 'Kind' &&
+        decl.typeAnnotation.type === 'TSLiteralType'
+      ) {
+        const val = (decl.typeAnnotation.literal as { value?: unknown }).value
+        if (val === 'composite') {
+          return 'composite'
+        }
+        if (val === 'single') {
+          return 'single'
+        }
+      }
+    }
+
+    return 'single'
+  }
+
+  async extractSlots(module: ParsedModule, namespaceName: string): Promise<SlotApi[]> {
+    const ns = await this.resolveNamespace(module, namespaceName)
+    if (!ns || !ns.node.body || ns.node.body.type !== 'TSModuleBlock') {
+      return []
+    }
+
+    let slotTypeNode: ESTree.TSType | null = null
+    for (const stmt of ns.node.body.body) {
+      const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
+      if (decl?.type === 'TSTypeAliasDeclaration' && decl.id.name === 'Slot') {
+        slotTypeNode = decl.typeAnnotation
+        break
+      }
+    }
+
+    if (!slotTypeNode || slotTypeNode.type === 'TSNeverKeyword') {
+      return []
+    }
+
+    if (slotTypeNode.type === 'TSTypeReference') {
+      const name = entityNameToText(slotTypeNode.typeName)
+      if (name) {
+        const resolved = await this.resolveSymbol(ns.module, name, ns.node)
+        if (resolved) {
+          return TypeExtractor.#extractSlotProperties(resolved.module, resolved.node)
+        }
+      }
+    }
+
+    return []
+  }
+
+  static #extractSlotProperties(module: ParsedModule, node: ESTree.Declaration): SlotApi[] {
+    const slots: SlotApi[] = []
+    if (node.type === 'TSInterfaceDeclaration') {
+      for (const member of node.body.body) {
+        if (member.type === 'TSPropertySignature') {
+          const name = getIdentifierName(member.key)
+          if (!name) {
+            continue
+          }
+          const jsdoc = getJsDoc(module.source, member)
+          slots.push({
+            name,
+            ...(jsdoc.description ? { description: jsdoc.description } : {}),
+          })
+        }
+      }
+    }
+    slots.sort((a, b) => a.name.localeCompare(b.name))
+    return slots
+  }
+
+  async extractItem(module: ParsedModule, namespaceName: string): Promise<ItemApi | undefined> {
+    const ns = await this.resolveNamespace(module, namespaceName)
+    if (!ns || !ns.node.body || ns.node.body.type !== 'TSModuleBlock') {
+      return undefined
+    }
+
+    let itemDecl: ESTree.Declaration | null = null
+    for (const stmt of ns.node.body.body) {
+      const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
+      if (
+        (decl?.type === 'TSInterfaceDeclaration' || decl?.type === 'TSTypeAliasDeclaration') &&
+        decl.id.name === 'Item'
+      ) {
+        itemDecl = decl
+        break
+      }
+    }
+
+    if (!itemDecl) {
+      return undefined
+    }
+
+    const generics = TypeExtractor.#extractGenericParameters(
+      (itemDecl as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters,
+    )
+    const props = await this.#resolvePropertiesFromDeclaration(ns.module, itemDecl, ns.node)
+
+    const itemProps: ItemPropertyApi[] = props.map((p) => {
+      const itemProp: ItemPropertyApi = {
+        name: p.name,
+        optional: p.optional,
+        type: p.type,
+      }
+      if (p.description) {
+        itemProp.description = p.description
+      }
+      if (p.default) {
+        itemProp.default = p.default
+      }
+      return itemProp
+    })
+
+    const jsdoc = getJsDoc(ns.module.source, itemDecl)
+    return {
+      name: 'Item',
+      ...(jsdoc.description ? { description: jsdoc.description } : {}),
+      ...(generics.length > 0 ? { generics } : {}),
+      props: itemProps,
+    }
+  }
+
+  async extractPart(
+    module: ParsedModule,
+    namespaceName: string,
+    propsTypeName: string,
+    partName: string,
+    isRoot: boolean,
+  ): Promise<{
+    generics: GenericParameterApi[]
+    rendering?: RenderingApi
+    props: PropApi[]
+    description?: string
+  }> {
+    const ns = await this.resolveNamespace(module, namespaceName)
+    if (!ns || !ns.node.body || ns.node.body.type !== 'TSModuleBlock') {
+      return { generics: [], props: [] }
+    }
+
+    let targetDecl: ESTree.Declaration | null = null
+    for (const stmt of ns.node.body.body) {
+      const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
+      if (
+        (decl?.type === 'TSInterfaceDeclaration' || decl?.type === 'TSTypeAliasDeclaration') &&
+        decl.id.name === propsTypeName
+      ) {
+        targetDecl = decl
+        break
+      }
+    }
+
+    if (!targetDecl && isRoot && propsTypeName !== 'Props') {
+      for (const stmt of ns.node.body.body) {
+        const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
+        if (
+          (decl?.type === 'TSInterfaceDeclaration' || decl?.type === 'TSTypeAliasDeclaration') &&
+          decl.id.name === 'Props'
+        ) {
+          targetDecl = decl
+          break
+        }
+      }
+    }
+
+    if (!targetDecl) {
+      const topDecl =
+        module.declarations.get(propsTypeName) ??
+        (isRoot ? module.declarations.get(`${namespaceName.replace(/T$/, '')}Props`) : null)
+      if (topDecl) {
+        targetDecl = topDecl
+      }
+    }
+
+    if (!targetDecl) {
+      return { generics: [], props: [] }
+    }
+
+    const jsdoc = getJsDoc(ns.module.source, targetDecl)
+    let generics = TypeExtractor.#extractGenericParameters(
+      (targetDecl as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters,
+    )
+
+    let rendering: RenderingApi | undefined
+    let props: PropApi[]
+
+    if (
+      targetDecl.type === 'TSTypeAliasDeclaration' &&
+      targetDecl.typeAnnotation.type === 'TSTypeReference' &&
+      entityNameToText(targetDecl.typeAnnotation.typeName) === 'BaseProps'
+    ) {
+      const basePropsRes = await this.#handleBaseProps(
+        ns.module,
+        ns.node,
+        targetDecl.typeAnnotation,
+        generics,
+      )
+      props = basePropsRes.props
+      rendering = basePropsRes.rendering
+      if (basePropsRes.generics) {
+        generics = basePropsRes.generics
+      }
+    } else {
+      // Check if targetDecl is a type alias pointing directly to BaseProps or an interface extending Base
+      props = await this.#resolvePropertiesFromDeclaration(ns.module, targetDecl, ns.node)
+
+      if (targetDecl.type === 'TSTypeAliasDeclaration') {
+        const typeAnn = targetDecl.typeAnnotation
+        if (typeAnn.type === 'TSTypeReference') {
+          const refName = entityNameToText(typeAnn.typeName)
+          if (refName) {
+            const sym = await this.resolveSymbol(ns.module, refName, ns.node)
+            if (sym && sym.node.type === 'TSTypeAliasDeclaration') {
+              if (
+                sym.node.typeAnnotation.type === 'TSTypeReference' &&
+                entityNameToText(sym.node.typeAnnotation.typeName) === 'BaseProps'
+              ) {
+                const basePropsRes = await this.#handleBaseProps(
+                  sym.module,
+                  ns.node,
+                  sym.node.typeAnnotation,
+                  generics,
+                )
+                props = basePropsRes.props
+                rendering = basePropsRes.rendering
+                if (basePropsRes.generics) {
+                  generics = basePropsRes.generics
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return {
+      generics,
+      ...(rendering ? { rendering } : {}),
+      props,
+      ...(jsdoc.description ? { description: jsdoc.description } : {}),
+    }
+  }
+
+  async #handleBaseProps(
+    module: ParsedModule,
+    nsNode: ESTree.TSModuleDeclaration | undefined,
+    typeRef: ESTree.TSTypeReference,
+    existingGenerics: GenericParameterApi[],
+    substitutions?: Map<string, string>,
+  ): Promise<{
+    props: PropApi[]
+    rendering: RenderingApi
+    generics?: GenericParameterApi[]
+  }> {
+    const args = typeRef.typeArguments?.params ?? []
+    const tElementNode = args[0]
+    const baseNode = args[1]
+    const variantNode = args[2]
+    const classesNode = args[3]
+    const stylesNode = args[4]
+    const tDefaultNode = args[5]
+
+    let defaultElement: string | undefined
+    let isPolymorphic = false
+    let asGenericParam: GenericParameterApi | undefined
+
+    if (tDefaultNode && tDefaultNode.type === 'TSLiteralType') {
+      defaultElement = String((tDefaultNode.literal as { value?: unknown }).value)
+    } else if (tElementNode && tElementNode.type === 'TSLiteralType') {
+      defaultElement = String((tElementNode.literal as { value?: unknown }).value)
+    }
+
+    if (tElementNode && tElementNode.type === 'TSTypeReference') {
+      const typeParamName = entityNameToText(tElementNode.typeName)
+      const matched = existingGenerics.find((g) => g.name === typeParamName)
+      if (matched) {
+        isPolymorphic = true
+        asGenericParam = matched
+        if (!defaultElement && matched.default) {
+          defaultElement = matched.default.replace(/['"]/g, '')
+        }
+      }
+    }
+
+    const rendering: RenderingApi = {
+      rendersDom: true,
+      ...(defaultElement ? { defaultElement } : {}),
+      ...(isPolymorphic
+        ? { asProp: 'as', polymorphic: asGenericParam ?? true }
+        : { polymorphic: false }),
+    }
+
+    const props: PropApi[] = []
+
+    // 1. Resolve Base props
+    if (baseNode) {
+      const baseProps = await this.#resolvePropertiesFromType(
+        module,
+        nsNode,
+        baseNode,
+        substitutions,
+      )
+      props.push(...baseProps)
+    }
+
+    // 2. Resolve Variant props
+    if (variantNode && !(await this.#isNeverType(module, nsNode, variantNode))) {
+      const variantProps = await this.#resolvePropertiesFromType(
+        module,
+        nsNode,
+        variantNode,
+        substitutions,
+      )
+      for (const vp of variantProps) {
+        vp.group = 'styling'
+        const existingIdx = props.findIndex((p) => p.name === vp.name)
+        if (existingIdx >= 0) {
+          props[existingIdx] = vp
+        } else {
+          props.push(vp)
+        }
+      }
+    }
+
+    // 3. Add class & style props
+    if (!props.some((p) => p.name === 'class')) {
+      props.push({
+        name: 'class',
+        optional: true,
+        type: { text: 'SlotClassValue' },
+        description: 'Class applied to the component root or trigger element.',
+        group: 'styling',
+      })
+    }
+
+    if (!props.some((p) => p.name === 'style')) {
+      props.push({
+        name: 'style',
+        optional: true,
+        type: { text: 'SlotStyleValue' },
+        description: 'Style applied to the component root or trigger element.',
+        group: 'styling',
+      })
+    }
+
+    // 4. Add classes & styles if not never
+    if (classesNode && !(await this.#isNeverType(module, nsNode, classesNode))) {
+      const classesText = TypeExtractor.#formatTypeText(module.source, classesNode)
+      if (!props.some((p) => p.name === 'classes')) {
+        props.push({
+          name: 'classes',
+          optional: true,
+          type: { text: classesText },
+          description: 'Family slot class defaults for this instance.',
+          group: 'styling',
+        })
+      }
+    }
+
+    if (stylesNode && !(await this.#isNeverType(module, nsNode, stylesNode))) {
+      const stylesText = TypeExtractor.#formatTypeText(module.source, stylesNode)
+      if (!props.some((p) => p.name === 'styles')) {
+        props.push({
+          name: 'styles',
+          optional: true,
+          type: { text: stylesText },
+          description: 'Family slot style defaults for this instance.',
+          group: 'styling',
+        })
+      }
+    }
+
+    // 5. If polymorphic, ensure `as` prop exists
+    if (isPolymorphic && asGenericParam) {
+      const existingAs = props.find((p) => p.name === 'as')
+      if (existingAs) {
+        if (!existingAs.default && defaultElement) {
+          existingAs.default = { kind: 'literal', value: defaultElement }
+        }
+      } else {
+        props.unshift({
+          name: 'as',
+          optional: true,
+          type: { text: asGenericParam.name },
+          ...(defaultElement ? { default: { kind: 'literal', value: defaultElement } } : {}),
+          description: 'Element or component to render as.',
+          group: 'rendering',
+        })
+      }
+    }
+
+    return { props, rendering }
+  }
+
+  async #isNeverType(
+    module: ParsedModule,
+    nsNode: ESTree.TSModuleDeclaration | undefined,
+    node?: ESTree.TSType,
+  ): Promise<boolean> {
+    if (!node) {
+      return true
+    }
+    if (node.type === 'TSNeverKeyword') {
+      return true
+    }
+    if (node.type === 'TSTypeReference') {
+      const name = entityNameToText(node.typeName)
+      if (name) {
+        const sym = await this.resolveSymbol(module, name, nsNode)
+        if (sym && sym.node.type === 'TSTypeAliasDeclaration') {
+          return this.#isNeverType(
+            sym.module,
+            sym.nsNode ?? (sym.module === module ? nsNode : undefined),
+            sym.node.typeAnnotation,
+          )
+        }
+      }
+    }
+    return false
+  }
+
+  async #resolvePropertiesFromType(
+    module: ParsedModule,
+    nsNode: ESTree.TSModuleDeclaration | undefined,
+    node: ESTree.TSType,
+    substitutions?: Map<string, string>,
+  ): Promise<PropApi[]> {
+    return this.#resolvePropertiesFromTypeNode(module, node, nsNode, substitutions)
+  }
+
+  async #resolvePropertiesFromDeclaration(
+    module: ParsedModule,
+    decl: ESTree.Declaration,
+    nsNode?: ESTree.TSModuleDeclaration,
+    substitutions?: Map<string, string>,
+  ): Promise<PropApi[]> {
+    const props: PropApi[] = []
+
+    if (decl.type === 'TSInterfaceDeclaration') {
+      if (decl.extends) {
+        for (const heritage of decl.extends) {
+          const heritageType = heritage.expression
+          const name = entityNameToText(heritageType)
+          const typeArgs =
+            (heritage as any).typeParameters?.params ??
+            (heritage as any).typeArguments?.params ??
+            []
+          if (name) {
+            if (name === 'Omit' && typeArgs.length === 2) {
+              const target = typeArgs[0]!
+              const omittedKeys = TypeExtractor.#extractStringLiteralUnion(typeArgs[1])
+              const targetProps = await this.#resolvePropertiesFromTypeNode(
+                module,
+                target,
+                nsNode,
+                substitutions,
+              )
+              for (const p of targetProps.filter((p) => !omittedKeys.has(p.name))) {
+                const existingIdx = props.findIndex((x) => x.name === p.name)
+                if (existingIdx >= 0) {
+                  props[existingIdx] = p
+                } else {
+                  props.push(p)
+                }
+              }
+            } else if (name === 'Pick' && typeArgs.length === 2) {
+              const target = typeArgs[0]!
+              const pickedKeys = TypeExtractor.#extractStringLiteralUnion(typeArgs[1])
+              const targetProps = await this.#resolvePropertiesFromTypeNode(
+                module,
+                target,
+                nsNode,
+                substitutions,
+              )
+              for (const p of targetProps.filter((p) => pickedKeys.has(p.name))) {
+                const existingIdx = props.findIndex((x) => x.name === p.name)
+                if (existingIdx >= 0) {
+                  props[existingIdx] = p
+                } else {
+                  props.push(p)
+                }
+              }
+            } else {
+              const sym = await this.resolveSymbol(module, name, nsNode)
+              if (sym) {
+                let childSubstitutions: Map<string, string> | undefined
+                const declTypeParams =
+                  (sym.node as { typeParameters?: ESTree.TSTypeParameterDeclaration })
+                    .typeParameters?.params ?? []
+                if (declTypeParams.length > 0 && typeArgs.length > 0) {
+                  childSubstitutions = new Map(substitutions)
+                  for (let i = 0; i < declTypeParams.length; i++) {
+                    const param = declTypeParams[i]
+                    const arg = typeArgs[i]
+                    if (param && arg) {
+                      const paramName =
+                        typeof param.name === 'string'
+                          ? param.name
+                          : (((param.name as any)?.name as string | undefined) ?? '')
+                      let formattedArg = TypeExtractor.#formatTypeText(module.source, arg)
+                      if (substitutions && substitutions.has(formattedArg)) {
+                        formattedArg = substitutions.get(formattedArg)!
+                      } else {
+                        const aliasSym = await this.resolveSymbol(module, formattedArg, nsNode)
+                        if (aliasSym && aliasSym.node.type === 'TSTypeAliasDeclaration') {
+                          formattedArg = TypeExtractor.#formatTypeText(
+                            aliasSym.module.source,
+                            aliasSym.node.typeAnnotation,
+                          )
+                        }
+                      }
+                      childSubstitutions.set(paramName, formattedArg)
+                    }
+                  }
+                } else if (substitutions) {
+                  childSubstitutions = new Map(substitutions)
+                }
+                const inherited = await this.#resolvePropertiesFromDeclaration(
+                  sym.module,
+                  sym.node,
+                  sym.nsNode ?? (sym.module === module ? nsNode : undefined),
+                  childSubstitutions,
+                )
+                for (const p of inherited) {
+                  const existingIdx = props.findIndex((x) => x.name === p.name)
+                  if (existingIdx >= 0) {
+                    props[existingIdx] = p
+                  } else {
+                    props.push(p)
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      for (const member of decl.body.body) {
+        if (member.type === 'TSPropertySignature') {
+          const prop = await this.#convertPropertySignature(module, member, nsNode, substitutions)
+          if (prop) {
+            const existingIdx = props.findIndex((p) => p.name === prop.name)
+            if (existingIdx >= 0) {
+              props[existingIdx] = prop
+            } else {
+              props.push(prop)
+            }
+          }
+        }
+      }
+    } else if (decl.type === 'TSTypeAliasDeclaration') {
+      const typeAnn = decl.typeAnnotation
+      if (typeAnn.type === 'TSTypeLiteral') {
+        props.push(
+          ...(await this.#extractPropertiesFromTypeLiteral(module, typeAnn, nsNode, substitutions)),
+        )
+      } else if (typeAnn.type === 'TSIntersectionType') {
+        for (const t of typeAnn.types) {
+          props.push(
+            ...(await this.#resolvePropertiesFromTypeNode(module, t, nsNode, substitutions)),
+          )
+        }
+      } else if (typeAnn.type === 'TSTypeReference') {
+        props.push(
+          ...(await this.#resolvePropertiesFromTypeNode(module, typeAnn, nsNode, substitutions)),
+        )
+      }
+    }
+
+    return props
+  }
+
+  async #resolvePropertiesFromTypeNode(
+    module: ParsedModule,
+    node: ESTree.TSType,
+    nsNode?: ESTree.TSModuleDeclaration,
+    substitutions?: Map<string, string>,
+  ): Promise<PropApi[]> {
+    if (node.type === 'TSTypeLiteral') {
+      return this.#extractPropertiesFromTypeLiteral(module, node, nsNode, substitutions)
+    }
+    if (node.type === 'TSIntersectionType') {
+      const res: PropApi[] = []
+      for (const t of node.types) {
+        res.push(...(await this.#resolvePropertiesFromTypeNode(module, t, nsNode, substitutions)))
+      }
+      return res
+    }
+    if (node.type === 'TSTypeReference') {
+      const name = entityNameToText(node.typeName)
+      if (!name) {
+        return []
+      }
+      if (name === 'BaseProps') {
+        const basePropsRes = await this.#handleBaseProps(module, nsNode, node, [], substitutions)
+        return basePropsRes.props
+      }
+      if (name === 'Omit' && node.typeArguments?.params.length === 2) {
+        const target = node.typeArguments.params[0]!
+        const omittedKeys = TypeExtractor.#extractStringLiteralUnion(node.typeArguments.params[1]!)
+        const targetProps = await this.#resolvePropertiesFromTypeNode(
+          module,
+          target,
+          nsNode,
+          substitutions,
+        )
+        return targetProps.filter((p) => !omittedKeys.has(p.name))
+      }
+      if (name === 'Pick' && node.typeArguments?.params.length === 2) {
+        const target = node.typeArguments.params[0]!
+        const pickedKeys = TypeExtractor.#extractStringLiteralUnion(node.typeArguments.params[1]!)
+        const targetProps = await this.#resolvePropertiesFromTypeNode(
+          module,
+          target,
+          nsNode,
+          substitutions,
+        )
+        return targetProps.filter((p) => pickedKeys.has(p.name))
+      }
+      if ((name === 'Partial' || name === 'Required') && node.typeArguments?.params.length === 1) {
+        const targetType = node.typeArguments.params[0]!
+        const targetProps = await this.#resolvePropertiesFromTypeNode(
+          module,
+          targetType,
+          nsNode,
+          substitutions,
+        )
+        return targetProps.map((p) => Object.assign({}, p, { optional: name === 'Partial' }))
+      }
+
+      const sym = await this.resolveSymbol(module, name, nsNode)
+      if (sym) {
+        let childSubstitutions: Map<string, string> | undefined
+        const declTypeParams =
+          (sym.node as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters
+            ?.params ?? []
+        const typeArgs = node.typeArguments?.params ?? []
+        if (declTypeParams.length > 0) {
+          childSubstitutions = new Map(substitutions)
+          for (let i = 0; i < declTypeParams.length; i++) {
+            const param = declTypeParams[i]
+            const arg = typeArgs[i]
+            if (param) {
+              const paramName =
+                typeof param.name === 'string'
+                  ? param.name
+                  : (((param.name as any)?.name as string | undefined) ?? '')
+              if (arg) {
+                let formattedArg = TypeExtractor.#formatTypeText(module.source, arg)
+                if (substitutions && substitutions.has(formattedArg)) {
+                  formattedArg = substitutions.get(formattedArg)!
+                } else {
+                  const aliasSym = await this.resolveSymbol(module, formattedArg, nsNode)
+                  if (aliasSym && aliasSym.node.type === 'TSTypeAliasDeclaration') {
+                    formattedArg = TypeExtractor.#formatTypeText(
+                      aliasSym.module.source,
+                      aliasSym.node.typeAnnotation,
+                    )
+                  }
+                }
+                childSubstitutions.set(paramName, formattedArg)
+              } else if (param.default) {
+                childSubstitutions.set(
+                  paramName,
+                  TypeExtractor.#formatTypeText(module.source, param.default),
+                )
+              }
+            }
+          }
+        } else if (substitutions) {
+          childSubstitutions = new Map(substitutions)
+        }
+        return this.#resolvePropertiesFromDeclaration(
+          sym.module,
+          sym.node,
+          sym.nsNode ?? (sym.module === module ? nsNode : undefined),
+          childSubstitutions,
+        )
+      }
+    }
+    return []
+  }
+
+  async #extractPropertiesFromTypeLiteral(
+    module: ParsedModule,
+    literal: ESTree.TSTypeLiteral,
+    nsNode?: ESTree.TSModuleDeclaration,
+    substitutions?: Map<string, string>,
+  ): Promise<PropApi[]> {
+    const props: PropApi[] = []
+    for (const member of literal.members) {
+      if (member.type === 'TSPropertySignature') {
+        const prop = await this.#convertPropertySignature(module, member, nsNode, substitutions)
+        if (prop) {
+          props.push(prop)
+        }
+      }
+    }
+    return props
+  }
+
+  async #convertPropertySignature(
+    module: ParsedModule,
+    sig: ESTree.TSPropertySignature,
+    nsNode?: ESTree.TSModuleDeclaration,
+    substitutions?: Map<string, string>,
+  ): Promise<PropApi | null> {
+    const name = getIdentifierName(sig.key)
+    if (!name) {
+      return null
+    }
+
+    const optional = sig.optional === true
+    let typeText = sig.typeAnnotation
+      ? await this.#resolveTypeText(
+          module,
+          sig.typeAnnotation.typeAnnotation,
+          nsNode,
+          substitutions,
+        )
+      : 'unknown'
+
+    if (substitutions && substitutions.size > 0) {
+      for (const [paramName, replacement] of substitutions) {
+        typeText = typeText.replace(new RegExp(`\\b${paramName}\\b`, 'g'), replacement)
+      }
+    }
+
+    const jsdoc = getJsDoc(module.source, sig)
+    const defaultValue =
+      jsdoc.defaultValue !== undefined
+        ? TypeExtractor.#parseDefaultValue(jsdoc.defaultValue)
+        : undefined
+    const group = classifyPropGroup(name, typeText)
+    const traits = derivePropTraits(name, typeText)
+    const state = deriveStateRelation(name)
+
+    return {
+      name,
+      optional,
+      type: { text: typeText },
+      ...(jsdoc.description ? { description: jsdoc.description } : {}),
+      ...(defaultValue ? { default: defaultValue } : {}),
+      group,
+      ...(traits.length > 0 ? { traits } : {}),
+      ...(state ? { state } : {}),
+    }
+  }
+
+  async #resolveTypeText(
+    module: ParsedModule,
+    node: ESTree.TSType,
+    nsNode?: ESTree.TSModuleDeclaration,
+    substitutions?: Map<string, string>,
+  ): Promise<string> {
+    if (node.type === 'TSIndexedAccessType') {
+      const resolved = await this.#resolveIndexedAccessType(module, node, nsNode, substitutions)
+      if (resolved) {
+        return resolved
+      }
+    }
+
+    if (node.type === 'TSUnionType') {
+      const parts = await Promise.all(
+        node.types.map((t) => this.#resolveTypeText(module, t, nsNode, substitutions)),
+      )
+      return parts.join(' | ')
+    }
+
+    if (node.type === 'TSIntersectionType') {
+      const parts = await Promise.all(
+        node.types.map((t) => this.#resolveTypeText(module, t, nsNode, substitutions)),
+      )
+      return parts.join(' & ')
+    }
+
+    if (node.type === 'TSArrayType') {
+      const inner = await this.#resolveTypeText(module, node.elementType, nsNode, substitutions)
+      return `${inner}[]`
+    }
+
+    if (node.type === 'TSParenthesizedType') {
+      const inner = await this.#resolveTypeText(module, node.typeAnnotation, nsNode, substitutions)
+      return `(${inner})`
+    }
+
+    return TypeExtractor.#formatTypeText(module.source, node)
+  }
+
+  async #resolveIndexedAccessType(
+    module: ParsedModule,
+    node: ESTree.TSIndexedAccessType,
+    nsNode?: ESTree.TSModuleDeclaration,
+    substitutions?: Map<string, string>,
+  ): Promise<string | null> {
+    const rawKey = `${module.filePath}:${nodeText(module.source, node)}`
+    if (this.#indexedAccessStack.has(rawKey)) {
+      return null
+    }
+    this.#indexedAccessStack.add(rawKey)
+    try {
+      if (node.indexType.type === 'TSUnionType') {
+        const results: string[] = []
+        for (const t of node.indexType.types) {
+          const sub = await this.#resolveIndexedAccessType(
+            module,
+            { ...node, indexType: t },
+            nsNode,
+            substitutions,
+          )
+          if (sub) {
+            results.push(sub)
+          }
+        }
+        if (results.length > 0) {
+          return results.join(' | ')
+        }
+      }
+
+      let indexName: string | undefined
+      if (
+        node.indexType.type === 'TSLiteralType' &&
+        typeof (node.indexType.literal as { value?: unknown }).value === 'string'
+      ) {
+        indexName = (node.indexType.literal as { value: string }).value
+      }
+      if (!indexName) {
+        return null
+      }
+
+      const props = await this.#resolvePropertiesFromTypeNode(
+        module,
+        node.objectType,
+        nsNode,
+        substitutions,
+      )
+      const targetProp = props.find((p) => p.name === indexName)
+      if (targetProp) {
+        return targetProp.type.text
+      }
+
+      return null
+    } finally {
+      this.#indexedAccessStack.delete(rawKey)
+    }
+  }
+
+  static #parseDefaultValue(raw: string): DefaultValue {
+    const trimmed = raw.trim()
+    if (trimmed === "''" || trimmed === '""') {
+      return { kind: 'literal', value: '' }
+    }
+    if (
+      (trimmed.startsWith("'") && trimmed.endsWith("'")) ||
+      (trimmed.startsWith('"') && trimmed.endsWith('"'))
+    ) {
+      return { kind: 'literal', value: trimmed.slice(1, -1) }
+    }
+    if (trimmed === 'false') {
+      return { kind: 'literal', value: false }
+    }
+    if (trimmed === 'true') {
+      return { kind: 'literal', value: true }
+    }
+    if (trimmed === 'null') {
+      return { kind: 'literal', value: null }
+    }
+    if (/^-?\d+(?:\.\d+)?$/.test(trimmed)) {
+      return { kind: 'literal', value: Number(trimmed) }
+    }
+
+    return { kind: 'expression', text: trimmed }
+  }
+
+  static #formatTypeText(source: ParsedSource, node: ESTree.TSType): string {
+    const raw = nodeText(source, node).trim()
+    const normalized = raw
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\s+/g, ' ')
+      .replace(/\s*\|\s*/g, ' | ')
+      .replace(/\s*&\s*/g, ' & ')
+      .replace(/\s*:\s*/g, ': ')
+      .replace(/\s*,\s*/g, ', ')
+      .replace(/{\s+/g, '{ ')
+      .replace(/\s+}/g, ' }')
+      .replaceAll('cls_variant0.', '')
+      .replaceAll('_$', '')
+
+    return normalized
+  }
+
+  static #extractStringLiteralUnion(node: ESTree.TSType): Set<string> {
+    const set = new Set<string>()
+    if (
+      node.type === 'TSLiteralType' &&
+      typeof (node.literal as { value?: unknown }).value === 'string'
+    ) {
+      set.add((node.literal as { value: string }).value)
+    } else if (node.type === 'TSUnionType') {
+      for (const t of node.types) {
+        if (
+          t.type === 'TSLiteralType' &&
+          typeof (t.literal as { value?: unknown }).value === 'string'
+        ) {
+          set.add((t.literal as { value: string }).value)
+        }
+      }
+    }
+    return set
+  }
+
+  static #extractGenericParameters(
+    decl?: ESTree.TSTypeParameterDeclaration,
+  ): GenericParameterApi[] {
+    if (!decl || !decl.params) {
+      return []
+    }
+
+    return decl.params.map((param) => {
+      const name = param.name.name
+      const constraint = param.constraint
+        ? TypeExtractor.#formatTypeParameter(param.constraint)
+        : undefined
+      const defaultType = param.default
+        ? TypeExtractor.#formatTypeParameter(param.default)
+        : undefined
+      return {
+        name,
+        ...(constraint ? { constraint } : {}),
+        ...(defaultType ? { default: defaultType } : {}),
+      }
+    })
+  }
+
+  static #formatTypeParameter(node: ESTree.TSType): string {
+    if (node.type === 'TSTypeReference') {
+      const name = entityNameToText(node.typeName)
+      if (node.typeArguments?.params.length) {
+        const args = node.typeArguments.params
+          .map((p) => TypeExtractor.#formatTypeParameter(p))
+          .join(', ')
+        return `${name}<${args}>`
+      }
+      return name ?? 'unknown'
+    }
+    if (node.type === 'TSLiteralType') {
+      const val = (node.literal as { value?: unknown }).value
+      return typeof val === 'string' ? `'${val}'` : String(val)
+    }
+    if (node.type === 'TSUnionType') {
+      return node.types.map((t) => TypeExtractor.#formatTypeParameter(t)).join(' | ')
+    }
+    if (node.type === 'TSStringKeyword') {
+      return 'string'
+    }
+    if (node.type === 'TSNumberKeyword') {
+      return 'number'
+    }
+    if (node.type === 'TSBooleanKeyword') {
+      return 'boolean'
+    }
+    return 'unknown'
+  }
+}

@@ -2,7 +2,7 @@ import { render } from '@solidjs/testing-library'
 import { createComponent, createSignal } from 'solid-js'
 import { expect, test, vi } from 'vitest'
 
-import type { ComponentDoc } from '../../../build/api-doc/types'
+import type { ComponentApi } from '../../../build/api-doc/types'
 
 import { Markdown } from './markdown'
 
@@ -10,16 +10,23 @@ vi.mock('./docs-page-navigation', () => ({ DocsPageNavigation: () => null }))
 vi.mock('./on-this-page', () => ({ OnThisPage: () => null }))
 
 test('shows the generated kind in the header and updates it with page metadata', () => {
-  const [apiDoc, setApiDoc] = createSignal<ComponentDoc | undefined>({
-    component: {
-      key: 'button',
-      name: 'Button',
-      category: 'elements',
-      polymorphic: true,
-      kind: 'single',
-    },
-    slots: [],
-    props: { own: [], inherited: [] },
+  const [apiDoc, setApiDoc] = createSignal<ComponentApi | undefined>({
+    key: 'button',
+    name: 'Button',
+    category: 'elements',
+    kind: 'single',
+    sourcePath: 'src/elements/button/button.tsx',
+    parts: [
+      {
+        id: 'button',
+        name: 'Button',
+        access: { kind: 'export', name: 'Button', package: 'moraine' },
+        sourcePath: 'src/elements/button/button.tsx',
+        props: [],
+        slots: [],
+        runtime: [],
+      },
+    ],
   })
   let childrenReads = 0
   const view = render(() =>
@@ -47,13 +54,13 @@ test('shows the generated kind in the header and updates it with page metadata',
   expect(single.getAttribute('tabindex')).toBeNull()
   expect(single.closest('header')).not.toBeNull()
 
-  setApiDoc((doc) => ({ ...doc!, component: { ...doc!.component, kind: 'composite' } }))
+  setApiDoc((doc) => ({ ...doc!, kind: 'composite' }))
   expect(view.getByRole('link', { name: 'Composite component: styling guide' }).textContent).toBe(
     'Composite',
   )
   expect(view.queryByRole('link', { name: 'Single component: styling guide' })).toBeNull()
 
-  setApiDoc((doc) => ({ ...doc!, component: { ...doc!.component, kind: undefined } }))
+  setApiDoc((doc) => ({ ...doc!, kind: undefined as any }))
   expect(view.queryByRole('link', { name: /component: styling guide/ })).toBeNull()
 
   setApiDoc(undefined)

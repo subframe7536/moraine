@@ -1,4 +1,5 @@
-import type { ComponentDoc } from './types'
+import { getApiReferenceTocEntries as getEntries } from './presentation'
+import type { ComponentApi } from './types'
 
 export interface ApiReferenceTocEntry {
   id: string
@@ -8,43 +9,10 @@ export interface ApiReferenceTocEntry {
 
 /**
  * Defines the generated API headings shared by the rendered reference and route metadata.
- * MDX headings remain the responsibility of the Markdown plugin.
+ * Uses the shared presentation model.
  */
 export function getApiReferenceTocEntries(
-  apiDoc: ComponentDoc | undefined,
+  apiDoc: ComponentApi | undefined,
 ): ApiReferenceTocEntry[] {
-  if (!apiDoc) {
-    return []
-  }
-
-  const sections: ApiReferenceTocEntry[] = []
-
-  if (apiDoc.slots.length > 0) {
-    sections.push({ id: 'attributes', label: 'Attributes', level: 2 })
-  }
-  if (apiDoc.props.own.length > 0) {
-    sections.push({ id: 'api-props', label: 'Props', level: 2 })
-  }
-  if (apiDoc.item) {
-    sections.push({ id: 'api-items', label: 'Items', level: 2 })
-  }
-  if (apiDoc.props.inherited.length > 0) {
-    sections.push({ id: 'api-inherited', label: 'Inherited', level: 2 })
-  }
-
-  for (const primitive of apiDoc.primitives ?? []) {
-    if (primitive.slots.length > 0) {
-      sections.push({
-        id: `api-${primitive.component.key}-attributes`,
-        label: `${primitive.component.name} Attributes`,
-        level: 2,
-      })
-    }
-    sections.push({
-      id: `api-${primitive.component.key}`,
-      label: primitive.component.name,
-      level: 2,
-    })
-  }
-  return sections.length > 0 ? [{ id: 'api-reference', label: 'API', level: 1 }, ...sections] : []
+  return getEntries(apiDoc)
 }

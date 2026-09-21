@@ -2,31 +2,47 @@
 
 import { describe, expect, test, vi } from 'vitest'
 
+import type { ComponentApi } from '../api-doc/types'
+
 import { createDocsMdxOptions } from './page'
 
-const BUTTON_API_DOC = {
-  component: {
-    key: 'button',
-    name: 'Button',
-    category: 'General',
-    polymorphic: false,
-    kind: 'single',
-  },
-  slots: [],
-  props: {
-    own: [
-      {
-        name: 'variant',
-        required: false,
-        type: 'string',
-      },
-    ],
-    inherited: [],
-  },
+const BUTTON_API_DOC: ComponentApi = {
+  key: 'button',
+  name: 'Button',
+  category: 'General',
+  kind: 'single',
+  sourcePath: 'src/elements/button/button.tsx',
+  parts: [
+    {
+      id: 'button',
+      name: 'Button',
+      access: { kind: 'export', name: 'Button', package: 'moraine' },
+      sourcePath: 'src/elements/button/button.tsx',
+      props: [
+        {
+          name: 'variant',
+          optional: true,
+          type: { text: 'string' },
+          group: 'styling',
+        },
+      ],
+      slots: [],
+      runtime: [],
+    },
+  ],
 }
 
 vi.mock('../api-doc/load.ts', () => ({
-  loadApiDocIndex: () => ({ components: [BUTTON_API_DOC.component] }),
+  loadApiDocIndex: () => ({
+    components: [
+      {
+        key: BUTTON_API_DOC.key,
+        name: BUTTON_API_DOC.name,
+        category: BUTTON_API_DOC.category,
+        kind: BUTTON_API_DOC.kind,
+      },
+    ],
+  }),
   loadComponentApiDoc: (_projectRoot: string, key: string) =>
     key === 'button' ? BUTTON_API_DOC : null,
 }))

@@ -115,7 +115,7 @@ export function getJsDoc(source: ParsedSource, node: Pick<AstNode, 'start'>): Js
     .map((line) => line.trimEnd())
     .join('\n')
     .trim()
-  const defaultValue = defaultMatch?.[1]?.trim().replace(/^['"]|['"]$/g, '')
+  const defaultValue = defaultMatch?.[1]?.trim()
 
   return {
     ...(description ? { description } : {}),

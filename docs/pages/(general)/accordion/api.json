@@ -1,267 +1,359 @@
 {
-  "component": {
-    "key": "accordion",
-    "name": "Accordion",
-    "category": "elements",
-    "polymorphic": false,
-    "description": "Stacked disclosure component with single or multiple expanded sections.",
-    "sourcePath": "src/elements/accordion/accordion.tsx",
-    "kind": "single"
-  },
-  "slots": [
+  "key": "accordion",
+  "name": "Accordion",
+  "category": "elements",
+  "description": "Props for the Accordion component.",
+  "kind": "single",
+  "sourcePath": "src/elements/accordion/accordion.tsx",
+  "parts": [
     {
-      "name": "root",
-      "description": "Container that owns the accordion item collection and shared state attributes.",
-      "cssVariables": [],
-      "dataAttributes": [
+      "id": "accordion",
+      "name": "Accordion",
+      "access": {
+        "kind": "export",
+        "name": "Accordion",
+        "package": "moraine"
+      },
+      "sourcePath": "src/elements/accordion/accordion.tsx",
+      "description": "Props for the Accordion component.",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "polymorphic": false
+      },
+      "props": [
         {
-          "name": "data-disabled",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the component, slot, or item is disabled."
+          "name": "collapsible",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the last expanded item can be collapsed.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the entire accordion is disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Unique identifier for the accordion root element.",
+          "group": "behavior"
+        },
+        {
+          "name": "loop",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether arrow-key focus wraps from the last trigger to the first and vice versa.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "multiple",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether multiple accordion items can be expanded at the same time.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "unmountOnHide",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether to unmount accordion content when hidden.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "items",
+          "optional": true,
+          "type": {
+            "text": "Item[]"
+          },
+          "description": "Array of accordion items to render.",
+          "group": "data"
+        },
+        {
+          "name": "trailing",
+          "optional": true,
+          "type": {
+            "text": "IconT.Name"
+          },
+          "description": "Trailing icon name for all accordion items.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-chevron-down"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "defaultValue",
+          "optional": true,
+          "type": {
+            "text": "string[]"
+          },
+          "description": "Default list of expanded item values for uncontrolled usage.",
+          "default": {
+            "kind": "expression",
+            "text": "[]"
+          },
+          "group": "state",
+          "state": {
+            "key": "value",
+            "role": "default"
+          }
+        },
+        {
+          "name": "onChange",
+          "optional": true,
+          "type": {
+            "text": "(value: string[]) => void"
+          },
+          "description": "Callback when the expanded item values change.",
+          "group": "state",
+          "traits": [
+            "callback"
+          ],
+          "state": {
+            "key": "value",
+            "role": "change"
+          }
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": {
+            "text": "string[]"
+          },
+          "description": "Controlled list of expanded item values.",
+          "group": "state",
+          "state": {
+            "key": "value",
+            "role": "value"
+          }
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
         }
       ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "item",
-      "description": "Wrapper for one accordion entry, including its header trigger and collapsible panel.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "header",
-      "description": "Heading row that contains the interactive trigger for an item.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "trigger",
-      "description": "Button users activate to expand or collapse an item.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": [
+      "slots": [
         {
-          "name": "aria-controls",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References the controlled element while the related content is mounted."
+          "name": "content",
+          "description": "Panel that contains the item content when expanded."
         },
         {
-          "name": "aria-expanded",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Indicates whether the controlled content is expanded."
-        }
-      ]
-    },
-    {
-      "name": "leading",
-      "description": "Optional icon or visual placed before the item label.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "label",
-      "description": "Text label displayed inside the item trigger.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "trailing",
-      "description": "Optional icon placed after the label, commonly used for the disclosure indicator.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "content",
-      "description": "Panel that contains the item content when expanded.",
-      "cssVariables": [
+          "name": "contentInner",
+          "description": "Inner container inside the collapsible panel for padding."
+        },
         {
-          "name": "--mo-collapsible-content-height",
-          "required": false,
-          "type": "string",
-          "description": "CSS custom property exposed by this slot."
+          "name": "header",
+          "description": "Heading row that contains the interactive trigger for an item."
+        },
+        {
+          "name": "item",
+          "description": "Wrapper for one accordion entry, including its header trigger and collapsible panel."
+        },
+        {
+          "name": "label",
+          "description": "Text label displayed inside the item trigger."
+        },
+        {
+          "name": "leading",
+          "description": "Optional icon or visual placed before the item label."
+        },
+        {
+          "name": "root",
+          "description": "Container that owns the accordion item collection and shared state attributes."
+        },
+        {
+          "name": "trailing",
+          "description": "Optional icon placed after the label, commonly used for the disclosure indicator."
+        },
+        {
+          "name": "trigger",
+          "description": "Button users activate to expand or collapse an item."
         }
       ],
-      "dataAttributes": [],
-      "ariaAttributes": [
+      "runtime": [
         {
-          "name": "aria-hidden",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Hides decorative content from assistive technology."
+          "target": "content",
+          "attributes": [
+            {
+              "name": "--mo-collapsible-content-height",
+              "kind": "css",
+              "description": "CSS custom property exposed by this element."
+            },
+            {
+              "name": "aria-hidden",
+              "kind": "aria",
+              "values": [
+                "true"
+              ],
+              "description": "Hides decorative content from assistive technology."
+            },
+            {
+              "name": "aria-labelledby",
+              "kind": "aria",
+              "description": "References the element that labels the control or region."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "values": [
+                "region"
+              ],
+              "description": "Defines the semantic role exposed to assistive technology."
+            }
+          ]
         },
         {
-          "name": "aria-labelledby",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "References the element that labels the control or region."
+          "target": "root",
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "kind": "data",
+              "description": "Present when the component, slot, or item is disabled."
+            }
+          ]
         },
         {
-          "name": "role",
-          "required": false,
-          "type": "string",
-          "description": "Defines the semantic role exposed to assistive technology."
+          "target": "trigger",
+          "attributes": [
+            {
+              "name": "aria-controls",
+              "kind": "aria",
+              "description": "References the controlled element while the related content is mounted."
+            },
+            {
+              "name": "aria-expanded",
+              "kind": "aria",
+              "description": "Indicates whether the controlled content is expanded."
+            }
+          ]
         }
       ]
-    },
-    {
-      "name": "contentInner",
-      "description": "Inner container inside the collapsible panel for padding.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
     }
   ],
   "item": {
+    "name": "Item",
     "props": [
       {
         "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
+        "optional": true,
+        "type": {
+          "text": "SlotClassValue"
+        },
         "description": "Optional class applied to the item element."
       },
       {
         "name": "content",
-        "required": false,
-        "type": "JSX.Element",
+        "optional": true,
+        "type": {
+          "text": "JSX.Element"
+        },
         "description": "Content to display when the accordion item is expanded."
       },
       {
         "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
+        "optional": true,
+        "type": {
+          "text": "boolean"
+        },
         "description": "Whether the accordion item is disabled.",
-        "defaultValue": "false"
+        "default": {
+          "kind": "literal",
+          "value": false
+        }
       },
       {
         "name": "label",
-        "required": false,
-        "type": "JSX.Element",
+        "optional": true,
+        "type": {
+          "text": "JSX.Element"
+        },
         "description": "Header label for the accordion item."
       },
       {
         "name": "leading",
-        "required": false,
-        "type": "IconT.Name",
+        "optional": true,
+        "type": {
+          "text": "IconT.Name"
+        },
         "description": "Leading icon name for the accordion item."
       },
       {
         "name": "value",
-        "required": false,
-        "type": "string | undefined",
+        "optional": true,
+        "type": {
+          "text": "string"
+        },
         "description": "Unique value for the accordion item."
       }
     ]
-  },
-  "props": {
-    "own": [
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "AccordionT.Classes | undefined"
-      },
-      {
-        "name": "collapsible",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the last expanded item can be collapsed.",
-        "defaultValue": "true"
-      },
-      {
-        "name": "defaultValue",
-        "required": false,
-        "type": "string[] | undefined",
-        "description": "Default list of expanded item values for uncontrolled usage.",
-        "defaultValue": "[]"
-      },
-      {
-        "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the entire accordion is disabled.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "id",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Unique identifier for the accordion root element."
-      },
-      {
-        "name": "items",
-        "required": false,
-        "type": "AccordionT.Item[] | undefined",
-        "description": "Array of accordion items to render."
-      },
-      {
-        "name": "loop",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether arrow-key focus wraps from the last trigger to the first and vice versa.",
-        "defaultValue": "true"
-      },
-      {
-        "name": "multiple",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether multiple accordion items can be expanded at the same time.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "onChange",
-        "required": false,
-        "type": "((value: string[]) => void) | undefined",
-        "description": "Callback when the expanded item values change."
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "AccordionT.Styles | undefined"
-      },
-      {
-        "name": "trailing",
-        "required": false,
-        "type": "IconT.Name",
-        "description": "Trailing icon name for all accordion items.",
-        "defaultValue": "icon-chevron-down"
-      },
-      {
-        "name": "unmountOnHide",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to unmount accordion content when hidden.",
-        "defaultValue": "true"
-      },
-      {
-        "name": "value",
-        "required": false,
-        "type": "string[] | undefined",
-        "description": "Controlled list of expanded item values."
-      }
-    ],
-    "inherited": []
   }
 }

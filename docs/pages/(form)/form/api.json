@@ -1,63 +1,324 @@
 {
-  "component": {
-    "key": "form",
-    "name": "Form",
-    "category": "forms",
-    "polymorphic": false,
-    "sourcePath": "src/forms/form/form.tsx",
-    "kind": "single"
-  },
-  "slots": [
+  "key": "form",
+  "name": "Form",
+  "category": "forms",
+  "kind": "single",
+  "sourcePath": "src/forms/form/form.tsx",
+  "parts": [
     {
-      "name": "root",
-      "description": "Form root container.",
-      "cssVariables": [],
-      "dataAttributes": [
+      "id": "form-field",
+      "name": "form.Field",
+      "access": {
+        "kind": "factory-member",
+        "factory": "createForm",
+        "member": "Field"
+      },
+      "sourcePath": "src/forms/form/form.tsx",
+      "generics": [
         {
-          "name": "data-submitting",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "name": "TSchema",
+          "constraint": "FormSchema",
+          "default": "FormSchema"
+        },
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
         }
       ],
-      "ariaAttributes": []
+      "props": [
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether controls inherit a disabled state.",
+          "group": "behavior"
+        },
+        {
+          "name": "error",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Custom error message or force error state.",
+          "group": "behavior"
+        },
+        {
+          "name": "help",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Help text shown below the control when no error is present.",
+          "group": "behavior"
+        },
+        {
+          "name": "hint",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Hint text shown near the label.",
+          "group": "behavior"
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Unique identifier for the field.",
+          "group": "behavior"
+        },
+        {
+          "name": "name",
+          "optional": false,
+          "type": {
+            "text": "FieldName<TSchema>"
+          },
+          "group": "form"
+        },
+        {
+          "name": "readOnly",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether controls inherit a read-only state.",
+          "group": "form"
+        },
+        {
+          "name": "required",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the field is required.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "form"
+        },
+        {
+          "name": "as",
+          "optional": true,
+          "type": {
+            "text": "T"
+          },
+          "description": "The HTML element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "ComponentOrElement<RenderProps>"
+          },
+          "description": "Children of the field, can be a render function.",
+          "group": "rendering",
+          "traits": [
+            "render-prop"
+          ]
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Description text shown below the label.",
+          "group": "rendering"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Label for the field.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "orientation",
+          "optional": true,
+          "type": {
+            "text": "'vertical' | 'horizontal'"
+          },
+          "description": "Visual layout direction.",
+          "default": {
+            "kind": "literal",
+            "value": "vertical"
+          },
+          "group": "styling"
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": {
+            "text": "'sm' | 'md' | 'lg'"
+          },
+          "description": "Visual size of the component.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          },
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
+        }
+      ],
+      "slots": [],
+      "runtime": [
+        {
+          "target": "root",
+          "attributes": [
+            {
+              "name": "data-submitting",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "form-form",
+      "name": "form.Form",
+      "access": {
+        "kind": "factory-member",
+        "factory": "createForm",
+        "member": "Form"
+      },
+      "sourcePath": "src/forms/form/form.tsx",
+      "generics": [
+        {
+          "name": "TSchema",
+          "constraint": "FormSchema",
+          "default": "FormSchema"
+        }
+      ],
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "form",
+        "polymorphic": false
+      },
+      "props": [
+        {
+          "name": "onSubmit",
+          "optional": true,
+          "type": {
+            "text": "SubmitEventHandler<TSchema>"
+          },
+          "description": "Called with validated schema output and the native submit event.",
+          "group": "form",
+          "traits": [
+            "callback"
+          ]
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
+        }
+      ],
+      "slots": [
+        {
+          "name": "root",
+          "description": "Form root container."
+        }
+      ],
+      "runtime": [
+        {
+          "target": "root",
+          "attributes": [
+            {
+              "name": "data-submitting",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        }
+      ]
     }
-  ],
-  "props": {
-    "own": [
-      {
-        "name": "children",
-        "required": false,
-        "type": "JSX.Element"
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "FormT.Classes | undefined"
-      },
-      {
-        "name": "onSubmit",
-        "required": false,
-        "type": "SubmitEventHandler<TSchema> | undefined",
-        "description": "Called with validated schema output and the native submit event."
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "FormT.Styles | undefined"
-      }
-    ],
-    "inherited": []
-  }
+  ]
 }

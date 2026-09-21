@@ -1,209 +1,281 @@
 {
-  "component": {
-    "key": "field",
-    "name": "Field",
-    "category": "forms",
-    "polymorphic": true,
-    "description": "Generic field layout and accessibility primitive.",
-    "sourcePath": "src/forms/field/field.tsx",
-    "kind": "single"
-  },
-  "slots": [
+  "key": "field",
+  "name": "Field",
+  "category": "forms",
+  "description": "Props for the Field component.",
+  "kind": "single",
+  "sourcePath": "src/forms/field/field.tsx",
+  "parts": [
     {
-      "name": "root",
-      "description": "Field wrapper that links label, control, description, and messages.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "wrapper",
-      "description": "Inner wrapper that arranges label, control, helper text, and messages.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "labelWrapper",
-      "description": "Row that groups the field label and optional hint.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "label",
-      "description": "Accessible field label associated with the control.",
-      "cssVariables": [],
-      "dataAttributes": [
+      "id": "field",
+      "name": "Field",
+      "access": {
+        "kind": "export",
+        "name": "Field",
+        "package": "moraine"
+      },
+      "sourcePath": "src/forms/field/field.tsx",
+      "description": "Props for the Field component.",
+      "generics": [
         {
-          "name": "data-required",
-          "required": false,
-          "type": "string | undefined",
-          "description": "Present when the field input is required."
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
         }
       ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "container",
-      "description": "Region that contains the wrapped form control.",
-      "cssVariables": [],
-      "dataAttributes": [
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "div",
+        "asProp": "as",
+        "polymorphic": {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
+        }
+      },
+      "props": [
         {
-          "name": "data-has-text",
-          "required": false,
-          "type": "string | undefined",
-          "description": "State or slot attribute exposed for styling hooks and selectors."
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether controls inherit a disabled state.",
+          "group": "behavior"
+        },
+        {
+          "name": "error",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Custom error message or force error state.",
+          "group": "behavior"
+        },
+        {
+          "name": "help",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Help text shown below the control when no error is present.",
+          "group": "behavior"
+        },
+        {
+          "name": "hint",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Hint text shown near the label.",
+          "group": "behavior"
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Unique identifier for the field.",
+          "group": "behavior"
+        },
+        {
+          "name": "name",
+          "optional": true,
+          "type": {
+            "text": "Name"
+          },
+          "description": "Optional standalone field name.",
+          "group": "form"
+        },
+        {
+          "name": "readOnly",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether controls inherit a read-only state.",
+          "group": "form"
+        },
+        {
+          "name": "required",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the field is required.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          },
+          "group": "form"
+        },
+        {
+          "name": "as",
+          "optional": true,
+          "type": {
+            "text": "T"
+          },
+          "description": "The HTML element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          },
+          "group": "rendering"
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "ComponentOrElement<RenderProps>"
+          },
+          "description": "Children of the field, can be a render function.",
+          "group": "rendering",
+          "traits": [
+            "render-prop"
+          ]
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Description text shown below the label.",
+          "group": "rendering"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Label for the field.",
+          "group": "rendering"
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "orientation",
+          "optional": true,
+          "type": {
+            "text": "'vertical' | 'horizontal'"
+          },
+          "description": "Visual layout direction.",
+          "default": {
+            "kind": "literal",
+            "value": "vertical"
+          },
+          "group": "styling"
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": {
+            "text": "'sm' | 'md' | 'lg'"
+          },
+          "description": "Visual size of the component.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          },
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
         }
       ],
-      "ariaAttributes": []
-    },
-    {
-      "name": "description",
-      "description": "Helper text associated with the control.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "error",
-      "description": "Validation error message region for the field.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "hint",
-      "description": "Short hint rendered beside the field label.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
-    },
-    {
-      "name": "help",
-      "description": "Additional guidance rendered below the control.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": []
+      "slots": [
+        {
+          "name": "container",
+          "description": "Region that contains the wrapped form control."
+        },
+        {
+          "name": "description",
+          "description": "Helper text associated with the control."
+        },
+        {
+          "name": "error",
+          "description": "Validation error message region for the field."
+        },
+        {
+          "name": "help",
+          "description": "Additional guidance rendered below the control."
+        },
+        {
+          "name": "hint",
+          "description": "Short hint rendered beside the field label."
+        },
+        {
+          "name": "label",
+          "description": "Accessible field label associated with the control."
+        },
+        {
+          "name": "labelWrapper",
+          "description": "Row that groups the field label and optional hint."
+        },
+        {
+          "name": "root",
+          "description": "Field wrapper that links label, control, description, and messages."
+        },
+        {
+          "name": "wrapper",
+          "description": "Inner wrapper that arranges label, control, helper text, and messages."
+        }
+      ],
+      "runtime": [
+        {
+          "target": "container",
+          "attributes": [
+            {
+              "name": "data-has-text",
+              "kind": "data",
+              "description": "State or slot attribute exposed for styling hooks and selectors."
+            }
+          ]
+        },
+        {
+          "target": "label",
+          "attributes": [
+            {
+              "name": "data-required",
+              "kind": "data",
+              "description": "Present when the field input is required."
+            }
+          ]
+        }
+      ]
     }
-  ],
-  "props": {
-    "own": [
-      {
-        "name": "as",
-        "required": false,
-        "type": "\"div\" | undefined",
-        "description": "The HTML element or component to render as.",
-        "defaultValue": "div"
-      },
-      {
-        "name": "children",
-        "required": false,
-        "type": "ComponentOrElement<FieldT.RenderProps>",
-        "description": "Children of the field, can be a render function."
-      },
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "FieldT.Classes | undefined"
-      },
-      {
-        "name": "description",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Description text shown below the label."
-      },
-      {
-        "name": "disabled",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether controls inherit a disabled state."
-      },
-      {
-        "name": "error",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Custom error message or force error state."
-      },
-      {
-        "name": "help",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Help text shown below the control when no error is present."
-      },
-      {
-        "name": "hint",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Hint text shown near the label."
-      },
-      {
-        "name": "id",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Unique identifier for the field."
-      },
-      {
-        "name": "label",
-        "required": false,
-        "type": "JSX.Element",
-        "description": "Label for the field."
-      },
-      {
-        "name": "name",
-        "required": false,
-        "type": "FieldT.Name | undefined",
-        "description": "Optional standalone field name."
-      },
-      {
-        "name": "orientation",
-        "required": false,
-        "type": "\"horizontal\" | \"vertical\" | undefined",
-        "description": "Visual layout direction.",
-        "defaultValue": "vertical"
-      },
-      {
-        "name": "readOnly",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether controls inherit a read-only state."
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"div\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "required",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether the field is required.",
-        "defaultValue": "false"
-      },
-      {
-        "name": "size",
-        "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
-        "description": "Visual size of the component.",
-        "defaultValue": "md"
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "FieldT.Styles | undefined"
-      }
-    ],
-    "inherited": []
-  }
+  ]
 }

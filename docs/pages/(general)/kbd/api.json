@@ -1,97 +1,152 @@
 {
-  "component": {
-    "key": "kbd",
-    "name": "Kbd",
-    "category": "elements",
-    "polymorphic": false,
-    "description": "Keyboard keycap component with configurable size, variant, and accessible label.",
-    "sourcePath": "src/elements/kbd/kbd.tsx",
-    "kind": "single"
-  },
-  "slots": [
+  "key": "kbd",
+  "name": "Kbd",
+  "category": "elements",
+  "description": "Props for the Kbd component.",
+  "kind": "single",
+  "sourcePath": "src/elements/kbd/kbd.tsx",
+  "parts": [
     {
-      "name": "root",
-      "description": "Keyboard keycap element.",
-      "cssVariables": [],
-      "dataAttributes": [],
-      "ariaAttributes": [
+      "id": "kbd",
+      "name": "Kbd",
+      "access": {
+        "kind": "export",
+        "name": "Kbd",
+        "package": "moraine"
+      },
+      "sourcePath": "src/elements/kbd/kbd.tsx",
+      "description": "Props for the Kbd component.",
+      "rendering": {
+        "rendersDom": true,
+        "defaultElement": "kbd",
+        "polymorphic": false
+      },
+      "props": [
         {
-          "name": "aria-label",
-          "required": false,
-          "type": "boolean | string | undefined",
-          "description": "Provides an accessible label when visible text is not sufficient."
+          "name": "slotName",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Data slot used by the rendered keycap.",
+          "group": "behavior"
+        },
+        {
+          "name": "symbol",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether to resolve known key aliases to symbols.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          },
+          "group": "behavior"
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Accessible label for assistive technology.",
+          "group": "rendering"
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "type": {
+            "text": "Key"
+          },
+          "description": "Value displayed by the keycap or resolved through the static key aliases.",
+          "group": "state",
+          "state": {
+            "key": "value",
+            "role": "value"
+          }
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": {
+            "text": "'sm' | 'md' | 'lg'"
+          },
+          "description": "Visual size of the component.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          },
+          "group": "styling"
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element.",
+          "group": "styling"
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance.",
+          "group": "styling"
+        },
+        {
+          "name": "variant",
+          "optional": true,
+          "type": {
+            "text": "'default' | 'outline' | 'invert'"
+          },
+          "description": "Visual treatment of the component.",
+          "default": {
+            "kind": "literal",
+            "value": "default"
+          },
+          "group": "styling"
+        }
+      ],
+      "slots": [
+        {
+          "name": "root",
+          "description": "Keyboard keycap element."
+        }
+      ],
+      "runtime": [
+        {
+          "target": "root",
+          "attributes": [
+            {
+              "name": "aria-label",
+              "kind": "aria",
+              "description": "Provides an accessible label when visible text is not sufficient."
+            }
+          ]
         }
       ]
     }
-  ],
-  "props": {
-    "own": [
-      {
-        "name": "class",
-        "required": false,
-        "type": "SlotClassValue",
-        "description": "Class applied to the component root or trigger element."
-      },
-      {
-        "name": "classes",
-        "required": false,
-        "type": "KbdT.Classes | undefined"
-      },
-      {
-        "name": "label",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Accessible label for assistive technology."
-      },
-      {
-        "name": "ref",
-        "required": false,
-        "type": "JSX.HTMLElementTags[\"kbd\"] extends { ref?: infer Ref; } ? Ref : never | undefined"
-      },
-      {
-        "name": "size",
-        "required": false,
-        "type": "\"sm\" | \"md\" | \"lg\" | undefined",
-        "description": "Visual size of the component.",
-        "defaultValue": "md"
-      },
-      {
-        "name": "slotName",
-        "required": false,
-        "type": "string | undefined",
-        "description": "Data slot used by the rendered keycap."
-      },
-      {
-        "name": "style",
-        "required": false,
-        "type": "SlotStyleValue | undefined"
-      },
-      {
-        "name": "styles",
-        "required": false,
-        "type": "KbdT.Styles | undefined"
-      },
-      {
-        "name": "symbol",
-        "required": false,
-        "type": "boolean | undefined",
-        "description": "Whether to resolve known key aliases to symbols.",
-        "defaultValue": "true"
-      },
-      {
-        "name": "value",
-        "required": true,
-        "type": "KbdT.Key",
-        "description": "Value displayed by the keycap or resolved through the static key aliases."
-      },
-      {
-        "name": "variant",
-        "required": false,
-        "type": "\"default\" | \"outline\" | \"invert\" | undefined",
-        "description": "Visual treatment of the component.",
-        "defaultValue": "default"
-      }
-    ],
-    "inherited": []
-  }
+  ]
 }

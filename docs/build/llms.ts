@@ -13,14 +13,9 @@ import {
 import type { Plugin } from 'vite'
 
 import { loadComponentApiDoc, loadApiDocIndex } from './api-doc/load'
-import type {
-  ApiAttributeDoc,
-  ComponentDoc,
-  InheritedGroupDoc,
-  ItemDoc,
-  PropDoc,
-  SlotDoc,
-} from './api-doc/types'
+import { createApiReferenceModel } from './api-doc/presentation'
+import type { PresentationPropItem, PresentationRuntimeAttributeItem } from './api-doc/presentation'
+import type { ComponentApi } from './api-doc/types'
 import { resolveDocsPageContext } from './core/paths'
 import { readFrontmatterData } from './markdown/frontmatter'
 import { asObjectRecord, getStaticStringAttribute } from './markdown/mdx'
@@ -158,9 +153,9 @@ function renderTable(rows: readonly (readonly string[])[], headers: readonly str
   )
 }
 
-function renderPropTable(props: readonly PropDoc[], nameColumn = 'Prop'): string {
+function renderPropTable(props: readonly PresentationPropItem[], nameColumn = 'Prop'): string {
   const rows = props.map((prop) => [
-    `${prop.name}${prop.required ? '*' : ''}`,
+    `${prop.name}${!prop.optional ? '*' : ''}`,
     normalizeApiType(prop.type),
     prop.defaultValue ?? '—',
     prop.description ?? '—',
@@ -168,75 +163,104 @@ function renderPropTable(props: readonly PropDoc[], nameColumn = 'Prop'): string
   return renderTable(rows, [nameColumn, 'Type', 'Default', 'Description'])
 }
 
-function renderAttributeTable(attributes: readonly ApiAttributeDoc[], nameColumn = 'Attribute') {
+function renderRuntimeAttributeTable(
+  attributes: readonly PresentationRuntimeAttributeItem[],
+  nameColumn = 'Attribute',
+) {
   const rows = attributes.map((attribute) => [
     attribute.name,
-    normalizeApiType(attribute.type),
+    attribute.kind,
+    attribute.values?.join(', ') || '—',
     attribute.description || '—',
   ])
-  return renderTable(rows, [nameColumn, 'Type', 'Description'])
+  return renderTable(rows, [nameColumn, 'Kind', 'Values', 'Description'])
 }
 
-function renderSlotAttributes(slot: SlotDoc): string[] {
-  const output: string[] = []
-  for (const [heading, attributes] of [
-    ['CSS Variables', slot.cssVariables],
-    ['Data Attributes', slot.dataAttributes],
-    ['ARIA Attributes', slot.ariaAttributes],
-  ] as const) {
-    if (attributes.length === 0) {
-      continue
-    }
-    output.push(`##### ${heading}`, '', renderAttributeTable(attributes), '')
+function renderApiReference(apiDoc: ComponentApi): string {
+  const model = createApiReferenceModel(apiDoc)
+  if (!model) {
+    return ''
   }
-  return output
-}
 
-function renderSlot(slot: SlotDoc): string[] {
-  const output = [`#### \`${slot.name}\``, '']
-  if (slot.description) {
-    output.push(slot.description, '')
-  }
-  output.push(...renderSlotAttributes(slot))
-  return output
-}
-
-function renderInheritedGroup(group: InheritedGroupDoc): string[] {
-  return [`#### From \`${group.from}\``, '', renderPropTable(group.props), '']
-}
-
-function renderItem(item: ItemDoc): string[] {
-  const output = ['### Items', '']
-  if (item.description) {
-    output.push(item.description, '')
-  }
-  output.push(renderPropTable(item.props), '')
-  return output
-}
-
-function renderApiReference(apiDoc: ComponentDoc): string {
   const output = ['## API', '']
+  output.push(`Composition: ${model.kind}`, '')
 
-  if (apiDoc.slots.length > 0) {
-    output.push('### Attributes', '')
-    for (const slot of apiDoc.slots) {
-      output.push(...renderSlot(slot))
+  if (model.kind === 'single') {
+    const rootPart = model.parts[0]
+    if (rootPart) {
+      if (rootPart.slots && rootPart.slots.length > 0) {
+        output.push('### Slots', '')
+        for (const slot of rootPart.slots) {
+          output.push(`- \`${slot.name}\`${slot.description ? `: ${slot.description}` : ''}`)
+        }
+        output.push('')
+      }
+
+      if (rootPart.runtime && rootPart.runtime.length > 0) {
+        output.push('### Runtime Attributes', '')
+        for (const target of rootPart.runtime) {
+          if (target.attributes.length > 0) {
+            output.push(
+              `##### Target: \`${target.target}\``,
+              '',
+              renderRuntimeAttributeTable(target.attributes),
+              '',
+            )
+          }
+        }
+      }
+
+      if (rootPart.propGroups.length > 0) {
+        output.push('### Props', '')
+        for (const group of rootPart.propGroups) {
+          output.push(`**${group.heading}**`, '', renderPropTable(group.props), '')
+        }
+      }
+    }
+  } else {
+    for (const part of model.parts) {
+      output.push(`### ${part.heading}`, '')
+      if (part.accessText) {
+        output.push(`\`${part.accessText}\``, '')
+      }
+      if (part.description) {
+        output.push(part.description, '')
+      }
+
+      for (const group of part.propGroups) {
+        output.push(`**${group.heading}**`, '', renderPropTable(group.props), '')
+      }
+
+      if (part.slots && part.slots.length > 0) {
+        output.push('#### Slots', '')
+        for (const slot of part.slots) {
+          output.push(`- \`${slot.name}\`${slot.description ? `: ${slot.description}` : ''}`)
+        }
+        output.push('')
+      }
+
+      if (part.runtime && part.runtime.length > 0) {
+        output.push('#### Runtime Attributes', '')
+        for (const target of part.runtime) {
+          if (target.attributes.length > 0) {
+            output.push(
+              `##### Target: \`${target.target}\``,
+              '',
+              renderRuntimeAttributeTable(target.attributes),
+              '',
+            )
+          }
+        }
+      }
     }
   }
 
-  if (apiDoc.props.own.length > 0) {
-    output.push('### Props', '', renderPropTable(apiDoc.props.own), '')
-  }
-
-  if (apiDoc.item) {
-    output.push(...renderItem(apiDoc.item))
-  }
-
-  if (apiDoc.props.inherited.length > 0) {
-    output.push('### Inherited', '')
-    for (const group of apiDoc.props.inherited) {
-      output.push(...renderInheritedGroup(group))
+  if (model.item) {
+    output.push('### Items', '')
+    if (model.item.description) {
+      output.push(model.item.description, '')
     }
+    output.push(renderPropTable(model.item.props), '')
   }
 
   return `${output.join('\n').trimEnd()}\n`
