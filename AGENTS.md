@@ -36,10 +36,11 @@ The `src` directory is organized by component role and shared infrastructure:
 
 ```text
 src/
-├── index.ts             # Public package entry point; re-exports all components and utilities.
-├── theme.ts             # Public theme entry point; re-exports theme creators and tokens.
+├── index.ts              # Main public entry point; re-exports component categories and shared APIs.
+├── theme.ts              # Public theme entry point.
+├── styles.ts             # Public style-contract entry point.
 ├── utils.ts              # Public utility entry point.
-├── virtualizer.ts        # Public virtual list entry point.
+├── virtualizer.ts        # Public virtual-list entry point.
 ├── elements/             # Basic, non-form UI elements.
 │   ├── accordion/         # Accordion primitives.
 │   ├── avatar/            # Avatar and fallback display.
@@ -58,6 +59,7 @@ src/
 │   ├── checkbox-group/    # Checkbox group control.
 │   ├── base-select/       # Low-level selection, disclosure, and listbox primitive.
 │   ├── combobox/          # Editable single collection selection.
+│   ├── field/             # Field layout, labels, descriptions, and validation messages.
 │   ├── file-upload/       # File upload control and dropzone behavior.
 │   ├── form/              # Form root, field wrapper, submission, and context.
 │   ├── input/             # Text input control.
@@ -69,7 +71,7 @@ src/
 │   ├── slider/             # Slider control and slider hooks.
 │   ├── switch/             # Switch control.
 │   ├── textarea/           # Textarea control.
-│   └── shared/             # Form-specific hooks and helpers.
+│   └── shared/             # Form-specific hooks, native control helpers, and select internals.
 ├── navigation/            # Navigation and page-organization components.
 │   ├── breadcrumb/         # Breadcrumb navigation.
 │   ├── command-palette/    # Command palette behavior and presentation.
@@ -86,26 +88,26 @@ src/
 │   ├── popover/            # Popover.
 │   ├── sheet/              # Side or bottom sheet.
 │   └── tooltip/            # Tooltip.
-├── provider/              # Context providers (MoraineProvider, theme, cn context).
+├── provider/              # MoraineProvider plus theme, class-merging, and style resolution contexts.
 ├── shared/                # Reusable internals that are not public components.
-├── tailwind/               # Tailwind integration and generated style helpers.
+├── tailwind/               # Tailwind integration.
 ├── test-utils/             # SSR, owner, overlay, and global test utilities.
-├── theme/                  # Default theme configuration, types, and theme creation primitives.
-│   └── style/             # Shared style tokens, recipe definitions, and cn utilities.
+├── theme/                  # Theme configuration, contracts, and creation primitives.
+│   └── style/              # Class merging, recipe definitions, tokens, and shared style utilities.
 └── unocss/                 # UnoCSS integration and preset helpers.
 ```
 
-Component directories normally contain the implementation (`{component}.tsx`), styles (`{component}.class.ts`), tests, and an `index.ts` barrel. Keep component-specific behavior inside its role directory; move logic to `shared` only when it is reused by multiple component families. `base` directories provide internal primitives for higher-level components and are not automatically public API.
+Component directories normally contain implementation (`{component}.tsx` and any colocated part or context files), a recipe (`{component}.recipe.ts`), style types (`{component}.style-types.ts`), public types (`{component}.types.ts`), tests, SSR fixtures/tests, and an `index.ts` barrel. Reusable static classes belong in a colocated or feature-level `*.class.ts` file. Keep component-specific behavior inside its role directory; move logic to `shared` only when it is used by multiple component families. `base` directories provide internal primitives for higher-level components and are not automatically public API.
 
 ## Style Implementation Details
 
-- Create a `{component}.class.ts` file.
-- Reusable constant class should define as `*_CLASS` global variable
-- Use `recipe` from `src/theme/style/recipe.ts` to define variants.
-- In components, capture `useCn()` during initialization and use that handle to combine classes. Pass `Cn` explicitly to plain rendering helpers. Use static `cn` or `createCn` for owner-independent tools.
-- No need to create memo for classes, just write them inplace
-- State-based class should use a pure class instead of adding a new variant in `recipe`.
-- Recipe options in `*.class.ts` may use parenthesized variant groups (for example, `hover:(bg-red-500 text-white)`); the build plugin expands them before `cn`, Tailwind, or UnoCSS reads the classes. Use standard flat utility syntax everywhere else.
+- Define each component's declarative, themeable presentation in `{component}.recipe.ts` with `defineRecipe()` from `src/theme/style/recipe.ts`. Export it as `{component}Recipe`; use `/* @__PURE__ */` for the definition.
+- Declare the recipe's slot and variant shapes in `{component}.style-types.ts`. Recipes must define every slot in `base`, including slots whose base class is empty.
+- Resolve recipes in Solid components with `createStyles()` from `src/provider/create-styles.ts`. Use the returned stable `styles.<slot>.class` and `styles.<slot>.style` bindings directly; do not add memos solely for class or style resolution.
+- Put truly reusable static class values in a `*.class.ts` file and export constants in `UPPER_SNAKE_CASE` (for example, `TEXT_CONTROL_CLASS`). Do not create a recipe for static-only styling.
+- Use recipe variants for public component variants and cross-slot presentation changes. Express DOM state with utility selectors such as `data-expanded:` or `aria-disabled:` instead of adding a recipe variant solely for internal state.
+- Capture `useCn()` during component initialization only when combining classes outside `createStyles()`. Pass `Cn` explicitly to plain rendering helpers; use static `cn` or `createCn` for owner-independent utilities.
+- Parenthesized utility groups are supported in recipe and class files (for example, `hover:(bg-red-500 text-white)`). Use standard flat utility syntax elsewhere.
 
 ## Code Style & Conventions
 
