@@ -4,9 +4,13 @@ export interface PresentationPropItem {
   name: string
   optional: boolean
   type: string
+  group?: string
+  anchorId?: string
+  isCommonProp?: boolean
   defaultValue?: string
   description?: string
   traits?: string[]
+  stateRole?: string
 }
 
 export interface PresentationSlotItem {
@@ -52,6 +56,10 @@ export interface PresentationPartSection {
   description?: string
   accessText?: string
   rendersDom: boolean
+  defaultElement?: string
+  polymorphic?: boolean | string
+  genericsSignature?: string
+  allProps: PresentationPropItem[]
   propGroups: PresentationPropGroupSection[]
   slots?: PresentationSlotItem[]
   anatomy?: PresentationRuntimeTargetItem[]
@@ -71,6 +79,7 @@ export interface ApiReferencePresentationModel {
   componentKey: string
   componentName: string
   kind: 'single' | 'composite'
+  description?: string
   parts: PresentationPartSection[]
   item?: PresentationItemSection
 }
@@ -97,14 +106,39 @@ export function formatDefaultValue(def?: DefaultValue): string | undefined {
   return def.text
 }
 
-function formatPropItem(prop: PropApi): PresentationPropItem {
+const COMMON_BASE_PROPS = new Set(['class', 'style', 'classes', 'styles', 'as', 'children'])
+
+function formatGenerics(
+  generics?: Array<{ name: string; constraint?: string; default?: string }>,
+): string | undefined {
+  if (!generics || generics.length === 0) {
+    return undefined
+  }
+  const params = generics.map((g) => {
+    let s = g.name
+    if (g.constraint) {
+      s += ` extends ${g.constraint}`
+    }
+    if (g.default) {
+      s += ` = ${g.default}`
+    }
+    return s
+  })
+  return `<${params.join(', ')}>`
+}
+
+function formatPropItem(prop: PropApi, partId?: string): PresentationPropItem {
   return {
     name: prop.name,
     optional: prop.optional,
     type: prop.type.text,
+    group: prop.group,
+    ...(partId ? { anchorId: `api-${partId}-${prop.name}` } : {}),
+    isCommonProp: COMMON_BASE_PROPS.has(prop.name),
     ...(prop.default ? { defaultValue: formatDefaultValue(prop.default) } : {}),
     ...(prop.description ? { description: prop.description } : {}),
     ...(prop.traits?.length ? { traits: prop.traits } : {}),
+    ...(prop.state ? { stateRole: prop.state.role } : {}),
   }
 }
 
@@ -181,6 +215,16 @@ export function createApiReferenceModel(
   const parts: PresentationPartSection[] = []
 
   for (const part of component.parts) {
+    // Collect all props with component-specific first, common props last
+    const allProps = part.props
+      .map((p) => formatPropItem(p, part.id))
+      .sort((a, b) => {
+        if (Boolean(a.isCommonProp) !== Boolean(b.isCommonProp)) {
+          return a.isCommonProp ? 1 : -1
+        }
+        return a.name.localeCompare(b.name)
+      })
+
     // Group props
     const propsByGroup = new Map<string, PresentationPropItem[]>()
     for (const group of GROUP_ORDER) {
@@ -189,7 +233,7 @@ export function createApiReferenceModel(
 
     for (const prop of part.props) {
       const groupProps = propsByGroup.get(prop.group) ?? []
-      groupProps.push(formatPropItem(prop))
+      groupProps.push(formatPropItem(prop, part.id))
       propsByGroup.set(prop.group, groupProps)
     }
 
@@ -242,6 +286,13 @@ export function createApiReferenceModel(
       accessText = `const form = ${part.access.factory}(...); form.${part.access.member}`
     }
 
+    const polymorphic =
+      typeof part.rendering?.polymorphic === 'object'
+        ? part.rendering.polymorphic.name
+        : part.rendering?.polymorphic
+
+    const genericsSignature = formatGenerics(part.generics)
+
     parts.push({
       id: `api-${part.id}`,
       heading: part.name,
@@ -249,6 +300,10 @@ export function createApiReferenceModel(
       ...(part.description ? { description: part.description } : {}),
       ...(accessText ? { accessText } : {}),
       rendersDom: part.rendering?.rendersDom !== false,
+      ...(part.rendering?.defaultElement ? { defaultElement: part.rendering.defaultElement } : {}),
+      ...(polymorphic ? { polymorphic } : {}),
+      ...(genericsSignature ? { genericsSignature } : {}),
+      allProps,
       propGroups,
       ...(slots.length > 0 ? { slots } : {}),
       ...(anatomy.length > 0 ? { anatomy } : {}),
@@ -282,6 +337,7 @@ export function createApiReferenceModel(
     componentKey: component.key,
     componentName: component.name,
     kind: component.kind,
+    ...(component.description ? { description: component.description } : {}),
     parts,
     ...(itemSection ? { item: itemSection } : {}),
   }
@@ -296,24 +352,25 @@ export function getApiReferenceTocEntries(component: ComponentApi | undefined): 
   const entries: TocEntry[] = []
 
   if (model.kind === 'single') {
-    // Single component: root part
+    // Single component: root part (Props first, then DOM & State)
     const rootPart = model.parts[0]
     if (rootPart) {
-      if (
-        (rootPart.slots && rootPart.slots.length > 0) ||
-        (rootPart.anatomy && rootPart.anatomy.length > 0) ||
-        rootPart.rendersDom === false
-      ) {
-        entries.push({
-          id: 'dom-styling',
-          label: 'DOM & Styling',
-          level: 2,
-        })
-      }
-      if (rootPart.propGroups.length > 0) {
+      if (rootPart.propGroups.length > 0 || rootPart.allProps?.length > 0) {
         entries.push({
           id: 'api-props',
           label: 'Props',
+          level: 2,
+        })
+      }
+      const hasDomState =
+        (rootPart.dataAttributes && rootPart.dataAttributes.length > 0) ||
+        (rootPart.accessibility && rootPart.accessibility.length > 0) ||
+        (rootPart.cssVariables && rootPart.cssVariables.length > 0) ||
+        rootPart.rendersDom === false
+      if (hasDomState) {
+        entries.push({
+          id: 'dom-styling',
+          label: 'DOM & State',
           level: 2,
         })
       }
