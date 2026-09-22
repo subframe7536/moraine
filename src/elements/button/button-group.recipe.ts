@@ -1,6 +1,12 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { ButtonGroupStyleSlot, ButtonGroupRecipeVariant } from './button-group.style-types'
+
+export const buttonGroupDataAttributes = {
+  separator: createDataAttributes('orientation'),
+} satisfies DataAttributeContract<keyof ButtonGroupStyleSlot>
 
 export const buttonGroupRecipe = /* @__PURE__ */ defineRecipe<
   ButtonGroupStyleSlot,

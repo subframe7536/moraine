@@ -3,30 +3,29 @@ import { fileURLToPath } from 'node:url'
 
 import uno from '@subf/unocss/vite'
 import { DEFAULT_IGNORES, fileRouter } from 'solid-file-router/plugin'
-import type { UserConfig } from 'vite'
 import { defineConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
-import { variantGroupPlugin } from '../vite-plugin-variant-group'
+import { variantGroupPlugin } from '../vite-plugin-variant-group.ts'
 
-import { createDocsMdxOptions, docsBuildPlugin, llmsTxtPlugin, siteMetaPlugin } from './build'
-import unocfg from './unocss.config'
+import {
+  createDocsMdxOptions,
+  DOCS_SITE,
+  docsBuildPlugin,
+  llmsTxtPlugin,
+  siteMetaPlugin,
+} from './build/index.ts'
+import unocfg from './unocss.config.ts'
 
 const docsRoot = fileURLToPath(new URL('.', import.meta.url))
 const projectRoot = path.resolve(docsRoot, '..')
-const site = {
-  siteName: 'Moraine',
-  description:
-    'Accessible, composable SolidJS components with atomic class styling for UnoCSS and Tailwind.',
-  siteUrl: 'https://ui.subf.dev/',
-}
 
 export default defineConfig({
   plugins: [
-    variantGroupPlugin() as unknown,
-    docsBuildPlugin({ projectRoot }) as unknown,
-    uno(unocfg) as unknown,
-    solid({ ssr: true, extensions: ['.mdx'] }) as unknown,
+    variantGroupPlugin(),
+    docsBuildPlugin({ projectRoot }),
+    uno(unocfg),
+    solid({ ssr: true, extensions: ['.mdx'] }),
     fileRouter({
       pagesDir: 'routes',
       ignore: [...DEFAULT_IGNORES, 'hooks', '**/*.test.tsx'],
@@ -47,23 +46,26 @@ export default defineConfig({
         api: 'string',
         sections: '{ id: string; label: string; level: number }[]',
       },
-    }) as unknown,
+    }),
     siteMetaPlugin({
-      ...site,
+      ...DOCS_SITE,
       title: 'Moraine Docs',
       imagePath: '/og-image.png',
       imageAlt: 'Moraine Docs brand cover image',
       imageWidth: 1200,
       imageHeight: 630,
       twitterCard: 'summary_large_image',
-    }) as unknown,
-    llmsTxtPlugin({ projectRoot, ...site }) as unknown,
-  ] as unknown as UserConfig['plugins'],
+    }),
+    llmsTxtPlugin({ projectRoot, ...DOCS_SITE }),
+  ],
   resolve: {
     alias: {
       '@src': path.resolve(projectRoot, 'src'),
     },
     dedupe: ['solid-js', '@solidjs/router'],
+  },
+  optimizeDeps: {
+    entries: ['index.html', 'routes/**/*.{ts,tsx}', 'pages/**/*.{ts,tsx}', '!**/*.test.*'],
   },
   build: {
     rolldownOptions: {

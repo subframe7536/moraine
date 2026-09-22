@@ -105,4 +105,22 @@ export default {}
     expect(res.code).toContain('"highlightedLines": [1]')
     expect(res.code).toContain('"highlightedLines": [2]')
   })
+
+  test('normalizes explicit items into data without retaining duplicate child nodes', async () => {
+    const markdown = `
+<CodeTabs>
+  <CodeTabs.Item lang="ts" title="config">
+    {\`export default { theme: 'dark' }\`}
+  </CodeTabs.Item>
+</CodeTabs>
+`
+
+    const result = await mdxToJs(markdown, {
+      mdastPlugins: [() => createDocsCodeTabsPlugin(), () => createDocsCodePlugin()],
+    })
+
+    expect(result.code).toContain("export default { theme: 'dark' }")
+    expect(result.code).toContain('"title": "config"')
+    expect(result.code).not.toContain('CodeTabs.Item')
+  })
 })

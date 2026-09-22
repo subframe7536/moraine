@@ -9,6 +9,7 @@ import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
 import { useFieldContext } from '../field/field-context.ts'
 import {
   createSource,
+  normalizeSelectEntries,
   serializeSourceValue,
   singleValueToSelection,
 } from '../shared/select/collection.ts'
@@ -18,13 +19,14 @@ import {
   SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   SELECT_LOCAL_PROP_KEYS,
 } from '../shared/select/props.ts'
-import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
 
-import { selectRecipe } from './select.recipe'
+import { selectDataAttributes, selectRecipe } from './select.recipe'
 import type { SelectProps, SelectT } from './select.types.ts'
 
 /** Single, non-editable collection selection. */
-export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps<T>): JSX.Element {
+export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
+  props: SelectProps<T>,
+): JSX.Element {
   const [local, baseSelectProps, rootProps] = splitProps(
     props,
     SELECT_LOCAL_PROP_KEYS,
@@ -36,14 +38,15 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
     inheritedVariants: () => ({ size: field?.size }),
   })
   const baseSelectStyles = createBaseSelectStyleProps((slot) => styles.styles[slot])
-  const source = createMemo((prev: ReturnType<typeof createSource<T>> | undefined) =>
-    createSource(local.items ?? [], undefined, prev),
+  const source = createMemo(
+    (prev: ReturnType<typeof createSource<SelectT.NormalizedItem<T>>> | undefined) =>
+      createSource(normalizeSelectEntries<T>(local.items ?? []), undefined, prev),
   )
   const selection = createMemo(() => singleValueToSelection(local.value))
   const defaultSelection = () => singleValueToSelection(local.defaultValue)
 
   function Control(): JSX.Element {
-    const state = useSelectState<T>()
+    const state = useSelectState<SelectT.NormalizedItem<T>>()
     const selectedItem = () => source().byValue.get(state.value()[0]!)
     const hasValue = () => state.value().length > 0
     function clear(): void {
@@ -61,13 +64,13 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
           {...styles.styles.control}
           ref={(element) => callRef(local.ref, element)}
         >
-          <BaseSelect.Trigger<'button', T> {...styles.styles.trigger}>
+          <BaseSelect.Trigger<'button', SelectT.NormalizedItem<T>> {...styles.styles.trigger}>
             <Show when={local.leadingIcon}>
               {(icon) => <Icon name={icon()} slotName="leading" {...styles.styles.leading} />}
             </Show>
             <span
               data-slot="value"
-              data-placeholder={!hasValue() ? '' : undefined}
+              {...selectDataAttributes.value({ placeholder: () => !hasValue() })}
               {...styles.styles.value}
             >
               {selectedItem()?.label ?? (hasValue() ? String(state.value()[0]) : local.placeholder)}
@@ -92,13 +95,14 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
               </span>
             </Show>
             <Icon
+              slotName="trailing"
               name={
                 local.loading
                   ? (local.loadingIcon ?? 'icon-loading')
                   : (local.trailingIcon ?? 'icon-chevron-down')
               }
-              data-loading={local.loading ? '' : undefined}
-              class={SELECT_LOADING_ICON_CLASS}
+              {...selectDataAttributes.trailing({ loading: () => local.loading })}
+              {...styles.styles.trailing}
             />
           </BaseSelect.Trigger>
         </BaseSelect.Control>
@@ -125,7 +129,7 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
   }
 
   return (
-    <BaseSelect<T>
+    <BaseSelect<SelectT.NormalizedItem<T>>
       {...baseSelectProps}
       items={source().items}
       serializeValue={(value) => serializeSourceValue(source(), value)}

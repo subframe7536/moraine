@@ -21,7 +21,7 @@ export function BasicExample() {
 }
 `
 
-    expect(await resolvePreviewComponentSource(source, 'BasicExample', parsePreviewCode)).toBe(
+    expect(await resolvePreviewComponentSource(source, parsePreviewCode)).toBe(
       `import { Button } from 'moraine'
 import type { ButtonT } from 'moraine'
 import { For, createSignal } from 'solid-js'
@@ -42,7 +42,7 @@ import '@src/icon.css'
 export const VirtualList = () => <div />
 `
 
-    expect(await resolvePreviewComponentSource(source, 'VirtualList', parsePreviewCode)).toBe(
+    expect(await resolvePreviewComponentSource(source, parsePreviewCode)).toBe(
       `import { useListVirtualizer } from 'moraine/virtualizer'
 import { unocssPreset } from 'moraine/unocss'
 import { Button } from 'moraine'
@@ -61,7 +61,7 @@ export function Example() {
 }
 `
 
-    expect(await resolvePreviewComponentSource(source, 'Example', parsePreviewCode)).toBe(
+    expect(await resolvePreviewComponentSource(source, parsePreviewCode)).toBe(
       `import { Button } from "moraine"
 import type { ButtonT } from "moraine"
 
@@ -87,7 +87,7 @@ export function LoadingExample() {
 }
 `
 
-    expect(await resolvePreviewComponentSource(source, 'LoadingExample', parsePreviewCode))
+    expect(await resolvePreviewComponentSource(source, parsePreviewCode))
       .toBe(`import { Button } from 'moraine'
 import { createSignal } from 'solid-js'
 
@@ -104,10 +104,8 @@ export function LoadingExample() {
   })
 
   test('returns null for empty or whitespace-only source', async () => {
-    expect(await resolvePreviewComponentSource('', 'Example', parsePreviewCode)).toBeNull()
-    expect(
-      await resolvePreviewComponentSource('   \n  \t  ', 'Example', parsePreviewCode),
-    ).toBeNull()
+    expect(await resolvePreviewComponentSource('', parsePreviewCode)).toBeNull()
+    expect(await resolvePreviewComponentSource('   \n  \t  ', parsePreviewCode)).toBeNull()
   })
 })
 
@@ -115,14 +113,12 @@ describe('transformPreviewModule', () => {
   test('creates a default descriptor for one named component export', async () => {
     const transformed = await transformPreviewModule(
       'export function Variants() { return <div /> }',
-      '/tmp/docs/pages/general/button/variants.tsx?preview',
+      '/tmp/docs/pages/general/button/variants.tsx',
       parsePreviewCode,
     )
 
     expect(transformed).toContain("import { Variants as __Preview } from './variants.tsx'")
-    expect(transformed).toContain(
-      "import __PreviewSource from './variants.tsx?preview-source&name=Variants'",
-    )
+    expect(transformed).toContain("import __PreviewSource from './variants.tsx?preview-source'")
     expect(transformed).toContain('const component = __Preview')
     expect(transformed).toContain('export default { component, source: __PreviewSource }')
   })
@@ -130,20 +126,18 @@ describe('transformPreviewModule', () => {
   test('creates a default descriptor for one default component export', async () => {
     const transformed = await transformPreviewModule(
       'export default function Basic() { return <div /> }',
-      '/tmp/docs/pages/general/button/basic.tsx?preview',
+      '/tmp/docs/pages/general/button/basic.tsx',
       parsePreviewCode,
     )
 
     expect(transformed).toContain("import __Preview from './basic.tsx'")
-    expect(transformed).toContain(
-      "import __PreviewSource from './basic.tsx?preview-source&name=default'",
-    )
+    expect(transformed).toContain("import __PreviewSource from './basic.tsx?preview-source'")
   })
 
   test('ignores type-only exports when validating the component export', async () => {
     const transformed = await transformPreviewModule(
       'export interface BasicProps { label: string }\nexport function Basic() { return <div /> }',
-      '/tmp/docs/pages/general/button/basic.tsx?preview',
+      '/tmp/docs/pages/general/button/basic.tsx',
       parsePreviewCode,
     )
 
@@ -153,14 +147,14 @@ describe('transformPreviewModule', () => {
   test('does not import the preview component during SSR', async () => {
     const transformed = await transformPreviewModule(
       'export function Variants() { return <div /> }',
-      '/tmp/docs/pages/general/button/variants.tsx?preview',
+      '/tmp/docs/pages/general/button/variants.tsx',
       parsePreviewCode,
       { ssr: true },
     )
 
     expect(transformed).not.toContain("from './variants.tsx'\n")
     expect(transformed).toContain('const component = () => null')
-    expect(transformed).toContain('?preview-source&name=Variants')
+    expect(transformed).toContain('?preview-source')
   })
 
   test.each([
@@ -172,18 +166,10 @@ describe('transformPreviewModule', () => {
     ],
   ])('rejects %s', async (_name, source, count) => {
     await expect(
-      transformPreviewModule(
-        source,
-        '/tmp/docs/pages/general/button/basic.tsx?preview',
-        parsePreviewCode,
-      ),
+      transformPreviewModule(source, '/tmp/docs/pages/general/button/basic.tsx', parsePreviewCode),
     ).rejects.toThrow(`expected exactly one component export in`)
     await expect(
-      transformPreviewModule(
-        source,
-        '/tmp/docs/pages/general/button/basic.tsx?preview',
-        parsePreviewCode,
-      ),
+      transformPreviewModule(source, '/tmp/docs/pages/general/button/basic.tsx', parsePreviewCode),
     ).rejects.toThrow(`found ${count}`)
   })
 
@@ -191,7 +177,7 @@ describe('transformPreviewModule', () => {
     await expect(
       transformPreviewModule(
         "export { Basic } from './basic-impl'",
-        '/tmp/docs/pages/general/button/basic.tsx?preview',
+        '/tmp/docs/pages/general/button/basic.tsx',
         parsePreviewCode,
       ),
     ).rejects.toThrow('re-exported components are not supported')
@@ -206,12 +192,7 @@ export const BasicExample = () => <Button>basic</Button>
 `
     const toHtml = vi.fn(async (value: string, lang: 'tsx') => `<pre ${lang}>${value}</pre>`)
 
-    const transformed = await transformPreviewSourceModule(
-      source,
-      '/tmp/docs/previews/button/basic.tsx?preview-source&name=BasicExample',
-      parsePreviewCode,
-      toHtml,
-    )
+    const transformed = await transformPreviewSourceModule(source, parsePreviewCode, toHtml)
 
     expect(transformed).toContain('export default ')
     expect(toHtml).toHaveBeenCalledWith(
@@ -222,26 +203,10 @@ export const BasicExample = () => <Button>basic</Button>`,
     )
   })
 
-  test('ignores non source-query modules', async () => {
-    const transformed = await transformPreviewSourceModule(
-      'export const BasicExample = () => <div>basic</div>',
-      '/tmp/docs/previews/button/basic.tsx',
-      parsePreviewCode,
-      vi.fn(async () => '<pre>code</pre>'),
-    )
-
-    expect(transformed).toBeNull()
-  })
-
   test('returns empty html module when source is empty', async () => {
     const toHtml = vi.fn(async () => '<pre>code</pre>')
 
-    const transformed = await transformPreviewSourceModule(
-      '   \n\t  ',
-      '/tmp/docs/previews/button/basic.tsx?preview-source',
-      parsePreviewCode,
-      toHtml,
-    )
+    const transformed = await transformPreviewSourceModule('   \n\t  ', parsePreviewCode, toHtml)
 
     expect(transformed).toBe('export default ""\n')
     expect(toHtml).not.toHaveBeenCalled()

@@ -1,6 +1,15 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { RadioGroupStyleSlot, RadioGroupStyleVariant } from './radio-group.style-types'
+
+export const radioGroupDataAttributes = {
+  root: createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
+  item: createDataAttributes('checked', 'disabled'),
+  control: createDataAttributes('checked', 'disabled', 'invalid', 'readonly', 'required'),
+  indicator: createDataAttributes('checked'),
+} satisfies DataAttributeContract<keyof RadioGroupStyleSlot>
 
 export const radioGroupRecipe = /* @__PURE__ */ defineRecipe<
   RadioGroupStyleSlot,

@@ -7,6 +7,7 @@ import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callRef } from '../../shared/utils'
 
 import { useSidebarFrameContext } from './sidebar-frame-context'
+import { sidebarFrameDataAttributes } from './sidebar-frame.recipe'
 import type { SidebarFrameT } from './sidebar-frame.types'
 
 /** Interactive trigger button for toggling sidebar visibility. */
@@ -44,9 +45,11 @@ export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
       class={local.class}
       style={local.style}
       aria-expanded={context.isOpen()}
-      data-open={context.isOpen() ? '' : undefined}
-      data-closed={context.isOpen() ? undefined : ''}
-      data-disabled={disabled() ? '' : undefined}
+      {...sidebarFrameDataAttributes.trigger({
+        open: context.isOpen,
+        closed: () => !context.isOpen(),
+        disabled,
+      })}
       ref={(element: HTMLElement) => callRef(local.ref, element)}
     >
       {children()}

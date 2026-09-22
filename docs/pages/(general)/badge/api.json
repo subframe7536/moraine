@@ -1,145 +1,95 @@
 {
   "key": "badge",
   "name": "Badge",
-  "category": "elements",
   "description": "Props for the Badge component.",
   "kind": "single",
-  "sourcePath": "src/elements/badge/badge.tsx",
   "parts": [
     {
       "id": "badge",
       "name": "Badge",
       "access": {
         "kind": "export",
-        "name": "Badge",
-        "package": "moraine"
+        "name": "Badge"
       },
-      "sourcePath": "src/elements/badge/badge.tsx",
       "description": "Props for the Badge component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "span",
-        "polymorphic": false
-      },
+      "defaultElement": "span",
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Children of the badge.",
-          "group": "rendering"
-        },
-        {
-          "name": "leading",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Leading icon name.",
-          "group": "rendering"
-        },
-        {
-          "name": "title",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Accessible title shown by the browser for the badge root.",
-          "group": "rendering"
-        },
-        {
-          "name": "trailing",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Trailing icon name.",
-          "group": "rendering"
+          "type": "JSX.Element",
+          "description": "Children of the badge."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "leading",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Leading icon name."
         },
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
+          "type": "'sm' | 'md' | 'lg'",
           "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "title",
+          "optional": true,
+          "type": "string",
+          "description": "Accessible title shown by the browser for the badge root."
+        },
+        {
+          "name": "trailing",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Trailing icon name."
         },
         {
           "name": "variant",
           "optional": true,
-          "type": {
-            "text": "'solid' | 'subtle' | 'surface' | 'outline'"
-          },
+          "type": "'solid' | 'subtle' | 'surface' | 'outline'",
           "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "subtle"
-          },
-          "group": "styling"
+          }
         }
-      ],
-      "slots": [
-        {
-          "name": "label",
-          "description": "Badge text or children content between the optional visuals."
-        },
-        {
-          "name": "leading",
-          "description": "Optional icon displayed before the badge label."
-        },
-        {
-          "name": "root",
-          "description": "Inline badge container that carries the variant, size, and interactive state."
-        },
-        {
-          "name": "trailing",
-          "description": "Optional trailing icon displayed after the label."
-        }
-      ],
-      "runtime": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "root",
+    "leading",
+    "label",
+    "trailing"
+  ],
+  "dataAttributes": []
 }

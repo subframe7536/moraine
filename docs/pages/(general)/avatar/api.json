@@ -1,241 +1,126 @@
 {
   "key": "avatar",
   "name": "Avatar",
-  "category": "elements",
   "description": "Props for the Avatar component.",
   "kind": "single",
-  "sourcePath": "src/elements/avatar/avatar.tsx",
   "parts": [
     {
       "id": "avatar",
       "name": "Avatar",
       "access": {
         "kind": "export",
-        "name": "Avatar",
-        "package": "moraine"
+        "name": "Avatar"
       },
-      "sourcePath": "src/elements/avatar/avatar.tsx",
       "description": "Props for the Avatar component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "span",
-        "polymorphic": false
-      },
+      "defaultElement": "span",
       "props": [
         {
           "name": "alt",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Accessible alt text for the avatar.",
-          "group": "behavior"
-        },
-        {
-          "name": "fallback",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Icon name to show as fallback.",
-          "group": "behavior"
-        },
-        {
-          "name": "src",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Source URL for the avatar image.",
-          "group": "behavior"
-        },
-        {
-          "name": "text",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Initial text to show if image fails or is missing.",
-          "group": "behavior"
+          "type": "string",
+          "description": "Accessible alt text for the avatar."
         },
         {
           "name": "badge",
           "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Icon name for the badge.",
-          "group": "rendering"
-        },
-        {
-          "name": "onStatusChange",
-          "optional": true,
-          "type": {
-            "text": "(status: Status) => void"
-          },
-          "description": "Callback when the loading status of the avatar changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "status",
-            "role": "change"
-          }
+          "type": "IconT.Name",
+          "description": "Icon name for the badge."
         },
         {
           "name": "badgePosition",
           "optional": true,
-          "type": {
-            "text": "'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'"
-          },
-          "description": "Position of the badge relative to the avatar.",
+          "type": "NonNullable<Variant['badgePosition']>",
+          "description": "Position of the badge.",
           "default": {
             "kind": "literal",
             "value": "bottom-right"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "fallback",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Icon name to show as fallback."
+        },
+        {
+          "name": "onStatusChange",
+          "optional": true,
+          "type": "(status: Status) => void",
+          "description": "Callback when the loading status of the avatar changes."
         },
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
+          "type": "'sm' | 'md' | 'lg'",
           "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
+        },
+        {
+          "name": "src",
+          "optional": true,
+          "type": "string",
+          "description": "Source URL for the avatar image."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "text",
+          "optional": true,
+          "type": "string",
+          "description": "Initial text to show if image fails or is missing."
         }
-      ],
-      "slots": [
-        {
-          "name": "badge",
-          "description": "Status or indicator badge anchored to the avatar frame."
-        },
-        {
-          "name": "fallback",
-          "description": "Text fallback shown while the image is unavailable or failed."
-        },
-        {
-          "name": "fallbackIcon",
-          "description": "Icon fallback shown when no image or text fallback is available."
-        },
-        {
-          "name": "image",
-          "description": "Loaded avatar image rendered inside the frame."
-        },
-        {
-          "name": "root",
-          "description": "Avatar frame that controls size, shape, image, fallback, and badge placement."
-        }
-      ],
-      "runtime": [
-        {
-          "target": "fallback",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "description": "Provides an accessible label when visible text is not sufficient."
-            },
-            {
-              "name": "data-status",
-              "kind": "data",
-              "description": "Stores async loading, loaded, or error status."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "img"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "image",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "data-status",
-              "kind": "data",
-              "description": "Stores async loading, loaded, or error status."
-            }
-          ]
-        },
-        {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "data-status",
-              "kind": "data",
-              "description": "Stores async loading, loaded, or error status."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "img"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        }
+      ]
+    }
+  ],
+  "slots": [
+    "root",
+    "image",
+    "fallback",
+    "fallbackIcon",
+    "badge"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-status"
+      ]
+    },
+    {
+      "target": "image",
+      "attributes": [
+        "data-status"
+      ]
+    },
+    {
+      "target": "fallback",
+      "attributes": [
+        "data-status"
       ]
     }
   ]

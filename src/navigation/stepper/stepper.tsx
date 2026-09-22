@@ -9,7 +9,7 @@ import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation.ts'
 import { useId } from '../../shared/utils.ts'
 
-import { stepperRecipe } from './stepper.recipe'
+import { stepperDataAttributes, stepperRecipe } from './stepper.recipe'
 import type { StepperProps, StepperT } from './stepper.types.ts'
 
 type StepperState = 'inactive' | 'active' | 'completed'
@@ -204,8 +204,10 @@ export function Stepper(props: StepperProps): JSX.Element {
             return (
               <div
                 data-slot="item"
-                data-state={state()}
-                data-disabled={disabled() ? '' : undefined}
+                {...stepperDataAttributes.item({
+                  state,
+                  disabled,
+                })}
                 class={cn(resolved.styles.item.class, entry.item.class)}
                 style={resolved.styles.item.style}
               >
@@ -219,10 +221,12 @@ export function Stepper(props: StepperProps): JSX.Element {
                   tabIndex={selected() ? 0 : -1}
                   aria-controls={panelMounted() ? contentId() : undefined}
                   aria-selected={selected()}
-                  data-selected={selected() ? '' : undefined}
                   data-slot="trigger"
-                  data-state={state()}
-                  data-clickable={merged.clickable ? '' : undefined}
+                  {...stepperDataAttributes.trigger({
+                    selected,
+                    state,
+                    clickable: () => merged.clickable,
+                  })}
                   disabled={disabled()}
                   aria-labelledby={entry.item.title ? titleId() : undefined}
                   aria-describedby={entry.item.description ? descriptionId() : undefined}
@@ -232,7 +236,11 @@ export function Stepper(props: StepperProps): JSX.Element {
                     onNavigationKeyDown(event, entry.value, merged.orientation ?? 'horizontal')
                   }}
                 >
-                  <span data-state={state()} data-slot="indicator" {...resolved.styles.indicator}>
+                  <span
+                    {...stepperDataAttributes.indicator({ state })}
+                    data-slot="indicator"
+                    {...resolved.styles.indicator}
+                  >
                     <Icon
                       name={entry.item.icon || (() => entry.index + 1)}
                       class={resolved.styles.icon.class}
@@ -264,8 +272,10 @@ export function Stepper(props: StepperProps): JSX.Element {
                   <div
                     aria-hidden="true"
                     data-slot="separator"
-                    data-state={state()}
-                    data-disabled={disabled() ? '' : undefined}
+                    {...stepperDataAttributes.separator({
+                      state,
+                      disabled,
+                    })}
                     {...resolved.styles.separator}
                   />
                 </Show>
@@ -283,7 +293,7 @@ export function Stepper(props: StepperProps): JSX.Element {
               role="tabpanel"
               tabIndex={0}
               aria-labelledby={getTriggerId(entry.value)}
-              data-selected=""
+              {...stepperDataAttributes.content({ selected: true })}
               data-slot="content"
               class={cn(resolved.styles.content.class, entry.item.class)}
               style={resolved.styles.content.style}

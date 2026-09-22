@@ -79,6 +79,8 @@ describe('Popover', () => {
     expect(trigger?.getAttribute('type')).toBe('button')
     expect(trigger?.getAttribute('aria-haspopup')).toBe('dialog')
     expect(trigger?.getAttribute('aria-expanded')).toBe('true')
+    expect(trigger?.hasAttribute('data-expanded')).toBe(true)
+    expect(trigger?.hasAttribute('data-closed')).toBe(false)
     expect(document.getElementById(trigger?.getAttribute('aria-controls') ?? '')).not.toBeNull()
   })
 
@@ -109,10 +111,12 @@ describe('Popover', () => {
     const trigger = screen.getByRole<HTMLButtonElement>('button', { name: 'Trigger' })
 
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(trigger.hasAttribute('data-closed')).toBe(true)
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
     setOpen(true)
     await waitFor(() => {
       expect(trigger.getAttribute('aria-expanded')).toBe('true')
+      expect(trigger.hasAttribute('data-expanded')).toBe(true)
       expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
     })
 

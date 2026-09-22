@@ -1,400 +1,234 @@
 {
   "key": "radio-group",
   "name": "RadioGroup",
-  "category": "forms",
   "description": "Props for the RadioGroup component.",
   "kind": "single",
-  "sourcePath": "src/forms/radio-group/radio-group.tsx",
   "parts": [
     {
       "id": "radio-group",
       "name": "RadioGroup",
       "access": {
         "kind": "export",
-        "name": "RadioGroup",
-        "package": "moraine"
+        "name": "RadioGroup"
       },
-      "sourcePath": "src/forms/radio-group/radio-group.tsx",
       "description": "Props for the RadioGroup component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is disabled.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "id",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The ID of the input element.",
-          "group": "behavior"
-        },
-        {
-          "name": "loop",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether keyboard navigation loops around when reaching the ends.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "items",
-          "optional": true,
-          "type": {
-            "text": "(string | Item)[]"
-          },
-          "description": "Array of items to render in the group.",
-          "group": "data"
-        },
-        {
-          "name": "name",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The name of the input element, used for form submission.",
-          "group": "form"
-        },
-        {
-          "name": "readOnly",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is read-only.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "form"
-        },
-        {
-          "name": "required",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is required.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "form"
-        },
-        {
-          "name": "defaultValue",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The default value of the input (uncontrolled).",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "default"
-          }
-        },
-        {
-          "name": "onChange",
-          "optional": true,
-          "type": {
-            "text": "(value: string) => void"
-          },
-          "description": "Callback when the selected value changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "value",
-            "role": "change"
-          }
-        },
-        {
-          "name": "value",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The current value of the input (controlled).",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "value"
-          }
-        },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "defaultValue",
+          "optional": true,
+          "type": "string",
+          "description": "The default value of the input (uncontrolled)."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the input is disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "description": "The ID of the input element."
         },
         {
           "name": "indicator",
           "optional": true,
-          "type": {
-            "text": "'start' | 'end' | 'hidden'"
-          },
+          "type": "'start' | 'end' | 'hidden'",
           "description": "Placement of the selection indicator.",
           "default": {
             "kind": "literal",
             "value": "start"
-          },
-          "group": "styling"
+          }
+        },
+        {
+          "name": "items",
+          "optional": true,
+          "type": "(string | Item)[]",
+          "typeDetails": "(string | {\n  /** Value of the radio item. */\n  value?: string;\n  /** Label for the radio item. */\n  label?: JSX.Element;\n  /** Description for the radio item. */\n  description?: JSX.Element;\n  /** Whether the item is disabled. */\n  disabled?: boolean;\n})[]",
+          "description": "Array of items to render in the group."
+        },
+        {
+          "name": "loop",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether keyboard navigation loops around when reaching the ends.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "name",
+          "optional": true,
+          "type": "string",
+          "description": "The name of the input element, used for form submission."
+        },
+        {
+          "name": "onChange",
+          "optional": true,
+          "type": "(value: string) => void",
+          "description": "Callback when the selected value changes."
         },
         {
           "name": "orientation",
           "optional": true,
-          "type": {
-            "text": "'horizontal' | 'vertical'"
-          },
-          "description": "Layout axis used by the component Recipe.",
-          "group": "styling"
+          "type": "'horizontal' | 'vertical'",
+          "description": "The orientation of the radio group.",
+          "default": {
+            "kind": "literal",
+            "value": "vertical"
+          }
+        },
+        {
+          "name": "readOnly",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the input is read-only.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "required",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the input is required.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
+          "type": "'sm' | 'md' | 'lg'",
           "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": "string",
+          "description": "The current value of the input (controlled)."
         },
         {
           "name": "variant",
           "optional": true,
-          "type": {
-            "text": "'card' | 'table' | 'list'"
-          },
+          "type": "'card' | 'table' | 'list'",
           "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "list"
-          },
-          "group": "styling"
-        }
-      ],
-      "slots": [
-        {
-          "name": "container",
-          "description": "Vertical alignment wrapper for the radio control."
-        },
-        {
-          "name": "control",
-          "description": "Visible radio control for an individual option."
-        },
-        {
-          "name": "description",
-          "description": "Supporting description for an option."
-        },
-        {
-          "name": "indicator",
-          "description": "Selected-state layer inside an option control."
-        },
-        {
-          "name": "item",
-          "description": "Wrapper for one radio option."
-        },
-        {
-          "name": "label",
-          "description": "Primary label text for an option."
-        },
-        {
-          "name": "root",
-          "description": "Radio group container that owns selection state and layout."
-        },
-        {
-          "name": "wrapper",
-          "description": "Inner layout wrapper used by grouped radio variants."
-        }
-      ],
-      "runtime": [
-        {
-          "target": "control",
-          "attributes": [
-            {
-              "name": "data-checked",
-              "kind": "data",
-              "description": "Present when the item or toggle is checked."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-invalid",
-              "kind": "data",
-              "description": "Present when the field or form has a validation error."
-            },
-            {
-              "name": "data-readonly",
-              "kind": "data",
-              "description": "Present when the field is in read-only mode."
-            },
-            {
-              "name": "data-required",
-              "kind": "data",
-              "description": "Present when the field input is required."
-            }
-          ]
-        },
-        {
-          "target": "indicator",
-          "attributes": [
-            {
-              "name": "data-checked",
-              "kind": "data",
-              "description": "Present when the item or toggle is checked."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-invalid",
-              "kind": "data",
-              "description": "Present when the field or form has a validation error."
-            },
-            {
-              "name": "data-readonly",
-              "kind": "data",
-              "description": "Present when the field is in read-only mode."
-            },
-            {
-              "name": "data-required",
-              "kind": "data",
-              "description": "Present when the field input is required."
-            }
-          ]
-        },
-        {
-          "target": "item",
-          "attributes": [
-            {
-              "name": "data-checked",
-              "kind": "data",
-              "description": "Present when the item or toggle is checked."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "description": "Present when the component, slot, or item is disabled."
-            }
-          ]
-        },
-        {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "aria-orientation",
-              "kind": "aria",
-              "description": "Communicates horizontal or vertical orientation."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "radiogroup"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
+          }
         }
       ]
     }
   ],
   "item": {
-    "name": "Item",
     "description": "A radio item object.",
     "props": [
       {
         "name": "description",
         "optional": true,
-        "type": {
-          "text": "JSX.Element"
-        },
+        "type": "JSX.Element",
         "description": "Description for the radio item."
       },
       {
         "name": "disabled",
         "optional": true,
-        "type": {
-          "text": "boolean"
-        },
+        "type": "boolean",
         "description": "Whether the item is disabled."
       },
       {
         "name": "label",
         "optional": true,
-        "type": {
-          "text": "JSX.Element"
-        },
+        "type": "JSX.Element",
         "description": "Label for the radio item."
       },
       {
         "name": "value",
         "optional": true,
-        "type": {
-          "text": "string"
-        },
+        "type": "string",
         "description": "Value of the radio item."
       }
     ]
-  }
+  },
+  "slots": [
+    "root",
+    "item",
+    "control",
+    "container",
+    "indicator",
+    "wrapper",
+    "label",
+    "description"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-disabled",
+        "data-invalid",
+        "data-readonly",
+        "data-required"
+      ]
+    },
+    {
+      "target": "item",
+      "attributes": [
+        "data-checked",
+        "data-disabled"
+      ]
+    },
+    {
+      "target": "control",
+      "attributes": [
+        "data-checked",
+        "data-disabled",
+        "data-invalid",
+        "data-readonly",
+        "data-required"
+      ]
+    },
+    {
+      "target": "indicator",
+      "attributes": [
+        "data-checked"
+      ]
+    }
+  ]
 }

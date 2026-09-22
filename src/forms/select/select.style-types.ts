@@ -14,6 +14,9 @@ export interface SelectControlStyleSlot<T = unknown> {
   /** Icon shown before the select input or value. */
   leading?: T
 
+  /** Icon shown after the selected value. */
+  trailing?: T
+
   /** Primary interactive button that toggles the popup. */
   trigger?: T
 

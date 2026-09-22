@@ -4,9 +4,14 @@
 - [x] cleanup ElementFor and onXXX types, or maybe unify
 - [x] correct document page's focus loop and refresh scroll retention (during dev)
   - [x] also audit all components focus loop
+- [ ] cleanup all manually controlled/uncontrolled signals with `useControllableValue` acrossing all components
+- [ ] autocomplete=off on multiselect/combobox
+- [ ] expose slider & resizable hook
+- [ ] fix from root: in input-group docs' dropdown example, click trigger and click outside, the input group's focus ring should never active
 - [ ] builtin icon names auto completion support for `IconT.Name`
   - [ ] in toaster docs, use custom icon in provider
 - [ ] docs polish
+- [ ] slot indicator in playground, like https://www.chakra-ui.com/docs/components/pin-input#explorer
 
 # V1
 

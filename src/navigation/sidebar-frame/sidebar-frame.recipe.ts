@@ -1,6 +1,15 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { SidebarFrameStyleSlot, SidebarFrameStyleVariant } from './sidebar-frame.style-types'
+
+type SidebarFrameDataSlot = keyof SidebarFrameStyleSlot | 'trigger'
+
+export const sidebarFrameDataAttributes = {
+  sidebar: createDataAttributes('closed', 'mobile'),
+  trigger: createDataAttributes('closed', 'disabled', 'open'),
+} satisfies DataAttributeContract<SidebarFrameDataSlot>
 
 export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
   SidebarFrameStyleSlot,
@@ -13,7 +22,7 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
     sidebarHeader: 'flex gap-2 p-2',
     sidebarBody: 'flex-1 min-h-0 overflow-y-auto',
     sidebarFooter: 'flex gap-2 p-2',
-    main: 'flex-1 h-full min-h-0 min-w-0 overflow-y-auto bg-background',
+    main: 'relative flex-1 h-full min-h-0 min-w-0 overflow-y-auto bg-background',
   },
   defaultVariants: {
     side: 'left',

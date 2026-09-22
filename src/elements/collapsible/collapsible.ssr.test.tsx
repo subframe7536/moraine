@@ -1,11 +1,47 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test'
+import { hydrateFixture, renderSsrFixture } from '../../test-utils/ssr-test'
 
 import { Collapsible } from './collapsible'
 
 describe('Collapsible SSR Hydration', () => {
+  test('hydrates public content state and retains it through animated toggles', async () => {
+    const fixture = '/src/elements/collapsible/collapsible.ssr.fixture.tsx'
+    const server = document.createElement('div')
+    server.innerHTML = renderSsrFixture(fixture, 'renderOpenCollapsibleFixture')
+    expect(
+      server.querySelector('[data-slot="content"][data-expanded][data-transition]'),
+    ).not.toBeNull()
+    expect(server.querySelector('[data-slot="content-wrapper"][data-expanded]')).toBeNull()
+
+    const { container } = hydrateFixture(fixture, 'renderOpenCollapsibleFixture', () => (
+      <Collapsible defaultOpen transition unmountOnHide={false}>
+        <Collapsible.Trigger>Details</Collapsible.Trigger>
+        <Collapsible.Content as="section">Content</Collapsible.Content>
+      </Collapsible>
+    ))
+    const trigger = container.querySelector('[data-slot="trigger"]')!
+    const content = container.querySelector('section[data-slot="content"]')!
+    const wrapper = content.parentElement!
+    expect(content.hasAttribute('data-expanded')).toBe(true)
+    expect(content.hasAttribute('data-transition')).toBe(true)
+    fireEvent.click(trigger)
+    expect(content.hasAttribute('data-expanded')).toBe(false)
+    expect(content.hasAttribute('data-closed')).toBe(true)
+    expect(wrapper.hasAttribute('data-closed')).toBe(false)
+    expect(wrapper.hidden).toBe(false)
+    await Promise.resolve()
+    fireEvent.animationEnd(wrapper, { animationName: 'accordion-up' })
+    await Promise.resolve()
+    expect(wrapper.hidden).toBe(true)
+    fireEvent.click(trigger)
+    expect(container.querySelector('[data-slot="content"]')).toBe(content)
+    expect(content.hasAttribute('data-expanded')).toBe(true)
+    expect(content.hasAttribute('data-closed')).toBe(false)
+    expect(wrapper.hidden).toBe(false)
+  })
+
   test('hydrates closed composable markup without content and supports open, close, and reopen', () => {
     let contentMounts = 0
     const Content = () => {

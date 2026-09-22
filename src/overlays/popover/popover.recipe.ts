@@ -1,6 +1,16 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
+import { modalDataAttributes } from '../modal/modal.recipe.ts'
 
 import type { PopoverStyleSlot } from './popover.style-types'
+
+export const popoverDataAttributes = {
+  trigger: modalDataAttributes.trigger,
+  content: createDataAttributes('closed', 'expanded', 'side'),
+} satisfies DataAttributeContract<keyof PopoverStyleSlot>
+
+export const popoverContentDataAttributes = createDataAttributes('side')
 
 export const popoverRecipe = /* @__PURE__ */ defineRecipe<PopoverStyleSlot>('popover', {
   base: {

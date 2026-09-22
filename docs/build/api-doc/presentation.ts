@@ -1,62 +1,48 @@
-import type { ComponentApi, DefaultValue, PropApi } from './types'
+import { DATA_ATTRIBUTE_DESCRIPTIONS } from '../markdown/descriptions.ts'
+
+import type { ComponentApi, DefaultValue, PartApi, PropApi } from './types.ts'
 
 export interface PresentationPropItem {
   name: string
   optional: boolean
   type: string
+  typeHtml?: string
+  summaryType: string
+  anchorId: string
+  isCommonProp?: boolean
   defaultValue?: string
   description?: string
-  traits?: string[]
-}
-
-export interface PresentationSlotItem {
-  name: string
-  description?: string
-}
-
-export interface PresentationRuntimeAttributeItem {
-  name: string
-  kind: 'data' | 'aria' | 'role' | 'css'
-  values?: string[]
-  description?: string
-}
-
-export interface PresentationRuntimeTargetItem {
-  target: string
-  attributes: PresentationRuntimeAttributeItem[]
-}
-
-export interface PresentationPropGroupSection {
-  group: string
-  heading: string
-  id: string
-  props: PresentationPropItem[]
 }
 
 export interface PresentationPartSection {
   id: string
   heading: string
-  partName: string
+  shortHeading: string
   description?: string
-  accessText?: string
-  propGroups: PresentationPropGroupSection[]
-  slots?: PresentationSlotItem[]
-  runtime?: PresentationRuntimeTargetItem[]
+  defaultElement?: string
+  props: PresentationPropItem[]
 }
 
-export interface PresentationItemSection {
+export interface PresentationAttributeItem {
+  name: string
+  slots: string[]
+  description?: string
+}
+
+export interface PresentationAttributesSection {
   id: string
   heading: string
-  description?: string
-  props: PresentationPropItem[]
+  slots: string[]
+  items: PresentationAttributeItem[]
 }
 
 export interface ApiReferencePresentationModel {
   componentKey: string
   componentName: string
   kind: 'single' | 'composite'
+  description?: string
   parts: PresentationPartSection[]
-  item?: PresentationItemSection
+  attributes?: PresentationAttributesSection
 }
 
 export interface TocEntry {
@@ -81,25 +67,103 @@ export function formatDefaultValue(def?: DefaultValue): string | undefined {
   return def.text
 }
 
-function formatPropItem(prop: PropApi): PresentationPropItem {
+export function normalizeApiType(type: string): string {
+  return type.replaceAll('cls_variant0.', '').replaceAll('_$', '')
+}
+
+const COMMON_BASE_PROPS = new Set(['as', 'children', 'class', 'style', 'classes', 'styles'])
+
+function formatPropItem(prop: PropApi, anchorPrefix: string): PresentationPropItem {
   return {
     name: prop.name,
     optional: prop.optional,
-    type: prop.type.text,
+    type: normalizeApiType(prop.typeDetails ?? prop.type),
+    summaryType: prop.typeDetails
+      ? 'Item[]'
+      : (prop.type.includes('=>') && !prop.type.trimStart().startsWith('{')) ||
+          /^(?:Component(?:OrElement)?|(?:JSX\.)?EventHandler(?:Union)?)</.test(prop.type)
+        ? 'Function'
+        : normalizeApiType(prop.type),
+    typeHtml: prop.typeHtml,
+    anchorId: `${anchorPrefix}-${prop.name}`,
+    isCommonProp: COMMON_BASE_PROPS.has(prop.name),
     ...(prop.default ? { defaultValue: formatDefaultValue(prop.default) } : {}),
     ...(prop.description ? { description: prop.description } : {}),
-    ...(prop.traits?.length ? { traits: prop.traits } : {}),
   }
 }
 
-const GROUP_ORDER: Array<{ group: string; label: string }> = [
-  { group: 'state', label: 'State' },
-  { group: 'data', label: 'Data' },
-  { group: 'behavior', label: 'Behavior' },
-  { group: 'form', label: 'Form' },
-  { group: 'rendering', label: 'Rendering' },
-  { group: 'styling', label: 'Styling' },
-]
+function sortProps(props: PropApi[], anchorPrefix: string): PresentationPropItem[] {
+  return props
+    .map((prop) => formatPropItem(prop, anchorPrefix))
+    .sort((left, right) => {
+      if (Boolean(left.isCommonProp) !== Boolean(right.isCommonProp)) {
+        return left.isCommonProp ? 1 : -1
+      }
+      return left.name.localeCompare(right.name)
+    })
+}
+
+function getPartShortHeading(component: ComponentApi, part: PartApi): string {
+  if (part.name === component.name) {
+    return component.name
+  }
+  if (part.access.kind === 'attached' || part.access.kind === 'factory-member') {
+    return part.access.member
+  }
+  return part.name.startsWith(`${component.name}.`)
+    ? part.name.slice(component.name.length + 1)
+    : part.name
+}
+
+function createAttributesSection(
+  component: ComponentApi,
+): PresentationAttributesSection | undefined {
+  if (component.dataAttributes.length === 0) {
+    return undefined
+  }
+
+  const slotsByAttribute = new Map<string, Set<string>>()
+  for (const target of component.dataAttributes) {
+    for (const name of target.attributes) {
+      const slots = slotsByAttribute.get(name) ?? new Set<string>()
+      slots.add(target.target)
+      slotsByAttribute.set(name, slots)
+    }
+  }
+
+  const slotOrder = new Map(component.slots.map((slot, index) => [slot, index]))
+  const targetOrder = new Map(
+    component.dataAttributes.map((target, index) => [
+      target.target,
+      component.slots.length + index,
+    ]),
+  )
+  const orderSlots = (slots: Iterable<string>) =>
+    [...slots].sort(
+      (left, right) =>
+        (slotOrder.get(left) ?? targetOrder.get(left) ?? Number.MAX_SAFE_INTEGER) -
+        (slotOrder.get(right) ?? targetOrder.get(right) ?? Number.MAX_SAFE_INTEGER),
+    )
+
+  const items: PresentationAttributeItem[] = []
+  for (const [name, slots] of slotsByAttribute) {
+    const item: PresentationAttributeItem = { name, slots: orderSlots(slots) }
+    const description = DATA_ATTRIBUTE_DESCRIPTIONS[name]
+    if (description) {
+      item.description = description
+    }
+    items.push(item)
+  }
+
+  return {
+    id: 'api-attributes',
+    heading: 'Attributes',
+    slots: orderSlots(
+      new Set([...component.slots, ...component.dataAttributes.map((target) => target.target)]),
+    ),
+    items,
+  }
+}
 
 export function createApiReferenceModel(
   component: ComponentApi | undefined,
@@ -108,105 +172,26 @@ export function createApiReferenceModel(
     return null
   }
 
-  const parts: PresentationPartSection[] = []
-
-  for (const part of component.parts) {
-    // Group props
-    const propsByGroup = new Map<string, PresentationPropItem[]>()
-    for (const group of GROUP_ORDER) {
-      propsByGroup.set(group.group, [])
-    }
-
-    for (const prop of part.props) {
-      const groupProps = propsByGroup.get(prop.group) ?? []
-      groupProps.push(formatPropItem(prop))
-      propsByGroup.set(prop.group, groupProps)
-    }
-
-    const propGroups: PresentationPropGroupSection[] = []
-    for (const { group, label } of GROUP_ORDER) {
-      const items = propsByGroup.get(group) ?? []
-      if (items.length > 0) {
-        // Sort props within group alphabetically
-        items.sort((a, b) => a.name.localeCompare(b.name))
-        propGroups.push({
-          group,
-          heading: label,
-          id: `api-${part.id}-${group}`,
-          props: items,
-        })
-      }
-    }
-
-    const slots: PresentationSlotItem[] = (part.slots ?? []).map((s) => {
-      const item: PresentationSlotItem = { name: s.name }
-      if (s.description) {
-        item.description = s.description
-      }
-      return item
-    })
-
-    const runtime: PresentationRuntimeTargetItem[] = (part.runtime ?? []).map((r) => ({
-      target: r.target,
-      attributes: r.attributes.map((a) => {
-        const attr: PresentationRuntimeAttributeItem = { name: a.name, kind: a.kind }
-        if (a.values) {
-          attr.values = a.values
-        }
-        if (a.description) {
-          attr.description = a.description
-        }
-        return attr
-      }),
-    }))
-
-    let accessText: string | undefined
-    if (part.access.kind === 'export') {
-      accessText = `import { ${part.access.name} } from 'moraine'`
-    } else if (part.access.kind === 'attached') {
-      accessText = `${part.access.root}.${part.access.member}`
-    } else if (part.access.kind === 'factory-member') {
-      accessText = `const form = ${part.access.factory}(...); form.${part.access.member}`
-    }
-
-    parts.push({
+  const parts = component.parts.map((part): PresentationPartSection => {
+    return {
       id: `api-${part.id}`,
       heading: part.name,
-      partName: part.name,
+      shortHeading: getPartShortHeading(component, part),
       ...(part.description ? { description: part.description } : {}),
-      ...(accessText ? { accessText } : {}),
-      propGroups,
-      ...(slots.length > 0 ? { slots } : {}),
-      ...(runtime.length > 0 ? { runtime } : {}),
-    })
-  }
-
-  let itemSection: PresentationItemSection | undefined
-  if (component.item && component.item.props.length > 0) {
-    const sortedItemProps = component.item.props
-      .map((p) => ({
-        name: p.name,
-        optional: p.optional,
-        type: p.type.text,
-        ...(p.default ? { defaultValue: formatDefaultValue(p.default) } : {}),
-        ...(p.description ? { description: p.description } : {}),
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name))
-
-    itemSection = {
-      id: 'api-items',
-      heading: 'Items',
-      ...(component.item.description ? { description: component.item.description } : {}),
-      props: sortedItemProps,
+      ...(part.defaultElement ? { defaultElement: part.defaultElement } : {}),
+      props: sortProps(part.props, `api-${part.id}`),
     }
-  }
+  })
+
+  const attributes = createAttributesSection(component)
 
   return {
     componentKey: component.key,
     componentName: component.name,
     kind: component.kind,
+    ...(component.description ? { description: component.description } : {}),
     parts,
-    ...(itemSection ? { item: itemSection } : {}),
+    ...(attributes ? { attributes } : {}),
   }
 }
 
@@ -217,53 +202,14 @@ export function getApiReferenceTocEntries(component: ComponentApi | undefined): 
   }
 
   const entries: TocEntry[] = []
-
-  if (model.kind === 'single') {
-    // Single component: root part
-    const rootPart = model.parts[0]
-    if (rootPart) {
-      if (
-        (rootPart.slots && rootPart.slots.length > 0) ||
-        (rootPart.runtime && rootPart.runtime.length > 0)
-      ) {
-        entries.push({
-          id: 'attributes',
-          label: 'Attributes',
-          level: 2,
-        })
-      }
-      if (rootPart.propGroups.length > 0) {
-        entries.push({
-          id: 'api-props',
-          label: 'Props',
-          level: 2,
-        })
-      }
-    }
-    if (model.item) {
-      entries.push({
-        id: model.item.id,
-        label: model.item.heading,
-        level: 2,
-      })
-    }
-  } else {
-    // Composite component: part headings
+  if (model.attributes) {
+    entries.push({ id: model.attributes.id, label: model.attributes.heading, level: 1 })
+  }
+  entries.push({ id: 'api-reference', label: 'Props', level: 1 })
+  if (model.parts.length > 1) {
     for (const part of model.parts) {
-      entries.push({
-        id: part.id,
-        label: part.heading,
-        level: 2,
-      })
-    }
-    if (model.item) {
-      entries.push({
-        id: model.item.id,
-        label: model.item.heading,
-        level: 2,
-      })
+      entries.push({ id: part.id, label: part.shortHeading, level: 2 })
     }
   }
-
-  return entries.length > 0 ? [{ id: 'api-reference', label: 'API', level: 1 }, ...entries] : []
+  return entries
 }

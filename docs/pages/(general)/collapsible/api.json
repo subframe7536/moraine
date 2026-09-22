@@ -1,279 +1,108 @@
 {
   "key": "collapsible",
   "name": "Collapsible",
-  "category": "elements",
   "description": "Props for the Collapsible component.",
   "kind": "composite",
-  "sourcePath": "src/elements/collapsible/collapsible.tsx",
   "parts": [
     {
       "id": "collapsible",
       "name": "Collapsible",
       "access": {
         "kind": "export",
-        "name": "Collapsible",
-        "package": "moraine"
+        "name": "Collapsible"
       },
-      "sourcePath": "src/elements/collapsible/collapsible.tsx",
       "description": "Props for the Collapsible component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the collapsible is disabled.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "id",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Unique identifier for the collapsible root element.",
-          "group": "behavior"
-        },
-        {
-          "name": "transition",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether to keep content mounted until its height transition completes.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "unmountOnHide",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether to unmount collapsible content when closed.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Content to render inside the collapsible.",
-          "group": "rendering"
-        },
-        {
-          "name": "defaultOpen",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the collapsible is open by default (uncontrolled).",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "state",
-          "state": {
-            "key": "open",
-            "role": "default"
-          }
-        },
-        {
-          "name": "onOpenChange",
-          "optional": true,
-          "type": {
-            "text": "(open: boolean) => void"
-          },
-          "description": "Callback when the open state changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "open",
-            "role": "change"
-          }
-        },
-        {
-          "name": "open",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the collapsible is open (controlled).",
-          "group": "state",
-          "state": {
-            "key": "open",
-            "role": "value"
-          }
+          "type": "JSX.Element",
+          "description": "Content to render inside the collapsible."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "defaultOpen",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the collapsible is open by default (uncontrolled).",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the collapsible is disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "description": "Unique identifier for the collapsible root element."
+        },
+        {
+          "name": "onOpenChange",
+          "optional": true,
+          "type": "(open: boolean) => void",
+          "description": "Callback when the open state changes."
+        },
+        {
+          "name": "open",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the collapsible is open (controlled)."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
-        }
-      ],
-      "slots": [
-        {
-          "name": "content",
-          "description": "Public region containing the collapsible content."
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
         },
         {
-          "name": "root",
-          "description": "Container that owns the trigger and expandable content."
-        },
-        {
-          "name": "trigger",
-          "description": "Interactive element that toggles the content."
-        }
-      ],
-      "runtime": []
-    },
-    {
-      "id": "collapsible-content",
-      "name": "Collapsible.Content",
-      "access": {
-        "kind": "attached",
-        "root": "Collapsible",
-        "member": "Content"
-      },
-      "sourcePath": "src/elements/collapsible/collapsible.tsx",
-      "generics": [
-        {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'div'"
-        }
-      ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'div'"
-        }
-      },
-      "props": [
-        {
-          "name": "forceMount",
+          "name": "transition",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Force mounting the content in the DOM even when closed.",
+          "type": "boolean",
+          "description": "Whether to keep content mounted until its height transition completes.",
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "unmountOnHide",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether to unmount content when closed.",
+          "type": "boolean",
+          "description": "Whether to unmount collapsible content when closed.",
           "default": {
             "kind": "literal",
             "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "as",
-          "optional": true,
-          "type": {
-            "text": "T"
-          },
-          "description": "Element or component to render inner content as.",
-          "default": {
-            "kind": "literal",
-            "value": "div"
-          },
-          "group": "rendering"
-        },
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Content to render.",
-          "group": "rendering"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          }
         }
-      ],
-      "slots": [],
-      "runtime": []
+      ]
     },
     {
       "id": "collapsible-trigger",
@@ -283,7 +112,6 @@
         "root": "Collapsible",
         "member": "Trigger"
       },
-      "sourcePath": "src/elements/collapsible/collapsible.tsx",
       "generics": [
         {
           "name": "T",
@@ -291,34 +119,13 @@
           "default": "'button'"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
+      "defaultElement": "button",
       "props": [
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether this trigger is disabled.",
-          "group": "behavior"
-        },
         {
           "name": "as",
           "optional": true,
-          "type": {
-            "text": "T"
-          },
+          "type": "T",
           "description": "Element or component to render as.",
-          "group": "rendering",
           "default": {
             "kind": "literal",
             "value": "button"
@@ -327,33 +134,125 @@
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Trigger label and visual content.",
-          "group": "rendering"
+          "type": "JSX.Element",
+          "description": "Trigger label and visual content."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "collapsible-content",
+      "name": "Collapsible.Content",
+      "access": {
+        "kind": "attached",
+        "root": "Collapsible",
+        "member": "Content"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'div'"
         }
       ],
-      "slots": [],
-      "runtime": []
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Element or component to render inner content as.",
+          "default": {
+            "kind": "literal",
+            "value": "div"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Content to render."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "forceMount",
+          "optional": true,
+          "type": "boolean",
+          "description": "Force mounting the content in the DOM even when closed.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "unmountOnHide",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to unmount content when closed.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        }
+      ]
+    }
+  ],
+  "slots": [
+    "root",
+    "trigger",
+    "content"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-closed",
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "trigger",
+      "attributes": [
+        "data-closed",
+        "data-disabled",
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "content",
+      "attributes": [
+        "data-closed",
+        "data-expanded",
+        "data-transition"
+      ]
     }
   ]
 }

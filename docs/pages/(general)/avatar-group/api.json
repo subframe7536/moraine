@@ -1,157 +1,91 @@
 {
   "key": "avatar-group",
   "name": "AvatarGroup",
-  "category": "elements",
   "description": "Props for the AvatarGroup component.",
   "kind": "single",
-  "sourcePath": "src/elements/avatar/avatar-group.tsx",
   "parts": [
     {
       "id": "avatar-group",
       "name": "AvatarGroup",
       "access": {
         "kind": "export",
-        "name": "AvatarGroup",
-        "package": "moraine"
+        "name": "AvatarGroup"
       },
-      "sourcePath": "src/elements/avatar/avatar-group.tsx",
       "description": "Props for the AvatarGroup component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
-        {
-          "name": "max",
-          "optional": true,
-          "type": {
-            "text": "number | string"
-          },
-          "description": "Maximum number of avatars to show.",
-          "group": "behavior"
-        },
-        {
-          "name": "items",
-          "optional": true,
-          "type": {
-            "text": "Item[]"
-          },
-          "description": "Array of avatars to render in the group.",
-          "default": {
-            "kind": "expression",
-            "text": "[]"
-          },
-          "group": "data"
-        },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "items",
+          "optional": true,
+          "type": "Item[]",
+          "typeDetails": "({\n  /** Source URL for the avatar image. */\n  src?: string;\n  /** Accessible alt text for the avatar. */\n  alt?: string;\n  /** Icon name for the badge. */\n  badge?: IconT.Name;\n  /** Position of the badge. */\n  badgePosition?: NonNullable<Variant['badgePosition']>;\n  /** Initial text to show if image fails or is missing. */\n  text?: string;\n  /** Icon name to show as fallback. */\n  fallback?: IconT.Name;\n  /** Callback when the loading status of the avatar changes. */\n  onStatusChange?: (status: Status) => void;\n})[]",
+          "description": "Array of avatars to render in the group.",
+          "default": {
+            "kind": "expression",
+            "text": "[]"
+          }
+        },
+        {
+          "name": "max",
+          "optional": true,
+          "type": "number | string",
+          "description": "Maximum number of avatars to show."
         },
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
+          "type": "'sm' | 'md' | 'lg'",
           "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
         }
-      ],
-      "slots": [
-        {
-          "name": "badge",
-          "description": "Status or indicator badge anchored to an avatar frame."
-        },
-        {
-          "name": "count",
-          "description": "Count indicator shown when a group has more avatars than the visible limit."
-        },
-        {
-          "name": "fallback",
-          "description": "Text fallback shown while an image is unavailable or failed."
-        },
-        {
-          "name": "fallbackIcon",
-          "description": "Icon fallback shown when no image or text fallback is available."
-        },
-        {
-          "name": "image",
-          "description": "Loaded avatar image rendered inside each frame."
-        },
-        {
-          "name": "item",
-          "description": "Individual avatar wrapper used when rendering grouped avatars."
-        },
-        {
-          "name": "root",
-          "description": "Container of grouped avatars."
-        }
-      ],
-      "runtime": []
+      ]
     }
   ],
   "item": {
-    "name": "Item",
     "props": [
       {
         "name": "alt",
         "optional": true,
-        "type": {
-          "text": "string"
-        },
+        "type": "string",
         "description": "Accessible alt text for the avatar."
       },
       {
         "name": "badge",
         "optional": true,
-        "type": {
-          "text": "IconT.Name"
-        },
+        "type": "IconT.Name",
         "description": "Icon name for the badge."
       },
       {
         "name": "badgePosition",
         "optional": true,
-        "type": {
-          "text": "NonNullable<Variant['badgePosition']>"
-        },
+        "type": "NonNullable<Variant['badgePosition']>",
         "description": "Position of the badge.",
         "default": {
           "kind": "literal",
@@ -161,35 +95,56 @@
       {
         "name": "fallback",
         "optional": true,
-        "type": {
-          "text": "IconT.Name"
-        },
+        "type": "IconT.Name",
         "description": "Icon name to show as fallback."
       },
       {
         "name": "onStatusChange",
         "optional": true,
-        "type": {
-          "text": "(status: Status) => void"
-        },
+        "type": "(status: Status) => void",
         "description": "Callback when the loading status of the avatar changes."
       },
       {
         "name": "src",
         "optional": true,
-        "type": {
-          "text": "string"
-        },
+        "type": "string",
         "description": "Source URL for the avatar image."
       },
       {
         "name": "text",
         "optional": true,
-        "type": {
-          "text": "string"
-        },
+        "type": "string",
         "description": "Initial text to show if image fails or is missing."
       }
     ]
-  }
+  },
+  "slots": [
+    "root",
+    "item",
+    "count",
+    "image",
+    "fallback",
+    "fallbackIcon",
+    "badge"
+  ],
+  "dataAttributes": [
+    {
+      "target": "item",
+      "attributes": [
+        "data-status"
+      ]
+    },
+    {
+      "target": "image",
+      "attributes": [
+        "data-status"
+      ]
+    },
+    {
+      "target": "fallback",
+      "attributes": [
+        "data-status"
+      ]
+    }
+  ]
 }

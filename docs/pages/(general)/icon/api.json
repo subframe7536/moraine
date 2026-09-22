@@ -1,102 +1,70 @@
 {
   "key": "icon",
   "name": "Icon",
-  "category": "elements",
   "description": "Props for the Icon component.",
   "kind": "single",
-  "sourcePath": "src/elements/icon/icon.tsx",
   "parts": [
     {
       "id": "icon",
       "name": "Icon",
       "access": {
         "kind": "export",
-        "name": "Icon",
-        "package": "moraine"
+        "name": "Icon"
       },
-      "sourcePath": "src/elements/icon/icon.tsx",
       "description": "Props for the Icon component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
-        {
-          "name": "slotName",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Data slot for styling.",
-          "default": {
-            "kind": "literal",
-            "value": "icon"
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "name",
-          "optional": false,
-          "type": {
-            "text": "Name"
-          },
-          "description": "Icon source. Strings should be Uno icon classes such as `i-lucide-search`\nor app-config aliases such as `icon-search`.\nNon-string values can be JSX nodes or render functions.\nWrap Icon in Solid control flow instead of passing a control-flow node as `name`.",
-          "group": "form"
-        },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "name",
+          "optional": false,
+          "type": "Name",
+          "description": "Icon source. Strings should be Uno icon classes such as `i-lucide-search`\nor app-config aliases such as `icon-search`.\nNon-string values can be JSX nodes or render functions.\nWrap Icon in Solid control flow instead of passing a control-flow node as `name`."
         },
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "string | number"
-          },
-          "description": "Explicit icon size override. Omit to inherit the surrounding font size.\nNumbers are interpreted as px.",
-          "group": "styling"
+          "type": "string | number",
+          "description": "Explicit icon size override. Omit to inherit the surrounding font size.\nNumbers are interpreted as px."
+        },
+        {
+          "name": "slotName",
+          "optional": true,
+          "type": "string",
+          "description": "Data slot for styling.",
+          "default": {
+            "kind": "literal",
+            "value": "icon"
+          }
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
         }
-      ],
-      "slots": [
-        {
-          "name": "root",
-          "description": "Rendered icon element."
-        }
-      ],
-      "runtime": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "root"
+  ],
+  "dataAttributes": []
 }

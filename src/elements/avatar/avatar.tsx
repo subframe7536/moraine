@@ -14,7 +14,7 @@ import { createStyles } from '../../provider'
 import type { SlotClassValue } from '../../shared/types'
 import { Icon } from '../icon'
 
-import { avatarRecipe } from './avatar.recipe'
+import { avatarDataAttributes, avatarRecipe } from './avatar.recipe'
 import type { AvatarProps, AvatarT } from './avatar.types'
 
 function resolveFallbackText(text: string | undefined, alt: string | undefined): string {
@@ -135,14 +135,14 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
   return (
     <span
       data-slot={local.rootSlot ?? 'root'}
-      data-status={status()}
+      {...avatarDataAttributes.root({ status })}
       role={rootAriaLabel() !== undefined ? 'img' : undefined}
       {...rest}
       {...resolved.styles.root}
     >
       <img
         data-slot="image"
-        data-status={status()}
+        {...avatarDataAttributes.image({ status })}
         src={resolvedSrc()}
         alt={alt() ?? ''}
         aria-hidden={rootAriaLabel() !== undefined || status() !== 'loaded' ? 'true' : undefined}
@@ -151,7 +151,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
       <span
         data-slot="fallback"
-        data-status={status()}
+        {...avatarDataAttributes.fallback({ status })}
         role={
           status() !== 'loaded' && rootAriaLabel() === undefined && fallbackAccessibleLabel()
             ? 'img'

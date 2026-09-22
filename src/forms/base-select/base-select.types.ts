@@ -5,7 +5,6 @@ import type {
   ElementProps,
   SlotClassValue,
   SlotStyleValue,
-  TriggerBase as SharedTriggerBase,
   ValidComponent,
 } from '../../shared/types.ts'
 import type {
@@ -13,7 +12,7 @@ import type {
   FormDisableOption,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../shared/form-options.ts'
+} from '../shared/form-options.types.ts'
 
 import type { BaseSelectStyleSlot, BaseSelectStyleVariant } from './base-select.style-types'
 
@@ -150,6 +149,14 @@ export namespace BaseSelectT {
     /** Current flat navigation collection. */
     items?: readonly TItem[]
     /**
+     * Resolves an item from the canonical collection by value.
+     *
+     * Use this when `items` represents only the current navigation view,
+     * such as a filtered collection. When omitted, items are resolved from
+     * the current `items` collection.
+     */
+    getItemByValue?: (value: TItem['value']) => TItem | undefined
+    /**
      * Whether arrow-key navigation wraps from the ends.
      * @default true
      */
@@ -165,10 +172,11 @@ export namespace BaseSelectT {
   }
   export type Props<TItem extends Item = Item> = Base<TItem> & BaseSelectSelection<TItem['value']>
 
-  export type TriggerBase<T extends ValidComponent = 'button', TItem extends Item = Item> = Omit<
-    SharedTriggerBase<T>,
-    'children'
-  > & {
+  export interface TriggerBase<T extends ValidComponent = 'button', TItem extends Item = Item> {
+    /** Element or component to render as. */
+    as?: T
+    /** Whether this trigger is disabled. */
+    disabled?: boolean
     /** Label or reactive presentation function. */
     children?: JSX.Element | ((state: TriggerRenderProps<TItem>) => JSX.Element)
   }
@@ -197,9 +205,17 @@ export namespace BaseSelectT {
   }
   export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
 
+  export type ListboxProps = BaseSelectPartProps
+  export type GroupProps = BaseSelectPartProps
+  export type GroupLabelProps = BaseSelectPartProps
+  export type SeparatorProps = BaseSelectPartProps
+  export type EmptyProps = BaseSelectPartProps
+
   export interface ItemBase<TItem extends Item = Item> {
     /** Raw item belonging to the current navigation collection. */
     item: TItem
+    /** Item always renders a div; polymorphism belongs to Trigger. */
+    as?: never
     /** Visual content or reactive row presentation. */
     children?: JSX.Element | ((state: ItemRenderProps<TItem>) => JSX.Element)
   }

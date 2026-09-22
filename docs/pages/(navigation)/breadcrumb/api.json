@@ -1,314 +1,171 @@
 {
   "key": "breadcrumb",
   "name": "Breadcrumb",
-  "category": "navigation",
   "description": "Props for the Breadcrumb component.",
   "kind": "single",
-  "sourcePath": "src/navigation/breadcrumb/breadcrumb.tsx",
   "parts": [
     {
       "id": "breadcrumb",
       "name": "Breadcrumb",
       "access": {
         "kind": "export",
-        "name": "Breadcrumb",
-        "package": "moraine"
+        "name": "Breadcrumb"
       },
-      "sourcePath": "src/navigation/breadcrumb/breadcrumb.tsx",
       "description": "Props for the Breadcrumb component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "nav",
-        "polymorphic": false
-      },
+      "defaultElement": "nav",
       "props": [
-        {
-          "name": "ref",
-          "optional": true,
-          "type": {
-            "text": "Ref<HTMLElement>"
-          },
-          "description": "Ref forwarded to the root `<nav>` element.",
-          "group": "behavior"
-        },
-        {
-          "name": "separator",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Icon name for the separator between items.",
-          "default": {
-            "kind": "literal",
-            "value": "icon-chevron-right"
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "items",
-          "optional": true,
-          "type": {
-            "text": "Item[]"
-          },
-          "description": "Array of breadcrumb items to display.",
-          "group": "data"
-        },
-        {
-          "name": "itemRender",
-          "optional": true,
-          "type": {
-            "text": "ComponentOrElement<ItemRenderProps>"
-          },
-          "description": "Custom renderer for individual breadcrumb items.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
-        },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "itemRender",
+          "optional": true,
+          "type": "ComponentOrElement<ItemRenderProps>",
+          "description": "Custom renderer for individual breadcrumb items."
+        },
+        {
+          "name": "items",
+          "optional": true,
+          "type": "Item[]",
+          "typeDetails": "({\n  /** Label to display for the breadcrumb item. */\n  label?: JSX.Element;\n  /** Icon to display next to the label. */\n  icon?: IconT.Name;\n  /** The destination URL for this item. */\n  to?: string;\n  /** The destination URL for this item. */\n  href?: string;\n  /** Where to display the linked URL. */\n  target?: string;\n  /** Relationship of the linked URL to the current document. */\n  rel?: string;\n  /** Whether the item is the current active page. */\n  active?: boolean;\n  /** Whether the item is disabled. */\n  disabled?: boolean;\n  /** Callback when the item is clicked. */\n  onClick?: JSX.EventHandlerUnion<HTMLAnchorElement, MouseEvent>;\n})[]",
+          "description": "Array of breadcrumb items to display."
+        },
+        {
+          "name": "ref",
+          "optional": true,
+          "type": "Ref<HTMLElement>",
+          "description": "Ref forwarded to the root `<nav>` element."
+        },
+        {
+          "name": "separator",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Icon name for the separator between items.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-chevron-right"
+          }
         },
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
-          "description": "Visual size of the component.",
+          "type": "'sm' | 'md' | 'lg'",
+          "description": "Size of the breadcrumb items and icons.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
         },
         {
           "name": "wrap",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Visual wrap of the component.",
           "default": {
             "kind": "literal",
             "value": true
-          },
-          "group": "styling"
-        }
-      ],
-      "slots": [
-        {
-          "name": "item",
-          "description": "Wrapper for one breadcrumb entry."
-        },
-        {
-          "name": "label",
-          "description": "Breadcrumb item label text."
-        },
-        {
-          "name": "leading",
-          "description": "Optional icon rendered before a breadcrumb label."
-        },
-        {
-          "name": "link",
-          "description": "Clickable breadcrumb target for navigable entries."
-        },
-        {
-          "name": "list",
-          "description": "Ordered list that contains breadcrumb items and separators."
-        },
-        {
-          "name": "page",
-          "description": "Current page entry."
-        },
-        {
-          "name": "root",
-          "description": "Navigation container for the breadcrumb trail."
-        },
-        {
-          "name": "separator",
-          "description": "Visual divider between breadcrumb entries."
-        }
-      ],
-      "runtime": [
-        {
-          "target": "page",
-          "attributes": [
-            {
-              "name": "aria-current",
-              "kind": "aria",
-              "description": "Marks the current item in a set or navigation trail."
-            },
-            {
-              "name": "aria-disabled",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Indicates that the control is disabled."
-            },
-            {
-              "name": "data-current",
-              "kind": "data",
-              "description": "Present when the item represents the current location or step."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "link"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "description": "Provides an accessible label when visible text is not sufficient."
-            }
-          ]
-        },
-        {
-          "target": "separator",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "presentation"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
+          }
         }
       ]
     }
   ],
   "item": {
-    "name": "Item",
     "description": "An individual item in the breadcrumb trail.",
     "props": [
       {
         "name": "active",
         "optional": true,
-        "type": {
-          "text": "boolean"
-        },
+        "type": "boolean",
         "description": "Whether the item is the current active page."
       },
       {
         "name": "disabled",
         "optional": true,
-        "type": {
-          "text": "boolean"
-        },
+        "type": "boolean",
         "description": "Whether the item is disabled."
       },
       {
         "name": "href",
         "optional": true,
-        "type": {
-          "text": "string"
-        },
+        "type": "string",
         "description": "The destination URL for this item."
       },
       {
         "name": "icon",
         "optional": true,
-        "type": {
-          "text": "IconT.Name"
-        },
+        "type": "IconT.Name",
         "description": "Icon to display next to the label."
       },
       {
         "name": "label",
         "optional": true,
-        "type": {
-          "text": "JSX.Element"
-        },
+        "type": "JSX.Element",
         "description": "Label to display for the breadcrumb item."
       },
       {
         "name": "onClick",
         "optional": true,
-        "type": {
-          "text": "JSX.EventHandlerUnion<HTMLAnchorElement, MouseEvent>"
-        },
+        "type": "JSX.EventHandlerUnion<HTMLAnchorElement, MouseEvent>",
         "description": "Callback when the item is clicked."
       },
       {
         "name": "rel",
         "optional": true,
-        "type": {
-          "text": "string"
-        },
+        "type": "string",
         "description": "Relationship of the linked URL to the current document."
       },
       {
         "name": "target",
         "optional": true,
-        "type": {
-          "text": "string"
-        },
+        "type": "string",
         "description": "Where to display the linked URL."
       },
       {
         "name": "to",
         "optional": true,
-        "type": {
-          "text": "string"
-        },
+        "type": "string",
         "description": "The destination URL for this item."
       }
     ]
-  }
+  },
+  "slots": [
+    "root",
+    "list",
+    "item",
+    "link",
+    "page",
+    "leading",
+    "label",
+    "separator"
+  ],
+  "dataAttributes": [
+    {
+      "target": "page",
+      "attributes": [
+        "data-current",
+        "data-disabled"
+      ]
+    }
+  ]
 }

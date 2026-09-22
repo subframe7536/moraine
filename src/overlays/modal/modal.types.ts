@@ -5,7 +5,6 @@ import type {
   BaseProps,
   SlotClassValue,
   SlotStyleValue,
-  TriggerBase as SharedTriggerBase,
   ValidComponent,
 } from '../../shared/types.ts'
 
@@ -69,7 +68,14 @@ export namespace ModalT {
 
   export type Props = Base
 
-  export type TriggerBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T>
+  export interface TriggerBase<T extends ValidComponent = 'button'> {
+    /** Element or component to render as. */
+    as?: T
+    /** Whether this trigger is disabled. */
+    disabled?: boolean
+    /** Trigger label and visual content. */
+    children?: JSX.Element
+  }
 
   export type TriggerProps<T extends ValidComponent = 'button'> = BaseProps<
     T,
@@ -116,7 +122,7 @@ export namespace ModalT {
 
   export type ContentProps = BaseProps<'div', ContentBase, Variant, never, never>
 
-  export type CloseBase<T extends ValidComponent = 'button'> = SharedTriggerBase<T>
+  export type CloseBase<T extends ValidComponent = 'button'> = TriggerBase<T>
   export type CloseProps<T extends ValidComponent = 'button'> = BaseProps<
     T,
     CloseBase<T>,

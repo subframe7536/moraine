@@ -1,4 +1,4 @@
-import type { Ref } from 'solid-js'
+import type { JSX, Ref } from 'solid-js'
 
 import type { IconT } from '../../elements/icon/index.ts'
 import type { ComponentOrElement } from '../../shared/render-prop.ts'
@@ -10,9 +10,8 @@ import type {
   BaseSelectResetProps,
   BaseSelectT,
 } from '../base-select/base-select.types.ts'
-import type { FormValueOptions } from '../shared/form-options.ts'
+import type { FormValueOptions } from '../shared/form-options.types.ts'
 import type {
-  SelectItem,
   SearchProps,
   ContentProps,
   SelectRow,
@@ -30,7 +29,14 @@ export namespace MultiSelectT {
   export type Classes = Slot<SlotClassValue>
   export type Styles = Slot<SlotStyleValue>
 
-  export interface Item<Val extends string | number = string | number> extends SelectItem<Val> {}
+  export interface Item<
+    Val extends string | number = string | number,
+  > extends BaseSelectT.Item<Val> {
+    /** Leading item icon. */
+    icon?: IconT.Name
+    /** Secondary item description. */
+    description?: JSX.Element
+  }
   export type Group<TItem extends Item = Item> = SelectGroup<TItem>
   export type Entry<TItem extends Item = Item> = SelectEntry<TItem>
   export type Row<TItem extends Item = Item> = SelectRow<TItem>

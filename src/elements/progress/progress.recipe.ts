@@ -1,6 +1,14 @@
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
+import { createDataAttributes } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { ProgressStyleSlot, ProgressStyleVariant } from './progress.style-types'
+
+export const progressDataAttributes = {
+  root: createDataAttributes('indeterminate', 'progress'),
+  indicator: createDataAttributes('indeterminate', 'progress'),
+  step: createDataAttributes('state'),
+} satisfies DataAttributeContract<keyof ProgressStyleSlot>
 
 export const progressRecipe = /* @__PURE__ */ defineRecipe<ProgressStyleSlot, ProgressStyleVariant>(
   'progress',

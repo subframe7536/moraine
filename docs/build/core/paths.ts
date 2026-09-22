@@ -1,19 +1,17 @@
 import { existsSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 
-import { toPosixPath } from './strings'
+import { toPosixPath } from './strings.ts'
 
 export const DOCS_PAGE_FILE_RE = /[\\/]docs[\\/]pages[\\/].*\.mdx$/
 export const ROOT_DOCS_PAGE_KEY = 'introduction'
 
 export interface DocsPageContext {
   absolutePath: string
-  docsRoot: string
   pagesRoot: string
   relativePath: string
   pageKey: string
   group?: string
-  runtimeImportPath: string
 }
 
 function derivePageKey(relativePath: string): string {
@@ -48,12 +46,10 @@ export function resolveDocsPageContext(absolutePath: string): DocsPageContext {
   const relativePath = normalized.slice(markerIndex + marker.length)
   return {
     absolutePath: path.normalize(absolutePath),
-    docsRoot,
     pagesRoot,
     relativePath,
     pageKey: derivePageKey(relativePath),
     group: deriveGroup(relativePath),
-    runtimeImportPath: `./pages/${relativePath}`,
   }
 }
 

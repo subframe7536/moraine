@@ -1,6 +1,15 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { PaginationStyleSlot, PaginationStyleVariant } from './pagination.style-types'
+
+export const paginationDataAttributes = {
+  prev: createDataAttributes('disabled', 'loading', 'text'),
+  item: createDataAttributes('current', 'disabled', 'loading'),
+  next: createDataAttributes('disabled', 'loading', 'text'),
+  ellipsis: createDataAttributes('ellipsis'),
+} satisfies DataAttributeContract<keyof PaginationStyleSlot>
 
 export const paginationRecipe = /* @__PURE__ */ defineRecipe<
   PaginationStyleSlot,

@@ -3,9 +3,6 @@ declare module 'virtual:api-doc' {
     key: string
     name: string
     category: string
-    description?: string
-    sourcePath?: string
-    polymorphic: boolean
   }
 
   interface IndexDoc {

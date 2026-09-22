@@ -11,7 +11,7 @@ import { CollapsibleContent } from './collapsible-content'
 import type { CollapsibleContext } from './collapsible-context'
 import { CollapsibleProvider } from './collapsible-context'
 import { CollapsibleTrigger } from './collapsible-trigger'
-import { collapsibleRecipe } from './collapsible.recipe'
+import { collapsibleDataAttributes, collapsibleRecipe } from './collapsible.recipe'
 import type { CollapsibleProps } from './collapsible.types'
 
 /** Expandable content section with optional height transitions. */
@@ -137,7 +137,16 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
 
   return (
     <CollapsibleProvider value={context}>
-      <div id={rootId()} data-slot="root" {...dataAttrs()} {...rest} {...resolved.styles.root}>
+      <div
+        id={rootId()}
+        data-slot="root"
+        {...collapsibleDataAttributes.root({
+          expanded: () => dataAttrs()['data-expanded'],
+          closed: () => dataAttrs()['data-closed'],
+        })}
+        {...rest}
+        {...resolved.styles.root}
+      >
         {local.children}
       </div>
     </CollapsibleProvider>

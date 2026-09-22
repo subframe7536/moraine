@@ -39,7 +39,7 @@ import {
 } from '../shared/select/collection.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
-import { baseSelectRecipe } from './base-select.recipe'
+import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
 import type {
   BaseSelectPartProps,
   BaseSelectProps,
@@ -78,6 +78,9 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     return byValue
   })
   createEffect(on(items, diagnoseDuplicateItems))
+  function getCanonicalItem(value: T['value']): T | undefined {
+    return props.getItemByValue ? props.getItemByValue(value) : itemByValue().get(value)
+  }
   const [selection, setSelection] = useControllableValue<Value>({
     value: () => {
       if (props.value !== undefined) {
@@ -91,7 +94,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
         return []
       }
       if (!props.multiple && (typeof value === 'string' || typeof value === 'number')) {
-        if (value === '' && !itemByValue().has(value)) {
+        if (value === '' && !getCanonicalItem(value)) {
           return []
         }
         return [value]
@@ -102,7 +105,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   })
   const value = createMemo(() => normalize(selection()))
   const itemDisabled = (item: T) => {
-    const canonical = itemByValue().get(item.value) ?? item
+    const canonical = getCanonicalItem(item.value) ?? item
     return Boolean(canonical.disabled || props.isItemDisabled?.(canonical, value()))
   }
   const [open, setOpenValue] = useControllableValue<boolean>({
@@ -318,7 +321,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     return selected.flatMap((value) => {
       const serialized = props.serializeValue
         ? props.serializeValue(value)
-        : itemByValue().get(value)?.disabled
+        : getCanonicalItem(value)?.disabled
           ? undefined
           : String(value)
       return serialized === undefined ? [] : [serialized]
@@ -462,10 +465,14 @@ function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
     <div
       {...rest}
       data-slot="control"
-      data-disabled={state.field.disabled() ? '' : undefined}
-      data-readonly={state.field.readOnly() ? '' : undefined}
-      data-required={state.field.required() ? '' : undefined}
-      data-invalid={state.field.invalid() ? '' : undefined}
+      {...baseSelectDataAttributes.control({
+        disabled: state.field.disabled,
+        readonly: state.field.readOnly,
+        required: state.field.required,
+        invalid: state.field.invalid,
+        expanded: state.open,
+        closed: () => !state.open(),
+      })}
       ref={(element) => {
         state.setAnchor(element)
         callRef(local.ref, element)
@@ -559,7 +566,12 @@ function BaseSelectTrigger<
       id={state.field.id()}
       role="combobox"
       data-slot="trigger"
-      data-invalid={state.field.invalid() ? '' : undefined}
+      {...baseSelectDataAttributes.trigger({
+        invalid: state.field.invalid,
+        expanded: state.open,
+        closed: () => !state.open(),
+        disabled: () => Boolean(state.field.disabled() || local.disabled),
+      })}
       aria-haspopup="listbox"
       aria-controls={state.listboxId()}
       aria-expanded={state.open() ? 'true' : 'false'}
@@ -667,9 +679,12 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
         <div data-slot="positioner" ref={setPositioner}>
           <div
             {...rest}
-            {...presence.dataAttrs()}
             data-slot="content"
-            data-side={side()}
+            {...baseSelectDataAttributes.content({
+              expanded: () => presence.dataAttrs()['data-expanded'],
+              closed: () => presence.dataAttrs()['data-closed'],
+              side,
+            })}
             ref={(element) => {
               setContent(element)
               presence.setElement(element)
@@ -769,12 +784,13 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       return disabled()
     },
   }
-  const resolvedChildren = resolveChildren(() => {
-    const children = local.children
-    if (children === undefined) {
+  const child = resolveChildren(() => local.children as JSX.Element)
+  const resolvedChildren = createMemo(() => {
+    const value = child()
+    if (value === undefined) {
       return item().label
     }
-    return renderComponentOrElement(children, presentation)
+    return renderComponentOrElement(value, presentation)
   })
   return (
     <div
@@ -786,9 +802,11 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       data-slot="item"
       aria-selected={selected() ? 'true' : 'false'}
       aria-disabled={disabled() || undefined}
-      data-selected={selected() ? '' : undefined}
-      data-highlighted={highlighted() ? '' : undefined}
-      data-disabled={disabled() ? '' : undefined}
+      {...baseSelectDataAttributes.item({
+        selected,
+        highlighted,
+        disabled,
+      })}
       {...resolved.styles.item}
       onPointerMove={(event) => {
         callHandler(event, local.onPointerMove)
@@ -798,7 +816,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
           !disabled() &&
           !state.locked()
         ) {
-          state.setHighlightedValue(item().value)
+          state.setHighlightedValue(item().value as any)
         }
       }}
       onPointerDown={(event) => {
@@ -814,7 +832,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       onClick={(event) => {
         callHandler(event, local.onClick)
         if (!event.defaultPrevented && !disabled() && !state.locked()) {
-          state.setHighlightedValue(item().value)
+          state.setHighlightedValue(item().value as any)
           state.select(item())
         }
       }}

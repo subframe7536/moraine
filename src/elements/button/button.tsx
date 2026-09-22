@@ -20,7 +20,7 @@ import { Icon } from '../icon'
 import type { IconT } from '../icon'
 
 import { useButtonGroupContext } from './button-group-context'
-import { buttonRecipe } from './button.recipe'
+import { buttonDataAttributes, buttonRecipe } from './button.recipe'
 import type { ButtonProps } from './button.types'
 
 /**
@@ -123,8 +123,10 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
     <Dynamic
       data-slot={local.slotName || 'root'}
       aria-busy={isLoading() ? true : undefined}
-      data-loading={isLoading() ? '' : undefined}
-      data-disabled={local.disabled ? '' : undefined}
+      {...buttonDataAttributes.root({
+        loading: isLoading,
+        disabled: () => local.disabled,
+      })}
       {...interactionProps}
       component={tag()}
       ref={(element: HTMLElement) => {

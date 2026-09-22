@@ -1,341 +1,150 @@
 {
   "key": "tabs",
   "name": "Tabs",
-  "category": "navigation",
   "description": "Props for the Tabs component.",
   "kind": "single",
-  "sourcePath": "src/navigation/tabs/tabs.tsx",
   "parts": [
     {
       "id": "tabs",
       "name": "Tabs",
       "access": {
         "kind": "export",
-        "name": "Tabs",
-        "package": "moraine"
+        "name": "Tabs"
       },
-      "sourcePath": "src/navigation/tabs/tabs.tsx",
       "description": "Props for the Tabs component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "activationMode",
           "optional": true,
-          "type": {
-            "text": "'automatic' | 'manual'"
-          },
+          "type": "'automatic' | 'manual'",
           "description": "Whether keyboard navigation activates the tab immediately or waits for confirmation.",
           "default": {
             "kind": "literal",
             "value": "automatic"
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the tab list is disabled.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "id",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Unique identifier for the tabs root element.",
-          "group": "behavior"
-        },
-        {
-          "name": "loop",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether arrow-key navigation wraps from the ends.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "items",
-          "optional": true,
-          "type": {
-            "text": "Item[]"
-          },
-          "description": "Array of tabs to display.",
-          "group": "data"
-        },
-        {
-          "name": "defaultValue",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Default active tab value for uncontrolled usage.",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "default"
-          }
-        },
-        {
-          "name": "onChange",
-          "optional": true,
-          "type": {
-            "text": "(value: string) => void"
-          },
-          "description": "Callback when the active tab changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "value",
-            "role": "change"
-          }
-        },
-        {
-          "name": "value",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Controlled active tab value.",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "value"
           }
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "defaultValue",
+          "optional": true,
+          "type": "string",
+          "description": "Default active tab value for uncontrolled usage."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the tab list is disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "description": "Unique identifier for the tabs root element."
+        },
+        {
+          "name": "items",
+          "optional": true,
+          "type": "Item[]",
+          "typeDetails": "({\n  /** Label to display on the tab trigger. */\n  label?: JSX.Element;\n  /** Icon to display next to the label. */\n  icon?: IconT.Name;\n  /** Unique value for the tab. */\n  value?: string;\n  /** Content to display when the tab is active. */\n  content?: JSX.Element;\n  /** Whether the tab is disabled. */\n  disabled?: boolean;\n})[]",
+          "description": "Array of tabs to display."
+        },
+        {
+          "name": "loop",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether arrow-key navigation wraps from the ends.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "onChange",
+          "optional": true,
+          "type": "(value: string) => void",
+          "description": "Callback when the active tab changes."
         },
         {
           "name": "orientation",
           "optional": true,
-          "type": {
-            "text": "'horizontal' | 'vertical'"
-          },
-          "description": "Layout axis used by the component Recipe.",
-          "group": "styling"
+          "type": "'horizontal' | 'vertical'",
+          "description": "The orientation of the tab list.",
+          "default": {
+            "kind": "literal",
+            "value": "horizontal"
+          }
         },
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
+          "type": "'sm' | 'md' | 'lg'",
           "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": "string",
+          "description": "Controlled active tab value."
         },
         {
           "name": "variant",
           "optional": true,
-          "type": {
-            "text": "'pill' | 'link'"
-          },
+          "type": "'pill' | 'link'",
           "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "pill"
-          },
-          "group": "styling"
-        }
-      ],
-      "slots": [
-        {
-          "name": "content",
-          "description": "Tab panel rendered for the selected item."
-        },
-        {
-          "name": "indicator",
-          "description": "Moving indicator aligned with the active tab trigger."
-        },
-        {
-          "name": "label",
-          "description": "Text or custom label rendered inside a tab trigger."
-        },
-        {
-          "name": "leading",
-          "description": "Optional icon rendered before a tab label."
-        },
-        {
-          "name": "list",
-          "description": "Tablist that contains all tab triggers and the selection indicator."
-        },
-        {
-          "name": "root",
-          "description": "Tabs container that owns tab selection and panel rendering."
-        },
-        {
-          "name": "trailing",
-          "description": "Optional trailing content rendered after a tab label."
-        },
-        {
-          "name": "trigger",
-          "description": "Tab button users activate to select a panel."
-        }
-      ],
-      "runtime": [
-        {
-          "target": "content",
-          "attributes": [
-            {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "description": "References the element that labels the control or region."
-            },
-            {
-              "name": "data-selected",
-              "kind": "data",
-              "description": "Present when the item or tab is selected."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "tabpanel"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "indicator",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Hides decorative content from assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "list",
-          "attributes": [
-            {
-              "name": "aria-orientation",
-              "kind": "aria",
-              "description": "Communicates horizontal or vertical orientation."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "tablist"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "trigger",
-          "attributes": [
-            {
-              "name": "aria-controls",
-              "kind": "aria",
-              "description": "References the controlled element while the related content is mounted."
-            },
-            {
-              "name": "aria-selected",
-              "kind": "aria",
-              "description": "Indicates the currently selected option or tab."
-            },
-            {
-              "name": "data-highlighted",
-              "kind": "data",
-              "description": "Present when the item is highlighted by pointer or keyboard navigation."
-            },
-            {
-              "name": "data-selected",
-              "kind": "data",
-              "description": "Present when the item or tab is selected."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "tab"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
+          }
         }
       ]
     }
   ],
   "item": {
-    "name": "Item",
     "description": "An individual tab in the tabs component.",
     "props": [
       {
         "name": "content",
         "optional": true,
-        "type": {
-          "text": "JSX.Element"
-        },
+        "type": "JSX.Element",
         "description": "Content to display when the tab is active."
       },
       {
         "name": "disabled",
         "optional": true,
-        "type": {
-          "text": "boolean"
-        },
+        "type": "boolean",
         "description": "Whether the tab is disabled.",
         "default": {
           "kind": "literal",
@@ -345,25 +154,19 @@
       {
         "name": "icon",
         "optional": true,
-        "type": {
-          "text": "IconT.Name"
-        },
+        "type": "IconT.Name",
         "description": "Icon to display next to the label."
       },
       {
         "name": "label",
         "optional": true,
-        "type": {
-          "text": "JSX.Element"
-        },
+        "type": "JSX.Element",
         "description": "Label to display on the tab trigger."
       },
       {
         "name": "value",
         "optional": true,
-        "type": {
-          "text": "string"
-        },
+        "type": "string",
         "description": "Unique value for the tab.",
         "default": {
           "kind": "expression",
@@ -371,5 +174,37 @@
         }
       }
     ]
-  }
+  },
+  "slots": [
+    "root",
+    "list",
+    "indicator",
+    "trigger",
+    "leading",
+    "label",
+    "trailing",
+    "content"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-disabled"
+      ]
+    },
+    {
+      "target": "trigger",
+      "attributes": [
+        "data-disabled",
+        "data-highlighted",
+        "data-selected"
+      ]
+    },
+    {
+      "target": "content",
+      "attributes": [
+        "data-selected"
+      ]
+    }
+  ]
 }

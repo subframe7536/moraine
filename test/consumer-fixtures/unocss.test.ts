@@ -60,7 +60,7 @@ describe('isolated built-dist UnoCSS consumer', () => {
         'size-(--s-thumb-size)',
         '[&:not([data-inverted])]:after:left-(--s-marker-position)',
         '-translate-x-1/2',
-        'data-transition:h-(--mo-collapsible-content-height)',
+        'has-[>[data-transition]]:h-(--mo-collapsible-content-height)',
         'data-[side=bottom]:mt-(--mo-popper-content-overflow-padding)',
         'data-[side=bottom]:-enter-translate-y-1',
         'data-[side=right]:-enter-translate-x-1',

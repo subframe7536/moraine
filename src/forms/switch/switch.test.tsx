@@ -57,10 +57,17 @@ describe('Switch', () => {
   test('supports uncontrolled toggle', async () => {
     const screen = render(() => <Switch label="Marketing" />)
     const switchInput = screen.getByRole('switch', { name: 'Marketing' })
+    const root = screen.container.querySelector('[data-slot="root"]')!
+    const thumb = screen.container.querySelector('[data-slot="thumb"]')!
 
     expectSwitchChecked(switchInput, false)
+    expect(root.getAttribute('data-unchecked')).toBe('')
+    expect(thumb.getAttribute('data-unchecked')).toBe('')
     fireEvent.click(switchInput)
     expectSwitchChecked(switchInput, true)
+    expect(root.getAttribute('data-checked')).toBe('')
+    expect(root.hasAttribute('data-unchecked')).toBe(false)
+    expect(thumb.getAttribute('data-checked')).toBe('')
   })
 
   test.each([' ', 'Enter'])(

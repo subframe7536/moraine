@@ -7,6 +7,16 @@ export interface FrontmatterSearch {
   tags: string[]
 }
 
+export interface FrontmatterApiPart {
+  name: string
+  path?: string
+}
+
+export interface FrontmatterApi {
+  path: string
+  parts?: Array<string | FrontmatterApiPart>
+}
+
 export interface FrontmatterData {
   title: string
   description: string
@@ -15,6 +25,7 @@ export interface FrontmatterData {
   category?: string
   component?: string
   componentKey?: string
+  api?: FrontmatterApi
   related?: string[]
   upstreamHref?: string
 }

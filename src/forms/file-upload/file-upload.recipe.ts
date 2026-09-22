@@ -1,6 +1,14 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { FileUploadStyleSlot, FileUploadStyleVariant } from './file-upload.style-types'
+
+export const fileUploadDataAttributes = {
+  root: createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
+  wrapper: createDataAttributes('dropzone'),
+  control: createDataAttributes('dragging', 'dropzone', 'invalid'),
+} satisfies DataAttributeContract<keyof FileUploadStyleSlot>
 
 export const fileUploadRecipe = /* @__PURE__ */ defineRecipe<
   FileUploadStyleSlot,

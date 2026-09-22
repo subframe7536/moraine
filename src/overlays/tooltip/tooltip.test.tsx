@@ -101,6 +101,8 @@ describe('Tooltip', () => {
 
     expect(trigger?.tagName).toBe('BUTTON')
     expect(trigger?.getAttribute('type')).toBe('button')
+    expect(trigger?.hasAttribute('data-closed')).toBe(true)
+    expect(trigger?.hasAttribute('data-expanded')).toBe(false)
   })
 
   test('renders a span trigger root', () => {

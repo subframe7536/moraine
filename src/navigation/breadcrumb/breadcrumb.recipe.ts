@@ -1,6 +1,12 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { BreadcrumbStyleSlot, BreadcrumbStyleVariant } from './breadcrumb.style-types'
+
+export const breadcrumbDataAttributes = {
+  page: createDataAttributes('current', 'disabled'),
+} satisfies DataAttributeContract<keyof BreadcrumbStyleSlot>
 
 export const BREADCRUMB_LINK_CLASS =
   'transition-colors hover:text-foreground inline-flex items-center gap-1.5'

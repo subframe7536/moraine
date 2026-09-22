@@ -1,20 +1,16 @@
 {
   "key": "input",
   "name": "Input",
-  "category": "forms",
   "description": "Props for the Input component.",
   "kind": "single",
-  "sourcePath": "src/forms/input/input.tsx",
   "parts": [
     {
       "id": "input",
       "name": "Input",
       "access": {
         "kind": "export",
-        "name": "Input",
-        "package": "moraine"
+        "name": "Input"
       },
-      "sourcePath": "src/forms/input/input.tsx",
       "description": "Props for the Input component.",
       "generics": [
         {
@@ -23,330 +19,215 @@
           "default": "ModelModifiers | unknown"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "input",
-        "polymorphic": false
-      },
+      "defaultElement": "input",
       "props": [
         {
           "name": "autocomplete",
           "optional": true,
-          "type": {
-            "text": "JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']"
-          },
+          "type": "JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']",
           "description": "The autocomplete attribute for the input.",
           "default": {
             "kind": "literal",
             "value": "off"
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "autofocus",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the input should automatically receive focus on mount.",
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "autofocusDelay",
           "optional": true,
-          "type": {
-            "text": "number"
-          },
+          "type": "number",
           "description": "The delay in milliseconds before automatically focusing the input.",
           "default": {
             "kind": "literal",
             "value": 0
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is disabled.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "id",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The ID of the input element.",
-          "group": "behavior"
-        },
-        {
-          "name": "maxLength",
-          "optional": true,
-          "type": {
-            "text": "number | string"
-          },
-          "description": "The maximum number of characters allowed in the input.",
-          "group": "behavior"
-        },
-        {
-          "name": "modelModifiers",
-          "optional": true,
-          "type": {
-            "text": "M"
-          },
-          "description": "Modifiers for the input value (e.g., trim, lazy, number).",
-          "group": "behavior"
-        },
-        {
-          "name": "onBlur",
-          "optional": true,
-          "type": {
-            "text": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>"
-          },
-          "description": "Event handler for the blur event.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onFocus",
-          "optional": true,
-          "type": {
-            "text": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>"
-          },
-          "description": "Event handler for the focus event.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onInput",
-          "optional": true,
-          "type": {
-            "text": "JSX.InputEventHandlerUnion<HTMLInputElement, InputEvent>"
-          },
-          "description": "Event handler for the input event.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "placeholder",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The placeholder text for the input.",
-          "group": "behavior"
-        },
-        {
-          "name": "ref",
-          "optional": true,
-          "type": {
-            "text": "Ref<HTMLInputElement>"
-          },
-          "description": "Ref for the native input element.",
-          "group": "behavior"
-        },
-        {
-          "name": "type",
-          "optional": true,
-          "type": {
-            "text": "JSX.InputHTMLAttributes<HTMLInputElement>['type']"
-          },
-          "description": "The type of the input element.",
-          "default": {
-            "kind": "literal",
-            "value": "text"
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "name",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The name of the input element, used for form submission.",
-          "group": "form"
-        },
-        {
-          "name": "readOnly",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is read-only.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "form"
-        },
-        {
-          "name": "required",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is required.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "form"
-        },
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "never"
-          },
-          "description": "Native controls do not accept child content.",
-          "group": "rendering"
-        },
-        {
-          "name": "defaultValue",
-          "optional": true,
-          "type": {
-            "text": "string | number | undefined"
-          },
-          "description": "The default value of the input (uncontrolled).",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "default"
-          }
-        },
-        {
-          "name": "onChange",
-          "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLInputElement, Event>"
-          },
-          "description": "Native change event, after value synchronization and Field notification.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "value",
-            "role": "change"
-          }
-        },
-        {
-          "name": "onValueChange",
-          "optional": true,
-          "type": {
-            "text": "(value: ModifierValue<M>) => void"
-          },
-          "description": "Callback when the input value changes during input.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "value",
-            "role": "change"
-          }
-        },
-        {
-          "name": "value",
-          "optional": true,
-          "type": {
-            "text": "string | number | undefined"
-          },
-          "description": "The current value of the input (controlled).",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "value"
           }
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "defaultValue",
+          "optional": true,
+          "type": "string | number | undefined",
+          "description": "The default value of the input (uncontrolled)."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the input is disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "description": "The ID of the input element."
+        },
+        {
+          "name": "maxLength",
+          "optional": true,
+          "type": "number | string",
+          "description": "The maximum number of characters allowed in the input."
+        },
+        {
+          "name": "modelModifiers",
+          "optional": true,
+          "type": "M",
+          "description": "Modifiers for the input value (e.g., trim, lazy, number)."
+        },
+        {
+          "name": "name",
+          "optional": true,
+          "type": "string",
+          "description": "The name of the input element, used for form submission."
+        },
+        {
+          "name": "onBlur",
+          "optional": true,
+          "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>",
+          "description": "Event handler for the blur event."
+        },
+        {
+          "name": "onChange",
+          "optional": true,
+          "type": "JSX.EventHandlerUnion<HTMLInputElement, Event>",
+          "description": "Native change event, after value synchronization and Field notification."
+        },
+        {
+          "name": "onFocus",
+          "optional": true,
+          "type": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>",
+          "description": "Event handler for the focus event."
+        },
+        {
+          "name": "onInput",
+          "optional": true,
+          "type": "JSX.InputEventHandlerUnion<HTMLInputElement, InputEvent>",
+          "description": "Event handler for the input event."
+        },
+        {
+          "name": "onValueChange",
+          "optional": true,
+          "type": "(value: ModifierValue<M>) => void",
+          "description": "Callback when the input value changes during input."
+        },
+        {
+          "name": "placeholder",
+          "optional": true,
+          "type": "string",
+          "description": "The placeholder text for the input."
+        },
+        {
+          "name": "readOnly",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the input is read-only.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "ref",
+          "optional": true,
+          "type": "Ref<HTMLInputElement>",
+          "description": "Ref for the native input element."
+        },
+        {
+          "name": "required",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the input is required.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "ComponentSize"
-          },
+          "type": "ComponentSize",
           "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "type",
+          "optional": true,
+          "type": "JSX.InputHTMLAttributes<HTMLInputElement>['type']",
+          "description": "The type of the input element.",
+          "default": {
+            "kind": "literal",
+            "value": "text"
+          }
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": "string | number | undefined",
+          "description": "The current value of the input (controlled)."
         },
         {
           "name": "variant",
           "optional": true,
-          "type": {
-            "text": "TextControlVariant"
-          },
+          "type": "TextControlVariant",
           "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "outline"
-          },
-          "group": "styling"
+          }
         }
-      ],
-      "slots": [
-        {
-          "name": "root",
-          "description": "Native text input element."
-        }
-      ],
-      "runtime": []
+      ]
+    }
+  ],
+  "slots": [
+    "root"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-disabled",
+        "data-invalid",
+        "data-readonly",
+        "data-required"
+      ]
     }
   ]
 }

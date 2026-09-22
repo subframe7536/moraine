@@ -26,7 +26,7 @@ import {
   validateOverlayTrigger,
 } from '../base/trigger'
 
-import { dropdownMenuRecipe } from './dropdown-menu.recipe'
+import { dropdownMenuDataAttributes, dropdownMenuRecipe } from './dropdown-menu.recipe'
 import type { DropdownMenuProps, DropdownMenuT } from './dropdown-menu.types'
 
 /**
@@ -43,7 +43,12 @@ function createDropdownMenu(props: DropdownMenuProps) {
     createSignal<OverlayMenuFocusStrategy>('content')
   const trigger = createOverlayTriggerRef()
 
-  const triggerProps = {
+  const triggerDataAttrs = dropdownMenuDataAttributes.trigger({
+    closed: () => !isOpen(),
+    disabled: () => props.disabled,
+    expanded: isOpen,
+  })
+  const triggerProps = mergeProps(triggerDataAttrs, {
     id: resolvedId(),
     get 'aria-controls'() {
       return isOpen() ? contentId() : undefined
@@ -51,15 +56,6 @@ function createDropdownMenu(props: DropdownMenuProps) {
     'aria-haspopup': 'menu',
     get 'aria-expanded'() {
       return isOpen() ? 'true' : 'false'
-    },
-    get 'data-closed'() {
-      return isOpen() ? undefined : ''
-    },
-    get 'data-disabled'() {
-      return props.disabled ? '' : undefined
-    },
-    get 'data-expanded'() {
-      return isOpen() ? '' : undefined
     },
     'data-slot': 'trigger',
     get disabled() {
@@ -120,7 +116,7 @@ function createDropdownMenu(props: DropdownMenuProps) {
         openWithStrategy('first')
       }
     },
-  } as OverlayTriggerProps
+  }) as OverlayTriggerProps
 
   createEffect(
     on(

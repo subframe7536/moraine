@@ -213,8 +213,7 @@ export const IntroComponents = () => {
               Component directory
             </h2>
             <p class="text-sm text-muted-foreground leading-relaxed mt-1">
-              Generated from the public API index. Descriptions and source paths follow the current
-              component inventory.
+              Generated from the explicit component API registry and current public type metadata.
             </p>
           </div>
           <Badge variant="outline">{apiIndex.components.length} components</Badge>
@@ -246,12 +245,6 @@ export const IntroComponents = () => {
                           <span class="text-sm text-foreground font-medium transition-colors group-hover:text-primary">
                             {component.name}
                           </span>
-                          <span class="text-xs text-muted-foreground leading-relaxed mt-1 block">
-                            {component.description}
-                          </span>
-                          <code class="text-[0.7rem] text-muted-foreground/70 font-mono mt-2 block break-all">
-                            {component.sourcePath}
-                          </code>
                         </a>
                       </li>
                     )}

@@ -3,10 +3,12 @@ import path from 'node:path'
 import { describe, expect, test } from 'vitest'
 
 import { TypeExtractor } from './extract-types'
+import { RecipeExtractor } from './recipe'
 
 describe('TypeExtractor', () => {
   const projectRoot = path.resolve(__dirname, '../../..')
   const extractor = new TypeExtractor(projectRoot)
+  const recipes = new RecipeExtractor(projectRoot)
 
   test('extracts Button component types, generics, and BaseProps', async () => {
     const module = await extractor.loadModule('src/elements/button/button.types.ts')
@@ -15,20 +17,22 @@ describe('TypeExtractor', () => {
     const kind = await extractor.extractKind(module!, 'ButtonT')
     expect(kind).toBe('single')
 
-    const slots = await extractor.extractSlots(module!, 'ButtonT')
-    expect(slots.map((s) => s.name)).toEqual(['label', 'leading', 'loading', 'root', 'trailing'])
+    const recipe = await recipes.extract('src/elements/button/button.recipe.ts', 'Button')
+    expect(recipe.slots).toEqual(['root', 'loading', 'leading', 'label', 'trailing'])
 
-    const part = await extractor.extractPart(module!, 'ButtonT', 'Props', 'Button', true)
+    const part = await extractor.extractPart(
+      module!,
+      'ButtonT',
+      'Props',
+      'Button',
+      true,
+      recipe.variants,
+    )
 
     expect(part.generics).toEqual([
       { name: 'T', constraint: 'ValidComponent', default: "'button'" },
     ])
-    expect(part.rendering).toEqual({
-      rendersDom: true,
-      defaultElement: 'button',
-      asProp: 'as',
-      polymorphic: { name: 'T', constraint: 'ValidComponent', default: "'button'" },
-    })
+    expect(part.defaultElement).toBe('button')
 
     const propNames = part.props.map((p) => p.name)
     expect(propNames).toContain('as')
@@ -43,20 +47,16 @@ describe('TypeExtractor', () => {
     expect(loadingProp?.default).toEqual({ kind: 'literal', value: false })
 
     const asProp = part.props.find((p) => p.name === 'as')
-    expect(asProp?.type.text).toBe('T')
+    expect(asProp?.type).toBe('T')
     expect(asProp?.default).toEqual({ kind: 'literal', value: 'button' })
   })
 
-  test('extracts Dialog composite slots, parts, and contentClose slot', async () => {
+  test('extracts Dialog composite parts and inherited Modal props', async () => {
     const module = await extractor.loadModule('src/overlays/dialog/dialog.types.ts')
     expect(module).toBeDefined()
 
     const kind = await extractor.extractKind(module!, 'DialogT')
     expect(kind).toBe('composite')
-
-    const slots = await extractor.extractSlots(module!, 'DialogT')
-    expect(slots.map((s) => s.name)).toContain('contentClose')
-    expect(slots.map((s) => s.name)).not.toContain('close')
 
     const rootPart = await extractor.extractPart(module!, 'DialogT', 'Props', 'Dialog', true)
     expect(rootPart.props.map((p) => p.name)).toContain('open')
@@ -94,7 +94,15 @@ describe('TypeExtractor', () => {
       expect.arrayContaining(['value', 'label', 'disabled', 'icon', 'description']),
     )
 
-    const part = await extractor.extractPart(module!, 'SelectT', 'Props', 'Select', true)
+    const recipe = await recipes.extract('src/forms/select/select.recipe.ts', 'Select')
+    const part = await extractor.extractPart(
+      module!,
+      'SelectT',
+      'Props',
+      'Select',
+      true,
+      recipe.variants,
+    )
     expect(part.props.map((p) => p.name)).toContain('value')
     expect(part.props.map((p) => p.name)).toContain('onChange')
     expect(part.props.map((p) => p.name)).toContain('placeholder')
@@ -234,9 +242,6 @@ export namespace NeverT {
       imports: new Map(),
     }
 
-    const slots = await extractor.extractSlots(parsed, 'NeverT')
-    expect(slots).toEqual([])
-
     const part = await extractor.extractPart(parsed, 'NeverT', 'Props', 'Never', true)
     const propNames = part.props.map((p) => p.name)
     expect(propNames).toContain('title')
@@ -263,22 +268,21 @@ export namespace NeverT {
     )
     const cbItem = await extractor.extractItem(checkboxGroupModule!, 'CheckboxGroupT')
 
-    // Verify CheckboxGroup props have expanded types rather than CheckboxProps<...>['...']
     const indicatorProp = cbPart.props.find((p) => p.name === 'indicator')
-    expect(indicatorProp?.type.text).toBe("'start' | 'end' | 'hidden'")
+    expect(indicatorProp?.type).toBe("'start' | 'end' | 'hidden'")
 
     const checkedIconProp = cbPart.props.find((p) => p.name === 'checkedIcon')
-    expect(checkedIconProp?.type.text).toBe('IconT.Name')
+    expect(checkedIconProp?.type).toBe('IconT.Name')
 
     const indeterminateIconProp = cbPart.props.find((p) => p.name === 'indeterminateIcon')
-    expect(indeterminateIconProp?.type.text).toBe('IconT.Name')
+    expect(indeterminateIconProp?.type).toBe('IconT.Name')
 
     // Verify CheckboxGroup item props have expanded types
     const itemCheckedIcon = cbItem?.props.find((p) => p.name === 'checkedIcon')
-    expect(itemCheckedIcon?.type.text).toBe('IconT.Name')
+    expect(itemCheckedIcon?.type).toBe('IconT.Name')
 
     const itemIndeterminate = cbItem?.props.find((p) => p.name === 'indeterminate')
-    expect(itemIndeterminate?.type.text).toBe('boolean')
+    expect(itemIndeterminate?.type).toBe('boolean')
 
     // Verify Pagination variants expanded from ButtonStyleVariant['variant']
     const paginationModule = await extractor.loadModule(
@@ -286,15 +290,20 @@ export namespace NeverT {
     )
     expect(paginationModule).toBeDefined()
 
+    const paginationRecipe = await recipes.extract(
+      'src/navigation/pagination/pagination.recipe.ts',
+      'Pagination',
+    )
     const paginationPart = await extractor.extractPart(
       paginationModule!,
       'PaginationT',
       'Props',
       'Pagination',
       true,
+      paginationRecipe.variants,
     )
     const variantProp = paginationPart.props.find((p) => p.name === 'variant')
-    expect(variantProp?.type.text).toBe(
+    expect(variantProp?.type).toBe(
       "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
     )
   })

@@ -1,164 +1,76 @@
 {
   "key": "input-group",
   "name": "InputGroup",
-  "category": "forms",
   "kind": "composite",
-  "sourcePath": "src/forms/input-group/input-group.tsx",
   "parts": [
     {
       "id": "input-group",
       "name": "InputGroup",
       "access": {
         "kind": "export",
-        "name": "InputGroup",
-        "package": "moraine"
+        "name": "InputGroup"
       },
-      "sourcePath": "src/forms/input-group/input-group.tsx",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Place the control before supporting content in DOM order.",
-          "group": "rendering"
+          "type": "JSX.Element",
+          "description": "Place the control before supporting content in DOM order."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "orientation",
           "optional": true,
-          "type": {
-            "text": "'horizontal' | 'vertical'"
-          },
+          "type": "'horizontal' | 'vertical'",
           "description": "Axis shared by the group and its supporting parts.",
           "default": {
             "kind": "literal",
             "value": "horizontal"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "ComponentSize"
-          },
+          "type": "ComponentSize",
           "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
         },
         {
           "name": "variant",
           "optional": true,
-          "type": {
-            "text": "TextControlVariant"
-          },
+          "type": "TextControlVariant",
           "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "outline"
-          },
-          "group": "styling"
-        }
-      ],
-      "slots": [
-        {
-          "name": "frame",
-          "description": "Visual state frame driven by the grouped control."
-        },
-        {
-          "name": "leading",
-          "description": "Content at the logical start or above the control."
-        },
-        {
-          "name": "root",
-          "description": "Shared frame around one Input or Textarea and its supporting content."
-        },
-        {
-          "name": "trailing",
-          "description": "Content at the logical end or below the control."
-        }
-      ],
-      "runtime": [
-        {
-          "target": "frame",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Hides decorative content from assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "data-input-group",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-orientation",
-              "kind": "data",
-              "description": "Stores the rendered orientation (horizontal or vertical)."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "group"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
+          }
         }
       ]
     },
@@ -170,91 +82,35 @@
         "root": "InputGroup",
         "member": "Leading"
       },
-      "sourcePath": "src/forms/input-group/input-group.tsx",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Icons, text, buttons, or other caller-owned content.",
-          "group": "rendering"
+          "type": "JSX.Element",
+          "description": "Icons, text, buttons, or other caller-owned content."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "compact",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Removes the padding between this part and the adjacent control.",
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
-        }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "target": "frame",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Hides decorative content from assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "data-input-group",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-orientation",
-              "kind": "data",
-              "description": "Stores the rendered orientation (horizontal or vertical)."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "group"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         }
       ]
     },
@@ -266,92 +122,65 @@
         "root": "InputGroup",
         "member": "Trailing"
       },
-      "sourcePath": "src/forms/input-group/input-group.tsx",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Icons, text, buttons, or other caller-owned content.",
-          "group": "rendering"
+          "type": "JSX.Element",
+          "description": "Icons, text, buttons, or other caller-owned content."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "compact",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Removes the padding between this part and the adjacent control.",
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "target": "frame",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Hides decorative content from assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "data-input-group",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            },
-            {
-              "name": "data-orientation",
-              "kind": "data",
-              "description": "Stores the rendered orientation (horizontal or vertical)."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "group"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        }
+      ]
+    }
+  ],
+  "slots": [
+    "root",
+    "leading",
+    "trailing",
+    "frame"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-input-group",
+        "data-orientation"
+      ]
+    },
+    {
+      "target": "leading",
+      "attributes": [
+        "data-compact",
+        "data-orientation"
+      ]
+    },
+    {
+      "target": "trailing",
+      "attributes": [
+        "data-compact",
+        "data-orientation"
       ]
     }
   ]

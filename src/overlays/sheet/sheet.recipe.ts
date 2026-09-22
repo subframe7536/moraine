@@ -1,7 +1,16 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
-import { MODAL_OVERLAY_CLASS } from '../modal/modal.recipe'
+import { MODAL_OVERLAY_CLASS, modalDataAttributes } from '../modal/modal.recipe'
 
 import type { SheetStyleSlot, SheetStyleVariant } from './sheet.style-types'
+
+export const sheetDataAttributes = {
+  trigger: modalDataAttributes.trigger,
+  overlay: modalDataAttributes.overlay,
+  content: createDataAttributes('closed', 'expanded', 'transition'),
+  body: createDataAttributes('header'),
+} satisfies DataAttributeContract<keyof SheetStyleSlot>
 
 export const sheetRecipe = /* @__PURE__ */ defineRecipe<SheetStyleSlot, SheetStyleVariant>(
   'sheet',

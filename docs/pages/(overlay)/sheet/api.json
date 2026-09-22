@@ -1,552 +1,93 @@
 {
   "key": "sheet",
   "name": "Sheet",
-  "category": "overlays",
   "kind": "composite",
-  "sourcePath": "src/overlays/sheet/sheet.tsx",
   "parts": [
     {
       "id": "sheet",
       "name": "Sheet",
       "access": {
         "kind": "export",
-        "name": "Sheet",
-        "package": "moraine"
+        "name": "Sheet"
       },
-      "sourcePath": "src/overlays/sheet/sheet.tsx",
       "props": [
-        {
-          "name": "dismissible",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether outside interaction and Escape should dismiss the shell.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "id",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Unique identifier used to derive the content id.",
-          "group": "behavior"
-        },
-        {
-          "name": "onClosePrevent",
-          "optional": true,
-          "type": {
-            "text": "() => void"
-          },
-          "description": "Called when a dismissal attempt is blocked.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onExitComplete",
-          "optional": true,
-          "type": {
-            "text": "() => void"
-          },
-          "description": "Called after the modal has fully finished its exit motion.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "preventScroll",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether body scroll should be locked while the shell is present.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Composed trigger and content primitives.",
-          "group": "rendering"
+          "type": "JSX.Element",
+          "description": "Composed trigger and content primitives."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "Classes",
+          "description": "Family slot class defaults for this Sheet instance."
         },
         {
           "name": "defaultOpen",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Initial open state when uncontrolled.",
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "state",
-          "state": {
-            "key": "open",
-            "role": "default"
           }
+        },
+        {
+          "name": "dismissible",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether outside interaction and Escape should dismiss the shell.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "description": "Unique identifier used to derive the content id."
+        },
+        {
+          "name": "onClosePrevent",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called when a dismissal attempt is blocked."
+        },
+        {
+          "name": "onExitComplete",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called after the modal has fully finished its exit motion."
         },
         {
           "name": "onOpenChange",
           "optional": true,
-          "type": {
-            "text": "(open: boolean) => void"
-          },
-          "description": "Called whenever the open state changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "open",
-            "role": "change"
-          }
+          "type": "(open: boolean) => void",
+          "description": "Called whenever the open state changes."
         },
         {
           "name": "open",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Controlled open state.",
-          "group": "state",
-          "state": {
-            "key": "open",
-            "role": "value"
-          }
+          "type": "boolean",
+          "description": "Controlled open state."
         },
         {
-          "name": "classes",
+          "name": "preventScroll",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this Sheet instance.",
-          "group": "styling"
+          "type": "boolean",
+          "description": "Whether body scroll should be locked while the shell is present.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this Sheet instance.",
-          "group": "styling"
-        }
-      ],
-      "slots": [
-        {
-          "name": "body",
-          "description": "Main sheet content region."
-        },
-        {
-          "name": "content",
-          "description": "Slide-in panel containing header, body, footer, and close control."
-        },
-        {
-          "name": "contentClose",
-          "description": "Automatic close affordance owned by Sheet.Content."
-        },
-        {
-          "name": "description",
-          "description": "Supporting text associated with the sheet title."
-        },
-        {
-          "name": "footer",
-          "description": "Bottom region for sheet actions."
-        },
-        {
-          "name": "header",
-          "description": "Top region for sheet title and description."
-        },
-        {
-          "name": "overlay",
-          "description": "Backdrop layer rendered behind the sheet panel."
-        },
-        {
-          "name": "title",
-          "description": "Accessible title for the sheet."
-        },
-        {
-          "name": "trigger",
-          "description": "Element that opens the sheet."
-        }
-      ],
-      "runtime": [
-        {
-          "target": "body",
-          "attributes": [
-            {
-              "name": "data-header",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        },
-        {
-          "target": "contentClose",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "description": "Provides an accessible label when visible text is not sufficient."
-            }
-          ]
-        },
-        {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "data-transition",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "sheet-close",
-      "name": "Sheet.Close",
-      "access": {
-        "kind": "attached",
-        "root": "Sheet",
-        "member": "Close"
-      },
-      "sourcePath": "src/overlays/sheet/sheet.tsx",
-      "generics": [
-        {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
-      "props": [
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether this trigger is disabled.",
-          "group": "behavior"
-        },
-        {
-          "name": "as",
-          "optional": true,
-          "type": {
-            "text": ""
-          },
-          "description": "Element or component to render as.",
-          "group": "rendering",
-          "default": {
-            "kind": "literal",
-            "value": "button"
-          }
-        },
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Trigger label and visual content.",
-          "group": "rendering"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
-        }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "target": "body",
-          "attributes": [
-            {
-              "name": "data-header",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        },
-        {
-          "target": "close",
-          "attributes": [
-            {
-              "name": "data-transition",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        },
-        {
-          "target": "contentClose",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "description": "Provides an accessible label when visible text is not sufficient."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "sheet-content",
-      "name": "Sheet.Content",
-      "access": {
-        "kind": "attached",
-        "root": "Sheet",
-        "member": "Content"
-      },
-      "sourcePath": "src/overlays/sheet/sheet.tsx",
-      "description": "Props for the Sheet component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
-      "props": [
-        {
-          "name": "ariaLabel",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Accessible name used when the sheet has no rendered title.",
-          "group": "behavior"
-        },
-        {
-          "name": "close",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Whether to show a close button, or a custom element to use as one.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "overlay",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether to render the overlay element.",
-          "group": "behavior"
-        },
-        {
-          "name": "transition",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether to enable transition animations.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "trapFocus",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the sheet behaves as a modal surface, including focus containment,\noutside-content isolation, and body scroll locking.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "body",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Custom element to render in the scrollable body slot.",
-          "group": "rendering"
-        },
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Main content when body is undefined.",
-          "group": "rendering"
-        },
-        {
-          "name": "description",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Secondary description displayed below the title.",
-          "group": "rendering"
-        },
-        {
-          "name": "footer",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Custom element to render in the footer slot.",
-          "group": "rendering"
-        },
-        {
-          "name": "header",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Custom element to render in the header slot.",
-          "group": "rendering"
-        },
-        {
-          "name": "title",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Primary title displayed in the sheet header.",
-          "group": "rendering"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "ContentClasses"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
-        },
-        {
-          "name": "inset",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the surface is inset from viewport edges.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "styling"
-        },
-        {
-          "name": "side",
-          "optional": true,
-          "type": {
-            "text": "'top' | 'right' | 'bottom' | 'left'"
-          },
-          "description": "Viewport edge used by the component Recipe.",
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": {
-            "text": "ContentStyles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
-        }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "target": "body",
-          "attributes": [
-            {
-              "name": "data-header",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        },
-        {
-          "target": "content",
-          "attributes": [
-            {
-              "name": "data-transition",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
-        },
-        {
-          "target": "contentClose",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "description": "Provides an accessible label when visible text is not sufficient."
-            }
-          ]
+          "type": "Styles",
+          "description": "Family slot style defaults for this Sheet instance."
         }
       ]
     },
@@ -558,7 +99,6 @@
         "root": "Sheet",
         "member": "Trigger"
       },
-      "sourcePath": "src/overlays/sheet/sheet.tsx",
       "generics": [
         {
           "name": "T",
@@ -566,34 +106,13 @@
           "default": "'button'"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
+      "defaultElement": "button",
       "props": [
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether this trigger is disabled.",
-          "group": "behavior"
-        },
         {
           "name": "as",
           "optional": true,
-          "type": {
-            "text": "n"
-          },
+          "type": "",
           "description": "Element or component to render as.",
-          "group": "rendering",
           "default": {
             "kind": "literal",
             "value": "button"
@@ -602,63 +121,258 @@
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Trigger label and visual content.",
-          "group": "rendering"
+          "type": "JSX.Element",
+          "description": "Trigger label and visual content."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        }
+      ]
+    },
+    {
+      "id": "sheet-content",
+      "name": "Sheet.Content",
+      "access": {
+        "kind": "attached",
+        "root": "Sheet",
+        "member": "Content"
+      },
+      "description": "Props for the Sheet component.",
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "ariaLabel",
+          "optional": true,
+          "type": "string",
+          "description": "Accessible name used when the sheet has no rendered title."
+        },
+        {
+          "name": "body",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Custom element to render in the scrollable body slot."
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Main content when body is undefined."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "ContentClasses",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "close",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Whether to show a close button, or a custom element to use as one.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Secondary description displayed below the title."
+        },
+        {
+          "name": "footer",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Custom element to render in the footer slot."
+        },
+        {
+          "name": "header",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Custom element to render in the header slot."
+        },
+        {
+          "name": "inset",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the surface is inset from viewport edges.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "overlay",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to render the overlay element."
+        },
+        {
+          "name": "side",
+          "optional": true,
+          "type": "'top' | 'right' | 'bottom' | 'left'",
+          "description": "Edge from which the sheet opens.",
+          "default": {
+            "kind": "literal",
+            "value": "right"
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "ContentStyles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "title",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Primary title displayed in the sheet header."
+        },
+        {
+          "name": "transition",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether to enable transition animations.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "trapFocus",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the sheet behaves as a modal surface, including focus containment,\noutside-content isolation, and body scroll locking.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "sheet-close",
+      "name": "Sheet.Close",
+      "access": {
+        "kind": "attached",
+        "root": "Sheet",
+        "member": "Close"
+      },
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'button'"
         }
       ],
-      "slots": [],
-      "runtime": [
+      "defaultElement": "button",
+      "props": [
         {
-          "target": "body",
-          "attributes": [
-            {
-              "name": "data-header",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
+          "name": "as",
+          "optional": true,
+          "type": "",
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "button"
+          }
         },
         {
-          "target": "contentClose",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "description": "Provides an accessible label when visible text is not sufficient."
-            }
-          ]
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Trigger label and visual content."
         },
         {
-          "target": "trigger",
-          "attributes": [
-            {
-              "name": "data-transition",
-              "kind": "data",
-              "description": "State or slot attribute exposed for styling hooks and selectors."
-            }
-          ]
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether this trigger is disabled."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         }
+      ]
+    }
+  ],
+  "slots": [
+    "trigger",
+    "content",
+    "overlay",
+    "header",
+    "title",
+    "description",
+    "contentClose",
+    "body",
+    "footer"
+  ],
+  "dataAttributes": [
+    {
+      "target": "trigger",
+      "attributes": [
+        "data-closed",
+        "data-disabled",
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "overlay",
+      "attributes": [
+        "data-closed",
+        "data-expanded",
+        "data-overlay-scroll"
+      ]
+    },
+    {
+      "target": "content",
+      "attributes": [
+        "data-closed",
+        "data-expanded",
+        "data-transition"
+      ]
+    },
+    {
+      "target": "body",
+      "attributes": [
+        "data-header"
       ]
     }
   ]

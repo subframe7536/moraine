@@ -1,23 +1,13 @@
 import path from 'node:path'
 
-import { toSingleQuoted } from '../core/strings'
+import { toSingleQuoted } from '../core/strings.ts'
 
-import type { ParsePreviewCode, ProgramNode } from './ast'
+import type { ParsePreviewCode, ProgramNode } from './ast.ts'
 
 interface PreviewExport {
   importedName: string
   sourceName: string
   default: boolean
-}
-
-function isPreviewRequest(id: string): boolean {
-  const queryIndex = id.indexOf('?')
-  if (queryIndex < 0) {
-    return false
-  }
-
-  const params = new URLSearchParams(id.slice(queryIndex + 1))
-  return params.has('preview')
 }
 
 function collectPreviewExports(program: ProgramNode, id: string): PreviewExport[] {
@@ -88,15 +78,10 @@ export function resolvePreviewExportName(program: ProgramNode, id: string): stri
 
 export async function transformPreviewModule(
   code: string,
-  id: string,
+  sourcePath: string,
   parsePreviewCode: ParsePreviewCode,
   options: { ssr?: boolean } = {},
 ): Promise<string | null> {
-  if (!isPreviewRequest(id)) {
-    return null
-  }
-
-  const sourcePath = id.slice(0, id.indexOf('?'))
   const sourceImportPath = `./${path.basename(sourcePath)}`
   const previewExport = resolvePreviewExport(await parsePreviewCode(code), sourcePath)
   const imports = [
@@ -105,9 +90,7 @@ export async function transformPreviewModule(
       : previewExport.default
         ? `import __Preview from ${toSingleQuoted(sourceImportPath)}`
         : `import { ${previewExport.importedName} as __Preview } from ${toSingleQuoted(sourceImportPath)}`,
-    `import __PreviewSource from ${toSingleQuoted(
-      `${sourceImportPath}?preview-source&name=${encodeURIComponent(previewExport.sourceName)}`,
-    )}`,
+    `import __PreviewSource from ${toSingleQuoted(`${sourceImportPath}?preview-source`)}`,
   ].filter(Boolean)
 
   return [

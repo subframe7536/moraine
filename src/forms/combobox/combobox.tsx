@@ -10,6 +10,7 @@ import { useBaseSelectSearchInput } from '../base-select/utils.ts'
 import { useFieldContext } from '../field/field-context.ts'
 import {
   createSource,
+  normalizeSelectEntries,
   labelString,
   serializeSourceValue,
   singleValueToSelection,
@@ -23,10 +24,10 @@ import {
 import { useComboboxSearch } from '../shared/select/search.ts'
 import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
 
-import { comboboxRecipe } from './combobox.recipe'
+import { comboboxDataAttributes, comboboxRecipe } from './combobox.recipe'
 import type { ComboboxProps, ComboboxT } from './combobox.types.ts'
 /** Single collection selection with an editable query input. */
-export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
+export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.Item>(
   props: ComboboxProps<T>,
 ): JSX.Element {
   const [local, baseSelectProps, rootProps] = splitProps(
@@ -40,8 +41,9 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
     inheritedVariants: () => ({ size: field?.size }),
   })
   const baseSelectStyles = createBaseSelectStyleProps((slot) => styles.styles[slot])
-  const source = createMemo((prev: ReturnType<typeof createSource<T>> | undefined) =>
-    createSource(local.items ?? [], undefined, prev),
+  const source = createMemo(
+    (prev: ReturnType<typeof createSource<ComboboxT.NormalizedItem<T>>> | undefined) =>
+      createSource(normalizeSelectEntries<T>(local.items ?? []), undefined, prev),
   )
   const search = useComboboxSearch(
     local,
@@ -53,7 +55,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
   const defaultSelection = () => singleValueToSelection(local.defaultValue)
 
   function Control(): JSX.Element {
-    const state = useSelectState<T>()
+    const state = useSelectState<ComboboxT.NormalizedItem<T>>()
     const selectedItem = () => source().byValue.get(state.value()[0]!)
     const selectedLabel = () => {
       const item = selectedItem()
@@ -89,7 +91,15 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
         <BaseSelect.Control
           {...rootProps}
           {...styles.styles.control}
-          data-editable=""
+          {...comboboxDataAttributes.control({
+            closed: undefined,
+            disabled: undefined,
+            editable: true,
+            expanded: undefined,
+            invalid: undefined,
+            readonly: undefined,
+            required: undefined,
+          })}
           ref={(element) => callRef(local.ref, element)}
           onPointerDown={(event) => {
             callHandler(event, rootProps.onPointerDown)
@@ -154,7 +164,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
             aria-controls={state.listboxId()}
             aria-expanded={state.open() ? 'true' : 'false'}
             aria-busy={local.loading ? 'true' : undefined}
-            data-loading={local.loading ? '' : undefined}
+            {...comboboxDataAttributes.trigger({ loading: () => local.loading })}
             disabled={state.field.disabled() || Boolean(local.loading)}
             {...styles.styles.trigger}
             onPointerDown={(event) => {
@@ -173,7 +183,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
                   ? (local.loadingIcon ?? 'icon-loading')
                   : (local.trailingIcon ?? 'icon-chevron-down')
               }
-              data-loading={local.loading ? '' : undefined}
+              {...comboboxDataAttributes.trigger({ loading: () => local.loading })}
               class={SELECT_LOADING_ICON_CLASS}
             />
           </button>
@@ -205,9 +215,10 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
   }
 
   return (
-    <BaseSelect<T>
+    <BaseSelect<ComboboxT.NormalizedItem<T>>
       {...baseSelectProps}
       items={search.view().items}
+      getItemByValue={(value) => source().byValue.get(value)}
       serializeValue={(value) => serializeSourceValue(source(), value)}
       value={selection()}
       defaultValue={defaultSelection()}

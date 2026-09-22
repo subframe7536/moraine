@@ -1,142 +1,34 @@
 {
   "key": "dropdown-menu",
   "name": "DropdownMenu",
-  "category": "overlays",
   "kind": "composite",
-  "sourcePath": "src/overlays/dropdown-menu/dropdown-menu.tsx",
   "parts": [
     {
       "id": "dropdown-menu",
       "name": "DropdownMenu",
       "access": {
         "kind": "export",
-        "name": "DropdownMenu",
-        "package": "moraine"
+        "name": "DropdownMenu"
       },
-      "sourcePath": "src/overlays/dropdown-menu/dropdown-menu.tsx",
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "group": "rendering"
+          "type": "JSX.Element"
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this DropdownMenu instance.",
-          "group": "styling"
+          "type": "Classes",
+          "description": "Family slot class defaults for this DropdownMenu instance."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this DropdownMenu instance.",
-          "group": "styling"
+          "type": "Styles",
+          "description": "Family slot style defaults for this DropdownMenu instance."
         }
-      ],
-      "slots": [],
-      "runtime": []
-    },
-    {
-      "id": "dropdown-menu-content",
-      "name": "DropdownMenu.Content",
-      "access": {
-        "kind": "attached",
-        "root": "DropdownMenu",
-        "member": "Content"
-      },
-      "sourcePath": "src/overlays/dropdown-menu/dropdown-menu.tsx",
-      "description": "Props for the DropdownMenu component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
-      "props": [
-        {
-          "name": "itemProps",
-          "optional": true,
-          "type": {
-            "text": "(props: ItemRenderProps) => ElementProps<HTMLDivElement> | undefined"
-          },
-          "description": "Additional attributes for an interactive menu item.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "itemRender",
-          "optional": true,
-          "type": {
-            "text": "ComponentOrElement<ItemRenderProps>"
-          },
-          "description": "Custom renderer for individual items.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "ContentClasses"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
-        },
-        {
-          "name": "size",
-          "optional": true,
-          "type": {
-            "text": "ComponentSize"
-          },
-          "description": "Visual size of menu items.",
-          "default": {
-            "kind": "literal",
-            "value": "md"
-          },
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": {
-            "text": "ContentStyles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
-        }
-      ],
-      "slots": [],
-      "runtime": []
+      ]
     },
     {
       "id": "dropdown-menu-trigger",
@@ -146,7 +38,6 @@
         "root": "DropdownMenu",
         "member": "Trigger"
       },
-      "sourcePath": "src/overlays/dropdown-menu/dropdown-menu.tsx",
       "generics": [
         {
           "name": "T",
@@ -154,34 +45,13 @@
           "default": "'button'"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
+      "defaultElement": "button",
       "props": [
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether this trigger is disabled.",
-          "group": "behavior"
-        },
         {
           "name": "as",
           "optional": true,
-          "type": {
-            "text": "t"
-          },
+          "type": "",
           "description": "Element or component to render as.",
-          "group": "rendering",
           "default": {
             "kind": "literal",
             "value": "button"
@@ -190,37 +60,136 @@
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Trigger label and visual content.",
-          "group": "rendering"
+          "type": "JSX.Element",
+          "description": "Trigger label and visual content."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         }
-      ],
-      "slots": [],
-      "runtime": []
+      ]
+    },
+    {
+      "id": "dropdown-menu-content",
+      "name": "DropdownMenu.Content",
+      "access": {
+        "kind": "attached",
+        "root": "DropdownMenu",
+        "member": "Content"
+      },
+      "description": "Props for the DropdownMenu component.",
+      "defaultElement": "div",
+      "props": [
+        {
+          "name": "class",
+          "optional": true,
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": "ContentClasses",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "itemProps",
+          "optional": true,
+          "type": "(props: ItemRenderProps) => ElementProps<HTMLDivElement> | undefined",
+          "description": "Additional attributes for an interactive menu item."
+        },
+        {
+          "name": "itemRender",
+          "optional": true,
+          "type": "ComponentOrElement<ItemRenderProps>",
+          "description": "Custom renderer for individual items."
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": "ComponentSize",
+          "description": "Visual size of menu items.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": "ContentStyles",
+          "description": "Family slot style defaults for this instance."
+        }
+      ]
     }
   ],
   "item": {
-    "name": "Item",
     "props": []
-  }
+  },
+  "slots": [
+    "trigger",
+    "overlay",
+    "content",
+    "group",
+    "item",
+    "itemLeading",
+    "itemWrapper",
+    "itemLabel",
+    "itemDescription",
+    "itemTrailing",
+    "itemKbds",
+    "itemIndicator",
+    "itemSubIndicator",
+    "label",
+    "separator"
+  ],
+  "dataAttributes": [
+    {
+      "target": "trigger",
+      "attributes": [
+        "data-closed",
+        "data-disabled",
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "content",
+      "attributes": [
+        "data-align",
+        "data-closed",
+        "data-expanded",
+        "data-side"
+      ]
+    },
+    {
+      "target": "item",
+      "attributes": [
+        "data-destructive",
+        "data-disabled",
+        "data-expanded",
+        "data-highlighted",
+        "data-selected"
+      ]
+    }
+  ]
 }

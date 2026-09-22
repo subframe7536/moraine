@@ -1,9 +1,16 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type {
   CommandPaletteStyleSlot,
   CommandPaletteStyleVariant,
 } from './command-palette.style-types'
+
+export const commandPaletteDataAttributes = {
+  item: createDataAttributes('disabled', 'highlighted'),
+  search: createDataAttributes('loading'),
+} satisfies DataAttributeContract<keyof CommandPaletteStyleSlot>
 
 export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
   CommandPaletteStyleSlot,

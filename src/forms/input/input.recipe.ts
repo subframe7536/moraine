@@ -1,11 +1,14 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe.ts'
-import {
-  TEXT_CONTROL_CLASS,
-  TEXT_CONTROL_GROUPED,
-  TEXT_CONTROL_VARIANT,
-} from '../shared/text-control.class.ts'
+import { TEXT_CONTROL_CLASS } from '../shared/text-control.class.ts'
+import { TEXT_CONTROL_GROUPED, TEXT_CONTROL_VARIANT } from '../shared/text-control.recipe.ts'
 
 import type { InputRecipeVariant, InputStyleSlot } from './input.style-types'
+
+export const inputDataAttributes = {
+  root: createDataAttributes('disabled', 'invalid', 'readonly', 'required'),
+} satisfies DataAttributeContract<keyof InputStyleSlot>
 
 export const inputRecipe = /* @__PURE__ */ defineRecipe<InputStyleSlot, InputRecipeVariant>(
   'input',

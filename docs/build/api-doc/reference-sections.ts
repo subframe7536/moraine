@@ -1,5 +1,5 @@
-import { getApiReferenceTocEntries as getEntries } from './presentation'
-import type { ComponentApi } from './types'
+import { getApiReferenceTocEntries as getEntries } from './presentation.ts'
+import type { ComponentApi } from './types.ts'
 
 export interface ApiReferenceTocEntry {
   id: string

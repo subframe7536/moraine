@@ -1,6 +1,10 @@
 import { createGenerator, presetWind3, presetWind4 } from '@subf/unocss'
 import { describe, expect, test, vi } from 'vitest'
 
+import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../elements/collapsible/collapsible.recipe.ts'
+import { sliderRecipe } from '../forms/slider/slider.recipe.ts'
+import { cn } from '../theme/style/cn.ts'
+
 import { presetMoraine, resolvePresetThemeOptions } from './theme'
 
 async function generate(
@@ -16,6 +20,27 @@ async function generate(
 }
 
 describe('presetMoraine', () => {
+  test.each([
+    ['Wind3', presetWind3],
+    ['Wind4', presetWind4],
+  ])('compiles disclosure child state and slider group state with %s', async (_name, wind) => {
+    const tokens = [
+      ...COLLAPSIBLE_CONTENT_WRAPPER_CLASS.split(' '),
+      ...cn(sliderRecipe.config.variants?.variant?.bold?.range)!
+        .split(' ')
+        .filter((token) => token.includes('dragging')),
+    ]
+    const css = await generate(tokens, false, wind)
+    expect(css).toMatch(/:has\(\s*>\s*\[data-transition\]\[data-expanded\]\)/)
+    expect(css).toMatch(/:has\(\s*>\s*\[data-transition\]\[data-closed\]\)/)
+    expect(css).toContain('@keyframes accordion-down')
+    expect(css).toContain('@keyframes accordion-up')
+    expect(css).toMatch(/\[data-multiple\]::before/)
+    expect(css).toContain('::before')
+    expect(css).toContain('::after')
+    expect(css).toMatch(/transition(?:-property)?:\s*none/)
+    expect(css).toMatch(/(?:\.group|:where\(\.group\))\[data-dragging\]/)
+  })
   test.each([
     ['Wind3', presetWind3],
     ['Wind4', presetWind4],

@@ -49,7 +49,11 @@ export default function Example() {
       : frameworks
   })
   return (
-    <BaseSelect items={items()} itemToLabelString={(item) => `${item.label} ${item.description}`}>
+    <BaseSelect
+      items={items()}
+      getItemByValue={(value) => frameworks.find((item) => item.value === value)}
+      itemToLabelString={(item) => `${item.label} ${item.description}`}
+    >
       <SearchControl search={search} />
       <BaseSelect.Content onExitComplete={() => search.setQuery('')}>
         <FrameworkListbox items={items} />

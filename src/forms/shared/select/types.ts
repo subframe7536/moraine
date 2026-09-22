@@ -20,14 +20,18 @@ export interface SelectItem<
 export type SelectControlVariant = SelectControlStyleVariant
 /** Shared item-content slots for collection-backed Select-family controls. */
 export type SelectItemSlot<T = unknown> = SelectItemStyleSlot<T>
-export interface SelectGroup<T extends BaseSelectT.Item> {
+export type NormalizedSelectItem<T extends string | BaseSelectT.Item> = T extends string
+  ? { value: T; label: T }
+  : T
+
+export interface SelectGroup<T extends string | BaseSelectT.Item> {
   /** Structural group discriminator. */
   type: 'group'
   value?: never
   label: JSX.Element
   items: T[]
 }
-export type SelectEntry<T extends BaseSelectT.Item> = T | SelectGroup<T>
+export type SelectEntry<T extends string | BaseSelectT.Item> = T | SelectGroup<T>
 export type SelectRow<T extends BaseSelectT.Item> =
   | { type: 'label'; key: string; label: JSX.Element; values: T['value'][] }
   | { type: 'item'; key: string; item: T }

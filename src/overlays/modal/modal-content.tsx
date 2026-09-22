@@ -10,7 +10,7 @@ import { trapFocusInContainer } from '../base/utils'
 
 import { useModalContext } from './modal-context'
 import { useModalOverlayContext } from './modal-overlay'
-import { modalRecipe } from './modal.recipe'
+import { modalDataAttributes, modalRecipe } from './modal.recipe'
 import type { ModalT } from './modal.types'
 
 export type SurfaceContent = Pick<
@@ -96,8 +96,11 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
   const renderOverlay = (content?: JSX.Element): JSX.Element => (
     <div
       data-slot="overlay"
-      data-overlay-scroll={overlayScroll() ? '' : undefined}
-      {...presence.dataAttrs()}
+      {...modalDataAttributes.overlay({
+        overlayScroll,
+        expanded: () => presence.dataAttrs()['data-expanded'],
+        closed: () => presence.dataAttrs()['data-closed'],
+      })}
       ref={(element) => {
         const unregister = presence.registerElement(element)
         local.overlayRef?.(element)
@@ -123,7 +126,10 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     return (
       <div
         {...rest}
-        {...presence.dataAttrs()}
+        {...modalDataAttributes.content({
+          expanded: () => presence.dataAttrs()['data-expanded'],
+          closed: () => presence.dataAttrs()['data-closed'],
+        })}
         ref={(element) => {
           const unregister = presence.registerElement(element)
           context.setContentElement(element)

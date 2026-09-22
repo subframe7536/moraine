@@ -8,7 +8,7 @@ import type {
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options'
+} from '../shared/form-options.types.ts'
 
 import type {
   CheckboxGroupStyleSlot,

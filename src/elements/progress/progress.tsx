@@ -4,7 +4,7 @@ import { For, Show, createMemo, splitProps } from 'solid-js'
 import { createStyles } from '../../provider'
 import { renderComponentOrElement } from '../../shared/render-prop'
 
-import { progressRecipe } from './progress.recipe'
+import { progressDataAttributes, progressRecipe } from './progress.recipe'
 import type { ProgressProps, ProgressT } from './progress.types'
 
 function resolveMaxValue(max: ProgressProps['max']): number {
@@ -83,19 +83,13 @@ export function Progress(props: ProgressProps): JSX.Element {
     return Math.round(bounded * 10000) / 100
   })
 
-  const dataAttrs = createMemo(() => {
-    if (isIndeterminate()) {
-      return {
-        'data-indeterminate': '',
-        'data-progress': undefined,
-      }
-    }
-
-    return {
-      'data-indeterminate': undefined,
-      'data-progress': resolvedValue() >= resolvedMax() ? 'complete' : 'loading',
-    }
-  })
+  const progressState = {
+    indeterminate: isIndeterminate,
+    progress: () =>
+      isIndeterminate() ? undefined : resolvedValue() >= resolvedMax() ? 'complete' : 'loading',
+  }
+  const rootDataAttrs = progressDataAttributes.root(progressState)
+  const indicatorDataAttrs = progressDataAttributes.indicator(progressState)
 
   const valueText = createMemo(() => {
     if (isIndeterminate()) {
@@ -159,14 +153,14 @@ export function Progress(props: ProgressProps): JSX.Element {
 
   return (
     <div
+      {...rest}
       role="progressbar"
       aria-valuemin={minValue}
       aria-valuemax={resolvedMax()}
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
       data-slot="root"
-      {...dataAttrs()}
-      {...rest}
+      {...rootDataAttrs}
       {...resolved.styles.root}
     >
       <Show when={!isIndeterminate()}>
@@ -180,7 +174,6 @@ export function Progress(props: ProgressProps): JSX.Element {
                 data-slot="status"
                 class={resolved.styles.status.class}
                 style={{ ...statusStyle(), ...resolved.styles.status.style }}
-                {...dataAttrs()}
               >
                 <Show when={statusRender() !== undefined} fallback={`${percent() ?? 0}%`}>
                   {renderComponentOrElement(statusRender(), {
@@ -195,12 +188,12 @@ export function Progress(props: ProgressProps): JSX.Element {
         }}
       </Show>
 
-      <div data-slot="track" {...resolved.styles.track} {...dataAttrs()}>
+      <div data-slot="track" {...resolved.styles.track}>
         <div
           data-slot="indicator"
           class={resolved.styles.indicator.class}
           style={{ ...indicatorStyle(), ...resolved.styles.indicator.style }}
-          {...dataAttrs()}
+          {...indicatorDataAttrs}
         />
       </div>
 
@@ -209,14 +202,13 @@ export function Progress(props: ProgressProps): JSX.Element {
           const stepRender = createMemo(() => local.stepRender)
 
           return (
-            <div data-slot="steps" {...resolved.styles.steps} {...dataAttrs()}>
+            <div data-slot="steps" {...resolved.styles.steps}>
               <For each={steps()}>
                 {(step, index) => (
                   <div
                     data-slot="step"
-                    data-state={stepState(index())}
+                    {...progressDataAttributes.step({ state: () => stepState(index()) })}
                     {...resolved.styles.step}
-                    {...dataAttrs()}
                   >
                     <Show when={stepRender() !== undefined} fallback={step}>
                       {renderComponentOrElement(stepRender(), {

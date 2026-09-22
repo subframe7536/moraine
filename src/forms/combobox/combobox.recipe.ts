@@ -1,13 +1,31 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe.ts'
+import { baseSelectDataAttributes } from '../base-select/base-select.recipe.ts'
 import {
   FIELD_INPUT_CLASS,
   FIELD_SIZES,
   FIELD_VARIANTS,
   SECONDARY_TRIGGER_CLASS,
   SELECT_FAMILY_SLOTS,
-} from '../shared/select/select-field.class.ts'
+} from '../shared/select/select-field.recipe.ts'
 
 import type { ComboboxStyleSlot, ComboboxStyleVariant } from './combobox.style-types'
+
+export const comboboxDataAttributes = {
+  control: createDataAttributes(
+    'closed',
+    'disabled',
+    'editable',
+    'expanded',
+    'invalid',
+    'readonly',
+    'required',
+  ),
+  content: baseSelectDataAttributes.content,
+  item: baseSelectDataAttributes.item,
+  trigger: createDataAttributes('loading'),
+} satisfies DataAttributeContract<keyof ComboboxStyleSlot>
 
 export const comboboxRecipe = /* @__PURE__ */ defineRecipe<ComboboxStyleSlot, ComboboxStyleVariant>(
   'combobox',

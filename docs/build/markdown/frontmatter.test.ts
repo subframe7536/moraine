@@ -24,6 +24,36 @@ describe('parseFrontmatterData', () => {
     })
   })
 
+  test('validates an explicit API source registration', () => {
+    expect(
+      parseFrontmatterData(
+        `${VALID_FRONTMATTER}\napi:\n  path: src/overlays/dialog/dialog\n  parts:\n    - Trigger\n    - name: Content\n      path: src/overlays/shared/content\n`,
+        '/docs/dialog.mdx',
+      ).api,
+    ).toEqual({
+      path: 'src/overlays/dialog/dialog',
+      parts: ['Trigger', { name: 'Content', path: 'src/overlays/shared/content' }],
+    })
+  })
+
+  test.each([
+    ['src/elements/button/button.tsx', 'api.path must be an extensionless component path under'],
+    ['../button', 'api.path must be an extensionless component path under'],
+  ])('rejects invalid API paths', (apiPath, message) => {
+    expect(() =>
+      parseFrontmatterData(`${VALID_FRONTMATTER}\napi:\n  path: ${apiPath}\n`, '/docs/button.mdx'),
+    ).toThrow(message)
+  })
+
+  test('rejects duplicate composite parts', () => {
+    expect(() =>
+      parseFrontmatterData(
+        `${VALID_FRONTMATTER}\napi:\n  path: src/overlays/dialog/dialog\n  parts: [Trigger, Trigger]\n`,
+        '/docs/dialog.mdx',
+      ),
+    ).toThrow('api.parts[1] duplicates part "Trigger"')
+  })
+
   test.each([
     ['', 'frontmatter is required'],
     [VALID_FRONTMATTER.replace('title: Button\n', ''), 'title must be a non-empty string'],

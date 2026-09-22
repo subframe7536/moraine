@@ -18,7 +18,7 @@ import { callHandler } from '../../shared/utils'
 
 import { SidebarFrameProvider, useSidebarFrameContext } from './sidebar-frame-context'
 import { SidebarFrameTrigger } from './sidebar-frame-trigger'
-import { sidebarFrameRecipe } from './sidebar-frame.recipe'
+import { sidebarFrameDataAttributes, sidebarFrameRecipe } from './sidebar-frame.recipe'
 import type { SidebarFrameProps, SidebarFrameT } from './sidebar-frame.types'
 
 function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
@@ -37,8 +37,10 @@ function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
     return (
       <div
         data-slot="sidebar"
-        data-mobile={contentProps.mobile ? '' : undefined}
-        data-closed={context.isOpen() ? undefined : ''}
+        {...sidebarFrameDataAttributes.sidebar({
+          mobile: () => contentProps.mobile,
+          closed: () => !context.isOpen(),
+        })}
         hidden={!contentProps.mobile && context.isMobile()}
         aria-hidden={
           contentProps.mobile ? !context.isOpen() : context.isMobile() || !context.isOpen()

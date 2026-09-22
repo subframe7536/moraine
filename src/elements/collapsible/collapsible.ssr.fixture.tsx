@@ -12,3 +12,12 @@ export function renderCollapsibleFixture(): string {
     </Collapsible>
   ))
 }
+
+export function renderOpenCollapsibleFixture(): string {
+  return renderToString(() => (
+    <Collapsible defaultOpen transition unmountOnHide={false}>
+      <Collapsible.Trigger>Details</Collapsible.Trigger>
+      <Collapsible.Content as="section">Content</Collapsible.Content>
+    </Collapsible>
+  ))
+}

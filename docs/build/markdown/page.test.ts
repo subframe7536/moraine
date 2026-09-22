@@ -9,27 +9,23 @@ import { createDocsMdxOptions } from './page'
 const BUTTON_API_DOC: ComponentApi = {
   key: 'button',
   name: 'Button',
-  category: 'General',
   kind: 'single',
-  sourcePath: 'src/elements/button/button.tsx',
   parts: [
     {
       id: 'button',
       name: 'Button',
-      access: { kind: 'export', name: 'Button', package: 'moraine' },
-      sourcePath: 'src/elements/button/button.tsx',
+      access: { kind: 'export', name: 'Button' },
       props: [
         {
           name: 'variant',
           optional: true,
-          type: { text: 'string' },
-          group: 'styling',
+          type: 'string',
         },
       ],
-      slots: [],
-      runtime: [],
     },
   ],
+  slots: [],
+  dataAttributes: [],
 }
 
 vi.mock('../api-doc/load.ts', () => ({
@@ -38,13 +34,12 @@ vi.mock('../api-doc/load.ts', () => ({
       {
         key: BUTTON_API_DOC.key,
         name: BUTTON_API_DOC.name,
-        category: BUTTON_API_DOC.category,
-        kind: BUTTON_API_DOC.kind,
+        category: 'elements',
       },
     ],
   }),
-  loadComponentApiDoc: (_projectRoot: string, key: string) =>
-    key === 'button' ? BUTTON_API_DOC : null,
+  loadComponentApiDoc: (sourcePath: string) =>
+    sourcePath.includes('/button/') ? BUTTON_API_DOC : null,
 }))
 
 const FRONTMATTER = {
@@ -89,8 +84,7 @@ describe('createDocsMdxOptions', () => {
       group: 'general',
       sections: [
         { id: 'button', label: 'Button', level: 1 },
-        { id: 'api-reference', label: 'API', level: 1 },
-        { id: 'api-props', label: 'Props', level: 2 },
+        { id: 'api-reference', label: 'Props', level: 1 },
       ],
     })
     expect(extension?.routeConfig?.metadata).toEqual({
@@ -109,6 +103,9 @@ describe('createDocsMdxOptions', () => {
     expect(extension?.mdxContent).toContain('<MDXContent {...props} />')
     expect(extension?.mdxContent).toContain('metadata={')
     expect(extension?.mdxContent).toContain('"kind":"single"')
+    expect(extension?.mdxContent).toContain('"typeHtml":')
+    expect(extension?.mdxContent).toContain('--shiki-dark')
+    expect(BUTTON_API_DOC.parts[0]!.props[0]).not.toHaveProperty('typeHtml')
   })
 
   test('adds generated API sections after MDX headings', async () => {
@@ -133,8 +130,7 @@ describe('createDocsMdxOptions', () => {
     expect(extension?.routeConfig?.info).toMatchObject({
       sections: [
         { id: 'usage', label: 'Usage', level: 1 },
-        { id: 'api-reference', label: 'API', level: 1 },
-        { id: 'api-props', label: 'Props', level: 2 },
+        { id: 'api-reference', label: 'Props', level: 1 },
       ],
     })
   })

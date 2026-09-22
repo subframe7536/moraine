@@ -5,6 +5,9 @@ import { addIconSelectors } from '@iconify/tailwind'
 import { __unstable__loadDesignSystem, compile } from 'tailwindcss'
 import { describe, expect, test } from 'vitest'
 
+import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../elements/collapsible/collapsible.recipe.ts'
+import { sliderRecipe } from '../forms/slider/slider.recipe.ts'
+import { cn } from '../theme/style/cn.ts'
 import { DEFAULT_ICON_SHORTCUTS } from '../theme/style/icons'
 
 import { moraineTailwind } from './'
@@ -795,6 +798,24 @@ describe('z-index', () => {
 // ─── Animations ───────────────────────────────────────────────────────
 
 describe('animations', () => {
+  test('compiles disclosure child state and slider group state', async () => {
+    const tokens = [
+      ...COLLAPSIBLE_CONTENT_WRAPPER_CLASS.split(' '),
+      ...cn(sliderRecipe.config.variants?.variant?.bold?.range)!
+        .split(' ')
+        .filter((token) => token.includes('dragging')),
+    ]
+    const css = await compileCSS(tokens)
+    expect(css).toMatch(/:has\(\s*>\s*\[data-transition\]\[data-expanded\]\)/)
+    expect(css).toMatch(/:has\(\s*>\s*\[data-transition\]\[data-closed\]\)/)
+    expect(css).toContain('@keyframes accordion-down')
+    expect(css).toContain('@keyframes accordion-up')
+    expect(css).toMatch(/\[data-multiple\][^{\n]*::before/)
+    expect(css).toContain('::before')
+    expect(css).toContain('::after')
+    expect(css).toMatch(/transition-property:\s*none/)
+    expect(css).toMatch(/(?:\.group|:where\(\.group\))\[data-dragging\]/)
+  })
   test('compiles compound disclosure and instant tooltip states', async () => {
     const css = await compileCSS([
       'data-transition:data-expanded:animate-accordion-down',

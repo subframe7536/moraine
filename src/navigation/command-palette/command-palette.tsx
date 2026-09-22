@@ -21,7 +21,7 @@ import { renderComponentOrElement } from '../../shared/render-prop'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { callHandler, callRef, useId } from '../../shared/utils'
 
-import { commandPaletteRecipe } from './command-palette.recipe'
+import { commandPaletteDataAttributes, commandPaletteRecipe } from './command-palette.recipe'
 import type { CommandPaletteProps, CommandPaletteT } from './command-palette.types'
 
 interface NormalizedItem<TItem extends CommandPaletteT.Item = CommandPaletteT.Item> {
@@ -510,8 +510,10 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
         role="option"
         tabIndex={-1}
         data-slot="item"
-        data-disabled={item.disabled ? '' : undefined}
-        data-highlighted={activeKey() === item.key ? '' : undefined}
+        {...commandPaletteDataAttributes.item({
+          disabled: () => item.disabled,
+          highlighted: () => activeKey() === item.key,
+        })}
         aria-selected={activeKey() === item.key}
         aria-disabled={item.disabled || undefined}
         aria-posinset={merged.virtualRender ? visibleItemPositionByKey().get(item.key) : undefined}
@@ -569,7 +571,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
           name={merged.loading ? merged.loadingIcon : merged.leadingIcon}
           slotName="search"
           aria-busy={merged.loading || undefined}
-          data-loading={merged.loading ? '' : undefined}
+          {...commandPaletteDataAttributes.search({ loading: () => merged.loading })}
           {...resolved.styles.search}
         />
 

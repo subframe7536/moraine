@@ -1,20 +1,16 @@
 {
   "key": "button",
   "name": "Button",
-  "category": "elements",
   "description": "Props for the Button component.",
   "kind": "single",
-  "sourcePath": "src/elements/button/button.tsx",
   "parts": [
     {
       "id": "button",
       "name": "Button",
       "access": {
         "kind": "export",
-        "name": "Button",
-        "package": "moraine"
+        "name": "Button"
       },
-      "sourcePath": "src/elements/button/button.tsx",
       "description": "Props for the Button component.",
       "generics": [
         {
@@ -23,252 +19,138 @@
           "default": "'button'"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
+      "defaultElement": "button",
       "props": [
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Disabled state, including for non-button polymorphic roots.",
-          "group": "behavior"
-        },
-        {
-          "name": "loading",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Controlled loading state.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "loadingAuto",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Auto toggles loading while async click handlers are pending.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "slotName",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Root `data-slot` name",
-          "group": "behavior"
-        },
         {
           "name": "as",
           "optional": true,
-          "type": {
-            "text": "T"
-          },
+          "type": "T",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
             "value": "button"
-          },
-          "group": "rendering"
+          }
         },
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "ComponentOrElement<{ loading: boolean }>"
-          },
-          "description": "Children of the button. Supports render function form.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
-        },
-        {
-          "name": "leading",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Leading visual content, usually an icon.",
-          "group": "rendering"
-        },
-        {
-          "name": "loadingIcon",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Optional icon shown when `loading` is active.",
-          "default": {
-            "kind": "literal",
-            "value": "icon-loading"
-          },
-          "group": "rendering"
-        },
-        {
-          "name": "trailing",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Trailing visual content, usually an icon.",
-          "group": "rendering"
+          "type": "ComponentOrElement<{ loading: boolean }>",
+          "description": "Children of the button. Supports render function form."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Disabled state, including for non-button polymorphic roots."
+        },
+        {
+          "name": "leading",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Leading visual content, usually an icon."
+        },
+        {
+          "name": "loading",
+          "optional": true,
+          "type": "boolean",
+          "description": "Controlled loading state.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "loadingAuto",
+          "optional": true,
+          "type": "boolean",
+          "description": "Auto toggles loading while async click handlers are pending.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "loadingIcon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Optional icon shown when `loading` is active.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-loading"
+          }
         },
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'"
-          },
+          "type": "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'",
           "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
+        },
+        {
+          "name": "slotName",
+          "optional": true,
+          "type": "string",
+          "description": "Root `data-slot` name"
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "trailing",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Trailing visual content, usually an icon."
         },
         {
           "name": "variant",
           "optional": true,
-          "type": {
-            "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
-          },
+          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
           "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "default"
-          },
-          "group": "styling"
+          }
         }
-      ],
-      "slots": [
-        {
-          "name": "label",
-          "description": "Button content region after render-prop resolution."
-        },
-        {
-          "name": "leading",
-          "description": "Icon region before the button label."
-        },
-        {
-          "name": "loading",
-          "description": "Loading icon shown while the button is busy."
-        },
-        {
-          "name": "root",
-          "description": "Interactive button element, or the polymorphic element provided through `as`."
-        },
-        {
-          "name": "trailing",
-          "description": "Icon region after the button label."
-        }
-      ],
-      "runtime": [
-        {
-          "target": "leading",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Hides decorative content from assistive technology."
-            }
-          ]
-        },
-        {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "aria-busy",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Accessibility attribute forwarded by the rendered component."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-loading",
-              "kind": "data",
-              "description": "Present when the component or async operation is loading."
-            }
-          ]
-        },
-        {
-          "target": "trailing",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "values": [
-                "true"
-              ],
-              "description": "Hides decorative content from assistive technology."
-            }
-          ]
-        }
+      ]
+    }
+  ],
+  "slots": [
+    "root",
+    "loading",
+    "leading",
+    "label",
+    "trailing"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-disabled",
+        "data-loading"
       ]
     }
   ]

@@ -1,6 +1,29 @@
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
+import { createDataAttributes } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe.ts'
 
 import type { SliderStyleSlot, SliderStyleVariant } from './slider.style-types'
+
+export const sliderDataAttributes = {
+  root: createDataAttributes(
+    'disabled',
+    'dragging',
+    'invalid',
+    'inverted',
+    'multiple',
+    'readonly',
+    'required',
+  ),
+  range: createDataAttributes('inverted', 'multiple'),
+  thumb: createDataAttributes(
+    'disabled',
+    'dragging',
+    'invalid',
+    'inverted',
+    'readonly',
+    'required',
+  ),
+} satisfies DataAttributeContract<keyof SliderStyleSlot>
 
 export const sliderRecipe = /* @__PURE__ */ defineRecipe<SliderStyleSlot, SliderStyleVariant>(
   'slider',
@@ -51,7 +74,7 @@ export const sliderRecipe = /* @__PURE__ */ defineRecipe<SliderStyleSlot, Slider
           '--s-marker-position': 'max(var(--s-offset), calc(100% - 2 * var(--s-offset)))',
           track: 'cursor-pointer',
           range:
-            "rounded-[inherit] transition-[width,height,left,right,top,bottom] after:(rounded-full bg-primary-foreground/90 opacity-0 content-[''] transition-opacity absolute) group-focus-within:after:opacity-100 group-hover:after:opacity-100 data-dragging:transition-none data-dragging:after:opacity-100 data-multiple:before:(rounded-full bg-primary-foreground/90 opacity-0 content-[''] transition-opacity absolute) data-multiple:group-focus-within:before:opacity-100 data-multiple:group-hover:before:opacity-100 data-multiple:data-dragging:before:opacity-100",
+            "rounded-[inherit] transition-[width,height,left,right,top,bottom] after:(rounded-full bg-primary-foreground/90 opacity-0 content-[''] transition-opacity absolute) group-focus-within:after:opacity-100 group-hover:after:opacity-100 group-data-[dragging]:transition-none group-data-[dragging]:after:opacity-100 data-multiple:before:(rounded-full bg-primary-foreground/90 opacity-0 content-[''] transition-opacity absolute) data-multiple:group-focus-within:before:opacity-100 data-multiple:group-hover:before:opacity-100 data-multiple:group-data-[dragging]:before:opacity-100",
           divider: 'bg-muted-foreground/30',
           thumb: 'outline-none opacity-0 cursor-grab data-dragging:cursor-grabbing',
         },

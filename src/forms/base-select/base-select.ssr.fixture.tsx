@@ -24,3 +24,19 @@ export function renderBaseSelectFixture(): string {
     </BaseSelect>
   ))
 }
+
+export function renderBaseSelectItemFixture(): string {
+  function Label() {
+    return <span>One</span>
+  }
+  return renderToString(() => {
+    const item = { value: 1, label: <Label /> }
+    return (
+      <BaseSelect items={[{ value: 1, label: 'One' }]} defaultValue={[1]}>
+        <BaseSelect.Listbox>
+          <BaseSelect.Item item={item} />
+        </BaseSelect.Listbox>
+      </BaseSelect>
+    )
+  })
+}

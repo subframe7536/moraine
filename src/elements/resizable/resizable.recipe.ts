@@ -1,6 +1,16 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.style-types'
+
+export const resizableDataAttributes = {
+  root: createDataAttributes('resizable-root'),
+  panel: createDataAttributes('collapsed', 'expanded', 'resizing', 'transitioning'),
+  divider: createDataAttributes('active', 'cross', 'dragging'),
+  handle: createDataAttributes('collapse'),
+  crossTarget: createDataAttributes('resizable-handle-end-target', 'resizable-handle-start-target'),
+} satisfies DataAttributeContract<keyof ResizableStyleSlot>
 
 export const resizableRecipe = /* @__PURE__ */ defineRecipe<
   ResizableStyleSlot,

@@ -1,11 +1,7 @@
 export interface FormIdentityOptions {
-  /**
-   * The ID of the input element.
-   */
+  /** The ID of the input element. */
   id?: string
-  /**
-   * The name of the input element, used for form submission.
-   */
+  /** The name of the input element, used for form submission. */
   name?: string
 }
 
@@ -26,13 +22,9 @@ export interface FormRequiredOption {
 }
 
 export interface FormValueOptions<T> {
-  /**
-   * The current value of the input (controlled).
-   */
+  /** The current value of the input (controlled). */
   value?: T
-  /**
-   * The default value of the input (uncontrolled).
-   */
+  /** The default value of the input (uncontrolled). */
   defaultValue?: T
 }
 

@@ -1,6 +1,31 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { CheckboxStyleSlot, CheckboxStyleVariant } from './checkbox.style-types'
+
+export const checkboxDataAttributes = {
+  root: createDataAttributes(
+    'checked',
+    'disabled',
+    'indeterminate',
+    'invalid',
+    'readonly',
+    'required',
+    'unchecked',
+  ),
+  control: createDataAttributes(
+    'checked',
+    'disabled',
+    'indeterminate',
+    'invalid',
+    'readonly',
+    'required',
+    'unchecked',
+  ),
+  indicator: createDataAttributes('checked', 'disabled', 'indeterminate'),
+  label: createDataAttributes('required'),
+} satisfies DataAttributeContract<keyof CheckboxStyleSlot>
 
 export const checkboxRecipe = /* @__PURE__ */ defineRecipe<CheckboxStyleSlot, CheckboxStyleVariant>(
   'checkbox',

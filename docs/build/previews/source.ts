@@ -1,9 +1,5 @@
-import { parsePreviewCode as defaultParsePreviewCode } from './ast'
-import type { ParsePreviewCode, ProgramNode } from './ast'
-
-interface QueryResult {
-  name?: string
-}
+import { parsePreviewCode as defaultParsePreviewCode } from './ast.ts'
+import type { ParsePreviewCode, ProgramNode } from './ast.ts'
 
 interface NodeRange {
   start: number
@@ -28,21 +24,6 @@ function hasRange(value: unknown): value is NodeRange {
     typeof node.start === 'number' &&
     typeof node.end === 'number'
   )
-}
-
-function parsePreviewSourceQuery(id: string): QueryResult | null {
-  const queryIndex = id.indexOf('?')
-  if (queryIndex < 0) {
-    return null
-  }
-
-  const params = new URLSearchParams(id.slice(queryIndex + 1))
-  if (!params.has('preview-source')) {
-    return null
-  }
-
-  const name = params.get('name')
-  return name ? { name } : {}
 }
 
 function convertSrcImport(specifier: string): string {
@@ -130,7 +111,6 @@ function convertFallbackImports(code: string): string {
 
 export async function resolvePreviewComponentSource(
   code: string,
-  _name?: string,
   parseCode: ParsePreviewCode = defaultParsePreviewCode,
 ): Promise<string | null> {
   const trimmed = code.trim()
@@ -148,16 +128,10 @@ export async function resolvePreviewComponentSource(
 
 export async function transformPreviewSourceModule(
   code: string,
-  id: string,
   parsePreviewCode: ParsePreviewCode,
   toHtml: (src: string, lang: 'tsx') => Promise<string>,
 ): Promise<string | null> {
-  const query = parsePreviewSourceQuery(id)
-  if (!query) {
-    return null
-  }
-
-  const sourceText = await resolvePreviewComponentSource(code, query.name, parsePreviewCode)
+  const sourceText = await resolvePreviewComponentSource(code, parsePreviewCode)
   if (!sourceText) {
     return 'export default ""\n'
   }

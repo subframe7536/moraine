@@ -1,12 +1,3 @@
-export type PropGroup = 'state' | 'data' | 'behavior' | 'form' | 'rendering' | 'styling'
-
-export type PropTrait = 'callback' | 'render-prop' | 'positioning'
-
-export interface StateRelation {
-  key: string
-  role: 'value' | 'default' | 'change'
-}
-
 export type DefaultValue =
   | {
       kind: 'literal'
@@ -17,111 +8,64 @@ export type DefaultValue =
       text: string
     }
 
-export interface TypeApi {
-  text: string
-  refs?: string[]
-  resolution?: 'partial'
-}
-
 export interface GenericParameterApi {
   name: string
   constraint?: string
   default?: string
 }
 
-export interface RenderingApi {
-  rendersDom: boolean
-  defaultElement?: string
-  asProp?: string
-  polymorphic?: boolean | GenericParameterApi
-}
-
 export type AccessApi =
-  | { kind: 'export'; name: string; package: 'moraine' }
+  | { kind: 'export'; name: string }
   | { kind: 'attached'; root: string; member: string }
   | { kind: 'factory-member'; factory: string; member: string }
-
-export interface RuntimeAttributeApi {
-  name: string
-  kind: 'data' | 'aria' | 'role' | 'css'
-  values?: string[]
-  description?: string
-}
-
-export interface RuntimeTargetApi {
-  target: string
-  attributes: RuntimeAttributeApi[]
-}
-
-export interface SlotApi {
-  name: string
-  description?: string
-}
-
-export interface PropOrigin {
-  declaredIn?: string
-  module?: string
-  inheritedVia?: string
-}
 
 export interface PropApi {
   name: string
   optional: boolean
-  type: TypeApi
+  type: string
+  typeDetails?: string
+  /** Build-time HTML for the web reference only. */
+  typeHtml?: string
   description?: string
   default?: DefaultValue
-  group: PropGroup
-  traits?: PropTrait[]
-  state?: StateRelation
-  origin?: PropOrigin
 }
 
 export interface PartApi {
   id: string
   name: string
   access: AccessApi
-  sourcePath: string
   description?: string
   generics?: GenericParameterApi[]
-  rendering?: RenderingApi
+  defaultElement?: string
   props: PropApi[]
-  slots: SlotApi[]
-  runtime: RuntimeTargetApi[]
-}
-
-export interface ItemPropertyApi {
-  name: string
-  optional: boolean
-  type: TypeApi
-  description?: string
-  default?: DefaultValue
 }
 
 export interface ItemApi {
-  name?: string
   description?: string
   generics?: GenericParameterApi[]
-  props: ItemPropertyApi[]
+  props: PropApi[]
+}
+
+export interface DataAttributeTargetApi {
+  target: string
+  attributes: string[]
 }
 
 export interface ComponentApi {
   key: string
   name: string
-  category: string
   description?: string
   kind: 'single' | 'composite'
-  sourcePath: string
   parts: PartApi[]
   item?: ItemApi
+  slots: string[]
+  dataAttributes: DataAttributeTargetApi[]
 }
 
 export interface ComponentIndexEntry {
   key: string
   name: string
   category: string
-  description?: string
-  kind: 'single' | 'composite'
-  sourcePath?: string
 }
 
 export interface IndexDoc {

@@ -1,6 +1,16 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { ModalStyleSlot } from './modal.style-types'
+
+type ModalDataSlot = keyof ModalStyleSlot | 'trigger'
+
+export const modalDataAttributes = {
+  trigger: createDataAttributes('closed', 'disabled', 'expanded'),
+  overlay: createDataAttributes('closed', 'expanded', 'overlay-scroll'),
+  content: createDataAttributes('closed', 'expanded'),
+} satisfies DataAttributeContract<ModalDataSlot>
 
 /** Default backdrop classes for modal overlays. */
 export const MODAL_OVERLAY_CLASS =

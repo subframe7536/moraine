@@ -1,6 +1,14 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { TabsStyleSlot, TabsStyleVariant } from './tabs.style-types'
+
+export const tabsDataAttributes = {
+  root: createDataAttributes('disabled'),
+  trigger: createDataAttributes('disabled', 'highlighted', 'selected'),
+  content: createDataAttributes('selected'),
+} satisfies DataAttributeContract<keyof TabsStyleSlot>
 
 export const tabsRecipe = /* @__PURE__ */ defineRecipe<TabsStyleSlot, TabsStyleVariant>('tabs', {
   base: {

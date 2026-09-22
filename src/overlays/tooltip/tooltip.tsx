@@ -22,7 +22,7 @@ import { resolveOverlayMenuSide } from '../base'
 import { createPopper, PopperTrigger, PopperContent, mergePopperElementProps } from '../base/popper'
 import type { PopperTriggerProps } from '../base/popper.types'
 
-import { tooltipRecipe } from './tooltip.recipe'
+import { tooltipContentDataAttributes, tooltipRecipe } from './tooltip.recipe'
 import type { TooltipProps, TooltipT } from './tooltip.types'
 
 // This wrapper needs library transition styling, but has no stable user/Theme override value.
@@ -421,12 +421,15 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
           return value === undefined ? resolveChildren(() => local.children)() : value
         })
         const kbds = createMemo(() => local.kbds)
+        const contentDataAttrs = tooltipContentDataAttributes({
+          side: () => resolveOverlayMenuSide(context.currentPlacement() || local.side || 'top'),
+          instantMotion: behavior.instantMotion,
+        })
         return (
           <div
             {...mergePopperElementProps(contentProps, rest)}
             data-slot="content"
-            data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'top')}
-            data-instant-motion={behavior.instantMotion() ? '' : undefined}
+            {...contentDataAttrs}
             {...resolved.styles.content}
           >
             <Show when={typeof text() === 'string'} fallback={text()}>

@@ -2,827 +2,288 @@ import type { JSX } from 'solid-js'
 import { createMemo, createSignal, For, Show } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Badge, Icon, Input, Select, cn } from '../../../../src'
-import { InputGroup } from '../../../../src/forms/input-group/index.ts'
-import { createMediaQuery } from '../../../../src/shared/use-media-query'
+import { Badge, Collapsible, Select, cn, Icon } from '../../../../src'
 import {
   createApiReferenceModel,
   getApiReferenceTocEntries,
 } from '../../../build/api-doc/presentation'
 import type {
+  ApiReferencePresentationModel,
+  PresentationAttributeItem,
+  PresentationAttributesSection,
+  PresentationPartSection,
   PresentationPropItem,
-  PresentationRuntimeTargetItem,
-  PresentationSlotItem,
 } from '../../../build/api-doc/presentation'
 import type { ComponentApi } from '../../../build/api-doc/types'
 import {
-  MARKDOWN_ANCHOR_HEADING_CLASS,
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
+  MARKDOWN_ANCHOR_HEADING_CLASS,
   MARKDOWN_ANCHOR_LINK_CLASS,
 } from '../../../build/markdown/shared.class'
 
-export interface ApiAttributeDoc {
-  name: string
-  type: string
-  description?: string
-  required?: boolean
-}
-
-export interface SlotReferenceDoc {
-  name: string
-  description?: string
-  cssVariables: ApiAttributeDoc[]
-  dataAttributes: ApiAttributeDoc[]
-  ariaAttributes: ApiAttributeDoc[]
-}
-
-export type SlotDoc = SlotReferenceDoc
 export type PropDoc = PresentationPropItem
 
-export interface PropsTableProps {
-  sections: PropsTableSection[]
+const REFERENCE_ROOT_CLASS =
+  'mt-3 mb-6 border border-border/60 bg-card/20 overflow-hidden [content-visibility:auto]'
+const PROP_GRID_CLASS =
+  'grid grid-cols-[minmax(0,1fr)_2.5rem] sm:grid-cols-[minmax(8rem,5fr)_minmax(0,7fr)_2.5rem] lg:grid-cols-[minmax(8rem,5fr)_minmax(0,7fr)_minmax(6rem,4.5fr)_2.5rem]'
+const ATTRIBUTE_GRID_CLASS =
+  'grid grid-cols-1 md:grid-cols-[minmax(8rem,4fr)_minmax(8rem,4fr)_minmax(0,8fr)]'
+
+function ReferenceChevron(): JSX.Element {
+  return (
+    <span class="flex h-full items-center justify-center" aria-hidden="true">
+      <svg
+        class="group-data-expanded:rotate-180 transition-transform"
+        width="10"
+        height="10"
+        viewBox="0 0 10 10"
+        fill="none"
+      >
+        <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" />
+      </svg>
+    </span>
+  )
 }
 
-export interface InheritedGroupDoc {
-  from: string
-  props: PropDoc[]
-}
-
-export interface ComponentPropsDoc {
-  own: PropDoc[]
-  inherited: InheritedGroupDoc[]
-}
-
-export interface PropsTableSection {
-  id: string
-  heading: string
-  description?: string
-  accessText?: string
-  nameColumn?: string
-  badges?: string[]
-  props: PropDoc[]
-  slots?: SlotReferenceDoc[]
-  groups?: {
-    id?: string
-    heading: string
-    description?: string
-    props: PropDoc[]
-  }[]
-}
-
-type AttributeGroupKind = 'css' | 'data' | 'aria'
-
-interface FlatAttributeItem {
-  slotName: string
-  kind: AttributeGroupKind
-  attribute: ApiAttributeDoc
-}
-
-function normalizeType(type: string): string {
-  let result = type
-  result = result.replaceAll('cls_variant0.', '').replaceAll('_$', '')
-  return result
-}
-
-function getSlotMetadataCount(slot: SlotReferenceDoc): number {
-  return slot.cssVariables.length + slot.dataAttributes.length + slot.ariaAttributes.length
-}
-
-function formatAttributeCount(count: number): string {
-  return count === 1 ? '1 attribute' : `${count} attributes`
-}
-
-function getAttributeGroupTone(kind: AttributeGroupKind): {
-  dot: string
-  pill: string
-  badge: string
-} {
-  if (kind === 'css') {
-    return {
-      dot: 'text-emerald-700 bg-emerald-500/10 border-emerald-500/20',
-      pill: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/25 hover:border-emerald-500/50',
-      badge: 'text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border-emerald-500/20',
-    }
-  }
-
-  if (kind === 'aria') {
-    return {
-      dot: 'text-sky-700 bg-sky-500/10 border-sky-500/20',
-      pill: 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/25 hover:border-sky-500/50',
-      badge: 'text-sky-700 dark:text-sky-300 bg-sky-500/10 border-sky-500/20',
-    }
-  }
-
-  return {
-    dot: 'text-primary bg-primary/10 border-primary/20',
-    pill: 'bg-primary/10 text-primary border-primary/25 hover:border-primary/50',
-    badge: 'text-primary bg-primary/10 border-primary/20',
-  }
-}
-
-function buildSlotReferenceDocs(
-  slots?: PresentationSlotItem[],
-  runtime?: PresentationRuntimeTargetItem[],
-): SlotReferenceDoc[] {
-  const slotMap = new Map<string, SlotReferenceDoc>()
-
-  for (const slot of slots ?? []) {
-    slotMap.set(slot.name, {
-      name: slot.name,
-      ...(slot.description ? { description: slot.description } : {}),
-      cssVariables: [],
-      dataAttributes: [],
-      ariaAttributes: [],
-    })
-  }
-
-  for (const target of runtime ?? []) {
-    let slot = slotMap.get(target.target)
-    if (!slot) {
-      slot = {
-        name: target.target,
-        cssVariables: [],
-        dataAttributes: [],
-        ariaAttributes: [],
-      }
-      slotMap.set(target.target, slot)
-    }
-
-    for (const attr of target.attributes) {
-      const doc: ApiAttributeDoc = {
-        name: attr.name,
-        type: attr.values && attr.values.length > 0 ? attr.values.join(' | ') : 'string',
-        ...(attr.description ? { description: attr.description } : {}),
-      }
-
-      if (attr.kind === 'css') {
-        slot.cssVariables.push(doc)
-      } else if (attr.kind === 'data') {
-        slot.dataAttributes.push(doc)
-      } else if (attr.kind === 'aria' || attr.kind === 'role') {
-        slot.ariaAttributes.push(doc)
-      }
-    }
-  }
-
-  return [...slotMap.values()]
-}
-
-export function createDocsApiReferenceModel(
-  apiDoc: ComponentApi | undefined,
-): DocsApiReferenceModel {
-  const sections: PropsTableSection[] = []
-  if (!apiDoc) {
-    return { sections }
-  }
-
-  const model = createApiReferenceModel(apiDoc)
-  if (!model) {
-    return { sections }
-  }
-
-  if (model.kind === 'single') {
-    const rootPart = model.parts[0]
-    if (rootPart) {
-      const slots = buildSlotReferenceDocs(rootPart.slots, rootPart.runtime)
-      if (slots.length > 0) {
-        sections.push({
-          id: 'attributes',
-          heading: 'Attributes',
-          slots,
-          props: [],
-        })
-      }
-
-      if (rootPart.propGroups.length > 0) {
-        sections.push({
-          id: 'api-props',
-          heading: 'Props',
-          props: rootPart.propGroups.flatMap((g) => g.props),
-          groups: rootPart.propGroups.map((g) => ({
-            id: g.id,
-            heading: g.heading,
-            props: g.props,
-          })),
-        })
-      }
-    }
-
-    if (model.item) {
-      sections.push({
-        id: model.item.id,
-        heading: model.item.heading,
-        description: model.item.description,
-        props: model.item.props,
-      })
-    }
-  } else {
-    for (const part of model.parts) {
-      const slots = buildSlotReferenceDocs(part.slots, part.runtime)
-      const allProps = part.propGroups.flatMap((g) => g.props)
-
-      sections.push({
-        id: part.id,
-        heading: part.heading,
-        description: part.description,
-        accessText: part.accessText,
-        props: allProps,
-        groups: part.propGroups.map((g) => ({
-          id: g.id,
-          heading: g.heading,
-          props: g.props,
-        })),
-        slots: slots.length > 0 ? slots : undefined,
-      })
-    }
-
-    if (model.item) {
-      sections.push({
-        id: model.item.id,
-        heading: model.item.heading,
-        description: model.item.description,
-        props: model.item.props,
-      })
-    }
-  }
-
-  return { sections }
-}
-
-export function getDocsApiReferenceTocEntries(apiDoc: ComponentApi | undefined) {
-  return getApiReferenceTocEntries(apiDoc)
-}
-
-function PropRows(tableProps: {
-  props: PropDoc[]
-  nameColumn?: string
-  nameColumnClass?: string
-  minimal?: boolean
-  class?: string
-}): JSX.Element {
+function PropDetails(props: { prop: PropDoc }): JSX.Element {
   return (
     <div
-      class={cn(
-        'mb-6 mt-4 border border-border/60 rounded-xl bg-card/30 overflow-x-auto',
-        tableProps.class,
-      )}
+      role="region"
+      aria-labelledby={`${props.prop.anchorId}-trigger`}
+      class="px-3 py-3 border-t border-border/40 sm:px-4"
     >
-      <table class="text-sm m-0 w-full border-collapse">
-        <thead>
-          <tr class="text-[0.7rem] text-muted-foreground/80 tracking-wider text-left bg-muted/40 uppercase">
-            <th class={cn('font-semibold px-3.5 py-2.5', tableProps.nameColumnClass)}>
-              {tableProps.nameColumn ?? 'Prop'}
-            </th>
-            <Show when={!tableProps.minimal}>
-              <th class="font-semibold px-3.5 py-2.5">Type</th>
-            </Show>
-            <Show when={!tableProps.minimal}>
-              <th class="font-semibold px-3.5 py-2.5">Default</th>
-            </Show>
-            <th class="font-semibold px-3.5 py-2.5">Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <For each={tableProps.props}>
-            {(prop) => (
-              <tr class="border-t border-border/40 transition-colors hover:bg-muted/30">
-                <td class="text-xs text-primary font-medium font-mono px-3.5 py-2.5 whitespace-nowrap">
-                  {prop.name}
-                  {!prop.optional ? '*' : ''}
-                </td>
-                <Show when={!tableProps.minimal}>
-                  <td class="px-3.5 py-2.5">
-                    <code class="text-xs text-muted-foreground font-mono px-1.5 py-0.5 border border-border/40 rounded-md bg-muted/70">
-                      {normalizeType(prop.type)}
-                    </code>
-                  </td>
-                </Show>
-                <Show when={!tableProps.minimal}>
-                  <td class="text-xs text-muted-foreground px-3.5 py-2.5">
-                    <Show
-                      when={prop.defaultValue !== undefined}
-                      fallback={<span class="text-muted-foreground/60">—</span>}
-                    >
-                      <code class="font-mono px-1.5 py-0.5 border border-border/40 rounded-md bg-muted/70">
-                        {prop.defaultValue}
-                      </code>
-                    </Show>
-                  </td>
-                </Show>
-                <td class="text-xs text-muted-foreground leading-relaxed px-3.5 py-2.5">
-                  <Show
-                    when={prop.description}
-                    fallback={<span class="text-muted-foreground/60">—</span>}
-                  >
-                    {(description) => (
-                      <div
-                        // oxlint-disable-next-line subf/solid-no-innerhtml
-                        innerHTML={description()}
-                      />
-                    )}
-                  </Show>
-                </td>
-              </tr>
+      <dl class="text-sm m-0 gap-x-4 gap-y-3 grid sm:grid-cols-[8rem_minmax(0,1fr)]">
+        <dt class="text-xs text-muted-foreground font-medium">Name</dt>
+        <dd class="m-0 min-w-0">
+          <a
+            href={`#${props.prop.anchorId}`}
+            class="text-primary font-mono underline underline-offset-4 hover:underline-0"
+          >
+            {props.prop.name}
+          </a>
+        </dd>
+
+        <Show when={props.prop.description}>
+          {(description) => (
+            <>
+              <dt class="text-xs text-muted-foreground font-medium sm:pt-3 sm:border-t sm:border-border/30">
+                Description
+              </dt>
+              <dd
+                class="text-muted-foreground leading-relaxed m-0 min-w-0 sm:pt-3 sm:border-t sm:border-border/30"
+                // oxlint-disable-next-line subf/solid-no-innerhtml
+                innerHTML={description()}
+              />
+            </>
+          )}
+        </Show>
+
+        <dt class="text-xs text-muted-foreground font-medium sm:pt-3 sm:border-t sm:border-border/30">
+          Type
+        </dt>
+        <dd class="m-0 min-w-0 sm:pt-3 sm:border-t sm:border-border/30">
+          <Show
+            when={props.prop.typeHtml}
+            fallback={
+              <code class="text-xs text-foreground font-mono whitespace-pre-wrap break-words">
+                {props.prop.type}
+              </code>
+            }
+          >
+            {(html) => (
+              <div
+                class="text-xs font-mono [&_code]:text-inherit [&_code]:font-inherit [&_pre]:m-0 [&_pre]:whitespace-pre-wrap [&_pre]:break-words"
+                // oxlint-disable-next-line subf/solid-no-innerhtml
+                innerHTML={html()}
+              />
             )}
-          </For>
-        </tbody>
-      </table>
+          </Show>
+        </dd>
+
+        <Show when={props.prop.defaultValue !== undefined}>
+          <dt class="text-xs text-muted-foreground font-medium sm:pt-3 sm:border-t sm:border-border/30">
+            Default
+          </dt>
+          <dd class="m-0 min-w-0 sm:pt-3 sm:border-t sm:border-border/30">
+            <code class="text-xs text-foreground font-mono">{props.prop.defaultValue}</code>
+          </dd>
+        </Show>
+      </dl>
     </div>
   )
 }
 
-function AttributeRow(props: {
-  attribute: ApiAttributeDoc
-  kind: AttributeGroupKind
-  slotName?: string
-  copiedKey: string | null
-  onCopy: (text: string, key: string) => void
-}): JSX.Element {
-  const isCopiedName = () =>
-    props.copiedKey === `name:${props.attribute.name}:${props.slotName ?? ''}`
-  const tone = createMemo(() => getAttributeGroupTone(props.kind))
+function PropRowItem(props: { prop: PropDoc }): JSX.Element {
+  const requiredText = () => (props.prop.optional ? '' : ', required')
+  const defaultText = () =>
+    props.prop.defaultValue === undefined ? '' : `, default: ${props.prop.defaultValue}`
 
   return (
-    <tr class="group border-t border-border/40 transition-colors hover:bg-muted/30">
-      <td class="px-3.5 py-3 align-top whitespace-nowrap">
-        <div class="flex gap-2 items-center">
-          <button
-            type="button"
-            onClick={() =>
-              props.onCopy(
-                props.attribute.name,
-                `name:${props.attribute.name}:${props.slotName ?? ''}`,
-              )
-            }
-            class={cn(
-              'group/btn text-xs font-medium font-mono px-2 py-1 text-left border rounded-md flex gap-1.5 cursor-pointer transition-all items-center',
-              tone().pill,
-            )}
-            title="Click to copy attribute name"
-          >
-            <span>{props.attribute.name}</span>
-            <Icon
-              name={isCopiedName() ? 'i-lucide:check' : 'i-lucide:copy'}
-              class={cn(
-                'shrink-0 size-3 transition-opacity',
-                isCopiedName()
-                  ? 'text-emerald-600 opacity-100 dark:text-emerald-400'
-                  : 'text-muted-foreground opacity-0 group-hover/btn:opacity-100',
-              )}
-            />
-          </button>
-          <Show when={isCopiedName()}>
-            <span class="text-[0.68rem] text-emerald-600 font-medium animate-fade-in dark:text-emerald-400">
-              Copied!
-            </span>
+    <Collapsible id={props.prop.anchorId} transition class="group border-t border-border/40">
+      <Collapsible.Trigger
+        aria-label={`${props.prop.name}${requiredText()}, type: ${props.prop.summaryType}${defaultText()}`}
+        class={cn(
+          PROP_GRID_CLASS,
+          'text-sm p-0 text-left min-h-10 w-full cursor-pointer transition-colors items-stretch hover:bg-muted/30',
+        )}
+      >
+        <span class="text-foreground font-medium font-mono px-3 py-2.5 min-w-0 truncate">
+          {props.prop.name}
+          <Show when={!props.prop.optional}>
+            <span aria-hidden="true">*</span>
+            <span class="sr-only"> (required)</span>
           </Show>
-        </div>
-      </td>
-      <Show when={props.slotName}>
-        <td class="px-3.5 py-3 align-top whitespace-nowrap">
-          <span class="text-xs text-muted-foreground font-mono px-2 py-0.5 border border-border/40 rounded-md bg-muted/60">
-            {props.slotName}
-          </span>
-        </td>
-      </Show>
-      <td class="px-3.5 py-3 align-top whitespace-nowrap">
-        <code class="text-xs text-muted-foreground font-mono px-1.5 py-0.5 border border-border/40 rounded-md bg-muted/70">
-          {normalizeType(props.attribute.type)}
-        </code>
-      </td>
-      <td class="px-3.5 py-3 align-top min-w-64">
-        <Show
-          when={props.attribute.description}
-          fallback={<span class="text-muted-foreground/60">—</span>}
+        </span>
+        <code
+          class="text-xs text-muted-foreground font-mono px-3 py-2.5 min-w-0 hidden truncate sm:block"
+          title={props.prop.type}
         >
-          <div
-            class="text-xs text-muted-foreground leading-relaxed [&_code]:(text-[0.7rem] font-mono px-1 py-0.2 border border-border/40 rounded bg-muted/80)"
-            // oxlint-disable-next-line subf/solid-no-innerhtml
-            innerHTML={props.attribute.description}
-          />
-        </Show>
-      </td>
-    </tr>
+          {props.prop.summaryType}
+        </code>
+        <span class="text-xs text-muted-foreground font-mono px-3 py-2.5 min-w-0 hidden truncate lg:block">
+          {props.prop.defaultValue ?? '—'}
+        </span>
+        <ReferenceChevron />
+      </Collapsible.Trigger>
+      <Collapsible.Content class="bg-muted/50">
+        <PropDetails prop={props.prop} />
+      </Collapsible.Content>
+    </Collapsible>
   )
 }
 
-function AttributeCategoryTable(props: {
-  kind: AttributeGroupKind
-  title: string
-  nameColumn: string
-  attributes: ApiAttributeDoc[]
-  slotName?: string
-  copiedKey: string | null
-  onCopy: (text: string, key: string) => void
-}): JSX.Element {
-  const tone = createMemo(() => getAttributeGroupTone(props.kind))
+function PropRows(props: { props: PropDoc[] }): JSX.Element {
+  return (
+    <div class={REFERENCE_ROOT_CLASS}>
+      <div
+        class={cn(
+          PROP_GRID_CLASS,
+          'text-[0.7rem] text-muted-foreground tracking-wider bg-muted/40 uppercase',
+        )}
+      >
+        <span role="columnheader" class="font-semibold px-3 py-2">
+          Prop
+        </span>
+        <span role="columnheader" class="font-semibold px-3 py-2 hidden sm:block">
+          Type
+        </span>
+        <span role="columnheader" class="font-semibold px-3 py-2 hidden lg:block">
+          Default
+        </span>
+        <span aria-hidden="true" />
+      </div>
+      <For each={props.props}>{(prop) => <PropRowItem prop={prop} />}</For>
+    </div>
+  )
+}
+
+function AttributeRow(props: { attribute: PresentationAttributeItem }): JSX.Element {
+  return (
+    <div
+      data-attribute={props.attribute.name}
+      class={cn(ATTRIBUTE_GRID_CLASS, 'text-sm border-t border-border/40 min-h-10')}
+    >
+      <code class="font-medium font-mono px-3 py-2.5 min-w-0 truncate">{props.attribute.name}</code>
+      <span class="text-muted-foreground px-3 pb-2.5 min-w-0 md:py-2.5">
+        <span class="font-medium md:hidden">Slot: </span>
+        {props.attribute.slots.join(', ')}
+      </span>
+      <span class="text-muted-foreground leading-relaxed px-3 pb-2.5 min-w-0 md:py-2.5">
+        <span class="font-medium md:hidden">Description: </span>
+        {props.attribute.description ?? '—'}
+      </span>
+    </div>
+  )
+}
+
+function EmptyAttributes(): JSX.Element {
+  return (
+    <div role="status" class="px-4 py-8 border-t border-border/40 flex flex-col items-center">
+      <Icon name="i-lucide:square-dashed" />
+      <div class="text-sm font-medium mt-3">No attributes</div>
+      <div class="text-xs text-muted-foreground mt-1">
+        This slot does not expose any public data attributes.
+      </div>
+    </div>
+  )
+}
+
+const ALL_SLOTS = '__all__'
+
+function AttributesSection(props: { attributes: PresentationAttributesSection }): JSX.Element {
+  const [selectedSlot, setSelectedSlot] = createSignal(ALL_SLOTS)
+  const visibleAttributes = () => {
+    const slot = selectedSlot()
+    return slot === ALL_SLOTS
+      ? props.attributes.items
+      : props.attributes.items.filter((attribute) => attribute.slots.includes(slot))
+  }
+  const filterId = 'api-attributes-slot-filter'
 
   return (
-    <section class="border border-border/60 rounded-xl bg-card/30 overflow-hidden">
-      <div class="px-3.5 py-2.5 border-b border-border/50 bg-muted/40 flex gap-3 items-center justify-between">
-        <div class="flex gap-2 min-w-0 items-center">
-          <span aria-hidden="true" class={cn('border rounded-full shrink-0 size-2', tone().dot)} />
-          <h4 class="text-[0.7rem] text-foreground tracking-wider font-semibold truncate uppercase">
-            {props.title}
-          </h4>
-        </div>
-        <span
+    <section class="border-t border-border/40">
+      <HeadingWithAnchor id={props.attributes.id} level={2}>
+        {props.attributes.heading}
+      </HeadingWithAnchor>
+      <div class="mt-3 flex justify-start">
+        <label for={filterId} class="sr-only">
+          Filter attributes by slot
+        </label>
+        <Select
+          id={filterId}
+          aria-label="Filter attributes by slot"
+          size="sm"
+          class="w-48"
+          classes={{
+            content: 'max-h-60',
+            item: 'justify-between',
+          }}
+          items={[
+            { value: ALL_SLOTS, label: `All slots`, count: props.attributes.items.length },
+            ...props.attributes.slots.map((slot) => ({
+              value: slot,
+              label: slot,
+              count: props.attributes.items.filter((attribute) => attribute.slots.includes(slot))
+                .length,
+            })),
+          ]}
+          value={selectedSlot()}
+          onChange={(value) => setSelectedSlot(value ?? ALL_SLOTS)}
+          itemRender={(props) => (
+            <>
+              <div>{props.item.label}</div>
+              <Show when={props.item.count > 0}>
+                <Badge variant="outline">{props.item.count}</Badge>
+              </Show>
+            </>
+          )}
+        />
+      </div>
+      <div class={REFERENCE_ROOT_CLASS}>
+        <div
           class={cn(
-            'text-[0.68rem] font-medium font-mono px-1.5 py-0.5 border rounded-md shrink-0',
-            tone().badge,
+            ATTRIBUTE_GRID_CLASS,
+            'text-[0.7rem] text-muted-foreground tracking-wider bg-muted/40 uppercase',
           )}
         >
-          {props.attributes.length}
-        </span>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="text-sm m-0 w-full border-collapse">
-          <thead>
-            <tr class="text-[0.68rem] text-muted-foreground/80 tracking-wider text-left bg-muted/20 uppercase">
-              <th class="font-semibold px-3.5 py-2.5">{props.nameColumn}</th>
-              <Show when={props.slotName}>
-                <th class="font-semibold px-3.5 py-2.5">Slot</th>
-              </Show>
-              <th class="font-semibold px-3.5 py-2.5">Type</th>
-              <th class="font-semibold px-3.5 py-2.5">Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <For each={props.attributes}>
-              {(attr) => (
-                <AttributeRow
-                  attribute={attr}
-                  kind={props.kind}
-                  slotName={props.slotName}
-                  copiedKey={props.copiedKey}
-                  onCopy={props.onCopy}
-                />
-              )}
-            </For>
-          </tbody>
-        </table>
+          <span role="columnheader" class="font-semibold px-3 py-2">
+            Attributes
+          </span>
+          <span role="columnheader" class="font-semibold px-3 py-2 hidden md:block">
+            Slot
+          </span>
+          <span role="columnheader" class="font-semibold px-3 py-2 hidden md:block">
+            Description
+          </span>
+        </div>
+        <Show when={visibleAttributes().length > 0} fallback={<EmptyAttributes />}>
+          <For each={visibleAttributes()}>
+            {(attribute) => <AttributeRow attribute={attribute} />}
+          </For>
+        </Show>
       </div>
     </section>
-  )
-}
-
-function AttributesSection(props: { section: PropsTableSection }): JSX.Element {
-  const isMobile = createMediaQuery('(max-width: 767px)', false)
-  const slotOptions = createMemo(() => props.section.slots ?? [])
-  const firstSlotName = createMemo(() => slotOptions()[0]?.name)
-
-  const [selectedSlotName, setSelectedSlotName] = createSignal<string | undefined>()
-  const [viewMode, setViewMode] = createSignal<'slot' | 'all'>('slot')
-  const [searchQuery, setSearchQuery] = createSignal('')
-  const [copiedKey, setCopiedKey] = createSignal<string | null>(null)
-
-  const handleCopy = async (text: string, key: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedKey(key)
-      setTimeout(() => {
-        if (copiedKey() === key) {
-          setCopiedKey(null)
-        }
-      }, 1600)
-    } catch {}
-  }
-
-  const activeSlotName = createMemo(() => {
-    const candidate = selectedSlotName()
-    if (candidate && slotOptions().some((slot) => slot.name === candidate)) {
-      return candidate
-    }
-    return firstSlotName()
-  })
-
-  const activeSlot = createMemo(() => slotOptions().find((slot) => slot.name === activeSlotName()))
-
-  const totalAttributeCount = createMemo(() =>
-    slotOptions().reduce((sum, slot) => sum + getSlotMetadataCount(slot), 0),
-  )
-
-  const flatAttributes = createMemo<FlatAttributeItem[]>(() => {
-    const query = searchQuery().trim().toLowerCase()
-    const items: FlatAttributeItem[] = []
-
-    for (const slot of slotOptions()) {
-      for (const attr of slot.cssVariables) {
-        if (
-          !query ||
-          attr.name.toLowerCase().includes(query) ||
-          attr.description?.toLowerCase().includes(query) ||
-          slot.name.toLowerCase().includes(query)
-        ) {
-          items.push({ slotName: slot.name, kind: 'css', attribute: attr })
-        }
-      }
-      for (const attr of slot.dataAttributes) {
-        if (
-          !query ||
-          attr.name.toLowerCase().includes(query) ||
-          attr.description?.toLowerCase().includes(query) ||
-          slot.name.toLowerCase().includes(query)
-        ) {
-          items.push({ slotName: slot.name, kind: 'data', attribute: attr })
-        }
-      }
-      for (const attr of slot.ariaAttributes) {
-        if (
-          !query ||
-          attr.name.toLowerCase().includes(query) ||
-          attr.description?.toLowerCase().includes(query) ||
-          slot.name.toLowerCase().includes(query)
-        ) {
-          items.push({ slotName: slot.name, kind: 'aria', attribute: attr })
-        }
-      }
-    }
-
-    return items
-  })
-
-  const filteredSlotAttributes = createMemo(() => {
-    const slot = activeSlot()
-    if (!slot) {
-      return { css: [], data: [], aria: [] }
-    }
-    const query = searchQuery().trim().toLowerCase()
-    const filterList = (list: ApiAttributeDoc[]) =>
-      query
-        ? list.filter(
-            (attr) =>
-              attr.name.toLowerCase().includes(query) ||
-              attr.description?.toLowerCase().includes(query) ||
-              attr.type.toLowerCase().includes(query),
-          )
-        : list
-
-    return {
-      css: filterList(slot.cssVariables),
-      data: filterList(slot.dataAttributes),
-      aria: filterList(slot.ariaAttributes),
-    }
-  })
-
-  const filteredSlotMatchCount = createMemo(() => {
-    const current = filteredSlotAttributes()
-    return current.css.length + current.data.length + current.aria.length
-  })
-
-  return (
-    <div class="mt-4 space-y-4">
-      {/* Control Bar: Search & View Mode Toggle */}
-      <div class="flex flex-col gap-2.5 sm:(flex-row items-center justify-between)">
-        <div class="flex-1 max-w-sm relative">
-          <InputGroup size="sm" class="text-xs w-full">
-            <InputGroup.Leading>
-              <Icon name="i-lucide:search" />
-            </InputGroup.Leading>
-            <Input
-              placeholder="Filter attributes & slots..."
-              value={searchQuery()}
-              onInput={(e) => setSearchQuery(e.currentTarget.value)}
-            />
-          </InputGroup>
-          <Show when={searchQuery()}>
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              class="text-xs text-muted-foreground p-0.5 rounded cursor-pointer right-2.5 top-1/2 absolute hover:text-foreground -translate-y-1/2"
-              aria-label="Clear filter"
-            >
-              <Icon name="i-lucide:x" class="size-3.5" />
-            </button>
-          </Show>
-        </div>
-
-        <div class="p-1 border border-border/50 rounded-lg bg-muted/40 flex shrink-0 gap-1 items-center self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={() => setViewMode('slot')}
-            class={cn(
-              'text-xs font-medium px-2.5 py-1 rounded-md flex gap-1.5 cursor-pointer transition-colors items-center',
-              viewMode() === 'slot'
-                ? 'text-foreground border border-border/50 bg-background shadow-xs'
-                : 'text-muted-foreground border border-transparent hover:text-foreground',
-            )}
-          >
-            <Icon name="i-lucide:layout-grid" class="size-3" />
-            <span>By Slot</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('all')}
-            class={cn(
-              'text-xs font-medium px-2.5 py-1 rounded-md flex gap-1.5 cursor-pointer transition-colors items-center',
-              viewMode() === 'all'
-                ? 'text-foreground border border-border/50 bg-background shadow-xs'
-                : 'text-muted-foreground border border-transparent hover:text-foreground',
-            )}
-          >
-            <Icon name="i-lucide:list" class="size-3" />
-            <span>All Slots</span>
-            <span class="text-[0.65rem] text-muted-foreground font-mono px-1.5 py-0.2 rounded-full bg-muted">
-              {totalAttributeCount()}
-            </span>
-          </button>
-        </div>
-      </div>
-
-      {/* Mode 1: By Slot View */}
-      <Show when={viewMode() === 'slot'}>
-        <Show
-          when={isMobile()}
-          fallback={
-            <div class="scrollbar-none pb-1 flex gap-1.5 items-center overflow-x-auto">
-              <For each={slotOptions()}>
-                {(slot) => {
-                  const count = getSlotMetadataCount(slot)
-                  const isSelected = () => activeSlotName() === slot.name
-                  return (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedSlotName(slot.name)}
-                      class={cn(
-                        'text-xs font-mono px-3 py-1.5 border rounded-lg flex shrink-0 gap-2 cursor-pointer transition-all items-center',
-                        isSelected()
-                          ? 'text-primary-foreground font-semibold border-primary bg-primary shadow-xs'
-                          : count > 0
-                            ? 'bg-card/60 text-muted-foreground border-border/60 hover:(bg-muted/60 text-foreground border-border)'
-                            : 'bg-muted/20 text-muted-foreground/50 border-border/30 hover:text-muted-foreground',
-                      )}
-                    >
-                      <span>{slot.name}</span>
-                      <span
-                        class={cn(
-                          'text-[0.65rem] font-medium font-sans px-1.5 py-0.2 rounded-full',
-                          isSelected()
-                            ? 'text-primary-foreground bg-primary-foreground/20'
-                            : count > 0
-                              ? 'bg-muted text-muted-foreground'
-                              : 'bg-muted/40 text-muted-foreground/40',
-                        )}
-                      >
-                        {count}
-                      </span>
-                    </button>
-                  )
-                }}
-              </For>
-            </div>
-          }
-        >
-          <Select
-            items={slotOptions().map((slot) => ({
-              label: `${slot.name} (${getSlotMetadataCount(slot)})`,
-              value: slot.name,
-            }))}
-            value={activeSlotName() ?? null}
-            size="sm"
-            placeholder="Select a slot"
-            classes={{
-              control: 'w-full',
-              value: 'font-mono text-xs',
-            }}
-            onChange={(value) => {
-              if (typeof value === 'string') {
-                setSelectedSlotName(value)
-              }
-            }}
-          />
-        </Show>
-
-        <Show when={activeSlot()}>
-          {(slot) => {
-            const hasData = () => filteredSlotMatchCount() > 0
-            const attributes = filteredSlotAttributes
-
-            return (
-              <div class="pt-1 space-y-4">
-                <header class="pb-3 border-b border-border/50">
-                  <div class="flex flex-wrap gap-x-2.5 gap-y-1 items-baseline">
-                    <span class="text-[0.68rem] text-muted-foreground/80 tracking-wider font-semibold uppercase">
-                      Slot
-                    </span>
-                    <code class="text-base text-foreground font-mono font-semibold">
-                      {slot().name}
-                    </code>
-                    <span class="text-xs text-muted-foreground font-medium font-mono px-2 py-0.5 border border-border/50 rounded-md bg-muted/60">
-                      {formatAttributeCount(getSlotMetadataCount(slot()))}
-                    </span>
-                  </div>
-
-                  <Show when={slot().description}>
-                    {(description) => (
-                      <div
-                        class="text-sm text-muted-foreground leading-relaxed mt-2 max-w-2xl [&_code]:(text-xs text-foreground font-mono px-1 py-0.5 border border-border/40 rounded-md bg-muted/70) [&_a]:text-primary [&_p]:m-0"
-                        // oxlint-disable-next-line subf/solid-no-innerhtml
-                        innerHTML={description()}
-                      />
-                    )}
-                  </Show>
-                </header>
-
-                <Show
-                  when={hasData()}
-                  fallback={
-                    <div class="text-xs text-muted-foreground px-4 py-8 text-center border border-border/60 rounded-xl border-dashed bg-muted/15">
-                      <Show when={searchQuery()} fallback="No attribute metadata for this slot.">
-                        No attributes matching "{searchQuery()}" in slot "{slot().name}".
-                      </Show>
-                    </div>
-                  }
-                >
-                  <div class="space-y-4">
-                    <Show when={attributes().css.length > 0}>
-                      <AttributeCategoryTable
-                        kind="css"
-                        title="CSS Variables"
-                        nameColumn="CSS Variable"
-                        attributes={attributes().css}
-                        copiedKey={copiedKey()}
-                        onCopy={handleCopy}
-                      />
-                    </Show>
-
-                    <Show when={attributes().data.length > 0}>
-                      <AttributeCategoryTable
-                        kind="data"
-                        title="Data Attributes"
-                        nameColumn="Data Attribute"
-                        attributes={attributes().data}
-                        copiedKey={copiedKey()}
-                        onCopy={handleCopy}
-                      />
-                    </Show>
-
-                    <Show when={attributes().aria.length > 0}>
-                      <AttributeCategoryTable
-                        kind="aria"
-                        title="ARIA Attributes"
-                        nameColumn="ARIA Attribute"
-                        attributes={attributes().aria}
-                        copiedKey={copiedKey()}
-                        onCopy={handleCopy}
-                      />
-                    </Show>
-                  </div>
-                </Show>
-              </div>
-            )
-          }}
-        </Show>
-      </Show>
-
-      {/* Mode 2: All Slots View */}
-      <Show when={viewMode() === 'all'}>
-        <Show
-          when={flatAttributes().length > 0}
-          fallback={
-            <div class="text-xs text-muted-foreground px-4 py-8 text-center border border-border/60 rounded-xl border-dashed bg-muted/15">
-              No attributes matching "{searchQuery()}".
-            </div>
-          }
-        >
-          <div class="border border-border/60 rounded-xl bg-card/30 overflow-hidden">
-            <div class="px-3.5 py-2.5 border-b border-border/50 bg-muted/40 flex items-center justify-between">
-              <span class="text-xs text-foreground tracking-wider font-semibold uppercase">
-                All Slot Attributes
-              </span>
-              <span class="text-xs text-muted-foreground font-mono">
-                {flatAttributes().length} items
-              </span>
-            </div>
-            <div class="overflow-x-auto">
-              <table class="text-sm m-0 w-full border-collapse">
-                <thead>
-                  <tr class="text-[0.68rem] text-muted-foreground/80 tracking-wider text-left bg-muted/20 uppercase">
-                    <th class="font-semibold px-3.5 py-2.5">Attribute</th>
-                    <th class="font-semibold px-3.5 py-2.5">Slot</th>
-                    <th class="font-semibold px-3.5 py-2.5">Type</th>
-                    <th class="font-semibold px-3.5 py-2.5">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <For each={flatAttributes()}>
-                    {(item) => (
-                      <AttributeRow
-                        attribute={item.attribute}
-                        kind={item.kind}
-                        slotName={item.slotName}
-                        copiedKey={copiedKey()}
-                        onCopy={handleCopy}
-                      />
-                    )}
-                  </For>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </Show>
-      </Show>
-    </div>
   )
 }
 
@@ -832,13 +293,13 @@ export function HeadingWithAnchor(props: {
   level: number
   class?: string
 }): JSX.Element {
-  const comp = createMemo(() => `h${props.level}`)
+  const component = createMemo(() => `h${props.level}`)
   return (
     <Dynamic
-      component={comp()}
+      component={component()}
       id={props.id}
       tabIndex={-1}
-      class={cn(MARKDOWN_ANCHOR_HEADING_CLASS, `docs-${comp()}`, props.class)}
+      class={cn(MARKDOWN_ANCHOR_HEADING_CLASS, `docs-${component()}`, props.class)}
     >
       {props.children}
       <a
@@ -852,111 +313,82 @@ export function HeadingWithAnchor(props: {
   )
 }
 
-function SectionTableBlock(sectionProps: { section: PropsTableSection }): JSX.Element {
+export interface DocsApiReferenceModel {
+  reference: ApiReferencePresentationModel | null
+}
+
+export function createDocsApiReferenceModel(
+  apiDoc: ComponentApi | undefined,
+): DocsApiReferenceModel {
+  return { reference: createApiReferenceModel(apiDoc) }
+}
+
+export function getDocsApiReferenceTocEntries(apiDoc: ComponentApi | undefined) {
+  return getApiReferenceTocEntries(apiDoc)
+}
+
+export function DocsApiReference(props: { apiDoc?: ComponentApi }): JSX.Element {
+  const model = createMemo(() => createApiReferenceModel(props.apiDoc))
+
   return (
-    <>
-      <HeadingWithAnchor id={sectionProps.section.id} level={3}>
-        {sectionProps.section.heading}
-      </HeadingWithAnchor>
+    <Show when={model()}>
+      {(reference) => (
+        <>
+          <Show when={reference().attributes}>
+            {(attributes) => <AttributesSection attributes={attributes()} />}
+          </Show>
+          <HeadingWithAnchor id="api-reference" level={2}>
+            Props
+          </HeadingWithAnchor>
 
-      <Show when={sectionProps.section.accessText}>
-        <div class="mb-3 mt-1">
-          <code class="text-xs text-muted-foreground font-mono px-2 py-1 border border-border/40 rounded-md bg-muted/60">
-            {sectionProps.section.accessText}
-          </code>
-        </div>
-      </Show>
-
-      <Show when={sectionProps.section.description}>
-        {(description) => (
-          <div
-            class="text-sm text-muted-foreground"
-            // oxlint-disable-next-line subf/solid-no-innerhtml
-            innerHTML={description()}
-          />
-        )}
-      </Show>
-
-      <Show
-        when={
-          sectionProps.section.slots?.length &&
-          !sectionProps.section.groups?.length &&
-          !sectionProps.section.props.length
-        }
-        fallback={
           <Show
-            when={!sectionProps.section.badges?.length}
+            when={reference().parts.length > 1}
             fallback={
-              <div class="mb-6 mt-4 flex flex-wrap gap-2">
-                <For each={sectionProps.section.badges ?? []}>
-                  {(badge) => <Badge>{badge}</Badge>}
-                </For>
-              </div>
+              <Show when={reference().parts[0]}>
+                {(part) => (
+                  <>
+                    <PartMetadata part={part()} description={reference().description} />
+                    <Show when={part().props.length > 0}>
+                      <PropRows props={part().props} />
+                    </Show>
+                  </>
+                )}
+              </Show>
             }
           >
-            <Show
-              when={sectionProps.section.groups?.length}
-              fallback={
-                <Show when={sectionProps.section.props.length > 0}>
-                  <PropRows
-                    props={sectionProps.section.props}
-                    nameColumn={sectionProps.section.nameColumn}
-                  />
-                </Show>
-              }
-            >
-              <For each={sectionProps.section.groups}>
-                {(group) => (
-                  <div class="mt-4">
-                    <h4 class="text-xs text-foreground tracking-wider font-bold mb-2 uppercase">
-                      {group.heading}
-                    </h4>
-                    <Show when={group.description}>
-                      <div
-                        class="text-sm text-muted-foreground mb-2"
-                        // oxlint-disable-next-line subf/solid-no-innerhtml
-                        innerHTML={group.description}
-                      />
-                    </Show>
-                    <PropRows props={group.props} nameColumn={sectionProps.section.nameColumn} />
-                  </div>
-                )}
-              </For>
-            </Show>
-            <Show when={sectionProps.section.slots?.length}>
-              <div class="mt-6">
-                <h4 class="text-xs text-foreground tracking-wider font-bold mb-2 uppercase">
-                  Attributes
-                </h4>
-                <AttributesSection section={sectionProps.section} />
-              </div>
-            </Show>
+            <For each={reference().parts}>
+              {(part) => (
+                <section class="border-t border-border/40 first:mt-4 first:pt-0 first:border-0">
+                  <HeadingWithAnchor id={part.id} level={3}>
+                    {part.shortHeading}
+                  </HeadingWithAnchor>
+                  <PartMetadata part={part} />
+                  <Show when={part.props.length > 0}>
+                    <PropRows props={part.props} />
+                  </Show>
+                </section>
+              )}
+            </For>
           </Show>
-        }
-      >
-        <AttributesSection section={sectionProps.section} />
-      </Show>
-    </>
-  )
-}
-
-interface DocsApiReferenceProps {
-  apiDoc?: ComponentApi
-}
-
-export const DocsApiReference = (props: DocsApiReferenceProps) => {
-  const model = createMemo(() => createDocsApiReferenceModel(props.apiDoc))
-
-  return (
-    <Show when={model().sections.length > 0}>
-      <HeadingWithAnchor id="api-reference" level={2}>
-        API
-      </HeadingWithAnchor>
-      <For each={model().sections}>{(section) => <SectionTableBlock section={section} />}</For>
+        </>
+      )}
     </Show>
   )
 }
 
-export interface DocsApiReferenceModel {
-  sections: PropsTableSection[]
+function PartMetadata(props: { part: PresentationPartSection; description?: string }): JSX.Element {
+  const description = () => props.part.description ?? props.description
+
+  return (
+    <Show when={description() || props.part.defaultElement}>
+      <p>
+        <Show when={description()}>{`${description()} `}</Show>
+
+        <Show when={props.part.defaultElement}>
+          Renders a <code class="font-mono">&lt;{props.part.defaultElement}&gt;</code> element by
+          default.
+        </Show>
+      </p>
+    </Show>
+  )
 }

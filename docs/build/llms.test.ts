@@ -4,10 +4,10 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
-import { buildLlmsDocuments, buildLlmsTxt } from './llms'
-import { scanDocsRoutes } from './routes'
+import { buildLlmsDocuments, buildLlmsTxt, llmsTxtPlugin } from './llms.ts'
+import { scanDocsRoutes } from './routes.ts'
 
 async function createTempProject(): Promise<string> {
   return mkdtemp(path.join(tmpdir(), 'moraine-docs-llms-'))
@@ -87,7 +87,6 @@ describe('llms.txt generation', () => {
               key: 'button',
               name: 'Button',
               category: 'elements',
-              description: 'A button.',
             },
           ],
         }),
@@ -121,43 +120,97 @@ describe('llms.txt generation', () => {
         JSON.stringify({
           key: 'button',
           name: 'Button',
-          category: 'elements',
           kind: 'single',
-          sourcePath: 'src/elements/button/button.tsx',
           parts: [
             {
               id: 'button',
               name: 'Button',
-              access: { kind: 'export', name: 'Button', package: 'moraine' },
-              sourcePath: 'src/elements/button/button.tsx',
+              access: { kind: 'export', name: 'Button' },
               props: [
+                {
+                  name: 'items',
+                  optional: false,
+                  type: 'Item[]',
+                  typeDetails: '(string | { value: string; })[]',
+                },
                 {
                   name: 'variant',
                   optional: true,
-                  type: { text: '"default" | "outline"' },
+                  type: 'cls_variant0."default" | "outline"_$',
                   description: 'Visual variant.',
-                  group: 'styling',
-                },
-              ],
-              slots: [
-                {
-                  name: 'root',
-                },
-              ],
-              runtime: [
-                {
-                  target: 'root',
-                  attributes: [
-                    {
-                      name: 'aria-label',
-                      kind: 'aria',
-                      description: 'Accessible label.',
-                    },
-                  ],
                 },
               ],
             },
           ],
+          item: {
+            generics: [{ name: 'Value', constraint: 'string | number' }],
+            props: [{ name: 'value', optional: false, type: 'Value' }],
+          },
+          slots: ['root', 'content'],
+          dataAttributes: [
+            { target: 'root', attributes: ['data-disabled'] },
+            { target: 'content', attributes: ['data-disabled', 'data-expanded'] },
+          ],
+        }),
+      )
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/(overlay)/dialog/index.mdx',
+        pageSource('Dialog', 2, 'Dialog docs.'),
+      )
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/(overlay)/dialog/api.json',
+        JSON.stringify({
+          key: 'dialog',
+          name: 'Dialog',
+          kind: 'composite',
+          parts: [
+            {
+              id: 'dialog',
+              name: 'Dialog',
+              access: { kind: 'export', name: 'Dialog' },
+              props: [],
+            },
+            {
+              id: 'trigger',
+              name: 'Dialog.Trigger',
+              access: { kind: 'attached', root: 'Dialog', member: 'Trigger' },
+              props: [{ name: 'disabled', optional: true, type: 'boolean' }],
+            },
+          ],
+          slots: ['root', 'trigger'],
+          dataAttributes: [],
+        }),
+      )
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/(form)/form/index.mdx',
+        pageSource('Form', 3, 'Form docs.'),
+      )
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/(form)/form/api.json',
+        JSON.stringify({
+          key: 'form',
+          name: 'Form',
+          kind: 'single',
+          parts: [
+            {
+              id: 'form',
+              name: 'createForm().Form',
+              access: { kind: 'export', name: 'createForm' },
+              props: [{ name: 'onSubmit', optional: true, type: '() => void' }],
+            },
+            {
+              id: 'field',
+              name: 'createForm().Field',
+              access: { kind: 'export', name: 'createForm' },
+              props: [{ name: 'name', optional: false, type: 'string' }],
+            },
+          ],
+          slots: ['root'],
+          dataAttributes: [],
         }),
       )
 
@@ -169,23 +222,32 @@ describe('llms.txt generation', () => {
       })
       const introduction = documents.find((document) => document.fileName === 'index.md')?.source
       const button = documents.find((document) => document.fileName === 'button.md')?.source
+      const dialog = documents.find((document) => document.fileName === 'dialog.md')?.source
 
-      expect(introduction).toContain('[Button](https://ui.subf.dev/button.md): A button.')
+      expect(introduction).toContain('[Button](https://ui.subf.dev/button.md)')
       expect(introduction).not.toContain('<CodeTabs')
       expect(introduction).toContain('```shell bun\nbun add moraine\n```')
       expect(introduction).toContain('```shell pnpm\npnpm add moraine\n```')
       expect(introduction).toContain('```shell npm\nnpm i moraine\n```')
-      expect(button).toContain('## API')
-      expect(button).toContain('### Props')
-      expect(button).toContain('**Styling**')
-      expect(button).not.toContain('### Styling')
-      expect(button).not.toContain('#### Styling')
+      expect(button).toContain('## Props')
+      expect(button).not.toContain('## Items')
+      expect(button).not.toContain('### Props')
+      expect(button).not.toContain('| Field | Type | Default | Description |')
+      expect(button).toContain('(string \\| { value: string; })[]')
       expect(button).toContain('| variant | "default" \\| "outline" | — | Visual variant. |')
-      expect(button).toContain('### Slots')
-      expect(button).toContain('- `root`')
-      expect(button).toContain('### Runtime Attributes')
-      expect(button).toContain('##### Target: `root`')
-      expect(button).toContain('| aria-label | aria | — | Accessible label. |')
+      expect(button).toContain('## Attributes')
+      expect(button!.indexOf('## Attributes')).toBeLessThan(button!.indexOf('## Props'))
+      expect(button).toContain('| Attributes | Slot | Description |')
+      expect(button).toContain('| `data-disabled` | `root`, `content` |')
+      expect(button?.match(/`data-disabled`/g)).toHaveLength(1)
+      expect(button).toContain('| `data-expanded` | `content` |')
+      expect(button).not.toContain('DOM & State')
+      expect(button).not.toContain('### Slots')
+      expect(button).not.toContain('Data attributes')
+      expect(button).not.toContain('Composition:')
+      expect(button).not.toContain('CSS variables')
+      expect(button).not.toContain('### Accessibility')
+      expect(button).not.toContain('### Anatomy')
       expect(button).toMatch(/^---\ntitle: Button\ndescription: Button page description\./)
       expect(button).toContain('\n---\n\n# Button\n')
       expect(button).toContain('## Examples')
@@ -194,6 +256,13 @@ describe('llms.txt generation', () => {
       expect(button).not.toContain('<Playground')
       expect(button).not.toContain('props.label')
       expect(button).not.toContain('UnknownComponent')
+      expect(dialog).toContain('### Dialog')
+      expect(dialog).toContain('### Dialog.Trigger')
+      expect(dialog).not.toContain('\n### Trigger\n')
+      expect(dialog).not.toContain('`Dialog.Trigger`')
+      const form = documents.find((document) => document.fileName === 'form.md')?.source
+      expect(form).toContain('### createForm().Form')
+      expect(form).toContain('### createForm().Field')
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }
@@ -218,6 +287,46 @@ describe('llms.txt generation', () => {
           siteUrl: 'https://ui.subf.dev/',
         }),
       ).rejects.toThrow('unsupported JSX component <UnknownComponent>')
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
+
+  test('retries failed generation and emits assets only for the client build', async () => {
+    const projectRoot = await createTempProject()
+    const options = {
+      projectRoot,
+      siteName: 'Moraine',
+      description: 'Docs description.',
+      siteUrl: 'https://ui.subf.dev/',
+    }
+    type GenerateBundle = (this: {
+      environment: { name: string }
+      emitFile: (file: { type: 'asset'; fileName: string; source: string }) => void
+    }) => Promise<void>
+
+    try {
+      await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
+      const pagePath = 'docs/pages/index.mdx'
+      await writeProjectFile(
+        projectRoot,
+        pagePath,
+        pageSource('Introduction', 1, '<UnknownComponent />'),
+      )
+
+      const generateBundle = llmsTxtPlugin(options).generateBundle as GenerateBundle
+      const emitFile = vi.fn()
+      await expect(
+        generateBundle.call({ environment: { name: 'client' }, emitFile }),
+      ).rejects.toThrow('unsupported JSX component')
+
+      await writeProjectFile(projectRoot, pagePath, pageSource('Introduction', 1, 'Welcome.'))
+      await generateBundle.call({ environment: { name: 'client' }, emitFile })
+      expect(emitFile).toHaveBeenCalledTimes(2)
+
+      emitFile.mockClear()
+      await generateBundle.call({ environment: { name: 'ssr' }, emitFile })
+      expect(emitFile).not.toHaveBeenCalled()
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }

@@ -1,6 +1,15 @@
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
+import { createDataAttributes } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { AccordionStyleSlot } from './accordion.style-types'
+
+export const accordionDataAttributes = {
+  root: createDataAttributes('disabled'),
+  item: createDataAttributes('closed', 'disabled', 'expanded'),
+  trigger: createDataAttributes('closed', 'disabled', 'expanded'),
+  content: createDataAttributes('closed', 'expanded'),
+} satisfies DataAttributeContract<keyof AccordionStyleSlot>
 
 export const accordionRecipe = /* @__PURE__ */ defineRecipe<AccordionStyleSlot>('accordion', {
   base: {

@@ -8,7 +8,7 @@ import { createStyles } from '../../provider'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { callRef } from '../../shared/utils'
 
-import { breadcrumbRecipe } from './breadcrumb.recipe'
+import { breadcrumbDataAttributes, breadcrumbRecipe } from './breadcrumb.recipe'
 import type { BreadcrumbProps } from './breadcrumb.types'
 
 /** Breadcrumb navigation trail with separator icons and optional wrapping. */
@@ -71,8 +71,10 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                         role={isDisabled() ? 'link' : undefined}
                         aria-disabled={isDisabled() ? 'true' : undefined}
                         aria-current={isCurrent() ? 'page' : undefined}
-                        data-current={isCurrent() ? '' : undefined}
-                        data-disabled={isDisabled() ? '' : undefined}
+                        {...breadcrumbDataAttributes.page({
+                          current: isCurrent,
+                          disabled: isDisabled,
+                        })}
                         href={isDisabled() ? undefined : (item.to ?? item.href)}
                         target={isDisabled() ? undefined : item.target}
                         rel={isDisabled() ? undefined : item.rel}

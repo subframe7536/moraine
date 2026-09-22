@@ -3,18 +3,10 @@ import path from 'node:path'
 
 import type { ESTree } from 'vite'
 
-import { entityNameToText, getIdentifierName, getJsDoc, nodeText, parseTypeScript } from './ast'
-import type { ParsedSource } from './ast'
-import { classifyPropGroup, derivePropTraits, deriveStateRelation } from './classify'
-import type {
-  DefaultValue,
-  GenericParameterApi,
-  ItemApi,
-  ItemPropertyApi,
-  PropApi,
-  RenderingApi,
-  SlotApi,
-} from './types'
+import { entityNameToText, getIdentifierName, getJsDoc, nodeText, parseTypeScript } from './ast.ts'
+import type { ParsedSource } from './ast.ts'
+import type { RecipeVariantApi } from './recipe.ts'
+import type { DefaultValue, GenericParameterApi, ItemApi, PropApi } from './types.ts'
 
 export interface ParsedModule {
   filePath: string
@@ -24,9 +16,19 @@ export interface ParsedModule {
   imports: Map<string, { importedName: string; specifier: string }>
 }
 
+interface TypeBinding {
+  bindings?: Map<string, TypeBinding>
+  module: ParsedModule
+  node: ESTree.TSType
+  namespace?: ESTree.TSModuleDeclaration
+}
+
 export class TypeExtractor {
   readonly #modules = new Map<string, ParsedModule>()
   readonly #indexedAccessStack = new Set<string>()
+  #recipeVariants: RecipeVariantApi[] = []
+  #expandingCollection = false
+  #genericBindings = new Map<string, TypeBinding>()
   readonly projectRoot: string
 
   constructor(projectRoot: string) {
@@ -37,7 +39,7 @@ export class TypeExtractor {
     const absolutePath = path.isAbsolute(filePath)
       ? filePath
       : path.resolve(this.projectRoot, filePath)
-    if (!existsSync(absolutePath)) {
+    if (!absolutePath.endsWith('.ts') || !existsSync(absolutePath)) {
       return null
     }
 
@@ -47,11 +49,7 @@ export class TypeExtractor {
     }
 
     const content = readFileSync(absolutePath, 'utf8')
-    const source = await parseTypeScript(
-      absolutePath,
-      content,
-      /\.tsx?$/.test(absolutePath) ? (absolutePath.endsWith('.tsx') ? 'tsx' : 'ts') : 'ts',
-    )
+    const source = await parseTypeScript(absolutePath, content, 'ts')
 
     const declarations = new Map<string, ESTree.Declaration>()
     const namespaces = new Map<string, ESTree.TSModuleDeclaration>()
@@ -134,7 +132,7 @@ export class TypeExtractor {
     if (fromNamespace && fromNamespace.body?.type === 'TSModuleBlock') {
       for (const stmt of fromNamespace.body.body) {
         const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
-        if (decl && 'id' in decl && (decl as any).id?.name === name) {
+        if (decl && 'id' in decl && getIdentifierName(decl.id) === name) {
           return { module: fromModule, node: decl as ESTree.Declaration, nsNode: fromNamespace }
         }
       }
@@ -149,7 +147,7 @@ export class TypeExtractor {
       if (ns && ns.node.body?.type === 'TSModuleBlock') {
         for (const stmt of ns.node.body.body) {
           const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
-          if (decl && 'id' in decl && (decl as any).id?.name === memberName) {
+          if (decl && 'id' in decl && getIdentifierName(decl.id) === memberName) {
             return { module: ns.module, node: decl as ESTree.Declaration, nsNode: ns.node }
           }
         }
@@ -210,14 +208,13 @@ export class TypeExtractor {
   #resolveSpecifier(importerPath: string, specifier: string): string | null {
     const tryCandidates = (basePath: string): string | null => {
       const candidates = [
-        `${basePath}.ts`,
-        `${basePath}.tsx`,
-        path.join(basePath, 'index.ts'),
-        path.join(basePath, 'index.tsx'),
         basePath,
+        `${basePath}.ts`,
+        `${basePath}.types.ts`,
+        path.join(basePath, 'index.ts'),
       ]
       for (const candidate of candidates) {
-        if (existsSync(candidate)) {
+        if (candidate.endsWith('.ts') && existsSync(candidate)) {
           try {
             if (statSync(candidate).isFile()) {
               return candidate
@@ -268,59 +265,6 @@ export class TypeExtractor {
     return 'single'
   }
 
-  async extractSlots(module: ParsedModule, namespaceName: string): Promise<SlotApi[]> {
-    const ns = await this.resolveNamespace(module, namespaceName)
-    if (!ns || !ns.node.body || ns.node.body.type !== 'TSModuleBlock') {
-      return []
-    }
-
-    let slotTypeNode: ESTree.TSType | null = null
-    for (const stmt of ns.node.body.body) {
-      const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
-      if (decl?.type === 'TSTypeAliasDeclaration' && decl.id.name === 'Slot') {
-        slotTypeNode = decl.typeAnnotation
-        break
-      }
-    }
-
-    if (!slotTypeNode || slotTypeNode.type === 'TSNeverKeyword') {
-      return []
-    }
-
-    if (slotTypeNode.type === 'TSTypeReference') {
-      const name = entityNameToText(slotTypeNode.typeName)
-      if (name) {
-        const resolved = await this.resolveSymbol(ns.module, name, ns.node)
-        if (resolved) {
-          return TypeExtractor.#extractSlotProperties(resolved.module, resolved.node)
-        }
-      }
-    }
-
-    return []
-  }
-
-  static #extractSlotProperties(module: ParsedModule, node: ESTree.Declaration): SlotApi[] {
-    const slots: SlotApi[] = []
-    if (node.type === 'TSInterfaceDeclaration') {
-      for (const member of node.body.body) {
-        if (member.type === 'TSPropertySignature') {
-          const name = getIdentifierName(member.key)
-          if (!name) {
-            continue
-          }
-          const jsdoc = getJsDoc(module.source, member)
-          slots.push({
-            name,
-            ...(jsdoc.description ? { description: jsdoc.description } : {}),
-          })
-        }
-      }
-    }
-    slots.sort((a, b) => a.name.localeCompare(b.name))
-    return slots
-  }
-
   async extractItem(module: ParsedModule, namespaceName: string): Promise<ItemApi | undefined> {
     const ns = await this.resolveNamespace(module, namespaceName)
     if (!ns || !ns.node.body || ns.node.body.type !== 'TSModuleBlock') {
@@ -348,27 +292,11 @@ export class TypeExtractor {
     )
     const props = await this.#resolvePropertiesFromDeclaration(ns.module, itemDecl, ns.node)
 
-    const itemProps: ItemPropertyApi[] = props.map((p) => {
-      const itemProp: ItemPropertyApi = {
-        name: p.name,
-        optional: p.optional,
-        type: p.type,
-      }
-      if (p.description) {
-        itemProp.description = p.description
-      }
-      if (p.default) {
-        itemProp.default = p.default
-      }
-      return itemProp
-    })
-
     const jsdoc = getJsDoc(ns.module.source, itemDecl)
     return {
-      name: 'Item',
       ...(jsdoc.description ? { description: jsdoc.description } : {}),
       ...(generics.length > 0 ? { generics } : {}),
-      props: itemProps,
+      props,
     }
   }
 
@@ -378,12 +306,14 @@ export class TypeExtractor {
     propsTypeName: string,
     partName: string,
     isRoot: boolean,
+    recipeVariants: RecipeVariantApi[] = [],
   ): Promise<{
     generics: GenericParameterApi[]
-    rendering?: RenderingApi
+    defaultElement?: string
     props: PropApi[]
     description?: string
   }> {
+    this.#recipeVariants = recipeVariants
     const ns = await this.resolveNamespace(module, namespaceName)
     if (!ns || !ns.node.body || ns.node.body.type !== 'TSModuleBlock') {
       return { generics: [], props: [] }
@@ -432,7 +362,23 @@ export class TypeExtractor {
       (targetDecl as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters,
     )
 
-    let rendering: RenderingApi | undefined
+    this.#genericBindings = new Map()
+    const parameters =
+      (targetDecl as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters
+        ?.params ?? []
+    for (const parameter of parameters) {
+      const node = parameter.default ?? parameter.constraint
+      if (node) {
+        this.#genericBindings.set(
+          typeof parameter.name === 'string'
+            ? parameter.name
+            : (getIdentifierName(parameter.name) ?? ''),
+          { module: ns.module, node, namespace: ns.node },
+        )
+      }
+    }
+
+    let defaultElement: string | undefined
     let props: PropApi[]
 
     if (
@@ -447,7 +393,7 @@ export class TypeExtractor {
         generics,
       )
       props = basePropsRes.props
-      rendering = basePropsRes.rendering
+      defaultElement = basePropsRes.defaultElement
       if (basePropsRes.generics) {
         generics = basePropsRes.generics
       }
@@ -457,6 +403,18 @@ export class TypeExtractor {
 
       if (targetDecl.type === 'TSTypeAliasDeclaration') {
         const typeAnn = targetDecl.typeAnnotation
+        if (typeAnn.type === 'TSIntersectionType') {
+          for (const type of typeAnn.types) {
+            if (
+              type.type === 'TSTypeReference' &&
+              entityNameToText(type.typeName) === 'BaseProps'
+            ) {
+              const baseProps = await this.#handleBaseProps(ns.module, ns.node, type, generics)
+              defaultElement = baseProps.defaultElement
+              break
+            }
+          }
+        }
         if (typeAnn.type === 'TSTypeReference') {
           const refName = entityNameToText(typeAnn.typeName)
           if (refName) {
@@ -473,7 +431,7 @@ export class TypeExtractor {
                   generics,
                 )
                 props = basePropsRes.props
-                rendering = basePropsRes.rendering
+                defaultElement = basePropsRes.defaultElement
                 if (basePropsRes.generics) {
                   generics = basePropsRes.generics
                 }
@@ -486,7 +444,7 @@ export class TypeExtractor {
 
     return {
       generics,
-      ...(rendering ? { rendering } : {}),
+      ...(defaultElement ? { defaultElement } : {}),
       props,
       ...(jsdoc.description ? { description: jsdoc.description } : {}),
     }
@@ -500,7 +458,7 @@ export class TypeExtractor {
     substitutions?: Map<string, string>,
   ): Promise<{
     props: PropApi[]
-    rendering: RenderingApi
+    defaultElement: string
     generics?: GenericParameterApi[]
   }> {
     const args = typeRef.typeArguments?.params ?? []
@@ -533,12 +491,10 @@ export class TypeExtractor {
       }
     }
 
-    const rendering: RenderingApi = {
-      rendersDom: true,
-      ...(defaultElement ? { defaultElement } : {}),
-      ...(isPolymorphic
-        ? { asProp: 'as', polymorphic: asGenericParam ?? true }
-        : { polymorphic: false }),
+    if (!defaultElement) {
+      throw new Error(
+        `[api-doc] BaseProps in ${module.filePath} must declare a literal element or a generic default.`,
+      )
     }
 
     const props: PropApi[] = []
@@ -554,22 +510,26 @@ export class TypeExtractor {
       props.push(...baseProps)
     }
 
-    // 2. Resolve Variant props
-    if (variantNode && !(await this.#isNeverType(module, nsNode, variantNode))) {
-      const variantProps = await this.#resolvePropertiesFromType(
+    // Public types define the variants; recipes only supply missing defaults.
+    if (variantNode) {
+      const variants = await this.#resolvePropertiesFromType(
         module,
         nsNode,
         variantNode,
         substitutions,
       )
-      for (const vp of variantProps) {
-        vp.group = 'styling'
-        const existingIdx = props.findIndex((p) => p.name === vp.name)
-        if (existingIdx >= 0) {
-          props[existingIdx] = vp
-        } else {
-          props.push(vp)
+      for (const variant of variants) {
+        const existing = props.find((prop) => prop.name === variant.name)
+        if (existing) {
+          continue
         }
+        const recipeDefault = this.#recipeVariants.find(
+          (entry) => entry.name === variant.name,
+        )?.default
+        props.push({
+          ...variant,
+          ...(variant.default || !recipeDefault ? {} : { default: recipeDefault }),
+        })
       }
     }
 
@@ -578,9 +538,8 @@ export class TypeExtractor {
       props.push({
         name: 'class',
         optional: true,
-        type: { text: 'SlotClassValue' },
+        type: 'SlotClassValue',
         description: 'Class applied to the component root or trigger element.',
-        group: 'styling',
       })
     }
 
@@ -588,9 +547,8 @@ export class TypeExtractor {
       props.push({
         name: 'style',
         optional: true,
-        type: { text: 'SlotStyleValue' },
+        type: 'SlotStyleValue',
         description: 'Style applied to the component root or trigger element.',
-        group: 'styling',
       })
     }
 
@@ -601,9 +559,8 @@ export class TypeExtractor {
         props.push({
           name: 'classes',
           optional: true,
-          type: { text: classesText },
+          type: classesText,
           description: 'Family slot class defaults for this instance.',
-          group: 'styling',
         })
       }
     }
@@ -614,9 +571,8 @@ export class TypeExtractor {
         props.push({
           name: 'styles',
           optional: true,
-          type: { text: stylesText },
+          type: stylesText,
           description: 'Family slot style defaults for this instance.',
-          group: 'styling',
         })
       }
     }
@@ -632,15 +588,14 @@ export class TypeExtractor {
         props.unshift({
           name: 'as',
           optional: true,
-          type: { text: asGenericParam.name },
+          type: asGenericParam.name,
           ...(defaultElement ? { default: { kind: 'literal', value: defaultElement } } : {}),
           description: 'Element or component to render as.',
-          group: 'rendering',
         })
       }
     }
 
-    return { props, rendering }
+    return { props, defaultElement }
   }
 
   async #isNeverType(
@@ -679,6 +634,79 @@ export class TypeExtractor {
     return this.#resolvePropertiesFromTypeNode(module, node, nsNode, substitutions)
   }
 
+  static #mergeProperties(target: PropApi[], incoming: readonly PropApi[]): void {
+    for (const property of incoming) {
+      const index = target.findIndex((candidate) => candidate.name === property.name)
+      if (index >= 0) {
+        target[index] = property
+      } else {
+        target.push(property)
+      }
+    }
+  }
+
+  async #resolveMappedProperties(
+    kind: 'Omit' | 'Pick',
+    module: ParsedModule,
+    target: ESTree.TSType,
+    keysNode: ESTree.TSType,
+    nsNode?: ESTree.TSModuleDeclaration,
+    substitutions?: Map<string, string>,
+  ): Promise<PropApi[]> {
+    const keys = TypeExtractor.#extractStringLiteralUnion(keysNode)
+    const properties = await this.#resolvePropertiesFromTypeNode(
+      module,
+      target,
+      nsNode,
+      substitutions,
+    )
+    return properties.filter((property) => (kind === 'Pick') === keys.has(property.name))
+  }
+
+  async #resolveTypeArguments(
+    module: ParsedModule,
+    nsNode: ESTree.TSModuleDeclaration | undefined,
+    declaration: ESTree.Declaration,
+    typeArguments: readonly ESTree.TSType[],
+    substitutions?: Map<string, string>,
+    applyDefaults = true,
+  ): Promise<Map<string, string> | undefined> {
+    const parameters = (declaration as { typeParameters?: ESTree.TSTypeParameterDeclaration })
+      .typeParameters?.params
+    if (!parameters?.length) {
+      return substitutions ? new Map(substitutions) : undefined
+    }
+
+    const resolved = new Map(substitutions)
+    for (let index = 0; index < parameters.length; index++) {
+      const parameter = parameters[index]
+      const argument = typeArguments[index] ?? (applyDefaults ? parameter?.default : undefined)
+      if (!parameter || !argument) {
+        continue
+      }
+      const parameterName =
+        typeof parameter.name === 'string'
+          ? parameter.name
+          : typeof parameter.name === 'string'
+            ? parameter.name
+            : (getIdentifierName(parameter.name) ?? '')
+      let formattedArgument = TypeExtractor.#formatTypeText(module.source, argument)
+      if (substitutions?.has(formattedArgument)) {
+        formattedArgument = substitutions.get(formattedArgument)!
+      } else {
+        const alias = await this.resolveSymbol(module, formattedArgument, nsNode)
+        if (alias?.node.type === 'TSTypeAliasDeclaration') {
+          formattedArgument = TypeExtractor.#formatTypeText(
+            alias.module.source,
+            alias.node.typeAnnotation,
+          )
+        }
+      }
+      resolved.set(parameterName, formattedArgument)
+    }
+    return resolved
+  }
+
   async #resolvePropertiesFromDeclaration(
     module: ParsedModule,
     decl: ESTree.Declaration,
@@ -692,94 +720,57 @@ export class TypeExtractor {
         for (const heritage of decl.extends) {
           const heritageType = heritage.expression
           const name = entityNameToText(heritageType)
+          const heritageWithArguments = heritage as typeof heritage & {
+            typeParameters?: ESTree.TSTypeParameterInstantiation
+            typeArguments?: ESTree.TSTypeParameterInstantiation
+          }
           const typeArgs =
-            (heritage as any).typeParameters?.params ??
-            (heritage as any).typeArguments?.params ??
+            heritageWithArguments.typeParameters?.params ??
+            heritageWithArguments.typeArguments?.params ??
             []
           if (name) {
             if (name === 'Omit' && typeArgs.length === 2) {
-              const target = typeArgs[0]!
-              const omittedKeys = TypeExtractor.#extractStringLiteralUnion(typeArgs[1])
-              const targetProps = await this.#resolvePropertiesFromTypeNode(
-                module,
-                target,
-                nsNode,
-                substitutions,
+              TypeExtractor.#mergeProperties(
+                props,
+                await this.#resolveMappedProperties(
+                  'Omit',
+                  module,
+                  typeArgs[0]!,
+                  typeArgs[1]!,
+                  nsNode,
+                  substitutions,
+                ),
               )
-              for (const p of targetProps.filter((p) => !omittedKeys.has(p.name))) {
-                const existingIdx = props.findIndex((x) => x.name === p.name)
-                if (existingIdx >= 0) {
-                  props[existingIdx] = p
-                } else {
-                  props.push(p)
-                }
-              }
             } else if (name === 'Pick' && typeArgs.length === 2) {
-              const target = typeArgs[0]!
-              const pickedKeys = TypeExtractor.#extractStringLiteralUnion(typeArgs[1])
-              const targetProps = await this.#resolvePropertiesFromTypeNode(
-                module,
-                target,
-                nsNode,
-                substitutions,
+              TypeExtractor.#mergeProperties(
+                props,
+                await this.#resolveMappedProperties(
+                  'Pick',
+                  module,
+                  typeArgs[0]!,
+                  typeArgs[1]!,
+                  nsNode,
+                  substitutions,
+                ),
               )
-              for (const p of targetProps.filter((p) => pickedKeys.has(p.name))) {
-                const existingIdx = props.findIndex((x) => x.name === p.name)
-                if (existingIdx >= 0) {
-                  props[existingIdx] = p
-                } else {
-                  props.push(p)
-                }
-              }
             } else {
               const sym = await this.resolveSymbol(module, name, nsNode)
               if (sym) {
-                let childSubstitutions: Map<string, string> | undefined
-                const declTypeParams =
-                  (sym.node as { typeParameters?: ESTree.TSTypeParameterDeclaration })
-                    .typeParameters?.params ?? []
-                if (declTypeParams.length > 0 && typeArgs.length > 0) {
-                  childSubstitutions = new Map(substitutions)
-                  for (let i = 0; i < declTypeParams.length; i++) {
-                    const param = declTypeParams[i]
-                    const arg = typeArgs[i]
-                    if (param && arg) {
-                      const paramName =
-                        typeof param.name === 'string'
-                          ? param.name
-                          : (((param.name as any)?.name as string | undefined) ?? '')
-                      let formattedArg = TypeExtractor.#formatTypeText(module.source, arg)
-                      if (substitutions && substitutions.has(formattedArg)) {
-                        formattedArg = substitutions.get(formattedArg)!
-                      } else {
-                        const aliasSym = await this.resolveSymbol(module, formattedArg, nsNode)
-                        if (aliasSym && aliasSym.node.type === 'TSTypeAliasDeclaration') {
-                          formattedArg = TypeExtractor.#formatTypeText(
-                            aliasSym.module.source,
-                            aliasSym.node.typeAnnotation,
-                          )
-                        }
-                      }
-                      childSubstitutions.set(paramName, formattedArg)
-                    }
-                  }
-                } else if (substitutions) {
-                  childSubstitutions = new Map(substitutions)
-                }
+                const childSubstitutions = await this.#resolveTypeArguments(
+                  module,
+                  nsNode,
+                  sym.node,
+                  typeArgs,
+                  substitutions,
+                  false,
+                )
                 const inherited = await this.#resolvePropertiesFromDeclaration(
                   sym.module,
                   sym.node,
                   sym.nsNode ?? (sym.module === module ? nsNode : undefined),
                   childSubstitutions,
                 )
-                for (const p of inherited) {
-                  const existingIdx = props.findIndex((x) => x.name === p.name)
-                  if (existingIdx >= 0) {
-                    props[existingIdx] = p
-                  } else {
-                    props.push(p)
-                  }
-                }
+                TypeExtractor.#mergeProperties(props, inherited)
               }
             }
           }
@@ -790,12 +781,7 @@ export class TypeExtractor {
         if (member.type === 'TSPropertySignature') {
           const prop = await this.#convertPropertySignature(module, member, nsNode, substitutions)
           if (prop) {
-            const existingIdx = props.findIndex((p) => p.name === prop.name)
-            if (existingIdx >= 0) {
-              props[existingIdx] = prop
-            } else {
-              props.push(prop)
-            }
+            TypeExtractor.#mergeProperties(props, [prop])
           }
         }
       }
@@ -847,26 +833,24 @@ export class TypeExtractor {
         return basePropsRes.props
       }
       if (name === 'Omit' && node.typeArguments?.params.length === 2) {
-        const target = node.typeArguments.params[0]!
-        const omittedKeys = TypeExtractor.#extractStringLiteralUnion(node.typeArguments.params[1]!)
-        const targetProps = await this.#resolvePropertiesFromTypeNode(
+        return this.#resolveMappedProperties(
+          'Omit',
           module,
-          target,
+          node.typeArguments.params[0]!,
+          node.typeArguments.params[1]!,
           nsNode,
           substitutions,
         )
-        return targetProps.filter((p) => !omittedKeys.has(p.name))
       }
       if (name === 'Pick' && node.typeArguments?.params.length === 2) {
-        const target = node.typeArguments.params[0]!
-        const pickedKeys = TypeExtractor.#extractStringLiteralUnion(node.typeArguments.params[1]!)
-        const targetProps = await this.#resolvePropertiesFromTypeNode(
+        return this.#resolveMappedProperties(
+          'Pick',
           module,
-          target,
+          node.typeArguments.params[0]!,
+          node.typeArguments.params[1]!,
           nsNode,
           substitutions,
         )
-        return targetProps.filter((p) => pickedKeys.has(p.name))
       }
       if ((name === 'Partial' || name === 'Required') && node.typeArguments?.params.length === 1) {
         const targetType = node.typeArguments.params[0]!
@@ -881,46 +865,14 @@ export class TypeExtractor {
 
       const sym = await this.resolveSymbol(module, name, nsNode)
       if (sym) {
-        let childSubstitutions: Map<string, string> | undefined
-        const declTypeParams =
-          (sym.node as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters
-            ?.params ?? []
         const typeArgs = node.typeArguments?.params ?? []
-        if (declTypeParams.length > 0) {
-          childSubstitutions = new Map(substitutions)
-          for (let i = 0; i < declTypeParams.length; i++) {
-            const param = declTypeParams[i]
-            const arg = typeArgs[i]
-            if (param) {
-              const paramName =
-                typeof param.name === 'string'
-                  ? param.name
-                  : (((param.name as any)?.name as string | undefined) ?? '')
-              if (arg) {
-                let formattedArg = TypeExtractor.#formatTypeText(module.source, arg)
-                if (substitutions && substitutions.has(formattedArg)) {
-                  formattedArg = substitutions.get(formattedArg)!
-                } else {
-                  const aliasSym = await this.resolveSymbol(module, formattedArg, nsNode)
-                  if (aliasSym && aliasSym.node.type === 'TSTypeAliasDeclaration') {
-                    formattedArg = TypeExtractor.#formatTypeText(
-                      aliasSym.module.source,
-                      aliasSym.node.typeAnnotation,
-                    )
-                  }
-                }
-                childSubstitutions.set(paramName, formattedArg)
-              } else if (param.default) {
-                childSubstitutions.set(
-                  paramName,
-                  TypeExtractor.#formatTypeText(module.source, param.default),
-                )
-              }
-            }
-          }
-        } else if (substitutions) {
-          childSubstitutions = new Map(substitutions)
-        }
+        const childSubstitutions = await this.#resolveTypeArguments(
+          module,
+          nsNode,
+          sym.node,
+          typeArgs,
+          substitutions,
+        )
         return this.#resolvePropertiesFromDeclaration(
           sym.module,
           sym.node,
@@ -950,6 +902,118 @@ export class TypeExtractor {
     return props
   }
 
+  async #expandCollectionType(
+    binding: TypeBinding,
+    bindings = this.#genericBindings,
+    visited = new Set<string>(),
+  ): Promise<string> {
+    const { module, node, namespace } = binding
+    const expand = (child: ESTree.TSType) =>
+      this.#expandCollectionType({ module, node: child, namespace }, bindings, visited)
+    if (node.type === 'TSArrayType') {
+      const inner = await expand(node.elementType)
+      return `${node.elementType.type === 'TSParenthesizedType' ? inner : `(${inner})`}[]`
+    }
+    if (node.type === 'TSParenthesizedType') {
+      return `(${await expand(node.typeAnnotation)})`
+    }
+    if (node.type === 'TSTypeOperator' && node.operator === 'readonly') {
+      return `readonly ${await expand(node.typeAnnotation)}`
+    }
+    if (node.type === 'TSUnionType' || node.type === 'TSIntersectionType') {
+      const parts = await Promise.all(node.types.map(expand))
+      return parts.join(node.type === 'TSUnionType' ? ' | ' : ' & ')
+    }
+    if (node.type === 'TSTypeReference') {
+      const name = entityNameToText(node.typeName)
+      const bound = name ? bindings.get(name) : undefined
+      if (bound) {
+        return this.#expandCollectionType(bound, bound.bindings ?? bindings, visited)
+      }
+      const key = `${module.filePath}:${namespace?.id.type === 'Identifier' ? namespace.id.name : ''}:${name}`
+      if (name && !visited.has(key)) {
+        const nextVisited = new Set(visited).add(key)
+        if ((name === 'Array' || name === 'ReadonlyArray') && node.typeArguments?.params[0]) {
+          return `${name === 'ReadonlyArray' ? 'readonly ' : ''}(${await expand(node.typeArguments.params[0])})[]`
+        }
+        const symbol = await this.resolveSymbol(module, name, namespace)
+        if (symbol) {
+          const nextBindings = new Map(bindings)
+          const params =
+            (symbol.node as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters
+              ?.params ?? []
+          for (let index = 0; index < params.length; index++) {
+            const parameter = params[index]!
+            const argument = node.typeArguments?.params[index]
+            const fallback = parameter.default ?? parameter.constraint
+            if (argument || fallback) {
+              nextBindings.set(
+                typeof parameter.name === 'string'
+                  ? parameter.name
+                  : (getIdentifierName(parameter.name) ?? ''),
+                argument
+                  ? { module, node: argument, namespace, bindings }
+                  : { module: symbol.module, node: fallback!, namespace: symbol.nsNode },
+              )
+            }
+          }
+          if (symbol.node.type === 'TSTypeAliasDeclaration') {
+            return this.#expandCollectionType(
+              { module: symbol.module, node: symbol.node.typeAnnotation, namespace: symbol.nsNode },
+              nextBindings,
+              nextVisited,
+            )
+          }
+          if (symbol.node.type === 'TSInterfaceDeclaration') {
+            const substitutions = new Map<string, string>()
+            for (const parameter of params) {
+              const parameterName =
+                typeof parameter.name === 'string'
+                  ? parameter.name
+                  : (getIdentifierName(parameter.name) ?? '')
+              const value = nextBindings.get(parameterName)
+              if (value) {
+                const expanded = await this.#expandCollectionType(
+                  value,
+                  value.bindings ?? bindings,
+                  nextVisited,
+                )
+                substitutions.set(parameterName, expanded)
+              }
+            }
+            const props = await this.#resolvePropertiesFromDeclaration(
+              symbol.module,
+              symbol.node,
+              symbol.nsNode,
+              substitutions,
+            )
+            return TypeExtractor.#formatObjectType(props)
+          }
+        }
+      }
+    }
+    if (node.type === 'TSTypeLiteral') {
+      return TypeExtractor.#formatObjectType(
+        await this.#extractPropertiesFromTypeLiteral(module, node, namespace),
+      )
+    }
+    return TypeExtractor.#formatTypeText(module.source, node)
+  }
+
+  static #formatObjectType(fields: PropApi[]): string {
+    if (fields.length === 0) {
+      return '{}'
+    }
+    return `{\n${fields
+      .map((prop) => {
+        const description = prop.description
+          ? `  /** ${prop.description.replaceAll('*/', '* /')} */\n`
+          : ''
+        return `${description}  ${prop.name}${prop.optional ? '?' : ''}: ${prop.type.replaceAll('\n', '\n  ')};`
+      })
+      .join('\n')}\n}`
+  }
+
   async #convertPropertySignature(
     module: ParsedModule,
     sig: ESTree.TSPropertySignature,
@@ -957,7 +1021,7 @@ export class TypeExtractor {
     substitutions?: Map<string, string>,
   ): Promise<PropApi | null> {
     const name = getIdentifierName(sig.key)
-    if (!name) {
+    if (!name || (sig.optional && sig.typeAnnotation?.typeAnnotation.type === 'TSNeverKeyword')) {
       return null
     }
 
@@ -977,24 +1041,40 @@ export class TypeExtractor {
       }
     }
 
+    const typeNode = sig.typeAnnotation?.typeAnnotation
+    const isArray =
+      typeNode?.type === 'TSArrayType' ||
+      (typeNode?.type === 'TSTypeOperator' &&
+        typeNode.operator === 'readonly' &&
+        typeNode.typeAnnotation.type === 'TSArrayType') ||
+      (typeNode?.type === 'TSTypeReference' &&
+        ['Array', 'ReadonlyArray'].includes(entityNameToText(typeNode.typeName) ?? ''))
+    let typeDetails: string | undefined
+    if (isArray && typeNode && !this.#expandingCollection) {
+      this.#expandingCollection = true
+      try {
+        typeDetails = await this.#expandCollectionType({
+          module,
+          node: typeNode,
+          namespace: nsNode,
+        })
+      } finally {
+        this.#expandingCollection = false
+      }
+    }
+
     const jsdoc = getJsDoc(module.source, sig)
     const defaultValue =
       jsdoc.defaultValue !== undefined
         ? TypeExtractor.#parseDefaultValue(jsdoc.defaultValue)
         : undefined
-    const group = classifyPropGroup(name, typeText)
-    const traits = derivePropTraits(name, typeText)
-    const state = deriveStateRelation(name)
-
     return {
       name,
       optional,
-      type: { text: typeText },
+      type: typeText,
+      ...(typeDetails?.includes('{\n') ? { typeDetails } : {}),
       ...(jsdoc.description ? { description: jsdoc.description } : {}),
       ...(defaultValue ? { default: defaultValue } : {}),
-      group,
-      ...(traits.length > 0 ? { traits } : {}),
-      ...(state ? { state } : {}),
     }
   }
 
@@ -1026,6 +1106,12 @@ export class TypeExtractor {
     }
 
     if (node.type === 'TSArrayType') {
+      if (node.elementType.type === 'TSTypeReference') {
+        const replacement = substitutions?.get(entityNameToText(node.elementType.typeName) ?? '')
+        if (replacement) {
+          return `(${replacement})[]`
+        }
+      }
       const inner = await this.#resolveTypeText(module, node.elementType, nsNode, substitutions)
       return `${inner}[]`
     }
@@ -1087,7 +1173,7 @@ export class TypeExtractor {
       )
       const targetProp = props.find((p) => p.name === indexName)
       if (targetProp) {
-        return targetProp.type.text
+        return targetProp.type
       }
 
       return null

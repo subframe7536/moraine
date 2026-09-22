@@ -1,20 +1,16 @@
 {
   "key": "checkbox-group",
   "name": "CheckboxGroup",
-  "category": "forms",
   "description": "Props for the CheckboxGroup component.",
   "kind": "single",
-  "sourcePath": "src/forms/checkbox-group/checkbox-group.tsx",
   "parts": [
     {
       "id": "checkbox-group",
       "name": "CheckboxGroup",
       "access": {
         "kind": "export",
-        "name": "CheckboxGroup",
-        "package": "moraine"
+        "name": "CheckboxGroup"
       },
-      "sourcePath": "src/forms/checkbox-group/checkbox-group.tsx",
       "description": "Props for the CheckboxGroup component.",
       "generics": [
         {
@@ -26,304 +22,157 @@
           "default": "boolean"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is disabled.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "id",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The ID of the input element.",
-          "group": "behavior"
-        },
-        {
-          "name": "indicator",
-          "optional": true,
-          "type": {
-            "text": "'start' | 'end' | 'hidden'"
-          },
-          "description": "Default indicator position for all items.",
-          "group": "behavior"
-        },
-        {
-          "name": "legend",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Legend for the checkbox group.",
-          "group": "behavior"
-        },
-        {
-          "name": "items",
-          "optional": true,
-          "type": {
-            "text": "(string | Item<TTrue, TFalse>)[]"
-          },
-          "description": "Array of items to render in the group.",
-          "group": "data"
-        },
-        {
-          "name": "name",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The name of the input element, used for form submission.",
-          "group": "form"
-        },
-        {
-          "name": "readOnly",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is read-only.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "form"
-        },
-        {
-          "name": "required",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is required.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "form"
-        },
         {
           "name": "checkedIcon",
           "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Default checked icon for all items.",
-          "group": "rendering"
-        },
-        {
-          "name": "indeterminateIcon",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Default indeterminate icon for all items.",
-          "group": "rendering"
-        },
-        {
-          "name": "defaultValue",
-          "optional": true,
-          "type": {
-            "text": "string[]"
-          },
-          "description": "The default value of the input (uncontrolled).",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "default"
-          }
-        },
-        {
-          "name": "onChange",
-          "optional": true,
-          "type": {
-            "text": "(value: string[]) => void"
-          },
-          "description": "Callback when the selected values change.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "value",
-            "role": "change"
-          }
-        },
-        {
-          "name": "value",
-          "optional": true,
-          "type": {
-            "text": "string[]"
-          },
-          "description": "The current value of the input (controlled).",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "value"
-          }
+          "type": "IconT.Name",
+          "description": "Default checked icon for all items."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "defaultValue",
+          "optional": true,
+          "type": "string[]",
+          "description": "The default value of the input (uncontrolled)."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the input is disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "description": "The ID of the input element."
+        },
+        {
+          "name": "indeterminateIcon",
+          "optional": true,
+          "type": "IconT.Name",
+          "description": "Default indeterminate icon for all items."
+        },
+        {
+          "name": "indicator",
+          "optional": true,
+          "type": "'start' | 'end' | 'hidden'",
+          "description": "Default indicator position for all items."
+        },
+        {
+          "name": "items",
+          "optional": true,
+          "type": "(string | Item<TTrue, TFalse>)[]",
+          "typeDetails": "(string | {\n  /** Value of the group item. */\n  value?: string;\n  /** Label for the group item. */\n  label?: JSX.Element;\n  /** Description for the group item. */\n  description?: JSX.Element;\n  /** Whether the item is disabled. */\n  disabled?: boolean;\n  /** Whether the item is indeterminate. */\n  indeterminate?: boolean;\n  /** Custom checked icon for this item. */\n  checkedIcon?: IconT.Name;\n  /** Custom indeterminate icon for this item. */\n  indeterminateIcon?: IconT.Name;\n})[]",
+          "description": "Array of items to render in the group."
+        },
+        {
+          "name": "legend",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Legend for the checkbox group."
+        },
+        {
+          "name": "name",
+          "optional": true,
+          "type": "string",
+          "description": "The name of the input element, used for form submission."
+        },
+        {
+          "name": "onChange",
+          "optional": true,
+          "type": "(value: string[]) => void",
+          "description": "Callback when the selected values change."
         },
         {
           "name": "orientation",
           "optional": true,
-          "type": {
-            "text": "'horizontal' | 'vertical'"
-          },
+          "type": "'horizontal' | 'vertical'",
           "description": "Visual layout direction.",
           "default": {
             "kind": "literal",
             "value": "vertical"
-          },
-          "group": "styling"
+          }
+        },
+        {
+          "name": "readOnly",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the input is read-only.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "required",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether the input is required.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
+          "type": "'sm' | 'md' | 'lg'",
           "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": "string[]",
+          "description": "The current value of the input (controlled)."
         },
         {
           "name": "variant",
           "optional": true,
-          "type": {
-            "text": "'card' | 'table' | 'list'"
-          },
+          "type": "'card' | 'table' | 'list'",
           "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "list"
-          },
-          "group": "styling"
-        }
-      ],
-      "slots": [
-        {
-          "name": "container",
-          "description": "Text column for an option label and description."
-        },
-        {
-          "name": "control",
-          "description": "Visible checkbox control for an individual option."
-        },
-        {
-          "name": "description",
-          "description": "Supporting description for an option."
-        },
-        {
-          "name": "fieldset",
-          "description": "Fieldset element that groups checkbox options for accessibility."
-        },
-        {
-          "name": "icon",
-          "description": "Check or indeterminate icon rendered for an option state."
-        },
-        {
-          "name": "indicator",
-          "description": "Visual checked or indeterminate state layer for an option."
-        },
-        {
-          "name": "item",
-          "description": "Wrapper for one checkbox option in the group."
-        },
-        {
-          "name": "label",
-          "description": "Primary label text for an option."
-        },
-        {
-          "name": "legend",
-          "description": "Legend text that labels the checkbox group."
-        },
-        {
-          "name": "root",
-          "description": "Group container that owns checkbox collection state and layout."
-        },
-        {
-          "name": "wrapper",
-          "description": "Inner layout wrapper used by grouped checkbox variants."
-        }
-      ],
-      "runtime": [
-        {
-          "target": "fieldset",
-          "attributes": [
-            {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "description": "References the element that labels the control or region."
-            }
-          ]
-        },
-        {
-          "target": "legend",
-          "attributes": [
-            {
-              "name": "data-required",
-              "kind": "data",
-              "description": "Present when the field input is required."
-            }
-          ]
+          }
         }
       ]
     }
   ],
   "item": {
-    "name": "Item",
     "generics": [
       {
         "name": "TTrue",
@@ -338,59 +187,113 @@
       {
         "name": "checkedIcon",
         "optional": true,
-        "type": {
-          "text": "IconT.Name"
-        },
+        "type": "IconT.Name",
         "description": "Custom checked icon for this item."
       },
       {
         "name": "description",
         "optional": true,
-        "type": {
-          "text": "JSX.Element"
-        },
+        "type": "JSX.Element",
         "description": "Description for the group item."
       },
       {
         "name": "disabled",
         "optional": true,
-        "type": {
-          "text": "boolean"
-        },
+        "type": "boolean",
         "description": "Whether the item is disabled."
       },
       {
         "name": "indeterminate",
         "optional": true,
-        "type": {
-          "text": "boolean"
-        },
+        "type": "boolean",
         "description": "Whether the item is indeterminate."
       },
       {
         "name": "indeterminateIcon",
         "optional": true,
-        "type": {
-          "text": "IconT.Name"
-        },
+        "type": "IconT.Name",
         "description": "Custom indeterminate icon for this item."
       },
       {
         "name": "label",
         "optional": true,
-        "type": {
-          "text": "JSX.Element"
-        },
+        "type": "JSX.Element",
         "description": "Label for the group item."
       },
       {
         "name": "value",
         "optional": true,
-        "type": {
-          "text": "string"
-        },
+        "type": "string",
         "description": "Value of the group item."
       }
     ]
-  }
+  },
+  "slots": [
+    "root",
+    "fieldset",
+    "legend",
+    "item",
+    "container",
+    "control",
+    "indicator",
+    "icon",
+    "wrapper",
+    "label",
+    "description"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-disabled",
+        "data-invalid",
+        "data-readonly",
+        "data-required"
+      ]
+    },
+    {
+      "target": "item",
+      "attributes": [
+        "data-checked",
+        "data-disabled",
+        "data-indeterminate",
+        "data-invalid",
+        "data-readonly",
+        "data-required",
+        "data-unchecked"
+      ]
+    },
+    {
+      "target": "control",
+      "attributes": [
+        "data-checked",
+        "data-disabled",
+        "data-indeterminate",
+        "data-invalid",
+        "data-readonly",
+        "data-required",
+        "data-unchecked"
+      ]
+    },
+    {
+      "target": "indicator",
+      "attributes": [
+        "data-checked",
+        "data-disabled",
+        "data-indeterminate"
+      ]
+    },
+    {
+      "target": "label",
+      "attributes": [
+        "data-required"
+      ]
+    },
+    {
+      "target": "legend",
+      "attributes": [
+        "data-required"
+      ]
+    }
+  ]
 }

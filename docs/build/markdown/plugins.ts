@@ -1,20 +1,21 @@
 import { defineHastPlugin, defineMdastPlugin } from 'satteri'
-import type { HastNode, MdxJsxAttributeUnion } from 'satteri'
+import type { HastNode, MdastNode, MdastVisitorContext, MdxJsxAttributeUnion } from 'satteri'
 
 import {
   parseCodeGroupId,
   parseCodeTitle,
   parseHighlightedLines,
   renderDocsCodeHtml,
-} from '../core/shiki'
-import { toKebabCase } from '../core/strings'
+} from '../core/shiki.ts'
+import { toKebabCase } from '../core/strings.ts'
 
-import { asObjectRecord } from './mdx'
+import { readCodeTabSource } from './mdx.ts'
+import type { MdxNode } from './mdx.ts'
 import {
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
   MARKDOWN_ANCHOR_HEADING_CLASS,
   MARKDOWN_ANCHOR_LINK_CLASS,
-} from './shared.class'
+} from './shared.class.ts'
 
 export interface OnThisPageEntryLiteral {
   id: string
@@ -286,104 +287,40 @@ export function createDocsCodePlugin() {
   })
 }
 
-function extractNodeText(node: unknown): string {
-  if (!node || typeof node !== 'object') {
-    return ''
+async function renderCodeTabItem(node: MdxNode, source?: string) {
+  const item = readCodeTabSource(node, source)
+  if (!item) {
+    throw new Error('[docs-mdx] invalid CodeTabs item')
   }
-  const rec = node as Record<string, unknown>
-  if (typeof rec.value === 'string') {
-    return rec.value
-  }
-  if (Array.isArray(rec.children)) {
-    return rec.children.map(extractNodeText).join('')
-  }
-  return ''
-}
-
-function getJsxAttributeValue(attributes: unknown, name: string): unknown {
-  if (!Array.isArray(attributes)) {
-    return undefined
-  }
-  const attr = attributes.find((a: any) => a?.type === 'mdxJsxAttribute' && a?.name === name)
-  if (!attr) {
-    return undefined
-  }
-  const val = attr.value
-  if (val && typeof val === 'object' && val.type === 'mdxJsxAttributeValueExpression') {
-    try {
-      return JSON.parse(val.value)
-    } catch {
-      return val.value
-    }
-  }
-  return val
-}
-
-function extractExpressionCode(exprNode: unknown, fullSource?: string): string {
-  const record = asObjectRecord(exprNode)
-  const pos = asObjectRecord(record?.position)
-  const start = asObjectRecord(pos?.start)
-  const end = asObjectRecord(pos?.end)
-  if (
-    typeof start?.offset === 'number' &&
-    typeof end?.offset === 'number' &&
-    typeof fullSource === 'string'
-  ) {
-    let raw = fullSource.slice(start.offset, end.offset).trim()
-    if (raw.startsWith('{') && raw.endsWith('}')) {
-      raw = raw.slice(1, -1).trim()
-    }
-    if (raw.startsWith('`') && raw.endsWith('`')) {
-      raw = raw.slice(1, -1)
-    }
-    return raw.replace(/^\r?\n/, '').replace(/\r?\n$/, '')
-  }
-  let val = (typeof record?.value === 'string' ? record.value : '').trim()
-  if (val.startsWith('`') && val.endsWith('`')) {
-    val = val.slice(1, -1)
-  }
-  return val
-}
-
-async function renderCodeTabItem(node: any) {
-  const meta = node.meta ?? undefined
-  const title = parseCodeTitle(meta) ?? node.lang ?? 'code'
-  const highlightedLines = [...parseHighlightedLines(meta)]
   const html = await renderDocsCodeHtml({
-    code: node.value,
-    language: node.lang ?? '',
-    meta,
-    highlightedLines,
+    code: item.code,
+    language: item.lang,
+    highlightedLines: item.highlightedLines,
   })
   return {
-    label: title,
-    title,
-    value: title,
-    lang: node.lang ?? '',
-    code: node.value,
+    label: item.title,
+    title: item.title,
+    value: item.title,
+    lang: item.lang,
+    code: item.code,
     html,
-    highlightedLines,
+    highlightedLines: item.highlightedLines,
   }
 }
 
-async function groupCodeBlocks(node: unknown, ctx: any): Promise<void> {
-  if (!node || typeof node !== 'object') {
-    return
-  }
-
-  const record = node as Record<string, unknown>
-  if (Array.isArray(record.children)) {
+async function groupCodeBlocks(node: MdastNode, ctx: MdastVisitorContext): Promise<void> {
+  if ('children' in node && Array.isArray(node.children)) {
     let i = 0
-    while (i < record.children.length) {
-      const child = record.children[i]
-      if (child?.type === 'code') {
-        const groupId = parseCodeGroupId(child.meta)
+    while (i < node.children.length) {
+      const child = node.children[i]!
+      if (child.type === 'code') {
+        const groupId = parseCodeGroupId(child.meta ?? undefined)
         if (groupId) {
           const group = [child]
           let j = i + 1
-          while (j < record.children.length) {
-            const next = record.children[j]
-            if (next?.type === 'code' && parseCodeGroupId(next.meta) === groupId) {
+          while (j < node.children.length) {
+            const next = node.children[j]
+            if (next?.type === 'code' && parseCodeGroupId(next.meta ?? undefined) === groupId) {
               group.push(next)
               j++
             } else {
@@ -391,9 +328,11 @@ async function groupCodeBlocks(node: unknown, ctx: any): Promise<void> {
             }
           }
 
-          const items = await Promise.all(group.map(renderCodeTabItem))
+          const items = await Promise.all(
+            group.map((item) => renderCodeTabItem(item as MdxNode, ctx.source)),
+          )
 
-          const codeTabsNode = {
+          const codeTabsNode: MdastNode = {
             type: 'mdxJsxFlowElement',
             name: 'CodeTabs',
             attributes: [
@@ -414,9 +353,9 @@ async function groupCodeBlocks(node: unknown, ctx: any): Promise<void> {
             children: [],
           }
 
-          ctx.replaceNode(group[0], codeTabsNode)
+          ctx.replaceNode(group[0]!, codeTabsNode)
           for (let k = 1; k < group.length; k++) {
-            ctx.removeNode(group[k])
+            ctx.removeNode(group[k]!)
           }
 
           i = j
@@ -430,137 +369,41 @@ async function groupCodeBlocks(node: unknown, ctx: any): Promise<void> {
   }
 }
 
-export function createDocsCodeTabsPlugin() {
+export function createDocsCodeTabsPlugin(): ReturnType<typeof defineMdastPlugin> {
   return defineMdastPlugin({
     name: 'moraine-docs-code-tabs',
     async before(root, ctx) {
       await groupCodeBlocks(root, ctx)
     },
     async mdxJsxFlowElement(node, ctx) {
-      const record = asObjectRecord(node)
-      if (!record || record.name !== 'CodeTabs') {
+      const codeTabs = node as MdxNode
+      if (codeTabs.name !== 'CodeTabs') {
         return
       }
 
-      const children = Array.isArray(record.children) ? record.children : []
-      const itemElements = children.filter(
-        (child: any) => child?.name === 'CodeTabs.Item' || child?.type === 'code',
+      const itemElements = (codeTabs.children ?? []).filter(
+        (child) => child.name === 'CodeTabs.Item' || child.type === 'code',
       )
       if (itemElements.length === 0) {
         return
       }
 
-      const transformedChildren: any[] = []
       const items = await Promise.all(
-        itemElements.map(async (child: any) => {
-          if (child.type === 'code') {
-            return renderCodeTabItem(child)
-          }
-
-          const attrs = child.attributes
-          let lang = (getJsxAttributeValue(attrs, 'lang') ?? '') as string
-          let title = (getJsxAttributeValue(attrs, 'title') ?? '') as string
-          const rawHighlighted = getJsxAttributeValue(attrs, 'highlightedLines')
-          let highlightedLines = [...parseHighlightedLines(undefined, rawHighlighted as any)]
-          let code = (getJsxAttributeValue(attrs, 'code') ?? '') as string
-
-          const subChildren = Array.isArray(child.children) ? child.children : []
-          const codeChild = subChildren.find((c: any) => c?.type === 'code')
-          if (codeChild) {
-            code = codeChild.value
-            if (!lang && codeChild.lang) {
-              lang = codeChild.lang
-            }
-            if (!title && codeChild.meta) {
-              title = parseCodeTitle(codeChild.meta) ?? ''
-            }
-            if (highlightedLines.length === 0 && codeChild.meta) {
-              highlightedLines = [...parseHighlightedLines(codeChild.meta)]
-            }
-          } else if (!code) {
-            const exprChild = subChildren.find(
-              (c: any) => c?.type === 'mdxFlowExpression' || c?.type === 'mdxTextExpression',
-            )
-            if (exprChild) {
-              code = extractExpressionCode(exprChild, ctx?.source)
-            } else {
-              code = extractNodeText(child).trim()
-            }
-          }
-
-          const parsedTitle = title || lang || 'code'
-          const html = await renderDocsCodeHtml({
-            code,
-            language: lang,
-            highlightedLines,
-          })
-
-          const itemObj = {
-            label: parsedTitle,
-            title: parsedTitle,
-            value: parsedTitle,
-            lang,
-            code,
-            html,
-            highlightedLines,
-          }
-
-          transformedChildren.push({
-            type: 'mdxJsxFlowElement',
-            name: 'CodeTabs.Item',
-            attributes: [
-              { type: 'mdxJsxAttribute', name: 'lang', value: lang },
-              { type: 'mdxJsxAttribute', name: 'title', value: parsedTitle },
-              {
-                type: 'mdxJsxAttribute',
-                name: 'code',
-                value: {
-                  type: 'mdxJsxAttributeValueExpression',
-                  value: JSON.stringify(code),
-                },
-              },
-              {
-                type: 'mdxJsxAttribute',
-                name: 'html',
-                value: {
-                  type: 'mdxJsxAttributeValueExpression',
-                  value: JSON.stringify(html),
-                },
-              },
-              ...(highlightedLines.length > 0
-                ? [
-                    {
-                      type: 'mdxJsxAttribute',
-                      name: 'highlightedLines',
-                      value: {
-                        type: 'mdxJsxAttributeValueExpression',
-                        value: JSON.stringify(highlightedLines),
-                      },
-                    },
-                  ]
-                : []),
-            ],
-            children: [],
-          })
-
-          return itemObj
-        }),
+        itemElements.map((child) => renderCodeTabItem(child, ctx.source)),
       )
+      const itemsAttribute: MdxJsxAttributeUnion = {
+        type: 'mdxJsxAttribute',
+        name: 'items',
+        value: {
+          type: 'mdxJsxAttributeValueExpression',
+          value: JSON.stringify(items),
+        },
+      }
 
       return {
-        ...(node as any),
-        attributes: [
-          ...(Array.isArray(record.attributes) ? record.attributes : []),
-          {
-            type: 'mdxJsxAttribute',
-            name: 'items',
-            value: {
-              type: 'mdxJsxAttributeValueExpression',
-              value: JSON.stringify(items),
-            },
-          },
-        ],
-        children: transformedChildren,
+        ...node,
+        attributes: [...node.attributes, itemsAttribute],
+        children: [],
       }
     },
   })

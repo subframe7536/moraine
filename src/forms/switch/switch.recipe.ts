@@ -1,6 +1,24 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { SwitchStyleSlot, SwitchStyleVariant } from './switch.style-types'
+
+export const switchDataAttributes = {
+  root: createDataAttributes(
+    'checked',
+    'disabled',
+    'invalid',
+    'loading',
+    'readonly',
+    'required',
+    'unchecked',
+  ),
+  track: createDataAttributes('checked', 'disabled', 'invalid', 'readonly', 'unchecked'),
+  thumb: createDataAttributes('checked', 'disabled', 'unchecked'),
+  icon: createDataAttributes('checked', 'loading', 'unchecked'),
+  label: createDataAttributes('required'),
+} satisfies DataAttributeContract<keyof SwitchStyleSlot>
 
 export const switchRecipe = /* @__PURE__ */ defineRecipe<SwitchStyleSlot, SwitchStyleVariant>(
   'switch',

@@ -1,6 +1,9 @@
 ---
 title: Collapsible
 description: A disclosure primitive for controlled or uncontrolled expanding and collapsing content with optional transitions.
+api:
+  path: src/elements/collapsible/collapsible
+  parts: [Trigger, Content]
 sidebar:
   order: 8
 search:
@@ -78,7 +81,7 @@ Collapsible (root, state provider)
 
 ### Styling
 
-Configure `collapsible.base` in your Theme with `root`, `trigger`, and `content`. Collapsible keeps an internal wrapper for measurement, height animation, presence, and disclosure attributes. That wrapper is implementation-only: it is not a family slot and cannot be configured through Theme, `classes`/`styles`, or Content props.
+Configure `collapsible.base` in your Theme with `root`, `trigger`, and `content`. Collapsible keeps an internal wrapper for measurement, height animation, presence, and accessibility attributes. The public Content element exposes `data-expanded`, `data-closed`, and `data-transition` for state styling. That wrapper is implementation-only: it is not a family slot and cannot be configured through Theme, `classes`/`styles`, or Content props.
 
 Root `classes` and `styles` provide family-instance defaults. Root `class` and `style` directly override the root element, while Trigger and the public polymorphic Content element each expose only their own direct `class` and `style`. Content's `ref` and `as` also apply to that public inner element. Use `CollapsibleT.Slot`, `CollapsibleT.Classes`, and `CollapsibleT.Styles` for typed family configuration. No visual variants are provided.
 

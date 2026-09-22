@@ -7,7 +7,11 @@ import type { ValidComponent } from '../../shared/types.ts'
 import { callRef } from '../../shared/utils'
 
 import { useCollapsibleContext } from './collapsible-context'
-import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS, collapsibleRecipe } from './collapsible.recipe'
+import {
+  COLLAPSIBLE_CONTENT_WRAPPER_CLASS,
+  collapsibleDataAttributes,
+  collapsibleRecipe,
+} from './collapsible.recipe'
 import type { CollapsibleT } from './collapsible.types'
 
 /** Panel containing the expandable collapsible content. */
@@ -57,18 +61,21 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
             aria-labelledby={context.triggerId()}
             aria-hidden={closed() ? true : undefined}
             data-slot="content-wrapper"
-            data-transition={context.transition() ? '' : undefined}
             hidden={hidden()}
             inert={closed() ? true : undefined}
             style={{
               '--mo-collapsible-content-height': `${context.contentHeight()}px`,
             }}
             class={COLLAPSIBLE_CONTENT_WRAPPER_CLASS}
-            {...context.dataAttrs()}
           >
             <Dynamic
               data-slot="content"
               {...rest}
+              {...collapsibleDataAttributes.content({
+                transition: context.transition,
+                expanded: () => context.dataAttrs()['data-expanded'],
+                closed: () => context.dataAttrs()['data-closed'],
+              })}
               component={local.as ?? 'div'}
               {...resolved.styles.content}
               ref={(element: HTMLElement) => callRef(local.ref, element)}

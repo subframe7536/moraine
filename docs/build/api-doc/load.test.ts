@@ -6,7 +6,7 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, test } from 'vitest'
 
-import { clearApiDocCache, loadApiDocIndex } from './load'
+import { loadApiDocIndex } from './load.ts'
 
 const tempProjects: string[] = []
 
@@ -26,23 +26,19 @@ async function writeIndex(projectRoot: string, key: string): Promise<void> {
 }
 
 afterEach(async () => {
-  clearApiDocCache()
   await Promise.all(
     tempProjects.splice(0).map((root) => rm(root, { recursive: true, force: true })),
   )
 })
 
 describe('loadApiDocIndex', () => {
-  test('memoizes index json until the cache is cleared', async () => {
+  test('reads the latest index json', async () => {
     const projectRoot = await createTempProject()
 
     await writeIndex(projectRoot, 'first')
     expect(loadApiDocIndex(projectRoot)?.components[0]?.key).toBe('first')
 
     await writeIndex(projectRoot, 'second')
-    expect(loadApiDocIndex(projectRoot)?.components[0]?.key).toBe('first')
-
-    clearApiDocCache(projectRoot)
     expect(loadApiDocIndex(projectRoot)?.components[0]?.key).toBe('second')
   })
 

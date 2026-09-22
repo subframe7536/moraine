@@ -1,103 +1,64 @@
 {
   "key": "separator",
   "name": "Separator",
-  "category": "elements",
   "description": "Props for the Separator component.",
   "kind": "single",
-  "sourcePath": "src/elements/separator/separator.tsx",
   "parts": [
     {
       "id": "separator",
       "name": "Separator",
       "access": {
         "kind": "export",
-        "name": "Separator",
-        "package": "moraine"
+        "name": "Separator"
       },
-      "sourcePath": "src/elements/separator/separator.tsx",
       "description": "Props for the Separator component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotClassValue",
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "type": "Classes",
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "orientation",
           "optional": true,
-          "type": {
-            "text": "'horizontal' | 'vertical'"
-          },
+          "type": "'horizontal' | 'vertical'",
           "description": "Layout axis used by the component Recipe.",
-          "group": "styling"
+          "default": {
+            "kind": "literal",
+            "value": "horizontal"
+          }
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "type": "SlotStyleValue",
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "type": "Styles",
+          "description": "Family slot style defaults for this instance."
         }
-      ],
-      "slots": [
-        {
-          "name": "root",
-          "description": "Visual divider element."
-        }
-      ],
-      "runtime": [
-        {
-          "target": "root",
-          "attributes": [
-            {
-              "name": "aria-orientation",
-              "kind": "aria",
-              "description": "Communicates horizontal or vertical orientation."
-            },
-            {
-              "name": "data-orientation",
-              "kind": "data",
-              "description": "Stores the rendered orientation (horizontal or vertical)."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "values": [
-                "separator"
-              ],
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        }
+      ]
+    }
+  ],
+  "slots": [
+    "root"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-orientation"
       ]
     }
   ]

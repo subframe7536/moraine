@@ -1,6 +1,13 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { CardStyleSlot, CardStyleVariant } from './card.style-types'
+
+export const cardDataAttributes = {
+  header: createDataAttributes('action'),
+  body: createDataAttributes('no-footer'),
+} satisfies DataAttributeContract<keyof CardStyleSlot>
 
 export const cardRecipe = /* @__PURE__ */ defineRecipe<CardStyleSlot, CardStyleVariant>('card', {
   base: {
