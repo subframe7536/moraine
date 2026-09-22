@@ -206,7 +206,7 @@ export function getApiReferenceTocEntries(component: ComponentApi | undefined): 
     entries.push({ id: model.attributes.id, label: model.attributes.heading, level: 1 })
   }
   entries.push({ id: 'api-reference', label: 'Props', level: 1 })
-  if (model.kind === 'composite') {
+  if (model.parts.length > 1) {
     for (const part of model.parts) {
       entries.push({ id: part.id, label: part.shortHeading, level: 2 })
     }

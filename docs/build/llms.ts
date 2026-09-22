@@ -166,7 +166,7 @@ function renderApiReference(apiDoc: ComponentApi): string {
   }
   output.push('## Props', '')
 
-  if (model.kind === 'single') {
+  if (model.parts.length === 1) {
     const rootPart = model.parts[0]
     if (rootPart) {
       const description = rootPart.description ?? model.description

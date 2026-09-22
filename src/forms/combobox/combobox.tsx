@@ -8,6 +8,7 @@ import { callHandler, callRef } from '../../shared/utils.ts'
 import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
 import { useBaseSelectSearchInput } from '../base-select/utils.ts'
 import { useFieldContext } from '../field/field-context.ts'
+import { SelectCanonicalProvider } from '../shared/select/canonical.ts'
 import {
   createSource,
   normalizeSelectEntries,
@@ -215,23 +216,25 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
   }
 
   return (
-    <BaseSelect<ComboboxT.NormalizedItem<T>>
-      {...baseSelectProps}
-      items={search.view().items}
-      serializeValue={(value) => serializeSourceValue(source(), value)}
-      value={selection()}
-      defaultValue={defaultSelection()}
-      onChange={(values) => local.onChange?.(values[0] ?? null)}
-      onReset={() => {
-        search.setQuery('')
-        local.onReset?.()
-      }}
-      multiple={false}
-      size={styles.variants.size ?? undefined}
-      classes={baseSelectStyles.classes()}
-      styles={baseSelectStyles.styles()}
-    >
-      <Control />
-    </BaseSelect>
+    <SelectCanonicalProvider value={{ hasValue: (value) => source().byValue.has(value) }}>
+      <BaseSelect<ComboboxT.NormalizedItem<T>>
+        {...baseSelectProps}
+        items={search.view().items}
+        serializeValue={(value) => serializeSourceValue(source(), value)}
+        value={selection()}
+        defaultValue={defaultSelection()}
+        onChange={(values) => local.onChange?.(values[0] ?? null)}
+        onReset={() => {
+          search.setQuery('')
+          local.onReset?.()
+        }}
+        multiple={false}
+        size={styles.variants.size ?? undefined}
+        classes={baseSelectStyles.classes()}
+        styles={baseSelectStyles.styles()}
+      >
+        <Control />
+      </BaseSelect>
+    </SelectCanonicalProvider>
   )
 }

@@ -283,6 +283,104 @@ describe('Combobox', () => {
     expect(getInput(form)).toEqual({ choice: null })
   })
 
+  test('preserves empty-string Form.Field selection when search filtering removes the empty-string item', () => {
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choice: v.nullable(v.string()) }),
+          initialInput: { choice: '' },
+        }),
+      (form) => (
+        <MoraineProvider>
+          <form.Form>
+            <form.Field name="choice" label="Choice">
+              <Combobox
+                items={[
+                  { label: 'None', value: '' },
+                  { label: 'Apple', value: 'apple' },
+                ]}
+              />
+            </form.Field>
+          </form.Form>
+        </MoraineProvider>
+      ),
+    )
+
+    expect(getInput(form)).toEqual({ choice: '' })
+    const input = screen.getByRole('combobox') as HTMLInputElement
+    expect(input.value).toBe('None')
+
+    // Filter to hide 'None' (which has value '')
+    fireEvent.input(input, { target: { value: 'app' } })
+    expect(within(document.body).getAllByRole('option', { hidden: true })).toHaveLength(1)
+    expect(within(document.body).queryByRole('option', { hidden: true, name: 'None' })).toBeNull()
+
+    // Form value remains ''
+    expect(getInput(form)).toEqual({ choice: '' })
+    const hiddenCheckbox = screen.container.querySelector<HTMLInputElement>(
+      'input[type="checkbox"][aria-hidden="true"]',
+    )
+    expect(hiddenCheckbox?.checked).toBe(true)
+    expect(hiddenCheckbox?.value).toBe('')
+  })
+
+  test('preserves initial empty-string Form.Field selection when defaultSearchValue hides the empty item', () => {
+    const { screen, value: form } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choice: v.nullable(v.string()) }),
+          initialInput: { choice: '' },
+        }),
+      (form) => (
+        <MoraineProvider>
+          <form.Form>
+            <form.Field name="choice" label="Choice">
+              <Combobox
+                items={[
+                  { label: 'None', value: '' },
+                  { label: 'Apple', value: 'apple' },
+                ]}
+                defaultSearchValue="app"
+              />
+            </form.Field>
+          </form.Form>
+        </MoraineProvider>
+      ),
+    )
+
+    expect(getInput(form)).toEqual({ choice: '' })
+    const hiddenCheckbox = screen.container.querySelector<HTMLInputElement>(
+      'input[type="checkbox"][aria-hidden="true"]',
+    )
+    expect(hiddenCheckbox?.checked).toBe(true)
+    expect(hiddenCheckbox?.value).toBe('')
+  })
+
+  test('treats empty string as unselected when items do not contain an empty string value', () => {
+    const { screen } = renderWithOwner(
+      () =>
+        createForm({
+          schema: v.object({ choice: v.nullable(v.string()) }),
+          initialInput: { choice: '' },
+        }),
+      (form) => (
+        <MoraineProvider>
+          <form.Form>
+            <form.Field name="choice" label="Choice">
+              <Combobox items={['Apple', 'Banana']} />
+            </form.Field>
+          </form.Form>
+        </MoraineProvider>
+      ),
+    )
+
+    const hiddenCheckbox = screen.container.querySelector<HTMLInputElement>(
+      'input[type="checkbox"][aria-hidden="true"]',
+    )
+    expect(hiddenCheckbox?.checked).toBe(false)
+    expect(hiddenCheckbox?.value).toBe('')
+  })
+
   test('has data-editable on control for search input focus ring', () => {
     const screen = render(() => <Combobox items={ITEMS} />)
     const control = screen.container.querySelector('[data-slot="control"]')!

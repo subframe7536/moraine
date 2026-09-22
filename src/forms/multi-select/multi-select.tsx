@@ -8,6 +8,7 @@ import { callHandler, callRef } from '../../shared/utils.ts'
 import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
 import { useBaseSelectSearchInput } from '../base-select/utils.ts'
 import { useFieldContext } from '../field/field-context.ts'
+import { SelectCanonicalProvider } from '../shared/select/canonical.ts'
 import {
   createSource,
   labelString,
@@ -506,34 +507,36 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   }
 
   return (
-    <BaseSelect<T>
-      {...baseSelectProps}
-      closeOnSelect={false}
-      items={search.view().items}
-      serializeValue={(value) => serializeSourceValue(source(), value)}
-      value={local.value}
-      defaultValue={local.defaultValue}
-      onChange={(values) => {
-        search.setQuery('')
-        local.onChange?.(values)
-      }}
-      onReset={() => {
-        search.setQuery('')
-        setCreated([])
-        local.onReset?.()
-      }}
-      isItemDisabled={(item, values) =>
-        baseSelectProps.isItemDisabled?.(item, values) === true ||
-        (local.maxCount !== undefined &&
-          values.length >= local.maxCount &&
-          !values.some((value) => sameValue(value, item.value)))
-      }
-      multiple
-      size={styles.variants.size ?? undefined}
-      classes={baseSelectStyles.classes()}
-      styles={baseSelectStyles.styles()}
-    >
-      <Control />
-    </BaseSelect>
+    <SelectCanonicalProvider value={{ hasValue: (value) => source().byValue.has(value) }}>
+      <BaseSelect<T>
+        {...baseSelectProps}
+        closeOnSelect={false}
+        items={search.view().items}
+        serializeValue={(value) => serializeSourceValue(source(), value)}
+        value={local.value}
+        defaultValue={local.defaultValue}
+        onChange={(values) => {
+          search.setQuery('')
+          local.onChange?.(values)
+        }}
+        onReset={() => {
+          search.setQuery('')
+          setCreated([])
+          local.onReset?.()
+        }}
+        isItemDisabled={(item, values) =>
+          baseSelectProps.isItemDisabled?.(item, values) === true ||
+          (local.maxCount !== undefined &&
+            values.length >= local.maxCount &&
+            !values.some((value) => sameValue(value, item.value)))
+        }
+        multiple
+        size={styles.variants.size ?? undefined}
+        classes={baseSelectStyles.classes()}
+        styles={baseSelectStyles.styles()}
+      >
+        <Control />
+      </BaseSelect>
+    </SelectCanonicalProvider>
   )
 }

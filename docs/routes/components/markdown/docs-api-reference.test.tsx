@@ -190,6 +190,18 @@ describe('DocsApiReference', () => {
     expect(view.getByRole('columnheader', { name: 'Prop' })).toBeTruthy()
     view.unmount()
   })
+
+  test('renders part sections for a single component with multiple parts', () => {
+    const multiPartSingle: ComponentApi = {
+      ...apiDoc,
+      kind: 'single',
+      dataAttributes: [],
+    }
+    const view = render(() => <DocsApiReference apiDoc={multiPartSingle} />)
+    expect(view.getByRole('heading', { name: /Example/, level: 3 })).toBeTruthy()
+    expect(view.getByRole('heading', { name: /Trigger/, level: 3 })).toBeTruthy()
+    view.unmount()
+  })
 })
 
 test('renders pre-highlighted types only in expanded details', () => {

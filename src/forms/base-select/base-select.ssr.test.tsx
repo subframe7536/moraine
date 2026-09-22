@@ -23,7 +23,7 @@ test('hydrates the standard BaseSelect Control and Trigger anatomy', () => {
         </BaseSelect.Control>
         <BaseSelect.Content>
           <BaseSelect.Listbox>
-            <BaseSelect.Item value={1} label="One" />
+            <BaseSelect.Item item={{ value: 1, label: 'One' }} />
           </BaseSelect.Listbox>
           <BaseSelect.Empty>Empty</BaseSelect.Empty>
         </BaseSelect.Content>
@@ -41,7 +41,7 @@ test('hydrates the standard BaseSelect Control and Trigger anatomy', () => {
   expect(document.querySelector('[role="option"]')?.getAttribute('aria-selected')).toBe('true')
 })
 
-test('hydrates flattened Item fields and preserves its JSX label on updates', () => {
+test('hydrates Item item prop and preserves its JSX label on updates', () => {
   const [disabled, setDisabled] = createSignal(false)
   let labelMounts = 0
   function Label() {
@@ -50,14 +50,23 @@ test('hydrates flattened Item fields and preserves its JSX label on updates', ()
   }
   const { container } = hydrateFixture(
     '/src/forms/base-select/base-select.ssr.fixture.tsx',
-    'renderFlatBaseSelectItemFixture',
-    () => (
-      <BaseSelect items={[{ value: 1, label: 'One', disabled: disabled() }]} defaultValue={[1]}>
-        <BaseSelect.Listbox>
-          <BaseSelect.Item value={1} label={<Label />} disabled={disabled()} />
-        </BaseSelect.Listbox>
-      </BaseSelect>
-    ),
+    'renderBaseSelectItemFixture',
+    () => {
+      const item = {
+        value: 1,
+        label: <Label />,
+        get disabled() {
+          return disabled()
+        },
+      }
+      return (
+        <BaseSelect items={[{ value: 1, label: 'One', disabled: disabled() }]} defaultValue={[1]}>
+          <BaseSelect.Listbox>
+            <BaseSelect.Item item={item} />
+          </BaseSelect.Listbox>
+        </BaseSelect>
+      )
+    },
   )
   const option = container.querySelector('[role="option"]')!
   const label = option.querySelector('span')!

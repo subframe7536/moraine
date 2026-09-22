@@ -183,6 +183,36 @@ describe('llms.txt generation', () => {
           dataAttributes: [],
         }),
       )
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/(form)/form/index.mdx',
+        pageSource('Form', 3, 'Form docs.'),
+      )
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/(form)/form/api.json',
+        JSON.stringify({
+          key: 'form',
+          name: 'Form',
+          kind: 'single',
+          parts: [
+            {
+              id: 'form',
+              name: 'createForm().Form',
+              access: { kind: 'export', name: 'createForm' },
+              props: [{ name: 'onSubmit', optional: true, type: '() => void' }],
+            },
+            {
+              id: 'field',
+              name: 'createForm().Field',
+              access: { kind: 'export', name: 'createForm' },
+              props: [{ name: 'name', optional: false, type: 'string' }],
+            },
+          ],
+          slots: ['root'],
+          dataAttributes: [],
+        }),
+      )
 
       const documents = await buildLlmsDocuments({
         projectRoot,
@@ -230,6 +260,9 @@ describe('llms.txt generation', () => {
       expect(dialog).toContain('### Dialog.Trigger')
       expect(dialog).not.toContain('\n### Trigger\n')
       expect(dialog).not.toContain('`Dialog.Trigger`')
+      const form = documents.find((document) => document.fileName === 'form.md')?.source
+      expect(form).toContain('### createForm().Form')
+      expect(form).toContain('### createForm().Field')
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }

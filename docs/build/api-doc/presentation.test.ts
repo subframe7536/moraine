@@ -144,4 +144,18 @@ describe('createApiReferenceModel', () => {
       }),
     ).toEqual([{ id: 'api-reference', label: 'Props', level: 1 }])
   })
+
+  test('includes part entries for single components with multiple parts', () => {
+    expect(
+      getApiReferenceTocEntries({
+        ...component,
+        kind: 'single',
+        dataAttributes: [],
+      }),
+    ).toEqual([
+      { id: 'api-reference', label: 'Props', level: 1 },
+      { id: 'api-demo', label: 'Demo', level: 2 },
+      { id: 'api-trigger', label: 'Trigger', level: 2 },
+    ])
+  })
 })

@@ -17,7 +17,7 @@ export function renderBaseSelectFixture(): string {
       </BaseSelect.Control>
       <BaseSelect.Content>
         <BaseSelect.Listbox>
-          <BaseSelect.Item value={1} label="One" />
+          <BaseSelect.Item item={{ value: 1, label: 'One' }} />
         </BaseSelect.Listbox>
         <BaseSelect.Empty>Empty</BaseSelect.Empty>
       </BaseSelect.Content>
@@ -25,15 +25,18 @@ export function renderBaseSelectFixture(): string {
   ))
 }
 
-export function renderFlatBaseSelectItemFixture(): string {
+export function renderBaseSelectItemFixture(): string {
   function Label() {
     return <span>One</span>
   }
-  return renderToString(() => (
-    <BaseSelect items={[{ value: 1, label: 'One' }]} defaultValue={[1]}>
-      <BaseSelect.Listbox>
-        <BaseSelect.Item value={1} label={<Label />} />
-      </BaseSelect.Listbox>
-    </BaseSelect>
-  ))
+  return renderToString(() => {
+    const item = { value: 1, label: <Label /> }
+    return (
+      <BaseSelect items={[{ value: 1, label: 'One' }]} defaultValue={[1]}>
+        <BaseSelect.Listbox>
+          <BaseSelect.Item item={item} />
+        </BaseSelect.Listbox>
+      </BaseSelect>
+    )
+  })
 }

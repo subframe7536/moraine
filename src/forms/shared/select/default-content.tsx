@@ -73,9 +73,9 @@ function DefaultSelectContentBody<T extends SelectItem>(
     const attributes = createMemo(() => props.itemProps?.(presentation))
     return (
       <BaseSelect.Item<T>
+        item={item()}
         {...attributes()}
         {...rowProps}
-        {...item()}
         ref={(element) => {
           callRef(attributes()?.ref, element)
           rowProps?.ref?.(element)

@@ -30,6 +30,7 @@ import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import { useFormField } from '../field/field-context.ts'
+import { useSelectCanonical } from '../shared/select/canonical.ts'
 import {
   diagnoseDuplicateItems,
   labelString,
@@ -78,6 +79,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     return byValue
   })
   createEffect(on(items, diagnoseDuplicateItems))
+  const canonical = useSelectCanonical()
   const [selection, setSelection] = useControllableValue<Value>({
     value: () => {
       if (props.value !== undefined) {
@@ -91,7 +93,8 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
         return []
       }
       if (!props.multiple && (typeof value === 'string' || typeof value === 'number')) {
-        if (value === '' && !itemByValue().has(value)) {
+        const hasEmpty = canonical ? canonical.hasValue(value) : itemByValue().has(value)
+        if (value === '' && !hasEmpty) {
           return []
         }
         return [value]
@@ -749,9 +752,7 @@ function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
 function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps<T>): JSX.Element {
   const state = useSelectState<T>()
   const [local, rest] = splitProps(props, [
-    'value',
-    'label',
-    'disabled',
+    'item',
     'children',
     'class',
     'style',
@@ -765,12 +766,13 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
     inheritedStyles: () => state.stylePresentation,
     inheritedVariants: () => ({ size: state.styleSize }),
   })
-  const selected = () => state.value().includes(props.value)
-  const highlighted = () => sameValue(state.highlightedValue(), props.value)
-  const disabled = () => state.itemDisabled(props)
+  const item = () => local.item
+  const selected = () => state.value().includes(item().value)
+  const highlighted = () => sameValue(state.highlightedValue(), item().value)
+  const disabled = () => state.itemDisabled(item())
   const presentation: BaseSelectT.ItemRenderProps<T> = {
     get item() {
-      return props
+      return item()
     },
     get selected() {
       return selected()
@@ -782,18 +784,19 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       return disabled()
     },
   }
-  const resolvedChildren = resolveChildren(() => {
-    const children = local.children
-    if (children === undefined) {
-      return props.label
+  const child = resolveChildren(() => local.children as JSX.Element)
+  const resolvedChildren = createMemo(() => {
+    const value = child()
+    if (value === undefined) {
+      return item().label
     }
-    return renderComponentOrElement(children, presentation)
+    return renderComponentOrElement(value, presentation)
   })
   return (
     <div
       {...rest}
       ref={(element) => callRef(local.ref, element)}
-      id={state.itemId(props.value)}
+      id={state.itemId(item().value)}
       role="option"
       tabIndex={-1}
       data-slot="item"
@@ -813,7 +816,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
           !disabled() &&
           !state.locked()
         ) {
-          state.setHighlightedValue(props.value as any)
+          state.setHighlightedValue(item().value as any)
         }
       }}
       onPointerDown={(event) => {
@@ -829,8 +832,8 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       onClick={(event) => {
         callHandler(event, local.onClick)
         if (!event.defaultPrevented && !disabled() && !state.locked()) {
-          state.setHighlightedValue(props.value as any)
-          state.select(props)
+          state.setHighlightedValue(item().value as any)
+          state.select(item())
         }
       }}
     >

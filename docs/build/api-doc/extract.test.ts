@@ -148,9 +148,11 @@ describe('generateApiDoc', () => {
       .get('base-select')!
       .parts.find((part) => part.name === 'BaseSelect.Item')!
     expect(baseSelectItem.props.map((prop) => prop.name)).toEqual(
-      expect.arrayContaining(['value', 'label', 'disabled', 'children', 'class', 'style']),
+      expect.arrayContaining(['item', 'children', 'class', 'style']),
     )
-    expect(baseSelectItem.props.map((prop) => prop.name)).not.toContain('item')
+    expect(baseSelectItem.props.map((prop) => prop.name)).not.toContain('value')
+    expect(baseSelectItem.props.map((prop) => prop.name)).not.toContain('label')
+    expect(baseSelectItem.props.map((prop) => prop.name)).not.toContain('disabled')
     expect(baseSelectItem.props.map((prop) => prop.name)).not.toContain('as')
     expect(baseSelectItem.defaultElement).toBe('div')
 

@@ -342,7 +342,7 @@ export function DocsApiReference(props: { apiDoc?: ComponentApi }): JSX.Element 
           </HeadingWithAnchor>
 
           <Show
-            when={reference().kind === 'composite'}
+            when={reference().parts.length > 1}
             fallback={
               <Show when={reference().parts[0]}>
                 {(part) => (

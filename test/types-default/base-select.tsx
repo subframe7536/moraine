@@ -46,14 +46,14 @@ export type SelectFamilyPropAliases = [
     void numbers
   }}
 />
-;<BaseSelect.Item value="direct" label="Direct" disabled />
-// @ts-expect-error Item data is passed as top-level props.
 ;<BaseSelect.Item item={items[0]} />
-// @ts-expect-error A selection value is required.
+// @ts-expect-error Item requires an explicit item prop.
+;<BaseSelect.Item value="direct" label="Direct" disabled />
+// @ts-expect-error Item data is passed through the item prop.
 ;<BaseSelect.Item label="Missing value" />
-// @ts-expect-error A label is required.
-;<BaseSelect.Item value="missing-label" />
-;<BaseSelect.Item<UserItem> {...items[0]}>{(state) => state.item.email}</BaseSelect.Item>
+// @ts-expect-error An item prop is required.
+;<BaseSelect.Item />
+;<BaseSelect.Item<UserItem> item={items[0]}>{(state) => state.item.email}</BaseSelect.Item>
 ;<BaseSelect.Trigger<'button', UserItem>>{(state) => state.value.join(',')}</BaseSelect.Trigger>
 ;<BaseSelect.Trigger as={Button} loading>
   Choose
@@ -81,7 +81,7 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
 // @ts-expect-error Only Trigger is polymorphic.
 ;<BaseSelect.Listbox as="ul" />
 // @ts-expect-error Only Trigger is polymorphic.
-;<BaseSelect.Item as="li" {...items[0]} />
+;<BaseSelect.Item as="li" item={items[0]} />
 // @ts-expect-error Only Trigger is polymorphic.
 ;<BaseSelect.GroupLabel as="span" />
 ;<Combobox

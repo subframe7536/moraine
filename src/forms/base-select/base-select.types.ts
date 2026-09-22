@@ -203,14 +203,21 @@ export namespace BaseSelectT {
   export type SeparatorProps = BaseSelectPartProps
   export type EmptyProps = BaseSelectPartProps
 
-  export interface ItemBase<TItem extends Item = Item> extends Item<TItem['value']> {
+  export interface ItemBase<TItem extends Item = Item> {
+    /** Raw item belonging to the current navigation collection. */
+    item: TItem
     /** Item always renders a div; polymorphism belongs to Trigger. */
     as?: never
     /** Visual content or reactive row presentation. */
     children?: JSX.Element | ((state: ItemRenderProps<TItem>) => JSX.Element)
   }
-  export type ItemProps<TItem extends Item = Item> = TItem &
-    BaseProps<'div', ItemBase<TItem>, never, never, never>
+  export type ItemProps<TItem extends Item = Item> = BaseProps<
+    'div',
+    ItemBase<TItem>,
+    never,
+    never,
+    never
+  >
 }
 export type BaseSelectProps<TItem extends BaseSelectT.Item = BaseSelectT.Item> =
   BaseSelectT.Props<TItem>
