@@ -1,7 +1,6 @@
 {
   "key": "list",
   "name": "List",
-  "category": "elements",
   "kind": "single",
   "parts": [
     {
@@ -9,8 +8,7 @@
       "name": "List",
       "access": {
         "kind": "export",
-        "name": "List",
-        "package": "moraine"
+        "name": "List"
       },
       "generics": [
         {
@@ -27,23 +25,12 @@
           "default": "HTMLElement"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "ul",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'ul'"
-        }
-      },
+      "defaultElement": "ul",
       "props": [
         {
           "name": "as",
           "optional": true,
-          "type": {
-            "text": "T"
-          },
+          "type": "T",
           "description": "Root element or component.",
           "default": {
             "kind": "literal",
@@ -53,41 +40,31 @@
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "itemRender",
           "optional": false,
-          "type": {
-            "text": "ComponentOrElement<ItemRenderProps<TItem, TItemElement>>"
-          },
+          "type": "ComponentOrElement<ItemRenderProps<TItem, TItemElement>>",
           "description": "Renders one collection item."
         },
         {
           "name": "items",
           "optional": true,
-          "type": {
-            "text": "readonly TItem[]"
-          },
+          "type": "readonly TItem[]",
           "description": "Reactive collection rendered by the list."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "virtualRender",
           "optional": true,
-          "type": {
-            "text": "Component<VirtualRenderProps<TItem, HTMLElement, TItemElement>>"
-          },
+          "type": "Component<VirtualRenderProps<TItem, HTMLElement, TItemElement>>",
           "description": "Replaces normal iteration with caller-controlled virtual rendering."
         }
       ]

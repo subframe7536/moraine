@@ -15,6 +15,7 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
   const typeExtractor = new TypeExtractor(projectRoot)
   const recipeExtractor = new RecipeExtractor(projectRoot)
   const componentDocs = new Map<string, ComponentApi>()
+  const indexComponents: ComponentIndexEntry[] = []
 
   for (const component of registry) {
     const typesModule = await typeExtractor.loadModule(component.typesPath)
@@ -55,7 +56,7 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
         access: part.access,
         ...(extracted.description ? { description: extracted.description } : {}),
         ...(extracted.generics.length > 0 ? { generics: extracted.generics } : {}),
-        ...(extracted.rendering ? { rendering: extracted.rendering } : {}),
+        ...(extracted.defaultElement ? { defaultElement: extracted.defaultElement } : {}),
         props: extracted.props,
       })
     }
@@ -64,7 +65,6 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
     componentDocs.set(component.key, {
       key: component.key,
       name: component.name,
-      category: component.category,
       ...(description ? { description } : {}),
       kind,
       parts,
@@ -72,26 +72,16 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
       slots: recipe.slots,
       dataAttributes: recipe.dataAttributes,
     })
-  }
-
-  const indexComponents: ComponentIndexEntry[] = [...componentDocs.values()]
-    .map((component) => {
-      const entry: ComponentIndexEntry = {
-        key: component.key,
-        name: component.name,
-        category: component.category,
-        kind: component.kind,
-      }
-      if (component.description) {
-        entry.description = component.description
-      }
-      return entry
+    indexComponents.push({
+      key: component.key,
+      name: component.name,
+      category: component.category,
     })
-    .sort((left, right) => left.key.localeCompare(right.key))
+  }
+  indexComponents.sort((left, right) => left.key.localeCompare(right.key))
 
   return {
     indexDoc: { components: indexComponents },
     componentDocs,
-    diagnostics: [],
   }
 }

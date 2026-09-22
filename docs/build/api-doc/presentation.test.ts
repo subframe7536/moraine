@@ -6,27 +6,29 @@ import type { ComponentApi } from './types'
 const component: ComponentApi = {
   key: 'demo',
   name: 'Demo',
-  category: 'elements',
   kind: 'composite',
   parts: [
     {
       id: 'demo',
       name: 'Demo',
-      access: { kind: 'export', name: 'Demo', package: 'moraine' },
-      rendering: { rendersDom: false },
+      access: { kind: 'export', name: 'Demo' },
       props: [
-        { name: 'class', optional: true, type: { text: 'string' } },
-        { name: 'open', optional: false, type: { text: 'boolean' } },
+        { name: 'class', optional: true, type: 'string' },
+        { name: 'open', optional: false, type: 'boolean' },
       ],
     },
     {
       id: 'trigger',
       name: 'Demo.Trigger',
       access: { kind: 'attached', root: 'Demo', member: 'Trigger' },
-      rendering: { rendersDom: true, defaultElement: 'button' },
-      props: [{ name: 'disabled', optional: true, type: { text: 'boolean' } }],
+      defaultElement: 'button',
+      props: [{ name: 'disabled', optional: true, type: 'boolean' }],
     },
   ],
+  item: {
+    generics: [{ name: 'Value', constraint: 'string | number', default: 'string' }],
+    props: [{ name: 'value', optional: false, type: 'Value' }],
+  },
   slots: ['trigger', 'content'],
   dataAttributes: [{ target: 'trigger', attributes: ['data-disabled', 'data-expanded'] }],
 }
@@ -47,6 +49,11 @@ describe('createApiReferenceModel', () => {
     })
     expect(model.parts[0]).not.toHaveProperty('accessibility')
     expect(model.parts[0]).not.toHaveProperty('anatomy')
+  })
+
+  test('presents item generic parameters', () => {
+    const model = createApiReferenceModel(component)!
+    expect(model.item?.genericsSignature).toBe('<Value extends string | number = string>')
   })
 
   test('adds one DOM & State TOC entry after composite parts', () => {

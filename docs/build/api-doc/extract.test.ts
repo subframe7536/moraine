@@ -12,8 +12,6 @@ describe('generateApiDoc', () => {
 
     expect(result.indexDoc.components).toHaveLength(44)
     expect(result.componentDocs).toHaveLength(44)
-    expect(result.diagnostics).toEqual([])
-
     const button = result.componentDocs.get('button')
     expect(button).toMatchObject({
       name: 'Button',
@@ -21,6 +19,11 @@ describe('generateApiDoc', () => {
       slots: expect.arrayContaining(['root']),
       dataAttributes: [{ target: 'root', attributes: ['data-disabled', 'data-loading'] }],
     })
+    expect(button).not.toHaveProperty('category')
+    expect(button?.parts[0]).toMatchObject({ defaultElement: 'button' })
+    expect(button?.parts[0]).not.toHaveProperty('rendering')
+    expect(button?.parts[0]?.access).toEqual({ kind: 'export', name: 'Button' })
+    expect(typeof button?.parts[0]?.props[0]?.type).toBe('string')
     expect(button?.parts[0]?.props.map((prop) => prop.name)).toEqual(
       expect.arrayContaining(['as', 'loading', 'variant', 'size']),
     )
@@ -42,6 +45,10 @@ describe('generateApiDoc', () => {
 
     const select = result.componentDocs.get('select')
     expect(select?.item?.props.map((prop) => prop.name)).toContain('value')
+    expect(select?.item).not.toHaveProperty('name')
+    expect(select?.item?.generics).toEqual([
+      { name: 'Val', constraint: 'string | number', default: 'string | number' },
+    ])
     expect(
       select?.dataAttributes.find((target) => target.target === 'value')?.attributes,
     ).toContain('data-placeholder')
@@ -61,6 +68,12 @@ describe('generateApiDoc', () => {
     const form = result.componentDocs.get('form')
     expect(form?.parts.map((part) => part.name)).toEqual(['form.Form', 'form.Field'])
     expect(form?.parts[0]?.access).toMatchObject({ kind: 'factory-member', factory: 'createForm' })
+
+    expect(Object.keys(result.indexDoc.components[0] ?? {}).sort()).toEqual([
+      'category',
+      'key',
+      'name',
+    ])
   })
 
   test('is deterministic', async () => {

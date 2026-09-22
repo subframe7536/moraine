@@ -343,6 +343,15 @@ export function DocsApiReference(props: { apiDoc?: ComponentApi }): JSX.Element 
                 <Show when={item().description}>
                   <p class="text-sm text-muted-foreground mt-1">{item().description}</p>
                 </Show>
+                <Show when={item().genericsSignature}>
+                  {(generics) => (
+                    <div class="mt-2">
+                      <span class="text-xs text-muted-foreground font-mono px-2 py-0.5 rounded-md bg-muted/60">
+                        Generics: {generics()}
+                      </span>
+                    </div>
+                  )}
+                </Show>
                 <PropRows props={item().props} nameColumn="Field" />
               </section>
             )}

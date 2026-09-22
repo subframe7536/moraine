@@ -1,7 +1,6 @@
 {
   "key": "modal",
   "name": "Modal",
-  "category": "overlays",
   "kind": "composite",
   "parts": [
     {
@@ -9,32 +8,25 @@
       "name": "Modal",
       "access": {
         "kind": "export",
-        "name": "Modal",
-        "package": "moraine"
+        "name": "Modal"
       },
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Composed trigger and content primitives."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this Modal instance."
         },
         {
           "name": "defaultOpen",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Initial open state when uncontrolled.",
           "default": {
             "kind": "literal",
@@ -44,9 +36,7 @@
         {
           "name": "dismissible",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether outside interaction and Escape should dismiss the shell.",
           "default": {
             "kind": "literal",
@@ -56,49 +46,37 @@
         {
           "name": "id",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Unique identifier used to derive the content id."
         },
         {
           "name": "onClosePrevent",
           "optional": true,
-          "type": {
-            "text": "() => void"
-          },
+          "type": "() => void",
           "description": "Called when a dismissal attempt is blocked."
         },
         {
           "name": "onExitComplete",
           "optional": true,
-          "type": {
-            "text": "() => void"
-          },
+          "type": "() => void",
           "description": "Called after the modal has fully finished its exit motion."
         },
         {
           "name": "onOpenChange",
           "optional": true,
-          "type": {
-            "text": "(open: boolean) => void"
-          },
+          "type": "(open: boolean) => void",
           "description": "Called whenever the open state changes."
         },
         {
           "name": "open",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Controlled open state."
         },
         {
           "name": "preventScroll",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether body scroll should be locked while the shell is present.",
           "default": {
             "kind": "literal",
@@ -108,9 +86,7 @@
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this Modal instance."
         }
       ]
@@ -123,66 +99,48 @@
         "root": "Modal",
         "member": "Content"
       },
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "ariaDescribedBy",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Id of the element that describes the modal content."
         },
         {
           "name": "ariaLabel",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Accessible name used when no visible label is available."
         },
         {
           "name": "ariaLabelledBy",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Id of the element that labels the modal content."
         },
         {
           "name": "children",
           "optional": false,
-          "type": {
-            "text": "ComponentOrElement<ContentRenderProps>"
-          },
+          "type": "ComponentOrElement<ContentRenderProps>",
           "description": "Component or element rendered inside the modal content surface."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "trapFocus",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether this surface behaves as a modal dialog: it traps and receives focus,\nhides outside content from assistive technology, and locks body scroll.",
           "default": {
             "kind": "literal",
@@ -199,50 +157,36 @@
         "root": "Modal",
         "member": "Overlay"
       },
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Optional elements rendered inside the overlay."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "ref",
           "optional": true,
-          "type": {
-            "text": "(element: HTMLDivElement | undefined) => void"
-          },
+          "type": "(element: HTMLDivElement | undefined) => void",
           "description": "Receives the mounted overlay element and `undefined` when it unmounts."
         },
         {
           "name": "scrollable",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the overlay should scroll its content."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
       ]
@@ -262,23 +206,12 @@
           "default": "'button'"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
+      "defaultElement": "button",
       "props": [
         {
           "name": "as",
           "optional": true,
-          "type": {
-            "text": "T"
-          },
+          "type": "T",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -288,33 +221,25 @@
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Trigger label and visual content."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "disabled",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
       ]
@@ -334,23 +259,12 @@
           "default": "'button'"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
+      "defaultElement": "button",
       "props": [
         {
           "name": "as",
           "optional": true,
-          "type": {
-            "text": "T"
-          },
+          "type": "T",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -360,33 +274,25 @@
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Trigger label and visual content."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "disabled",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
       ]

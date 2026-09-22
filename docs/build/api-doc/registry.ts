@@ -193,7 +193,7 @@ export async function loadApiRegistry(projectRoot: string): Promise<RegisteredCo
     const rootAccess: AccessApi =
       key === 'form'
         ? { kind: 'factory-member', factory: 'createForm', member: 'Form' }
-        : { kind: 'export', name: header.componentName, package: 'moraine' }
+        : { kind: 'export', name: header.componentName }
     const parts: RegisteredPart[] = [
       {
         id: key === 'form' ? 'form-form' : key,

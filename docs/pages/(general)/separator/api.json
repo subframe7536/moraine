@@ -1,7 +1,6 @@
 {
   "key": "separator",
   "name": "Separator",
-  "category": "elements",
   "description": "Props for the Separator component.",
   "kind": "single",
   "parts": [
@@ -10,38 +9,27 @@
       "name": "Separator",
       "access": {
         "kind": "export",
-        "name": "Separator",
-        "package": "moraine"
+        "name": "Separator"
       },
       "description": "Props for the Separator component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this instance."
         },
         {
           "name": "orientation",
           "optional": true,
-          "type": {
-            "text": "'horizontal' | 'vertical'"
-          },
+          "type": "'horizontal' | 'vertical'",
           "default": {
             "kind": "literal",
             "value": "horizontal"
@@ -50,17 +38,13 @@
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this instance."
         }
       ]

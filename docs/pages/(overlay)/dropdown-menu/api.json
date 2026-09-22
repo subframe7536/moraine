@@ -1,7 +1,6 @@
 {
   "key": "dropdown-menu",
   "name": "DropdownMenu",
-  "category": "overlays",
   "kind": "composite",
   "parts": [
     {
@@ -9,31 +8,24 @@
       "name": "DropdownMenu",
       "access": {
         "kind": "export",
-        "name": "DropdownMenu",
-        "package": "moraine"
+        "name": "DropdownMenu"
       },
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          }
+          "type": "JSX.Element"
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this DropdownMenu instance."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this DropdownMenu instance."
         }
       ]
@@ -53,23 +45,12 @@
           "default": "'button'"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
+      "defaultElement": "button",
       "props": [
         {
           "name": "as",
           "optional": true,
-          "type": {
-            "text": ""
-          },
+          "type": "",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -79,33 +60,25 @@
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Trigger label and visual content."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "disabled",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
       ]
@@ -119,50 +92,36 @@
         "member": "Content"
       },
       "description": "Props for the DropdownMenu component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "ContentClasses"
-          },
+          "type": "ContentClasses",
           "description": "Family slot class defaults for this instance."
         },
         {
           "name": "itemProps",
           "optional": true,
-          "type": {
-            "text": "(props: ItemRenderProps) => ElementProps<HTMLDivElement> | undefined"
-          },
+          "type": "(props: ItemRenderProps) => ElementProps<HTMLDivElement> | undefined",
           "description": "Additional attributes for an interactive menu item."
         },
         {
           "name": "itemRender",
           "optional": true,
-          "type": {
-            "text": "ComponentOrElement<ItemRenderProps>"
-          },
+          "type": "ComponentOrElement<ItemRenderProps>",
           "description": "Custom renderer for individual items."
         },
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
+          "type": "'sm' | 'md' | 'lg'",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -171,24 +130,19 @@
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "ContentStyles"
-          },
+          "type": "ContentStyles",
           "description": "Family slot style defaults for this instance."
         }
       ]
     }
   ],
   "item": {
-    "name": "Item",
     "props": []
   },
   "slots": [

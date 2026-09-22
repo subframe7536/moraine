@@ -1,7 +1,6 @@
 {
   "key": "card",
   "name": "Card",
-  "category": "elements",
   "description": "Props for the Card component.",
   "kind": "single",
   "parts": [
@@ -10,54 +9,39 @@
       "name": "Card",
       "access": {
         "kind": "export",
-        "name": "Card",
-        "package": "moraine"
+        "name": "Card"
       },
       "description": "Props for the Card component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "action",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Actions of the card."
         },
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Children of the card."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this instance."
         },
         {
           "name": "compact",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "default": {
             "kind": "literal",
             "value": false
@@ -66,49 +50,37 @@
         {
           "name": "description",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Description of the card."
         },
         {
           "name": "footer",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Footer of the card."
         },
         {
           "name": "header",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Header of the card."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this instance."
         },
         {
           "name": "title",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Title of the card."
         }
       ]

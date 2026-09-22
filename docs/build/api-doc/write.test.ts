@@ -10,14 +10,13 @@ import { writeJsonFiles } from './write'
 const validComponent: ComponentApi = {
   key: 'demo',
   name: 'Demo',
-  category: 'elements',
   kind: 'single',
   parts: [
     {
       id: 'demo',
       name: 'Demo',
-      access: { kind: 'export', name: 'Demo', package: 'moraine' },
-      props: [{ name: 'variant', optional: true, type: { text: 'string' } }],
+      access: { kind: 'export', name: 'Demo' },
+      props: [{ name: 'variant', optional: true, type: 'string' }],
     },
   ],
   slots: ['root'],
@@ -36,10 +35,9 @@ describe('writeJsonFiles', () => {
 
     const result: GenerationResult = {
       indexDoc: {
-        components: [{ key: 'demo', name: 'Demo', category: 'elements', kind: 'single' }],
+        components: [{ key: 'demo', name: 'Demo', category: 'elements' }],
       },
       componentDocs: new Map([['demo', validComponent]]),
-      diagnostics: [],
     }
     await writeJsonFiles(pagesRoot, result)
     expect(JSON.parse(await readFile(path.join(pagesRoot, '_api-index.json'), 'utf8'))).toEqual(
@@ -61,7 +59,6 @@ describe('writeJsonFiles', () => {
     const result: GenerationResult = {
       indexDoc: { components: [] },
       componentDocs: new Map([['demo', invalid]]),
-      diagnostics: [],
     }
     await expect(writeJsonFiles(pagesRoot, result)).rejects.toThrow(
       'at least one documented public part',

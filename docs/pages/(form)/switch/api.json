@@ -1,7 +1,6 @@
 {
   "key": "switch",
   "name": "Switch",
-  "category": "forms",
   "description": "Props for the Switch component.",
   "kind": "single",
   "parts": [
@@ -10,8 +9,7 @@
       "name": "Switch",
       "access": {
         "kind": "export",
-        "name": "Switch",
-        "package": "moraine"
+        "name": "Switch"
       },
       "description": "Props for the Switch component.",
       "generics": [
@@ -24,66 +22,48 @@
           "default": "boolean"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "checked",
           "optional": true,
-          "type": {
-            "text": "TTrue | TFalse"
-          },
+          "type": "TTrue | TFalse",
           "description": "Whether the switch is checked."
         },
         {
           "name": "checkedIcon",
           "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
+          "type": "IconT.Name",
           "description": "Icon shown when the switch is checked."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this instance."
         },
         {
           "name": "defaultChecked",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the switch is checked by default."
         },
         {
           "name": "description",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Description for the switch."
         },
         {
           "name": "disabled",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the input is disabled.",
           "default": {
             "kind": "literal",
@@ -93,9 +73,7 @@
         {
           "name": "falseValue",
           "optional": true,
-          "type": {
-            "text": "TFalse"
-          },
+          "type": "TFalse",
           "description": "Value to use when the switch is unchecked.",
           "default": {
             "kind": "literal",
@@ -105,33 +83,25 @@
         {
           "name": "id",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "The ID of the input element."
         },
         {
           "name": "inputRef",
           "optional": true,
-          "type": {
-            "text": "Ref<HTMLInputElement>"
-          },
+          "type": "Ref<HTMLInputElement>",
           "description": "Optional inner input element ref."
         },
         {
           "name": "label",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Label for the switch."
         },
         {
           "name": "loading",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the switch is in a loading state.",
           "default": {
             "kind": "literal",
@@ -141,9 +111,7 @@
         {
           "name": "loadingIcon",
           "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
+          "type": "IconT.Name",
           "description": "Icon shown during loading state.",
           "default": {
             "kind": "literal",
@@ -153,33 +121,25 @@
         {
           "name": "name",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "The name of the input element, used for form submission."
         },
         {
           "name": "onChange",
           "optional": true,
-          "type": {
-            "text": "(value: TTrue | TFalse) => void"
-          },
+          "type": "(value: TTrue | TFalse) => void",
           "description": "Callback when the switch state changes."
         },
         {
           "name": "onPointerDown",
           "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>"
-          },
+          "type": "JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>",
           "description": "Pointer down handler for the switch root container."
         },
         {
           "name": "readOnly",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the input is read-only.",
           "default": {
             "kind": "literal",
@@ -189,9 +149,7 @@
         {
           "name": "required",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the input is required.",
           "default": {
             "kind": "literal",
@@ -201,9 +159,7 @@
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
+          "type": "'sm' | 'md' | 'lg'",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -212,25 +168,19 @@
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this instance."
         },
         {
           "name": "trueValue",
           "optional": true,
-          "type": {
-            "text": "TTrue"
-          },
+          "type": "TTrue",
           "description": "Value to use when the switch is checked.",
           "default": {
             "kind": "literal",
@@ -240,17 +190,13 @@
         {
           "name": "uncheckedIcon",
           "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
+          "type": "IconT.Name",
           "description": "Icon shown when the switch is unchecked."
         },
         {
           "name": "value",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Native value submitted when the switch is checked.",
           "default": {
             "kind": "literal",

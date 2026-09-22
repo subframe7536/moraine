@@ -219,6 +219,9 @@ function renderApiReference(apiDoc: ComponentApi): string {
 
   if (model.item) {
     output.push('### Items', '')
+    if (model.item.genericsSignature) {
+      output.push(`Generics: \`${model.item.genericsSignature}\``, '')
+    }
     if (model.item.description) {
       output.push(model.item.description, '')
     }
@@ -269,8 +272,7 @@ function renderIntroComponents(
       const url = route
         ? markdownPageUrl(siteUrl, route)
         : absoluteUrl(siteUrl, `${component.key}.md`)
-      const description = component.description ? `: ${component.description}` : ''
-      output.push(`- [${component.name}](${url})${description}`)
+      output.push(`- [${component.name}](${url})`)
     }
     output.push('')
   }

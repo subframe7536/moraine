@@ -9,18 +9,17 @@ import { createDocsMdxOptions } from './page'
 const BUTTON_API_DOC: ComponentApi = {
   key: 'button',
   name: 'Button',
-  category: 'General',
   kind: 'single',
   parts: [
     {
       id: 'button',
       name: 'Button',
-      access: { kind: 'export', name: 'Button', package: 'moraine' },
+      access: { kind: 'export', name: 'Button' },
       props: [
         {
           name: 'variant',
           optional: true,
-          type: { text: 'string' },
+          type: 'string',
         },
       ],
     },
@@ -35,8 +34,7 @@ vi.mock('../api-doc/load.ts', () => ({
       {
         key: BUTTON_API_DOC.key,
         name: BUTTON_API_DOC.name,
-        category: BUTTON_API_DOC.category,
-        kind: BUTTON_API_DOC.kind,
+        category: 'elements',
       },
     ],
   }),

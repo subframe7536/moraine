@@ -245,9 +245,6 @@ export const IntroComponents = () => {
                           <span class="text-sm text-foreground font-medium transition-colors group-hover:text-primary">
                             {component.name}
                           </span>
-                          <span class="text-xs text-muted-foreground leading-relaxed mt-1 block">
-                            {component.description}
-                          </span>
                         </a>
                       </li>
                     )}

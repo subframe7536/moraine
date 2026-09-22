@@ -1,7 +1,6 @@
 {
   "key": "avatar-group",
   "name": "AvatarGroup",
-  "category": "elements",
   "description": "Props for the AvatarGroup component.",
   "kind": "single",
   "parts": [
@@ -10,38 +9,27 @@
       "name": "AvatarGroup",
       "access": {
         "kind": "export",
-        "name": "AvatarGroup",
-        "package": "moraine"
+        "name": "AvatarGroup"
       },
       "description": "Props for the AvatarGroup component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this instance."
         },
         {
           "name": "items",
           "optional": true,
-          "type": {
-            "text": "Item[]"
-          },
+          "type": "Item[]",
           "description": "Array of avatars to render in the group.",
           "default": {
             "kind": "expression",
@@ -51,17 +39,13 @@
         {
           "name": "max",
           "optional": true,
-          "type": {
-            "text": "number | string"
-          },
+          "type": "number | string",
           "description": "Maximum number of avatars to show."
         },
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
+          "type": "'sm' | 'md' | 'lg'",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -70,47 +54,36 @@
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this instance."
         }
       ]
     }
   ],
   "item": {
-    "name": "Item",
     "props": [
       {
         "name": "alt",
         "optional": true,
-        "type": {
-          "text": "string"
-        },
+        "type": "string",
         "description": "Accessible alt text for the avatar."
       },
       {
         "name": "badge",
         "optional": true,
-        "type": {
-          "text": "IconT.Name"
-        },
+        "type": "IconT.Name",
         "description": "Icon name for the badge."
       },
       {
         "name": "badgePosition",
         "optional": true,
-        "type": {
-          "text": "NonNullable<Variant['badgePosition']>"
-        },
+        "type": "NonNullable<Variant['badgePosition']>",
         "description": "Position of the badge.",
         "default": {
           "kind": "literal",
@@ -120,33 +93,25 @@
       {
         "name": "fallback",
         "optional": true,
-        "type": {
-          "text": "IconT.Name"
-        },
+        "type": "IconT.Name",
         "description": "Icon name to show as fallback."
       },
       {
         "name": "onStatusChange",
         "optional": true,
-        "type": {
-          "text": "(status: Status) => void"
-        },
+        "type": "(status: Status) => void",
         "description": "Callback when the loading status of the avatar changes."
       },
       {
         "name": "src",
         "optional": true,
-        "type": {
-          "text": "string"
-        },
+        "type": "string",
         "description": "Source URL for the avatar image."
       },
       {
         "name": "text",
         "optional": true,
-        "type": {
-          "text": "string"
-        },
+        "type": "string",
         "description": "Initial text to show if image fails or is missing."
       }
     ]

@@ -1,7 +1,6 @@
 {
   "key": "button",
   "name": "Button",
-  "category": "elements",
   "description": "Props for the Button component.",
   "kind": "single",
   "parts": [
@@ -10,8 +9,7 @@
       "name": "Button",
       "access": {
         "kind": "export",
-        "name": "Button",
-        "package": "moraine"
+        "name": "Button"
       },
       "description": "Props for the Button component.",
       "generics": [
@@ -21,23 +19,12 @@
           "default": "'button'"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
+      "defaultElement": "button",
       "props": [
         {
           "name": "as",
           "optional": true,
-          "type": {
-            "text": "T"
-          },
+          "type": "T",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -47,49 +34,37 @@
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "ComponentOrElement<{ loading: boolean }>"
-          },
+          "type": "ComponentOrElement<{ loading: boolean }>",
           "description": "Children of the button. Supports render function form."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this instance."
         },
         {
           "name": "disabled",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Disabled state, including for non-button polymorphic roots."
         },
         {
           "name": "leading",
           "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
+          "type": "IconT.Name",
           "description": "Leading visual content, usually an icon."
         },
         {
           "name": "loading",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Controlled loading state.",
           "default": {
             "kind": "literal",
@@ -99,9 +74,7 @@
         {
           "name": "loadingAuto",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Auto toggles loading while async click handlers are pending.",
           "default": {
             "kind": "literal",
@@ -111,9 +84,7 @@
         {
           "name": "loadingIcon",
           "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
+          "type": "IconT.Name",
           "description": "Optional icon shown when `loading` is active.",
           "default": {
             "kind": "literal",
@@ -123,9 +94,7 @@
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'"
-          },
+          "type": "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -134,41 +103,31 @@
         {
           "name": "slotName",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Root `data-slot` name"
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this instance."
         },
         {
           "name": "trailing",
           "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
+          "type": "IconT.Name",
           "description": "Trailing visual content, usually an icon."
         },
         {
           "name": "variant",
           "optional": true,
-          "type": {
-            "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
-          },
+          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
           "default": {
             "kind": "literal",
             "value": "default"

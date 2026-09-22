@@ -87,7 +87,6 @@ describe('llms.txt generation', () => {
               key: 'button',
               name: 'Button',
               category: 'elements',
-              description: 'A button.',
             },
           ],
         }),
@@ -121,23 +120,26 @@ describe('llms.txt generation', () => {
         JSON.stringify({
           key: 'button',
           name: 'Button',
-          category: 'elements',
           kind: 'single',
           parts: [
             {
               id: 'button',
               name: 'Button',
-              access: { kind: 'export', name: 'Button', package: 'moraine' },
+              access: { kind: 'export', name: 'Button' },
               props: [
                 {
                   name: 'variant',
                   optional: true,
-                  type: { text: '"default" | "outline"' },
+                  type: '"default" | "outline"',
                   description: 'Visual variant.',
                 },
               ],
             },
           ],
+          item: {
+            generics: [{ name: 'Value', constraint: 'string | number' }],
+            props: [{ name: 'value', optional: false, type: 'Value' }],
+          },
           slots: ['root', 'content'],
           dataAttributes: [{ target: 'content', attributes: ['data-expanded'] }],
         }),
@@ -152,13 +154,14 @@ describe('llms.txt generation', () => {
       const introduction = documents.find((document) => document.fileName === 'index.md')?.source
       const button = documents.find((document) => document.fileName === 'button.md')?.source
 
-      expect(introduction).toContain('[Button](https://ui.subf.dev/button.md): A button.')
+      expect(introduction).toContain('[Button](https://ui.subf.dev/button.md)')
       expect(introduction).not.toContain('<CodeTabs')
       expect(introduction).toContain('```shell bun\nbun add moraine\n```')
       expect(introduction).toContain('```shell pnpm\npnpm add moraine\n```')
       expect(introduction).toContain('```shell npm\nnpm i moraine\n```')
       expect(button).toContain('## API')
       expect(button).toContain('### Props')
+      expect(button).toContain('Generics: `<Value extends string | number>`')
       expect(button).toContain('| variant | "default" \\| "outline" | — | Visual variant. |')
       expect(button).toContain('### Slots')
       expect(button).toContain('- `root`')

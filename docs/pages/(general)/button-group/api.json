@@ -1,7 +1,6 @@
 {
   "key": "button-group",
   "name": "ButtonGroup",
-  "category": "elements",
   "description": "Props for the ButtonGroup component.",
   "kind": "composite",
   "parts": [
@@ -10,54 +9,39 @@
       "name": "ButtonGroup",
       "access": {
         "kind": "export",
-        "name": "ButtonGroup",
-        "package": "moraine"
+        "name": "ButtonGroup"
       },
       "description": "Props for the ButtonGroup component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Buttons or compatible controls rendered as a cohesive group."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this instance."
         },
         {
           "name": "id",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Optional identifier for the group root."
         },
         {
           "name": "orientation",
           "optional": true,
-          "type": {
-            "text": "'horizontal' | 'vertical'"
-          },
+          "type": "'horizontal' | 'vertical'",
           "default": {
             "kind": "literal",
             "value": "horizontal"
@@ -66,17 +50,13 @@
         {
           "name": "role",
           "optional": true,
-          "type": {
-            "text": "JSX.AriaAttributes['role']"
-          },
+          "type": "JSX.AriaAttributes['role']",
           "description": "ARIA role for the group root."
         },
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
+          "type": "'sm' | 'md' | 'lg'",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -85,25 +65,19 @@
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this instance."
         },
         {
           "name": "variant",
           "optional": true,
-          "type": {
-            "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
-          },
+          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
           "default": {
             "kind": "literal",
             "value": "default"
@@ -120,26 +94,18 @@
         "member": "Separator"
       },
       "description": "Props for the ButtonGroup.Separator component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "orientation",
           "optional": true,
-          "type": {
-            "text": "'horizontal' | 'vertical'"
-          },
+          "type": "'horizontal' | 'vertical'",
           "default": {
             "kind": "literal",
             "value": "horizontal"
@@ -148,9 +114,7 @@
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
+          "type": "'sm' | 'md' | 'lg'",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -159,17 +123,13 @@
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "variant",
           "optional": true,
-          "type": {
-            "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
-          },
+          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
           "default": {
             "kind": "literal",
             "value": "default"

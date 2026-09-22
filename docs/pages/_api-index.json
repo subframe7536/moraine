@@ -3,293 +3,222 @@
     {
       "key": "accordion",
       "name": "Accordion",
-      "category": "elements",
-      "kind": "single",
-      "description": "Props for the Accordion component."
+      "category": "elements"
     },
     {
       "key": "avatar",
       "name": "Avatar",
-      "category": "elements",
-      "kind": "single",
-      "description": "Props for the Avatar component."
+      "category": "elements"
     },
     {
       "key": "avatar-group",
       "name": "AvatarGroup",
-      "category": "elements",
-      "kind": "single",
-      "description": "Props for the AvatarGroup component."
+      "category": "elements"
     },
     {
       "key": "badge",
       "name": "Badge",
-      "category": "elements",
-      "kind": "single",
-      "description": "Props for the Badge component."
+      "category": "elements"
     },
     {
       "key": "base-select",
       "name": "BaseSelect",
-      "category": "forms",
-      "kind": "composite"
+      "category": "forms"
     },
     {
       "key": "breadcrumb",
       "name": "Breadcrumb",
-      "category": "navigation",
-      "kind": "single",
-      "description": "Props for the Breadcrumb component."
+      "category": "navigation"
     },
     {
       "key": "button",
       "name": "Button",
-      "category": "elements",
-      "kind": "single",
-      "description": "Props for the Button component."
+      "category": "elements"
     },
     {
       "key": "button-group",
       "name": "ButtonGroup",
-      "category": "elements",
-      "kind": "composite",
-      "description": "Props for the ButtonGroup component."
+      "category": "elements"
     },
     {
       "key": "card",
       "name": "Card",
-      "category": "elements",
-      "kind": "single",
-      "description": "Props for the Card component."
+      "category": "elements"
     },
     {
       "key": "checkbox",
       "name": "Checkbox",
-      "category": "forms",
-      "kind": "single",
-      "description": "Props for the Checkbox component."
+      "category": "forms"
     },
     {
       "key": "checkbox-group",
       "name": "CheckboxGroup",
-      "category": "forms",
-      "kind": "single",
-      "description": "Props for the CheckboxGroup component."
+      "category": "forms"
     },
     {
       "key": "collapsible",
       "name": "Collapsible",
-      "category": "elements",
-      "kind": "composite",
-      "description": "Props for the Collapsible component."
+      "category": "elements"
     },
     {
       "key": "combobox",
       "name": "Combobox",
-      "category": "forms",
-      "kind": "single"
+      "category": "forms"
     },
     {
       "key": "command-palette",
       "name": "CommandPalette",
-      "category": "navigation",
-      "kind": "single"
+      "category": "navigation"
     },
     {
       "key": "context-menu",
       "name": "ContextMenu",
-      "category": "overlays",
-      "kind": "composite"
+      "category": "overlays"
     },
     {
       "key": "dialog",
       "name": "Dialog",
-      "category": "overlays",
-      "kind": "composite"
+      "category": "overlays"
     },
     {
       "key": "dropdown-menu",
       "name": "DropdownMenu",
-      "category": "overlays",
-      "kind": "composite"
+      "category": "overlays"
     },
     {
       "key": "field",
       "name": "Field",
-      "category": "forms",
-      "kind": "single",
-      "description": "Props for the Field component."
+      "category": "forms"
     },
     {
       "key": "file-upload",
       "name": "FileUpload",
-      "category": "forms",
-      "kind": "single",
-      "description": "Props for the FileUpload component."
+      "category": "forms"
     },
     {
       "key": "form",
       "name": "Form",
-      "category": "forms",
-      "kind": "single"
+      "category": "forms"
     },
     {
       "key": "icon",
       "name": "Icon",
-      "category": "elements",
-      "kind": "single",
-      "description": "Props for the Icon component."
+      "category": "elements"
     },
     {
       "key": "input",
       "name": "Input",
-      "category": "forms",
-      "kind": "single",
-      "description": "Props for the Input component."
+      "category": "forms"
     },
     {
       "key": "input-group",
       "name": "InputGroup",
-      "category": "forms",
-      "kind": "composite"
+      "category": "forms"
     },
     {
       "key": "input-number",
       "name": "InputNumber",
-      "category": "forms",
-      "kind": "single",
-      "description": "Props for the InputNumber component."
+      "category": "forms"
     },
     {
       "key": "kbd",
       "name": "Kbd",
-      "category": "elements",
-      "kind": "single",
-      "description": "Props for the Kbd component."
+      "category": "elements"
     },
     {
       "key": "kbd-group",
       "name": "KbdGroup",
-      "category": "elements",
-      "kind": "single",
-      "description": "Props for the KbdGroup component."
+      "category": "elements"
     },
     {
       "key": "list",
       "name": "List",
-      "category": "elements",
-      "kind": "single"
+      "category": "elements"
     },
     {
       "key": "modal",
       "name": "Modal",
-      "category": "overlays",
-      "kind": "composite"
+      "category": "overlays"
     },
     {
       "key": "multi-select",
       "name": "MultiSelect",
-      "category": "forms",
-      "kind": "single"
+      "category": "forms"
     },
     {
       "key": "pagination",
       "name": "Pagination",
-      "category": "navigation",
-      "kind": "single",
-      "description": "Props for the Pagination component."
+      "category": "navigation"
     },
     {
       "key": "popover",
       "name": "Popover",
-      "category": "overlays",
-      "kind": "composite"
+      "category": "overlays"
     },
     {
       "key": "progress",
       "name": "Progress",
-      "category": "elements",
-      "kind": "single"
+      "category": "elements"
     },
     {
       "key": "radio-group",
       "name": "RadioGroup",
-      "category": "forms",
-      "kind": "single",
-      "description": "Props for the RadioGroup component."
+      "category": "forms"
     },
     {
       "key": "resizable",
       "name": "Resizable",
-      "category": "elements",
-      "kind": "composite",
-      "description": "Props for the Resizable component."
+      "category": "elements"
     },
     {
       "key": "select",
       "name": "Select",
-      "category": "forms",
-      "kind": "single"
+      "category": "forms"
     },
     {
       "key": "separator",
       "name": "Separator",
-      "category": "elements",
-      "kind": "single",
-      "description": "Props for the Separator component."
+      "category": "elements"
     },
     {
       "key": "sheet",
       "name": "Sheet",
-      "category": "overlays",
-      "kind": "composite"
+      "category": "overlays"
     },
     {
       "key": "sidebar-frame",
       "name": "SidebarFrame",
-      "category": "navigation",
-      "kind": "composite"
+      "category": "navigation"
     },
     {
       "key": "slider",
       "name": "Slider",
-      "category": "forms",
-      "kind": "single",
-      "description": "Props for the Slider component."
+      "category": "forms"
     },
     {
       "key": "stepper",
       "name": "Stepper",
-      "category": "navigation",
-      "kind": "single",
-      "description": "Props for the Stepper component."
+      "category": "navigation"
     },
     {
       "key": "switch",
       "name": "Switch",
-      "category": "forms",
-      "kind": "single",
-      "description": "Props for the Switch component."
+      "category": "forms"
     },
     {
       "key": "tabs",
       "name": "Tabs",
-      "category": "navigation",
-      "kind": "single",
-      "description": "Props for the Tabs component."
+      "category": "navigation"
     },
     {
       "key": "textarea",
       "name": "Textarea",
-      "category": "forms",
-      "kind": "single",
-      "description": "Props for the Textarea component."
+      "category": "forms"
     },
     {
       "key": "tooltip",
       "name": "Tooltip",
-      "category": "overlays",
-      "kind": "composite"
+      "category": "overlays"
     }
   ]
 }

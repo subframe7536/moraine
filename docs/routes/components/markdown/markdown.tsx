@@ -81,7 +81,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
   useDocsPage(untrack(() => input.metadata))
   const component = () => input.apiDoc
   const componentKey = () => input.frontmatter.componentKey ?? component()?.key
-  const category = () => input.frontmatter.category ?? component()?.category
+  const category = () => input.frontmatter.category ?? input.frontmatter.api?.path.split('/')[1]
   const githubSourceHref = () => {
     const sourcePath = input.frontmatter.api?.path
     return sourcePath ? `${GITHUB_SOURCE_BASE_URL}/${sourcePath}.tsx` : undefined

@@ -1,7 +1,6 @@
 {
   "key": "base-select",
   "name": "BaseSelect",
-  "category": "forms",
   "kind": "composite",
   "parts": [
     {
@@ -9,8 +8,7 @@
       "name": "BaseSelect",
       "access": {
         "kind": "export",
-        "name": "BaseSelect",
-        "package": "moraine"
+        "name": "BaseSelect"
       },
       "generics": [
         {
@@ -23,33 +21,25 @@
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Composed trigger and popup parts."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this BaseSelect instance."
         },
         {
           "name": "closeOnSelect",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Close after selection. Defaults to true for single, false for multiple."
         },
         {
           "name": "defaultOpen",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Initial popup state.",
           "default": {
             "kind": "literal",
@@ -59,9 +49,7 @@
         {
           "name": "defaultValue",
           "optional": true,
-          "type": {
-            "text": "readonly TItem['value'][]"
-          },
+          "type": "readonly TItem['value'][]",
           "description": "Initial selection.",
           "default": {
             "kind": "expression",
@@ -71,9 +59,7 @@
         {
           "name": "disabled",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the input is disabled.",
           "default": {
             "kind": "literal",
@@ -83,41 +69,31 @@
         {
           "name": "id",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "The ID of the input element."
         },
         {
           "name": "isItemDisabled",
           "optional": true,
-          "type": {
-            "text": "(item: TItem, values: readonly TItem['value'][]) => boolean"
-          },
+          "type": "(item: TItem, values: readonly TItem['value'][]) => boolean",
           "description": "Additional disabled policy evaluated against the current selection."
         },
         {
           "name": "items",
           "optional": true,
-          "type": {
-            "text": "readonly TItem[]"
-          },
+          "type": "readonly TItem[]",
           "description": "Current flat navigation collection."
         },
         {
           "name": "itemToLabelString",
           "optional": true,
-          "type": {
-            "text": "(item: TItem) => string"
-          },
+          "type": "(item: TItem) => string",
           "description": "Machine-readable text for matching; does not change visual labels."
         },
         {
           "name": "loop",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether arrow-key navigation wraps from the ends.",
           "default": {
             "kind": "literal",
@@ -127,57 +103,43 @@
         {
           "name": "multiple",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether selecting an item toggles multiple values."
         },
         {
           "name": "name",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "The name of the input element, used for form submission."
         },
         {
           "name": "onChange",
           "optional": true,
-          "type": {
-            "text": "(value: TItem['value'][]) => void"
-          },
+          "type": "(value: TItem['value'][]) => void",
           "description": "Called when selection changes."
         },
         {
           "name": "onOpenChange",
           "optional": true,
-          "type": {
-            "text": "(open: boolean) => void"
-          },
+          "type": "(open: boolean) => void",
           "description": "Called when popup state changes."
         },
         {
           "name": "onReset",
           "optional": true,
-          "type": {
-            "text": "() => void"
-          },
+          "type": "() => void",
           "description": "Post-reset notification after an unprevented native form reset."
         },
         {
           "name": "open",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Controlled popup state."
         },
         {
           "name": "readOnly",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the input is read-only.",
           "default": {
             "kind": "literal",
@@ -187,9 +149,7 @@
         {
           "name": "required",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the input is required.",
           "default": {
             "kind": "literal",
@@ -199,25 +159,19 @@
         {
           "name": "serializeValue",
           "optional": true,
-          "type": {
-            "text": "(value: TItem['value']) => string | undefined"
-          },
+          "type": "(value: TItem['value']) => string | undefined",
           "description": "Native form value; return undefined to omit a selected value from submission."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this BaseSelect instance."
         },
         {
           "name": "value",
           "optional": true,
-          "type": {
-            "text": "readonly TItem['value'][]"
-          },
+          "type": "readonly TItem['value'][]",
           "description": "Controlled selection. Single mode uses at most the first value."
         }
       ]
@@ -230,26 +184,18 @@
         "root": "BaseSelect",
         "member": "Control"
       },
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
       ]
@@ -274,23 +220,12 @@
           "default": "Item"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
+      "defaultElement": "button",
       "props": [
         {
           "name": "as",
           "optional": true,
-          "type": {
-            "text": "T"
-          },
+          "type": "T",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -300,33 +235,25 @@
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element | ((state: TriggerRenderProps<TItem>) => JSX.Element)"
-          },
+          "type": "JSX.Element | ((state: TriggerRenderProps<TItem>) => JSX.Element)",
           "description": "Label or reactive presentation function."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "disabled",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
       ]
@@ -339,26 +266,18 @@
         "root": "BaseSelect",
         "member": "Content"
       },
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "gutter",
           "optional": true,
-          "type": {
-            "text": "number"
-          },
+          "type": "number",
           "description": "Gap between anchor and popup.",
           "default": {
             "kind": "literal",
@@ -368,17 +287,13 @@
         {
           "name": "onExitComplete",
           "optional": true,
-          "type": {
-            "text": "() => void"
-          },
+          "type": "() => void",
           "description": "Called once after an open popup completes its exit."
         },
         {
           "name": "overflowPadding",
           "optional": true,
-          "type": {
-            "text": "number"
-          },
+          "type": "number",
           "description": "Viewport collision padding.",
           "default": {
             "kind": "literal",
@@ -388,9 +303,7 @@
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
       ]
@@ -420,42 +333,30 @@
           "default": "Item"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element | ((state: ItemRenderProps<TItem>) => JSX.Element)"
-          },
+          "type": "JSX.Element | ((state: ItemRenderProps<TItem>) => JSX.Element)",
           "description": "Visual content or reactive row presentation."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "item",
           "optional": false,
-          "type": {
-            "text": "TItem"
-          },
+          "type": "TItem",
           "description": "Raw item belonging to the current navigation collection."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
       ]
@@ -502,7 +403,6 @@
     }
   ],
   "item": {
-    "name": "Item",
     "generics": [
       {
         "name": "TValue",
@@ -514,25 +414,19 @@
       {
         "name": "disabled",
         "optional": true,
-        "type": {
-          "text": "boolean"
-        },
+        "type": "boolean",
         "description": "Whether this item cannot be selected."
       },
       {
         "name": "label",
         "optional": false,
-        "type": {
-          "text": "JSX.Element"
-        },
+        "type": "JSX.Element",
         "description": "Visual label."
       },
       {
         "name": "value",
         "optional": false,
-        "type": {
-          "text": "TValue"
-        },
+        "type": "TValue",
         "description": "Unique selection and form value."
       }
     ]

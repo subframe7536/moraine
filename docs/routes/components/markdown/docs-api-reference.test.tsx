@@ -8,33 +8,35 @@ import { DocsApiReference } from './docs-api-reference.tsx'
 const apiDoc: ComponentApi = {
   key: 'example',
   name: 'Example',
-  category: 'elements',
   kind: 'composite',
   parts: [
     {
       id: 'example',
       name: 'Example',
-      access: { kind: 'export', name: 'Example', package: 'moraine' },
-      rendering: { rendersDom: false },
+      access: { kind: 'export', name: 'Example' },
       props: [],
     },
     {
       id: 'trigger',
       name: 'Example.Trigger',
       access: { kind: 'attached', root: 'Example', member: 'Trigger' },
-      rendering: { rendersDom: true, defaultElement: 'button' },
+      defaultElement: 'button',
       props: [
         {
           name: 'disabled',
           optional: true,
-          type: { text: 'boolean' },
+          type: 'boolean',
           description: 'Disables the trigger.',
         },
-        { name: 'open', optional: false, type: { text: 'boolean' } },
-        { name: 'class', optional: true, type: { text: 'string' } },
+        { name: 'open', optional: false, type: 'boolean' },
+        { name: 'class', optional: true, type: 'string' },
       ],
     },
   ],
+  item: {
+    generics: [{ name: 'Value', constraint: 'string | number' }],
+    props: [{ name: 'value', optional: false, type: 'Value' }],
+  },
   slots: ['trigger', 'content'],
   dataAttributes: [{ target: 'trigger', attributes: ['data-disabled', 'data-expanded'] }],
 }
@@ -60,5 +62,6 @@ test('renders one component-level DOM and State contract', () => {
   expect(view.getByText('data-disabled')).toBeTruthy()
   expect(view.queryByRole('heading', { name: 'CSS Variables' })).toBeNull()
   expect(view.queryByRole('heading', { name: 'Accessibility' })).toBeNull()
+  expect(view.getByText('Generics: <Value extends string | number>')).toBeTruthy()
   view.unmount()
 })

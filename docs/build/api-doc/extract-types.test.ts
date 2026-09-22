@@ -32,12 +32,7 @@ describe('TypeExtractor', () => {
     expect(part.generics).toEqual([
       { name: 'T', constraint: 'ValidComponent', default: "'button'" },
     ])
-    expect(part.rendering).toEqual({
-      rendersDom: true,
-      defaultElement: 'button',
-      asProp: 'as',
-      polymorphic: { name: 'T', constraint: 'ValidComponent', default: "'button'" },
-    })
+    expect(part.defaultElement).toBe('button')
 
     const propNames = part.props.map((p) => p.name)
     expect(propNames).toContain('as')
@@ -52,7 +47,7 @@ describe('TypeExtractor', () => {
     expect(loadingProp?.default).toEqual({ kind: 'literal', value: false })
 
     const asProp = part.props.find((p) => p.name === 'as')
-    expect(asProp?.type.text).toBe('T')
+    expect(asProp?.type).toBe('T')
     expect(asProp?.default).toEqual({ kind: 'literal', value: 'button' })
   })
 
@@ -275,22 +270,20 @@ export namespace NeverT {
 
     // Imported leaf types remain textual when expansion is unnecessary.
     const indicatorProp = cbPart.props.find((p) => p.name === 'indicator')
-    expect(indicatorProp?.type.text).toBe("CheckboxProps<TTrue, TFalse>['indicator']")
+    expect(indicatorProp?.type).toBe("CheckboxProps<TTrue, TFalse>['indicator']")
 
     const checkedIconProp = cbPart.props.find((p) => p.name === 'checkedIcon')
-    expect(checkedIconProp?.type.text).toBe("CheckboxProps<TTrue, TFalse>['checkedIcon']")
+    expect(checkedIconProp?.type).toBe("CheckboxProps<TTrue, TFalse>['checkedIcon']")
 
     const indeterminateIconProp = cbPart.props.find((p) => p.name === 'indeterminateIcon')
-    expect(indeterminateIconProp?.type.text).toBe(
-      "CheckboxProps<TTrue, TFalse>['indeterminateIcon']",
-    )
+    expect(indeterminateIconProp?.type).toBe("CheckboxProps<TTrue, TFalse>['indeterminateIcon']")
 
     // Verify CheckboxGroup item props have expanded types
     const itemCheckedIcon = cbItem?.props.find((p) => p.name === 'checkedIcon')
-    expect(itemCheckedIcon?.type.text).toBe("CheckboxProps<TTrue, TFalse>['checkedIcon']")
+    expect(itemCheckedIcon?.type).toBe("CheckboxProps<TTrue, TFalse>['checkedIcon']")
 
     const itemIndeterminate = cbItem?.props.find((p) => p.name === 'indeterminate')
-    expect(itemIndeterminate?.type.text).toBe("CheckboxProps<TTrue, TFalse>['indeterminate']")
+    expect(itemIndeterminate?.type).toBe("CheckboxProps<TTrue, TFalse>['indeterminate']")
 
     // Verify Pagination variants expanded from ButtonStyleVariant['variant']
     const paginationModule = await extractor.loadModule(
@@ -311,7 +304,7 @@ export namespace NeverT {
       paginationRecipe.variants,
     )
     const variantProp = paginationPart.props.find((p) => p.name === 'variant')
-    expect(variantProp?.type.text).toBe(
+    expect(variantProp?.type).toBe(
       "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
     )
   })

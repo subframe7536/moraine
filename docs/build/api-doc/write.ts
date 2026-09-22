@@ -41,11 +41,6 @@ export async function writeJsonFiles(pagesRoot: string, result: GenerationResult
   const projectRoot = path.dirname(path.dirname(pagesRoot))
 
   // 1. Validate complete generation result before modifying ANY file on disk
-  if (result.diagnostics.length > 0) {
-    throw new Error(
-      `[api-doc] Extraction produced diagnostics:\n${result.diagnostics.map((diagnostic) => `- ${diagnostic}`).join('\n')}`,
-    )
-  }
   const allComponents = [...result.componentDocs.values()].map(sortComponentApi)
   validateAllComponentApis(allComponents)
 

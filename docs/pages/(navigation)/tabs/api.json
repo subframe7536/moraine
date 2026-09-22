@@ -1,7 +1,6 @@
 {
   "key": "tabs",
   "name": "Tabs",
-  "category": "navigation",
   "description": "Props for the Tabs component.",
   "kind": "single",
   "parts": [
@@ -10,22 +9,15 @@
       "name": "Tabs",
       "access": {
         "kind": "export",
-        "name": "Tabs",
-        "package": "moraine"
+        "name": "Tabs"
       },
       "description": "Props for the Tabs component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "activationMode",
           "optional": true,
-          "type": {
-            "text": "'automatic' | 'manual'"
-          },
+          "type": "'automatic' | 'manual'",
           "description": "Whether keyboard navigation activates the tab immediately or waits for confirmation.",
           "default": {
             "kind": "literal",
@@ -35,33 +27,25 @@
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this instance."
         },
         {
           "name": "defaultValue",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Default active tab value for uncontrolled usage."
         },
         {
           "name": "disabled",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the tab list is disabled.",
           "default": {
             "kind": "literal",
@@ -71,25 +55,19 @@
         {
           "name": "id",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Unique identifier for the tabs root element."
         },
         {
           "name": "items",
           "optional": true,
-          "type": {
-            "text": "Item[]"
-          },
+          "type": "Item[]",
           "description": "Array of tabs to display."
         },
         {
           "name": "loop",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether arrow-key navigation wraps from the ends.",
           "default": {
             "kind": "literal",
@@ -99,17 +77,13 @@
         {
           "name": "onChange",
           "optional": true,
-          "type": {
-            "text": "(value: string) => void"
-          },
+          "type": "(value: string) => void",
           "description": "Callback when the active tab changes."
         },
         {
           "name": "orientation",
           "optional": true,
-          "type": {
-            "text": "'horizontal' | 'vertical'"
-          },
+          "type": "'horizontal' | 'vertical'",
           "default": {
             "kind": "literal",
             "value": "horizontal"
@@ -118,9 +92,7 @@
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
+          "type": "'sm' | 'md' | 'lg'",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -129,33 +101,25 @@
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this instance."
         },
         {
           "name": "value",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Controlled active tab value."
         },
         {
           "name": "variant",
           "optional": true,
-          "type": {
-            "text": "'pill' | 'link'"
-          },
+          "type": "'pill' | 'link'",
           "default": {
             "kind": "literal",
             "value": "pill"
@@ -165,23 +129,18 @@
     }
   ],
   "item": {
-    "name": "Item",
     "description": "An individual tab in the tabs component.",
     "props": [
       {
         "name": "content",
         "optional": true,
-        "type": {
-          "text": "JSX.Element"
-        },
+        "type": "JSX.Element",
         "description": "Content to display when the tab is active."
       },
       {
         "name": "disabled",
         "optional": true,
-        "type": {
-          "text": "boolean"
-        },
+        "type": "boolean",
         "description": "Whether the tab is disabled.",
         "default": {
           "kind": "literal",
@@ -191,25 +150,19 @@
       {
         "name": "icon",
         "optional": true,
-        "type": {
-          "text": "IconT.Name"
-        },
+        "type": "IconT.Name",
         "description": "Icon to display next to the label."
       },
       {
         "name": "label",
         "optional": true,
-        "type": {
-          "text": "JSX.Element"
-        },
+        "type": "JSX.Element",
         "description": "Label to display on the tab trigger."
       },
       {
         "name": "value",
         "optional": true,
-        "type": {
-          "text": "string"
-        },
+        "type": "string",
         "description": "Unique value for the tab.",
         "default": {
           "kind": "expression",

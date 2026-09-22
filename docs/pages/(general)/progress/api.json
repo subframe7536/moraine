@@ -1,7 +1,6 @@
 {
   "key": "progress",
   "name": "Progress",
-  "category": "elements",
   "kind": "single",
   "parts": [
     {
@@ -9,21 +8,14 @@
       "name": "Progress",
       "access": {
         "kind": "export",
-        "name": "Progress",
-        "package": "moraine"
+        "name": "Progress"
       },
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "animation",
           "optional": true,
-          "type": {
-            "text": "'carousel' | 'reverse' | 'swing' | 'elastic'"
-          },
+          "type": "'carousel' | 'reverse' | 'swing' | 'elastic'",
           "default": {
             "kind": "literal",
             "value": "carousel"
@@ -32,33 +24,25 @@
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this instance."
         },
         {
           "name": "getValueLabel",
           "optional": true,
-          "type": {
-            "text": "(params: { value: number; min: number; max: number }) => string"
-          },
+          "type": "(params: { value: number; min: number; max: number }) => string",
           "description": "Callback to get a localized label for the current value."
         },
         {
           "name": "max",
           "optional": true,
-          "type": {
-            "text": "number | string[]"
-          },
+          "type": "number | string[]",
           "description": "The maximum value of the progress bar, or an array of step labels.",
           "default": {
             "kind": "literal",
@@ -68,9 +52,7 @@
         {
           "name": "orientation",
           "optional": true,
-          "type": {
-            "text": "'horizontal' | 'vertical'"
-          },
+          "type": "'horizontal' | 'vertical'",
           "default": {
             "kind": "literal",
             "value": "horizontal"
@@ -79,9 +61,7 @@
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
+          "type": "'sm' | 'md' | 'lg'",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -90,9 +70,7 @@
         {
           "name": "status",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether to show the status label.",
           "default": {
             "kind": "literal",
@@ -102,41 +80,31 @@
         {
           "name": "statusRender",
           "optional": true,
-          "type": {
-            "text": "ComponentOrElement<StatusRenderProps>"
-          },
+          "type": "ComponentOrElement<StatusRenderProps>",
           "description": "Custom render function for the status label."
         },
         {
           "name": "stepRender",
           "optional": true,
-          "type": {
-            "text": "ComponentOrElement<StepRenderProps>"
-          },
+          "type": "ComponentOrElement<StepRenderProps>",
           "description": "Custom render function for each step when `max` is an array."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this instance."
         },
         {
           "name": "value",
           "optional": true,
-          "type": {
-            "text": "number | null"
-          },
+          "type": "number | null",
           "description": "The current value of the progress bar. If null/undefined, it is indeterminate.",
           "default": {
             "kind": "literal",

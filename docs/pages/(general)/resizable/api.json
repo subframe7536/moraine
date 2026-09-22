@@ -1,7 +1,6 @@
 {
   "key": "resizable",
   "name": "Resizable",
-  "category": "elements",
   "description": "Props for the Resizable component.",
   "kind": "composite",
   "parts": [
@@ -10,46 +9,33 @@
       "name": "Resizable",
       "access": {
         "kind": "export",
-        "name": "Resizable",
-        "package": "moraine"
+        "name": "Resizable"
       },
       "description": "Props for the Resizable component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Ordered `Resizable.Panel` and `Resizable.Handle` children."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this instance."
         },
         {
           "name": "disable",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the resizable component is disabled.",
           "default": {
             "kind": "literal",
@@ -59,17 +45,13 @@
         {
           "name": "id",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Unique identifier for the resizable root."
         },
         {
           "name": "keyboardDelta",
           "optional": true,
-          "type": {
-            "text": "ResizableSize"
-          },
+          "type": "ResizableSize",
           "description": "The amount to resize when using keyboard shortcuts.",
           "default": {
             "kind": "literal",
@@ -79,41 +61,31 @@
         {
           "name": "onHandleKeyDown",
           "optional": true,
-          "type": {
-            "text": "(context: { event: KeyboardEvent handleIndex: number sizes: number[] }) => void"
-          },
+          "type": "(context: { event: KeyboardEvent handleIndex: number sizes: number[] }) => void",
           "description": "Callback when a key is pressed on a handle."
         },
         {
           "name": "onResize",
           "optional": true,
-          "type": {
-            "text": "(sizes: number[]) => void"
-          },
+          "type": "(sizes: number[]) => void",
           "description": "Callback when any panel is resized."
         },
         {
           "name": "onResizeEnd",
           "optional": true,
-          "type": {
-            "text": "(sizes: number[]) => void"
-          },
+          "type": "(sizes: number[]) => void",
           "description": "Callback when a resize operation ends."
         },
         {
           "name": "onResizeStart",
           "optional": true,
-          "type": {
-            "text": "(sizes: number[]) => void"
-          },
+          "type": "(sizes: number[]) => void",
           "description": "Callback when a resize operation starts."
         },
         {
           "name": "orientation",
           "optional": true,
-          "type": {
-            "text": "'horizontal' | 'vertical'"
-          },
+          "type": "'horizontal' | 'vertical'",
           "default": {
             "kind": "literal",
             "value": "horizontal"
@@ -122,17 +94,13 @@
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this instance."
         }
       ]
@@ -145,34 +113,24 @@
         "root": "Resizable",
         "member": "Panel"
       },
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Content rendered inside the panel."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
       ]
@@ -185,18 +143,12 @@
         "root": "Resizable",
         "member": "Handle"
       },
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "action",
           "optional": true,
-          "type": {
-            "text": "'resize' | 'collapse'"
-          },
+          "type": "'resize' | 'collapse'",
           "description": "Handle interaction behavior.",
           "default": {
             "kind": "literal",
@@ -206,25 +158,19 @@
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "ComponentOrElement<HandleRenderProps>"
-          },
+          "type": "ComponentOrElement<HandleRenderProps>",
           "description": "Custom grip content, or a component receiving the live handle state."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "intersection",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether this handle participates in intersection resizing.",
           "default": {
             "kind": "literal",
@@ -234,9 +180,7 @@
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
       ]

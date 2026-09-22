@@ -8,34 +8,21 @@ export type DefaultValue =
       text: string
     }
 
-export interface TypeApi {
-  text: string
-  refs?: string[]
-  resolution?: 'partial'
-}
-
 export interface GenericParameterApi {
   name: string
   constraint?: string
   default?: string
 }
 
-export interface RenderingApi {
-  rendersDom: boolean
-  defaultElement?: string
-  asProp?: string
-  polymorphic?: boolean | GenericParameterApi
-}
-
 export type AccessApi =
-  | { kind: 'export'; name: string; package: 'moraine' }
+  | { kind: 'export'; name: string }
   | { kind: 'attached'; root: string; member: string }
   | { kind: 'factory-member'; factory: string; member: string }
 
 export interface PropApi {
   name: string
   optional: boolean
-  type: TypeApi
+  type: string
   description?: string
   default?: DefaultValue
 }
@@ -46,23 +33,14 @@ export interface PartApi {
   access: AccessApi
   description?: string
   generics?: GenericParameterApi[]
-  rendering?: RenderingApi
+  defaultElement?: string
   props: PropApi[]
 }
 
-export interface ItemPropertyApi {
-  name: string
-  optional: boolean
-  type: TypeApi
-  description?: string
-  default?: DefaultValue
-}
-
 export interface ItemApi {
-  name?: string
   description?: string
   generics?: GenericParameterApi[]
-  props: ItemPropertyApi[]
+  props: PropApi[]
 }
 
 export interface DataAttributeTargetApi {
@@ -73,7 +51,6 @@ export interface DataAttributeTargetApi {
 export interface ComponentApi {
   key: string
   name: string
-  category: string
   description?: string
   kind: 'single' | 'composite'
   parts: PartApi[]
@@ -86,8 +63,6 @@ export interface ComponentIndexEntry {
   key: string
   name: string
   category: string
-  description?: string
-  kind: 'single' | 'composite'
 }
 
 export interface IndexDoc {
@@ -97,5 +72,4 @@ export interface IndexDoc {
 export interface GenerationResult {
   indexDoc: IndexDoc
   componentDocs: Map<string, ComponentApi>
-  diagnostics: string[]
 }

@@ -1,7 +1,6 @@
 {
   "key": "tooltip",
   "name": "Tooltip",
-  "category": "overlays",
   "kind": "composite",
   "parts": [
     {
@@ -9,32 +8,25 @@
       "name": "Tooltip",
       "access": {
         "kind": "export",
-        "name": "Tooltip",
-        "package": "moraine"
+        "name": "Tooltip"
       },
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Composed trigger and content primitives."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this Tooltip instance."
         },
         {
           "name": "closeDelay",
           "optional": true,
-          "type": {
-            "text": "number"
-          },
+          "type": "number",
           "description": "Delay in milliseconds before closing after leaving trigger or content.",
           "default": {
             "kind": "literal",
@@ -44,9 +36,7 @@
         {
           "name": "defaultOpen",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Initial open state when uncontrolled.",
           "default": {
             "kind": "literal",
@@ -56,9 +46,7 @@
         {
           "name": "disabled",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether trigger interactions and content rendering are disabled.",
           "default": {
             "kind": "literal",
@@ -68,9 +56,7 @@
         {
           "name": "forceMount",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether content remains mounted while closed.",
           "default": {
             "kind": "literal",
@@ -80,17 +66,13 @@
         {
           "name": "id",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Unique identifier used to derive the content id."
         },
         {
           "name": "instantOpenDelay",
           "optional": true,
-          "type": {
-            "text": "number"
-          },
+          "type": "number",
           "description": "Delay in milliseconds to skip the open delay for the next trigger after closing.",
           "default": {
             "kind": "literal",
@@ -100,25 +82,19 @@
         {
           "name": "onOpenChange",
           "optional": true,
-          "type": {
-            "text": "(open: boolean) => void"
-          },
+          "type": "(open: boolean) => void",
           "description": "Called whenever the open state changes."
         },
         {
           "name": "open",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Controlled open state."
         },
         {
           "name": "openDelay",
           "optional": true,
-          "type": {
-            "text": "number"
-          },
+          "type": "number",
           "description": "Delay in milliseconds before opening on hover or focus.",
           "default": {
             "kind": "literal",
@@ -128,9 +104,7 @@
         {
           "name": "placement",
           "optional": true,
-          "type": {
-            "text": "PopperPlacement"
-          },
+          "type": "PopperPlacement",
           "description": "Preferred content placement relative to the trigger.",
           "default": {
             "kind": "literal",
@@ -140,9 +114,7 @@
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this Tooltip instance."
         }
       ]
@@ -162,23 +134,12 @@
           "default": "'button'"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
+      "defaultElement": "button",
       "props": [
         {
           "name": "as",
           "optional": true,
-          "type": {
-            "text": "B"
-          },
+          "type": "B",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -188,33 +149,25 @@
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Trigger label and visual content."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "disabled",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
       ]
@@ -228,42 +181,30 @@
         "member": "Content"
       },
       "description": "Props for the Tooltip component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Text content when text is undefined."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "ContentClasses"
-          },
+          "type": "ContentClasses",
           "description": "Family slot class defaults for this instance."
         },
         {
           "name": "invert",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "default": {
             "kind": "literal",
             "value": false
@@ -272,17 +213,13 @@
         {
           "name": "kbds",
           "optional": true,
-          "type": {
-            "text": "string[]"
-          },
+          "type": "string[]",
           "description": "Keyboard shortcuts to display next to the text."
         },
         {
           "name": "side",
           "optional": true,
-          "type": {
-            "text": "'top' | 'right' | 'bottom' | 'left'"
-          },
+          "type": "'top' | 'right' | 'bottom' | 'left'",
           "description": "Preferred placement relative to the trigger.",
           "default": {
             "kind": "literal",
@@ -292,25 +229,19 @@
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "ContentStyles"
-          },
+          "type": "ContentStyles",
           "description": "Family slot style defaults for this instance."
         },
         {
           "name": "text",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Primary text content or element to display."
         }
       ]

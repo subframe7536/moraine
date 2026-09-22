@@ -1,7 +1,6 @@
 {
   "key": "file-upload",
   "name": "FileUpload",
-  "category": "forms",
   "description": "Props for the FileUpload component.",
   "kind": "single",
   "parts": [
@@ -10,8 +9,7 @@
       "name": "FileUpload",
       "access": {
         "kind": "export",
-        "name": "FileUpload",
-        "package": "moraine"
+        "name": "FileUpload"
       },
       "description": "Props for the FileUpload component.",
       "generics": [
@@ -21,23 +19,12 @@
           "default": "'div'"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'div'"
-        }
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "accept",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Accepted file types (e.g., \".jpg,.png\", \"image/*\").",
           "default": {
             "kind": "literal",
@@ -47,9 +34,7 @@
         {
           "name": "as",
           "optional": true,
-          "type": {
-            "text": "T"
-          },
+          "type": "T",
           "description": "The HTML element or component to render as.",
           "default": {
             "kind": "literal",
@@ -59,33 +44,25 @@
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this instance."
         },
         {
           "name": "description",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Description text for the upload area."
         },
         {
           "name": "disabled",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the input is disabled.",
           "default": {
             "kind": "literal",
@@ -95,9 +72,7 @@
         {
           "name": "dropzone",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether to enable drag and drop.",
           "default": {
             "kind": "literal",
@@ -107,9 +82,7 @@
         {
           "name": "fileIcon",
           "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
+          "type": "IconT.Name",
           "description": "Icon to show for individual files when no preview is available.",
           "default": {
             "kind": "literal",
@@ -119,9 +92,7 @@
         {
           "name": "icon",
           "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
+          "type": "IconT.Name",
           "description": "Icon to show in the upload area.",
           "default": {
             "kind": "literal",
@@ -131,57 +102,43 @@
         {
           "name": "id",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "The ID of the input element."
         },
         {
           "name": "inputRef",
           "optional": true,
-          "type": {
-            "text": "Ref<HTMLInputElement>"
-          },
+          "type": "Ref<HTMLInputElement>",
           "description": "Native input element ref."
         },
         {
           "name": "label",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Label for the upload area."
         },
         {
           "name": "maxFiles",
           "optional": true,
-          "type": {
-            "text": "number"
-          },
+          "type": "number",
           "description": "Maximum number of files allowed."
         },
         {
           "name": "maxSize",
           "optional": true,
-          "type": {
-            "text": "number"
-          },
+          "type": "number",
           "description": "Maximum accepted file size in bytes."
         },
         {
           "name": "minSize",
           "optional": true,
-          "type": {
-            "text": "number"
-          },
+          "type": "number",
           "description": "Minimum accepted file size in bytes."
         },
         {
           "name": "multiple",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether multiple files can be uploaded.",
           "default": {
             "kind": "literal",
@@ -191,73 +148,55 @@
         {
           "name": "name",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "The name of the input element, used for form submission."
         },
         {
           "name": "onClick",
           "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLElement, MouseEvent>"
-          },
+          "type": "JSX.EventHandlerUnion<HTMLElement, MouseEvent>",
           "description": "Click handler for the upload control."
         },
         {
           "name": "onDragLeave",
           "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLElement, DragEvent>"
-          },
+          "type": "JSX.EventHandlerUnion<HTMLElement, DragEvent>",
           "description": "Drag-leave handler for the upload dropzone."
         },
         {
           "name": "onDragOver",
           "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLElement, DragEvent>"
-          },
+          "type": "JSX.EventHandlerUnion<HTMLElement, DragEvent>",
           "description": "Drag-over handler for the upload dropzone."
         },
         {
           "name": "onDrop",
           "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLElement, DragEvent>"
-          },
+          "type": "JSX.EventHandlerUnion<HTMLElement, DragEvent>",
           "description": "Drop handler for the upload dropzone."
         },
         {
           "name": "onFileReject",
           "optional": true,
-          "type": {
-            "text": "(files: Rejection[]) => void"
-          },
+          "type": "(files: Rejection[]) => void",
           "description": "Callback when files are rejected (e.g., due to type or count)."
         },
         {
           "name": "onKeyDown",
           "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>"
-          },
+          "type": "JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>",
           "description": "Keyboard handler for the upload control."
         },
         {
           "name": "onValueChange",
           "optional": true,
-          "type": {
-            "text": "(value: Value) => void"
-          },
+          "type": "(value: Value) => void",
           "description": "Callback when the selected files change."
         },
         {
           "name": "preview",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether to show file previews.",
           "default": {
             "kind": "literal",
@@ -267,9 +206,7 @@
         {
           "name": "readOnly",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the input is read-only.",
           "default": {
             "kind": "literal",
@@ -279,9 +216,7 @@
         {
           "name": "required",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the input is required.",
           "default": {
             "kind": "literal",
@@ -291,9 +226,7 @@
         {
           "name": "size",
           "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
+          "type": "'sm' | 'md' | 'lg'",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -302,17 +235,13 @@
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this instance."
         }
       ]

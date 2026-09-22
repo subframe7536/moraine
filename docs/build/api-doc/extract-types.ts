@@ -6,14 +6,7 @@ import type { ESTree } from 'vite'
 import { entityNameToText, getIdentifierName, getJsDoc, nodeText, parseTypeScript } from './ast'
 import type { ParsedSource } from './ast'
 import type { RecipeVariantApi } from './recipe'
-import type {
-  DefaultValue,
-  GenericParameterApi,
-  ItemApi,
-  ItemPropertyApi,
-  PropApi,
-  RenderingApi,
-} from './types'
+import type { DefaultValue, GenericParameterApi, ItemApi, PropApi } from './types'
 
 export interface ParsedModule {
   filePath: string
@@ -285,27 +278,11 @@ export class TypeExtractor {
     )
     const props = await this.#resolvePropertiesFromDeclaration(ns.module, itemDecl, ns.node)
 
-    const itemProps: ItemPropertyApi[] = props.map((p) => {
-      const itemProp: ItemPropertyApi = {
-        name: p.name,
-        optional: p.optional,
-        type: p.type,
-      }
-      if (p.description) {
-        itemProp.description = p.description
-      }
-      if (p.default) {
-        itemProp.default = p.default
-      }
-      return itemProp
-    })
-
     const jsdoc = getJsDoc(ns.module.source, itemDecl)
     return {
-      name: 'Item',
       ...(jsdoc.description ? { description: jsdoc.description } : {}),
       ...(generics.length > 0 ? { generics } : {}),
-      props: itemProps,
+      props,
     }
   }
 
@@ -318,7 +295,7 @@ export class TypeExtractor {
     recipeVariants: RecipeVariantApi[] = [],
   ): Promise<{
     generics: GenericParameterApi[]
-    rendering?: RenderingApi
+    defaultElement?: string
     props: PropApi[]
     description?: string
   }> {
@@ -371,7 +348,7 @@ export class TypeExtractor {
       (targetDecl as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters,
     )
 
-    let rendering: RenderingApi | undefined
+    let defaultElement: string | undefined
     let props: PropApi[]
 
     if (
@@ -386,7 +363,7 @@ export class TypeExtractor {
         generics,
       )
       props = basePropsRes.props
-      rendering = basePropsRes.rendering
+      defaultElement = basePropsRes.defaultElement
       if (basePropsRes.generics) {
         generics = basePropsRes.generics
       }
@@ -412,7 +389,7 @@ export class TypeExtractor {
                   generics,
                 )
                 props = basePropsRes.props
-                rendering = basePropsRes.rendering
+                defaultElement = basePropsRes.defaultElement
                 if (basePropsRes.generics) {
                   generics = basePropsRes.generics
                 }
@@ -425,7 +402,7 @@ export class TypeExtractor {
 
     return {
       generics,
-      ...(rendering ? { rendering } : {}),
+      ...(defaultElement ? { defaultElement } : {}),
       props,
       ...(jsdoc.description ? { description: jsdoc.description } : {}),
     }
@@ -439,7 +416,7 @@ export class TypeExtractor {
     substitutions?: Map<string, string>,
   ): Promise<{
     props: PropApi[]
-    rendering: RenderingApi
+    defaultElement: string
     generics?: GenericParameterApi[]
   }> {
     const args = typeRef.typeArguments?.params ?? []
@@ -472,12 +449,10 @@ export class TypeExtractor {
       }
     }
 
-    const rendering: RenderingApi = {
-      rendersDom: true,
-      ...(defaultElement ? { defaultElement } : {}),
-      ...(isPolymorphic
-        ? { asProp: 'as', polymorphic: asGenericParam ?? true }
-        : { polymorphic: false }),
+    if (!defaultElement) {
+      throw new Error(
+        `[api-doc] BaseProps in ${module.filePath} must declare a literal element or a generic default.`,
+      )
     }
 
     const props: PropApi[] = []
@@ -504,7 +479,7 @@ export class TypeExtractor {
         const variantProp: PropApi = {
           name: variant.name,
           optional: true,
-          type: { text: typeText },
+          type: typeText,
           ...(variant.default ? { default: variant.default } : {}),
         }
         const existingIdx = props.findIndex((prop) => prop.name === variant.name)
@@ -521,7 +496,7 @@ export class TypeExtractor {
       props.push({
         name: 'class',
         optional: true,
-        type: { text: 'SlotClassValue' },
+        type: 'SlotClassValue',
         description: 'Class applied to the component root or trigger element.',
       })
     }
@@ -530,7 +505,7 @@ export class TypeExtractor {
       props.push({
         name: 'style',
         optional: true,
-        type: { text: 'SlotStyleValue' },
+        type: 'SlotStyleValue',
         description: 'Style applied to the component root or trigger element.',
       })
     }
@@ -542,7 +517,7 @@ export class TypeExtractor {
         props.push({
           name: 'classes',
           optional: true,
-          type: { text: classesText },
+          type: classesText,
           description: 'Family slot class defaults for this instance.',
         })
       }
@@ -554,7 +529,7 @@ export class TypeExtractor {
         props.push({
           name: 'styles',
           optional: true,
-          type: { text: stylesText },
+          type: stylesText,
           description: 'Family slot style defaults for this instance.',
         })
       }
@@ -571,14 +546,14 @@ export class TypeExtractor {
         props.unshift({
           name: 'as',
           optional: true,
-          type: { text: asGenericParam.name },
+          type: asGenericParam.name,
           ...(defaultElement ? { default: { kind: 'literal', value: defaultElement } } : {}),
           description: 'Element or component to render as.',
         })
       }
     }
 
-    return { props, rendering }
+    return { props, defaultElement }
   }
 
   async #isNeverType(
@@ -923,7 +898,7 @@ export class TypeExtractor {
     return {
       name,
       optional,
-      type: { text: typeText },
+      type: typeText,
       ...(jsdoc.description ? { description: jsdoc.description } : {}),
       ...(defaultValue ? { default: defaultValue } : {}),
     }
@@ -1018,7 +993,7 @@ export class TypeExtractor {
       )
       const targetProp = props.find((p) => p.name === indexName)
       if (targetProp) {
-        return targetProp.type.text
+        return targetProp.type
       }
 
       return null

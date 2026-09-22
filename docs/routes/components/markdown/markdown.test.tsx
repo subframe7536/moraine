@@ -13,13 +13,12 @@ test('shows the generated kind in the header and updates it with page metadata',
   const [apiDoc, setApiDoc] = createSignal<ComponentApi | undefined>({
     key: 'button',
     name: 'Button',
-    category: 'elements',
     kind: 'single',
     parts: [
       {
         id: 'button',
         name: 'Button',
-        access: { kind: 'export', name: 'Button', package: 'moraine' },
+        access: { kind: 'export', name: 'Button' },
         props: [],
       },
     ],

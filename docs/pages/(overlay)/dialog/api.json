@@ -1,7 +1,6 @@
 {
   "key": "dialog",
   "name": "Dialog",
-  "category": "overlays",
   "kind": "composite",
   "parts": [
     {
@@ -9,32 +8,25 @@
       "name": "Dialog",
       "access": {
         "kind": "export",
-        "name": "Dialog",
-        "package": "moraine"
+        "name": "Dialog"
       },
       "props": [
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Composed trigger and content primitives."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "Classes"
-          },
+          "type": "Classes",
           "description": "Family slot class defaults for this Dialog instance."
         },
         {
           "name": "defaultOpen",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Initial open state when uncontrolled.",
           "default": {
             "kind": "literal",
@@ -44,9 +36,7 @@
         {
           "name": "dismissible",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether outside interaction and Escape should dismiss the shell.",
           "default": {
             "kind": "literal",
@@ -56,49 +46,37 @@
         {
           "name": "id",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Unique identifier used to derive the content id."
         },
         {
           "name": "onClosePrevent",
           "optional": true,
-          "type": {
-            "text": "() => void"
-          },
+          "type": "() => void",
           "description": "Called when a dismissal attempt is blocked."
         },
         {
           "name": "onExitComplete",
           "optional": true,
-          "type": {
-            "text": "() => void"
-          },
+          "type": "() => void",
           "description": "Called after the modal has fully finished its exit motion."
         },
         {
           "name": "onOpenChange",
           "optional": true,
-          "type": {
-            "text": "(open: boolean) => void"
-          },
+          "type": "(open: boolean) => void",
           "description": "Called whenever the open state changes."
         },
         {
           "name": "open",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Controlled open state."
         },
         {
           "name": "preventScroll",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether body scroll should be locked while the shell is present.",
           "default": {
             "kind": "literal",
@@ -108,9 +86,7 @@
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "Styles"
-          },
+          "type": "Styles",
           "description": "Family slot style defaults for this Dialog instance."
         }
       ]
@@ -130,23 +106,12 @@
           "default": "'button'"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
+      "defaultElement": "button",
       "props": [
         {
           "name": "as",
           "optional": true,
-          "type": {
-            "text": "d"
-          },
+          "type": "d",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -156,33 +121,25 @@
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Trigger label and visual content."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "disabled",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
       ]
@@ -196,58 +153,42 @@
         "member": "Content"
       },
       "description": "Props for the Dialog component.",
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "div",
-        "polymorphic": false
-      },
+      "defaultElement": "div",
       "props": [
         {
           "name": "ariaLabel",
           "optional": true,
-          "type": {
-            "text": "string"
-          },
+          "type": "string",
           "description": "Accessible name used when the dialog has no rendered title."
         },
         {
           "name": "body",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Custom element to render in the body slot."
         },
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Main content when body is undefined."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
           "optional": true,
-          "type": {
-            "text": "ContentClasses"
-          },
+          "type": "ContentClasses",
           "description": "Family slot class defaults for this instance."
         },
         {
           "name": "close",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether to show a close button.",
           "default": {
             "kind": "literal",
@@ -257,9 +198,7 @@
         {
           "name": "closeIcon",
           "optional": true,
-          "type": {
-            "text": "IconT.Name | JSX.Element"
-          },
+          "type": "IconT.Name | JSX.Element",
           "description": "Icon name or custom content for the close button.",
           "default": {
             "kind": "literal",
@@ -269,25 +208,19 @@
         {
           "name": "description",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Secondary description displayed below the title."
         },
         {
           "name": "footer",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Custom element to render in the footer slot."
         },
         {
           "name": "fullscreen",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "default": {
             "kind": "literal",
             "value": false
@@ -296,25 +229,19 @@
         {
           "name": "header",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Custom element to render in the header slot."
         },
         {
           "name": "overlay",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether to render the overlay element."
         },
         {
           "name": "scrollable",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "default": {
             "kind": "literal",
             "value": false
@@ -323,33 +250,25 @@
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
           "optional": true,
-          "type": {
-            "text": "ContentStyles"
-          },
+          "type": "ContentStyles",
           "description": "Family slot style defaults for this instance."
         },
         {
           "name": "title",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Primary title displayed in the dialog header."
         },
         {
           "name": "trapFocus",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether the dialog behaves as a modal surface, including focus containment,\noutside-content isolation, and body scroll locking.",
           "default": {
             "kind": "literal",
@@ -373,23 +292,12 @@
           "default": "'button'"
         }
       ],
-      "rendering": {
-        "rendersDom": true,
-        "defaultElement": "button",
-        "asProp": "as",
-        "polymorphic": {
-          "name": "T",
-          "constraint": "ValidComponent",
-          "default": "'button'"
-        }
-      },
+      "defaultElement": "button",
       "props": [
         {
           "name": "as",
           "optional": true,
-          "type": {
-            "text": ""
-          },
+          "type": "",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -399,33 +307,25 @@
         {
           "name": "children",
           "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
+          "type": "JSX.Element",
           "description": "Trigger label and visual content."
         },
         {
           "name": "class",
           "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
+          "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "disabled",
           "optional": true,
-          "type": {
-            "text": "boolean"
-          },
+          "type": "boolean",
           "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
           "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
+          "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
         }
       ]

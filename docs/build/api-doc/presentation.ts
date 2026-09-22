@@ -20,7 +20,7 @@ export interface PresentationPartSection {
   accessText?: string
   rendersDom: boolean
   defaultElement?: string
-  polymorphic?: boolean | string
+  polymorphic?: boolean
   genericsSignature?: string
   props: PresentationPropItem[]
 }
@@ -29,6 +29,7 @@ export interface PresentationItemSection {
   id: string
   heading: string
   description?: string
+  genericsSignature?: string
   props: PresentationPropItem[]
 }
 
@@ -100,7 +101,7 @@ function formatPropItem(prop: PropApi, partId?: string): PresentationPropItem {
   return {
     name: prop.name,
     optional: prop.optional,
-    type: prop.type.text,
+    type: prop.type,
     ...(partId ? { anchorId: `api-${partId}-${prop.name}` } : {}),
     isCommonProp: COMMON_BASE_PROPS.has(prop.name),
     ...(prop.default ? { defaultValue: formatDefaultValue(prop.default) } : {}),
@@ -135,10 +136,7 @@ export function createApiReferenceModel(
     } else {
       accessText = `const form = ${part.access.factory}(...); form.${part.access.member}`
     }
-    const polymorphic =
-      typeof part.rendering?.polymorphic === 'object'
-        ? part.rendering.polymorphic.name
-        : part.rendering?.polymorphic
+    const polymorphic = part.props.some((prop) => prop.name === 'as')
     const genericsSignature = formatGenerics(part.generics)
 
     return {
@@ -147,24 +145,26 @@ export function createApiReferenceModel(
       partName: part.name,
       ...(part.description ? { description: part.description } : {}),
       ...(accessText ? { accessText } : {}),
-      rendersDom: part.rendering?.rendersDom === true,
-      ...(part.rendering?.defaultElement ? { defaultElement: part.rendering.defaultElement } : {}),
+      rendersDom: part.defaultElement !== undefined,
+      ...(part.defaultElement ? { defaultElement: part.defaultElement } : {}),
       ...(polymorphic ? { polymorphic } : {}),
       ...(genericsSignature ? { genericsSignature } : {}),
       props: sortProps(part.props, part.id),
     }
   })
 
+  const itemGenericsSignature = formatGenerics(component.item?.generics)
   const item = component.item?.props.length
     ? {
         id: 'api-items',
         heading: 'Items',
         ...(component.item.description ? { description: component.item.description } : {}),
+        ...(itemGenericsSignature ? { genericsSignature: itemGenericsSignature } : {}),
         props: component.item.props
           .map((prop) => ({
             name: prop.name,
             optional: prop.optional,
-            type: prop.type.text,
+            type: prop.type,
             ...(prop.default ? { defaultValue: formatDefaultValue(prop.default) } : {}),
             ...(prop.description ? { description: prop.description } : {}),
           }))
