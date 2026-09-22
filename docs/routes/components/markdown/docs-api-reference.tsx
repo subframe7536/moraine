@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, createSignal, For, Show } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Collapsible, Select, cn } from '../../../../src'
+import { Badge, Collapsible, Select, cn, Icon } from '../../../../src'
 import {
   createApiReferenceModel,
   getApiReferenceTocEntries,
@@ -186,12 +186,7 @@ function AttributeRow(props: { attribute: PresentationAttributeItem }): JSX.Elem
 function EmptyAttributes(): JSX.Element {
   return (
     <div role="status" class="px-4 py-8 border-t border-border/40 flex flex-col items-center">
-      <div
-        class="text-muted-foreground border border-border/60 rounded-md flex size-9 items-center justify-center"
-        aria-hidden="true"
-      >
-        —
-      </div>
+      <Icon name="i-lucide:square-dashed" />
       <div class="text-sm font-medium mt-3">No attributes</div>
       <div class="text-xs text-muted-foreground mt-1">
         This slot does not expose any public data attributes.
@@ -204,13 +199,6 @@ const ALL_SLOTS = '__all__'
 
 function AttributesSection(props: { attributes: PresentationAttributesSection }): JSX.Element {
   const [selectedSlot, setSelectedSlot] = createSignal(ALL_SLOTS)
-  const slotOptions = createMemo(() => [
-    { value: ALL_SLOTS, label: `All slots (${props.attributes.items.length})` },
-    ...props.attributes.slots.map((slot) => ({
-      value: slot,
-      label: `${slot} (${props.attributes.items.filter((attribute) => attribute.slots.includes(slot)).length})`,
-    })),
-  ])
   const visibleAttributes = () => {
     const slot = selectedSlot()
     return slot === ALL_SLOTS
@@ -220,7 +208,7 @@ function AttributesSection(props: { attributes: PresentationAttributesSection })
   const filterId = 'api-attributes-slot-filter'
 
   return (
-    <section class="mt-8 pt-6 border-t border-border/40">
+    <section class="border-t border-border/40">
       <HeadingWithAnchor id={props.attributes.id} level={3}>
         {props.attributes.heading}
       </HeadingWithAnchor>
@@ -233,9 +221,29 @@ function AttributesSection(props: { attributes: PresentationAttributesSection })
           aria-label="Filter attributes by slot"
           size="sm"
           class="w-48"
-          items={slotOptions()}
+          classes={{
+            content: 'max-h-60',
+            item: 'justify-between',
+          }}
+          items={[
+            { value: ALL_SLOTS, label: `All slots`, count: props.attributes.items.length },
+            ...props.attributes.slots.map((slot) => ({
+              value: slot,
+              label: slot,
+              count: props.attributes.items.filter((attribute) => attribute.slots.includes(slot))
+                .length,
+            })),
+          ]}
           value={selectedSlot()}
           onChange={(value) => setSelectedSlot(value ?? ALL_SLOTS)}
+          itemRender={(props) => (
+            <>
+              <div>{props.item.label}</div>
+              <Show when={props.item.count > 0}>
+                <Badge variant="outline">{props.item.count}</Badge>
+              </Show>
+            </>
+          )}
         />
       </div>
       <div class={REFERENCE_ROOT_CLASS}>
@@ -333,7 +341,7 @@ export function DocsApiReference(props: { apiDoc?: ComponentApi }): JSX.Element 
           >
             <For each={reference().parts}>
               {(part) => (
-                <section class="mt-8 pt-6 border-t border-border/40 first:mt-4 first:pt-0 first:border-0">
+                <section class="border-t border-border/40 first:mt-4 first:pt-0 first:border-0">
                   <HeadingWithAnchor id={part.id} level={3}>
                     {part.shortHeading}
                   </HeadingWithAnchor>
@@ -348,19 +356,12 @@ export function DocsApiReference(props: { apiDoc?: ComponentApi }): JSX.Element 
 
           <Show when={reference().item}>
             {(item) => (
-              <section class="mt-8 pt-6 border-t border-border/40">
+              <section class="border-t border-border/40">
                 <HeadingWithAnchor id={item().id} level={3}>
                   {item().heading}
                 </HeadingWithAnchor>
                 <Show when={item().description}>
                   <p class="text-sm text-muted-foreground mt-1">{item().description}</p>
-                </Show>
-                <Show when={item().genericsSignature}>
-                  {(generics) => (
-                    <p class="text-sm text-muted-foreground mb-0 mt-2">
-                      <code class="text-foreground font-mono">{generics()}</code>
-                    </p>
-                  )}
                 </Show>
                 <PropRows props={item().props} nameColumn="Field" />
               </section>
@@ -382,14 +383,14 @@ function PartMetadata(props: { part: PresentationPartSection; description?: stri
   return (
     <Show when={description() || props.part.defaultElement}>
       <p>
-        <Show when={description()}>{(value) => value()}</Show>
-        <Show when={description() && props.part.defaultElement}> </Show>
+        <Show when={description()}>
+          {description()}
+          <Show when={props.part.defaultElement}>.</Show>
+        </Show>
+
         <Show when={props.part.defaultElement}>
-          {(element) => (
-            <>
-              Renders a <code class="font-mono">&lt;{element()}&gt;</code> element by default.
-            </>
-          )}
+          Renders a <code class="font-mono">&lt;{props.part.defaultElement}&gt;</code> element by
+          default.
         </Show>
       </p>
     </Show>
