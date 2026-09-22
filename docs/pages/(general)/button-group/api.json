@@ -146,8 +146,7 @@
               "name": "role",
               "kind": "role",
               "value": {
-                "kind": "literal",
-                "value": "group"
+                "kind": "dynamic"
               },
               "description": "Defines the semantic role exposed to assistive technology."
             }
@@ -205,7 +204,6 @@
         {
           "name": "separator",
           "slot": "separator",
-          "selector": "[data-slot=\"button-group-separator\"]",
           "element": "div",
           "attributes": [
             {

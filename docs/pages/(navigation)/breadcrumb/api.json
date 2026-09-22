@@ -173,8 +173,7 @@
               "name": "aria-label",
               "kind": "aria",
               "value": {
-                "kind": "literal",
-                "value": "breadcrumb"
+                "kind": "dynamic"
               },
               "description": "Provides an accessible label when visible text is not sufficient."
             }
@@ -249,7 +248,7 @@
           "name": "leading",
           "slot": "leading",
           "selector": "[data-slot=\"leading\"]",
-          "element": "nav",
+          "element": "div",
           "condition": "Conditional",
           "attributes": [
             {
@@ -264,8 +263,7 @@
               "name": "role",
               "kind": "role",
               "value": {
-                "kind": "literal",
-                "value": "img"
+                "kind": "dynamic"
               },
               "description": "Defines the semantic role exposed to assistive technology."
             }

@@ -416,69 +416,13 @@
         {
           "name": "content",
           "slot": "content",
-          "selector": "[data-slot=\"content-wrapper\"]",
+          "selector": "[data-slot=\"content\"]",
           "element": "div",
           "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the element that labels the control or region."
-            },
-            {
-              "name": "data-closed",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when disclosure or transition content is closed."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-expanded",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the panel, accordion, or menu is expanded."
-            },
-            {
-              "name": "data-transition",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present while a target participates in a visibility transition."
-            }
-          ]
+          "attributes": []
         }
       ],
-      "cssVariables": [
-        {
-          "name": "--mo-collapsible-content-height",
-          "target": "content",
-          "description": "Custom property declared on the content target.",
-          "condition": "Conditional"
-        }
-      ]
+      "cssVariables": []
     }
   ]
 }

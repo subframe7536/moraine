@@ -384,7 +384,7 @@
           "name": "prev",
           "slot": "prev",
           "selector": "[data-slot=\"prev\"]",
-          "element": "nav",
+          "element": "button",
           "condition": "Conditional",
           "attributes": [
             {
@@ -433,7 +433,7 @@
           "name": "ellipsis",
           "slot": "ellipsis",
           "selector": "[data-slot=\"ellipsis\"]",
-          "element": "nav",
+          "element": "div",
           "condition": "Conditional",
           "attributes": [
             {
@@ -448,8 +448,7 @@
               "name": "role",
               "kind": "role",
               "value": {
-                "kind": "literal",
-                "value": "img"
+                "kind": "dynamic"
               },
               "description": "Defines the semantic role exposed to assistive technology."
             }
@@ -459,7 +458,7 @@
           "name": "item",
           "slot": "item",
           "selector": "[data-slot=\"item\"]",
-          "element": "nav",
+          "element": "button",
           "condition": "Conditional",
           "attributes": [
             {
@@ -517,7 +516,7 @@
           "name": "next",
           "slot": "next",
           "selector": "[data-slot=\"next\"]",
-          "element": "nav",
+          "element": "button",
           "condition": "Conditional",
           "attributes": [
             {

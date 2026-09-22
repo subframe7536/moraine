@@ -17,6 +17,66 @@ async function fixture(source: string) {
 }
 
 describe('RuntimeExtractor', () => {
+  test('preserves uncertainty when only part of an attribute value is static', async () => {
+    const testProject = await fixture(`
+      function DynamicValues() {
+        return (
+          <div
+            data-slot="root"
+            aria-checked={indeterminate() ? 'mixed' : checked()}
+            aria-expanded={open()}
+            aria-label={count() <= 1 ? 'Thumb' : \`Thumb \${index() + 1} of \${count()}\`}
+            data-disabled={disabled() ? '' : undefined}
+            data-static=""
+            data-state={open() ? 'open' : 'closed'}
+          />
+        )
+      }
+      function StaticValues() {
+        return <div data-slot="root" aria-checked={mixed() ? 'mixed' : false} />
+      }
+    `)
+
+    try {
+      const extractor = new RuntimeExtractor(testProject.projectRoot)
+      const dynamic = await extractor.extractRuntimeMetadata({
+        sourcePath: 'src/fixture.tsx',
+        implementationName: 'DynamicValues',
+        publicSlotNames: new Set(['root']),
+        targetFallback: 'root',
+      })
+      const attributes = dynamic.targets[0]?.attributes
+      expect(attributes).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: 'aria-checked', value: { kind: 'dynamic' } }),
+          expect.objectContaining({ name: 'aria-expanded', value: { kind: 'boolean' } }),
+          expect.objectContaining({ name: 'aria-label', value: { kind: 'dynamic' } }),
+          expect.objectContaining({ name: 'data-disabled', value: { kind: 'presence' } }),
+          expect.objectContaining({ name: 'data-static', value: { kind: 'presence' } }),
+          expect.objectContaining({
+            name: 'data-state',
+            value: { kind: 'enum', values: ['closed', 'open'] },
+          }),
+        ]),
+      )
+
+      const staticallyEnumerable = await extractor.extractRuntimeMetadata({
+        sourcePath: 'src/fixture.tsx',
+        implementationName: 'StaticValues',
+        publicSlotNames: new Set(['root']),
+        targetFallback: 'root',
+      })
+      expect(staticallyEnumerable.targets[0]?.attributes).toEqual([
+        expect.objectContaining({
+          name: 'aria-checked',
+          value: { kind: 'enum', values: ['false', 'mixed'] },
+        }),
+      ])
+    } finally {
+      await testProject.cleanup()
+    }
+  })
+
   test('extracts only the requested implementation and preserves value semantics', async () => {
     const testProject = await fixture(`
       function Root() {
@@ -127,7 +187,7 @@ describe('RuntimeExtractor', () => {
       path.join(testProject.projectRoot, 'src/shared.tsx'),
       `
         export function SharedTrigger(props) {
-          return <button data-slot="root" aria-controls={contentId()} {...props} />
+          return <button data-slot="trigger" aria-controls={contentId()} {...props} />
         }
       `,
       'utf8',
@@ -225,6 +285,173 @@ describe('RuntimeExtractor', () => {
           ]),
         }),
       ])
+    } finally {
+      await testProject.cleanup()
+    }
+  })
+
+  test('lets explicit public targets beat an earlier internal host fallback', async () => {
+    const testProject = await fixture(`
+      function Content() {
+        return (
+          <Show when={present()}>
+            <div data-slot="positioner">
+              <div data-slot="content" data-expanded={open() ? '' : undefined} />
+            </div>
+          </Show>
+        )
+      }
+    `)
+
+    try {
+      const extractor = new RuntimeExtractor(testProject.projectRoot)
+      const result = await extractor.extractRuntimeMetadata({
+        sourcePath: 'src/fixture.tsx',
+        implementationName: 'Content',
+        publicSlotNames: new Set(['content']),
+        targetFallback: 'content',
+        defaultElement: 'div',
+      })
+
+      expect(result.targets).toEqual([
+        expect.objectContaining({
+          name: 'content',
+          slot: 'content',
+          selector: '[data-slot="content"]',
+          element: 'div',
+          attributes: [
+            expect.objectContaining({ name: 'data-expanded', value: { kind: 'presence' } }),
+          ],
+        }),
+      ])
+      expect(extractor.diagnostics).toEqual([])
+    } finally {
+      await testProject.cleanup()
+    }
+  })
+
+  test('diagnoses incompatible physical nodes that claim one public target', async () => {
+    const testProject = await fixture(`
+      function Content() {
+        return (
+          <>
+            <div data-slot="content" />
+            <span data-slot="content" />
+          </>
+        )
+      }
+    `)
+
+    try {
+      const extractor = new RuntimeExtractor(testProject.projectRoot)
+      await extractor.extractRuntimeMetadata({
+        sourcePath: 'src/fixture.tsx',
+        implementationName: 'Content',
+        publicSlotNames: new Set(['content']),
+        targetFallback: 'content',
+      })
+      expect(extractor.diagnostics).toEqual([
+        expect.stringContaining('target content resolved to incompatible physical nodes'),
+      ])
+    } finally {
+      await testProject.cleanup()
+    }
+  })
+
+  test('uses delegated physical hosts while retaining call-site aliases', async () => {
+    const testProject = await fixture(`
+      import { Icon, Modal } from './shared'
+      function Parent() {
+        return (
+          <button data-slot="root">
+            <Icon slotName="leading" aria-hidden="true" role={role()} />
+            <Modal.Close data-slot="contentClose" aria-label="Close" />
+          </button>
+        )
+      }
+    `)
+    await writeFile(
+      path.join(testProject.projectRoot, 'src/shared.tsx'),
+      `
+        export function Icon(props) {
+          return <div data-slot={props.slotName ?? 'icon'} role="img" {...props} />
+        }
+        export function ModalClose(props) {
+          const tag = () => props.as ?? 'button'
+          return <Dynamic component={tag()} data-slot="close" {...props} />
+        }
+        export function Modal() {}
+        Modal.Close = ModalClose
+      `,
+      'utf8',
+    )
+
+    try {
+      const extractor = new RuntimeExtractor(testProject.projectRoot)
+      const result = await extractor.extractRuntimeMetadata({
+        sourcePath: 'src/fixture.tsx',
+        implementationName: 'Parent',
+        publicSlotNames: new Set(['root', 'leading', 'contentClose']),
+        targetFallback: 'root',
+        defaultElement: 'button',
+      })
+
+      expect(result.targets.find((target) => target.name === 'leading')).toEqual(
+        expect.objectContaining({
+          element: 'div',
+          selector: '[data-slot="leading"]',
+          attributes: expect.arrayContaining([
+            expect.objectContaining({ name: 'role', value: { kind: 'dynamic' } }),
+          ]),
+        }),
+      )
+      expect(result.targets.find((target) => target.name === 'contentClose')).toEqual(
+        expect.objectContaining({ element: 'button', selector: '[data-slot="contentClose"]' }),
+      )
+      expect(extractor.diagnostics).toEqual([])
+    } finally {
+      await testProject.cleanup()
+    }
+  })
+
+  test('promotes static data-slot values from object and mergeProps spreads', async () => {
+    const testProject = await fixture(`
+      function Trigger() {
+        const triggerProps = {
+          'data-slot': 'trigger',
+          'data-expanded': open() ? '' : undefined,
+        }
+        return <Dynamic {...triggerProps} component="button" />
+      }
+      function MergedTrigger() {
+        const state = { 'data-slot': 'trigger', 'data-expanded': open() ? '' : undefined }
+        const triggerProps = mergeProps({}, state)
+        return <Dynamic component="button" {...triggerProps} />
+      }
+    `)
+
+    try {
+      const extractor = new RuntimeExtractor(testProject.projectRoot)
+      for (const implementationName of ['Trigger', 'MergedTrigger']) {
+        const result = await extractor.extractRuntimeMetadata({
+          sourcePath: 'src/fixture.tsx',
+          implementationName,
+          publicSlotNames: new Set(['trigger']),
+          targetFallback: 'trigger',
+        })
+        expect(result.targets).toEqual([
+          expect.objectContaining({
+            name: 'trigger',
+            slot: 'trigger',
+            selector: '[data-slot="trigger"]',
+            element: 'button',
+            attributes: [
+              expect.objectContaining({ name: 'data-expanded', value: { kind: 'presence' } }),
+            ],
+          }),
+        ])
+      }
+      expect(extractor.diagnostics).toEqual([])
     } finally {
       await testProject.cleanup()
     }

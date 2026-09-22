@@ -6,38 +6,42 @@ import type { ESTree } from 'vite'
 import { ARIA_ATTRIBUTE_DESCRIPTIONS, DATA_ATTRIBUTE_DESCRIPTIONS } from '../markdown/descriptions'
 
 import { getIdentifierName, parseTypeScript } from './ast'
+import { extractRecipeCssVariables } from './runtime-css'
+import {
+  addAttribute,
+  attributeExpression,
+  collectBindings,
+  getJsxAttributeName,
+  jsxName,
+  mergeTarget,
+  objectPropertyExpression,
+  propertyName,
+  renderedElement,
+  resolveObjectExpressions,
+  returnedExpression,
+  staticSlotName,
+  visitNodes,
+} from './runtime-target'
 import type {
-  CssVariableApi,
-  RuntimeAttributeApi,
-  RuntimeAttributeValueApi,
-  RuntimeTargetApi,
-} from './types'
+  ImportBinding,
+  NodeLike,
+  RuntimeExtractionOptions,
+  RuntimeTargetState,
+} from './runtime-target'
+import {
+  analyzeStaticValues,
+  BOOLEAN_ARIA_ATTRIBUTES,
+  classifyRuntimeValue,
+  isNode,
+  unwrapExpression,
+} from './runtime-value'
+import type { CssVariableApi, RuntimeAttributeApi, RuntimeTargetApi } from './types'
+
+export type { RuntimeExtractionOptions } from './runtime-target'
 
 export interface RuntimeExtraction {
   targets: RuntimeTargetApi[]
   cssVariables: CssVariableApi[]
-}
-
-export interface RuntimeExtractionOptions {
-  sourcePath: string
-  implementationName: string
-  publicSlotNames: ReadonlySet<string>
-  targetFallback: string
-  allowHostFallback?: boolean
-  delegateRootTargets?: Readonly<Record<string, string>>
-  defaultElement?: string
-}
-
-interface NodeLike {
-  type: string
-  start: number
-  end: number
-  [key: string]: unknown
-}
-
-interface ImportBinding {
-  importedName: string
-  source: string
 }
 
 const CONTROL_FLOW_COMPONENTS = new Set([
@@ -50,190 +54,6 @@ const CONTROL_FLOW_COMPONENTS = new Set([
   'Suspense',
   'Switch',
 ])
-
-const BOOLEAN_ARIA_ATTRIBUTES = new Set([
-  'aria-atomic',
-  'aria-busy',
-  'aria-disabled',
-  'aria-expanded',
-  'aria-hidden',
-  'aria-invalid',
-  'aria-modal',
-  'aria-multiline',
-  'aria-multiselectable',
-  'aria-pressed',
-  'aria-readonly',
-  'aria-required',
-  'aria-selected',
-])
-
-function isNode(value: unknown): value is NodeLike {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof (value as { type?: unknown }).type === 'string' &&
-    typeof (value as { start?: unknown }).start === 'number' &&
-    typeof (value as { end?: unknown }).end === 'number'
-  )
-}
-
-function visitNodes(
-  root: unknown,
-  visit: (node: NodeLike, ancestors: readonly NodeLike[]) => void,
-  ancestors: readonly NodeLike[] = [],
-): void {
-  if (Array.isArray(root)) {
-    for (const value of root) {
-      visitNodes(value, visit, ancestors)
-    }
-    return
-  }
-  if (!isNode(root)) {
-    return
-  }
-
-  visit(root, ancestors)
-  const nextAncestors = [...ancestors, root]
-  for (const [key, value] of Object.entries(root)) {
-    if (key !== 'comments' && key !== 'parent') {
-      visitNodes(value, visit, nextAncestors)
-    }
-  }
-}
-
-function unwrapExpression(expression: unknown): NodeLike | null {
-  let current = isNode(expression) ? expression : null
-  while (
-    current &&
-    (current.type === 'TSAsExpression' ||
-      current.type === 'TSTypeAssertion' ||
-      current.type === 'TSNonNullExpression' ||
-      current.type === 'TSInstantiationExpression' ||
-      current.type === 'ParenthesizedExpression')
-  ) {
-    current = isNode(current.expression) ? current.expression : null
-  }
-  return current
-}
-
-function propertyName(node: unknown): string | null {
-  if (!isNode(node)) {
-    return null
-  }
-  if (node.type === 'Identifier' || node.type === 'JSXIdentifier') {
-    return typeof node.name === 'string' ? node.name : null
-  }
-  if (node.type === 'Literal') {
-    return typeof node.value === 'string' ? node.value : null
-  }
-  return null
-}
-
-function jsxName(node: unknown): string | null {
-  if (!isNode(node)) {
-    return null
-  }
-  if (node.type === 'JSXIdentifier') {
-    return typeof node.name === 'string' ? node.name : null
-  }
-  if (node.type === 'JSXMemberExpression') {
-    const object = jsxName(node.object)
-    const property = jsxName(node.property)
-    return object && property ? `${object}.${property}` : null
-  }
-  return null
-}
-
-function getJsxAttributeName(attribute: NodeLike): string | null {
-  const name = attribute.name
-  if (!isNode(name)) {
-    return null
-  }
-  if (name.type === 'JSXIdentifier') {
-    return typeof name.name === 'string' ? name.name : null
-  }
-  if (name.type === 'JSXNamespacedName') {
-    const namespace = propertyName(name.namespace)
-    const localName = propertyName(name.name)
-    return namespace && localName ? `${namespace}:${localName}` : null
-  }
-  return null
-}
-
-function collectStaticValues(expression: unknown): Array<string | boolean> {
-  const current = unwrapExpression(expression)
-  if (!current) {
-    return []
-  }
-  if (current.type === 'Literal') {
-    if (typeof current.value === 'string' || typeof current.value === 'boolean') {
-      return [current.value]
-    }
-    return []
-  }
-  if (current.type === 'Identifier' && current.name === 'undefined') {
-    return []
-  }
-  if (current.type === 'TemplateLiteral') {
-    const expressions = Array.isArray(current.expressions) ? current.expressions : []
-    const quasis = Array.isArray(current.quasis) ? current.quasis : []
-    if (expressions.length === 0 && quasis.length === 1) {
-      const quasi = quasis[0]
-      if (isNode(quasi) && typeof quasi.value === 'object' && quasi.value !== null) {
-        const cooked = (quasi.value as { cooked?: unknown }).cooked
-        return typeof cooked === 'string' ? [cooked] : []
-      }
-    }
-    return []
-  }
-  if (current.type === 'ConditionalExpression') {
-    return [...collectStaticValues(current.consequent), ...collectStaticValues(current.alternate)]
-  }
-  if (
-    current.type === 'LogicalExpression' &&
-    (current.operator === '||' || current.operator === '??')
-  ) {
-    return [...collectStaticValues(current.left), ...collectStaticValues(current.right)]
-  }
-  return []
-}
-
-function attributeExpression(attribute: NodeLike): unknown {
-  const value = attribute.value
-  if (!value) {
-    return { type: 'Literal', start: attribute.start, end: attribute.end, value: '' }
-  }
-  if (isNode(value) && value.type === 'JSXExpressionContainer') {
-    return value.expression
-  }
-  return value
-}
-
-function uniqueStrings(values: Array<string | boolean>): string[] {
-  return [...new Set(values.map(String))]
-}
-
-function classifyValue(name: string, expression: unknown): RuntimeAttributeValueApi {
-  const values = uniqueStrings(collectStaticValues(expression))
-  const hasEmpty = values.includes('')
-  const meaningful = values.filter((value) => value !== '')
-
-  if (name.startsWith('data-') && hasEmpty && meaningful.length === 0) {
-    return { kind: 'presence' }
-  }
-  if (BOOLEAN_ARIA_ATTRIBUTES.has(name)) {
-    if (meaningful.every((value) => value === 'true' || value === 'false')) {
-      return { kind: 'boolean' }
-    }
-  }
-  if (meaningful.length === 1) {
-    return { kind: 'literal', value: meaningful[0]! }
-  }
-  if (meaningful.length > 1) {
-    return { kind: 'enum', values: [...meaningful].sort() }
-  }
-  return { kind: 'dynamic' }
-}
 
 function descriptionFor(name: string): string {
   if (name === 'role') {
@@ -255,10 +75,14 @@ function createAttribute(name: string, expression: unknown): RuntimeAttributeApi
   if (kind === 'data' && !name.startsWith('data-')) {
     return null
   }
+  const analysis = analyzeStaticValues(expression)
+  if (!analysis.dynamic && analysis.values.length === 0) {
+    return null
+  }
   return {
     name,
     kind,
-    value: classifyValue(name, expression),
+    value: classifyRuntimeValue(name, expression),
     description: descriptionFor(name),
   }
 }
@@ -302,42 +126,10 @@ function findAttachedImplementation(
   return implementationName
 }
 
-function collectBindings(root: unknown): Map<string, NodeLike> {
-  const bindings = new Map<string, NodeLike>()
-  visitNodes(root, (node) => {
-    if (node.type !== 'VariableDeclarator') {
-      return
-    }
-    const name = propertyName(node.id)
-    const value = unwrapExpression(node.init)
-    if (name && value) {
-      bindings.set(name, value)
-    }
-  })
-  return bindings
-}
-
-function returnedExpression(body: unknown): NodeLike | null {
-  let result: NodeLike | null = null
-  visitNodes(body, (node, ancestors) => {
-    if (result || node.type !== 'ReturnStatement') {
-      return
-    }
-    const nestedFunction = ancestors.some(
-      (ancestor) =>
-        ancestor !== body &&
-        (ancestor.type === 'FunctionDeclaration' ||
-          ancestor.type === 'FunctionExpression' ||
-          ancestor.type === 'ArrowFunctionExpression'),
-    )
-    if (!nestedFunction) {
-      result = unwrapExpression(node.argument)
-    }
-  })
-  return result
-}
-
-function findHostOpening(implementation: NodeLike): NodeLike | null {
+function findHostOpening(
+  implementation: NodeLike,
+  bindings: ReadonlyMap<string, NodeLike>,
+): NodeLike | null {
   const expression =
     implementation.type === 'ArrowFunctionExpression' && implementation.body
       ? unwrapExpression(implementation.body)
@@ -355,7 +147,7 @@ function findHostOpening(implementation: NodeLike): NodeLike | null {
     if (!name || CONTROL_FLOW_COMPONENTS.has(name)) {
       return
     }
-    if (name === 'Dynamic' || /^[a-z]/.test(name) || staticSlotName(node)) {
+    if (name === 'Dynamic' || /^[a-z]/.test(name) || staticSlotName(node, bindings)) {
       host = node
     }
   })
@@ -413,68 +205,11 @@ function isConditional(ancestors: readonly NodeLike[]): boolean {
   })
 }
 
-function objectPropertyExpression(property: NodeLike): unknown {
-  if (property.kind === 'get' && isNode(property.value)) {
-    return returnedExpression(property.value.body)
-  }
-  return property.value
-}
-
-function resolveObjectExpressions(
-  expression: unknown,
-  bindings: ReadonlyMap<string, NodeLike>,
-  seen = new Set<string>(),
-): NodeLike[] {
-  const current = unwrapExpression(expression)
-  if (!current) {
-    return []
-  }
-  if (current.type === 'ObjectExpression') {
-    return [current]
-  }
-  if (current.type === 'Identifier' && typeof current.name === 'string') {
-    if (seen.has(current.name)) {
-      return []
-    }
-    const bound = bindings.get(current.name)
-    if (!bound) {
-      return []
-    }
-    seen.add(current.name)
-    return resolveObjectExpressions(bound, bindings, seen)
-  }
-  if (current.type === 'ArrowFunctionExpression' || current.type === 'FunctionExpression') {
-    const unwrappedBody = unwrapExpression(current.body)
-    const body =
-      unwrappedBody?.type === 'BlockStatement' ? returnedExpression(unwrappedBody) : unwrappedBody
-    return resolveObjectExpressions(body, bindings, seen)
-  }
-  if (current.type === 'CallExpression') {
-    const calleeName = propertyName(current.callee)
-    const args = Array.isArray(current.arguments) ? current.arguments : []
-    if (calleeName === 'createMemo' && args[0]) {
-      return resolveObjectExpressions(args[0], bindings, seen)
-    }
-    if (
-      calleeName === 'mergeProps' ||
-      calleeName === 'mergePopperElementProps' ||
-      calleeName === 'assign'
-    ) {
-      return args.flatMap((argument) => resolveObjectExpressions(argument, bindings, new Set(seen)))
-    }
-    if (calleeName) {
-      const bound = bindings.get(calleeName)
-      if (bound) {
-        return resolveObjectExpressions(bound, bindings, seen)
-      }
-    }
-  }
-  return []
-}
-
 function knownSpreadAttributes(
   expression: unknown,
   bindings: ReadonlyMap<string, NodeLike>,
+  hasPopperContentContract = false,
+  popperContentAttributes: readonly RuntimeAttributeApi[] = [],
   seen = new Set<string>(),
 ): RuntimeAttributeApi[] {
   const current = unwrapExpression(expression)
@@ -490,7 +225,13 @@ function knownSpreadAttributes(
       return []
     }
     seen.add(current.name)
-    return knownSpreadAttributes(bound, bindings, seen)
+    return knownSpreadAttributes(
+      bound,
+      bindings,
+      hasPopperContentContract,
+      popperContentAttributes,
+      seen,
+    )
   }
   const textName = (() => {
     if (current.type === 'CallExpression' && isNode(current.callee)) {
@@ -527,137 +268,42 @@ function knownSpreadAttributes(
               'data-disabled',
               'data-expanded',
             ]
-          : []
-  const attributes: RuntimeAttributeApi[] = names.map((name) => ({
-    name,
-    kind: name.startsWith('aria-') ? 'aria' : 'data',
-    value: name.startsWith('data-')
-      ? { kind: 'presence' as const }
-      : BOOLEAN_ARIA_ATTRIBUTES.has(name)
-        ? { kind: 'boolean' as const }
-        : { kind: 'dynamic' as const },
-    description: descriptionFor(name),
-  }))
+          : textName === 'contentProps' && hasPopperContentContract
+            ? ['data-closed', 'data-expanded']
+            : []
+  const attributeMap = new Map<string, RuntimeAttributeApi>()
+  for (const name of names) {
+    addAttribute(attributeMap, {
+      name,
+      kind: name === 'role' ? 'role' : name.startsWith('aria-') ? 'aria' : 'data',
+      value: name.startsWith('data-')
+        ? { kind: 'presence' }
+        : BOOLEAN_ARIA_ATTRIBUTES.has(name)
+          ? { kind: 'boolean' }
+          : { kind: 'dynamic' },
+      description: descriptionFor(name),
+    })
+  }
+  if (textName === 'contentProps' && hasPopperContentContract) {
+    for (const attribute of popperContentAttributes) {
+      attributeMap.set(attribute.name, attribute)
+    }
+  }
   if (current.type === 'CallExpression') {
     const args = Array.isArray(current.arguments) ? current.arguments : []
     for (const argument of args) {
-      for (const attribute of knownSpreadAttributes(argument, bindings, new Set(seen))) {
-        if (!attributes.some((candidate) => candidate.name === attribute.name)) {
-          attributes.push(attribute)
-        }
+      for (const attribute of knownSpreadAttributes(
+        argument,
+        bindings,
+        hasPopperContentContract,
+        popperContentAttributes,
+        new Set(seen),
+      )) {
+        addAttribute(attributeMap, attribute)
       }
     }
   }
-  return attributes
-}
-
-function mergeValue(
-  left: RuntimeAttributeValueApi,
-  right: RuntimeAttributeValueApi,
-): RuntimeAttributeValueApi {
-  if (left.kind === right.kind) {
-    if (left.kind === 'literal' && right.kind === 'literal') {
-      if (left.value === right.value) {
-        return left
-      }
-      return { kind: 'enum', values: [left.value, right.value].sort() }
-    }
-    if (left.kind === 'enum' && right.kind === 'enum') {
-      return { kind: 'enum', values: [...new Set([...left.values, ...right.values])].sort() }
-    }
-    return left
-  }
-  const values = [left, right].flatMap((value) =>
-    value.kind === 'literal' ? [value.value] : value.kind === 'enum' ? value.values : [],
-  )
-  return values.length > 0
-    ? { kind: 'enum', values: [...new Set(values)].sort() }
-    : { kind: 'dynamic' }
-}
-
-function addAttribute(map: Map<string, RuntimeAttributeApi>, attribute: RuntimeAttributeApi): void {
-  const existing = map.get(attribute.name)
-  if (!existing) {
-    map.set(attribute.name, attribute)
-    return
-  }
-  map.set(attribute.name, { ...existing, value: mergeValue(existing.value, attribute.value) })
-}
-
-function staticSlotName(opening: NodeLike): string | null {
-  const attributes = Array.isArray(opening.attributes) ? opening.attributes : []
-  for (const attribute of attributes) {
-    if (!isNode(attribute) || attribute.type !== 'JSXAttribute') {
-      continue
-    }
-    const name = getJsxAttributeName(attribute)
-    if (name !== 'data-slot' && name !== 'slotName' && name !== 'rootSlot') {
-      continue
-    }
-    const values = uniqueStrings(collectStaticValues(attributeExpression(attribute))).filter(
-      Boolean,
-    )
-    if (values.length > 0) {
-      return values[0]!
-    }
-  }
-  return null
-}
-
-function renderedElement(opening: NodeLike, defaultElement?: string): string | undefined {
-  const name = jsxName(opening.name)
-  if (!name) {
-    return defaultElement
-  }
-  if (/^[a-z]/.test(name)) {
-    return name
-  }
-  if (name !== 'Dynamic') {
-    return defaultElement
-  }
-  const attributes = Array.isArray(opening.attributes) ? opening.attributes : []
-  const component = attributes.find(
-    (attribute) =>
-      isNode(attribute) &&
-      attribute.type === 'JSXAttribute' &&
-      getJsxAttributeName(attribute) === 'component',
-  )
-  if (isNode(component)) {
-    const values = uniqueStrings(collectStaticValues(attributeExpression(component))).filter(
-      Boolean,
-    )
-    if (values.length === 1) {
-      return values[0]
-    }
-  }
-  return defaultElement
-}
-
-function isVariantRecipeNode(ancestors: readonly NodeLike[]): boolean {
-  return ancestors.some(
-    (ancestor) =>
-      ancestor.type === 'Property' &&
-      (propertyName(ancestor.key) === 'variants' ||
-        propertyName(ancestor.key) === 'compoundVariants'),
-  )
-}
-
-function nearestRecipeTarget(
-  ancestors: readonly NodeLike[],
-  publicSlotNames: ReadonlySet<string>,
-  rootTarget: string,
-): string {
-  for (let index = ancestors.length - 1; index >= 0; index -= 1) {
-    const ancestor = ancestors[index]!
-    if (ancestor.type !== 'Property') {
-      continue
-    }
-    const name = propertyName(ancestor.key)
-    if (name && publicSlotNames.has(name)) {
-      return name
-    }
-  }
-  return rootTarget
+  return [...attributeMap.values()]
 }
 
 export class RuntimeExtractor {
@@ -673,93 +319,6 @@ export class RuntimeExtractor {
       ? options.sourcePath
       : path.resolve(this.projectRoot, options.sourcePath)
     return this.extractFromImplementation(absolutePath, options, new Set())
-  }
-
-  private static async extractRecipeCssVariables(
-    absolutePath: string,
-    implementation: NodeLike,
-    imports: ReadonlyMap<string, ImportBinding>,
-    options: RuntimeExtractionOptions,
-  ): Promise<CssVariableApi[]> {
-    const variables = new Map<string, CssVariableApi>()
-    const recipeBindings = new Set<string>()
-    let rootTarget = options.targetFallback
-
-    visitNodes(implementation, (node) => {
-      if (node.type !== 'CallExpression' || propertyName(node.callee) !== 'createStyles') {
-        return
-      }
-      const args = Array.isArray(node.arguments) ? node.arguments : []
-      const recipeName = propertyName(unwrapExpression(args[0]))
-      if (recipeName && imports.has(recipeName)) {
-        recipeBindings.add(recipeName)
-      }
-      for (const object of resolveObjectExpressions(args[2], collectBindings(implementation))) {
-        const properties = Array.isArray(object.properties) ? object.properties : []
-        const rootSlotProperty = properties.find(
-          (property) =>
-            isNode(property) &&
-            property.type === 'Property' &&
-            propertyName(property.key) === 'rootSlot',
-        )
-        if (isNode(rootSlotProperty)) {
-          const value = uniqueStrings(
-            collectStaticValues(objectPropertyExpression(rootSlotProperty)),
-          ).find(Boolean)
-          if (value) {
-            rootTarget = value
-          }
-        }
-      }
-    })
-
-    for (const recipeName of recipeBindings) {
-      const binding = imports.get(recipeName)
-      const recipePath = binding ? resolveFile(path.dirname(absolutePath), binding.source) : null
-      if (!recipePath) {
-        continue
-      }
-      const source = readFileSync(recipePath, 'utf8')
-      const parsed = await parseTypeScript(
-        recipePath,
-        source,
-        recipePath.endsWith('.tsx') ? 'tsx' : 'ts',
-      )
-      const recipe = findImplementation(parsed.program, binding!.importedName)
-      if (!recipe) {
-        continue
-      }
-
-      visitNodes(recipe, (node, ancestors) => {
-        const conditional = isVariantRecipeNode(ancestors)
-        if (node.type === 'Property') {
-          const name = propertyName(node.key)
-          if (name?.startsWith('--')) {
-            variables.set(`${rootTarget}:${name}`, {
-              name,
-              target: rootTarget,
-              description: `Custom property declared by the component recipe on the ${rootTarget} target.`,
-              ...(conditional ? { condition: 'Variant-dependent' } : {}),
-            })
-          }
-        }
-        if (node.type !== 'Literal' || typeof node.value !== 'string') {
-          return
-        }
-        const target = nearestRecipeTarget(ancestors, options.publicSlotNames, rootTarget)
-        for (const match of node.value.matchAll(/\[(--[a-zA-Z0-9-]+):/g)) {
-          const name = match[1]!
-          variables.set(`${target}:${name}`, {
-            name,
-            target,
-            description: `Custom property declared by the component recipe on the ${target} target.`,
-            ...(conditional ? { condition: 'Variant-dependent' } : {}),
-          })
-        }
-      })
-    }
-
-    return [...variables.values()]
   }
 
   private async resolveImportedImplementation(
@@ -867,21 +426,19 @@ export class RuntimeExtractor {
       ...collectBindings(implementation),
     ])
     const imports = collectImports(parsed.program)
-    const host = findHostOpening(implementation)
-    const targets = new Map<
-      string,
-      RuntimeTargetApi & { attributeMap: Map<string, RuntimeAttributeApi> }
-    >()
+    const host = findHostOpening(implementation, bindings)
+    const targets = new Map<string, RuntimeTargetState>()
     const cssVariables = new Map<string, CssVariableApi>()
     const delegated: Array<{
       name: string
       binding: ImportBinding
       hostTargetName?: string
       attributes?: RuntimeAttributeApi[]
+      conditional?: boolean
     }> = []
     const localDelegates = new Map<string, string | undefined>()
 
-    for (const variable of await RuntimeExtractor.extractRecipeCssVariables(
+    for (const variable of await extractRecipeCssVariables(
       absolutePath,
       implementation,
       imports,
@@ -890,40 +447,78 @@ export class RuntimeExtractor {
       cssVariables.set(`${variable.target}:${variable.name}`, variable)
     }
 
-    const targetFor = (
-      name: string,
-      publicSlot: string | undefined,
-      selectorSlot: string | undefined,
-      opening: NodeLike,
-      conditional: boolean,
-    ) => {
-      let target = targets.get(name)
-      if (!target) {
-        const element = renderedElement(opening, options.defaultElement)
-        target = {
-          name,
-          ...(publicSlot ? { slot: publicSlot } : {}),
-          ...(selectorSlot ? { selector: `[data-slot="${selectorSlot}"]` } : {}),
-          ...(element ? { element } : {}),
-          ...(conditional ? { condition: 'Conditional' } : {}),
-          attributes: [],
-          attributeMap: new Map(),
-        }
-        targets.set(name, target)
+    const openings: Array<{ node: NodeLike; ancestors: readonly NodeLike[] }> = []
+    visitNodes(implementation, (node, ancestors) => {
+      if (node.type === 'JSXOpeningElement') {
+        openings.push({ node, ancestors })
       }
-      return target
+    })
+    const explicitPublicTargets = new Set(
+      openings.flatMap(({ node }) => {
+        const slot = staticSlotName(node, bindings)
+        return slot && options.publicSlotNames.has(slot) ? [slot] : []
+      }),
+    )
+
+    // PopperContent's render callback forwards this repository-local contentProps contract
+    // onto the consumer-owned public content host.
+    const popperContentAttributes = new Map<string, RuntimeAttributeApi>()
+    let hasPopperContentContract = false
+    for (const { node } of openings) {
+      const tagName = jsxName(node.name)
+      const simpleName = tagName?.split('.')[0]
+      const binding = simpleName ? imports.get(simpleName) : undefined
+      if (binding?.importedName !== 'PopperContent' || !binding.source.includes('popper')) {
+        continue
+      }
+      hasPopperContentContract = true
+      const attributes = Array.isArray(node.attributes) ? node.attributes : []
+      for (const attribute of attributes) {
+        if (!isNode(attribute)) {
+          continue
+        }
+        if (attribute.type === 'JSXAttribute') {
+          const name = getJsxAttributeName(attribute)
+          const runtimeAttribute = name
+            ? createAttribute(name, attributeExpression(attribute))
+            : null
+          if (runtimeAttribute) {
+            popperContentAttributes.set(runtimeAttribute.name, runtimeAttribute)
+          }
+          continue
+        }
+        if (attribute.type === 'JSXSpreadAttribute') {
+          for (const object of resolveObjectExpressions(attribute.argument, bindings)) {
+            const properties = Array.isArray(object.properties) ? object.properties : []
+            for (const property of properties) {
+              if (!isNode(property) || property.type !== 'Property') {
+                continue
+              }
+              const name = propertyName(property.key)
+              const runtimeAttribute = name
+                ? createAttribute(name, objectPropertyExpression(property))
+                : null
+              if (runtimeAttribute) {
+                popperContentAttributes.set(runtimeAttribute.name, runtimeAttribute)
+              }
+            }
+          }
+        }
+      }
     }
 
-    visitNodes(implementation, (node, ancestors) => {
-      if (node.type !== 'JSXOpeningElement') {
-        return
-      }
+    for (const { node, ancestors } of openings) {
       const tagName = jsxName(node.name)
-      const declaredSlot = staticSlotName(node)
+      const declaredSlot = staticSlotName(node, bindings)
       const slot = declaredSlot
       const publicSlot = slot && options.publicSlotNames.has(slot) ? slot : undefined
-      const usesHostFallback = !publicSlot && node === host && options.allowHostFallback !== false
+      const usesHostFallback =
+        !publicSlot &&
+        node === host &&
+        options.allowHostFallback !== false &&
+        !explicitPublicTargets.has(options.targetFallback)
       const targetName = publicSlot ?? (usesHostFallback ? options.targetFallback : null)
+      const conditional = isConditional(ancestors)
 
       if (tagName && /^[A-Z]/.test(tagName) && tagName !== 'Dynamic') {
         const simpleName = tagName.split('.')[0]!
@@ -947,6 +542,7 @@ export class RuntimeExtractor {
                 : binding.importedName,
             },
             ...(delegateTarget ? { hostTargetName: delegateTarget } : {}),
+            ...(conditional ? { conditional: true } : {}),
           })
         } else if (
           !CONTROL_FLOW_COMPONENTS.has(simpleName) &&
@@ -962,17 +558,39 @@ export class RuntimeExtractor {
       }
 
       if (!targetName) {
-        return
+        continue
       }
 
-      const conditional = isConditional(ancestors)
-      const target = targetFor(
-        targetName,
-        publicSlot ?? (options.publicSlotNames.has(targetName) ? targetName : undefined),
-        slot ?? undefined,
-        node,
-        conditional,
-      )
+      const repositoryBinding = tagName ? imports.get(tagName.split('.')[0]!) : undefined
+      const element =
+        renderedElement(node, bindings, options.defaultElement) ??
+        (repositoryBinding && !repositoryBinding.source.startsWith('.')
+          ? options.defaultElement
+          : undefined)
+      const physicalHost = tagName === 'Dynamic' || Boolean(tagName && /^[a-z]/.test(tagName))
+      const incoming: RuntimeTargetState = {
+        name: targetName,
+        ...(publicSlot || options.publicSlotNames.has(targetName)
+          ? { slot: publicSlot ?? targetName }
+          : {}),
+        ...(slot ? { selector: `[data-slot="${slot}"]` } : {}),
+        ...(element ? { element } : {}),
+        ...(conditional ? { condition: 'Conditional' } : {}),
+        attributes: [],
+        attributeMap: new Map(),
+        ...(physicalHost ? { physicalIdentity: `${absolutePath}:${node.start}` } : {}),
+        ...(usesHostFallback && slot && slot !== targetName ? { selectorAlias: true } : {}),
+      }
+      const target = mergeTarget(targets.get(targetName), incoming, {
+        name: targetName,
+        ...(publicSlot || options.publicSlotNames.has(targetName)
+          ? { publicSlot: publicSlot ?? targetName }
+          : {}),
+        ...(slot ? { publicSelector: `[data-slot="${slot}"]` } : {}),
+        diagnostics: this.diagnostics,
+        diagnosticContext: path.relative(this.projectRoot, absolutePath),
+      })
+      targets.set(targetName, target)
       const attributes = Array.isArray(node.attributes) ? node.attributes : []
       for (const attribute of attributes) {
         if (!isNode(attribute)) {
@@ -1030,11 +648,16 @@ export class RuntimeExtractor {
             }
           }
         }
-        for (const runtimeAttribute of knownSpreadAttributes(attribute.argument, bindings)) {
+        for (const runtimeAttribute of knownSpreadAttributes(
+          attribute.argument,
+          bindings,
+          hasPopperContentContract,
+          [...popperContentAttributes.values()],
+        )) {
           addAttribute(target.attributeMap, runtimeAttribute)
         }
       }
-    })
+    }
 
     const returned =
       implementation.type === 'ArrowFunctionExpression' && implementation.body
@@ -1076,7 +699,10 @@ export class RuntimeExtractor {
     for (const [implementationName, delegateTarget] of localDelegates) {
       const effectiveDelegateTarget =
         delegateTarget ??
-        (targets.size === 0 && localDelegates.size === 1 && delegated.length === 0
+        (options.allowHostFallback !== false &&
+        targets.size === 0 &&
+        localDelegates.size === 1 &&
+        delegated.length === 0
           ? options.targetFallback
           : undefined)
       const nested = await this.extractFromImplementation(
@@ -1097,21 +723,33 @@ export class RuntimeExtractor {
           effectiveDelegateTarget && nestedTarget.name === 'root'
             ? effectiveDelegateTarget
             : nestedTarget.name
-        const target = targets.get(targetName) ?? {
+        const existing = targets.get(targetName)
+        const nestedState: RuntimeTargetState = {
           ...nestedTarget,
           name: targetName,
-          ...(targetName === effectiveDelegateTarget
-            ? {
-                slot: options.publicSlotNames.has(targetName) ? targetName : undefined,
-                selector: `[data-slot="${targetName}"]`,
-              }
+          attributeMap: new Map(
+            nestedTarget.attributes.map((attribute) => [attribute.name, attribute]),
+          ),
+          physicalIdentity: `${absolutePath}:${implementationName}:${nestedTarget.name}`,
+          ...(effectiveDelegateTarget &&
+          (nestedTarget.name !== targetName ||
+            nestedTarget.selector?.match(/^\[data-slot="([^"]+)"\]$/)?.[1] !== targetName)
+            ? { selectorAlias: true }
             : {}),
-          attributeMap: new Map<string, RuntimeAttributeApi>(),
         }
-        for (const attribute of nestedTarget.attributes) {
-          addAttribute(target.attributeMap, attribute)
-        }
-        targets.set(targetName, target)
+        targets.set(
+          targetName,
+          mergeTarget(existing, nestedState, {
+            name: targetName,
+            ...(existing?.slot || options.publicSlotNames.has(targetName)
+              ? { publicSlot: existing?.slot ?? targetName }
+              : {}),
+            ...(existing?.selector ? { publicSelector: existing.selector } : {}),
+            preferIncomingPhysical: true,
+            diagnostics: this.diagnostics,
+            diagnosticContext: path.relative(this.projectRoot, absolutePath),
+          }),
+        )
       }
       for (const variable of nested.cssVariables) {
         cssVariables.set(`${variable.target}:${variable.name}`, variable)
@@ -1125,7 +763,10 @@ export class RuntimeExtractor {
       }
       const effectiveHostTargetName =
         delegate.hostTargetName ??
-        (targets.size === 0 && delegated.length === 1 && localDelegates.size === 0
+        (options.allowHostFallback !== false &&
+        targets.size === 0 &&
+        delegated.length === 1 &&
+        localDelegates.size === 0
           ? options.targetFallback
           : undefined)
       const nested = await this.extractFromImplementation(
@@ -1147,37 +788,70 @@ export class RuntimeExtractor {
           effectiveHostTargetName && nestedTarget.name === 'root'
             ? effectiveHostTargetName
             : nestedTarget.name
-        const target = targets.get(targetName) ?? {
+        const existing = targets.get(targetName)
+        const nestedState: RuntimeTargetState = {
           ...nestedTarget,
           name: targetName,
-          ...(targetName === effectiveHostTargetName
-            ? {
-                slot: options.publicSlotNames.has(targetName) ? targetName : undefined,
-                selector: `[data-slot="${targetName}"]`,
-              }
+          ...(delegate.conditional ? { condition: 'Conditional' } : {}),
+          attributeMap: new Map(
+            nestedTarget.attributes.map((attribute) => [attribute.name, attribute]),
+          ),
+          physicalIdentity: `${resolved.sourcePath}:${resolved.implementationName}:${nestedTarget.name}`,
+          ...(effectiveHostTargetName &&
+          (nestedTarget.name !== targetName ||
+            nestedTarget.selector?.match(/^\[data-slot="([^"]+)"\]$/)?.[1] !== targetName)
+            ? { selectorAlias: true }
             : {}),
-          attributeMap: new Map<string, RuntimeAttributeApi>(),
-        }
-        for (const attribute of nestedTarget.attributes) {
-          addAttribute(target.attributeMap, attribute)
         }
         for (const attribute of delegate.attributes ?? []) {
-          addAttribute(target.attributeMap, attribute)
+          addAttribute(nestedState.attributeMap, attribute)
         }
-        targets.set(targetName, target)
+        targets.set(
+          targetName,
+          mergeTarget(existing, nestedState, {
+            name: targetName,
+            ...(existing?.slot || options.publicSlotNames.has(targetName)
+              ? { publicSlot: existing?.slot ?? targetName }
+              : {}),
+            ...(existing?.selector ? { publicSelector: existing.selector } : {}),
+            preferIncomingPhysical: true,
+            diagnostics: this.diagnostics,
+            diagnosticContext: path.relative(this.projectRoot, absolutePath),
+          }),
+        )
       }
       for (const variable of nested.cssVariables) {
         cssVariables.set(`${variable.target}:${variable.name}`, variable)
       }
     }
 
-    const normalizedTargets = [...targets.values()].map(({ attributeMap, ...target }) =>
-      Object.assign(target, {
-        attributes: [...attributeMap.values()].sort((left, right) =>
-          left.name.localeCompare(right.name),
-        ),
-      }),
+    const normalizedTargets = [...targets.values()].map(
+      ({
+        attributeMap,
+        physicalIdentity: _physicalIdentity,
+        selectorAlias: _selectorAlias,
+        ...target
+      }) =>
+        Object.assign(target, {
+          attributes: [...attributeMap.values()].sort((left, right) =>
+            left.name.localeCompare(right.name),
+          ),
+        }),
     )
+
+    for (const target of normalizedTargets) {
+      const selectorSlot = target.selector?.match(/^\[data-slot="([^"]+)"\]$/)?.[1]
+      if (target.slot && selectorSlot && target.slot !== selectorSlot) {
+        const state = targets.get(target.name)
+        if (state?.selectorAlias) {
+          delete target.selector
+        } else {
+          this.diagnostics.push(
+            `${path.relative(this.projectRoot, absolutePath)}: target ${target.name} has public slot ${target.slot} but selector ${target.selector}`,
+          )
+        }
+      }
+    }
 
     return {
       targets: normalizedTargets,

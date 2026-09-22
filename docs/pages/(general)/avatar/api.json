@@ -263,7 +263,7 @@
           "name": "fallbackIcon",
           "slot": "fallbackIcon",
           "selector": "[data-slot=\"fallbackIcon\"]",
-          "element": "span",
+          "element": "div",
           "condition": "Conditional",
           "attributes": [
             {
@@ -278,8 +278,7 @@
               "name": "role",
               "kind": "role",
               "value": {
-                "kind": "literal",
-                "value": "img"
+                "kind": "dynamic"
               },
               "description": "Defines the semantic role exposed to assistive technology."
             }

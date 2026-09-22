@@ -192,6 +192,7 @@
         {
           "name": "trigger",
           "slot": "trigger",
+          "selector": "[data-slot=\"trigger\"]",
           "element": "div",
           "attributes": [
             {
@@ -423,8 +424,7 @@
               "name": "role",
               "kind": "role",
               "value": {
-                "kind": "literal",
-                "value": "img"
+                "kind": "dynamic"
               },
               "description": "Defines the semantic role exposed to assistive technology."
             }
@@ -443,6 +443,7 @@
           "slot": "item",
           "selector": "[data-slot=\"item\"]",
           "element": "div",
+          "condition": "Conditional",
           "attributes": [
             {
               "name": "aria-checked",
@@ -615,7 +616,7 @@
           "name": "content",
           "slot": "content",
           "selector": "[data-slot=\"content\"]",
-          "element": "div",
+          "element": "ul",
           "attributes": [
             {
               "name": "aria-labelledby",

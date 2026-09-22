@@ -588,8 +588,7 @@
               "name": "role",
               "kind": "role",
               "value": {
-                "kind": "literal",
-                "value": "img"
+                "kind": "dynamic"
               },
               "description": "Defines the semantic role exposed to assistive technology."
             }
@@ -688,7 +687,7 @@
           "name": "trigger",
           "slot": "trigger",
           "selector": "[data-slot=\"trigger\"]",
-          "element": "div",
+          "element": "button",
           "attributes": [
             {
               "name": "aria-activedescendant",
@@ -833,8 +832,7 @@
               "name": "role",
               "kind": "role",
               "value": {
-                "kind": "literal",
-                "value": "img"
+                "kind": "dynamic"
               },
               "description": "Defines the semantic role exposed to assistive technology."
             }

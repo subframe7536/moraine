@@ -66,6 +66,66 @@ describe('generateApiDoc (source-first)', () => {
     expect(baseSelect?.parts.length).toBe(10)
     expect(baseSelect?.parts[0]?.rendering?.rendersDom).toBe(false)
     expect(baseSelect?.parts[0]?.runtime).toEqual([])
+
+    const runtimeTarget = (componentKey: string, partName: string, targetName: string) =>
+      result.componentDocs
+        .get(componentKey)
+        ?.parts.find((part) => part.name === partName)
+        ?.runtime.find((target) => target.name === targetName)
+    const attributeNames = (componentKey: string, partName: string, targetName: string) =>
+      runtimeTarget(componentKey, partName, targetName)?.attributes.map(
+        (attribute) => attribute.name,
+      )
+
+    expect(
+      runtimeTarget('checkbox', 'Checkbox', 'control')?.attributes.find(
+        (attribute) => attribute.name === 'aria-checked',
+      )?.value,
+    ).toEqual({ kind: 'dynamic' })
+    expect(runtimeTarget('button', 'Button', 'leading')?.element).toBe('div')
+    expect(runtimeTarget('button', 'Button', 'trailing')?.element).toBe('div')
+    expect(runtimeTarget('base-select', 'BaseSelect.Content', 'content')).toEqual(
+      expect.objectContaining({ selector: '[data-slot="content"]', element: 'div' }),
+    )
+    expect(runtimeTarget('base-select', 'BaseSelect.Content', 'content')?.selector).not.toContain(
+      'positioner',
+    )
+    expect(attributeNames('popover', 'Popover.Content', 'content')).toEqual(
+      expect.arrayContaining(['data-expanded', 'data-closed', 'data-side']),
+    )
+    expect(attributeNames('tooltip', 'Tooltip.Content', 'content')).toEqual(
+      expect.arrayContaining(['data-expanded', 'data-closed', 'data-instant-motion', 'data-side']),
+    )
+    expect(runtimeTarget('dropdown-menu', 'DropdownMenu.Trigger', 'trigger')?.selector).toBe(
+      '[data-slot="trigger"]',
+    )
+    expect(runtimeTarget('context-menu', 'ContextMenu.Trigger', 'trigger')?.selector).toBe(
+      '[data-slot="trigger"]',
+    )
+    expect(runtimeTarget('dialog', 'Dialog.Content', 'contentClose')?.element).toBe('button')
+    expect(runtimeTarget('sheet', 'Sheet.Content', 'contentClose')?.element).toBe('button')
+
+    for (const [componentKey, partName] of [
+      ['modal', 'Modal.Trigger'],
+      ['dialog', 'Dialog.Trigger'],
+      ['sheet', 'Sheet.Trigger'],
+    ] as const) {
+      expect(attributeNames(componentKey, partName, 'trigger')).toEqual(
+        expect.arrayContaining(['aria-expanded', 'data-expanded', 'data-closed']),
+      )
+    }
+
+    for (const component of result.componentDocs.values()) {
+      for (const part of component.parts) {
+        for (const target of part.runtime) {
+          const selectorSlot = target.selector?.match(/^\[data-slot="([^"]+)"\]$/)?.[1]
+          if (target.slot && selectorSlot) {
+            expect(selectorSlot, `${part.name}.${target.name}`).toBe(target.slot)
+            expect(selectorSlot, `${part.name}.${target.name}`).not.toBe('positioner')
+          }
+        }
+      }
+    }
   })
 
   test('produces byte-identical deterministic generation output on repeated runs', async () => {

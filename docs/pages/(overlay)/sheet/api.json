@@ -303,12 +303,28 @@
               "description": "Communicates the type of popup controlled by the trigger."
             },
             {
+              "name": "data-closed",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when disclosure or transition content is closed."
+            },
+            {
               "name": "data-disabled",
               "kind": "data",
               "value": {
                 "kind": "presence"
               },
               "description": "Present when the component, slot, or item is disabled."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the panel, accordion, or menu is expanded."
             }
           ]
         }
@@ -531,7 +547,7 @@
           "name": "contentClose",
           "slot": "contentClose",
           "selector": "[data-slot=\"contentClose\"]",
-          "element": "div",
+          "element": "button",
           "condition": "Conditional",
           "attributes": [
             {

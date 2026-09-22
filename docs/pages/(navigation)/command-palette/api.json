@@ -617,8 +617,7 @@
               "name": "role",
               "kind": "role",
               "value": {
-                "kind": "literal",
-                "value": "img"
+                "kind": "dynamic"
               },
               "description": "Defines the semantic role exposed to assistive technology."
             }
@@ -713,7 +712,7 @@
           "name": "listbox",
           "slot": "listbox",
           "selector": "[data-slot=\"listbox\"]",
-          "element": "div",
+          "element": "ul",
           "condition": "Conditional",
           "attributes": [
             {

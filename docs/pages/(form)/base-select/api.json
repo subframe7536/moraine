@@ -743,7 +743,7 @@
         {
           "name": "content",
           "slot": "content",
-          "selector": "[data-slot=\"positioner\"]",
+          "selector": "[data-slot=\"content\"]",
           "element": "div",
           "condition": "Conditional",
           "attributes": [

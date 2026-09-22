@@ -145,7 +145,7 @@
           "name": "item",
           "slot": "item",
           "selector": "[data-slot=\"item\"]",
-          "element": "div",
+          "element": "span",
           "condition": "Conditional",
           "attributes": [
             {
@@ -189,7 +189,8 @@
               },
               "description": "Stores async loading, loaded, or error status."
             }
-          ]
+          ],
+          "condition": "Conditional"
         },
         {
           "name": "fallback",
@@ -230,7 +231,8 @@
               },
               "description": "Defines the semantic role exposed to assistive technology."
             }
-          ]
+          ],
+          "condition": "Conditional"
         },
         {
           "name": "fallbackIcon",
@@ -251,8 +253,7 @@
               "name": "role",
               "kind": "role",
               "value": {
-                "kind": "literal",
-                "value": "img"
+                "kind": "dynamic"
               },
               "description": "Defines the semantic role exposed to assistive technology."
             }

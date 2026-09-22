@@ -289,6 +289,7 @@
         {
           "name": "trigger",
           "slot": "trigger",
+          "selector": "[data-slot=\"trigger\"]",
           "element": "button",
           "attributes": [
             {
@@ -348,8 +349,7 @@
               },
               "description": "Present when the panel, accordion, or menu is expanded."
             }
-          ],
-          "selector": "[data-slot=\"trigger\"]"
+          ]
         }
       ],
       "cssVariables": []
@@ -469,12 +469,20 @@
           "element": "div",
           "attributes": [
             {
-              "name": "aria-label",
-              "kind": "aria",
+              "name": "data-closed",
+              "kind": "data",
               "value": {
-                "kind": "dynamic"
+                "kind": "presence"
               },
-              "description": "Provides an accessible label when visible text is not sufficient."
+              "description": "Present when disclosure or transition content is closed."
+            },
+            {
+              "name": "data-expanded",
+              "kind": "data",
+              "value": {
+                "kind": "presence"
+              },
+              "description": "Present when the panel, accordion, or menu is expanded."
             },
             {
               "name": "data-instant-motion",
@@ -491,6 +499,15 @@
                 "kind": "dynamic"
               },
               "description": "Stores the resolved floating or drawer content side."
+            },
+            {
+              "name": "role",
+              "kind": "role",
+              "value": {
+                "kind": "literal",
+                "value": "tooltip"
+              },
+              "description": "Defines the semantic role exposed to assistive technology."
             }
           ]
         },

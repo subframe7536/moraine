@@ -264,17 +264,23 @@ describe('Modal primitives', () => {
     expect(trigger.getAttribute('data-slot')).toBe('trigger')
     expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(trigger.getAttribute('data-closed')).toBe('')
+    expect(trigger.hasAttribute('data-expanded')).toBe(false)
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
 
     fireEvent.click(trigger)
 
     expect(onOpenChange).toHaveBeenCalledWith(true)
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
+    expect(trigger.getAttribute('data-expanded')).toBe('')
+    expect(trigger.hasAttribute('data-closed')).toBe(false)
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
 
     fireEvent.keyDown(document, { key: 'Escape' })
 
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(trigger.getAttribute('data-closed')).toBe('')
+    expect(trigger.hasAttribute('data-expanded')).toBe(false)
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).not.toBeNull()
     await finishExitMotion()
     expect(trigger.hasAttribute('aria-controls')).toBe(false)

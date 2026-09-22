@@ -457,8 +457,7 @@
               "name": "aria-checked",
               "kind": "aria",
               "value": {
-                "kind": "literal",
-                "value": "mixed"
+                "kind": "dynamic"
               },
               "description": "Communicates the checked, unchecked, or mixed state of a control."
             },
@@ -574,7 +573,6 @@
           "name": "label",
           "slot": "label",
           "selector": "[data-slot=\"label\"]",
-          "element": "label",
           "condition": "Conditional",
           "attributes": [
             {
@@ -613,12 +611,12 @@
               "name": "role",
               "kind": "role",
               "value": {
-                "kind": "literal",
-                "value": "img"
+                "kind": "dynamic"
               },
               "description": "Defines the semantic role exposed to assistive technology."
             }
-          ]
+          ],
+          "condition": "Conditional"
         }
       ],
       "cssVariables": []

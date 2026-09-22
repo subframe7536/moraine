@@ -151,7 +151,7 @@
           "name": "leading",
           "slot": "leading",
           "selector": "[data-slot=\"leading\"]",
-          "element": "span",
+          "element": "div",
           "condition": "Conditional",
           "attributes": [
             {
@@ -166,8 +166,7 @@
               "name": "role",
               "kind": "role",
               "value": {
-                "kind": "literal",
-                "value": "img"
+                "kind": "dynamic"
               },
               "description": "Defines the semantic role exposed to assistive technology."
             }
@@ -185,7 +184,7 @@
           "name": "trailing",
           "slot": "trailing",
           "selector": "[data-slot=\"trailing\"]",
-          "element": "span",
+          "element": "div",
           "condition": "Conditional",
           "attributes": [
             {
@@ -200,8 +199,7 @@
               "name": "role",
               "kind": "role",
               "value": {
-                "kind": "literal",
-                "value": "img"
+                "kind": "dynamic"
               },
               "description": "Defines the semantic role exposed to assistive technology."
             }

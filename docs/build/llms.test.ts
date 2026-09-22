@@ -157,6 +157,33 @@ describe('llms.txt generation', () => {
                       value: { kind: 'dynamic' },
                       description: 'Accessible label.',
                     },
+                    {
+                      name: 'aria-checked',
+                      kind: 'aria',
+                      value: { kind: 'dynamic' },
+                      description: 'Checked state.',
+                    },
+                  ],
+                },
+                {
+                  name: 'leading',
+                  slot: 'leading',
+                  selector: '[data-slot="leading"]',
+                  element: 'div',
+                  attributes: [],
+                },
+                {
+                  name: 'content',
+                  slot: 'content',
+                  selector: '[data-slot="content"]',
+                  element: 'div',
+                  attributes: [
+                    {
+                      name: 'data-expanded',
+                      kind: 'data',
+                      value: { kind: 'presence' },
+                      description: 'Expanded styling hook.',
+                    },
                   ],
                 },
               ],
@@ -190,8 +217,14 @@ describe('llms.txt generation', () => {
       expect(button).toContain('- `root`')
       expect(button).toContain('### Anatomy')
       expect(button).toContain('| root | [data-slot="root"] | button | — |')
+      expect(button).toContain('| leading | [data-slot="leading"] | div | — |')
+      expect(button).toContain('| content | [data-slot="content"] | div | — |')
+      expect(button).not.toContain('| leading | [data-slot="leading"] | button |')
+      expect(button).not.toContain('[data-slot="positioner"]')
       expect(button).toContain('### Accessibility')
       expect(button).toContain('| aria-label | root | Dynamic | Accessible label. |')
+      expect(button).toContain('| aria-checked | root | Dynamic | Checked state. |')
+      expect(button).toContain('| data-expanded | content | Presence | Expanded styling hook. |')
       expect(button).toMatch(/^---\ntitle: Button\ndescription: Button page description\./)
       expect(button).toContain('\n---\n\n# Button\n')
       expect(button).toContain('## Examples')

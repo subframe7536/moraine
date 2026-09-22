@@ -75,6 +75,8 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
       aria-haspopup="dialog"
       aria-controls={binding.context.contentPresent() ? binding.context.contentId() : undefined}
       aria-expanded={binding.context.open() ? 'true' : 'false'}
+      data-expanded={binding.context.open() ? '' : undefined}
+      data-closed={binding.context.open() ? undefined : ''}
       data-disabled={disabled() ? '' : undefined}
       ref={binding.ref}
     >
