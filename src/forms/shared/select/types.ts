@@ -58,6 +58,11 @@ export interface SearchProps<T extends BaseSelectT.Item> {
   /** Maximum committed search length. */
   searchMaxLength?: number
   /**
+   * The autocomplete attribute for the search input.
+   * @default 'off'
+   */
+  autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
+  /**
    * Filtering strategy or predicate receiving the raw item.
    * @default true
    */

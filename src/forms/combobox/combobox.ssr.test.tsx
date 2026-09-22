@@ -26,6 +26,7 @@ test('hydrates Combobox with one input focus owner', () => {
   const trigger = container.querySelector<HTMLButtonElement>('[data-slot="trigger"]')!
   expect(input.value).toBe('Banana')
   expect(input.getAttribute('aria-autocomplete')).toBe('list')
+  expect(input.getAttribute('autocomplete')).toBe('off')
   expect(trigger.tabIndex).toBe(-1)
   expect(container.querySelectorAll('input[data-slot="input"]')).toHaveLength(1)
   fireEvent.click(trigger)

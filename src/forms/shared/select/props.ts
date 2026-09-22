@@ -78,6 +78,7 @@ export const COMBOBOX_LOCAL_PROP_KEYS = [
   'defaultSearchValue',
   'onSearch',
   'searchMaxLength',
+  'autocomplete',
   'filterItem',
   'openOnControlClick',
   'inputRef',

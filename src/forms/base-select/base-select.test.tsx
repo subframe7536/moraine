@@ -143,6 +143,7 @@ test('supports a custom searchable Control without BaseSelect.Trigger', () => {
     </BaseSelect>
   ))
   const input = screen.getByRole('combobox')
+  expect(input.getAttribute('autocomplete')).toBe('off')
   expect(screen.container.querySelector('[data-slot="control"]')?.getAttribute('role')).toBeNull()
   fireEvent.input(input, { target: { value: 'be' } })
   expect(input.getAttribute('aria-expanded')).toBe('true')

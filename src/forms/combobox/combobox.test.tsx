@@ -52,6 +52,13 @@ describe('Combobox', () => {
     expect(input.readOnly).toBe(false)
     expect(input.getAttribute('aria-readonly')).toBeNull()
     expect(input.getAttribute('aria-autocomplete')).toBe('list')
+    expect(input.getAttribute('autocomplete')).toBe('off')
+  })
+
+  test('supports custom autocomplete attribute', () => {
+    const screen = render(() => <Combobox items={ITEMS} autocomplete="off email" />)
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    expect(input.getAttribute('autocomplete')).toBe('off email')
   })
 
   test('control clicks do not open by default', () => {

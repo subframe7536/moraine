@@ -55,12 +55,20 @@ describe('MultiSelect', () => {
     const editable = render(() => <MultiSelect items={ITEMS} search />)
     const editableInput = editable.getByRole<HTMLInputElement>('combobox')
     expect(editableInput.getAttribute('aria-autocomplete')).toBe('list')
+    expect(editableInput.getAttribute('autocomplete')).toBe('off')
 
     const readOnly = render(() => <MultiSelect items={ITEMS} search readOnly />)
     const readOnlyInput = readOnly.getByRole<HTMLInputElement>('combobox')
     expect(readOnlyInput.readOnly).toBe(true)
     expect(readOnlyInput.getAttribute('aria-readonly')).toBe('true')
     expect(readOnlyInput.getAttribute('aria-autocomplete')).toBe('none')
+    expect(readOnlyInput.getAttribute('autocomplete')).toBe('off')
+  })
+
+  test('supports custom autocomplete attribute on editable input', () => {
+    const screen = render(() => <MultiSelect items={ITEMS} search autocomplete="off email" />)
+    const input = screen.getByRole<HTMLInputElement>('combobox')
+    expect(input.getAttribute('autocomplete')).toBe('off email')
   })
 
   test('control click opens by default and the non-editable trigger toggles', () => {

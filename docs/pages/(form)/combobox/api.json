@@ -26,6 +26,16 @@
           "description": "Show a clear action when a value or query exists."
         },
         {
+          "name": "autocomplete",
+          "optional": true,
+          "type": "JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']",
+          "description": "The autocomplete attribute for the search input.",
+          "default": {
+            "kind": "literal",
+            "value": "off"
+          }
+        },
+        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",

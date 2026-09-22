@@ -32,6 +32,7 @@ test('hydrates MultiSelect with one input and stable secondary trigger', () => {
   const trigger = container.querySelector<HTMLButtonElement>('[data-slot="trigger"]')!
   expect(control).toBeTruthy()
   expect(container.querySelectorAll('input[data-slot="input"]')).toHaveLength(1)
+  expect(input.getAttribute('autocomplete')).toBe('off')
   expect(trigger.tabIndex).toBe(-1)
   expect(container.querySelector<HTMLInputElement>('input[name="fruits"]')?.value).toBe('apple')
   fireEvent.click(container.querySelector('[aria-label="Remove Apple"]')!)

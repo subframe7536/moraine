@@ -1,5 +1,5 @@
 import { createEffect, createSignal, on, onCleanup } from 'solid-js'
-import type { Accessor } from 'solid-js'
+import type { Accessor, JSX } from 'solid-js'
 
 import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import type { UseFormFieldReturn } from '../field/field-context.ts'
@@ -16,6 +16,11 @@ export interface SearchValueOptions {
   onSearch?: (value: string) => void
   /** Maximum committed query length. */
   searchMaxLength?: number
+  /**
+   * The autocomplete attribute for the search input.
+   * @default 'off'
+   */
+  autocomplete?: JSX.InputHTMLAttributes<HTMLInputElement>['autocomplete']
 }
 
 /** Query controller accepted by {@link useBaseSelectSearchInput}. */
@@ -64,7 +69,7 @@ export function useSearchValue(options: SearchValueOptions = {}): SearchValue {
  */
 export function useBaseSelectSearchInput(
   state: BaseSelectSearchInputState,
-  options: Pick<SearchValueOptions, 'searchMaxLength'>,
+  options: Pick<SearchValueOptions, 'searchMaxLength' | 'autocomplete'>,
   enabled: Accessor<boolean>,
   search: SearchValue,
   display: Accessor<string> = search.query,
@@ -149,6 +154,9 @@ export function useBaseSelectSearchInput(
       },
       get maxLength() {
         return options.searchMaxLength
+      },
+      get autocomplete() {
+        return options.autocomplete ?? 'off'
       },
       get value() {
         return compositionDraft() ?? display()
