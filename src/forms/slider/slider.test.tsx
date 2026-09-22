@@ -1,5 +1,5 @@
 import { fireEvent, render as baseRender, waitFor } from '@solidjs/testing-library'
-import { createSignal } from 'solid-js'
+import { createRoot, createSignal } from 'solid-js'
 import * as v from 'valibot'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -1673,4 +1673,16 @@ test('updates thumb dimensions with size and accepts an independent override', (
   setThumbSize(undefined)
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('18px')
   expect(screen.container.querySelector('[data-slot="root"]')).toBe(root)
+})
+
+test('useSlider works standalone with minimal options', () => {
+  createRoot((dispose) => {
+    const slider = useSlider({ value: 40 })
+
+    expect(slider.currentValues()).toEqual([40])
+    expect(slider.dragging()).toBe(false)
+    expect(slider.getThumbMinValue(0)).toBe(0)
+    expect(slider.getThumbMaxValue(0)).toBe(100)
+    dispose()
+  })
 })

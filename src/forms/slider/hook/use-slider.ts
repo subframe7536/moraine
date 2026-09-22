@@ -1,8 +1,15 @@
 import type { JSX, Setter } from 'solid-js'
-import { createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  on,
+  onCleanup,
+  onMount,
+} from 'solid-js'
 
 import { useControllableValue } from '../../../shared/use-controllable-value.ts'
-import { useFormReset } from '../../shared/use-form-reset'
 import type { SliderT } from '../slider.types'
 import {
   clamp,
@@ -17,15 +24,15 @@ import {
 } from '../utils'
 import type { SliderValue } from '../utils'
 
-type UseSliderProps<TValue extends SliderValue> = {
-  allowThumbCrossing: boolean
+export type UseSliderProps<TValue extends SliderValue = SliderValue> = {
+  allowThumbCrossing?: boolean
   defaultValue?: TValue
   divider?: boolean
-  inverted: boolean
-  max: number
-  min: number
-  minStepsBetweenThumbs: number
-  orientation: 'horizontal' | 'vertical'
+  inverted?: boolean
+  max?: number
+  min?: number
+  minStepsBetweenThumbs?: number
+  orientation?: 'horizontal' | 'vertical'
   readOnly?: boolean
   step?: number
   styles?: { divider?: JSX.CSSProperties }
@@ -33,13 +40,12 @@ type UseSliderProps<TValue extends SliderValue> = {
   variant?: SliderT.Variant['variant'] | null
 }
 
-type UseSliderOptions<TValue extends SliderValue> = {
+export type UseSliderOptions<TValue extends SliderValue = SliderValue> = {
   disabled?: () => boolean | undefined
   onBlur?: (event: FocusEvent) => void
   onFocus?: (event: FocusEvent) => void
   onValueCommit?: (value: TValue) => void
   onValueInput?: (value: TValue) => void
-  onValueReset?: (value: TValue) => void
 }
 
 export type UseSliderReturn<TValue extends SliderValue = SliderValue> = {
@@ -65,21 +71,33 @@ export type UseSliderReturn<TValue extends SliderValue = SliderValue> = {
   onTrackPointerMove: (event: PointerEvent) => void
   onTrackPointerUp: (event: PointerEvent) => void
   rangeStyle: () => JSX.CSSProperties
+  resetValues: (values?: number[]) => void
   setThumbRefs: Setter<Array<HTMLDivElement | undefined>>
   setTrackRef: (element: HTMLDivElement | undefined) => void
   thumbStyles: () => JSX.CSSProperties[]
 }
 
 export function useSlider<TValue extends SliderValue = SliderValue>(
-  merged: UseSliderProps<TValue>,
+  rawProps: UseSliderProps<TValue>,
   options: UseSliderOptions<TValue> = {},
 ): UseSliderReturn<TValue> {
+  const merged = mergeProps(
+    {
+      min: 0,
+      max: 100,
+      minStepsBetweenThumbs: 0,
+      allowThumbCrossing: true,
+      orientation: 'horizontal' as const,
+      inverted: false,
+    },
+    rawProps,
+  )
   const normalizeValues = (value: SliderValue | undefined) =>
     normalizeSliderValues(value, merged.min, merged.min, merged.max)
-  const initialValues = normalizeValues(merged.defaultValue) ?? [merged.min]
+  const getInitialValues = () => normalizeValues(merged.defaultValue) ?? [merged.min]
   const [currentValues, setCurrentValues] = useControllableValue<number[]>({
     value: () => normalizeValues(merged.value),
-    defaultValue: () => initialValues,
+    defaultValue: getInitialValues,
   })
 
   const [dragging, setDragging] = createSignal(false)
@@ -229,20 +247,10 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     pendingValues = undefined
   })
 
-  useFormReset(
-    () => trackElement()?.closest('[data-slot="root"]')?.querySelector('input')?.form,
-    () => {
-      const root = trackElement()?.closest('[data-slot="root"]')
-      pendingValues = undefined
-      setCurrentValues([...initialValues])
-      const nextValues = currentValues()
-
-      root?.querySelectorAll<HTMLInputElement>('input[type="range"]').forEach((input, index) => {
-        input.value = String(nextValues[index] ?? merged.min)
-      })
-      options.onValueReset?.(getPublicValue(nextValues))
-    },
-  )
+  function resetValues(values?: number[]): void {
+    pendingValues = undefined
+    setCurrentValues([...(values ?? getInitialValues())])
+  }
 
   function areValuesEqual(left: number[], right: number[]): boolean {
     return (
@@ -698,6 +706,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     onTrackPointerMove,
     onTrackPointerUp,
     rangeStyle,
+    resetValues,
     setThumbRefs,
     setTrackRef,
     thumbStyles,

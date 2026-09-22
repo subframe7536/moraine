@@ -67,6 +67,7 @@ import type {
   RecipeVariant,
 } from 'moraine/styles'
 import { defineTheme } from 'moraine/theme'
+import { useSlider } from 'moraine/utils'
 import type { Component, JSX } from 'solid-js'
 import * as v from 'valibot'
 
@@ -138,13 +139,28 @@ type UtilsProvider = typeof import('moraine/utils').MoraineProvider
 type UtilsCn = typeof import('moraine/utils').cn
 // @ts-expect-error CSS-variable types are not public from utils.
 type UtilsStyleVarRecord = import('moraine/utils').StyleVarRecord
+// @ts-expect-error Slider hook is only public from the utils entry.
+type RootUseSlider = typeof import('moraine').useSlider
+type UtilsSliderHook = typeof import('moraine/utils').useSlider
+type UtilsResizableHandleHook = typeof import('moraine/utils').useResizableHandle
+type UtilsUseSliderProps = import('moraine/utils').UseSliderProps
+type UtilsUseSliderOptions = import('moraine/utils').UseSliderOptions
+type UtilsUseSliderReturn = import('moraine/utils').UseSliderReturn
 
 export type PublicEntryIsolation = [
   RecipeEntry,
   RootRecipe,
+  RootUseSlider,
   UtilsProvider,
   UtilsCn,
   UtilsStyleVarRecord,
+  Assert<UtilsSliderHook extends (...args: any[]) => any ? true : false>,
+  Assert<UtilsResizableHandleHook extends (...args: any[]) => any ? true : false>,
+  Assert<UtilsUseSliderProps extends {} ? true : false>,
+  Assert<UtilsUseSliderOptions extends {} ? true : false>,
+  Assert<'onValueReset' extends keyof UtilsUseSliderOptions ? false : true>,
+  Assert<UtilsUseSliderReturn extends {} ? true : false>,
+  Assert<'resetValues' extends keyof UtilsUseSliderReturn ? true : false>,
 ]
 
 const CustomRoot: Component<{ required: string; children?: JSX.Element }> = (props) => (
@@ -744,7 +760,8 @@ type ButtonRecipeSlots = RecipeSlots<typeof buttonRecipe>
 type SliderRecipeVariant = RecipeVariant<typeof publicSliderRecipe>
 const buttonRoot: keyof ButtonRecipeSlots = 'root'
 const sliderSize: SliderRecipeVariant['size'] = 'sm'
-void [buttonRoot, sliderSize]
+const hookSlider = useSlider({ min: 0, max: 100, value: 50 })
+void [buttonRoot, sliderSize, hookSlider.currentValues(), hookSlider.resetValues()]
 
 export type DefaultTagAssertions = [
   Assert<Tags extends keyof JSX.IntrinsicElements ? true : false>,

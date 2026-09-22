@@ -5,6 +5,7 @@ import { createStyles } from '../../provider'
 import { HiddenInput } from '../../shared/hidden-input'
 import { callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
+import { useFormReset } from '../shared/use-form-reset.ts'
 
 import { useSlider } from './hook'
 import { sliderDataAttributes, sliderRecipe } from './slider.recipe'
@@ -74,6 +75,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       defaultId: generatedId(),
     }),
   )
+  const inputEls: HTMLInputElement[] = []
 
   const slider = useSlider<TValue>(merged, {
     disabled: field.disabled,
@@ -93,10 +95,22 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
     onBlur(event) {
       field.emit('blur', event)
     },
-    onValueReset(value) {
-      field.setFormValue(value)
-    },
   })
+
+  useFormReset(
+    () => inputEls[0]?.form,
+    () => {
+      slider.resetValues()
+      const nextValues = slider.currentValues()
+      for (let i = 0; i < nextValues.length; i++) {
+        const input = inputEls[i]
+        if (input) {
+          input.value = String(nextValues[i] ?? merged.min)
+        }
+      }
+      field.setFormValue(slider.getPublicValue(nextValues))
+    },
+  )
 
   onMount(() => {
     if (field.value() === undefined) {
@@ -236,6 +250,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           >
             <HiddenInput
               ref={(element) => {
+                inputEls[thumbIndex] = element
                 if (thumbIndex === 0) {
                   callRef(local.inputRef, element)
                 }

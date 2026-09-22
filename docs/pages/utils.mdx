@@ -4,7 +4,7 @@ description: Public helpers and hooks for building custom Moraine-based primitiv
 sidebar:
   order: 4
 search:
-  tags: [helpers, hooks, cn]
+  tags: [helpers, hooks, cn, slider, resizable]
 ---
 
 ## Styling helpers
@@ -28,14 +28,16 @@ Import low-level hooks from the dedicated subpath:
 import {
   createContextProvider,
   createMediaQuery,
+  useBaseSelectSearchInput,
   useControllableValue,
   useDisclosureState,
   useEventListener,
   useEventListenerMap,
   useLoadingAutoClick,
-  useBaseSelectSearchInput,
+  useResizableHandle,
   useSearchValue,
   useSelectableCollectionNavigation,
+  useSlider,
   useTransitionPresence,
 } from 'moraine/utils'
 
@@ -69,6 +71,23 @@ Add keyboard navigation for tabs, radio groups, listboxes, and similar selectabl
 ### `useSearchValue` and `useBaseSelectSearchInput`
 
 Build a custom searchable `BaseSelect` while keeping query state and the text input outside the primitive. `useSearchValue` manages controlled or uncontrolled query state. `useBaseSelectSearchInput` supplies IME-safe input, ARIA, focus, and navigation bindings within a `BaseSelect` composition.
+
+### `useSlider`
+
+Manage headless state, pointer dragging, keyboard navigation, step snapping, and thumb styles for single or multi-thumb range sliders.
+
+```tsx
+const slider = useSlider({
+  min: 0,
+  max: 100,
+  step: 1,
+  defaultValue: 50,
+})
+```
+
+### `useResizableHandle`
+
+Manage pointer drag interactions, keyboard resizing, and intersection detection for custom resizable panel handles.
 
 ### `createMediaQuery`
 
