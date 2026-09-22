@@ -22,7 +22,7 @@ export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
     sidebarHeader: 'flex gap-2 p-2',
     sidebarBody: 'flex-1 min-h-0 overflow-y-auto',
     sidebarFooter: 'flex gap-2 p-2',
-    main: 'flex-1 h-full min-h-0 min-w-0 overflow-y-auto bg-background',
+    main: 'relative flex-1 h-full min-h-0 min-w-0 overflow-y-auto bg-background',
   },
   defaultVariants: {
     side: 'left',
