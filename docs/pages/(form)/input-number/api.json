@@ -17,7 +17,8 @@
         {
           "name": "align",
           "optional": true,
-          "type": "'center' | 'start'"
+          "type": "'center' | 'start'",
+          "description": "Text alignment; omitted values follow the control layout."
         },
         {
           "name": "autofocus",
@@ -221,6 +222,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
+          "description": "Visual layout direction.",
           "default": {
             "kind": "literal",
             "value": "horizontal"
@@ -302,6 +304,7 @@
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -339,6 +342,7 @@
           "name": "variant",
           "optional": true,
           "type": "'outline' | 'subtle' | 'ghost' | 'none'",
+          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "outline"

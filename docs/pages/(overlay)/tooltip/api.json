@@ -205,6 +205,7 @@
           "name": "invert",
           "optional": true,
           "type": "boolean",
+          "description": "Visual invert of the component.",
           "default": {
             "kind": "literal",
             "value": false

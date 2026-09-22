@@ -55,6 +55,75 @@ describe('generateApiDoc', () => {
       select?.dataAttributes.find((target) => target.target === 'value')?.attributes,
     ).toContain('data-placeholder')
 
+    for (const key of ['select', 'combobox', 'multi-select']) {
+      const props = result.componentDocs.get(key)!.parts[0]!.props
+      expect(props.map((prop) => prop.name)).toEqual(
+        expect.arrayContaining([
+          'itemRender',
+          'itemProps',
+          'listboxProps',
+          'virtualRender',
+          'scrollToItem',
+          'onScrollBottom',
+          'scrollBottomThreshold',
+          'gutter',
+          'overflowPadding',
+        ]),
+      )
+      if (key !== 'select') {
+        expect(props.map((prop) => prop.name)).toEqual(
+          expect.arrayContaining([
+            'searchValue',
+            'defaultSearchValue',
+            'onSearch',
+            'filterItem',
+            'searchMaxLength',
+          ]),
+        )
+      }
+    }
+    for (const key of ['collapsible', 'sidebar-frame']) {
+      const trigger = result.componentDocs
+        .get(key)!
+        .parts.find((part) => part.name.endsWith('.Trigger'))!
+      expect(trigger.props.map((prop) => prop.name)).toEqual(
+        expect.arrayContaining(['children', 'disabled']),
+      )
+    }
+    for (const key of ['input', 'textarea', 'badge']) {
+      const names = result.componentDocs.get(key)!.parts[0]!.props.map((prop) => prop.name)
+      expect(names).not.toContain('grouped')
+      expect(names).not.toContain('groupedOrientation')
+      expect(names).not.toContain('square')
+      expect(names).toEqual(expect.arrayContaining(['size', 'variant']))
+    }
+    for (const part of result.componentDocs.get('input-group')!.parts.slice(1)) {
+      expect(part.props).toContainEqual(
+        expect.objectContaining({
+          name: 'compact',
+          type: 'boolean',
+          default: { kind: 'literal', value: false },
+        }),
+      )
+      for (const name of ['size', 'orientation', 'variant']) {
+        expect(part.props.map((prop) => prop.name)).not.toContain(name)
+      }
+    }
+    const buttonGroup = result.componentDocs.get('button-group')!
+    expect(buttonGroup.parts[0]!.props.find((prop) => prop.name === 'size')?.type).toContain(
+      "'icon-xl'",
+    )
+    const separator = buttonGroup.parts.find((part) => part.name === 'ButtonGroup.Separator')!
+    expect(separator.props.find((prop) => prop.name === 'orientation')?.default).toEqual({
+      kind: 'literal',
+      value: 'vertical',
+    })
+    expect(separator.props.map((prop) => prop.name)).not.toContain('size')
+    expect(separator.props.map((prop) => prop.name)).not.toContain('variant')
+    expect(
+      result.componentDocs.get('base-select')!.parts[0]!.props.map((prop) => prop.name),
+    ).toContain('size')
+
     const checkboxGroup = result.componentDocs.get('checkbox-group')
     expect(checkboxGroup?.dataAttributes.map((target) => target.target)).toEqual(
       expect.arrayContaining(['root', 'control', 'indicator']),
@@ -69,6 +138,9 @@ describe('generateApiDoc', () => {
 
     const form = result.componentDocs.get('form')
     expect(form?.parts.map((part) => part.name)).toEqual(['form.Form', 'form.Field'])
+    expect(form?.parts[1]?.props.map((prop) => prop.name)).toEqual(
+      expect.arrayContaining(['name', 'label', 'description', 'required']),
+    )
     expect(form?.parts[0]?.access).toMatchObject({ kind: 'factory-member', factory: 'createForm' })
 
     expect(Object.keys(result.indexDoc.components[0] ?? {}).sort()).toEqual([

@@ -30,6 +30,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
+          "description": "Layout axis used by the component Recipe.",
           "default": {
             "kind": "literal",
             "value": "horizontal"

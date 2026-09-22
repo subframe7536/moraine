@@ -46,6 +46,7 @@
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"

@@ -142,6 +142,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
+          "description": "Direction of keyboard and pointer value movement.",
           "default": {
             "kind": "literal",
             "value": "horizontal"
@@ -171,6 +172,7 @@
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -204,6 +206,7 @@
           "name": "variant",
           "optional": true,
           "type": "'default' | 'bold'",
+          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "default"

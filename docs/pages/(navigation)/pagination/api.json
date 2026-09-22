@@ -18,6 +18,7 @@
           "name": "activeVariant",
           "optional": true,
           "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+          "description": "Visual variant for the active page button.",
           "default": {
             "kind": "literal",
             "value": "outline"
@@ -45,6 +46,7 @@
           "name": "controlVariant",
           "optional": true,
           "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+          "description": "Visual variant for the previous/next control buttons.",
           "default": {
             "kind": "literal",
             "value": "ghost"
@@ -166,6 +168,7 @@
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
+          "description": "Size of the pagination buttons.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -203,6 +206,7 @@
           "name": "variant",
           "optional": true,
           "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+          "description": "Visual variant for the page buttons.",
           "default": {
             "kind": "literal",
             "value": "ghost"

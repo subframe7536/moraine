@@ -16,6 +16,7 @@
           "name": "animation",
           "optional": true,
           "type": "'carousel' | 'reverse' | 'swing' | 'elastic'",
+          "description": "Visual animation of the component.",
           "default": {
             "kind": "literal",
             "value": "carousel"
@@ -53,6 +54,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
+          "description": "Visual layout direction.",
           "default": {
             "kind": "literal",
             "value": "horizontal"
@@ -62,6 +64,7 @@
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"

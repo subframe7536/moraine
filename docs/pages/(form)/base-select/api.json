@@ -163,6 +163,16 @@
           "description": "Native form value; return undefined to omit a selected value from submission."
         },
         {
+          "name": "size",
+          "optional": true,
+          "type": "'sm' | 'md' | 'lg'",
+          "description": "Popup and item size.",
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          }
+        },
+        {
           "name": "styles",
           "optional": true,
           "type": "Styles",
@@ -316,7 +326,13 @@
         "root": "BaseSelect",
         "member": "Listbox"
       },
-      "props": []
+      "props": [
+        {
+          "name": "style",
+          "optional": true,
+          "type": "JSX.CSSProperties"
+        }
+      ]
     },
     {
       "id": "base-select-item",
@@ -369,7 +385,13 @@
         "root": "BaseSelect",
         "member": "Group"
       },
-      "props": []
+      "props": [
+        {
+          "name": "style",
+          "optional": true,
+          "type": "JSX.CSSProperties"
+        }
+      ]
     },
     {
       "id": "base-select-group-label",
@@ -379,7 +401,13 @@
         "root": "BaseSelect",
         "member": "GroupLabel"
       },
-      "props": []
+      "props": [
+        {
+          "name": "style",
+          "optional": true,
+          "type": "JSX.CSSProperties"
+        }
+      ]
     },
     {
       "id": "base-select-separator",
@@ -389,7 +417,13 @@
         "root": "BaseSelect",
         "member": "Separator"
       },
-      "props": []
+      "props": [
+        {
+          "name": "style",
+          "optional": true,
+          "type": "JSX.CSSProperties"
+        }
+      ]
     },
     {
       "id": "base-select-empty",
@@ -399,7 +433,13 @@
         "root": "BaseSelect",
         "member": "Empty"
       },
-      "props": []
+      "props": [
+        {
+          "name": "style",
+          "optional": true,
+          "type": "JSX.CSSProperties"
+        }
+      ]
     }
   ],
   "item": {

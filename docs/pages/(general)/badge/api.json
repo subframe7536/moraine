@@ -42,15 +42,11 @@
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
           }
-        },
-        {
-          "name": "square",
-          "optional": true,
-          "type": "boolean"
         },
         {
           "name": "style",
@@ -80,6 +76,7 @@
           "name": "variant",
           "optional": true,
           "type": "'solid' | 'subtle' | 'surface' | 'outline'",
+          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "subtle"

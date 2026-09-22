@@ -95,6 +95,7 @@
           "name": "size",
           "optional": true,
           "type": "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -128,6 +129,7 @@
           "name": "variant",
           "optional": true,
           "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "default"

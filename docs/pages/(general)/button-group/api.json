@@ -42,6 +42,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
+          "description": "Visual layout direction.",
           "default": {
             "kind": "literal",
             "value": "horizontal"
@@ -56,7 +57,8 @@
         {
           "name": "size",
           "optional": true,
-          "type": "'sm' | 'md' | 'lg'",
+          "type": "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -78,6 +80,7 @@
           "name": "variant",
           "optional": true,
           "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
+          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "default"
@@ -106,18 +109,10 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
+          "description": "The orientation of the separator.",
           "default": {
             "kind": "literal",
-            "value": "horizontal"
-          }
-        },
-        {
-          "name": "size",
-          "optional": true,
-          "type": "'sm' | 'md' | 'lg'",
-          "default": {
-            "kind": "literal",
-            "value": "md"
+            "value": "vertical"
           }
         },
         {
@@ -125,15 +120,6 @@
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "variant",
-          "optional": true,
-          "type": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'",
-          "default": {
-            "kind": "literal",
-            "value": "default"
-          }
         }
       ]
     }

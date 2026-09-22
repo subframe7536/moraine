@@ -28,6 +28,24 @@ describe('Pagination', () => {
     expect(list?.className).not.toBe('')
   })
 
+  test('applies button variants only to their page and control buttons', () => {
+    const [destructive, setDestructive] = createSignal(false)
+    const screen = render(() => (
+      <Pagination total={30} page={2} controlVariant={destructive() ? 'destructive' : 'ghost'} />
+    ))
+    const root = screen.getByRole('navigation')
+    const current = screen.container.querySelector('[data-slot="item"][aria-current="page"]')!
+    const next = screen.container.querySelector('[data-slot="next"]')!
+    expect(root.className).not.toMatch(/bg-|hover:|border-/)
+    expect(current.className).toContain('bg-background')
+    expect(next.className).toContain('bg-muted-hover')
+
+    setDestructive(true)
+    expect(root.className).not.toMatch(/bg-|hover:|border-/)
+    expect(next.className).toContain('bg-destructive')
+    expect(current.className).toContain('bg-background')
+  })
+
   test('forwards ref to root nav element', () => {
     let navRef: HTMLElement | undefined
     render(() => <Pagination ref={(el) => (navRef = el)} total={30} itemsPerPage={10} />)

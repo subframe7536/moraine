@@ -46,8 +46,13 @@ describe('Collapsible', () => {
 
     expect(root?.className).toBe('')
     expect(trigger?.className).toBe('')
-    expect(wrapper?.className).toContain('data-transition:h-(--mo-collapsible-content-height)')
-    expect(wrapper?.hasAttribute('data-transition')).toBe(true)
+    expect(wrapper?.className).toContain(
+      'has-[>[data-transition]]:h-(--mo-collapsible-content-height)',
+    )
+    expect(wrapper?.hasAttribute('data-transition')).toBe(false)
+    expect(
+      screen.container.querySelector('[data-slot="content"]')?.hasAttribute('data-transition'),
+    ).toBe(true)
   })
 
   test('renders closed by default and toggles on trigger click', async () => {
@@ -220,12 +225,12 @@ describe('Collapsible', () => {
     const wrapper = screen.container.querySelector('[data-slot="content-wrapper"]')!
 
     setOpen(false)
-    expect(wrapper.getAttribute('data-closed')).toBe('')
+    expect(wrapper.firstElementChild?.getAttribute('data-closed')).toBe('')
     setOpen(true)
     fireEvent.animationEnd(wrapper, { animationName: 'accordion-up' })
 
     expect(screen.getByTestId('content')).not.toBeNull()
-    expect(wrapper.getAttribute('data-expanded')).toBe('')
+    expect(wrapper.firstElementChild?.getAttribute('data-expanded')).toBe('')
   })
 
   test('keeps nested collapsible ids and state independent', async () => {
@@ -296,14 +301,18 @@ describe('Collapsible', () => {
     const trigger = screen.getByTestId('trigger-control')
     const content = screen.container.querySelector('[data-slot="content-wrapper"]') as HTMLElement
 
-    expect(content.className).toContain('data-expanded:animate-accordion-down')
-    expect(content.className).toContain('data-closed:animate-accordion-up')
+    expect(content.className).toContain(
+      'has-[>[data-transition][data-expanded]]:animate-accordion-down',
+    )
+    expect(content.className).toContain(
+      'has-[>[data-transition][data-closed]]:animate-accordion-up',
+    )
 
     fireEvent.click(trigger)
     await Promise.resolve()
 
     expect(trigger.hasAttribute('aria-controls')).toBe(false)
-    expect(content.getAttribute('data-closed')).toBe('')
+    expect(content.firstElementChild?.getAttribute('data-closed')).toBe('')
     expect(screen.queryByTestId('content')).not.toBeNull()
 
     fireEvent.animationEnd(content, { animationName: 'accordion-up' })
@@ -396,11 +405,11 @@ describe('Collapsible', () => {
     const wrapper = screen.container.querySelector('[data-slot="content-wrapper"]')!
 
     expect(content).not.toBeNull()
-    expect(wrapper.getAttribute('data-closed')).toBe('')
+    expect(wrapper.firstElementChild?.getAttribute('data-closed')).toBe('')
 
     const trigger = screen.getByRole('button', { name: 'Keep Mounted Trigger' })
     fireEvent.click(trigger)
-    expect(wrapper.getAttribute('data-expanded')).toBe('')
+    expect(wrapper.firstElementChild?.getAttribute('data-expanded')).toBe('')
     expect(screen.getByTestId('unmount-false-content')).not.toBeNull()
   })
 
@@ -612,8 +621,8 @@ describe('Collapsible', () => {
     expect(section).not.toBeNull()
     expect(section.className).toContain('custom-section-class')
     expect(contentRef).toBe(section)
-    expect(section.hasAttribute('data-expanded')).toBe(false)
-    expect(wrapper.hasAttribute('data-expanded')).toBe(true)
+    expect(section.hasAttribute('data-expanded')).toBe(true)
+    expect(wrapper.hasAttribute('data-expanded')).toBe(false)
     expect(wrapper.contains(section)).toBe(true)
   })
 
@@ -755,12 +764,10 @@ describe('Collapsible', () => {
     expect(screen.getByRole('button').className).toBe('')
     expect(screen.getByText('Empty preset content').className).toBe('')
     expect(screen.container.querySelector('[data-slot="content-wrapper"]')?.className).toContain(
-      'data-transition:h-(--mo-collapsible-content-height)',
+      'has-[>[data-transition]]:h-(--mo-collapsible-content-height)',
     )
     expect(
-      screen.container
-        .querySelector('[data-slot="content-wrapper"]')
-        ?.hasAttribute('data-transition'),
+      screen.container.querySelector('[data-slot="content"]')?.hasAttribute('data-transition'),
     ).toBe(true)
   })
 })

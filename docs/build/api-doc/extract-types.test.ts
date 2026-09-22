@@ -268,22 +268,21 @@ export namespace NeverT {
     )
     const cbItem = await extractor.extractItem(checkboxGroupModule!, 'CheckboxGroupT')
 
-    // Imported leaf types remain textual when expansion is unnecessary.
     const indicatorProp = cbPart.props.find((p) => p.name === 'indicator')
-    expect(indicatorProp?.type).toBe("CheckboxProps<TTrue, TFalse>['indicator']")
+    expect(indicatorProp?.type).toBe("'start' | 'end' | 'hidden'")
 
     const checkedIconProp = cbPart.props.find((p) => p.name === 'checkedIcon')
-    expect(checkedIconProp?.type).toBe("CheckboxProps<TTrue, TFalse>['checkedIcon']")
+    expect(checkedIconProp?.type).toBe('IconT.Name')
 
     const indeterminateIconProp = cbPart.props.find((p) => p.name === 'indeterminateIcon')
-    expect(indeterminateIconProp?.type).toBe("CheckboxProps<TTrue, TFalse>['indeterminateIcon']")
+    expect(indeterminateIconProp?.type).toBe('IconT.Name')
 
     // Verify CheckboxGroup item props have expanded types
     const itemCheckedIcon = cbItem?.props.find((p) => p.name === 'checkedIcon')
-    expect(itemCheckedIcon?.type).toBe("CheckboxProps<TTrue, TFalse>['checkedIcon']")
+    expect(itemCheckedIcon?.type).toBe('IconT.Name')
 
     const itemIndeterminate = cbItem?.props.find((p) => p.name === 'indeterminate')
-    expect(itemIndeterminate?.type).toBe("CheckboxProps<TTrue, TFalse>['indeterminate']")
+    expect(itemIndeterminate?.type).toBe('boolean')
 
     // Verify Pagination variants expanded from ButtonStyleVariant['variant']
     const paginationModule = await extractor.loadModule(

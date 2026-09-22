@@ -29,7 +29,8 @@
         {
           "name": "badgePosition",
           "optional": true,
-          "type": "'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'",
+          "type": "NonNullable<Variant['badgePosition']>",
+          "description": "Position of the badge.",
           "default": {
             "kind": "literal",
             "value": "bottom-right"
@@ -63,6 +64,7 @@
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"

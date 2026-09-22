@@ -30,7 +30,7 @@ export class TypeExtractor {
     const absolutePath = path.isAbsolute(filePath)
       ? filePath
       : path.resolve(this.projectRoot, filePath)
-    if (!absolutePath.endsWith('.types.ts') || !existsSync(absolutePath)) {
+    if (!absolutePath.endsWith('.ts') || !existsSync(absolutePath)) {
       return null
     }
 
@@ -198,9 +198,14 @@ export class TypeExtractor {
 
   #resolveSpecifier(importerPath: string, specifier: string): string | null {
     const tryCandidates = (basePath: string): string | null => {
-      const candidates = [`${basePath}.types.ts`, `${basePath}.ts`, basePath]
+      const candidates = [
+        basePath,
+        `${basePath}.ts`,
+        `${basePath}.types.ts`,
+        path.join(basePath, 'index.ts'),
+      ]
       for (const candidate of candidates) {
-        if (candidate.endsWith('.types.ts') && existsSync(candidate)) {
+        if (candidate.endsWith('.ts') && existsSync(candidate)) {
           try {
             if (statSync(candidate).isFile()) {
               return candidate
@@ -468,26 +473,26 @@ export class TypeExtractor {
       props.push(...baseProps)
     }
 
-    // 2. Synthesize variant props from the colocated recipe metadata.
-    if (variantNode && !(await this.#isNeverType(module, nsNode, variantNode))) {
-      for (const variant of this.#recipeVariants) {
-        const typeText = variant.values.every((value) => typeof value === 'boolean')
-          ? 'boolean'
-          : variant.values
-              .map((value) => (typeof value === 'string' ? `'${value}'` : String(value)))
-              .join(' | ')
-        const variantProp: PropApi = {
-          name: variant.name,
-          optional: true,
-          type: typeText,
-          ...(variant.default ? { default: variant.default } : {}),
+    // Public types define the variants; recipes only supply missing defaults.
+    if (variantNode) {
+      const variants = await this.#resolvePropertiesFromType(
+        module,
+        nsNode,
+        variantNode,
+        substitutions,
+      )
+      for (const variant of variants) {
+        const existing = props.find((prop) => prop.name === variant.name)
+        if (existing) {
+          continue
         }
-        const existingIdx = props.findIndex((prop) => prop.name === variant.name)
-        if (existingIdx >= 0) {
-          props[existingIdx] = variantProp
-        } else {
-          props.push(variantProp)
-        }
+        const recipeDefault = this.#recipeVariants.find(
+          (entry) => entry.name === variant.name,
+        )?.default
+        props.push({
+          ...variant,
+          ...(variant.default || !recipeDefault ? {} : { default: recipeDefault }),
+        })
       }
     }
 

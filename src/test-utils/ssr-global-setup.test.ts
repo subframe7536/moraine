@@ -1,8 +1,10 @@
+import path from 'node:path'
+
 import type { createServer } from 'vite'
 import { describe, expect, test, vi } from 'vitest'
 import type { TestProject } from 'vitest/node'
 
-import { renderFixtures } from './ssr-global-setup'
+import { renderFixtures } from './ssr-global-setup.ts'
 
 describe('SSR global setup', () => {
   test('closes the Vite server when a fixture import fails', async () => {
@@ -25,6 +27,11 @@ describe('SSR global setup', () => {
     } as unknown as TestProject
 
     await expect(renderFixtures(project, createViteServer)).rejects.toThrow('fixture import failed')
+    expect(createViteServer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cacheDir: path.resolve(project.config.root, 'node_modules/.vite/ssr-fixtures'),
+      }),
+    )
     expect(close).toHaveBeenCalledTimes(1)
     expect(project.provide).not.toHaveBeenCalled()
   })

@@ -91,6 +91,7 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
               </span>
             </Show>
             <Icon
+              slotName="trailing"
               name={
                 local.loading
                   ? (local.loadingIcon ?? 'icon-loading')

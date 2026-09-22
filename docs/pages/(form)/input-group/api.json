@@ -34,6 +34,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
+          "description": "Axis shared by the group and its supporting parts.",
           "default": {
             "kind": "literal",
             "value": "horizontal"
@@ -42,7 +43,8 @@
         {
           "name": "size",
           "optional": true,
-          "type": "'sm' | 'md' | 'lg'",
+          "type": "ComponentSize",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -63,7 +65,8 @@
         {
           "name": "variant",
           "optional": true,
-          "type": "'outline' | 'subtle' | 'ghost' | 'none'",
+          "type": "TextControlVariant",
+          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "outline"
@@ -94,21 +97,13 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "orientation",
+          "name": "compact",
           "optional": true,
-          "type": "'horizontal' | 'vertical'",
+          "type": "boolean",
+          "description": "Removes the padding between this part and the adjacent control.",
           "default": {
             "kind": "literal",
-            "value": "horizontal"
-          }
-        },
-        {
-          "name": "size",
-          "optional": true,
-          "type": "'sm' | 'md' | 'lg'",
-          "default": {
-            "kind": "literal",
-            "value": "md"
+            "value": false
           }
         },
         {
@@ -116,15 +111,6 @@
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "variant",
-          "optional": true,
-          "type": "'outline' | 'subtle' | 'ghost' | 'none'",
-          "default": {
-            "kind": "literal",
-            "value": "outline"
-          }
         }
       ]
     },
@@ -151,21 +137,13 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "orientation",
+          "name": "compact",
           "optional": true,
-          "type": "'horizontal' | 'vertical'",
+          "type": "boolean",
+          "description": "Removes the padding between this part and the adjacent control.",
           "default": {
             "kind": "literal",
-            "value": "horizontal"
-          }
-        },
-        {
-          "name": "size",
-          "optional": true,
-          "type": "'sm' | 'md' | 'lg'",
-          "default": {
-            "kind": "literal",
-            "value": "md"
+            "value": false
           }
         },
         {
@@ -173,15 +151,6 @@
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
-        },
-        {
-          "name": "variant",
-          "optional": true,
-          "type": "'outline' | 'subtle' | 'ghost' | 'none'",
-          "default": {
-            "kind": "literal",
-            "value": "outline"
-          }
         }
       ]
     }

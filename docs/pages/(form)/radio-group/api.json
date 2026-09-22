@@ -52,6 +52,7 @@
           "name": "indicator",
           "optional": true,
           "type": "'start' | 'end' | 'hidden'",
+          "description": "Placement of the selection indicator.",
           "default": {
             "kind": "literal",
             "value": "start"
@@ -89,6 +90,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
+          "description": "The orientation of the radio group.",
           "default": {
             "kind": "literal",
             "value": "vertical"
@@ -118,6 +120,7 @@
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -145,6 +148,7 @@
           "name": "variant",
           "optional": true,
           "type": "'card' | 'table' | 'list'",
+          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "list"

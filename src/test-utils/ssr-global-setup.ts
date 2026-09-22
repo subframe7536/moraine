@@ -1,3 +1,5 @@
+import path from 'node:path'
+
 import { createServer } from 'vite'
 import solid from 'vite-plugin-solid'
 import type { TestProject } from 'vitest/node'
@@ -17,6 +19,7 @@ export async function renderFixtures(
     appType: 'custom',
     configFile: false,
     root: project.config.root,
+    cacheDir: path.resolve(project.config.root, 'node_modules/.vite/ssr-fixtures'),
     logLevel: 'silent',
     plugins: [solid({ dev: false, hot: false, ssr: true })],
     server: { middlewareMode: true },

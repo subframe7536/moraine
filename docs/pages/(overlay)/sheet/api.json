@@ -217,6 +217,7 @@
           "name": "inset",
           "optional": true,
           "type": "boolean",
+          "description": "Whether the surface is inset from viewport edges.",
           "default": {
             "kind": "literal",
             "value": false
@@ -231,7 +232,8 @@
         {
           "name": "side",
           "optional": true,
-          "type": "'bottom' | 'left' | 'right' | 'top'",
+          "type": "'top' | 'right' | 'bottom' | 'left'",
+          "description": "Edge from which the sheet opens.",
           "default": {
             "kind": "literal",
             "value": "right"

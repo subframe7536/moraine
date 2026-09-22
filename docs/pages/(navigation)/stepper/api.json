@@ -104,6 +104,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
+          "description": "The orientation of the stepper.",
           "default": {
             "kind": "literal",
             "value": "horizontal"
@@ -113,6 +114,7 @@
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"

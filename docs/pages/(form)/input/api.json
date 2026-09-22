@@ -86,20 +86,6 @@
           }
         },
         {
-          "name": "grouped",
-          "optional": true,
-          "type": "boolean",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
-        },
-        {
-          "name": "groupedOrientation",
-          "optional": true,
-          "type": "'horizontal' | 'vertical'"
-        },
-        {
           "name": "id",
           "optional": true,
           "type": "string",
@@ -188,7 +174,8 @@
         {
           "name": "size",
           "optional": true,
-          "type": "'sm' | 'md' | 'lg'",
+          "type": "ComponentSize",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -225,7 +212,8 @@
         {
           "name": "variant",
           "optional": true,
-          "type": "'outline' | 'subtle' | 'ghost' | 'none'",
+          "type": "TextControlVariant",
+          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "outline"

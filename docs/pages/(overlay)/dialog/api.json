@@ -221,6 +221,7 @@
           "name": "fullscreen",
           "optional": true,
           "type": "boolean",
+          "description": "Whether the dialog should take up the full viewport.",
           "default": {
             "kind": "literal",
             "value": false
@@ -242,10 +243,7 @@
           "name": "scrollable",
           "optional": true,
           "type": "boolean",
-          "default": {
-            "kind": "literal",
-            "value": false
-          }
+          "description": "Whether the overlay should scroll the complete dialog panel."
         },
         {
           "name": "style",

@@ -64,6 +64,16 @@
           }
         },
         {
+          "name": "defaultSearchValue",
+          "optional": true,
+          "type": "string",
+          "description": "Initial search text.",
+          "default": {
+            "kind": "literal",
+            "value": ""
+          }
+        },
+        {
           "name": "defaultValue",
           "optional": true,
           "type": "TItem['value'] | null",
@@ -86,6 +96,26 @@
           "description": "Custom renderer for the filtered empty state."
         },
         {
+          "name": "filterItem",
+          "optional": true,
+          "type": "boolean | 'startsWith' | 'endsWith' | 'contains' | ((query: string, item: TItem) => boolean)",
+          "description": "Filtering strategy or predicate receiving the raw item.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "gutter",
+          "optional": true,
+          "type": "number",
+          "description": "Anchor gap in pixels.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          }
+        },
+        {
           "name": "id",
           "optional": true,
           "type": "string",
@@ -104,6 +134,18 @@
           "description": "Additional disabled policy evaluated against the current selection."
         },
         {
+          "name": "itemProps",
+          "optional": true,
+          "type": "(state: BaseSelectT.ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined",
+          "description": "Additional row attributes."
+        },
+        {
+          "name": "itemRender",
+          "optional": true,
+          "type": "ComponentOrElement<BaseSelectT.ItemRenderProps<TItem>>",
+          "description": "Custom item presentation."
+        },
+        {
           "name": "items",
           "optional": true,
           "type": "Entry<TItem>[]",
@@ -120,6 +162,12 @@
           "optional": true,
           "type": "IconT.Name",
           "description": "Leading icon."
+        },
+        {
+          "name": "listboxProps",
+          "optional": true,
+          "type": "ElementProps<HTMLDivElement>",
+          "description": "Additional listbox attributes."
         },
         {
           "name": "loading",
@@ -168,6 +216,18 @@
           "description": "Post-reset notification after an unprevented native form reset."
         },
         {
+          "name": "onScrollBottom",
+          "optional": true,
+          "type": "() => void",
+          "description": "Called once when scrolling reaches the bottom."
+        },
+        {
+          "name": "onSearch",
+          "optional": true,
+          "type": "(value: string) => void",
+          "description": "Called when search text changes."
+        },
+        {
           "name": "open",
           "optional": true,
           "type": "boolean",
@@ -181,6 +241,16 @@
           "default": {
             "kind": "literal",
             "value": false
+          }
+        },
+        {
+          "name": "overflowPadding",
+          "optional": true,
+          "type": "number",
+          "description": "Collision padding in pixels.",
+          "default": {
+            "kind": "literal",
+            "value": 4
           }
         },
         {
@@ -210,9 +280,38 @@
           }
         },
         {
+          "name": "scrollBottomThreshold",
+          "optional": true,
+          "type": "number",
+          "description": "Bottom threshold in pixels.",
+          "default": {
+            "kind": "literal",
+            "value": 20
+          }
+        },
+        {
+          "name": "scrollToItem",
+          "optional": true,
+          "type": "(item: TItem, entryIndex: number) => void",
+          "description": "Scroll a highlighted item to its logical entry index."
+        },
+        {
+          "name": "searchMaxLength",
+          "optional": true,
+          "type": "number",
+          "description": "Maximum committed search length."
+        },
+        {
+          "name": "searchValue",
+          "optional": true,
+          "type": "string",
+          "description": "Controlled search text."
+        },
+        {
           "name": "size",
           "optional": true,
-          "type": "'sm' | 'md' | 'lg'",
+          "type": "ComponentSize",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -249,11 +348,18 @@
         {
           "name": "variant",
           "optional": true,
-          "type": "'outline' | 'subtle' | 'ghost' | 'none'",
+          "type": "TextControlVariant",
+          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "outline"
           }
+        },
+        {
+          "name": "virtualRender",
+          "optional": true,
+          "type": "Component<SelectVirtualRenderProps<TItem>>",
+          "description": "Virtual rendering adapter."
         }
       ]
     }

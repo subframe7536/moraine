@@ -65,6 +65,7 @@
           "name": "descriptionPosition",
           "optional": true,
           "type": "'bottom' | 'trailing'",
+          "description": "Where descriptions render in each command item.",
           "default": {
             "kind": "literal",
             "value": "bottom"

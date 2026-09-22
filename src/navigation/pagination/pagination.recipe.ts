@@ -1,4 +1,3 @@
-import { BUTTON_VARIANTS } from '../../elements/button/button.recipe.ts'
 import { createDataAttributes } from '../../shared/style-contract.ts'
 import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
@@ -47,8 +46,5 @@ export const paginationRecipe = /* @__PURE__ */ defineRecipe<
         ellipsis: 'text-base',
       },
     },
-    variant: BUTTON_VARIANTS,
-    activeVariant: BUTTON_VARIANTS,
-    controlVariant: BUTTON_VARIANTS,
   },
 })

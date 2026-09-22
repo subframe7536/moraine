@@ -23,7 +23,6 @@ describe('API documentation architecture guardrails', () => {
     const combined = sources.map((file) => readFileSync(file, 'utf8')).join('\n')
 
     expect(combined).not.toMatch(/\.tsx\b/)
-    expect(combined).not.toMatch(/\.style-types\.ts/)
     expect(combined).not.toContain('src/index.ts')
     expect(combined).not.toMatch(/createProgram|TypeChecker|ts\.Program/)
   })

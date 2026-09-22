@@ -64,6 +64,9 @@ export default defineConfig({
     },
     dedupe: ['solid-js', '@solidjs/router'],
   },
+  optimizeDeps: {
+    entries: ['index.html', 'routes/**/*.{ts,tsx}', 'pages/**/*.{ts,tsx}', '!**/*.test.*'],
+  },
   build: {
     rolldownOptions: {
       output: {

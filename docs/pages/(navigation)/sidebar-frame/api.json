@@ -49,6 +49,7 @@
           "name": "side",
           "optional": true,
           "type": "'left' | 'right'",
+          "description": "Side occupied by the sidebar.",
           "default": {
             "kind": "literal",
             "value": "left"
@@ -253,17 +254,29 @@
           "name": "as",
           "optional": true,
           "type": "T",
+          "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
             "value": "button"
-          },
-          "description": "Element or component to render as."
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": "JSX.Element",
+          "description": "Trigger label and visual content."
         },
         {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
           "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",

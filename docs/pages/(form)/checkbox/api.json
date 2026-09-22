@@ -128,6 +128,7 @@
           "name": "indicator",
           "optional": true,
           "type": "'start' | 'end' | 'hidden'",
+          "description": "Placement of the selection indicator.",
           "default": {
             "kind": "literal",
             "value": "start"
@@ -187,6 +188,7 @@
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -227,7 +229,8 @@
         {
           "name": "variant",
           "optional": true,
-          "type": "'card' | 'list'"
+          "type": "'card' | 'list'",
+          "description": "Visual treatment of the component."
         }
       ]
     }

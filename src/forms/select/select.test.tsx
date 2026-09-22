@@ -135,6 +135,19 @@ describe('Select', () => {
     expect(screen.container.querySelector('[data-slot="clear"]')).toBeNull()
   })
 
+  test('exposes loading state on the trailing slot', () => {
+    const [loading, setLoading] = createSignal(false)
+    const screen = render(() => <Select items={ITEMS} loading={loading()} />)
+    const trailing = screen.container.querySelector('[data-slot="trailing"]')!
+    expect(trailing).not.toBeNull()
+    expect(trailing.hasAttribute('data-loading')).toBe(false)
+    setLoading(true)
+    expect(screen.container.querySelector('[data-slot="trailing"]')).toBe(trailing)
+    expect(trailing.hasAttribute('data-loading')).toBe(true)
+    setLoading(false)
+    expect(trailing.hasAttribute('data-loading')).toBe(false)
+  })
+
   test('keeps the loading spinner class on its icon without a theme', () => {
     const screen = baseRender(() => <Select items={ITEMS} loading />)
     const icon = screen.container.querySelector<HTMLElement>('[data-loading]')!

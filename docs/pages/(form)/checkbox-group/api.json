@@ -27,7 +27,7 @@
         {
           "name": "checkedIcon",
           "optional": true,
-          "type": "CheckboxProps<TTrue, TFalse>['checkedIcon']",
+          "type": "IconT.Name",
           "description": "Default checked icon for all items."
         },
         {
@@ -67,13 +67,13 @@
         {
           "name": "indeterminateIcon",
           "optional": true,
-          "type": "CheckboxProps<TTrue, TFalse>['indeterminateIcon']",
+          "type": "IconT.Name",
           "description": "Default indeterminate icon for all items."
         },
         {
           "name": "indicator",
           "optional": true,
-          "type": "CheckboxProps<TTrue, TFalse>['indicator']",
+          "type": "'start' | 'end' | 'hidden'",
           "description": "Default indicator position for all items."
         },
         {
@@ -104,6 +104,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'horizontal' | 'vertical'",
+          "description": "Visual layout direction.",
           "default": {
             "kind": "literal",
             "value": "vertical"
@@ -133,6 +134,7 @@
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -159,7 +161,8 @@
         {
           "name": "variant",
           "optional": true,
-          "type": "'card' | 'list' | 'table'",
+          "type": "'card' | 'table' | 'list'",
+          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "list"
@@ -183,7 +186,7 @@
       {
         "name": "checkedIcon",
         "optional": true,
-        "type": "CheckboxProps<TTrue, TFalse>['checkedIcon']",
+        "type": "IconT.Name",
         "description": "Custom checked icon for this item."
       },
       {
@@ -201,13 +204,13 @@
       {
         "name": "indeterminate",
         "optional": true,
-        "type": "CheckboxProps<TTrue, TFalse>['indeterminate']",
+        "type": "boolean",
         "description": "Whether the item is indeterminate."
       },
       {
         "name": "indeterminateIcon",
         "optional": true,
-        "type": "CheckboxProps<TTrue, TFalse>['indeterminateIcon']",
+        "type": "IconT.Name",
         "description": "Custom indeterminate icon for this item."
       },
       {

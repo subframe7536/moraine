@@ -61,23 +61,21 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
             aria-labelledby={context.triggerId()}
             aria-hidden={closed() ? true : undefined}
             data-slot="content-wrapper"
-            {...collapsibleDataAttributes.content({
-              transition: context.transition,
-              expanded: () => context.dataAttrs()['data-expanded'],
-              closed: () => context.dataAttrs()['data-closed'],
-            })}
             hidden={hidden()}
             inert={closed() ? true : undefined}
             style={{
-              get '--mo-collapsible-content-height'() {
-                return `${context.contentHeight()}px`
-              },
+              '--mo-collapsible-content-height': `${context.contentHeight()}px`,
             }}
             class={COLLAPSIBLE_CONTENT_WRAPPER_CLASS}
           >
             <Dynamic
               data-slot="content"
               {...rest}
+              {...collapsibleDataAttributes.content({
+                transition: context.transition,
+                expanded: () => context.dataAttrs()['data-expanded'],
+                closed: () => context.dataAttrs()['data-closed'],
+              })}
               component={local.as ?? 'div'}
               {...resolved.styles.content}
               ref={(element: HTMLElement) => callRef(local.ref, element)}

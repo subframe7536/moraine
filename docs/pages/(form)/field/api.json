@@ -101,6 +101,7 @@
           "name": "orientation",
           "optional": true,
           "type": "'vertical' | 'horizontal'",
+          "description": "Visual layout direction.",
           "default": {
             "kind": "literal",
             "value": "vertical"
@@ -126,6 +127,7 @@
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"

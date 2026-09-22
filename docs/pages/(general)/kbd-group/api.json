@@ -52,6 +52,7 @@
           "name": "size",
           "optional": true,
           "type": "'sm' | 'md' | 'lg'",
+          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
@@ -73,6 +74,7 @@
           "name": "variant",
           "optional": true,
           "type": "'default' | 'outline' | 'invert'",
+          "description": "Visual style variant applied to rendered shortcut keys.",
           "default": {
             "kind": "literal",
             "value": "default"

@@ -56,7 +56,10 @@ function PropDetails(props: { prop: PropDoc }): JSX.Element {
       <dl class="text-sm m-0 gap-x-4 gap-y-3 grid sm:grid-cols-[8rem_minmax(0,1fr)]">
         <dt class="text-xs text-muted-foreground font-medium">Name</dt>
         <dd class="m-0 min-w-0">
-          <a href={`#${props.prop.anchorId}`} class="text-primary font-mono hover:underline">
+          <a
+            href={`#${props.prop.anchorId}`}
+            class="text-primary font-mono underline underline-offset-4 hover:underline-0"
+          >
             {props.prop.name}
           </a>
         </dd>
@@ -112,7 +115,7 @@ function PropRowItem(props: { prop: PropDoc }): JSX.Element {
           'text-sm p-0 text-left min-h-10 w-full cursor-pointer transition-colors items-stretch hover:bg-muted/30',
         )}
       >
-        <span class="text-primary font-medium font-mono px-3 py-2.5 min-w-0 truncate">
+        <span class="text-foreground font-medium font-mono px-3 py-2.5 min-w-0 truncate">
           {props.prop.name}
           <Show when={!props.prop.optional}>
             <span aria-hidden="true">*</span>
@@ -168,14 +171,12 @@ function AttributeRow(props: { attribute: PresentationAttributeItem }): JSX.Elem
       data-attribute={props.attribute.name}
       class={cn(ATTRIBUTE_GRID_CLASS, 'text-sm border-t border-border/40 min-h-10')}
     >
-      <code class="text-xs text-primary font-medium font-mono px-3 py-2.5 min-w-0 truncate">
-        {props.attribute.name}
-      </code>
-      <span class="text-xs text-muted-foreground px-3 pb-2.5 min-w-0 md:py-2.5">
+      <code class="font-medium font-mono px-3 py-2.5 min-w-0 truncate">{props.attribute.name}</code>
+      <span class="text-muted-foreground px-3 pb-2.5 min-w-0 md:py-2.5">
         <span class="font-medium md:hidden">Slot: </span>
         {props.attribute.slots.join(', ')}
       </span>
-      <span class="text-xs text-muted-foreground leading-relaxed px-3 pb-2.5 min-w-0 md:py-2.5">
+      <span class="text-muted-foreground leading-relaxed px-3 pb-2.5 min-w-0 md:py-2.5">
         <span class="font-medium md:hidden">Description: </span>
         {props.attribute.description ?? '—'}
       </span>
@@ -383,10 +384,7 @@ function PartMetadata(props: { part: PresentationPartSection; description?: stri
   return (
     <Show when={description() || props.part.defaultElement}>
       <p>
-        <Show when={description()}>
-          {description()}
-          <Show when={props.part.defaultElement}>.</Show>
-        </Show>
+        <Show when={description()}>{`${description()} `}</Show>
 
         <Show when={props.part.defaultElement}>
           Renders a <code class="font-mono">&lt;{props.part.defaultElement}&gt;</code> element by

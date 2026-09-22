@@ -121,6 +121,7 @@ export const moraineTailwind: TailwindPlugin = (options: MorainePluginOptions = 
             'instant-motion',
             'invalid',
             'loading',
+            'multiple',
             'open',
             'positioned',
             'selected',

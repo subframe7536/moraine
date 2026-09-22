@@ -121,7 +121,8 @@
         {
           "name": "size",
           "optional": true,
-          "type": "'sm' | 'md' | 'lg'",
+          "type": "ComponentSize",
+          "description": "Visual size of menu items.",
           "default": {
             "kind": "literal",
             "value": "md"
