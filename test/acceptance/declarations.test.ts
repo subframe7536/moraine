@@ -52,7 +52,7 @@ describe('published declarations', () => {
     expect(input).toContain('ref?: Ref<HTMLInputElement>')
     expect(input).toContain('onChange?: JSX.EventHandlerUnion<HTMLInputElement, Event>')
     expect(namespace('SelectT')).toContain(
-      "onChange?: (value: NoInfer<TItem['value'] | null>) => void",
+      "onChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void",
     )
     expect(
       readFileSync(resolve(dist, 'forms/base-select/base-select.types.d.mts'), 'utf8'),
@@ -68,7 +68,7 @@ describe('published declarations', () => {
     )
 
     expect(select).toContain(
-      'type SelectProps<TItem extends SelectT.Item = SelectT.Item> = SelectT.Props<TItem>',
+      'type SelectProps<TItem extends string | SelectT.Item = string | SelectT.Item> = SelectT.Props<TItem>',
     )
     expect(combobox).toContain('inputRef?: Ref<HTMLInputElement>')
     expect(multiSelect).toContain('inputRef?: Ref<HTMLInputElement>')

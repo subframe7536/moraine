@@ -13,8 +13,8 @@
       "generics": [
         {
           "name": "TItem",
-          "constraint": "Item",
-          "default": "Item"
+          "constraint": "string | Item",
+          "default": "string | Item"
         }
       ],
       "defaultElement": "div",
@@ -62,7 +62,7 @@
         {
           "name": "defaultValue",
           "optional": true,
-          "type": "TItem['value'] | null",
+          "type": "NormalizedItem<TItem>['value'] | null",
           "description": "The default value of the input (uncontrolled)."
         },
         {
@@ -100,32 +100,32 @@
         {
           "name": "isItemDisabled",
           "optional": true,
-          "type": "(item: TItem, values: readonly TItem['value'][]) => boolean",
+          "type": "(item: NormalizedItem<TItem>, values: readonly NormalizedItem<TItem>['value'][]) => boolean",
           "description": "Additional disabled policy evaluated against the current selection."
         },
         {
           "name": "itemProps",
           "optional": true,
-          "type": "(state: BaseSelectT.ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined",
+          "type": "(state: BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>) => ElementProps<HTMLDivElement> | undefined",
           "description": "Additional row attributes."
         },
         {
           "name": "itemRender",
           "optional": true,
-          "type": "ComponentOrElement<BaseSelectT.ItemRenderProps<TItem>>",
+          "type": "ComponentOrElement<BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>>",
           "description": "Custom item presentation."
         },
         {
           "name": "items",
           "optional": true,
           "type": "Entry<TItem>[]",
-          "typeDetails": "({\n  /** Unique selection and form value. */\n  value: string | number;\n  /** Visual label. */\n  label: JSX.Element;\n  /** Whether this item cannot be selected. */\n  disabled?: boolean;\n  /** Leading item icon. */\n  icon?: IconT.Name;\n  /** Secondary item description. */\n  description?: JSX.Element;\n} | {\n  /** Structural group discriminator. */\n  type: 'group';\n  label: JSX.Element;\n  items: {\n    /** Unique selection and form value. */\n    value: string | number;\n    /** Visual label. */\n    label: JSX.Element;\n    /** Whether this item cannot be selected. */\n    disabled?: boolean;\n    /** Leading item icon. */\n    icon?: IconT.Name;\n    /** Secondary item description. */\n    description?: JSX.Element;\n  }[];\n})[]",
-          "description": "Source items, optionally grouped. Item values must be unique within the collection."
+          "typeDetails": "(string | {\n  /** Unique selection and form value. */\n  value: string | number;\n  /** Visual label. */\n  label: JSX.Element;\n  /** Whether this item cannot be selected. */\n  disabled?: boolean;\n  /** Leading item icon. */\n  icon?: IconT.Name;\n  /** Secondary item description. */\n  description?: JSX.Element;\n} | {\n  /** Structural group discriminator. */\n  type: 'group';\n  label: JSX.Element;\n  items: (string | {\n    /** Unique selection and form value. */\n    value: string | number;\n    /** Visual label. */\n    label: JSX.Element;\n    /** Whether this item cannot be selected. */\n    disabled?: boolean;\n    /** Leading item icon. */\n    icon?: IconT.Name;\n    /** Secondary item description. */\n    description?: JSX.Element;\n  })[];\n})[]",
+          "description": "String shorthand or object items, optionally grouped. Item values must be unique within the collection."
         },
         {
           "name": "itemToLabelString",
           "optional": true,
-          "type": "(item: TItem) => string",
+          "type": "(item: NormalizedItem<TItem>) => string",
           "description": "Machine-readable text for matching; does not change visual labels."
         },
         {
@@ -165,7 +165,7 @@
         {
           "name": "onChange",
           "optional": true,
-          "type": "(value: NoInfer<TItem['value'] | null>) => void",
+          "type": "(value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void",
           "description": "Called when the selection changes."
         },
         {
@@ -251,7 +251,7 @@
         {
           "name": "scrollToItem",
           "optional": true,
-          "type": "(item: TItem, entryIndex: number) => void",
+          "type": "(item: NormalizedItem<TItem>, entryIndex: number) => void",
           "description": "Scroll a highlighted item to its logical entry index."
         },
         {
@@ -289,7 +289,7 @@
         {
           "name": "value",
           "optional": true,
-          "type": "TItem['value'] | null",
+          "type": "NormalizedItem<TItem>['value'] | null",
           "description": "The current value of the input (controlled)."
         },
         {
@@ -305,7 +305,7 @@
         {
           "name": "virtualRender",
           "optional": true,
-          "type": "Component<SelectVirtualRenderProps<TItem>>",
+          "type": "Component<SelectVirtualRenderProps<NormalizedItem<TItem>>>",
           "description": "Virtual rendering adapter."
         }
       ]

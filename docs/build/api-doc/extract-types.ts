@@ -973,10 +973,12 @@ export class TypeExtractor {
                   : (getIdentifierName(parameter.name) ?? '')
               const value = nextBindings.get(parameterName)
               if (value) {
-                substitutions.set(
-                  parameterName,
-                  await this.#expandCollectionType(value, value.bindings ?? bindings, nextVisited),
+                const expanded = await this.#expandCollectionType(
+                  value,
+                  value.bindings ?? bindings,
+                  nextVisited,
                 )
+                substitutions.set(parameterName, expanded)
               }
             }
             const props = await this.#resolvePropertiesFromDeclaration(
@@ -1104,6 +1106,12 @@ export class TypeExtractor {
     }
 
     if (node.type === 'TSArrayType') {
+      if (node.elementType.type === 'TSTypeReference') {
+        const replacement = substitutions?.get(entityNameToText(node.elementType.typeName) ?? '')
+        if (replacement) {
+          return `(${replacement})[]`
+        }
+      }
       const inner = await this.#resolveTypeText(module, node.elementType, nsNode, substitutions)
       return `${inner}[]`
     }

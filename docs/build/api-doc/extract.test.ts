@@ -71,8 +71,11 @@ describe('generateApiDoc', () => {
       const itemsType = props.find((prop) => prop.name === 'items')?.typeDetails
       expect(itemsType).toContain('value: string | number;')
       expect(itemsType).toContain("type: 'group';")
-      expect(itemsType).toContain('items: {')
+      expect(itemsType).toMatch(/items: \(?(?:string \| )?\{/)
       expect(itemsType).not.toContain('TItem')
+      if (key !== 'multi-select') {
+        expect(itemsType).toContain('string | {')
+      }
 
       expect(props.map((prop) => prop.name)).toEqual(
         expect.arrayContaining([

@@ -289,3 +289,78 @@ describe('Combobox', () => {
     expect(control.hasAttribute('data-editable')).toBe(true)
   })
 })
+
+test('selects, submits, clears, and resets string shorthand values', async () => {
+  const onChange = vi.fn()
+  const screen = render(() => (
+    <form>
+      <Combobox
+        name="string-fruit"
+        items={['Apple', 'Banana']}
+        defaultValue="Apple"
+        defaultOpen
+        allowClear
+        onChange={onChange}
+      />
+    </form>
+  ))
+  const form = screen.container.querySelector('form')!
+  fireEvent.click(within(document.body).getByRole('option', { name: 'Banana', hidden: true }))
+  expect(onChange).toHaveBeenLastCalledWith('Banana')
+  expect(new FormData(form).getAll('string-fruit')).toEqual(['Banana'])
+  fireEvent.click(screen.container.querySelector<HTMLElement>('[data-slot="clear"]')!)
+  expect(onChange).toHaveBeenLastCalledWith(null)
+  form.reset()
+  await Promise.resolve()
+  expect(new FormData(form).getAll('string-fruit')).toEqual(['Apple'])
+})
+
+test('updates mixed string groups and passes normalized objects to row callbacks', () => {
+  const object = { value: 1, label: 'One', extra: true }
+  const [keys, setKeys] = createSignal(['Apple', 'Banana'])
+  const seen: unknown[] = []
+  const screen = render(() => (
+    <Combobox<string | typeof object>
+      items={[object, { type: 'group', label: 'Fruit', items: keys() }]}
+      defaultOpen
+      isItemDisabled={(item) => item.value === 'Banana'}
+      itemRender={({ item }) => {
+        seen.push(item)
+        return item.label
+      }}
+      itemProps={({ item }) => ({ 'data-value': item.value })}
+    />
+  ))
+  expect(seen).toContain(object)
+  expect(seen).toContainEqual({ value: 'Apple', label: 'Apple' })
+  expect(
+    within(document.body)
+      .getByRole('option', { name: 'Banana', hidden: true })
+      .getAttribute('aria-disabled'),
+  ).toBe('true')
+  setKeys(['Cherry'])
+  expect(within(document.body).queryByRole('option', { name: 'Apple', hidden: true })).toBeNull()
+  expect(
+    within(document.body)
+      .getByRole('option', { name: 'Cherry', hidden: true })
+      .getAttribute('data-value'),
+  ).toBe('Cherry')
+  expect(screen.getByRole('combobox')).toBeTruthy()
+})
+
+test('filters normalized string items and commits a keyboard selection', () => {
+  const filterItem = vi.fn((query: string, item: { value: string; label: string }) =>
+    item.label.toLowerCase().includes(query.toLowerCase()),
+  )
+  const onChange = vi.fn()
+  const screen = render(() => (
+    <Combobox items={['Apple', 'Banana']} defaultOpen filterItem={filterItem} onChange={onChange} />
+  ))
+  const input = screen.getByRole('combobox')
+  fireEvent.input(input, { target: { value: 'ban' } })
+  expect(within(document.body).getAllByRole('option', { hidden: true })).toHaveLength(1)
+  expect(filterItem).toHaveBeenCalledWith('ban', { value: 'Banana', label: 'Banana' })
+  fireEvent.keyDown(input, { key: 'ArrowDown' })
+  fireEvent.keyDown(input, { key: 'Enter' })
+  expect(onChange).toHaveBeenLastCalledWith('Banana')
+})

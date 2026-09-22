@@ -13,6 +13,7 @@ import type {
 } from '../base-select/base-select.types.ts'
 import type { FormValueOptions } from '../shared/form-options.types.ts'
 import type {
+  NormalizedSelectItem,
   ContentProps,
   SelectRow,
   SelectGroup,
@@ -37,33 +38,36 @@ export namespace SelectT {
     /** Secondary item description. */
     description?: JSX.Element
   }
-  export type Group<TItem extends Item = Item> = SelectGroup<TItem>
-  export type Entry<TItem extends Item = Item> = SelectEntry<TItem>
-  export type Row<TItem extends Item = Item> = SelectRow<TItem>
-  export type VirtualRenderProps<TItem extends Item = Item> = SelectVirtualRenderProps<TItem>
-  export type ItemRenderProps<TItem extends Item = Item> = BaseSelectT.ItemRenderProps<TItem>
-  export interface EmptyRenderProps<TItem extends Item = Item> {
+  export type NormalizedItem<T extends string | Item> = NormalizedSelectItem<T>
+  export type Group<TItem extends string | Item = string | Item> = SelectGroup<TItem>
+  export type Entry<TItem extends string | Item = string | Item> = SelectEntry<TItem>
+  export type Row<TItem extends string | Item = string | Item> = SelectRow<NormalizedItem<TItem>>
+  export type VirtualRenderProps<TItem extends string | Item = string | Item> =
+    SelectVirtualRenderProps<NormalizedItem<TItem>>
+  export type ItemRenderProps<TItem extends string | Item = string | Item> =
+    BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>
+  export interface EmptyRenderProps<TItem extends string | Item = string | Item> {
     /** Whether the collection has any selectable items. */
     hasMatches: boolean
     /** Currently selected value. */
-    selectedValue: TItem['value'] | null
+    selectedValue: NormalizedItem<TItem>['value'] | null
     /** Close the dropdown menu. */
     close: () => void
   }
 
-  export interface Base<TItem extends Item = Item>
+  export interface Base<TItem extends string | Item = string | Item>
     extends
       BaseSelectFieldProps,
       BaseSelectDisclosureProps,
-      BaseSelectItemBehaviorProps<TItem>,
+      BaseSelectItemBehaviorProps<NormalizedItem<TItem>>,
       BaseSelectCloseOnSelectOption,
       BaseSelectResetProps,
-      ContentProps<TItem>,
-      FormValueOptions<TItem['value'] | null> {
-    /** Source items, optionally grouped. Item values must be unique within the collection. */
+      ContentProps<NormalizedItem<TItem>>,
+      FormValueOptions<NormalizedItem<TItem>['value'] | null> {
+    /** String shorthand or object items, optionally grouped. Item values must be unique within the collection. */
     items?: Entry<TItem>[]
     /** Called when the selection changes. */
-    onChange?: (value: NoInfer<TItem['value'] | null>) => void
+    onChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void
     /** Custom renderer for the empty state when current filtered result has no matches. */
     emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
     /**
@@ -93,7 +97,7 @@ export namespace SelectT {
     closeIcon?: IconT.Name
   }
 
-  export type Props<TItem extends Item = Item> = BaseProps<
+  export type Props<TItem extends string | Item = string | Item> = BaseProps<
     'div',
     Base<TItem>,
     Variant,
@@ -102,4 +106,5 @@ export namespace SelectT {
   >
 }
 
-export type SelectProps<TItem extends SelectT.Item = SelectT.Item> = SelectT.Props<TItem>
+export type SelectProps<TItem extends string | SelectT.Item = string | SelectT.Item> =
+  SelectT.Props<TItem>

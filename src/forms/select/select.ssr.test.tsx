@@ -72,3 +72,24 @@ test('hydrates and updates custom itemRender content without replacing the serve
   expect(first.textContent).toBe('Apricot')
   expect(document.body.querySelectorAll('[data-testid="custom-item"]')[0]).toBe(first)
 })
+
+test('hydrates string and grouped shorthand without replacing server elements', () => {
+  const { container } = hydrateFixture(
+    '/src/forms/select/select.ssr.fixture.tsx',
+    'renderStringItemsFixture',
+    () => (
+      <Select
+        id="string-fruit"
+        name="string-fruit"
+        items={['Apple', { type: 'group', label: 'More', items: ['Banana'] }]}
+        defaultValue="Banana"
+      />
+    ),
+  )
+  expect(container.querySelector<HTMLInputElement>('input[name="string-fruit"]')?.value).toBe(
+    'Banana',
+  )
+  const control = container.querySelector<HTMLElement>('[role="combobox"]')!
+  fireEvent.keyDown(control, { key: 'ArrowDown' })
+  expect(control.getAttribute('aria-expanded')).toBe('true')
+})

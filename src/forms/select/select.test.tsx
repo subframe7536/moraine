@@ -317,3 +317,68 @@ describe('Select', () => {
     expect(document.activeElement).toBe(trigger)
   })
 })
+
+test('selects, submits, clears, and resets string shorthand values', async () => {
+  const onChange = vi.fn()
+  const screen = render(() => (
+    <form>
+      <Select
+        name="string-fruit"
+        items={['Apple', 'Banana']}
+        defaultValue="Apple"
+        defaultOpen
+        allowClear
+        onChange={onChange}
+      />
+    </form>
+  ))
+  const form = screen.container.querySelector('form')!
+  fireEvent.click(within(document.body).getByRole('option', { name: 'Banana', hidden: true }))
+  expect(onChange).toHaveBeenLastCalledWith('Banana')
+  expect(new FormData(form).getAll('string-fruit')).toEqual(['Banana'])
+  fireEvent.click(screen.container.querySelector<HTMLElement>('[data-slot="clear"]')!)
+  expect(onChange).toHaveBeenLastCalledWith(null)
+  form.reset()
+  await Promise.resolve()
+  expect(new FormData(form).getAll('string-fruit')).toEqual(['Apple'])
+})
+
+test('updates mixed string groups and passes normalized objects to row callbacks', () => {
+  const object = { value: 1, label: 'One', extra: true }
+  const [keys, setKeys] = createSignal(['Apple', 'Banana'])
+  const seen: unknown[] = []
+  const screen = render(() => (
+    <Select<string | typeof object>
+      items={[object, { type: 'group', label: 'Fruit', items: keys() }]}
+      defaultOpen
+      isItemDisabled={(item) => item.value === 'Banana'}
+      itemRender={({ item }) => {
+        seen.push(item)
+        return item.label
+      }}
+      itemProps={({ item }) => ({ 'data-value': item.value })}
+    />
+  ))
+  expect(seen).toContain(object)
+  expect(seen).toContainEqual({ value: 'Apple', label: 'Apple' })
+  expect(
+    within(document.body)
+      .getByRole('option', { name: 'Banana', hidden: true })
+      .getAttribute('aria-disabled'),
+  ).toBe('true')
+  setKeys(['Cherry'])
+  expect(within(document.body).queryByRole('option', { name: 'Apple', hidden: true })).toBeNull()
+  expect(
+    within(document.body)
+      .getByRole('option', { name: 'Cherry', hidden: true })
+      .getAttribute('data-value'),
+  ).toBe('Cherry')
+  expect(screen.getByRole('combobox')).toBeTruthy()
+})
+
+test('supports typeahead with string shorthand', () => {
+  const onChange = vi.fn()
+  const screen = render(() => <Select items={['Apple', 'Banana']} onChange={onChange} />)
+  fireEvent.keyDown(screen.getByRole('combobox'), { key: 'b' })
+  expect(onChange).toHaveBeenLastCalledWith('Banana')
+})

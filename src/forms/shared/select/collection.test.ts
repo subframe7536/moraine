@@ -1,6 +1,12 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import { createSource, filterView, isGroup, labelString } from './collection.ts'
+import {
+  createSource,
+  normalizeSelectEntries,
+  filterView,
+  isGroup,
+  labelString,
+} from './collection.ts'
 
 describe('canonical select collection', () => {
   test('preserves raw items and flattens one-level groups', () => {
@@ -140,4 +146,40 @@ test('shares filtered rows without changing canonical lookup', () => {
     { type: 'item', key: 'item:number:2', item: second },
   ])
   expect(source.byValue.get(1)).toBe(first)
+})
+
+test('normalizes string shorthand and preserves object identity across mixed groups', () => {
+  const object = { value: 1, label: 'One', extra: true }
+  const entries = normalizeSelectEntries<string | typeof object>([
+    '',
+    ' Apple ',
+    '1',
+    object,
+    { type: 'group', label: 'Fruit', items: ['Banana'] },
+  ])
+  const source = createSource(entries)
+  expect(source.items).toEqual([
+    { value: '', label: '' },
+    { value: ' Apple ', label: ' Apple ' },
+    { value: '1', label: '1' },
+    object,
+    { value: 'Banana', label: 'Banana' },
+  ])
+  expect(source.byValue.get(1)).toBe(object)
+  expect(source.rows.some((row) => row.type === 'label' && row.label === 'Fruit')).toBe(true)
+})
+
+test('applies the same duplicate policy to string and object entries', () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+  const source = createSource(
+    normalizeSelectEntries([
+      'string-duplicate',
+      { value: 'string-duplicate', label: 'Ignored' },
+      { type: 'group', label: 'Duplicates', items: ['string-duplicate'] },
+    ]),
+  )
+  expect(source.items).toEqual([{ value: 'string-duplicate', label: 'string-duplicate' }])
+  expect(source.rows).toHaveLength(1)
+  expect(error).toHaveBeenCalledOnce()
+  error.mockRestore()
 })

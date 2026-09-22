@@ -2,18 +2,45 @@ import { DEV } from 'solid-js'
 
 import type { BaseSelectT, BaseSelectValue } from '../../base-select/base-select.types.ts'
 
-import type { SelectEntry, SelectGroup, SelectView, SelectRow } from './types.ts'
+import type {
+  SelectEntry,
+  SelectGroup,
+  SelectView,
+  SelectRow,
+  NormalizedSelectItem,
+} from './types.ts'
 
-export function isGroup<T extends BaseSelectT.Item>(
+export function isGroup<T extends string | BaseSelectT.Item>(
   entry: SelectEntry<T>,
 ): entry is SelectGroup<T> {
   return (
+    typeof entry === 'object' &&
     'type' in entry &&
     entry.type === 'group' &&
     !('value' in entry) &&
     'items' in entry &&
     Array.isArray(entry.items)
   )
+}
+
+/** Expand string shorthand without copying object items or resolving their JSX labels. */
+export function normalizeSelectEntries<T extends string | BaseSelectT.Item>(
+  entries: readonly SelectEntry<T>[],
+): SelectEntry<NormalizedSelectItem<T>>[] {
+  const normalize = (item: T): NormalizedSelectItem<T> =>
+    (typeof item === 'string' ? { value: item, label: item } : item) as NormalizedSelectItem<T>
+  return entries.map((entry) => {
+    if (isGroup(entry)) {
+      return {
+        type: 'group',
+        get label() {
+          return entry.label
+        },
+        items: entry.items.map(normalize),
+      }
+    }
+    return normalize(entry)
+  })
 }
 
 const warnedDuplicateValues = new Map<string, Set<BaseSelectValue>>()

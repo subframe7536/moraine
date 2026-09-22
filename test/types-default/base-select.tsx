@@ -204,3 +204,68 @@ const Custom = (props: { custom: string; children?: import('solid-js').JSX.Eleme
   onReset={() => {}}
 />
 ;<BaseSelect.Content onExitComplete={() => {}} />
+
+export type StringItemNormalization = [
+  Assert<Equal<SelectT.NormalizedItem<'Apple'>, { value: 'Apple'; label: 'Apple' }>>,
+  Assert<Equal<ComboboxT.NormalizedItem<UserItem>, UserItem>>,
+]
+const stringItems: string[] = ['Apple', 'Banana']
+;<Select
+  items={stringItems}
+  onChange={(value) => {
+    const text: string | null = value
+    void text
+  }}
+  itemRender={({ item }) => item.label}
+/>
+;<Combobox
+  items={stringItems}
+  filterItem={(query, item) => item.value.includes(query)}
+  onChange={(value) => {
+    const text: string | null = value
+    void text
+  }}
+/>
+;<Select<string | UserItem>
+  items={['Apple', ...items, { type: 'group', label: 'Mixed', items: ['Banana', ...items] }]}
+  itemRender={({ item }) => ('email' in item ? item.email : item.label)}
+  onChange={(value) => {
+    const mixed: string | number | null = value
+    void mixed
+  }}
+/>
+;<Combobox<'Apple' | 'Banana'>
+  items={['Apple', 'Banana']}
+  value="Apple"
+  onChange={(value) => {
+    const literal: 'Apple' | 'Banana' | null = value
+    void literal
+  }}
+/>
+// @ts-expect-error String items do not accept numeric selection values.
+;<Select items={stringItems} value={1} />
+// @ts-expect-error Numeric shorthand is not supported.
+;<Combobox items={[1, 2]} />
+// @ts-expect-error MultiSelect keeps its object-only collection contract.
+;<MultiSelect items={stringItems} />
+
+;<Select
+  items={['Apple', { value: 1, label: 'One', email: 'one@example.com' }]}
+  onChange={(value) => {
+    const mixed: string | number | null = value
+    void mixed
+  }}
+  itemRender={({ item }) => ('email' in item ? item.email : item.label)}
+/>
+;<Combobox
+  items={[{ type: 'group', label: 'Users', items }]}
+  itemRender={({ item }) => item.email}
+/>
+const shorthandProps: SelectProps = { items: ['Apple'] }
+const groupedShorthand: ComboboxT.Group<string> = {
+  type: 'group',
+  label: 'Fruit',
+  items: ['Apple'],
+}
+void shorthandProps
+void groupedShorthand

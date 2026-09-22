@@ -20,7 +20,7 @@ import type { SelectT } from 'moraine'
 
 ## Features
 
-- **Single collection value**: Commits one `TItem['value']` or `null`.
+- **Single collection value**: Commits one `SelectT.NormalizedItem<TItem>['value']` or `null`.
 - **Non-editable trigger**: Focus stays on the button; printable keys navigate items via typeahead.
 - **Native rich items**: Built-in `icon` and multi-line `description` support out of the box.
 - **Collection rendering**: Supports groups, custom items, infinite scroll, and virtualization.
@@ -104,9 +104,21 @@ selection without toggling the popup.
 
 ## Usage
 
+### String items
+
+Pass strings when the label and value are identical. Strings and objects can be mixed at the
+root or inside a group. Whitespace is preserved, and an empty string is a valid value.
+
+<Preview path="./string-items" />
+
+Item callbacks receive normalized objects: `'Apple'` becomes `{ value: 'Apple', label: 'Apple' }`.
+Object items retain their identity and custom fields. `SelectT.NormalizedItem<TItem>` describes the
+callback item type; `onChange` receives its value or `null` when cleared. Duplicate values use the
+first occurrence, including collisions between strings and objects.
+
 ### Value and collection
 
-The value API is `TItem['value'] | null`. `undefined` leaves the component uncontrolled (using `defaultValue`),
+The value API is `SelectT.NormalizedItem<TItem>['value'] | null`. `undefined` leaves the component uncontrolled (using `defaultValue`),
 `null` indicates no active selection, and an empty string remains a valid value. Item values must be unique.
 
 Printable keys perform rapid typeahead navigation across available options without opening an editable input.

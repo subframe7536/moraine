@@ -31,3 +31,14 @@ export function renderReadOnlyComboboxFixture(): string {
     />
   ))
 }
+
+export function renderStringItemsFixture(): string {
+  return renderToString(() => (
+    <Combobox
+      id="string-fruit"
+      name="string-fruit"
+      items={['Apple', { type: 'group', label: 'More', items: ['Banana'] }]}
+      defaultValue="Banana"
+    />
+  ))
+}

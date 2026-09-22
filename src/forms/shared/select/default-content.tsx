@@ -128,7 +128,7 @@ function DefaultSelectContentBody<T extends SelectItem>(
               </>
             }
           >
-            {renderComponentOrElement(itemRender(), itemState)}
+            {renderComponentOrElement(itemRender(), presentation)}
           </Show>
         )}
       </BaseSelect.Item>

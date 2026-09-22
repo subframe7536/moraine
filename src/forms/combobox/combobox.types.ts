@@ -13,6 +13,7 @@ import type {
 } from '../base-select/base-select.types.ts'
 import type { FormValueOptions } from '../shared/form-options.types.ts'
 import type {
+  NormalizedSelectItem,
   ContentProps,
   SearchProps,
   SelectEntry,
@@ -38,35 +39,38 @@ export namespace ComboboxT {
     /** Secondary item description. */
     description?: JSX.Element
   }
-  export type Group<TItem extends Item = Item> = SelectGroup<TItem>
-  export type Entry<TItem extends Item = Item> = SelectEntry<TItem>
-  export type Row<TItem extends Item = Item> = SelectRow<TItem>
-  export type VirtualRenderProps<TItem extends Item = Item> = SelectVirtualRenderProps<TItem>
-  export type ItemRenderProps<TItem extends Item = Item> = BaseSelectT.ItemRenderProps<TItem>
-  export interface EmptyRenderProps<TItem extends Item = Item> {
+  export type NormalizedItem<T extends string | Item> = NormalizedSelectItem<T>
+  export type Group<TItem extends string | Item = string | Item> = SelectGroup<TItem>
+  export type Entry<TItem extends string | Item = string | Item> = SelectEntry<TItem>
+  export type Row<TItem extends string | Item = string | Item> = SelectRow<NormalizedItem<TItem>>
+  export type VirtualRenderProps<TItem extends string | Item = string | Item> =
+    SelectVirtualRenderProps<NormalizedItem<TItem>>
+  export type ItemRenderProps<TItem extends string | Item = string | Item> =
+    BaseSelectT.ItemRenderProps<NormalizedItem<TItem>>
+  export interface EmptyRenderProps<TItem extends string | Item = string | Item> {
     /** Current query text. */
     inputValue: string
     /** Whether the filtered collection has matches. */
     hasMatches: boolean
     /** Currently selected value. */
-    selectedValue: TItem['value'] | null
+    selectedValue: NormalizedItem<TItem>['value'] | null
     /** Close the popup. */
     close: () => void
   }
-  export interface Base<TItem extends Item = Item>
+  export interface Base<TItem extends string | Item = string | Item>
     extends
       BaseSelectFieldProps,
       BaseSelectDisclosureProps,
-      BaseSelectItemBehaviorProps<TItem>,
+      BaseSelectItemBehaviorProps<NormalizedItem<TItem>>,
       BaseSelectCloseOnSelectOption,
       BaseSelectResetProps,
-      SearchProps<TItem>,
-      ContentProps<TItem>,
-      FormValueOptions<TItem['value'] | null> {
-    /** Source items, optionally grouped. Item values must be unique. */
+      SearchProps<NormalizedItem<TItem>>,
+      ContentProps<NormalizedItem<TItem>>,
+      FormValueOptions<NormalizedItem<TItem>['value'] | null> {
+    /** String shorthand or object items, optionally grouped. Item values must be unique. */
     items?: Entry<TItem>[]
     /** Called when the committed selection changes. */
-    onChange?: (value: NoInfer<TItem['value'] | null>) => void
+    onChange?: (value: NoInfer<NormalizedItem<TItem>['value'] | null>) => void
     /** Custom renderer for the filtered empty state. */
     emptyRender?: ComponentOrElement<EmptyRenderProps<TItem>>
     /** Placeholder shown when there is no selected value or query. */
@@ -102,7 +106,7 @@ export namespace ComboboxT {
      */
     closeIcon?: IconT.Name
   }
-  export type Props<TItem extends Item = Item> = BaseProps<
+  export type Props<TItem extends string | Item = string | Item> = BaseProps<
     'div',
     Base<TItem>,
     Variant,
@@ -111,4 +115,5 @@ export namespace ComboboxT {
   >
 }
 
-export type ComboboxProps<TItem extends ComboboxT.Item = ComboboxT.Item> = ComboboxT.Props<TItem>
+export type ComboboxProps<TItem extends string | ComboboxT.Item = string | ComboboxT.Item> =
+  ComboboxT.Props<TItem>

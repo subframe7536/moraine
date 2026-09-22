@@ -108,6 +108,18 @@ creating competing focus targets.
 
 ## Usage
 
+### String items
+
+Pass strings when the label and value are identical. Strings and objects can be mixed at the
+root or inside a group. Whitespace is preserved, and an empty string is a valid value.
+
+<Preview path="./string-items" />
+
+Item callbacks receive normalized objects: `'Apple'` becomes `{ value: 'Apple', label: 'Apple' }`.
+Object items retain their identity and custom fields. `ComboboxT.NormalizedItem<TItem>` describes the
+callback item type; `onChange` receives its value or `null` when cleared. Duplicate values use the
+first occurrence, including collisions between strings and objects.
+
 ### Value and query
 
 While open, the input displays the query; while closed, it displays the selected item label.
