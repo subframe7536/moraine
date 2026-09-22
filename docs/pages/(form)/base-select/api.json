@@ -328,6 +328,11 @@
       },
       "props": [
         {
+          "name": "class",
+          "optional": true,
+          "type": "string"
+        },
+        {
           "name": "style",
           "optional": true,
           "type": "JSX.CSSProperties"
@@ -387,6 +392,11 @@
       },
       "props": [
         {
+          "name": "class",
+          "optional": true,
+          "type": "string"
+        },
+        {
           "name": "style",
           "optional": true,
           "type": "JSX.CSSProperties"
@@ -402,6 +412,11 @@
         "member": "GroupLabel"
       },
       "props": [
+        {
+          "name": "class",
+          "optional": true,
+          "type": "string"
+        },
         {
           "name": "style",
           "optional": true,
@@ -419,6 +434,11 @@
       },
       "props": [
         {
+          "name": "class",
+          "optional": true,
+          "type": "string"
+        },
+        {
           "name": "style",
           "optional": true,
           "type": "JSX.CSSProperties"
@@ -434,6 +454,11 @@
         "member": "Empty"
       },
       "props": [
+        {
+          "name": "class",
+          "optional": true,
+          "type": "string"
+        },
         {
           "name": "style",
           "optional": true,

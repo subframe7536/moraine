@@ -112,11 +112,11 @@ describe('createApiReferenceModel', () => {
 
   test('uses the simplified API hierarchy in the TOC', () => {
     expect(getApiReferenceTocEntries(component)).toEqual([
-      { id: 'api-reference', label: 'API', level: 1 },
+      { id: 'api-attributes', label: 'Attributes', level: 1 },
+      { id: 'api-items', label: 'Items', level: 1 },
+      { id: 'api-reference', label: 'Props', level: 1 },
       { id: 'api-demo', label: 'Demo', level: 2 },
       { id: 'api-trigger', label: 'Trigger', level: 2 },
-      { id: 'api-items', label: 'Items', level: 2 },
-      { id: 'api-attributes', label: 'Attributes', level: 2 },
     ])
   })
 
@@ -129,6 +129,6 @@ describe('createApiReferenceModel', () => {
         item: undefined,
         dataAttributes: [],
       }),
-    ).toEqual([{ id: 'api-reference', label: 'API', level: 1 }])
+    ).toEqual([{ id: 'api-reference', label: 'Props', level: 1 }])
   })
 })

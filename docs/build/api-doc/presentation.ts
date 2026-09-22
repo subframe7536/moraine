@@ -232,17 +232,18 @@ export function getApiReferenceTocEntries(component: ComponentApi | undefined): 
     return []
   }
 
-  const entries: TocEntry[] = [{ id: 'api-reference', label: 'API', level: 1 }]
+  const entries: TocEntry[] = []
+  if (model.attributes) {
+    entries.push({ id: model.attributes.id, label: model.attributes.heading, level: 1 })
+  }
+  if (model.item) {
+    entries.push({ id: model.item.id, label: model.item.heading, level: 1 })
+  }
+  entries.push({ id: 'api-reference', label: 'Props', level: 1 })
   if (model.kind === 'composite') {
     for (const part of model.parts) {
       entries.push({ id: part.id, label: part.shortHeading, level: 2 })
     }
-  }
-  if (model.item) {
-    entries.push({ id: model.item.id, label: model.item.heading, level: 2 })
-  }
-  if (model.attributes) {
-    entries.push({ id: model.attributes.id, label: model.attributes.heading, level: 2 })
   }
   return entries
 }

@@ -210,7 +210,7 @@ function AttributesSection(props: { attributes: PresentationAttributesSection })
 
   return (
     <section class="border-t border-border/40">
-      <HeadingWithAnchor id={props.attributes.id} level={3}>
+      <HeadingWithAnchor id={props.attributes.id} level={2}>
         {props.attributes.heading}
       </HeadingWithAnchor>
       <div class="mt-3 flex justify-start">
@@ -321,8 +321,24 @@ export function DocsApiReference(props: { apiDoc?: ComponentApi }): JSX.Element 
     <Show when={model()}>
       {(reference) => (
         <>
+          <Show when={reference().attributes}>
+            {(attributes) => <AttributesSection attributes={attributes()} />}
+          </Show>
+          <Show when={reference().item}>
+            {(item) => (
+              <section class="border-t border-border/40">
+                <HeadingWithAnchor id={item().id} level={2}>
+                  {item().heading}
+                </HeadingWithAnchor>
+                <Show when={item().description}>
+                  <p class="text-sm text-muted-foreground mt-1">{item().description}</p>
+                </Show>
+                <PropRows props={item().props} nameColumn="Field" />
+              </section>
+            )}
+          </Show>
           <HeadingWithAnchor id="api-reference" level={2}>
-            API
+            Props
           </HeadingWithAnchor>
 
           <Show
@@ -353,24 +369,6 @@ export function DocsApiReference(props: { apiDoc?: ComponentApi }): JSX.Element 
                 </section>
               )}
             </For>
-          </Show>
-
-          <Show when={reference().item}>
-            {(item) => (
-              <section class="border-t border-border/40">
-                <HeadingWithAnchor id={item().id} level={3}>
-                  {item().heading}
-                </HeadingWithAnchor>
-                <Show when={item().description}>
-                  <p class="text-sm text-muted-foreground mt-1">{item().description}</p>
-                </Show>
-                <PropRows props={item().props} nameColumn="Field" />
-              </section>
-            )}
-          </Show>
-
-          <Show when={reference().attributes}>
-            {(attributes) => <AttributesSection attributes={attributes()} />}
           </Show>
         </>
       )}

@@ -11,8 +11,9 @@ export type SlotStyleValue = JSX.CSSProperties
 export type ElementProps<
   T extends HTMLElement = HTMLElement,
   A extends JSX.HTMLAttributes<T> = JSX.HTMLAttributes<T>,
-> = Omit<A, 'style'> & {
+> = Omit<A, 'style' | 'class'> & {
   style?: JSX.CSSProperties
+  class?: string
   [key: `data-${string}`]: string | number | boolean | undefined
 }
 

@@ -160,7 +160,21 @@ function renderApiReference(apiDoc: ComponentApi): string {
     return ''
   }
 
-  const output = ['## API', '']
+  const output: string[] = []
+  if (model.attributes) {
+    output.push('## Attributes', '', renderAttributes(model.attributes), '')
+  }
+  if (model.item) {
+    output.push('## Items', '')
+    if (model.item.genericsSignature) {
+      output.push(`Generics: \`${model.item.genericsSignature}\``, '')
+    }
+    if (model.item.description) {
+      output.push(model.item.description, '')
+    }
+    output.push(renderPropTable(model.item.props, 'Field'), '')
+  }
+  output.push('## Props', '')
 
   if (model.kind === 'single') {
     const rootPart = model.parts[0]
@@ -184,21 +198,6 @@ function renderApiReference(apiDoc: ComponentApi): string {
         output.push(renderPropTable(part.props), '')
       }
     }
-  }
-
-  if (model.item) {
-    output.push('### Items', '')
-    if (model.item.genericsSignature) {
-      output.push(`Generics: \`${model.item.genericsSignature}\``, '')
-    }
-    if (model.item.description) {
-      output.push(model.item.description, '')
-    }
-    output.push(renderPropTable(model.item.props, 'Field'), '')
-  }
-
-  if (model.attributes) {
-    output.push('### Attributes', '', renderAttributes(model.attributes), '')
   }
 
   return `${output.join('\n').trimEnd()}\n`

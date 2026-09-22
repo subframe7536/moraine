@@ -64,8 +64,8 @@ describe('DocsApiReference', () => {
     const view = render(() => <DocsApiReference apiDoc={apiDoc} />)
 
     const columnHeaders = view.getAllByRole('columnheader').map((header) => header.textContent)
-    expect(columnHeaders.slice(0, 3)).toEqual(['Prop', 'Type', 'Default'])
-    expect(columnHeaders.slice(0, 3)).not.toContain('Description')
+    expect(columnHeaders.slice(6, 9)).toEqual(['Prop', 'Type', 'Default'])
+    expect(columnHeaders.slice(6, 9)).not.toContain('Description')
     expect(view.queryByRole('textbox')).toBeNull()
     expect(view.queryByRole('button', { name: 'Copy permalink' })).toBeNull()
 
@@ -130,7 +130,12 @@ describe('DocsApiReference', () => {
 
   test('aggregates attributes and filters row visibility without truncating slots', () => {
     const view = render(() => <DocsApiReference apiDoc={apiDoc} />)
-    expect(view.getByRole('heading', { name: /Attributes/ })).toBeTruthy()
+    expect(view.getByRole('heading', { name: /^Attributes/, level: 2 })).toBeTruthy()
+    expect(view.getAllByRole('heading', { level: 2 }).map((heading) => heading.id)).toEqual([
+      'api-attributes',
+      'api-items',
+      'api-reference',
+    ])
     expect(view.queryByRole('heading', { name: /DOM & State/ })).toBeNull()
     expect(view.queryByRole('heading', { name: /^Slots/ })).toBeNull()
     expect(view.getByRole('columnheader', { name: 'Attributes' })).toBeTruthy()
@@ -163,7 +168,7 @@ describe('DocsApiReference', () => {
     view.unmount()
   })
 
-  test('does not add a Props heading for a single component', () => {
+  test('uses one Props heading for a single component', () => {
     const single: ComponentApi = {
       ...apiDoc,
       kind: 'single',
@@ -172,8 +177,8 @@ describe('DocsApiReference', () => {
       dataAttributes: [],
     }
     const view = render(() => <DocsApiReference apiDoc={single} />)
-    expect(view.getByRole('heading', { name: /API/ })).toBeTruthy()
-    expect(view.queryByRole('heading', { name: /Props/ })).toBeNull()
+    expect(view.getAllByRole('heading', { name: /^Props/, level: 2 })).toHaveLength(1)
+    expect(view.queryByRole('heading', { name: /^API/ })).toBeNull()
     expect(view.getByRole('columnheader', { name: 'Prop' })).toBeTruthy()
     view.unmount()
   })
