@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js'
 import { createMemo, createSignal, For, Show } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Select, cn } from '../../../../src'
+import { Collapsible, Select, cn } from '../../../../src'
 import {
   createApiReferenceModel,
   getApiReferenceTocEntries,
@@ -28,13 +28,13 @@ const REFERENCE_ROOT_CLASS =
 const PROP_GRID_CLASS =
   'grid grid-cols-[minmax(0,1fr)_2.5rem] sm:grid-cols-[minmax(8rem,5fr)_minmax(0,7fr)_2.5rem] lg:grid-cols-[minmax(8rem,5fr)_minmax(0,7fr)_minmax(6rem,4.5fr)_2.5rem]'
 const ATTRIBUTE_GRID_CLASS =
-  'grid grid-cols-[minmax(0,1fr)_2.5rem] md:grid-cols-[minmax(8rem,4fr)_minmax(8rem,4fr)_minmax(0,8fr)_2.5rem]'
+  'grid grid-cols-1 md:grid-cols-[minmax(8rem,4fr)_minmax(8rem,4fr)_minmax(0,8fr)]'
 
-function ReferenceChevron(props: { expanded: boolean }): JSX.Element {
+function ReferenceChevron(): JSX.Element {
   return (
     <span class="flex h-full items-center justify-center" aria-hidden="true">
       <svg
-        class={cn('transition-transform', props.expanded && 'rotate-180')}
+        class="group-data-expanded:rotate-180 transition-transform"
         width="10"
         height="10"
         viewBox="0 0 10 10"
@@ -46,13 +46,12 @@ function ReferenceChevron(props: { expanded: boolean }): JSX.Element {
   )
 }
 
-function PropDetails(props: { prop: PropDoc; panelId: string }): JSX.Element {
+function PropDetails(props: { prop: PropDoc }): JSX.Element {
   return (
     <div
-      id={props.panelId}
       role="region"
-      aria-labelledby={props.prop.anchorId}
-      class="px-3 py-3 border-t border-border/40 bg-muted/15 sm:px-4"
+      aria-labelledby={`${props.prop.anchorId}-trigger`}
+      class="px-3 py-3 border-t border-border/40 sm:px-4"
     >
       <dl class="text-sm m-0 gap-x-4 gap-y-3 grid sm:grid-cols-[8rem_minmax(0,1fr)]">
         <dt class="text-xs text-muted-foreground font-medium">Name</dt>
@@ -100,25 +99,18 @@ function PropDetails(props: { prop: PropDoc; panelId: string }): JSX.Element {
 }
 
 function PropRowItem(props: { prop: PropDoc }): JSX.Element {
-  const [expanded, setExpanded] = createSignal(false)
-  const panelId = () => `${props.prop.anchorId}-details`
   const requiredText = () => (props.prop.optional ? '' : ', required')
   const defaultText = () =>
     props.prop.defaultValue === undefined ? '' : `, default: ${props.prop.defaultValue}`
 
   return (
-    <div class={cn('border-t border-border/40', expanded() && 'bg-muted/10')}>
-      <button
-        id={props.prop.anchorId}
-        type="button"
-        aria-expanded={expanded()}
-        aria-controls={panelId()}
+    <Collapsible id={props.prop.anchorId} transition class="group border-t border-border/40">
+      <Collapsible.Trigger
         aria-label={`${props.prop.name}${requiredText()}, type: ${props.prop.type}${defaultText()}`}
         class={cn(
           PROP_GRID_CLASS,
           'text-sm p-0 text-left min-h-10 w-full cursor-pointer transition-colors items-stretch hover:bg-muted/30',
         )}
-        onClick={() => setExpanded(!expanded())}
       >
         <span class="text-primary font-medium font-mono px-3 py-2.5 min-w-0 truncate">
           {props.prop.name}
@@ -136,12 +128,12 @@ function PropRowItem(props: { prop: PropDoc }): JSX.Element {
         <span class="text-xs text-muted-foreground font-mono px-3 py-2.5 min-w-0 hidden truncate lg:block">
           {props.prop.defaultValue ?? '—'}
         </span>
-        <ReferenceChevron expanded={expanded()} />
-      </button>
-      <Show when={expanded()}>
-        <PropDetails prop={props.prop} panelId={panelId()} />
-      </Show>
-    </div>
+        <ReferenceChevron />
+      </Collapsible.Trigger>
+      <Collapsible.Content class="bg-muted/50">
+        <PropDetails prop={props.prop} />
+      </Collapsible.Content>
+    </Collapsible>
   )
 }
 
@@ -170,75 +162,40 @@ function PropRows(props: { props: PropDoc[]; nameColumn?: string }): JSX.Element
   )
 }
 
-function AttributeDetails(props: {
-  attribute: PresentationAttributeItem
-  panelId: string
-  triggerId: string
-}): JSX.Element {
+function AttributeRow(props: { attribute: PresentationAttributeItem }): JSX.Element {
   return (
     <div
-      id={props.panelId}
-      role="region"
-      aria-labelledby={props.triggerId}
-      class="px-3 py-3 border-t border-border/40 bg-muted/15"
+      data-attribute={props.attribute.name}
+      class={cn(ATTRIBUTE_GRID_CLASS, 'text-sm border-t border-border/40 min-h-10')}
     >
-      <dl class="text-sm m-0 gap-x-4 gap-y-3 grid sm:grid-cols-[8rem_minmax(0,1fr)]">
-        <dt class="text-xs text-muted-foreground font-medium">Slot</dt>
-        <dd class="m-0 flex flex-wrap gap-x-2 gap-y-1 min-w-0">
-          <For each={props.attribute.slots}>
-            {(slot) => <code class="text-xs text-foreground font-mono">{slot}</code>}
-          </For>
-        </dd>
-        <Show when={props.attribute.description}>
-          {(description) => (
-            <>
-              <dt class="text-xs text-muted-foreground font-medium sm:pt-3 sm:border-t sm:border-border/30">
-                Description
-              </dt>
-              <dd class="text-muted-foreground leading-relaxed m-0 min-w-0 sm:pt-3 sm:border-t sm:border-border/30">
-                {description()}
-              </dd>
-            </>
-          )}
-        </Show>
-      </dl>
+      <code class="text-xs text-primary font-medium font-mono px-3 py-2.5 min-w-0 truncate">
+        {props.attribute.name}
+      </code>
+      <span class="text-xs text-muted-foreground px-3 pb-2.5 min-w-0 md:py-2.5">
+        <span class="font-medium md:hidden">Slot: </span>
+        {props.attribute.slots.join(', ')}
+      </span>
+      <span class="text-xs text-muted-foreground leading-relaxed px-3 pb-2.5 min-w-0 md:py-2.5">
+        <span class="font-medium md:hidden">Description: </span>
+        {props.attribute.description ?? '—'}
+      </span>
     </div>
   )
 }
 
-function AttributeRow(props: { attribute: PresentationAttributeItem }): JSX.Element {
-  const [expanded, setExpanded] = createSignal(false)
-  const triggerId = () => `api-attribute-${props.attribute.name}`
-  const panelId = () => `${triggerId()}-details`
-
+function EmptyAttributes(): JSX.Element {
   return (
-    <div class={cn('border-t border-border/40', expanded() && 'bg-muted/10')}>
-      <button
-        id={triggerId()}
-        type="button"
-        aria-expanded={expanded()}
-        aria-controls={panelId()}
-        aria-label={`${props.attribute.name}, slots: ${props.attribute.slots.join(', ')}`}
-        class={cn(
-          ATTRIBUTE_GRID_CLASS,
-          'text-sm p-0 text-left min-h-10 w-full cursor-pointer transition-colors items-stretch hover:bg-muted/30',
-        )}
-        onClick={() => setExpanded(!expanded())}
+    <div role="status" class="px-4 py-8 border-t border-border/40 flex flex-col items-center">
+      <div
+        class="text-muted-foreground border border-border/60 rounded-md flex size-9 items-center justify-center"
+        aria-hidden="true"
       >
-        <code class="text-xs text-primary font-medium font-mono px-3 py-2.5 min-w-0 truncate">
-          {props.attribute.name}
-        </code>
-        <span class="text-xs text-muted-foreground px-3 py-2.5 flex-wrap gap-x-2 gap-y-1 min-w-0 hidden md:flex">
-          <For each={props.attribute.slots}>{(slot) => <code class="font-mono">{slot}</code>}</For>
-        </span>
-        <span class="text-xs text-muted-foreground leading-relaxed px-3 py-2.5 min-w-0 hidden md:block">
-          {props.attribute.description ?? '—'}
-        </span>
-        <ReferenceChevron expanded={expanded()} />
-      </button>
-      <Show when={expanded()}>
-        <AttributeDetails attribute={props.attribute} panelId={panelId()} triggerId={triggerId()} />
-      </Show>
+        —
+      </div>
+      <div class="text-sm font-medium mt-3">No attributes</div>
+      <div class="text-xs text-muted-foreground mt-1">
+        This slot does not expose any public data attributes.
+      </div>
     </div>
   )
 }
@@ -247,10 +204,13 @@ const ALL_SLOTS = '__all__'
 
 function AttributesSection(props: { attributes: PresentationAttributesSection }): JSX.Element {
   const [selectedSlot, setSelectedSlot] = createSignal(ALL_SLOTS)
-  const slotOptions = () => [
-    { value: ALL_SLOTS, label: 'All slots' },
-    ...props.attributes.slots.map((slot) => ({ value: slot, label: slot })),
-  ]
+  const slotOptions = createMemo(() => [
+    { value: ALL_SLOTS, label: `All slots (${props.attributes.items.length})` },
+    ...props.attributes.slots.map((slot) => ({
+      value: slot,
+      label: `${slot} (${props.attributes.items.filter((attribute) => attribute.slots.includes(slot)).length})`,
+    })),
+  ])
   const visibleAttributes = () => {
     const slot = selectedSlot()
     return slot === ALL_SLOTS
@@ -264,7 +224,7 @@ function AttributesSection(props: { attributes: PresentationAttributesSection })
       <HeadingWithAnchor id={props.attributes.id} level={3}>
         {props.attributes.heading}
       </HeadingWithAnchor>
-      <div class="mt-3 flex justify-end">
+      <div class="mt-3 flex justify-start">
         <label for={filterId} class="sr-only">
           Filter attributes by slot
         </label>
@@ -272,7 +232,7 @@ function AttributesSection(props: { attributes: PresentationAttributesSection })
           id={filterId}
           aria-label="Filter attributes by slot"
           size="sm"
-          class="w-40"
+          class="w-48"
           items={slotOptions()}
           value={selectedSlot()}
           onChange={(value) => setSelectedSlot(value ?? ALL_SLOTS)}
@@ -294,11 +254,12 @@ function AttributesSection(props: { attributes: PresentationAttributesSection })
           <span role="columnheader" class="font-semibold px-3 py-2 hidden md:block">
             Description
           </span>
-          <span aria-hidden="true" />
         </div>
-        <For each={visibleAttributes()}>
-          {(attribute) => <AttributeRow attribute={attribute} />}
-        </For>
+        <Show when={visibleAttributes().length > 0} fallback={<EmptyAttributes />}>
+          <For each={visibleAttributes()}>
+            {(attribute) => <AttributeRow attribute={attribute} />}
+          </For>
+        </Show>
       </div>
     </section>
   )
@@ -416,45 +377,21 @@ export function DocsApiReference(props: { apiDoc?: ComponentApi }): JSX.Element 
 }
 
 function PartMetadata(props: { part: PresentationPartSection; description?: string }): JSX.Element {
+  const description = () => props.part.description ?? props.description
+
   return (
-    <div class="text-sm text-muted-foreground mt-2 space-y-1.5">
-      <Show when={props.part.description ?? props.description}>
-        {(description) => <p class="m-0">{description()}</p>}
-      </Show>
-      <Show when={props.part.accessText}>
-        {(accessText) => (
-          <p class="m-0">
-            Access with <code class="text-foreground font-mono">{accessText()}</code>.
-          </p>
-        )}
-      </Show>
-      <Show
-        when={props.part.defaultElement}
-        fallback={
-          <Show when={!props.part.rendersDom}>
-            <p class="m-0">Does not render a DOM element.</p>
-          </Show>
-        }
-      >
-        {(element) => (
-          <p class="m-0">
-            Renders a <code class="text-foreground font-mono">&lt;{element()}&gt;</code> element by
-            default
-            <Show when={props.part.polymorphic}>
-              {', and supports a custom rendered element through '}
-              <code class="text-foreground font-mono">as</code>
-            </Show>
-            .
-          </p>
-        )}
-      </Show>
-      <Show when={props.part.genericsSignature}>
-        {(generics) => (
-          <p class="m-0">
-            Generic signature: <code class="text-foreground font-mono">{generics()}</code>.
-          </p>
-        )}
-      </Show>
-    </div>
+    <Show when={description() || props.part.defaultElement}>
+      <p>
+        <Show when={description()}>{(value) => value()}</Show>
+        <Show when={description() && props.part.defaultElement}> </Show>
+        <Show when={props.part.defaultElement}>
+          {(element) => (
+            <>
+              Renders a <code class="font-mono">&lt;{element()}&gt;</code> element by default.
+            </>
+          )}
+        </Show>
+      </p>
+    </Show>
   )
 }

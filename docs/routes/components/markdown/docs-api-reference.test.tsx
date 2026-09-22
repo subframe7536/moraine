@@ -22,6 +22,7 @@ const apiDoc: ComponentApi = {
       name: 'Example.Trigger',
       access: { kind: 'attached', root: 'Example', member: 'Trigger' },
       defaultElement: 'button',
+      generics: [{ name: 'T', constraint: 'HTMLElement' }],
       props: [
         {
           name: 'disabled',
@@ -50,7 +51,7 @@ const apiDoc: ComponentApi = {
       },
     ],
   },
-  slots: ['root', 'trigger', 'content'],
+  slots: ['root', 'trigger', 'content', 'empty'],
   dataAttributes: [
     { target: 'root', attributes: ['data-disabled'] },
     { target: 'trigger', attributes: ['data-disabled', 'data-expanded'] },
@@ -72,14 +73,15 @@ describe('DocsApiReference', () => {
       name: 'disabled, type: boolean | (() => Boolean)',
     })
     expect(disabled.getAttribute('aria-expanded')).toBe('false')
+    expect(disabled.closest('[data-slot="root"]')?.getAttribute('data-closed')).toBe('')
     fireEvent.click(disabled)
     expect(disabled.getAttribute('aria-expanded')).toBe('true')
+    expect(disabled.closest('[data-slot="root"]')?.getAttribute('data-expanded')).toBe('')
     expect(view.getByText('Disables the trigger.')).toBeTruthy()
-    expect(
-      within(view.getByRole('region', { name: /^disabled/ })).getByText(
-        'boolean | (() => Boolean)',
-      ),
-    ).toBeTruthy()
+    const details = view.getByRole('region', { name: /^disabled/ })
+    expect(within(details).getByText('boolean | (() => Boolean)')).toBeTruthy()
+    expect(details.parentElement?.className).toContain('bg-muted/50')
+    expect(disabled.className).toContain('hover:bg-muted/30')
     expect(view.getByRole('link', { name: 'disabled' }).getAttribute('href')).toBe(
       '#api-trigger-disabled',
     )
@@ -97,8 +99,16 @@ describe('DocsApiReference', () => {
     expect(view.getByRole('heading', { name: /Trigger/ })).toBeTruthy()
     expect(view.queryByRole('heading', { name: /Example\.Trigger/ })).toBeNull()
     expect(view.queryByRole('navigation', { name: 'Component parts' })).toBeNull()
-    expect(view.getByText('Does not render a DOM element.')).toBeTruthy()
-    expect(view.getByText(/Renders a/)).toBeTruthy()
+    expect(view.queryByText('Does not render a DOM element.')).toBeNull()
+    expect(view.queryByText(/Access with/)).toBeNull()
+    expect(view.queryByText(/Generic signature/)).toBeNull()
+    expect(
+      view.getByText(
+        (_content, element) =>
+          element?.tagName === 'P' &&
+          element.textContent === 'Renders a <button> element by default.',
+      ),
+    ).toBeTruthy()
     expect(getDocsApiReferenceTocEntries(apiDoc)).toContainEqual({
       id: 'api-trigger',
       label: 'Trigger',
@@ -130,17 +140,31 @@ describe('DocsApiReference', () => {
     expect(view.getAllByText('data-disabled')).toHaveLength(1)
 
     const filter = view.getByRole('combobox', { name: 'Filter attributes by slot' })
-    expect(filter.textContent).toContain('All slots')
+    expect(filter.textContent).toContain('All slots (3)')
+    expect(filter.parentElement?.parentElement?.className).toContain('justify-start')
     fireEvent.click(filter)
-    fireEvent.click(within(document.body).getByRole('option', { name: 'content', hidden: true }))
+    expect(
+      within(document.body).getByRole('option', { name: 'empty (0)', hidden: true }),
+    ).toBeTruthy()
+    fireEvent.click(
+      within(document.body).getByRole('option', { name: 'content (2)', hidden: true }),
+    )
 
     expect(view.queryByText('data-disabled')).toBeNull()
     const expanded = view.getByText('data-expanded')
     expect(expanded).toBeTruthy()
-    const expandedButton = expanded.closest('button')!
-    expect(expandedButton.textContent).toContain('trigger')
-    expect(expandedButton.textContent).toContain('content')
+    expect(expanded.closest('button')).toBeNull()
+    const expandedRow = expanded.closest('[data-attribute="data-expanded"]')!
+    expect(expandedRow.textContent).toContain('trigger, content')
+    expect(view.getByText('trigger, content').className).not.toContain('font-mono')
     expect(view.getByText('data-unknown')).toBeTruthy()
+
+    fireEvent.click(filter)
+    fireEvent.click(within(document.body).getByRole('option', { name: 'empty (0)', hidden: true }))
+    expect(view.getByRole('status').textContent).toContain('No attributes')
+    expect(view.getByRole('status').textContent).toContain(
+      'This slot does not expose any public data attributes.',
+    )
     view.unmount()
   })
 

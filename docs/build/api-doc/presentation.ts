@@ -17,11 +17,7 @@ export interface PresentationPartSection {
   heading: string
   shortHeading: string
   description?: string
-  accessText?: string
-  rendersDom: boolean
   defaultElement?: string
-  polymorphic?: boolean
-  genericsSignature?: string
   props: PresentationPropItem[]
 }
 
@@ -147,9 +143,7 @@ function createAttributesSection(
   }
 
   const slotsByAttribute = new Map<string, Set<string>>()
-  const participatingSlots = new Set<string>()
   for (const target of component.dataAttributes) {
-    participatingSlots.add(target.target)
     for (const name of target.attributes) {
       const slots = slotsByAttribute.get(name) ?? new Set<string>()
       slots.add(target.target)
@@ -184,7 +178,9 @@ function createAttributesSection(
   return {
     id: 'api-attributes',
     heading: 'Attributes',
-    slots: orderSlots(participatingSlots),
+    slots: orderSlots(
+      new Set([...component.slots, ...component.dataAttributes.map((target) => target.target)]),
+    ),
     items,
   }
 }
@@ -197,27 +193,12 @@ export function createApiReferenceModel(
   }
 
   const parts = component.parts.map((part): PresentationPartSection => {
-    let accessText: string | undefined
-    if (part.access.kind === 'export') {
-      accessText = `import { ${part.access.name} } from 'moraine'`
-    } else if (part.access.kind === 'attached') {
-      accessText = `${part.access.root}.${part.access.member}`
-    } else {
-      accessText = `const form = ${part.access.factory}(...); form.${part.access.member}`
-    }
-    const polymorphic = part.props.some((prop) => prop.name === 'as')
-    const genericsSignature = formatGenerics(part.generics)
-
     return {
       id: `api-${part.id}`,
       heading: part.name,
       shortHeading: getPartShortHeading(component, part),
       ...(part.description ? { description: part.description } : {}),
-      ...(accessText ? { accessText } : {}),
-      rendersDom: part.defaultElement !== undefined,
       ...(part.defaultElement ? { defaultElement: part.defaultElement } : {}),
-      ...(polymorphic ? { polymorphic } : {}),
-      ...(genericsSignature ? { genericsSignature } : {}),
       props: sortProps(part.props, `api-${part.id}`),
     }
   })

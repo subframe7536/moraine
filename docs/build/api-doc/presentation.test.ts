@@ -43,7 +43,7 @@ const component: ComponentApi = {
       },
     ],
   },
-  slots: ['root', 'control', 'trigger', 'content'],
+  slots: ['root', 'control', 'trigger', 'content', 'unused'],
   dataAttributes: [
     { target: 'root', attributes: ['data-disabled', 'data-unknown'] },
     { target: 'control', attributes: ['data-disabled', 'data-invalid'] },
@@ -62,7 +62,6 @@ describe('createApiReferenceModel', () => {
       'class',
     ])
     expect(model.parts[0]?.props.find((prop) => prop.name === 'open')?.type).toBe('Boolean')
-    expect(model.parts[0]?.rendersDom).toBe(false)
   })
 
   test('formats literal and expression defaults', () => {
@@ -72,9 +71,10 @@ describe('createApiReferenceModel', () => {
     expect(formatDefaultValue({ kind: 'expression', text: 'items.length' })).toBe('items.length')
   })
 
-  test('presents generic parameters for parts and items', () => {
+  test('presents generic parameters for items without part presentation metadata', () => {
     const model = createApiReferenceModel(component)!
-    expect(model.parts[1]?.genericsSignature).toBe('<T extends string | number = string>')
+    expect(model.parts[1]).not.toHaveProperty('genericsSignature')
+    expect(model.parts[1]).not.toHaveProperty('accessText')
     expect(model.item?.genericsSignature).toBe('<Value extends string | number = string>')
     expect(model.item?.props[0]?.defaultValue).toBe('""')
   })
@@ -89,7 +89,7 @@ describe('createApiReferenceModel', () => {
 
   test('aggregates attributes and follows declared slot order', () => {
     const model = createApiReferenceModel(component)!
-    expect(model.attributes?.slots).toEqual(['root', 'control', 'trigger', 'content'])
+    expect(model.attributes?.slots).toEqual(['root', 'control', 'trigger', 'content', 'unused'])
     expect(model.attributes?.items).toEqual([
       {
         name: 'data-disabled',

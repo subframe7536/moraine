@@ -221,6 +221,7 @@ describe('llms.txt generation', () => {
       expect(dialog).toContain('### Dialog')
       expect(dialog).toContain('### Dialog.Trigger')
       expect(dialog).not.toContain('\n### Trigger\n')
+      expect(dialog).not.toContain('`Dialog.Trigger`')
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }

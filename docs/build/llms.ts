@@ -192,9 +192,6 @@ function renderApiReference(apiDoc: ComponentApi): string {
   } else {
     for (const part of model.parts) {
       output.push(`### ${part.heading}`, '')
-      if (part.accessText) {
-        output.push(`\`${part.accessText}\``, '')
-      }
       if (part.description) {
         output.push(part.description, '')
       }
