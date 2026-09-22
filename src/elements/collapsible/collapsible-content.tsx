@@ -9,7 +9,6 @@ import { callRef } from '../../shared/utils'
 import { useCollapsibleContext } from './collapsible-context'
 import {
   COLLAPSIBLE_CONTENT_WRAPPER_CLASS,
-  collapsibleCssVariables,
   collapsibleDataAttributes,
   collapsibleRecipe,
 } from './collapsible.recipe'
@@ -69,9 +68,11 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
             })}
             hidden={hidden()}
             inert={closed() ? true : undefined}
-            style={collapsibleCssVariables.content({
-              'collapsible-content-height': () => `${context.contentHeight()}px`,
-            })}
+            style={{
+              get '--mo-collapsible-content-height'() {
+                return `${context.contentHeight()}px`
+              },
+            }}
             class={COLLAPSIBLE_CONTENT_WRAPPER_CLASS}
           >
             <Dynamic

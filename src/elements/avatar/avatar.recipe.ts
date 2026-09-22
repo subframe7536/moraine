@@ -1,14 +1,14 @@
 import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { StyleContractState } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { AvatarStyleSlot, AvatarStyleVariant } from './avatar.style-types'
 
 export const avatarDataAttributes = {
-  root: (state: StyleContractState) => createDataAttributes({ 'data-status': state.status }),
-  image: (state: StyleContractState) => createDataAttributes({ 'data-status': state.status }),
-  fallback: (state: StyleContractState) => createDataAttributes({ 'data-status': state.status }),
-}
+  root: createDataAttributes('status'),
+  image: createDataAttributes('status'),
+  fallback: createDataAttributes('status'),
+} satisfies DataAttributeContract<keyof AvatarStyleSlot>
 
 export const avatarRecipe = /* @__PURE__ */ defineRecipe<AvatarStyleSlot, AvatarStyleVariant>(
   'avatar',

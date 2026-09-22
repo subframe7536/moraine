@@ -1,35 +1,14 @@
-import { createCssVariables, createDataAttributes } from '../../shared/style-contract.ts'
-import type { StyleContractState } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
+import { createDataAttributes } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { CollapsibleStyleSlot } from './collapsible.style-types'
 
 export const collapsibleDataAttributes = {
-  root: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-closed': state.closed,
-      'data-expanded': state.expanded,
-    }),
-  trigger: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-closed': state.closed,
-      'data-disabled': state.disabled,
-      'data-expanded': state.expanded,
-    }),
-  content: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-closed': state.closed,
-      'data-expanded': state.expanded,
-      'data-transition': state.transition,
-    }),
-}
-
-export const collapsibleCssVariables = {
-  content: (state: StyleContractState) =>
-    createCssVariables({
-      '--mo-collapsible-content-height': state['collapsible-content-height'],
-    }),
-}
+  root: createDataAttributes('closed', 'expanded'),
+  trigger: createDataAttributes('closed', 'disabled', 'expanded'),
+  content: createDataAttributes('closed', 'expanded', 'transition'),
+} satisfies DataAttributeContract<keyof CollapsibleStyleSlot>
 
 // The height wrapper is implementation-only: it needs library styling for
 // measurement and presence, but is not a stable family styling responsibility.

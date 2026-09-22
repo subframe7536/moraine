@@ -140,7 +140,6 @@ describe('llms.txt generation', () => {
           ],
           slots: ['root', 'content'],
           dataAttributes: [{ target: 'content', attributes: ['data-expanded'] }],
-          cssVariables: [{ target: 'content', variables: ['--mo-button-height'] }],
         }),
       )
 
@@ -165,8 +164,7 @@ describe('llms.txt generation', () => {
       expect(button).toContain('- `root`')
       expect(button).toContain('#### Data attributes')
       expect(button).toContain('| data-expanded |')
-      expect(button).toContain('#### CSS variables')
-      expect(button).toContain('- `--mo-button-height`')
+      expect(button).not.toContain('CSS variables')
       expect(button).not.toContain('### Accessibility')
       expect(button).not.toContain('### Anatomy')
       expect(button).toMatch(/^---\ntitle: Button\ndescription: Button page description\./)

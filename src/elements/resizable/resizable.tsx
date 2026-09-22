@@ -825,7 +825,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
       id={local.id}
       data-slot="root"
       {...rest}
-      {...resizableDataAttributes.root({ 'resizable-root': true })}
+      {...resizableDataAttributes.root({ resizableRoot: true })}
       {...resolved.styles.root}
     >
       <Index each={resolvedPanels()}>
@@ -1019,8 +1019,8 @@ export function Resizable(props: ResizableProps): JSX.Element {
                         <div
                           data-slot="crossTarget"
                           {...resizableDataAttributes.crossTarget({
-                            'resizable-handle-start-target': true,
-                            'resizable-handle-end-target': undefined,
+                            resizableHandleStartTarget: true,
+                            resizableHandleEndTarget: undefined,
                           })}
                           {...resolved.styles.crossTarget}
                           onMouseEnter={() =>
@@ -1052,8 +1052,8 @@ export function Resizable(props: ResizableProps): JSX.Element {
                         <div
                           data-slot="crossTarget"
                           {...resizableDataAttributes.crossTarget({
-                            'resizable-handle-start-target': undefined,
-                            'resizable-handle-end-target': true,
+                            resizableHandleStartTarget: undefined,
+                            resizableHandleEndTarget: true,
                           })}
                           {...resolved.styles.crossTarget}
                           onMouseEnter={() =>

@@ -4,7 +4,7 @@ import path from 'node:path'
 import type { ESTree } from 'vite'
 
 import { getIdentifierName, parseTypeScript } from './ast'
-import type { CssVariableTargetApi, DataAttributeTargetApi, DefaultValue } from './types'
+import type { DataAttributeTargetApi, DefaultValue } from './types'
 
 export interface RecipeVariantApi {
   name: string
@@ -16,7 +16,6 @@ export interface RecipeApi {
   slots: string[]
   variants: RecipeVariantApi[]
   dataAttributes: DataAttributeTargetApi[]
-  cssVariables: CssVariableTargetApi[]
 }
 
 interface RecipeModule {
@@ -57,23 +56,6 @@ function unwrapExpression(expression: ESTree.Expression): ESTree.Expression {
     current = current.expression
   }
   return current
-}
-
-function functionReturn(expression: ESTree.Expression): ESTree.Expression | undefined {
-  const current = unwrapExpression(expression)
-  if (current.type !== 'ArrowFunctionExpression' && current.type !== 'FunctionExpression') {
-    return undefined
-  }
-  if (!current.body) {
-    return undefined
-  }
-  if (current.body.type !== 'BlockStatement') {
-    return current.body ?? undefined
-  }
-  const returns = current.body.body.filter(
-    (statement): statement is ESTree.ReturnStatement => statement.type === 'ReturnStatement',
-  )
-  return returns.length === 1 && returns[0]?.argument ? returns[0].argument : undefined
 }
 
 function literalDefault(expression: ESTree.Expression): DefaultValue | undefined {
@@ -122,25 +104,9 @@ export class RecipeExtractor {
     const slots = await this.#extractSlots(config)
     const variants = await this.#extractVariants(config)
 
-    const dataAttributes = await this.#extractContract(
-      module,
-      `${prefix}DataAttributes`,
-      'createDataAttributes',
-      'data-',
-    )
-    const explicitCssVariables = await this.#extractContract(
-      module,
-      `${prefix}CssVariables`,
-      'createCssVariables',
-      '--',
-    )
-    const directCssVariables = RecipeExtractor.#extractDirectCssVariables(config.expression)
-    const cssVariables = RecipeExtractor.#mergeCssVariables(
-      explicitCssVariables,
-      directCssVariables,
-    )
+    const dataAttributes = await this.#extractContract(module, `${prefix}DataAttributes`)
 
-    return { slots, variants, dataAttributes, cssVariables }
+    return { slots, variants, dataAttributes }
   }
 
   async #loadModule(absolutePath: string): Promise<RecipeModule> {
@@ -385,8 +351,6 @@ export class RecipeExtractor {
   async #extractContract(
     module: RecipeModule,
     exportName: string,
-    helperName: 'createDataAttributes' | 'createCssVariables',
-    propertyPrefix: 'data-' | '--',
   ): Promise<Array<{ target: string; attributes: string[] }>> {
     const binding = await this.#resolveBinding(module, exportName)
     if (!binding) {
@@ -398,8 +362,6 @@ export class RecipeExtractor {
       const names = await this.#extractContractMember(
         property.module,
         property.value,
-        helperName,
-        propertyPrefix,
         `${exportName}.${property.name}`,
       )
       targets.push({ target: property.name, attributes: names.sort((a, b) => a.localeCompare(b)) })
@@ -410,26 +372,10 @@ export class RecipeExtractor {
   async #extractContractMember(
     module: RecipeModule,
     expression: ESTree.Expression,
-    helperName: string,
-    propertyPrefix: string,
     use: string,
   ): Promise<string[]> {
-    const returned = functionReturn(expression)
-    if (returned) {
-      return this.#extractContractMember(module, returned, helperName, propertyPrefix, use)
-    }
     const resolved = await this.#resolveExpression(module, expression, use)
     const current = resolved.expression
-    const resolvedReturn = functionReturn(current)
-    if (resolvedReturn) {
-      return this.#extractContractMember(
-        resolved.module,
-        resolvedReturn,
-        helperName,
-        propertyPrefix,
-        use,
-      )
-    }
     if (current.type === 'MemberExpression' && !current.computed) {
       const member = getIdentifierName(current.property)
       if (!member || current.object.type !== 'Identifier') {
@@ -446,90 +392,35 @@ export class RecipeExtractor {
       if (!property) {
         throw new Error(`[api-doc] Could not resolve ${use} from ${resolved.module.filePath}.`)
       }
-      return this.#extractContractMember(
-        property.module,
-        property.value,
-        helperName,
-        propertyPrefix,
-        use,
-      )
+      return this.#extractContractMember(property.module, property.value, use)
     }
     if (
       current.type !== 'CallExpression' ||
       current.callee.type !== 'Identifier' ||
-      current.callee.name !== helperName ||
-      current.arguments.length !== 1
+      current.callee.name !== 'createDataAttributes' ||
+      current.arguments.length === 0
     ) {
       throw RecipeExtractor.#unsupported(resolved.module, use, current)
     }
-    const argument = current.arguments[0]
-    if (!argument || argument.type === 'SpreadElement') {
-      throw RecipeExtractor.#unsupported(resolved.module, use, current)
-    }
-    const values = await this.#resolveObject(resolved.module, argument, use)
-    return (await this.#objectProperties(values, `${use} properties`))
-      .map((property) => property.name)
-      .filter((name) => {
-        if (!name.startsWith(propertyPrefix)) {
-          throw new Error(`[api-doc] Invalid ${use} property "${name}".`)
-        }
-        return (
-          !name.startsWith('data-slot') &&
-          !name.startsWith('data-moraine-') &&
-          !name.startsWith('data-test-')
-        )
-      })
-  }
-
-  static #extractDirectCssVariables(recipe: ESTree.ObjectExpression): CssVariableTargetApi[] {
-    const variables = new Set<string>()
-    const visit = (node: ESTree.Node): void => {
-      if (node.type === 'Property') {
-        const name = propertyName(node as ObjectProperty)
-        if (name?.startsWith('--')) {
-          variables.add(name)
-        }
+    const names = current.arguments.map((argument) => {
+      if (
+        argument.type === 'SpreadElement' ||
+        argument.type !== 'Literal' ||
+        typeof argument.value !== 'string' ||
+        argument.value.startsWith('data-')
+      ) {
+        throw RecipeExtractor.#unsupported(resolved.module, use, current)
       }
-      for (const value of Object.values(node)) {
-        if (!value || typeof value !== 'object') {
-          continue
-        }
-        if (Array.isArray(value)) {
-          for (const child of value) {
-            if (child && typeof child === 'object' && 'type' in child) {
-              visit(child as ESTree.Node)
-            }
-          }
-        } else if ('type' in value) {
-          visit(value as ESTree.Node)
-        }
-      }
+      return argument.value
+    })
+    if (new Set(names).size !== names.length) {
+      throw new Error(`[api-doc] Duplicate ${use} attribute name in ${resolved.module.filePath}.`)
     }
-    visit(recipe)
-    return variables.size > 0
-      ? [{ target: 'root', variables: [...variables].sort((a, b) => a.localeCompare(b)) }]
-      : []
-  }
-
-  static #mergeCssVariables(
-    explicit: Array<{ target: string; attributes: string[] }>,
-    direct: CssVariableTargetApi[],
-  ): CssVariableTargetApi[] {
-    const targets = new Map<string, Set<string>>()
-    for (const target of explicit) {
-      targets.set(target.target, new Set(target.attributes))
-    }
-    for (const target of direct) {
-      const values = targets.get(target.target) ?? new Set<string>()
-      for (const variable of target.variables) {
-        values.add(variable)
-      }
-      targets.set(target.target, values)
-    }
-    return [...targets].map(([target, variables]) => ({
-      target,
-      variables: [...variables].sort((a, b) => a.localeCompare(b)),
-    }))
+    return names
+      .filter(
+        (name) => name !== 'slot' && !name.startsWith('moraine-') && !name.startsWith('test-'),
+      )
+      .map((name) => `data-${name}`)
   }
 
   static #unsupported(module: RecipeModule, use: string, node: { type: string }): Error {

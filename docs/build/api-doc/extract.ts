@@ -8,7 +8,6 @@ const EMPTY_RECIPE: RecipeApi = {
   slots: [],
   variants: [],
   dataAttributes: [],
-  cssVariables: [],
 }
 
 export async function generateApiDoc(projectRoot: string): Promise<GenerationResult> {
@@ -72,7 +71,6 @@ export async function generateApiDoc(projectRoot: string): Promise<GenerationRes
       ...(item ? { item } : {}),
       slots: recipe.slots,
       dataAttributes: recipe.dataAttributes,
-      cssVariables: recipe.cssVariables,
     })
   }
 

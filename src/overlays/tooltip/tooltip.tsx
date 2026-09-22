@@ -423,7 +423,7 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
         const kbds = createMemo(() => local.kbds)
         const contentDataAttrs = tooltipContentDataAttributes({
           side: () => resolveOverlayMenuSide(context.currentPlacement() || local.side || 'top'),
-          'instant-motion': behavior.instantMotion,
+          instantMotion: behavior.instantMotion,
         })
         return (
           <div

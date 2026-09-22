@@ -263,8 +263,14 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           {...rootProps}
           {...styles.styles.control}
           {...multiSelectDataAttributes.control({
-            tags: () => tags.tags().length > 0,
+            closed: undefined,
+            disabled: undefined,
             editable,
+            expanded: undefined,
+            invalid: undefined,
+            readonly: undefined,
+            required: undefined,
+            tags: () => tags.tags().length > 0,
           })}
           ref={(element) => callRef(local.ref, element)}
           onPointerDown={(event) => {
@@ -384,7 +390,13 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             fallback={
               <BaseSelect.Trigger<'button', T>
                 aria-busy={local.loading ? 'true' : undefined}
-                {...multiSelectDataAttributes.trigger({ loading: () => local.loading })}
+                {...multiSelectDataAttributes.trigger({
+                  closed: undefined,
+                  disabled: undefined,
+                  expanded: undefined,
+                  invalid: undefined,
+                  loading: () => local.loading,
+                })}
                 disabled={Boolean(local.loading)}
                 {...styles.styles.trigger}
                 onKeyDown={onNonEditableTriggerKeyDown}
@@ -404,7 +416,13 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                       ? (local.loadingIcon ?? 'icon-loading')
                       : (local.trailingIcon ?? 'icon-chevron-down')
                   }
-                  {...multiSelectDataAttributes.trigger({ loading: () => local.loading })}
+                  {...multiSelectDataAttributes.trigger({
+                    closed: undefined,
+                    disabled: undefined,
+                    expanded: undefined,
+                    invalid: undefined,
+                    loading: () => local.loading,
+                  })}
                   class={SELECT_LOADING_ICON_CLASS}
                 />
               </BaseSelect.Trigger>
@@ -418,7 +436,13 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               aria-controls={state.listboxId()}
               aria-expanded={state.open() ? 'true' : 'false'}
               aria-busy={local.loading ? 'true' : undefined}
-              {...multiSelectDataAttributes.trigger({ loading: () => local.loading })}
+              {...multiSelectDataAttributes.trigger({
+                closed: undefined,
+                disabled: undefined,
+                expanded: undefined,
+                invalid: undefined,
+                loading: () => local.loading,
+              })}
               disabled={state.field.disabled() || Boolean(local.loading)}
               {...styles.styles.trigger}
               onPointerDown={(event) => {
@@ -437,7 +461,13 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                     ? (local.loadingIcon ?? 'icon-loading')
                     : (local.trailingIcon ?? 'icon-chevron-down')
                 }
-                {...multiSelectDataAttributes.trigger({ loading: () => local.loading })}
+                {...multiSelectDataAttributes.trigger({
+                  closed: undefined,
+                  disabled: undefined,
+                  expanded: undefined,
+                  invalid: undefined,
+                  loading: () => local.loading,
+                })}
                 class={SELECT_LOADING_ICON_CLASS}
               />
             </button>

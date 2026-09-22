@@ -1,46 +1,29 @@
-import { createCssVariables, createDataAttributes } from '../../shared/style-contract.ts'
-import type { StyleContractState } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
+import { createDataAttributes } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe.ts'
 
 import type { SliderStyleSlot, SliderStyleVariant } from './slider.style-types'
 
 export const sliderDataAttributes = {
-  root: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-disabled': state.disabled,
-      'data-dragging': state.dragging,
-      'data-invalid': state.invalid,
-      'data-inverted': state.inverted,
-      'data-multiple': state.multiple,
-      'data-readonly': state.readonly,
-      'data-required': state.required,
-    }),
-  range: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-inverted': state.inverted,
-      'data-multiple': state.multiple,
-    }),
-  thumb: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-disabled': state.disabled,
-      'data-dragging': state.dragging,
-      'data-invalid': state.invalid,
-      'data-inverted': state.inverted,
-      'data-readonly': state.readonly,
-      'data-required': state.required,
-    }),
-}
-
-export const sliderCssVariables = {
-  root: (state: StyleContractState) =>
-    createCssVariables({
-      '--s-len': state['s-len'],
-      '--s-marker-position': state['s-marker-position'],
-      '--s-offset': state['s-offset'],
-      '--s-size': state['s-size'],
-      '--s-thumb-size': state['s-thumb-size'],
-    }),
-}
+  root: createDataAttributes(
+    'disabled',
+    'dragging',
+    'invalid',
+    'inverted',
+    'multiple',
+    'readonly',
+    'required',
+  ),
+  range: createDataAttributes('inverted', 'multiple'),
+  thumb: createDataAttributes(
+    'disabled',
+    'dragging',
+    'invalid',
+    'inverted',
+    'readonly',
+    'required',
+  ),
+} satisfies DataAttributeContract<keyof SliderStyleSlot>
 
 export const sliderRecipe = /* @__PURE__ */ defineRecipe<SliderStyleSlot, SliderStyleVariant>(
   'slider',

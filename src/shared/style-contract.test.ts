@@ -1,11 +1,19 @@
 import { createRoot, createSignal } from 'solid-js'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, expectTypeOf, test } from 'vitest'
 
-import { applyDataAttributes, createCssVariables, createDataAttributes } from './style-contract.ts'
+import { applyDataAttributes, createDataAttributes } from './style-contract.ts'
+import type { DataAttributeContract } from './style-contract.ts'
 
 describe('style contract helpers', () => {
-  test('normalizes static data attribute values', () => {
-    const attributes = createDataAttributes({
+  test('normalizes static data attribute values and prefixes their names', () => {
+    const attributes = createDataAttributes(
+      'truthy',
+      'falsy',
+      'nil',
+      'missing',
+      'text',
+      'count',
+    )({
       truthy: true,
       falsy: false,
       nil: null,
@@ -15,19 +23,47 @@ describe('style contract helpers', () => {
     })
 
     expect({ ...attributes }).toEqual({
-      truthy: '',
-      falsy: undefined,
-      nil: undefined,
-      missing: undefined,
-      text: 'value',
-      count: 2,
+      'data-truthy': '',
+      'data-falsy': undefined,
+      'data-nil': undefined,
+      'data-missing': undefined,
+      'data-text': 'value',
+      'data-count': 2,
     })
+  })
+
+  test('infers camel-case state and exact data attribute keys', () => {
+    const overlay = createDataAttributes('closed', 'overlay-scroll')
+    const attributes = overlay({ closed: true, overlayScroll: 'auto' })
+
+    expectTypeOf(attributes).toHaveProperty('data-closed')
+    expectTypeOf(attributes).toHaveProperty('data-overlay-scroll')
+    expect(attributes['data-overlay-scroll']).toBe('auto')
+
+    // @ts-expect-error State properties are camel-case rather than kebab-case.
+    overlay({ 'overlay-scroll': true })
+    // @ts-expect-error Attribute names must omit the data- prefix.
+    createDataAttributes('data-expanded')
+  })
+
+  test('constrains contract targets without erasing resolver state', () => {
+    const contract = {
+      root: createDataAttributes('disabled'),
+    } satisfies DataAttributeContract<'root' | 'trigger'>
+
+    expect(contract.root({ disabled: true })['data-disabled']).toBe('')
+
+    const invalidContract = {
+      // @ts-expect-error Contract keys must be declared slots.
+      content: createDataAttributes('expanded'),
+    } satisfies DataAttributeContract<'root'>
+    expect(invalidContract.content).toBeTypeOf('function')
   })
 
   test('keeps stable enumerable getters while accessors update', () => {
     createRoot((dispose) => {
       const [active, setActive] = createSignal(false)
-      const attributes = createDataAttributes({ 'data-active': active })
+      const attributes = createDataAttributes('active')({ active })
       const descriptor = Object.getOwnPropertyDescriptor(attributes, 'data-active')
 
       expect(descriptor?.get).toBeTypeOf('function')
@@ -39,28 +75,10 @@ describe('style contract helpers', () => {
     })
   })
 
-  test('keeps CSS variable values reactive and omits empty sources', () => {
-    createRoot((dispose) => {
-      const [size, setSize] = createSignal<number | undefined>(12)
-      const variables = createCssVariables({
-        '--size': () => (size() === undefined ? undefined : `${size()}px`),
-        '--hidden': false,
-      })
-
-      expect(variables['--size']).toBe('12px')
-      expect(variables['--hidden']).toBeUndefined()
-      setSize(18)
-      expect(variables['--size']).toBe('18px')
-      setSize(undefined)
-      expect(variables['--size']).toBeUndefined()
-      dispose()
-    })
-  })
-
   test('applies and removes normalized attributes without replacing the element', () => {
     const element = document.createElement('div')
     let active = true
-    const attributes = createDataAttributes({ 'data-active': () => active })
+    const attributes = createDataAttributes('active')({ active: () => active })
 
     applyDataAttributes(element, attributes)
     expect(element.getAttribute('data-active')).toBe('')

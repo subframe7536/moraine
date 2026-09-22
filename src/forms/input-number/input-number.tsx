@@ -417,7 +417,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   const rootDataAttrs = inputNumberDataAttributes.root(fieldDataState)
   const inputDataAttrs = inputNumberDataAttributes.input({
     ...fieldDataState,
-    'auto-align': () => resolved.variants.align === undefined && !isVertical() && !showDecrement(),
+    autoAlign: () => resolved.variants.align === undefined && !isVertical() && !showDecrement(),
   })
 
   function commitValue(nextValue: number): boolean {

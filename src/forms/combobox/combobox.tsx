@@ -89,7 +89,15 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
         <BaseSelect.Control
           {...rootProps}
           {...styles.styles.control}
-          {...comboboxDataAttributes.control({ editable: true })}
+          {...comboboxDataAttributes.control({
+            closed: undefined,
+            disabled: undefined,
+            editable: true,
+            expanded: undefined,
+            invalid: undefined,
+            readonly: undefined,
+            required: undefined,
+          })}
           ref={(element) => callRef(local.ref, element)}
           onPointerDown={(event) => {
             callHandler(event, rootProps.onPointerDown)

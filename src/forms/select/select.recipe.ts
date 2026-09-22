@@ -1,5 +1,5 @@
 import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { StyleContractState } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe.ts'
 import { baseSelectDataAttributes } from '../base-select/base-select.recipe.ts'
 import {
@@ -14,10 +14,9 @@ import type { SelectStyleSlot, SelectStyleVariant } from './select.style-types'
 
 export const selectDataAttributes = {
   ...baseSelectDataAttributes,
-  trailing: (state: StyleContractState) => createDataAttributes({ 'data-loading': state.loading }),
-  value: (state: StyleContractState) =>
-    createDataAttributes({ 'data-placeholder': state.placeholder }),
-}
+  trailing: createDataAttributes('loading'),
+  value: createDataAttributes('placeholder'),
+} satisfies DataAttributeContract<keyof SelectStyleSlot>
 
 export const selectRecipe = /* @__PURE__ */ defineRecipe<SelectStyleSlot, SelectStyleVariant>(
   'select',

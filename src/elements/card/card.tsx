@@ -62,7 +62,7 @@ export function Card(props: CardProps): JSX.Element {
         {(body) => (
           <div
             data-slot="body"
-            {...cardDataAttributes.body({ 'no-footer': () => !footer() })}
+            {...cardDataAttributes.body({ noFooter: () => !footer() })}
             {...resolved.styles.body}
           >
             {body()}

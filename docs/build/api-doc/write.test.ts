@@ -22,7 +22,6 @@ const validComponent: ComponentApi = {
   ],
   slots: ['root'],
   dataAttributes: [{ target: 'root', attributes: ['data-disabled'] }],
-  cssVariables: [],
 }
 
 describe('writeJsonFiles', () => {

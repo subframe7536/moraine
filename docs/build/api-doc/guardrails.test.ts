@@ -28,7 +28,7 @@ describe('API documentation architecture guardrails', () => {
     expect(combined).not.toMatch(/createProgram|TypeChecker|ts\.Program/)
   })
 
-  test('component implementations do not declare public data attributes or CSS variables', () => {
+  test('component implementations do not declare public data attributes', () => {
     const sourceRoots = ['elements', 'forms', 'navigation', 'overlays'].map((domain) =>
       path.join(projectRoot, 'src', domain),
     )
@@ -50,9 +50,6 @@ describe('API documentation architecture guardrails', () => {
           /['"]data-(?!slot['"]|moraine-|test-)[a-z0-9-]+['"]\s*:/u.test(source)
         ) {
           violations.push(`${path.relative(projectRoot, file)} declares a public data attribute`)
-        }
-        if (/['"]--mo-[a-z0-9-]+['"]\s*:/u.test(source)) {
-          violations.push(`${path.relative(projectRoot, file)} declares a public CSS variable`)
         }
       }
     }

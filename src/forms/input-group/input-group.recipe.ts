@@ -1,27 +1,15 @@
 import { INPUT_VARIANT } from '../../shared/recipe-common.recipe.ts'
 import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { StyleContractState } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe.ts'
 
 import type { InputGroupStyleSlot, InputGroupRecipeVariant } from './input-group.style-types'
 
 export const inputGroupDataAttributes = {
-  root: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-input-group': state['input-group'],
-      'data-orientation': state.orientation,
-    }),
-  leading: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-compact': state.compact,
-      'data-orientation': state.orientation,
-    }),
-  trailing: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-compact': state.compact,
-      'data-orientation': state.orientation,
-    }),
-}
+  root: createDataAttributes('input-group', 'orientation'),
+  leading: createDataAttributes('compact', 'orientation'),
+  trailing: createDataAttributes('compact', 'orientation'),
+} satisfies DataAttributeContract<keyof InputGroupStyleSlot>
 
 export const inputGroupRecipe = /* @__PURE__ */ defineRecipe<
   InputGroupStyleSlot,

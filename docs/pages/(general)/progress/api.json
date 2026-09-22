@@ -175,13 +175,5 @@
         "data-state"
       ]
     }
-  ],
-  "cssVariables": [
-    {
-      "target": "root",
-      "variables": [
-        "--p-size"
-      ]
-    }
   ]
 }

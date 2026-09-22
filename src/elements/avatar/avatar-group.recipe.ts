@@ -1,3 +1,4 @@
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe.ts'
 
 import type { AvatarGroupStyleSlot, AvatarGroupStyleVariant } from './avatar-group.style-types.ts'
@@ -7,7 +8,7 @@ export const avatarGroupDataAttributes = {
   item: avatarDataAttributes.root,
   image: avatarDataAttributes.image,
   fallback: avatarDataAttributes.fallback,
-}
+} satisfies DataAttributeContract<keyof AvatarGroupStyleSlot>
 
 export const avatarGroupRecipe = /* @__PURE__ */ defineRecipe<
   AvatarGroupStyleSlot,

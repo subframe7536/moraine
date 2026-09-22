@@ -227,7 +227,7 @@ export function renderField<T extends ValidComponent = 'div'>(
         <div
           data-slot="container"
           {...fieldDataAttributes.container({
-            'has-text': () => showLabel() || showDescription(),
+            hasText: () => showLabel() || showDescription(),
           })}
           {...resolved.styles.container}
         >

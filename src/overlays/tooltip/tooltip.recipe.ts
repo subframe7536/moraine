@@ -1,5 +1,5 @@
 import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { StyleContractState } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 import { modalDataAttributes } from '../modal/modal.recipe.ts'
 
@@ -7,20 +7,10 @@ import type { TooltipStyleSlot, TooltipStyleVariant } from './tooltip.style-type
 
 export const tooltipDataAttributes = {
   trigger: modalDataAttributes.trigger,
-  content: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-closed': state.closed,
-      'data-expanded': state.expanded,
-      'data-instant-motion': state['instant-motion'],
-      'data-side': state.side,
-    }),
-}
+  content: createDataAttributes('closed', 'expanded', 'instant-motion', 'side'),
+} satisfies DataAttributeContract<keyof TooltipStyleSlot>
 
-export const tooltipContentDataAttributes = (state: StyleContractState) =>
-  createDataAttributes({
-    'data-instant-motion': state['instant-motion'],
-    'data-side': state.side,
-  })
+export const tooltipContentDataAttributes = createDataAttributes('instant-motion', 'side')
 
 export const tooltipRecipe = /* @__PURE__ */ defineRecipe<TooltipStyleSlot, TooltipStyleVariant>(
   'tooltip',

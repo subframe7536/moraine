@@ -304,17 +304,5 @@
         "data-required"
       ]
     }
-  ],
-  "cssVariables": [
-    {
-      "target": "root",
-      "variables": [
-        "--s-len",
-        "--s-marker-position",
-        "--s-offset",
-        "--s-size",
-        "--s-thumb-size"
-      ]
-    }
   ]
 }

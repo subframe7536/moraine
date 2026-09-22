@@ -1,16 +1,12 @@
 import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { StyleContractState } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { ButtonStyleSlot, ButtonStyleVariant } from './button.style-types'
 
 export const buttonDataAttributes = {
-  root: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-disabled': state.disabled,
-      'data-loading': state.loading,
-    }),
-}
+  root: createDataAttributes('disabled', 'loading'),
+} satisfies DataAttributeContract<keyof ButtonStyleSlot>
 
 export const BUTTON_VARIANTS = {
   default: {

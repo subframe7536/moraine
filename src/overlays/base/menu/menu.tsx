@@ -22,7 +22,6 @@ import { List } from '../../../elements/list'
 import { useCn } from '../../../provider/cn-context'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
 import { renderComponentOrElement } from '../../../shared/render-prop'
-import { mergeStyleContract } from '../../../shared/style-contract'
 import type { ClassValue, ElementProps } from '../../../shared/types'
 import { useControllableValue } from '../../../shared/use-controllable-value'
 import { useEventListener } from '../../../shared/use-event-listener'
@@ -41,7 +40,7 @@ import {
   resolveOverlayMenuSide,
 } from '../utils'
 
-import { overlayMenuCssVariables, overlayMenuDataAttributes } from './menu.recipe'
+import { overlayMenuDataAttributes } from './menu.recipe'
 import {
   createPointerGraceIntent,
   createVirtualReference,
@@ -614,7 +613,9 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         {...overlayMenuDataAttributes.item({
           destructive: () => itemProps.item.variant === 'destructive',
           disabled: () => itemProps.item.disabled,
+          expanded: undefined,
           highlighted: () => layer.highlightedItemId() === itemId(),
+          selected: undefined,
         })}
         {...itemAttributes()}
         ref={(itemElement) => {
@@ -692,6 +693,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           destructive: () => itemProps.item.variant === 'destructive',
           selected: checked,
           disabled: () => itemProps.item.disabled,
+          expanded: undefined,
           highlighted: () => layer.highlightedItemId() === itemId(),
         })}
         {...itemAttributes()}
@@ -788,6 +790,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           destructive: () => itemProps.item.variant === 'destructive',
           selected: checked,
           disabled: () => itemProps.item.disabled,
+          expanded: undefined,
           highlighted: () => layer.highlightedItemId() === itemId(),
         })}
         {...itemAttributes()}
@@ -926,6 +929,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             disabled: () => itemProps.item.disabled,
             highlighted: () => layer.highlightedItemId() === submenuId(),
             expanded: isOpen,
+            selected: undefined,
           })}
           {...itemAttributes()}
           ref={(itemElement) => {
@@ -1182,12 +1186,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
   const contentSlot = () => ({
     class: cn(resolveSlot('content').class, props.contentProps?.class),
-    style: mergeStyleContract(
-      overlayMenuCssVariables.content({
-        'popper-content-transform-origin': undefined,
-      }),
-      { ...props.contentProps?.style, ...resolveSlot('content').style },
-    ),
+    style: { ...props.contentProps?.style, ...resolveSlot('content').style },
   })
 
   return (

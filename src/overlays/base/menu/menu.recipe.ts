@@ -1,33 +1,13 @@
-import { createCssVariables, createDataAttributes } from '../../../shared/style-contract.ts'
-import type { StyleContractState } from '../../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../../shared/style-contract.ts'
+import { createDataAttributes } from '../../../shared/style-contract.ts'
 import type { RecipeConfig } from '../../../theme/style/recipe.ts'
 
 import type { OverlayMenuStyleSlot, OverlayMenuStyleVariant } from './style-types.ts'
 
 export const overlayMenuDataAttributes = {
-  content: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-align': state.align,
-      'data-closed': state.closed,
-      'data-expanded': state.expanded,
-      'data-side': state.side,
-    }),
-  item: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-destructive': state.destructive,
-      'data-disabled': state.disabled,
-      'data-expanded': state.expanded,
-      'data-highlighted': state.highlighted,
-      'data-selected': state.selected,
-    }),
-}
-
-export const overlayMenuCssVariables = {
-  content: (state: StyleContractState) =>
-    createCssVariables({
-      '--mo-popper-content-transform-origin': state['popper-content-transform-origin'],
-    }),
-}
+  content: createDataAttributes('align', 'closed', 'expanded', 'side'),
+  item: createDataAttributes('destructive', 'disabled', 'expanded', 'highlighted', 'selected'),
+} satisfies DataAttributeContract<keyof OverlayMenuStyleSlot>
 
 export const overlayMenuRecipeOptions = {
   base: {

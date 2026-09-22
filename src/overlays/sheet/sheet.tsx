@@ -87,7 +87,11 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
   return (
     <ModalSurface
       {...rest}
-      {...sheetDataAttributes.content({ transition: () => merged.transition })}
+      {...sheetDataAttributes.content({
+        closed: undefined,
+        expanded: undefined,
+        transition: () => merged.transition,
+      })}
       overlay={merged.overlay}
       overlayClass={resolved.styles.overlay.class}
       overlayStyle={resolved.styles.overlay.style}

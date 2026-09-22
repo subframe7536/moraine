@@ -27,7 +27,6 @@ const BUTTON_API_DOC: ComponentApi = {
   ],
   slots: [],
   dataAttributes: [],
-  cssVariables: [],
 }
 
 vi.mock('../api-doc/load.ts', () => ({

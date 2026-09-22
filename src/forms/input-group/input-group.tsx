@@ -61,7 +61,7 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
         {...rest}
         data-slot="root"
         {...inputGroupDataAttributes.root({
-          'input-group': true,
+          inputGroup: true,
           orientation: () => resolved.variants.orientation,
         })}
         {...resolved.styles.root}

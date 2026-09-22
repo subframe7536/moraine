@@ -70,11 +70,6 @@ export interface DataAttributeTargetApi {
   attributes: string[]
 }
 
-export interface CssVariableTargetApi {
-  target: string
-  variables: string[]
-}
-
 export interface ComponentApi {
   key: string
   name: string
@@ -85,7 +80,6 @@ export interface ComponentApi {
   item?: ItemApi
   slots: string[]
   dataAttributes: DataAttributeTargetApi[]
-  cssVariables: CssVariableTargetApi[]
 }
 
 export interface ComponentIndexEntry {

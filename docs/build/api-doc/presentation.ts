@@ -37,15 +37,9 @@ export interface PresentationDataAttributeTarget {
   attributes: Array<{ name: string; description?: string }>
 }
 
-export interface PresentationCssVariableTarget {
-  target: string
-  variables: string[]
-}
-
 export interface PresentationStyleContract {
   slots: string[]
   dataAttributes: PresentationDataAttributeTarget[]
-  cssVariables: PresentationCssVariableTarget[]
 }
 
 export interface ApiReferencePresentationModel {
@@ -196,7 +190,6 @@ export function createApiReferenceModel(
             : {}),
         })),
       })),
-      cssVariables: component.cssVariables,
     },
   }
 }
@@ -220,11 +213,7 @@ export function getApiReferenceTocEntries(component: ComponentApi | undefined): 
   if (model.item) {
     entries.push({ id: model.item.id, label: model.item.heading, level: 2 })
   }
-  if (
-    model.styling.slots.length ||
-    model.styling.dataAttributes.length ||
-    model.styling.cssVariables.length
-  ) {
+  if (model.styling.slots.length || model.styling.dataAttributes.length) {
     entries.push({ id: 'dom-styling', label: 'DOM & State', level: 2 })
   }
   return entries

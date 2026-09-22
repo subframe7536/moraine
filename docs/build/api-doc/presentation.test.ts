@@ -29,7 +29,6 @@ const component: ComponentApi = {
   ],
   slots: ['trigger', 'content'],
   dataAttributes: [{ target: 'trigger', attributes: ['data-disabled', 'data-expanded'] }],
-  cssVariables: [{ target: 'content', variables: ['--mo-demo-height'] }],
 }
 
 describe('createApiReferenceModel', () => {
@@ -46,9 +45,6 @@ describe('createApiReferenceModel', () => {
       target: 'trigger',
       attributes: [{ name: 'data-disabled' }, { name: 'data-expanded' }],
     })
-    expect(model.styling.cssVariables).toEqual([
-      { target: 'content', variables: ['--mo-demo-height'] },
-    ])
     expect(model.parts[0]).not.toHaveProperty('accessibility')
     expect(model.parts[0]).not.toHaveProperty('anatomy')
   })

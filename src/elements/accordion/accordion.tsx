@@ -14,14 +14,13 @@ import {
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
-import { mergeStyleContract } from '../../shared/style-contract'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useDisclosureState } from '../../shared/use-disclosure-state'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
 import { callRef, useId } from '../../shared/utils'
 import { Icon } from '../icon'
 
-import { accordionCssVariables, accordionDataAttributes, accordionRecipe } from './accordion.recipe'
+import { accordionDataAttributes, accordionRecipe } from './accordion.recipe'
 import type { AccordionProps } from './accordion.types'
 
 /** Stacked disclosure component with single or multiple expanded sections. */
@@ -442,12 +441,12 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   inert={!expanded() ? true : undefined}
                   data-slot="content"
                   class={resolved.styles.content.class}
-                  style={mergeStyleContract(
-                    accordionCssVariables.content({
-                      'collapsible-content-height': () => `${contentHeight()}px`,
-                    }),
-                    resolved.styles.content.style,
-                  )}
+                  style={{
+                    get '--mo-collapsible-content-height'() {
+                      return `${contentHeight()}px`
+                    },
+                    ...resolved.styles.content.style,
+                  }}
                   {...accordionDataAttributes.content({
                     closed: () => contentDataAttrs()['data-closed'],
                     expanded: () => contentDataAttrs()['data-expanded'],

@@ -673,6 +673,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
             data-slot="control"
             {...resolved.styles.control}
             {...fileUploadDataAttributes.control({
+              dragging: undefined,
               dropzone,
               invalid,
             })}

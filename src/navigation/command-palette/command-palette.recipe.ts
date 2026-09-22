@@ -1,5 +1,5 @@
 import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { StyleContractState } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type {
@@ -8,13 +8,9 @@ import type {
 } from './command-palette.style-types'
 
 export const commandPaletteDataAttributes = {
-  item: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-disabled': state.disabled,
-      'data-highlighted': state.highlighted,
-    }),
-  search: (state: StyleContractState) => createDataAttributes({ 'data-loading': state.loading }),
-}
+  item: createDataAttributes('disabled', 'highlighted'),
+  search: createDataAttributes('loading'),
+} satisfies DataAttributeContract<keyof CommandPaletteStyleSlot>
 
 export const commandPaletteRecipe = /* @__PURE__ */ defineRecipe<
   CommandPaletteStyleSlot,

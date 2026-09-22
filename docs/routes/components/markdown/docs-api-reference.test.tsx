@@ -37,7 +37,6 @@ const apiDoc: ComponentApi = {
   ],
   slots: ['trigger', 'content'],
   dataAttributes: [{ target: 'trigger', attributes: ['data-disabled', 'data-expanded'] }],
-  cssVariables: [{ target: 'content', variables: ['--mo-example-height'] }],
 }
 
 test('renders ungrouped searchable props and composite navigation', async () => {
@@ -59,7 +58,7 @@ test('renders one component-level DOM and State contract', () => {
   expect(view.getByRole('heading', { name: /DOM & State/ })).toBeTruthy()
   expect(view.getByRole('heading', { name: 'Data Attributes' })).toBeTruthy()
   expect(view.getByText('data-disabled')).toBeTruthy()
-  expect(view.getByText('--mo-example-height')).toBeTruthy()
+  expect(view.queryByRole('heading', { name: 'CSS Variables' })).toBeNull()
   expect(view.queryByRole('heading', { name: 'Accessibility' })).toBeNull()
   view.unmount()
 })

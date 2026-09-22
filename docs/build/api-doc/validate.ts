@@ -100,10 +100,6 @@ export function validateComponentApi(component: ComponentApi): ValidationIssue[]
     })),
     'data attribute',
   )
-  validateTargets(
-    component.cssVariables.map((target) => ({ target: target.target, values: target.variables })),
-    'CSS variable',
-  )
   return issues
 }
 

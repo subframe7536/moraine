@@ -186,9 +186,7 @@ function PropsSection(props: {
 
 function StyleContractSection(props: { styling: PresentationStyleContract }): JSX.Element {
   const hasContract = () =>
-    props.styling.slots.length > 0 ||
-    props.styling.dataAttributes.length > 0 ||
-    props.styling.cssVariables.length > 0
+    props.styling.slots.length > 0 || props.styling.dataAttributes.length > 0
 
   return (
     <Show when={hasContract()}>
@@ -231,30 +229,6 @@ function StyleContractSection(props: { styling: PresentationStyleContract }): JS
                       )}
                     </For>
                   </ul>
-                </section>
-              )}
-            </For>
-          </div>
-        </Show>
-
-        <Show when={props.styling.cssVariables.length > 0}>
-          <h4 class="text-xs text-foreground tracking-wider font-bold mt-6 uppercase">
-            CSS Variables
-          </h4>
-          <div class="mt-3 border border-border/60 rounded-xl bg-card/30 overflow-hidden">
-            <For each={props.styling.cssVariables}>
-              {(target) => (
-                <section class="p-3.5 border-t border-border/40 first:border-t-0">
-                  <code class="text-xs text-primary font-mono font-semibold">{target.target}</code>
-                  <div class="mt-2 flex flex-wrap gap-1.5">
-                    <For each={target.variables}>
-                      {(variable) => (
-                        <code class="text-xs text-muted-foreground font-mono px-2 py-1 border border-border/50 rounded-md bg-muted/50">
-                          {variable}
-                        </code>
-                      )}
-                    </For>
-                  </div>
                 </section>
               )}
             </For>

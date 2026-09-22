@@ -97,7 +97,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
     <div
       data-slot="overlay"
       {...modalDataAttributes.overlay({
-        'overlay-scroll': overlayScroll,
+        overlayScroll,
         expanded: () => presence.dataAttrs()['data-expanded'],
         closed: () => presence.dataAttrs()['data-closed'],
       })}

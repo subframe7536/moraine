@@ -1,5 +1,5 @@
 import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { StyleContractState } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe.ts'
 import { baseSelectDataAttributes } from '../base-select/base-select.recipe.ts'
 import {
@@ -15,29 +15,21 @@ import {
 import type { MultiSelectStyleSlot, MultiSelectStyleVariant } from './multi-select.style-types'
 
 export const multiSelectDataAttributes = {
-  control: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-closed': state.closed,
-      'data-disabled': state.disabled,
-      'data-editable': state.editable,
-      'data-expanded': state.expanded,
-      'data-invalid': state.invalid,
-      'data-readonly': state.readonly,
-      'data-required': state.required,
-      'data-tags': state.tags,
-    }),
+  control: createDataAttributes(
+    'closed',
+    'disabled',
+    'editable',
+    'expanded',
+    'invalid',
+    'readonly',
+    'required',
+    'tags',
+  ),
   content: baseSelectDataAttributes.content,
   item: baseSelectDataAttributes.item,
-  input: (state: StyleContractState) => createDataAttributes({ 'data-duplicate': state.duplicate }),
-  trigger: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-closed': state.closed,
-      'data-disabled': state.disabled,
-      'data-expanded': state.expanded,
-      'data-invalid': state.invalid,
-      'data-loading': state.loading,
-    }),
-}
+  input: createDataAttributes('duplicate'),
+  trigger: createDataAttributes('closed', 'disabled', 'expanded', 'invalid', 'loading'),
+} satisfies DataAttributeContract<keyof MultiSelectStyleSlot>
 
 export const multiSelectRecipe = /* @__PURE__ */ defineRecipe<
   MultiSelectStyleSlot,

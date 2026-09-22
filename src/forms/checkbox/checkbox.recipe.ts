@@ -1,38 +1,31 @@
 import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { StyleContractState } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { CheckboxStyleSlot, CheckboxStyleVariant } from './checkbox.style-types'
 
 export const checkboxDataAttributes = {
-  root: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-checked': state.checked,
-      'data-disabled': state.disabled,
-      'data-indeterminate': state.indeterminate,
-      'data-invalid': state.invalid,
-      'data-readonly': state.readonly,
-      'data-required': state.required,
-      'data-unchecked': state.unchecked,
-    }),
-  control: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-checked': state.checked,
-      'data-disabled': state.disabled,
-      'data-indeterminate': state.indeterminate,
-      'data-invalid': state.invalid,
-      'data-readonly': state.readonly,
-      'data-required': state.required,
-      'data-unchecked': state.unchecked,
-    }),
-  indicator: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-checked': state.checked,
-      'data-disabled': state.disabled,
-      'data-indeterminate': state.indeterminate,
-    }),
-  label: (state: StyleContractState) => createDataAttributes({ 'data-required': state.required }),
-}
+  root: createDataAttributes(
+    'checked',
+    'disabled',
+    'indeterminate',
+    'invalid',
+    'readonly',
+    'required',
+    'unchecked',
+  ),
+  control: createDataAttributes(
+    'checked',
+    'disabled',
+    'indeterminate',
+    'invalid',
+    'readonly',
+    'required',
+    'unchecked',
+  ),
+  indicator: createDataAttributes('checked', 'disabled', 'indeterminate'),
+  label: createDataAttributes('required'),
+} satisfies DataAttributeContract<keyof CheckboxStyleSlot>
 
 export const checkboxRecipe = /* @__PURE__ */ defineRecipe<CheckboxStyleSlot, CheckboxStyleVariant>(
   'checkbox',

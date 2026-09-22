@@ -1,29 +1,16 @@
 import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { StyleContractState } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe.ts'
 
 import type { StepperStyleSlot, StepperStyleVariant } from './stepper.style-types'
 
 export const stepperDataAttributes = {
-  item: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-disabled': state.disabled,
-      'data-state': state.state,
-    }),
-  trigger: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-clickable': state.clickable,
-      'data-selected': state.selected,
-      'data-state': state.state,
-    }),
-  indicator: (state: StyleContractState) => createDataAttributes({ 'data-state': state.state }),
-  separator: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-disabled': state.disabled,
-      'data-state': state.state,
-    }),
-  content: (state: StyleContractState) => createDataAttributes({ 'data-selected': state.selected }),
-}
+  item: createDataAttributes('disabled', 'state'),
+  trigger: createDataAttributes('clickable', 'selected', 'state'),
+  indicator: createDataAttributes('state'),
+  separator: createDataAttributes('disabled', 'state'),
+  content: createDataAttributes('selected'),
+} satisfies DataAttributeContract<keyof StepperStyleSlot>
 
 export const stepperRecipe = /* @__PURE__ */ defineRecipe<StepperStyleSlot, StepperStyleVariant>(
   'stepper',

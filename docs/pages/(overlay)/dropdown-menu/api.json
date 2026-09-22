@@ -236,13 +236,5 @@
         "data-selected"
       ]
     }
-  ],
-  "cssVariables": [
-    {
-      "target": "content",
-      "variables": [
-        "--mo-popper-content-transform-origin"
-      ]
-    }
   ]
 }

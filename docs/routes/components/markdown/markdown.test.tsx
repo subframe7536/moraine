@@ -25,7 +25,6 @@ test('shows the generated kind in the header and updates it with page metadata',
     ],
     slots: [],
     dataAttributes: [],
-    cssVariables: [],
   })
   let childrenReads = 0
   const view = render(() =>

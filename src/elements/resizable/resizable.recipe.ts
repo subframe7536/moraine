@@ -1,32 +1,16 @@
 import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { StyleContractState } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { ResizableStyleSlot, ResizableStyleVariant } from './resizable.style-types'
 
 export const resizableDataAttributes = {
-  root: (state: StyleContractState) =>
-    createDataAttributes({ 'data-resizable-root': state['resizable-root'] }),
-  panel: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-collapsed': state.collapsed,
-      'data-expanded': state.expanded,
-      'data-resizing': state.resizing,
-      'data-transitioning': state.transitioning,
-    }),
-  divider: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-active': state.active,
-      'data-cross': state.cross,
-      'data-dragging': state.dragging,
-    }),
-  handle: (state: StyleContractState) => createDataAttributes({ 'data-collapse': state.collapse }),
-  crossTarget: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-resizable-handle-end-target': state['resizable-handle-end-target'],
-      'data-resizable-handle-start-target': state['resizable-handle-start-target'],
-    }),
-}
+  root: createDataAttributes('resizable-root'),
+  panel: createDataAttributes('collapsed', 'expanded', 'resizing', 'transitioning'),
+  divider: createDataAttributes('active', 'cross', 'dragging'),
+  handle: createDataAttributes('collapse'),
+  crossTarget: createDataAttributes('resizable-handle-end-target', 'resizable-handle-start-target'),
+} satisfies DataAttributeContract<keyof ResizableStyleSlot>
 
 export const resizableRecipe = /* @__PURE__ */ defineRecipe<
   ResizableStyleSlot,

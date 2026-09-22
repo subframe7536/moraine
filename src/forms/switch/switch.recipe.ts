@@ -1,42 +1,24 @@
 import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { StyleContractState } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { SwitchStyleSlot, SwitchStyleVariant } from './switch.style-types'
 
 export const switchDataAttributes = {
-  root: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-checked': state.checked,
-      'data-disabled': state.disabled,
-      'data-invalid': state.invalid,
-      'data-loading': state.loading,
-      'data-readonly': state.readonly,
-      'data-required': state.required,
-      'data-unchecked': state.unchecked,
-    }),
-  track: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-checked': state.checked,
-      'data-disabled': state.disabled,
-      'data-invalid': state.invalid,
-      'data-readonly': state.readonly,
-      'data-unchecked': state.unchecked,
-    }),
-  thumb: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-checked': state.checked,
-      'data-disabled': state.disabled,
-      'data-unchecked': state.unchecked,
-    }),
-  icon: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-checked': state.checked,
-      'data-loading': state.loading,
-      'data-unchecked': state.unchecked,
-    }),
-  label: (state: StyleContractState) => createDataAttributes({ 'data-required': state.required }),
-}
+  root: createDataAttributes(
+    'checked',
+    'disabled',
+    'invalid',
+    'loading',
+    'readonly',
+    'required',
+    'unchecked',
+  ),
+  track: createDataAttributes('checked', 'disabled', 'invalid', 'readonly', 'unchecked'),
+  thumb: createDataAttributes('checked', 'disabled', 'unchecked'),
+  icon: createDataAttributes('checked', 'loading', 'unchecked'),
+  label: createDataAttributes('required'),
+} satisfies DataAttributeContract<keyof SwitchStyleSlot>
 
 export const switchRecipe = /* @__PURE__ */ defineRecipe<SwitchStyleSlot, SwitchStyleVariant>(
   'switch',

@@ -269,13 +269,5 @@
         "data-expanded"
       ]
     }
-  ],
-  "cssVariables": [
-    {
-      "target": "content",
-      "variables": [
-        "--mo-collapsible-content-height"
-      ]
-    }
   ]
 }

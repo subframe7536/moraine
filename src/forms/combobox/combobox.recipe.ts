@@ -1,5 +1,5 @@
 import { createDataAttributes } from '../../shared/style-contract.ts'
-import type { StyleContractState } from '../../shared/style-contract.ts'
+import type { DataAttributeContract } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe.ts'
 import { baseSelectDataAttributes } from '../base-select/base-select.recipe.ts'
 import {
@@ -13,20 +13,19 @@ import {
 import type { ComboboxStyleSlot, ComboboxStyleVariant } from './combobox.style-types'
 
 export const comboboxDataAttributes = {
-  control: (state: StyleContractState) =>
-    createDataAttributes({
-      'data-closed': state.closed,
-      'data-disabled': state.disabled,
-      'data-editable': state.editable,
-      'data-expanded': state.expanded,
-      'data-invalid': state.invalid,
-      'data-readonly': state.readonly,
-      'data-required': state.required,
-    }),
+  control: createDataAttributes(
+    'closed',
+    'disabled',
+    'editable',
+    'expanded',
+    'invalid',
+    'readonly',
+    'required',
+  ),
   content: baseSelectDataAttributes.content,
   item: baseSelectDataAttributes.item,
-  trigger: (state: StyleContractState) => createDataAttributes({ 'data-loading': state.loading }),
-}
+  trigger: createDataAttributes('loading'),
+} satisfies DataAttributeContract<keyof ComboboxStyleSlot>
 
 export const comboboxRecipe = /* @__PURE__ */ defineRecipe<ComboboxStyleSlot, ComboboxStyleVariant>(
   'combobox',

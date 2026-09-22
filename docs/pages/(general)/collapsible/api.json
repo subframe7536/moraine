@@ -308,13 +308,5 @@
         "data-transition"
       ]
     }
-  ],
-  "cssVariables": [
-    {
-      "target": "content",
-      "variables": [
-        "--mo-collapsible-content-height"
-      ]
-    }
   ]
 }

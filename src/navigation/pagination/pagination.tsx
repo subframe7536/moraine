@@ -224,6 +224,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
               size={getSize(resolved.variants.size, merged.prevText)}
               aria-label={getPrevLabel()}
               {...paginationDataAttributes.prev({
+                disabled: undefined,
+                loading: undefined,
                 text: () => Boolean(merged.prevText),
               })}
               {...resolved.styles.prev}
@@ -269,7 +271,11 @@ export function Pagination(props: PaginationProps): JSX.Element {
                     size={getSize(resolved.variants.size)}
                     aria-current={isActive() ? 'page' : undefined}
                     aria-label={getPageLabel(item, isActive())}
-                    {...paginationDataAttributes.item({ current: isActive })}
+                    {...paginationDataAttributes.item({
+                      current: isActive,
+                      disabled: undefined,
+                      loading: undefined,
+                    })}
                     {...resolved.styles.item}
                     onClick={(event) => selectPage(item, event)}
                     {...getItemProps(item)}
@@ -290,6 +296,8 @@ export function Pagination(props: PaginationProps): JSX.Element {
               size={getSize(resolved.variants.size, merged.nextText)}
               aria-label={getNextLabel()}
               {...paginationDataAttributes.next({
+                disabled: undefined,
+                loading: undefined,
                 text: () => Boolean(merged.nextText),
               })}
               {...resolved.styles.next}

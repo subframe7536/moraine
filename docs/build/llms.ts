@@ -181,13 +181,6 @@ function renderDomStyling(styling: PresentationStyleContract): string[] {
       )
     }
   }
-  if (styling.cssVariables.length) {
-    output.push('### CSS variables', '')
-    for (const target of styling.cssVariables) {
-      output.push(`**${target.target}**`, '')
-      output.push(target.variables.map((variable) => `- \`${variable}\``).join('\n'), '')
-    }
-  }
   return output
 }
 

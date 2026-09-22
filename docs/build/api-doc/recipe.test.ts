@@ -26,12 +26,12 @@ afterEach(async () => {
 })
 
 describe('RecipeExtractor', () => {
-  test('extracts composed slots, variants, data attributes, and CSS variables', async () => {
+  test('extracts composed slots, variants, and data attributes', async () => {
     const extractor = await fixture({
       'shared.recipe.ts': `
 export const SHARED_BASE = { root: '', trigger: '' }
 export const sharedDataAttributes = {
-  root: (state) => createDataAttributes({ 'data-disabled': state.disabled })
+  root: createDataAttributes('disabled')
 }
 `,
       'demo.recipe.ts': `
@@ -39,15 +39,7 @@ import { SHARED_BASE, sharedDataAttributes } from './shared.recipe.ts'
 export const demoDataAttributes = {
   ...sharedDataAttributes,
   trigger: sharedDataAttributes.root,
-  content: (state) => createDataAttributes({
-    'data-expanded': state.expanded,
-    'data-slot': state.slot,
-    'data-moraine-private': state.private,
-    'data-test-id': state.test,
-  }),
-}
-export const demoCssVariables = {
-  content: (state) => createCssVariables({ '--mo-demo-height': state.height }),
+  content: createDataAttributes('expanded', 'slot', 'moraine-private', 'test-id'),
 }
 export const demoRecipe = defineRecipe('demo', {
   base: { ...SHARED_BASE, content: '', root: 'override' },
@@ -79,15 +71,14 @@ export const demoRecipe = defineRecipe('demo', {
       { target: 'trigger', attributes: ['data-disabled'] },
       { target: 'content', attributes: ['data-expanded'] },
     ])
-    expect(result.cssVariables).toEqual([{ target: 'content', variables: ['--mo-demo-height'] }])
   })
 
   test('rejects duplicate targets and unsupported contract calls', async () => {
     const duplicates = await fixture({
       'demo.recipe.ts': `
 export const demoDataAttributes = {
-  root: (state) => createDataAttributes({ 'data-disabled': state.disabled }),
-  root: (state) => createDataAttributes({ 'data-loading': state.loading }),
+  root: createDataAttributes('disabled'),
+  root: createDataAttributes('loading'),
 }
 export const demoRecipe = defineRecipe('demo', { base: { root: '' } })
 `,
