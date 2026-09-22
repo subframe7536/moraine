@@ -18,6 +18,7 @@ import { createCompositionState, isComposingKeyEvent } from '../../overlays/base
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { callHandler, callRef, useId } from '../../shared/utils'
 
@@ -165,13 +166,15 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
     local,
   )
 
-  const [internalSearch, setInternalSearch] = createSignal('')
+  const [currentSearchTerm, setSearchTerm] = useControllableValue<string>({
+    value: () => merged.searchTerm,
+    defaultValue: () => '',
+  })
   const [activeKey, setActiveKey] = createSignal<string | undefined>(undefined)
   const [inputElement, setInputElement] = createSignal<HTMLInputElement | undefined>()
   let listboxElement: HTMLDivElement | undefined
   const listboxId = useId(undefined, 'command-palette-listbox')
   const descriptionPosition = () => resolved.variants.descriptionPosition
-  const currentSearchTerm = createMemo(() => merged.searchTerm ?? internalSearch())
   const activeDescendantId = createMemo(() =>
     activeKey() ? `${listboxId()}-${encodeURIComponent(String(activeKey()))}` : undefined,
   )
@@ -203,9 +206,7 @@ export function CommandPalette<TItem extends CommandPaletteT.Item = CommandPalet
   }
 
   function applySearchValue(value: string): void {
-    if (merged.searchTerm === undefined) {
-      setInternalSearch(value)
-    }
+    setSearchTerm(value)
     merged.onSearchTermChange?.(value)
   }
 

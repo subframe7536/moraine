@@ -4,7 +4,6 @@ import {
   Show,
   createEffect,
   createMemo,
-  createSignal,
   mergeProps,
   on,
   onCleanup,
@@ -18,6 +17,7 @@ import { containsComposed, getActiveElement, isNode } from '../../overlays/base/
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
 import { HiddenInput } from '../../shared/hidden-input'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
@@ -82,7 +82,6 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   const variant = createMemo(() => resolved.variants.variant)
   const indicator = createMemo(() => resolved.variants.indicator)
 
-  const controlledValue = createMemo(() => merged.value)
   const initialDefaultValue = untrack(() => merged.defaultValue ?? '')
   const readOnly = createMemo(() => Boolean(merged.readOnly))
 
@@ -104,15 +103,17 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
     }),
   )
 
-  const [uncontrolledValue, setUncontrolledValue] = createSignal(initialDefaultValue)
-  const selectedValue = createMemo(() => {
-    const value = controlledValue()
-    if (value !== undefined) {
-      return value
-    }
+  const [selectedValue, setSelectedValue] = useControllableValue<string>({
+    value: () => {
+      const value = merged.value
+      if (value !== undefined) {
+        return value
+      }
 
-    const fieldValue = field.value()
-    return typeof fieldValue === 'string' ? fieldValue : uncontrolledValue()
+      const fieldValue = field.value()
+      return typeof fieldValue === 'string' ? fieldValue : undefined
+    },
+    defaultValue: () => initialDefaultValue,
   })
   const inputRefs = new Map<string, HTMLInputElement>()
   let groupEl: HTMLDivElement | undefined
@@ -194,7 +195,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   }
 
   createEffect(
-    on([controlledValue, field.value], ([value, formValue]) => {
+    on([() => merged.value, field.value], ([value, formValue]) => {
       if (value !== undefined && formValue !== value) {
         field.setFormValue(value)
       }
@@ -207,16 +208,16 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       return
     }
 
-    const value = controlledValue()
+    const value = merged.value
     if (value === undefined) {
-      setUncontrolledValue(nextValue)
+      setSelectedValue(nextValue)
       field.setFormValue(nextValue)
     }
 
     merged.onChange?.(nextValue)
 
     if (value !== undefined) {
-      field.setFormValue(controlledValue() ?? value)
+      field.setFormValue(merged.value ?? value)
     }
 
     syncInputCheckedState()
@@ -302,10 +303,10 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   useFormReset(
     () => groupEl?.closest('form'),
     () => {
-      const value = controlledValue()
+      const value = merged.value
       const nextValue = value ?? initialDefaultValue
       if (value === undefined) {
-        setUncontrolledValue(initialDefaultValue)
+        setSelectedValue(initialDefaultValue)
       }
       field.setFormValue(nextValue)
       syncInputCheckedState()

@@ -1,11 +1,12 @@
 import type { JSX } from 'solid-js'
-import { For, Show, createSignal, mergeProps, splitProps } from 'solid-js'
+import { For, Show, mergeProps, splitProps } from 'solid-js'
 
 import { Button } from '../../elements/button'
 import type { ButtonProps } from '../../elements/button'
 import { Icon } from '../../elements/icon'
 import { createStyles } from '../../provider'
 import type { ValidComponent } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { callRef } from '../../shared/utils'
 
 import { paginationDataAttributes, paginationRecipe } from './pagination.recipe'
@@ -118,9 +119,13 @@ export function Pagination(props: PaginationProps): JSX.Element {
     local,
   )
 
-  const [internalPage, setInternalPage] = createSignal(
-    normalizeInteger(merged.defaultPage, 1, 1, Number.MAX_SAFE_INTEGER),
-  )
+  const [page, setPage] = useControllableValue<number>({
+    value: () =>
+      merged.page !== undefined
+        ? normalizeInteger(merged.page, 1, 1, Number.MAX_SAFE_INTEGER)
+        : undefined,
+    defaultValue: () => normalizeInteger(merged.defaultPage, 1, 1, Number.MAX_SAFE_INTEGER),
+  })
 
   const pageCount = () => {
     const safeItemsPerPage = normalizeInteger(merged.itemsPerPage, 10, 1, Number.MAX_SAFE_INTEGER)
@@ -128,11 +133,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
     return Math.max(1, Math.ceil(safeTotal / safeItemsPerPage))
   }
 
-  const currentPage = () =>
-    clampPage(
-      normalizeInteger(merged.page ?? internalPage(), 1, 1, Number.MAX_SAFE_INTEGER),
-      pageCount(),
-    )
+  const currentPage = () => clampPage(page(), pageCount())
 
   const paginationItems = () =>
     getPaginationItems(
@@ -151,9 +152,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
       return
     }
 
-    if (merged.page === undefined) {
-      setInternalPage(next)
-    }
+    setPage(next)
     merged.onPageChange?.(next)
   }
 

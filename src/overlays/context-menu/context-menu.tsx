@@ -14,6 +14,7 @@ import { Dynamic } from 'solid-js/web'
 import { createStyles } from '../../provider'
 import { createContextProvider } from '../../shared/create-context-provider'
 import type { ValidComponent } from '../../shared/types.ts'
+import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useEventListener } from '../../shared/use-event-listener'
 import { useId } from '../../shared/utils'
 import { OverlayMenu } from '../base/menu'
@@ -68,14 +69,14 @@ function createContextMenu(props: ContextMenuProps) {
     props,
   )
 
-  const [uncontrolledOpen, setUncontrolledOpen] = createSignal(
-    untrack(() => Boolean(merged.defaultOpen)),
-  )
+  const [open, setOpen] = useControllableValue<boolean>({
+    value: () => merged.open,
+    defaultValue: () => Boolean(merged.defaultOpen),
+  })
   const [autoFocusStrategy, setAutoFocusStrategy] =
     createSignal<OverlayMenuFocusStrategy>('content')
   const [anchorPoint, setAnchorPoint] = createSignal<{ x: number; y: number } | null>(null)
   const trigger = createOverlayTriggerRef()
-  const resolvedOpen = createMemo(() => merged.open ?? uncontrolledOpen())
   const resolvedId = useId(() => merged.id, 'contextmenu')
   const contentId = createMemo(() => `${resolvedId()}-content`)
   let longPressTimeoutId = 0
@@ -88,16 +89,13 @@ function createContextMenu(props: ContextMenuProps) {
   let pointerEventGuard: { pointerId: number; pointerType: string } | undefined
   let suppressedContextMenu: { pointerType: string; x: number; y: number } | undefined
 
-  const commitOpen = (open: boolean): void => {
-    if (!open) {
+  const commitOpen = (nextOpen: boolean): void => {
+    if (!nextOpen) {
       setAutoFocusStrategy('none')
     }
 
-    if (merged.open === undefined) {
-      setUncontrolledOpen(open)
-    }
-
-    merged.onOpenChange?.(open)
+    setOpen(nextOpen)
+    merged.onOpenChange?.(nextOpen)
   }
 
   const openFromPoint = (
@@ -268,7 +266,7 @@ function createContextMenu(props: ContextMenuProps) {
       event.preventDefault()
       event.stopPropagation()
 
-      if (resolvedOpen()) {
+      if (open()) {
         commitOpen(false)
         return
       }
@@ -292,7 +290,7 @@ function createContextMenu(props: ContextMenuProps) {
     event.preventDefault()
     event.stopPropagation()
 
-    if (resolvedOpen()) {
+    if (open()) {
       commitOpen(false)
       return
     }
@@ -308,7 +306,7 @@ function createContextMenu(props: ContextMenuProps) {
     event.preventDefault()
     event.stopPropagation()
 
-    if (resolvedOpen()) {
+    if (open()) {
       commitOpen(false)
     }
   }
@@ -320,7 +318,7 @@ function createContextMenu(props: ContextMenuProps) {
 
     clearLongPressTimeout()
 
-    if (resolvedOpen()) {
+    if (open()) {
       suppressContextMenuFromPointer(event)
       commitOpen(false)
       return
@@ -437,18 +435,18 @@ function createContextMenu(props: ContextMenuProps) {
   }
 
   const triggerDataAttrs = contextMenuDataAttributes.trigger({
-    closed: () => !resolvedOpen(),
+    closed: () => !open(),
     disabled: () => merged.disabled,
-    expanded: resolvedOpen,
+    expanded: open,
   })
   const triggerProps = mergeProps(triggerDataAttrs, {
     id: resolvedId(),
     get 'aria-controls'() {
-      return resolvedOpen() ? contentId() : undefined
+      return open() ? contentId() : undefined
     },
     'aria-haspopup': 'menu',
     get 'aria-expanded'() {
-      return resolvedOpen() ? 'true' : 'false'
+      return open() ? 'true' : 'false'
     },
     'data-slot': 'trigger',
     get disabled() {
@@ -498,7 +496,7 @@ function createContextMenu(props: ContextMenuProps) {
       event.preventDefault()
       event.stopPropagation()
 
-      if (resolvedOpen()) {
+      if (open()) {
         commitOpen(false)
         return
       }
@@ -518,7 +516,7 @@ function createContextMenu(props: ContextMenuProps) {
         return resolvedId()
       },
       get open() {
-        return resolvedOpen()
+        return open()
       },
       onClose: () => commitOpen(false),
       get triggerElement() {

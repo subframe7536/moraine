@@ -1,6 +1,7 @@
 import type { JSX, Setter } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
 
+import { useControllableValue } from '../../../shared/use-controllable-value.ts'
 import { useFormReset } from '../../shared/use-form-reset'
 import type { SliderT } from '../slider.types'
 import {
@@ -76,8 +77,10 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
   const normalizeValues = (value: SliderValue | undefined) =>
     normalizeSliderValues(value, merged.min, merged.min, merged.max)
   const initialValues = normalizeValues(merged.defaultValue) ?? [merged.min]
-  const [displayValues, setDisplayValues] = createSignal<number[]>(initialValues)
-  const getControlledValues = () => normalizeValues(merged.value)
+  const [currentValues, setCurrentValues] = useControllableValue<number[]>({
+    value: () => normalizeValues(merged.value),
+    defaultValue: () => initialValues,
+  })
 
   const [dragging, setDragging] = createSignal(false)
   const definedStep = createMemo(() =>
@@ -149,7 +152,6 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     resolveSliderEdges(merged.orientation, merged.inverted, direction() === 'rtl'),
   )
   const isActionDisabled = createMemo(() => options.disabled?.() || merged.readOnly)
-  const currentValues = createMemo(() => getControlledValues() ?? displayValues())
   const interactionValues = () => pendingValues ?? currentValues()
   const thumbStyles = createMemo<JSX.CSSProperties[]>(() => {
     const { startEdge } = getSliderEdges()
@@ -197,7 +199,6 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     on([controlledValueSnapshot, () => merged.min, () => merged.max], ([value, min, max]) => {
       const controlled = normalizeSliderValues(value, min, min, max)
       if (controlled !== undefined) {
-        setDisplayValues(controlled)
         pendingValues = undefined
       }
     }),
@@ -205,14 +206,14 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
 
   createEffect(
     on(
-      [() => merged.value, displayValues, () => merged.min, () => merged.max],
+      [() => merged.value, currentValues, () => merged.min, () => merged.max],
       ([value, displayed, min, max]) => {
         if (value !== undefined) {
           return
         }
         const normalized = normalizeSliderValues(displayed, min, min, max) ?? [min]
         if (!areValuesEqual(displayed, normalized)) {
-          setDisplayValues(normalized)
+          setCurrentValues(normalized)
         }
       },
     ),
@@ -233,11 +234,8 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     () => {
       const root = trackElement()?.closest('[data-slot="root"]')
       pendingValues = undefined
-      const controlledValues = getControlledValues()
-      const nextValues = controlledValues ?? initialValues
-      if (controlledValues === undefined) {
-        setDisplayValues([...initialValues])
-      }
+      setCurrentValues([...initialValues])
+      const nextValues = currentValues()
 
       root?.querySelectorAll<HTMLInputElement>('input[type="range"]').forEach((input, index) => {
         input.value = String(nextValues[index] ?? merged.min)
@@ -406,7 +404,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
     }
 
     pendingValues = nextValues
-    setDisplayValues(nextValues)
+    setCurrentValues(nextValues)
 
     options.onValueInput?.(getPublicValue(nextValues))
 
