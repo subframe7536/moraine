@@ -130,7 +130,7 @@ describe('llms.txt generation', () => {
                 {
                   name: 'variant',
                   optional: true,
-                  type: '"default" | "outline"',
+                  type: 'cls_variant0."default" | "outline"_$',
                   description: 'Visual variant.',
                 },
               ],
@@ -141,7 +141,40 @@ describe('llms.txt generation', () => {
             props: [{ name: 'value', optional: false, type: 'Value' }],
           },
           slots: ['root', 'content'],
-          dataAttributes: [{ target: 'content', attributes: ['data-expanded'] }],
+          dataAttributes: [
+            { target: 'root', attributes: ['data-disabled'] },
+            { target: 'content', attributes: ['data-disabled', 'data-expanded'] },
+          ],
+        }),
+      )
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/(overlay)/dialog/index.mdx',
+        pageSource('Dialog', 2, 'Dialog docs.'),
+      )
+      await writeProjectFile(
+        projectRoot,
+        'docs/pages/(overlay)/dialog/api.json',
+        JSON.stringify({
+          key: 'dialog',
+          name: 'Dialog',
+          kind: 'composite',
+          parts: [
+            {
+              id: 'dialog',
+              name: 'Dialog',
+              access: { kind: 'export', name: 'Dialog' },
+              props: [],
+            },
+            {
+              id: 'trigger',
+              name: 'Dialog.Trigger',
+              access: { kind: 'attached', root: 'Dialog', member: 'Trigger' },
+              props: [{ name: 'disabled', optional: true, type: 'boolean' }],
+            },
+          ],
+          slots: ['root', 'trigger'],
+          dataAttributes: [],
         }),
       )
 
@@ -153,6 +186,7 @@ describe('llms.txt generation', () => {
       })
       const introduction = documents.find((document) => document.fileName === 'index.md')?.source
       const button = documents.find((document) => document.fileName === 'button.md')?.source
+      const dialog = documents.find((document) => document.fileName === 'dialog.md')?.source
 
       expect(introduction).toContain('[Button](https://ui.subf.dev/button.md)')
       expect(introduction).not.toContain('<CodeTabs')
@@ -160,13 +194,19 @@ describe('llms.txt generation', () => {
       expect(introduction).toContain('```shell pnpm\npnpm add moraine\n```')
       expect(introduction).toContain('```shell npm\nnpm i moraine\n```')
       expect(button).toContain('## API')
-      expect(button).toContain('### Props')
+      expect(button).not.toContain('### Props')
       expect(button).toContain('Generics: `<Value extends string | number>`')
+      expect(button).toContain('| Field | Type | Default | Description |')
       expect(button).toContain('| variant | "default" \\| "outline" | — | Visual variant. |')
-      expect(button).toContain('### Slots')
-      expect(button).toContain('- `root`')
-      expect(button).toContain('#### Data attributes')
-      expect(button).toContain('| data-expanded |')
+      expect(button).toContain('### Attributes')
+      expect(button).toContain('| Attributes | Slot | Description |')
+      expect(button).toContain('| `data-disabled` | `root`, `content` |')
+      expect(button?.match(/`data-disabled`/g)).toHaveLength(1)
+      expect(button).toContain('| `data-expanded` | `content` |')
+      expect(button).not.toContain('DOM & State')
+      expect(button).not.toContain('### Slots')
+      expect(button).not.toContain('Data attributes')
+      expect(button).not.toContain('Composition:')
       expect(button).not.toContain('CSS variables')
       expect(button).not.toContain('### Accessibility')
       expect(button).not.toContain('### Anatomy')
@@ -178,6 +218,9 @@ describe('llms.txt generation', () => {
       expect(button).not.toContain('<Playground')
       expect(button).not.toContain('props.label')
       expect(button).not.toContain('UnknownComponent')
+      expect(dialog).toContain('### Dialog')
+      expect(dialog).toContain('### Dialog.Trigger')
+      expect(dialog).not.toContain('\n### Trigger\n')
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }

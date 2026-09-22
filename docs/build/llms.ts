@@ -14,7 +14,7 @@ import type { Plugin } from 'vite'
 
 import { loadComponentApiDoc, loadApiDocIndex } from './api-doc/load'
 import { createApiReferenceModel } from './api-doc/presentation'
-import type { PresentationPropItem, PresentationStyleContract } from './api-doc/presentation'
+import type { PresentationAttributesSection, PresentationPropItem } from './api-doc/presentation'
 import type { ComponentApi } from './api-doc/types'
 import { resolveDocsPageContext } from './core/paths'
 import { readFrontmatterData } from './markdown/frontmatter'
@@ -133,10 +133,6 @@ function escapeTableCell(value: string): string {
   return value.replaceAll('\\', '\\\\').replaceAll('|', '\\|').replaceAll(/\r?\n/g, '<br>')
 }
 
-function normalizeApiType(type: string): string {
-  return type.replaceAll('cls_variant0.', '').replaceAll('_$', '')
-}
-
 function readFrontmatterBlock(source: string): string {
   const match = source.match(/^---\r?\n[\s\S]*?\r?\n---[ \t]*(?:\r?\n|$)/)
   return match?.[0].trimEnd() ?? ''
@@ -156,32 +152,22 @@ function renderTable(rows: readonly (readonly string[])[], headers: readonly str
 function renderPropTable(props: readonly PresentationPropItem[], nameColumn = 'Prop'): string {
   const rows = props.map((prop) => [
     `${prop.name}${!prop.optional ? '*' : ''}`,
-    normalizeApiType(prop.type),
+    prop.type,
     prop.defaultValue ?? '—',
     prop.description ?? '—',
   ])
   return renderTable(rows, [nameColumn, 'Type', 'Default', 'Description'])
 }
 
-function renderDomStyling(styling: PresentationStyleContract): string[] {
-  const output: string[] = []
-  if (styling.slots.length) {
-    output.push('### Slots', '', styling.slots.map((slot) => `- \`${slot}\``).join('\n'), '')
-  }
-  if (styling.dataAttributes.length) {
-    output.push('### Data attributes', '')
-    for (const target of styling.dataAttributes) {
-      output.push(`**${target.target}**`, '')
-      output.push(
-        renderTable(
-          target.attributes.map((attribute) => [attribute.name, attribute.description ?? '—']),
-          ['Attribute', 'Description'],
-        ),
-        '',
-      )
-    }
-  }
-  return output
+function renderAttributes(attributes: PresentationAttributesSection): string {
+  return renderTable(
+    attributes.items.map((attribute) => [
+      `\`${attribute.name}\``,
+      attribute.slots.map((slot) => `\`${slot}\``).join(', '),
+      attribute.description ?? '—',
+    ]),
+    ['Attributes', 'Slot', 'Description'],
+  )
 }
 
 function renderApiReference(apiDoc: ComponentApi): string {
@@ -191,13 +177,15 @@ function renderApiReference(apiDoc: ComponentApi): string {
   }
 
   const output = ['## API', '']
-  output.push(`Composition: ${model.kind}`, '')
 
   if (model.kind === 'single') {
     const rootPart = model.parts[0]
     if (rootPart) {
+      const description = rootPart.description ?? model.description
+      if (description) {
+        output.push(description, '')
+      }
       if (rootPart.props.length > 0) {
-        output.push('### Props', '')
         output.push(renderPropTable(rootPart.props), '')
       }
     }
@@ -225,16 +213,11 @@ function renderApiReference(apiDoc: ComponentApi): string {
     if (model.item.description) {
       output.push(model.item.description, '')
     }
-    output.push(renderPropTable(model.item.props), '')
+    output.push(renderPropTable(model.item.props, 'Field'), '')
   }
 
-  const styling = renderDomStyling(model.styling)
-  if (styling.length) {
-    output.push(
-      '### DOM & State',
-      '',
-      ...styling.map((line) => (line.startsWith('### ') ? `#${line}` : line)),
-    )
+  if (model.attributes) {
+    output.push('### Attributes', '', renderAttributes(model.attributes), '')
   }
 
   return `${output.join('\n').trimEnd()}\n`

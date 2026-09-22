@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'vitest'
 
-import { createApiReferenceModel, getApiReferenceTocEntries } from './presentation'
+import {
+  createApiReferenceModel,
+  formatDefaultValue,
+  getApiReferenceTocEntries,
+} from './presentation'
 import type { ComponentApi } from './types'
 
 const component: ComponentApi = {
@@ -14,7 +18,9 @@ const component: ComponentApi = {
       access: { kind: 'export', name: 'Demo' },
       props: [
         { name: 'class', optional: true, type: 'string' },
-        { name: 'open', optional: false, type: 'boolean' },
+        { name: 'open', optional: false, type: 'cls_variant0.Boolean_$' },
+        { name: 'children', optional: true, type: 'JSX.Element' },
+        { name: 'alpha', optional: true, type: 'string' },
       ],
     },
     {
@@ -22,47 +28,107 @@ const component: ComponentApi = {
       name: 'Demo.Trigger',
       access: { kind: 'attached', root: 'Demo', member: 'Trigger' },
       defaultElement: 'button',
+      generics: [{ name: 'T', constraint: 'string | number', default: 'string' }],
       props: [{ name: 'disabled', optional: true, type: 'boolean' }],
     },
   ],
   item: {
     generics: [{ name: 'Value', constraint: 'string | number', default: 'string' }],
-    props: [{ name: 'value', optional: false, type: 'Value' }],
+    props: [
+      {
+        name: 'value',
+        optional: false,
+        type: 'Value',
+        default: { kind: 'literal', value: '' },
+      },
+    ],
   },
-  slots: ['trigger', 'content'],
-  dataAttributes: [{ target: 'trigger', attributes: ['data-disabled', 'data-expanded'] }],
+  slots: ['root', 'control', 'trigger', 'content'],
+  dataAttributes: [
+    { target: 'root', attributes: ['data-disabled', 'data-unknown'] },
+    { target: 'control', attributes: ['data-disabled', 'data-invalid'] },
+    { target: 'trigger', attributes: ['data-disabled', 'data-expanded'] },
+    { target: 'content', attributes: ['data-expanded'] },
+  ],
 }
 
 describe('createApiReferenceModel', () => {
-  test('keeps props ungrouped and common props last', () => {
+  test('keeps deterministic prop ordering with common props last', () => {
     const model = createApiReferenceModel(component)!
-    expect(model.parts[0]?.props.map((prop) => prop.name)).toEqual(['open', 'class'])
+    expect(model.parts[0]?.props.map((prop) => prop.name)).toEqual([
+      'alpha',
+      'open',
+      'children',
+      'class',
+    ])
+    expect(model.parts[0]?.props.find((prop) => prop.name === 'open')?.type).toBe('Boolean')
     expect(model.parts[0]?.rendersDom).toBe(false)
   })
 
-  test('creates one component-level styling contract without accessibility anatomy', () => {
-    const model = createApiReferenceModel(component)!
-    expect(model.styling.slots).toEqual(['trigger', 'content'])
-    expect(model.styling.dataAttributes[0]).toMatchObject({
-      target: 'trigger',
-      attributes: [{ name: 'data-disabled' }, { name: 'data-expanded' }],
-    })
-    expect(model.parts[0]).not.toHaveProperty('accessibility')
-    expect(model.parts[0]).not.toHaveProperty('anatomy')
+  test('formats literal and expression defaults', () => {
+    expect(formatDefaultValue({ kind: 'literal', value: '' })).toBe('""')
+    expect(formatDefaultValue({ kind: 'literal', value: 'value' })).toBe("'value'")
+    expect(formatDefaultValue({ kind: 'literal', value: false })).toBe('false')
+    expect(formatDefaultValue({ kind: 'expression', text: 'items.length' })).toBe('items.length')
   })
 
-  test('presents item generic parameters', () => {
+  test('presents generic parameters for parts and items', () => {
     const model = createApiReferenceModel(component)!
+    expect(model.parts[1]?.genericsSignature).toBe('<T extends string | number = string>')
     expect(model.item?.genericsSignature).toBe('<Value extends string | number = string>')
+    expect(model.item?.props[0]?.defaultValue).toBe('""')
   })
 
-  test('adds one DOM & State TOC entry after composite parts', () => {
-    expect(getApiReferenceTocEntries(component)).toEqual(
-      expect.arrayContaining([
-        { id: 'api-demo', label: 'Demo', level: 2 },
-        { id: 'api-trigger', label: 'Demo.Trigger', level: 2 },
-        { id: 'dom-styling', label: 'DOM & State', level: 2 },
-      ]),
-    )
+  test('derives concise composite headings while retaining full names', () => {
+    const model = createApiReferenceModel(component)!
+    expect(model.parts.map((part) => [part.heading, part.shortHeading])).toEqual([
+      ['Demo', 'Demo'],
+      ['Demo.Trigger', 'Trigger'],
+    ])
+  })
+
+  test('aggregates attributes and follows declared slot order', () => {
+    const model = createApiReferenceModel(component)!
+    expect(model.attributes?.slots).toEqual(['root', 'control', 'trigger', 'content'])
+    expect(model.attributes?.items).toEqual([
+      {
+        name: 'data-disabled',
+        slots: ['root', 'control', 'trigger'],
+        description: 'Present when the component, slot, or item is disabled.',
+      },
+      { name: 'data-unknown', slots: ['root'] },
+      {
+        name: 'data-invalid',
+        slots: ['control'],
+        description: 'Present when the field or form has a validation error.',
+      },
+      {
+        name: 'data-expanded',
+        slots: ['trigger', 'content'],
+        description: 'Present when the panel, accordion, or menu is expanded.',
+      },
+    ])
+  })
+
+  test('uses the simplified API hierarchy in the TOC', () => {
+    expect(getApiReferenceTocEntries(component)).toEqual([
+      { id: 'api-reference', label: 'API', level: 1 },
+      { id: 'api-demo', label: 'Demo', level: 2 },
+      { id: 'api-trigger', label: 'Trigger', level: 2 },
+      { id: 'api-items', label: 'Items', level: 2 },
+      { id: 'api-attributes', label: 'Attributes', level: 2 },
+    ])
+  })
+
+  test('omits a redundant props entry for single components', () => {
+    expect(
+      getApiReferenceTocEntries({
+        ...component,
+        kind: 'single',
+        parts: [component.parts[0]!],
+        item: undefined,
+        dataAttributes: [],
+      }),
+    ).toEqual([{ id: 'api-reference', label: 'API', level: 1 }])
   })
 })
