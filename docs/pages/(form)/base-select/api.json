@@ -82,6 +82,7 @@
           "name": "items",
           "optional": true,
           "type": "readonly TItem[]",
+          "typeDetails": "readonly ({\n  /** Unique selection and form value. */\n  value: string | number;\n  /** Visual label. */\n  label: JSX.Element;\n  /** Whether this item cannot be selected. */\n  disabled?: boolean;\n})[]",
           "description": "Current flat navigation collection."
         },
         {

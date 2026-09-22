@@ -109,7 +109,7 @@ function PropRowItem(props: { prop: PropDoc }): JSX.Element {
   return (
     <Collapsible id={props.prop.anchorId} transition class="group border-t border-border/40">
       <Collapsible.Trigger
-        aria-label={`${props.prop.name}${requiredText()}, type: ${props.prop.type}${defaultText()}`}
+        aria-label={`${props.prop.name}${requiredText()}, type: ${props.prop.summaryType}${defaultText()}`}
         class={cn(
           PROP_GRID_CLASS,
           'text-sm p-0 text-left min-h-10 w-full cursor-pointer transition-colors items-stretch hover:bg-muted/30',
@@ -126,7 +126,7 @@ function PropRowItem(props: { prop: PropDoc }): JSX.Element {
           class="text-xs text-muted-foreground font-mono px-3 py-2.5 min-w-0 hidden truncate sm:block"
           title={props.prop.type}
         >
-          {props.prop.type}
+          {props.prop.summaryType}
         </code>
         <span class="text-xs text-muted-foreground font-mono px-3 py-2.5 min-w-0 hidden truncate lg:block">
           {props.prop.defaultValue ?? '—'}
@@ -140,7 +140,7 @@ function PropRowItem(props: { prop: PropDoc }): JSX.Element {
   )
 }
 
-function PropRows(props: { props: PropDoc[]; nameColumn?: string }): JSX.Element {
+function PropRows(props: { props: PropDoc[] }): JSX.Element {
   return (
     <div class={REFERENCE_ROOT_CLASS}>
       <div
@@ -150,7 +150,7 @@ function PropRows(props: { props: PropDoc[]; nameColumn?: string }): JSX.Element
         )}
       >
         <span role="columnheader" class="font-semibold px-3 py-2">
-          {props.nameColumn ?? 'Prop'}
+          Prop
         </span>
         <span role="columnheader" class="font-semibold px-3 py-2 hidden sm:block">
           Type
@@ -323,19 +323,6 @@ export function DocsApiReference(props: { apiDoc?: ComponentApi }): JSX.Element 
         <>
           <Show when={reference().attributes}>
             {(attributes) => <AttributesSection attributes={attributes()} />}
-          </Show>
-          <Show when={reference().item}>
-            {(item) => (
-              <section class="border-t border-border/40">
-                <HeadingWithAnchor id={item().id} level={2}>
-                  {item().heading}
-                </HeadingWithAnchor>
-                <Show when={item().description}>
-                  <p class="text-sm text-muted-foreground mt-1">{item().description}</p>
-                </Show>
-                <PropRows props={item().props} nameColumn="Field" />
-              </section>
-            )}
           </Show>
           <HeadingWithAnchor id="api-reference" level={2}>
             Props

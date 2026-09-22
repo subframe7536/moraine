@@ -62,6 +62,7 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
+          "typeDetails": "({\n  /** Label to display on the tab trigger. */\n  label?: JSX.Element;\n  /** Icon to display next to the label. */\n  icon?: IconT.Name;\n  /** Unique value for the tab. */\n  value?: string;\n  /** Content to display when the tab is active. */\n  content?: JSX.Element;\n  /** Whether the tab is disabled. */\n  disabled?: boolean;\n})[]",
           "description": "Array of tabs to display."
         },
         {

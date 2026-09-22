@@ -15,7 +15,14 @@ const apiDoc: ComponentApi = {
       name: 'Example',
       access: { kind: 'export', name: 'Example' },
       description: 'Coordinates the composed parts.',
-      props: [],
+      props: [
+        {
+          name: 'items',
+          optional: false,
+          type: 'Item[]',
+          typeDetails: '(string | { value: string; })[]',
+        },
+      ],
     },
     {
       id: 'trigger',
@@ -64,13 +71,13 @@ describe('DocsApiReference', () => {
     const view = render(() => <DocsApiReference apiDoc={apiDoc} />)
 
     const columnHeaders = view.getAllByRole('columnheader').map((header) => header.textContent)
-    expect(columnHeaders.slice(6, 9)).toEqual(['Prop', 'Type', 'Default'])
-    expect(columnHeaders.slice(6, 9)).not.toContain('Description')
+    expect(columnHeaders.slice(3, 6)).toEqual(['Prop', 'Type', 'Default'])
+    expect(columnHeaders.slice(3, 6)).not.toContain('Description')
     expect(view.queryByRole('textbox')).toBeNull()
     expect(view.queryByRole('button', { name: 'Copy permalink' })).toBeNull()
 
     const disabled = view.getByRole('button', {
-      name: 'disabled, type: boolean | (() => Boolean)',
+      name: 'disabled, type: Function',
     })
     expect(disabled.getAttribute('aria-expanded')).toBe('false')
     expect(disabled.closest('[data-slot="root"]')?.getAttribute('data-closed')).toBe('')
@@ -117,14 +124,16 @@ describe('DocsApiReference', () => {
     view.unmount()
   })
 
-  test('renders item fields through the same expandable reference rows', () => {
+  test('expands item arrays inline within Props', () => {
     const view = render(() => <DocsApiReference apiDoc={apiDoc} />)
-    expect(view.getByRole('columnheader', { name: 'Field' })).toBeTruthy()
-
-    const value = view.getByRole('button', { name: 'value, required, type: Value' })
-    fireEvent.click(value)
-    expect(view.getByText('The item value.')).toBeTruthy()
-    expect(view.getByRole('link', { name: 'value' }).getAttribute('href')).toBe('#api-items-value')
+    expect(view.queryByRole('heading', { name: /^Items/ })).toBeNull()
+    const items = view.getByRole('button', { name: 'items, required, type: Item[]' })
+    fireEvent.click(items)
+    const details = view.getByRole('region', { name: /^items/ })
+    expect(within(details).getByText('(string | { value: string; })[]')).toBeTruthy()
+    expect(view.getByRole('link', { name: 'items' }).getAttribute('href')).toBe(
+      '#api-example-items',
+    )
     view.unmount()
   })
 
@@ -133,7 +142,6 @@ describe('DocsApiReference', () => {
     expect(view.getByRole('heading', { name: /^Attributes/, level: 2 })).toBeTruthy()
     expect(view.getAllByRole('heading', { level: 2 }).map((heading) => heading.id)).toEqual([
       'api-attributes',
-      'api-items',
       'api-reference',
     ])
     expect(view.queryByRole('heading', { name: /DOM & State/ })).toBeNull()

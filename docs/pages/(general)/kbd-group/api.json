@@ -30,6 +30,7 @@
           "name": "items",
           "optional": false,
           "type": "Item[]",
+          "typeDetails": "(keyof typeof KBD_KEY_ALIASES | (string & {}) | {\n  /** Value displayed by the keycap or resolved through the static key aliases. */\n  value: Key;\n  /** Whether to resolve known key aliases to symbols. */\n  symbol?: boolean;\n  /** Accessible label for assistive technology. */\n  label?: string;\n  /** Data slot used by the rendered keycap. */\n  slotName?: string;\n})[]",
           "description": "Keyboard keys displayed as one simultaneous shortcut."
         },
         {
@@ -78,36 +79,7 @@
     }
   ],
   "item": {
-    "props": [
-      {
-        "name": "label",
-        "optional": true,
-        "type": "string",
-        "description": "Accessible label for assistive technology."
-      },
-      {
-        "name": "slotName",
-        "optional": true,
-        "type": "string",
-        "description": "Data slot used by the rendered keycap."
-      },
-      {
-        "name": "symbol",
-        "optional": true,
-        "type": "boolean",
-        "description": "Whether to resolve known key aliases to symbols.",
-        "default": {
-          "kind": "literal",
-          "value": true
-        }
-      },
-      {
-        "name": "value",
-        "optional": false,
-        "type": "Key",
-        "description": "Value displayed by the keycap or resolved through the static key aliases."
-      }
-    ]
+    "props": []
   },
   "slots": [
     "root",

@@ -21,6 +21,13 @@ const component: ComponentApi = {
         { name: 'open', optional: false, type: 'cls_variant0.Boolean_$' },
         { name: 'children', optional: true, type: 'JSX.Element' },
         { name: 'alpha', optional: true, type: 'string' },
+        {
+          name: 'items',
+          optional: false,
+          type: 'Item[]',
+          typeDetails: '(string | { value: string; })[]',
+        },
+        { name: 'onChange', optional: true, type: '(value: string) => void' },
       ],
     },
     {
@@ -57,6 +64,8 @@ describe('createApiReferenceModel', () => {
     const model = createApiReferenceModel(component)!
     expect(model.parts[0]?.props.map((prop) => prop.name)).toEqual([
       'alpha',
+      'items',
+      'onChange',
       'open',
       'children',
       'class',
@@ -71,12 +80,17 @@ describe('createApiReferenceModel', () => {
     expect(formatDefaultValue({ kind: 'expression', text: 'items.length' })).toBe('items.length')
   })
 
-  test('presents generic parameters for items without part presentation metadata', () => {
+  test('shows concise triggers and complete types in prop details', () => {
     const model = createApiReferenceModel(component)!
-    expect(model.parts[1]).not.toHaveProperty('genericsSignature')
-    expect(model.parts[1]).not.toHaveProperty('accessText')
-    expect(model.item?.genericsSignature).toBe('<Value extends string | number = string>')
-    expect(model.item?.props[0]?.defaultValue).toBe('""')
+    expect(model).not.toHaveProperty('item')
+    expect(model.parts[0]?.props.find((prop) => prop.name === 'items')).toMatchObject({
+      summaryType: 'Item[]',
+      type: '(string | { value: string; })[]',
+    })
+    expect(model.parts[0]?.props.find((prop) => prop.name === 'onChange')).toMatchObject({
+      summaryType: 'Function',
+      type: '(value: string) => void',
+    })
   })
 
   test('derives concise composite headings while retaining full names', () => {
@@ -113,7 +127,6 @@ describe('createApiReferenceModel', () => {
   test('uses the simplified API hierarchy in the TOC', () => {
     expect(getApiReferenceTocEntries(component)).toEqual([
       { id: 'api-attributes', label: 'Attributes', level: 1 },
-      { id: 'api-items', label: 'Items', level: 1 },
       { id: 'api-reference', label: 'Props', level: 1 },
       { id: 'api-demo', label: 'Demo', level: 2 },
       { id: 'api-trigger', label: 'Trigger', level: 2 },

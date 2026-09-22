@@ -128,6 +128,12 @@ describe('llms.txt generation', () => {
               access: { kind: 'export', name: 'Button' },
               props: [
                 {
+                  name: 'items',
+                  optional: false,
+                  type: 'Item[]',
+                  typeDetails: '(string | { value: string; })[]',
+                },
+                {
                   name: 'variant',
                   optional: true,
                   type: 'cls_variant0."default" | "outline"_$',
@@ -194,12 +200,10 @@ describe('llms.txt generation', () => {
       expect(introduction).toContain('```shell pnpm\npnpm add moraine\n```')
       expect(introduction).toContain('```shell npm\nnpm i moraine\n```')
       expect(button).toContain('## Props')
-      expect(button).toContain('## Items')
-      expect(button!.indexOf('## Attributes')).toBeLessThan(button!.indexOf('## Items'))
-      expect(button!.indexOf('## Items')).toBeLessThan(button!.indexOf('## Props'))
+      expect(button).not.toContain('## Items')
       expect(button).not.toContain('### Props')
-      expect(button).toContain('Generics: `<Value extends string | number>`')
-      expect(button).toContain('| Field | Type | Default | Description |')
+      expect(button).not.toContain('| Field | Type | Default | Description |')
+      expect(button).toContain('(string \\| { value: string; })[]')
       expect(button).toContain('| variant | "default" \\| "outline" | — | Visual variant. |')
       expect(button).toContain('## Attributes')
       expect(button!.indexOf('## Attributes')).toBeLessThan(button!.indexOf('## Props'))

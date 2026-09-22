@@ -164,16 +164,6 @@ function renderApiReference(apiDoc: ComponentApi): string {
   if (model.attributes) {
     output.push('## Attributes', '', renderAttributes(model.attributes), '')
   }
-  if (model.item) {
-    output.push('## Items', '')
-    if (model.item.genericsSignature) {
-      output.push(`Generics: \`${model.item.genericsSignature}\``, '')
-    }
-    if (model.item.description) {
-      output.push(model.item.description, '')
-    }
-    output.push(renderPropTable(model.item.props, 'Field'), '')
-  }
   output.push('## Props', '')
 
   if (model.kind === 'single') {

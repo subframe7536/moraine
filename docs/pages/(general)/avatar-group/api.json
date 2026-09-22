@@ -30,6 +30,7 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
+          "typeDetails": "({\n  /** Source URL for the avatar image. */\n  src?: string;\n  /** Accessible alt text for the avatar. */\n  alt?: string;\n  /** Icon name for the badge. */\n  badge?: IconT.Name;\n  /** Position of the badge. */\n  badgePosition?: NonNullable<Variant['badgePosition']>;\n  /** Initial text to show if image fails or is missing. */\n  text?: string;\n  /** Icon name to show as fallback. */\n  fallback?: IconT.Name;\n  /** Callback when the loading status of the avatar changes. */\n  onStatusChange?: (status: Status) => void;\n})[]",
           "description": "Array of avatars to render in the group.",
           "default": {
             "kind": "expression",

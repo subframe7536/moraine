@@ -45,6 +45,17 @@ describe('generateApiDoc', () => {
       dialog?.dataAttributes.find((target) => target.target === 'trigger')?.attributes,
     ).toEqual(expect.arrayContaining(['data-closed', 'data-expanded']))
 
+    const keyboardItems = result.componentDocs
+      .get('kbd-group')
+      ?.parts[0]?.props.find((prop) => prop.name === 'items')
+    expect(keyboardItems?.type).toBe('Item[]')
+    expect(keyboardItems?.typeDetails).toContain('string & {}')
+    expect(keyboardItems?.typeDetails).toContain('value: Key;')
+    expect(keyboardItems?.typeDetails).toContain('symbol?: boolean;')
+    expect(keyboardItems?.typeDetails).toContain('label?: string;')
+    expect(keyboardItems?.typeDetails).toContain('Whether to resolve known key aliases to symbols.')
+    expect(keyboardItems?.typeDetails).toMatch(/\)\[\]$/)
+
     const select = result.componentDocs.get('select')
     expect(select?.item?.props.map((prop) => prop.name)).toContain('value')
     expect(select?.item).not.toHaveProperty('name')
@@ -57,6 +68,12 @@ describe('generateApiDoc', () => {
 
     for (const key of ['select', 'combobox', 'multi-select']) {
       const props = result.componentDocs.get(key)!.parts[0]!.props
+      const itemsType = props.find((prop) => prop.name === 'items')?.typeDetails
+      expect(itemsType).toContain('value: string | number;')
+      expect(itemsType).toContain("type: 'group';")
+      expect(itemsType).toContain('items: {')
+      expect(itemsType).not.toContain('TItem')
+
       expect(props.map((prop) => prop.name)).toEqual(
         expect.arrayContaining([
           'itemRender',

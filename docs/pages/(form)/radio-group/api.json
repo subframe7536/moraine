@@ -62,6 +62,7 @@
           "name": "items",
           "optional": true,
           "type": "(string | Item)[]",
+          "typeDetails": "(string | {\n  /** Value of the radio item. */\n  value?: string;\n  /** Label for the radio item. */\n  label?: JSX.Element;\n  /** Description for the radio item. */\n  description?: JSX.Element;\n  /** Whether the item is disabled. */\n  disabled?: boolean;\n})[]",
           "description": "Array of items to render in the group."
         },
         {

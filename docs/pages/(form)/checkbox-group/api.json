@@ -80,6 +80,7 @@
           "name": "items",
           "optional": true,
           "type": "(string | Item<TTrue, TFalse>)[]",
+          "typeDetails": "(string | {\n  /** Value of the group item. */\n  value?: string;\n  /** Label for the group item. */\n  label?: JSX.Element;\n  /** Description for the group item. */\n  description?: JSX.Element;\n  /** Whether the item is disabled. */\n  disabled?: boolean;\n  /** Whether the item is indeterminate. */\n  indeterminate?: boolean;\n  /** Custom checked icon for this item. */\n  checkedIcon?: IconT.Name;\n  /** Custom indeterminate icon for this item. */\n  indeterminateIcon?: IconT.Name;\n})[]",
           "description": "Array of items to render in the group."
         },
         {

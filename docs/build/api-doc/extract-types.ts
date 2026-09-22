@@ -16,10 +16,19 @@ export interface ParsedModule {
   imports: Map<string, { importedName: string; specifier: string }>
 }
 
+interface TypeBinding {
+  bindings?: Map<string, TypeBinding>
+  module: ParsedModule
+  node: ESTree.TSType
+  namespace?: ESTree.TSModuleDeclaration
+}
+
 export class TypeExtractor {
   readonly #modules = new Map<string, ParsedModule>()
   readonly #indexedAccessStack = new Set<string>()
   #recipeVariants: RecipeVariantApi[] = []
+  #expandingCollection = false
+  #genericBindings = new Map<string, TypeBinding>()
   readonly projectRoot: string
 
   constructor(projectRoot: string) {
@@ -353,6 +362,22 @@ export class TypeExtractor {
       (targetDecl as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters,
     )
 
+    this.#genericBindings = new Map()
+    const parameters =
+      (targetDecl as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters
+        ?.params ?? []
+    for (const parameter of parameters) {
+      const node = parameter.default ?? parameter.constraint
+      if (node) {
+        this.#genericBindings.set(
+          typeof parameter.name === 'string'
+            ? parameter.name
+            : (getIdentifierName(parameter.name) ?? ''),
+          { module: ns.module, node, namespace: ns.node },
+        )
+      }
+    }
+
     let defaultElement: string | undefined
     let props: PropApi[]
 
@@ -662,7 +687,9 @@ export class TypeExtractor {
       const parameterName =
         typeof parameter.name === 'string'
           ? parameter.name
-          : (getIdentifierName(parameter.name) ?? '')
+          : typeof parameter.name === 'string'
+            ? parameter.name
+            : (getIdentifierName(parameter.name) ?? '')
       let formattedArgument = TypeExtractor.#formatTypeText(module.source, argument)
       if (substitutions?.has(formattedArgument)) {
         formattedArgument = substitutions.get(formattedArgument)!
@@ -875,6 +902,116 @@ export class TypeExtractor {
     return props
   }
 
+  async #expandCollectionType(
+    binding: TypeBinding,
+    bindings = this.#genericBindings,
+    visited = new Set<string>(),
+  ): Promise<string> {
+    const { module, node, namespace } = binding
+    const expand = (child: ESTree.TSType) =>
+      this.#expandCollectionType({ module, node: child, namespace }, bindings, visited)
+    if (node.type === 'TSArrayType') {
+      const inner = await expand(node.elementType)
+      return `${node.elementType.type === 'TSParenthesizedType' ? inner : `(${inner})`}[]`
+    }
+    if (node.type === 'TSParenthesizedType') {
+      return `(${await expand(node.typeAnnotation)})`
+    }
+    if (node.type === 'TSTypeOperator' && node.operator === 'readonly') {
+      return `readonly ${await expand(node.typeAnnotation)}`
+    }
+    if (node.type === 'TSUnionType' || node.type === 'TSIntersectionType') {
+      const parts = await Promise.all(node.types.map(expand))
+      return parts.join(node.type === 'TSUnionType' ? ' | ' : ' & ')
+    }
+    if (node.type === 'TSTypeReference') {
+      const name = entityNameToText(node.typeName)
+      const bound = name ? bindings.get(name) : undefined
+      if (bound) {
+        return this.#expandCollectionType(bound, bound.bindings ?? bindings, visited)
+      }
+      const key = `${module.filePath}:${namespace?.id.type === 'Identifier' ? namespace.id.name : ''}:${name}`
+      if (name && !visited.has(key)) {
+        const nextVisited = new Set(visited).add(key)
+        if ((name === 'Array' || name === 'ReadonlyArray') && node.typeArguments?.params[0]) {
+          return `${name === 'ReadonlyArray' ? 'readonly ' : ''}(${await expand(node.typeArguments.params[0])})[]`
+        }
+        const symbol = await this.resolveSymbol(module, name, namespace)
+        if (symbol) {
+          const nextBindings = new Map(bindings)
+          const params =
+            (symbol.node as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters
+              ?.params ?? []
+          for (let index = 0; index < params.length; index++) {
+            const parameter = params[index]!
+            const argument = node.typeArguments?.params[index]
+            const fallback = parameter.default ?? parameter.constraint
+            if (argument || fallback) {
+              nextBindings.set(
+                typeof parameter.name === 'string'
+                  ? parameter.name
+                  : (getIdentifierName(parameter.name) ?? ''),
+                argument
+                  ? { module, node: argument, namespace, bindings }
+                  : { module: symbol.module, node: fallback!, namespace: symbol.nsNode },
+              )
+            }
+          }
+          if (symbol.node.type === 'TSTypeAliasDeclaration') {
+            return this.#expandCollectionType(
+              { module: symbol.module, node: symbol.node.typeAnnotation, namespace: symbol.nsNode },
+              nextBindings,
+              nextVisited,
+            )
+          }
+          if (symbol.node.type === 'TSInterfaceDeclaration') {
+            const substitutions = new Map<string, string>()
+            for (const parameter of params) {
+              const parameterName =
+                typeof parameter.name === 'string'
+                  ? parameter.name
+                  : (getIdentifierName(parameter.name) ?? '')
+              const value = nextBindings.get(parameterName)
+              if (value) {
+                substitutions.set(
+                  parameterName,
+                  await this.#expandCollectionType(value, value.bindings ?? bindings, nextVisited),
+                )
+              }
+            }
+            const props = await this.#resolvePropertiesFromDeclaration(
+              symbol.module,
+              symbol.node,
+              symbol.nsNode,
+              substitutions,
+            )
+            return TypeExtractor.#formatObjectType(props)
+          }
+        }
+      }
+    }
+    if (node.type === 'TSTypeLiteral') {
+      return TypeExtractor.#formatObjectType(
+        await this.#extractPropertiesFromTypeLiteral(module, node, namespace),
+      )
+    }
+    return TypeExtractor.#formatTypeText(module.source, node)
+  }
+
+  static #formatObjectType(fields: PropApi[]): string {
+    if (fields.length === 0) {
+      return '{}'
+    }
+    return `{\n${fields
+      .map((prop) => {
+        const description = prop.description
+          ? `  /** ${prop.description.replaceAll('*/', '* /')} */\n`
+          : ''
+        return `${description}  ${prop.name}${prop.optional ? '?' : ''}: ${prop.type.replaceAll('\n', '\n  ')};`
+      })
+      .join('\n')}\n}`
+  }
+
   async #convertPropertySignature(
     module: ParsedModule,
     sig: ESTree.TSPropertySignature,
@@ -902,6 +1039,28 @@ export class TypeExtractor {
       }
     }
 
+    const typeNode = sig.typeAnnotation?.typeAnnotation
+    const isArray =
+      typeNode?.type === 'TSArrayType' ||
+      (typeNode?.type === 'TSTypeOperator' &&
+        typeNode.operator === 'readonly' &&
+        typeNode.typeAnnotation.type === 'TSArrayType') ||
+      (typeNode?.type === 'TSTypeReference' &&
+        ['Array', 'ReadonlyArray'].includes(entityNameToText(typeNode.typeName) ?? ''))
+    let typeDetails: string | undefined
+    if (isArray && typeNode && !this.#expandingCollection) {
+      this.#expandingCollection = true
+      try {
+        typeDetails = await this.#expandCollectionType({
+          module,
+          node: typeNode,
+          namespace: nsNode,
+        })
+      } finally {
+        this.#expandingCollection = false
+      }
+    }
+
     const jsdoc = getJsDoc(module.source, sig)
     const defaultValue =
       jsdoc.defaultValue !== undefined
@@ -911,6 +1070,7 @@ export class TypeExtractor {
       name,
       optional,
       type: typeText,
+      ...(typeDetails?.includes('{\n') ? { typeDetails } : {}),
       ...(jsdoc.description ? { description: jsdoc.description } : {}),
       ...(defaultValue ? { default: defaultValue } : {}),
     }

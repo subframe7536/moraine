@@ -23,6 +23,7 @@ export interface PropApi {
   name: string
   optional: boolean
   type: string
+  typeDetails?: string
   description?: string
   default?: DefaultValue
 }

@@ -72,6 +72,7 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
+          "typeDetails": "({\n  /** Unique value for the step. */\n  value?: Value;\n  /** Title of the step. */\n  title?: JSX.Element;\n  /** Secondary description of the step. */\n  description?: JSX.Element;\n  /** Icon to display in the step indicator. */\n  icon?: IconT.Name;\n  /** Content to display when the step is active. */\n  content?: JSX.Element;\n  /** Whether the step is disabled. */\n  disabled?: boolean;\n  /** Additional class name for the step item. */\n  class?: string;\n})[]",
           "description": "Array of steps to display."
         },
         {

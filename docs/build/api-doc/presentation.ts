@@ -6,6 +6,7 @@ export interface PresentationPropItem {
   name: string
   optional: boolean
   type: string
+  summaryType: string
   anchorId: string
   isCommonProp?: boolean
   defaultValue?: string
@@ -18,14 +19,6 @@ export interface PresentationPartSection {
   shortHeading: string
   description?: string
   defaultElement?: string
-  props: PresentationPropItem[]
-}
-
-export interface PresentationItemSection {
-  id: string
-  heading: string
-  description?: string
-  genericsSignature?: string
   props: PresentationPropItem[]
 }
 
@@ -48,7 +41,6 @@ export interface ApiReferencePresentationModel {
   kind: 'single' | 'composite'
   description?: string
   parts: PresentationPartSection[]
-  item?: PresentationItemSection
   attributes?: PresentationAttributesSection
 }
 
@@ -80,31 +72,17 @@ export function normalizeApiType(type: string): string {
 
 const COMMON_BASE_PROPS = new Set(['as', 'children', 'class', 'style', 'classes', 'styles'])
 
-function formatGenerics(
-  generics?: Array<{ name: string; constraint?: string; default?: string }>,
-): string | undefined {
-  if (!generics?.length) {
-    return undefined
-  }
-  return `<${generics
-    .map((generic) => {
-      let text = generic.name
-      if (generic.constraint) {
-        text += ` extends ${generic.constraint}`
-      }
-      if (generic.default) {
-        text += ` = ${generic.default}`
-      }
-      return text
-    })
-    .join(', ')}>`
-}
-
 function formatPropItem(prop: PropApi, anchorPrefix: string): PresentationPropItem {
   return {
     name: prop.name,
     optional: prop.optional,
-    type: normalizeApiType(prop.type),
+    type: normalizeApiType(prop.typeDetails ?? prop.type),
+    summaryType: prop.typeDetails
+      ? 'Item[]'
+      : (prop.type.includes('=>') && !prop.type.trimStart().startsWith('{')) ||
+          /^(?:Component(?:OrElement)?|(?:JSX\.)?EventHandler(?:Union)?)</.test(prop.type)
+        ? 'Function'
+        : normalizeApiType(prop.type),
     anchorId: `${anchorPrefix}-${prop.name}`,
     isCommonProp: COMMON_BASE_PROPS.has(prop.name),
     ...(prop.default ? { defaultValue: formatDefaultValue(prop.default) } : {}),
@@ -203,16 +181,6 @@ export function createApiReferenceModel(
     }
   })
 
-  const itemGenericsSignature = formatGenerics(component.item?.generics)
-  const item = component.item?.props.length
-    ? {
-        id: 'api-items',
-        heading: 'Items',
-        ...(component.item.description ? { description: component.item.description } : {}),
-        ...(itemGenericsSignature ? { genericsSignature: itemGenericsSignature } : {}),
-        props: sortProps(component.item.props, 'api-items'),
-      }
-    : undefined
   const attributes = createAttributesSection(component)
 
   return {
@@ -221,7 +189,6 @@ export function createApiReferenceModel(
     kind: component.kind,
     ...(component.description ? { description: component.description } : {}),
     parts,
-    ...(item ? { item } : {}),
     ...(attributes ? { attributes } : {}),
   }
 }
@@ -235,9 +202,6 @@ export function getApiReferenceTocEntries(component: ComponentApi | undefined): 
   const entries: TocEntry[] = []
   if (model.attributes) {
     entries.push({ id: model.attributes.id, label: model.attributes.heading, level: 1 })
-  }
-  if (model.item) {
-    entries.push({ id: model.item.id, label: model.item.heading, level: 1 })
   }
   entries.push({ id: 'api-reference', label: 'Props', level: 1 })
   if (model.kind === 'composite') {

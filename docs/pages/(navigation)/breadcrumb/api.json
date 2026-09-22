@@ -36,6 +36,7 @@
           "name": "items",
           "optional": true,
           "type": "Item[]",
+          "typeDetails": "({\n  /** Label to display for the breadcrumb item. */\n  label?: JSX.Element;\n  /** Icon to display next to the label. */\n  icon?: IconT.Name;\n  /** The destination URL for this item. */\n  to?: string;\n  /** The destination URL for this item. */\n  href?: string;\n  /** Where to display the linked URL. */\n  target?: string;\n  /** Relationship of the linked URL to the current document. */\n  rel?: string;\n  /** Whether the item is the current active page. */\n  active?: boolean;\n  /** Whether the item is disabled. */\n  disabled?: boolean;\n  /** Callback when the item is clicked. */\n  onClick?: JSX.EventHandlerUnion<HTMLAnchorElement, MouseEvent>;\n})[]",
           "description": "Array of breadcrumb items to display."
         },
         {
