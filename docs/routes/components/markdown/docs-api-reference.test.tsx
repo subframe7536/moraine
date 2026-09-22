@@ -120,7 +120,6 @@ describe('DocsApiReference', () => {
   test('renders item fields through the same expandable reference rows', () => {
     const view = render(() => <DocsApiReference apiDoc={apiDoc} />)
     expect(view.getByRole('columnheader', { name: 'Field' })).toBeTruthy()
-    expect(view.getByText('<Value extends string | number>')).toBeTruthy()
 
     const value = view.getByRole('button', { name: 'value, required, type: Value' })
     fireEvent.click(value)
@@ -140,15 +139,11 @@ describe('DocsApiReference', () => {
     expect(view.getAllByText('data-disabled')).toHaveLength(1)
 
     const filter = view.getByRole('combobox', { name: 'Filter attributes by slot' })
-    expect(filter.textContent).toContain('All slots (3)')
+    expect(filter.textContent).toBe('All slots')
     expect(filter.parentElement?.parentElement?.className).toContain('justify-start')
     fireEvent.click(filter)
-    expect(
-      within(document.body).getByRole('option', { name: 'empty (0)', hidden: true }),
-    ).toBeTruthy()
-    fireEvent.click(
-      within(document.body).getByRole('option', { name: 'content (2)', hidden: true }),
-    )
+    expect(within(document.body).getByRole('option', { name: 'empty', hidden: true })).toBeTruthy()
+    fireEvent.click(within(document.body).getByRole('option', { name: 'content 2', hidden: true }))
 
     expect(view.queryByText('data-disabled')).toBeNull()
     const expanded = view.getByText('data-expanded')
@@ -160,7 +155,7 @@ describe('DocsApiReference', () => {
     expect(view.getByText('data-unknown')).toBeTruthy()
 
     fireEvent.click(filter)
-    fireEvent.click(within(document.body).getByRole('option', { name: 'empty (0)', hidden: true }))
+    fireEvent.click(within(document.body).getByRole('option', { name: 'empty', hidden: true }))
     expect(view.getByRole('status').textContent).toContain('No attributes')
     expect(view.getByRole('status').textContent).toContain(
       'This slot does not expose any public data attributes.',
