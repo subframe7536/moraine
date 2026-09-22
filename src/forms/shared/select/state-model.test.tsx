@@ -23,7 +23,7 @@ describe('Select family state ownership', () => {
           </BaseSelect.Control>
           <BaseSelect.Content>
             <BaseSelect.Listbox>
-              <For each={items}>{(item) => <BaseSelect.Item item={item} />}</For>
+              <For each={items}>{(item) => <BaseSelect.Item {...item} />}</For>
             </BaseSelect.Listbox>
           </BaseSelect.Content>
         </>

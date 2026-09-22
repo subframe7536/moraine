@@ -45,7 +45,7 @@ export function FrameworkListbox(props: { items: Accessor<readonly FrameworkItem
               <BaseSelect.GroupLabel>{group.label}</BaseSelect.GroupLabel>
               <For each={group.items}>
                 {(item) => (
-                  <BaseSelect.Item item={item}>
+                  <BaseSelect.Item<typeof item> {...item}>
                     {(state) => (
                       <>
                         <Icon

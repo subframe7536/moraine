@@ -64,7 +64,7 @@ the composing control.
         <BaseSelect.Content>
           <BaseSelect.Listbox>
             <For each={ITEMS}>
-              {(item) => <BaseSelect.Item item={item}>{item.label}</BaseSelect.Item>}
+              {(item) => <BaseSelect.Item {...item}>{item.label}</BaseSelect.Item>}
             </For>
           </BaseSelect.Listbox>
         </BaseSelect.Content>
@@ -116,6 +116,12 @@ for this editable composition.
 ### Form integration
 
 <Preview path="./form" />
+
+### Item fields
+
+`BaseSelect.Item` accepts item fields directly: `<BaseSelect.Item value="a" label="Alpha" />`.
+Spread an existing item with `<BaseSelect.Item {...item} />`. When a children render function
+reads custom item fields, provide its type explicitly: `<BaseSelect.Item<MyItem> {...item}>`.
 
 ### Styling
 

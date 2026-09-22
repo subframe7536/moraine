@@ -369,16 +369,28 @@
           "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "item",
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "description": "Whether this item cannot be selected."
+        },
+        {
+          "name": "label",
           "optional": false,
-          "type": "TItem",
-          "description": "Raw item belonging to the current navigation collection."
+          "type": "JSX.Element",
+          "description": "Visual label."
         },
         {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
           "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "value",
+          "optional": false,
+          "type": "TItem['value']",
+          "description": "Unique selection and form value."
         }
       ]
     },

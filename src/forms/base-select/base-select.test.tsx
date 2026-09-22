@@ -161,7 +161,7 @@ function Parts() {
         <BaseSelect.Listbox>
           <For each={items}>
             {(item) => (
-              <BaseSelect.Item item={item}>
+              <BaseSelect.Item<typeof item> {...item}>
                 {(state) => `${state.item.extra}:${state.selected}`}
               </BaseSelect.Item>
             )}
@@ -353,9 +353,9 @@ describe('BaseSelect composition', () => {
           <BaseSelect.Listbox>
             <BaseSelect.Group>
               <BaseSelect.GroupLabel>Letters</BaseSelect.GroupLabel>
-              <BaseSelect.Item item={items[0]!} />
+              <BaseSelect.Item {...items[0]!} />
               <BaseSelect.Separator />
-              <BaseSelect.Item item={items[1]!} />
+              <BaseSelect.Item {...items[1]!} />
             </BaseSelect.Group>
           </BaseSelect.Listbox>
         </BaseSelect.Content>
@@ -648,7 +648,7 @@ test('diagnoses raw BaseSelect duplicate values once without filtering or throwi
       <BaseSelect items={source()} defaultOpen>
         <BaseSelect.Content>
           <BaseSelect.Listbox>
-            <For each={source()}>{(item) => <BaseSelect.Item item={item} />}</For>
+            <For each={source()}>{(item) => <BaseSelect.Item {...item} />}</For>
           </BaseSelect.Listbox>
         </BaseSelect.Content>
       </BaseSelect>
@@ -663,6 +663,52 @@ test('diagnoses raw BaseSelect duplicate values once without filtering or throwi
   error.mockRestore()
 })
 
+test('keeps flattened item fields reactive and out of native attributes', () => {
+  const [value, setValue] = createSignal('alpha')
+  const [label, setLabel] = createSignal('Alpha')
+  const [disabled, setDisabled] = createSignal(false)
+  const onChange = vi.fn()
+  render(() => (
+    <BaseSelect
+      items={[{ value: value(), label: label(), disabled: disabled() }]}
+      defaultOpen
+      closeOnSelect={false}
+      onChange={onChange}
+    >
+      <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
+      <BaseSelect.Content>
+        <BaseSelect.Listbox>
+          <BaseSelect.Item
+            value={value()}
+            label={label()}
+            disabled={disabled()}
+            data-testid="flat-item"
+          />
+        </BaseSelect.Listbox>
+      </BaseSelect.Content>
+    </BaseSelect>
+  ))
+  const option = within(document.body).getByRole('option', { hidden: true })
+  const initialId = option.id
+  expect(option.textContent).toBe('Alpha')
+  for (const name of ['item', 'value', 'label', 'disabled']) {
+    expect(option.hasAttribute(name)).toBe(false)
+  }
+  setValue('beta')
+  setLabel('Beta')
+  setDisabled(true)
+  expect(within(document.body).getByTestId('flat-item')).toBe(option)
+  expect(option.textContent).toBe('Beta')
+  expect(option.id).not.toBe(initialId)
+  expect(option.getAttribute('aria-disabled')).toBe('true')
+  fireEvent.click(option)
+  expect(onChange).not.toHaveBeenCalled()
+  setDisabled(false)
+  fireEvent.click(option)
+  expect(onChange).toHaveBeenCalledWith(['beta'])
+  expect(option.getAttribute('aria-selected')).toBe('true')
+})
+
 test('uses the canonical item disabled state for equivalent rendered items', () => {
   const onChange = vi.fn()
   render(() => (
@@ -674,7 +720,7 @@ test('uses the canonical item disabled state for equivalent rendered items', () 
       <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
       <BaseSelect.Content>
         <BaseSelect.Listbox>
-          <BaseSelect.Item item={{ value: 'locked', label: 'Rendered copy' }} />
+          <BaseSelect.Item value="locked" label="Rendered copy" />
         </BaseSelect.Listbox>
       </BaseSelect.Content>
     </BaseSelect>

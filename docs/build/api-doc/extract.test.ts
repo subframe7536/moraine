@@ -124,6 +124,16 @@ describe('generateApiDoc', () => {
       result.componentDocs.get('base-select')!.parts[0]!.props.map((prop) => prop.name),
     ).toContain('size')
 
+    const baseSelectItem = result.componentDocs
+      .get('base-select')!
+      .parts.find((part) => part.name === 'BaseSelect.Item')!
+    expect(baseSelectItem.props.map((prop) => prop.name)).toEqual(
+      expect.arrayContaining(['value', 'label', 'disabled', 'children', 'class', 'style']),
+    )
+    expect(baseSelectItem.props.map((prop) => prop.name)).not.toContain('item')
+    expect(baseSelectItem.props.map((prop) => prop.name)).not.toContain('as')
+    expect(baseSelectItem.defaultElement).toBe('div')
+
     const checkboxGroup = result.componentDocs.get('checkbox-group')
     expect(checkboxGroup?.dataAttributes.map((target) => target.target)).toEqual(
       expect.arrayContaining(['root', 'control', 'indicator']),

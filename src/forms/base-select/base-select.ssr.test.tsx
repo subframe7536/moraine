@@ -1,5 +1,5 @@
 import { fireEvent } from '@solidjs/testing-library'
-import { Show } from 'solid-js'
+import { createSignal, Show } from 'solid-js'
 import { expect, test } from 'vitest'
 
 import { hydrateFixture } from '../../test-utils/ssr-test.ts'
@@ -23,7 +23,7 @@ test('hydrates the standard BaseSelect Control and Trigger anatomy', () => {
         </BaseSelect.Control>
         <BaseSelect.Content>
           <BaseSelect.Listbox>
-            <BaseSelect.Item item={{ value: 1, label: 'One' }} />
+            <BaseSelect.Item value={1} label="One" />
           </BaseSelect.Listbox>
           <BaseSelect.Empty>Empty</BaseSelect.Empty>
         </BaseSelect.Content>
@@ -39,4 +39,33 @@ test('hydrates the standard BaseSelect Control and Trigger anatomy', () => {
   fireEvent.keyDown(trigger, { key: 'ArrowDown' })
   expect(trigger.getAttribute('aria-expanded')).toBe('true')
   expect(document.querySelector('[role="option"]')?.getAttribute('aria-selected')).toBe('true')
+})
+
+test('hydrates flattened Item fields and preserves its JSX label on updates', () => {
+  const [disabled, setDisabled] = createSignal(false)
+  let labelMounts = 0
+  function Label() {
+    labelMounts += 1
+    return <span>One</span>
+  }
+  const { container } = hydrateFixture(
+    '/src/forms/base-select/base-select.ssr.fixture.tsx',
+    'renderFlatBaseSelectItemFixture',
+    () => (
+      <BaseSelect items={[{ value: 1, label: 'One', disabled: disabled() }]} defaultValue={[1]}>
+        <BaseSelect.Listbox>
+          <BaseSelect.Item value={1} label={<Label />} disabled={disabled()} />
+        </BaseSelect.Listbox>
+      </BaseSelect>
+    ),
+  )
+  const option = container.querySelector('[role="option"]')!
+  const label = option.querySelector('span')!
+  expect(option.getAttribute('aria-selected')).toBe('true')
+  expect(label.textContent).toBe('One')
+  expect(labelMounts).toBe(1)
+  setDisabled(true)
+  expect(option.getAttribute('aria-disabled')).toBe('true')
+  expect(option.querySelector('span')).toBe(label)
+  expect(labelMounts).toBe(1)
 })

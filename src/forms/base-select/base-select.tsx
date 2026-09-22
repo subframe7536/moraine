@@ -749,7 +749,9 @@ function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
 function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps<T>): JSX.Element {
   const state = useSelectState<T>()
   const [local, rest] = splitProps(props, [
-    'item',
+    'value',
+    'label',
+    'disabled',
     'children',
     'class',
     'style',
@@ -763,13 +765,12 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
     inheritedStyles: () => state.stylePresentation,
     inheritedVariants: () => ({ size: state.styleSize }),
   })
-  const item = () => local.item
-  const selected = () => state.value().includes(item().value)
-  const highlighted = () => sameValue(state.highlightedValue(), item().value)
-  const disabled = () => state.itemDisabled(item())
+  const selected = () => state.value().includes(props.value)
+  const highlighted = () => sameValue(state.highlightedValue(), props.value)
+  const disabled = () => state.itemDisabled(props)
   const presentation: BaseSelectT.ItemRenderProps<T> = {
     get item() {
-      return item()
+      return props
     },
     get selected() {
       return selected()
@@ -784,7 +785,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
   const resolvedChildren = resolveChildren(() => {
     const children = local.children
     if (children === undefined) {
-      return item().label
+      return props.label
     }
     return renderComponentOrElement(children, presentation)
   })
@@ -792,7 +793,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
     <div
       {...rest}
       ref={(element) => callRef(local.ref, element)}
-      id={state.itemId(item().value)}
+      id={state.itemId(props.value)}
       role="option"
       tabIndex={-1}
       data-slot="item"
@@ -812,7 +813,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
           !disabled() &&
           !state.locked()
         ) {
-          state.setHighlightedValue(item().value)
+          state.setHighlightedValue(props.value as any)
         }
       }}
       onPointerDown={(event) => {
@@ -828,8 +829,8 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       onClick={(event) => {
         callHandler(event, local.onClick)
         if (!event.defaultPrevented && !disabled() && !state.locked()) {
-          state.setHighlightedValue(item().value)
-          state.select(item())
+          state.setHighlightedValue(props.value as any)
+          state.select(props)
         }
       }}
     >

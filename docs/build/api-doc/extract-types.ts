@@ -378,6 +378,18 @@ export class TypeExtractor {
 
       if (targetDecl.type === 'TSTypeAliasDeclaration') {
         const typeAnn = targetDecl.typeAnnotation
+        if (typeAnn.type === 'TSIntersectionType') {
+          for (const type of typeAnn.types) {
+            if (
+              type.type === 'TSTypeReference' &&
+              entityNameToText(type.typeName) === 'BaseProps'
+            ) {
+              const baseProps = await this.#handleBaseProps(ns.module, ns.node, type, generics)
+              defaultElement = baseProps.defaultElement
+              break
+            }
+          }
+        }
         if (typeAnn.type === 'TSTypeReference') {
           const refName = entityNameToText(typeAnn.typeName)
           if (refName) {
@@ -870,7 +882,7 @@ export class TypeExtractor {
     substitutions?: Map<string, string>,
   ): Promise<PropApi | null> {
     const name = getIdentifierName(sig.key)
-    if (!name) {
+    if (!name || (sig.optional && sig.typeAnnotation?.typeAnnotation.type === 'TSNeverKeyword')) {
       return null
     }
 

@@ -62,12 +62,6 @@
           }
         },
         {
-          "name": "children",
-          "optional": true,
-          "type": "never",
-          "description": "Native controls do not accept child content."
-        },
-        {
           "name": "class",
           "optional": true,
           "type": "SlotClassValue",
