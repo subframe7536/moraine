@@ -103,6 +103,9 @@ describe('createDocsMdxOptions', () => {
     expect(extension?.mdxContent).toContain('<MDXContent {...props} />')
     expect(extension?.mdxContent).toContain('metadata={')
     expect(extension?.mdxContent).toContain('"kind":"single"')
+    expect(extension?.mdxContent).toContain('"typeHtml":')
+    expect(extension?.mdxContent).toContain('--shiki-dark')
+    expect(BUTTON_API_DOC.parts[0]!.props[0]).not.toHaveProperty('typeHtml')
   })
 
   test('adds generated API sections after MDX headings', async () => {

@@ -6,6 +6,7 @@ export interface PresentationPropItem {
   name: string
   optional: boolean
   type: string
+  typeHtml?: string
   summaryType: string
   anchorId: string
   isCommonProp?: boolean
@@ -83,6 +84,7 @@ function formatPropItem(prop: PropApi, anchorPrefix: string): PresentationPropIt
           /^(?:Component(?:OrElement)?|(?:JSX\.)?EventHandler(?:Union)?)</.test(prop.type)
         ? 'Function'
         : normalizeApiType(prop.type),
+    typeHtml: prop.typeHtml,
     anchorId: `${anchorPrefix}-${prop.name}`,
     isCommonProp: COMMON_BASE_PROPS.has(prop.name),
     ...(prop.default ? { defaultValue: formatDefaultValue(prop.default) } : {}),

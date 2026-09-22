@@ -24,6 +24,8 @@ export interface PropApi {
   optional: boolean
   type: string
   typeDetails?: string
+  /** Build-time HTML for the web reference only. */
+  typeHtml?: string
   description?: string
   default?: DefaultValue
 }

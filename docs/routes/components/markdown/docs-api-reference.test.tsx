@@ -191,3 +191,33 @@ describe('DocsApiReference', () => {
     view.unmount()
   })
 })
+
+test('renders pre-highlighted types only in expanded details', () => {
+  const highlighted: ComponentApi = {
+    ...apiDoc,
+    parts: [
+      {
+        ...apiDoc.parts[0]!,
+        props: [
+          {
+            name: 'onChange',
+            optional: true,
+            type: '(value: string) => void',
+            typeHtml:
+              '<pre class="shiki"><code><span style="color: red">(value: string) =&gt; void</span></code></pre>',
+          },
+        ],
+      },
+    ],
+  }
+  const view = render(() => <DocsApiReference apiDoc={highlighted} />)
+  const trigger = view.getByRole('button', { name: 'onChange, type: Function' })
+  expect(trigger.querySelector('.shiki')).toBeNull()
+  fireEvent.click(trigger)
+  const details = view.getByRole('region', { name: /^onChange/ })
+  expect(details.querySelector('.shiki code')?.textContent).toBe('(value: string) => void')
+  expect(details.querySelector('span')?.style.color).toBe('red')
+  fireEvent.click(trigger)
+  expect(trigger.getAttribute('aria-expanded')).toBe('false')
+  view.unmount()
+})

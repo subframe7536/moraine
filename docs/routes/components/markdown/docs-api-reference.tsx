@@ -83,9 +83,22 @@ function PropDetails(props: { prop: PropDoc }): JSX.Element {
           Type
         </dt>
         <dd class="m-0 min-w-0 sm:pt-3 sm:border-t sm:border-border/30">
-          <code class="text-xs text-foreground font-mono whitespace-pre-wrap break-words">
-            {props.prop.type}
-          </code>
+          <Show
+            when={props.prop.typeHtml}
+            fallback={
+              <code class="text-xs text-foreground font-mono whitespace-pre-wrap break-words">
+                {props.prop.type}
+              </code>
+            }
+          >
+            {(html) => (
+              <div
+                class="text-xs font-mono [&_code]:text-inherit [&_code]:font-inherit [&_pre]:m-0 [&_pre]:whitespace-pre-wrap [&_pre]:break-words"
+                // oxlint-disable-next-line subf/solid-no-innerhtml
+                innerHTML={html()}
+              />
+            )}
+          </Show>
         </dd>
 
         <Show when={props.prop.defaultValue !== undefined}>

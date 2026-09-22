@@ -2,6 +2,7 @@ import path from 'node:path'
 
 import type { MdxOptions } from 'solid-file-router/plugin'
 
+import { highlightApiTypes } from '../api-doc/highlight.ts'
 import { loadApiDocIndex, loadComponentApiDoc } from '../api-doc/load.ts'
 import { getApiReferenceTocEntries } from '../api-doc/reference-sections.ts'
 import { resolveDocsPageContext } from '../core/paths.ts'
@@ -81,7 +82,7 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
       () => createDocsCodePlugin(),
     ],
     hastPlugins: [() => createDocsHastPlugin()],
-    extendLoad(document, context) {
+    async extendLoad(document, context) {
       const sourcePath = getDocsSourcePath(projectRoot, context.sourcePath)
       const page = resolveDocsPageContext(sourcePath)
       const frontmatter = validateFrontmatterData(document.frontmatter, sourcePath)
@@ -89,7 +90,8 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
       const onThisPageEntries = Array.isArray(document.data[DOCS_ON_THIS_PAGE_DATA_KEY])
         ? (document.data[DOCS_ON_THIS_PAGE_DATA_KEY] as OnThisPageEntryLiteral[])
         : []
-      const apiDoc = loadComponentApiDoc(sourcePath) ?? undefined
+      const sourceApiDoc = loadComponentApiDoc(sourcePath)
+      const apiDoc = sourceApiDoc ? await highlightApiTypes(sourceApiDoc) : undefined
       const info = createDocsRouteInfo(page.pageKey, page.group, frontmatter, componentKeys, [
         ...onThisPageEntries,
         ...getApiReferenceTocEntries(apiDoc),
