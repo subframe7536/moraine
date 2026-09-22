@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 import { splitProps } from 'solid-js'
 
+import { containsComposed, isNode } from '../../overlays/base/dom.ts'
 import { createStyles } from '../../provider/index.ts'
 import { callHandler } from '../../shared/utils.ts'
 import { useFieldContext } from '../field/field-context.ts'
@@ -30,7 +31,13 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
 
   const onPointerDown: JSX.EventHandler<HTMLDivElement, PointerEvent> = (event) => {
     callHandler(event, local.onPointerDown)
-    if (event.defaultPrevented || event.button !== 0 || isInteractiveTarget(event.target)) {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      !isNode(event.target) ||
+      !containsComposed(event.currentTarget, event.target) ||
+      isInteractiveTarget(event.target)
+    ) {
       return
     }
     const control = event.currentTarget.querySelector<HTMLInputElement | HTMLTextAreaElement>(

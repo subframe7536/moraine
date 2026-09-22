@@ -6,7 +6,7 @@
   - [x] also audit all components focus loop
 - [x] cleanup all manually controlled/uncontrolled signals with `useControllableValue` acrossing all components
 - [x] autocomplete=off on multiselect/combobox
-- [ ] fix from root: in input-group docs' dropdown example, click trigger and click outside, the input group's focus ring should never active
+- [x] fix from root: in input-group docs' dropdown example, click trigger and click outside, the input group's focus ring should never active
 - [ ] expose slider & resizable hook
 - [ ] builtin icon names auto completion support for `IconT.Name`
   - [ ] in toaster docs, use custom icon in provider

@@ -1,8 +1,11 @@
 import { fireEvent, render as baseRender } from '@solidjs/testing-library'
 import { createComponent, createSignal, onCleanup, onMount, Show } from 'solid-js'
+import { Portal } from 'solid-js/web'
 import { describe, expect, test, vi } from 'vitest'
 
+import { Button } from '../../elements/button/button.tsx'
 import { Icon } from '../../elements/icon/index.ts'
+import { DropdownMenu } from '../../overlays/dropdown-menu/dropdown-menu.tsx'
 import { MoraineProvider } from '../../provider/index.ts'
 import { defineTheme } from '../../theme/create-theme.ts'
 import { Field } from '../field'
@@ -521,5 +524,63 @@ describe('InputGroup', () => {
     setError(undefined)
     expect(control.getAttribute('aria-invalid')).not.toBe('true')
     expect(screen.getByRole('group').hasAttribute('aria-invalid')).toBe(false)
+  })
+
+  test('does not focus control when pointerdown targets a portaled child', () => {
+    let portalTarget: HTMLDivElement | undefined
+    const screen = render(() => (
+      <InputGroup>
+        <Input aria-label="Message" />
+        <InputGroup.Trailing>
+          <Portal>
+            <div
+              ref={(el) => {
+                portalTarget = el
+              }}
+            >
+              Portaled content
+            </div>
+          </Portal>
+        </InputGroup.Trailing>
+      </InputGroup>
+    ))
+    const control = screen.getByRole('textbox')
+    const focus = vi.spyOn(control, 'focus')
+    expect(portalTarget).toBeTruthy()
+    fireEvent.pointerDown(portalTarget!, { button: 0 })
+    expect(focus).not.toHaveBeenCalled()
+    expect(document.activeElement).not.toBe(control)
+  })
+
+  test('does not focus control or activate focus ring when clicking dropdown trigger and clicking outside', () => {
+    const screen = render(() => (
+      <InputGroup>
+        <Input aria-label="File name" placeholder="Enter file name" />
+        <InputGroup.Trailing compact>
+          <DropdownMenu placement="bottom-end">
+            <DropdownMenu.Trigger as={Button} type="button" variant="ghost" size="icon-xs">
+              Actions
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content
+              items={[{ label: 'Settings' }, { label: 'Copy path' }, { label: 'Open location' }]}
+            />
+          </DropdownMenu>
+        </InputGroup.Trailing>
+      </InputGroup>
+    ))
+    const control = screen.getByRole('textbox')
+    const trigger = screen.getByRole('button', { name: 'Actions' })
+    const focusSpy = vi.spyOn(control, 'focus')
+
+    fireEvent.click(trigger)
+    expect(focusSpy).not.toHaveBeenCalled()
+    expect(document.activeElement).not.toBe(control)
+
+    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
+    if (overlay) {
+      fireEvent.pointerDown(overlay, { button: 0 })
+      expect(focusSpy).not.toHaveBeenCalled()
+      expect(document.activeElement).not.toBe(control)
+    }
   })
 })
