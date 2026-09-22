@@ -1,6 +1,6 @@
-import { DATA_ATTRIBUTE_DESCRIPTIONS } from '../markdown/descriptions'
+import { DATA_ATTRIBUTE_DESCRIPTIONS } from '../markdown/descriptions.ts'
 
-import type { ComponentApi, DefaultValue, PartApi, PropApi } from './types'
+import type { ComponentApi, DefaultValue, PartApi, PropApi } from './types.ts'
 
 export interface PresentationPropItem {
   name: string

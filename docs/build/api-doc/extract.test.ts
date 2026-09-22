@@ -2,13 +2,15 @@ import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
 
-import { generateApiDoc } from './extract'
+import { scanDocsPages } from '../routes.ts'
+
+import { generateApiDoc } from './extract.ts'
 
 describe('generateApiDoc', () => {
   const projectRoot = path.resolve(__dirname, '../../..')
 
   test('generates the frontmatter registry from types and recipes', async () => {
-    const result = await generateApiDoc(projectRoot)
+    const result = await generateApiDoc(projectRoot, scanDocsPages(projectRoot))
 
     expect(result.indexDoc.components).toHaveLength(44)
     expect(result.componentDocs).toHaveLength(44)
@@ -77,8 +79,9 @@ describe('generateApiDoc', () => {
   })
 
   test('is deterministic', async () => {
-    const first = await generateApiDoc(projectRoot)
-    const second = await generateApiDoc(projectRoot)
+    const pages = scanDocsPages(projectRoot)
+    const first = await generateApiDoc(projectRoot, pages)
+    const second = await generateApiDoc(projectRoot, pages)
     expect(JSON.stringify(first.indexDoc)).toBe(JSON.stringify(second.indexDoc))
     expect(JSON.stringify([...first.componentDocs])).toBe(JSON.stringify([...second.componentDocs]))
   })

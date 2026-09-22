@@ -70,8 +70,8 @@
   },
   "scripts": {
     "build": "tsdown",
-    "dev": "vite serve docs --configLoader runner",
-    "docs:build": "vite build docs --configLoader runner",
+    "dev": "vite serve docs",
+    "docs:build": "vite build docs",
     "docs:preview": "nub run docs:build && vite preview docs --outDir dist/client",
     "test": "nub run build && vitest --run",
     "test:types": "nub run build && tsc -p test/types-default/tsconfig.json && tsc -p test/types-simple/tsconfig.json",

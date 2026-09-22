@@ -1,22 +1,7 @@
 import { routeInfo } from 'virtual:routes'
 
-export interface DocsRouteInfo {
-  key: string
-  title: string
-  description: string
-  order: number
-  tags: string[]
-  group?: string
-  badge?: string
-  api?: string
-  sections?: DocsRouteSection[]
-}
-
-export interface DocsRouteSection {
-  id: string
-  label: string
-  level: number
-}
+import { DOCS_GROUP_ORDER } from '../shared/docs-route.ts'
+import type { DocsRouteInfo, DocsRouteSection } from '../shared/docs-route.ts'
 
 export interface DocsPageEntry {
   key: string
@@ -29,14 +14,6 @@ export interface DocsPageEntry {
   path: string
   sections: DocsRouteSection[]
 }
-
-const GROUP_ORDER = new Map<string, number>([
-  ['', 0],
-  ['form', 1],
-  ['general', 2],
-  ['navigation', 3],
-  ['overlay', 4],
-])
 
 function isDocsRouteInfo(value: unknown): value is DocsRouteInfo {
   if (!value || typeof value !== 'object') {
@@ -107,8 +84,8 @@ export function getDocsPages(): DocsPageEntry[] {
       const leftGroup = left.group ?? ''
       const rightGroup = right.group ?? ''
       const groupDifference =
-        (GROUP_ORDER.get(leftGroup) ?? Number.MAX_SAFE_INTEGER) -
-        (GROUP_ORDER.get(rightGroup) ?? Number.MAX_SAFE_INTEGER)
+        (DOCS_GROUP_ORDER.get(leftGroup) ?? Number.MAX_SAFE_INTEGER) -
+        (DOCS_GROUP_ORDER.get(rightGroup) ?? Number.MAX_SAFE_INTEGER)
       if (groupDifference !== 0) {
         return groupDifference
       }

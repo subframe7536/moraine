@@ -3,13 +3,12 @@ import path from 'node:path'
 
 import type { ESTree } from 'vite'
 
-import { collectMarkdownFiles, resolveDocsPageContext } from '../core/paths'
-import { toKebabCase, toPosixPath } from '../core/strings'
-import { readFrontmatterData } from '../markdown/frontmatter'
-import type { FrontmatterApiPart } from '../markdown/types'
+import { toKebabCase, toPosixPath } from '../core/strings.ts'
+import type { FrontmatterApiPart } from '../markdown/types.ts'
+import type { DocsPageSource } from '../routes.ts'
 
-import { getIdentifierName, parseTypeScript } from './ast'
-import type { AccessApi } from './types'
+import { getIdentifierName, parseTypeScript } from './ast.ts'
+import type { AccessApi } from './types.ts'
 
 export interface RegisteredPart {
   id: string
@@ -141,19 +140,20 @@ function partRegistration(part: string | FrontmatterApiPart): FrontmatterApiPart
   return typeof part === 'string' ? { name: part } : part
 }
 
-export async function loadApiRegistry(projectRoot: string): Promise<RegisteredComponent[]> {
-  const pagesRoot = path.join(projectRoot, 'docs/pages')
+export async function loadApiRegistry(
+  projectRoot: string,
+  pages: readonly DocsPageSource[],
+): Promise<RegisteredComponent[]> {
   const registered: RegisteredComponent[] = []
   const seenKeys = new Set<string>()
   const seenComponents = new Set<string>()
 
-  for (const pageFile of collectMarkdownFiles(pagesRoot)) {
-    const frontmatter = readFrontmatterData(readFileSync(pageFile, 'utf8'), pageFile)
+  for (const { page, frontmatter } of pages) {
     if (!frontmatter.api) {
       continue
     }
 
-    const { pageKey: key } = resolveDocsPageContext(pageFile)
+    const key = page.pageKey
     if (seenKeys.has(key)) {
       throw new Error(`[api-doc] Duplicate API page key "${key}".`)
     }

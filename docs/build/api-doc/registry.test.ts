@@ -4,7 +4,9 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, test } from 'vitest'
 
-import { loadApiRegistry } from './registry'
+import { scanDocsPages } from '../routes.ts'
+
+import { loadApiRegistry } from './registry.ts'
 
 const roots: string[] = []
 
@@ -44,6 +46,10 @@ async function fixture(files: Record<string, string>) {
   return root
 }
 
+function loadRegistry(root: string) {
+  return loadApiRegistry(root, scanDocsPages(root))
+}
+
 afterEach(async () => {
   await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })))
 })
@@ -66,7 +72,7 @@ describe('loadApiRegistry', () => {
       'src/overlays/panel/panel.recipe.ts': `export const panelRecipe = defineRecipe('panel', { base: { root: '' } })`,
     })
 
-    const registry = await loadApiRegistry(root)
+    const registry = await loadRegistry(root)
     expect(registry.map((entry) => entry.name)).toEqual(['Demo', 'Panel'])
     expect(registry[1]?.parts.map((part) => part.name)).toEqual([
       'Panel',
@@ -81,7 +87,7 @@ describe('loadApiRegistry', () => {
       'src/forms/form/form.types.ts': types('Form', 'single', 'export interface FieldProps {}'),
       'src/forms/form/form.recipe.ts': `export const formRecipe = defineRecipe('form', { base: { root: '' } })`,
     })
-    const [form] = await loadApiRegistry(root)
+    const [form] = await loadRegistry(root)
     expect(form?.parts.map((part) => part.name)).toEqual(['form.Form', 'form.Field'])
     expect(form?.parts[0]?.access).toEqual({
       kind: 'factory-member',
@@ -115,7 +121,7 @@ describe('loadApiRegistry', () => {
     },
   ])('rejects $name', async ({ files, error }) => {
     const root = await fixture(files as unknown as Record<string, string>)
-    await expect(loadApiRegistry(root)).rejects.toThrow(error)
+    await expect(loadRegistry(root)).rejects.toThrow(error)
   })
 
   test('rejects duplicate keys and duplicate component registrations', async () => {
@@ -128,14 +134,14 @@ describe('loadApiRegistry', () => {
       'docs/pages/(general)/demo/index.mdx': page('src/elements/demo/demo'),
       'docs/pages/(form)/demo/index.mdx': page('src/elements/demo/demo'),
     })
-    await expect(loadApiRegistry(duplicateKeys)).rejects.toThrow('Duplicate API page key "demo"')
+    await expect(loadRegistry(duplicateKeys)).rejects.toThrow('Duplicate API page key "demo"')
 
     const duplicateComponent = await fixture({
       ...shared,
       'docs/pages/(general)/demo/index.mdx': page('src/elements/demo/demo'),
       'docs/pages/(general)/other/index.mdx': page('src/elements/demo/demo'),
     })
-    await expect(loadApiRegistry(duplicateComponent)).rejects.toThrow(
+    await expect(loadRegistry(duplicateComponent)).rejects.toThrow(
       'registered by more than one docs page',
     )
   })

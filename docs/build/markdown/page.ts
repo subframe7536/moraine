@@ -2,22 +2,23 @@ import path from 'node:path'
 
 import type { MdxOptions } from 'solid-file-router/plugin'
 
-import { loadApiDocIndex, loadComponentApiDoc } from '../api-doc/load'
-import { getApiReferenceTocEntries } from '../api-doc/reference-sections'
-import { resolveDocsPageContext } from '../core/paths'
-import { createDocsRouteInfo } from '../routes'
+import { loadApiDocIndex, loadComponentApiDoc } from '../api-doc/load.ts'
+import { getApiReferenceTocEntries } from '../api-doc/reference-sections.ts'
+import { resolveDocsPageContext } from '../core/paths.ts'
+import { createDocsRouteInfo } from '../routes.ts'
+import { DOCS_SITE } from '../site-meta.ts'
 
-import { validateFrontmatterData } from './frontmatter'
+import { validateFrontmatterData } from './frontmatter.ts'
 import {
   createDocsCodePlugin,
   createDocsCodeTabsPlugin,
   createDocsHastPlugin,
   DOCS_MDX_FEATURES,
   DOCS_ON_THIS_PAGE_DATA_KEY,
-} from './plugins'
-import type { OnThisPageEntryLiteral } from './plugins'
-import { createMdxPreviewsPlugin } from './previews'
-import type { DocsRouteMetadata, FrontmatterData } from './types'
+} from './plugins.ts'
+import type { OnThisPageEntryLiteral } from './plugins.ts'
+import { createMdxPreviewsPlugin } from './previews.ts'
+import type { DocsRouteMetadata, FrontmatterData } from './types.ts'
 
 function getDocsSourcePath(projectRoot: string, sourcePath: string): string {
   return path.resolve(projectRoot, 'docs', sourcePath)
@@ -33,7 +34,7 @@ function createDocsRouteMetadata(
   frontmatter: FrontmatterData,
 ): DocsRouteMetadata {
   const title = pageKey === 'introduction' ? 'Moraine Docs' : `${frontmatter.title} | Moraine`
-  const canonical = new URL(routePath.replace(/^\//, ''), 'https://ui.subf.dev/').toString()
+  const canonical = new URL(routePath.replace(/^\//, ''), DOCS_SITE.siteUrl).toString()
   return {
     title,
     description: frontmatter.description,
@@ -88,7 +89,7 @@ export function createDocsMdxOptions(projectRoot: string): MdxOptions {
       const onThisPageEntries = Array.isArray(document.data[DOCS_ON_THIS_PAGE_DATA_KEY])
         ? (document.data[DOCS_ON_THIS_PAGE_DATA_KEY] as OnThisPageEntryLiteral[])
         : []
-      const apiDoc = loadComponentApiDoc(projectRoot, page.pageKey) ?? undefined
+      const apiDoc = loadComponentApiDoc(sourcePath) ?? undefined
       const info = createDocsRouteInfo(page.pageKey, page.group, frontmatter, componentKeys, [
         ...onThisPageEntries,
         ...getApiReferenceTocEntries(apiDoc),

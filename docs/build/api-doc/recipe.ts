@@ -3,8 +3,8 @@ import path from 'node:path'
 
 import type { ESTree } from 'vite'
 
-import { getIdentifierName, parseTypeScript } from './ast'
-import type { DataAttributeTargetApi, DefaultValue } from './types'
+import { getIdentifierName, parseTypeScript } from './ast.ts'
+import type { DataAttributeTargetApi, DefaultValue } from './types.ts'
 
 export interface RecipeVariantApi {
   name: string

@@ -1,4 +1,4 @@
-import type { ComponentApi } from './types'
+import type { ComponentApi } from './types.ts'
 
 export interface ValidationIssue {
   severity: 'error' | 'warning'

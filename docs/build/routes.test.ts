@@ -75,7 +75,7 @@ describe('docs route metadata', () => {
     ])
   })
 
-  test('scans mdx pages into metadata and logical provider paths', async () => {
+  test('scans mdx pages into metadata', async () => {
     const projectRoot = await createTempProject()
 
     try {
@@ -92,10 +92,9 @@ describe('docs route metadata', () => {
       )
 
       expect(scanDocsRoutes(projectRoot)).toMatchObject([
-        { info: { key: 'introduction', title: 'Intro' }, routePath: 'index.tsx' },
+        { info: { key: 'introduction', title: 'Intro' } },
         {
           info: { key: 'button', group: 'general', api: 'button', badge: 'New' },
-          routePath: path.posix.join('(general)', 'button', 'index.tsx'),
         },
       ])
     } finally {

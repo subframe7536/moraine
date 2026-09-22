@@ -1,5 +1,12 @@
 import type { HtmlTagDescriptor, Plugin } from 'vite'
 
+export const DOCS_SITE = {
+  siteName: 'Moraine',
+  description:
+    'Accessible, composable SolidJS components with atomic class styling for UnoCSS and Tailwind.',
+  siteUrl: 'https://ui.subf.dev/',
+} as const
+
 export interface DocsSiteMetaOptions {
   siteName: string
   title: string

@@ -3,10 +3,10 @@ import path from 'node:path'
 
 import type { ESTree } from 'vite'
 
-import { entityNameToText, getIdentifierName, getJsDoc, nodeText, parseTypeScript } from './ast'
-import type { ParsedSource } from './ast'
-import type { RecipeVariantApi } from './recipe'
-import type { DefaultValue, GenericParameterApi, ItemApi, PropApi } from './types'
+import { entityNameToText, getIdentifierName, getJsDoc, nodeText, parseTypeScript } from './ast.ts'
+import type { ParsedSource } from './ast.ts'
+import type { RecipeVariantApi } from './recipe.ts'
+import type { DefaultValue, GenericParameterApi, ItemApi, PropApi } from './types.ts'
 
 export interface ParsedModule {
   filePath: string
@@ -123,7 +123,7 @@ export class TypeExtractor {
     if (fromNamespace && fromNamespace.body?.type === 'TSModuleBlock') {
       for (const stmt of fromNamespace.body.body) {
         const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
-        if (decl && 'id' in decl && (decl as any).id?.name === name) {
+        if (decl && 'id' in decl && getIdentifierName(decl.id) === name) {
           return { module: fromModule, node: decl as ESTree.Declaration, nsNode: fromNamespace }
         }
       }
@@ -138,7 +138,7 @@ export class TypeExtractor {
       if (ns && ns.node.body?.type === 'TSModuleBlock') {
         for (const stmt of ns.node.body.body) {
           const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
-          if (decl && 'id' in decl && (decl as any).id?.name === memberName) {
+          if (decl && 'id' in decl && getIdentifierName(decl.id) === memberName) {
             return { module: ns.module, node: decl as ESTree.Declaration, nsNode: ns.node }
           }
         }
@@ -592,6 +592,77 @@ export class TypeExtractor {
     return this.#resolvePropertiesFromTypeNode(module, node, nsNode, substitutions)
   }
 
+  static #mergeProperties(target: PropApi[], incoming: readonly PropApi[]): void {
+    for (const property of incoming) {
+      const index = target.findIndex((candidate) => candidate.name === property.name)
+      if (index >= 0) {
+        target[index] = property
+      } else {
+        target.push(property)
+      }
+    }
+  }
+
+  async #resolveMappedProperties(
+    kind: 'Omit' | 'Pick',
+    module: ParsedModule,
+    target: ESTree.TSType,
+    keysNode: ESTree.TSType,
+    nsNode?: ESTree.TSModuleDeclaration,
+    substitutions?: Map<string, string>,
+  ): Promise<PropApi[]> {
+    const keys = TypeExtractor.#extractStringLiteralUnion(keysNode)
+    const properties = await this.#resolvePropertiesFromTypeNode(
+      module,
+      target,
+      nsNode,
+      substitutions,
+    )
+    return properties.filter((property) => (kind === 'Pick') === keys.has(property.name))
+  }
+
+  async #resolveTypeArguments(
+    module: ParsedModule,
+    nsNode: ESTree.TSModuleDeclaration | undefined,
+    declaration: ESTree.Declaration,
+    typeArguments: readonly ESTree.TSType[],
+    substitutions?: Map<string, string>,
+    applyDefaults = true,
+  ): Promise<Map<string, string> | undefined> {
+    const parameters = (declaration as { typeParameters?: ESTree.TSTypeParameterDeclaration })
+      .typeParameters?.params
+    if (!parameters?.length) {
+      return substitutions ? new Map(substitutions) : undefined
+    }
+
+    const resolved = new Map(substitutions)
+    for (let index = 0; index < parameters.length; index++) {
+      const parameter = parameters[index]
+      const argument = typeArguments[index] ?? (applyDefaults ? parameter?.default : undefined)
+      if (!parameter || !argument) {
+        continue
+      }
+      const parameterName =
+        typeof parameter.name === 'string'
+          ? parameter.name
+          : (getIdentifierName(parameter.name) ?? '')
+      let formattedArgument = TypeExtractor.#formatTypeText(module.source, argument)
+      if (substitutions?.has(formattedArgument)) {
+        formattedArgument = substitutions.get(formattedArgument)!
+      } else {
+        const alias = await this.resolveSymbol(module, formattedArgument, nsNode)
+        if (alias?.node.type === 'TSTypeAliasDeclaration') {
+          formattedArgument = TypeExtractor.#formatTypeText(
+            alias.module.source,
+            alias.node.typeAnnotation,
+          )
+        }
+      }
+      resolved.set(parameterName, formattedArgument)
+    }
+    return resolved
+  }
+
   async #resolvePropertiesFromDeclaration(
     module: ParsedModule,
     decl: ESTree.Declaration,
@@ -605,94 +676,57 @@ export class TypeExtractor {
         for (const heritage of decl.extends) {
           const heritageType = heritage.expression
           const name = entityNameToText(heritageType)
+          const heritageWithArguments = heritage as typeof heritage & {
+            typeParameters?: ESTree.TSTypeParameterInstantiation
+            typeArguments?: ESTree.TSTypeParameterInstantiation
+          }
           const typeArgs =
-            (heritage as any).typeParameters?.params ??
-            (heritage as any).typeArguments?.params ??
+            heritageWithArguments.typeParameters?.params ??
+            heritageWithArguments.typeArguments?.params ??
             []
           if (name) {
             if (name === 'Omit' && typeArgs.length === 2) {
-              const target = typeArgs[0]!
-              const omittedKeys = TypeExtractor.#extractStringLiteralUnion(typeArgs[1])
-              const targetProps = await this.#resolvePropertiesFromTypeNode(
-                module,
-                target,
-                nsNode,
-                substitutions,
+              TypeExtractor.#mergeProperties(
+                props,
+                await this.#resolveMappedProperties(
+                  'Omit',
+                  module,
+                  typeArgs[0]!,
+                  typeArgs[1]!,
+                  nsNode,
+                  substitutions,
+                ),
               )
-              for (const p of targetProps.filter((p) => !omittedKeys.has(p.name))) {
-                const existingIdx = props.findIndex((x) => x.name === p.name)
-                if (existingIdx >= 0) {
-                  props[existingIdx] = p
-                } else {
-                  props.push(p)
-                }
-              }
             } else if (name === 'Pick' && typeArgs.length === 2) {
-              const target = typeArgs[0]!
-              const pickedKeys = TypeExtractor.#extractStringLiteralUnion(typeArgs[1])
-              const targetProps = await this.#resolvePropertiesFromTypeNode(
-                module,
-                target,
-                nsNode,
-                substitutions,
+              TypeExtractor.#mergeProperties(
+                props,
+                await this.#resolveMappedProperties(
+                  'Pick',
+                  module,
+                  typeArgs[0]!,
+                  typeArgs[1]!,
+                  nsNode,
+                  substitutions,
+                ),
               )
-              for (const p of targetProps.filter((p) => pickedKeys.has(p.name))) {
-                const existingIdx = props.findIndex((x) => x.name === p.name)
-                if (existingIdx >= 0) {
-                  props[existingIdx] = p
-                } else {
-                  props.push(p)
-                }
-              }
             } else {
               const sym = await this.resolveSymbol(module, name, nsNode)
               if (sym) {
-                let childSubstitutions: Map<string, string> | undefined
-                const declTypeParams =
-                  (sym.node as { typeParameters?: ESTree.TSTypeParameterDeclaration })
-                    .typeParameters?.params ?? []
-                if (declTypeParams.length > 0 && typeArgs.length > 0) {
-                  childSubstitutions = new Map(substitutions)
-                  for (let i = 0; i < declTypeParams.length; i++) {
-                    const param = declTypeParams[i]
-                    const arg = typeArgs[i]
-                    if (param && arg) {
-                      const paramName =
-                        typeof param.name === 'string'
-                          ? param.name
-                          : (((param.name as any)?.name as string | undefined) ?? '')
-                      let formattedArg = TypeExtractor.#formatTypeText(module.source, arg)
-                      if (substitutions && substitutions.has(formattedArg)) {
-                        formattedArg = substitutions.get(formattedArg)!
-                      } else {
-                        const aliasSym = await this.resolveSymbol(module, formattedArg, nsNode)
-                        if (aliasSym && aliasSym.node.type === 'TSTypeAliasDeclaration') {
-                          formattedArg = TypeExtractor.#formatTypeText(
-                            aliasSym.module.source,
-                            aliasSym.node.typeAnnotation,
-                          )
-                        }
-                      }
-                      childSubstitutions.set(paramName, formattedArg)
-                    }
-                  }
-                } else if (substitutions) {
-                  childSubstitutions = new Map(substitutions)
-                }
+                const childSubstitutions = await this.#resolveTypeArguments(
+                  module,
+                  nsNode,
+                  sym.node,
+                  typeArgs,
+                  substitutions,
+                  false,
+                )
                 const inherited = await this.#resolvePropertiesFromDeclaration(
                   sym.module,
                   sym.node,
                   sym.nsNode ?? (sym.module === module ? nsNode : undefined),
                   childSubstitutions,
                 )
-                for (const p of inherited) {
-                  const existingIdx = props.findIndex((x) => x.name === p.name)
-                  if (existingIdx >= 0) {
-                    props[existingIdx] = p
-                  } else {
-                    props.push(p)
-                  }
-                }
+                TypeExtractor.#mergeProperties(props, inherited)
               }
             }
           }
@@ -703,12 +737,7 @@ export class TypeExtractor {
         if (member.type === 'TSPropertySignature') {
           const prop = await this.#convertPropertySignature(module, member, nsNode, substitutions)
           if (prop) {
-            const existingIdx = props.findIndex((p) => p.name === prop.name)
-            if (existingIdx >= 0) {
-              props[existingIdx] = prop
-            } else {
-              props.push(prop)
-            }
+            TypeExtractor.#mergeProperties(props, [prop])
           }
         }
       }
@@ -760,26 +789,24 @@ export class TypeExtractor {
         return basePropsRes.props
       }
       if (name === 'Omit' && node.typeArguments?.params.length === 2) {
-        const target = node.typeArguments.params[0]!
-        const omittedKeys = TypeExtractor.#extractStringLiteralUnion(node.typeArguments.params[1]!)
-        const targetProps = await this.#resolvePropertiesFromTypeNode(
+        return this.#resolveMappedProperties(
+          'Omit',
           module,
-          target,
+          node.typeArguments.params[0]!,
+          node.typeArguments.params[1]!,
           nsNode,
           substitutions,
         )
-        return targetProps.filter((p) => !omittedKeys.has(p.name))
       }
       if (name === 'Pick' && node.typeArguments?.params.length === 2) {
-        const target = node.typeArguments.params[0]!
-        const pickedKeys = TypeExtractor.#extractStringLiteralUnion(node.typeArguments.params[1]!)
-        const targetProps = await this.#resolvePropertiesFromTypeNode(
+        return this.#resolveMappedProperties(
+          'Pick',
           module,
-          target,
+          node.typeArguments.params[0]!,
+          node.typeArguments.params[1]!,
           nsNode,
           substitutions,
         )
-        return targetProps.filter((p) => pickedKeys.has(p.name))
       }
       if ((name === 'Partial' || name === 'Required') && node.typeArguments?.params.length === 1) {
         const targetType = node.typeArguments.params[0]!
@@ -794,46 +821,14 @@ export class TypeExtractor {
 
       const sym = await this.resolveSymbol(module, name, nsNode)
       if (sym) {
-        let childSubstitutions: Map<string, string> | undefined
-        const declTypeParams =
-          (sym.node as { typeParameters?: ESTree.TSTypeParameterDeclaration }).typeParameters
-            ?.params ?? []
         const typeArgs = node.typeArguments?.params ?? []
-        if (declTypeParams.length > 0) {
-          childSubstitutions = new Map(substitutions)
-          for (let i = 0; i < declTypeParams.length; i++) {
-            const param = declTypeParams[i]
-            const arg = typeArgs[i]
-            if (param) {
-              const paramName =
-                typeof param.name === 'string'
-                  ? param.name
-                  : (((param.name as any)?.name as string | undefined) ?? '')
-              if (arg) {
-                let formattedArg = TypeExtractor.#formatTypeText(module.source, arg)
-                if (substitutions && substitutions.has(formattedArg)) {
-                  formattedArg = substitutions.get(formattedArg)!
-                } else {
-                  const aliasSym = await this.resolveSymbol(module, formattedArg, nsNode)
-                  if (aliasSym && aliasSym.node.type === 'TSTypeAliasDeclaration') {
-                    formattedArg = TypeExtractor.#formatTypeText(
-                      aliasSym.module.source,
-                      aliasSym.node.typeAnnotation,
-                    )
-                  }
-                }
-                childSubstitutions.set(paramName, formattedArg)
-              } else if (param.default) {
-                childSubstitutions.set(
-                  paramName,
-                  TypeExtractor.#formatTypeText(module.source, param.default),
-                )
-              }
-            }
-          }
-        } else if (substitutions) {
-          childSubstitutions = new Map(substitutions)
-        }
+        const childSubstitutions = await this.#resolveTypeArguments(
+          module,
+          nsNode,
+          sym.node,
+          typeArgs,
+          substitutions,
+        )
         return this.#resolvePropertiesFromDeclaration(
           sym.module,
           sym.node,

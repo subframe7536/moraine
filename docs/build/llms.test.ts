@@ -4,10 +4,10 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 
-import { buildLlmsDocuments, buildLlmsTxt } from './llms'
-import { scanDocsRoutes } from './routes'
+import { buildLlmsDocuments, buildLlmsTxt, llmsTxtPlugin } from './llms.ts'
+import { scanDocsRoutes } from './routes.ts'
 
 async function createTempProject(): Promise<string> {
   return mkdtemp(path.join(tmpdir(), 'moraine-docs-llms-'))
@@ -246,6 +246,46 @@ describe('llms.txt generation', () => {
           siteUrl: 'https://ui.subf.dev/',
         }),
       ).rejects.toThrow('unsupported JSX component <UnknownComponent>')
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+  })
+
+  test('retries failed generation and emits assets only for the client build', async () => {
+    const projectRoot = await createTempProject()
+    const options = {
+      projectRoot,
+      siteName: 'Moraine',
+      description: 'Docs description.',
+      siteUrl: 'https://ui.subf.dev/',
+    }
+    type GenerateBundle = (this: {
+      environment: { name: string }
+      emitFile: (file: { type: 'asset'; fileName: string; source: string }) => void
+    }) => Promise<void>
+
+    try {
+      await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
+      const pagePath = 'docs/pages/index.mdx'
+      await writeProjectFile(
+        projectRoot,
+        pagePath,
+        pageSource('Introduction', 1, '<UnknownComponent />'),
+      )
+
+      const generateBundle = llmsTxtPlugin(options).generateBundle as GenerateBundle
+      const emitFile = vi.fn()
+      await expect(
+        generateBundle.call({ environment: { name: 'client' }, emitFile }),
+      ).rejects.toThrow('unsupported JSX component')
+
+      await writeProjectFile(projectRoot, pagePath, pageSource('Introduction', 1, 'Welcome.'))
+      await generateBundle.call({ environment: { name: 'client' }, emitFile })
+      expect(emitFile).toHaveBeenCalledTimes(2)
+
+      emitFile.mockClear()
+      await generateBundle.call({ environment: { name: 'ssr' }, emitFile })
+      expect(emitFile).not.toHaveBeenCalled()
     } finally {
       await rm(projectRoot, { recursive: true, force: true })
     }

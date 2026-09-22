@@ -12,20 +12,25 @@ import {
 } from 'satteri'
 import type { Plugin } from 'vite'
 
-import { loadComponentApiDoc, loadApiDocIndex } from './api-doc/load'
-import { createApiReferenceModel } from './api-doc/presentation'
-import type { PresentationAttributesSection, PresentationPropItem } from './api-doc/presentation'
-import type { ComponentApi } from './api-doc/types'
-import { resolveDocsPageContext } from './core/paths'
-import { readFrontmatterData } from './markdown/frontmatter'
-import { asObjectRecord, getStaticStringAttribute } from './markdown/mdx'
-import { DOCS_MDX_FEATURES } from './markdown/plugins'
-import { resolvePreviewFile } from './markdown/previews'
-import { parsePreviewCode } from './previews/ast'
-import { resolvePreviewExportName } from './previews/module'
-import { resolvePreviewComponentSource } from './previews/source'
-import type { DocsRouteEntry } from './routes'
-import { scanDocsRoutes } from './routes'
+import { loadComponentApiDoc, loadApiDocIndex } from './api-doc/load.ts'
+import { createApiReferenceModel } from './api-doc/presentation.ts'
+import type { PresentationAttributesSection, PresentationPropItem } from './api-doc/presentation.ts'
+import type { ComponentApi } from './api-doc/types.ts'
+import { readFrontmatterData } from './markdown/frontmatter.ts'
+import {
+  asObjectRecord,
+  getMdxAttributeValue,
+  getStaticStringAttribute,
+  readCodeTabSource,
+} from './markdown/mdx.ts'
+import type { MdxNode } from './markdown/mdx.ts'
+import { DOCS_MDX_FEATURES } from './markdown/plugins.ts'
+import { resolvePreviewFile } from './markdown/previews.ts'
+import { parsePreviewCode } from './previews/ast.ts'
+import { resolvePreviewExportName } from './previews/module.ts'
+import { resolvePreviewComponentSource } from './previews/source.ts'
+import { scanDocsRoutes } from './routes.ts'
+import type { DocsRouteEntry } from './routes.ts'
 
 export interface LlmsTxtPluginOptions {
   projectRoot: string
@@ -39,13 +44,12 @@ export interface LlmsDocument {
   source: string
 }
 
-interface MdxComponentNode {
+interface MdxComponentNode extends MdxNode {
   name: string
   attributes: unknown[]
   start: number
   end: number
   hasChildren: boolean
-  children?: unknown[]
 }
 
 interface PageConversionContext {
@@ -54,26 +58,6 @@ interface PageConversionContext {
   routes: DocsRouteEntry[]
   sourcePath: string
   markdownSource?: string
-}
-
-function extractExpressionCode(exprNode: any, fullSource?: string): string {
-  const start = exprNode?.position?.start?.offset
-  const end = exprNode?.position?.end?.offset
-  if (typeof start === 'number' && typeof end === 'number' && typeof fullSource === 'string') {
-    let raw = fullSource.slice(start, end).trim()
-    if (raw.startsWith('{') && raw.endsWith('}')) {
-      raw = raw.slice(1, -1).trim()
-    }
-    if (raw.startsWith('`') && raw.endsWith('`')) {
-      raw = raw.slice(1, -1)
-    }
-    return raw.replace(/^\r?\n/, '').replace(/\r?\n$/, '')
-  }
-  let val = (exprNode?.value ?? '').trim()
-  if (val.startsWith('`') && val.endsWith('`')) {
-    val = val.slice(1, -1)
-  }
-  return val
 }
 
 const COMPONENT_CATEGORIES = new Map<string, string>([
@@ -277,8 +261,8 @@ function codeFence(language: string, source: string): string {
 async function renderPreview(previewPath: string, context: PageConversionContext) {
   const previewSourcePath = resolvePreviewFile(context.sourcePath, previewPath)
   const source = await readFile(previewSourcePath, 'utf8')
-  const exportName = resolvePreviewExportName(await parsePreviewCode(source), previewSourcePath)
-  const componentSource = await resolvePreviewComponentSource(source, exportName, parsePreviewCode)
+  resolvePreviewExportName(await parsePreviewCode(source), previewSourcePath)
+  const componentSource = await resolvePreviewComponentSource(source, parsePreviewCode)
   if (!componentSource) {
     throw new Error(`[docs-llms] unable to extract the preview component from ${previewSourcePath}`)
   }
@@ -300,87 +284,31 @@ async function renderPreviewNode(node: MdxComponentNode, context: PageConversion
 }
 
 function renderCodeTabsNode(node: MdxComponentNode, context: PageConversionContext): string {
-  const result: string[] = []
-
-  if (Array.isArray(node.children)) {
-    for (const child of node.children as any[]) {
-      if (!child) {
-        continue
-      }
-
-      if (child.name === 'CodeTabs.Item') {
-        const langAttr = (child.attributes as any[])?.find((a: any) => a?.name === 'lang')
-        const titleAttr = (child.attributes as any[])?.find((a: any) => a?.name === 'title')
-        const codeAttr = (child.attributes as any[])?.find((a: any) => a?.name === 'code')
-
-        let lang = (langAttr?.value?.value ?? langAttr?.value ?? '').toString().trim()
-        let title = (titleAttr?.value?.value ?? titleAttr?.value ?? '').toString().trim()
-        let code = (codeAttr?.value?.value ?? codeAttr?.value ?? '').toString()
-
-        if (!code && Array.isArray(child.children)) {
-          const codeChild = child.children.find((c: any) => c?.type === 'code')
-          if (codeChild) {
-            code = codeChild.value
-            if (!lang && codeChild.lang) {
-              lang = codeChild.lang
-            }
-            if (!title && codeChild.meta) {
-              title = codeChild.meta
-            }
-          } else {
-            const exprChild = child.children.find(
-              (c: any) => c?.type === 'mdxFlowExpression' || c?.type === 'mdxTextExpression',
-            )
-            if (exprChild) {
-              code = extractExpressionCode(exprChild, context.markdownSource)
-            } else {
-              const textParts: string[] = []
-              for (const sub of child.children) {
-                if (sub.value) {
-                  textParts.push(sub.value)
-                }
-                if (Array.isArray(sub.children)) {
-                  for (const pSub of sub.children) {
-                    if (pSub.value) {
-                      textParts.push(pSub.value)
-                    }
-                  }
-                }
-              }
-              code = textParts.join('\n').trim()
-            }
-          }
-        }
-
-        lang ||= 'bash'
-        const info = title ? `${lang} ${title}` : lang
-        result.push(codeFence(info, code))
-      } else if (child.type === 'code') {
-        const info = child.lang || 'bash'
-        result.push(codeFence(info, child.value))
-      }
-    }
-
-    if (result.length > 0) {
-      return result.join('\n')
-    }
+  const tabs = (node.children ?? [])
+    .map((child) => readCodeTabSource(child, context.markdownSource))
+    .filter((item) => item !== null)
+  if (tabs.length > 0) {
+    return tabs
+      .map((item) => {
+        const lang = item.lang || 'bash'
+        const title = item.title === item.lang ? '' : item.title
+        return codeFence(title ? `${lang} ${title}` : lang, item.code)
+      })
+      .join('\n')
   }
 
-  const itemsAttr = (node.attributes as any[]).find((attr: any) => attr?.name === 'items')
-  if (itemsAttr) {
-    try {
-      const rawValue = itemsAttr.value?.value ?? itemsAttr.value
-      const items = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue
-      if (Array.isArray(items)) {
-        return items
-          .map((item: any) => {
-            const lang = item.lang || 'bash'
-            const info = item.title ? `${lang} ${item.title}` : lang
-            return codeFence(info, item.code || '')
-          })
-          .join('\n')
-      }
-    } catch {}
+  const items = getMdxAttributeValue(node, 'items')
+  if (Array.isArray(items)) {
+    return items
+      .map(asObjectRecord)
+      .filter((item) => item !== null)
+      .map((item) => {
+        const lang = typeof item.lang === 'string' && item.lang ? item.lang : 'bash'
+        const title = typeof item.title === 'string' ? item.title : ''
+        const code = typeof item.code === 'string' ? item.code : ''
+        return codeFence(title ? `${lang} ${title}` : lang, code)
+      })
+      .join('\n')
   }
 
   const packageName = getComponentAttribute(node, 'package', context.sourcePath)?.trim()
@@ -417,7 +345,32 @@ function renderComponentNode(
   throw new Error(`[docs-llms] unsupported JSX component <${node.name}> in ${context.sourcePath}`)
 }
 
-function createLlmsMdastPlugin(_source: string, sourcePath: string, nodes: MdxComponentNode[]) {
+function copyMdxNode(value: unknown): MdxNode | null {
+  const record = asObjectRecord(value)
+  if (!record) {
+    return null
+  }
+  const position = asObjectRecord(record.position)
+  const start = asObjectRecord(position?.start)
+  const end = asObjectRecord(position?.end)
+  const children = Array.isArray(record.children)
+    ? record.children.map(copyMdxNode).filter((child) => child !== null)
+    : undefined
+  return {
+    ...(typeof record.type === 'string' ? { type: record.type } : {}),
+    ...(typeof record.name === 'string' ? { name: record.name } : {}),
+    ...(Array.isArray(record.attributes) ? { attributes: [...record.attributes] } : {}),
+    ...(typeof record.value === 'string' ? { value: record.value } : {}),
+    ...(typeof record.lang === 'string' ? { lang: record.lang } : {}),
+    ...(typeof record.meta === 'string' ? { meta: record.meta } : {}),
+    ...(typeof start?.offset === 'number' && typeof end?.offset === 'number'
+      ? { position: { start: { offset: start.offset }, end: { offset: end.offset } } }
+      : {}),
+    ...(children ? { children } : {}),
+  }
+}
+
+function createLlmsMdastPlugin(sourcePath: string, nodes: MdxComponentNode[]) {
   const visit = (node: unknown) => {
     const record = asObjectRecord(node)
     const position = asObjectRecord(record?.position)
@@ -434,40 +387,17 @@ function createLlmsMdastPlugin(_source: string, sourcePath: string, nodes: MdxCo
     ) {
       return
     }
-    const children = Array.isArray(record.children)
-      ? record.children.map((child: any) => ({
-          type: child?.type,
-          name: child?.name,
-          attributes: child?.attributes,
-          lang: child?.lang,
-          meta: child?.meta,
-          value: child?.value,
-          children: Array.isArray(child?.children)
-            ? child.children.map((sub: any) => ({
-                type: sub?.type,
-                name: sub?.name,
-                lang: sub?.lang,
-                meta: sub?.meta,
-                value: sub?.value,
-                position: sub?.position,
-                children: Array.isArray(sub?.children)
-                  ? sub.children.map((pSub: any) => ({
-                      type: pSub?.type,
-                      value: pSub?.value,
-                    }))
-                  : undefined,
-              }))
-            : undefined,
-        }))
-      : undefined
-
+    const snapshot = copyMdxNode(node)
+    if (!snapshot) {
+      return
+    }
     nodes.push({
+      ...snapshot,
       name: record.name,
       attributes: record.attributes,
       start: start.offset,
       end: end.offset,
       hasChildren: Array.isArray(record.children) && record.children.length > 0,
-      children,
     })
   }
 
@@ -480,7 +410,7 @@ function createLlmsMdastPlugin(_source: string, sourcePath: string, nodes: MdxCo
 
 async function collectMdxComponents(source: string, sourcePath: string) {
   const nodes: MdxComponentNode[] = []
-  const plugin = createLlmsMdastPlugin(source, sourcePath, nodes)
+  const plugin = createLlmsMdastPlugin(sourcePath, nodes)
   const handle = createMdxMdastHandle(source, DOCS_MDX_FEATURES, true)
   try {
     await visitMdastHandle(
@@ -527,10 +457,7 @@ async function convertPageMarkdown(
   output = normalizeInternalLinks(output, context.siteUrl, context.routes)
   const header = `# ${frontmatter.title}\n\n> ${frontmatter.description}\n`
   const body = output.trim()
-  const apiDoc = loadComponentApiDoc(
-    context.projectRoot,
-    resolveDocsPageContext(context.sourcePath).pageKey,
-  )
+  const apiDoc = loadComponentApiDoc(context.sourcePath)
   const content = `${header}\n${body}${body ? '\n\n' : '\n'}${apiDoc ? `\n${renderApiReference(apiDoc)}` : ''}`
   const normalizedContent = content.replace(/\n{3,}/g, '\n\n')
   return `${frontmatterBlock ? `${frontmatterBlock}\n\n` : ''}${normalizedContent}`
@@ -611,11 +538,13 @@ function sendMarkdownResponse(res: ServerResponse, document: LlmsDocument): void
 
 export function llmsTxtPlugin(options: LlmsTxtPluginOptions): Plugin {
   let documentsPromise: Promise<LlmsDocument[]> | undefined
-  let isSsrBuild = false
   const pagesRoot = path.resolve(options.projectRoot, 'docs/pages')
 
   const getDocuments = () => {
-    documentsPromise ??= buildLlmsDocuments(options)
+    documentsPromise ??= buildLlmsDocuments(options).catch((error: unknown) => {
+      documentsPromise = undefined
+      throw error
+    })
     return documentsPromise
   }
 
@@ -625,9 +554,6 @@ export function llmsTxtPlugin(options: LlmsTxtPluginOptions): Plugin {
 
   return {
     name: 'moraine-llms-txt',
-    configResolved(config) {
-      isSsrBuild = Boolean(config.build.ssr)
-    },
     configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
         const requestUrl = request.url ?? '/'
@@ -655,7 +581,7 @@ export function llmsTxtPlugin(options: LlmsTxtPluginOptions): Plugin {
       }
     },
     async generateBundle() {
-      if (isSsrBuild) {
+      if (this.environment.name === 'ssr') {
         return
       }
       for (const document of await getDocuments()) {

@@ -1,8 +1,10 @@
-import { TypeExtractor } from './extract-types'
-import { RecipeExtractor } from './recipe'
-import type { RecipeApi } from './recipe'
-import { loadApiRegistry } from './registry'
-import type { ComponentApi, ComponentIndexEntry, GenerationResult, PartApi } from './types'
+import type { DocsPageSource } from '../routes.ts'
+
+import { TypeExtractor } from './extract-types.ts'
+import { RecipeExtractor } from './recipe.ts'
+import type { RecipeApi } from './recipe.ts'
+import { loadApiRegistry } from './registry.ts'
+import type { ComponentApi, ComponentIndexEntry, GenerationResult, PartApi } from './types.ts'
 
 const EMPTY_RECIPE: RecipeApi = {
   slots: [],
@@ -10,8 +12,11 @@ const EMPTY_RECIPE: RecipeApi = {
   dataAttributes: [],
 }
 
-export async function generateApiDoc(projectRoot: string): Promise<GenerationResult> {
-  const registry = await loadApiRegistry(projectRoot)
+export async function generateApiDoc(
+  projectRoot: string,
+  pages: readonly DocsPageSource[],
+): Promise<GenerationResult> {
+  const registry = await loadApiRegistry(projectRoot, pages)
   const typeExtractor = new TypeExtractor(projectRoot)
   const recipeExtractor = new RecipeExtractor(projectRoot)
   const componentDocs = new Map<string, ComponentApi>()

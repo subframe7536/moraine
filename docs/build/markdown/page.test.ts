@@ -38,8 +38,8 @@ vi.mock('../api-doc/load.ts', () => ({
       },
     ],
   }),
-  loadComponentApiDoc: (_projectRoot: string, key: string) =>
-    key === 'button' ? BUTTON_API_DOC : null,
+  loadComponentApiDoc: (sourcePath: string) =>
+    sourcePath.includes('/button/') ? BUTTON_API_DOC : null,
 }))
 
 const FRONTMATTER = {
