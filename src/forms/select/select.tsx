@@ -7,7 +7,6 @@ import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callRef } from '../../shared/utils.ts'
 import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
 import { useFieldContext } from '../field/field-context.ts'
-import { SelectCanonicalProvider } from '../shared/select/canonical.ts'
 import {
   createSource,
   normalizeSelectEntries,
@@ -130,22 +129,20 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
   }
 
   return (
-    <SelectCanonicalProvider value={{ hasValue: (value) => source().byValue.has(value) }}>
-      <BaseSelect<SelectT.NormalizedItem<T>>
-        {...baseSelectProps}
-        items={source().items}
-        serializeValue={(value) => serializeSourceValue(source(), value)}
-        value={selection()}
-        defaultValue={defaultSelection()}
-        onChange={(values) => local.onChange?.(values[0] ?? null)}
-        onReset={local.onReset}
-        multiple={false}
-        size={styles.variants.size ?? undefined}
-        classes={baseSelectStyles.classes()}
-        styles={baseSelectStyles.styles()}
-      >
-        <Control />
-      </BaseSelect>
-    </SelectCanonicalProvider>
+    <BaseSelect<SelectT.NormalizedItem<T>>
+      {...baseSelectProps}
+      items={source().items}
+      serializeValue={(value) => serializeSourceValue(source(), value)}
+      value={selection()}
+      defaultValue={defaultSelection()}
+      onChange={(values) => local.onChange?.(values[0] ?? null)}
+      onReset={local.onReset}
+      multiple={false}
+      size={styles.variants.size ?? undefined}
+      classes={baseSelectStyles.classes()}
+      styles={baseSelectStyles.styles()}
+    >
+      <Control />
+    </BaseSelect>
   )
 }

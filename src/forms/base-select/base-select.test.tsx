@@ -846,3 +846,122 @@ test('supports an empty-string value with required validation and form submissio
   expect(form.checkValidity()).toBe(true)
   expect(new FormData(form).getAll('choice')).toEqual([''])
 })
+
+test('supports getItemByValue to recognize canonical selection when navigation items omit it', () => {
+  const canonical = [
+    { value: '', label: 'Empty' },
+    { value: 'apple', label: 'Apple' },
+  ]
+  const visible = [{ value: 'apple', label: 'Apple' }]
+
+  const { screen: screenWithResolver } = renderWithOwner(
+    () =>
+      createForm({
+        schema: v.object({ choice: v.string() }),
+        initialInput: { choice: '' },
+      }),
+    (form) => (
+      <form.Form>
+        <form.Field name="choice" label="Choice">
+          <BaseSelect
+            items={visible}
+            getItemByValue={(value) => canonical.find((item) => item.value === value)}
+          >
+            <BaseSelect.Trigger>{(state) => state.value.length}</BaseSelect.Trigger>
+          </BaseSelect>
+        </form.Field>
+      </form.Form>
+    ),
+  )
+  expect(screenWithResolver.getByRole('combobox').textContent).toBe('1')
+
+  const { screen: screenWithoutResolver } = renderWithOwner(
+    () =>
+      createForm({
+        schema: v.object({ choice: v.string() }),
+        initialInput: { choice: '' },
+      }),
+    (form) => (
+      <form.Form>
+        <form.Field name="choice" label="Choice">
+          <BaseSelect items={visible}>
+            <BaseSelect.Trigger>{(state) => state.value.length}</BaseSelect.Trigger>
+          </BaseSelect>
+        </form.Field>
+      </form.Form>
+    ),
+  )
+  expect(screenWithoutResolver.getByRole('combobox').textContent).toBe('0')
+})
+
+test('resolves canonical item disabled state and passes canonical item to isItemDisabled', () => {
+  const onChange = vi.fn()
+  const isItemDisabled = vi.fn((item: any, _values) => item.customFlag === true)
+  const canonicalItem1 = {
+    value: 'target-1',
+    label: 'Canonical Target 1',
+    disabled: true,
+    extra: 'canonical-1',
+  }
+  const navigationItem1 = {
+    value: 'target-1',
+    label: 'Nav Target 1',
+    disabled: false,
+    extra: 'navigation-1',
+  }
+  const canonicalItem2 = {
+    value: 'target-2',
+    label: 'Canonical Target 2',
+    disabled: false,
+    customFlag: true,
+    extra: 'canonical-2',
+  }
+  const navigationItem2 = {
+    value: 'target-2',
+    label: 'Nav Target 2',
+    disabled: false,
+    customFlag: false,
+    extra: 'navigation-2',
+  }
+
+  render(() => (
+    <BaseSelect
+      items={[navigationItem1, navigationItem2]}
+      getItemByValue={(value) => {
+        if (value === 'target-1') {
+          return canonicalItem1
+        }
+        if (value === 'target-2') {
+          return canonicalItem2
+        }
+        return undefined
+      }}
+      isItemDisabled={isItemDisabled}
+      defaultOpen
+      onChange={onChange}
+    >
+      <BaseSelect.Trigger>Choose</BaseSelect.Trigger>
+      <BaseSelect.Content>
+        <BaseSelect.Listbox>
+          <BaseSelect.Item item={navigationItem1} />
+          <BaseSelect.Item item={navigationItem2} />
+        </BaseSelect.Listbox>
+      </BaseSelect.Content>
+    </BaseSelect>
+  ))
+
+  const options = within(document.body).getAllByRole('option', { hidden: true })
+  // Option 1: disabled from canonicalItem1.disabled
+  expect(options[0]!.getAttribute('aria-disabled')).toBe('true')
+  expect(options[0]!.hasAttribute('data-disabled')).toBe(true)
+
+  // Option 2: disabled via isItemDisabled receiving canonicalItem2
+  expect(options[1]!.getAttribute('aria-disabled')).toBe('true')
+  expect(options[1]!.hasAttribute('data-disabled')).toBe(true)
+  expect(isItemDisabled).toHaveBeenCalledWith(canonicalItem2, [])
+
+  fireEvent.click(options[0]!)
+  expect(onChange).not.toHaveBeenCalled()
+  fireEvent.click(options[1]!)
+  expect(onChange).not.toHaveBeenCalled()
+})

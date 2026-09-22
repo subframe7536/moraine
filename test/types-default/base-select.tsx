@@ -46,6 +46,22 @@ export type SelectFamilyPropAliases = [
     void numbers
   }}
 />
+;<BaseSelect<UserItem>
+  items={items}
+  getItemByValue={(value) => {
+    const num: number = value
+    void num
+    return items.find((item) => item.value === value)
+  }}
+/>
+// @ts-expect-error getItemByValue must return TItem | undefined.
+;<BaseSelect<UserItem> items={items} getItemByValue={() => 'invalid'} />
+// @ts-expect-error getItemByValue belongs to BaseSelect only.
+;<Select items={items} getItemByValue={() => undefined} />
+// @ts-expect-error getItemByValue belongs to BaseSelect only.
+;<Combobox items={items} getItemByValue={() => undefined} />
+// @ts-expect-error getItemByValue belongs to BaseSelect only.
+;<MultiSelect items={items} getItemByValue={() => undefined} />
 ;<BaseSelect.Item item={items[0]} />
 // @ts-expect-error Item requires an explicit item prop.
 ;<BaseSelect.Item value="direct" label="Direct" disabled />

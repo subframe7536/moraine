@@ -67,6 +67,12 @@
           }
         },
         {
+          "name": "getItemByValue",
+          "optional": true,
+          "type": "(value: TItem['value']) => TItem | undefined",
+          "description": "Resolves an item from the canonical collection by value.\n\nUse this when `items` represents only the current navigation view,\nsuch as a filtered collection. When omitted, items are resolved from\nthe current `items` collection."
+        },
+        {
           "name": "id",
           "optional": true,
           "type": "string",

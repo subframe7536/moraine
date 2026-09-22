@@ -149,6 +149,14 @@ export namespace BaseSelectT {
     /** Current flat navigation collection. */
     items?: readonly TItem[]
     /**
+     * Resolves an item from the canonical collection by value.
+     *
+     * Use this when `items` represents only the current navigation view,
+     * such as a filtered collection. When omitted, items are resolved from
+     * the current `items` collection.
+     */
+    getItemByValue?: (value: TItem['value']) => TItem | undefined
+    /**
      * Whether arrow-key navigation wraps from the ends.
      * @default true
      */

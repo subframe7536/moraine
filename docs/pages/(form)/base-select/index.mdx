@@ -124,6 +124,24 @@ Ordinary component props are DOM/rendering props for the rendered `<div>`. Custo
 available through render state: `<BaseSelect.Item<MyItem> item={item}>{(state) => state.item.custom}</BaseSelect.Item>`,
 and arbitrary item fields never leak into rendered DOM attributes.
 
+### Canonical vs navigation collections
+
+By default, `<BaseSelect items={items}>` uses `items` as both the canonical data source and the
+active navigation collection.
+
+For custom filtered compositions (such as searchable controls), provide `getItemByValue` alongside
+a filtered `items` view:
+
+```tsx
+<BaseSelect items={filteredItems()} getItemByValue={(value) => allItemsByValue.get(value)}>
+  {/* ... */}
+</BaseSelect>
+```
+
+Here, `items` represents the current navigation view (visible in the popup listbox), while
+`getItemByValue` provides authoritative lookup for canonical item data (such as labels, disabled
+state, and form serialization) even when items are filtered out of the view.
+
 ### Styling
 
 BaseSelect exposes `control`, `trigger`, `content`, `listbox`, `item`, `group`, `groupLabel`,

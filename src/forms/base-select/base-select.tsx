@@ -30,7 +30,6 @@ import { useControllableValue } from '../../shared/use-controllable-value.ts'
 import { useTransitionPresence } from '../../shared/use-transition-presence.ts'
 import { callHandler, callRef, useId } from '../../shared/utils.ts'
 import { useFormField } from '../field/field-context.ts'
-import { useSelectCanonical } from '../shared/select/canonical.ts'
 import {
   diagnoseDuplicateItems,
   labelString,
@@ -79,7 +78,9 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     return byValue
   })
   createEffect(on(items, diagnoseDuplicateItems))
-  const canonical = useSelectCanonical()
+  function getCanonicalItem(value: T['value']): T | undefined {
+    return props.getItemByValue ? props.getItemByValue(value) : itemByValue().get(value)
+  }
   const [selection, setSelection] = useControllableValue<Value>({
     value: () => {
       if (props.value !== undefined) {
@@ -93,8 +94,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
         return []
       }
       if (!props.multiple && (typeof value === 'string' || typeof value === 'number')) {
-        const hasEmpty = canonical ? canonical.hasValue(value) : itemByValue().has(value)
-        if (value === '' && !hasEmpty) {
+        if (value === '' && !getCanonicalItem(value)) {
           return []
         }
         return [value]
@@ -105,7 +105,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
   })
   const value = createMemo(() => normalize(selection()))
   const itemDisabled = (item: T) => {
-    const canonical = itemByValue().get(item.value) ?? item
+    const canonical = getCanonicalItem(item.value) ?? item
     return Boolean(canonical.disabled || props.isItemDisabled?.(canonical, value()))
   }
   const [open, setOpenValue] = useControllableValue<boolean>({
@@ -321,7 +321,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     return selected.flatMap((value) => {
       const serialized = props.serializeValue
         ? props.serializeValue(value)
-        : itemByValue().get(value)?.disabled
+        : getCanonicalItem(value)?.disabled
           ? undefined
           : String(value)
       return serialized === undefined ? [] : [serialized]
