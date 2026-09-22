@@ -1,6 +1,36 @@
+import { createCssVariables, createDataAttributes } from '../../shared/style-contract.ts'
+import type { StyleContractState } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { AccordionStyleSlot } from './accordion.style-types'
+
+export const accordionDataAttributes = {
+  root: (state: StyleContractState) => createDataAttributes({ 'data-disabled': state.disabled }),
+  item: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-closed': state.closed,
+      'data-disabled': state.disabled,
+      'data-expanded': state.expanded,
+    }),
+  trigger: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-closed': state.closed,
+      'data-disabled': state.disabled,
+      'data-expanded': state.expanded,
+    }),
+  content: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-closed': state.closed,
+      'data-expanded': state.expanded,
+    }),
+}
+
+export const accordionCssVariables = {
+  content: (state: StyleContractState) =>
+    createCssVariables({
+      '--mo-collapsible-content-height': state['collapsible-content-height'],
+    }),
+}
 
 export const accordionRecipe = /* @__PURE__ */ defineRecipe<AccordionStyleSlot>('accordion', {
   base: {

@@ -4,8 +4,8 @@ import { For, Show, createMemo, splitProps } from 'solid-js'
 import { createStyles } from '../../provider'
 
 import { AvatarFace } from './avatar'
+import { avatarGroupRecipe } from './avatar-group.recipe.ts'
 import type { AvatarGroupProps } from './avatar-group.types'
-import { avatarGroupRecipe } from './avatar.recipe'
 
 function resolveMax(max: AvatarGroupProps['max']): number | undefined {
   if (typeof max === 'string') {

@@ -3,7 +3,6 @@
   "name": "Popover",
   "category": "overlays",
   "kind": "composite",
-  "sourcePath": "src/overlays/popover/popover.tsx",
   "parts": [
     {
       "id": "popover",
@@ -13,11 +12,23 @@
         "name": "Popover",
         "package": "moraine"
       },
-      "sourcePath": "src/overlays/popover/popover.tsx",
-      "rendering": {
-        "rendersDom": false
-      },
       "props": [
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Composed trigger and content primitives."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this Popover instance."
+        },
         {
           "name": "closeDelay",
           "optional": true,
@@ -28,145 +39,7 @@
           "default": {
             "kind": "literal",
             "value": 100
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether trigger interactions and content rendering are disabled.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "dismissible",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether outside interaction and Escape dismiss the content.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "forceMount",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether content remains mounted while closed.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "id",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Unique identifier used to derive the content id.",
-          "group": "behavior"
-        },
-        {
-          "name": "modal",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the content traps focus and hides outside content from assistive technology.\nThis is enabled only when Popover.Content composes Popover.Close; otherwise the Popover\nremains non-modal so assistive-technology users retain a dismissal route.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "mode",
-          "optional": true,
-          "type": {
-            "text": "Mode"
-          },
-          "description": "Interaction mode for triggering the popover.",
-          "default": {
-            "kind": "literal",
-            "value": "click"
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "onClosePrevent",
-          "optional": true,
-          "type": {
-            "text": "() => void"
-          },
-          "description": "Called when a dismissal attempt is blocked.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "openDelay",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Delay in milliseconds before opening in hover mode.",
-          "default": {
-            "kind": "literal",
-            "value": 100
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "placement",
-          "optional": true,
-          "type": {
-            "text": "PopperPlacement"
-          },
-          "description": "Preferred content placement relative to the trigger.",
-          "default": {
-            "kind": "literal",
-            "value": "bottom"
-          },
-          "group": "behavior",
-          "traits": [
-            "positioning"
-          ]
-        },
-        {
-          "name": "preventScroll",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether body scroll should be locked while the content is present.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Composed trigger and content primitives.",
-          "group": "rendering"
+          }
         },
         {
           "name": "defaultOpen",
@@ -178,12 +51,83 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "state",
-          "state": {
-            "key": "open",
-            "role": "default"
           }
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether trigger interactions and content rendering are disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "dismissible",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether outside interaction and Escape dismiss the content.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "forceMount",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether content remains mounted while closed.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Unique identifier used to derive the content id."
+        },
+        {
+          "name": "modal",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the content traps focus and hides outside content from assistive technology.\nThis is enabled only when Popover.Content composes Popover.Close; otherwise the Popover\nremains non-modal so assistive-technology users retain a dismissal route.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "mode",
+          "optional": true,
+          "type": {
+            "text": "Mode"
+          },
+          "description": "Interaction mode for triggering the popover.",
+          "default": {
+            "kind": "literal",
+            "value": "click"
+          }
+        },
+        {
+          "name": "onClosePrevent",
+          "optional": true,
+          "type": {
+            "text": "() => void"
+          },
+          "description": "Called when a dismissal attempt is blocked."
         },
         {
           "name": "onOpenChange",
@@ -191,15 +135,7 @@
           "type": {
             "text": "(open: boolean) => void"
           },
-          "description": "Called whenever the open state changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "open",
-            "role": "change"
-          }
+          "description": "Called whenever the open state changes."
         },
         {
           "name": "open",
@@ -207,21 +143,43 @@
           "type": {
             "text": "boolean"
           },
-          "description": "Controlled open state.",
-          "group": "state",
-          "state": {
-            "key": "open",
-            "role": "value"
+          "description": "Controlled open state."
+        },
+        {
+          "name": "openDelay",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Delay in milliseconds before opening in hover mode.",
+          "default": {
+            "kind": "literal",
+            "value": 100
           }
         },
         {
-          "name": "classes",
+          "name": "placement",
           "optional": true,
           "type": {
-            "text": "Classes"
+            "text": "PopperPlacement"
           },
-          "description": "Family slot class defaults for this Popover instance.",
-          "group": "styling"
+          "description": "Preferred content placement relative to the trigger.",
+          "default": {
+            "kind": "literal",
+            "value": "bottom"
+          }
+        },
+        {
+          "name": "preventScroll",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether body scroll should be locked while the content is present.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "styles",
@@ -229,26 +187,9 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this Popover instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this Popover instance."
         }
-      ],
-      "slots": [
-        {
-          "name": "body",
-          "description": "Content body rendered inside the popover panel."
-        },
-        {
-          "name": "content",
-          "description": "Positioned popover panel anchored to the trigger."
-        },
-        {
-          "name": "trigger",
-          "description": "Element that opens the popover."
-        }
-      ],
-      "runtime": [],
-      "cssVariables": []
+      ]
     },
     {
       "id": "popover-trigger",
@@ -258,7 +199,6 @@
         "root": "Popover",
         "member": "Trigger"
       },
-      "sourcePath": "src/overlays/popover/popover.tsx",
       "generics": [
         {
           "name": "T",
@@ -278,22 +218,12 @@
       },
       "props": [
         {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether this trigger is disabled.",
-          "group": "behavior"
-        },
-        {
           "name": "as",
           "optional": true,
           "type": {
-            "text": "u"
+            "text": ""
           },
           "description": "Element or component to render as.",
-          "group": "rendering",
           "default": {
             "kind": "literal",
             "value": "button"
@@ -305,8 +235,7 @@
           "type": {
             "text": "JSX.Element"
           },
-          "description": "Trigger label and visual content.",
-          "group": "rendering"
+          "description": "Trigger label and visual content."
         },
         {
           "name": "class",
@@ -314,8 +243,15 @@
           "type": {
             "text": "SlotClassValue"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
@@ -323,82 +259,9 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "name": "trigger",
-          "slot": "trigger",
-          "selector": "[data-slot=\"trigger\"]",
-          "element": "button",
-          "attributes": [
-            {
-              "name": "aria-controls",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the controlled element while the related content is mounted."
-            },
-            {
-              "name": "aria-describedby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References descriptive text associated with the control."
-            },
-            {
-              "name": "aria-expanded",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates whether the controlled content is expanded."
-            },
-            {
-              "name": "aria-haspopup",
-              "kind": "aria",
-              "value": {
-                "kind": "enum",
-                "values": [
-                  "dialog",
-                  "true"
-                ]
-              },
-              "description": "Communicates the type of popup controlled by the trigger."
-            },
-            {
-              "name": "data-closed",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when disclosure or transition content is closed."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-expanded",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the panel, accordion, or menu is expanded."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     },
     {
       "id": "popover-content",
@@ -408,7 +271,6 @@
         "root": "Popover",
         "member": "Content"
       },
-      "sourcePath": "src/overlays/popover/popover.tsx",
       "description": "Props for the Popover component.",
       "rendering": {
         "rendersDom": true,
@@ -421,8 +283,31 @@
           "optional": true,
           "type": {
             "text": "string"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
           },
-          "group": "behavior"
+          "description": "Body content."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "ContentClasses"
+          },
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "side",
@@ -434,35 +319,7 @@
           "default": {
             "kind": "literal",
             "value": "bottom"
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Body content.",
-          "group": "rendering"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "ContentClasses"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          }
         },
         {
           "name": "style",
@@ -470,8 +327,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -479,71 +335,9 @@
           "type": {
             "text": "ContentStyles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
         }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "name": "content",
-          "slot": "content",
-          "selector": "[data-slot=\"content\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Provides an accessible label when visible text is not sufficient."
-            },
-            {
-              "name": "data-closed",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when disclosure or transition content is closed."
-            },
-            {
-              "name": "data-expanded",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the panel, accordion, or menu is expanded."
-            },
-            {
-              "name": "data-side",
-              "kind": "data",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Stores the resolved floating or drawer content side."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "dialog"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "body",
-          "slot": "body",
-          "selector": "[data-slot=\"body\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": []
-        }
-      ],
-      "cssVariables": []
+      ]
     },
     {
       "id": "popover-close",
@@ -553,7 +347,6 @@
         "root": "Popover",
         "member": "Close"
       },
-      "sourcePath": "src/overlays/popover/popover.tsx",
       "generics": [
         {
           "name": "T",
@@ -573,22 +366,12 @@
       },
       "props": [
         {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether this trigger is disabled.",
-          "group": "behavior"
-        },
-        {
           "name": "as",
           "optional": true,
           "type": {
-            "text": ""
+            "text": "l"
           },
           "description": "Element or component to render as.",
-          "group": "rendering",
           "default": {
             "kind": "literal",
             "value": "button"
@@ -600,8 +383,7 @@
           "type": {
             "text": "JSX.Element"
           },
-          "description": "Trigger label and visual content.",
-          "group": "rendering"
+          "description": "Trigger label and visual content."
         },
         {
           "name": "class",
@@ -609,8 +391,15 @@
           "type": {
             "text": "SlotClassValue"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
@@ -618,20 +407,33 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "name": "close",
-          "selector": "[data-slot=\"close\"]",
-          "element": "button",
-          "attributes": []
-        }
-      ],
-      "cssVariables": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "trigger",
+    "content",
+    "body"
+  ],
+  "dataAttributes": [
+    {
+      "target": "trigger",
+      "attributes": [
+        "data-closed",
+        "data-disabled",
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "content",
+      "attributes": [
+        "data-closed",
+        "data-expanded",
+        "data-side"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

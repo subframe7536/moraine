@@ -15,19 +15,17 @@ test('shows the generated kind in the header and updates it with page metadata',
     name: 'Button',
     category: 'elements',
     kind: 'single',
-    sourcePath: 'src/elements/button/button.tsx',
     parts: [
       {
         id: 'button',
         name: 'Button',
         access: { kind: 'export', name: 'Button', package: 'moraine' },
-        sourcePath: 'src/elements/button/button.tsx',
         props: [],
-        slots: [],
-        runtime: [],
-        cssVariables: [],
       },
     ],
+    slots: [],
+    dataAttributes: [],
+    cssVariables: [],
   })
   let childrenReads = 0
   const view = render(() =>
@@ -36,6 +34,7 @@ test('shows the generated kind in the header and updates it with page metadata',
       frontmatter: {
         title: 'Button',
         description: 'Button documentation.',
+        api: { path: 'src/elements/button/button' },
         sidebar: { order: 1 },
         search: { tags: [] },
       },

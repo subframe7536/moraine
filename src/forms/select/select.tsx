@@ -18,9 +18,8 @@ import {
   SINGLE_SELECT_BASE_SELECT_FORWARD_PROP_KEYS,
   SELECT_LOCAL_PROP_KEYS,
 } from '../shared/select/props.ts'
-import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
 
-import { selectRecipe } from './select.recipe'
+import { selectDataAttributes, selectRecipe } from './select.recipe'
 import type { SelectProps, SelectT } from './select.types.ts'
 
 /** Single, non-editable collection selection. */
@@ -67,7 +66,7 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
             </Show>
             <span
               data-slot="value"
-              data-placeholder={!hasValue() ? '' : undefined}
+              {...selectDataAttributes.value({ placeholder: () => !hasValue() })}
               {...styles.styles.value}
             >
               {selectedItem()?.label ?? (hasValue() ? String(state.value()[0]) : local.placeholder)}
@@ -97,8 +96,8 @@ export function Select<T extends SelectT.Item = SelectT.Item>(props: SelectProps
                   ? (local.loadingIcon ?? 'icon-loading')
                   : (local.trailingIcon ?? 'icon-chevron-down')
               }
-              data-loading={local.loading ? '' : undefined}
-              class={SELECT_LOADING_ICON_CLASS}
+              {...selectDataAttributes.trailing({ loading: () => local.loading })}
+              {...styles.styles.trailing}
             />
           </BaseSelect.Trigger>
         </BaseSelect.Control>

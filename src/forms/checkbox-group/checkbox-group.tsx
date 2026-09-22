@@ -19,7 +19,7 @@ import type { CheckboxProps } from '../checkbox/checkbox.types'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
-import { checkboxGroupRecipe } from './checkbox-group.recipe'
+import { checkboxGroupDataAttributes, checkboxGroupRecipe } from './checkbox-group.recipe'
 import type { CheckboxGroupProps, CheckboxGroupT } from './checkbox-group.types'
 
 interface NormalizedCheckboxGroupItem<TTrue = boolean, TFalse = boolean> {
@@ -289,10 +289,12 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
       {...rest}
       id={`${groupId()}-root`}
       data-slot="root"
-      data-disabled={field.disabled() ? '' : undefined}
-      data-readonly={merged.readOnly ? '' : undefined}
-      data-required={field.required() ? '' : undefined}
-      data-invalid={field.invalid() ? '' : undefined}
+      {...checkboxGroupDataAttributes.root({
+        disabled: field.disabled,
+        readonly: () => merged.readOnly,
+        required: field.required,
+        invalid: field.invalid,
+      })}
       {...resolved.styles.root}
     >
       <fieldset
@@ -314,7 +316,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
           <legend
             id={legendId()}
             data-slot="legend"
-            data-required={field.required() ? '' : undefined}
+            {...checkboxGroupDataAttributes.legend({ required: field.required })}
             {...resolved.styles.legend}
           >
             {legend()}

@@ -4,7 +4,6 @@
   "category": "navigation",
   "description": "Props for the Tabs component.",
   "kind": "single",
-  "sourcePath": "src/navigation/tabs/tabs.tsx",
   "parts": [
     {
       "id": "tabs",
@@ -14,7 +13,6 @@
         "name": "Tabs",
         "package": "moraine"
       },
-      "sourcePath": "src/navigation/tabs/tabs.tsx",
       "description": "Props for the Tabs component.",
       "rendering": {
         "rendersDom": true,
@@ -32,8 +30,31 @@
           "default": {
             "kind": "literal",
             "value": "automatic"
+          }
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
           },
-          "group": "behavior"
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "defaultValue",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Default active tab value for uncontrolled usage."
         },
         {
           "name": "disabled",
@@ -45,8 +66,7 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "id",
@@ -54,8 +74,15 @@
           "type": {
             "text": "string"
           },
-          "description": "Unique identifier for the tabs root element.",
-          "group": "behavior"
+          "description": "Unique identifier for the tabs root element."
+        },
+        {
+          "name": "items",
+          "optional": true,
+          "type": {
+            "text": "Item[]"
+          },
+          "description": "Array of tabs to display."
         },
         {
           "name": "loop",
@@ -67,29 +94,6 @@
           "default": {
             "kind": "literal",
             "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "items",
-          "optional": true,
-          "type": {
-            "text": "Item[]"
-          },
-          "description": "Array of tabs to display.",
-          "group": "data"
-        },
-        {
-          "name": "defaultValue",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Default active tab value for uncontrolled usage.",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "default"
           }
         },
         {
@@ -98,46 +102,7 @@
           "type": {
             "text": "(value: string) => void"
           },
-          "description": "Callback when the active tab changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "value",
-            "role": "change"
-          }
-        },
-        {
-          "name": "value",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Controlled active tab value.",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "value"
-          }
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "description": "Callback when the active tab changes."
         },
         {
           "name": "orientation",
@@ -145,8 +110,10 @@
           "type": {
             "text": "'horizontal' | 'vertical'"
           },
-          "description": "Layout axis used by the component Recipe.",
-          "group": "styling"
+          "default": {
+            "kind": "literal",
+            "value": "horizontal"
+          }
         },
         {
           "name": "size",
@@ -154,12 +121,10 @@
           "type": {
             "text": "'sm' | 'md' | 'lg'"
           },
-          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
@@ -167,8 +132,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -176,8 +140,15 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Controlled active tab value."
         },
         {
           "name": "variant",
@@ -185,215 +156,12 @@
           "type": {
             "text": "'pill' | 'link'"
           },
-          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "pill"
-          },
-          "group": "styling"
+          }
         }
-      ],
-      "slots": [
-        {
-          "name": "content",
-          "description": "Tab panel rendered for the selected item."
-        },
-        {
-          "name": "indicator",
-          "description": "Moving indicator aligned with the active tab trigger."
-        },
-        {
-          "name": "label",
-          "description": "Text or custom label rendered inside a tab trigger."
-        },
-        {
-          "name": "leading",
-          "description": "Optional icon rendered before a tab label."
-        },
-        {
-          "name": "list",
-          "description": "Tablist that contains all tab triggers and the selection indicator."
-        },
-        {
-          "name": "root",
-          "description": "Tabs container that owns tab selection and panel rendering."
-        },
-        {
-          "name": "trailing",
-          "description": "Optional trailing content rendered after a tab label."
-        },
-        {
-          "name": "trigger",
-          "description": "Tab button users activate to select a panel."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            }
-          ]
-        },
-        {
-          "name": "list",
-          "slot": "list",
-          "selector": "[data-slot=\"list\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-orientation",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Communicates horizontal or vertical orientation."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "tablist"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "indicator",
-          "slot": "indicator",
-          "selector": "[data-slot=\"indicator\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "trigger",
-          "slot": "trigger",
-          "selector": "[data-slot=\"trigger\"]",
-          "element": "button",
-          "attributes": [
-            {
-              "name": "aria-controls",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the controlled element while the related content is mounted."
-            },
-            {
-              "name": "aria-selected",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates the currently selected option or tab."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-highlighted",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item is highlighted by pointer or keyboard navigation."
-            },
-            {
-              "name": "data-selected",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item or tab is selected."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "tab"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "leading",
-          "slot": "leading",
-          "selector": "[data-slot=\"leading\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "label",
-          "slot": "label",
-          "selector": "[data-slot=\"label\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "content",
-          "slot": "content",
-          "selector": "[data-slot=\"content\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the element that labels the control or region."
-            },
-            {
-              "name": "data-selected",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item or tab is selected."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "tabpanel"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     }
   ],
   "item": {
@@ -449,5 +217,38 @@
         }
       }
     ]
-  }
+  },
+  "slots": [
+    "root",
+    "list",
+    "indicator",
+    "trigger",
+    "leading",
+    "label",
+    "trailing",
+    "content"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-disabled"
+      ]
+    },
+    {
+      "target": "trigger",
+      "attributes": [
+        "data-disabled",
+        "data-highlighted",
+        "data-selected"
+      ]
+    },
+    {
+      "target": "content",
+      "attributes": [
+        "data-selected"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

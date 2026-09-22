@@ -4,7 +4,6 @@
   "category": "forms",
   "description": "Props for the Textarea component.",
   "kind": "single",
-  "sourcePath": "src/forms/textarea/textarea.tsx",
   "parts": [
     {
       "id": "textarea",
@@ -14,7 +13,6 @@
         "name": "Textarea",
         "package": "moraine"
       },
-      "sourcePath": "src/forms/textarea/textarea.tsx",
       "description": "Props for the Textarea component.",
       "generics": [
         {
@@ -39,8 +37,7 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "autofocusDelay",
@@ -52,8 +49,7 @@
           "default": {
             "kind": "literal",
             "value": 0
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "autoResize",
@@ -65,8 +61,7 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "autoResizeDelay",
@@ -78,8 +73,39 @@
           "default": {
             "kind": "literal",
             "value": 0
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "never"
           },
-          "group": "behavior"
+          "description": "Native controls do not accept child content."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "defaultValue",
+          "optional": true,
+          "type": {
+            "text": "string | number | undefined"
+          },
+          "description": "The default value of the input (uncontrolled)."
         },
         {
           "name": "disabled",
@@ -91,8 +117,25 @@
           "default": {
             "kind": "literal",
             "value": false
+          }
+        },
+        {
+          "name": "grouped",
+          "optional": true,
+          "type": {
+            "text": "boolean"
           },
-          "group": "behavior"
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "groupedOrientation",
+          "optional": true,
+          "type": {
+            "text": "'horizontal' | 'vertical'"
+          }
         },
         {
           "name": "id",
@@ -100,8 +143,7 @@
           "type": {
             "text": "string"
           },
-          "description": "The ID of the input element.",
-          "group": "behavior"
+          "description": "The ID of the input element."
         },
         {
           "name": "maxLength",
@@ -109,8 +151,7 @@
           "type": {
             "text": "number | string"
           },
-          "description": "Maximum character length for the textarea.",
-          "group": "behavior"
+          "description": "Maximum character length for the textarea."
         },
         {
           "name": "maxRows",
@@ -122,8 +163,7 @@
           "default": {
             "kind": "literal",
             "value": 0
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "modelModifiers",
@@ -131,75 +171,7 @@
           "type": {
             "text": "M"
           },
-          "description": "Modifiers for input processing (e.g., lazy, trim, number).",
-          "group": "behavior"
-        },
-        {
-          "name": "onBlur",
-          "optional": true,
-          "type": {
-            "text": "JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>"
-          },
-          "description": "Native blur event handler.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onFocus",
-          "optional": true,
-          "type": {
-            "text": "JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>"
-          },
-          "description": "Native focus event handler.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onInput",
-          "optional": true,
-          "type": {
-            "text": "JSX.InputEventHandlerUnion<HTMLTextAreaElement, InputEvent>"
-          },
-          "description": "Native input event handler.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "placeholder",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Placeholder text for the textarea.",
-          "group": "behavior"
-        },
-        {
-          "name": "ref",
-          "optional": true,
-          "type": {
-            "text": "Ref<HTMLTextAreaElement>"
-          },
-          "description": "Ref for the native textarea element.",
-          "group": "behavior"
-        },
-        {
-          "name": "rows",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Default number of rows.",
-          "default": {
-            "kind": "literal",
-            "value": 3
-          },
-          "group": "data"
+          "description": "Modifiers for input processing (e.g., lazy, trim, number)."
         },
         {
           "name": "name",
@@ -207,8 +179,55 @@
           "type": {
             "text": "string"
           },
-          "description": "The name of the input element, used for form submission.",
-          "group": "form"
+          "description": "The name of the input element, used for form submission."
+        },
+        {
+          "name": "onBlur",
+          "optional": true,
+          "type": {
+            "text": "JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>"
+          },
+          "description": "Native blur event handler."
+        },
+        {
+          "name": "onChange",
+          "optional": true,
+          "type": {
+            "text": "JSX.EventHandlerUnion<HTMLTextAreaElement, Event>"
+          },
+          "description": "Native change event, after value synchronization and Field notification."
+        },
+        {
+          "name": "onFocus",
+          "optional": true,
+          "type": {
+            "text": "JSX.FocusEventHandlerUnion<HTMLTextAreaElement, FocusEvent>"
+          },
+          "description": "Native focus event handler."
+        },
+        {
+          "name": "onInput",
+          "optional": true,
+          "type": {
+            "text": "JSX.InputEventHandlerUnion<HTMLTextAreaElement, InputEvent>"
+          },
+          "description": "Native input event handler."
+        },
+        {
+          "name": "onValueChange",
+          "optional": true,
+          "type": {
+            "text": "(value: ModifierValue<M>) => void"
+          },
+          "description": "Callback when the textarea value changes during input."
+        },
+        {
+          "name": "placeholder",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Placeholder text for the textarea."
         },
         {
           "name": "readOnly",
@@ -220,8 +239,15 @@
           "default": {
             "kind": "literal",
             "value": false
+          }
+        },
+        {
+          "name": "ref",
+          "optional": true,
+          "type": {
+            "text": "Ref<HTMLTextAreaElement>"
           },
-          "group": "form"
+          "description": "Ref for the native textarea element."
         },
         {
           "name": "required",
@@ -233,93 +259,19 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "form"
-        },
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "never"
-          },
-          "description": "Native controls do not accept child content.",
-          "group": "rendering"
-        },
-        {
-          "name": "defaultValue",
-          "optional": true,
-          "type": {
-            "text": "string | number | undefined"
-          },
-          "description": "The default value of the input (uncontrolled).",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "default"
           }
         },
         {
-          "name": "onChange",
+          "name": "rows",
           "optional": true,
           "type": {
-            "text": "JSX.EventHandlerUnion<HTMLTextAreaElement, Event>"
+            "text": "number"
           },
-          "description": "Native change event, after value synchronization and Field notification.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "value",
-            "role": "change"
+          "description": "Default number of rows.",
+          "default": {
+            "kind": "literal",
+            "value": 3
           }
-        },
-        {
-          "name": "onValueChange",
-          "optional": true,
-          "type": {
-            "text": "(value: ModifierValue<M>) => void"
-          },
-          "description": "Callback when the textarea value changes during input.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "value",
-            "role": "change"
-          }
-        },
-        {
-          "name": "value",
-          "optional": true,
-          "type": {
-            "text": "string | number | undefined"
-          },
-          "description": "The current value of the input (controlled).",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "value"
-          }
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
         },
         {
           "name": "size",
@@ -327,12 +279,10 @@
           "type": {
             "text": "'sm' | 'md' | 'lg'"
           },
-          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
@@ -340,8 +290,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -349,8 +298,15 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": {
+            "text": "string | number | undefined"
+          },
+          "description": "The current value of the input (controlled)."
         },
         {
           "name": "variant",
@@ -358,119 +314,28 @@
           "type": {
             "text": "'outline' | 'subtle' | 'ghost' | 'none'"
           },
-          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "outline"
-          },
-          "group": "styling"
+          }
         }
-      ],
-      "slots": [
-        {
-          "name": "root",
-          "description": "Native textarea element."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "textarea",
-          "attributes": [
-            {
-              "name": "aria-describedby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References descriptive text associated with the control."
-            },
-            {
-              "name": "aria-disabled",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the control is disabled."
-            },
-            {
-              "name": "aria-invalid",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the field has a validation error."
-            },
-            {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the element that labels the control or region."
-            },
-            {
-              "name": "aria-readonly",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the control value cannot be changed by the user."
-            },
-            {
-              "name": "aria-required",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that user input is required."
-            },
-            {
-              "name": "data-autoresize",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the text control grows with its content."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-invalid",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field or form has a validation error."
-            },
-            {
-              "name": "data-readonly",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field is in read-only mode."
-            },
-            {
-              "name": "data-required",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field input is required."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "root"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-autoresize",
+        "data-disabled",
+        "data-invalid",
+        "data-readonly",
+        "data-required"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

@@ -3,7 +3,6 @@
   "name": "List",
   "category": "elements",
   "kind": "single",
-  "sourcePath": "src/elements/list/list.tsx",
   "parts": [
     {
       "id": "list",
@@ -13,7 +12,6 @@
         "name": "List",
         "package": "moraine"
       },
-      "sourcePath": "src/elements/list/list.tsx",
       "generics": [
         {
           "name": "TItem"
@@ -41,15 +39,6 @@
       },
       "props": [
         {
-          "name": "items",
-          "optional": true,
-          "type": {
-            "text": "readonly TItem[]"
-          },
-          "description": "Reactive collection rendered by the list.",
-          "group": "data"
-        },
-        {
           "name": "as",
           "optional": true,
           "type": {
@@ -59,32 +48,7 @@
           "default": {
             "kind": "literal",
             "value": "ul"
-          },
-          "group": "rendering"
-        },
-        {
-          "name": "itemRender",
-          "optional": false,
-          "type": {
-            "text": "ComponentOrElement<ItemRenderProps<TItem, TItemElement>>"
-          },
-          "description": "Renders one collection item.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
-        },
-        {
-          "name": "virtualRender",
-          "optional": true,
-          "type": {
-            "text": "Component<VirtualRenderProps<TItem, HTMLElement, TItemElement>>"
-          },
-          "description": "Replaces normal iteration with caller-controlled virtual rendering.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
+          }
         },
         {
           "name": "class",
@@ -92,8 +56,23 @@
           "type": {
             "text": "SlotClassValue"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "itemRender",
+          "optional": false,
+          "type": {
+            "text": "ComponentOrElement<ItemRenderProps<TItem, TItemElement>>"
+          },
+          "description": "Renders one collection item."
+        },
+        {
+          "name": "items",
+          "optional": true,
+          "type": {
+            "text": "readonly TItem[]"
+          },
+          "description": "Reactive collection rendered by the list."
         },
         {
           "name": "style",
@@ -101,30 +80,20 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
-        }
-      ],
-      "slots": [],
-      "runtime": [
+          "description": "Style applied to the component root or trigger element."
+        },
         {
-          "name": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "ul",
-          "attributes": [
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "list"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
+          "name": "virtualRender",
+          "optional": true,
+          "type": {
+            "text": "Component<VirtualRenderProps<TItem, HTMLElement, TItemElement>>"
+          },
+          "description": "Replaces normal iteration with caller-controlled virtual rendering."
         }
-      ],
-      "cssVariables": []
+      ]
     }
-  ]
+  ],
+  "slots": [],
+  "dataAttributes": [],
+  "cssVariables": []
 }

@@ -11,7 +11,7 @@ import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
-import { switchRecipe } from './switch.recipe'
+import { switchDataAttributes, switchRecipe } from './switch.recipe'
 import type { SwitchProps } from './switch.types'
 
 /** Toggle switch control with icon slots and loading state. */
@@ -265,13 +265,15 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       ref={(element) => callRef(local.ref, element)}
       {...rest}
       data-slot="root"
-      data-checked={checked() ? '' : undefined}
-      data-unchecked={!checked() ? '' : undefined}
-      data-disabled={field.disabled() ? '' : undefined}
-      data-readonly={readOnly() ? '' : undefined}
-      data-required={field.required() ? '' : undefined}
-      data-invalid={field.invalid() ? '' : undefined}
-      data-loading={merged.loading ? '' : undefined}
+      {...switchDataAttributes.root({
+        checked,
+        unchecked: () => !checked(),
+        disabled: field.disabled,
+        readonly: readOnly,
+        required: field.required,
+        invalid: field.invalid,
+        loading: () => merged.loading,
+      })}
       {...resolved.styles.root}
       onClick={onRootClick}
     >
@@ -312,32 +314,38 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         role="switch"
         disabled={field.disabled()}
         data-slot="track"
-        data-invalid={field.invalid() ? '' : undefined}
         aria-checked={checked()}
         {...switchAriaAttrs()}
         {...resolved.styles.track}
         onPointerDown={onPointerDown}
         onFocus={onTrackFocus}
         onBlur={onTrackBlur}
-        data-checked={checked() ? '' : undefined}
-        data-unchecked={!checked() ? '' : undefined}
-        data-disabled={field.disabled() ? '' : undefined}
-        data-readonly={readOnly() ? '' : undefined}
+        {...switchDataAttributes.track({
+          checked,
+          unchecked: () => !checked(),
+          disabled: field.disabled,
+          readonly: readOnly,
+          invalid: field.invalid,
+        })}
       >
         <span
           data-slot="thumb"
-          data-checked={checked() ? '' : undefined}
-          data-unchecked={!checked() ? '' : undefined}
-          data-disabled={field.disabled() ? '' : undefined}
+          {...switchDataAttributes.thumb({
+            checked,
+            unchecked: () => !checked(),
+            disabled: field.disabled,
+          })}
           {...resolved.styles.thumb}
         >
           <Show when={resolvedIconName()} keyed>
             {(iconName) => (
               <Icon
                 name={iconName}
-                data-checked={!merged.loading && checked() ? '' : undefined}
-                data-unchecked={!merged.loading && !checked() ? '' : undefined}
-                data-loading={merged.loading ? '' : undefined}
+                {...switchDataAttributes.icon({
+                  checked: () => !merged.loading && checked(),
+                  unchecked: () => !merged.loading && !checked(),
+                  loading: () => merged.loading,
+                })}
                 class={resolved.styles.icon.class}
               />
             )}
@@ -352,7 +360,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
               for={field.id()}
               id={labelId()}
               data-slot="label"
-              data-required={field.required() ? '' : undefined}
+              {...switchDataAttributes.label({ required: field.required })}
               {...resolved.styles.label}
             >
               {label()}

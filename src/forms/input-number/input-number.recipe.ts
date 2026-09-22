@@ -1,7 +1,35 @@
-import { INPUT_VARIANT } from '../../shared/recipe-common.class'
+import { INPUT_VARIANT } from '../../shared/recipe-common.recipe.ts'
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { StyleContractState } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { InputNumberStyleSlot, InputNumberStyleVariant } from './input-number.style-types'
+
+const controlDataAttributes = (state: StyleContractState) =>
+  createDataAttributes({
+    'data-active': state.active,
+    'data-disabled': state.disabled,
+  })
+
+export const inputNumberDataAttributes = {
+  root: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-disabled': state.disabled,
+      'data-invalid': state.invalid,
+      'data-readonly': state.readonly,
+      'data-required': state.required,
+    }),
+  input: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-auto-align': state['auto-align'],
+      'data-disabled': state.disabled,
+      'data-invalid': state.invalid,
+      'data-readonly': state.readonly,
+      'data-required': state.required,
+    }),
+  increment: controlDataAttributes,
+  decrement: controlDataAttributes,
+}
 
 export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
   InputNumberStyleSlot,

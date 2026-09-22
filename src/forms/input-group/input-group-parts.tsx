@@ -4,7 +4,7 @@ import { splitProps } from 'solid-js'
 import { createStyles } from '../../provider/index.ts'
 
 import { useInputGroupContext } from './input-group-context.ts'
-import { inputGroupRecipe } from './input-group.recipe'
+import { inputGroupDataAttributes, inputGroupRecipe } from './input-group.recipe'
 import type { InputGroupT } from './input-group.types.ts'
 
 export function InputGroupLeading(props: InputGroupT.LeadingProps): JSX.Element {
@@ -22,8 +22,10 @@ export function InputGroupLeading(props: InputGroupT.LeadingProps): JSX.Element 
     <div
       {...rest}
       data-slot="leading"
-      data-orientation={group.orientation}
-      data-compact={resolved.variants.compact || undefined}
+      {...inputGroupDataAttributes.leading({
+        orientation: () => group.orientation,
+        compact: () => resolved.variants.compact,
+      })}
       {...resolved.styles.leading}
     >
       {local.children}
@@ -46,8 +48,10 @@ export function InputGroupTrailing(props: InputGroupT.TrailingProps): JSX.Elemen
     <div
       {...rest}
       data-slot="trailing"
-      data-orientation={group.orientation}
-      data-compact={resolved.variants.compact || undefined}
+      {...inputGroupDataAttributes.trailing({
+        orientation: () => group.orientation,
+        compact: () => resolved.variants.compact,
+      })}
       {...resolved.styles.trailing}
     >
       {local.children}

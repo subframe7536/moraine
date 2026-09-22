@@ -7,7 +7,7 @@ import { createContextProvider } from '../../shared/create-context-provider'
 import { callRef } from '../../shared/utils'
 
 import { useModalContext } from './modal-context'
-import { modalRecipe } from './modal.recipe'
+import { modalDataAttributes, modalRecipe } from './modal.recipe'
 import type { ModalT } from './modal.types'
 
 export const [ModalOverlayProvider, useModalOverlayContext] = createContextProvider<boolean>(
@@ -33,8 +33,11 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
           <div
             {...rest}
             data-slot="overlay"
-            data-overlay-scroll={local.scrollable ? '' : undefined}
-            {...presence.dataAttrs()}
+            {...modalDataAttributes.overlay({
+              'overlay-scroll': () => local.scrollable,
+              expanded: () => presence.dataAttrs()['data-expanded'],
+              closed: () => presence.dataAttrs()['data-closed'],
+            })}
             ref={(element) => {
               const unregister = presence.registerElement(element)
               callRef(local.ref, element)

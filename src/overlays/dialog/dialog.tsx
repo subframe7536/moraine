@@ -11,7 +11,7 @@ import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'
 
 import { DialogPresentationProvider, useDialogPresentation } from './dialog-context'
-import { dialogRecipe } from './dialog.recipe'
+import { dialogDataAttributes, dialogRecipe } from './dialog.recipe'
 import type { DialogProps, DialogT } from './dialog.types'
 
 /** Dialog state and context. Trigger, Content, and Close own their respective DOM. */
@@ -156,9 +156,11 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
               <Show when={hasJsxContent(body())}>
                 <div
                   data-slot="body"
-                  data-scroll={overlayScroll() ? undefined : ''}
-                  data-header={hasHeader() ? '' : undefined}
-                  data-footer={hasJsxContent(footer()) ? '' : undefined}
+                  {...dialogDataAttributes.body({
+                    scroll: () => !overlayScroll(),
+                    header: hasHeader,
+                    footer: () => hasJsxContent(footer()),
+                  })}
                   {...resolved.styles.body}
                 >
                   {body()}

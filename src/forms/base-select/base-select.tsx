@@ -39,7 +39,7 @@ import {
 } from '../shared/select/collection.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 
-import { baseSelectRecipe } from './base-select.recipe'
+import { baseSelectDataAttributes, baseSelectRecipe } from './base-select.recipe'
 import type {
   BaseSelectPartProps,
   BaseSelectProps,
@@ -462,12 +462,14 @@ function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
     <div
       {...rest}
       data-slot="control"
-      data-disabled={state.field.disabled() ? '' : undefined}
-      data-readonly={state.field.readOnly() ? '' : undefined}
-      data-required={state.field.required() ? '' : undefined}
-      data-invalid={state.field.invalid() ? '' : undefined}
-      data-expanded={state.open() ? '' : undefined}
-      data-closed={state.open() ? undefined : ''}
+      {...baseSelectDataAttributes.control({
+        disabled: state.field.disabled,
+        readonly: state.field.readOnly,
+        required: state.field.required,
+        invalid: state.field.invalid,
+        expanded: state.open,
+        closed: () => !state.open(),
+      })}
       ref={(element) => {
         state.setAnchor(element)
         callRef(local.ref, element)
@@ -561,10 +563,12 @@ function BaseSelectTrigger<
       id={state.field.id()}
       role="combobox"
       data-slot="trigger"
-      data-invalid={state.field.invalid() ? '' : undefined}
-      data-expanded={state.open() ? '' : undefined}
-      data-closed={state.open() ? undefined : ''}
-      data-disabled={state.field.disabled() || local.disabled ? '' : undefined}
+      {...baseSelectDataAttributes.trigger({
+        invalid: state.field.invalid,
+        expanded: state.open,
+        closed: () => !state.open(),
+        disabled: () => Boolean(state.field.disabled() || local.disabled),
+      })}
       aria-haspopup="listbox"
       aria-controls={state.listboxId()}
       aria-expanded={state.open() ? 'true' : 'false'}
@@ -672,9 +676,12 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
         <div data-slot="positioner" ref={setPositioner}>
           <div
             {...rest}
-            {...presence.dataAttrs()}
             data-slot="content"
-            data-side={side()}
+            {...baseSelectDataAttributes.content({
+              expanded: () => presence.dataAttrs()['data-expanded'],
+              closed: () => presence.dataAttrs()['data-closed'],
+              side,
+            })}
             ref={(element) => {
               setContent(element)
               presence.setElement(element)
@@ -791,9 +798,11 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       data-slot="item"
       aria-selected={selected() ? 'true' : 'false'}
       aria-disabled={disabled() || undefined}
-      data-selected={selected() ? '' : undefined}
-      data-highlighted={highlighted() ? '' : undefined}
-      data-disabled={disabled() ? '' : undefined}
+      {...baseSelectDataAttributes.item({
+        selected,
+        highlighted,
+        disabled,
+      })}
       {...resolved.styles.item}
       onPointerMove={(event) => {
         callHandler(event, local.onPointerMove)

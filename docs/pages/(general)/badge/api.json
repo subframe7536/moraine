@@ -4,7 +4,6 @@
   "category": "elements",
   "description": "Props for the Badge component.",
   "kind": "single",
-  "sourcePath": "src/elements/badge/badge.tsx",
   "parts": [
     {
       "id": "badge",
@@ -14,7 +13,6 @@
         "name": "Badge",
         "package": "moraine"
       },
-      "sourcePath": "src/elements/badge/badge.tsx",
       "description": "Props for the Badge component.",
       "rendering": {
         "rendersDom": true,
@@ -28,35 +26,7 @@
           "type": {
             "text": "JSX.Element"
           },
-          "description": "Children of the badge.",
-          "group": "rendering"
-        },
-        {
-          "name": "leading",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Leading icon name.",
-          "group": "rendering"
-        },
-        {
-          "name": "title",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Accessible title shown by the browser for the badge root.",
-          "group": "rendering"
-        },
-        {
-          "name": "trailing",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Trailing icon name.",
-          "group": "rendering"
+          "description": "Children of the badge."
         },
         {
           "name": "class",
@@ -64,8 +34,7 @@
           "type": {
             "text": "SlotClassValue"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
@@ -73,8 +42,15 @@
           "type": {
             "text": "Classes"
           },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "leading",
+          "optional": true,
+          "type": {
+            "text": "IconT.Name"
+          },
+          "description": "Leading icon name."
         },
         {
           "name": "size",
@@ -82,12 +58,17 @@
           "type": {
             "text": "'sm' | 'md' | 'lg'"
           },
-          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
+        },
+        {
+          "name": "square",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          }
         },
         {
           "name": "style",
@@ -95,8 +76,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -104,8 +84,23 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "title",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Accessible title shown by the browser for the badge root."
+        },
+        {
+          "name": "trailing",
+          "optional": true,
+          "type": {
+            "text": "IconT.Name"
+          },
+          "description": "Trailing icon name."
         },
         {
           "name": "variant",
@@ -113,100 +108,20 @@
           "type": {
             "text": "'solid' | 'subtle' | 'surface' | 'outline'"
           },
-          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "subtle"
-          },
-          "group": "styling"
+          }
         }
-      ],
-      "slots": [
-        {
-          "name": "label",
-          "description": "Badge text or children content between the optional visuals."
-        },
-        {
-          "name": "leading",
-          "description": "Optional icon displayed before the badge label."
-        },
-        {
-          "name": "root",
-          "description": "Inline badge container that carries the variant, size, and interactive state."
-        },
-        {
-          "name": "trailing",
-          "description": "Optional trailing icon displayed after the label."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "span",
-          "attributes": []
-        },
-        {
-          "name": "leading",
-          "slot": "leading",
-          "selector": "[data-slot=\"leading\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "label",
-          "slot": "label",
-          "selector": "[data-slot=\"label\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "trailing",
-          "slot": "trailing",
-          "selector": "[data-slot=\"trailing\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "root",
+    "leading",
+    "label",
+    "trailing"
+  ],
+  "dataAttributes": [],
+  "cssVariables": []
 }

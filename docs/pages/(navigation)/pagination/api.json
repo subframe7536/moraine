@@ -4,7 +4,6 @@
   "category": "navigation",
   "description": "Props for the Pagination component.",
   "kind": "single",
-  "sourcePath": "src/navigation/pagination/pagination.tsx",
   "parts": [
     {
       "id": "pagination",
@@ -14,7 +13,6 @@
         "name": "Pagination",
         "package": "moraine"
       },
-      "sourcePath": "src/navigation/pagination/pagination.tsx",
       "description": "Props for the Pagination component.",
       "rendering": {
         "rendersDom": true,
@@ -23,161 +21,50 @@
       },
       "props": [
         {
+          "name": "activeVariant",
+          "optional": true,
+          "type": {
+            "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
+          },
+          "default": {
+            "kind": "literal",
+            "value": "outline"
+          }
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance."
+        },
+        {
           "name": "controlAs",
           "optional": true,
           "type": {
             "text": "ValidComponent"
           },
-          "description": "Component used to render previous and next controls.",
-          "group": "behavior"
+          "description": "Component used to render previous and next controls."
         },
         {
-          "name": "disabled",
+          "name": "controlVariant",
           "optional": true,
           "type": {
-            "text": "boolean"
+            "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
           },
-          "description": "Whether the pagination is disabled.",
-          "group": "behavior"
-        },
-        {
-          "name": "itemAs",
-          "optional": true,
-          "type": {
-            "text": "ValidComponent"
-          },
-          "description": "Component used to render numbered page items.",
-          "group": "behavior"
-        },
-        {
-          "name": "itemsPerPage",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Number of items to display per page.",
           "default": {
             "kind": "literal",
-            "value": 10
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "nextText",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Text to display in the next button.",
-          "group": "behavior"
-        },
-        {
-          "name": "prevText",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Text to display in the previous button.",
-          "group": "behavior"
-        },
-        {
-          "name": "ref",
-          "optional": true,
-          "type": {
-            "text": "Ref<HTMLElement>"
-          },
-          "description": "Ref forwarded to the root `<nav>` element.",
-          "group": "behavior"
-        },
-        {
-          "name": "showControls",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether to show previous and next control buttons.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "siblingCount",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Number of page buttons to show on either side of the current page.\nFinite integer values are clamped between 0 and 100.",
-          "default": {
-            "kind": "literal",
-            "value": 2
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "to",
-          "optional": true,
-          "type": {
-            "text": "(page: number) => string | undefined"
-          },
-          "description": "Function to generate a destination URL for a given page number.\nWithout a custom component, enabled pagination controls with a destination render as anchors.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "total",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Total number of items across all pages.",
-          "default": {
-            "kind": "literal",
-            "value": 0
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "ellipsisIcon",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Icon name for the ellipsis indicator.",
-          "default": {
-            "kind": "literal",
-            "value": "icon-ellipsis"
-          },
-          "group": "rendering"
-        },
-        {
-          "name": "nextIcon",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Icon name for the next button.",
-          "default": {
-            "kind": "literal",
-            "value": "icon-chevron-right"
-          },
-          "group": "rendering"
-        },
-        {
-          "name": "prevIcon",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Icon name for the previous button.",
-          "default": {
-            "kind": "literal",
-            "value": "icon-chevron-left"
-          },
-          "group": "rendering"
+            "value": "ghost"
+          }
         },
         {
           "name": "defaultPage",
@@ -189,12 +76,67 @@
           "default": {
             "kind": "literal",
             "value": 1
-          },
-          "group": "state",
-          "state": {
-            "key": "page",
-            "role": "default"
           }
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the pagination is disabled."
+        },
+        {
+          "name": "ellipsisIcon",
+          "optional": true,
+          "type": {
+            "text": "IconT.Name"
+          },
+          "description": "Icon name for the ellipsis indicator.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-ellipsis"
+          }
+        },
+        {
+          "name": "itemAs",
+          "optional": true,
+          "type": {
+            "text": "ValidComponent"
+          },
+          "description": "Component used to render numbered page items."
+        },
+        {
+          "name": "itemsPerPage",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Number of items to display per page.",
+          "default": {
+            "kind": "literal",
+            "value": 10
+          }
+        },
+        {
+          "name": "nextIcon",
+          "optional": true,
+          "type": {
+            "text": "IconT.Name"
+          },
+          "description": "Icon name for the next button.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-chevron-right"
+          }
+        },
+        {
+          "name": "nextText",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Text to display in the next button."
         },
         {
           "name": "onPageChange",
@@ -202,15 +144,7 @@
           "type": {
             "text": "(page: number) => void"
           },
-          "description": "Callback triggered when the page changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "page",
-            "role": "change"
-          }
+          "description": "Callback triggered when the page changes."
         },
         {
           "name": "page",
@@ -218,56 +152,59 @@
           "type": {
             "text": "number"
           },
-          "description": "Controlled current page number (1-indexed).",
-          "group": "state",
-          "state": {
-            "key": "page",
-            "role": "value"
+          "description": "Controlled current page number (1-indexed)."
+        },
+        {
+          "name": "prevIcon",
+          "optional": true,
+          "type": {
+            "text": "IconT.Name"
+          },
+          "description": "Icon name for the previous button.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-chevron-left"
           }
         },
         {
-          "name": "activeVariant",
+          "name": "prevText",
           "optional": true,
           "type": {
-            "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
+            "text": "string"
           },
-          "description": "Visual variant for the active page button.",
+          "description": "Text to display in the previous button."
+        },
+        {
+          "name": "ref",
+          "optional": true,
+          "type": {
+            "text": "Ref<HTMLElement>"
+          },
+          "description": "Ref forwarded to the root `<nav>` element."
+        },
+        {
+          "name": "showControls",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether to show previous and next control buttons.",
           "default": {
             "kind": "literal",
-            "value": "outline"
-          },
-          "group": "styling"
+            "value": true
+          }
         },
         {
-          "name": "class",
+          "name": "siblingCount",
           "optional": true,
           "type": {
-            "text": "SlotClassValue"
+            "text": "number"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
-        },
-        {
-          "name": "controlVariant",
-          "optional": true,
-          "type": {
-            "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
-          },
-          "description": "Visual variant for the previous/next control buttons.",
+          "description": "Number of page buttons to show on either side of the current page.\nFinite integer values are clamped between 0 and 100.",
           "default": {
             "kind": "literal",
-            "value": "ghost"
-          },
-          "group": "styling"
+            "value": 2
+          }
         },
         {
           "name": "size",
@@ -275,12 +212,10 @@
           "type": {
             "text": "'sm' | 'md' | 'lg'"
           },
-          "description": "Size of the pagination buttons.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
@@ -288,8 +223,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -297,8 +231,27 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "to",
+          "optional": true,
+          "type": {
+            "text": "(page: number) => string | undefined"
+          },
+          "description": "Function to generate a destination URL for a given page number.\nWithout a custom component, enabled pagination controls with a destination render as anchors."
+        },
+        {
+          "name": "total",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Total number of items across all pages.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          }
         },
         {
           "name": "variant",
@@ -306,263 +259,55 @@
           "type": {
             "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
           },
-          "description": "Visual variant for the page buttons.",
           "default": {
             "kind": "literal",
             "value": "ghost"
-          },
-          "group": "styling"
+          }
         }
-      ],
-      "slots": [
-        {
-          "name": "controlLabel",
-          "description": "Label text for previous/next control buttons on larger screens."
-        },
-        {
-          "name": "ellipsis",
-          "description": "Non-interactive marker for skipped page ranges."
-        },
-        {
-          "name": "item",
-          "description": "Interactive numbered page control."
-        },
-        {
-          "name": "list",
-          "description": "Wrapper that lays out page, ellipsis, previous, and next controls."
-        },
-        {
-          "name": "listItem",
-          "description": "Structural wrapper for a page control, ellipsis, previous control, or next control."
-        },
-        {
-          "name": "next",
-          "description": "Control that navigates to the next page."
-        },
-        {
-          "name": "prev",
-          "description": "Control that navigates to the previous page."
-        },
-        {
-          "name": "root",
-          "description": "Navigation container for page controls."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "nav",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Provides an accessible label when visible text is not sufficient."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "list",
-          "slot": "list",
-          "selector": "[data-slot=\"list\"]",
-          "element": "ul",
-          "attributes": []
-        },
-        {
-          "name": "prev",
-          "slot": "prev",
-          "selector": "[data-slot=\"prev\"]",
-          "element": "button",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-busy",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the target is being updated or loading."
-            },
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Provides an accessible label when visible text is not sufficient."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-loading",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component or async operation is loading."
-            },
-            {
-              "name": "data-text",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the input group part contains text."
-            }
-          ]
-        },
-        {
-          "name": "ellipsis",
-          "slot": "ellipsis",
-          "selector": "[data-slot=\"ellipsis\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "item",
-          "slot": "item",
-          "selector": "[data-slot=\"item\"]",
-          "element": "button",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-busy",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the target is being updated or loading."
-            },
-            {
-              "name": "aria-current",
-              "kind": "aria",
-              "value": {
-                "kind": "literal",
-                "value": "page"
-              },
-              "description": "Marks the current item in a set or navigation trail."
-            },
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Provides an accessible label when visible text is not sufficient."
-            },
-            {
-              "name": "data-current",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item represents the current location or step."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-loading",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component or async operation is loading."
-            }
-          ]
-        },
-        {
-          "name": "next",
-          "slot": "next",
-          "selector": "[data-slot=\"next\"]",
-          "element": "button",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-busy",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the target is being updated or loading."
-            },
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Provides an accessible label when visible text is not sufficient."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-loading",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component or async operation is loading."
-            },
-            {
-              "name": "data-text",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the input group part contains text."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "root",
+    "list",
+    "listItem",
+    "item",
+    "prev",
+    "next",
+    "ellipsis",
+    "controlLabel"
+  ],
+  "dataAttributes": [
+    {
+      "target": "prev",
+      "attributes": [
+        "data-disabled",
+        "data-loading",
+        "data-text"
+      ]
+    },
+    {
+      "target": "item",
+      "attributes": [
+        "data-current",
+        "data-disabled",
+        "data-loading"
+      ]
+    },
+    {
+      "target": "next",
+      "attributes": [
+        "data-disabled",
+        "data-loading",
+        "data-text"
+      ]
+    },
+    {
+      "target": "ellipsis",
+      "attributes": [
+        "data-ellipsis"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

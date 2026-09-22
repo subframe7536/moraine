@@ -1,6 +1,22 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { StyleContractState } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { SidebarFrameStyleSlot, SidebarFrameStyleVariant } from './sidebar-frame.style-types'
+
+export const sidebarFrameDataAttributes = {
+  sidebar: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-closed': state.closed,
+      'data-mobile': state.mobile,
+    }),
+  trigger: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-closed': state.closed,
+      'data-disabled': state.disabled,
+      'data-open': state.open,
+    }),
+}
 
 export const sidebarFrameRecipe = /* @__PURE__ */ defineRecipe<
   SidebarFrameStyleSlot,

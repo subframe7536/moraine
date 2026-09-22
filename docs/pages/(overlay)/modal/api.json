@@ -3,7 +3,6 @@
   "name": "Modal",
   "category": "overlays",
   "kind": "composite",
-  "sourcePath": "src/overlays/modal/modal.tsx",
   "parts": [
     {
       "id": "modal",
@@ -13,78 +12,22 @@
         "name": "Modal",
         "package": "moraine"
       },
-      "sourcePath": "src/overlays/modal/modal.tsx",
-      "rendering": {
-        "rendersDom": false
-      },
       "props": [
-        {
-          "name": "dismissible",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether outside interaction and Escape should dismiss the shell.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "id",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Unique identifier used to derive the content id.",
-          "group": "behavior"
-        },
-        {
-          "name": "onClosePrevent",
-          "optional": true,
-          "type": {
-            "text": "() => void"
-          },
-          "description": "Called when a dismissal attempt is blocked.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onExitComplete",
-          "optional": true,
-          "type": {
-            "text": "() => void"
-          },
-          "description": "Called after the modal has fully finished its exit motion.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "preventScroll",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether body scroll should be locked while the shell is present.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
         {
           "name": "children",
           "optional": true,
           "type": {
             "text": "JSX.Element"
           },
-          "description": "Composed trigger and content primitives.",
-          "group": "rendering"
+          "description": "Composed trigger and content primitives."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this Modal instance."
         },
         {
           "name": "defaultOpen",
@@ -96,12 +39,43 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "state",
-          "state": {
-            "key": "open",
-            "role": "default"
           }
+        },
+        {
+          "name": "dismissible",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether outside interaction and Escape should dismiss the shell.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Unique identifier used to derive the content id."
+        },
+        {
+          "name": "onClosePrevent",
+          "optional": true,
+          "type": {
+            "text": "() => void"
+          },
+          "description": "Called when a dismissal attempt is blocked."
+        },
+        {
+          "name": "onExitComplete",
+          "optional": true,
+          "type": {
+            "text": "() => void"
+          },
+          "description": "Called after the modal has fully finished its exit motion."
         },
         {
           "name": "onOpenChange",
@@ -109,15 +83,7 @@
           "type": {
             "text": "(open: boolean) => void"
           },
-          "description": "Called whenever the open state changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "open",
-            "role": "change"
-          }
+          "description": "Called whenever the open state changes."
         },
         {
           "name": "open",
@@ -125,21 +91,19 @@
           "type": {
             "text": "boolean"
           },
-          "description": "Controlled open state.",
-          "group": "state",
-          "state": {
-            "key": "open",
-            "role": "value"
-          }
+          "description": "Controlled open state."
         },
         {
-          "name": "classes",
+          "name": "preventScroll",
           "optional": true,
           "type": {
-            "text": "Classes"
+            "text": "boolean"
           },
-          "description": "Family slot class defaults for this Modal instance.",
-          "group": "styling"
+          "description": "Whether body scroll should be locked while the shell is present.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         },
         {
           "name": "styles",
@@ -147,22 +111,9 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this Modal instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this Modal instance."
         }
-      ],
-      "slots": [
-        {
-          "name": "content",
-          "description": "Modal panel that contains the dialog content."
-        },
-        {
-          "name": "overlay",
-          "description": "Fixed backdrop that contains the modal shell."
-        }
-      ],
-      "runtime": [],
-      "cssVariables": []
+      ]
     },
     {
       "id": "modal-content",
@@ -172,7 +123,6 @@
         "root": "Modal",
         "member": "Content"
       },
-      "sourcePath": "src/overlays/modal/modal-content.tsx",
       "rendering": {
         "rendersDom": true,
         "defaultElement": "div",
@@ -185,8 +135,7 @@
           "type": {
             "text": "string"
           },
-          "description": "Id of the element that describes the modal content.",
-          "group": "behavior"
+          "description": "Id of the element that describes the modal content."
         },
         {
           "name": "ariaLabel",
@@ -194,8 +143,7 @@
           "type": {
             "text": "string"
           },
-          "description": "Accessible name used when no visible label is available.",
-          "group": "behavior"
+          "description": "Accessible name used when no visible label is available."
         },
         {
           "name": "ariaLabelledBy",
@@ -203,8 +151,31 @@
           "type": {
             "text": "string"
           },
-          "description": "Id of the element that labels the modal content.",
-          "group": "behavior"
+          "description": "Id of the element that labels the modal content."
+        },
+        {
+          "name": "children",
+          "optional": false,
+          "type": {
+            "text": "ComponentOrElement<ContentRenderProps>"
+          },
+          "description": "Component or element rendered inside the modal content surface."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "trapFocus",
@@ -216,157 +187,9 @@
           "default": {
             "kind": "literal",
             "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "children",
-          "optional": false,
-          "type": {
-            "text": "ComponentOrElement<ContentRenderProps>"
-          },
-          "description": "Component or element rendered inside the modal content surface.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          }
         }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "name": "overlay",
-          "slot": "overlay",
-          "selector": "[data-slot=\"overlay\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "data-closed",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when disclosure or transition content is closed."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-expanded",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the panel, accordion, or menu is expanded."
-            },
-            {
-              "name": "data-overlay-scroll",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when scrolling is owned by the overlay."
-            }
-          ]
-        },
-        {
-          "name": "content",
-          "slot": "content",
-          "selector": "[data-slot=\"content\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-describedby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References descriptive text associated with the control."
-            },
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Provides an accessible label when visible text is not sufficient."
-            },
-            {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the element that labels the control or region."
-            },
-            {
-              "name": "aria-modal",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Identifies modal content that traps interaction outside the dialog."
-            },
-            {
-              "name": "data-closed",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when disclosure or transition content is closed."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-expanded",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the panel, accordion, or menu is expanded."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "dialog"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     },
     {
       "id": "modal-overlay",
@@ -376,7 +199,6 @@
         "root": "Modal",
         "member": "Overlay"
       },
-      "sourcePath": "src/overlays/modal/modal-overlay.tsx",
       "rendering": {
         "rendersDom": true,
         "defaultElement": "div",
@@ -384,34 +206,12 @@
       },
       "props": [
         {
-          "name": "ref",
-          "optional": true,
-          "type": {
-            "text": "(element: HTMLDivElement | undefined) => void"
-          },
-          "description": "Receives the mounted overlay element and `undefined` when it unmounts.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "scrollable",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the overlay should scroll its content.",
-          "group": "behavior"
-        },
-        {
           "name": "children",
           "optional": true,
           "type": {
             "text": "JSX.Element"
           },
-          "description": "Optional elements rendered inside the overlay.",
-          "group": "rendering"
+          "description": "Optional elements rendered inside the overlay."
         },
         {
           "name": "class",
@@ -419,8 +219,23 @@
           "type": {
             "text": "SlotClassValue"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "ref",
+          "optional": true,
+          "type": {
+            "text": "(element: HTMLDivElement | undefined) => void"
+          },
+          "description": "Receives the mounted overlay element and `undefined` when it unmounts."
+        },
+        {
+          "name": "scrollable",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the overlay should scroll its content."
         },
         {
           "name": "style",
@@ -428,55 +243,9 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "name": "overlay",
-          "slot": "overlay",
-          "selector": "[data-slot=\"overlay\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "data-closed",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when disclosure or transition content is closed."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-expanded",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the panel, accordion, or menu is expanded."
-            },
-            {
-              "name": "data-overlay-scroll",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when scrolling is owned by the overlay."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     },
     {
       "id": "modal-trigger",
@@ -486,7 +255,6 @@
         "root": "Modal",
         "member": "Trigger"
       },
-      "sourcePath": "src/overlays/modal/modal-trigger.tsx",
       "generics": [
         {
           "name": "T",
@@ -506,22 +274,12 @@
       },
       "props": [
         {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether this trigger is disabled.",
-          "group": "behavior"
-        },
-        {
           "name": "as",
           "optional": true,
           "type": {
             "text": "T"
           },
           "description": "Element or component to render as.",
-          "group": "rendering",
           "default": {
             "kind": "literal",
             "value": "button"
@@ -533,8 +291,7 @@
           "type": {
             "text": "JSX.Element"
           },
-          "description": "Trigger label and visual content.",
-          "group": "rendering"
+          "description": "Trigger label and visual content."
         },
         {
           "name": "class",
@@ -542,8 +299,15 @@
           "type": {
             "text": "SlotClassValue"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
@@ -551,70 +315,9 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "name": "trigger",
-          "selector": "[data-slot=\"trigger\"]",
-          "element": "button",
-          "attributes": [
-            {
-              "name": "aria-controls",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the controlled element while the related content is mounted."
-            },
-            {
-              "name": "aria-expanded",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates whether the controlled content is expanded."
-            },
-            {
-              "name": "aria-haspopup",
-              "kind": "aria",
-              "value": {
-                "kind": "literal",
-                "value": "dialog"
-              },
-              "description": "Communicates the type of popup controlled by the trigger."
-            },
-            {
-              "name": "data-closed",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when disclosure or transition content is closed."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-expanded",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the panel, accordion, or menu is expanded."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     },
     {
       "id": "modal-close",
@@ -624,7 +327,6 @@
         "root": "Modal",
         "member": "Close"
       },
-      "sourcePath": "src/overlays/modal/modal-close.tsx",
       "generics": [
         {
           "name": "T",
@@ -644,22 +346,12 @@
       },
       "props": [
         {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether this trigger is disabled.",
-          "group": "behavior"
-        },
-        {
           "name": "as",
           "optional": true,
           "type": {
             "text": "T"
           },
           "description": "Element or component to render as.",
-          "group": "rendering",
           "default": {
             "kind": "literal",
             "value": "button"
@@ -671,8 +363,7 @@
           "type": {
             "text": "JSX.Element"
           },
-          "description": "Trigger label and visual content.",
-          "group": "rendering"
+          "description": "Trigger label and visual content."
         },
         {
           "name": "class",
@@ -680,8 +371,15 @@
           "type": {
             "text": "SlotClassValue"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
@@ -689,20 +387,39 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "name": "close",
-          "selector": "[data-slot=\"close\"]",
-          "element": "button",
-          "attributes": []
-        }
-      ],
-      "cssVariables": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "overlay",
+    "content"
+  ],
+  "dataAttributes": [
+    {
+      "target": "trigger",
+      "attributes": [
+        "data-closed",
+        "data-disabled",
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "overlay",
+      "attributes": [
+        "data-closed",
+        "data-expanded",
+        "data-overlay-scroll"
+      ]
+    },
+    {
+      "target": "content",
+      "attributes": [
+        "data-closed",
+        "data-expanded"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

@@ -11,26 +11,23 @@ const BUTTON_API_DOC: ComponentApi = {
   name: 'Button',
   category: 'General',
   kind: 'single',
-  sourcePath: 'src/elements/button/button.tsx',
   parts: [
     {
       id: 'button',
       name: 'Button',
       access: { kind: 'export', name: 'Button', package: 'moraine' },
-      sourcePath: 'src/elements/button/button.tsx',
       props: [
         {
           name: 'variant',
           optional: true,
           type: { text: 'string' },
-          group: 'styling',
         },
       ],
-      slots: [],
-      runtime: [],
-      cssVariables: [],
     },
   ],
+  slots: [],
+  dataAttributes: [],
+  cssVariables: [],
 }
 
 vi.mock('../api-doc/load.ts', () => ({

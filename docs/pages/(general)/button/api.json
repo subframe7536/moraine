@@ -4,7 +4,6 @@
   "category": "elements",
   "description": "Props for the Button component.",
   "kind": "single",
-  "sourcePath": "src/elements/button/button.tsx",
   "parts": [
     {
       "id": "button",
@@ -14,7 +13,6 @@
         "name": "Button",
         "package": "moraine"
       },
-      "sourcePath": "src/elements/button/button.tsx",
       "description": "Props for the Button component.",
       "generics": [
         {
@@ -35,13 +33,56 @@
       },
       "props": [
         {
+          "name": "as",
+          "optional": true,
+          "type": {
+            "text": "T"
+          },
+          "description": "Element or component to render as.",
+          "default": {
+            "kind": "literal",
+            "value": "button"
+          }
+        },
+        {
+          "name": "children",
+          "optional": true,
+          "type": {
+            "text": "ComponentOrElement<{ loading: boolean }>"
+          },
+          "description": "Children of the button. Supports render function form."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance."
+        },
+        {
           "name": "disabled",
           "optional": true,
           "type": {
             "text": "boolean"
           },
-          "description": "Disabled state, including for non-button polymorphic roots.",
-          "group": "behavior"
+          "description": "Disabled state, including for non-button polymorphic roots."
+        },
+        {
+          "name": "leading",
+          "optional": true,
+          "type": {
+            "text": "IconT.Name"
+          },
+          "description": "Leading visual content, usually an icon."
         },
         {
           "name": "loading",
@@ -53,8 +94,7 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "loadingAuto",
@@ -66,51 +106,7 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "slotName",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Root `data-slot` name",
-          "group": "behavior"
-        },
-        {
-          "name": "as",
-          "optional": true,
-          "type": {
-            "text": "T"
-          },
-          "description": "Element or component to render as.",
-          "default": {
-            "kind": "literal",
-            "value": "button"
-          },
-          "group": "rendering"
-        },
-        {
-          "name": "children",
-          "optional": true,
-          "type": {
-            "text": "ComponentOrElement<{ loading: boolean }>"
-          },
-          "description": "Children of the button. Supports render function form.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
-        },
-        {
-          "name": "leading",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Leading visual content, usually an icon.",
-          "group": "rendering"
+          }
         },
         {
           "name": "loadingIcon",
@@ -122,35 +118,7 @@
           "default": {
             "kind": "literal",
             "value": "icon-loading"
-          },
-          "group": "rendering"
-        },
-        {
-          "name": "trailing",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Trailing visual content, usually an icon.",
-          "group": "rendering"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          }
         },
         {
           "name": "size",
@@ -158,12 +126,18 @@
           "type": {
             "text": "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'"
           },
-          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
+          }
+        },
+        {
+          "name": "slotName",
+          "optional": true,
+          "type": {
+            "text": "string"
           },
-          "group": "styling"
+          "description": "Root `data-slot` name"
         },
         {
           "name": "style",
@@ -171,8 +145,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -180,8 +153,15 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "trailing",
+          "optional": true,
+          "type": {
+            "text": "IconT.Name"
+          },
+          "description": "Trailing visual content, usually an icon."
         },
         {
           "name": "variant",
@@ -189,129 +169,29 @@
           "type": {
             "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
           },
-          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "default"
-          },
-          "group": "styling"
+          }
         }
-      ],
-      "slots": [
-        {
-          "name": "label",
-          "description": "Button content region after render-prop resolution."
-        },
-        {
-          "name": "leading",
-          "description": "Icon region before the button label."
-        },
-        {
-          "name": "loading",
-          "description": "Loading icon shown while the button is busy."
-        },
-        {
-          "name": "root",
-          "description": "Interactive button element, or the polymorphic element provided through `as`."
-        },
-        {
-          "name": "trailing",
-          "description": "Icon region after the button label."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "button",
-          "attributes": [
-            {
-              "name": "aria-busy",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the target is being updated or loading."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-loading",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component or async operation is loading."
-            }
-          ]
-        },
-        {
-          "name": "leading",
-          "slot": "leading",
-          "selector": "[data-slot=\"leading\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "label",
-          "slot": "label",
-          "selector": "[data-slot=\"label\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "trailing",
-          "slot": "trailing",
-          "selector": "[data-slot=\"trailing\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "root",
+    "loading",
+    "leading",
+    "label",
+    "trailing"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-disabled",
+        "data-loading"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

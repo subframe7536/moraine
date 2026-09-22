@@ -1,114 +1,65 @@
 import { describe, expect, test } from 'vitest'
 
-import { createApiReferenceModel } from './presentation'
+import { createApiReferenceModel, getApiReferenceTocEntries } from './presentation'
 import type { ComponentApi } from './types'
 
-function component(kind: ComponentApi['kind']): ComponentApi {
-  return {
-    key: 'demo',
-    name: 'Demo',
-    category: 'elements',
-    kind,
-    sourcePath: 'src/demo.tsx',
-    parts: [
-      {
-        id: 'demo',
-        name: 'Demo',
-        access: { kind: 'export', name: 'Demo', package: 'moraine' },
-        sourcePath: 'src/demo.tsx',
-        rendering: { rendersDom: true },
-        props: [],
-        slots: [{ name: 'root' }],
-        runtime: [
-          {
-            name: 'root',
-            slot: 'root',
-            selector: '[data-slot="root"]',
-            attributes: [
-              {
-                name: 'data-disabled',
-                kind: 'data',
-                value: { kind: 'presence' },
-                description: 'Present when disabled.',
-              },
-            ],
-          },
-          {
-            name: 'wrapper',
-            selector: '[data-slot="wrapper"]',
-            attributes: [
-              {
-                name: 'data-disabled',
-                kind: 'data',
-                value: { kind: 'presence' },
-                description: 'Present when disabled.',
-              },
-              {
-                name: 'data-state',
-                kind: 'data',
-                value: { kind: 'enum', values: ['closed', 'open'] },
-              },
-              {
-                name: 'aria-expanded',
-                kind: 'aria',
-                value: { kind: 'boolean' },
-              },
-            ],
-          },
-        ],
-        cssVariables: [{ name: '--size', target: 'root' }],
-      },
-    ],
-  }
+const component: ComponentApi = {
+  key: 'demo',
+  name: 'Demo',
+  category: 'elements',
+  kind: 'composite',
+  parts: [
+    {
+      id: 'demo',
+      name: 'Demo',
+      access: { kind: 'export', name: 'Demo', package: 'moraine' },
+      rendering: { rendersDom: false },
+      props: [
+        { name: 'class', optional: true, type: { text: 'string' } },
+        { name: 'open', optional: false, type: { text: 'boolean' } },
+      ],
+    },
+    {
+      id: 'trigger',
+      name: 'Demo.Trigger',
+      access: { kind: 'attached', root: 'Demo', member: 'Trigger' },
+      rendering: { rendersDom: true, defaultElement: 'button' },
+      props: [{ name: 'disabled', optional: true, type: { text: 'boolean' } }],
+    },
+  ],
+  slots: ['trigger', 'content'],
+  dataAttributes: [{ target: 'trigger', attributes: ['data-disabled', 'data-expanded'] }],
+  cssVariables: [{ target: 'content', variables: ['--mo-demo-height'] }],
 }
 
 describe('createApiReferenceModel', () => {
-  test.each(['single', 'composite'] as const)(
-    'normalizes %s components without turning DOM targets into slots',
-    (kind) => {
-      const model = createApiReferenceModel(component(kind))!
-      const part = model.parts[0]!
-
-      expect(part.slots?.map((slot) => slot.name)).toEqual(['root'])
-      expect(part.anatomy?.map((target) => target.name)).toEqual(['root', 'wrapper'])
-      expect(part.dataAttributes).toEqual([
-        expect.objectContaining({
-          name: 'data-disabled',
-          targets: ['root', 'wrapper'],
-          value: 'Presence',
-        }),
-        expect.objectContaining({ name: 'data-state', value: 'closed | open' }),
-      ])
-      expect(part.accessibility).toEqual([
-        expect.objectContaining({ name: 'aria-expanded', value: 'boolean' }),
-      ])
-      expect(part.cssVariables).toEqual([{ name: '--size', target: 'root' }])
-    },
-  )
-
-  test('keeps context-only parts free of fabricated anatomy', () => {
-    const api = component('composite')
-    api.parts[0] = {
-      ...api.parts[0]!,
-      rendering: { rendersDom: false },
-      runtime: [],
-      cssVariables: [],
-    }
-
-    expect(createApiReferenceModel(api)?.parts[0]).toEqual(
-      expect.objectContaining({ rendersDom: false }),
-    )
-    expect(createApiReferenceModel(api)?.parts[0]?.anatomy).toBeUndefined()
+  test('keeps props ungrouped and common props last', () => {
+    const model = createApiReferenceModel(component)!
+    expect(model.parts[0]?.props.map((prop) => prop.name)).toEqual(['open', 'class'])
+    expect(model.parts[0]?.rendersDom).toBe(false)
   })
 
-  test('does not combine same-name attributes with different semantics', () => {
-    const api = component('single')
-    api.parts[0]!.runtime[1]!.attributes[0]!.description = 'Local disabled state.'
+  test('creates one component-level styling contract without accessibility anatomy', () => {
+    const model = createApiReferenceModel(component)!
+    expect(model.styling.slots).toEqual(['trigger', 'content'])
+    expect(model.styling.dataAttributes[0]).toMatchObject({
+      target: 'trigger',
+      attributes: [{ name: 'data-disabled' }, { name: 'data-expanded' }],
+    })
+    expect(model.styling.cssVariables).toEqual([
+      { target: 'content', variables: ['--mo-demo-height'] },
+    ])
+    expect(model.parts[0]).not.toHaveProperty('accessibility')
+    expect(model.parts[0]).not.toHaveProperty('anatomy')
+  })
 
-    expect(
-      createApiReferenceModel(api)?.parts[0]?.dataAttributes?.filter(
-        (attribute) => attribute.name === 'data-disabled',
-      ),
-    ).toHaveLength(2)
+  test('adds one DOM & State TOC entry after composite parts', () => {
+    expect(getApiReferenceTocEntries(component)).toEqual(
+      expect.arrayContaining([
+        { id: 'api-demo', label: 'Demo', level: 2 },
+        { id: 'api-trigger', label: 'Demo.Trigger', level: 2 },
+        { id: 'dom-styling', label: 'DOM & State', level: 2 },
+      ]),
+    )
   })
 })

@@ -19,7 +19,7 @@ import { useControllableValue } from '../../shared/use-controllable-value'
 import { useSelectableCollectionNavigation } from '../../shared/use-selectable-collection-navigation'
 import { useId } from '../../shared/utils'
 
-import { tabsRecipe } from './tabs.recipe'
+import { tabsDataAttributes, tabsRecipe } from './tabs.recipe'
 import type { TabsProps, TabsT } from './tabs.types'
 
 interface NormalizedTabItem extends TabsT.Item {
@@ -280,7 +280,7 @@ export function Tabs(props: TabsProps): JSX.Element {
       {...rest}
       id={rootId()}
       data-slot="root"
-      data-disabled={merged.disabled ? '' : undefined}
+      {...tabsDataAttributes.root({ disabled: () => merged.disabled })}
       {...resolved.styles.root}
     >
       <div
@@ -328,9 +328,11 @@ export function Tabs(props: TabsProps): JSX.Element {
                 tabIndex={highlighted() ? 0 : -1}
                 aria-controls={selected() ? getContentId(item.instanceKey) : undefined}
                 aria-selected={selected()}
-                data-selected={selected() ? '' : undefined}
-                data-highlighted={highlighted() ? '' : undefined}
-                data-disabled={merged.disabled || item.disabled ? '' : undefined}
+                {...tabsDataAttributes.trigger({
+                  selected,
+                  highlighted,
+                  disabled: () => Boolean(merged.disabled || item.disabled),
+                })}
                 disabled={Boolean(merged.disabled || item.disabled)}
                 data-slot="trigger"
                 {...resolved.styles.trigger}
@@ -371,7 +373,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 role="tabpanel"
                 tabIndex={0}
                 aria-labelledby={getTriggerId(item.instanceKey)}
-                data-selected=""
+                {...tabsDataAttributes.content({ selected: true })}
                 data-slot="content"
                 {...resolved.styles.content}
               >

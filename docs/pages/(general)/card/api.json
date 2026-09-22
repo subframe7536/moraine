@@ -4,7 +4,6 @@
   "category": "elements",
   "description": "Props for the Card component.",
   "kind": "single",
-  "sourcePath": "src/elements/card/card.tsx",
   "parts": [
     {
       "id": "card",
@@ -14,7 +13,6 @@
         "name": "Card",
         "package": "moraine"
       },
-      "sourcePath": "src/elements/card/card.tsx",
       "description": "Props for the Card component.",
       "rendering": {
         "rendersDom": true,
@@ -28,8 +26,7 @@
           "type": {
             "text": "JSX.Element"
           },
-          "description": "Actions of the card.",
-          "group": "behavior"
+          "description": "Actions of the card."
         },
         {
           "name": "children",
@@ -37,44 +34,7 @@
           "type": {
             "text": "JSX.Element"
           },
-          "description": "Children of the card.",
-          "group": "rendering"
-        },
-        {
-          "name": "description",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Description of the card.",
-          "group": "rendering"
-        },
-        {
-          "name": "footer",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Footer of the card.",
-          "group": "rendering"
-        },
-        {
-          "name": "header",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Header of the card.",
-          "group": "rendering"
-        },
-        {
-          "name": "title",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Title of the card.",
-          "group": "rendering"
+          "description": "Children of the card."
         },
         {
           "name": "class",
@@ -82,8 +42,7 @@
           "type": {
             "text": "SlotClassValue"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
@@ -91,8 +50,7 @@
           "type": {
             "text": "Classes"
           },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "compact",
@@ -100,12 +58,34 @@
           "type": {
             "text": "boolean"
           },
-          "description": "Visual compact of the component.",
           "default": {
             "kind": "literal",
             "value": false
+          }
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
           },
-          "group": "styling"
+          "description": "Description of the card."
+        },
+        {
+          "name": "footer",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Footer of the card."
+        },
+        {
+          "name": "header",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Header of the card."
         },
         {
           "name": "style",
@@ -113,8 +93,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -122,116 +101,41 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
-        }
-      ],
-      "slots": [
-        {
-          "name": "action",
-          "description": "Header action region, typically used for buttons or menus."
-        },
-        {
-          "name": "body",
-          "description": "Main content region for the card children."
-        },
-        {
-          "name": "description",
-          "description": "Supporting text rendered below the card title."
-        },
-        {
-          "name": "footer",
-          "description": "Bottom region for secondary actions or summary content."
-        },
-        {
-          "name": "header",
-          "description": "Top region for title, description, custom header content, and actions."
-        },
-        {
-          "name": "root",
-          "description": "Card container that frames the header, body, and footer regions."
+          "description": "Family slot style defaults for this instance."
         },
         {
           "name": "title",
-          "description": "Primary heading rendered in the card header."
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Title of the card."
         }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "div",
-          "attributes": []
-        },
-        {
-          "name": "header",
-          "slot": "header",
-          "selector": "[data-slot=\"header\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "data-action",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Stores the action performed by this interactive target."
-            }
-          ]
-        },
-        {
-          "name": "title",
-          "slot": "title",
-          "selector": "[data-slot=\"title\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "description",
-          "slot": "description",
-          "selector": "[data-slot=\"description\"]",
-          "element": "p",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "action",
-          "slot": "action",
-          "selector": "[data-slot=\"action\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "body",
-          "slot": "body",
-          "selector": "[data-slot=\"body\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "data-no-footer",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when footer content is absent."
-            }
-          ]
-        },
-        {
-          "name": "footer",
-          "slot": "footer",
-          "selector": "[data-slot=\"footer\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": []
-        }
-      ],
-      "cssVariables": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "root",
+    "header",
+    "title",
+    "description",
+    "action",
+    "body",
+    "footer"
+  ],
+  "dataAttributes": [
+    {
+      "target": "header",
+      "attributes": [
+        "data-action"
+      ]
+    },
+    {
+      "target": "body",
+      "attributes": [
+        "data-no-footer"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

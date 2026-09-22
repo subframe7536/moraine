@@ -4,7 +4,6 @@
   "category": "navigation",
   "description": "Props for the Breadcrumb component.",
   "kind": "single",
-  "sourcePath": "src/navigation/breadcrumb/breadcrumb.tsx",
   "parts": [
     {
       "id": "breadcrumb",
@@ -14,7 +13,6 @@
         "name": "Breadcrumb",
         "package": "moraine"
       },
-      "sourcePath": "src/navigation/breadcrumb/breadcrumb.tsx",
       "description": "Props for the Breadcrumb component.",
       "rendering": {
         "rendersDom": true,
@@ -23,13 +21,44 @@
       },
       "props": [
         {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "itemRender",
+          "optional": true,
+          "type": {
+            "text": "ComponentOrElement<ItemRenderProps>"
+          },
+          "description": "Custom renderer for individual breadcrumb items."
+        },
+        {
+          "name": "items",
+          "optional": true,
+          "type": {
+            "text": "Item[]"
+          },
+          "description": "Array of breadcrumb items to display."
+        },
+        {
           "name": "ref",
           "optional": true,
           "type": {
             "text": "Ref<HTMLElement>"
           },
-          "description": "Ref forwarded to the root `<nav>` element.",
-          "group": "behavior"
+          "description": "Ref forwarded to the root `<nav>` element."
         },
         {
           "name": "separator",
@@ -41,47 +70,7 @@
           "default": {
             "kind": "literal",
             "value": "icon-chevron-right"
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "items",
-          "optional": true,
-          "type": {
-            "text": "Item[]"
-          },
-          "description": "Array of breadcrumb items to display.",
-          "group": "data"
-        },
-        {
-          "name": "itemRender",
-          "optional": true,
-          "type": {
-            "text": "ComponentOrElement<ItemRenderProps>"
-          },
-          "description": "Custom renderer for individual breadcrumb items.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          }
         },
         {
           "name": "size",
@@ -89,12 +78,10 @@
           "type": {
             "text": "'sm' | 'md' | 'lg'"
           },
-          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
@@ -102,8 +89,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -111,8 +97,7 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
         },
         {
           "name": "wrap",
@@ -120,191 +105,12 @@
           "type": {
             "text": "boolean"
           },
-          "description": "Visual wrap of the component.",
           "default": {
             "kind": "literal",
             "value": true
-          },
-          "group": "styling"
+          }
         }
-      ],
-      "slots": [
-        {
-          "name": "item",
-          "description": "Wrapper for one breadcrumb entry."
-        },
-        {
-          "name": "label",
-          "description": "Breadcrumb item label text."
-        },
-        {
-          "name": "leading",
-          "description": "Optional icon rendered before a breadcrumb label."
-        },
-        {
-          "name": "link",
-          "description": "Clickable breadcrumb target for navigable entries."
-        },
-        {
-          "name": "list",
-          "description": "Ordered list that contains breadcrumb items and separators."
-        },
-        {
-          "name": "page",
-          "description": "Current page entry."
-        },
-        {
-          "name": "root",
-          "description": "Navigation container for the breadcrumb trail."
-        },
-        {
-          "name": "separator",
-          "description": "Visual divider between breadcrumb entries."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "nav",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Provides an accessible label when visible text is not sufficient."
-            }
-          ]
-        },
-        {
-          "name": "list",
-          "slot": "list",
-          "selector": "[data-slot=\"list\"]",
-          "element": "ol",
-          "attributes": []
-        },
-        {
-          "name": "item",
-          "slot": "item",
-          "selector": "[data-slot=\"item\"]",
-          "element": "li",
-          "attributes": []
-        },
-        {
-          "name": "page",
-          "slot": "page",
-          "selector": "[data-slot=\"page\"]",
-          "element": "nav",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-current",
-              "kind": "aria",
-              "value": {
-                "kind": "literal",
-                "value": "page"
-              },
-              "description": "Marks the current item in a set or navigation trail."
-            },
-            {
-              "name": "aria-disabled",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the control is disabled."
-            },
-            {
-              "name": "data-current",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item represents the current location or step."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "link"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "leading",
-          "slot": "leading",
-          "selector": "[data-slot=\"leading\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "label",
-          "slot": "label",
-          "selector": "[data-slot=\"label\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "separator",
-          "slot": "separator",
-          "selector": "[data-slot=\"separator\"]",
-          "element": "li",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "presentation"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     }
   ],
   "item": {
@@ -384,5 +190,25 @@
         "description": "The destination URL for this item."
       }
     ]
-  }
+  },
+  "slots": [
+    "root",
+    "list",
+    "item",
+    "link",
+    "page",
+    "leading",
+    "label",
+    "separator"
+  ],
+  "dataAttributes": [
+    {
+      "target": "page",
+      "attributes": [
+        "data-current",
+        "data-disabled"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

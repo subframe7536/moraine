@@ -7,116 +7,67 @@ import { describe, expect, test } from 'vitest'
 import type { ComponentApi, GenerationResult } from './types'
 import { writeJsonFiles } from './write'
 
-describe('writeJsonFiles', () => {
-  const validComponent: ComponentApi = {
-    key: 'demo',
-    name: 'Demo',
-    category: 'elements',
-    kind: 'single',
-    sourcePath: 'src/elements/demo/demo.tsx',
-    parts: [
-      {
-        id: 'demo',
-        name: 'Demo',
-        access: { kind: 'export', name: 'Demo', package: 'moraine' },
-        sourcePath: 'src/elements/demo/demo.tsx',
-        props: [
-          {
-            name: 'variant',
-            optional: true,
-            type: { text: 'string' },
-            group: 'styling',
-          },
-        ],
-        slots: [{ name: 'root' }],
-        runtime: [
-          {
-            name: 'root',
-            slot: 'root',
-            selector: '[data-slot="root"]',
-            element: 'div',
-            attributes: [],
-          },
-        ],
-        cssVariables: [],
-      },
-    ],
-  }
+const validComponent: ComponentApi = {
+  key: 'demo',
+  name: 'Demo',
+  category: 'elements',
+  kind: 'single',
+  parts: [
+    {
+      id: 'demo',
+      name: 'Demo',
+      access: { kind: 'export', name: 'Demo', package: 'moraine' },
+      props: [{ name: 'variant', optional: true, type: { text: 'string' } }],
+    },
+  ],
+  slots: ['root'],
+  dataAttributes: [{ target: 'root', attributes: ['data-disabled'] }],
+  cssVariables: [],
+}
 
-  test('writes colocated index/api files and removes stale page api files', async () => {
+describe('writeJsonFiles', () => {
+  test('atomically writes colocated API files', async () => {
     const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-api-json-'))
     const pagesRoot = path.join(projectRoot, 'docs/pages')
     const pageDir = path.join(pagesRoot, 'general/demo')
-    const stalePath = path.join(pageDir, 'api.json')
+    const apiPath = path.join(pageDir, 'api.json')
     await mkdir(pageDir, { recursive: true })
-    await writeFile(
-      path.join(pageDir, 'demo.mdx'),
-      '---\ntitle: Demo\ndescription: Demo page.\nsidebar:\n  order: 10\nsearch:\n  tags: [demo]\n---\n',
-      'utf8',
-    )
-    await writeFile(stalePath, '{"stale":true}', 'utf8')
+    await writeFile(path.join(pageDir, 'demo.mdx'), '---\ntitle: Demo\n---\n', 'utf8')
+    await writeFile(apiPath, '{"stale":true}', 'utf8')
 
     const result: GenerationResult = {
       indexDoc: {
-        components: [
-          {
-            key: 'demo',
-            name: 'Demo',
-            category: 'elements',
-            kind: 'single',
-            sourcePath: 'src/elements/demo/demo.tsx',
-          },
-        ],
+        components: [{ key: 'demo', name: 'Demo', category: 'elements', kind: 'single' }],
       },
       componentDocs: new Map([['demo', validComponent]]),
       diagnostics: [],
     }
-
     await writeJsonFiles(pagesRoot, result)
-
     expect(JSON.parse(await readFile(path.join(pagesRoot, '_api-index.json'), 'utf8'))).toEqual(
       result.indexDoc,
     )
-    const written = JSON.parse(await readFile(stalePath, 'utf8'))
-    expect(written.key).toBe('demo')
-    expect(written.parts).toHaveLength(1)
-    expect(written.parts[0].name).toBe('Demo')
-
+    expect(JSON.parse(await readFile(apiPath, 'utf8'))).toMatchObject({ key: 'demo' })
     await rm(projectRoot, { recursive: true, force: true })
   })
 
-  test('preserves existing api.json when validation fails (failure safety)', async () => {
+  test('preserves existing files when validation fails', async () => {
     const projectRoot = await mkdtemp(path.join(tmpdir(), 'moraine-api-fail-'))
     const pagesRoot = path.join(projectRoot, 'docs/pages')
     const pageDir = path.join(pagesRoot, 'general/demo')
     const apiPath = path.join(pageDir, 'api.json')
     await mkdir(pageDir, { recursive: true })
-    await writeFile(
-      path.join(pageDir, 'demo.mdx'),
-      '---\ntitle: Demo\ndescription: Demo page.\nsidebar:\n  order: 10\nsearch:\n  tags: [demo]\n---\n',
-      'utf8',
-    )
-    const originalContent = '{"original":true}'
-    await writeFile(apiPath, originalContent, 'utf8')
-
-    const invalidComponent: ComponentApi = {
-      ...validComponent,
-      parts: [], // Invalid: component must have at least one part!
-    }
-
-    const failingResult: GenerationResult = {
+    await writeFile(path.join(pageDir, 'demo.mdx'), '---\ntitle: Demo\n---\n', 'utf8')
+    await writeFile(apiPath, '{"original":true}', 'utf8')
+    const invalid = { ...validComponent, parts: [] }
+    const result: GenerationResult = {
       indexDoc: { components: [] },
-      componentDocs: new Map([['demo', invalidComponent]]),
+      componentDocs: new Map([['demo', invalid]]),
       diagnostics: [],
     }
-
-    await expect(writeJsonFiles(pagesRoot, failingResult)).rejects.toThrow(
+    await expect(writeJsonFiles(pagesRoot, result)).rejects.toThrow(
       'at least one documented public part',
     )
-
-    // Existing api.json must be completely unchanged!
-    expect(await readFile(apiPath, 'utf8')).toBe(originalContent)
-
+    expect(await readFile(apiPath, 'utf8')).toBe('{"original":true}')
     await rm(projectRoot, { recursive: true, force: true })
   })
 })

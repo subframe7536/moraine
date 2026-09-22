@@ -1,6 +1,19 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { StyleContractState } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { TabsStyleSlot, TabsStyleVariant } from './tabs.style-types'
+
+export const tabsDataAttributes = {
+  root: (state: StyleContractState) => createDataAttributes({ 'data-disabled': state.disabled }),
+  trigger: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-disabled': state.disabled,
+      'data-highlighted': state.highlighted,
+      'data-selected': state.selected,
+    }),
+  content: (state: StyleContractState) => createDataAttributes({ 'data-selected': state.selected }),
+}
 
 export const tabsRecipe = /* @__PURE__ */ defineRecipe<TabsStyleSlot, TabsStyleVariant>('tabs', {
   base: {

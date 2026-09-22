@@ -4,7 +4,6 @@
   "category": "forms",
   "description": "Props for the Checkbox component.",
   "kind": "single",
-  "sourcePath": "src/forms/checkbox/checkbox.tsx",
   "parts": [
     {
       "id": "checkbox",
@@ -14,7 +13,6 @@
         "name": "Checkbox",
         "package": "moraine"
       },
-      "sourcePath": "src/forms/checkbox/checkbox.tsx",
       "description": "Props for the Checkbox component.",
       "generics": [
         {
@@ -33,134 +31,12 @@
       },
       "props": [
         {
-          "name": "disabled",
+          "name": "checked",
           "optional": true,
           "type": {
-            "text": "boolean"
+            "text": "TTrue | TFalse | 'indeterminate'"
           },
-          "description": "Whether the input is disabled.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "falseValue",
-          "optional": true,
-          "type": {
-            "text": "TFalse"
-          },
-          "description": "Value to use when the checkbox is unchecked.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "fieldBind",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether to bind the checkbox value to the parent Field.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "id",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The ID of the input element.",
-          "group": "behavior"
-        },
-        {
-          "name": "indeterminate",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the checkbox is in an indeterminate state.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "inputRef",
-          "optional": true,
-          "type": {
-            "text": "Ref<HTMLInputElement>"
-          },
-          "description": "Native input element ref.",
-          "group": "behavior"
-        },
-        {
-          "name": "onPointerDown",
-          "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>"
-          },
-          "description": "Pointer down handler for the checkbox control.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "trueValue",
-          "optional": true,
-          "type": {
-            "text": "TTrue"
-          },
-          "description": "Value to use when the checkbox is checked.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "name",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The name of the input element, used for form submission.",
-          "group": "form"
-        },
-        {
-          "name": "readOnly",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is read-only.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "form"
-        },
-        {
-          "name": "required",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is required.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "form"
+          "description": "Whether the checkbox is checked (controlled)."
         },
         {
           "name": "checkedIcon",
@@ -172,52 +48,23 @@
           "default": {
             "kind": "literal",
             "value": "icon-check"
-          },
-          "group": "rendering"
-        },
-        {
-          "name": "description",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Description text for the checkbox.",
-          "group": "rendering"
-        },
-        {
-          "name": "indeterminateIcon",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Icon to show when indeterminate.",
-          "default": {
-            "kind": "literal",
-            "value": "icon-minus"
-          },
-          "group": "rendering"
-        },
-        {
-          "name": "label",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Label for the checkbox.",
-          "group": "rendering"
-        },
-        {
-          "name": "checked",
-          "optional": true,
-          "type": {
-            "text": "TTrue | TFalse | 'indeterminate'"
-          },
-          "description": "Whether the checkbox is checked (controlled).",
-          "group": "state",
-          "state": {
-            "key": "checked",
-            "role": "value"
           }
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "defaultChecked",
@@ -229,12 +76,118 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "state",
-          "state": {
-            "key": "checked",
-            "role": "default"
           }
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Description text for the checkbox."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "falseValue",
+          "optional": true,
+          "type": {
+            "text": "TFalse"
+          },
+          "description": "Value to use when the checkbox is unchecked.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "fieldBind",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether to bind the checkbox value to the parent Field.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "The ID of the input element."
+        },
+        {
+          "name": "indeterminate",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the checkbox is in an indeterminate state.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "indeterminateIcon",
+          "optional": true,
+          "type": {
+            "text": "IconT.Name"
+          },
+          "description": "Icon to show when indeterminate.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-minus"
+          }
+        },
+        {
+          "name": "indicator",
+          "optional": true,
+          "type": {
+            "text": "'start' | 'end' | 'hidden'"
+          },
+          "default": {
+            "kind": "literal",
+            "value": "start"
+          }
+        },
+        {
+          "name": "inputRef",
+          "optional": true,
+          "type": {
+            "text": "Ref<HTMLInputElement>"
+          },
+          "description": "Native input element ref."
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Label for the checkbox."
+        },
+        {
+          "name": "name",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "The name of the input element, used for form submission."
         },
         {
           "name": "onChange",
@@ -242,14 +195,77 @@
           "type": {
             "text": "(value: TTrue | TFalse) => void"
           },
-          "description": "Callback when the checked state changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "value",
-            "role": "change"
+          "description": "Callback when the checked state changes."
+        },
+        {
+          "name": "onPointerDown",
+          "optional": true,
+          "type": {
+            "text": "JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>"
+          },
+          "description": "Pointer down handler for the checkbox control."
+        },
+        {
+          "name": "readOnly",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is read-only.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "required",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is required.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": {
+            "text": "'sm' | 'md' | 'lg'"
+          },
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "trueValue",
+          "optional": true,
+          "type": {
+            "text": "TTrue"
+          },
+          "description": "Value to use when the checkbox is checked.",
+          "default": {
+            "kind": "literal",
+            "value": true
           }
         },
         {
@@ -262,364 +278,67 @@
           "default": {
             "kind": "literal",
             "value": "on"
-          },
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "value"
           }
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
-        },
-        {
-          "name": "indicator",
-          "optional": true,
-          "type": {
-            "text": "'start' | 'end' | 'hidden'"
-          },
-          "description": "Placement of the selection indicator.",
-          "default": {
-            "kind": "literal",
-            "value": "start"
-          },
-          "group": "styling"
-        },
-        {
-          "name": "size",
-          "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
-          "description": "Visual size of the component.",
-          "default": {
-            "kind": "literal",
-            "value": "md"
-          },
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
         },
         {
           "name": "variant",
           "optional": true,
           "type": {
             "text": "'card' | 'list'"
-          },
-          "description": "Visual treatment of the component.",
-          "group": "styling"
+          }
         }
-      ],
-      "slots": [
-        {
-          "name": "container",
-          "description": "Vertical alignment wrapper for the checkbox control."
-        },
-        {
-          "name": "control",
-          "description": "Visible checkbox control users recognize as the toggle target."
-        },
-        {
-          "name": "description",
-          "description": "Supporting text associated with the checkbox."
-        },
-        {
-          "name": "icon",
-          "description": "Check or indeterminate icon rendered for the current state."
-        },
-        {
-          "name": "indicator",
-          "description": "Visual checked or indeterminate state layer inside the control."
-        },
-        {
-          "name": "label",
-          "description": "Primary checkbox label text."
-        },
-        {
-          "name": "root",
-          "description": "Labelable checkbox wrapper that coordinates input, indicator, and text content."
-        },
-        {
-          "name": "wrapper",
-          "description": "Inner layout wrapper used by card and list checkbox variants."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "data-checked",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item or toggle is checked."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-indeterminate",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the checkbox or progress state is indeterminate."
-            },
-            {
-              "name": "data-invalid",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field or form has a validation error."
-            },
-            {
-              "name": "data-readonly",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field is in read-only mode."
-            },
-            {
-              "name": "data-required",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field input is required."
-            },
-            {
-              "name": "data-unchecked",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the checkbox, radio item, or switch is unchecked."
-            }
-          ]
-        },
-        {
-          "name": "container",
-          "slot": "container",
-          "selector": "[data-slot=\"container\"]",
-          "element": "div",
-          "attributes": []
-        },
-        {
-          "name": "control",
-          "slot": "control",
-          "selector": "[data-slot=\"control\"]",
-          "element": "button",
-          "attributes": [
-            {
-              "name": "aria-checked",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Communicates the checked, unchecked, or mixed state of a control."
-            },
-            {
-              "name": "data-checked",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item or toggle is checked."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-indeterminate",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the checkbox or progress state is indeterminate."
-            },
-            {
-              "name": "data-invalid",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field or form has a validation error."
-            },
-            {
-              "name": "data-readonly",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field is in read-only mode."
-            },
-            {
-              "name": "data-required",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field input is required."
-            },
-            {
-              "name": "data-unchecked",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the checkbox, radio item, or switch is unchecked."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "checkbox"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "indicator",
-          "slot": "indicator",
-          "selector": "[data-slot=\"indicator\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "data-checked",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item or toggle is checked."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-indeterminate",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the checkbox or progress state is indeterminate."
-            }
-          ]
-        },
-        {
-          "name": "wrapper",
-          "slot": "wrapper",
-          "selector": "[data-slot=\"wrapper\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "label",
-          "slot": "label",
-          "selector": "[data-slot=\"label\"]",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "data-required",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field input is required."
-            }
-          ]
-        },
-        {
-          "name": "description",
-          "slot": "description",
-          "selector": "[data-slot=\"description\"]",
-          "element": "p",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "icon",
-          "slot": "icon",
-          "selector": "[data-slot=\"icon\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ],
-          "condition": "Conditional"
-        }
-      ],
-      "cssVariables": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "root",
+    "control",
+    "indicator",
+    "icon",
+    "wrapper",
+    "container",
+    "label",
+    "description"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-checked",
+        "data-disabled",
+        "data-indeterminate",
+        "data-invalid",
+        "data-readonly",
+        "data-required",
+        "data-unchecked"
+      ]
+    },
+    {
+      "target": "control",
+      "attributes": [
+        "data-checked",
+        "data-disabled",
+        "data-indeterminate",
+        "data-invalid",
+        "data-readonly",
+        "data-required",
+        "data-unchecked"
+      ]
+    },
+    {
+      "target": "indicator",
+      "attributes": [
+        "data-checked",
+        "data-disabled",
+        "data-indeterminate"
+      ]
+    },
+    {
+      "target": "label",
+      "attributes": [
+        "data-required"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

@@ -13,7 +13,7 @@ import { callHandler, callRef } from '../../shared/utils'
 import { renderField } from '../field/field'
 
 import { useFormischFieldBinding } from './form-field-binding'
-import { formRecipe } from './form.recipe'
+import { formDataAttributes, formRecipe } from './form.recipe'
 import type { FormProps, FormT } from './form.types'
 import { createInvalidFocusManager } from './invalid-focus-manager'
 import type { InvalidFocusManager } from './invalid-focus-manager'
@@ -68,7 +68,7 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
       onReset={onReset}
       {...resolved.styles.root}
       data-slot="root"
-      data-submitting={local.of.isSubmitting ? '' : undefined}
+      {...formDataAttributes.root({ submitting: () => local.of.isSubmitting })}
     >
       {local.children}
     </FormischForm>

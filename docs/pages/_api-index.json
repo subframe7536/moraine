@@ -5,7 +5,6 @@
       "name": "Accordion",
       "category": "elements",
       "kind": "single",
-      "sourcePath": "src/elements/accordion/accordion.tsx",
       "description": "Props for the Accordion component."
     },
     {
@@ -13,7 +12,6 @@
       "name": "Avatar",
       "category": "elements",
       "kind": "single",
-      "sourcePath": "src/elements/avatar/avatar.tsx",
       "description": "Props for the Avatar component."
     },
     {
@@ -21,7 +19,6 @@
       "name": "AvatarGroup",
       "category": "elements",
       "kind": "single",
-      "sourcePath": "src/elements/avatar/avatar-group.tsx",
       "description": "Props for the AvatarGroup component."
     },
     {
@@ -29,22 +26,19 @@
       "name": "Badge",
       "category": "elements",
       "kind": "single",
-      "sourcePath": "src/elements/badge/badge.tsx",
       "description": "Props for the Badge component."
     },
     {
       "key": "base-select",
       "name": "BaseSelect",
       "category": "forms",
-      "kind": "composite",
-      "sourcePath": "src/forms/base-select/base-select.tsx"
+      "kind": "composite"
     },
     {
       "key": "breadcrumb",
       "name": "Breadcrumb",
       "category": "navigation",
       "kind": "single",
-      "sourcePath": "src/navigation/breadcrumb/breadcrumb.tsx",
       "description": "Props for the Breadcrumb component."
     },
     {
@@ -52,7 +46,6 @@
       "name": "Button",
       "category": "elements",
       "kind": "single",
-      "sourcePath": "src/elements/button/button.tsx",
       "description": "Props for the Button component."
     },
     {
@@ -60,7 +53,6 @@
       "name": "ButtonGroup",
       "category": "elements",
       "kind": "composite",
-      "sourcePath": "src/elements/button/button-group.tsx",
       "description": "Props for the ButtonGroup component."
     },
     {
@@ -68,7 +60,6 @@
       "name": "Card",
       "category": "elements",
       "kind": "single",
-      "sourcePath": "src/elements/card/card.tsx",
       "description": "Props for the Card component."
     },
     {
@@ -76,7 +67,6 @@
       "name": "Checkbox",
       "category": "forms",
       "kind": "single",
-      "sourcePath": "src/forms/checkbox/checkbox.tsx",
       "description": "Props for the Checkbox component."
     },
     {
@@ -84,7 +74,6 @@
       "name": "CheckboxGroup",
       "category": "forms",
       "kind": "single",
-      "sourcePath": "src/forms/checkbox-group/checkbox-group.tsx",
       "description": "Props for the CheckboxGroup component."
     },
     {
@@ -92,50 +81,43 @@
       "name": "Collapsible",
       "category": "elements",
       "kind": "composite",
-      "sourcePath": "src/elements/collapsible/collapsible.tsx",
       "description": "Props for the Collapsible component."
     },
     {
       "key": "combobox",
       "name": "Combobox",
       "category": "forms",
-      "kind": "single",
-      "sourcePath": "src/forms/combobox/combobox.tsx"
+      "kind": "single"
     },
     {
       "key": "command-palette",
       "name": "CommandPalette",
       "category": "navigation",
-      "kind": "single",
-      "sourcePath": "src/navigation/command-palette/command-palette.tsx"
+      "kind": "single"
     },
     {
       "key": "context-menu",
       "name": "ContextMenu",
       "category": "overlays",
-      "kind": "composite",
-      "sourcePath": "src/overlays/context-menu/context-menu.tsx"
+      "kind": "composite"
     },
     {
       "key": "dialog",
       "name": "Dialog",
       "category": "overlays",
-      "kind": "composite",
-      "sourcePath": "src/overlays/dialog/dialog.tsx"
+      "kind": "composite"
     },
     {
       "key": "dropdown-menu",
       "name": "DropdownMenu",
       "category": "overlays",
-      "kind": "composite",
-      "sourcePath": "src/overlays/dropdown-menu/dropdown-menu.tsx"
+      "kind": "composite"
     },
     {
       "key": "field",
       "name": "Field",
       "category": "forms",
       "kind": "single",
-      "sourcePath": "src/forms/field/field.tsx",
       "description": "Props for the Field component."
     },
     {
@@ -143,22 +125,19 @@
       "name": "FileUpload",
       "category": "forms",
       "kind": "single",
-      "sourcePath": "src/forms/file-upload/file-upload.tsx",
       "description": "Props for the FileUpload component."
     },
     {
       "key": "form",
       "name": "Form",
       "category": "forms",
-      "kind": "single",
-      "sourcePath": "src/forms/form/form.tsx"
+      "kind": "single"
     },
     {
       "key": "icon",
       "name": "Icon",
       "category": "elements",
       "kind": "single",
-      "sourcePath": "src/elements/icon/icon.tsx",
       "description": "Props for the Icon component."
     },
     {
@@ -166,22 +145,19 @@
       "name": "Input",
       "category": "forms",
       "kind": "single",
-      "sourcePath": "src/forms/input/input.tsx",
       "description": "Props for the Input component."
     },
     {
       "key": "input-group",
       "name": "InputGroup",
       "category": "forms",
-      "kind": "composite",
-      "sourcePath": "src/forms/input-group/input-group.tsx"
+      "kind": "composite"
     },
     {
       "key": "input-number",
       "name": "InputNumber",
       "category": "forms",
       "kind": "single",
-      "sourcePath": "src/forms/input-number/input-number.tsx",
       "description": "Props for the InputNumber component."
     },
     {
@@ -189,7 +165,6 @@
       "name": "Kbd",
       "category": "elements",
       "kind": "single",
-      "sourcePath": "src/elements/kbd/kbd.tsx",
       "description": "Props for the Kbd component."
     },
     {
@@ -197,58 +172,50 @@
       "name": "KbdGroup",
       "category": "elements",
       "kind": "single",
-      "sourcePath": "src/elements/kbd/kbd-group.tsx",
       "description": "Props for the KbdGroup component."
     },
     {
       "key": "list",
       "name": "List",
       "category": "elements",
-      "kind": "single",
-      "sourcePath": "src/elements/list/list.tsx"
+      "kind": "single"
     },
     {
       "key": "modal",
       "name": "Modal",
       "category": "overlays",
-      "kind": "composite",
-      "sourcePath": "src/overlays/modal/modal.tsx"
+      "kind": "composite"
     },
     {
       "key": "multi-select",
       "name": "MultiSelect",
       "category": "forms",
-      "kind": "single",
-      "sourcePath": "src/forms/multi-select/multi-select.tsx"
+      "kind": "single"
     },
     {
       "key": "pagination",
       "name": "Pagination",
       "category": "navigation",
       "kind": "single",
-      "sourcePath": "src/navigation/pagination/pagination.tsx",
       "description": "Props for the Pagination component."
     },
     {
       "key": "popover",
       "name": "Popover",
       "category": "overlays",
-      "kind": "composite",
-      "sourcePath": "src/overlays/popover/popover.tsx"
+      "kind": "composite"
     },
     {
       "key": "progress",
       "name": "Progress",
       "category": "elements",
-      "kind": "single",
-      "sourcePath": "src/elements/progress/progress.tsx"
+      "kind": "single"
     },
     {
       "key": "radio-group",
       "name": "RadioGroup",
       "category": "forms",
       "kind": "single",
-      "sourcePath": "src/forms/radio-group/radio-group.tsx",
       "description": "Props for the RadioGroup component."
     },
     {
@@ -256,44 +223,38 @@
       "name": "Resizable",
       "category": "elements",
       "kind": "composite",
-      "sourcePath": "src/elements/resizable/resizable.tsx",
       "description": "Props for the Resizable component."
     },
     {
       "key": "select",
       "name": "Select",
       "category": "forms",
-      "kind": "single",
-      "sourcePath": "src/forms/select/select.tsx"
+      "kind": "single"
     },
     {
       "key": "separator",
       "name": "Separator",
       "category": "elements",
       "kind": "single",
-      "sourcePath": "src/elements/separator/separator.tsx",
       "description": "Props for the Separator component."
     },
     {
       "key": "sheet",
       "name": "Sheet",
       "category": "overlays",
-      "kind": "composite",
-      "sourcePath": "src/overlays/sheet/sheet.tsx"
+      "kind": "composite"
     },
     {
       "key": "sidebar-frame",
       "name": "SidebarFrame",
       "category": "navigation",
-      "kind": "composite",
-      "sourcePath": "src/navigation/sidebar-frame/sidebar-frame.tsx"
+      "kind": "composite"
     },
     {
       "key": "slider",
       "name": "Slider",
       "category": "forms",
       "kind": "single",
-      "sourcePath": "src/forms/slider/slider.tsx",
       "description": "Props for the Slider component."
     },
     {
@@ -301,7 +262,6 @@
       "name": "Stepper",
       "category": "navigation",
       "kind": "single",
-      "sourcePath": "src/navigation/stepper/stepper.tsx",
       "description": "Props for the Stepper component."
     },
     {
@@ -309,7 +269,6 @@
       "name": "Switch",
       "category": "forms",
       "kind": "single",
-      "sourcePath": "src/forms/switch/switch.tsx",
       "description": "Props for the Switch component."
     },
     {
@@ -317,7 +276,6 @@
       "name": "Tabs",
       "category": "navigation",
       "kind": "single",
-      "sourcePath": "src/navigation/tabs/tabs.tsx",
       "description": "Props for the Tabs component."
     },
     {
@@ -325,15 +283,13 @@
       "name": "Textarea",
       "category": "forms",
       "kind": "single",
-      "sourcePath": "src/forms/textarea/textarea.tsx",
       "description": "Props for the Textarea component."
     },
     {
       "key": "tooltip",
       "name": "Tooltip",
       "category": "overlays",
-      "kind": "composite",
-      "sourcePath": "src/overlays/tooltip/tooltip.tsx"
+      "kind": "composite"
     }
   ]
 }

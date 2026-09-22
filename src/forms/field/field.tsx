@@ -10,7 +10,7 @@ import { useId } from '../../shared/utils'
 
 import type { FieldBinding, FieldContextOptions, FieldPath } from './field-context'
 import { FieldProvider } from './field-context'
-import { fieldRecipe } from './field.recipe'
+import { fieldDataAttributes, fieldRecipe } from './field.recipe'
 import type { FieldProps } from './field.types'
 /** Generic field layout and accessibility primitive. */
 export function Field<T extends ValidComponent = 'div'>(props: FieldProps<T>): JSX.Element {
@@ -202,7 +202,7 @@ export function renderField<T extends ValidComponent = 'div'>(
                 id={`${ariaId()}-label`}
                 for={selectedControlId()}
                 data-slot="label"
-                data-required={isRequired() ? '' : undefined}
+                {...fieldDataAttributes.label({ required: isRequired })}
                 {...resolved.styles.label}
               >
                 {label()}
@@ -226,7 +226,9 @@ export function renderField<T extends ValidComponent = 'div'>(
         </div>
         <div
           data-slot="container"
-          data-has-text={showLabel() || showDescription() ? '' : undefined}
+          {...fieldDataAttributes.container({
+            'has-text': () => showLabel() || showDescription(),
+          })}
           {...resolved.styles.container}
         >
           {fieldChildren()}

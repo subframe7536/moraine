@@ -3,7 +3,7 @@ import { splitProps } from 'solid-js'
 
 import { createStyles } from '../../provider'
 
-import { separatorRecipe } from './separator.recipe'
+import { separatorDataAttributes, separatorRecipe } from './separator.recipe'
 import type { SeparatorProps } from './separator.types'
 
 /** Semantic divider with configurable horizontal or vertical orientation. */
@@ -18,7 +18,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
       {...rest}
       role="separator"
       aria-orientation={orientation()}
-      data-orientation={orientation()}
+      {...separatorDataAttributes.root({ orientation })}
       {...resolved.styles.root}
     />
   )

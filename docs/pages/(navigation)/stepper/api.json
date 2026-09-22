@@ -4,7 +4,6 @@
   "category": "navigation",
   "description": "Props for the Stepper component.",
   "kind": "single",
-  "sourcePath": "src/navigation/stepper/stepper.tsx",
   "parts": [
     {
       "id": "stepper",
@@ -14,7 +13,6 @@
         "name": "Stepper",
         "package": "moraine"
       },
-      "sourcePath": "src/navigation/stepper/stepper.tsx",
       "description": "Props for the Stepper component.",
       "rendering": {
         "rendersDom": true,
@@ -32,8 +30,23 @@
           "default": {
             "kind": "literal",
             "value": "automatic"
+          }
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
           },
-          "group": "behavior"
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "clickable",
@@ -45,8 +58,15 @@
           "default": {
             "kind": "literal",
             "value": false
+          }
+        },
+        {
+          "name": "defaultValue",
+          "optional": true,
+          "type": {
+            "text": "Value"
           },
-          "group": "behavior"
+          "description": "Default active step value for uncontrolled usage."
         },
         {
           "name": "disabled",
@@ -58,8 +78,7 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "id",
@@ -67,8 +86,15 @@
           "type": {
             "text": "string"
           },
-          "description": "Unique identifier for the stepper root element.",
-          "group": "behavior"
+          "description": "Unique identifier for the stepper root element."
+        },
+        {
+          "name": "items",
+          "optional": true,
+          "type": {
+            "text": "Item[]"
+          },
+          "description": "Array of steps to display."
         },
         {
           "name": "linear",
@@ -80,8 +106,7 @@
           "default": {
             "kind": "literal",
             "value": true
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "loop",
@@ -93,29 +118,6 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "items",
-          "optional": true,
-          "type": {
-            "text": "Item[]"
-          },
-          "description": "Array of steps to display.",
-          "group": "data"
-        },
-        {
-          "name": "defaultValue",
-          "optional": true,
-          "type": {
-            "text": "Value"
-          },
-          "description": "Default active step value for uncontrolled usage.",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "default"
           }
         },
         {
@@ -124,46 +126,7 @@
           "type": {
             "text": "(value: Value) => void"
           },
-          "description": "Callback when the active step changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "value",
-            "role": "change"
-          }
-        },
-        {
-          "name": "value",
-          "optional": true,
-          "type": {
-            "text": "Value"
-          },
-          "description": "Controlled active step value.",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "value"
-          }
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "description": "Callback when the active step changes."
         },
         {
           "name": "orientation",
@@ -171,8 +134,10 @@
           "type": {
             "text": "'horizontal' | 'vertical'"
           },
-          "description": "Layout axis used by the component Recipe.",
-          "group": "styling"
+          "default": {
+            "kind": "literal",
+            "value": "horizontal"
+          }
         },
         {
           "name": "size",
@@ -180,12 +145,10 @@
           "type": {
             "text": "'sm' | 'md' | 'lg'"
           },
-          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
@@ -193,8 +156,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -202,319 +164,17 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": {
+            "text": "Value"
+          },
+          "description": "Controlled active step value."
         }
-      ],
-      "slots": [
-        {
-          "name": "content",
-          "description": "Panel rendered for the active step content."
-        },
-        {
-          "name": "description",
-          "description": "Supporting description for a step."
-        },
-        {
-          "name": "header",
-          "description": "Step navigation header that contains all step triggers."
-        },
-        {
-          "name": "icon",
-          "description": "Icon rendered inside a completed or custom step indicator."
-        },
-        {
-          "name": "indicator",
-          "description": "Step marker that communicates index, active state, or completion."
-        },
-        {
-          "name": "item",
-          "description": "One step trigger and its connector."
-        },
-        {
-          "name": "root",
-          "description": "Stepper container that owns orientation, step state, and panel rendering."
-        },
-        {
-          "name": "separator",
-          "description": "Connector line between adjacent steps."
-        },
-        {
-          "name": "title",
-          "description": "Primary title text for a step."
-        },
-        {
-          "name": "trigger",
-          "description": "Interactive step control users activate to select a step."
-        },
-        {
-          "name": "wrapper",
-          "description": "Optional title and description column inside the trigger."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "div",
-          "attributes": []
-        },
-        {
-          "name": "header",
-          "slot": "header",
-          "selector": "[data-slot=\"header\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-orientation",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Communicates horizontal or vertical orientation."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "tablist"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "item",
-          "slot": "item",
-          "selector": "[data-slot=\"item\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-state",
-              "kind": "data",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
-            }
-          ]
-        },
-        {
-          "name": "trigger",
-          "slot": "trigger",
-          "selector": "[data-slot=\"trigger\"]",
-          "element": "button",
-          "attributes": [
-            {
-              "name": "aria-controls",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the controlled element while the related content is mounted."
-            },
-            {
-              "name": "aria-describedby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References descriptive text associated with the control."
-            },
-            {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the element that labels the control or region."
-            },
-            {
-              "name": "aria-selected",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates the currently selected option or tab."
-            },
-            {
-              "name": "data-clickable",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the step or item accepts direct activation."
-            },
-            {
-              "name": "data-selected",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item or tab is selected."
-            },
-            {
-              "name": "data-state",
-              "kind": "data",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "tab"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "indicator",
-          "slot": "indicator",
-          "selector": "[data-slot=\"indicator\"]",
-          "element": "span",
-          "attributes": [
-            {
-              "name": "data-state",
-              "kind": "data",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
-            }
-          ]
-        },
-        {
-          "name": "wrapper",
-          "slot": "wrapper",
-          "selector": "[data-slot=\"wrapper\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "title",
-          "slot": "title",
-          "selector": "[data-slot=\"title\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "description",
-          "slot": "description",
-          "selector": "[data-slot=\"description\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "separator",
-          "slot": "separator",
-          "selector": "[data-slot=\"separator\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-state",
-              "kind": "data",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
-            }
-          ]
-        },
-        {
-          "name": "content",
-          "slot": "content",
-          "selector": "[data-slot=\"content\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the element that labels the control or region."
-            },
-            {
-              "name": "data-selected",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item or tab is selected."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "tabpanel"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "icon",
-          "slot": "icon",
-          "selector": "[data-slot=\"icon\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     }
   ],
   "item": {
@@ -590,5 +250,55 @@
         }
       }
     ]
-  }
+  },
+  "slots": [
+    "root",
+    "header",
+    "item",
+    "trigger",
+    "indicator",
+    "icon",
+    "separator",
+    "wrapper",
+    "title",
+    "description",
+    "content"
+  ],
+  "dataAttributes": [
+    {
+      "target": "item",
+      "attributes": [
+        "data-disabled",
+        "data-state"
+      ]
+    },
+    {
+      "target": "trigger",
+      "attributes": [
+        "data-clickable",
+        "data-selected",
+        "data-state"
+      ]
+    },
+    {
+      "target": "indicator",
+      "attributes": [
+        "data-state"
+      ]
+    },
+    {
+      "target": "separator",
+      "attributes": [
+        "data-disabled",
+        "data-state"
+      ]
+    },
+    {
+      "target": "content",
+      "attributes": [
+        "data-selected"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

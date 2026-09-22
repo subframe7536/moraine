@@ -39,7 +39,7 @@ import {
   useResizableHandle,
 } from './hook'
 import type { ResizablePanelItem, ResizableSize } from './hook'
-import { resizableRecipe } from './resizable.recipe'
+import { resizableDataAttributes, resizableRecipe } from './resizable.recipe'
 import type { ResizableProps, ResizableT } from './resizable.types'
 
 interface DragState {
@@ -824,8 +824,8 @@ export function Resizable(props: ResizableProps): JSX.Element {
       }}
       id={local.id}
       data-slot="root"
-      data-resizable-root
       {...rest}
+      {...resizableDataAttributes.root({ 'resizable-root': true })}
       {...resolved.styles.root}
     >
       <Index each={resolvedPanels()}>
@@ -843,10 +843,12 @@ export function Resizable(props: ResizableProps): JSX.Element {
                 {...panelPart()!.rest}
                 id={panelItem().panelId}
                 data-slot="panel"
-                data-collapsed={collapsed() ? '' : undefined}
-                data-expanded={panelItem().collapsible && !collapsed() ? '' : undefined}
-                data-resizing={interactionResizing() ? '' : undefined}
-                data-transitioning={isTransitioning() ? '' : undefined}
+                {...resizableDataAttributes.panel({
+                  collapsed,
+                  expanded: () => panelItem().collapsible && !collapsed(),
+                  resizing: interactionResizing,
+                  transitioning: isTransitioning,
+                })}
                 class={cn(resolved.styles.panel.class, panelItem().class)}
                 style={{
                   'flex-grow': size(),
@@ -977,9 +979,11 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       aria-disabled={handleDisabled() ? 'true' : undefined}
                       tabIndex={handleDisabled() ? -1 : 0}
                       data-slot="divider"
-                      data-active={bindings.active() ? '' : undefined}
-                      data-cross={bindings.crossHovered() ? '' : undefined}
-                      data-dragging={bindings.dragging() ? '' : undefined}
+                      {...resizableDataAttributes.divider({
+                        active: bindings.active,
+                        cross: bindings.crossHovered,
+                        dragging: bindings.dragging,
+                      })}
                       class={cn(resolved.styles.divider.class, handlePart().local.class)}
                       style={{
                         ...resolved.styles.divider.style,
@@ -1014,7 +1018,10 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       <Show when={bindings.startIntersectionVisible()}>
                         <div
                           data-slot="crossTarget"
-                          data-resizable-handle-start-target
+                          {...resizableDataAttributes.crossTarget({
+                            'resizable-handle-start-target': true,
+                            'resizable-handle-end-target': undefined,
+                          })}
                           {...resolved.styles.crossTarget}
                           onMouseEnter={() =>
                             bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_START)
@@ -1030,7 +1037,9 @@ export function Resizable(props: ResizableProps): JSX.Element {
                           tabIndex={action() === 'collapse' ? undefined : -1}
                           onPointerDown={onGripPointerDown}
                           onClick={onHandleClick}
-                          data-collapse={handleCollapseAction() ? '' : undefined}
+                          {...resizableDataAttributes.handle({
+                            collapse: () => handleCollapseAction(),
+                          })}
                           {...resolved.styles.handle}
                         >
                           <Show when={handlePart().content() !== undefined}>
@@ -1042,7 +1051,10 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       <Show when={bindings.endIntersectionVisible()}>
                         <div
                           data-slot="crossTarget"
-                          data-resizable-handle-end-target
+                          {...resizableDataAttributes.crossTarget({
+                            'resizable-handle-start-target': undefined,
+                            'resizable-handle-end-target': true,
+                          })}
                           {...resolved.styles.crossTarget}
                           onMouseEnter={() =>
                             bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_END)

@@ -4,7 +4,6 @@
   "category": "elements",
   "description": "Props for the Separator component.",
   "kind": "single",
-  "sourcePath": "src/elements/separator/separator.tsx",
   "parts": [
     {
       "id": "separator",
@@ -14,7 +13,6 @@
         "name": "Separator",
         "package": "moraine"
       },
-      "sourcePath": "src/elements/separator/separator.tsx",
       "description": "Props for the Separator component.",
       "rendering": {
         "rendersDom": true,
@@ -28,8 +26,7 @@
           "type": {
             "text": "SlotClassValue"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
@@ -37,8 +34,7 @@
           "type": {
             "text": "Classes"
           },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "orientation",
@@ -46,8 +42,10 @@
           "type": {
             "text": "'horizontal' | 'vertical'"
           },
-          "description": "Layout axis used by the component Recipe.",
-          "group": "styling"
+          "default": {
+            "kind": "literal",
+            "value": "horizontal"
+          }
         },
         {
           "name": "style",
@@ -55,8 +53,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -64,52 +61,21 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
         }
-      ],
-      "slots": [
-        {
-          "name": "root",
-          "description": "Visual divider element."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-orientation",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Communicates horizontal or vertical orientation."
-            },
-            {
-              "name": "data-orientation",
-              "kind": "data",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Stores the rendered orientation (horizontal or vertical)."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "separator"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "root"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-orientation"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

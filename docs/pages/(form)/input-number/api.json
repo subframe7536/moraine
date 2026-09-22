@@ -4,7 +4,6 @@
   "category": "forms",
   "description": "Props for the InputNumber component.",
   "kind": "single",
-  "sourcePath": "src/forms/input-number/input-number.tsx",
   "parts": [
     {
       "id": "input-number",
@@ -14,7 +13,6 @@
         "name": "InputNumber",
         "package": "moraine"
       },
-      "sourcePath": "src/forms/input-number/input-number.tsx",
       "description": "Props for the InputNumber component.",
       "rendering": {
         "rendersDom": true,
@@ -22,6 +20,13 @@
         "polymorphic": false
       },
       "props": [
+        {
+          "name": "align",
+          "optional": true,
+          "type": {
+            "text": "'center' | 'start'"
+          }
+        },
         {
           "name": "autofocus",
           "optional": true,
@@ -32,8 +37,7 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "autofocusDelay",
@@ -45,8 +49,23 @@
           "default": {
             "kind": "literal",
             "value": 0
+          }
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
           },
-          "group": "behavior"
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "decrement",
@@ -58,8 +77,7 @@
           "default": {
             "kind": "literal",
             "value": true
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "decrementDisabled",
@@ -67,302 +85,7 @@
           "type": {
             "text": "boolean"
           },
-          "description": "Whether the decrement button is disabled.",
-          "group": "behavior"
-        },
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is disabled.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "holdRepeat",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether press-and-hold should trigger repeated value changes.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "id",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The ID of the input element.",
-          "group": "behavior"
-        },
-        {
-          "name": "increment",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether to show the increment button.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "incrementDisabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the increment button is disabled.",
-          "group": "behavior"
-        },
-        {
-          "name": "inputRef",
-          "optional": true,
-          "type": {
-            "text": "Ref<HTMLInputElement>"
-          },
-          "description": "Optional inner input element ref.",
-          "group": "behavior"
-        },
-        {
-          "name": "largeStep",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "The step size used for PageUp/PageDown.",
-          "default": {
-            "kind": "expression",
-            "text": "step * 10"
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "locale",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Locale for number formatting and parsing.\nUses browser default if not specified.",
-          "group": "behavior"
-        },
-        {
-          "name": "maxValue",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Maximum allowed numeric value.",
-          "group": "behavior"
-        },
-        {
-          "name": "minValue",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Minimum allowed numeric value.",
-          "group": "behavior"
-        },
-        {
-          "name": "onBlur",
-          "optional": true,
-          "type": {
-            "text": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>"
-          },
-          "description": "Callback when the input loses focus.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onDecrementClick",
-          "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>"
-          },
-          "description": "Callback when the decrement button is clicked.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onFocus",
-          "optional": true,
-          "type": {
-            "text": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>"
-          },
-          "description": "Callback when the input gains focus.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onIncrementClick",
-          "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>"
-          },
-          "description": "Callback when the increment button is clicked.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "placeholder",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Placeholder text for the input.",
-          "group": "behavior"
-        },
-        {
-          "name": "rawValue",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Controlled numeric value. Takes precedence over `value`.",
-          "group": "behavior"
-        },
-        {
-          "name": "repeatDelayMs",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Delay in milliseconds before repeated value changes start.",
-          "default": {
-            "kind": "literal",
-            "value": 500
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "repeatIntervalMs",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Interval in milliseconds between repeated value changes.",
-          "default": {
-            "kind": "literal",
-            "value": 80
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "repeatPointerTypes",
-          "optional": true,
-          "type": {
-            "text": "'all' | PointerType"
-          },
-          "description": "Pointer types that can trigger press-and-hold repeat.",
-          "default": {
-            "kind": "literal",
-            "value": "all"
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "repeatThrottleMs",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Minimum elapsed time in milliseconds between repeat triggers.",
-          "default": {
-            "kind": "literal",
-            "value": 0
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "step",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "The increment/decrement step size.",
-          "default": {
-            "kind": "literal",
-            "value": 1
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "wheel",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether mouse wheel changes the value while the input is focused.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "form",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The ID of an external form that owns the native spinbutton.",
-          "group": "form"
-        },
-        {
-          "name": "name",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The name of the input element, used for form submission.",
-          "group": "form"
-        },
-        {
-          "name": "readOnly",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is read-only.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "form"
-        },
-        {
-          "name": "required",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is required.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "form"
+          "description": "Whether the decrement button is disabled."
         },
         {
           "name": "decrementIcon",
@@ -374,8 +97,75 @@
           "default": {
             "kind": "expression",
             "text": "orientation === 'vertical' ? 'icon-chevron-down' : 'icon-minus'"
+          }
+        },
+        {
+          "name": "defaultValue",
+          "optional": true,
+          "type": {
+            "text": "string | number"
           },
-          "group": "rendering"
+          "description": "Default displayed value for uncontrolled usage."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "form",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "The ID of an external form that owns the native spinbutton."
+        },
+        {
+          "name": "holdRepeat",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether press-and-hold should trigger repeated value changes.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "The ID of the input element."
+        },
+        {
+          "name": "increment",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether to show the increment button.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "incrementDisabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the increment button is disabled."
         },
         {
           "name": "incrementIcon",
@@ -387,21 +177,67 @@
           "default": {
             "kind": "expression",
             "text": "orientation === 'vertical' ? 'icon-chevron-up' : 'icon-plus'"
-          },
-          "group": "rendering"
+          }
         },
         {
-          "name": "defaultValue",
+          "name": "inputRef",
           "optional": true,
           "type": {
-            "text": "string | number"
+            "text": "Ref<HTMLInputElement>"
           },
-          "description": "Default displayed value for uncontrolled usage.",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "default"
+          "description": "Optional inner input element ref."
+        },
+        {
+          "name": "largeStep",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "The step size used for PageUp/PageDown.",
+          "default": {
+            "kind": "expression",
+            "text": "step * 10"
           }
+        },
+        {
+          "name": "locale",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Locale for number formatting and parsing.\nUses browser default if not specified."
+        },
+        {
+          "name": "maxValue",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Maximum allowed numeric value."
+        },
+        {
+          "name": "minValue",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Minimum allowed numeric value."
+        },
+        {
+          "name": "name",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "The name of the input element, used for form submission."
+        },
+        {
+          "name": "onBlur",
+          "optional": true,
+          "type": {
+            "text": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>"
+          },
+          "description": "Callback when the input loses focus."
         },
         {
           "name": "onChange",
@@ -409,15 +245,31 @@
           "type": {
             "text": "(value: string) => void"
           },
-          "description": "Callback when the formatted string value changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "value",
-            "role": "change"
-          }
+          "description": "Callback when the formatted string value changes."
+        },
+        {
+          "name": "onDecrementClick",
+          "optional": true,
+          "type": {
+            "text": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>"
+          },
+          "description": "Callback when the decrement button is clicked."
+        },
+        {
+          "name": "onFocus",
+          "optional": true,
+          "type": {
+            "text": "JSX.FocusEventHandlerUnion<HTMLInputElement, FocusEvent>"
+          },
+          "description": "Callback when the input gains focus."
+        },
+        {
+          "name": "onIncrementClick",
+          "optional": true,
+          "type": {
+            "text": "JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>"
+          },
+          "description": "Callback when the increment button is clicked."
         },
         {
           "name": "onRawValueChange",
@@ -425,55 +277,7 @@
           "type": {
             "text": "(value: number) => void"
           },
-          "description": "Callback when the numeric value changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "rawValue",
-            "role": "change"
-          }
-        },
-        {
-          "name": "value",
-          "optional": true,
-          "type": {
-            "text": "string | number"
-          },
-          "description": "Controlled displayed value.",
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "value"
-          }
-        },
-        {
-          "name": "align",
-          "optional": true,
-          "type": {
-            "text": "'center' | 'start'"
-          },
-          "description": "Text alignment; omitted values follow the control layout.",
-          "group": "styling"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "description": "Callback when the numeric value changes."
         },
         {
           "name": "orientation",
@@ -481,12 +285,98 @@
           "type": {
             "text": "'horizontal' | 'vertical'"
           },
-          "description": "Visual layout direction.",
           "default": {
             "kind": "literal",
             "value": "horizontal"
+          }
+        },
+        {
+          "name": "placeholder",
+          "optional": true,
+          "type": {
+            "text": "string"
           },
-          "group": "styling"
+          "description": "Placeholder text for the input."
+        },
+        {
+          "name": "rawValue",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Controlled numeric value. Takes precedence over `value`."
+        },
+        {
+          "name": "readOnly",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is read-only.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "repeatDelayMs",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Delay in milliseconds before repeated value changes start.",
+          "default": {
+            "kind": "literal",
+            "value": 500
+          }
+        },
+        {
+          "name": "repeatIntervalMs",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Interval in milliseconds between repeated value changes.",
+          "default": {
+            "kind": "literal",
+            "value": 80
+          }
+        },
+        {
+          "name": "repeatPointerTypes",
+          "optional": true,
+          "type": {
+            "text": "'all' | PointerType"
+          },
+          "description": "Pointer types that can trigger press-and-hold repeat.",
+          "default": {
+            "kind": "literal",
+            "value": "all"
+          }
+        },
+        {
+          "name": "repeatThrottleMs",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Minimum elapsed time in milliseconds between repeat triggers.",
+          "default": {
+            "kind": "literal",
+            "value": 0
+          }
+        },
+        {
+          "name": "required",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is required.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "size",
@@ -494,12 +384,22 @@
           "type": {
             "text": "'sm' | 'md' | 'lg'"
           },
-          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
+          }
+        },
+        {
+          "name": "step",
+          "optional": true,
+          "type": {
+            "text": "number"
           },
-          "group": "styling"
+          "description": "The increment/decrement step size.",
+          "default": {
+            "kind": "literal",
+            "value": 1
+          }
         },
         {
           "name": "style",
@@ -507,8 +407,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -516,8 +415,15 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": {
+            "text": "string | number"
+          },
+          "description": "Controlled displayed value."
         },
         {
           "name": "variant",
@@ -525,241 +431,67 @@
           "type": {
             "text": "'outline' | 'subtle' | 'ghost' | 'none'"
           },
-          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "outline"
+          }
+        },
+        {
+          "name": "wheel",
+          "optional": true,
+          "type": {
+            "text": "boolean"
           },
-          "group": "styling"
+          "description": "Whether mouse wheel changes the value while the input is focused.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         }
-      ],
-      "slots": [
-        {
-          "name": "controls",
-          "description": "Column container for vertical increment/decrement controls."
-        },
-        {
-          "name": "decrement",
-          "description": "Button that decreases the current numeric value."
-        },
-        {
-          "name": "increment",
-          "description": "Button that increases the current numeric value."
-        },
-        {
-          "name": "input",
-          "description": "Native number input element."
-        },
-        {
-          "name": "root",
-          "description": "Number input wrapper that owns the input and step controls."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-invalid",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field or form has a validation error."
-            },
-            {
-              "name": "data-readonly",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field is in read-only mode."
-            },
-            {
-              "name": "data-required",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field input is required."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "group"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "input",
-          "slot": "input",
-          "selector": "[data-slot=\"input\"]",
-          "element": "input",
-          "attributes": [
-            {
-              "name": "aria-describedby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References descriptive text associated with the control."
-            },
-            {
-              "name": "aria-disabled",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the control is disabled."
-            },
-            {
-              "name": "aria-invalid",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the field has a validation error."
-            },
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Provides an accessible label when visible text is not sufficient."
-            },
-            {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the element that labels the control or region."
-            },
-            {
-              "name": "aria-readonly",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the control value cannot be changed by the user."
-            },
-            {
-              "name": "aria-required",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that user input is required."
-            },
-            {
-              "name": "aria-valuemax",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the maximum value for range-like controls."
-            },
-            {
-              "name": "aria-valuemin",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the minimum value for range-like controls."
-            },
-            {
-              "name": "aria-valuenow",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the current numeric value for range-like controls."
-            },
-            {
-              "name": "aria-valuetext",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Provides human-readable text for the current value."
-            },
-            {
-              "name": "data-auto-align",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when alignment is selected automatically."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-invalid",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field or form has a validation error."
-            },
-            {
-              "name": "data-readonly",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field is in read-only mode."
-            },
-            {
-              "name": "data-required",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field input is required."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "spinbutton"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "controls",
-          "slot": "controls",
-          "selector": "[data-slot=\"controls\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": []
-        }
-      ],
-      "cssVariables": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "root",
+    "input",
+    "increment",
+    "decrement",
+    "controls"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-disabled",
+        "data-invalid",
+        "data-readonly",
+        "data-required"
+      ]
+    },
+    {
+      "target": "input",
+      "attributes": [
+        "data-auto-align",
+        "data-disabled",
+        "data-invalid",
+        "data-readonly",
+        "data-required"
+      ]
+    },
+    {
+      "target": "increment",
+      "attributes": [
+        "data-active",
+        "data-disabled"
+      ]
+    },
+    {
+      "target": "decrement",
+      "attributes": [
+        "data-active",
+        "data-disabled"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

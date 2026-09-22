@@ -14,11 +14,7 @@ import type { Plugin } from 'vite'
 
 import { loadComponentApiDoc, loadApiDocIndex } from './api-doc/load'
 import { createApiReferenceModel } from './api-doc/presentation'
-import type {
-  PresentationPartSection,
-  PresentationPropItem,
-  PresentationRuntimeAttributeItem,
-} from './api-doc/presentation'
+import type { PresentationPropItem, PresentationStyleContract } from './api-doc/presentation'
 import type { ComponentApi } from './api-doc/types'
 import { resolveDocsPageContext } from './core/paths'
 import { readFrontmatterData } from './markdown/frontmatter'
@@ -167,56 +163,30 @@ function renderPropTable(props: readonly PresentationPropItem[], nameColumn = 'P
   return renderTable(rows, [nameColumn, 'Type', 'Default', 'Description'])
 }
 
-function renderRuntimeAttributeTable(attributes: readonly PresentationRuntimeAttributeItem[]) {
-  const rows = attributes.map((attribute) => [
-    attribute.name,
-    attribute.targets.join(', '),
-    attribute.value,
-    attribute.description || '—',
-  ])
-  return renderTable(rows, ['Attribute', 'Target', 'Value', 'Description'])
-}
-
-function renderDomStyling(part: PresentationPartSection): string[] {
+function renderDomStyling(styling: PresentationStyleContract): string[] {
   const output: string[] = []
-  output.push('### Anatomy', '')
-  if (!part.rendersDom) {
-    output.push('This part does not render DOM.', '')
-  } else if (part.anatomy?.length) {
-    output.push(
-      renderTable(
-        part.anatomy.map((target) => [
-          target.name,
-          target.selector ?? '—',
-          target.element ?? '—',
-          target.description ?? target.condition ?? '—',
-        ]),
-        ['Target', 'Selector', 'Element', 'Purpose'],
-      ),
-      '',
-    )
+  if (styling.slots.length) {
+    output.push('### Slots', '', styling.slots.map((slot) => `- \`${slot}\``).join('\n'), '')
   }
-
-  if (part.dataAttributes?.length) {
-    output.push('### Data attributes', '', renderRuntimeAttributeTable(part.dataAttributes), '')
+  if (styling.dataAttributes.length) {
+    output.push('### Data attributes', '')
+    for (const target of styling.dataAttributes) {
+      output.push(`**${target.target}**`, '')
+      output.push(
+        renderTable(
+          target.attributes.map((attribute) => [attribute.name, attribute.description ?? '—']),
+          ['Attribute', 'Description'],
+        ),
+        '',
+      )
+    }
   }
-  if (part.accessibility?.length) {
-    output.push('### Accessibility', '', renderRuntimeAttributeTable(part.accessibility), '')
-  }
-  if (part.cssVariables?.length) {
-    output.push(
-      '### CSS variables',
-      '',
-      renderTable(
-        part.cssVariables.map((variable) => [
-          variable.name,
-          variable.target,
-          variable.description ?? '—',
-        ]),
-        ['Variable', 'Target', 'Description'],
-      ),
-      '',
-    )
+  if (styling.cssVariables.length) {
+    output.push('### CSS variables', '')
+    for (const target of styling.cssVariables) {
+      output.push(`**${target.target}**`, '')
+      output.push(target.variables.map((variable) => `- \`${variable}\``).join('\n'), '')
+    }
   }
   return output
 }
@@ -233,21 +203,9 @@ function renderApiReference(apiDoc: ComponentApi): string {
   if (model.kind === 'single') {
     const rootPart = model.parts[0]
     if (rootPart) {
-      output.push(...renderDomStyling(rootPart))
-
-      if (rootPart.slots && rootPart.slots.length > 0) {
-        output.push('### Slots', '')
-        for (const slot of rootPart.slots) {
-          output.push(`- \`${slot.name}\`${slot.description ? `: ${slot.description}` : ''}`)
-        }
-        output.push('')
-      }
-
-      if (rootPart.propGroups.length > 0) {
+      if (rootPart.props.length > 0) {
         output.push('### Props', '')
-        for (const group of rootPart.propGroups) {
-          output.push(`**${group.heading}**`, '', renderPropTable(group.props), '')
-        }
+        output.push(renderPropTable(rootPart.props), '')
       }
     }
   } else {
@@ -260,20 +218,8 @@ function renderApiReference(apiDoc: ComponentApi): string {
         output.push(part.description, '')
       }
 
-      output.push(
-        ...renderDomStyling(part).map((line) => (line.startsWith('### ') ? `#${line}` : line)),
-      )
-
-      for (const group of part.propGroups) {
-        output.push(`**${group.heading}**`, '', renderPropTable(group.props), '')
-      }
-
-      if (part.slots && part.slots.length > 0) {
-        output.push('#### Slots', '')
-        for (const slot of part.slots) {
-          output.push(`- \`${slot.name}\`${slot.description ? `: ${slot.description}` : ''}`)
-        }
-        output.push('')
+      if (part.props.length) {
+        output.push(renderPropTable(part.props), '')
       }
     }
   }
@@ -284,6 +230,15 @@ function renderApiReference(apiDoc: ComponentApi): string {
       output.push(model.item.description, '')
     }
     output.push(renderPropTable(model.item.props), '')
+  }
+
+  const styling = renderDomStyling(model.styling)
+  if (styling.length) {
+    output.push(
+      '### DOM & State',
+      '',
+      ...styling.map((line) => (line.startsWith('### ') ? `#${line}` : line)),
+    )
   }
 
   return `${output.join('\n').trimEnd()}\n`

@@ -10,7 +10,7 @@ import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
-import { inputRecipe } from './input.recipe'
+import { inputDataAttributes, inputRecipe } from './input.recipe'
 import type { InputProps, InputT } from './input.types.ts'
 /** Native text input with value modifiers and form field integration. */
 export function Input<M extends ModelModifiers | undefined = ModelModifiers | undefined>(
@@ -95,12 +95,12 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
     value: () => merged.value,
   })
   const isLazy = textControl.isLazy
-  const dataAttrs = createMemo(() => ({
-    'data-invalid': field.invalid() ? '' : undefined,
-    'data-disabled': field.disabled() ? '' : undefined,
-    'data-required': field.required() ? '' : undefined,
-    'data-readonly': field.readOnly() ? '' : undefined,
-  }))
+  const dataAttrs = inputDataAttributes.root({
+    invalid: field.invalid,
+    disabled: field.disabled,
+    required: field.required,
+    readonly: field.readOnly,
+  })
 
   const ariaAttrs = createMemo(() => {
     const generated = field.ariaAttrs()
@@ -204,7 +204,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       readonly={field.readOnly()}
       autocomplete={merged.autocomplete}
       data-slot="root"
-      {...dataAttrs()}
+      {...dataAttrs}
       {...ariaAttrs()}
       {...textControl.valueProps()}
       ref={(element) => {

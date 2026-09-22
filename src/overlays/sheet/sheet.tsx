@@ -11,7 +11,7 @@ import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'
 
 import { SheetPresentationProvider, useSheetPresentation } from './sheet-context'
-import { sheetRecipe } from './sheet.recipe'
+import { sheetDataAttributes, sheetRecipe } from './sheet.recipe'
 import type { SheetProps, SheetT } from './sheet.types'
 
 /** Sheet state and context. Trigger, Content, and Close own their respective DOM. */
@@ -87,7 +87,7 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
   return (
     <ModalSurface
       {...rest}
-      data-transition={merged.transition ? '' : undefined}
+      {...sheetDataAttributes.content({ transition: () => merged.transition })}
       overlay={merged.overlay}
       overlayClass={resolved.styles.overlay.class}
       overlayStyle={resolved.styles.overlay.style}
@@ -163,7 +163,9 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
               <Show when={hasJsxContent(body())}>
                 <div
                   data-slot="body"
-                  data-header={hasCustomHeader() || hasDefaultHeader() ? '' : undefined}
+                  {...sheetDataAttributes.body({
+                    header: () => hasCustomHeader() || hasDefaultHeader(),
+                  })}
                   {...resolved.styles.body}
                 >
                   {body()}

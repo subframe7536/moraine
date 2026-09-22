@@ -4,7 +4,7 @@ import { For, Show, createMemo, splitProps } from 'solid-js'
 import { createStyles } from '../../provider'
 import { renderComponentOrElement } from '../../shared/render-prop'
 
-import { progressRecipe } from './progress.recipe'
+import { progressDataAttributes, progressRecipe } from './progress.recipe'
 import type { ProgressProps, ProgressT } from './progress.types'
 
 function resolveMaxValue(max: ProgressProps['max']): number {
@@ -83,19 +83,13 @@ export function Progress(props: ProgressProps): JSX.Element {
     return Math.round(bounded * 10000) / 100
   })
 
-  const dataAttrs = createMemo(() => {
-    if (isIndeterminate()) {
-      return {
-        'data-indeterminate': '',
-        'data-progress': undefined,
-      }
-    }
-
-    return {
-      'data-indeterminate': undefined,
-      'data-progress': resolvedValue() >= resolvedMax() ? 'complete' : 'loading',
-    }
-  })
+  const progressState = {
+    indeterminate: isIndeterminate,
+    progress: () =>
+      isIndeterminate() ? undefined : resolvedValue() >= resolvedMax() ? 'complete' : 'loading',
+  }
+  const rootDataAttrs = progressDataAttributes.root(progressState)
+  const indicatorDataAttrs = progressDataAttributes.indicator(progressState)
 
   const valueText = createMemo(() => {
     if (isIndeterminate()) {
@@ -166,7 +160,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
       data-slot="root"
-      {...dataAttrs()}
+      {...rootDataAttrs}
       {...resolved.styles.root}
     >
       <Show when={!isIndeterminate()}>
@@ -199,7 +193,7 @@ export function Progress(props: ProgressProps): JSX.Element {
           data-slot="indicator"
           class={resolved.styles.indicator.class}
           style={{ ...indicatorStyle(), ...resolved.styles.indicator.style }}
-          {...dataAttrs()}
+          {...indicatorDataAttrs}
         />
       </div>
 
@@ -211,7 +205,11 @@ export function Progress(props: ProgressProps): JSX.Element {
             <div data-slot="steps" {...resolved.styles.steps}>
               <For each={steps()}>
                 {(step, index) => (
-                  <div data-slot="step" data-state={stepState(index())} {...resolved.styles.step}>
+                  <div
+                    data-slot="step"
+                    {...progressDataAttributes.step({ state: () => stepState(index()) })}
+                    {...resolved.styles.step}
+                  >
                     <Show when={stepRender() !== undefined} fallback={step}>
                       {renderComponentOrElement(stepRender(), {
                         get step() {

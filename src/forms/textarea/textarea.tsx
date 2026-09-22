@@ -19,7 +19,7 @@ import { mergeAriaTokens } from '../shared/merge-aria-tokens.ts'
 import { useFormReset } from '../shared/use-form-reset.ts'
 import { useTextControlValue } from '../shared/use-text-control-value.ts'
 
-import { textareaRecipe } from './textarea.recipe'
+import { textareaDataAttributes, textareaRecipe } from './textarea.recipe'
 import type { TextareaProps, TextareaT } from './textarea.types.ts'
 
 // --- Autosize helpers ---
@@ -125,12 +125,13 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
     value: () => merged.value,
   })
   const isLazy = textControl.isLazy
-  const dataAttrs = createMemo(() => ({
-    'data-invalid': field.invalid() ? '' : undefined,
-    'data-disabled': field.disabled() ? '' : undefined,
-    'data-required': field.required() ? '' : undefined,
-    'data-readonly': field.readOnly() ? '' : undefined,
-  }))
+  const dataAttrs = textareaDataAttributes.root({
+    invalid: field.invalid,
+    disabled: field.disabled,
+    required: field.required,
+    readonly: field.readOnly,
+    autoresize: () => merged.autoResize,
+  })
 
   const ariaAttrs = createMemo(() => {
     const generated = field.ariaAttrs()
@@ -316,8 +317,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       disabled={field.disabled()}
       readonly={field.readOnly()}
       data-slot="root"
-      data-autoresize={merged.autoResize ? '' : undefined}
-      {...dataAttrs()}
+      {...dataAttrs}
       {...ariaAttrs()}
       {...textControl.valueProps()}
       ref={(element) => {

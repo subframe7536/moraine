@@ -1,7 +1,21 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { StyleContractState } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
-import { MODAL_OVERLAY_CLASS } from '../modal/modal.recipe'
+import { MODAL_OVERLAY_CLASS, modalDataAttributes } from '../modal/modal.recipe'
 
 import type { SheetStyleSlot, SheetStyleVariant } from './sheet.style-types'
+
+export const sheetDataAttributes = {
+  trigger: modalDataAttributes.trigger,
+  overlay: modalDataAttributes.overlay,
+  content: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-closed': state.closed,
+      'data-expanded': state.expanded,
+      'data-transition': state.transition,
+    }),
+  body: (state: StyleContractState) => createDataAttributes({ 'data-header': state.header }),
+}
 
 export const sheetRecipe = /* @__PURE__ */ defineRecipe<SheetStyleSlot, SheetStyleVariant>(
   'sheet',

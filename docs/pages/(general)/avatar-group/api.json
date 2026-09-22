@@ -4,7 +4,6 @@
   "category": "elements",
   "description": "Props for the AvatarGroup component.",
   "kind": "single",
-  "sourcePath": "src/elements/avatar/avatar-group.tsx",
   "parts": [
     {
       "id": "avatar-group",
@@ -14,7 +13,6 @@
         "name": "AvatarGroup",
         "package": "moraine"
       },
-      "sourcePath": "src/elements/avatar/avatar-group.tsx",
       "description": "Props for the AvatarGroup component.",
       "rendering": {
         "rendersDom": true,
@@ -23,13 +21,20 @@
       },
       "props": [
         {
-          "name": "max",
+          "name": "class",
           "optional": true,
           "type": {
-            "text": "number | string"
+            "text": "SlotClassValue"
           },
-          "description": "Maximum number of avatars to show.",
-          "group": "behavior"
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "items",
@@ -41,26 +46,15 @@
           "default": {
             "kind": "expression",
             "text": "[]"
-          },
-          "group": "data"
+          }
         },
         {
-          "name": "class",
+          "name": "max",
           "optional": true,
           "type": {
-            "text": "SlotClassValue"
+            "text": "number | string"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "description": "Maximum number of avatars to show."
         },
         {
           "name": "size",
@@ -68,12 +62,10 @@
           "type": {
             "text": "'sm' | 'md' | 'lg'"
           },
-          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
@@ -81,8 +73,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -90,185 +81,9 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
         }
-      ],
-      "slots": [
-        {
-          "name": "badge",
-          "description": "Status or indicator badge anchored to an avatar frame."
-        },
-        {
-          "name": "count",
-          "description": "Count indicator shown when a group has more avatars than the visible limit."
-        },
-        {
-          "name": "fallback",
-          "description": "Text fallback shown while an image is unavailable or failed."
-        },
-        {
-          "name": "fallbackIcon",
-          "description": "Icon fallback shown when no image or text fallback is available."
-        },
-        {
-          "name": "image",
-          "description": "Loaded avatar image rendered inside each frame."
-        },
-        {
-          "name": "item",
-          "description": "Individual avatar wrapper used when rendering grouped avatars."
-        },
-        {
-          "name": "root",
-          "description": "Container of grouped avatars."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "count",
-          "slot": "count",
-          "selector": "[data-slot=\"count\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "item",
-          "slot": "item",
-          "selector": "[data-slot=\"item\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "data-status",
-              "kind": "data",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Stores async loading, loaded, or error status."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "img"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "image",
-          "slot": "image",
-          "selector": "[data-slot=\"image\"]",
-          "element": "img",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "data-status",
-              "kind": "data",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Stores async loading, loaded, or error status."
-            }
-          ],
-          "condition": "Conditional"
-        },
-        {
-          "name": "fallback",
-          "slot": "fallback",
-          "selector": "[data-slot=\"fallback\"]",
-          "element": "span",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Provides an accessible label when visible text is not sufficient."
-            },
-            {
-              "name": "data-status",
-              "kind": "data",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Stores async loading, loaded, or error status."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "img"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ],
-          "condition": "Conditional"
-        },
-        {
-          "name": "fallbackIcon",
-          "slot": "fallbackIcon",
-          "selector": "[data-slot=\"fallbackIcon\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "badge",
-          "slot": "badge",
-          "selector": "[data-slot=\"badge\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        }
-      ],
-      "cssVariables": []
+      ]
     }
   ],
   "item": {
@@ -335,5 +150,35 @@
         "description": "Initial text to show if image fails or is missing."
       }
     ]
-  }
+  },
+  "slots": [
+    "root",
+    "item",
+    "count",
+    "image",
+    "fallback",
+    "fallbackIcon",
+    "badge"
+  ],
+  "dataAttributes": [
+    {
+      "target": "item",
+      "attributes": [
+        "data-status"
+      ]
+    },
+    {
+      "target": "image",
+      "attributes": [
+        "data-status"
+      ]
+    },
+    {
+      "target": "fallback",
+      "attributes": [
+        "data-status"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

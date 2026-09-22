@@ -123,73 +123,24 @@ describe('llms.txt generation', () => {
           name: 'Button',
           category: 'elements',
           kind: 'single',
-          sourcePath: 'src/elements/button/button.tsx',
           parts: [
             {
               id: 'button',
               name: 'Button',
               access: { kind: 'export', name: 'Button', package: 'moraine' },
-              sourcePath: 'src/elements/button/button.tsx',
               props: [
                 {
                   name: 'variant',
                   optional: true,
                   type: { text: '"default" | "outline"' },
                   description: 'Visual variant.',
-                  group: 'styling',
                 },
               ],
-              slots: [
-                {
-                  name: 'root',
-                },
-              ],
-              runtime: [
-                {
-                  name: 'root',
-                  slot: 'root',
-                  selector: '[data-slot="root"]',
-                  element: 'button',
-                  attributes: [
-                    {
-                      name: 'aria-label',
-                      kind: 'aria',
-                      value: { kind: 'dynamic' },
-                      description: 'Accessible label.',
-                    },
-                    {
-                      name: 'aria-checked',
-                      kind: 'aria',
-                      value: { kind: 'dynamic' },
-                      description: 'Checked state.',
-                    },
-                  ],
-                },
-                {
-                  name: 'leading',
-                  slot: 'leading',
-                  selector: '[data-slot="leading"]',
-                  element: 'div',
-                  attributes: [],
-                },
-                {
-                  name: 'content',
-                  slot: 'content',
-                  selector: '[data-slot="content"]',
-                  element: 'div',
-                  attributes: [
-                    {
-                      name: 'data-expanded',
-                      kind: 'data',
-                      value: { kind: 'presence' },
-                      description: 'Expanded styling hook.',
-                    },
-                  ],
-                },
-              ],
-              cssVariables: [],
             },
           ],
+          slots: ['root', 'content'],
+          dataAttributes: [{ target: 'content', attributes: ['data-expanded'] }],
+          cssVariables: [{ target: 'content', variables: ['--mo-button-height'] }],
         }),
       )
 
@@ -209,22 +160,15 @@ describe('llms.txt generation', () => {
       expect(introduction).toContain('```shell npm\nnpm i moraine\n```')
       expect(button).toContain('## API')
       expect(button).toContain('### Props')
-      expect(button).toContain('**Styling**')
-      expect(button).not.toContain('### Styling')
-      expect(button).not.toContain('#### Styling')
       expect(button).toContain('| variant | "default" \\| "outline" | — | Visual variant. |')
       expect(button).toContain('### Slots')
       expect(button).toContain('- `root`')
-      expect(button).toContain('### Anatomy')
-      expect(button).toContain('| root | [data-slot="root"] | button | — |')
-      expect(button).toContain('| leading | [data-slot="leading"] | div | — |')
-      expect(button).toContain('| content | [data-slot="content"] | div | — |')
-      expect(button).not.toContain('| leading | [data-slot="leading"] | button |')
-      expect(button).not.toContain('[data-slot="positioner"]')
-      expect(button).toContain('### Accessibility')
-      expect(button).toContain('| aria-label | root | Dynamic | Accessible label. |')
-      expect(button).toContain('| aria-checked | root | Dynamic | Checked state. |')
-      expect(button).toContain('| data-expanded | content | Presence | Expanded styling hook. |')
+      expect(button).toContain('#### Data attributes')
+      expect(button).toContain('| data-expanded |')
+      expect(button).toContain('#### CSS variables')
+      expect(button).toContain('- `--mo-button-height`')
+      expect(button).not.toContain('### Accessibility')
+      expect(button).not.toContain('### Anatomy')
       expect(button).toMatch(/^---\ntitle: Button\ndescription: Button page description\./)
       expect(button).toContain('\n---\n\n# Button\n')
       expect(button).toContain('## Examples')

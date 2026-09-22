@@ -1,9 +1,27 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { StyleContractState } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
+import { checkboxDataAttributes } from '../checkbox/checkbox.recipe.ts'
 
 import type {
   CheckboxGroupStyleSlot,
   CheckboxGroupStyleVariant,
 } from './checkbox-group.style-types'
+
+export const checkboxGroupDataAttributes = {
+  root: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-disabled': state.disabled,
+      'data-invalid': state.invalid,
+      'data-readonly': state.readonly,
+      'data-required': state.required,
+    }),
+  item: checkboxDataAttributes.root,
+  control: checkboxDataAttributes.control,
+  indicator: checkboxDataAttributes.indicator,
+  label: checkboxDataAttributes.label,
+  legend: checkboxDataAttributes.label,
+}
 
 export const checkboxGroupRecipe = /* @__PURE__ */ defineRecipe<
   CheckboxGroupStyleSlot,

@@ -7,7 +7,7 @@ import { callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 
 import { useSlider } from './hook'
-import { sliderRecipe } from './slider.recipe'
+import { sliderDataAttributes, sliderRecipe } from './slider.recipe'
 import type { SliderProps, SliderT } from './slider.types'
 
 /** Range slider component with single or multi-thumb support and step markers. */
@@ -111,13 +111,15 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       id={`${field.id()}-root`}
       role="group"
       data-slot="root"
-      data-dragging={slider.dragging() ? '' : undefined}
-      data-disabled={field.disabled() ? '' : undefined}
-      data-invalid={field.invalid() ? '' : undefined}
-      data-readonly={merged.readOnly ? '' : undefined}
-      data-required={field.required() ? '' : undefined}
-      data-inverted={merged.inverted ? '' : undefined}
-      data-multiple={slider.currentValues().length > 1 ? '' : undefined}
+      {...sliderDataAttributes.root({
+        dragging: slider.dragging,
+        disabled: field.disabled,
+        invalid: field.invalid,
+        readonly: () => merged.readOnly,
+        required: field.required,
+        inverted: () => merged.inverted,
+        multiple: () => slider.currentValues().length > 1,
+      })}
       {...field.ariaAttrs()}
       {...resolved.styles.root}
     >
@@ -135,8 +137,10 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       >
         <div
           data-slot="range"
-          data-multiple={slider.currentValues().length > 1 ? '' : undefined}
-          data-inverted={merged.inverted ? '' : undefined}
+          {...sliderDataAttributes.range({
+            multiple: () => slider.currentValues().length > 1,
+            inverted: () => merged.inverted,
+          })}
           style={{
             left: slider.rangeStyle().left,
             right: slider.rangeStyle().right,
@@ -181,14 +185,14 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
               }
             }}
             data-slot="thumb"
-            data-inverted={merged.inverted ? '' : undefined}
-            data-dragging={
-              slider.dragging() && slider.activeThumbIndexState() === thumbIndex ? '' : undefined
-            }
-            data-disabled={field.disabled() ? '' : undefined}
-            data-invalid={field.invalid() ? '' : undefined}
-            data-readonly={merged.readOnly ? '' : undefined}
-            data-required={field.required() ? '' : undefined}
+            {...sliderDataAttributes.thumb({
+              inverted: () => merged.inverted,
+              dragging: () => slider.dragging() && slider.activeThumbIndexState() === thumbIndex,
+              disabled: field.disabled,
+              invalid: field.invalid,
+              readonly: () => merged.readOnly,
+              required: field.required,
+            })}
             role="slider"
             tabIndex={field.disabled() ? undefined : 0}
             style={{

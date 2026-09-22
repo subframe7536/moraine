@@ -20,7 +20,7 @@ import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
-import { fileUploadRecipe } from './file-upload.recipe'
+import { fileUploadDataAttributes, fileUploadRecipe } from './file-upload.recipe'
 import type { FileUploadProps, FileUploadT } from './file-upload.types'
 
 function isImageFile(file: File): boolean {
@@ -560,7 +560,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
     return (
       <div
         data-slot="wrapper"
-        data-dropzone={dropzone() ? '' : undefined}
+        {...fileUploadDataAttributes.wrapper({ dropzone })}
         {...resolved.styles.wrapper}
       >
         <Icon name={merged.icon} slotName="icon" {...resolved.styles.icon} />
@@ -654,10 +654,12 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       aria-label={field.ariaAttrs()['aria-labelledby'] || label() ? undefined : 'File upload'}
       disabled={field.disabled()}
       data-slot="root"
-      data-disabled={field.disabled() ? '' : undefined}
-      data-readonly={readOnly() ? '' : undefined}
-      data-required={field.required() ? '' : undefined}
-      data-invalid={invalid() ? '' : undefined}
+      {...fileUploadDataAttributes.root({
+        disabled: field.disabled,
+        readonly: readOnly,
+        required: field.required,
+        invalid,
+      })}
       id={`${field.id()}-root`}
       component={local.as ?? 'div'}
       {...resolved.styles.root}
@@ -669,9 +671,11 @@ export function FileUpload<T extends ValidComponent = 'div'>(
             ref={setControlElement}
             type="button"
             data-slot="control"
-            data-dropzone={dropzone() ? '' : undefined}
             {...resolved.styles.control}
-            data-invalid={invalid() ? '' : undefined}
+            {...fileUploadDataAttributes.control({
+              dropzone,
+              invalid,
+            })}
             disabled={field.disabled()}
             {...controlAriaAttrs()}
             onFocus={(event) => field.emit('focus', event)}
@@ -688,10 +692,12 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           tabIndex={field.disabled() ? undefined : 0}
           {...controlAriaAttrs()}
           data-slot="control"
-          data-dropzone={dropzone() ? '' : undefined}
           {...resolved.styles.control}
-          data-dragging={dragging() ? '' : undefined}
-          data-invalid={invalid() ? '' : undefined}
+          {...fileUploadDataAttributes.control({
+            dropzone,
+            dragging,
+            invalid,
+          })}
           onFocus={(event) => field.emit('focus', event)}
           onBlur={(event) => field.emit('blur', event)}
           onClick={onControlClick}

@@ -3,7 +3,6 @@
   "name": "CommandPalette",
   "category": "navigation",
   "kind": "single",
-  "sourcePath": "src/navigation/command-palette/command-palette.tsx",
   "parts": [
     {
       "id": "command-palette",
@@ -13,7 +12,6 @@
         "name": "CommandPalette",
         "package": "moraine"
       },
-      "sourcePath": "src/navigation/command-palette/command-palette.tsx",
       "generics": [
         {
           "name": "TItem",
@@ -37,212 +35,23 @@
           "default": {
             "kind": "literal",
             "value": true
-          },
-          "group": "behavior"
+          }
         },
         {
-          "name": "closeOnSelect",
+          "name": "class",
           "optional": true,
           "type": {
-            "text": "boolean"
+            "text": "SlotClassValue"
           },
-          "description": "Whether to request closing the palette after an enabled item is selected.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
+          "description": "Class applied to the component root or trigger element."
         },
         {
-          "name": "disableFilter",
+          "name": "classes",
           "optional": true,
           "type": {
-            "text": "boolean"
+            "text": "Classes"
           },
-          "description": "Disable built-in search filtering and render all provided items.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "filterItems",
-          "optional": true,
-          "type": {
-            "text": "(args: { groups: Group<TItem>[]; searchTerm: string }) => Group<TItem>[]"
-          },
-          "description": "Custom filter function that fully controls which groups and items are visible.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "getItemSearchText",
-          "optional": true,
-          "type": {
-            "text": "(item: TItem, group: Group<TItem>) => string"
-          },
-          "description": "Custom search text builder for built-in filtering.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "groups",
-          "optional": true,
-          "type": {
-            "text": "Group<TItem>[]"
-          },
-          "description": "Command groups to display initially.",
-          "default": {
-            "kind": "expression",
-            "text": "[]"
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "inputProps",
-          "optional": true,
-          "type": {
-            "text": "InputElementProps"
-          },
-          "description": "Additional attributes for the search input.",
-          "group": "behavior"
-        },
-        {
-          "name": "inputRef",
-          "optional": true,
-          "type": {
-            "text": "Ref<HTMLInputElement>"
-          },
-          "description": "Ref forwarded to the inner search `<input>` element.",
-          "group": "behavior"
-        },
-        {
-          "name": "itemProps",
-          "optional": true,
-          "type": {
-            "text": "(context: ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined"
-          },
-          "description": "Additional attributes for a command row.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "listboxProps",
-          "optional": true,
-          "type": {
-            "text": "ElementProps<HTMLDivElement>"
-          },
-          "description": "Additional attributes for the command listbox.",
-          "group": "behavior"
-        },
-        {
-          "name": "loading",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the palette is in a loading state.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "onClose",
-          "optional": true,
-          "type": {
-            "text": "() => void"
-          },
-          "description": "Callback triggered when the close button is clicked or selection requests closing.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onSelect",
-          "optional": true,
-          "type": {
-            "text": "(item: TItem) => void"
-          },
-          "description": "Callback triggered when an enabled item is selected.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "placeholder",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Placeholder text for the search input.",
-          "default": {
-            "kind": "literal",
-            "value": "Search..."
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "ref",
-          "optional": true,
-          "type": {
-            "text": "Ref<HTMLDivElement>"
-          },
-          "description": "Ref forwarded to the root `<div>` element.",
-          "group": "behavior"
-        },
-        {
-          "name": "scrollToItem",
-          "optional": true,
-          "type": {
-            "text": "(item: TItem, entryIndex: number) => void"
-          },
-          "description": "Scrolls a highlighted command into view using its flattened entry index.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "searchMaxLength",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Maximum allowed length for the search text.",
-          "group": "behavior"
-        },
-        {
-          "name": "searchTerm",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Controlled search term.",
-          "group": "behavior"
-        },
-        {
-          "name": "showClose",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether to show a close button in the header.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "closeIcon",
@@ -254,8 +63,42 @@
           "default": {
             "kind": "literal",
             "value": "icon-close"
+          }
+        },
+        {
+          "name": "closeOnSelect",
+          "optional": true,
+          "type": {
+            "text": "boolean"
           },
-          "group": "rendering"
+          "description": "Whether to request closing the palette after an enabled item is selected.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "descriptionPosition",
+          "optional": true,
+          "type": {
+            "text": "'bottom' | 'trailing'"
+          },
+          "default": {
+            "kind": "literal",
+            "value": "bottom"
+          }
+        },
+        {
+          "name": "disableFilter",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Disable built-in search filtering and render all provided items.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "emptyRender",
@@ -263,11 +106,15 @@
           "type": {
             "text": "ComponentOrElement<EmptyRenderProps<TItem>>"
           },
-          "description": "Custom empty state renderer.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
+          "description": "Custom empty state renderer."
+        },
+        {
+          "name": "filterItems",
+          "optional": true,
+          "type": {
+            "text": "(args: { groups: Group<TItem>[]; searchTerm: string }) => Group<TItem>[]"
+          },
+          "description": "Custom filter function that fully controls which groups and items are visible."
         },
         {
           "name": "footerRender",
@@ -275,11 +122,51 @@
           "type": {
             "text": "ComponentOrElement<FooterRenderProps<TItem>>"
           },
-          "description": "Custom footer renderer.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
+          "description": "Custom footer renderer."
+        },
+        {
+          "name": "getItemSearchText",
+          "optional": true,
+          "type": {
+            "text": "(item: TItem, group: Group<TItem>) => string"
+          },
+          "description": "Custom search text builder for built-in filtering."
+        },
+        {
+          "name": "groups",
+          "optional": true,
+          "type": {
+            "text": "Group<TItem>[]"
+          },
+          "description": "Command groups to display initially.",
+          "default": {
+            "kind": "expression",
+            "text": "[]"
+          }
+        },
+        {
+          "name": "inputProps",
+          "optional": true,
+          "type": {
+            "text": "InputElementProps"
+          },
+          "description": "Additional attributes for the search input."
+        },
+        {
+          "name": "inputRef",
+          "optional": true,
+          "type": {
+            "text": "Ref<HTMLInputElement>"
+          },
+          "description": "Ref forwarded to the inner search `<input>` element."
+        },
+        {
+          "name": "itemProps",
+          "optional": true,
+          "type": {
+            "text": "(context: ItemRenderProps<TItem>) => ElementProps<HTMLDivElement> | undefined"
+          },
+          "description": "Additional attributes for a command row."
         },
         {
           "name": "itemRender",
@@ -287,11 +174,7 @@
           "type": {
             "text": "ComponentOrElement<ItemRenderProps<TItem>>"
           },
-          "description": "Custom command row content renderer.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
+          "description": "Custom command row content renderer."
         },
         {
           "name": "leadingIcon",
@@ -303,8 +186,27 @@
           "default": {
             "kind": "literal",
             "value": "icon-search"
+          }
+        },
+        {
+          "name": "listboxProps",
+          "optional": true,
+          "type": {
+            "text": "ElementProps<HTMLDivElement>"
           },
-          "group": "rendering"
+          "description": "Additional attributes for the command listbox."
+        },
+        {
+          "name": "loading",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the palette is in a loading state.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "loadingIcon",
@@ -316,20 +218,15 @@
           "default": {
             "kind": "literal",
             "value": "icon-loading"
-          },
-          "group": "rendering"
+          }
         },
         {
-          "name": "virtualRender",
+          "name": "onClose",
           "optional": true,
           "type": {
-            "text": "Component<VirtualRenderProps<TItem>>"
+            "text": "() => void"
           },
-          "description": "Renders flattened group labels and commands through a virtualization layer.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
+          "description": "Callback triggered when the close button is clicked or selection requests closing."
         },
         {
           "name": "onSearchTermChange",
@@ -337,46 +234,71 @@
           "type": {
             "text": "(term: string) => void"
           },
-          "description": "Callback triggered when the search term changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "searchTerm",
-            "role": "change"
+          "description": "Callback triggered when the search term changes."
+        },
+        {
+          "name": "onSelect",
+          "optional": true,
+          "type": {
+            "text": "(item: TItem) => void"
+          },
+          "description": "Callback triggered when an enabled item is selected."
+        },
+        {
+          "name": "placeholder",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Placeholder text for the search input.",
+          "default": {
+            "kind": "literal",
+            "value": "Search..."
           }
         },
         {
-          "name": "class",
+          "name": "ref",
           "optional": true,
           "type": {
-            "text": "SlotClassValue"
+            "text": "Ref<HTMLDivElement>"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Ref forwarded to the root `<div>` element."
         },
         {
-          "name": "classes",
+          "name": "scrollToItem",
           "optional": true,
           "type": {
-            "text": "Classes"
+            "text": "(item: TItem, entryIndex: number) => void"
           },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "description": "Scrolls a highlighted command into view using its flattened entry index."
         },
         {
-          "name": "descriptionPosition",
+          "name": "searchMaxLength",
           "optional": true,
           "type": {
-            "text": "'bottom' | 'trailing'"
+            "text": "number"
           },
-          "description": "Where descriptions render in each command item.",
+          "description": "Maximum allowed length for the search text."
+        },
+        {
+          "name": "searchTerm",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Controlled search term."
+        },
+        {
+          "name": "showClose",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether to show a close button in the header.",
           "default": {
             "kind": "literal",
-            "value": "bottom"
-          },
-          "group": "styling"
+            "value": false
+          }
         },
         {
           "name": "style",
@@ -384,8 +306,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -393,378 +314,17 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "virtualRender",
+          "optional": true,
+          "type": {
+            "text": "Component<VirtualRenderProps<TItem>>"
+          },
+          "description": "Renders flattened group labels and commands through a virtualization layer."
         }
-      ],
-      "slots": [
-        {
-          "name": "close",
-          "description": "Button that dismisses the command palette."
-        },
-        {
-          "name": "empty",
-          "description": "Message shown when no command items match the search."
-        },
-        {
-          "name": "footer",
-          "description": "Bottom region for keyboard hints or custom footer content."
-        },
-        {
-          "name": "group",
-          "description": "Section wrapper for a group of command items."
-        },
-        {
-          "name": "input",
-          "description": "Search input used to filter commands."
-        },
-        {
-          "name": "inputWrapper",
-          "description": "Search row that groups input, search icon, and dismiss controls."
-        },
-        {
-          "name": "item",
-          "description": "Command row that can be highlighted, selected, or disabled."
-        },
-        {
-          "name": "itemDescription",
-          "description": "Supporting text for a command item."
-        },
-        {
-          "name": "itemLabel",
-          "description": "Primary text for a command item."
-        },
-        {
-          "name": "itemLeading",
-          "description": "Leading region for a command row."
-        },
-        {
-          "name": "itemTrailing",
-          "description": "Trailing region for shortcuts or custom item metadata."
-        },
-        {
-          "name": "itemWrapper",
-          "description": "Text column that groups command label and description."
-        },
-        {
-          "name": "label",
-          "description": "Group heading text."
-        },
-        {
-          "name": "listbox",
-          "description": "Scrollable command list that owns option and active-descendant semantics."
-        },
-        {
-          "name": "root",
-          "description": "Command palette container that owns search and option list."
-        },
-        {
-          "name": "search",
-          "description": "Search icon or loading indicator displayed in the input row."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "itemDescription",
-          "slot": "itemDescription",
-          "selector": "[data-slot=\"itemDescription\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "itemLeading",
-          "slot": "itemLeading",
-          "selector": "[data-slot=\"itemLeading\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "itemWrapper",
-          "slot": "itemWrapper",
-          "selector": "[data-slot=\"itemWrapper\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "itemLabel",
-          "slot": "itemLabel",
-          "selector": "[data-slot=\"itemLabel\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "itemTrailing",
-          "slot": "itemTrailing",
-          "selector": "[data-slot=\"itemTrailing\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "item",
-          "slot": "item",
-          "selector": "[data-slot=\"item\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-disabled",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the control is disabled."
-            },
-            {
-              "name": "aria-posinset",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Communicates an item position within its collection."
-            },
-            {
-              "name": "aria-selected",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates the currently selected option or tab."
-            },
-            {
-              "name": "aria-setsize",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Communicates the total number of items in the collection."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-highlighted",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item is highlighted by pointer or keyboard navigation."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "option"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "div",
-          "attributes": []
-        },
-        {
-          "name": "inputWrapper",
-          "slot": "inputWrapper",
-          "selector": "[data-slot=\"inputWrapper\"]",
-          "element": "div",
-          "attributes": []
-        },
-        {
-          "name": "search",
-          "slot": "search",
-          "selector": "[data-slot=\"search\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-busy",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the target is being updated or loading."
-            },
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "data-loading",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component or async operation is loading."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "input",
-          "slot": "input",
-          "selector": "[data-slot=\"input\"]",
-          "element": "input",
-          "attributes": [
-            {
-              "name": "aria-activedescendant",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the active option while focus remains on the control."
-            },
-            {
-              "name": "aria-autocomplete",
-              "kind": "aria",
-              "value": {
-                "kind": "literal",
-                "value": "list"
-              },
-              "description": "Communicates how text input suggestions are provided."
-            },
-            {
-              "name": "aria-controls",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the controlled element while the related content is mounted."
-            },
-            {
-              "name": "aria-expanded",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates whether the controlled content is expanded."
-            },
-            {
-              "name": "aria-haspopup",
-              "kind": "aria",
-              "value": {
-                "kind": "literal",
-                "value": "listbox"
-              },
-              "description": "Communicates the type of popup controlled by the trigger."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "combobox"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "close",
-          "slot": "close",
-          "selector": "[data-slot=\"close\"]",
-          "element": "button",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "value": {
-                "kind": "literal",
-                "value": "Close"
-              },
-              "description": "Provides an accessible label when visible text is not sufficient."
-            }
-          ]
-        },
-        {
-          "name": "empty",
-          "slot": "empty",
-          "selector": "[data-slot=\"empty\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "listbox",
-          "slot": "listbox",
-          "selector": "[data-slot=\"listbox\"]",
-          "element": "ul",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "enum",
-                "values": [
-                  "list",
-                  "listbox"
-                ]
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "group",
-          "slot": "group",
-          "selector": "[data-slot=\"group\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "presentation"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "label",
-          "slot": "label",
-          "selector": "[data-slot=\"label\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "footer",
-          "slot": "footer",
-          "selector": "[data-slot=\"footer\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": []
-        }
-      ],
-      "cssVariables": []
+      ]
     }
   ],
   "item": {
@@ -843,5 +403,39 @@
         "description": "Unique value for the item."
       }
     ]
-  }
+  },
+  "slots": [
+    "root",
+    "inputWrapper",
+    "input",
+    "listbox",
+    "footer",
+    "group",
+    "label",
+    "item",
+    "itemLeading",
+    "itemWrapper",
+    "itemLabel",
+    "itemDescription",
+    "itemTrailing",
+    "search",
+    "close",
+    "empty"
+  ],
+  "dataAttributes": [
+    {
+      "target": "item",
+      "attributes": [
+        "data-disabled",
+        "data-highlighted"
+      ]
+    },
+    {
+      "target": "search",
+      "attributes": [
+        "data-loading"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

@@ -3,7 +3,7 @@ import { Show, children as resolveChildren, createMemo, splitProps } from 'solid
 
 import { createStyles } from '../../provider'
 
-import { cardRecipe } from './card.recipe'
+import { cardDataAttributes, cardRecipe } from './card.recipe'
 import type { CardProps } from './card.types'
 
 /** Structured content container with optional header, body, footer, and action slots. */
@@ -33,7 +33,11 @@ export function Card(props: CardProps): JSX.Element {
   return (
     <div data-slot="root" {...rest} {...resolved.styles.root}>
       <Show when={header() || title() || description()}>
-        <div data-slot="header" data-action={action() ? '' : undefined} {...resolved.styles.header}>
+        <div
+          data-slot="header"
+          {...cardDataAttributes.header({ action: () => Boolean(action()) })}
+          {...resolved.styles.header}
+        >
           <Show when={title() || description()} fallback={header()}>
             <Show when={title()}>
               <div data-slot="title" {...resolved.styles.title}>
@@ -58,7 +62,7 @@ export function Card(props: CardProps): JSX.Element {
         {(body) => (
           <div
             data-slot="body"
-            data-no-footer={!footer() ? '' : undefined}
+            {...cardDataAttributes.body({ 'no-footer': () => !footer() })}
             {...resolved.styles.body}
           >
             {body()}

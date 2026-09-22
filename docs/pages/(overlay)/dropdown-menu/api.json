@@ -3,7 +3,6 @@
   "name": "DropdownMenu",
   "category": "overlays",
   "kind": "composite",
-  "sourcePath": "src/overlays/dropdown-menu/dropdown-menu.tsx",
   "parts": [
     {
       "id": "dropdown-menu",
@@ -13,18 +12,13 @@
         "name": "DropdownMenu",
         "package": "moraine"
       },
-      "sourcePath": "src/overlays/dropdown-menu/dropdown-menu.tsx",
-      "rendering": {
-        "rendersDom": false
-      },
       "props": [
         {
           "name": "children",
           "optional": true,
           "type": {
             "text": "JSX.Element"
-          },
-          "group": "rendering"
+          }
         },
         {
           "name": "classes",
@@ -32,8 +26,7 @@
           "type": {
             "text": "Classes"
           },
-          "description": "Family slot class defaults for this DropdownMenu instance.",
-          "group": "styling"
+          "description": "Family slot class defaults for this DropdownMenu instance."
         },
         {
           "name": "styles",
@@ -41,74 +34,9 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this DropdownMenu instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this DropdownMenu instance."
         }
-      ],
-      "slots": [
-        {
-          "name": "content",
-          "description": "Positioned menu panel that contains groups, items, and submenus."
-        },
-        {
-          "name": "group",
-          "description": "Section wrapper for related menu items."
-        },
-        {
-          "name": "item",
-          "description": "Action row inside menu content, including checkbox and radio items."
-        },
-        {
-          "name": "itemDescription",
-          "description": "Supporting text for a menu item."
-        },
-        {
-          "name": "itemIndicator",
-          "description": "Checked or selected-state indicator for checkbox and radio menu items."
-        },
-        {
-          "name": "itemKbds",
-          "description": "Container for keyboard shortcut hints at the end of a menu item."
-        },
-        {
-          "name": "itemLabel",
-          "description": "Primary text for a menu item."
-        },
-        {
-          "name": "itemLeading",
-          "description": "Leading icon or visual shown for a menu item."
-        },
-        {
-          "name": "itemSubIndicator",
-          "description": "Indicator shown when a menu item opens a submenu."
-        },
-        {
-          "name": "itemTrailing",
-          "description": "Trailing region for shortcuts, submenu arrows, or selection indicators."
-        },
-        {
-          "name": "itemWrapper",
-          "description": "Text column that groups menu item label and description."
-        },
-        {
-          "name": "label",
-          "description": "Heading text for a menu group."
-        },
-        {
-          "name": "overlay",
-          "description": "Optional backdrop rendered behind modal menu content."
-        },
-        {
-          "name": "separator",
-          "description": "Non-interactive divider between menu sections."
-        },
-        {
-          "name": "trigger",
-          "description": "Element that opens the menu."
-        }
-      ],
-      "runtime": [],
-      "cssVariables": []
+      ]
     },
     {
       "id": "dropdown-menu-trigger",
@@ -118,7 +46,6 @@
         "root": "DropdownMenu",
         "member": "Trigger"
       },
-      "sourcePath": "src/overlays/dropdown-menu/dropdown-menu.tsx",
       "generics": [
         {
           "name": "T",
@@ -138,22 +65,12 @@
       },
       "props": [
         {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether this trigger is disabled.",
-          "group": "behavior"
-        },
-        {
           "name": "as",
           "optional": true,
           "type": {
-            "text": "t"
+            "text": ""
           },
           "description": "Element or component to render as.",
-          "group": "rendering",
           "default": {
             "kind": "literal",
             "value": "button"
@@ -165,8 +82,7 @@
           "type": {
             "text": "JSX.Element"
           },
-          "description": "Trigger label and visual content.",
-          "group": "rendering"
+          "description": "Trigger label and visual content."
         },
         {
           "name": "class",
@@ -174,8 +90,15 @@
           "type": {
             "text": "SlotClassValue"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether this trigger is disabled."
         },
         {
           "name": "style",
@@ -183,78 +106,9 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "name": "trigger",
-          "slot": "trigger",
-          "selector": "[data-slot=\"trigger\"]",
-          "element": "button",
-          "attributes": [
-            {
-              "name": "aria-controls",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the controlled element while the related content is mounted."
-            },
-            {
-              "name": "aria-disabled",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the control is disabled."
-            },
-            {
-              "name": "aria-expanded",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates whether the controlled content is expanded."
-            },
-            {
-              "name": "aria-haspopup",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Communicates the type of popup controlled by the trigger."
-            },
-            {
-              "name": "data-closed",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when disclosure or transition content is closed."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-expanded",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the panel, accordion, or menu is expanded."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     },
     {
       "id": "dropdown-menu-content",
@@ -264,7 +118,6 @@
         "root": "DropdownMenu",
         "member": "Content"
       },
-      "sourcePath": "src/overlays/dropdown-menu/dropdown-menu.tsx",
       "description": "Props for the DropdownMenu component.",
       "rendering": {
         "rendersDom": true,
@@ -273,37 +126,12 @@
       },
       "props": [
         {
-          "name": "itemProps",
-          "optional": true,
-          "type": {
-            "text": "(props: ItemRenderProps) => ElementProps<HTMLDivElement> | undefined"
-          },
-          "description": "Additional attributes for an interactive menu item.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "itemRender",
-          "optional": true,
-          "type": {
-            "text": "ComponentOrElement<ItemRenderProps>"
-          },
-          "description": "Custom renderer for individual items.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
-        },
-        {
           "name": "class",
           "optional": true,
           "type": {
             "text": "SlotClassValue"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
@@ -311,21 +139,34 @@
           "type": {
             "text": "ContentClasses"
           },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "itemProps",
+          "optional": true,
+          "type": {
+            "text": "(props: ItemRenderProps) => ElementProps<HTMLDivElement> | undefined"
+          },
+          "description": "Additional attributes for an interactive menu item."
+        },
+        {
+          "name": "itemRender",
+          "optional": true,
+          "type": {
+            "text": "ComponentOrElement<ItemRenderProps>"
+          },
+          "description": "Custom renderer for individual items."
         },
         {
           "name": "size",
           "optional": true,
           "type": {
-            "text": "ComponentSize"
+            "text": "'sm' | 'md' | 'lg'"
           },
-          "description": "Visual size of menu items.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
@@ -333,8 +174,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -342,326 +182,67 @@
           "type": {
             "text": "ContentStyles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
         }
-      ],
-      "slots": [],
-      "runtime": [
-        {
-          "name": "overlay",
-          "slot": "overlay",
-          "selector": "[data-slot=\"overlay\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "itemLeading",
-          "slot": "itemLeading",
-          "selector": "[data-slot=\"itemLeading\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "itemWrapper",
-          "slot": "itemWrapper",
-          "selector": "[data-slot=\"itemWrapper\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "itemLabel",
-          "slot": "itemLabel",
-          "selector": "[data-slot=\"itemLabel\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "itemDescription",
-          "slot": "itemDescription",
-          "selector": "[data-slot=\"itemDescription\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "itemTrailing",
-          "slot": "itemTrailing",
-          "selector": "[data-slot=\"itemTrailing\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "itemSubIndicator",
-          "slot": "itemSubIndicator",
-          "selector": "[data-slot=\"itemSubIndicator\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "itemIndicator",
-          "slot": "itemIndicator",
-          "selector": "[data-slot=\"itemIndicator\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "item",
-          "slot": "item",
-          "selector": "[data-slot=\"item\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-checked",
-              "kind": "aria",
-              "value": {
-                "kind": "enum",
-                "values": [
-                  "false",
-                  "true"
-                ]
-              },
-              "description": "Communicates the checked, unchecked, or mixed state of a control."
-            },
-            {
-              "name": "aria-controls",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the controlled element while the related content is mounted."
-            },
-            {
-              "name": "aria-disabled",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates that the control is disabled."
-            },
-            {
-              "name": "aria-expanded",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Indicates whether the controlled content is expanded."
-            },
-            {
-              "name": "aria-haspopup",
-              "kind": "aria",
-              "value": {
-                "kind": "literal",
-                "value": "menu"
-              },
-              "description": "Communicates the type of popup controlled by the trigger."
-            },
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Provides an accessible label when visible text is not sufficient."
-            },
-            {
-              "name": "data-destructive",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the action has destructive semantics."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-expanded",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the panel, accordion, or menu is expanded."
-            },
-            {
-              "name": "data-highlighted",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item is highlighted by pointer or keyboard navigation."
-            },
-            {
-              "name": "data-selected",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item or tab is selected."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "enum",
-                "values": [
-                  "menuitem",
-                  "menuitemcheckbox",
-                  "menuitemradio"
-                ]
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "group",
-          "slot": "group",
-          "selector": "[data-slot=\"group\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the element that labels the control or region."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "group"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "label",
-          "slot": "label",
-          "selector": "[data-slot=\"label\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "separator",
-          "slot": "separator",
-          "selector": "[data-slot=\"separator\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "separator"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "content",
-          "slot": "content",
-          "selector": "[data-slot=\"content\"]",
-          "element": "ul",
-          "attributes": [
-            {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the element that labels the control or region."
-            },
-            {
-              "name": "data-align",
-              "kind": "data",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Stores the resolved alignment of positioned content."
-            },
-            {
-              "name": "data-side",
-              "kind": "data",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Stores the resolved floating or drawer content side."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "enum",
-                "values": [
-                  "list",
-                  "menu"
-                ]
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     }
   ],
   "item": {
     "name": "Item",
     "props": []
-  }
+  },
+  "slots": [
+    "trigger",
+    "overlay",
+    "content",
+    "group",
+    "item",
+    "itemLeading",
+    "itemWrapper",
+    "itemLabel",
+    "itemDescription",
+    "itemTrailing",
+    "itemKbds",
+    "itemIndicator",
+    "itemSubIndicator",
+    "label",
+    "separator"
+  ],
+  "dataAttributes": [
+    {
+      "target": "trigger",
+      "attributes": [
+        "data-closed",
+        "data-disabled",
+        "data-expanded"
+      ]
+    },
+    {
+      "target": "content",
+      "attributes": [
+        "data-align",
+        "data-closed",
+        "data-expanded",
+        "data-side"
+      ]
+    },
+    {
+      "target": "item",
+      "attributes": [
+        "data-destructive",
+        "data-disabled",
+        "data-expanded",
+        "data-highlighted",
+        "data-selected"
+      ]
+    }
+  ],
+  "cssVariables": [
+    {
+      "target": "content",
+      "variables": [
+        "--mo-popper-content-transform-origin"
+      ]
+    }
+  ]
 }

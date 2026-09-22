@@ -5,7 +5,6 @@ import type {
   ElementProps,
   SlotClassValue,
   SlotStyleValue,
-  TriggerBase as SharedTriggerBase,
   ValidComponent,
 } from '../../shared/types.ts'
 import type {
@@ -13,7 +12,7 @@ import type {
   FormDisableOption,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../shared/form-options.ts'
+} from '../shared/form-options.types.ts'
 
 import type { BaseSelectStyleSlot, BaseSelectStyleVariant } from './base-select.style-types'
 
@@ -165,10 +164,11 @@ export namespace BaseSelectT {
   }
   export type Props<TItem extends Item = Item> = Base<TItem> & BaseSelectSelection<TItem['value']>
 
-  export type TriggerBase<T extends ValidComponent = 'button', TItem extends Item = Item> = Omit<
-    SharedTriggerBase<T>,
-    'children'
-  > & {
+  export interface TriggerBase<T extends ValidComponent = 'button', TItem extends Item = Item> {
+    /** Element or component to render as. */
+    as?: T
+    /** Whether this trigger is disabled. */
+    disabled?: boolean
     /** Label or reactive presentation function. */
     children?: JSX.Element | ((state: TriggerRenderProps<TItem>) => JSX.Element)
   }
@@ -196,6 +196,12 @@ export namespace BaseSelectT {
     overflowPadding?: number
   }
   export type ContentProps = BaseProps<'div', ContentBase, never, never, never>
+
+  export type ListboxProps = BaseSelectPartProps
+  export type GroupProps = BaseSelectPartProps
+  export type GroupLabelProps = BaseSelectPartProps
+  export type SeparatorProps = BaseSelectPartProps
+  export type EmptyProps = BaseSelectPartProps
 
   export interface ItemBase<TItem extends Item = Item> {
     /** Raw item belonging to the current navigation collection. */

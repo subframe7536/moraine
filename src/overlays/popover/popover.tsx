@@ -25,7 +25,7 @@ import { createPopper, PopperTrigger, PopperContent, mergePopperElementProps } f
 import type { PopperTriggerProps } from '../base/popper.types'
 import { focusContent, getFocusableElements } from '../base/utils'
 
-import { popoverRecipe } from './popover.recipe'
+import { popoverContentDataAttributes, popoverRecipe } from './popover.recipe'
 import type { PopoverProps, PopoverT } from './popover.types'
 
 const [PopoverProvider, usePopoverContext] = createContextProvider<{
@@ -372,11 +372,14 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       {(context) => {
         const contentProps = mergeProps(context.contentProps, contentEvents)
         const content = resolveChildren(() => local.children)
+        const contentDataAttrs = popoverContentDataAttributes({
+          side: () => resolveOverlayMenuSide(context.currentPlacement() || local.side || 'bottom'),
+        })
         return (
           <div
             {...mergePopperElementProps(contentProps, rest)}
             data-slot="content"
-            data-side={resolveOverlayMenuSide(context.currentPlacement() || local.side || 'bottom')}
+            {...contentDataAttrs}
             aria-label={local.ariaLabel ?? rest['aria-label']}
             {...resolved.styles.content}
           >

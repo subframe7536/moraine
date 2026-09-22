@@ -8,7 +8,7 @@ import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callRef } from '../../shared/utils'
 
 import { useCollapsibleContext } from './collapsible-context'
-import { collapsibleRecipe } from './collapsible.recipe'
+import { collapsibleDataAttributes, collapsibleRecipe } from './collapsible.recipe'
 import type { CollapsibleT } from './collapsible.types'
 
 /** Interactive trigger button for expanding/collapsing collapsible content. */
@@ -66,8 +66,11 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
       {...resolved.styles.trigger}
       aria-controls={context.open() ? context.contentId() : undefined}
       aria-expanded={context.open()}
-      {...context.dataAttrs()}
-      data-disabled={disabled() ? '' : undefined}
+      {...collapsibleDataAttributes.trigger({
+        expanded: () => context.dataAttrs()['data-expanded'],
+        closed: () => context.dataAttrs()['data-closed'],
+        disabled,
+      })}
       ref={handleRef}
     >
       {children()}

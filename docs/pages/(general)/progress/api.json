@@ -3,7 +3,6 @@
   "name": "Progress",
   "category": "elements",
   "kind": "single",
-  "sourcePath": "src/elements/progress/progress.tsx",
   "parts": [
     {
       "id": "progress",
@@ -13,7 +12,6 @@
         "name": "Progress",
         "package": "moraine"
       },
-      "sourcePath": "src/elements/progress/progress.tsx",
       "rendering": {
         "rendersDom": true,
         "defaultElement": "div",
@@ -21,16 +19,39 @@
       },
       "props": [
         {
+          "name": "animation",
+          "optional": true,
+          "type": {
+            "text": "'carousel' | 'reverse' | 'swing' | 'elastic'"
+          },
+          "default": {
+            "kind": "literal",
+            "value": "carousel"
+          }
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance."
+        },
+        {
           "name": "getValueLabel",
           "optional": true,
           "type": {
             "text": "(params: { value: number; min: number; max: number }) => string"
           },
-          "description": "Callback to get a localized label for the current value.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
+          "description": "Callback to get a localized label for the current value."
         },
         {
           "name": "max",
@@ -42,8 +63,29 @@
           "default": {
             "kind": "literal",
             "value": 100
+          }
+        },
+        {
+          "name": "orientation",
+          "optional": true,
+          "type": {
+            "text": "'horizontal' | 'vertical'"
           },
-          "group": "behavior"
+          "default": {
+            "kind": "literal",
+            "value": "horizontal"
+          }
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": {
+            "text": "'sm' | 'md' | 'lg'"
+          },
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          }
         },
         {
           "name": "status",
@@ -55,8 +97,7 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "statusRender",
@@ -64,11 +105,7 @@
           "type": {
             "text": "ComponentOrElement<StatusRenderProps>"
           },
-          "description": "Custom render function for the status label.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
+          "description": "Custom render function for the status label."
         },
         {
           "name": "stepRender",
@@ -76,11 +113,23 @@
           "type": {
             "text": "ComponentOrElement<StepRenderProps>"
           },
-          "description": "Custom render function for each step when `max` is an array.",
-          "group": "rendering",
-          "traits": [
-            "render-prop"
-          ]
+          "description": "Custom render function for each step when `max` is an array."
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance."
         },
         {
           "name": "value",
@@ -92,261 +141,46 @@
           "default": {
             "kind": "literal",
             "value": null
-          },
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "value"
           }
-        },
-        {
-          "name": "animation",
-          "optional": true,
-          "type": {
-            "text": "'carousel' | 'reverse' | 'swing' | 'elastic'"
-          },
-          "description": "Visual animation of the component.",
-          "default": {
-            "kind": "literal",
-            "value": "carousel"
-          },
-          "group": "styling"
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
-        },
-        {
-          "name": "orientation",
-          "optional": true,
-          "type": {
-            "text": "'horizontal' | 'vertical'"
-          },
-          "description": "Visual layout direction.",
-          "default": {
-            "kind": "literal",
-            "value": "horizontal"
-          },
-          "group": "styling"
-        },
-        {
-          "name": "size",
-          "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
-          "description": "Visual size of the component.",
-          "default": {
-            "kind": "literal",
-            "value": "md"
-          },
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
         }
-      ],
-      "slots": [
-        {
-          "name": "indicator",
-          "description": "Filled bar that represents the current progress value."
-        },
-        {
-          "name": "root",
-          "description": "Progress container that owns track, indicator, labels, and step markers."
-        },
-        {
-          "name": "status",
-          "description": "Text region that displays the current progress status."
-        },
-        {
-          "name": "step",
-          "description": "Individual step label or marker rendered along the progress scale."
-        },
-        {
-          "name": "steps",
-          "description": "Wrapper for step labels when progress is driven by named steps."
-        },
-        {
-          "name": "track",
-          "description": "Background rail that represents the full progress range."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-valuemax",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the maximum value for range-like controls."
-            },
-            {
-              "name": "aria-valuemin",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the minimum value for range-like controls."
-            },
-            {
-              "name": "aria-valuenow",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the current numeric value for range-like controls."
-            },
-            {
-              "name": "aria-valuetext",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Provides human-readable text for the current value."
-            },
-            {
-              "name": "data-indeterminate",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the checkbox or progress state is indeterminate."
-            },
-            {
-              "name": "data-progress",
-              "kind": "data",
-              "value": {
-                "kind": "enum",
-                "values": [
-                  "complete",
-                  "loading"
-                ]
-              },
-              "description": "Stores whether determinate progress is loading or complete."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "progressbar"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "status",
-          "slot": "status",
-          "selector": "[data-slot=\"status\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "track",
-          "slot": "track",
-          "selector": "[data-slot=\"track\"]",
-          "element": "div",
-          "attributes": []
-        },
-        {
-          "name": "indicator",
-          "slot": "indicator",
-          "selector": "[data-slot=\"indicator\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "data-indeterminate",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the checkbox or progress state is indeterminate."
-            },
-            {
-              "name": "data-progress",
-              "kind": "data",
-              "value": {
-                "kind": "enum",
-                "values": [
-                  "complete",
-                  "loading"
-                ]
-              },
-              "description": "Stores whether determinate progress is loading or complete."
-            }
-          ]
-        },
-        {
-          "name": "steps",
-          "slot": "steps",
-          "selector": "[data-slot=\"steps\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "step",
-          "slot": "step",
-          "selector": "[data-slot=\"step\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "data-state",
-              "kind": "data",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Stores the component state used by styling hooks (e.g. open, closed, active)."
-            }
-          ]
-        }
-      ],
-      "cssVariables": [
-        {
-          "name": "--p-size",
-          "target": "root",
-          "description": "Custom property declared by the component recipe on the root target.",
-          "condition": "Variant-dependent"
-        }
+      ]
+    }
+  ],
+  "slots": [
+    "root",
+    "status",
+    "track",
+    "indicator",
+    "steps",
+    "step"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-indeterminate",
+        "data-progress"
+      ]
+    },
+    {
+      "target": "indicator",
+      "attributes": [
+        "data-indeterminate",
+        "data-progress"
+      ]
+    },
+    {
+      "target": "step",
+      "attributes": [
+        "data-state"
+      ]
+    }
+  ],
+  "cssVariables": [
+    {
+      "target": "root",
+      "variables": [
+        "--p-size"
       ]
     }
   ]

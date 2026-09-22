@@ -4,8 +4,8 @@ import { For, Show, splitProps } from 'solid-js'
 import { createStyles } from '../../provider'
 
 import { Kbd } from './kbd'
+import { kbdGroupRecipe } from './kbd-group.recipe.ts'
 import type { KbdGroupProps, KbdGroupT } from './kbd-group.types'
-import { kbdGroupRecipe } from './kbd.recipe'
 import type { KbdT } from './kbd.types'
 
 function toItemProps(item: KbdGroupT.Item): KbdT.Base {

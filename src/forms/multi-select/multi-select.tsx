@@ -24,7 +24,7 @@ import { useComboboxSearch } from '../shared/select/search.ts'
 import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
 import { createTagsField } from '../shared/select/tags-field.tsx'
 
-import { multiSelectRecipe } from './multi-select.recipe'
+import { multiSelectDataAttributes, multiSelectRecipe } from './multi-select.recipe'
 import type { MultiSelectProps, MultiSelectT } from './multi-select.types.ts'
 /** Collection-backed multiple selection with tags and optional search or creation. */
 export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
@@ -262,8 +262,10 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
         <BaseSelect.Control
           {...rootProps}
           {...styles.styles.control}
-          data-tags={tags.tags().length ? '' : undefined}
-          data-editable={editable() ? '' : undefined}
+          {...multiSelectDataAttributes.control({
+            tags: () => tags.tags().length > 0,
+            editable,
+          })}
           ref={(element) => callRef(local.ref, element)}
           onPointerDown={(event) => {
             callHandler(event, rootProps.onPointerDown)
@@ -348,7 +350,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 {...inputBinding.binding}
                 {...state.field.ariaAttrs()}
                 data-slot="input"
-                data-duplicate={isDuplicate() ? '' : undefined}
+                {...multiSelectDataAttributes.input({ duplicate: isDuplicate })}
                 {...styles.styles.input}
                 placeholder={tags.tags().length ? '' : local.placeholder}
                 ref={(element) => {
@@ -382,7 +384,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             fallback={
               <BaseSelect.Trigger<'button', T>
                 aria-busy={local.loading ? 'true' : undefined}
-                data-loading={local.loading ? '' : undefined}
+                {...multiSelectDataAttributes.trigger({ loading: () => local.loading })}
                 disabled={Boolean(local.loading)}
                 {...styles.styles.trigger}
                 onKeyDown={onNonEditableTriggerKeyDown}
@@ -402,7 +404,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                       ? (local.loadingIcon ?? 'icon-loading')
                       : (local.trailingIcon ?? 'icon-chevron-down')
                   }
-                  data-loading={local.loading ? '' : undefined}
+                  {...multiSelectDataAttributes.trigger({ loading: () => local.loading })}
                   class={SELECT_LOADING_ICON_CLASS}
                 />
               </BaseSelect.Trigger>
@@ -416,7 +418,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               aria-controls={state.listboxId()}
               aria-expanded={state.open() ? 'true' : 'false'}
               aria-busy={local.loading ? 'true' : undefined}
-              data-loading={local.loading ? '' : undefined}
+              {...multiSelectDataAttributes.trigger({ loading: () => local.loading })}
               disabled={state.field.disabled() || Boolean(local.loading)}
               {...styles.styles.trigger}
               onPointerDown={(event) => {
@@ -435,7 +437,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                     ? (local.loadingIcon ?? 'icon-loading')
                     : (local.trailingIcon ?? 'icon-chevron-down')
                 }
-                data-loading={local.loading ? '' : undefined}
+                {...multiSelectDataAttributes.trigger({ loading: () => local.loading })}
                 class={SELECT_LOADING_ICON_CLASS}
               />
             </button>

@@ -22,7 +22,7 @@ import { useFormField, useFieldContext } from '../field/field-context'
 import { mergeAriaTokens } from '../shared/merge-aria-tokens'
 import { useFormReset } from '../shared/use-form-reset'
 
-import { inputNumberRecipe } from './input-number.recipe'
+import { inputNumberDataAttributes, inputNumberRecipe } from './input-number.recipe'
 import type { InputNumberProps } from './input-number.types'
 type ControlKind = 'increment' | 'decrement'
 type InputNumberControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -338,12 +338,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     untrack(() => formatLocaleNumber(initialResetValue, merged.locale)),
   )
   const [hasDirtyInput, setHasDirtyInput] = createSignal(false)
-  const dataAttrs = createMemo(() => ({
-    'data-invalid': field.invalid() ? '' : undefined,
-    'data-disabled': field.disabled() ? '' : undefined,
-    'data-readonly': readOnly() ? '' : undefined,
-    'data-required': field.required() ? '' : undefined,
-  }))
   const inputAriaAttrs = createMemo(() => {
     const generated = field.ariaAttrs()
     return {
@@ -414,6 +408,17 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   const isVertical = createMemo(() => resolvedOrientation() === 'vertical')
   const showIncrement = createMemo(() => merged.increment !== false)
   const showDecrement = createMemo(() => merged.decrement !== false)
+  const fieldDataState = {
+    invalid: field.invalid,
+    disabled: field.disabled,
+    readonly: readOnly,
+    required: field.required,
+  }
+  const rootDataAttrs = inputNumberDataAttributes.root(fieldDataState)
+  const inputDataAttrs = inputNumberDataAttributes.input({
+    ...fieldDataState,
+    'auto-align': () => resolved.variants.align === undefined && !isVertical() && !showDecrement(),
+  })
 
   function commitValue(nextValue: number): boolean {
     if (field.disabled() || readOnly() || !Number.isFinite(nextValue)) {
@@ -815,8 +820,12 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   function resolveControlProps(kind: ControlKind): InputNumberControlProps {
     const isIncrement = kind === 'increment'
     const isControlDisabled = (): boolean => !isControlInteractive(kind)
+    const dataAttrs = inputNumberDataAttributes[kind]({
+      active: () => pressedControls()[kind],
+      disabled: isControlDisabled,
+    })
 
-    return {
+    const controlProps = mergeProps(dataAttrs, {
       'data-slot': kind,
       type: 'button',
       tabIndex: -1,
@@ -827,21 +836,17 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       get disabled() {
         return isControlDisabled()
       },
-      get 'data-disabled'() {
-        return isControlDisabled() ? '' : undefined
-      },
-      get 'data-active'() {
-        return pressedControls()[kind] ? '' : undefined
-      },
       ...resolved.styles[kind],
-      onClick: (event) => onControlClick(kind, event),
+      onClick: (event: Parameters<JSX.EventHandler<HTMLButtonElement, MouseEvent>>[0]) =>
+        onControlClick(kind, event),
       'on:pointerdown': (event: PointerEvent) => onControlPointerDown(kind, event),
       'on:pointerup': (event: PointerEvent) => onControlPointerUp(kind, event),
       'on:pointercancel': (event: PointerEvent) => onControlPointerCancel(kind, event),
       'on:lostpointercapture': (event: PointerEvent) => onControlPointerCancel(kind, event),
       'on:pointerleave': () => onControlPointerLeave(kind),
       onContextMenu: onControlContextMenu,
-    }
+    })
+    return controlProps as InputNumberControlProps
   }
 
   const onBlur: JSX.FocusEventHandler<HTMLInputElement, FocusEvent> = (event) => {
@@ -958,7 +963,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       role="group"
       data-slot="root"
       {...resolved.styles.root}
-      {...dataAttrs()}
+      {...rootDataAttrs}
       {...rest}
     >
       <Show when={!isVertical() && showDecrement()}>
@@ -989,11 +994,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         aria-valuetext={formattedValue()}
         placeholder={merged.placeholder}
         data-slot="input"
-        data-auto-align={
-          resolved.variants.align === undefined && !isVertical() && !showDecrement()
-            ? ''
-            : undefined
-        }
+        {...inputDataAttrs}
         {...resolved.styles.input}
         onInput={(event) => {
           if (field.disabled() || readOnly()) {
@@ -1100,7 +1101,6 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         onBlur={onBlur}
         onFocus={onFocus}
         onWheel={onWheel}
-        {...dataAttrs()}
         {...inputAriaAttrs()}
       />
 

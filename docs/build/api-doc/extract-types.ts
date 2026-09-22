@@ -5,7 +5,7 @@ import type { ESTree } from 'vite'
 
 import { entityNameToText, getIdentifierName, getJsDoc, nodeText, parseTypeScript } from './ast'
 import type { ParsedSource } from './ast'
-import { classifyPropGroup, derivePropTraits, deriveStateRelation } from './classify'
+import type { RecipeVariantApi } from './recipe'
 import type {
   DefaultValue,
   GenericParameterApi,
@@ -13,7 +13,6 @@ import type {
   ItemPropertyApi,
   PropApi,
   RenderingApi,
-  SlotApi,
 } from './types'
 
 export interface ParsedModule {
@@ -27,6 +26,7 @@ export interface ParsedModule {
 export class TypeExtractor {
   readonly #modules = new Map<string, ParsedModule>()
   readonly #indexedAccessStack = new Set<string>()
+  #recipeVariants: RecipeVariantApi[] = []
   readonly projectRoot: string
 
   constructor(projectRoot: string) {
@@ -37,7 +37,7 @@ export class TypeExtractor {
     const absolutePath = path.isAbsolute(filePath)
       ? filePath
       : path.resolve(this.projectRoot, filePath)
-    if (!existsSync(absolutePath)) {
+    if (!absolutePath.endsWith('.types.ts') || !existsSync(absolutePath)) {
       return null
     }
 
@@ -47,11 +47,7 @@ export class TypeExtractor {
     }
 
     const content = readFileSync(absolutePath, 'utf8')
-    const source = await parseTypeScript(
-      absolutePath,
-      content,
-      /\.tsx?$/.test(absolutePath) ? (absolutePath.endsWith('.tsx') ? 'tsx' : 'ts') : 'ts',
-    )
+    const source = await parseTypeScript(absolutePath, content, 'ts')
 
     const declarations = new Map<string, ESTree.Declaration>()
     const namespaces = new Map<string, ESTree.TSModuleDeclaration>()
@@ -209,15 +205,9 @@ export class TypeExtractor {
 
   #resolveSpecifier(importerPath: string, specifier: string): string | null {
     const tryCandidates = (basePath: string): string | null => {
-      const candidates = [
-        `${basePath}.ts`,
-        `${basePath}.tsx`,
-        path.join(basePath, 'index.ts'),
-        path.join(basePath, 'index.tsx'),
-        basePath,
-      ]
+      const candidates = [`${basePath}.types.ts`, `${basePath}.ts`, basePath]
       for (const candidate of candidates) {
-        if (existsSync(candidate)) {
+        if (candidate.endsWith('.types.ts') && existsSync(candidate)) {
           try {
             if (statSync(candidate).isFile()) {
               return candidate
@@ -266,114 +256,6 @@ export class TypeExtractor {
     }
 
     return 'single'
-  }
-
-  async extractSlots(module: ParsedModule, namespaceName: string): Promise<SlotApi[]> {
-    const ns = await this.resolveNamespace(module, namespaceName)
-    if (!ns || !ns.node.body || ns.node.body.type !== 'TSModuleBlock') {
-      return []
-    }
-
-    let slotTypeNode: ESTree.TSType | null = null
-    for (const stmt of ns.node.body.body) {
-      const decl = stmt.type === 'ExportNamedDeclaration' ? stmt.declaration : stmt
-      if (decl?.type === 'TSTypeAliasDeclaration' && decl.id.name === 'Slot') {
-        slotTypeNode = decl.typeAnnotation
-        break
-      }
-    }
-
-    if (!slotTypeNode || slotTypeNode.type === 'TSNeverKeyword') {
-      return []
-    }
-
-    if (slotTypeNode.type === 'TSTypeReference') {
-      const name = entityNameToText(slotTypeNode.typeName)
-      if (name) {
-        const resolved = await this.resolveSymbol(ns.module, name, ns.node)
-        if (resolved) {
-          return this.#extractSlotProperties(resolved.module, resolved.node, resolved.nsNode)
-        }
-      }
-    }
-
-    return []
-  }
-
-  async #extractSlotProperties(
-    module: ParsedModule,
-    node: ESTree.Declaration,
-    namespace?: ESTree.TSModuleDeclaration,
-    seen = new Set<string>(),
-  ): Promise<SlotApi[]> {
-    const slots = new Map<string, SlotApi>()
-    const declarationName = 'id' in node ? getIdentifierName(node.id) : undefined
-    const visitKey = `${module.filePath}:${declarationName ?? node.start}`
-    if (seen.has(visitKey)) {
-      return []
-    }
-    seen.add(visitKey)
-
-    if (node.type === 'TSInterfaceDeclaration') {
-      for (const heritage of node.extends ?? []) {
-        const name = entityNameToText(heritage.expression)
-        if (!name) {
-          continue
-        }
-        const resolved = await this.resolveSymbol(module, name, namespace)
-        if (!resolved) {
-          continue
-        }
-        for (const slot of await this.#extractSlotProperties(
-          resolved.module,
-          resolved.node,
-          resolved.nsNode,
-          seen,
-        )) {
-          slots.set(slot.name, slot)
-        }
-      }
-      for (const member of node.body.body) {
-        if (member.type === 'TSPropertySignature') {
-          const name = getIdentifierName(member.key)
-          if (!name) {
-            continue
-          }
-          const jsdoc = getJsDoc(module.source, member)
-          slots.set(name, {
-            name,
-            ...(jsdoc.description ? { description: jsdoc.description } : {}),
-          })
-        }
-      }
-    } else if (node.type === 'TSTypeAliasDeclaration') {
-      const references =
-        node.typeAnnotation.type === 'TSIntersectionType'
-          ? node.typeAnnotation.types
-          : [node.typeAnnotation]
-      for (const reference of references) {
-        if (reference.type !== 'TSTypeReference') {
-          continue
-        }
-        const name = entityNameToText(reference.typeName)
-        if (!name) {
-          continue
-        }
-        const resolved = await this.resolveSymbol(module, name, namespace)
-        if (!resolved) {
-          continue
-        }
-        for (const slot of await this.#extractSlotProperties(
-          resolved.module,
-          resolved.node,
-          resolved.nsNode,
-          seen,
-        )) {
-          slots.set(slot.name, slot)
-        }
-      }
-    }
-    return [...slots.values()].sort((a, b) => a.name.localeCompare(b.name))
   }
 
   async extractItem(module: ParsedModule, namespaceName: string): Promise<ItemApi | undefined> {
@@ -433,12 +315,14 @@ export class TypeExtractor {
     propsTypeName: string,
     partName: string,
     isRoot: boolean,
+    recipeVariants: RecipeVariantApi[] = [],
   ): Promise<{
     generics: GenericParameterApi[]
     rendering?: RenderingApi
     props: PropApi[]
     description?: string
   }> {
+    this.#recipeVariants = recipeVariants
     const ns = await this.resolveNamespace(module, namespaceName)
     if (!ns || !ns.node.body || ns.node.body.type !== 'TSModuleBlock') {
       return { generics: [], props: [] }
@@ -609,21 +493,25 @@ export class TypeExtractor {
       props.push(...baseProps)
     }
 
-    // 2. Resolve Variant props
+    // 2. Synthesize variant props from the colocated recipe metadata.
     if (variantNode && !(await this.#isNeverType(module, nsNode, variantNode))) {
-      const variantProps = await this.#resolvePropertiesFromType(
-        module,
-        nsNode,
-        variantNode,
-        substitutions,
-      )
-      for (const vp of variantProps) {
-        vp.group = 'styling'
-        const existingIdx = props.findIndex((p) => p.name === vp.name)
+      for (const variant of this.#recipeVariants) {
+        const typeText = variant.values.every((value) => typeof value === 'boolean')
+          ? 'boolean'
+          : variant.values
+              .map((value) => (typeof value === 'string' ? `'${value}'` : String(value)))
+              .join(' | ')
+        const variantProp: PropApi = {
+          name: variant.name,
+          optional: true,
+          type: { text: typeText },
+          ...(variant.default ? { default: variant.default } : {}),
+        }
+        const existingIdx = props.findIndex((prop) => prop.name === variant.name)
         if (existingIdx >= 0) {
-          props[existingIdx] = vp
+          props[existingIdx] = variantProp
         } else {
-          props.push(vp)
+          props.push(variantProp)
         }
       }
     }
@@ -635,7 +523,6 @@ export class TypeExtractor {
         optional: true,
         type: { text: 'SlotClassValue' },
         description: 'Class applied to the component root or trigger element.',
-        group: 'styling',
       })
     }
 
@@ -645,7 +532,6 @@ export class TypeExtractor {
         optional: true,
         type: { text: 'SlotStyleValue' },
         description: 'Style applied to the component root or trigger element.',
-        group: 'styling',
       })
     }
 
@@ -658,7 +544,6 @@ export class TypeExtractor {
           optional: true,
           type: { text: classesText },
           description: 'Family slot class defaults for this instance.',
-          group: 'styling',
         })
       }
     }
@@ -671,7 +556,6 @@ export class TypeExtractor {
           optional: true,
           type: { text: stylesText },
           description: 'Family slot style defaults for this instance.',
-          group: 'styling',
         })
       }
     }
@@ -690,7 +574,6 @@ export class TypeExtractor {
           type: { text: asGenericParam.name },
           ...(defaultElement ? { default: { kind: 'literal', value: defaultElement } } : {}),
           description: 'Element or component to render as.',
-          group: 'rendering',
         })
       }
     }
@@ -1037,19 +920,12 @@ export class TypeExtractor {
       jsdoc.defaultValue !== undefined
         ? TypeExtractor.#parseDefaultValue(jsdoc.defaultValue)
         : undefined
-    const group = classifyPropGroup(name, typeText)
-    const traits = derivePropTraits(name, typeText)
-    const state = deriveStateRelation(name)
-
     return {
       name,
       optional,
       type: { text: typeText },
       ...(jsdoc.description ? { description: jsdoc.description } : {}),
       ...(defaultValue ? { default: defaultValue } : {}),
-      group,
-      ...(traits.length > 0 ? { traits } : {}),
-      ...(state ? { state } : {}),
     }
   }
 

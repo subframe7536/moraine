@@ -26,7 +26,7 @@ import {
   validateOverlayTrigger,
 } from '../base/trigger'
 
-import { contextMenuRecipe } from './context-menu.recipe'
+import { contextMenuDataAttributes, contextMenuRecipe } from './context-menu.recipe'
 import type { ContextMenuProps, ContextMenuT } from './context-menu.types'
 
 const CONTEXT_MENU_LONG_PRESS_DELAY = 700
@@ -436,7 +436,12 @@ function createContextMenu(props: ContextMenuProps) {
     return { x: 0, y: 0, width: 0, height: 0 }
   }
 
-  const triggerProps = {
+  const triggerDataAttrs = contextMenuDataAttributes.trigger({
+    closed: () => !resolvedOpen(),
+    disabled: () => merged.disabled,
+    expanded: resolvedOpen,
+  })
+  const triggerProps = mergeProps(triggerDataAttrs, {
     id: resolvedId(),
     get 'aria-controls'() {
       return resolvedOpen() ? contentId() : undefined
@@ -444,15 +449,6 @@ function createContextMenu(props: ContextMenuProps) {
     'aria-haspopup': 'menu',
     get 'aria-expanded'() {
       return resolvedOpen() ? 'true' : 'false'
-    },
-    get 'data-closed'() {
-      return resolvedOpen() ? undefined : ''
-    },
-    get 'data-disabled'() {
-      return merged.disabled ? '' : undefined
-    },
-    get 'data-expanded'() {
-      return resolvedOpen() ? '' : undefined
     },
     'data-slot': 'trigger',
     get disabled() {
@@ -509,7 +505,7 @@ function createContextMenu(props: ContextMenuProps) {
 
       openFromTriggerCenter('first')
     },
-  } as OverlayTriggerProps
+  }) as OverlayTriggerProps
 
   return {
     get presentation() {

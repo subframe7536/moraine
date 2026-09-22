@@ -15,6 +15,7 @@ import { Dynamic, Portal } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
 import { renderComponentOrElement } from '../../shared/render-prop'
+import { applyDataAttributes } from '../../shared/style-contract.ts'
 import type { ValidComponent } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { useControllableValue } from '../../shared/use-controllable-value'
@@ -23,6 +24,7 @@ import { callHandler, callRef, useId } from '../../shared/utils'
 
 import { useFloatingPosition } from './floating'
 import { useOverlayInteraction } from './interaction'
+import { popperDataAttributes } from './popper.recipe'
 import type {
   PopperProps,
   PopperContentAttributes,
@@ -171,7 +173,13 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
     },
     rest,
   )
+  const dataAttrs = popperDataAttributes.trigger({
+    closed: () => !context.isOpen(),
+    disabled,
+    expanded: context.isOpen,
+  })
   const binding = mergeProps(
+    dataAttrs,
     {
       get 'aria-haspopup'() {
         return local.describeTrigger ? undefined : true
@@ -188,15 +196,6 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
       },
       get 'aria-expanded'() {
         return local.describeTrigger ? undefined : context.isOpen() ? 'true' : 'false'
-      },
-      get 'data-closed'() {
-        return context.isOpen() ? undefined : ''
-      },
-      get 'data-disabled'() {
-        return disabled() ? '' : undefined
-      },
-      get 'data-expanded'() {
-        return context.isOpen() ? '' : undefined
       },
       'data-slot': 'trigger',
     },
@@ -257,6 +256,14 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
   const currentPlacement = createMemo(
     () => popperTestPlacementAccessor?.() ?? internalCurrentPlacement(),
   )
+  const positionerDataAttrs = popperDataAttributes.positioner({ positioned: positionerPositioned })
+  function setPositioned(positioned: boolean): void {
+    setPositionerPositioned(positioned)
+    const element = positionerElement()
+    if (element) {
+      applyDataAttributes(element, positionerDataAttrs)
+    }
+  }
   const contentMounted = createMemo(
     () => contentPresence.present() || (options.forceMount && !context.options.disabled),
   )
@@ -300,7 +307,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     gutter: () => options.gutter,
     hideWhenDetached: () => options.hideWhenDetached,
     onPlacementChange: setInternalCurrentPlacement,
-    onPositionedChange: setPositionerPositioned,
+    onPositionedChange: setPositioned,
     open: contentPresence.present,
     overlap: () => options.overlap,
     overflowPadding: () => options.overflowPadding,
@@ -471,7 +478,11 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     }
   }
 
-  const contentProps: PopperContentAttributes = {
+  const contentDataAttrs = popperDataAttributes.content({
+    closed: () => context.contentPresence.dataAttrs()['data-closed'],
+    expanded: () => context.contentPresence.dataAttrs()['data-expanded'],
+  })
+  const contentProps = {
     get 'aria-describedby'() {
       return options.ariaDescribedBy
     },
@@ -499,13 +510,8 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
       return options.role
     },
     tabIndex: -1,
-    get 'data-closed'() {
-      return context.contentPresence.dataAttrs()['data-closed']
-    },
-    get 'data-expanded'() {
-      return context.contentPresence.dataAttrs()['data-expanded']
-    },
-  }
+  } as PopperContentAttributes
+  Object.defineProperties(contentProps, Object.getOwnPropertyDescriptors(contentDataAttrs))
 
   return (
     <Show when={contentMounted()}>
@@ -522,6 +528,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
             <div
               ref={(element) => {
                 setPositionerElement(element)
+                applyDataAttributes(element, positionerDataAttrs)
                 onCleanup(() => {
                   if (positionerElement() === element) {
                     setPositionerElement(undefined)
@@ -529,7 +536,6 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
                 })
               }}
               data-slot="positioner"
-              data-positioned={positionerPositioned() ? '' : undefined}
               style={{ visibility: 'hidden', ...props.positionerStyle }}
               class={cn('left-0 top-0 absolute', props.positionerClass)}
             >

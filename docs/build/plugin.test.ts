@@ -41,22 +41,23 @@ async function seedDocsProject(projectRoot: string): Promise<void> {
     'utf8',
   )
   await writeFile(
-    path.join(projectRoot, 'src/elements/button/button.tsx'),
+    path.join(projectRoot, 'src/elements/button/button.types.ts'),
     `
 export namespace ButtonT {
   export type Kind = 'single'
-  export interface Slot {
-    root: 'root'
+  export type Slot<T = unknown> = { root?: T }
+  export interface Props {
+    /** Button label. */
+    label: string
   }
 }
-export interface ButtonProps {
-  /** Button label. */
-  label: string
-}
-export function Button(props: ButtonProps) {
-  return <button>{props.label}</button>
-}
+export type ButtonProps = ButtonT.Props
 `,
+    'utf8',
+  )
+  await writeFile(
+    path.join(projectRoot, 'src/elements/button/button.recipe.ts'),
+    `export const buttonRecipe = defineRecipe('button', { base: { root: '' } })\n`,
     'utf8',
   )
   await writeFile(
@@ -68,6 +69,8 @@ sidebar:
   order: 10
 search:
   tags: [action]
+api:
+  path: src/elements/button/button
 ---
 
 ## Button
@@ -88,17 +91,18 @@ describe('docsBuildPlugin', () => {
     const projectRoot = await createTempProject()
     await seedDocsProject(projectRoot)
     try {
-      const sourceFile = path.join(projectRoot, 'src/elements/button/button.tsx')
+      const sourceFile = path.join(projectRoot, 'src/elements/button/button.types.ts')
       await writeFile(
         sourceFile,
         `
 export namespace ButtonT {
   export type Kind = 'single'
+  export type Slot<T = unknown> = { root?: T }
+  export interface Props {
+    first: string
+  }
 }
-export interface ButtonProps {
-  first: string
-}
-export function Button(props: ButtonProps) { return <button /> }
+export type ButtonProps = ButtonT.Props
 `,
       )
       const plugin = docsBuildPlugin({ projectRoot })
@@ -113,11 +117,12 @@ export function Button(props: ButtonProps) { return <button /> }
         `
 export namespace ButtonT {
   export type Kind = 'single'
+  export type Slot<T = unknown> = { root?: T }
+  export interface Props {
+    second: boolean
+  }
 }
-export interface ButtonProps {
-  second: boolean
-}
-export function Button(props: ButtonProps) { return <button /> }
+export type ButtonProps = ButtonT.Props
 `,
       )
       await configResolved({ root: path.join(projectRoot, 'docs') })

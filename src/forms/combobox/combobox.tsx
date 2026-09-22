@@ -23,7 +23,7 @@ import {
 import { useComboboxSearch } from '../shared/select/search.ts'
 import { SELECT_LOADING_ICON_CLASS } from '../shared/select/select-field.class.ts'
 
-import { comboboxRecipe } from './combobox.recipe'
+import { comboboxDataAttributes, comboboxRecipe } from './combobox.recipe'
 import type { ComboboxProps, ComboboxT } from './combobox.types.ts'
 /** Single collection selection with an editable query input. */
 export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
@@ -89,7 +89,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
         <BaseSelect.Control
           {...rootProps}
           {...styles.styles.control}
-          data-editable=""
+          {...comboboxDataAttributes.control({ editable: true })}
           ref={(element) => callRef(local.ref, element)}
           onPointerDown={(event) => {
             callHandler(event, rootProps.onPointerDown)
@@ -154,7 +154,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
             aria-controls={state.listboxId()}
             aria-expanded={state.open() ? 'true' : 'false'}
             aria-busy={local.loading ? 'true' : undefined}
-            data-loading={local.loading ? '' : undefined}
+            {...comboboxDataAttributes.trigger({ loading: () => local.loading })}
             disabled={state.field.disabled() || Boolean(local.loading)}
             {...styles.styles.trigger}
             onPointerDown={(event) => {
@@ -173,7 +173,7 @@ export function Combobox<T extends ComboboxT.Item = ComboboxT.Item>(
                   ? (local.loadingIcon ?? 'icon-loading')
                   : (local.trailingIcon ?? 'icon-chevron-down')
               }
-              data-loading={local.loading ? '' : undefined}
+              {...comboboxDataAttributes.trigger({ loading: () => local.loading })}
               class={SELECT_LOADING_ICON_CLASS}
             />
           </button>

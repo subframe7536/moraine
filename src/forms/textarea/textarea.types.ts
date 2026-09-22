@@ -8,7 +8,7 @@ import type {
   FormReadOnlyOption,
   FormRequiredOption,
   FormValueOptions,
-} from '../shared/form-options.ts'
+} from '../shared/form-options.types.ts'
 
 import type { TextareaStyleSlot, TextareaStyleVariant } from './textarea.style-types'
 

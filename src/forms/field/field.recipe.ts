@@ -1,6 +1,14 @@
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { StyleContractState } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { FieldStyleSlot, FieldStyleVariant } from './field.style-types'
+
+export const fieldDataAttributes = {
+  label: (state: StyleContractState) => createDataAttributes({ 'data-required': state.required }),
+  container: (state: StyleContractState) =>
+    createDataAttributes({ 'data-has-text': state['has-text'] }),
+}
 
 export const fieldRecipe = /* @__PURE__ */ defineRecipe<FieldStyleSlot, FieldStyleVariant>(
   'field',

@@ -11,7 +11,7 @@ import { useFormField, useFieldContext } from '../field/field-context'
 import { isInteractiveTarget } from '../shared/is-interactive-target'
 import { useFormReset } from '../shared/use-form-reset'
 
-import { checkboxRecipe } from './checkbox.recipe'
+import { checkboxDataAttributes, checkboxRecipe } from './checkbox.recipe'
 import type { CheckboxProps } from './checkbox.types'
 /** Single checkbox control with card and list variants and custom true/false values. */
 export function Checkbox<TTrue = boolean, TFalse = boolean>(
@@ -338,13 +338,15 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
     <div
       {...rest}
       data-slot="root"
-      data-checked={resolvedChecked() ? '' : undefined}
-      data-unchecked={!resolvedChecked() && !indeterminate() ? '' : undefined}
-      data-indeterminate={indeterminate() ? '' : undefined}
-      data-disabled={field.disabled() ? '' : undefined}
-      data-readonly={readOnly() ? '' : undefined}
-      data-required={field.required() ? '' : undefined}
-      data-invalid={field.invalid() ? '' : undefined}
+      {...checkboxDataAttributes.root({
+        checked: resolvedChecked,
+        unchecked: () => !resolvedChecked() && !indeterminate(),
+        indeterminate,
+        disabled: field.disabled,
+        readonly: readOnly,
+        required: field.required,
+        invalid: field.invalid,
+      })}
       {...resolved.styles.root}
       onClick={onRootClick}
     >
@@ -388,7 +390,6 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           role="checkbox"
           disabled={field.disabled()}
           data-slot="control"
-          data-invalid={field.invalid() ? '' : undefined}
           aria-checked={indeterminate() ? 'mixed' : resolvedChecked()}
           class={cn(resolved.styles.control.class, [
             resolved.variants.indicator === 'hidden' && 'sr-only',
@@ -401,20 +402,25 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           onFocus={onControlFocus}
           onBlur={onControlBlur}
           {...checkboxAriaAttrs()}
-          data-checked={resolvedChecked() ? '' : undefined}
-          data-unchecked={!resolvedChecked() && !indeterminate() ? '' : undefined}
-          data-disabled={field.disabled() ? '' : undefined}
-          data-indeterminate={indeterminate() ? '' : undefined}
-          data-readonly={readOnly() ? '' : undefined}
-          data-required={field.required() ? '' : undefined}
+          {...checkboxDataAttributes.control({
+            checked: resolvedChecked,
+            unchecked: () => !resolvedChecked() && !indeterminate(),
+            disabled: field.disabled,
+            indeterminate,
+            readonly: readOnly,
+            required: field.required,
+            invalid: field.invalid,
+          })}
         >
           <Show when={resolvedChecked() || indeterminate()}>
             <span
               data-slot="indicator"
               {...resolved.styles.indicator}
-              data-checked={resolvedChecked() ? '' : undefined}
-              data-disabled={field.disabled() ? '' : undefined}
-              data-indeterminate={indeterminate() ? '' : undefined}
+              {...checkboxDataAttributes.indicator({
+                checked: resolvedChecked,
+                disabled: field.disabled,
+                indeterminate,
+              })}
             >
               <Icon name={activeIcon()} {...resolved.styles.icon} />
             </span>
@@ -432,7 +438,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                   for={field.id()}
                   id={labelId()}
                   data-slot="label"
-                  data-required={field.required() ? '' : undefined}
+                  {...checkboxDataAttributes.label({ required: field.required })}
                   {...resolved.styles.label}
                 >
                   {label()}
@@ -442,7 +448,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
               <p
                 id={labelId()}
                 data-slot="label"
-                data-required={field.required() ? '' : undefined}
+                {...checkboxDataAttributes.label({ required: field.required })}
                 {...resolved.styles.label}
               >
                 {label()}

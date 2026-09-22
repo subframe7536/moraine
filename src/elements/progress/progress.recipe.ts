@@ -1,6 +1,26 @@
+import { createCssVariables, createDataAttributes } from '../../shared/style-contract.ts'
+import type { StyleContractState } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { ProgressStyleSlot, ProgressStyleVariant } from './progress.style-types'
+
+export const progressDataAttributes = {
+  root: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-indeterminate': state.indeterminate,
+      'data-progress': state.progress,
+    }),
+  indicator: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-indeterminate': state.indeterminate,
+      'data-progress': state.progress,
+    }),
+  step: (state: StyleContractState) => createDataAttributes({ 'data-state': state.state }),
+}
+
+export const progressCssVariables = {
+  root: (state: StyleContractState) => createCssVariables({ '--p-size': state['p-size'] }),
+}
 
 export const progressRecipe = /* @__PURE__ */ defineRecipe<ProgressStyleSlot, ProgressStyleVariant>(
   'progress',

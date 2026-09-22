@@ -1,126 +1,99 @@
-import { toKebabCase } from '../core/strings'
-
-import { discoverPublicComponents } from './discovery'
 import { TypeExtractor } from './extract-types'
-import { RuntimeExtractor } from './runtime'
+import { RecipeExtractor } from './recipe'
+import type { RecipeApi } from './recipe'
+import { loadApiRegistry } from './registry'
 import type { ComponentApi, ComponentIndexEntry, GenerationResult, PartApi } from './types'
 
-export async function generateApiDoc(projectRoot: string): Promise<GenerationResult> {
-  const discovered = await discoverPublicComponents(projectRoot)
-  const typeExtractor = new TypeExtractor(projectRoot)
-  const runtimeExtractor = new RuntimeExtractor(projectRoot)
+const EMPTY_RECIPE: RecipeApi = {
+  slots: [],
+  variants: [],
+  dataAttributes: [],
+  cssVariables: [],
+}
 
+export async function generateApiDoc(projectRoot: string): Promise<GenerationResult> {
+  const registry = await loadApiRegistry(projectRoot)
+  const typeExtractor = new TypeExtractor(projectRoot)
+  const recipeExtractor = new RecipeExtractor(projectRoot)
   const componentDocs = new Map<string, ComponentApi>()
 
-  for (const comp of discovered) {
-    const typesModule = await typeExtractor.loadModule(comp.typesPath)
+  for (const component of registry) {
+    const typesModule = await typeExtractor.loadModule(component.typesPath)
     if (!typesModule) {
       throw new Error(
-        `[api-doc] Could not load types file for component "${comp.name}" at ${comp.typesPath}`,
+        `[api-doc] Could not load types file for component "${component.name}" at ${component.typesPath}`,
       )
     }
 
-    const kind = await typeExtractor.extractKind(typesModule, comp.namespaceName)
-    const slots = await typeExtractor.extractSlots(typesModule, comp.namespaceName)
-    const item = await typeExtractor.extractItem(typesModule, comp.namespaceName)
-    const slotNamesSet = new Set(slots.map((s) => s.name))
-
+    const kind = await typeExtractor.extractKind(typesModule, component.namespaceName)
+    const item = await typeExtractor.extractItem(typesModule, component.namespaceName)
+    const recipe = component.recipePath
+      ? await recipeExtractor.extract(component.recipePath, component.name)
+      : EMPTY_RECIPE
     const parts: PartApi[] = []
 
-    for (const part of comp.parts) {
+    for (const part of component.parts) {
       const partTypesModule =
-        part.typesPath === comp.typesPath
+        part.typesPath === component.typesPath
           ? typesModule
           : await typeExtractor.loadModule(part.typesPath)
-
       if (!partTypesModule) {
         throw new Error(
           `[api-doc] Could not load types file for part "${part.name}" at ${part.typesPath}`,
         )
       }
-
-      const partData = await typeExtractor.extractPart(
+      const extracted = await typeExtractor.extractPart(
         partTypesModule,
         part.namespaceName,
         part.propsTypeName,
         part.name,
         part.isRoot,
+        recipe.variants,
       )
-      if (part.rendersDom === false) {
-        partData.rendering = { rendersDom: false }
-      }
-
-      const targetFallback = part.isRoot
-        ? 'root'
-        : toKebabCase(part.name.includes('.') ? part.name.split('.').pop()! : part.name)
-
-      const runtime =
-        partData.rendering?.rendersDom === false
-          ? { targets: [], cssVariables: [] }
-          : await runtimeExtractor.extractRuntimeMetadata({
-              sourcePath: part.runtimeSourcePath ?? part.sourcePath,
-              implementationName: part.runtimeImplementationName ?? part.implementationName,
-              publicSlotNames: part.runtimeSlotNames
-                ? new Set(part.runtimeSlotNames)
-                : slotNamesSet,
-              targetFallback,
-              allowHostFallback: part.runtimeAllowHostFallback ?? true,
-              delegateRootTargets: part.runtimeDelegateRootTargets,
-              defaultElement: partData.rendering?.defaultElement,
-            })
-
       parts.push({
         id: part.id,
         name: part.name,
         access: part.access,
-        sourcePath: part.sourcePath,
-        ...(partData.description ? { description: partData.description } : {}),
-        ...(partData.generics.length > 0 ? { generics: partData.generics } : {}),
-        ...(partData.rendering ? { rendering: partData.rendering } : {}),
-        props: partData.props,
-        slots: part.isRoot ? slots : [],
-        runtime: runtime.targets,
-        cssVariables: runtime.cssVariables,
+        ...(extracted.description ? { description: extracted.description } : {}),
+        ...(extracted.generics.length > 0 ? { generics: extracted.generics } : {}),
+        ...(extracted.rendering ? { rendering: extracted.rendering } : {}),
+        props: extracted.props,
       })
     }
 
-    const rootDiscoveredPart = comp.parts.find((p) => p.isRoot) ?? comp.parts[0]
-    const rootPart = parts.find((p) => p.id === rootDiscoveredPart?.id) ?? parts[0]
-    const description = rootPart?.description
-
-    const componentApi: ComponentApi = {
-      key: comp.key,
-      name: comp.name,
-      category: comp.category,
+    const description = parts[0]?.description
+    componentDocs.set(component.key, {
+      key: component.key,
+      name: component.name,
+      category: component.category,
       ...(description ? { description } : {}),
       kind,
-      sourcePath: comp.sourcePath,
       parts,
       ...(item ? { item } : {}),
-    }
-
-    componentDocs.set(comp.key, componentApi)
+      slots: recipe.slots,
+      dataAttributes: recipe.dataAttributes,
+      cssVariables: recipe.cssVariables,
+    })
   }
 
   const indexComponents: ComponentIndexEntry[] = [...componentDocs.values()]
-    .map((c) => {
+    .map((component) => {
       const entry: ComponentIndexEntry = {
-        key: c.key,
-        name: c.name,
-        category: c.category,
-        kind: c.kind,
-        sourcePath: c.sourcePath,
+        key: component.key,
+        name: component.name,
+        category: component.category,
+        kind: component.kind,
       }
-      if (c.description) {
-        entry.description = c.description
+      if (component.description) {
+        entry.description = component.description
       }
       return entry
     })
-    .sort((a, b) => a.key.localeCompare(b.key))
+    .sort((left, right) => left.key.localeCompare(right.key))
 
   return {
     indexDoc: { components: indexComponents },
     componentDocs,
-    diagnostics: [...runtimeExtractor.diagnostics],
+    diagnostics: [],
   }
 }

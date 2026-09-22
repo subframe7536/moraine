@@ -1,6 +1,32 @@
+import { BUTTON_VARIANTS } from '../../elements/button/button.recipe.ts'
+import { createDataAttributes } from '../../shared/style-contract.ts'
+import type { StyleContractState } from '../../shared/style-contract.ts'
 import { defineRecipe } from '../../theme/style/recipe'
 
 import type { PaginationStyleSlot, PaginationStyleVariant } from './pagination.style-types'
+
+export const paginationDataAttributes = {
+  prev: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-disabled': state.disabled,
+      'data-loading': state.loading,
+      'data-text': state.text,
+    }),
+  item: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-current': state.current,
+      'data-disabled': state.disabled,
+      'data-loading': state.loading,
+    }),
+  next: (state: StyleContractState) =>
+    createDataAttributes({
+      'data-disabled': state.disabled,
+      'data-loading': state.loading,
+      'data-text': state.text,
+    }),
+  ellipsis: (state: StyleContractState) =>
+    createDataAttributes({ 'data-ellipsis': state.ellipsis }),
+}
 
 export const paginationRecipe = /* @__PURE__ */ defineRecipe<
   PaginationStyleSlot,
@@ -37,5 +63,8 @@ export const paginationRecipe = /* @__PURE__ */ defineRecipe<
         ellipsis: 'text-base',
       },
     },
+    variant: BUTTON_VARIANTS,
+    activeVariant: BUTTON_VARIANTS,
+    controlVariant: BUTTON_VARIANTS,
   },
 })

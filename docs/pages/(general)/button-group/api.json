@@ -4,7 +4,6 @@
   "category": "elements",
   "description": "Props for the ButtonGroup component.",
   "kind": "composite",
-  "sourcePath": "src/elements/button/button-group.tsx",
   "parts": [
     {
       "id": "button-group",
@@ -14,7 +13,6 @@
         "name": "ButtonGroup",
         "package": "moraine"
       },
-      "sourcePath": "src/elements/button/button-group.tsx",
       "description": "Props for the ButtonGroup component.",
       "rendering": {
         "rendersDom": true,
@@ -23,31 +21,12 @@
       },
       "props": [
         {
-          "name": "id",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "Optional identifier for the group root.",
-          "group": "behavior"
-        },
-        {
-          "name": "role",
-          "optional": true,
-          "type": {
-            "text": "JSX.AriaAttributes['role']"
-          },
-          "description": "ARIA role for the group root.",
-          "group": "behavior"
-        },
-        {
           "name": "children",
           "optional": true,
           "type": {
             "text": "JSX.Element"
           },
-          "description": "Buttons or compatible controls rendered as a cohesive group.",
-          "group": "rendering"
+          "description": "Buttons or compatible controls rendered as a cohesive group."
         },
         {
           "name": "class",
@@ -55,8 +34,7 @@
           "type": {
             "text": "SlotClassValue"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "classes",
@@ -64,8 +42,15 @@
           "type": {
             "text": "Classes"
           },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "Optional identifier for the group root."
         },
         {
           "name": "orientation",
@@ -73,25 +58,29 @@
           "type": {
             "text": "'horizontal' | 'vertical'"
           },
-          "description": "Visual layout direction.",
           "default": {
             "kind": "literal",
             "value": "horizontal"
+          }
+        },
+        {
+          "name": "role",
+          "optional": true,
+          "type": {
+            "text": "JSX.AriaAttributes['role']"
           },
-          "group": "styling"
+          "description": "ARIA role for the group root."
         },
         {
           "name": "size",
           "optional": true,
           "type": {
-            "text": "'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'icon-xs' | 'icon-sm' | 'icon-md' | 'icon-lg' | 'icon-xl'"
+            "text": "'sm' | 'md' | 'lg'"
           },
-          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
@@ -99,8 +88,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -108,8 +96,7 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
         },
         {
           "name": "variant",
@@ -117,43 +104,12 @@
           "type": {
             "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
           },
-          "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",
             "value": "default"
-          },
-          "group": "styling"
+          }
         }
-      ],
-      "slots": [
-        {
-          "name": "root",
-          "description": "Container that joins the edges of its direct button children."
-        },
-        {
-          "name": "separator",
-          "description": "Explicit divider between adjacent ButtonGroup parts."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        }
-      ],
-      "cssVariables": []
+      ]
     },
     {
       "id": "button-group-separator",
@@ -163,7 +119,6 @@
         "root": "ButtonGroup",
         "member": "Separator"
       },
-      "sourcePath": "src/elements/button/button-group.tsx",
       "description": "Props for the ButtonGroup.Separator component.",
       "rendering": {
         "rendersDom": true,
@@ -177,8 +132,7 @@
           "type": {
             "text": "SlotClassValue"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Class applied to the component root or trigger element."
         },
         {
           "name": "orientation",
@@ -186,8 +140,21 @@
           "type": {
             "text": "'horizontal' | 'vertical'"
           },
-          "description": "Layout axis used by the component Recipe.",
-          "group": "styling"
+          "default": {
+            "kind": "literal",
+            "value": "horizontal"
+          }
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": {
+            "text": "'sm' | 'md' | 'lg'"
+          },
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          }
         },
         {
           "name": "style",
@@ -195,46 +162,33 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
-        }
-      ],
-      "slots": [],
-      "runtime": [
+          "description": "Style applied to the component root or trigger element."
+        },
         {
-          "name": "separator",
-          "slot": "separator",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-orientation",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Communicates horizontal or vertical orientation."
-            },
-            {
-              "name": "data-orientation",
-              "kind": "data",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Stores the rendered orientation (horizontal or vertical)."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "separator"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
+          "name": "variant",
+          "optional": true,
+          "type": {
+            "text": "'default' | 'secondary' | 'outline' | 'ghost' | 'link' | 'destructive'"
+          },
+          "default": {
+            "kind": "literal",
+            "value": "default"
+          }
         }
-      ],
-      "cssVariables": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "root",
+    "separator"
+  ],
+  "dataAttributes": [
+    {
+      "target": "separator",
+      "attributes": [
+        "data-orientation"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

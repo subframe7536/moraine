@@ -23,7 +23,7 @@ import { callHandler, callRef, useId } from '../../shared/utils'
 import { useFormField, useFieldContext } from '../field/field-context'
 import { useFormReset } from '../shared/use-form-reset'
 
-import { radioGroupRecipe } from './radio-group.recipe'
+import { radioGroupDataAttributes, radioGroupRecipe } from './radio-group.recipe'
 import type { RadioGroupProps } from './radio-group.types'
 
 interface NormalizedRadioGroupItem {
@@ -117,12 +117,12 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
   const inputRefs = new Map<string, HTMLInputElement>()
   let groupEl: HTMLDivElement | undefined
   let pressedSpaceItemId: string | undefined
-  const dataAttrs = createMemo(() => ({
-    'data-invalid': field.invalid() ? '' : undefined,
-    'data-disabled': field.disabled() ? '' : undefined,
-    'data-readonly': readOnly() ? '' : undefined,
-    'data-required': field.required() ? '' : undefined,
-  }))
+  const dataAttrs = radioGroupDataAttributes.root({
+    invalid: field.invalid,
+    disabled: field.disabled,
+    readonly: readOnly,
+    required: field.required,
+  })
 
   const normalizedItems = createMemo<NormalizedRadioGroupItem[]>(() => {
     const valueOccurrences = new Map<string, number>()
@@ -350,7 +350,7 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       role="radiogroup"
       aria-orientation={orientation()}
       data-slot="root"
-      {...dataAttrs()}
+      {...dataAttrs}
       {...groupAriaAttrs()}
       {...rest}
       {...resolved.styles.root}
@@ -379,8 +379,10 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
               component={variant() === 'list' ? 'div' : 'label'}
               id={item.id}
               data-slot="item"
-              data-checked={selected() ? '' : undefined}
-              data-disabled={disabled() ? '' : undefined}
+              {...radioGroupDataAttributes.item({
+                checked: selected,
+                disabled,
+              })}
               {...resolved.styles.item}
             >
               <div data-slot="container" {...resolved.styles.container}>
@@ -428,17 +430,19 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
                   data-slot="control"
                   class={cn(resolved.styles.control.class, indicator() === 'hidden' && 'sr-only')}
                   style={resolved.styles.control.style}
-                  data-checked={selected() ? '' : undefined}
-                  data-invalid={field.invalid() ? '' : undefined}
-                  data-disabled={disabled() ? '' : undefined}
-                  data-readonly={readOnly() ? '' : undefined}
-                  data-required={field.required() ? '' : undefined}
+                  {...radioGroupDataAttributes.control({
+                    checked: selected,
+                    invalid: field.invalid,
+                    disabled,
+                    readonly: readOnly,
+                    required: field.required,
+                  })}
                 >
                   <Show when={selected()}>
                     <div
                       data-slot="indicator"
                       {...resolved.styles.indicator}
-                      data-checked={selected() ? '' : undefined}
+                      {...radioGroupDataAttributes.indicator({ checked: selected })}
                     />
                   </Show>
                 </div>

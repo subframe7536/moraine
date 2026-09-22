@@ -4,7 +4,6 @@
   "category": "forms",
   "description": "Props for the FileUpload component.",
   "kind": "single",
-  "sourcePath": "src/forms/file-upload/file-upload.tsx",
   "parts": [
     {
       "id": "file-upload",
@@ -14,7 +13,6 @@
         "name": "FileUpload",
         "package": "moraine"
       },
-      "sourcePath": "src/forms/file-upload/file-upload.tsx",
       "description": "Props for the FileUpload component.",
       "generics": [
         {
@@ -44,225 +42,7 @@
           "default": {
             "kind": "literal",
             "value": "*"
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "disabled",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is disabled.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "dropzone",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether to enable drag and drop.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "icon",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Icon to show in the upload area.",
-          "default": {
-            "kind": "literal",
-            "value": "icon-upload"
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "id",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The ID of the input element.",
-          "group": "behavior"
-        },
-        {
-          "name": "inputRef",
-          "optional": true,
-          "type": {
-            "text": "Ref<HTMLInputElement>"
-          },
-          "description": "Native input element ref.",
-          "group": "behavior"
-        },
-        {
-          "name": "maxFiles",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Maximum number of files allowed.",
-          "group": "behavior"
-        },
-        {
-          "name": "maxSize",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Maximum accepted file size in bytes.",
-          "group": "behavior"
-        },
-        {
-          "name": "minSize",
-          "optional": true,
-          "type": {
-            "text": "number"
-          },
-          "description": "Minimum accepted file size in bytes.",
-          "group": "behavior"
-        },
-        {
-          "name": "multiple",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether multiple files can be uploaded.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "onClick",
-          "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLElement, MouseEvent>"
-          },
-          "description": "Click handler for the upload control.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onDragLeave",
-          "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLElement, DragEvent>"
-          },
-          "description": "Drag-leave handler for the upload dropzone.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onDragOver",
-          "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLElement, DragEvent>"
-          },
-          "description": "Drag-over handler for the upload dropzone.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onDrop",
-          "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLElement, DragEvent>"
-          },
-          "description": "Drop handler for the upload dropzone.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onFileReject",
-          "optional": true,
-          "type": {
-            "text": "(files: Rejection[]) => void"
-          },
-          "description": "Callback when files are rejected (e.g., due to type or count).",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "onKeyDown",
-          "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>"
-          },
-          "description": "Keyboard handler for the upload control.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "preview",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether to show file previews.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "name",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The name of the input element, used for form submission.",
-          "group": "form"
-        },
-        {
-          "name": "readOnly",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is read-only.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "form"
-        },
-        {
-          "name": "required",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is required.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "form"
+          }
         },
         {
           "name": "as",
@@ -274,8 +54,23 @@
           "default": {
             "kind": "literal",
             "value": "div"
+          }
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
           },
-          "group": "rendering"
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance."
         },
         {
           "name": "description",
@@ -283,8 +78,31 @@
           "type": {
             "text": "JSX.Element"
           },
-          "description": "Description text for the upload area.",
-          "group": "rendering"
+          "description": "Description text for the upload area."
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is disabled.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "dropzone",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether to enable drag and drop.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
         },
         {
           "name": "fileIcon",
@@ -296,8 +114,35 @@
           "default": {
             "kind": "literal",
             "value": "icon-file"
+          }
+        },
+        {
+          "name": "icon",
+          "optional": true,
+          "type": {
+            "text": "IconT.Name"
           },
-          "group": "rendering"
+          "description": "Icon to show in the upload area.",
+          "default": {
+            "kind": "literal",
+            "value": "icon-upload"
+          }
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "The ID of the input element."
+        },
+        {
+          "name": "inputRef",
+          "optional": true,
+          "type": {
+            "text": "Ref<HTMLInputElement>"
+          },
+          "description": "Native input element ref."
         },
         {
           "name": "label",
@@ -305,8 +150,99 @@
           "type": {
             "text": "JSX.Element"
           },
-          "description": "Label for the upload area.",
-          "group": "rendering"
+          "description": "Label for the upload area."
+        },
+        {
+          "name": "maxFiles",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Maximum number of files allowed."
+        },
+        {
+          "name": "maxSize",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Maximum accepted file size in bytes."
+        },
+        {
+          "name": "minSize",
+          "optional": true,
+          "type": {
+            "text": "number"
+          },
+          "description": "Minimum accepted file size in bytes."
+        },
+        {
+          "name": "multiple",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether multiple files can be uploaded.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "name",
+          "optional": true,
+          "type": {
+            "text": "string"
+          },
+          "description": "The name of the input element, used for form submission."
+        },
+        {
+          "name": "onClick",
+          "optional": true,
+          "type": {
+            "text": "JSX.EventHandlerUnion<HTMLElement, MouseEvent>"
+          },
+          "description": "Click handler for the upload control."
+        },
+        {
+          "name": "onDragLeave",
+          "optional": true,
+          "type": {
+            "text": "JSX.EventHandlerUnion<HTMLElement, DragEvent>"
+          },
+          "description": "Drag-leave handler for the upload dropzone."
+        },
+        {
+          "name": "onDragOver",
+          "optional": true,
+          "type": {
+            "text": "JSX.EventHandlerUnion<HTMLElement, DragEvent>"
+          },
+          "description": "Drag-over handler for the upload dropzone."
+        },
+        {
+          "name": "onDrop",
+          "optional": true,
+          "type": {
+            "text": "JSX.EventHandlerUnion<HTMLElement, DragEvent>"
+          },
+          "description": "Drop handler for the upload dropzone."
+        },
+        {
+          "name": "onFileReject",
+          "optional": true,
+          "type": {
+            "text": "(files: Rejection[]) => void"
+          },
+          "description": "Callback when files are rejected (e.g., due to type or count)."
+        },
+        {
+          "name": "onKeyDown",
+          "optional": true,
+          "type": {
+            "text": "JSX.EventHandlerUnion<HTMLElement, KeyboardEvent>"
+          },
+          "description": "Keyboard handler for the upload control."
         },
         {
           "name": "onValueChange",
@@ -314,33 +250,43 @@
           "type": {
             "text": "(value: Value) => void"
           },
-          "description": "Callback when the selected files change.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "value",
-            "role": "change"
+          "description": "Callback when the selected files change."
+        },
+        {
+          "name": "preview",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether to show file previews.",
+          "default": {
+            "kind": "literal",
+            "value": true
           }
         },
         {
-          "name": "class",
+          "name": "readOnly",
           "optional": true,
           "type": {
-            "text": "SlotClassValue"
+            "text": "boolean"
           },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Whether the input is read-only.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
-          "name": "classes",
+          "name": "required",
           "optional": true,
           "type": {
-            "text": "Classes"
+            "text": "boolean"
           },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
+          "description": "Whether the input is required.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
         },
         {
           "name": "size",
@@ -348,12 +294,10 @@
           "type": {
             "text": "'sm' | 'md' | 'lg'"
           },
-          "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
             "value": "md"
-          },
-          "group": "styling"
+          }
         },
         {
           "name": "style",
@@ -361,8 +305,7 @@
           "type": {
             "text": "SlotStyleValue"
           },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
+          "description": "Style applied to the component root or trigger element."
         },
         {
           "name": "styles",
@@ -370,294 +313,50 @@
           "type": {
             "text": "Styles"
           },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
+          "description": "Family slot style defaults for this instance."
         }
-      ],
-      "slots": [
-        {
-          "name": "control",
-          "description": "Dropzone and picker control users interact with to select files."
-        },
-        {
-          "name": "description",
-          "description": "Supporting upload requirements or helper text."
-        },
-        {
-          "name": "file",
-          "description": "Row for one selected file, including preview, metadata, and remove action."
-        },
-        {
-          "name": "fileMeta",
-          "description": "Text region for file name, size, and validation state."
-        },
-        {
-          "name": "fileName",
-          "description": "Display name for a selected file."
-        },
-        {
-          "name": "filePreview",
-          "description": "Preview or file-type icon area for a selected file."
-        },
-        {
-          "name": "fileRemove",
-          "description": "Button used to remove a selected file from the list."
-        },
-        {
-          "name": "files",
-          "description": "List region that displays selected files and upload progress."
-        },
-        {
-          "name": "fileSize",
-          "description": "File size text for a selected file."
-        },
-        {
-          "name": "icon",
-          "description": "Upload or status icon shown inside the control."
-        },
-        {
-          "name": "label",
-          "description": "Primary instruction text for the upload control."
-        },
-        {
-          "name": "root",
-          "description": "Upload component container that owns dropzone, file input, and file list."
-        },
-        {
-          "name": "wrapper",
-          "description": "Inner control layout for icon, label, and description."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "fileRemove",
-          "slot": "fileRemove",
-          "selector": "[data-slot=\"fileRemove\"]",
-          "element": "button",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Provides an accessible label when visible text is not sufficient."
-            }
-          ]
-        },
-        {
-          "name": "wrapper",
-          "slot": "wrapper",
-          "selector": "[data-slot=\"wrapper\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "data-dropzone",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the target is an active file dropzone."
-            }
-          ]
-        },
-        {
-          "name": "icon",
-          "slot": "icon",
-          "selector": "[data-slot=\"icon\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "label",
-          "slot": "label",
-          "selector": "[data-slot=\"label\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "description",
-          "slot": "description",
-          "selector": "[data-slot=\"description\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-label",
-              "kind": "aria",
-              "value": {
-                "kind": "literal",
-                "value": "File upload"
-              },
-              "description": "Provides an accessible label when visible text is not sufficient."
-            },
-            {
-              "name": "aria-labelledby",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "References the element that labels the control or region."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-invalid",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field or form has a validation error."
-            },
-            {
-              "name": "data-readonly",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field is in read-only mode."
-            },
-            {
-              "name": "data-required",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field input is required."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "group"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "control",
-          "slot": "control",
-          "selector": "[data-slot=\"control\"]",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "data-dragging",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present while the related thumb or handle is being dragged."
-            },
-            {
-              "name": "data-dropzone",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the target is an active file dropzone."
-            },
-            {
-              "name": "data-invalid",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field or form has a validation error."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "button"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "files",
-          "slot": "files",
-          "selector": "[data-slot=\"files\"]",
-          "element": "ul",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "file",
-          "slot": "file",
-          "selector": "[data-slot=\"file\"]",
-          "element": "li",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "filePreview",
-          "slot": "filePreview",
-          "selector": "[data-slot=\"filePreview\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "fileMeta",
-          "slot": "fileMeta",
-          "selector": "[data-slot=\"fileMeta\"]",
-          "element": "div",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "fileName",
-          "slot": "fileName",
-          "selector": "[data-slot=\"fileName\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "fileSize",
-          "slot": "fileSize",
-          "selector": "[data-slot=\"fileSize\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        }
-      ],
-      "cssVariables": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "root",
+    "control",
+    "wrapper",
+    "icon",
+    "label",
+    "description",
+    "files",
+    "file",
+    "filePreview",
+    "fileMeta",
+    "fileName",
+    "fileSize",
+    "fileRemove"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-disabled",
+        "data-invalid",
+        "data-readonly",
+        "data-required"
+      ]
+    },
+    {
+      "target": "wrapper",
+      "attributes": [
+        "data-dropzone"
+      ]
+    },
+    {
+      "target": "control",
+      "attributes": [
+        "data-dragging",
+        "data-dropzone",
+        "data-invalid"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

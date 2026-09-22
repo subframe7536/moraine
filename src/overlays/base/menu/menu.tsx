@@ -22,6 +22,7 @@ import { List } from '../../../elements/list'
 import { useCn } from '../../../provider/cn-context'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
 import { renderComponentOrElement } from '../../../shared/render-prop'
+import { mergeStyleContract } from '../../../shared/style-contract'
 import type { ClassValue, ElementProps } from '../../../shared/types'
 import { useControllableValue } from '../../../shared/use-controllable-value'
 import { useEventListener } from '../../../shared/use-event-listener'
@@ -40,6 +41,7 @@ import {
   resolveOverlayMenuSide,
 } from '../utils'
 
+import { overlayMenuCssVariables, overlayMenuDataAttributes } from './menu.recipe'
 import {
   createPointerGraceIntent,
   createVirtualReference,
@@ -606,12 +608,14 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       <div
         id={itemId()}
         data-slot="item"
-        data-destructive={itemProps.item.variant === 'destructive' ? '' : undefined}
         role="menuitem"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
-        data-disabled={itemProps.item.disabled ? '' : undefined}
-        data-highlighted={layer.highlightedItemId() === itemId() ? '' : undefined}
+        {...overlayMenuDataAttributes.item({
+          destructive: () => itemProps.item.variant === 'destructive',
+          disabled: () => itemProps.item.disabled,
+          highlighted: () => layer.highlightedItemId() === itemId(),
+        })}
         {...itemAttributes()}
         ref={(itemElement) => {
           setElement(itemElement)
@@ -680,14 +684,16 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       <div
         id={itemId()}
         data-slot="item"
-        data-destructive={itemProps.item.variant === 'destructive' ? '' : undefined}
         role="menuitemcheckbox"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
-        data-selected={checked() ? '' : undefined}
-        data-disabled={itemProps.item.disabled ? '' : undefined}
-        data-highlighted={layer.highlightedItemId() === itemId() ? '' : undefined}
+        {...overlayMenuDataAttributes.item({
+          destructive: () => itemProps.item.variant === 'destructive',
+          selected: checked,
+          disabled: () => itemProps.item.disabled,
+          highlighted: () => layer.highlightedItemId() === itemId(),
+        })}
         {...itemAttributes()}
         ref={(itemElement) => {
           setElement(itemElement)
@@ -774,14 +780,16 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       <div
         id={itemId()}
         data-slot="item"
-        data-destructive={itemProps.item.variant === 'destructive' ? '' : undefined}
         role="menuitemradio"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
-        data-selected={checked() ? '' : undefined}
-        data-disabled={itemProps.item.disabled ? '' : undefined}
-        data-highlighted={layer.highlightedItemId() === itemId() ? '' : undefined}
+        {...overlayMenuDataAttributes.item({
+          destructive: () => itemProps.item.variant === 'destructive',
+          selected: checked,
+          disabled: () => itemProps.item.disabled,
+          highlighted: () => layer.highlightedItemId() === itemId(),
+        })}
         {...itemAttributes()}
         ref={(itemElement) => {
           setElement(itemElement)
@@ -907,16 +915,18 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         <div
           id={submenuId()}
           data-slot="item"
-          data-destructive={itemProps.item.variant === 'destructive' ? '' : undefined}
           role="menuitem"
           tabIndex={layer.highlightedItemId() === submenuId() ? 0 : -1}
           aria-haspopup="menu"
           aria-controls={isOpen() ? submenuContentId() : undefined}
           aria-expanded={isOpen() ? 'true' : 'false'}
           aria-disabled={itemProps.item.disabled ? 'true' : undefined}
-          data-disabled={itemProps.item.disabled ? '' : undefined}
-          data-highlighted={layer.highlightedItemId() === submenuId() ? '' : undefined}
-          data-expanded={isOpen() ? '' : undefined}
+          {...overlayMenuDataAttributes.item({
+            destructive: () => itemProps.item.variant === 'destructive',
+            disabled: () => itemProps.item.disabled,
+            highlighted: () => layer.highlightedItemId() === submenuId(),
+            expanded: isOpen,
+          })}
           {...itemAttributes()}
           ref={(itemElement) => {
             setTriggerElement(itemElement)
@@ -1172,11 +1182,12 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
   const contentSlot = () => ({
     class: cn(resolveSlot('content').class, props.contentProps?.class),
-    style: {
-      '--mo-popper-content-transform-origin': undefined,
-      ...props.contentProps?.style,
-      ...resolveSlot('content').style,
-    },
+    style: mergeStyleContract(
+      overlayMenuCssVariables.content({
+        'popper-content-transform-origin': undefined,
+      }),
+      { ...props.contentProps?.style, ...resolveSlot('content').style },
+    ),
   })
 
   return (
@@ -1205,9 +1216,12 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         aria-labelledby={props.ariaLabelledBy}
         tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
         {...props.contentProps}
-        {...presenceDataAttrs()}
-        data-side={side()}
-        data-align={align()}
+        {...overlayMenuDataAttributes.content({
+          expanded: () => presenceDataAttrs()['data-expanded'],
+          closed: () => presenceDataAttrs()['data-closed'],
+          side,
+          align,
+        })}
         ref={(element: HTMLDivElement) => {
           layer.setContentElement(element)
           props.setPresenceElement(element)

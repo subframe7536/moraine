@@ -8,7 +8,7 @@ import { createStyles } from '../../provider'
 import type { ValidComponent } from '../../shared/types.ts'
 import { callRef } from '../../shared/utils'
 
-import { paginationRecipe } from './pagination.recipe'
+import { paginationDataAttributes, paginationRecipe } from './pagination.recipe'
 import type { PaginationProps } from './pagination.types'
 
 interface InteractiveProps {
@@ -223,7 +223,9 @@ export function Pagination(props: PaginationProps): JSX.Element {
               variant={resolved.variants.controlVariant}
               size={getSize(resolved.variants.size, merged.prevText)}
               aria-label={getPrevLabel()}
-              data-text={merged.prevText ? '' : undefined}
+              {...paginationDataAttributes.prev({
+                text: () => Boolean(merged.prevText),
+              })}
               {...resolved.styles.prev}
               classes={{ label: merged.prevText ? resolved.styles.controlLabel.class : undefined }}
               onClick={(event) => selectPage(currentPage() - 1, event)}
@@ -244,7 +246,9 @@ export function Pagination(props: PaginationProps): JSX.Element {
               <li
                 data-slot="list-item"
                 aria-hidden={item === ELLIPSIS ? true : undefined}
-                data-ellipsis={item === ELLIPSIS ? '' : undefined}
+                {...paginationDataAttributes.ellipsis({
+                  ellipsis: () => item === ELLIPSIS,
+                })}
                 {...resolved.styles.listItem}
               >
                 <Show
@@ -265,7 +269,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
                     size={getSize(resolved.variants.size)}
                     aria-current={isActive() ? 'page' : undefined}
                     aria-label={getPageLabel(item, isActive())}
-                    data-current={isActive() ? '' : undefined}
+                    {...paginationDataAttributes.item({ current: isActive })}
                     {...resolved.styles.item}
                     onClick={(event) => selectPage(item, event)}
                     {...getItemProps(item)}
@@ -285,7 +289,9 @@ export function Pagination(props: PaginationProps): JSX.Element {
               variant={resolved.variants.controlVariant}
               size={getSize(resolved.variants.size, merged.nextText)}
               aria-label={getNextLabel()}
-              data-text={merged.nextText ? '' : undefined}
+              {...paginationDataAttributes.next({
+                text: () => Boolean(merged.nextText),
+              })}
               {...resolved.styles.next}
               classes={{ label: merged.nextText ? resolved.styles.controlLabel.class : undefined }}
               onClick={(event) => selectPage(currentPage() + 1, event)}

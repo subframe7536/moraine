@@ -7,7 +7,7 @@ import type {
   FormIdentityOptions,
   FormReadOnlyOption,
   FormRequiredOption,
-} from '../shared/form-options'
+} from '../shared/form-options.types.ts'
 
 import type { CheckboxStyleSlot, CheckboxStyleVariant } from './checkbox.style-types'
 

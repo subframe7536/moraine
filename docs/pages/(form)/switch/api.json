@@ -4,7 +4,6 @@
   "category": "forms",
   "description": "Props for the Switch component.",
   "kind": "single",
-  "sourcePath": "src/forms/switch/switch.tsx",
   "parts": [
     {
       "id": "switch",
@@ -14,7 +13,6 @@
         "name": "Switch",
         "package": "moraine"
       },
-      "sourcePath": "src/forms/switch/switch.tsx",
       "description": "Props for the Switch component.",
       "generics": [
         {
@@ -33,6 +31,54 @@
       },
       "props": [
         {
+          "name": "checked",
+          "optional": true,
+          "type": {
+            "text": "TTrue | TFalse"
+          },
+          "description": "Whether the switch is checked."
+        },
+        {
+          "name": "checkedIcon",
+          "optional": true,
+          "type": {
+            "text": "IconT.Name"
+          },
+          "description": "Icon shown when the switch is checked."
+        },
+        {
+          "name": "class",
+          "optional": true,
+          "type": {
+            "text": "SlotClassValue"
+          },
+          "description": "Class applied to the component root or trigger element."
+        },
+        {
+          "name": "classes",
+          "optional": true,
+          "type": {
+            "text": "Classes"
+          },
+          "description": "Family slot class defaults for this instance."
+        },
+        {
+          "name": "defaultChecked",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the switch is checked by default."
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Description for the switch."
+        },
+        {
           "name": "disabled",
           "optional": true,
           "type": {
@@ -42,8 +88,7 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "falseValue",
@@ -55,8 +100,7 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "behavior"
+          }
         },
         {
           "name": "id",
@@ -64,8 +108,7 @@
           "type": {
             "text": "string"
           },
-          "description": "The ID of the input element.",
-          "group": "behavior"
+          "description": "The ID of the input element."
         },
         {
           "name": "inputRef",
@@ -73,8 +116,15 @@
           "type": {
             "text": "Ref<HTMLInputElement>"
           },
-          "description": "Optional inner input element ref.",
-          "group": "behavior"
+          "description": "Optional inner input element ref."
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "type": {
+            "text": "JSX.Element"
+          },
+          "description": "Label for the switch."
         },
         {
           "name": "loading",
@@ -86,95 +136,7 @@
           "default": {
             "kind": "literal",
             "value": false
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "onPointerDown",
-          "optional": true,
-          "type": {
-            "text": "JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>"
-          },
-          "description": "Pointer down handler for the switch root container.",
-          "group": "behavior",
-          "traits": [
-            "callback"
-          ]
-        },
-        {
-          "name": "trueValue",
-          "optional": true,
-          "type": {
-            "text": "TTrue"
-          },
-          "description": "Value to use when the switch is checked.",
-          "default": {
-            "kind": "literal",
-            "value": true
-          },
-          "group": "behavior"
-        },
-        {
-          "name": "name",
-          "optional": true,
-          "type": {
-            "text": "string"
-          },
-          "description": "The name of the input element, used for form submission.",
-          "group": "form"
-        },
-        {
-          "name": "readOnly",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is read-only.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "form"
-        },
-        {
-          "name": "required",
-          "optional": true,
-          "type": {
-            "text": "boolean"
-          },
-          "description": "Whether the input is required.",
-          "default": {
-            "kind": "literal",
-            "value": false
-          },
-          "group": "form"
-        },
-        {
-          "name": "checkedIcon",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Icon shown when the switch is checked.",
-          "group": "rendering"
-        },
-        {
-          "name": "description",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Description for the switch.",
-          "group": "rendering"
-        },
-        {
-          "name": "label",
-          "optional": true,
-          "type": {
-            "text": "JSX.Element"
-          },
-          "description": "Label for the switch.",
-          "group": "rendering"
+          }
         },
         {
           "name": "loadingIcon",
@@ -186,43 +148,15 @@
           "default": {
             "kind": "literal",
             "value": "icon-loading"
-          },
-          "group": "rendering"
-        },
-        {
-          "name": "uncheckedIcon",
-          "optional": true,
-          "type": {
-            "text": "IconT.Name"
-          },
-          "description": "Icon shown when the switch is unchecked.",
-          "group": "rendering"
-        },
-        {
-          "name": "checked",
-          "optional": true,
-          "type": {
-            "text": "TTrue | TFalse"
-          },
-          "description": "Whether the switch is checked.",
-          "group": "state",
-          "state": {
-            "key": "checked",
-            "role": "value"
           }
         },
         {
-          "name": "defaultChecked",
+          "name": "name",
           "optional": true,
           "type": {
-            "text": "boolean"
+            "text": "string"
           },
-          "description": "Whether the switch is checked by default.",
-          "group": "state",
-          "state": {
-            "key": "checked",
-            "role": "default"
-          }
+          "description": "The name of the input element, used for form submission."
         },
         {
           "name": "onChange",
@@ -230,15 +164,86 @@
           "type": {
             "text": "(value: TTrue | TFalse) => void"
           },
-          "description": "Callback when the switch state changes.",
-          "group": "state",
-          "traits": [
-            "callback"
-          ],
-          "state": {
-            "key": "value",
-            "role": "change"
+          "description": "Callback when the switch state changes."
+        },
+        {
+          "name": "onPointerDown",
+          "optional": true,
+          "type": {
+            "text": "JSX.EventHandlerUnion<HTMLButtonElement, PointerEvent>"
+          },
+          "description": "Pointer down handler for the switch root container."
+        },
+        {
+          "name": "readOnly",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is read-only.",
+          "default": {
+            "kind": "literal",
+            "value": false
           }
+        },
+        {
+          "name": "required",
+          "optional": true,
+          "type": {
+            "text": "boolean"
+          },
+          "description": "Whether the input is required.",
+          "default": {
+            "kind": "literal",
+            "value": false
+          }
+        },
+        {
+          "name": "size",
+          "optional": true,
+          "type": {
+            "text": "'sm' | 'md' | 'lg'"
+          },
+          "default": {
+            "kind": "literal",
+            "value": "md"
+          }
+        },
+        {
+          "name": "style",
+          "optional": true,
+          "type": {
+            "text": "SlotStyleValue"
+          },
+          "description": "Style applied to the component root or trigger element."
+        },
+        {
+          "name": "styles",
+          "optional": true,
+          "type": {
+            "text": "Styles"
+          },
+          "description": "Family slot style defaults for this instance."
+        },
+        {
+          "name": "trueValue",
+          "optional": true,
+          "type": {
+            "text": "TTrue"
+          },
+          "description": "Value to use when the switch is checked.",
+          "default": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        {
+          "name": "uncheckedIcon",
+          "optional": true,
+          "type": {
+            "text": "IconT.Name"
+          },
+          "description": "Icon shown when the switch is unchecked."
         },
         {
           "name": "value",
@@ -250,315 +255,65 @@
           "default": {
             "kind": "literal",
             "value": "on"
-          },
-          "group": "state",
-          "state": {
-            "key": "value",
-            "role": "value"
           }
-        },
-        {
-          "name": "class",
-          "optional": true,
-          "type": {
-            "text": "SlotClassValue"
-          },
-          "description": "Class applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "classes",
-          "optional": true,
-          "type": {
-            "text": "Classes"
-          },
-          "description": "Family slot class defaults for this instance.",
-          "group": "styling"
-        },
-        {
-          "name": "size",
-          "optional": true,
-          "type": {
-            "text": "'sm' | 'md' | 'lg'"
-          },
-          "description": "Visual size of the component.",
-          "default": {
-            "kind": "literal",
-            "value": "md"
-          },
-          "group": "styling"
-        },
-        {
-          "name": "style",
-          "optional": true,
-          "type": {
-            "text": "SlotStyleValue"
-          },
-          "description": "Style applied to the component root or trigger element.",
-          "group": "styling"
-        },
-        {
-          "name": "styles",
-          "optional": true,
-          "type": {
-            "text": "Styles"
-          },
-          "description": "Family slot style defaults for this instance.",
-          "group": "styling"
         }
-      ],
-      "slots": [
-        {
-          "name": "description",
-          "description": "Supporting text associated with the switch."
-        },
-        {
-          "name": "icon",
-          "description": "Checked, unchecked, or loading icon rendered inside the thumb."
-        },
-        {
-          "name": "label",
-          "description": "Primary switch label text."
-        },
-        {
-          "name": "root",
-          "description": "Switch wrapper that coordinates input, track, thumb, and text content."
-        },
-        {
-          "name": "thumb",
-          "description": "Movable knob inside the switch track."
-        },
-        {
-          "name": "track",
-          "description": "Visible switch track that shows checked and unchecked state."
-        },
-        {
-          "name": "wrapper",
-          "description": "Inner layout wrapper used by switch list and card variants."
-        }
-      ],
-      "runtime": [
-        {
-          "name": "root",
-          "slot": "root",
-          "selector": "[data-slot=\"root\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "data-checked",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item or toggle is checked."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-invalid",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field or form has a validation error."
-            },
-            {
-              "name": "data-loading",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component or async operation is loading."
-            },
-            {
-              "name": "data-readonly",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field is in read-only mode."
-            },
-            {
-              "name": "data-required",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field input is required."
-            },
-            {
-              "name": "data-unchecked",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the checkbox, radio item, or switch is unchecked."
-            }
-          ]
-        },
-        {
-          "name": "track",
-          "slot": "track",
-          "selector": "[data-slot=\"track\"]",
-          "element": "button",
-          "attributes": [
-            {
-              "name": "aria-checked",
-              "kind": "aria",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Communicates the checked, unchecked, or mixed state of a control."
-            },
-            {
-              "name": "data-checked",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item or toggle is checked."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-invalid",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field or form has a validation error."
-            },
-            {
-              "name": "data-readonly",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field is in read-only mode."
-            },
-            {
-              "name": "data-unchecked",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the checkbox, radio item, or switch is unchecked."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "literal",
-                "value": "switch"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ]
-        },
-        {
-          "name": "thumb",
-          "slot": "thumb",
-          "selector": "[data-slot=\"thumb\"]",
-          "element": "span",
-          "attributes": [
-            {
-              "name": "data-checked",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the item or toggle is checked."
-            },
-            {
-              "name": "data-disabled",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the component, slot, or item is disabled."
-            },
-            {
-              "name": "data-unchecked",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the checkbox, radio item, or switch is unchecked."
-            }
-          ]
-        },
-        {
-          "name": "wrapper",
-          "slot": "wrapper",
-          "selector": "[data-slot=\"wrapper\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "label",
-          "slot": "label",
-          "selector": "[data-slot=\"label\"]",
-          "element": "label",
-          "condition": "Conditional",
-          "attributes": [
-            {
-              "name": "data-required",
-              "kind": "data",
-              "value": {
-                "kind": "presence"
-              },
-              "description": "Present when the field input is required."
-            }
-          ]
-        },
-        {
-          "name": "description",
-          "slot": "description",
-          "selector": "[data-slot=\"description\"]",
-          "element": "span",
-          "condition": "Conditional",
-          "attributes": []
-        },
-        {
-          "name": "icon",
-          "slot": "icon",
-          "selector": "[data-slot=\"icon\"]",
-          "element": "div",
-          "attributes": [
-            {
-              "name": "aria-hidden",
-              "kind": "aria",
-              "value": {
-                "kind": "boolean"
-              },
-              "description": "Hides decorative content from assistive technology."
-            },
-            {
-              "name": "role",
-              "kind": "role",
-              "value": {
-                "kind": "dynamic"
-              },
-              "description": "Defines the semantic role exposed to assistive technology."
-            }
-          ],
-          "condition": "Conditional"
-        }
-      ],
-      "cssVariables": []
+      ]
     }
-  ]
+  ],
+  "slots": [
+    "root",
+    "track",
+    "thumb",
+    "icon",
+    "wrapper",
+    "label",
+    "description"
+  ],
+  "dataAttributes": [
+    {
+      "target": "root",
+      "attributes": [
+        "data-checked",
+        "data-disabled",
+        "data-invalid",
+        "data-loading",
+        "data-readonly",
+        "data-required",
+        "data-unchecked"
+      ]
+    },
+    {
+      "target": "track",
+      "attributes": [
+        "data-checked",
+        "data-disabled",
+        "data-invalid",
+        "data-readonly",
+        "data-unchecked"
+      ]
+    },
+    {
+      "target": "thumb",
+      "attributes": [
+        "data-checked",
+        "data-disabled",
+        "data-unchecked"
+      ]
+    },
+    {
+      "target": "icon",
+      "attributes": [
+        "data-checked",
+        "data-loading",
+        "data-unchecked"
+      ]
+    },
+    {
+      "target": "label",
+      "attributes": [
+        "data-required"
+      ]
+    }
+  ],
+  "cssVariables": []
 }

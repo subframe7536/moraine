@@ -14,13 +14,14 @@ import {
 
 import { createStyles } from '../../provider'
 import { useCn } from '../../provider/cn-context'
+import { mergeStyleContract } from '../../shared/style-contract'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useDisclosureState } from '../../shared/use-disclosure-state'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
 import { callRef, useId } from '../../shared/utils'
 import { Icon } from '../icon'
 
-import { accordionRecipe } from './accordion.recipe'
+import { accordionCssVariables, accordionDataAttributes, accordionRecipe } from './accordion.recipe'
 import type { AccordionProps } from './accordion.types'
 
 /** Stacked disclosure component with single or multiple expanded sections. */
@@ -226,7 +227,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
       }}
       id={rootId()}
       data-slot="root"
-      data-disabled={merged.disabled ? '' : undefined}
+      {...accordionDataAttributes.root({ disabled: () => merged.disabled })}
       {...resolved.styles.root}
     >
       <For each={items()}>
@@ -241,11 +242,13 @@ export function Accordion(props: AccordionProps): JSX.Element {
           const label = createMemo(() => item.label)
           const expanded = createMemo(() => selectedValues().includes(itemValue()))
           const [contentExpanded, setContentExpanded] = createSignal(untrack(expanded))
-          const itemDataAttrs = createMemo(() => ({
-            'data-closed': expanded() ? undefined : '',
-            'data-disabled': disabled() ? '' : undefined,
-            'data-expanded': expanded() ? '' : undefined,
-          }))
+          const itemState = {
+            closed: () => !expanded(),
+            disabled,
+            expanded,
+          }
+          const itemDataAttrs = accordionDataAttributes.item(itemState)
+          const triggerDataAttrs = accordionDataAttributes.trigger(itemState)
           const {
             contentHeight,
             dataAttrs: contentDataAttrs,
@@ -374,7 +377,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
               data-slot="item"
               class={cn(resolved.styles.item.class, item.class)}
               style={resolved.styles.item.style}
-              {...itemDataAttrs()}
+              {...itemDataAttrs}
             >
               <h3 data-slot="header" {...resolved.styles.header}>
                 <button
@@ -398,7 +401,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                     lastFocusedIndex = getTriggers().indexOf(event.currentTarget)
                     lastFocusedTrigger = event.currentTarget
                   }}
-                  {...itemDataAttrs()}
+                  {...triggerDataAttrs}
                 >
                   <Show when={leading()}>
                     {(value) => (
@@ -439,12 +442,16 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   inert={!expanded() ? true : undefined}
                   data-slot="content"
                   class={resolved.styles.content.class}
-                  style={{
-                    '--mo-collapsible-content-height': `${contentHeight()}px`,
-                    ...resolved.styles.content.style,
-                  }}
-                  data-closed={contentDataAttrs()['data-closed']}
-                  data-expanded={contentDataAttrs()['data-expanded']}
+                  style={mergeStyleContract(
+                    accordionCssVariables.content({
+                      'collapsible-content-height': () => `${contentHeight()}px`,
+                    }),
+                    resolved.styles.content.style,
+                  )}
+                  {...accordionDataAttributes.content({
+                    closed: () => contentDataAttrs()['data-closed'],
+                    expanded: () => contentDataAttrs()['data-expanded'],
+                  })}
                 >
                   {renderContent()}
                 </div>
