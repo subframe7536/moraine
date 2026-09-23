@@ -8,7 +8,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  mergeProps,
   on,
   onCleanup,
   onMount,
@@ -1282,16 +1281,10 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
   props: OverlayMenuProps<TItem>,
 ): JSX.Element {
   const cn = useCn()
-  const merged = mergeProps(
-    {
-      preventScroll: true,
-    },
-    props,
-  )
-  const rootId = useId(() => merged.id, 'overlaymenu')
+  const rootId = useId(() => props.id, 'overlaymenu')
   const contentId = createMemo(() => `${rootId()}-content`)
   const contentPresence = useTransitionPresence({
-    open: () => merged.open,
+    open: () => props.open,
   })
   const branches = new Set<HTMLElement>()
   const [pendingFocusOnClose, setPendingFocusOnClose] = createSignal<'trigger' | 'next'>()
@@ -1311,7 +1304,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
 
   createEffect(
     on(
-      [() => merged.open, pendingFocusOnClose, () => merged.triggerElement],
+      [() => props.open, pendingFocusOnClose, () => props.triggerElement],
       ([open, pendingFocus, triggerElement]) => {
         if (open || !pendingFocus) {
           return
@@ -1319,7 +1312,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
 
         queueMicrotask(() => {
           untrack(() => {
-            if (merged.open || pendingFocusOnClose() !== pendingFocus) {
+            if (props.open || pendingFocusOnClose() !== pendingFocus) {
               return
             }
 
@@ -1351,7 +1344,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
 
   createEffect(
     on(
-      [() => merged.open, rootLayerState, () => rootLayerState()?.submenus()],
+      [() => props.open, rootLayerState, () => rootLayerState()?.submenus()],
       ([open, layer, submenus]) => {
         if (!open && layer) {
           layer.closeSubmenus(undefined, submenus)
@@ -1364,7 +1357,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
     on(
       [contentPresence.present, () => rootLayerState()?.contentElement()],
       ([present, content]) => {
-        if (!present || !merged.preventScroll || !content) {
+        if (!present || !(props.preventScroll ?? true) || !content) {
           return
         }
 
@@ -1378,7 +1371,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
   )
 
   const containsTarget = (node: Node): boolean => {
-    if (merged.triggerElement?.contains(node)) {
+    if (props.triggerElement?.contains(node)) {
       return true
     }
 
@@ -1397,32 +1390,32 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
     }
 
     rootLayerState()?.closeSubmenus()
-    merged.onClose()
+    props.onClose()
   }
 
   const closeOnTab = (direction: 'forward' | 'backward'): void => {
     setPendingFocusOnClose(direction === 'backward' ? 'trigger' : 'next')
     rootLayerState()?.closeSubmenus()
-    merged.onClose()
+    props.onClose()
   }
 
   useOverlayInteraction({
     containsTarget,
     contentElement: () => rootLayerState()?.contentElement(),
-    triggerElement: () => merged.triggerElement,
+    triggerElement: () => props.triggerElement,
     onPointerOutside: (event) => {
-      if (merged.open && !event.defaultPrevented) {
+      if (props.open && !event.defaultPrevented) {
         closeRoot()
       }
     },
     onFocusOutside: (event) => {
-      if (merged.open && !event.defaultPrevented) {
+      if (props.open && !event.defaultPrevented) {
         closeRoot()
       }
     },
     onEscape: (event, context) => {
       const target = event.target
-      if (!merged.open || (isNode(target) && context.isInside(target)) || event.defaultPrevented) {
+      if (!props.open || (isNode(target) && context.isInside(target)) || event.defaultPrevented) {
         return
       }
 
@@ -1434,47 +1427,47 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
   })
 
   const getReferenceElement = createMemo<ReferenceElement | undefined>(() => {
-    const anchorRect = merged.getAnchorRect?.(merged.triggerElement)
+    const anchorRect = props.getAnchorRect?.(props.triggerElement)
 
     if (anchorRect) {
-      return createVirtualReference(anchorRect, merged.triggerElement)
+      return createVirtualReference(anchorRect, props.triggerElement)
     }
 
-    return merged.triggerElement
+    return props.triggerElement
   })
 
   return (
     <Show when={contentPresence.present()}>
-      <Portal mount={merged.triggerElement?.ownerDocument.body}>
-        <Show when={merged.preventScroll}>
-          <div data-slot="overlay" aria-hidden="true" {...resolveMenuSlot(merged, 'overlay', cn)} />
+      <Portal mount={props.triggerElement?.ownerDocument.body}>
+        <Show when={props.preventScroll ?? true}>
+          <div data-slot="overlay" aria-hidden="true" {...resolveMenuSlot(props, 'overlay', cn)} />
         </Show>
         <OverlayMenuLayer<TItem>
           id={contentId()}
-          ariaLabelledBy={merged.triggerElement?.id}
-          open={merged.open}
+          ariaLabelledBy={props.triggerElement?.id}
+          open={props.open}
           close={closeRoot}
           closeOnTab={closeOnTab}
           closeRoot={closeRoot}
           depth={0}
-          items={merged.items}
-          classes={merged.classes}
-          styles={merged.styles}
-          slotBinding={merged.slotBinding}
-          size={merged.size}
-          checkedIcon={merged.checkedIcon}
-          submenuIcon={merged.submenuIcon}
-          itemRender={merged.itemRender}
-          contentProps={merged.contentProps}
-          itemProps={merged.itemProps}
-          contentTop={merged.contentTop}
-          contentBottom={merged.contentBottom}
+          items={props.items}
+          classes={props.classes}
+          styles={props.styles}
+          slotBinding={props.slotBinding}
+          size={props.size}
+          checkedIcon={props.checkedIcon}
+          submenuIcon={props.submenuIcon}
+          itemRender={props.itemRender}
+          contentProps={props.contentProps}
+          itemProps={props.itemProps}
+          contentTop={props.contentTop}
+          contentBottom={props.contentBottom}
           getReferenceElement={getReferenceElement}
-          placement={merged.placement}
-          align={merged.align}
-          gutter={merged.gutter}
-          shift={merged.shift}
-          overflowPadding={merged.overflowPadding}
+          placement={props.placement}
+          align={props.align}
+          gutter={props.gutter}
+          shift={props.shift}
+          overflowPadding={props.overflowPadding}
           present={contentPresence.present}
           presenceDataAttrs={contentPresence.dataAttrs}
           registerBranch={(element) => {
@@ -1485,10 +1478,10 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
             }
           }}
           setPresenceElement={contentPresence.setElement}
-          autoFocusStrategy={merged.autoFocusStrategy}
-          onAutoFocusHandled={merged.onAutoFocusHandled}
-          onContentPointerDown={merged.onContentPointerDown}
-          onContextMenu={merged.onContentContextMenu}
+          autoFocusStrategy={props.autoFocusStrategy}
+          onAutoFocusHandled={props.onAutoFocusHandled}
+          onContentPointerDown={props.onContentPointerDown}
+          onContextMenu={props.onContentContextMenu}
           refState={setRootLayerState}
         />
       </Portal>
