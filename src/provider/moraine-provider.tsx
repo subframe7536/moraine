@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { createMemo, useContext } from 'solid-js'
+import { createMemo } from 'solid-js'
 
 import { getThemeRecipeLayers } from '../theme/create-theme'
 import type { CnConfig } from '../theme/style/cn'
@@ -7,8 +7,8 @@ import { createCn } from '../theme/style/cn'
 import type { RecipeDefinition, ResolvedRecipe } from '../theme/style/recipe'
 import type { MoraineTheme } from '../theme/types'
 
-import { MoraineCnContext } from './cn-context'
-import { defaultRecipeResolver, MoraineThemeContext } from './theme-context'
+import { MoraineCnProvider, useCnAccessor } from './cn-context'
+import { defaultRecipeResolver, MoraineThemeProvider, useThemeResolver } from './theme-context'
 import type { ThemeResolver } from './theme-context'
 
 export interface MoraineProviderProps {
@@ -22,7 +22,7 @@ export interface MoraineProviderProps {
 
 /** Provides theme overrides and class merging rules to descendant components. */
 export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
-  const parentResolver = useContext(MoraineThemeContext)
+  const parentResolver = useThemeResolver()
   const cache = new WeakMap<MoraineTheme, WeakMap<RecipeDefinition, ResolvedRecipe>>()
 
   const resolverFor = (theme: MoraineTheme): ThemeResolver => ({
@@ -62,15 +62,15 @@ export function MoraineProvider(props: MoraineProviderProps): JSX.Element {
     return resolverFor(theme)
   })
 
-  const parentCn = useContext(MoraineCnContext)
+  const parentCn = useCnAccessor()
   const currentCn = createMemo(() => {
     const config = props.cnConfig
     return config === undefined ? parentCn() : createCn(config)
   })
 
   return (
-    <MoraineThemeContext.Provider value={currentResolver}>
-      <MoraineCnContext.Provider value={currentCn}>{props.children}</MoraineCnContext.Provider>
-    </MoraineThemeContext.Provider>
+    <MoraineThemeProvider value={currentResolver}>
+      <MoraineCnProvider value={currentCn}>{props.children}</MoraineCnProvider>
+    </MoraineThemeProvider>
   )
 }

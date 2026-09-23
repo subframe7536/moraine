@@ -1,7 +1,6 @@
 import type { Accessor } from 'solid-js'
-import { createContext, useContext } from 'solid-js'
 
-import { createContextProvider } from '../../shared/create-context-provider'
+import { createContextProvider } from '../../shared/create-context-provider.tsx'
 import type { useTransitionPresence } from '../../shared/use-transition-presence'
 
 import type { ModalT } from './modal.types'
@@ -26,6 +25,7 @@ export interface ModalContext {
 
 export const [ModalProvider, useModalContext] = createContextProvider<ModalContext>('Modal')
 
-const ModalSlotOwnerContext = createContext('modal')
-export const ModalSlotOwner = ModalSlotOwnerContext.Provider
-export const useModalSlotOwner = () => useContext(ModalSlotOwnerContext)
+export const [ModalSlotOwner, useModalSlotOwner] = createContextProvider<string>(
+  'ModalSlotOwner',
+  'modal',
+)

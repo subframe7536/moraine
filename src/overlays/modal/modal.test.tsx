@@ -15,6 +15,37 @@ import { Sheet } from '../sheet/sheet'
 import { Modal } from './modal'
 
 describe('Modal primitives', () => {
+  test.each([
+    [
+      'dialog',
+      () => (
+        <Dialog defaultOpen>
+          <Dialog.Content>
+            <Modal defaultOpen>
+              <Modal.Content trapFocus={false}>Nested modal</Modal.Content>
+            </Modal>
+          </Dialog.Content>
+        </Dialog>
+      ),
+    ],
+    [
+      'sheet',
+      () => (
+        <Sheet defaultOpen>
+          <Sheet.Content>
+            <Modal defaultOpen>
+              <Modal.Content trapFocus={false}>Nested modal</Modal.Content>
+            </Modal>
+          </Sheet.Content>
+        </Sheet>
+      ),
+    ],
+  ] as const)('keeps an independent Modal owner inside %s', (owner, component) => {
+    render(component)
+    expect(document.body.querySelectorAll(`[data-slot="${owner}-content"]`)).toHaveLength(1)
+    expect(document.body.querySelectorAll('[data-slot="modal-content"]')).toHaveLength(1)
+  })
+
   test.each(['Trigger', 'Close'] as const)(
     'preserves %s children across polymorphic root replacement',
     (part) => {

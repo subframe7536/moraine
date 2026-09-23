@@ -278,7 +278,11 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
             return (
               <Show when={content()}>
-                {(value) => <div {...resolved.styles.body}>{value()}</div>}
+                {(value) => (
+                  <div data-slot="accordion-body" {...resolved.styles.body}>
+                    {value()}
+                  </div>
+                )}
               </Show>
             )
           }

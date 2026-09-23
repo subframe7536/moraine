@@ -17,7 +17,7 @@ import {
 
 import { ModalClose } from './modal-close'
 import { ModalContent } from './modal-content'
-import { ModalProvider, useModalSlotOwner } from './modal-context'
+import { ModalProvider, ModalSlotOwner, useModalSlotOwner } from './modal-context'
 import { ModalOverlay } from './modal-overlay'
 import { ModalTrigger } from './modal-trigger'
 import type { ModalProps } from './modal.types'
@@ -304,7 +304,11 @@ export function Modal(props: ModalProps): JSX.Element {
     isModal,
   }
 
-  return <ModalProvider value={context}>{props.children}</ModalProvider>
+  return (
+    <ModalProvider value={context}>
+      <ModalSlotOwner value="modal">{props.children}</ModalSlotOwner>
+    </ModalProvider>
+  )
 }
 
 Modal.Content = ModalContent

@@ -46,6 +46,7 @@ describe('Accordion', () => {
     expect(headings).toHaveLength(3)
     expect(triggerOne.getAttribute('aria-expanded')).toBe('true')
     expect(screen.getByText('Content one')).not.toBeNull()
+    expect(screen.getByText('Content one').parentElement?.dataset.slot).toBe('accordion-body')
   })
 
   test('renders native heading elements for trigger rows', () => {

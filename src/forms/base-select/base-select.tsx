@@ -2,7 +2,6 @@ import type { Accessor, JSX } from 'solid-js'
 import {
   batch,
   children as resolveChildren,
-  createContext,
   createEffect,
   createMemo,
   createSignal,
@@ -13,7 +12,6 @@ import {
   onCleanup,
   splitProps,
   untrack,
-  useContext,
 } from 'solid-js'
 import { Dynamic, Portal } from 'solid-js/web'
 
@@ -21,6 +19,7 @@ import { useFloatingPosition } from '../../overlays/base/floating.ts'
 import { useOverlayInteraction } from '../../overlays/base/interaction.ts'
 import { acquireBodyScrollLock } from '../../overlays/base/utils.ts'
 import { createStyles } from '../../provider/create-styles.ts'
+import { createContextProvider } from '../../shared/create-context-provider.tsx'
 import { dataSlotName } from '../../shared/data-slot.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
@@ -55,11 +54,14 @@ function selectionToFormValue<T extends BaseSelectValue>(
   return multiple ? [...values] : (values[0] ?? null)
 }
 
-const SelectSlotOwnerContext = createContext('base-select')
-export const SelectSlotOwner = SelectSlotOwnerContext.Provider
+const [SelectSlotOwner, useSelectSlotOwner] = createContextProvider<string>(
+  'SelectSlotOwner',
+  'base-select',
+)
+export { SelectSlotOwner }
 
 function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>) {
-  const slotOwner = useContext(SelectSlotOwnerContext)
+  const slotOwner = useSelectSlotOwner()
   const slotName = (slot: string) => dataSlotName(slotOwner, slot)
   type Value = readonly T['value'][]
   const normalize = (values: Value): T['value'][] =>
@@ -436,15 +438,12 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
 }
 
 type SelectState<T extends BaseSelectT.Item> = ReturnType<typeof createSelectState<T>>
-const SelectContext = createContext<SelectState<BaseSelectT.Item>>()
+const [SelectProvider, useSelectContext] =
+  createContextProvider<SelectState<BaseSelectT.Item>>('BaseSelect')
 /** Accesses BaseSelect state when composing custom controls. */
 export function useSelectState<T extends BaseSelectT.Item = BaseSelectT.Item>(): SelectState<T> {
-  const context = useContext(SelectContext)
-  if (!context) {
-    throw new Error('[Moraine BaseSelect] Parts must be used within BaseSelect.')
-  }
   // Solid context erases the item generic; the root and its parts share the same T.
-  return context as unknown as SelectState<T>
+  return useSelectContext() as unknown as SelectState<T>
 }
 
 /** Public selection primitive for a flat navigation collection. */
@@ -453,10 +452,12 @@ export function BaseSelect<T extends BaseSelectT.Item = BaseSelectT.Item>(
 ): JSX.Element {
   const state = createSelectState(props)
   return (
-    <SelectContext.Provider value={state as unknown as SelectState<BaseSelectT.Item>}>
-      {props.children}
-      {state.formControls()}
-    </SelectContext.Provider>
+    <SelectProvider value={state as unknown as SelectState<BaseSelectT.Item>}>
+      <SelectSlotOwner value="base-select">
+        {props.children}
+        {state.formControls()}
+      </SelectSlotOwner>
+    </SelectProvider>
   )
 }
 
@@ -848,10 +849,10 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
     </div>
   )
 }
-const GroupContext = createContext<{
+const [GroupProvider, useGroupContext] = createContextProvider<{
   labelId: Accessor<string | undefined>
   setLabelId: (id: string | undefined) => void
-}>()
+} | null>('BaseSelectGroup', null)
 function BaseSelectGroup(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectState()
   const [labelId, setLabelId] = createSignal<string>()
@@ -861,7 +862,7 @@ function BaseSelectGroup(props: BaseSelectPartProps): JSX.Element {
     inheritedVariants: () => ({ size: state.styleSize }),
   })
   return (
-    <GroupContext.Provider value={{ labelId, setLabelId }}>
+    <GroupProvider value={{ labelId, setLabelId }}>
       <div
         {...props}
         role="group"
@@ -871,12 +872,12 @@ function BaseSelectGroup(props: BaseSelectPartProps): JSX.Element {
       >
         {props.children}
       </div>
-    </GroupContext.Provider>
+    </GroupProvider>
   )
 }
 function BaseSelectGroupLabel(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectState()
-  const group = useContext(GroupContext)
+  const group = useGroupContext()
   const id = useId(() => props.id, 'select-group-label')
   const resolved = createStyles(baseSelectRecipe, props, {
     rootSlot: 'groupLabel',

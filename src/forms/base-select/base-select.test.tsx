@@ -11,6 +11,7 @@ import type { FieldBinding } from '../field/field-context.ts'
 import { FieldProvider } from '../field/field-context.ts'
 import { createForm } from '../form/index.ts'
 import { MultiSelect } from '../multi-select/multi-select.tsx'
+import { Select } from '../select/select.tsx'
 
 import { BaseSelect, useSelectState } from './base-select.tsx'
 import { useBaseSelectSearchInput, useSearchValue } from './utils.ts'
@@ -20,6 +21,26 @@ const items = [
   { value: 2, label: 'Beta', extra: 'second' },
   { value: 3, label: 'Disabled', disabled: true, extra: 'third' },
 ]
+
+test('keeps an independent BaseSelect owner inside a Select item render', () => {
+  render(() => (
+    <Select
+      items={[{ value: 'outer', label: 'Outer' }]}
+      defaultOpen
+      itemRender={() => (
+        <BaseSelect items={items}>
+          <BaseSelect.Control>
+            <BaseSelect.Trigger>Inner</BaseSelect.Trigger>
+          </BaseSelect.Control>
+        </BaseSelect>
+      )}
+    />
+  ))
+
+  expect(document.body.querySelector('[data-slot="select-control"]')).not.toBeNull()
+  expect(document.body.querySelector('[data-slot="base-select-control"]')).not.toBeNull()
+  expect(document.body.querySelector('[data-slot="base-select-trigger"]')).not.toBeNull()
+})
 
 test('separates the Control anchor from the Trigger focus owner and cleans both refs', () => {
   let anchor = (): HTMLElement | undefined => undefined
