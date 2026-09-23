@@ -8,6 +8,7 @@ import type { OnThisPageEntry } from '../../hooks/use-table-of-contents'
 
 import { DocsApiReference, getDocsApiReferenceTocEntries } from './docs-api-reference'
 import { DocsPageNavigation } from './docs-page-navigation'
+import { DocsPlaygroundApiContext } from './docs-playground-slots'
 import { OnThisPage } from './on-this-page'
 
 const GITHUB_SOURCE_BASE_URL = 'https://github.com/subframe7536/moraine/blob/main'
@@ -222,7 +223,9 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
         </header>
 
         <div class="mb-24 min-w-0 w-full">
-          {input.children}
+          <DocsPlaygroundApiContext.Provider value={input.apiDoc}>
+            {input.children}
+          </DocsPlaygroundApiContext.Provider>
           <DocsApiReference apiDoc={input.apiDoc} />
           <DocsPageNavigation currentPageKey={input.pageKey} />
         </div>

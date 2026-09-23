@@ -1,5 +1,5 @@
 import type { JSX } from 'solid-js'
-import { For, Match, Show, Switch, createMemo, untrack } from 'solid-js'
+import { For, Match, Show, Switch, createMemo, untrack, useContext } from 'solid-js'
 import { createStore } from 'solid-js/store'
 
 import {
@@ -12,6 +12,8 @@ import {
   useId,
 } from '../../../../src'
 import type { InputT } from '../../../../src'
+
+import { DocsPlaygroundApiContext, DocsPlaygroundSlots } from './docs-playground-slots'
 
 export type DocsPlaygroundControlValue = string | number | boolean
 
@@ -199,6 +201,8 @@ export interface DocsPlaygroundProps extends DocsPlaygroundControlsProps {
 
 /** Compact, controlled primitive inputs for an interactive docs example. */
 export function DocsPlayground(props: DocsPlaygroundProps) {
+  const api = useContext(DocsPlaygroundApiContext)
+  let previewElement: HTMLDivElement | undefined
   const controls = untrack(() => normalizeDocsPlaygroundControls(props.controls))
   const defaultValues = getDocsPlaygroundControlDefaults(controls)
   const idPrefix = useId(undefined, 'docs-example-control')
@@ -287,7 +291,12 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
   return (
     <section class={DOCS_PLAYGROUND_CLASS}>
       <div class="flex flex-col md:flex-row md:items-stretch">
-        <div class={DOCS_PLAYGROUND_PREVIEW_CLASS}>
+        <div
+          class={DOCS_PLAYGROUND_PREVIEW_CLASS}
+          ref={(element) => {
+            previewElement = element
+          }}
+        >
           <div class="flex min-w-0 w-full items-center justify-center">
             {props.children(values)}
           </div>
@@ -352,6 +361,11 @@ export function DocsPlayground(props: DocsPlaygroundProps) {
               )}
             </For>
           </div>
+          <Show when={api}>
+            {(componentApi) => (
+              <DocsPlaygroundSlots api={componentApi()} preview={() => previewElement} />
+            )}
+          </Show>
         </div>
       </div>
     </section>
