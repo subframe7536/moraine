@@ -118,7 +118,7 @@ export function DocsPlaygroundSlots(props: {
   const [nodes, setNodes] = createSignal(new Map<string, HTMLElement[]>())
   const [listHovered, setListHovered] = createSignal<string>()
   const [previewHovered, setPreviewHovered] = createSignal<string>()
-  const [autoHover, setAutoHover] = createSignal(true)
+  const [autoHover, setAutoHover] = createSignal(false)
   const [locked, setLocked] = createSignal<string>()
   const [boxes, setBoxes] = createSignal<HighlightBox[]>([])
   const activeSlot = createMemo(() => listHovered() ?? previewHovered() ?? locked())

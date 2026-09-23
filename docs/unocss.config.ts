@@ -172,8 +172,16 @@ export default defineConfig<PresetWind4Theme>({
     },
   },
   content: {
+    filesystem: [
+      '../src/**/*.{ts,tsx}',
+      'routes/**/*.{ts,tsx}',
+      'pages/**/*.{mdx,tsx}',
+      '!../src/**/*.test.{ts,tsx}',
+      '!routes/**/*.test.tsx',
+    ],
+    // The filesystem scan uses this filter too; UnoCSS's default omits .ts recipe and class files.
     pipeline: {
-      include: [/src|routes|pages/],
+      include: [/\.(?:ts|tsx|mdx)(?:\?|$)/],
     },
   },
   preflights: [
