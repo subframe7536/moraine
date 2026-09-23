@@ -1,3 +1,4 @@
+import type { Orientation } from '../../theme/style/style-types.ts'
 import type { InputStyleVariant } from '../input/input.style-types'
 
 export interface InputGroupStyleSlot<T = unknown> {
@@ -18,7 +19,7 @@ export interface InputGroupStyleVariant extends InputStyleVariant {
   /** Axis shared by the group and its supporting parts.
    * @default 'horizontal'
    */
-  orientation?: 'horizontal' | 'vertical'
+  orientation?: Orientation
 }
 
 export interface InputGroupRecipeVariant extends InputGroupStyleVariant {

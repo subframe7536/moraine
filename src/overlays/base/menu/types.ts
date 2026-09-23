@@ -4,25 +4,10 @@ import type { IconT } from '../../../elements/icon'
 import type { SlotBinding as ComponentSlotBinding } from '../../../provider/create-styles'
 import type { ComponentOrElement } from '../../../shared/render-prop'
 import type { SlotClassValue, SlotStyleValue, ElementProps } from '../../../shared/types'
+import type { OverlayAlign, OverlayPlacement } from '../../../theme/style/style-types.ts'
 
 import type { OverlayMenuFocusStrategy, OverlayMenuAnchorRect } from './menu.utils'
 import type { OverlayMenuStyleSlot, OverlayMenuStyleVariant } from './style-types'
-
-export type OverlayMenuSide = 'top' | 'right' | 'bottom' | 'left'
-
-export type OverlayMenuPlacement =
-  | 'top'
-  | 'top-start'
-  | 'top-end'
-  | 'right'
-  | 'right-start'
-  | 'right-end'
-  | 'bottom'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'left'
-  | 'left-start'
-  | 'left-end'
 
 export type OverlayMenuContentSlot = (context: { sub: boolean }) => JSX.Element
 
@@ -223,7 +208,12 @@ export interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TIte
   /**
    * Preferred content placement relative to the trigger or anchor point.
    */
-  placement?: OverlayMenuPlacement
+  placement?: OverlayPlacement
+
+  /** Alignment along the cross axis.
+   * @default 'start'
+   */
+  align?: OverlayAlign
 
   /**
    * Menu item size variant.

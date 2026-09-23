@@ -7,10 +7,10 @@ import type { PopoverStyleSlot } from './popover.style-types'
 
 export const popoverDataAttributes = {
   trigger: modalDataAttributes.trigger,
-  content: createDataAttributes('closed', 'expanded', 'side'),
+  content: createDataAttributes('closed', 'expanded', 'side', 'align'),
 } satisfies DataAttributeContract<keyof PopoverStyleSlot>
 
-export const popoverContentDataAttributes = createDataAttributes('side')
+export const popoverContentDataAttributes = createDataAttributes('side', 'align')
 
 export const popoverRecipe = /* @__PURE__ */ defineRecipe<PopoverStyleSlot>('popover', {
   base: {

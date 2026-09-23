@@ -8,6 +8,7 @@ import type {
   SlotStyleValue,
   ValidComponent,
 } from '../../shared/types'
+import type { OverlayAlign, OverlayPlacement } from '../../theme/style/style-types.ts'
 import type {
   OverlayMenuRootProps,
   OverlayMenuSharedItem,
@@ -39,12 +40,19 @@ export namespace ContextMenuT {
     | 'defaultOpen'
     | 'onOpenChange'
     | 'disabled'
-    | 'placement'
     | 'gutter'
     | 'shift'
     | 'preventScroll'
     | 'overflowPadding'
   > {
+    /** Preferred side relative to the anchor.
+     * @default 'right'
+     */
+    placement?: OverlayPlacement
+    /** Alignment along the cross axis.
+     * @default 'start'
+     */
+    align?: OverlayAlign
     children?: JSX.Element
     /** Family slot class defaults for this ContextMenu instance. */
     classes?: Classes

@@ -1,4 +1,4 @@
-export type SliderOrientation = 'horizontal' | 'vertical'
+import type { Orientation } from '../../theme/style/style-types.ts'
 
 export type SliderEdge = 'left' | 'right' | 'top' | 'bottom'
 
@@ -155,7 +155,7 @@ export function normalizeSliderValues(
 }
 
 export function resolveSliderEdges(
-  orientation: SliderOrientation,
+  orientation: Orientation,
   inverted: boolean,
   isRtl: boolean,
 ): { startEdge: SliderEdge; endEdge: SliderEdge } {

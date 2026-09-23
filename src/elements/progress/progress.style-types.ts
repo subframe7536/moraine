@@ -1,3 +1,4 @@
+import type { ComponentSize, Orientation } from '../../theme/style/style-types.ts'
 export interface ProgressStyleSlot<T = unknown> {
   /** Progress container that owns track, indicator, labels, and step markers. */
   root?: T
@@ -22,11 +23,11 @@ export interface ProgressStyleVariant {
   /** Visual layout direction.
    * @default 'horizontal'
    */
-  orientation?: 'horizontal' | 'vertical'
+  orientation?: Orientation
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
   /** Visual animation of the component.
    * @default 'carousel'
    */

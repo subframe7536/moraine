@@ -1,3 +1,5 @@
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 
 import { describe, expect, test } from 'vitest'
@@ -9,6 +11,61 @@ describe('TypeExtractor', () => {
   const projectRoot = path.resolve(__dirname, '../../..')
   const extractor = new TypeExtractor(projectRoot)
   const recipes = new RecipeExtractor(projectRoot)
+
+  test('expands shared style vocabulary in component props', async () => {
+    for (const [file, namespace, expected] of [
+      [
+        'src/forms/input/input.types.ts',
+        'InputT',
+        { size: "'sm' | 'md' | 'lg'", variant: "'outline' | 'subtle' | 'ghost' | 'none'" },
+      ],
+      ['src/navigation/tabs/tabs.types.ts', 'TabsT', { orientation: "'horizontal' | 'vertical'" }],
+      [
+        'src/overlays/popover/popover.types.ts',
+        'PopoverT',
+        { placement: "'top' | 'right' | 'bottom' | 'left'", align: "'start' | 'center' | 'end'" },
+      ],
+    ] as const) {
+      const module = await extractor.loadModule(file)
+      const part = await extractor.extractPart(
+        module!,
+        namespace,
+        'Props',
+        namespace.slice(0, -1),
+        true,
+      )
+      for (const [name, type] of Object.entries(expected)) {
+        expect(part.props.find((prop) => prop.name === name)?.type).toBe(type)
+      }
+    }
+  })
+
+  test('only expands style aliases and stops cyclic style references', async () => {
+    const directory = mkdtempSync(path.join(tmpdir(), 'moraine-style-types-'))
+    try {
+      writeFileSync(
+        path.join(directory, 'common.types.ts'),
+        "export type OrdinaryAlias = 'a' | 'b'\n",
+      )
+      writeFileSync(
+        path.join(directory, 'demo.style-types.ts'),
+        "export type StyleAlias = 'x' | 'y'\nexport type StyleObject = { key: string }\nexport type CycleA = CycleB\nexport type CycleB = CycleA\n",
+      )
+      writeFileSync(
+        path.join(directory, 'demo.types.ts'),
+        "import type { OrdinaryAlias } from './common.types.ts'\nimport type { StyleAlias, StyleObject, CycleA } from './demo.style-types.ts'\nexport namespace DemoT { export interface Props { ordinary?: OrdinaryAlias; style?: StyleAlias; object?: StyleObject; cyclic?: CycleA } }\n",
+      )
+      const local = new TypeExtractor(directory)
+      const module = await local.loadModule('demo.types.ts')
+      const part = await local.extractPart(module!, 'DemoT', 'Props', 'Demo', true)
+      expect(part.props.find((prop) => prop.name === 'ordinary')?.type).toBe('OrdinaryAlias')
+      expect(part.props.find((prop) => prop.name === 'style')?.type).toBe("'x' | 'y'")
+      expect(part.props.find((prop) => prop.name === 'object')?.type).toBe('StyleObject')
+      expect(part.props.find((prop) => prop.name === 'cyclic')?.type).toBe('CycleA')
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
 
   test('extracts Button component types, generics, and BaseProps', async () => {
     const module = await extractor.loadModule('src/elements/button/button.types.ts')

@@ -174,6 +174,9 @@ function createDropdownMenu(props: DropdownMenuProps) {
       get placement() {
         return props.placement
       },
+      get align() {
+        return props.align
+      },
       get gutter() {
         return props.gutter
       },

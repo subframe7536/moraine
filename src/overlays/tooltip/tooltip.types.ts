@@ -1,7 +1,8 @@
 import type { JSX } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
-import type { PopperContentOptions, PopperPlacement, PopperProps } from '../base/popper.types'
+import type { OverlayPlacement } from '../../theme/style/style-types.ts'
+import type { PopperContentOptions, PopperProps } from '../base/popper.types'
 import type { ModalT } from '../modal/modal.types'
 
 import type { TooltipStyleSlot, TooltipStyleVariant } from './tooltip.style-types'
@@ -21,13 +22,13 @@ export namespace TooltipT {
    */
   export interface Base extends Pick<
     PopperProps & PopperContentOptions,
-    'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'disabled' | 'placement' | 'forceMount'
+    'id' | 'open' | 'defaultOpen' | 'onOpenChange' | 'disabled' | 'align' | 'forceMount'
   > {
     /**
      * Preferred content placement relative to the trigger.
      * @default 'top'
      */
-    placement?: PopperPlacement
+    placement?: OverlayPlacement
 
     /**
      * Delay in milliseconds before opening on hover or focus.
@@ -64,12 +65,6 @@ export namespace TooltipT {
   export type ContentClasses = Pick<Classes, 'content' | 'text' | 'kbds' | 'kbd'>
   export type ContentStyles = Pick<Styles, 'content' | 'text' | 'kbds' | 'kbd'>
   export interface ContentBase {
-    /**
-     * Preferred placement relative to the trigger.
-     * @default 'top'
-     */
-    side?: 'top' | 'right' | 'bottom' | 'left'
-
     /**
      * Primary text content or element to display.
      */

@@ -12,6 +12,16 @@
       },
       "props": [
         {
+          "name": "align",
+          "optional": true,
+          "type": "'start' | 'center' | 'end'",
+          "description": "Alignment along the cross axis.",
+          "default": {
+            "kind": "literal",
+            "value": "center"
+          }
+        },
+        {
           "name": "children",
           "optional": true,
           "type": "JSX.Element",
@@ -130,7 +140,7 @@
         {
           "name": "placement",
           "optional": true,
-          "type": "PopperPlacement",
+          "type": "'top' | 'right' | 'bottom' | 'left'",
           "description": "Preferred content placement relative to the trigger.",
           "default": {
             "kind": "literal",
@@ -243,16 +253,6 @@
           "description": "Family slot class defaults for this instance."
         },
         {
-          "name": "side",
-          "optional": true,
-          "type": "'top' | 'right' | 'bottom' | 'left'",
-          "description": "Preferred placement relative to the trigger.",
-          "default": {
-            "kind": "literal",
-            "value": "bottom"
-          }
-        },
-        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",
@@ -286,7 +286,7 @@
         {
           "name": "as",
           "optional": true,
-          "type": "l",
+          "type": "e",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -337,6 +337,7 @@
     {
       "target": "content",
       "attributes": [
+        "data-align",
         "data-closed",
         "data-expanded",
         "data-side"

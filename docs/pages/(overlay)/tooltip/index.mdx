@@ -46,13 +46,24 @@ Tooltips should contain supplemental, non-interactive information. Do not rely o
         { label: 'Right', value: 'right' },
       ],
     },
+    {
+      kind: 'select',
+      prop: 'align',
+      label: 'Align',
+      defaultValue: 'center',
+      options: [
+        { label: 'Start', value: 'start' },
+        { label: 'Center', value: 'center' },
+        { label: 'End', value: 'end' },
+      ],
+    },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'invert', label: 'Invert colors', defaultValue: false },
   ]}
 >
   {(props) => (
     <div class="p-6 flex items-center justify-center">
-      <Tooltip placement={props.placement} disabled={props.disabled}>
+      <Tooltip placement={props.placement} align={props.align} disabled={props.disabled}>
         <Tooltip.Trigger as={Button} variant="outline" leading="i-lucide:file-plus">
           Hover me
         </Tooltip.Trigger>

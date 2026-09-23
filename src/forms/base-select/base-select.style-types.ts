@@ -1,3 +1,4 @@
+import type { ComponentSize } from '../../theme/style/style-types.ts'
 export interface BaseSelectStyleSlot<T = unknown> {
   /** Optional non-interactive layout container and floating anchor. */
   control?: T
@@ -32,5 +33,5 @@ export interface BaseSelectStyleVariant {
    * Popup and item size.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
 }

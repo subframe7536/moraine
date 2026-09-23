@@ -1,3 +1,4 @@
+import type { ComponentSize } from '../../theme/style/style-types.ts'
 export interface AvatarGroupStyleSlot<T = unknown> {
   /** Container of grouped avatars. */
   root?: T
@@ -25,5 +26,5 @@ export interface AvatarGroupStyleVariant {
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
 }

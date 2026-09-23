@@ -1,3 +1,4 @@
+import type { ComponentSize } from '../../theme/style/style-types.ts'
 export interface FieldStyleSlot<T = unknown> {
   /** Field wrapper that links label, control, description, and messages. */
   root?: T
@@ -31,7 +32,7 @@ export interface FieldStyleVariant {
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
   /** Visual layout direction.
    * @default 'vertical'
    */

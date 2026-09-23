@@ -8,7 +8,6 @@ import {
   isHTMLElement,
   isNode,
 } from './dom'
-import type { OverlayMenuSide } from './menu'
 import { containsOverlayContentAbove } from './overlay-stack'
 
 const FOCUSABLE_SELECTOR_PARTS = [
@@ -708,19 +707,4 @@ export function trapFocusInContainer(
     event.preventDefault()
     firstFocusable.focus()
   }
-}
-export function resolveOverlayMenuSide(placement?: string): OverlayMenuSide {
-  if (placement?.startsWith('right')) {
-    return 'right'
-  }
-
-  if (placement?.startsWith('bottom')) {
-    return 'bottom'
-  }
-
-  if (placement?.startsWith('left')) {
-    return 'left'
-  }
-
-  return 'top'
 }

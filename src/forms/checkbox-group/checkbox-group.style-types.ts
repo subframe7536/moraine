@@ -1,3 +1,4 @@
+import type { ComponentSize, Orientation } from '../../theme/style/style-types.ts'
 export interface CheckboxGroupStyleSlot<T = unknown> {
   /** Group container that owns checkbox collection state and layout. */
   root?: T
@@ -37,11 +38,11 @@ export interface CheckboxGroupStyleVariant {
   /** Visual layout direction.
    * @default 'vertical'
    */
-  orientation?: 'horizontal' | 'vertical'
+  orientation?: Orientation
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
   /** Visual treatment of the component.
    * @default 'list'
    */

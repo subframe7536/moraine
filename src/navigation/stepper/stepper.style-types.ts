@@ -1,3 +1,4 @@
+import type { ComponentSize, Orientation } from '../../theme/style/style-types.ts'
 export interface StepperStyleSlot<T = unknown> {
   /**
    * Stepper container that owns orientation, step state, and panel rendering.
@@ -37,10 +38,10 @@ export interface StepperStyleSlot<T = unknown> {
 
 export interface StepperStyleVariant {
   /** Layout axis used by the component Recipe. */
-  orientation?: 'horizontal' | 'vertical'
+  orientation?: Orientation
 
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
 }

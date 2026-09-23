@@ -1,7 +1,8 @@
 import type { Accessor } from 'solid-js'
 
+import type { Orientation } from '../theme/style/style-types.ts'
+
 type ActivationMode = 'automatic' | 'manual'
-type Orientation = 'horizontal' | 'vertical'
 
 /**
  * Options for the selectable collection navigation hook.

@@ -1,4 +1,3 @@
-import type { Placement } from '@floating-ui/dom'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { Show, createSignal, untrack } from 'solid-js'
 import type { JSX } from 'solid-js'
@@ -757,7 +756,7 @@ describe('Popper primitives', () => {
   })
 
   test('updates placement data and transform origin when options change', async () => {
-    const [placement, setPlacement] = createSignal<Placement>('top')
+    const [placement, setPlacement] = createSignal<'top' | 'right'>('top')
     render(() => (
       <PopperFixture
         open
@@ -766,7 +765,13 @@ describe('Popper primitives', () => {
             <PopperTrigger context={popper} type="button">
               Open
             </PopperTrigger>
-            <PopperContent context={popper} placement={placement()} flip={false} slide={false}>
+            <PopperContent
+              context={popper}
+              placement={placement()}
+              align={placement() === 'right' ? 'end' : 'center'}
+              flip={false}
+              slide={false}
+            >
               {(context) => (
                 <div data-slot="content" {...context.contentProps}>
                   <span data-testid="placement">{context.currentPlacement()}</span>
@@ -786,7 +791,7 @@ describe('Popper primitives', () => {
       )
     })
 
-    setPlacement('right-end')
+    setPlacement('right')
 
     await waitFor(() => {
       expect(document.body.querySelector('[data-testid="placement"]')?.textContent).toBe(
@@ -997,7 +1002,13 @@ describe('Popper primitives', () => {
                 First
               </PopperTrigger>
             </Show>
-            <PopperContent context={popper} placement="bottom-start" flip={false} slide={false}>
+            <PopperContent
+              context={popper}
+              placement="bottom"
+              align="start"
+              flip={false}
+              slide={false}
+            >
               {(context) => <div {...context.contentProps}>Content</div>}
             </PopperContent>
           </>

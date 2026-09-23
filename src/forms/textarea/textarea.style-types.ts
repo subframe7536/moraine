@@ -1,4 +1,8 @@
-import type { Orientation } from '../../theme/style/style-types.ts'
+import type {
+  ComponentSize,
+  TextControlVariant,
+  Orientation,
+} from '../../theme/style/style-types.ts'
 
 export interface TextareaStyleSlot<T = unknown> {
   /** Native textarea element. */
@@ -9,11 +13,11 @@ export interface TextareaStyleVariant {
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
   /** Visual treatment of the component.
    * @default 'outline'
    */
-  variant?: 'outline' | 'subtle' | 'ghost' | 'none'
+  variant?: TextControlVariant
 }
 
 export interface TextareaRecipeVariant extends TextareaStyleVariant {

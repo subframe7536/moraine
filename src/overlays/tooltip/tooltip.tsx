@@ -18,7 +18,7 @@ import { createContextProvider } from '../../shared/create-context-provider'
 import type { ValidComponent } from '../../shared/types.ts'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useId } from '../../shared/utils'
-import { resolveOverlayMenuSide } from '../base'
+import { parseFloatingPlacement } from '../base/placement.ts'
 import { createPopper, PopperTrigger, PopperContent, mergePopperElementProps } from '../base/popper'
 import type { PopperTriggerProps } from '../base/popper.types'
 
@@ -378,7 +378,6 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
     'text',
     'kbds',
     'children',
-    'side',
     'invert',
     'class',
     'style',
@@ -406,6 +405,7 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
   return (
     <PopperContent
       context={behavior.popper}
+      align={behavior.options.align}
       placement={behavior.options.placement ?? 'top'}
       forceMount={behavior.options.forceMount}
       overflowPadding={4}
@@ -422,7 +422,8 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
         })
         const kbds = createMemo(() => local.kbds)
         const contentDataAttrs = tooltipContentDataAttributes({
-          side: () => resolveOverlayMenuSide(context.currentPlacement() || local.side || 'top'),
+          side: () => parseFloatingPlacement(context.currentPlacement()).side,
+          align: () => parseFloatingPlacement(context.currentPlacement()).align,
           instantMotion: behavior.instantMotion,
         })
         return (

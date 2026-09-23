@@ -1,3 +1,5 @@
+import type { ComponentSize } from '../../theme/style/style-types.ts'
+
 import type { KbdStyleVariant } from './kbd.style-types'
 
 export interface KbdGroupStyleSlot<T = unknown> {
@@ -12,7 +14,7 @@ export interface KbdGroupStyleVariant {
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
   /** Visual style variant applied to rendered shortcut keys. */
   variant?: KbdStyleVariant['variant']
 }

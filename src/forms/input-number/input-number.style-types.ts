@@ -1,3 +1,8 @@
+import type {
+  ComponentSize,
+  Orientation,
+  TextControlVariant,
+} from '../../theme/style/style-types.ts'
 export interface InputNumberStyleSlot<T = unknown> {
   /**
    * Number input wrapper that owns the input and step controls.
@@ -21,16 +26,16 @@ export interface InputNumberStyleVariant {
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
   /** Visual treatment of the component.
    * @default 'outline'
    */
-  variant?: 'outline' | 'subtle' | 'ghost' | 'none'
+  variant?: TextControlVariant
   /** Text alignment; omitted values follow the control layout.
    */
   align?: 'center' | 'start'
   /** Visual layout direction.
    * @default 'horizontal'
    */
-  orientation?: 'horizontal' | 'vertical'
+  orientation?: Orientation
 }

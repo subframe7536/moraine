@@ -31,13 +31,13 @@ import type { Cn } from '../../../theme/style/cn'
 import { containsComposed, isNode } from '../dom'
 import { useFloatingPosition } from '../floating'
 import { useOverlayInteraction } from '../interaction'
+import { parseFloatingPlacement, resolveFloatingPlacement } from '../placement.ts'
 import {
   acquireBodyScrollLock,
   focusTrigger,
   focusWithoutScrolling,
   getFocusableElements,
   resolveDirection,
-  resolveOverlayMenuSide,
 } from '../utils'
 
 import { overlayMenuDataAttributes } from './menu.recipe'
@@ -123,7 +123,8 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   const cn = useCn()
   const layer = useOverlayMenuLayerState()
   const resolveSlot = (slot: keyof OverlayMenuSharedSlots) => resolveMenuSlot(props, slot, cn)
-  const resolvedPlacement = () => props.placement ?? 'bottom-start'
+  const resolvedPlacement = () =>
+    resolveFloatingPlacement(props.placement ?? 'bottom', props.align ?? 'start')
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>(
     undefined,
   )
@@ -171,12 +172,9 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   }
 
   createEffect(
-    on(
-      () => props.placement,
-      (placement) => {
-        layer.setCurrentPlacement(placement ?? 'bottom-start')
-      },
-    ),
+    on([() => props.placement, () => props.align], () => {
+      layer.setCurrentPlacement(resolvedPlacement())
+    }),
   )
 
   const radioItemSnapshot = () =>
@@ -1093,9 +1091,8 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
               contentTop={props.contentTop}
               contentBottom={props.contentBottom}
               getReferenceElement={() => triggerElement()}
-              placement={
-                resolveDirection(triggerElement()) === 'rtl' ? 'left-start' : 'right-start'
-              }
+              placement={resolveDirection(triggerElement()) === 'rtl' ? 'left' : 'right'}
+              align="start"
               gutter={-2}
               shift={-4}
               overflowPadding={props.overflowPadding}
@@ -1118,11 +1115,8 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     )
   }
 
-  const side = createMemo(() => resolveOverlayMenuSide(layer.currentPlacement()))
-  const align = createMemo(() => {
-    const alignment = layer.currentPlacement().split('-')[1]
-    return alignment === 'start' || alignment === 'end' ? alignment : undefined
-  })
+  const side = createMemo(() => parseFloatingPlacement(layer.currentPlacement()).side)
+  const align = createMemo(() => parseFloatingPlacement(layer.currentPlacement()).align)
   const presenceDataAttrs = createMemo(() => {
     const dataAttrs = props.presenceDataAttrs()
 
@@ -1477,6 +1471,7 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
           contentBottom={merged.contentBottom}
           getReferenceElement={getReferenceElement}
           placement={merged.placement}
+          align={merged.align}
           gutter={merged.gutter}
           shift={merged.shift}
           overflowPadding={merged.overflowPadding}

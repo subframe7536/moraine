@@ -1,4 +1,4 @@
-import type { ComponentSize } from '../../theme/style/style-types'
+import type { ComponentSize, Orientation } from '../../theme/style/style-types.ts'
 
 import type { ButtonStyleVariant } from './button.style-types'
 
@@ -14,7 +14,7 @@ export interface ButtonGroupStyleVariant extends ButtonStyleVariant {
   /** Visual layout direction.
    * @default 'horizontal'
    */
-  orientation?: 'horizontal' | 'vertical'
+  orientation?: Orientation
 }
 
 export type ButtonGroupRecipeVariant = ButtonGroupStyleVariant

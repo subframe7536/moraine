@@ -23,6 +23,23 @@ interface TypeBinding {
   namespace?: ESTree.TSModuleDeclaration
 }
 
+function isStyleTypeModule(filePath: string): boolean {
+  return (
+    filePath.replaceAll('\\', '/').endsWith('.style-types.ts') ||
+    filePath.replaceAll('\\', '/').endsWith('/theme/style/style-types.ts')
+  )
+}
+
+function isFiniteStyleAlias(node: ESTree.TSType): boolean {
+  if (node.type === 'TSParenthesizedType') {
+    return isFiniteStyleAlias(node.typeAnnotation)
+  }
+  if (node.type === 'TSUnionType') {
+    return node.types.every(isFiniteStyleAlias)
+  }
+  return node.type === 'TSLiteralType' || node.type === 'TSTypeReference'
+}
+
 export class TypeExtractor {
   readonly #modules = new Map<string, ParsedModule>()
   readonly #indexedAccessStack = new Set<string>()
@@ -1083,7 +1100,34 @@ export class TypeExtractor {
     node: ESTree.TSType,
     nsNode?: ESTree.TSModuleDeclaration,
     substitutions?: Map<string, string>,
+    styleAliasStack = new Set<string>(),
   ): Promise<string> {
+    if (node.type === 'TSTypeReference') {
+      const name = entityNameToText(node.typeName)
+      const substitution = name && substitutions?.get(name)
+      if (substitution) {
+        return substitution
+      }
+      if (name) {
+        const resolved = await this.resolveSymbol(module, name, nsNode)
+        if (
+          resolved?.node.type === 'TSTypeAliasDeclaration' &&
+          isStyleTypeModule(resolved.module.filePath) &&
+          isFiniteStyleAlias(resolved.node.typeAnnotation)
+        ) {
+          const key = `${resolved.module.filePath}:${name}`
+          if (!styleAliasStack.has(key)) {
+            return this.#resolveTypeText(
+              resolved.module,
+              resolved.node.typeAnnotation,
+              resolved.nsNode,
+              substitutions,
+              new Set([...styleAliasStack, key]),
+            )
+          }
+        }
+      }
+    }
     if (node.type === 'TSIndexedAccessType') {
       const resolved = await this.#resolveIndexedAccessType(module, node, nsNode, substitutions)
       if (resolved) {
@@ -1093,14 +1137,18 @@ export class TypeExtractor {
 
     if (node.type === 'TSUnionType') {
       const parts = await Promise.all(
-        node.types.map((t) => this.#resolveTypeText(module, t, nsNode, substitutions)),
+        node.types.map((t) =>
+          this.#resolveTypeText(module, t, nsNode, substitutions, styleAliasStack),
+        ),
       )
       return parts.join(' | ')
     }
 
     if (node.type === 'TSIntersectionType') {
       const parts = await Promise.all(
-        node.types.map((t) => this.#resolveTypeText(module, t, nsNode, substitutions)),
+        node.types.map((t) =>
+          this.#resolveTypeText(module, t, nsNode, substitutions, styleAliasStack),
+        ),
       )
       return parts.join(' & ')
     }
@@ -1112,12 +1160,24 @@ export class TypeExtractor {
           return `(${replacement})[]`
         }
       }
-      const inner = await this.#resolveTypeText(module, node.elementType, nsNode, substitutions)
+      const inner = await this.#resolveTypeText(
+        module,
+        node.elementType,
+        nsNode,
+        substitutions,
+        styleAliasStack,
+      )
       return `${inner}[]`
     }
 
     if (node.type === 'TSParenthesizedType') {
-      const inner = await this.#resolveTypeText(module, node.typeAnnotation, nsNode, substitutions)
+      const inner = await this.#resolveTypeText(
+        module,
+        node.typeAnnotation,
+        nsNode,
+        substitutions,
+        styleAliasStack,
+      )
       return `(${inner})`
     }
 

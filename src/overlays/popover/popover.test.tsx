@@ -399,7 +399,11 @@ describe('Popover', () => {
     setMockPlacement(placement)
 
     renderWithTheme(() => (
-      <Popover open placement={placement}>
+      <Popover
+        open
+        placement={placement.split('-')[0] as 'top' | 'right' | 'bottom' | 'left'}
+        align="start"
+      >
         <Popover.Trigger as="button" type="button">
           Trigger
         </Popover.Trigger>
@@ -974,8 +978,9 @@ describe('Popover', () => {
     expect(initialContent?.className).toContain('data-closed:animate-mo-exit')
     expect(initialContent?.classList).toContain('data-[side=bottom]:-enter-translate-y-1')
     expect(initialContent?.getAttribute('data-side')).toBe('bottom')
+    expect(initialContent?.getAttribute('data-align')).toBe('center')
 
-    setMockPlacement('right')
+    setMockPlacement('right-end')
     setVersion(1)
 
     const updatedContent = document.body.querySelector('[data-slot="content"]')
@@ -983,5 +988,6 @@ describe('Popover', () => {
     expect(updatedContent?.className).toContain('data-closed:animate-mo-exit')
     expect(updatedContent?.classList).toContain('data-[side=right]:-enter-translate-x-1')
     expect(updatedContent?.getAttribute('data-side')).toBe('right')
+    expect(updatedContent?.getAttribute('data-align')).toBe('end')
   })
 })

@@ -1,6 +1,5 @@
 ## Fix
 
-- [ ] expand src/theme/style/style-types.ts in docs generation. try to extract more common theme/variant types
 - [ ] docs polish
   - [ ] blank line in normal codeblock should not be trimmed
   - [ ] usage sync and content correction, more guidance orientated

@@ -2,11 +2,11 @@ import type { Accessor, JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, onCleanup, onMount } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
+import type { ComponentSize } from '../../theme/style/style-types.ts'
 
 export type FieldPath = readonly (string | number)[]
 export type FieldName = string | FieldPath
 export type FieldBindingEvent = 'blur' | 'change' | 'focus' | 'input'
-export type FieldSize = 'sm' | 'md' | 'lg'
 
 export interface FieldRuntimeState {
   touched: boolean
@@ -32,7 +32,7 @@ export interface FieldContextOptions {
   name?: FieldName
   path?: FieldPath
   binding?: FieldBinding
-  size?: FieldSize | null
+  size?: ComponentSize | null
   hint?: JSX.Element
   description?: JSX.Element
   help?: JSX.Element
@@ -49,7 +49,7 @@ export interface FieldContextOptions {
 export interface UseFormFieldProps {
   id?: string
   name?: string
-  size?: FieldSize | null
+  size?: ComponentSize | null
   disabled?: boolean
   required?: boolean
   readOnly?: boolean
@@ -68,7 +68,7 @@ export interface UseFormFieldReturn {
   id: Accessor<string>
   name: Accessor<string | undefined>
   value: Accessor<unknown>
-  size: Accessor<FieldSize | null | undefined>
+  size: Accessor<ComponentSize | null | undefined>
   disabled: Accessor<boolean>
   required: Accessor<boolean>
   readOnly: Accessor<boolean>

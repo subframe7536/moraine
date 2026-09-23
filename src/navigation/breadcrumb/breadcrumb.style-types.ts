@@ -1,3 +1,4 @@
+import type { ComponentSize } from '../../theme/style/style-types.ts'
 export interface BreadcrumbStyleSlot<T = unknown> {
   /**
    * Navigation container for the breadcrumb trail.
@@ -30,7 +31,7 @@ export interface BreadcrumbStyleVariant {
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
   /** Visual wrap of the component.
    * @default true
    */
