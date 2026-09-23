@@ -31,7 +31,7 @@ test('hydrates the standard BaseSelect Control and Trigger anatomy', () => {
     ),
   )
   expect(container.querySelector('[data-slot="root"]')).toBeNull()
-  const control = container.querySelector('[data-slot="control"]')!
+  const control = container.querySelector('[data-slot="base-select-control"]')!
   const trigger = container.querySelector('button')!
   expect(trigger.parentElement).toBe(control)
   expect(trigger.textContent).toBe('One')

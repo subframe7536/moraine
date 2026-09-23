@@ -1,4 +1,4 @@
-import { Button, Icon, Kbd, createForm } from 'moraine'
+import { Button, Icon, Kbd, Select, createForm } from 'moraine'
 import type {
   AccordionT,
   AvatarGroupT,
@@ -250,11 +250,43 @@ export type ListStyleContract = [
   Assert<IsNever<ListT.Styles>>,
 ]
 
+// @ts-expect-error Renamed to fallbackContent.
+type RemovedAvatarGroupFallbackIcon = AvatarGroupT.Slot['fallbackIcon']
+// @ts-expect-error Renamed to body.
+type RemovedAccordionContentInner = AccordionT.Slot['contentInner']
+// @ts-expect-error Renamed to handleControl.
+type RemovedResizableOldHandle = ResizableT.Slot['divider']
+// @ts-expect-error Removed as a forwarded child override.
+type RemovedTooltipKbd = TooltipT.Slot['kbd']
+// @ts-expect-error Renamed to itemIndicator.
+type RemovedSelectItemTrailing = SelectT.Slot['itemTrailing']
+
+export type SlotOwnershipContract = [
+  Assert<'fallbackContent' extends keyof AvatarT.Slot ? true : false>,
+  Assert<
+    'image' | 'fallback' | 'fallbackContent' | 'badge' extends keyof AvatarGroupT.Slot
+      ? true
+      : false
+  >,
+  Assert<'control' | 'icon' | 'label' extends keyof CheckboxGroupT.Slot ? true : false>,
+  Assert<'icon' extends keyof CheckboxT.Slot ? true : false>,
+  Assert<'controlLabel' extends keyof PaginationT.Slot ? true : false>,
+  Assert<'itemWrapper' | 'itemLabel' | 'itemIndicator' extends keyof SelectT.Slot ? true : false>,
+  RemovedAvatarGroupFallbackIcon,
+  RemovedAccordionContentInner,
+  RemovedResizableOldHandle,
+  RemovedTooltipKbd,
+  RemovedSelectItemTrailing,
+]
+
 ;<Icon name="icon-search" classes={{ root: 'text-primary' }} styles={{ root: { color: 'red' } }} />
 ;<Icon name="icon-close" />
 ;<Icon name="icon-chevron-double-left" />
 ;<Icon name="icon-panel-open" />
 ;<Button leading="icon-plus">Add</Button>
+;<Select items={[]} classes={{ itemLabel: 'font-semibold' }} />
+// @ts-expect-error Style keys remain local to Select.
+;<Select items={[]} classes={{ selectItemLabel: 'font-semibold' }} />
 ;<Icon name="i-lucide-search" />
 ;<Icon name="i-lucide:search" />
 ;<Icon name="app-brand-icon" />

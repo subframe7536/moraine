@@ -39,7 +39,7 @@ export function SidebarFrameTrigger<T extends ValidComponent = 'button'>(
 
   return (
     <Dynamic
-      data-slot="trigger"
+      data-slot="sidebar-frame-trigger"
       {...interactionProps}
       component={tag()}
       class={local.class}

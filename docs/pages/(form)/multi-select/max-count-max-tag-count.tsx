@@ -42,7 +42,6 @@ export function MaxCountMaxTagCount() {
             <Tooltip openDelay={200}>
               <Tooltip.Trigger
                 as="span"
-                data-slot="tagOverflow"
                 class="text-muted-foreground px-1 flex cursor-default items-center"
               >
                 +{props.count}

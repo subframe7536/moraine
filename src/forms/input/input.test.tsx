@@ -16,7 +16,7 @@ const render: typeof baseRender = (ui, options) =>
 describe('Input', () => {
   test('renders component defaults when provider is absent', () => {
     const screen = baseRender(() => <Input />)
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="input"]')
     expect(root?.className).not.toBe('')
   })
 
@@ -25,7 +25,7 @@ describe('Input', () => {
     const screen = render(() => <Input ref={(el) => (control = el)} placeholder="ref test" />)
     expect(control).toBeInstanceOf(HTMLInputElement)
     expect(screen.container.firstElementChild).toBe(control)
-    expect(control?.getAttribute('data-slot')).toBe('root')
+    expect(control?.getAttribute('data-slot')).toBe('input')
     expect(control?.placeholder).toBe('ref test')
   })
 
@@ -43,7 +43,7 @@ describe('Input', () => {
       />
     ))
     const input = screen.getByPlaceholderText<HTMLInputElement>('Enter email')
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="input"]')
 
     expect(input.getAttribute('id')).toBe('email-input')
     expect(input.getAttribute('name')).toBe('email')
@@ -63,7 +63,7 @@ describe('Input', () => {
   test('exposes readonly state through aria and data attributes', () => {
     const screen = render(() => <Input readOnly />)
     const input = screen.getByRole<HTMLInputElement>('textbox')
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="input"]')
 
     expect(input.readOnly).toBe(true)
     expect(input.getAttribute('aria-readonly')).toBe('true')
@@ -79,7 +79,7 @@ describe('Input', () => {
         <Input size="lg" />
       </>
     ))
-    const roots = screen.container.querySelectorAll('[data-slot="root"]')
+    const roots = screen.container.querySelectorAll('[data-slot="input"]')
     const rootClasses = Array.from(roots).map((root) => root.className.split(/\s+/))
     const inputs = screen.getAllByRole('textbox')
     const inputClasses = inputs.map((input) => input.className.split(/\s+/))
@@ -619,7 +619,7 @@ describe('Input', () => {
 
   test('applies classes.root override', () => {
     const screen = render(() => <Input classes={{ root: 'root-override' }} />)
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="input"]')
 
     expect(root?.className).toContain('focus:ring-ring/50')
     expect(root?.className).toContain('data-invalid:border-destructive')
@@ -629,7 +629,7 @@ describe('Input', () => {
 
   test('applies styles.root override', () => {
     const screen = render(() => <Input styles={{ root: { width: '200px' } }} />)
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="input"]')
 
     expect(root?.style.width).toBe('200px')
   })

@@ -823,7 +823,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
         callRef(local.ref, element)
       }}
       id={local.id}
-      data-slot="root"
+      data-slot="resizable"
       {...rest}
       {...resizableDataAttributes.root({ resizableRoot: true })}
       {...resolved.styles.root}
@@ -842,7 +842,7 @@ export function Resizable(props: ResizableProps): JSX.Element {
                 ref={(element) => callRef(panelPart()!.local.ref, element)}
                 {...panelPart()!.rest}
                 id={panelItem().panelId}
-                data-slot="panel"
+                data-slot="resizable-panel"
                 {...resizableDataAttributes.panel({
                   collapsed,
                   expanded: () => panelItem().collapsible && !collapsed(),
@@ -978,15 +978,15 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       aria-valuenow={aria().valueNow}
                       aria-disabled={handleDisabled() ? 'true' : undefined}
                       tabIndex={handleDisabled() ? -1 : 0}
-                      data-slot="divider"
-                      {...resizableDataAttributes.divider({
+                      data-slot="resizable-handle"
+                      {...resizableDataAttributes.handle({
                         active: bindings.active,
                         cross: bindings.crossHovered,
                         dragging: bindings.dragging,
                       })}
-                      class={cn(resolved.styles.divider.class, handlePart().local.class)}
+                      class={cn(resolved.styles.handle.class, handlePart().local.class)}
                       style={{
-                        ...resolved.styles.divider.style,
+                        ...resolved.styles.handle.style,
                         ...handlePart().local.style,
                       }}
                       onMouseEnter={(event) =>
@@ -1017,12 +1017,12 @@ export function Resizable(props: ResizableProps): JSX.Element {
                     >
                       <Show when={bindings.startIntersectionVisible()}>
                         <div
-                          data-slot="crossTarget"
-                          {...resizableDataAttributes.crossTarget({
+                          data-slot="resizable-intersection"
+                          {...resizableDataAttributes.intersection({
                             resizableHandleStartTarget: true,
                             resizableHandleEndTarget: undefined,
                           })}
-                          {...resolved.styles.crossTarget}
+                          {...resolved.styles.intersection}
                           onMouseEnter={() =>
                             bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_START)
                           }
@@ -1033,14 +1033,14 @@ export function Resizable(props: ResizableProps): JSX.Element {
                       <Show when={handlePart().content() !== false}>
                         <button
                           type="button"
-                          data-slot="handle"
+                          data-slot="resizable-handle-control"
                           tabIndex={action() === 'collapse' ? undefined : -1}
                           onPointerDown={onGripPointerDown}
                           onClick={onHandleClick}
-                          {...resizableDataAttributes.handle({
+                          {...resizableDataAttributes.handleControl({
                             collapse: () => handleCollapseAction(),
                           })}
-                          {...resolved.styles.handle}
+                          {...resolved.styles.handleControl}
                         >
                           <Show when={handlePart().content() !== undefined}>
                             {renderComponentOrElement(handlePart().content(), handleContext)}
@@ -1050,12 +1050,12 @@ export function Resizable(props: ResizableProps): JSX.Element {
 
                       <Show when={bindings.endIntersectionVisible()}>
                         <div
-                          data-slot="crossTarget"
-                          {...resizableDataAttributes.crossTarget({
+                          data-slot="resizable-intersection"
+                          {...resizableDataAttributes.intersection({
                             resizableHandleStartTarget: undefined,
                             resizableHandleEndTarget: true,
                           })}
-                          {...resolved.styles.crossTarget}
+                          {...resolved.styles.intersection}
                           onMouseEnter={() =>
                             bindings.onIntersectionMouseEnter(RESIZABLE_HANDLE_TARGET_END)
                           }

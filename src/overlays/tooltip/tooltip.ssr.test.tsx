@@ -22,7 +22,7 @@ describe('Tooltip SSR Hydration', () => {
         ),
       )
 
-      const trigger = container.querySelector<HTMLButtonElement>('[data-slot="trigger"]')!
+      const trigger = container.querySelector<HTMLButtonElement>('[data-slot="tooltip-trigger"]')!
 
       expect(trigger).not.toBeNull()
       expect(document.body.querySelector('[role="tooltip"]')).toBeNull()

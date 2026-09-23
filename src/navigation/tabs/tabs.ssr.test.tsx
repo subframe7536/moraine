@@ -71,8 +71,8 @@ describe('Tabs SSR Hydration', () => {
       () => <Tabs id="ssr-tabs" value={value()} onChange={setValue} items={createTabItems()} />,
     )
 
-    const root = container.querySelector('[data-slot="root"]')
-    const list = container.querySelector('[data-slot="list"]')
+    const root = container.querySelector('[data-slot="tabs"]')
+    const list = container.querySelector('[data-slot="tabs-list"]')
     const firstTrigger = container.querySelector<HTMLElement>('[role="tab"]')
     const panel = container.querySelector('[role="tabpanel"]')
 

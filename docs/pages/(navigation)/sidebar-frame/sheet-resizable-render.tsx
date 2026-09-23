@@ -108,7 +108,7 @@ function EditorContent() {
         <div class="text-emerald-600 pl-8 dark:text-emerald-400">
           {'<SidebarFrameProvider value={context}>'}
         </div>
-        <div class="pl-12">{'<div data-slot="root" {...rest}>'}</div>
+        <div class="pl-12">{'<div data-slot="sidebar-frame" {...rest}>'}</div>
         <div class="pl-16">{'{local.children}'}</div>
         <div class="pl-12">{'</div>'}</div>
         <div class="text-emerald-600 pl-8 dark:text-emerald-400">{'</SidebarFrameProvider>'}</div>

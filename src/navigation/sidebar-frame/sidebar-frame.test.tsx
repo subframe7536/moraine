@@ -94,11 +94,17 @@ describe('SidebarFrame', () => {
     expect(screen.getByText('Header')).toBeTruthy()
     expect(screen.getByText('Navigation')).toBeTruthy()
     expect(screen.getByText('Footer')).toBeTruthy()
-    expect(screen.container.querySelector('[data-slot="root"]')?.className).toContain('flex')
-    const sidebarClass = screen.container.querySelector('[data-slot="sidebar"]')?.className
+    expect(screen.container.querySelector('[data-slot="sidebar-frame"]')?.className).toContain(
+      'flex',
+    )
+    const sidebarClass = screen.container.querySelector(
+      '[data-slot="sidebar-frame-sidebar"]',
+    )?.className
     expect(sidebarClass).toContain('w-64')
     expect(sidebarClass).toContain('min-size-0')
-    expect(screen.container.querySelector('[data-slot="main"]')?.className).toContain('flex-1')
+    expect(screen.container.querySelector('[data-slot="sidebar-frame-main"]')?.className).toContain(
+      'flex-1',
+    )
   })
 
   test('preserves the main subtree when switching between desktop and mobile', () => {
@@ -128,13 +134,13 @@ describe('SidebarFrame', () => {
       </SidebarFrame>
     ))
 
-    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
     fireEvent.click(screen.getByText('Toggle'))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')?.getAttribute('aria-label')).toBe(
-        'Sidebar navigation',
-      )
+      expect(
+        document.body.querySelector('[data-slot="sheet-content"]')?.getAttribute('aria-label'),
+      ).toBe('Sidebar navigation')
       expect(document.body.textContent).toContain('Navigation')
     })
   })
@@ -189,7 +195,7 @@ describe('SidebarFrame', () => {
     ))
 
     await waitFor(() =>
-      expect(screen.container.querySelector('[data-slot="sidebar"]')).toHaveProperty(
+      expect(screen.container.querySelector('[data-slot="sidebar-frame-sidebar"]')).toHaveProperty(
         'hidden',
         true,
       ),
@@ -206,7 +212,10 @@ describe('SidebarFrame', () => {
       </SidebarFrame>
     ))
 
-    expect(screen.container.querySelector('[data-slot="sidebar"]')).toHaveProperty('hidden', false)
+    expect(screen.container.querySelector('[data-slot="sidebar-frame-sidebar"]')).toHaveProperty(
+      'hidden',
+      false,
+    )
     expect(screen.getByText('Navigation')).toBeTruthy()
   })
 
@@ -240,8 +249,12 @@ describe('SidebarFrame', () => {
         <FrameContent />
       </SidebarFrame>
     ))
-    const sidebar = screen.container.querySelector('[data-slot="sidebar"]') as HTMLDivElement
-    const main = screen.container.querySelector('[data-slot="main"]') as HTMLDivElement
+    const sidebar = screen.container.querySelector(
+      '[data-slot="sidebar-frame-sidebar"]',
+    ) as HTMLDivElement
+    const main = screen.container.querySelector(
+      '[data-slot="sidebar-frame-main"]',
+    ) as HTMLDivElement
 
     fireEvent.click(screen.getByText('Toggle'))
     expect(sidebar.getAttribute('data-closed')).toBe('')
@@ -258,11 +271,13 @@ describe('SidebarFrame', () => {
         <FrameContent />
       </SidebarFrame>
     ))
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="sidebar-frame"]')
 
     expect(root?.className).toContain('flex-row-reverse')
     expect(root?.className).toContain('p-2')
-    expect(screen.container.querySelector('[data-slot="main"]')?.className).toContain('rounded-xl')
+    expect(screen.container.querySelector('[data-slot="sidebar-frame-main"]')?.className).toContain(
+      'rounded-xl',
+    )
   })
 
   test('forwards region attributes, classes, styles, refs, and events', () => {
@@ -304,7 +319,7 @@ describe('SidebarFrame.Trigger', () => {
     const trigger = screen.getByRole('button', { name: 'Toggle' })
     expect(trigger.tagName).toBe('BUTTON')
     expect(trigger.getAttribute('type')).toBe('button')
-    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.getAttribute('data-slot')).toBe('sidebar-frame-trigger')
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
     expect(trigger.getAttribute('data-open')).toBe('')
     expect(trigger.hasAttribute('data-closed')).toBe(false)
@@ -339,7 +354,9 @@ describe('SidebarFrame.Trigger', () => {
     ))
 
     const trigger = screen.getByRole('button', { name: 'Toggle' })
-    const sidebar = screen.container.querySelector('[data-slot="sidebar"]') as HTMLDivElement
+    const sidebar = screen.container.querySelector(
+      '[data-slot="sidebar-frame-sidebar"]',
+    ) as HTMLDivElement
 
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
     expect(sidebar.hasAttribute('data-closed')).toBe(false)
@@ -368,11 +385,11 @@ describe('SidebarFrame.Trigger', () => {
     ))
 
     const trigger = screen.getByRole('button', { name: 'Toggle' })
-    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
 
     fireEvent.click(trigger)
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="sheet-content"]')).not.toBeNull()
       expect(trigger.getAttribute('aria-expanded')).toBe('true')
     })
   })

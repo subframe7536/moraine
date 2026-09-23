@@ -5,7 +5,7 @@ import { hydrateFixture } from '../../test-utils/ssr-test'
 import { Slider } from './slider'
 
 function getThumbs(root: Element): HTMLElement[] {
-  return Array.from(root.querySelectorAll<HTMLElement>('[data-slot="thumb"]'))
+  return Array.from(root.querySelectorAll<HTMLElement>('[data-slot="slider-thumb"]'))
 }
 
 describe('Slider SSR Hydration', () => {

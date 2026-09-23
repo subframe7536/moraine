@@ -54,9 +54,9 @@ describe('CommandPalette', () => {
   test('renders component defaults when provider is absent', async () => {
     render(() => <CommandPalette groups={GROUPS} />)
     await waitFor(() => {
-      const root = document.body.querySelector('[data-slot="root"]')
+      const root = document.body.querySelector('[data-slot="command-palette"]')
       expect(root?.className).not.toBe('')
-      const listbox = document.body.querySelector('[data-slot="listbox"]')
+      const listbox = document.body.querySelector('[data-slot="command-palette-listbox"]')
       expect(listbox?.className).not.toBe('')
     })
   })
@@ -80,7 +80,9 @@ describe('CommandPalette', () => {
     renderWithTheme(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
-      const input = document.body.querySelector('[data-slot="input"]') as HTMLInputElement
+      const input = document.body.querySelector(
+        '[data-slot="command-palette-input"]',
+      ) as HTMLInputElement
 
       expect(input).not.toBeNull()
       expect(input.hasAttribute('autofocus')).toBe(false)
@@ -92,7 +94,9 @@ describe('CommandPalette', () => {
     renderWithTheme(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="listbox"]')?.className).toContain('max-h-72')
+      expect(
+        document.body.querySelector('[data-slot="command-palette-listbox"]')?.className,
+      ).toContain('max-h-72')
     })
   })
 
@@ -100,7 +104,9 @@ describe('CommandPalette', () => {
     renderWithTheme(() => <CommandPalette groups={GROUPS} classes={{ itemTrailing: 'gap-2' }} />)
 
     await waitFor(() => {
-      const trailing = Array.from(document.body.querySelectorAll('[data-slot="itemTrailing"]'))
+      const trailing = Array.from(
+        document.body.querySelectorAll('[data-slot="command-palette-item-trailing"]'),
+      )
       expect(trailing.some((el) => el.classList.contains('gap-2'))).toBe(true)
     })
   })
@@ -109,12 +115,16 @@ describe('CommandPalette', () => {
     renderWithTheme(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
-      const withIcon = body().getByText('New File').closest('[data-slot="item"]')
-      const withoutIcon = body().getByText('Go to Dashboard').closest('[data-slot="item"]')
+      const withIcon = body().getByText('New File').closest('[data-slot="command-palette-item"]')
+      const withoutIcon = body()
+        .getByText('Go to Dashboard')
+        .closest('[data-slot="command-palette-item"]')
 
       expect(withIcon?.className).toContain('gap-2')
       expect(withoutIcon?.className).toContain('gap-2')
-      expect(document.body.querySelector('[data-slot="itemLeading"]')).not.toBeNull()
+      expect(
+        document.body.querySelector('[data-slot="command-palette-item-leading"]'),
+      ).not.toBeNull()
     })
   })
 
@@ -150,7 +160,9 @@ describe('CommandPalette', () => {
 
     await waitFor(() => {
       expect(body().getByText('⌘N')).toBeTruthy()
-      expect(document.body.querySelector('[data-slot="itemTrailing"]')).not.toBeNull()
+      expect(
+        document.body.querySelector('[data-slot="command-palette-item-trailing"]'),
+      ).not.toBeNull()
     })
   })
 
@@ -170,7 +182,7 @@ describe('CommandPalette', () => {
 
     await waitFor(() => body().getByText('Action'))
 
-    const item = document.body.querySelector('[data-slot="item"]') as HTMLElement
+    const item = document.body.querySelector('[data-slot="command-palette-item"]') as HTMLElement
     fireEvent.click(item)
 
     expect(onItemSelect).toHaveBeenCalledTimes(1)
@@ -187,7 +199,9 @@ describe('CommandPalette', () => {
         onSelect={onSelect}
       />
     ))
-    const item = body().getByText('Action').closest('[data-slot="item"]') as HTMLElement
+    const item = body()
+      .getByText('Action')
+      .closest('[data-slot="command-palette-item"]') as HTMLElement
     const mouseEvent = new PointerEvent('pointerdown', {
       bubbles: true,
       cancelable: true,
@@ -222,7 +236,9 @@ describe('CommandPalette', () => {
         itemProps={() => ({ onPointerDown: (event) => event.preventDefault() })}
       />
     ))
-    const item = body().getByText('Action').closest('[data-slot="item"]') as HTMLElement
+    const item = body()
+      .getByText('Action')
+      .closest('[data-slot="command-palette-item"]') as HTMLElement
     const touchEvent = new PointerEvent('pointerdown', {
       bubbles: true,
       cancelable: true,
@@ -248,11 +264,13 @@ describe('CommandPalette', () => {
     ))
 
     await waitFor(() => body().getByText('Action'))
-    fireEvent.click(document.body.querySelector('[data-slot="item"]') as HTMLElement)
+    fireEvent.click(
+      document.body.querySelector('[data-slot="command-palette-item"]') as HTMLElement,
+    )
 
     expect(onSelect).toHaveBeenCalledTimes(1)
     expect(onClose).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="item"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="command-palette-item"]')).not.toBeNull()
   })
 
   test('activates the highlighted item on Enter', async () => {
@@ -374,9 +392,11 @@ describe('CommandPalette', () => {
     ))
 
     await waitFor(() => {
-      const search = document.body.querySelector('[data-slot="search"]') as HTMLElement
+      const search = document.body.querySelector(
+        '[data-slot="command-palette-input-leading"]',
+      ) as HTMLElement
       const close = document.body.querySelector(
-        '[data-slot="close"] [data-slot="icon"]',
+        '[data-slot="command-palette-close"] [data-slot="icon"]',
       ) as HTMLElement
 
       expect(search.className).toContain('icon-hash')
@@ -389,7 +409,9 @@ describe('CommandPalette', () => {
     renderWithTheme(() => <CommandPalette groups={GROUPS} showClose onClose={onClose} />)
 
     await waitFor(() => {
-      const closeBtn = document.body.querySelector('[data-slot="close"]') as HTMLElement
+      const closeBtn = document.body.querySelector(
+        '[data-slot="command-palette-close"]',
+      ) as HTMLElement
       expect(closeBtn).not.toBeNull()
       fireEvent.click(closeBtn)
     })
@@ -412,19 +434,23 @@ describe('CommandPalette', () => {
       </Dialog>
     ))
 
-    expect(document.body.querySelector('[data-slot="input"]')).toBeNull()
-    fireEvent.click(document.body.querySelector('[data-slot="trigger"]') as HTMLElement)
+    expect(document.body.querySelector('[data-slot="command-palette-input"]')).toBeNull()
+    fireEvent.click(document.body.querySelector('[data-slot="dialog-trigger"]') as HTMLElement)
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="input"]')).not.toBeNull()
-      expect(document.activeElement).toBe(document.body.querySelector('[data-slot="input"]'))
+      expect(document.body.querySelector('[data-slot="command-palette-input"]')).not.toBeNull()
+      expect(document.activeElement).toBe(
+        document.body.querySelector('[data-slot="command-palette-input"]'),
+      )
     })
 
-    fireEvent.click(document.body.querySelector('[data-slot="close"]') as HTMLElement)
+    fireEvent.click(
+      document.body.querySelector('[data-slot="command-palette-close"]') as HTMLElement,
+    )
     await finishExitMotion()
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="input"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="command-palette-input"]')).toBeNull()
     })
   })
 
@@ -432,7 +458,7 @@ describe('CommandPalette', () => {
     renderWithTheme(() => <CommandPalette groups={GROUPS} />)
 
     await waitFor(() => {
-      const items = document.body.querySelectorAll('[data-slot="item"]')
+      const items = document.body.querySelectorAll('[data-slot="command-palette-item"]')
       const disabledItem = [...items].find((el) => el.getAttribute('data-disabled') !== null)
       expect(disabledItem).toBeTruthy()
     })
@@ -458,9 +484,9 @@ describe('CommandPalette', () => {
           listbox: 'listbox-override',
           footer: 'footer-override',
           group: 'group-override',
-          label: 'label-override',
+          groupLabel: 'label-override',
           item: 'item-override',
-          search: 'search-override',
+          inputLeading: 'search-override',
           close: 'close-override',
         }}
         footerRender={() => <span>Footer content</span>}
@@ -468,36 +494,36 @@ describe('CommandPalette', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="root"]')?.className).toContain(
+      expect(document.body.querySelector('[data-slot="command-palette"]')?.className).toContain(
         'root-override',
       )
-      expect(document.body.querySelector('[data-slot="inputWrapper"]')?.className).toContain(
-        'input-wrapper-override',
-      )
-      expect(document.body.querySelector('[data-slot="input"]')?.className).toContain(
-        'input-override',
-      )
-      expect(document.body.querySelector('[data-slot="listbox"]')?.className).toContain(
-        'listbox-override',
-      )
-      expect(document.body.querySelector('[data-slot="footer"]')?.className).toContain(
-        'footer-override',
-      )
-      expect(document.body.querySelector('[data-slot="group"]')?.className).toContain(
-        'group-override',
-      )
-      expect(document.body.querySelector('[data-slot="label"]')?.className).toContain(
-        'label-override',
-      )
-      expect(document.body.querySelector('[data-slot="item"]')?.className).toContain(
-        'item-override',
-      )
-      expect(document.body.querySelector('[data-slot="search"]')?.className).toContain(
-        'search-override',
-      )
-      expect(document.body.querySelector('[data-slot="close"]')?.className).toContain(
-        'close-override',
-      )
+      expect(
+        document.body.querySelector('[data-slot="command-palette-input-wrapper"]')?.className,
+      ).toContain('input-wrapper-override')
+      expect(
+        document.body.querySelector('[data-slot="command-palette-input"]')?.className,
+      ).toContain('input-override')
+      expect(
+        document.body.querySelector('[data-slot="command-palette-listbox"]')?.className,
+      ).toContain('listbox-override')
+      expect(
+        document.body.querySelector('[data-slot="command-palette-footer"]')?.className,
+      ).toContain('footer-override')
+      expect(
+        document.body.querySelector('[data-slot="command-palette-group"]')?.className,
+      ).toContain('group-override')
+      expect(
+        document.body.querySelector('[data-slot="command-palette-group-label"]')?.className,
+      ).toContain('label-override')
+      expect(
+        document.body.querySelector('[data-slot="command-palette-item"]')?.className,
+      ).toContain('item-override')
+      expect(
+        document.body.querySelector('[data-slot="command-palette-input-leading"]')?.className,
+      ).toContain('search-override')
+      expect(
+        document.body.querySelector('[data-slot="command-palette-close"]')?.className,
+      ).toContain('close-override')
     })
   })
 
@@ -508,7 +534,7 @@ describe('CommandPalette', () => {
 
     await waitFor(() => {
       expect(body().getByText('Palette Footer')).toBeTruthy()
-      expect(document.body.querySelector('[data-slot="footer"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="command-palette-footer"]')).not.toBeNull()
     })
   })
 
@@ -516,9 +542,9 @@ describe('CommandPalette', () => {
     renderWithTheme(() => <CommandPalette groups={[]} classes={{ empty: 'empty-override' }} />)
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="empty"]')?.className).toContain(
-        'empty-override',
-      )
+      expect(
+        document.body.querySelector('[data-slot="command-palette-empty"]')?.className,
+      ).toContain('empty-override')
     })
   })
 
@@ -526,9 +552,10 @@ describe('CommandPalette', () => {
     renderWithTheme(() => <CommandPalette groups={[]} styles={{ empty: { width: '200px' } }} />)
 
     await waitFor(() => {
-      expect(document.body.querySelector<HTMLElement>('[data-slot="empty"]')?.style.width).toBe(
-        '200px',
-      )
+      expect(
+        document.body.querySelector<HTMLElement>('[data-slot="command-palette-empty"]')?.style
+          .width,
+      ).toBe('200px')
     })
   })
 
@@ -717,10 +744,10 @@ describe('CommandPalette', () => {
       expect(body().getByText('Item')).not.toBeNull()
     })
 
-    const item = body().getByText('Item').closest('[data-slot="item"]')!
-    const wrapper = item.querySelector('[data-slot="itemWrapper"]')!
-    const label = item.querySelector('[data-slot="itemLabel"]')!
-    const description = item.querySelector('[data-slot="itemDescription"]')!
+    const item = body().getByText('Item').closest('[data-slot="command-palette-item"]')!
+    const wrapper = item.querySelector('[data-slot="command-palette-item-wrapper"]')!
+    const label = item.querySelector('[data-slot="command-palette-item-label"]')!
+    const description = item.querySelector('[data-slot="command-palette-item-description"]')!
 
     expect(description.parentElement).toBe(label)
     expect(wrapper.className).toContain('flex-row')
@@ -730,7 +757,9 @@ describe('CommandPalette', () => {
 
     setDescriptionPosition('bottom')
 
-    expect(item.querySelector('[data-slot="itemDescription"]')?.parentElement).toBe(wrapper)
+    expect(
+      item.querySelector('[data-slot="command-palette-item-description"]')?.parentElement,
+    ).toBe(wrapper)
     expect(wrapper.className).not.toContain('flex-row')
     expect(label.className).not.toContain('flex-1')
   })
@@ -775,8 +804,10 @@ describe('CommandPalette', () => {
 
     await waitFor(() => {
       const input = body().getByPlaceholderText('Search...')
-      const listbox = document.body.querySelector('[data-slot="listbox"]')
-      const activeItem = document.body.querySelector('[data-slot="item"][data-highlighted]')
+      const listbox = document.body.querySelector('[data-slot="command-palette-listbox"]')
+      const activeItem = document.body.querySelector(
+        '[data-slot="command-palette-item"][data-highlighted]',
+      )
 
       expect(input.getAttribute('role')).toBe('combobox')
       expect(input.getAttribute('aria-controls')).toBe(listbox?.id)
@@ -842,11 +873,13 @@ describe('CommandPalette', () => {
     ))
 
     await waitFor(() => {
-      const group = document.body.querySelector('[data-slot="group"]')
+      const group = document.body.querySelector('[data-slot="command-palette-group"]')
 
       expect(group?.getAttribute('role')).toBe('presentation')
       expect(group?.getAttribute('data-index')).toBe('virtual-label')
-      expect(group?.querySelector('[data-slot="label"]')?.textContent).toBe('Actions')
+      expect(group?.querySelector('[data-slot="command-palette-group-label"]')?.textContent).toBe(
+        'Actions',
+      )
     })
   })
 
@@ -980,7 +1013,9 @@ describe('CommandPalette', () => {
       expect(input.getAttribute('data-track')).toBe('command-input')
     })
 
-    const listbox = document.body.querySelector('[data-slot="listbox"]') as HTMLElement
+    const listbox = document.body.querySelector(
+      '[data-slot="command-palette-listbox"]',
+    ) as HTMLElement
     const item = document.body.querySelector('[data-value="new-file"]') as HTMLElement
 
     expect(listboxRef).toHaveBeenCalledWith(listbox)

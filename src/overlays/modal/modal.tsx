@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js'
 import { createEffect, createMemo, createSignal, on, onCleanup, untrack } from 'solid-js'
 
+import { dataSlotName } from '../../shared/data-slot.ts'
 import { useControllableValue } from '../../shared/use-controllable-value'
 import { useTransitionPresence } from '../../shared/use-transition-presence'
 import { useId } from '../../shared/utils'
@@ -16,13 +17,14 @@ import {
 
 import { ModalClose } from './modal-close'
 import { ModalContent } from './modal-content'
-import { ModalProvider } from './modal-context'
+import { ModalProvider, useModalSlotOwner } from './modal-context'
 import { ModalOverlay } from './modal-overlay'
 import { ModalTrigger } from './modal-trigger'
 import type { ModalProps } from './modal.types'
 
 /** Low-level modal primitives for composing custom dialog surfaces. */
 export function Modal(props: ModalProps): JSX.Element {
+  const owner = useModalSlotOwner()
   const rootId = useId(() => props.id, 'modal')
   const contentId = createMemo(() => `${rootId()}-content`)
   const [open, setOpen] = useControllableValue<boolean>({
@@ -260,6 +262,7 @@ export function Modal(props: ModalProps): JSX.Element {
   })
 
   const context = {
+    slotName: (slot: string) => dataSlotName(owner, slot),
     get presentation() {
       return { classes: props.classes, styles: props.styles }
     },

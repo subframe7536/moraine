@@ -124,7 +124,7 @@
     "count",
     "image",
     "fallback",
-    "fallbackIcon",
+    "fallbackContent",
     "badge"
   ],
   "dataAttributes": [

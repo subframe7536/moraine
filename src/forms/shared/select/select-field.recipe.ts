@@ -25,9 +25,10 @@ export const SELECT_FAMILY_SLOTS = {
   leading: SELECT_LEADING_ICON_CLASS,
   clear: SELECT_CLEAR_ACTION_CLASS,
   itemLeading: 'shrink-0',
-  itemLabel: 'flex-1 min-w-0 truncate',
+  itemWrapper: 'flex-1 min-w-0 truncate',
+  itemLabel: '',
   itemDescription: 'text-xs text-muted-foreground block',
-  itemTrailing: 'text-sm flex shrink-0 size-4 pointer-events-none items-center justify-center',
+  itemIndicator: 'text-sm flex shrink-0 size-4 pointer-events-none items-center justify-center',
 } as const
 
 export const FIELD_VARIANTS = {

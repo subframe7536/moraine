@@ -428,9 +428,10 @@
     "leading",
     "clear",
     "itemLeading",
+    "itemWrapper",
     "itemLabel",
     "itemDescription",
-    "itemTrailing",
+    "itemIndicator",
     "input",
     "trigger"
   ],

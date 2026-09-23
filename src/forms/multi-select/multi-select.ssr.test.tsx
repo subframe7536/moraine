@@ -27,11 +27,11 @@ test('hydrates MultiSelect with one input and stable secondary trigger', () => {
         closeIcon: 'icon-close',
       }),
   )
-  const control = container.querySelector('[data-slot="control"]')!
+  const control = container.querySelector('[data-slot="multi-select-control"]')!
   const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!
-  const trigger = container.querySelector<HTMLButtonElement>('[data-slot="trigger"]')!
+  const trigger = container.querySelector<HTMLButtonElement>('[data-slot="multi-select-trigger"]')!
   expect(control).toBeTruthy()
-  expect(container.querySelectorAll('input[data-slot="input"]')).toHaveLength(1)
+  expect(container.querySelectorAll('input[data-slot="multi-select-input"]')).toHaveLength(1)
   expect(input.getAttribute('autocomplete')).toBe('off')
   expect(trigger.tabIndex).toBe(-1)
   expect(container.querySelector<HTMLInputElement>('input[name="fruits"]')?.value).toBe('apple')

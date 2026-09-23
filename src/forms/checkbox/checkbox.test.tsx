@@ -16,7 +16,9 @@ function expectCheckboxChecked(element: Element, checked: boolean | 'mixed'): vo
 }
 
 function getHiddenCheckbox(container: HTMLElement): HTMLInputElement {
-  return container.querySelector('input[type="checkbox"][data-slot="input"]') as HTMLInputElement
+  return container.querySelector(
+    'input[type="checkbox"][data-slot="checkbox-input"]',
+  ) as HTMLInputElement
 }
 
 describe('Checkbox', () => {
@@ -24,8 +26,8 @@ describe('Checkbox', () => {
     const screen = render(() => (
       <Checkbox variant="card" indicator="end" size="lg" label="Classes" />
     ))
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const base = screen.container.querySelector('[data-slot="control"]')
+    const root = screen.container.querySelector('[data-slot="checkbox"]')
+    const base = screen.container.querySelector('[data-slot="checkbox-control"]')
     expect(root?.className).not.toBe('')
     expect(base?.className).not.toBe('')
   })
@@ -63,7 +65,7 @@ describe('Checkbox', () => {
     ))
 
     const checkbox = screen.getByRole('checkbox', { name: 'Custom' })
-    const root = screen.container.querySelector('[data-slot="root"]')!
+    const root = screen.container.querySelector('[data-slot="checkbox"]')!
 
     expectCheckboxChecked(checkbox, true)
     expect(root.getAttribute('data-checked')).toBe('')
@@ -193,7 +195,7 @@ describe('Checkbox', () => {
     const onChange = vi.fn()
     const screen = render(() => <Checkbox disabled label="Disabled" onChange={onChange} />)
     const checkbox = screen.getByRole('checkbox', { name: 'Disabled' })
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector('[data-slot="checkbox-control"]') as HTMLElement
 
     expect(checkbox.getAttribute('aria-disabled')).toBe('true')
 
@@ -218,9 +220,9 @@ describe('Checkbox', () => {
 
     const checkbox = screen.getByRole('checkbox', { name: 'Select all' })
     const input = getHiddenCheckbox(screen.container)
-    const control = screen.container.querySelector('[data-slot="control"]')
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const indicator = screen.container.querySelector('[data-slot="indicator"]')
+    const control = screen.container.querySelector('[data-slot="checkbox-control"]')
+    const root = screen.container.querySelector('[data-slot="checkbox"]')
+    const indicator = screen.container.querySelector('[data-slot="checkbox-indicator"]')
     const description = screen.getByText('Selection summary')
 
     await waitFor(() => {
@@ -248,7 +250,7 @@ describe('Checkbox', () => {
       name: 'Default indeterminate',
     })
     const input = getHiddenCheckbox(screen.container)
-    const control = screen.container.querySelector('[data-slot="control"]')
+    const control = screen.container.querySelector('[data-slot="checkbox-control"]')
 
     await waitFor(() => {
       expect(input.indeterminate).toBe(true)
@@ -266,7 +268,7 @@ describe('Checkbox', () => {
 
     const checkbox = screen.getByRole('checkbox', { name: 'Terms' })
     const input = getHiddenCheckbox(screen.container)
-    const control = screen.container.querySelector('[data-slot="control"]')
+    const control = screen.container.querySelector('[data-slot="checkbox-control"]')
 
     expect(checkbox.getAttribute('id')).toBe('terms-checkbox')
     expect(input.getAttribute('id')).toBe('terms-checkbox-input')
@@ -488,10 +490,10 @@ describe('Checkbox', () => {
       </MoraineProvider>
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const input = screen.container.querySelector('[data-slot="input"]')
-    const container = screen.container.querySelector('[data-slot="container"]')
-    const base = screen.container.querySelector('[data-slot="control"]')
+    const root = screen.container.querySelector('[data-slot="checkbox"]')
+    const input = screen.container.querySelector('[data-slot="checkbox-input"]')
+    const container = screen.container.querySelector('[data-slot="checkbox-container"]')
+    const base = screen.container.querySelector('[data-slot="checkbox-control"]')
 
     expect(root?.className).toContain('rounded-md')
     expect(root?.className).toContain('flex-row-reverse')
@@ -516,9 +518,13 @@ describe('Checkbox', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const base = screen.container.querySelector('[data-slot="control"]') as HTMLElement | null
-    const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement | null
+    const root = screen.container.querySelector('[data-slot="checkbox"]') as HTMLElement | null
+    const base = screen.container.querySelector(
+      '[data-slot="checkbox-control"]',
+    ) as HTMLElement | null
+    const label = screen.container.querySelector(
+      '[data-slot="checkbox-label"]',
+    ) as HTMLElement | null
 
     expect(root?.style.width).toBe('200px')
     expect(base?.style.width).toBe('200px')
@@ -528,7 +534,7 @@ describe('Checkbox', () => {
   test('toggles when clicking card root container', async () => {
     const screen = render(() => <Checkbox variant="card" label="Card root click" />)
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
+    const root = screen.container.querySelector('[data-slot="checkbox"]') as HTMLElement
     const checkbox = screen.getByRole('checkbox', { name: 'Card root click' })
 
     expectCheckboxChecked(checkbox, false)
@@ -549,7 +555,7 @@ describe('Checkbox', () => {
     const onChange = vi.fn()
     const screen = render(() => <Checkbox variant="card" label={content} onChange={onChange} />)
     const target = screen.container.querySelector(
-      '[data-slot="label"] a, [data-slot="label"] button, [data-slot="label"] input',
+      '[data-slot="checkbox-label"] a, [data-slot="checkbox-label"] button, [data-slot="checkbox-label"] input',
     ) as HTMLElement
 
     fireEvent.click(target)
@@ -561,7 +567,7 @@ describe('Checkbox', () => {
   test('ignores non-primary synthetic card clicks', () => {
     const onChange = vi.fn()
     const screen = render(() => <Checkbox variant="card" label="Secondary" onChange={onChange} />)
-    const root = screen.container.querySelector('[data-slot="root"]')!
+    const root = screen.container.querySelector('[data-slot="checkbox"]')!
 
     root.dispatchEvent(new MouseEvent('click', { bubbles: true, button: 2 }))
 
@@ -601,7 +607,7 @@ describe('Checkbox', () => {
   test('does not toggle when clicking list root container', async () => {
     const screen = render(() => <Checkbox label="List root click" />)
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
+    const root = screen.container.querySelector('[data-slot="checkbox"]') as HTMLElement
     const checkbox = screen.getByRole('checkbox', { name: 'List root click' })
 
     expectCheckboxChecked(checkbox, false)

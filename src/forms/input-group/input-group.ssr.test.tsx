@@ -34,20 +34,32 @@ describe('InputGroup SSR hydration', () => {
     )
     const group = container.firstElementChild!
     const input = container.querySelector('input')!
-    const leading = container.querySelector('[data-slot="leading"]')!
+    const leading = container.querySelector('[data-slot="input-group-leading"]')!
     expect(group.children[1]).toBe(input)
     expect(leading.hasAttribute('data-compact')).toBe(true)
-    expect(group.querySelectorAll('[data-slot="leading"], [data-slot="trailing"]')).toHaveLength(2)
+    expect(
+      group.querySelectorAll(
+        '[data-slot="input-group-leading"], [data-slot="input-group-trailing"]',
+      ),
+    ).toHaveLength(2)
     setCompact(false)
     expect(leading.hasAttribute('data-compact')).toBe(false)
-    expect(container.querySelector('[data-slot="leading"]')).toBe(leading)
+    expect(container.querySelector('[data-slot="input-group-leading"]')).toBe(leading)
     input.focus()
     fireEvent.input(input, { target: { value: 'Client edit' } })
     expect(input.value).toBe('Client edit')
     setShow(false)
-    expect(group.querySelectorAll('[data-slot="leading"], [data-slot="trailing"]')).toHaveLength(1)
+    expect(
+      group.querySelectorAll(
+        '[data-slot="input-group-leading"], [data-slot="input-group-trailing"]',
+      ),
+    ).toHaveLength(1)
     setShow(true)
-    expect(group.querySelectorAll('[data-slot="leading"], [data-slot="trailing"]')).toHaveLength(2)
+    expect(
+      group.querySelectorAll(
+        '[data-slot="input-group-leading"], [data-slot="input-group-trailing"]',
+      ),
+    ).toHaveLength(2)
     expect(container.querySelector('input')).toBe(input)
     expect(input.value).toBe('Client edit')
     expect(document.activeElement).toBe(input)
@@ -81,7 +93,8 @@ describe('InputGroup SSR hydration', () => {
     expect(textarea.readOnly).toBe(false)
     expect(textarea.required).toBe(true)
     expect(
-      container.querySelector('[data-slot="leading"][data-orientation="vertical"]')?.textContent,
+      container.querySelector('[data-slot="input-group-leading"][data-orientation="vertical"]')
+        ?.textContent,
     ).toBe('0')
     setReadOnly(true)
     expect(textarea.readOnly).toBe(true)

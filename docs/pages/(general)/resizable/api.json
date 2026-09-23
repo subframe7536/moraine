@@ -190,9 +190,9 @@
   "slots": [
     "root",
     "panel",
-    "divider",
     "handle",
-    "crossTarget"
+    "handleControl",
+    "intersection"
   ],
   "dataAttributes": [
     {
@@ -211,7 +211,7 @@
       ]
     },
     {
-      "target": "divider",
+      "target": "handle",
       "attributes": [
         "data-active",
         "data-cross",
@@ -219,13 +219,13 @@
       ]
     },
     {
-      "target": "handle",
+      "target": "handleControl",
       "attributes": [
         "data-collapse"
       ]
     },
     {
-      "target": "crossTarget",
+      "target": "intersection",
       "attributes": [
         "data-resizable-handle-end-target",
         "data-resizable-handle-start-target"

@@ -32,7 +32,7 @@ export function ModalOverlay(props: ModalT.OverlayProps): JSX.Element {
         <Portal mount={context.triggerElement()?.ownerDocument.body}>
           <div
             {...rest}
-            data-slot="overlay"
+            data-slot={context.slotName('overlay')}
             {...modalDataAttributes.overlay({
               overlayScroll: () => local.scrollable,
               expanded: () => presence.dataAttrs()['data-expanded'],

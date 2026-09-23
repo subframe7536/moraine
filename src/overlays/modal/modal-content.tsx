@@ -95,7 +95,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
 
   const renderOverlay = (content?: JSX.Element): JSX.Element => (
     <div
-      data-slot="overlay"
+      data-slot={context.slotName('overlay')}
       {...modalDataAttributes.overlay({
         overlayScroll,
         expanded: () => presence.dataAttrs()['data-expanded'],
@@ -149,7 +149,7 @@ export function ModalSurface(props: ModalSurfaceProps): JSX.Element {
         aria-labelledby={ariaLabelledBy(surface)}
         aria-describedby={ariaDescribedBy(surface)}
         tabIndex={-1}
-        data-slot="content"
+        data-slot={context.slotName('content')}
         class={cn(local.class)}
         style={local.style}
         onKeyDown={onContentKeyDown}

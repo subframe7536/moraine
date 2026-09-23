@@ -5,7 +5,7 @@ import { Icon } from '../../elements/icon/index.ts'
 import { createStyles } from '../../provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callRef } from '../../shared/utils.ts'
-import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
+import { BaseSelect, SelectSlotOwner, useSelectState } from '../base-select/base-select.tsx'
 import { useFieldContext } from '../field/field-context.ts'
 import {
   createSource,
@@ -66,10 +66,12 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
         >
           <BaseSelect.Trigger<'button', SelectT.NormalizedItem<T>> {...styles.styles.trigger}>
             <Show when={local.leadingIcon}>
-              {(icon) => <Icon name={icon()} slotName="leading" {...styles.styles.leading} />}
+              {(icon) => (
+                <Icon name={icon()} slotName="select-leading" {...styles.styles.leading} />
+              )}
             </Show>
             <span
-              data-slot="value"
+              data-slot="select-value"
               {...selectDataAttributes.value({ placeholder: () => !hasValue() })}
               {...styles.styles.value}
             >
@@ -77,7 +79,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
             </span>
             <Show when={!local.loading && local.allowClear && hasValue()}>
               <span
-                data-slot="clear"
+                data-slot="select-clear"
                 aria-hidden="true"
                 {...styles.styles.clear}
                 onPointerDown={(event) => {
@@ -95,7 +97,7 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
               </span>
             </Show>
             <Icon
-              slotName="trailing"
+              slotName="select-trailing"
               name={
                 local.loading
                   ? (local.loadingIcon ?? 'icon-loading')
@@ -129,20 +131,22 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
   }
 
   return (
-    <BaseSelect<SelectT.NormalizedItem<T>>
-      {...baseSelectProps}
-      items={source().items}
-      serializeValue={(value) => serializeSourceValue(source(), value)}
-      value={selection()}
-      defaultValue={defaultSelection()}
-      onChange={(values) => local.onChange?.(values[0] ?? null)}
-      onReset={local.onReset}
-      multiple={false}
-      size={styles.variants.size ?? undefined}
-      classes={baseSelectStyles.classes()}
-      styles={baseSelectStyles.styles()}
-    >
-      <Control />
-    </BaseSelect>
+    <SelectSlotOwner value="select">
+      <BaseSelect<SelectT.NormalizedItem<T>>
+        {...baseSelectProps}
+        items={source().items}
+        serializeValue={(value) => serializeSourceValue(source(), value)}
+        value={selection()}
+        defaultValue={defaultSelection()}
+        onChange={(values) => local.onChange?.(values[0] ?? null)}
+        onReset={local.onReset}
+        multiple={false}
+        size={styles.variants.size ?? undefined}
+        classes={baseSelectStyles.classes()}
+        styles={baseSelectStyles.styles()}
+      >
+        <Control />
+      </BaseSelect>
+    </SelectSlotOwner>
   )
 }

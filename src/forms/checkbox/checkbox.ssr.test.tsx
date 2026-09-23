@@ -23,8 +23,8 @@ describe('Checkbox SSR Hydration', () => {
       ),
     )
 
-    const root = container.querySelector('[data-slot="root"]')!
-    const control = container.querySelector('[data-slot="control"]')!
+    const root = container.querySelector('[data-slot="checkbox"]')!
+    const control = container.querySelector('[data-slot="checkbox-control"]')!
 
     expect(root).not.toBeNull()
     expect(control.getAttribute('aria-checked')).toBe('mixed')
@@ -36,10 +36,10 @@ describe('Checkbox SSR Hydration', () => {
 
     setChecked(false)
     expect(control.getAttribute('aria-checked')).toBe('false')
-    expect(container.querySelector('[data-slot="indicator"]')).toBeNull()
+    expect(container.querySelector('[data-slot="checkbox-indicator"]')).toBeNull()
     expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
-      'container',
-      'wrapper',
+      'checkbox-container',
+      'checkbox-wrapper',
     ])
   })
 })

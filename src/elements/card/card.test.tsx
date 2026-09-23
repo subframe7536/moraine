@@ -13,13 +13,13 @@ describe('Card', () => {
         Body
       </Card>
     ))
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="card"]')
     expect(root?.className).not.toBe('')
-    const header = screen.container.querySelector('[data-slot="header"]')
+    const header = screen.container.querySelector('[data-slot="card-header"]')
     expect(header?.className).not.toBe('')
-    const body = screen.container.querySelector('[data-slot="body"]')
+    const body = screen.container.querySelector('[data-slot="card-body"]')
     expect(body?.className).not.toBe('')
-    const footer = screen.container.querySelector('[data-slot="footer"]')
+    const footer = screen.container.querySelector('[data-slot="card-footer"]')
     expect(footer?.className).not.toBe('')
   })
 
@@ -29,7 +29,7 @@ describe('Card', () => {
         <Card />
       </MoraineProvider>
     ))
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="card"]')
 
     expect(root?.className).toContain('border-border')
     expect(root?.className).toContain('rounded-xl')
@@ -38,11 +38,11 @@ describe('Card', () => {
 
   test('renders body slot only when children exist', () => {
     const emptyScreen = render(() => <Card />)
-    const hasNoBody = emptyScreen.container.querySelector('[data-slot="body"]')
+    const hasNoBody = emptyScreen.container.querySelector('[data-slot="card-body"]')
     expect(hasNoBody).toBeNull()
 
     const screen = render(() => <Card>Body content</Card>)
-    const body = screen.container.querySelector('[data-slot="body"]')
+    const body = screen.container.querySelector('[data-slot="card-body"]')
     expect(body?.textContent).toBe('Body content')
   })
 
@@ -53,16 +53,16 @@ describe('Card', () => {
       </Card>
     ))
 
-    expect(emptyScreen.container.querySelector('[data-slot="header"]')).toBeNull()
-    expect(emptyScreen.container.querySelector('[data-slot="footer"]')).toBeNull()
+    expect(emptyScreen.container.querySelector('[data-slot="card-header"]')).toBeNull()
+    expect(emptyScreen.container.querySelector('[data-slot="card-footer"]')).toBeNull()
 
     const screen = render(() => (
       <Card header="Header content" footer="Footer content">
         Body
       </Card>
     ))
-    const header = screen.container.querySelector('[data-slot="header"]')
-    const footer = screen.container.querySelector('[data-slot="footer"]')
+    const header = screen.container.querySelector('[data-slot="card-header"]')
+    const footer = screen.container.querySelector('[data-slot="card-footer"]')
 
     expect(header?.textContent).toBe('Header content')
     expect(footer?.textContent).toBe('Footer content')
@@ -96,10 +96,10 @@ describe('Card', () => {
       </Card>
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const header = screen.container.querySelector('[data-slot="header"]')
-    const body = screen.container.querySelector('[data-slot="body"]')
-    const footer = screen.container.querySelector('[data-slot="footer"]')
+    const root = screen.container.querySelector('[data-slot="card"]')
+    const header = screen.container.querySelector('[data-slot="card-header"]')
+    const body = screen.container.querySelector('[data-slot="card-body"]')
+    const footer = screen.container.querySelector('[data-slot="card-footer"]')
 
     expect(root?.className).toContain('root-override')
     expect(header?.className).toContain('header-override')
@@ -123,10 +123,10 @@ describe('Card', () => {
       </Card>
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const header = screen.container.querySelector('[data-slot="header"]') as HTMLElement | null
-    const body = screen.container.querySelector('[data-slot="body"]') as HTMLElement | null
-    const footer = screen.container.querySelector('[data-slot="footer"]') as HTMLElement | null
+    const root = screen.container.querySelector('[data-slot="card"]') as HTMLElement | null
+    const header = screen.container.querySelector('[data-slot="card-header"]') as HTMLElement | null
+    const body = screen.container.querySelector('[data-slot="card-body"]') as HTMLElement | null
+    const footer = screen.container.querySelector('[data-slot="card-footer"]') as HTMLElement | null
 
     expect(root?.style.width).toBe('200px')
     expect(header?.style.width).toBe('200px')

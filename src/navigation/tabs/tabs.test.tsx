@@ -108,7 +108,7 @@ describe('Tabs', () => {
     expect(empty.getAttribute('aria-controls')).toBe('empty-value-tabs--0-content')
     expect(screen.getByRole('tabpanel').textContent).toBe('Empty panel')
     expect(
-      screen.container.querySelector('[data-slot="indicator"]')?.getAttribute('style'),
+      screen.container.querySelector('[data-slot="tabs-indicator"]')?.getAttribute('style'),
     ).toContain('width:')
   })
 
@@ -346,9 +346,9 @@ describe('Tabs', () => {
       </MoraineProvider>
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const trigger = screen.container.querySelector('[data-slot="trigger"]')
-    const content = screen.container.querySelector('[data-slot="content"]')
+    const root = screen.container.querySelector('[data-slot="tabs"]')
+    const trigger = screen.container.querySelector('[data-slot="tabs-trigger"]')
+    const content = screen.container.querySelector('[data-slot="tabs-content"]')
 
     expect(root?.className).toContain('flex-row')
     expect(root?.className).toContain('root-override')
@@ -365,7 +365,7 @@ describe('Tabs', () => {
       </MoraineProvider>
     ))
 
-    const indicator = screen.container.querySelector('[data-slot="indicator"]')
+    const indicator = screen.container.querySelector('[data-slot="tabs-indicator"]')
 
     expect(indicator?.className).toContain('inset-x-1')
   })
@@ -409,7 +409,7 @@ describe('Tabs', () => {
       />
     ))
 
-    const leading = screen.container.querySelector('[data-slot="leading"]')
+    const leading = screen.container.querySelector('[data-slot="tabs-leading"]')
     const icon = leading?.querySelector('[data-slot="icon"]')
 
     expect(leading).not.toBeNull()
@@ -428,9 +428,9 @@ describe('Tabs', () => {
       />
     ))
 
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
-    const trigger = screen.container.querySelector<HTMLElement>('[data-slot="trigger"]')
-    const content = screen.container.querySelector<HTMLElement>('[data-slot="content"]')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="tabs"]')
+    const trigger = screen.container.querySelector<HTMLElement>('[data-slot="tabs-trigger"]')
+    const content = screen.container.querySelector<HTMLElement>('[data-slot="tabs-content"]')
 
     expect(root?.style.width).toBe('200px')
     expect(trigger?.style.width).toBe('200px')

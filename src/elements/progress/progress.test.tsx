@@ -10,9 +10,9 @@ import type { ProgressT } from './progress.types'
 describe('Progress', () => {
   test('renders component defaults when provider is absent', () => {
     const screen = render(() => <Progress value={50} status />)
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const track = screen.container.querySelector('[data-slot="track"]')
-    const indicator = screen.container.querySelector('[data-slot="indicator"]')
+    const root = screen.container.querySelector('[data-slot="progress"]')
+    const track = screen.container.querySelector('[data-slot="progress-track"]')
+    const indicator = screen.container.querySelector('[data-slot="progress-indicator"]')
 
     expect(root?.className).not.toBe('')
     expect(track?.className).not.toBe('')
@@ -39,10 +39,12 @@ describe('Progress', () => {
       </MoraineProvider>
     ))
 
-    const horizontalRoot = horizontal.container.querySelector('[data-slot="root"]') as HTMLElement
-    const verticalRoot = vertical.container.querySelector('[data-slot="root"]') as HTMLElement
-    const horizontalBase = horizontal.container.querySelector('[data-slot="track"]')
-    const verticalBase = vertical.container.querySelector('[data-slot="track"]')
+    const horizontalRoot = horizontal.container.querySelector(
+      '[data-slot="progress"]',
+    ) as HTMLElement
+    const verticalRoot = vertical.container.querySelector('[data-slot="progress"]') as HTMLElement
+    const horizontalBase = horizontal.container.querySelector('[data-slot="progress-track"]')
+    const verticalBase = vertical.container.querySelector('[data-slot="progress-track"]')
 
     expect(horizontalRoot.className).toContain('[--p-size:0.25rem]')
     expect(horizontalBase?.className).toContain('h-(--p-size)')
@@ -58,7 +60,7 @@ describe('Progress', () => {
     expect(progress.getAttribute('aria-valuemax')).toBe('100')
     expect(progress.getAttribute('aria-valuenow')).toBe('50')
     expect(progress.getAttribute('aria-valuetext')).toBe('50%')
-    expect(screen.container.querySelector('[data-slot="status"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="progress-status"]')).toBeNull()
   })
 
   test('supports an accessible label', () => {
@@ -69,7 +71,9 @@ describe('Progress', () => {
 
   test('renders status text and supports statusRender callback', () => {
     const withStatus = render(() => <Progress value={40} status />)
-    const status = withStatus.container.querySelector('[data-slot="status"]') as HTMLElement
+    const status = withStatus.container.querySelector(
+      '[data-slot="progress-status"]',
+    ) as HTMLElement
 
     expect(status.textContent).toBe('40%')
     expect(status.style.width).toBe('40%')
@@ -109,7 +113,9 @@ describe('Progress', () => {
 
     expect(maxProgress.getAttribute('aria-valuemax')).toBe('4')
     expect(maxProgress.getAttribute('aria-valuenow')).toBe('4')
-    expect(maxClamp.container.querySelector('[data-slot="status"]')?.textContent).toBe('100%')
+    expect(maxClamp.container.querySelector('[data-slot="progress-status"]')?.textContent).toBe(
+      '100%',
+    )
 
     const minClamp = render(() => <Progress value={-3} max={10} />)
     const minProgress = minClamp.getByRole('progressbar')
@@ -121,7 +127,7 @@ describe('Progress', () => {
     const steps = ['Waiting...', 'Cloning...', 'Done!']
     const screen = render(() => <Progress value={1} max={steps} />)
 
-    const stepNodes = screen.container.querySelectorAll('[data-slot="step"]')
+    const stepNodes = screen.container.querySelectorAll('[data-slot="progress-step"]')
     expect(stepNodes.length).toBe(steps.length)
     expect(stepNodes[0]?.getAttribute('data-state')).toBe('other')
     expect(stepNodes[1]?.getAttribute('data-state')).toBe('active')
@@ -148,13 +154,13 @@ describe('Progress', () => {
   test('indeterminate mode hides aria value fields and status', () => {
     const screen = render(() => <Progress value={null} status />)
     const progress = screen.getByRole('progressbar')
-    const indicator = screen.container.querySelector('[data-slot="indicator"]')
+    const indicator = screen.container.querySelector('[data-slot="progress-indicator"]')
 
     expect(progress.hasAttribute('aria-valuenow')).toBe(false)
     expect(progress.hasAttribute('aria-valuetext')).toBe(false)
     expect(progress.getAttribute('aria-valuemin')).toBe('0')
     expect(progress.getAttribute('aria-valuemax')).toBe('100')
-    expect(screen.container.querySelector('[data-slot="status"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="progress-status"]')).toBeNull()
     expect(indicator?.hasAttribute('data-indeterminate')).toBe(true)
   })
 
@@ -167,9 +173,10 @@ describe('Progress', () => {
       expect(progress.hasAttribute('data-indeterminate')).toBe(true)
       expect(progress.hasAttribute('aria-valuenow')).toBe(false)
       expect(progress.hasAttribute('aria-valuetext')).toBe(false)
-      expect(screen.container.querySelector('[data-slot="status"]')).toBeNull()
+      expect(screen.container.querySelector('[data-slot="progress-status"]')).toBeNull()
       expect(
-        (screen.container.querySelector('[data-slot="indicator"]') as HTMLElement).style.transform,
+        (screen.container.querySelector('[data-slot="progress-indicator"]') as HTMLElement).style
+          .transform,
       ).toBe('')
     },
   )
@@ -182,17 +189,20 @@ describe('Progress', () => {
     expect(progress.getAttribute('aria-valuenow')).toBe('0')
     expect(progress.getAttribute('aria-valuetext')).toBe('0%')
     expect(progress.getAttribute('data-progress')).toBe('complete')
-    expect(screen.container.querySelector('[data-slot="status"]')?.textContent).toBe('0%')
+    expect(screen.container.querySelector('[data-slot="progress-status"]')?.textContent).toBe('0%')
     expect(
-      (screen.container.querySelector('[data-slot="indicator"]') as HTMLElement).style.transform,
+      (screen.container.querySelector('[data-slot="progress-indicator"]') as HTMLElement).style
+        .transform,
     ).toBe('translateX(-100%)')
   })
 
   test('keeps fractional percentages synchronized without integer rounding', () => {
     const screen = render(() => <Progress value={1} max={3} status />)
     const progress = screen.getByRole('progressbar')
-    const status = screen.container.querySelector('[data-slot="status"]') as HTMLElement
-    const indicator = screen.container.querySelector('[data-slot="indicator"]') as HTMLElement
+    const status = screen.container.querySelector('[data-slot="progress-status"]') as HTMLElement
+    const indicator = screen.container.querySelector(
+      '[data-slot="progress-indicator"]',
+    ) as HTMLElement
 
     expect(progress.getAttribute('aria-valuetext')).toBe('33.33%')
     expect(status.textContent).toBe('33.33%')
@@ -205,10 +215,10 @@ describe('Progress', () => {
     const screen = render(() => (
       <Progress value={value()} status max={['Waiting', 'Working', 'Done']} />
     ))
-    const root = screen.container.querySelector('[data-slot="root"]')!
-    const indicator = screen.container.querySelector('[data-slot="indicator"]')!
+    const root = screen.container.querySelector('[data-slot="progress"]')!
+    const indicator = screen.container.querySelector('[data-slot="progress-indicator"]')!
     const structuralParts = screen.container.querySelectorAll(
-      '[data-slot="status"], [data-slot="track"], [data-slot="steps"], [data-slot="step"]',
+      '[data-slot="progress-status"], [data-slot="progress-track"], [data-slot="progress-steps"], [data-slot="progress-step"]',
     )
 
     expect(root.getAttribute('data-progress')).toBe('complete')
@@ -250,11 +260,13 @@ describe('Progress', () => {
     )
 
     const status = screen.getByText('Status 50')
-    const steps = Array.from(screen.container.querySelectorAll('[data-slot="step"]'))
+    const steps = Array.from(screen.container.querySelectorAll('[data-slot="progress-step"]'))
     setValue(2)
     expect(screen.getByText('Status 100')).toBe(status)
     expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('2')
-    expect(Array.from(screen.container.querySelectorAll('[data-slot="step"]'))).toEqual(steps)
+    expect(Array.from(screen.container.querySelectorAll('[data-slot="progress-step"]'))).toEqual(
+      steps,
+    )
     expect(reads).toEqual({ statusRender: 1, stepRender: 1 })
   })
 
@@ -281,7 +293,7 @@ describe('Progress', () => {
     ))
 
     expect(empty.getByRole('progressbar').getAttribute('aria-valuemax')).toBe('0')
-    expect(empty.container.querySelector('[data-slot="steps"]')).toBeNull()
+    expect(empty.container.querySelector('[data-slot="progress-steps"]')).toBeNull()
     expect(single.getByRole('progressbar').getAttribute('aria-valuemax')).toBe('0')
     expect(single.getByText('0-Only-first')).not.toBeNull()
   })
@@ -290,10 +302,10 @@ describe('Progress', () => {
     const steps = ['Same', 'Same', 'Done']
     const [value, setValue] = createSignal(0)
     const screen = render(() => <Progress value={value()} max={steps} />)
-    const initial = Array.from(screen.container.querySelectorAll('[data-slot="step"]'))
+    const initial = Array.from(screen.container.querySelectorAll('[data-slot="progress-step"]'))
 
     setValue(1)
-    const updated = Array.from(screen.container.querySelectorAll('[data-slot="step"]'))
+    const updated = Array.from(screen.container.querySelectorAll('[data-slot="progress-step"]'))
 
     expect(updated).toHaveLength(3)
     expect(updated[0]).toBe(initial[0])
@@ -384,9 +396,11 @@ describe('Progress', () => {
       </MoraineProvider>
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const status = screen.container.querySelector('[data-slot="status"]') as HTMLElement
-    const indicator = screen.container.querySelector('[data-slot="indicator"]') as HTMLElement
+    const root = screen.container.querySelector('[data-slot="progress"]')
+    const status = screen.container.querySelector('[data-slot="progress-status"]') as HTMLElement
+    const indicator = screen.container.querySelector(
+      '[data-slot="progress-indicator"]',
+    ) as HTMLElement
 
     expect(root?.className).toContain('flex-row-reverse')
     expect(status.style.height).toBe('75%')
@@ -407,10 +421,10 @@ describe('Progress', () => {
     ))
 
     const horizontalIndicator = horizontal.container.querySelector(
-      '[data-slot="indicator"]',
+      '[data-slot="progress-indicator"]',
     ) as HTMLElement
     const verticalIndicator = vertical.container.querySelector(
-      '[data-slot="indicator"]',
+      '[data-slot="progress-indicator"]',
     ) as HTMLElement
 
     expect(horizontalIndicator.className).toContain('animate-carousel-rtl')
@@ -438,12 +452,12 @@ describe('Progress', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const status = screen.container.querySelector('[data-slot="status"]')
-    const base = screen.container.querySelector('[data-slot="track"]')
-    const indicator = screen.container.querySelector('[data-slot="indicator"]')
-    const steps = screen.container.querySelector('[data-slot="steps"]')
-    const step = screen.container.querySelector('[data-slot="step"]')
+    const root = screen.container.querySelector('[data-slot="progress"]')
+    const status = screen.container.querySelector('[data-slot="progress-status"]')
+    const base = screen.container.querySelector('[data-slot="progress-track"]')
+    const indicator = screen.container.querySelector('[data-slot="progress-indicator"]')
+    const steps = screen.container.querySelector('[data-slot="progress-steps"]')
+    const step = screen.container.querySelector('[data-slot="progress-step"]')
 
     expect(root?.className).toContain('root-override')
     expect(status?.className).toContain('status-override')
@@ -470,14 +484,20 @@ describe('Progress', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const status = screen.container.querySelector('[data-slot="status"]') as HTMLElement | null
-    const base = screen.container.querySelector('[data-slot="track"]') as HTMLElement | null
-    const indicator = screen.container.querySelector(
-      '[data-slot="indicator"]',
+    const root = screen.container.querySelector('[data-slot="progress"]') as HTMLElement | null
+    const status = screen.container.querySelector(
+      '[data-slot="progress-status"]',
     ) as HTMLElement | null
-    const steps = screen.container.querySelector('[data-slot="steps"]') as HTMLElement | null
-    const step = screen.container.querySelector('[data-slot="step"]') as HTMLElement | null
+    const base = screen.container.querySelector(
+      '[data-slot="progress-track"]',
+    ) as HTMLElement | null
+    const indicator = screen.container.querySelector(
+      '[data-slot="progress-indicator"]',
+    ) as HTMLElement | null
+    const steps = screen.container.querySelector(
+      '[data-slot="progress-steps"]',
+    ) as HTMLElement | null
+    const step = screen.container.querySelector('[data-slot="progress-step"]') as HTMLElement | null
 
     expect(root?.style.width).toBe('200px')
     expect(status?.style.width).toBe('200px')

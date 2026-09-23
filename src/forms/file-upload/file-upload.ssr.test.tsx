@@ -22,13 +22,13 @@ describe('FileUpload SSR Hydration', () => {
       ),
     )
 
-    const root = container.querySelector('[data-slot="root"]')
+    const root = container.querySelector('[data-slot="file-upload"]')
     expect(root).not.toBeNull()
-    expect(container.querySelector('[data-slot="control"]')?.tagName).toBe('DIV')
-    expect(container.querySelector('[data-slot="files"]')).toBeNull()
+    expect(container.querySelector('[data-slot="file-upload-control"]')?.tagName).toBe('DIV')
+    expect(container.querySelector('[data-slot="file-upload-files"]')).toBeNull()
 
     setDropzone(false)
-    expect(container.querySelector('[data-slot="control"]')?.tagName).toBe('BUTTON')
-    expect(container.querySelector('[data-slot="root"]')).toBe(root)
+    expect(container.querySelector('[data-slot="file-upload-control"]')?.tagName).toBe('BUTTON')
+    expect(container.querySelector('[data-slot="file-upload"]')).toBe(root)
   })
 })

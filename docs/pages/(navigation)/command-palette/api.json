@@ -324,14 +324,14 @@
     "listbox",
     "footer",
     "group",
-    "label",
+    "groupLabel",
     "item",
     "itemLeading",
     "itemWrapper",
     "itemLabel",
     "itemDescription",
     "itemTrailing",
-    "search",
+    "inputLeading",
     "close",
     "empty"
   ],
@@ -344,7 +344,7 @@
       ]
     },
     {
-      "target": "search",
+      "target": "inputLeading",
       "attributes": [
         "data-loading"
       ]

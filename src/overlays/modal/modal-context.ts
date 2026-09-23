@@ -1,4 +1,5 @@
 import type { Accessor } from 'solid-js'
+import { createContext, useContext } from 'solid-js'
 
 import { createContextProvider } from '../../shared/create-context-provider'
 import type { useTransitionPresence } from '../../shared/use-transition-presence'
@@ -6,6 +7,7 @@ import type { useTransitionPresence } from '../../shared/use-transition-presence
 import type { ModalT } from './modal.types'
 
 export interface ModalContext {
+  slotName: (slot: string) => string
   readonly presentation: { classes?: ModalT.Classes; styles?: ModalT.Styles }
   open: Accessor<boolean>
   presence: ReturnType<typeof useTransitionPresence>
@@ -23,3 +25,7 @@ export interface ModalContext {
 }
 
 export const [ModalProvider, useModalContext] = createContextProvider<ModalContext>('Modal')
+
+const ModalSlotOwnerContext = createContext('modal')
+export const ModalSlotOwner = ModalSlotOwnerContext.Provider
+export const useModalSlotOwner = () => useContext(ModalSlotOwnerContext)

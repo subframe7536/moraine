@@ -25,7 +25,7 @@ describe('Breadcrumb', () => {
     ))
     const root = screen.getByRole('navigation')
     expect(root.className).not.toBe('')
-    const list = screen.container.querySelector('ol[data-slot="list"]')
+    const list = screen.container.querySelector('ol[data-slot="breadcrumb-list"]')
     expect(list?.className).not.toBe('')
   })
 
@@ -77,18 +77,24 @@ describe('Breadcrumb', () => {
       />
     ))
 
-    const root = screen.container.querySelector('nav[data-slot="root"]')
-    const list = screen.container.querySelector('ol[data-slot="list"]')
+    const root = screen.container.querySelector('nav[data-slot="breadcrumb"]')
+    const list = screen.container.querySelector('ol[data-slot="breadcrumb-list"]')
 
     expect(root).not.toBeNull()
     expect(list?.parentElement).toBe(root)
     expect(
       Array.from(list?.children ?? []).map((child) => child.getAttribute('data-slot')),
-    ).toEqual(['item', 'separator', 'item', 'separator', 'item'])
-    expect(list?.querySelectorAll('li[data-slot="item"]')).toHaveLength(3)
-    expect(list?.querySelectorAll('a[data-slot="link"]')).toHaveLength(2)
-    expect(list?.querySelector('span[data-slot="page"]')).not.toBeNull()
-    expect(screen.container.querySelector('[data-slot^="breadcrumb-"]')).toBeNull()
+    ).toEqual([
+      'breadcrumb-item',
+      'breadcrumb-separator',
+      'breadcrumb-item',
+      'breadcrumb-separator',
+      'breadcrumb-item',
+    ])
+    expect(list?.querySelectorAll('li[data-slot="breadcrumb-item"]')).toHaveLength(3)
+    expect(list?.querySelectorAll('a[data-slot="breadcrumb-link"]')).toHaveLength(2)
+    expect(list?.querySelector('span[data-slot="breadcrumb-page"]')).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot="item"]')).toBeNull()
     expect(screen.getByText('Home')).not.toBeNull()
     expect(screen.getByText('Docs')).not.toBeNull()
     expect(screen.getByText('API')).not.toBeNull()
@@ -105,9 +111,9 @@ describe('Breadcrumb', () => {
       />
     ))
 
-    const separators = screen.container.querySelectorAll('[data-slot="separator"]')
+    const separators = screen.container.querySelectorAll('[data-slot="breadcrumb-separator"]')
     const separatorIcons = screen.container.querySelectorAll(
-      '[data-slot="separator"] [data-slot="icon"]',
+      '[data-slot="breadcrumb-separator"] [data-slot="icon"]',
     )
 
     expect(separators.length).toBe(2)
@@ -137,7 +143,7 @@ describe('Breadcrumb', () => {
     ))
 
     const separatorIcons = screen.container.querySelectorAll(
-      '[data-slot="separator"] [data-slot="icon"]',
+      '[data-slot="breadcrumb-separator"] [data-slot="icon"]',
     )
     expect(separatorIcons.length).toBe(2)
     expect(separatorIcons[0]?.className).toContain('icon-dot')
@@ -153,7 +159,7 @@ describe('Breadcrumb', () => {
       />
     ))
 
-    const home = screen.getByText('Home').closest('[data-slot="link"]')
+    const home = screen.getByText('Home').closest('[data-slot="breadcrumb-link"]')
 
     expect(home?.tagName).toBe('A')
     expect(home?.getAttribute('href')).toBe('/')
@@ -166,7 +172,7 @@ describe('Breadcrumb', () => {
     expect(home?.className).not.toContain('h-9')
     expect(home?.className).not.toContain('px-2.5')
     expect(home?.className).not.toContain('rounded-md')
-    expect(screen.container.querySelector('nav[data-slot="root"] button')).toBeNull()
+    expect(screen.container.querySelector('nav[data-slot="breadcrumb"] button')).toBeNull()
   })
 
   test('marks current item with page semantics', () => {
@@ -179,7 +185,7 @@ describe('Breadcrumb', () => {
       />
     ))
 
-    const current = screen.getByText('Current').closest('[data-slot="page"]')
+    const current = screen.getByText('Current').closest('[data-slot="breadcrumb-page"]')
 
     expect(current?.tagName).toBe('SPAN')
     expect(current?.getAttribute('role')).toBe('link')
@@ -205,7 +211,7 @@ describe('Breadcrumb', () => {
       />
     ))
 
-    const explicit = screen.getByText('Home').closest('[data-slot="page"]')
+    const explicit = screen.getByText('Home').closest('[data-slot="breadcrumb-page"]')
     expect(explicit?.getAttribute('aria-current')).toBe('page')
     expect(explicit?.getAttribute('href')).toBeNull()
   })
@@ -220,14 +226,14 @@ describe('Breadcrumb', () => {
       />
     ))
 
-    const homeLink = screen.getByText('Home').closest('[data-slot="link"]')
-    const leading = homeLink?.querySelector('[data-slot="leading"]')
+    const homeLink = screen.getByText('Home').closest('[data-slot="breadcrumb-link"]')
+    const leading = homeLink?.querySelector('[data-slot="breadcrumb-leading"]')
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('i-lucide-house')
     expect((leading as HTMLElement).style.fontSize).toBe('')
     expect(homeLink?.textContent).toContain('Home')
-    expect(homeLink?.querySelector('[data-slot="label"]')).not.toBeNull()
+    expect(homeLink?.querySelector('[data-slot="breadcrumb-label"]')).not.toBeNull()
   })
 
   test('applies disabled state and classes overrides', () => {
@@ -247,11 +253,11 @@ describe('Breadcrumb', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const home = screen.getByText('Home').closest('[data-slot="link"]')
-    const homeLeading = home?.querySelector('[data-slot="leading"]')
-    const disabled = screen.getByText('Disabled').closest('[data-slot="link"]')
-    const separator = screen.container.querySelector('[data-slot="separator"]')
+    const root = screen.container.querySelector('[data-slot="breadcrumb"]')
+    const home = screen.getByText('Home').closest('[data-slot="breadcrumb-link"]')
+    const homeLeading = home?.querySelector('[data-slot="breadcrumb-leading"]')
+    const disabled = screen.getByText('Disabled').closest('[data-slot="breadcrumb-link"]')
+    const separator = screen.container.querySelector('[data-slot="breadcrumb-separator"]')
 
     expect(root?.className).toContain('root-override')
     expect(homeLeading?.className).toContain('leading-override')
@@ -278,10 +284,12 @@ describe('Breadcrumb', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const link = screen.container.querySelector('[data-slot="link"]') as HTMLElement | null
+    const root = screen.container.querySelector('[data-slot="breadcrumb"]') as HTMLElement | null
+    const link = screen.container.querySelector(
+      '[data-slot="breadcrumb-link"]',
+    ) as HTMLElement | null
     const separator = screen.container.querySelector(
-      '[data-slot="separator"]',
+      '[data-slot="breadcrumb-separator"]',
     ) as HTMLElement | null
 
     expect(root?.style.width).toBe('200px')
@@ -308,7 +316,7 @@ describe('Breadcrumb', () => {
       />
     ))
 
-    const disabled = screen.getByText('Disabled').closest('[data-slot="link"]')
+    const disabled = screen.getByText('Disabled').closest('[data-slot="breadcrumb-link"]')
     fireEvent.click(disabled!)
 
     expect(disabled?.tagName).toBe('SPAN')
@@ -332,11 +340,11 @@ describe('Breadcrumb', () => {
       />
     ))
 
-    const list = screen.container.querySelector('[data-slot="list"]')
-    const link = screen.getByText('Home').closest('[data-slot="link"]')
-    const leading = link?.querySelector('[data-slot="leading"]') as HTMLElement | null
+    const list = screen.container.querySelector('[data-slot="breadcrumb-list"]')
+    const link = screen.getByText('Home').closest('[data-slot="breadcrumb-link"]')
+    const leading = link?.querySelector('[data-slot="breadcrumb-leading"]') as HTMLElement | null
     const separator = screen.container.querySelector(
-      '[data-slot="separator"] [data-slot="icon"]',
+      '[data-slot="breadcrumb-separator"] [data-slot="icon"]',
     ) as HTMLElement | null
 
     expect(list?.className).toContain(textClass)
@@ -346,7 +354,7 @@ describe('Breadcrumb', () => {
 
   test('supports itemRender with @solidjs/router A component', () => {
     const itemRender = vi.fn((props: BreadcrumbT.ItemRenderProps) => (
-      <A data-slot="link" href={props.item.href ?? props.item.to ?? '#'}>
+      <A data-slot="breadcrumb-link" href={props.item.href ?? props.item.to ?? '#'}>
         {props.item.label}
       </A>
     ))
@@ -368,15 +376,15 @@ describe('Breadcrumb', () => {
       </Router>
     ))
 
-    const links = screen.container.querySelectorAll('[data-slot="link"]')
+    const links = screen.container.querySelectorAll('[data-slot="breadcrumb-link"]')
     const homeLink = screen.getByRole('link', { name: 'Home' })
 
     expect(screen.getByText('Home')).not.toBeNull()
     expect(links.length).toBe(2)
     expect(homeLink.getAttribute('href')).toBe('/')
-    expect(homeLink.parentElement?.getAttribute('data-slot')).toBe('item')
+    expect(homeLink.parentElement?.getAttribute('data-slot')).toBe('breadcrumb-item')
     expect(homeLink.parentElement?.children).toHaveLength(1)
-    expect(homeLink.querySelector('[data-slot="leading"]')).toBeNull()
+    expect(homeLink.querySelector('[data-slot="breadcrumb-leading"]')).toBeNull()
     expect(itemRender).toHaveBeenCalled()
 
     const contexts = itemRender.mock.calls
@@ -417,7 +425,7 @@ describe('Breadcrumb', () => {
     expect(reads).toBe(1)
     expect(itemRender).toHaveBeenCalledTimes(3)
     expect(screen.container.querySelectorAll('[data-slot="custom-item"]')).toHaveLength(3)
-    expect(screen.container.querySelectorAll('[data-slot="separator"]')).toHaveLength(2)
+    expect(screen.container.querySelectorAll('[data-slot="breadcrumb-separator"]')).toHaveLength(2)
   })
 
   test('keeps one current page while items are inserted, reordered, and removed', () => {
@@ -450,7 +458,7 @@ describe('Breadcrumb', () => {
 
     setItems([])
     expect(screen.container.querySelectorAll('[aria-current="page"]')).toHaveLength(0)
-    expect(screen.container.querySelectorAll('[data-slot="separator"]')).toHaveLength(0)
+    expect(screen.container.querySelectorAll('[data-slot="breadcrumb-separator"]')).toHaveLength(0)
   })
 
   test('keeps item and separator nodes stable while native item state changes', () => {
@@ -472,20 +480,20 @@ describe('Breadcrumb', () => {
       },
     ]
     const screen = renderWithTheme(() => <Breadcrumb items={items} />)
-    const list = screen.container.querySelector('[data-slot="list"]')!
+    const list = screen.container.querySelector('[data-slot="breadcrumb-list"]')!
     const firstItem = list.children[0]!
     const separator = list.children[1]!
 
-    expect(firstItem.querySelector('[data-slot="link"]')?.tagName).toBe('A')
-    expect(firstItem.querySelector('[data-slot="page"]')).toBeNull()
+    expect(firstItem.querySelector('[data-slot="breadcrumb-link"]')?.tagName).toBe('A')
+    expect(firstItem.querySelector('[data-slot="breadcrumb-page"]')).toBeNull()
 
     setActiveIndex(0)
 
     expect(list.children[0]).toBe(firstItem)
     expect(list.children[1]).toBe(separator)
-    expect(firstItem.querySelector('[data-slot="page"]')?.tagName).toBe('SPAN')
-    expect(firstItem.querySelector('[data-slot="link"]')).toBeNull()
-    expect(list.children[2]?.querySelector('[data-slot="link"]')?.tagName).toBe('A')
+    expect(firstItem.querySelector('[data-slot="breadcrumb-page"]')?.tagName).toBe('SPAN')
+    expect(firstItem.querySelector('[data-slot="breadcrumb-link"]')).toBeNull()
+    expect(list.children[2]?.querySelector('[data-slot="breadcrumb-link"]')?.tagName).toBe('A')
   })
 
   test('renders numeric zero but omits empty and boolean label wrappers', () => {
@@ -500,7 +508,7 @@ describe('Breadcrumb', () => {
     ))
 
     expect(screen.getByRole('link', { name: '0' })).not.toBeNull()
-    expect(screen.container.querySelectorAll('[data-slot="label"]')).toHaveLength(1)
+    expect(screen.container.querySelectorAll('[data-slot="breadcrumb-label"]')).toHaveLength(1)
   })
 
   test('reads item icon and label once while rendering default content', () => {
@@ -522,8 +530,8 @@ describe('Breadcrumb', () => {
 
     expect(iconReads).toBe(1)
     expect(labelReads).toBe(1)
-    expect(screen.container.querySelector('[data-slot="leading"]')).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot="breadcrumb-leading"]')).not.toBeNull()
     expect(screen.getByText('0')).not.toBeNull()
-    expect(screen.container.querySelectorAll('[data-slot="label"]')).toHaveLength(2)
+    expect(screen.container.querySelectorAll('[data-slot="breadcrumb-label"]')).toHaveLength(2)
   })
 })

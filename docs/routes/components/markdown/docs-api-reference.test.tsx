@@ -1,6 +1,8 @@
 import { fireEvent, render, within } from '@solidjs/testing-library'
 import { describe, expect, test } from 'vitest'
 
+import { AvatarGroup, CheckboxGroup, Pagination } from '../../../../src/index.ts'
+import { getDomSlotName } from '../../../build/api-doc/presentation.ts'
 import type { ComponentApi } from '../../../build/api-doc/types.ts'
 
 import { DocsApiReference, getDocsApiReferenceTocEntries } from './docs-api-reference.tsx'
@@ -80,10 +82,10 @@ describe('DocsApiReference', () => {
       name: 'disabled, type: Function',
     })
     expect(disabled.getAttribute('aria-expanded')).toBe('false')
-    expect(disabled.closest('[data-slot="root"]')?.getAttribute('data-closed')).toBe('')
+    expect(disabled.closest('[data-slot="collapsible"]')?.getAttribute('data-closed')).toBe('')
     fireEvent.click(disabled)
     expect(disabled.getAttribute('aria-expanded')).toBe('true')
-    expect(disabled.closest('[data-slot="root"]')?.getAttribute('data-expanded')).toBe('')
+    expect(disabled.closest('[data-slot="collapsible"]')?.getAttribute('data-expanded')).toBe('')
     expect(view.getByText('Disables the trigger.')).toBeTruthy()
     const details = view.getByRole('region', { name: /^disabled/ })
     expect(within(details).getByText('boolean | (() => Boolean)')).toBeTruthy()
@@ -155,20 +157,26 @@ describe('DocsApiReference', () => {
     expect(filter.textContent).toBe('All slots')
     expect(filter.parentElement?.parentElement?.className).toContain('justify-start')
     fireEvent.click(filter)
-    expect(within(document.body).getByRole('option', { name: 'empty', hidden: true })).toBeTruthy()
-    fireEvent.click(within(document.body).getByRole('option', { name: 'content 2', hidden: true }))
+    expect(
+      within(document.body).getByRole('option', { name: 'example-empty', hidden: true }),
+    ).toBeTruthy()
+    fireEvent.click(
+      within(document.body).getByRole('option', { name: 'example-content 2', hidden: true }),
+    )
 
     expect(view.queryByText('data-disabled')).toBeNull()
     const expanded = view.getByText('data-expanded')
     expect(expanded).toBeTruthy()
     expect(expanded.closest('button')).toBeNull()
     const expandedRow = expanded.closest('[data-attribute="data-expanded"]')!
-    expect(expandedRow.textContent).toContain('trigger, content')
-    expect(view.getByText('trigger, content').className).not.toContain('font-mono')
+    expect(expandedRow.textContent).toContain('example-trigger, example-content')
+    expect(view.getByText('example-trigger, example-content').className).not.toContain('font-mono')
     expect(view.getByText('data-unknown')).toBeTruthy()
 
     fireEvent.click(filter)
-    fireEvent.click(within(document.body).getByRole('option', { name: 'empty', hidden: true }))
+    fireEvent.click(
+      within(document.body).getByRole('option', { name: 'example-empty', hidden: true }),
+    )
     expect(view.getByRole('status').textContent).toContain('No attributes')
     expect(view.getByRole('status').textContent).toContain(
       'This slot does not expose any public data attributes.',
@@ -232,4 +240,30 @@ test('renders pre-highlighted types only in expanded details', () => {
   fireEvent.click(trigger)
   expect(trigger.getAttribute('aria-expanded')).toBe('false')
   view.unmount()
+})
+
+test('forwarded documentation slots match child-owned DOM nodes', () => {
+  const avatars = render(() => <AvatarGroup items={[{ fallback: 'icon-check' }]} />)
+  expect(
+    avatars.container.querySelector(
+      `[data-slot="${getDomSlotName('avatar-group', 'fallbackContent')}"]`,
+    ),
+  ).not.toBeNull()
+  avatars.unmount()
+
+  const checkboxes = render(() => <CheckboxGroup items={['One']} />)
+  expect(
+    checkboxes.container.querySelector(
+      `[data-slot="${getDomSlotName('checkbox-group', 'control')}"]`,
+    ),
+  ).not.toBeNull()
+  checkboxes.unmount()
+
+  const pagination = render(() => <Pagination total={30} prevText="Previous" />)
+  expect(
+    pagination.container.querySelector(
+      `[data-slot="${getDomSlotName('pagination', 'controlLabel')}"]`,
+    ),
+  ).not.toBeNull()
+  pagination.unmount()
 })

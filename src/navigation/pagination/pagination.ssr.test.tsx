@@ -13,9 +13,9 @@ describe('Pagination SSR Hydration', () => {
       'renderSinglePagePaginationFixture',
     )
 
-    expect(markup.match(/data-slot="item"/g)).toHaveLength(1)
+    expect(markup.match(/data-slot="pagination-item"/g)).toHaveLength(1)
     expect(markup).toContain('Page 1 of 1')
-    expect(markup).not.toContain('data-slot="ellipsis"')
+    expect(markup).not.toContain('data-slot="pagination-ellipsis"')
   })
 
   test('hydrates ellipsis link mode without replacing nodes and handles first navigation', () => {
@@ -36,16 +36,16 @@ describe('Pagination SSR Hydration', () => {
       ),
     )
 
-    const root = container.querySelector('[data-slot="root"]')
-    const list = container.querySelector('[data-slot="list"]')
-    const status = container.querySelector('[data-slot="status"]')
+    const root = container.querySelector('[data-slot="pagination"]')
+    const list = container.querySelector('[data-slot="pagination-list"]')
+    const status = container.querySelector('[data-slot="pagination-status"]')
 
     expect(root).not.toBeNull()
     expect(list).not.toBeNull()
     expect(status).not.toBeNull()
-    expect(container.querySelectorAll('[data-slot="ellipsis"]')).toHaveLength(2)
+    expect(container.querySelectorAll('[data-slot="pagination-ellipsis"]')).toHaveLength(2)
 
-    fireEvent.click(container.querySelector('[data-slot="next"]')!)
+    fireEvent.click(container.querySelector('[data-slot="pagination-next"]')!)
     expect(status?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Page 6 of 10')
   })
 })

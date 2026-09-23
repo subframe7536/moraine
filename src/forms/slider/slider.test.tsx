@@ -17,7 +17,7 @@ const render: typeof baseRender = (ui, options) =>
   baseRender(() => <MoraineProvider>{ui()}</MoraineProvider>, options)
 
 function getThumbs(container: HTMLElement): HTMLElement[] {
-  return Array.from(container.querySelectorAll('[data-slot="thumb"]')) as HTMLElement[]
+  return Array.from(container.querySelectorAll('[data-slot="slider-thumb"]')) as HTMLElement[]
 }
 
 function getInputs(container: HTMLElement): HTMLInputElement[] {
@@ -72,7 +72,7 @@ function mockTrackRect(target: HTMLElement): void {
 describe('Slider', () => {
   test('renders component defaults when provider is absent', () => {
     const screen = baseRender(() => <Slider />)
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="slider"]')
     expect(root?.className).not.toBe('')
   })
 
@@ -83,15 +83,15 @@ describe('Slider', () => {
     render(() => <Slider ref={(el) => (rootEl = el)} inputRef={(el) => (inputEl = el)} />)
 
     expect(rootEl).toBeInstanceOf(HTMLDivElement)
-    expect(rootEl?.getAttribute('data-slot')).toBe('root')
+    expect(rootEl?.getAttribute('data-slot')).toBe('slider')
     expect(inputEl).toBeInstanceOf(HTMLInputElement)
   })
   test('uses the compact track thickness scale', () => {
     const horizontal = render(() => <Slider orientation="horizontal" size="sm" />)
     const vertical = render(() => <Slider orientation="vertical" size="lg" />)
 
-    const horizontalTrack = horizontal.container.querySelector('[data-slot="track"]')
-    const verticalTrack = vertical.container.querySelector('[data-slot="track"]')
+    const horizontalTrack = horizontal.container.querySelector('[data-slot="slider-track"]')
+    const verticalTrack = vertical.container.querySelector('[data-slot="slider-track"]')
 
     expect(horizontalTrack?.className).toContain('h-(--s-size)')
     expect(horizontalTrack?.className).toContain('w-full')
@@ -115,9 +115,9 @@ describe('Slider', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"][id$="-root"]')
-    const track = screen.container.querySelector('[data-slot="track"]')
-    const thumb = screen.container.querySelector('[data-slot="thumb"]') as HTMLElement | null
+    const root = screen.container.querySelector('[data-slot="slider"][id$="-root"]')
+    const track = screen.container.querySelector('[data-slot="slider-track"]')
+    const thumb = screen.container.querySelector('[data-slot="slider-thumb"]') as HTMLElement | null
     const inputs = getInputs(screen.container)
 
     expect(inputs.length).toBe(1)
@@ -190,7 +190,7 @@ describe('Slider', () => {
       <Slider orientation="vertical" defaultValue={45} onValueChange={verticalChange} />
     ))
     const verticalTrack = verticalScreen.container.querySelector(
-      '[data-slot="track"]',
+      '[data-slot="slider-track"]',
     ) as HTMLElement
     mockPointerCapture(verticalTrack)
     mockTrackRect(verticalTrack)
@@ -208,7 +208,7 @@ describe('Slider', () => {
       <Slider orientation="vertical" inverted defaultValue={45} onValueChange={invertedChange} />
     ))
     const invertedTrack = invertedScreen.container.querySelector(
-      '[data-slot="track"]',
+      '[data-slot="slider-track"]',
     ) as HTMLElement
     mockPointerCapture(invertedTrack)
     mockTrackRect(invertedTrack)
@@ -252,8 +252,8 @@ describe('Slider', () => {
       </div>
     ))
     const thumb = getThumbs(screen.container)[0]!
-    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
-    const range = screen.container.querySelector('[data-slot="range"]') as HTMLElement
+    const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
+    const range = screen.container.querySelector('[data-slot="slider-range"]') as HTMLElement
     mockPointerCapture(track)
     mockTrackRect(track)
 
@@ -318,8 +318,8 @@ describe('Slider', () => {
     const onValueChange = vi.fn()
     const screen = render(() => <Slider readOnly defaultValue={50} onValueChange={onValueChange} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
-    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
+    const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
+    const root = screen.container.querySelector('[data-slot="slider"]') as HTMLElement
 
     mockPointerCapture(thumb)
     mockTrackRect(track)
@@ -374,7 +374,7 @@ describe('Slider', () => {
     ))
     const thumb = getThumbs(screen.container)[0] as HTMLElement
     const input = getInputs(screen.container)[0]
-    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+    const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
 
     mockPointerCapture(thumb)
     mockTrackRect(track)
@@ -551,7 +551,7 @@ describe('Slider', () => {
   test('dragging past another thumb moves the dragged value across the range when minStepsBetweenThumbs is 0', async () => {
     const screen = render(() => <Slider defaultValue={[20, 50]} />)
     const thumbs = getThumbs(screen.container)
-    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+    const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
 
     mockPointerCapture(thumbs[0] as HTMLElement)
     mockTrackRect(track)
@@ -590,7 +590,7 @@ describe('Slider', () => {
     const onValueChange = vi.fn()
     const screen = render(() => <Slider defaultValue={[20, 50]} onValueChange={onValueChange} />)
     const thumbs = getThumbs(screen.container)
-    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+    const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
 
     mockPointerCapture(thumbs[0] as HTMLElement)
     mockTrackRect(track)
@@ -642,7 +642,7 @@ describe('Slider', () => {
       <Slider defaultValue={[20, 50]} allowThumbCrossing={false} onValueChange={onValueChange} />
     ))
     const thumbs = getThumbs(screen.container)
-    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+    const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
 
     mockPointerCapture(thumbs[0] as HTMLElement)
     mockTrackRect(track)
@@ -680,7 +680,7 @@ describe('Slider', () => {
   test('dragging overlapping thumbs respects minStepsBetweenThumbs without moving the sibling', async () => {
     const screen = render(() => <Slider defaultValue={[20, 20]} minStepsBetweenThumbs={10} />)
     const thumbs = getThumbs(screen.container)
-    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+    const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
 
     mockPointerCapture(thumbs[0] as HTMLElement)
     mockTrackRect(track)
@@ -855,8 +855,8 @@ describe('Slider', () => {
       <Slider classes={{ root: 'root-override', thumb: 'thumb-override' }} />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"][id$="-root"]')
-    const thumb = screen.container.querySelector('[data-slot="thumb"]')
+    const root = screen.container.querySelector('[data-slot="slider"][id$="-root"]')
+    const thumb = screen.container.querySelector('[data-slot="slider-thumb"]')
 
     expect(root?.className).toContain('root-override')
     expect(thumb?.className).toContain('thumb-override')
@@ -868,9 +868,9 @@ describe('Slider', () => {
     ))
 
     const root = screen.container.querySelector(
-      '[data-slot="root"][id$="-root"]',
+      '[data-slot="slider"][id$="-root"]',
     ) as HTMLElement | null
-    const thumb = screen.container.querySelector('[data-slot="thumb"]') as HTMLElement | null
+    const thumb = screen.container.querySelector('[data-slot="slider-thumb"]') as HTMLElement | null
 
     expect(root?.style.width).toBe('200px')
     expect(thumb?.style.width).toBe('200px')
@@ -879,7 +879,7 @@ describe('Slider', () => {
   test('renders step dividers when enabled', () => {
     const screen = render(() => <Slider divider min={0} max={10} step={2} />)
 
-    const dividers = screen.container.querySelectorAll('[data-slot="divider"]')
+    const dividers = screen.container.querySelectorAll('[data-slot="slider-mark"]')
 
     expect(dividers).toHaveLength(4)
     expect((dividers[0] as HTMLElement).style.left).toBe('20%')
@@ -890,10 +890,10 @@ describe('Slider', () => {
   test('uses a solid track and inset marker shape for bold variant', () => {
     const screen = render(() => <Slider divider variant="bold" min={0} max={4} step={1} />)
 
-    const track = screen.container.querySelector('[data-slot="track"]')
-    const range = screen.container.querySelector('[data-slot="range"]')
-    const divider = screen.container.querySelector('[data-slot="divider"]')
-    const thumb = screen.container.querySelector('[data-slot="thumb"]')
+    const track = screen.container.querySelector('[data-slot="slider-track"]')
+    const range = screen.container.querySelector('[data-slot="slider-range"]')
+    const divider = screen.container.querySelector('[data-slot="slider-mark"]')
+    const thumb = screen.container.querySelector('[data-slot="slider-thumb"]')
 
     expect(track?.className).toContain('w-full')
     expect(track?.className).toContain('h-(--s-size)')
@@ -919,9 +919,9 @@ describe('Slider', () => {
     const md = render(() => <Slider variant="bold" size="md" />)
     const lg = render(() => <Slider variant="bold" size="lg" />)
 
-    const smTrack = sm.container.querySelector('[data-slot="track"]')
-    const mdTrack = md.container.querySelector('[data-slot="track"]')
-    const lgTrack = lg.container.querySelector('[data-slot="track"]')
+    const smTrack = sm.container.querySelector('[data-slot="slider-track"]')
+    const mdTrack = md.container.querySelector('[data-slot="slider-track"]')
+    const lgTrack = lg.container.querySelector('[data-slot="slider-track"]')
 
     expect(smTrack?.className).toContain('h-(--s-size)')
     expect(smTrack?.className).toContain('rounded-xs')
@@ -940,26 +940,26 @@ describe('Slider', () => {
 
     const screen = render(() => <Slider min={0} max={max()} step={step()} divider={divider()} />)
 
-    let dividers = screen.container.querySelectorAll('[data-slot="divider"]')
+    let dividers = screen.container.querySelectorAll('[data-slot="slider-mark"]')
     expect(dividers).toHaveLength(4)
 
     setStep(5)
     await waitFor(() => {
-      dividers = screen.container.querySelectorAll('[data-slot="divider"]')
+      dividers = screen.container.querySelectorAll('[data-slot="slider-mark"]')
       expect(dividers).toHaveLength(1)
       expect((dividers[0] as HTMLElement).style.left).toBe('50%')
     })
 
     setMax(20)
     await waitFor(() => {
-      dividers = screen.container.querySelectorAll('[data-slot="divider"]')
+      dividers = screen.container.querySelectorAll('[data-slot="slider-mark"]')
       expect(dividers).toHaveLength(3)
       expect((dividers[0] as HTMLElement).style.left).toBe('25%')
     })
 
     setDivider(false)
     await waitFor(() => {
-      dividers = screen.container.querySelectorAll('[data-slot="divider"]')
+      dividers = screen.container.querySelectorAll('[data-slot="slider-mark"]')
       expect(dividers).toHaveLength(0)
     })
   })
@@ -1013,7 +1013,7 @@ describe('Slider', () => {
 
   test('renders both thumb indicators on bold range slider', () => {
     const screen = render(() => <Slider variant="bold" defaultValue={[30, 70]} />)
-    const range = screen.container.querySelector('[data-slot="range"]') as HTMLElement
+    const range = screen.container.querySelector('[data-slot="slider-range"]') as HTMLElement
 
     expect(range.className).toContain('before:')
     expect(range.className).toContain('after:')
@@ -1021,7 +1021,7 @@ describe('Slider', () => {
 
   test('renders only one thumb indicator on bold single slider', () => {
     const screen = render(() => <Slider variant="bold" defaultValue={40} />)
-    const range = screen.container.querySelector('[data-slot="range"]') as HTMLElement
+    const range = screen.container.querySelector('[data-slot="slider-range"]') as HTMLElement
 
     expect(range.hasAttribute('data-multiple')).toBe(false)
     expect(range.className).toContain('data-multiple:before:')
@@ -1030,7 +1030,7 @@ describe('Slider', () => {
 
   test('clears pointer focus from bold thumb on pointer down', async () => {
     const screen = render(() => <Slider variant="bold" defaultValue={40} />)
-    const thumb = screen.container.querySelector('[data-slot="thumb"]') as HTMLElement
+    const thumb = screen.container.querySelector('[data-slot="slider-thumb"]') as HTMLElement
     mockPointerCapture(thumb)
 
     thumb.focus()
@@ -1049,9 +1049,9 @@ describe('Slider', () => {
   test('keeps dragging state on the root and active thumb', () => {
     const screen = render(() => <Slider defaultValue={20} variant="bold" />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
-    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
-    const range = screen.container.querySelector('[data-slot="range"]') as HTMLElement
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
+    const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
+    const range = screen.container.querySelector('[data-slot="slider-range"]') as HTMLElement
+    const root = screen.container.querySelector('[data-slot="slider"]') as HTMLElement
     mockPointerCapture(thumb)
     mockTrackRect(track)
 
@@ -1385,7 +1385,7 @@ describe('Slider', () => {
         <Slider defaultValue={20} onValueChange={onValueChange} onChange={onChange} />
       ))
       const thumb = getThumbs(screen.container)[0] as HTMLElement
-      const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+      const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
 
       mockPointerCapture(thumb)
       mockTrackRect(track)
@@ -1423,7 +1423,7 @@ describe('Slider', () => {
     test('track press reuses the last focused overlapping thumb', async () => {
       const screen = render(() => <Slider defaultValue={[20, 20]} />)
       const thumbs = getThumbs(screen.container)
-      const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+      const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
 
       mockPointerCapture(track)
       mockTrackRect(track)
@@ -1443,7 +1443,7 @@ describe('Slider', () => {
       const onChange = vi.fn()
       const screen = render(() => <Slider defaultValue={20} onChange={onChange} />)
       const thumb = getThumbs(screen.container)[0] as HTMLElement
-      const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+      const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
 
       mockPointerCapture(thumb)
       mockTrackRect(track)
@@ -1521,7 +1521,7 @@ describe('Slider', () => {
     const [value, setValue] = createSignal(20)
     const screen = render(() => <Slider value={value()} onChange={onChange} />)
     const thumb = getThumbs(screen.container)[0] as HTMLElement
-    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+    const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
     mockPointerCapture(thumb)
     mockTrackRect(track)
 
@@ -1612,8 +1612,8 @@ describe('Slider', () => {
 
   test('reflects data-dragging on root during pointer interaction', () => {
     const screen = render(() => <Slider defaultValue={20} />)
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement
-    const track = screen.container.querySelector('[data-slot="track"]') as HTMLElement
+    const root = screen.container.querySelector('[data-slot="slider"]') as HTMLElement
+    const track = screen.container.querySelector('[data-slot="slider-track"]') as HTMLElement
     mockPointerCapture(track)
 
     expect(root.hasAttribute('data-dragging')).toBe(false)
@@ -1633,8 +1633,8 @@ test.each([
   (size, thickness, boldThickness, length, offset, thumbSize) => {
     const [bold, setBold] = createSignal(false)
     const screen = render(() => <Slider size={size} variant={bold() ? 'bold' : 'default'} />)
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
-    const track = screen.container.querySelector<HTMLElement>('[data-slot="track"]')!
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="slider"]')!
+    const track = screen.container.querySelector<HTMLElement>('[data-slot="slider-track"]')!
     expect(root.style.getPropertyValue('--s-size')).toBe(thickness)
     expect(root.style.getPropertyValue('--s-thumb-size')).toBe(thumbSize)
     expect(track.style.getPropertyValue('--s-size')).toBe('')
@@ -1661,7 +1661,7 @@ test('updates thumb dimensions with size and accepts an independent override', (
       style={{ '--s-size': '8px', ...(thumbSize() ? { '--s-thumb-size': thumbSize() } : {}) }}
     />
   ))
-  const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
+  const root = screen.container.querySelector<HTMLElement>('[data-slot="slider"]')!
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('12px')
   setSize('md')
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('15px')
@@ -1672,7 +1672,7 @@ test('updates thumb dimensions with size and accepts an independent override', (
   expect(root.style.getPropertyValue('--s-size')).toBe('8px')
   setThumbSize(undefined)
   expect(root.style.getPropertyValue('--s-thumb-size')).toBe('18px')
-  expect(screen.container.querySelector('[data-slot="root"]')).toBe(root)
+  expect(screen.container.querySelector('[data-slot="slider"]')).toBe(root)
 })
 
 test('useSlider works standalone with minimal options', () => {

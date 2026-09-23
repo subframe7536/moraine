@@ -176,10 +176,10 @@ describe('Resizable', () => {
     const screen = render(() => (
       <ResizableFixture items={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const divider = screen.container.querySelector('[data-slot="divider"]')
-    const handle = screen.container.querySelector('[data-slot="handle"]')
-    const panel = screen.container.querySelector('[data-slot="panel"]')
+    const root = screen.container.querySelector('[data-slot="resizable"]')
+    const divider = screen.container.querySelector('[data-slot="resizable-handle"]')
+    const handle = screen.container.querySelector('[data-slot="resizable-handle-control"]')
+    const panel = screen.container.querySelector('[data-slot="resizable-panel"]')
 
     expect(root?.className).not.toBe('')
     expect(divider?.className).not.toBe('')
@@ -200,8 +200,8 @@ describe('Resizable', () => {
 
     await waitForLayoutInitialization()
 
-    const panels = screen.container.querySelectorAll('[data-slot="panel"]')
-    expect(root).toBe(screen.container.querySelector('[data-slot="root"]'))
+    const panels = screen.container.querySelectorAll('[data-slot="resizable-panel"]')
+    expect(root).toBe(screen.container.querySelector('[data-slot="resizable"]'))
     expectPanelGrow(panels[0] as HTMLDivElement, 50)
     expectPanelGrow(panels[1] as HTMLDivElement, 50)
   })
@@ -225,8 +225,8 @@ describe('Resizable', () => {
       />
     ))
 
-    const panels = screen.container.querySelectorAll('[data-slot="panel"]')
-    const handles = screen.container.querySelectorAll('[data-slot="divider"]')
+    const panels = screen.container.querySelectorAll('[data-slot="resizable-panel"]')
+    const handles = screen.container.querySelectorAll('[data-slot="resizable-handle"]')
 
     expect(panels).toHaveLength(3)
     expect(handles).toHaveLength(2)
@@ -238,17 +238,21 @@ describe('Resizable', () => {
       <ResizableFixture handle items={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
 
-    expect(builtIn.container.querySelectorAll('[data-slot="divider"]')).toHaveLength(1)
-    expect(builtIn.container.querySelectorAll('[data-slot="handle"]')).toHaveLength(1)
-    expect(builtIn.container.querySelector('[data-slot="handle"]')?.textContent).toBe('')
+    expect(builtIn.container.querySelectorAll('[data-slot="resizable-handle"]')).toHaveLength(1)
+    expect(
+      builtIn.container.querySelectorAll('[data-slot="resizable-handle-control"]'),
+    ).toHaveLength(1)
+    expect(
+      builtIn.container.querySelector('[data-slot="resizable-handle-control"]')?.textContent,
+    ).toBe('')
     builtIn.unmount()
 
     const hidden = render(() => (
       <ResizableFixture handle={false} items={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
 
-    expect(hidden.container.querySelectorAll('[data-slot="divider"]')).toHaveLength(1)
-    expect(hidden.container.querySelector('[data-slot="handle"]')).toBeNull()
+    expect(hidden.container.querySelectorAll('[data-slot="resizable-handle"]')).toHaveLength(1)
+    expect(hidden.container.querySelector('[data-slot="resizable-handle-control"]')).toBeNull()
   })
 
   test('supports vertical orientation classes', () => {
@@ -261,8 +265,8 @@ describe('Resizable', () => {
       </MoraineProvider>
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const handle = screen.container.querySelector('[data-slot="divider"]')
+    const root = screen.container.querySelector('[data-slot="resizable"]')
+    const handle = screen.container.querySelector('[data-slot="resizable-handle"]')
 
     expect(root?.hasAttribute('data-orientation')).toBe(false)
     expect(root?.className).toContain('flex-col')
@@ -277,7 +281,7 @@ describe('Resizable', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="resizable"]')
     expect(root?.getAttribute('data-orientation')).toBe('caller-defined')
   })
 
@@ -292,7 +296,7 @@ describe('Resizable', () => {
       />
     ))
 
-    const handles = screen.container.querySelectorAll('[data-slot="divider"]')
+    const handles = screen.container.querySelectorAll('[data-slot="resizable-handle"]')
     expect(handles).toHaveLength(2)
     expect(handles[0]?.getAttribute('aria-disabled')).toBe('true')
     expect(handles[0]?.getAttribute('tabindex')).toBe('-1')
@@ -319,17 +323,17 @@ describe('Resizable', () => {
         classes={{
           root: 'root-override',
           panel: 'panel-override',
-          divider: 'divider-override',
-          handle: 'handle-override',
+          handle: 'divider-override',
+          handleControl: 'handle-override',
         }}
         items={[{ content: 'A', class: 'panel-a' }, { content: 'B' }, { content: 'C' }]}
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const panels = screen.container.querySelectorAll('[data-slot="panel"]')
-    const handles = screen.container.querySelectorAll('[data-slot="divider"]')
-    const handleInners = screen.container.querySelectorAll('[data-slot="handle"]')
+    const root = screen.container.querySelector('[data-slot="resizable"]')
+    const panels = screen.container.querySelectorAll('[data-slot="resizable-panel"]')
+    const handles = screen.container.querySelectorAll('[data-slot="resizable-handle"]')
+    const handleInners = screen.container.querySelectorAll('[data-slot="resizable-handle-control"]')
     const customHandleIcons = screen.container.querySelectorAll('[data-slot="custom-handle-icon"]')
 
     expect(root?.className).toContain('root-override')
@@ -372,7 +376,7 @@ describe('Resizable', () => {
       />
     ))
 
-    const divider = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+    const divider = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
     const getStateHandle = () =>
       screen.container.querySelector('[data-slot="state-handle"]') as HTMLElement
 
@@ -417,7 +421,9 @@ describe('Resizable', () => {
       />
     ))
 
-    const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
+    const handle = screen.container.querySelector(
+      '[data-slot="resizable-handle-control"]',
+    ) as HTMLElement
     const getCollapsedLabel = () =>
       screen.container.querySelector('[data-slot="state-collapsed-label"]') as HTMLElement
 
@@ -459,17 +465,17 @@ describe('Resizable', () => {
         styles={{
           root: { width: '200px' },
           panel: { width: '200px' },
-          divider: { width: '200px' },
           handle: { width: '200px' },
+          handleControl: { width: '200px' },
         }}
         items={[{ content: 'A' }, { content: 'B' }, { content: 'C' }]}
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const panels = screen.container.querySelectorAll('[data-slot="panel"]')
-    const handles = screen.container.querySelectorAll('[data-slot="divider"]')
-    const handleInners = screen.container.querySelectorAll('[data-slot="handle"]')
+    const root = screen.container.querySelector('[data-slot="resizable"]') as HTMLElement | null
+    const panels = screen.container.querySelectorAll('[data-slot="resizable-panel"]')
+    const handles = screen.container.querySelectorAll('[data-slot="resizable-handle"]')
+    const handleInners = screen.container.querySelectorAll('[data-slot="resizable-handle-control"]')
 
     expect(root?.style.width).toBe('200px')
     expect((panels[0] as HTMLElement | null)?.style.width).toBe('200px')
@@ -499,7 +505,7 @@ describe('Resizable', () => {
       )
     })
 
-    const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+    const handle = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
     fireEvent.keyDown(handle, { key: 'ArrowRight' })
 
     expect(events.map((event) => event.type)).toEqual(['start', 'resize', 'end'])
@@ -508,7 +514,7 @@ describe('Resizable', () => {
     expect(events[1]?.sizes[1]).toBeCloseTo(400, 3)
     expect(events[2]?.sizes).toEqual(events[1]?.sizes)
 
-    const panels = screen.container.querySelectorAll('[data-slot="panel"]')
+    const panels = screen.container.querySelectorAll('[data-slot="resizable-panel"]')
     expectPanelGrow(panels[0] as HTMLDivElement, 60)
     expectPanelGrow(panels[1] as HTMLDivElement, 40)
   })
@@ -531,7 +537,7 @@ describe('Resizable', () => {
       />
     ))
 
-    const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+    const handle = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
     fireEvent.keyDown(handle, { key: 'ArrowLeft' })
 
     expect(onResizeStart).not.toHaveBeenCalled()
@@ -561,7 +567,7 @@ describe('Resizable', () => {
       )
     })
 
-    const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+    const handle = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
     fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
     fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
     fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
@@ -594,7 +600,7 @@ describe('Resizable', () => {
       )
     })
 
-    const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+    const handle = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
     fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
     fireEvent.pointerMove(window, { pointerId: 1, clientX: 100, clientY: 0 })
     fireEvent.pointerUp(window, { pointerId: 1, clientX: 100, clientY: 0 })
@@ -613,7 +619,7 @@ describe('Resizable', () => {
     ))
 
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
     expectPanelGrow(panels[0], 20)
     expectPanelGrow(panels[1], 30)
@@ -632,7 +638,7 @@ describe('Resizable', () => {
     ))
 
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     expectPanelGrow(panels[0], 50)
@@ -651,7 +657,7 @@ describe('Resizable', () => {
     ))
 
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
     expectPanelGrow(panels[0], 30)
     expectPanelGrow(panels[1], 70)
@@ -670,7 +676,7 @@ describe('Resizable', () => {
     await waitForLayoutInitialization()
 
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     expectPanelGrow(panels[0], 24)
@@ -689,9 +695,9 @@ describe('Resizable', () => {
 
     await waitForLayoutInitialization()
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLDivElement
+    const root = screen.container.querySelector('[data-slot="resizable"]') as HTMLDivElement
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     expectPanelGrow(panels[0], 24)
@@ -717,10 +723,10 @@ describe('Resizable', () => {
 
     await waitForLayoutInitialization()
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLDivElement
-    const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+    const root = screen.container.querySelector('[data-slot="resizable"]') as HTMLDivElement
+    const handle = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
@@ -749,7 +755,7 @@ describe('Resizable', () => {
     ))
 
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     expectPanelGrow(panels[0], 30)
@@ -778,9 +784,9 @@ describe('Resizable', () => {
       />
     ))
 
-    const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+    const handle = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     fireEvent.keyDown(handle, { key: 'Enter' })
@@ -809,9 +815,11 @@ describe('Resizable', () => {
       />
     ))
 
-    const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
+    const handle = screen.container.querySelector(
+      '[data-slot="resizable-handle-control"]',
+    ) as HTMLElement
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     fireEvent.click(handle)
@@ -838,9 +846,11 @@ describe('Resizable', () => {
       />
     ))
 
-    const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
+    const handle = screen.container.querySelector(
+      '[data-slot="resizable-handle-control"]',
+    ) as HTMLElement
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     expectPanelGrow(panels[0], 30)
@@ -874,8 +884,12 @@ describe('Resizable', () => {
       />
     ))
 
-    const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
-    const panel = screen.container.querySelectorAll('[data-slot="panel"]')[0] as HTMLDivElement
+    const handle = screen.container.querySelector(
+      '[data-slot="resizable-handle-control"]',
+    ) as HTMLElement
+    const panel = screen.container.querySelectorAll(
+      '[data-slot="resizable-panel"]',
+    )[0] as HTMLDivElement
 
     fireEvent.click(handle)
     expect(panel.getAttribute('data-transitioning')).toBe('')
@@ -902,10 +916,12 @@ describe('Resizable', () => {
       />
     ))
 
-    const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
-    const divider = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+    const handle = screen.container.querySelector(
+      '[data-slot="resizable-handle-control"]',
+    ) as HTMLElement
+    const divider = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
@@ -934,8 +950,10 @@ describe('Resizable', () => {
       </MoraineProvider>
     ))
 
-    const divider = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
-    const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
+    const divider = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
+    const handle = screen.container.querySelector(
+      '[data-slot="resizable-handle-control"]',
+    ) as HTMLElement
 
     expect(divider.className).toContain('cursor-ew-resize')
     expect(handle.className).toContain('cursor-pointer')
@@ -985,7 +1003,7 @@ describe('Resizable', () => {
 
     const toggle = screen.container.querySelector('[data-slot="toggle-collapsible"]') as HTMLElement
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     expectPanelGrow(panels[0], 32)
@@ -1013,9 +1031,9 @@ describe('Resizable', () => {
       />
     ))
 
-    const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+    const handle = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     fireEvent.keyDown(handle, { key: 'ArrowRight' })
@@ -1049,9 +1067,9 @@ describe('Resizable', () => {
       />
     ))
 
-    const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+    const handle = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     fireEvent.keyDown(handle, { key: 'ArrowRight' })
@@ -1065,9 +1083,11 @@ describe('Resizable', () => {
       <ResizableFixture handle items={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
 
-    const handleVisual = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
+    const handleVisual = screen.container.querySelector(
+      '[data-slot="resizable-handle-control"]',
+    ) as HTMLElement
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     fireEvent.pointerDown(handleVisual, { pointerId: 1, clientX: 0, clientY: 0 })
@@ -1099,9 +1119,9 @@ describe('Resizable', () => {
       )
     })
 
-    const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+    const handle = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     expectPanelGrow(panels[0], 10)
@@ -1126,7 +1146,7 @@ describe('Resizable', () => {
     ))
 
     const panels = screen.container.querySelectorAll(
-      '[data-slot="panel"]',
+      '[data-slot="resizable-panel"]',
     ) as NodeListOf<HTMLDivElement>
 
     expect(panels[0]?.getAttribute('data-collapsed')).toBe('')
@@ -1166,8 +1186,12 @@ describe('Resizable', () => {
       </MoraineProvider>
     ))
 
-    const handle = screen.container.querySelector('[data-slot="handle"]') as HTMLElement
-    const panel = screen.container.querySelectorAll('[data-slot="panel"]')[0] as HTMLDivElement
+    const handle = screen.container.querySelector(
+      '[data-slot="resizable-handle-control"]',
+    ) as HTMLElement
+    const panel = screen.container.querySelectorAll(
+      '[data-slot="resizable-panel"]',
+    )[0] as HTMLDivElement
 
     expect(panel.className).toContain('data-transitioning:transition-flex-grow')
     expect(panel.getAttribute('data-transitioning')).toBeNull()
@@ -1207,7 +1231,7 @@ describe('Resizable', () => {
 
     const resizeButton = screen.container.querySelector('[data-slot="resize"]') as HTMLButtonElement
     const getSidebar = () =>
-      screen.container.querySelectorAll('[data-slot="panel"]')[0] as HTMLDivElement
+      screen.container.querySelectorAll('[data-slot="resizable-panel"]')[0] as HTMLDivElement
 
     await waitForLayoutInitialization()
 
@@ -1239,7 +1263,7 @@ describe('Resizable', () => {
       />
     ))
 
-    const handles = screen.container.querySelectorAll('[data-slot="divider"]')
+    const handles = screen.container.querySelectorAll('[data-slot="resizable-handle"]')
     const [outerHandle, innerHandle] = Array.from(handles) as [HTMLDivElement, HTMLDivElement]
 
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
@@ -1249,7 +1273,7 @@ describe('Resizable', () => {
     refreshResizableHandleIntersections()
     await Promise.resolve()
 
-    const crossTargets = screen.container.querySelectorAll('[data-slot="crossTarget"]')
+    const crossTargets = screen.container.querySelectorAll('[data-slot="resizable-intersection"]')
     expect(crossTargets.length).toBeGreaterThan(0)
     const hasEdgeTarget = Array.from(crossTargets).some(
       (target) =>
@@ -1281,7 +1305,7 @@ describe('Resizable', () => {
       />
     ))
 
-    const handles = screen.container.querySelectorAll('[data-slot="divider"]')
+    const handles = screen.container.querySelectorAll('[data-slot="resizable-handle"]')
     const [outerHandle, innerHandle] = Array.from(handles) as [HTMLDivElement, HTMLDivElement]
 
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
@@ -1291,7 +1315,9 @@ describe('Resizable', () => {
     refreshResizableHandleIntersections()
     await Promise.resolve()
 
-    expect(screen.container.querySelectorAll('[data-slot="crossTarget"]')).toHaveLength(0)
+    expect(screen.container.querySelectorAll('[data-slot="resizable-intersection"]')).toHaveLength(
+      0,
+    )
   })
 
   test('marks all affected handles as active when hovering a cross-target', async () => {
@@ -1315,7 +1341,7 @@ describe('Resizable', () => {
       />
     ))
 
-    const handles = screen.container.querySelectorAll('[data-slot="divider"]')
+    const handles = screen.container.querySelectorAll('[data-slot="resizable-handle"]')
     const [outerHandle, innerHandle] = Array.from(handles) as [HTMLDivElement, HTMLDivElement]
 
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
@@ -1325,7 +1351,9 @@ describe('Resizable', () => {
     refreshResizableHandleIntersections()
     await Promise.resolve()
 
-    const crossTarget = innerHandle.querySelector('[data-slot="crossTarget"]') as HTMLElement
+    const crossTarget = innerHandle.querySelector(
+      '[data-slot="resizable-intersection"]',
+    ) as HTMLElement
     expect(crossTarget).not.toBeNull()
     expect(outerHandle.getAttribute('data-active')).toBeNull()
     expect(innerHandle.getAttribute('data-active')).toBeNull()
@@ -1382,7 +1410,7 @@ describe('Resizable', () => {
     const shrinkButton = screen.container.querySelector('[data-slot="shrink"]') as HTMLButtonElement
     fireEvent.click(shrinkButton)
 
-    const handles = screen.container.querySelectorAll('[data-slot="divider"]')
+    const handles = screen.container.querySelectorAll('[data-slot="resizable-handle"]')
     expect(handles).toHaveLength(1)
 
     const handle = handles[0] as HTMLElement
@@ -1400,8 +1428,8 @@ describe('Resizable', () => {
       <ResizableFixture items={[{ content: 'Left' }, { content: 'Right' }]} />
     ))
 
-    const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
-    const panel = screen.container.querySelector('[data-slot="panel"]') as HTMLDivElement
+    const handle = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
+    const panel = screen.container.querySelector('[data-slot="resizable-panel"]') as HTMLDivElement
 
     expect(handle.getAttribute('data-active')).toBeNull()
     expect(handle.getAttribute('data-dragging')).toBeNull()
@@ -1448,7 +1476,7 @@ describe('Resizable', () => {
       />
     ))
 
-    const handles = screen.container.querySelectorAll('[data-slot="divider"]')
+    const handles = screen.container.querySelectorAll('[data-slot="resizable-handle"]')
     const [outerHandle, innerHandle] = Array.from(handles) as [HTMLDivElement, HTMLDivElement]
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
     setRect(innerHandle, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
@@ -1458,7 +1486,9 @@ describe('Resizable', () => {
     await Promise.resolve()
 
     document.body.style.userSelect = 'text'
-    const crossTarget = innerHandle.querySelector('[data-slot="crossTarget"]') as HTMLElement
+    const crossTarget = innerHandle.querySelector(
+      '[data-slot="resizable-intersection"]',
+    ) as HTMLElement
     fireEvent.pointerDown(crossTarget, { pointerId: 1, clientX: 102, clientY: 80 })
     expect(document.body.style.userSelect).toBe('none')
 
@@ -1488,7 +1518,7 @@ describe('Resizable', () => {
       />
     ))
 
-    const handles = screen.container.querySelectorAll('[data-slot="divider"]')
+    const handles = screen.container.querySelectorAll('[data-slot="resizable-handle"]')
     const [outerHandle, innerHandle] = Array.from(handles) as [HTMLDivElement, HTMLDivElement]
     setRect(outerHandle, createRect({ top: 0, right: 101, bottom: 200, left: 100 }))
     setRect(innerHandle, createRect({ top: 80, right: 220, bottom: 81, left: 101 }))
@@ -1497,7 +1527,9 @@ describe('Resizable', () => {
     refreshResizableHandleIntersections()
     await Promise.resolve()
 
-    const crossTarget = innerHandle.querySelector('[data-slot="crossTarget"]') as HTMLElement
+    const crossTarget = innerHandle.querySelector(
+      '[data-slot="resizable-intersection"]',
+    ) as HTMLElement
 
     fireEvent.mouseEnter(crossTarget)
     expect(innerHandle.getAttribute('data-cross')).toBe('')
@@ -1530,7 +1562,7 @@ describe('Resizable', () => {
 
       await waitForLayoutInitialization()
 
-      const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+      const handle = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
 
       // Begin drag and move 100px right
       fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
@@ -1571,7 +1603,9 @@ describe('Resizable', () => {
           />
         ))
         await waitForLayoutInitialization()
-        const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+        const handle = screen.container.querySelector(
+          '[data-slot="resizable-handle"]',
+        ) as HTMLElement
         fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
         fireEvent.pointerMove(window, { pointerId: 1, clientX: direction * 500, clientY: 0 })
         const callsAtLimit = onResize.mock.calls.length
@@ -1592,7 +1626,7 @@ describe('Resizable', () => {
 
       await waitForLayoutInitialization()
 
-      const handle = screen.container.querySelector('[data-slot="divider"]') as HTMLElement
+      const handle = screen.container.querySelector('[data-slot="resizable-handle"]') as HTMLElement
 
       // Drag in three incremental steps of 50px each (total 150px of 1000px root = 15%)
       fireEvent.pointerDown(handle, { pointerId: 1, clientX: 0, clientY: 0 })
@@ -1624,9 +1658,11 @@ describe('Resizable', () => {
         </Resizable>
       ))
 
-      expect(screen.container.querySelectorAll('[data-slot="panel"]')).toHaveLength(3)
-      expect(screen.container.querySelectorAll('[data-slot="divider"]')).toHaveLength(2)
-      expect(screen.container.querySelectorAll('[data-slot="handle"]')).toHaveLength(1)
+      expect(screen.container.querySelectorAll('[data-slot="resizable-panel"]')).toHaveLength(3)
+      expect(screen.container.querySelectorAll('[data-slot="resizable-handle"]')).toHaveLength(2)
+      expect(
+        screen.container.querySelectorAll('[data-slot="resizable-handle-control"]'),
+      ).toHaveLength(1)
       expect(screen.getByTestId('first').id).toBe('first')
       expect(screen.getByTestId('first').className).toContain('first-panel')
       expect(screen.getByTestId('collapse-divider').getAttribute('data-testid')).toBe(
@@ -1643,8 +1679,8 @@ describe('Resizable', () => {
         </Resizable>
       ))
 
-      expect(screen.container.querySelectorAll('[data-slot="panel"]')).toHaveLength(2)
-      expect(screen.container.querySelector('[data-slot="divider"]')).toBeNull()
+      expect(screen.container.querySelectorAll('[data-slot="resizable-panel"]')).toHaveLength(2)
+      expect(screen.container.querySelector('[data-slot="resizable-handle"]')).toBeNull()
     })
 
     test('rejects handles that are not between two panels', () => {

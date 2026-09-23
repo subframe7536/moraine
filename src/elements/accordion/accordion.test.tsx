@@ -465,9 +465,9 @@ describe('Accordion', () => {
       <Accordion items={BASE_ITEMS} disabled defaultValue={['one']} />
     ))
 
-    const root = rootDisabledScreen.container.querySelector('[data-slot="root"]')
-    const item = rootDisabledScreen.container.querySelector('[data-slot="item"]')
-    const header = rootDisabledScreen.container.querySelector('[data-slot="header"]')
+    const root = rootDisabledScreen.container.querySelector('[data-slot="accordion"]')
+    const item = rootDisabledScreen.container.querySelector('[data-slot="accordion-item"]')
+    const header = rootDisabledScreen.container.querySelector('[data-slot="accordion-header"]')
     const trigger = rootDisabledScreen.getByRole('button', { name: 'One' })
     const content = rootDisabledScreen.getByRole('region', { name: 'One' })
 
@@ -490,8 +490,10 @@ describe('Accordion', () => {
       />
     ))
 
-    const itemNodes = itemDisabledScreen.container.querySelectorAll('[data-slot="item"]')
-    const headerNodes = itemDisabledScreen.container.querySelectorAll('[data-slot="header"]')
+    const itemNodes = itemDisabledScreen.container.querySelectorAll('[data-slot="accordion-item"]')
+    const headerNodes = itemDisabledScreen.container.querySelectorAll(
+      '[data-slot="accordion-header"]',
+    )
     const triggerOne = itemDisabledScreen.getByRole('button', { name: 'One' })
     const triggerTwo = itemDisabledScreen.getByRole('button', { name: 'Two' })
     const contentOne = itemDisabledScreen.getByRole('region', { name: 'One' })
@@ -569,7 +571,9 @@ describe('Accordion', () => {
       />
     ))
     const trigger = screen.getByRole('button', { name: 'One' })
-    const content = screen.container.querySelector('[data-slot="content"]') as HTMLDivElement
+    const content = screen.container.querySelector(
+      '[data-slot="accordion-content"]',
+    ) as HTMLDivElement
 
     expect(content.hidden).toBe(true)
     expect(content.getAttribute('aria-hidden')).toBe('true')
@@ -773,14 +777,14 @@ describe('Accordion', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const item = screen.container.querySelector('[data-slot="item"]')
-    const header = screen.container.querySelector('[data-slot="header"]')
-    const trigger = screen.container.querySelector('[data-slot="trigger"]')
-    const leading = screen.container.querySelector('[data-slot="leading"]')
-    const label = screen.container.querySelector('[data-slot="label"]')
-    const trailing = screen.container.querySelector('[data-slot="trailing"]')
-    const content = screen.container.querySelector('[data-slot="content"]')
+    const root = screen.container.querySelector('[data-slot="accordion"]')
+    const item = screen.container.querySelector('[data-slot="accordion-item"]')
+    const header = screen.container.querySelector('[data-slot="accordion-header"]')
+    const trigger = screen.container.querySelector('[data-slot="accordion-trigger"]')
+    const leading = screen.container.querySelector('[data-slot="accordion-leading"]')
+    const label = screen.container.querySelector('[data-slot="accordion-label"]')
+    const trailing = screen.container.querySelector('[data-slot="accordion-trailing"]')
+    const content = screen.container.querySelector('[data-slot="accordion-content"]')
 
     expect(root?.className).toContain('root-override')
     expect(item?.className).toContain('item-override')
@@ -810,14 +814,28 @@ describe('Accordion', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const item = screen.container.querySelector('[data-slot="item"]') as HTMLElement | null
-    const header = screen.container.querySelector('[data-slot="header"]') as HTMLElement | null
-    const trigger = screen.container.querySelector('[data-slot="trigger"]') as HTMLElement | null
-    const leading = screen.container.querySelector('[data-slot="leading"]') as HTMLElement | null
-    const label = screen.container.querySelector('[data-slot="label"]') as HTMLElement | null
-    const trailing = screen.container.querySelector('[data-slot="trailing"]') as HTMLElement | null
-    const content = screen.container.querySelector('[data-slot="content"]') as HTMLElement | null
+    const root = screen.container.querySelector('[data-slot="accordion"]') as HTMLElement | null
+    const item = screen.container.querySelector(
+      '[data-slot="accordion-item"]',
+    ) as HTMLElement | null
+    const header = screen.container.querySelector(
+      '[data-slot="accordion-header"]',
+    ) as HTMLElement | null
+    const trigger = screen.container.querySelector(
+      '[data-slot="accordion-trigger"]',
+    ) as HTMLElement | null
+    const leading = screen.container.querySelector(
+      '[data-slot="accordion-leading"]',
+    ) as HTMLElement | null
+    const label = screen.container.querySelector(
+      '[data-slot="accordion-label"]',
+    ) as HTMLElement | null
+    const trailing = screen.container.querySelector(
+      '[data-slot="accordion-trailing"]',
+    ) as HTMLElement | null
+    const content = screen.container.querySelector(
+      '[data-slot="accordion-content"]',
+    ) as HTMLElement | null
 
     expect(root?.style.width).toBe('200px')
     expect(item?.style.width).toBe('200px')

@@ -25,15 +25,15 @@ test('hydrates fallback JSX and group overflow while a cached image loads', () =
     () => <AvatarHydrationFixture max={max()} />,
   )
   const image = container.querySelector('img')!
-  const badge = container.querySelector('[data-slot="badge"]')!
+  const badge = container.querySelector('[data-slot="avatar-badge"]')!
   expect(image.getAttribute('src')).toBe('/avatar.png')
   expect(image.getAttribute('data-status')).toBe('loaded')
   expect(image.getAttribute('aria-hidden')).not.toBe('true')
   expect(badge.textContent).toBe('Online')
-  expect(container.querySelector('[data-slot="count"]')?.textContent).toBe('+1')
+  expect(container.querySelector('[data-slot="avatar-group-count"]')?.textContent).toBe('+1')
   setMax(2)
-  expect(container.querySelectorAll('[data-slot="item"]')).toHaveLength(2)
-  expect(container.querySelector('[data-slot="count"]')).toBeNull()
+  expect(container.querySelectorAll('[data-slot="avatar-group-item"]')).toHaveLength(2)
+  expect(container.querySelector('[data-slot="avatar-group-count"]')).toBeNull()
   expect(container.querySelector('img')).toBe(image)
-  expect(container.querySelector('[data-slot="badge"]')).toBe(badge)
+  expect(container.querySelector('[data-slot="avatar-badge"]')).toBe(badge)
 })

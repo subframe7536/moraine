@@ -10,7 +10,7 @@ import { Separator } from './separator'
 describe('Separator', () => {
   test('renders component defaults when provider is absent', () => {
     const screen = render(() => <Separator />)
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="separator"]')
     expect(root?.className).not.toBe('')
   })
 
@@ -20,12 +20,12 @@ describe('Separator', () => {
         <Separator />
       </MoraineProvider>
     ))
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="separator"]')
 
     expect(root?.tagName).toBe('DIV')
     expect(root?.children).toHaveLength(0)
     expect(root?.getAttribute('data-orientation')).toBe('horizontal')
-    expect(root?.getAttribute('data-slot')).toBe('root')
+    expect(root?.getAttribute('data-slot')).toBe('separator')
     expect(root?.getAttribute('aria-orientation')).toBe('horizontal')
     expect(root?.getAttribute('role')).toBe('separator')
     expect(root?.className).toContain('h-px')
@@ -64,7 +64,7 @@ describe('Separator', () => {
         data-orientation="custom"
       />
     ))
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="separator"]')
 
     expect(root?.id).toBe('section-break')
     expect(root?.title).toBe('Section break')
@@ -93,7 +93,7 @@ describe('Separator', () => {
         <Separator class="text-primary" />
       </MoraineProvider>
     ))
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="separator"]')
 
     expect(root?.className).toContain('text-primary')
     expect(root?.className).not.toContain('border-primary')
@@ -105,7 +105,7 @@ describe('Separator', () => {
         <Separator class="root-override" style={{ width: '200px' }} />
       </MoraineProvider>
     ))
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="separator"]')
 
     expect(root?.className).toContain('root-override')
     expect(root?.style.width).toBe('200px')

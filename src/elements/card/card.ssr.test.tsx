@@ -16,14 +16,14 @@ test.each([true, false])(
       () => <CardHydrationFixture title={title()} body={body()} />,
     )
     const root = container.firstElementChild
-    const label = container.querySelector('[data-slot="title"] span')!
-    expect(container.querySelector('[data-slot="body"]') !== null).toBe(initialBody)
-    expect(container.querySelector('[data-slot="action"] button')?.textContent).toBe('Edit')
+    const label = container.querySelector('[data-slot="card-title"] span')!
+    expect(container.querySelector('[data-slot="card-body"]') !== null).toBe(initialBody)
+    expect(container.querySelector('[data-slot="card-action"] button')?.textContent).toBe('Edit')
     setTitle('Updated')
     setBody(!initialBody)
     expect(container.firstElementChild).toBe(root)
-    expect(container.querySelector('[data-slot="title"] span')).toBe(label)
+    expect(container.querySelector('[data-slot="card-title"] span')).toBe(label)
     expect(label.textContent).toBe('Updated')
-    expect(container.querySelector('[data-slot="body"]') !== null).toBe(!initialBody)
+    expect(container.querySelector('[data-slot="card-body"]') !== null).toBe(!initialBody)
   },
 )

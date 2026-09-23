@@ -26,6 +26,7 @@ export interface TagsFieldOptions<TValue> {
   tokenSeparators: Accessor<readonly string[] | undefined>
   locked: Accessor<boolean>
   slot: (name: TagSlot) => SlotBinding
+  slotName: (name: TagSlot) => string
   closeIcon: Accessor<IconT.Name | undefined>
 }
 
@@ -174,13 +175,17 @@ export function createTagsField<TValue>(options: TagsFieldOptions<TValue>) {
 
   function renderDefault(tag: TagsFieldEntry<TValue>, index: Accessor<number>): JSX.Element {
     return (
-      <span title={tag.title} data-slot="tag" {...options.slot('tag')}>
-        <span title={tag.title} data-slot="tagLabel" {...options.slot('tagLabel')}>
+      <span title={tag.title} data-slot={options.slotName('tag')} {...options.slot('tag')}>
+        <span
+          title={tag.title}
+          data-slot={options.slotName('tagLabel')}
+          {...options.slot('tagLabel')}
+        >
           {tag.label}
         </span>
         <button
           type="button"
-          data-slot="tagRemove"
+          data-slot={options.slotName('tagRemove')}
           aria-label={`Remove ${tag.title}`}
           tabIndex={-1}
           disabled={!tag.removable}

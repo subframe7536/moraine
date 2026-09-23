@@ -22,12 +22,12 @@ const ITEMS = [
 describe('Select', () => {
   test('renders Control, primary Trigger, and Value anatomy', () => {
     const screen = render(() => <Select items={ITEMS} defaultValue="apple" />)
-    const control = screen.container.querySelector('[data-slot="control"]')!
+    const control = screen.container.querySelector('[data-slot="select-control"]')!
     const trigger = screen.getByRole('combobox')
     expect(control).toBeInstanceOf(HTMLDivElement)
     expect(trigger.tagName).toBe('BUTTON')
-    expect(trigger.getAttribute('data-slot')).toBe('trigger')
-    expect(control.querySelector('[data-slot="value"]')?.textContent).toBe('Apple')
+    expect(trigger.getAttribute('data-slot')).toBe('select-trigger')
+    expect(control.querySelector('[data-slot="select-value"]')?.textContent).toBe('Apple')
     expect(control.querySelector('input[data-slot="input"]')).toBeNull()
   })
 
@@ -37,7 +37,7 @@ describe('Select', () => {
       <Select items={ITEMS} defaultValue="apple" allowClear onClear={onClear} />
     ))
     const trigger = screen.getByRole('combobox')
-    const clear = screen.container.querySelector<HTMLElement>('[data-slot="clear"]')!
+    const clear = screen.container.querySelector<HTMLElement>('[data-slot="select-clear"]')!
     expect(clear.tagName).toBe('SPAN')
     expect(clear.getAttribute('aria-hidden')).toBe('true')
     expect(trigger.contains(clear)).toBe(true)
@@ -45,7 +45,7 @@ describe('Select', () => {
     fireEvent.click(clear)
     expect(onClear).toHaveBeenCalledOnce()
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
-    expect(screen.container.querySelector('[data-slot="value"]')?.textContent).toBe('')
+    expect(screen.container.querySelector('[data-slot="select-value"]')?.textContent).toBe('')
   })
 
   test('selects values, closes, and restores trigger focus', async () => {
@@ -85,7 +85,8 @@ describe('Select', () => {
         onChange={setValue}
       />
     ))
-    const displayed = () => screen.container.querySelector('[data-slot="value"]')?.textContent
+    const displayed = () =>
+      screen.container.querySelector('[data-slot="select-value"]')?.textContent
     expect(displayed()).toBe('missing')
     setValue('')
     expect(displayed()).toBe('Empty')
@@ -132,17 +133,17 @@ describe('Select', () => {
     const screen = render(() => <Select items={ITEMS} defaultValue="apple" allowClear loading />)
     expect(screen.getByRole('combobox')).toBeTruthy()
     expect(screen.container.querySelector('[data-loading]')).toBeTruthy()
-    expect(screen.container.querySelector('[data-slot="clear"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="select-clear"]')).toBeNull()
   })
 
   test('exposes loading state on the trailing slot', () => {
     const [loading, setLoading] = createSignal(false)
     const screen = render(() => <Select items={ITEMS} loading={loading()} />)
-    const trailing = screen.container.querySelector('[data-slot="trailing"]')!
+    const trailing = screen.container.querySelector('[data-slot="select-trailing"]')!
     expect(trailing).not.toBeNull()
     expect(trailing.hasAttribute('data-loading')).toBe(false)
     setLoading(true)
-    expect(screen.container.querySelector('[data-slot="trailing"]')).toBe(trailing)
+    expect(screen.container.querySelector('[data-slot="select-trailing"]')).toBe(trailing)
     expect(trailing.hasAttribute('data-loading')).toBe(true)
     setLoading(false)
     expect(trailing.hasAttribute('data-loading')).toBe(false)
@@ -230,12 +231,12 @@ describe('Select', () => {
       ),
     )
 
-    expect(screen.container.querySelector('[data-slot="value"]')?.textContent).toBe(
+    expect(screen.container.querySelector('[data-slot="select-value"]')?.textContent).toBe(
       'Choose a fruit',
     )
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
     expect(getInput(form)).toEqual({ choice: 'banana' })
-    expect(screen.container.querySelector('[data-slot="value"]')?.textContent).toBe('Banana')
+    expect(screen.container.querySelector('[data-slot="select-value"]')?.textContent).toBe('Banana')
   })
 
   test('keeps falsey and null Form.Field values scalar through changes and reset', async () => {
@@ -266,7 +267,7 @@ describe('Select', () => {
 
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Empty' }))
     expect(getInput(form)).toEqual({ choice: '' })
-    fireEvent.click(screen.container.querySelector<HTMLElement>('[data-slot="clear"]')!)
+    fireEvent.click(screen.container.querySelector<HTMLElement>('[data-slot="select-clear"]')!)
     expect(getInput(form)).toEqual({ choice: null })
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Zero' }))
     expect(getInput(form)).toEqual({ choice: 0 })
@@ -306,7 +307,7 @@ describe('Select', () => {
 
   test('keeps keyboard focus styling on the trigger without parent focus state', () => {
     const screen = render(() => <Select items={ITEMS} />)
-    const control = screen.container.querySelector('[data-slot="control"]')!
+    const control = screen.container.querySelector('[data-slot="select-control"]')!
     const trigger = screen.getByRole('combobox')
 
     expect(trigger.tagName).toBe('BUTTON')
@@ -336,7 +337,7 @@ test('selects, submits, clears, and resets string shorthand values', async () =>
   fireEvent.click(within(document.body).getByRole('option', { name: 'Banana', hidden: true }))
   expect(onChange).toHaveBeenLastCalledWith('Banana')
   expect(new FormData(form).getAll('string-fruit')).toEqual(['Banana'])
-  fireEvent.click(screen.container.querySelector<HTMLElement>('[data-slot="clear"]')!)
+  fireEvent.click(screen.container.querySelector<HTMLElement>('[data-slot="select-clear"]')!)
   expect(onChange).toHaveBeenLastCalledWith(null)
   form.reset()
   await Promise.resolve()

@@ -23,8 +23,8 @@ test('hydrates a polymorphic Button trigger with nested JSX icons', () => {
     ),
   )
   expect(container.querySelectorAll('button')).toHaveLength(1)
-  expect(container.querySelector('button [data-slot="label"]')?.textContent).toBe('Open')
-  expect(container.querySelector('button [data-slot="leading"]')).toBeTruthy()
+  expect(container.querySelector('button [data-slot="button-label"]')?.textContent).toBe('Open')
+  expect(container.querySelector('button [data-slot="button-leading"]')).toBeTruthy()
 })
 
 function expectAriaReferencesToResolve(content: Element): void {
@@ -74,19 +74,21 @@ describe('Dialog SSR Hydration', () => {
       ),
     )
 
-    const serverTriggers = container.querySelectorAll<HTMLButtonElement>('[data-slot="trigger"]')
+    const serverTriggers = container.querySelectorAll<HTMLButtonElement>(
+      '[data-slot="dialog-trigger"]',
+    )
     const customTrigger = serverTriggers[0]!
     const defaultTrigger = serverTriggers[1]!
 
     expect(customTrigger).not.toBeNull()
     expect(defaultTrigger).not.toBeNull()
-    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
 
     fireEvent.click(customTrigger)
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).not.toBeNull()
     })
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="dialog-content"]')!
     expect(content.getAttribute('aria-label')).toBe('Server dialog')
     expect(content.getAttribute('aria-labelledby')).toBeNull()
     expect(content.getAttribute('aria-describedby')).toBeNull()
@@ -98,22 +100,22 @@ describe('Dialog SSR Hydration', () => {
     fireEvent.keyDown(content, { key: 'Escape' })
     await finishExitMotion()
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
       expect(document.activeElement).toBe(customTrigger)
     })
 
     fireEvent.click(defaultTrigger)
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).not.toBeNull()
     })
-    const defaultContent = document.body.querySelector('[data-slot="content"]')!
+    const defaultContent = document.body.querySelector('[data-slot="dialog-content"]')!
     expectAriaReferencesToResolve(defaultContent)
     expect(document.body.querySelector('[data-testid="default-close-icon"]')).not.toBeNull()
 
-    fireEvent.click(document.body.querySelector('[data-slot="contentClose"]')!)
+    fireEvent.click(document.body.querySelector('[data-slot="dialog-content-close"]')!)
     await finishExitMotion()
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
       expect(document.activeElement).toBe(defaultTrigger)
     })
   })

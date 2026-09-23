@@ -46,7 +46,7 @@ describe('InputGroup', () => {
         <Input />
       </InputGroup>
     ))
-    const frame = group?.querySelector<HTMLElement>('[data-slot="frame"]')
+    const frame = group?.querySelector<HTMLElement>('[data-slot="input-group-frame"]')
     expect(group).toBe(screen.getByRole('group'))
     expect(group?.className).not.toBe('')
     expect(screen.getByRole('textbox').className).not.toBe('')
@@ -74,7 +74,7 @@ describe('InputGroup', () => {
       ))
       const group = screen.getByRole('group')
       const control = screen.getByRole('textbox')
-      const frame = group.querySelector<HTMLElement>('[data-slot="frame"]')!
+      const frame = group.querySelector<HTMLElement>('[data-slot="input-group-frame"]')!
       expect(group.className).toContain('bg-input/30')
       expect(group.className).not.toContain(':has(>input:focus)')
       expect(control.className).toContain('peer')
@@ -96,7 +96,9 @@ describe('InputGroup', () => {
           <Control />
         </InputGroup>
       ))
-      const frame = screen.getByRole('group').querySelector<HTMLElement>('[data-slot="frame"]')!
+      const frame = screen
+        .getByRole('group')
+        .querySelector<HTMLElement>('[data-slot="input-group-frame"]')!
       expect(frame.className).toContain('peer-focus:ring-0')
     },
   )
@@ -117,7 +119,7 @@ describe('InputGroup', () => {
     const input = screen.getByRole('textbox')
     const leading = screen.getByTestId('leading')
     const trailing = screen.getByTestId('trailing')
-    const frame = group.querySelector('[data-slot="frame"]')!
+    const frame = group.querySelector('[data-slot="input-group-frame"]')!
     expect(group.getAttribute('dir')).toBe('rtl')
     expect(group.getAttribute('data-orientation')).toBe('horizontal')
     expect(Array.from(group.children)).toEqual([leading, input, trailing, frame])
@@ -126,10 +128,12 @@ describe('InputGroup', () => {
     expect(trailing.className).not.toMatch(/(?:^|\s)-m(?:[setb]?)-/)
     expect(
       Array.from(
-        group.querySelectorAll('[data-slot="leading"], [data-slot="trailing"]'),
+        group.querySelectorAll(
+          '[data-slot="input-group-leading"], [data-slot="input-group-trailing"]',
+        ),
         (el) => `${el.getAttribute('data-slot')}:${el.getAttribute('data-orientation')}`,
       ),
-    ).toEqual(['leading:horizontal', 'trailing:horizontal'])
+    ).toEqual(['input-group-leading:horizontal', 'input-group-trailing:horizontal'])
     setOrientation('vertical')
     expect(group.getAttribute('data-orientation')).toBe('vertical')
     expect(screen.getByText('Suffix').getAttribute('data-orientation')).toBe('vertical')
@@ -400,7 +404,9 @@ describe('InputGroup', () => {
     ))
     const input = screen.getByRole('textbox')
     const leading = screen.getByText('Suffix')
-    const frame = screen.getByRole('group').querySelector<HTMLElement>('[data-slot="frame"]')!
+    const frame = screen
+      .getByRole('group')
+      .querySelector<HTMLElement>('[data-slot="input-group-frame"]')!
     expect(input.className).toContain('h-6.5')
     expect(leading.className).toContain('first-leading')
     expect(leading.className).toContain('local-leading')

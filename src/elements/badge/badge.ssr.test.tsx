@@ -16,11 +16,11 @@ describe('Badge SSR Hydration', () => {
       ),
     )
 
-    const root = container.querySelector('[data-slot="root"]')
+    const root = container.querySelector('[data-slot="badge"]')
     expect(root).not.toBeNull()
     expect(
       Array.from(root?.children ?? []).map((element) => element.getAttribute('data-slot')),
-    ).toEqual(['leading', 'label', 'trailing'])
-    expect(container.querySelector('[data-slot="trailing"]')?.tagName).toBe('DIV')
+    ).toEqual(['badge-leading', 'badge-label', 'badge-trailing'])
+    expect(container.querySelector('[data-slot="badge-trailing"]')?.tagName).toBe('DIV')
   })
 })

@@ -75,7 +75,7 @@ describe('TypeExtractor', () => {
     expect(kind).toBe('single')
 
     const recipe = await recipes.extract('src/elements/button/button.recipe.ts', 'Button')
-    expect(recipe.slots).toEqual(['root', 'loading', 'leading', 'label', 'trailing'])
+    expect(recipe.slots).toEqual(['root', 'leading', 'label', 'trailing'])
 
     const part = await extractor.extractPart(
       module!,

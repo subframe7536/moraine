@@ -4,9 +4,6 @@ export interface ButtonStyleSlot<T = unknown> {
    */
   root?: T
 
-  /** Loading icon shown while the button is busy. */
-  loading?: T
-
   /** Icon region before the button label. */
   leading?: T
 

@@ -4,6 +4,7 @@ import {
   createApiReferenceModel,
   formatDefaultValue,
   getApiReferenceTocEntries,
+  getDomSlotName,
 } from './presentation'
 import type { ComponentApi } from './types'
 
@@ -103,25 +104,38 @@ describe('createApiReferenceModel', () => {
 
   test('aggregates attributes and follows declared slot order', () => {
     const model = createApiReferenceModel(component)!
-    expect(model.attributes?.slots).toEqual(['root', 'control', 'trigger', 'content', 'unused'])
+    expect(model.attributes?.slots).toEqual([
+      'demo',
+      'demo-control',
+      'demo-trigger',
+      'demo-content',
+      'demo-unused',
+    ])
     expect(model.attributes?.items).toEqual([
       {
         name: 'data-disabled',
-        slots: ['root', 'control', 'trigger'],
+        slots: ['demo', 'demo-control', 'demo-trigger'],
         description: 'Present when the component, slot, or item is disabled.',
       },
-      { name: 'data-unknown', slots: ['root'] },
+      { name: 'data-unknown', slots: ['demo'] },
       {
         name: 'data-invalid',
-        slots: ['control'],
+        slots: ['demo-control'],
         description: 'Present when the field or form has a validation error.',
       },
       {
         name: 'data-expanded',
-        slots: ['trigger', 'content'],
+        slots: ['demo-trigger', 'demo-content'],
         description: 'Present when the panel, accordion, or menu is expanded.',
       },
     ])
+  })
+
+  test('maps forwarded style keys to the child DOM owner', () => {
+    expect(getDomSlotName('avatar-group', 'fallbackContent')).toBe('avatar-fallback-content')
+    expect(getDomSlotName('checkbox-group', 'control')).toBe('checkbox-control')
+    expect(getDomSlotName('pagination', 'controlLabel')).toBe('button-label')
+    expect(getDomSlotName('select', 'itemLabel')).toBe('select-item-label')
   })
 
   test('uses the simplified API hierarchy in the TOC', () => {

@@ -24,7 +24,7 @@ describe('InputNumber SSR Hydration', () => {
     expect(horizontalInput.value).toBe('12,5')
     expect(
       Array.from(horizontalRoot.children).map((child) => child.getAttribute('data-slot')),
-    ).toEqual(['decrement', 'input', 'increment'])
+    ).toEqual(['input-number-decrement', 'input-number-input', 'input-number-increment'])
 
     setValue(13.5)
     await waitFor(() => expect(horizontalInput.value).toBe('13,5'))
@@ -49,11 +49,11 @@ describe('InputNumber SSR Hydration', () => {
 
     expect(root).not.toBeNull()
     expect(input).not.toBeNull()
-    expect(root.querySelector('[data-slot="controls"]')).not.toBeNull()
+    expect(root.querySelector('[data-slot="input-number-controls"]')).not.toBeNull()
     expect(input.value).toBe('-2.5')
     expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
-      'input',
-      'controls',
+      'input-number-input',
+      'input-number-controls',
     ])
   })
 
@@ -79,7 +79,7 @@ describe('InputNumber SSR Hydration', () => {
     expect(input).not.toBeNull()
     expect(input.value).toBe('3.25')
     expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
-      'input',
+      'input-number-input',
     ])
   })
 })

@@ -29,7 +29,9 @@ describe('DropdownMenu SSR Hydration', () => {
       ),
     )
 
-    const serverTrigger = container.querySelector<HTMLButtonElement>('[data-slot="trigger"]')!
+    const serverTrigger = container.querySelector<HTMLButtonElement>(
+      '[data-slot="dropdown-menu-trigger"]',
+    )!
 
     expect(serverTrigger).not.toBeNull()
     expect(triggerReads).toBe(1)
@@ -37,11 +39,12 @@ describe('DropdownMenu SSR Hydration', () => {
     fireEvent.keyDown(serverTrigger, { key: 'ArrowDown' })
     await waitFor(() => {
       expect(
-        document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
+        document.body.querySelector('[data-slot="dropdown-menu-item"][data-highlighted]')
+          ?.textContent,
       ).toContain('Archive')
     })
 
-    const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
+    const content = document.body.querySelector<HTMLElement>('[data-slot="dropdown-menu-content"]')!
     fireEvent.keyDown(content, { key: 'Escape' })
     await finishMenuExitMotion()
     await waitFor(() => {

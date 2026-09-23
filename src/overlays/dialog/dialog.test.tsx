@@ -50,7 +50,7 @@ describe('Dialog', () => {
     await finishExitMotion()
     await waitFor(() => {
       expect(cleanups).toBe(1)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
     })
 
     setOpen(true)
@@ -79,9 +79,9 @@ describe('Dialog', () => {
     expect(document.body.textContent).toContain('Please confirm')
     expect(document.body.textContent).toContain('Modal body')
     expect(document.body.textContent).toContain('Modal footer')
-    expect(document.body.querySelector('[data-slot="contentClose"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-content-close"]')).not.toBeNull()
 
-    const content = document.body.querySelector('[data-slot="content"]')
+    const content = document.body.querySelector('[data-slot="dialog-content"]')
     expect(content?.tagName).toBe('DIV')
     expect(content?.className).toContain('bg-popover')
     expect(content?.className).toContain('border-border')
@@ -99,10 +99,10 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')
+    const content = document.body.querySelector('[data-slot="dialog-content"]')
     expect(content).not.toBeNull()
-    expect(content?.querySelector('[data-slot="header"]')).not.toBeNull()
-    expect(content?.querySelector('[data-slot="body"]')).not.toBeNull()
+    expect(content?.querySelector('[data-slot="dialog-header"]')).not.toBeNull()
+    expect(content?.querySelector('[data-slot="dialog-body"]')).not.toBeNull()
   })
 
   test('renders the trigger content as a native button root', () => {
@@ -115,7 +115,7 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const trigger = document.body.querySelector('[data-slot="trigger"]')
+    const trigger = document.body.querySelector('[data-slot="dialog-trigger"]')
 
     expect(trigger?.tagName).toBe('BUTTON')
     expect(trigger?.getAttribute('type')).toBe('button')
@@ -132,7 +132,7 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLAnchorElement
+    const trigger = document.body.querySelector('[data-slot="dialog-trigger"]') as HTMLAnchorElement
     expect(trigger.tagName).toBe('A')
     expect(trigger.getAttribute('href')).toBe('/details')
     expect(trigger.querySelector('button')).toBeNull()
@@ -148,7 +148,7 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLButtonElement
+    const trigger = document.body.querySelector('[data-slot="dialog-trigger"]') as HTMLButtonElement
     expect(trigger.tagName).toBe('BUTTON')
     expect(trigger.className).toContain('border-border')
     expect(trigger.querySelector('button')).toBeNull()
@@ -207,13 +207,13 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="dialog-content"]')!
     expectAriaReferencesToResolve(content)
     expect(content.getAttribute('aria-labelledby')).toBe(
-      document.body.querySelector('[data-slot="title"]')?.id,
+      document.body.querySelector('[data-slot="dialog-title"]')?.id,
     )
     expect(content.getAttribute('aria-describedby')).toBe(
-      document.body.querySelector('[data-slot="description"]')?.id,
+      document.body.querySelector('[data-slot="dialog-description"]')?.id,
     )
   })
 
@@ -230,7 +230,7 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="dialog-content"]')!
     expect(content.getAttribute('aria-label')).toBe('Account settings')
     expect(content.getAttribute('aria-labelledby')).toBeNull()
     expect(content.getAttribute('aria-describedby')).toBeNull()
@@ -256,7 +256,7 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="dialog-content"]')!
     expect(content.getAttribute('aria-label')).toBe('Native dialog label')
     expect(content.getAttribute('aria-labelledby')).toBe('custom-dialog-title')
     expect(content.getAttribute('aria-describedby')).toBe('custom-dialog-description')
@@ -279,7 +279,7 @@ describe('Dialog', () => {
     await Promise.resolve()
     await Promise.resolve()
 
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="dialog-content"]')!
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(outside.getAttribute('aria-hidden')).toBeNull()
     expect(document.body.style.overflow).toBe('')
@@ -294,9 +294,9 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const title = document.body.querySelector('[data-slot="title"]')
-    const description = document.body.querySelector('[data-slot="description"]')
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const title = document.body.querySelector('[data-slot="dialog-title"]')
+    const description = document.body.querySelector('[data-slot="dialog-description"]')
+    const content = document.body.querySelector('[data-slot="dialog-content"]')!
 
     expect(title?.textContent).toBe('0')
     expect(description?.textContent).toBe('0')
@@ -321,7 +321,7 @@ describe('Dialog', () => {
         </Dialog>
       ))
 
-      const content = document.body.querySelector('[data-slot="content"]')!
+      const content = document.body.querySelector('[data-slot="dialog-content"]')!
       expect(Boolean(content.getAttribute('aria-labelledby'))).toBe(hasLabelledBy)
       expect(Boolean(content.getAttribute('aria-describedby'))).toBe(hasDescribedBy)
       expect(content.getAttribute('aria-label')).toBe(ariaLabel ?? null)
@@ -335,8 +335,8 @@ describe('Dialog', () => {
         <Dialog.Content title="" description="" close={false} body="Body" />
       </Dialog>
     ))
-    expect(document.body.querySelector('[data-slot="title"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-slot="description"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-title"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-description"]')).not.toBeNull()
     empty.unmount()
 
     render(() => (
@@ -344,12 +344,12 @@ describe('Dialog', () => {
         <Dialog.Content title={false} description={false} close={false} body="Body" />
       </Dialog>
     ))
-    expect(document.body.querySelector('[data-slot="header"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-header"]')).toBeNull()
     expect(
-      document.body.querySelector('[data-slot="content"]')?.getAttribute('aria-labelledby'),
+      document.body.querySelector('[data-slot="dialog-content"]')?.getAttribute('aria-labelledby'),
     ).toBeNull()
     expect(
-      document.body.querySelector('[data-slot="content"]')?.getAttribute('aria-describedby'),
+      document.body.querySelector('[data-slot="dialog-content"]')?.getAttribute('aria-describedby'),
     ).toBeNull()
   })
 
@@ -442,24 +442,26 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
 
     fireEvent.click(screen.getByText('Open modal'))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).not.toBeNull()
     })
 
-    const closeButton = document.body.querySelector('[data-slot="contentClose"]') as HTMLElement
+    const closeButton = document.body.querySelector(
+      '[data-slot="dialog-content-close"]',
+    ) as HTMLElement
     fireEvent.click(closeButton)
 
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-content"]')).not.toBeNull()
 
     await finishExitMotion()
 
     await waitFor(() => {
       expect(onOpenChange).toHaveBeenCalledWith(false)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
     })
   })
 
@@ -496,9 +498,11 @@ describe('Dialog', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Open palette' }))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="input"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="command-palette-input"]')).not.toBeNull()
     })
-    const input = document.body.querySelector('[data-slot="input"]') as HTMLInputElement
+    const input = document.body.querySelector(
+      '[data-slot="command-palette-input"]',
+    ) as HTMLInputElement
     fireEvent.input(input, { target: { value: 'Settings' } })
 
     expect(input.value).toBe('Settings')
@@ -507,7 +511,7 @@ describe('Dialog', () => {
 
     await waitFor(() => {
       expect(input.value).toBe('Settings')
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).not.toBeNull()
     })
     expect(onExitComplete).not.toHaveBeenCalled()
 
@@ -515,15 +519,18 @@ describe('Dialog', () => {
 
     await waitFor(() => {
       expect(onExitComplete).toHaveBeenCalledTimes(1)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
     })
 
-    fireEvent.click(document.body.querySelector('[data-slot="trigger"]') as HTMLElement)
+    fireEvent.click(document.body.querySelector('[data-slot="dialog-trigger"]') as HTMLElement)
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="input"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="command-palette-input"]')).not.toBeNull()
     })
-    expect((document.body.querySelector('[data-slot="input"]') as HTMLInputElement).value).toBe('')
+    expect(
+      (document.body.querySelector('[data-slot="command-palette-input"]') as HTMLInputElement)
+        .value,
+    ).toBe('')
   })
 
   test('renders into portal by default', () => {
@@ -536,8 +543,8 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    expect(screen.container.querySelector('[data-slot="content"]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot="dialog-content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-content"]')).not.toBeNull()
   })
 
   test('supports overlay=false', () => {
@@ -550,7 +557,7 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    expect(document.body.querySelector('[data-slot="overlay"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-overlay"]')).toBeNull()
   })
 
   test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
@@ -560,7 +567,7 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
+    const overlay = document.body.querySelector('[data-slot="dialog-overlay"]') as HTMLElement
     expect(overlay.className).toContain('fixed')
     expect(overlay.className).toContain('inset-0')
     expect(overlay.className).toContain('z-floating')
@@ -585,7 +592,7 @@ describe('Dialog', () => {
       </MoraineProvider>
     ))
 
-    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
+    const overlay = document.body.querySelector('[data-slot="dialog-overlay"]') as HTMLElement
     expect(overlay.className).toContain('fixed')
     expect(overlay.className).toContain('inset-0')
     expect(overlay.className).toContain('z-floating')
@@ -611,8 +618,8 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const overlays = document.body.querySelectorAll('[data-slot="overlay"]')
-    const contents = document.body.querySelectorAll('[data-slot="content"]')
+    const overlays = document.body.querySelectorAll('[data-slot="dialog-overlay"]')
+    const contents = document.body.querySelectorAll('[data-slot="dialog-content"]')
     const overlay = overlays[overlays.length - 1]
     const content = contents[contents.length - 1]
 
@@ -624,9 +631,11 @@ describe('Dialog', () => {
     expect(content?.className).toContain('flex-col')
     expect(content?.className).toContain('max-h-[calc(100dvh-2rem)]')
     expect(content?.className).toContain('overflow-hidden')
-    expect(content?.querySelector('[data-slot="body"]')?.className).toContain('overflow-y-auto')
-    expect(content?.querySelector('[data-slot="header"]')?.className).toContain('shrink-0')
-    expect(content?.querySelector('[data-slot="footer"]')?.className).toContain('shrink-0')
+    expect(content?.querySelector('[data-slot="dialog-body"]')?.className).toContain(
+      'overflow-y-auto',
+    )
+    expect(content?.querySelector('[data-slot="dialog-header"]')?.className).toContain('shrink-0')
+    expect(content?.querySelector('[data-slot="dialog-footer"]')?.className).toContain('shrink-0')
     expect(document.body.style.overflow).toBe('hidden')
   })
 
@@ -637,9 +646,9 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const overlay = document.body.querySelector('[data-slot="overlay"]')
-    const content = document.body.querySelector('[data-slot="content"]')
-    const body = content?.querySelector('[data-slot="body"]')
+    const overlay = document.body.querySelector('[data-slot="dialog-overlay"]')
+    const content = document.body.querySelector('[data-slot="dialog-content"]')
+    const body = content?.querySelector('[data-slot="dialog-body"]')
 
     expect(overlay?.contains(content ?? null)).toBe(true)
     expect(overlay?.getAttribute('aria-hidden')).toBeNull()
@@ -657,13 +666,15 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')
+    const content = document.body.querySelector('[data-slot="dialog-content"]')
 
     expect(content?.className).toContain('inset-0')
     expect(content?.className).toContain('size-full')
     expect(content?.className).toContain('flex-col')
     expect(content?.className).toContain('overflow-hidden')
-    expect(content?.querySelector('[data-slot="body"]')?.className).toContain('overflow-y-auto')
+    expect(content?.querySelector('[data-slot="dialog-body"]')?.className).toContain(
+      'overflow-y-auto',
+    )
   })
 
   test('supports custom close content', () => {
@@ -690,7 +701,9 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const automatic = document.body.querySelector<HTMLElement>('[data-slot="contentClose"]')!
+    const automatic = document.body.querySelector<HTMLElement>(
+      '[data-slot="dialog-content-close"]',
+    )!
     const explicit = screen.getByTestId('explicit-dialog-close')
     expect(automatic.className).toContain('automatic-close')
     expect(automatic.className).toContain('absolute')
@@ -712,7 +725,7 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    expect(document.body.querySelector('[data-slot="contentClose"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="dialog-content-close"]')).toBeNull()
   })
 
   test('prevents close when dismissible=false and emits onClosePrevent', async () => {
@@ -727,13 +740,13 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="dialog-content"]') as HTMLElement
     content.focus()
     fireEvent.keyDown(content, { key: 'Escape' })
 
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).not.toBeNull()
     })
   })
 
@@ -759,7 +772,7 @@ describe('Dialog', () => {
 
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).not.toBeNull()
     })
   })
 
@@ -780,7 +793,7 @@ describe('Dialog', () => {
       </>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="dialog-content"]') as HTMLElement
     window.getSelection()?.selectAllChildren(content)
 
     expect(window.getSelection()?.toString()).toContain('Dialog title')
@@ -792,7 +805,7 @@ describe('Dialog', () => {
 
     await waitFor(() => {
       expect(onOpenChange).toHaveBeenCalledWith(false)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
       expect(window.getSelection()?.toString()).toBe('')
     })
   })
@@ -810,7 +823,7 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="dialog-content"]') as HTMLElement
     content.focus()
     fireEvent.keyDown(content, { key: 'Escape' })
 
@@ -819,7 +832,7 @@ describe('Dialog', () => {
     await waitFor(() => {
       expect(onClosePrevent).not.toHaveBeenCalled()
       expect(onOpenChange).toHaveBeenCalledWith(false)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="dialog-content"]')).toBeNull()
     })
   })
 
@@ -833,7 +846,9 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+    const content = document.body.querySelector(
+      '[data-slot="dialog-content"]',
+    ) as HTMLElement | null
     expect(content?.style.width).toBe('200px')
   })
 
@@ -867,14 +882,16 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const header = document.body.querySelector('[data-slot="header"]') as HTMLElement
-    const title = document.body.querySelector('[data-slot="title"]') as HTMLElement
-    const description = document.body.querySelector('[data-slot="description"]') as HTMLElement
-    const body = document.body.querySelector('[data-slot="body"]') as HTMLElement
-    const footer = document.body.querySelector('[data-slot="footer"]') as HTMLElement
-    const close = document.body.querySelector('[data-slot="contentClose"]') as HTMLElement
+    const header = document.body.querySelector('[data-slot="dialog-header"]') as HTMLElement
+    const title = document.body.querySelector('[data-slot="dialog-title"]') as HTMLElement
+    const description = document.body.querySelector(
+      '[data-slot="dialog-description"]',
+    ) as HTMLElement
+    const body = document.body.querySelector('[data-slot="dialog-body"]') as HTMLElement
+    const footer = document.body.querySelector('[data-slot="dialog-footer"]') as HTMLElement
+    const close = document.body.querySelector('[data-slot="dialog-content-close"]') as HTMLElement
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="dialog-content"]') as HTMLElement
 
     expect(content.className).toContain('custom-content-class')
     expect(header.className).toContain('custom-header-class')
@@ -900,7 +917,7 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const bodyNoHeader = document.body.querySelector('[data-slot="body"]') as HTMLElement
+    const bodyNoHeader = document.body.querySelector('[data-slot="dialog-body"]') as HTMLElement
     expect(bodyNoHeader.hasAttribute('data-header')).toBe(false)
     expect(bodyNoHeader.className).toContain('pb-6')
     unmount()
@@ -915,7 +932,7 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const bodyWithBoth = document.body.querySelector('[data-slot="body"]') as HTMLElement
+    const bodyWithBoth = document.body.querySelector('[data-slot="dialog-body"]') as HTMLElement
     expect(bodyWithBoth.hasAttribute('data-header')).toBe(true)
     expect(bodyWithBoth.className).toContain('pb-2')
   })
@@ -927,9 +944,9 @@ describe('Dialog', () => {
       </Dialog>
     ))
 
-    const header = document.body.querySelector('[data-slot="header"]') as HTMLElement
-    const body = document.body.querySelector('[data-slot="body"]') as HTMLElement
-    const footer = document.body.querySelector('[data-slot="footer"]') as HTMLElement
+    const header = document.body.querySelector('[data-slot="dialog-header"]') as HTMLElement
+    const body = document.body.querySelector('[data-slot="dialog-body"]') as HTMLElement
+    const footer = document.body.querySelector('[data-slot="dialog-footer"]') as HTMLElement
 
     expect(header.className).toContain('p-6')
     expect(body.className).toContain('px-6')
@@ -960,7 +977,7 @@ describe('Dialog', () => {
       </>
     ))
 
-    const contents = document.body.querySelectorAll('[data-slot="content"]')
+    const contents = document.body.querySelectorAll('[data-slot="dialog-content"]')
     expect(contents.length).toBe(2)
 
     const innerContent = contents[contents.length - 1] as HTMLElement
@@ -972,7 +989,7 @@ describe('Dialog', () => {
     await waitFor(() => {
       expect(onInnerChange).toHaveBeenCalledWith(false)
       expect(onOuterChange).not.toHaveBeenCalled()
-      expect(document.body.querySelectorAll('[data-slot="content"]').length).toBe(1)
+      expect(document.body.querySelectorAll('[data-slot="dialog-content"]').length).toBe(1)
     })
   })
 
@@ -1010,6 +1027,6 @@ describe('Dialog', () => {
 
     expect(onOuterChange).not.toHaveBeenCalled()
     expect(onInnerChange).not.toHaveBeenCalled()
-    expect(document.body.querySelectorAll('[data-slot="content"]').length).toBe(2)
+    expect(document.body.querySelectorAll('[data-slot="dialog-content"]').length).toBe(2)
   })
 })

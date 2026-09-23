@@ -57,7 +57,7 @@ function createDropdownMenu(props: DropdownMenuProps) {
     get 'aria-expanded'() {
       return isOpen() ? 'true' : 'false'
     },
-    'data-slot': 'trigger',
+    'data-slot': 'dropdown-menu-trigger',
     get disabled() {
       return getOverlayTriggerAccessibility(trigger.element(), Boolean(props.disabled)).disabled
     },
@@ -224,6 +224,7 @@ function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
       component={local.as ?? 'button'}
       type={local.as === undefined || local.as === 'button' ? 'button' : undefined}
       {...binding}
+      data-slot="dropdown-menu-trigger"
       {...resolved.styles.trigger}
     >
       {children()}
@@ -260,6 +261,7 @@ function DropdownMenuContent(props: DropdownMenuT.ContentProps): JSX.Element {
   return (
     <OverlayMenu<DropdownMenuT.Item>
       {...context.menuProps}
+      owner="dropdown-menu"
       slotBinding={(slot) => resolved.styles[slot]}
       size={resolved.variants.size ?? undefined}
       items={merged.items}

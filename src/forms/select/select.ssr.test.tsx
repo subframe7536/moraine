@@ -26,11 +26,11 @@ test('hydrates Select Control/Trigger/Value anatomy in place', () => {
         closeIcon: 'icon-close',
       }),
   )
-  const control = container.querySelector('[data-slot="control"]')!
-  const trigger = container.querySelector<HTMLElement>('[data-slot="trigger"]')!
+  const control = container.querySelector('[data-slot="select-control"]')!
+  const trigger = container.querySelector<HTMLElement>('[data-slot="select-trigger"]')!
   expect(control.tagName).toBe('DIV')
   expect(trigger.tagName).toBe('BUTTON')
-  expect(control.querySelector('[data-slot="value"]')?.textContent).toBe('Banana')
+  expect(control.querySelector('[data-slot="select-value"]')?.textContent).toBe('Banana')
   expect(container.querySelectorAll('input[data-slot="input"]')).toHaveLength(0)
   expect(container.querySelector<HTMLInputElement>('input[name="fruit"]')?.value).toBe('banana')
   fireEvent.keyDown(trigger, { key: 'ArrowDown' })

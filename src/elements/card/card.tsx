@@ -31,26 +31,26 @@ export function Card(props: CardProps): JSX.Element {
   const resolvedChildren = resolveChildren(() => local.children)
 
   return (
-    <div data-slot="root" {...rest} {...resolved.styles.root}>
+    <div data-slot="card" {...rest} {...resolved.styles.root}>
       <Show when={header() || title() || description()}>
         <div
-          data-slot="header"
+          data-slot="card-header"
           {...cardDataAttributes.header({ action: () => Boolean(action()) })}
           {...resolved.styles.header}
         >
           <Show when={title() || description()} fallback={header()}>
             <Show when={title()}>
-              <div data-slot="title" {...resolved.styles.title}>
+              <div data-slot="card-title" {...resolved.styles.title}>
                 {title()}
               </div>
             </Show>
             <Show when={description()}>
-              <p data-slot="description" {...resolved.styles.description}>
+              <p data-slot="card-description" {...resolved.styles.description}>
                 {description()}
               </p>
             </Show>
             <Show when={action()}>
-              <div data-slot="action" {...resolved.styles.action}>
+              <div data-slot="card-action" {...resolved.styles.action}>
                 {action()}
               </div>
             </Show>
@@ -61,7 +61,7 @@ export function Card(props: CardProps): JSX.Element {
       <Show when={resolvedChildren()}>
         {(body) => (
           <div
-            data-slot="body"
+            data-slot="card-body"
             {...cardDataAttributes.body({ noFooter: () => !footer() })}
             {...resolved.styles.body}
           >
@@ -71,7 +71,7 @@ export function Card(props: CardProps): JSX.Element {
       </Show>
 
       <Show when={footer()}>
-        <div data-slot="footer" {...resolved.styles.footer}>
+        <div data-slot="card-footer" {...resolved.styles.footer}>
           {footer()}
         </div>
       </Show>

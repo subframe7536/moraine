@@ -12,7 +12,7 @@ import { Tooltip } from '../tooltip/tooltip'
 describe.each([
   { name: 'Popover', Root: Popover },
   { name: 'Tooltip', Root: Tooltip },
-])('$name DOM ownership', ({ Root }) => {
+])('$name DOM ownership', ({ Root, name }) => {
   test('creates closed content only on opening and reads each children getter once', async () => {
     let triggerReads = 0
     let contentReads = 0
@@ -52,7 +52,9 @@ describe.each([
       </Root>
     ))
     await waitFor(() => expect(ref).toHaveBeenCalled())
-    const surface = document.querySelector<HTMLElement>('[data-slot="content"]')!
+    const surface = document.querySelector<HTMLElement>(
+      `[data-slot="${name.toLowerCase()}-content"]`,
+    )!
     fireEvent.keyDown(surface, { key: 'Escape' })
     expect(changes).not.toHaveBeenCalled()
     view.unmount()

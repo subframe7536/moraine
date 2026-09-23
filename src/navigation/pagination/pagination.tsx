@@ -208,17 +208,17 @@ export function Pagination(props: PaginationProps): JSX.Element {
   return (
     <nav
       ref={(el) => callRef(local.ref, el)}
-      data-slot="root"
+      data-slot="pagination"
       aria-label={merged['aria-label']}
       role={merged.role}
       {...resolved.styles.root}
       {...rest}
     >
-      <ul data-slot="list" {...resolved.styles.list}>
+      <ul data-slot="pagination-list" {...resolved.styles.list}>
         <Show when={merged.showControls}>
-          <li data-slot="list-item" {...resolved.styles.listItem}>
+          <li data-slot="pagination-list-item" {...resolved.styles.listItem}>
             <Button
-              data-slot="prev"
+              slotName="pagination-prev"
               variant={resolved.variants.controlVariant}
               size={getSize(resolved.variants.size, merged.prevText)}
               aria-label={getPrevLabel()}
@@ -229,6 +229,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
               })}
               {...resolved.styles.prev}
               classes={{ label: merged.prevText ? resolved.styles.controlLabel.class : undefined }}
+              styles={{ label: merged.prevText ? resolved.styles.controlLabel.style : undefined }}
               onClick={(event) => selectPage(currentPage() - 1, event)}
               {...getControlProps(currentPage() - 1, currentPage() <= 1, 'prev')}
               leading={merged.prevText ? merged.prevIcon : undefined}
@@ -245,7 +246,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
             const isActive = () => item === currentPage()
             return (
               <li
-                data-slot="list-item"
+                data-slot="pagination-list-item"
                 aria-hidden={item === ELLIPSIS ? true : undefined}
                 {...paginationDataAttributes.ellipsis({
                   ellipsis: () => item === ELLIPSIS,
@@ -256,14 +257,14 @@ export function Pagination(props: PaginationProps): JSX.Element {
                   when={item !== ELLIPSIS}
                   fallback={
                     <Icon
-                      slotName="ellipsis"
+                      slotName="pagination-ellipsis"
                       name={merged.ellipsisIcon}
                       {...resolved.styles.ellipsis}
                     />
                   }
                 >
                   <Button
-                    data-slot="item"
+                    slotName="pagination-item"
                     variant={
                       isActive() ? resolved.variants.activeVariant : resolved.variants.variant
                     }
@@ -288,9 +289,9 @@ export function Pagination(props: PaginationProps): JSX.Element {
         </For>
 
         <Show when={merged.showControls}>
-          <li data-slot="list-item" {...resolved.styles.listItem}>
+          <li data-slot="pagination-list-item" {...resolved.styles.listItem}>
             <Button
-              data-slot="next"
+              slotName="pagination-next"
               variant={resolved.variants.controlVariant}
               size={getSize(resolved.variants.size, merged.nextText)}
               aria-label={getNextLabel()}
@@ -301,6 +302,7 @@ export function Pagination(props: PaginationProps): JSX.Element {
               })}
               {...resolved.styles.next}
               classes={{ label: merged.nextText ? resolved.styles.controlLabel.class : undefined }}
+              styles={{ label: merged.nextText ? resolved.styles.controlLabel.style : undefined }}
               onClick={(event) => selectPage(currentPage() + 1, event)}
               trailing={merged.nextText ? merged.nextIcon : undefined}
               {...getControlProps(currentPage() + 1, currentPage() >= pageCount(), 'next')}
@@ -313,7 +315,13 @@ export function Pagination(props: PaginationProps): JSX.Element {
         </Show>
       </ul>
 
-      <div data-slot="status" role="status" aria-live="polite" aria-atomic="true" class="sr-only">
+      <div
+        data-slot="pagination-status"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        class="sr-only"
+      >
         Page {currentPage()} of {pageCount()}
       </div>
     </nav>

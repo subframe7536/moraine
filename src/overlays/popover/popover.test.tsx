@@ -57,7 +57,7 @@ describe('Popover', () => {
       </Popover>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')
+    const content = document.body.querySelector('[data-slot="popover-content"]')
 
     expect(content?.textContent).toContain('Popover content')
     expect(content?.getAttribute('role')).toBe('dialog')
@@ -73,7 +73,7 @@ describe('Popover', () => {
       </Popover>
     ))
 
-    const trigger = document.body.querySelector('[data-slot="trigger"]')
+    const trigger = document.body.querySelector('[data-slot="popover-trigger"]')
 
     expect(trigger?.tagName).toBe('BUTTON')
     expect(trigger?.getAttribute('type')).toBe('button')
@@ -94,7 +94,9 @@ describe('Popover', () => {
       </Popover>
     ))
 
-    const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLAnchorElement
+    const trigger = document.body.querySelector(
+      '[data-slot="popover-trigger"]',
+    ) as HTMLAnchorElement
     expect(trigger.tagName).toBe('A')
     expect(trigger.getAttribute('href')).toBe('#options')
     expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
@@ -137,7 +139,7 @@ describe('Popover', () => {
       </Popover>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')
+    const content = document.body.querySelector('[data-slot="popover-content"]')
 
     expect(content?.textContent).toContain('Hover content')
   })
@@ -411,7 +413,7 @@ describe('Popover', () => {
       </Popover>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')
+    const content = document.body.querySelector('[data-slot="popover-content"]')
 
     expect(content?.className).toContain(expectedClass)
   })
@@ -432,7 +434,7 @@ describe('Popover', () => {
       </Popover>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')
+    const content = document.body.querySelector('[data-slot="popover-content"]')
 
     expect(content?.className).toContain('content-slot-class')
   })
@@ -447,8 +449,8 @@ describe('Popover', () => {
       </Popover>
     ))
 
-    expect(screen.container.querySelector('[data-slot="content"]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot="popover-content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
   })
 
   test('renders controlled overlay without a trigger', async () => {
@@ -459,7 +461,7 @@ describe('Popover', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')?.textContent).toContain(
+      expect(document.body.querySelector('[data-slot="popover-content"]')?.textContent).toContain(
         'No trigger',
       )
     })
@@ -475,7 +477,7 @@ describe('Popover', () => {
       </Popover>
     ))
     expect(
-      undefinedPanelScreen.container.ownerDocument.body.querySelector('[data-slot="body"]'),
+      undefinedPanelScreen.container.ownerDocument.body.querySelector('[data-slot="popover-body"]'),
     ).toBeNull()
 
     render(() => (
@@ -486,7 +488,7 @@ describe('Popover', () => {
         <Popover.Content>{null}</Popover.Content>
       </Popover>
     ))
-    expect(document.body.querySelector('[data-slot="body"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="popover-body"]')).toBeNull()
   })
 
   test('keeps popover open and emits onClosePrevent when dismissible=false', async () => {
@@ -501,13 +503,13 @@ describe('Popover', () => {
       </Popover>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="popover-content"]') as HTMLElement
     content.focus()
     fireEvent.keyDown(content, { key: 'Escape' })
 
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
     })
   })
 
@@ -539,7 +541,7 @@ describe('Popover', () => {
     expect(event.defaultPrevented).toBe(false)
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
     })
   })
 
@@ -568,7 +570,7 @@ describe('Popover', () => {
 
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
     })
   })
 
@@ -585,20 +587,20 @@ describe('Popover', () => {
       </Popover>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="popover-content"]') as HTMLElement
     content.focus()
     fireEvent.keyDown(content, { key: 'Escape' })
 
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
 
     await finishExitMotion()
 
     await waitFor(() => {
       expect(onClosePrevent).not.toHaveBeenCalled()
       expect(onOpenChange).toHaveBeenCalledWith(false)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
 
-      const trigger = document.body.querySelector('[data-slot="trigger"]')
+      const trigger = document.body.querySelector('[data-slot="popover-trigger"]')
       expect(trigger?.getAttribute('aria-expanded')).toBe('false')
     })
   })
@@ -628,13 +630,13 @@ describe('Popover', () => {
     screen.getByTestId('outside').dispatchEvent(event)
 
     expect(event.defaultPrevented).toBe(false)
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
 
     await finishExitMotion()
 
     await waitFor(() => {
       expect(onOpenChange).toHaveBeenCalledWith(false)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
     })
   })
 
@@ -670,7 +672,7 @@ describe('Popover', () => {
 
     await waitFor(() => {
       expect(onOpenChange).toHaveBeenCalledWith(false)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
     })
   })
 
@@ -686,18 +688,18 @@ describe('Popover', () => {
       </Popover>
     ))
     const trigger = screen.getByRole<HTMLButtonElement>('button', { name: 'Trigger' })
-    const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
+    const content = document.body.querySelector<HTMLElement>('[data-slot="popover-content"]')!
 
     await waitFor(() => expect(content.getAttribute('aria-modal')).toBe('true'))
     expect(document.body.style.overflow).toBe('hidden')
-    fireEvent.click(document.body.querySelector('[data-slot="close"]')!)
+    fireEvent.click(document.body.querySelector('[data-slot="popover-close"]')!)
     expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(false)
     expect(content.hasAttribute('data-closed')).toBe(true)
     expect(content.getAttribute('aria-modal')).toBe('true')
 
     await finishExitMotion(content)
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
       expect(document.activeElement).toBe(trigger)
     })
     screen.unmount()
@@ -723,7 +725,7 @@ describe('Popover', () => {
         </Popover.Content>
       </Popover>
     ))
-    const close = document.body.querySelector<HTMLButtonElement>('[data-slot="close"]')!
+    const close = document.body.querySelector<HTMLButtonElement>('[data-slot="popover-close"]')!
 
     expect(close.type).toBe('button')
     fireEvent.click(close)
@@ -742,7 +744,7 @@ describe('Popover', () => {
       </Popover>
     ))
     const trigger = screen.getByRole<HTMLButtonElement>('button', { name: 'Trigger' })
-    const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
+    const content = document.body.querySelector<HTMLElement>('[data-slot="popover-content"]')!
 
     await waitFor(() => expect(content.getAttribute('aria-modal')).toBe('true'))
     content.focus()
@@ -751,7 +753,7 @@ describe('Popover', () => {
 
     await finishExitMotion(content)
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
       expect(document.activeElement).toBe(trigger)
     })
     screen.unmount()
@@ -769,7 +771,7 @@ describe('Popover', () => {
         </Popover>
       </>
     ))
-    const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
+    const content = document.body.querySelector<HTMLElement>('[data-slot="popover-content"]')!
     await Promise.resolve()
 
     expect(content.getAttribute('aria-modal')).toBeNull()
@@ -796,7 +798,7 @@ describe('Popover', () => {
     ))
 
     const closeInner = Array.from(
-      document.body.querySelectorAll<HTMLElement>('[data-slot="close"]'),
+      document.body.querySelectorAll<HTMLElement>('[data-slot="popover-close"]'),
     ).find((element) => element.textContent === 'Close inner')!
     fireEvent.click(closeInner)
     await finishExitMotion()
@@ -831,7 +833,7 @@ describe('Popover', () => {
     await finishExitMotion()
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
       expect(document.activeElement).toBe(outside)
     })
   })
@@ -858,13 +860,13 @@ describe('Popover', () => {
     ))
 
     const secondContent = Array.from(
-      document.body.querySelectorAll<HTMLElement>('[data-slot="content"]'),
+      document.body.querySelectorAll<HTMLElement>('[data-slot="popover-content"]'),
     ).find((content) => content.textContent?.includes('Second content')) as HTMLElement
 
     secondContent.focus()
     fireEvent.keyDown(secondContent, { key: 'Escape' })
     const closingContent = document.body.querySelector<HTMLElement>(
-      '[data-slot="content"][data-closed]',
+      '[data-slot="popover-content"][data-closed]',
     )
     await finishExitMotion(closingContent)
 
@@ -898,7 +900,7 @@ describe('Popover', () => {
     ))
 
     const contents = Array.from(
-      document.body.querySelectorAll<HTMLElement>('[data-slot="content"]'),
+      document.body.querySelectorAll<HTMLElement>('[data-slot="popover-content"]'),
     )
     const firstContent = contents.find((content) =>
       content.textContent?.includes('First content'),
@@ -910,7 +912,7 @@ describe('Popover', () => {
     secondContent.focus()
     setFirstOpen(false)
     const closingContent = document.body.querySelector<HTMLElement>(
-      '[data-slot="content"][data-closed]',
+      '[data-slot="popover-content"][data-closed]',
     )
     expect(closingContent?.textContent).toContain(firstContent.textContent)
     await finishExitMotion(closingContent)
@@ -935,7 +937,7 @@ describe('Popover', () => {
 
     await waitFor(() => {
       const positioner = document.body.querySelector(
-        '[data-slot="positioner"]',
+        '[data-slot="popover-positioner"]',
       ) as HTMLElement | null
 
       expect(positioner?.style.transform).toContain('translate3d(')
@@ -952,7 +954,9 @@ describe('Popover', () => {
       </Popover>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+    const content = document.body.querySelector(
+      '[data-slot="popover-content"]',
+    ) as HTMLElement | null
     expect(content?.style.width).toBe('200px')
   })
 
@@ -973,7 +977,7 @@ describe('Popover', () => {
       )
     })
 
-    const initialContent = document.body.querySelector('[data-slot="content"]')
+    const initialContent = document.body.querySelector('[data-slot="popover-content"]')
     expect(initialContent?.className).toContain('data-expanded:animate-mo-enter')
     expect(initialContent?.className).toContain('data-closed:animate-mo-exit')
     expect(initialContent?.classList).toContain('data-[side=bottom]:-enter-translate-y-1')
@@ -983,7 +987,7 @@ describe('Popover', () => {
     setMockPlacement('right-end')
     setVersion(1)
 
-    const updatedContent = document.body.querySelector('[data-slot="content"]')
+    const updatedContent = document.body.querySelector('[data-slot="popover-content"]')
     expect(updatedContent?.className).toContain('data-expanded:animate-mo-enter')
     expect(updatedContent?.className).toContain('data-closed:animate-mo-exit')
     expect(updatedContent?.classList).toContain('data-[side=right]:-enter-translate-x-1')

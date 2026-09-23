@@ -316,7 +316,7 @@ export function Textarea<M extends ModelModifiers | undefined = ModelModifiers |
       required={field.required()}
       disabled={field.disabled()}
       readonly={field.readOnly()}
-      data-slot="root"
+      data-slot="textarea"
       {...dataAttrs}
       {...ariaAttrs()}
       {...textControl.valueProps()}

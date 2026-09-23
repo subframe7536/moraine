@@ -17,7 +17,7 @@ describe('Input SSR Hydration', () => {
     )
     const input = container.firstElementChild as HTMLInputElement
     expect(input.tagName).toBe('INPUT')
-    expect(input.dataset.slot).toBe('root')
+    expect(input.dataset.slot).toBe('input')
     expect(input.value).toBe('Server value')
     setValue('Client value')
     await waitFor(() => expect(input.value).toBe('Client value'))

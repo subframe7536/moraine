@@ -36,7 +36,7 @@ function SidebarFrameSidebar(props: SidebarFrameT.SidebarProps): JSX.Element {
     })
     return (
       <div
-        data-slot="sidebar"
+        data-slot="sidebar-frame-sidebar"
         {...sidebarFrameDataAttributes.sidebar({
           mobile: () => contentProps.mobile,
           closed: () => !context.isOpen(),
@@ -86,7 +86,7 @@ function SidebarFrameSidebarHeader(props: SidebarFrameT.SidebarHeaderProps): JSX
   })
 
   return (
-    <div data-slot="sidebarHeader" {...rest} {...resolved.styles.sidebarHeader}>
+    <div data-slot="sidebar-frame-sidebar-header" {...rest} {...resolved.styles.sidebarHeader}>
       {local.children}
     </div>
   )
@@ -102,7 +102,7 @@ function SidebarFrameSidebarBody(props: SidebarFrameT.SidebarBodyProps): JSX.Ele
   })
 
   return (
-    <div data-slot="sidebarBody" {...rest} {...resolved.styles.sidebarBody}>
+    <div data-slot="sidebar-frame-sidebar-body" {...rest} {...resolved.styles.sidebarBody}>
       {local.children}
     </div>
   )
@@ -118,7 +118,7 @@ function SidebarFrameSidebarFooter(props: SidebarFrameT.SidebarFooterProps): JSX
   })
 
   return (
-    <div data-slot="sidebarFooter" {...rest} {...resolved.styles.sidebarFooter}>
+    <div data-slot="sidebar-frame-sidebar-footer" {...rest} {...resolved.styles.sidebarFooter}>
       {local.children}
     </div>
   )
@@ -135,7 +135,7 @@ function SidebarFrameMain(props: SidebarFrameT.MainProps): JSX.Element {
 
   return (
     <div
-      data-slot="main"
+      data-slot="sidebar-frame-main"
       {...rest}
       {...resolved.styles.main}
       onScroll={(event) => {
@@ -215,7 +215,7 @@ export function SidebarFrame(props: SidebarFrameProps): JSX.Element {
 
   return (
     <SidebarFrameProvider value={context}>
-      <div data-slot="root" {...rest} {...resolved.styles.root}>
+      <div data-slot="sidebar-frame" {...rest} {...resolved.styles.root}>
         {local.children}
       </div>
     </SidebarFrameProvider>

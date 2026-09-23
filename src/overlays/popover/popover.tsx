@@ -52,7 +52,7 @@ export function Popover(props: PopoverProps): JSX.Element {
     props,
   )
 
-  const popper = createPopper(merged)
+  const popper = createPopper(merged, 'popover')
   const [closeRegistrations, setCloseRegistrations] = createSignal<Set<number>>(new Set())
   const hasClose = createMemo(() => closeRegistrations().size > 0)
 
@@ -379,13 +379,13 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
         return (
           <div
             {...mergePopperElementProps(contentProps, rest)}
-            data-slot="content"
+            data-slot="popover-content"
             {...contentDataAttrs}
             aria-label={local.ariaLabel ?? rest['aria-label']}
             {...resolved.styles.content}
           >
             <Show when={hasJsxContent(content())}>
-              <div data-slot="body" {...resolved.styles.body}>
+              <div data-slot="popover-body" {...resolved.styles.body}>
                 {content()}
               </div>
             </Show>
@@ -428,7 +428,7 @@ function PopoverClose<T extends ValidComponent = 'button'>(
 
   return (
     <Dynamic
-      data-slot="close"
+      data-slot="popover-close"
       {...interaction}
       component={tag()}
       class={cn(local.class)}

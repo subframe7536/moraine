@@ -66,7 +66,7 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
       <div
         role="group"
         {...rest}
-        data-slot="root"
+        data-slot="input-group"
         {...inputGroupDataAttributes.root({
           inputGroup: true,
           orientation: () => resolved.variants.orientation,
@@ -75,7 +75,7 @@ export function InputGroup(props: InputGroupProps): JSX.Element {
         onPointerDown={onPointerDown}
       >
         {local.children}
-        <span aria-hidden="true" data-slot="frame" {...resolved.styles.frame} />
+        <span aria-hidden="true" data-slot="input-group-frame" {...resolved.styles.frame} />
       </div>
     </InputGroupProvider>
   )

@@ -29,7 +29,9 @@ describe('ContextMenu SSR Hydration', () => {
       ),
     )
 
-    const serverTrigger = container.querySelector<HTMLElement>('[data-slot="trigger"]')!
+    const serverTrigger = container.querySelector<HTMLElement>(
+      '[data-slot="context-menu-trigger"]',
+    )!
 
     try {
       expect(serverTrigger).not.toBeNull()
@@ -38,11 +40,12 @@ describe('ContextMenu SSR Hydration', () => {
       fireEvent.keyDown(serverTrigger, { key: 'ContextMenu' })
       await waitFor(() => {
         expect(
-          document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
+          document.body.querySelector('[data-slot="context-menu-item"][data-highlighted]')
+            ?.textContent,
         ).toContain('Archive')
       })
 
-      let content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+      let content = document.body.querySelector('[data-slot="context-menu-content"]') as HTMLElement
       fireEvent.keyDown(content, { key: 'Escape' })
       await finishMenuExitMotion()
 
@@ -56,8 +59,10 @@ describe('ContextMenu SSR Hydration', () => {
       await vi.advanceTimersByTimeAsync(700)
       await vi.advanceTimersByTimeAsync(16)
 
-      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
-      content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+      expect(
+        document.body.querySelector('[data-slot="context-menu-content"][data-expanded]'),
+      ).not.toBeNull()
+      content = document.body.querySelector('[data-slot="context-menu-content"]') as HTMLElement
       fireEvent.keyDown(content, { key: 'Escape' })
       await finishMenuExitMotion()
       await Promise.resolve()

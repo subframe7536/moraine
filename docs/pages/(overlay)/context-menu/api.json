@@ -180,7 +180,7 @@
     "itemKbds",
     "itemIndicator",
     "itemSubIndicator",
-    "label",
+    "groupLabel",
     "separator"
   ],
   "dataAttributes": [

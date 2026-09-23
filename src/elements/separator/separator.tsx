@@ -14,7 +14,7 @@ export function Separator(props: SeparatorProps): JSX.Element {
 
   return (
     <div
-      data-slot="root"
+      data-slot="separator"
       {...rest}
       role="separator"
       aria-orientation={orientation()}

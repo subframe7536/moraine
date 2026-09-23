@@ -97,7 +97,7 @@ describe('Tooltip', () => {
       </Tooltip>
     ))
 
-    const trigger = document.body.querySelector('[data-slot="trigger"]')
+    const trigger = document.body.querySelector('[data-slot="tooltip-trigger"]')
 
     expect(trigger?.tagName).toBe('BUTTON')
     expect(trigger?.getAttribute('type')).toBe('button')
@@ -113,7 +113,7 @@ describe('Tooltip', () => {
       </Tooltip>
     ))
 
-    expect(document.body.querySelector('[data-slot="trigger"]')?.tagName).toBe('SPAN')
+    expect(document.body.querySelector('[data-slot="tooltip-trigger"]')?.tagName).toBe('SPAN')
   })
 
   test('applies top-level class and style to trigger', () => {
@@ -126,7 +126,9 @@ describe('Tooltip', () => {
       </Tooltip>
     ))
 
-    const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLElement | null
+    const trigger = document.body.querySelector(
+      '[data-slot="tooltip-trigger"]',
+    ) as HTMLElement | null
 
     expect(trigger?.className).toContain('trigger-class')
     expect(trigger?.style.width).toBe('200px')
@@ -146,7 +148,7 @@ describe('Tooltip', () => {
       </MoraineProvider>
     ))
 
-    const trigger = document.body.querySelector<HTMLElement>('[data-slot="trigger"]')
+    const trigger = document.body.querySelector<HTMLElement>('[data-slot="tooltip-trigger"]')
     expect(trigger?.className).toContain('provider-trigger')
     expect(trigger?.className).toContain('w-40')
   })
@@ -161,11 +163,11 @@ describe('Tooltip', () => {
       </Tooltip>
     ))
 
-    const kbds = document.body.querySelectorAll('[data-slot="item"]')
+    const kbds = document.body.querySelectorAll('[data-slot="kbd-group-item"]')
     expect(kbds.length).toBe(2)
     expect(kbds.item(0)?.textContent).toBe('Ctrl')
     expect(kbds.item(1)?.textContent).toBe('S')
-    expect(document.body.querySelectorAll('[data-slot="root"]').length).toBe(1)
+    expect(document.body.querySelectorAll('[data-slot="tooltip-kbds"]').length).toBe(1)
   })
 
   test.each([
@@ -179,7 +181,7 @@ describe('Tooltip', () => {
       </Tooltip>
     ))
 
-    const keycaps = document.body.querySelectorAll('[data-slot="item"]')
+    const keycaps = document.body.querySelectorAll('[data-slot="kbd-group-item"]')
     expect(keycaps).toHaveLength(2)
     for (const keycap of keycaps) {
       expect(keycap.classList.contains(expectedClass)).toBe(true)
@@ -197,7 +199,7 @@ describe('Tooltip', () => {
       </Tooltip>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')
+    const content = document.body.querySelector('[data-slot="tooltip-content"]')
     expect(content?.className).toContain('content-override')
   })
 
@@ -238,7 +240,7 @@ describe('Tooltip', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')?.textContent).toContain(
+      expect(document.body.querySelector('[data-slot="tooltip-content"]')?.textContent).toContain(
         'Tooltip content',
       )
     })
@@ -254,7 +256,9 @@ describe('Tooltip', () => {
       </Tooltip>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+    const content = document.body.querySelector(
+      '[data-slot="tooltip-content"]',
+    ) as HTMLElement | null
     expect(content?.style.width).toBe('200px')
   })
 
@@ -275,7 +279,7 @@ describe('Tooltip', () => {
       )
     })
 
-    const initialContent = document.body.querySelector('[data-slot="content"]')
+    const initialContent = document.body.querySelector('[data-slot="tooltip-content"]')
     expect(initialContent?.className).toContain('data-expanded:animate-mo-enter')
     expect(initialContent?.className).toContain('data-closed:animate-mo-exit')
     expect(initialContent?.classList).toContain('data-[side=top]:enter-translate-y-1')
@@ -285,7 +289,7 @@ describe('Tooltip', () => {
     setMockPlacement('bottom-start')
     setVersion(1)
 
-    const updatedContent = document.body.querySelector('[data-slot="content"]')
+    const updatedContent = document.body.querySelector('[data-slot="tooltip-content"]')
     expect(updatedContent?.className).toContain('data-expanded:animate-mo-enter')
     expect(updatedContent?.className).toContain('data-closed:animate-mo-exit')
     expect(updatedContent?.classList).toContain('data-[side=bottom]:-enter-translate-y-1')
@@ -305,7 +309,7 @@ describe('Tooltip', () => {
       </Tooltip>
     ))
 
-    const trigger = screen.getByText('Trigger').closest('[data-slot="trigger"]')!
+    const trigger = screen.getByText('Trigger').closest('[data-slot="tooltip-trigger"]')!
 
     fireEvent.pointerEnter(trigger)
 
@@ -552,8 +556,8 @@ describe('Tooltip', () => {
       </div>
     ))
 
-    const firstTrigger = screen.getByText('First').closest('[data-slot="trigger"]')!
-    const secondTrigger = screen.getByText('Second').closest('[data-slot="trigger"]')!
+    const firstTrigger = screen.getByText('First').closest('[data-slot="tooltip-trigger"]')!
+    const secondTrigger = screen.getByText('Second').closest('[data-slot="tooltip-trigger"]')!
     const firstButton = screen.getByText('First')
 
     fireEvent.pointerEnter(firstTrigger)
@@ -575,7 +579,7 @@ describe('Tooltip', () => {
     )
     expect(activeTooltip?.className).toContain('data-expanded:animate-none')
     expect(activeTooltip?.hasAttribute('data-instant-motion')).toBe(true)
-    expect(document.body.querySelector('[data-slot=positioner]')?.className).toContain(
+    expect(document.body.querySelector('[data-slot=tooltip-positioner]')?.className).toContain(
       'transition-transform',
     )
   })
@@ -600,8 +604,8 @@ describe('Tooltip', () => {
       </div>
     ))
 
-    const alwaysTrigger = screen.getByText('Always').closest('[data-slot="trigger"]')!
-    const otherTrigger = screen.getByText('Other').closest('[data-slot="trigger"]')!
+    const alwaysTrigger = screen.getByText('Always').closest('[data-slot="tooltip-trigger"]')!
+    const otherTrigger = screen.getByText('Other').closest('[data-slot="tooltip-trigger"]')!
     const getAlwaysContent = (): HTMLElement =>
       Array.from(document.body.querySelectorAll('[role=tooltip]')).find((element) =>
         element.textContent?.includes('Always open'),
@@ -675,8 +679,8 @@ describe('Tooltip', () => {
       </div>
     ))
 
-    const firstTrigger = screen.getByText('First').closest('[data-slot="trigger"]')!
-    const secondTrigger = screen.getByText('Second').closest('[data-slot="trigger"]')!
+    const firstTrigger = screen.getByText('First').closest('[data-slot="tooltip-trigger"]')!
+    const secondTrigger = screen.getByText('Second').closest('[data-slot="tooltip-trigger"]')!
 
     fireEvent.pointerEnter(firstTrigger)
     await vi.advanceTimersByTimeAsync(600)
@@ -724,8 +728,8 @@ describe('Tooltip', () => {
       </div>
     ))
 
-    const firstTrigger = screen.getByText('First').closest('[data-slot="trigger"]')!
-    const secondTrigger = screen.getByText('Second').closest('[data-slot="trigger"]')!
+    const firstTrigger = screen.getByText('First').closest('[data-slot="tooltip-trigger"]')!
+    const secondTrigger = screen.getByText('Second').closest('[data-slot="tooltip-trigger"]')!
 
     fireEvent.pointerEnter(firstTrigger)
     await vi.advanceTimersByTimeAsync(100)

@@ -26,7 +26,7 @@ export const overlayMenuRecipeOptions = {
     itemKbds: '',
     itemIndicator: 'flex shrink-0 size-4 pointer-events-none items-center justify-center',
     itemSubIndicator: '',
-    label: 'text-xs text-muted-foreground font-medium px-2 py-1.5 inline-flex',
+    groupLabel: 'text-xs text-muted-foreground font-medium px-2 py-1.5 inline-flex',
     separator: 'my-1 bg-border h-px -mx-1',
   },
   variants: {

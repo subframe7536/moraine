@@ -76,8 +76,10 @@ describe('RadioGroup SSR Hydration', () => {
     )
 
     const root = container.querySelector('#plans')!
-    const items = Array.from(container.querySelectorAll('[data-slot="item"]'))
-    const inputs = Array.from(container.querySelectorAll<HTMLInputElement>('[data-slot="input"]'))
+    const items = Array.from(container.querySelectorAll('[data-slot="radio-group-item"]'))
+    const inputs = Array.from(
+      container.querySelectorAll<HTMLInputElement>('[data-slot="radio-group-input"]'),
+    )
 
     expect(root).not.toBeNull()
     expect(items.length).toBe(3)

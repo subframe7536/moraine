@@ -7,13 +7,13 @@ export interface ResizableStyleSlot<T = unknown> {
   panel?: T
 
   /** Visual separator between adjacent panels. */
-  divider?: T
-
-  /** Interactive target users drag or focus to resize panels. */
   handle?: T
 
+  /** Interactive target users drag or focus to resize panels. */
+  handleControl?: T
+
   /** Extra hit target used when nested handles meet across axes. */
-  crossTarget?: T
+  intersection?: T
 }
 
 export interface ResizableStyleVariant {

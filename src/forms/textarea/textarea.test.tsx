@@ -21,8 +21,8 @@ afterEach(() => {
 describe('Textarea', () => {
   test('renders component defaults when provider is absent', () => {
     const screen = baseRender(() => <Textarea />)
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const input = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="textarea"]')
+    const input = screen.container.querySelector('[data-slot="textarea"]')
     expect(root?.className).not.toBe('')
     expect(input?.className).not.toBe('')
   })
@@ -32,7 +32,7 @@ describe('Textarea', () => {
     const screen = render(() => <Textarea ref={(el) => (control = el)} placeholder="ref test" />)
     expect(control).toBeInstanceOf(HTMLTextAreaElement)
     expect(screen.container.firstElementChild).toBe(control)
-    expect(control?.getAttribute('data-slot')).toBe('root')
+    expect(control?.getAttribute('data-slot')).toBe('textarea')
     expect(control?.placeholder).toBe('ref test')
   })
 
@@ -41,7 +41,7 @@ describe('Textarea', () => {
       <Textarea id="bio" name="bio" rows={4} placeholder="Write bio" required disabled />
     ))
     const textarea = screen.getByPlaceholderText('Write bio') as HTMLTextAreaElement
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="textarea"]')
 
     expect(textarea.getAttribute('id')).toBe('bio')
     expect(textarea.getAttribute('name')).toBe('bio')
@@ -59,7 +59,7 @@ describe('Textarea', () => {
   test('exposes readonly state through aria and data attributes', () => {
     const screen = render(() => <Textarea readOnly />)
     const textarea = screen.getByRole('textbox') as HTMLTextAreaElement
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="textarea"]')
 
     expect(textarea.readOnly).toBe(true)
     expect(textarea.getAttribute('aria-readonly')).toBe('true')
@@ -73,7 +73,7 @@ describe('Textarea', () => {
     ['lg', 'text-base', 'leading-6', 'px-2.5', 'py-2', 'rounded-lg'],
   ] as const)('uses the input density scale for %s textareas', (size, ...classes) => {
     const screen = render(() => <Textarea size={size} />)
-    const textarea = screen.container.querySelector('[data-slot="root"]') as HTMLElement
+    const textarea = screen.container.querySelector('[data-slot="textarea"]') as HTMLElement
 
     classes.forEach((className) => expect(textarea.className).toContain(className))
   })
@@ -228,7 +228,7 @@ describe('Textarea', () => {
 
   test('applies classes.root override', () => {
     const screen = render(() => <Textarea classes={{ root: 'root-override' }} />)
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="textarea"]')
 
     expect(root?.className).toContain('focus:ring-ring/50')
     expect(root?.className).toContain('data-invalid:border-destructive')
@@ -237,7 +237,7 @@ describe('Textarea', () => {
 
   test('applies styles.root override', () => {
     const screen = render(() => <Textarea styles={{ root: { width: '200px' } }} />)
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const root = screen.container.querySelector('[data-slot="textarea"]') as HTMLElement | null
 
     expect(root?.style.width).toBe('200px')
   })

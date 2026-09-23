@@ -15,7 +15,7 @@ function PopperFixture(
     contentRender: (context: ReturnType<typeof createPopper>) => JSX.Element
   },
 ): JSX.Element {
-  return untrack(() => props.contentRender(createPopper(props)))
+  return untrack(() => props.contentRender(createPopper(props, 'popover')))
 }
 
 describe('Popper primitives', () => {
@@ -42,11 +42,11 @@ describe('Popper primitives', () => {
     expect(reads).toBe(0)
     fireEvent.click(screen.getByRole('button'))
     await waitFor(() =>
-      expect(document.querySelector('[data-slot="positioner"]')?.textContent).toBe('First'),
+      expect(document.querySelector('[data-slot="popover-positioner"]')?.textContent).toBe('First'),
     )
     expect(reads).toBe(1)
     setLabel('Second')
-    expect(document.querySelector('[data-slot="positioner"]')?.textContent).toBe('Second')
+    expect(document.querySelector('[data-slot="popover-positioner"]')?.textContent).toBe('Second')
     expect(reads).toBe(1)
   })
 
@@ -152,7 +152,7 @@ describe('Popper primitives', () => {
     ))
 
     expect(instances).toBe(0)
-    fireEvent.click(document.querySelector('[data-slot="trigger"]')!)
+    fireEvent.click(document.querySelector('[data-slot="popover-trigger"]')!)
 
     await waitFor(() => {
       expect(instances).toBe(1)
@@ -171,7 +171,7 @@ describe('Popper primitives', () => {
             </PopperTrigger>
             <PopperContent context={popper} forceMount modal onEscapeKeyDown={onEscapeKeyDown}>
               {(context) => (
-                <div data-slot="content" {...context.contentProps}>
+                <div data-slot="popover-content" {...context.contentProps}>
                   Content
                 </div>
               )}
@@ -182,10 +182,10 @@ describe('Popper primitives', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
     })
 
-    const content = document.body.querySelector('[data-slot="content"]')
+    const content = document.body.querySelector('[data-slot="popover-content"]')
     expect(content?.hasAttribute('data-closed')).toBe(true)
     expect(content?.hasAttribute('data-expanded')).toBe(false)
     expect(screen.getByRole('button').getAttribute('aria-expanded')).toBe('false')
@@ -212,7 +212,7 @@ describe('Popper primitives', () => {
       />
     ))
 
-    const positioner = document.body.querySelector('[data-slot="positioner"]')
+    const positioner = document.body.querySelector('[data-slot="popover-positioner"]')
     expect(positioner?.classList.contains('absolute')).toBe(true)
     expect(positioner?.classList.contains('fixed')).toBe(false)
   })
@@ -240,7 +240,8 @@ describe('Popper primitives', () => {
 
     await waitFor(() => {
       expect(
-        (document.body.querySelector('[data-slot="positioner"]') as HTMLElement).style.zIndex,
+        (document.body.querySelector('[data-slot="popover-positioner"]') as HTMLElement).style
+          .zIndex,
       ).toBe('73')
     })
   })
@@ -265,7 +266,9 @@ describe('Popper primitives', () => {
       />
     ))
 
-    const positioner = document.body.querySelector('[data-slot="positioner"]') as HTMLElement
+    const positioner = document.body.querySelector(
+      '[data-slot="popover-positioner"]',
+    ) as HTMLElement
     await waitFor(() => {
       expect(positioner.hasAttribute('data-positioned')).toBe(true)
     })
@@ -299,7 +302,7 @@ describe('Popper primitives', () => {
               </PopperTrigger>
               <PopperContent context={popper}>
                 {(context) => (
-                  <div data-slot="content" {...context.contentProps}>
+                  <div data-slot="popover-content" {...context.contentProps}>
                     Content
                   </div>
                 )}
@@ -313,7 +316,7 @@ describe('Popper primitives', () => {
     fireEvent.pointerDown(screen.getByTestId('outside'))
 
     expect(onOpenChange).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="popover-content"]')).not.toBeNull()
   })
 
   test('dismisses press-less outside clicks while retaining inside and cancelled click behavior', async () => {
@@ -333,7 +336,7 @@ describe('Popper primitives', () => {
               </PopperTrigger>
               <PopperContent context={popper}>
                 {(context) => (
-                  <div data-slot="content" {...context.contentProps}>
+                  <div data-slot="popover-content" {...context.contentProps}>
                     <button type="button" data-testid="inside">
                       Inside
                     </button>
@@ -536,7 +539,7 @@ describe('Popper primitives', () => {
             </PopperTrigger>
             <PopperContent context={popper}>
               {(context) => (
-                <div data-slot="content" {...context.contentProps}>
+                <div data-slot="popover-content" {...context.contentProps}>
                   Content
                 </div>
               )}
@@ -554,7 +557,7 @@ describe('Popper primitives', () => {
       cancelable: true,
       key: 'Escape',
     })
-    document.body.querySelector('[data-slot="content"]')!.dispatchEvent(event)
+    document.body.querySelector('[data-slot="popover-content"]')!.dispatchEvent(event)
 
     expect(event.defaultPrevented).toBe(true)
     expect(onOpenChange).toHaveBeenCalledWith(false)
@@ -670,7 +673,7 @@ describe('Popper primitives', () => {
               preventScroll={preventScroll()}
             >
               {(context) => (
-                <div data-slot="content" {...context.contentProps}>
+                <div data-slot="popover-content" {...context.contentProps}>
                   <button type="button" data-testid="sample-first">
                     First
                   </button>
@@ -690,7 +693,8 @@ describe('Popper primitives', () => {
       )!
       await waitFor(() =>
         expect(
-          document.body.querySelector<HTMLElement>('[data-slot="positioner"]')?.style.visibility,
+          document.body.querySelector<HTMLElement>('[data-slot="popover-positioner"]')?.style
+            .visibility,
         ).toBe('visible'),
       )
       second.focus()
@@ -736,7 +740,7 @@ describe('Popper primitives', () => {
             </PopperTrigger>
             <PopperContent context={popper} modal>
               {(context) => (
-                <div data-slot="content" {...context.contentProps}>
+                <div data-slot="popover-content" {...context.contentProps}>
                   Content
                 </div>
               )}
@@ -773,7 +777,7 @@ describe('Popper primitives', () => {
               slide={false}
             >
               {(context) => (
-                <div data-slot="content" {...context.contentProps}>
+                <div data-slot="popover-content" {...context.contentProps}>
                   <span data-testid="placement">{context.currentPlacement()}</span>
                 </div>
               )}
@@ -783,7 +787,9 @@ describe('Popper primitives', () => {
       />
     ))
 
-    const positioner = document.body.querySelector('[data-slot="positioner"]') as HTMLElement
+    const positioner = document.body.querySelector(
+      '[data-slot="popover-positioner"]',
+    ) as HTMLElement
     await waitFor(() => {
       expect(document.body.querySelector('[data-testid="placement"]')?.textContent).toBe('top')
       expect(positioner.style.getPropertyValue('--mo-popper-content-transform-origin')).toBe(
@@ -818,7 +824,7 @@ describe('Popper primitives', () => {
               {(context) => {
                 instances += 1
                 return (
-                  <div data-slot="content" {...context.contentProps}>
+                  <div data-slot="popover-content" {...context.contentProps}>
                     Content
                   </div>
                 )
@@ -839,7 +845,7 @@ describe('Popper primitives', () => {
     await waitFor(() => {
       expect(instances).toBe(1)
       expect(
-        document.body.querySelector('[data-slot="content"]')?.hasAttribute('data-expanded'),
+        document.body.querySelector('[data-slot="popover-content"]')?.hasAttribute('data-expanded'),
       ).toBe(true)
     })
   })
@@ -865,7 +871,9 @@ describe('Popper primitives', () => {
 
     await waitFor(() => {
       expect(
-        document.body.querySelector('[data-slot="positioner"]')?.hasAttribute('data-positioned'),
+        document.body
+          .querySelector('[data-slot="popover-positioner"]')
+          ?.hasAttribute('data-positioned'),
       ).toBe(true)
     })
 
@@ -889,7 +897,7 @@ describe('Popper primitives', () => {
             <Show when={showContent()}>
               <PopperContent context={popper} modal onEscapeKeyDown={onEscapeKeyDown}>
                 {(context) => (
-                  <div data-slot="content" {...context.contentProps}>
+                  <div data-slot="popover-content" {...context.contentProps}>
                     Content
                   </div>
                 )}
@@ -907,7 +915,7 @@ describe('Popper primitives', () => {
     setShowContent(false)
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="popover-content"]')).toBeNull()
       expect(document.body.style.overflow).toBe('')
     })
     fireEvent.keyDown(document, { key: 'Escape' })
@@ -920,7 +928,7 @@ describe('Popper primitives', () => {
       get children() {
         childrenReads += 1
         return (context: PopperContentContext) => (
-          <div data-slot="content" {...context.contentProps}>
+          <div data-slot="popover-content" {...context.contentProps}>
             Content
           </div>
         )
@@ -1016,7 +1024,9 @@ describe('Popper primitives', () => {
       />
     ))
 
-    const positioner = document.body.querySelector('[data-slot="positioner"]') as HTMLElement
+    const positioner = document.body.querySelector(
+      '[data-slot="popover-positioner"]',
+    ) as HTMLElement
     await waitFor(() => {
       expect(positioner.style.transform).toBe('translate3d(10px, 20px, 0)')
     })

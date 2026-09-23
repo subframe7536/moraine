@@ -13,7 +13,7 @@ describe('Badge', () => {
         Solid
       </Badge>
     ))
-    const badge = screen.container.querySelector('[data-slot="root"]')
+    const badge = screen.container.querySelector('[data-slot="badge"]')
     expect(badge?.className).not.toBe('')
   })
 
@@ -23,8 +23,8 @@ describe('Badge', () => {
         <Badge>New</Badge>
       </MoraineProvider>
     ))
-    const badge = screen.container.querySelector('[data-slot="root"]')
-    const label = screen.container.querySelector('[data-slot="label"]')
+    const badge = screen.container.querySelector('[data-slot="badge"]')
+    const label = screen.container.querySelector('[data-slot="badge-label"]')
 
     expect(badge?.tagName).toBe('SPAN')
     expect(badge?.hasAttribute('data-variant')).toBe(false)
@@ -34,7 +34,7 @@ describe('Badge', () => {
 
   test('supports hiding decorative badges from the accessibility tree', () => {
     const screen = render(() => <Badge aria-hidden>2</Badge>)
-    const badge = screen.container.querySelector('[data-slot="root"]')
+    const badge = screen.container.querySelector('[data-slot="badge"]')
 
     expect(badge?.getAttribute('aria-hidden')).toBe('true')
   })
@@ -63,7 +63,7 @@ describe('Badge', () => {
         </div>
       </MoraineProvider>
     ))
-    const roots = screen.container.querySelectorAll('[data-slot="root"]')
+    const roots = screen.container.querySelectorAll('[data-slot="badge"]')
 
     expect(roots[0]?.className).toContain('border-transparent')
     expect(roots[0]?.className).toContain('bg-accent')
@@ -90,9 +90,9 @@ describe('Badge', () => {
         </div>
       </MoraineProvider>
     ))
-    const roots = screen.container.querySelectorAll('[data-slot="root"]')
-    const leading = screen.container.querySelectorAll('[data-slot="leading"]')
-    const trailing = screen.container.querySelector('[data-slot="trailing"]')
+    const roots = screen.container.querySelectorAll('[data-slot="badge"]')
+    const leading = screen.container.querySelectorAll('[data-slot="badge-leading"]')
+    const trailing = screen.container.querySelector('[data-slot="badge-trailing"]')
 
     expect(roots[0]?.className).toContain('h-4')
     expect(roots[1]?.className).toContain('h-5')
@@ -113,7 +113,7 @@ describe('Badge', () => {
         </div>
       </MoraineProvider>
     ))
-    const roots = screen.container.querySelectorAll('[data-slot="root"]')
+    const roots = screen.container.querySelectorAll('[data-slot="badge"]')
 
     expect(roots[0]?.className).toContain('w-4')
     expect(roots[0]?.className).toContain('px-0')
@@ -130,8 +130,8 @@ describe('Badge', () => {
       </Badge>
     ))
 
-    const leading = screen.container.querySelector('[data-slot="leading"]')
-    const trailing = screen.container.querySelector('[data-slot="trailing"]')
+    const leading = screen.container.querySelector('[data-slot="badge-leading"]')
+    const trailing = screen.container.querySelector('[data-slot="badge-trailing"]')
 
     expect(leading?.className).toContain('i-lucide-sparkles')
     expect(trailing?.className).toContain('i-lucide-arrow-right')
@@ -145,7 +145,7 @@ describe('Badge', () => {
         <Badge onPointerDown={[onPointerDown, 'payload']}>Native</Badge>
       </div>
     ))
-    const badge = screen.container.querySelector('[data-slot="root"]')!
+    const badge = screen.container.querySelector('[data-slot="badge"]')!
     const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true })
 
     badge.dispatchEvent(event)
@@ -159,7 +159,7 @@ describe('Badge', () => {
   test('renders zero as label content', () => {
     const screen = render(() => <Badge>{0}</Badge>)
 
-    expect(screen.container.querySelector('[data-slot="label"]')?.textContent).toBe('0')
+    expect(screen.container.querySelector('[data-slot="badge-label"]')?.textContent).toBe('0')
   })
 
   test('evaluates getter-backed conditional JSX inputs once', () => {
@@ -209,8 +209,8 @@ describe('Badge', () => {
     ))
 
     const tag = screen.container.querySelector('[data-slot="tag"]')
-    const label = screen.container.querySelector('[data-slot="label"]')
-    const remove = screen.container.querySelector('[data-slot="trailing"]')
+    const label = screen.container.querySelector('[data-slot="badge-label"]')
+    const remove = screen.container.querySelector('[data-slot="badge-trailing"]')
 
     expect(tag?.className).toContain('root-override')
     expect(label?.className).toContain('label-override')
@@ -233,8 +233,8 @@ describe('Badge', () => {
     ))
 
     const tag = screen.container.querySelector<HTMLElement>('[data-slot="tag"]')
-    const label = screen.container.querySelector<HTMLElement>('[data-slot="label"]')
-    const remove = screen.container.querySelector<HTMLElement>('[data-slot="trailing"]')
+    const label = screen.container.querySelector<HTMLElement>('[data-slot="badge-label"]')
+    const remove = screen.container.querySelector<HTMLElement>('[data-slot="badge-trailing"]')
 
     expect(tag?.style.width).toBe('200px')
     expect(label?.style.width).toBe('200px')

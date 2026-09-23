@@ -17,7 +17,7 @@ test('hydrates compound panels and handles in the server order', () => {
     ),
   )
 
-  expect(container.querySelectorAll('[data-slot="panel"]')).toHaveLength(2)
-  expect(container.querySelectorAll('[data-slot="divider"]')).toHaveLength(1)
+  expect(container.querySelectorAll('[data-slot="resizable-panel"]')).toHaveLength(2)
+  expect(container.querySelectorAll('[data-slot="resizable-handle"]')).toHaveLength(1)
   expect(container.textContent).toContain('NavigationResizeMain content')
 })

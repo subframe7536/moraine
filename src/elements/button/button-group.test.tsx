@@ -37,7 +37,7 @@ describe('ButtonGroup', () => {
     ))
 
     const group = screen.getByRole('group', { name: 'History controls' })
-    expect(group.getAttribute('data-slot')).toBe('root')
+    expect(group.getAttribute('data-slot')).toBe('button-group')
     expect(group.hasAttribute('data-orientation')).toBe(false)
     expect(group.className).toContain('size-fit')
     expect(group.className).toContain('-me-px')
@@ -152,7 +152,7 @@ describe('ButtonGroup', () => {
     expect(group.className).toContain('border-e-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-s-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-e-none')
-    expect(group.querySelector('[data-slot="trigger"]')?.parentElement).toBe(group)
+    expect(group.querySelector('[data-slot="dropdown-menu-trigger"]')?.parentElement).toBe(group)
     expect(screen.getAllByRole('button')).toHaveLength(2)
   })
 
@@ -172,7 +172,7 @@ describe('ButtonGroup', () => {
     ))
 
     const group = screen.getByRole('group')
-    const trigger = group.querySelector('[data-slot="trigger"]')
+    const trigger = group.querySelector('[data-slot="popover-trigger"]')
     expect(trigger?.parentElement).toBe(group)
     expect(trigger?.tagName).toBe('BUTTON')
     expect(trigger?.querySelector('button')).toBeNull()
@@ -293,7 +293,7 @@ describe('ButtonGroup', () => {
     expect(group.className).toContain('border-b-0')
     expect(group.className).toContain('[&>*:not(:first-child)]:rounded-t-none')
     expect(group.className).toContain('[&>*:not(:last-child)]:rounded-b-none')
-    expect(group.querySelector('[data-slot="trigger"]')?.parentElement).toBe(group)
+    expect(group.querySelector('[data-slot="dropdown-menu-trigger"]')?.parentElement).toBe(group)
     expect(screen.getAllByRole('button')).toHaveLength(2)
   })
 

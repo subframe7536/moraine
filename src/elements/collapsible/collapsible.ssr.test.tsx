@@ -11,9 +11,11 @@ describe('Collapsible SSR Hydration', () => {
     const server = document.createElement('div')
     server.innerHTML = renderSsrFixture(fixture, 'renderOpenCollapsibleFixture')
     expect(
-      server.querySelector('[data-slot="content"][data-expanded][data-transition]'),
+      server.querySelector('[data-slot="collapsible-content"][data-expanded][data-transition]'),
     ).not.toBeNull()
-    expect(server.querySelector('[data-slot="content-wrapper"][data-expanded]')).toBeNull()
+    expect(
+      server.querySelector('[data-slot="collapsible-content-wrapper"][data-expanded]'),
+    ).toBeNull()
 
     const { container } = hydrateFixture(fixture, 'renderOpenCollapsibleFixture', () => (
       <Collapsible defaultOpen transition unmountOnHide={false}>
@@ -21,8 +23,8 @@ describe('Collapsible SSR Hydration', () => {
         <Collapsible.Content as="section">Content</Collapsible.Content>
       </Collapsible>
     ))
-    const trigger = container.querySelector('[data-slot="trigger"]')!
-    const content = container.querySelector('section[data-slot="content"]')!
+    const trigger = container.querySelector('[data-slot="collapsible-trigger"]')!
+    const content = container.querySelector('section[data-slot="collapsible-content"]')!
     const wrapper = content.parentElement!
     expect(content.hasAttribute('data-expanded')).toBe(true)
     expect(content.hasAttribute('data-transition')).toBe(true)
@@ -36,7 +38,7 @@ describe('Collapsible SSR Hydration', () => {
     await Promise.resolve()
     expect(wrapper.hidden).toBe(true)
     fireEvent.click(trigger)
-    expect(container.querySelector('[data-slot="content"]')).toBe(content)
+    expect(container.querySelector('[data-slot="collapsible-content"]')).toBe(content)
     expect(content.hasAttribute('data-expanded')).toBe(true)
     expect(content.hasAttribute('data-closed')).toBe(false)
     expect(wrapper.hidden).toBe(false)
@@ -62,19 +64,19 @@ describe('Collapsible SSR Hydration', () => {
       ),
     )
 
-    const trigger = container.querySelector('[data-slot="trigger"]')!
+    const trigger = container.querySelector('[data-slot="collapsible-trigger"]')!
     expect(trigger).not.toBeNull()
     expect(contentMounts).toBe(0)
-    expect(container.querySelector('[data-slot="content-wrapper"]')).toBeNull()
+    expect(container.querySelector('[data-slot="collapsible-content-wrapper"]')).toBeNull()
 
     fireEvent.click(trigger)
-    const wrapper = container.querySelector('[data-slot="content-wrapper"]')!
+    const wrapper = container.querySelector('[data-slot="collapsible-content-wrapper"]')!
     expect(contentMounts).toBe(1)
     expect(trigger.getAttribute('aria-controls')).toBe(wrapper.id)
     expect(wrapper.getAttribute('aria-labelledby')).toBe(trigger.id)
 
     fireEvent.click(trigger)
-    expect(container.querySelector('[data-slot="content-wrapper"]')).toBeNull()
+    expect(container.querySelector('[data-slot="collapsible-content-wrapper"]')).toBeNull()
     fireEvent.click(trigger)
     expect(contentMounts).toBe(2)
   })

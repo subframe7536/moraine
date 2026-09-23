@@ -24,22 +24,24 @@ const ITEMS: MultiSelectT.Item[] = [
 describe('MultiSelect', () => {
   test('uses BaseSelect.Trigger as the non-editable focus owner without a physical input', () => {
     const screen = render(() => <MultiSelect items={ITEMS} defaultValue={['apple']} />)
-    const control = screen.container.querySelector('[data-slot="control"]')!
+    const control = screen.container.querySelector('[data-slot="multi-select-control"]')!
     const trigger = screen.getByRole('combobox')
 
     expect(trigger.tagName).toBe('BUTTON')
-    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.getAttribute('data-slot')).toBe('multi-select-trigger')
     expect(trigger.tabIndex).toBe(0)
-    expect(control.querySelectorAll('input[data-slot="input"]')).toHaveLength(0)
-    expect(control.querySelector('[data-slot="tagsContainer"]')).toBeTruthy()
-    expect(control.querySelector('[data-slot="tag"]')?.textContent).toContain('Apple')
+    expect(control.querySelectorAll('input[data-slot="multi-select-input"]')).toHaveLength(0)
+    expect(control.querySelector('[data-slot="multi-select-tags-container"]')).toBeTruthy()
+    expect(control.querySelector('[data-slot="multi-select-tag"]')?.textContent).toContain('Apple')
   })
 
   test('keeps typeahead navigation on the non-editable trigger', () => {
     const screen = render(() => <MultiSelect items={ITEMS} defaultSearchValue="hidden" />)
     const trigger = screen.getByRole('combobox')
     fireEvent.keyDown(trigger, { key: 'b' })
-    expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe('Banana')
+    expect(
+      screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent,
+    ).toBe('Banana')
   })
 
   test.each([
@@ -74,7 +76,7 @@ describe('MultiSelect', () => {
   test('control click opens by default and the non-editable trigger toggles', () => {
     const screen = render(() => <MultiSelect items={ITEMS} />)
     const trigger = screen.getByRole('combobox')
-    const control = screen.container.querySelector('[data-slot="control"]')!
+    const control = screen.container.querySelector('[data-slot="multi-select-control"]')!
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
     fireEvent.click(control)
     expect(trigger.getAttribute('aria-expanded')).toBe('true')
@@ -85,7 +87,7 @@ describe('MultiSelect', () => {
   test('control click does not open by default when editable', () => {
     const screen = render(() => <MultiSelect items={ITEMS} search />)
     const input = screen.getByRole('combobox')
-    const control = screen.container.querySelector('[data-slot="control"]')!
+    const control = screen.container.querySelector('[data-slot="multi-select-control"]')!
     fireEvent.click(control)
     fireEvent.click(input)
     expect(input.getAttribute('aria-expanded')).toBe('false')
@@ -94,14 +96,18 @@ describe('MultiSelect', () => {
   test('openOnControlClick explicitly overrides default behavior', () => {
     // Non-editable with openOnControlClick={false} -> does not open
     const screenDisabled = render(() => <MultiSelect items={ITEMS} openOnControlClick={false} />)
-    const controlDisabled = screenDisabled.container.querySelector('[data-slot="control"]')!
+    const controlDisabled = screenDisabled.container.querySelector(
+      '[data-slot="multi-select-control"]',
+    )!
     const inputDisabled = screenDisabled.getByRole('combobox')
     fireEvent.click(controlDisabled)
     expect(inputDisabled.getAttribute('aria-expanded')).toBe('false')
 
     // Editable with openOnControlClick={true} -> opens
     const screenEnabled = render(() => <MultiSelect items={ITEMS} search openOnControlClick />)
-    const controlEnabled = screenEnabled.container.querySelector('[data-slot="control"]')!
+    const controlEnabled = screenEnabled.container.querySelector(
+      '[data-slot="multi-select-control"]',
+    )!
     const inputEnabled = screenEnabled.getByRole('combobox')
     fireEvent.click(controlEnabled)
     expect(inputEnabled.getAttribute('aria-expanded')).toBe('true')
@@ -157,9 +163,9 @@ describe('MultiSelect', () => {
     fireEvent.keyDown(input, { key: 'Enter' })
     expect(createItem).toHaveBeenCalledOnce()
     expect(onChange).toHaveBeenLastCalledWith(['dragonfruit'])
-    expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe(
-      'DRAGONFRUIT',
-    )
+    expect(
+      screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent,
+    ).toBe('DRAGONFRUIT')
   })
 
   test('active existing option wins Enter over createItem', () => {
@@ -185,7 +191,9 @@ describe('MultiSelect', () => {
     fireEvent.input(input, { target: { value: 'new label' } })
     fireEvent.keyDown(input, { key: 'Enter' })
     expect(onChange).toHaveBeenLastCalledWith(['apple'])
-    expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe('Apple')
+    expect(
+      screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent,
+    ).toBe('Apple')
   })
 
   test('rejects an invalid item returned by an untyped createItem implementation', () => {
@@ -246,7 +254,7 @@ describe('MultiSelect', () => {
       </form>
     ))
     const input = screen.getByRole<HTMLInputElement>('combobox')
-    const overflow = () => screen.container.querySelector('[data-slot="tagOverflow"]')
+    const overflow = () => screen.container.querySelector('[data-slot="multi-select-tag-overflow"]')
     expect(overflow()?.textContent).toBe('+2')
     expect(overflow()?.getAttribute('aria-label')).toBe('2 additional selections')
     expect(input.getAttribute('aria-describedby')).toBe('fruits-description')
@@ -299,7 +307,7 @@ describe('MultiSelect', () => {
     ))
     const overflow = () => screen.getByTestId('custom-overflow')
     expect(overflow().textContent).toBe('2:Banana/Banana/banana;Cherry/Cherry/cherry;')
-    expect(screen.container.querySelector('[data-slot="tagOverflow"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="multi-select-tag-overflow"]')).toBeNull()
 
     setItems([
       { label: 'Apple', value: 'apple' },
@@ -319,7 +327,7 @@ describe('MultiSelect', () => {
       <MultiSelect items={ITEMS} defaultValue={['apple']} allowClear loading />
     ))
     const trigger = screen.getByRole('combobox')
-    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.getAttribute('data-slot')).toBe('multi-select-trigger')
     expect(trigger.hasAttribute('data-loading')).toBe(true)
     expect(trigger.getAttribute('aria-busy')).toBe('true')
   })
@@ -486,14 +494,14 @@ describe('MultiSelect', () => {
 
   test('renders a non-editable placeholder and hides it after a tag is committed', () => {
     const empty = render(() => <MultiSelect items={ITEMS} placeholder="Choose fruit" />)
-    expect(empty.container.querySelector('[data-slot="placeholder"]')?.textContent).toBe(
-      'Choose fruit',
-    )
+    expect(
+      empty.container.querySelector('[data-slot="multi-select-placeholder"]')?.textContent,
+    ).toBe('Choose fruit')
 
     const selected = render(() => (
       <MultiSelect items={ITEMS} placeholder="Choose fruit" defaultValue={['apple']} />
     ))
-    expect(selected.container.querySelector('[data-slot="placeholder"]')).toBeNull()
+    expect(selected.container.querySelector('[data-slot="multi-select-placeholder"]')).toBeNull()
   })
 
   test('serializes created values and restores uncontrolled values on form reset', async () => {
@@ -517,9 +525,13 @@ describe('MultiSelect', () => {
   test('keeps controlled values authoritative', () => {
     const [value, setValue] = createSignal<string[]>(['missing'])
     const screen = render(() => <MultiSelect items={ITEMS} value={value()} onChange={setValue} />)
-    expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe('missing')
+    expect(
+      screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent,
+    ).toBe('missing')
     setValue(['apple'])
-    expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe('Apple')
+    expect(
+      screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent,
+    ).toBe('Apple')
   })
 
   test('updates a collection array owned by Form.Field', () => {
@@ -545,19 +557,19 @@ describe('MultiSelect', () => {
 
     fireEvent.click(within(document.body).getByRole('option', { hidden: true, name: 'Banana' }))
     expect(getInput(form)).toEqual({ choices: ['apple', 'banana'] })
-    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(2)
+    expect(screen.container.querySelectorAll('[data-slot="multi-select-tag"]')).toHaveLength(2)
   })
 
   test('uses direct focus-visible styling on the non-editable trigger', () => {
     const screen = render(() => <MultiSelect items={ITEMS} />)
-    const control = screen.container.querySelector('[data-slot="control"]')!
+    const control = screen.container.querySelector('[data-slot="multi-select-control"]')!
     const trigger = screen.getByRole('combobox')
 
     expect(control.hasAttribute('data-editable')).toBe(false)
     expect(trigger.tagName).toBe('BUTTON')
-    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.getAttribute('data-slot')).toBe('multi-select-trigger')
     expect(trigger.className).toContain('focus-visible:after:')
-    expect(control.querySelector('input[data-slot="input"]')).toBeNull()
+    expect(control.querySelector('input[data-slot="multi-select-input"]')).toBeNull()
 
     fireEvent.pointerDown(control, { pointerType: 'mouse' })
     expect(document.activeElement).toBe(trigger)
@@ -565,12 +577,12 @@ describe('MultiSelect', () => {
 
   test('keeps editable MultiSelect on the existing focus-within path', () => {
     const screen = render(() => <MultiSelect items={ITEMS} search />)
-    const control = screen.container.querySelector('[data-slot="control"]')!
+    const control = screen.container.querySelector('[data-slot="multi-select-control"]')!
     const input = screen.getByRole('combobox')
 
     expect(control.hasAttribute('data-editable')).toBe(true)
     expect(input.tagName).toBe('INPUT')
-    expect(control.querySelectorAll('input[data-slot="input"]')).toHaveLength(1)
+    expect(control.querySelectorAll('input[data-slot="multi-select-input"]')).toHaveLength(1)
   })
 
   test('pressing Enter on a duplicate tag does not delete previously created tag', () => {
@@ -583,13 +595,13 @@ describe('MultiSelect', () => {
     fireEvent.input(input, { target: { value: 'alpha' } })
     fireEvent.keyDown(input, { key: 'Enter' })
     expect(onChange).toHaveBeenLastCalledWith(['alpha'])
-    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(1)
+    expect(screen.container.querySelectorAll('[data-slot="multi-select-tag"]')).toHaveLength(1)
 
     // 2. Type duplicate tag
     fireEvent.input(input, { target: { value: 'alpha' } })
     fireEvent.keyDown(input, { key: 'Enter' })
     expect(onChange).toHaveBeenCalledTimes(1)
-    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(1)
+    expect(screen.container.querySelectorAll('[data-slot="multi-select-tag"]')).toHaveLength(1)
   })
 
   test('pressing Enter on a duplicate item from items collection does not delete the tag', () => {
@@ -602,7 +614,7 @@ describe('MultiSelect', () => {
     expect(input.hasAttribute('data-duplicate')).toBe(true)
     fireEvent.keyDown(input, { key: 'Enter' })
     expect(onChange).not.toHaveBeenCalled()
-    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(1)
+    expect(screen.container.querySelectorAll('[data-slot="multi-select-tag"]')).toHaveLength(1)
   })
 
   test('entering duplicate tag via delimiter does not duplicate or delete existing tag', () => {
@@ -617,7 +629,7 @@ describe('MultiSelect', () => {
     const input = screen.getByRole('combobox')
     fireEvent.input(input, { target: { value: 'alpha,' } })
     expect(onChange).not.toHaveBeenCalled()
-    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(1)
+    expect(screen.container.querySelectorAll('[data-slot="multi-select-tag"]')).toHaveLength(1)
   })
 
   test('pressing Enter on a highlighted already-selected option does not deselect it', () => {
@@ -630,7 +642,7 @@ describe('MultiSelect', () => {
     fireEvent.input(input, { target: { value: 'app' } })
     fireEvent.keyDown(input, { key: 'Enter' })
     expect(onChange).not.toHaveBeenCalled()
-    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(1)
+    expect(screen.container.querySelectorAll('[data-slot="multi-select-tag"]')).toHaveLength(1)
   })
 
   test('clear-all preserves selected items that are currently disabled', () => {
@@ -650,7 +662,9 @@ describe('MultiSelect', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }))
 
     expect(onChange).toHaveBeenCalledExactlyOnceWith(['locked'])
-    expect(screen.container.querySelectorAll('[data-slot="tag"]')).toHaveLength(1)
-    expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe('Locked')
+    expect(screen.container.querySelectorAll('[data-slot="multi-select-tag"]')).toHaveLength(1)
+    expect(
+      screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent,
+    ).toBe('Locked')
   })
 })

@@ -19,7 +19,7 @@ const render: typeof baseRender = (ui, options) =>
 describe('RadioGroup', () => {
   test('renders component defaults when provider is absent', () => {
     const screen = baseRender(() => <RadioGroup items={['A', 'B']} />)
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="radio-group"]')
     expect(root?.className).not.toBe('')
   })
 
@@ -27,7 +27,7 @@ describe('RadioGroup', () => {
     let rootEl: HTMLDivElement | undefined
     render(() => <RadioGroup ref={(el) => (rootEl = el)} items={['A', 'B']} />)
     expect(rootEl).toBeInstanceOf(HTMLDivElement)
-    expect(rootEl?.getAttribute('data-slot')).toBe('root')
+    expect(rootEl?.getAttribute('data-slot')).toBe('radio-group')
   })
 
   test('renders radio options with form-field label and no legacy wrappers', () => {
@@ -48,15 +48,17 @@ describe('RadioGroup', () => {
     expect(group.getAttribute('aria-describedby')).toContain('description')
     expect(screen.container.querySelector('[data-slot="fieldset"]')).toBeNull()
     expect(screen.container.querySelector('[data-slot="legend"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="container"]')).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot="radio-group-container"]')).not.toBeNull()
   })
 
   test('exposes required, disabled and readonly state through aria and data attributes', () => {
     const disabledScreen = render(() => <RadioGroup required disabled items={['Basic', 'Pro']} />)
     const disabledGroup = disabledScreen.getByRole('radiogroup')
     const disabledRadio = disabledScreen.getByRole<HTMLInputElement>('radio', { name: 'Basic' })
-    const disabledControl = disabledScreen.container.querySelector('[data-slot="control"]')
-    const disabledItem = disabledScreen.container.querySelector('[data-slot="item"]')
+    const disabledControl = disabledScreen.container.querySelector(
+      '[data-slot="radio-group-control"]',
+    )
+    const disabledItem = disabledScreen.container.querySelector('[data-slot="radio-group-item"]')
 
     expect(disabledGroup.getAttribute('aria-required')).toBe('true')
     expect(disabledGroup.getAttribute('aria-disabled')).toBe('true')
@@ -87,7 +89,7 @@ describe('RadioGroup', () => {
     const items = [{ value: 'pro', label: 'Pro', description: 'Best value' }]
     const screen = render(() => <RadioGroup items={items} />)
 
-    const input = screen.container.querySelector('[data-slot="input"]')
+    const input = screen.container.querySelector('[data-slot="radio-group-input"]')
     expect(input?.getAttribute('value')).toBe('pro')
     expect(screen.getByText('Best value')).not.toBeNull()
   })
@@ -523,10 +525,10 @@ describe('RadioGroup', () => {
     ))
 
     const group = screen.getByRole('radiogroup')
-    const firstItem = screen.container.querySelector('[data-slot="item"]')
-    const firstInput = screen.container.querySelector('[data-slot="input"]')
-    const firstContainer = screen.container.querySelector('[data-slot="container"]')
-    const firstBase = screen.container.querySelector('[data-slot="control"]')
+    const firstItem = screen.container.querySelector('[data-slot="radio-group-item"]')
+    const firstInput = screen.container.querySelector('[data-slot="radio-group-input"]')
+    const firstContainer = screen.container.querySelector('[data-slot="radio-group-container"]')
+    const firstBase = screen.container.querySelector('[data-slot="radio-group-control"]')
 
     expect(group.className).toContain('flex-row')
     expect(group.className).not.toContain('flex-wrap')
@@ -553,7 +555,7 @@ describe('RadioGroup', () => {
     const screen = render(() => <RadioGroup items={['A', 'B']} variant="table" size="lg" />)
 
     const group = screen.getByRole('radiogroup')
-    const firstItem = screen.container.querySelector('[data-slot="item"]')
+    const firstItem = screen.container.querySelector('[data-slot="radio-group-item"]')
 
     expect(group.className).toContain('flex-col')
     expect(firstItem?.className).toContain('first-of-type:rounded-t-lg')
@@ -567,7 +569,7 @@ describe('RadioGroup', () => {
       const screen = render(() => (
         <RadioGroup items={['A', 'B']} variant={variant} defaultValue="A" />
       ))
-      const items = screen.container.querySelectorAll('[data-slot="item"]')
+      const items = screen.container.querySelectorAll('[data-slot="radio-group-item"]')
       const firstItem = items[0]!
       const secondItem = items[1]!
 
@@ -586,15 +588,15 @@ describe('RadioGroup', () => {
 
   test('raises the selected table item above adjacent rows', () => {
     const screen = render(() => <RadioGroup items={['A', 'B']} variant="table" defaultValue="A" />)
-    const selectedItem = screen.container.querySelector('[data-slot="item"]')
+    const selectedItem = screen.container.querySelector('[data-slot="radio-group-item"]')
 
     expect(selectedItem?.className).toContain('z-base')
   })
 
   test('prevents the default radio control from shrinking into an oval', () => {
     const screen = render(() => <RadioGroup items={['A']} defaultValue="A" />)
-    const control = screen.container.querySelector('[data-slot="control"]')
-    const indicator = screen.container.querySelector('[data-slot="indicator"]')
+    const control = screen.container.querySelector('[data-slot="radio-group-control"]')
+    const indicator = screen.container.querySelector('[data-slot="radio-group-indicator"]')
 
     expect(control?.className).toContain('rounded-full')
     expect(control?.className).toContain('size-4')
@@ -607,7 +609,7 @@ describe('RadioGroup', () => {
 
     const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
     const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
-    const items = screen.container.querySelectorAll('[data-slot="item"]')
+    const items = screen.container.querySelectorAll('[data-slot="radio-group-item"]')
 
     expect(radioA.checked).toBe(true)
     expect(radioB.checked).toBe(false)
@@ -631,7 +633,7 @@ describe('RadioGroup', () => {
       />
     ))
 
-    fireEvent.click(canceled.container.querySelectorAll('[data-slot="item"]')[1]!)
+    fireEvent.click(canceled.container.querySelectorAll('[data-slot="radio-group-item"]')[1]!)
     expect(onChange).not.toHaveBeenCalled()
     canceled.unmount()
 
@@ -702,7 +704,7 @@ describe('RadioGroup', () => {
 
     const radioA = screen.getByRole<HTMLInputElement>('radio', { name: 'A' })
     const radioB = screen.getByRole<HTMLInputElement>('radio', { name: 'B' })
-    const items = screen.container.querySelectorAll('[data-slot="item"]')
+    const items = screen.container.querySelectorAll('[data-slot="radio-group-item"]')
 
     expect(radioA.checked).toBe(true)
     expect(radioB.checked).toBe(false)
@@ -745,9 +747,9 @@ describe('RadioGroup', () => {
       />
     ))
 
-    const item = screen.container.querySelector<HTMLElement>('[data-slot="item"]')
-    const base = screen.container.querySelector<HTMLElement>('[data-slot="control"]')
-    const label = screen.container.querySelector<HTMLElement>('[data-slot="label"]')
+    const item = screen.container.querySelector<HTMLElement>('[data-slot="radio-group-item"]')
+    const base = screen.container.querySelector<HTMLElement>('[data-slot="radio-group-control"]')
+    const label = screen.container.querySelector<HTMLElement>('[data-slot="radio-group-label"]')
 
     expect(item?.style.width).toBe('200px')
     expect(base?.style.width).toBe('200px')

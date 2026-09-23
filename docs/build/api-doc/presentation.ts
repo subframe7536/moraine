@@ -73,6 +73,35 @@ export function normalizeApiType(type: string): string {
 
 const COMMON_BASE_PROPS = new Set(['as', 'children', 'class', 'style', 'classes', 'styles'])
 
+const FORWARDED_DOM_SLOTS: Record<string, Record<string, string>> = {
+  'avatar-group': {
+    image: 'avatar-image',
+    fallback: 'avatar-fallback',
+    fallbackContent: 'avatar-fallback-content',
+    badge: 'avatar-badge',
+  },
+  'checkbox-group': {
+    container: 'checkbox-container',
+    control: 'checkbox-control',
+    indicator: 'checkbox-indicator',
+    icon: 'checkbox-icon',
+    wrapper: 'checkbox-wrapper',
+    label: 'checkbox-label',
+    description: 'checkbox-description',
+  },
+  pagination: { controlLabel: 'button-label' },
+}
+
+export function getDomSlotName(componentKey: string, slot: string): string {
+  const forwarded = FORWARDED_DOM_SLOTS[componentKey]?.[slot]
+  if (forwarded) {
+    return forwarded
+  }
+  return slot === 'root'
+    ? componentKey
+    : `${componentKey}-${slot.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`
+}
+
 function formatPropItem(prop: PropApi, anchorPrefix: string): PresentationPropItem {
   return {
     name: prop.name,
@@ -126,15 +155,17 @@ function createAttributesSection(
   for (const target of component.dataAttributes) {
     for (const name of target.attributes) {
       const slots = slotsByAttribute.get(name) ?? new Set<string>()
-      slots.add(target.target)
+      slots.add(getDomSlotName(component.key, target.target))
       slotsByAttribute.set(name, slots)
     }
   }
 
-  const slotOrder = new Map(component.slots.map((slot, index) => [slot, index]))
+  const slotOrder = new Map(
+    component.slots.map((slot, index) => [getDomSlotName(component.key, slot), index]),
+  )
   const targetOrder = new Map(
     component.dataAttributes.map((target, index) => [
-      target.target,
+      getDomSlotName(component.key, target.target),
       component.slots.length + index,
     ]),
   )
@@ -159,7 +190,11 @@ function createAttributesSection(
     id: 'api-attributes',
     heading: 'Attributes',
     slots: orderSlots(
-      new Set([...component.slots, ...component.dataAttributes.map((target) => target.target)]),
+      new Set(
+        [...component.slots, ...component.dataAttributes.map((target) => target.target)].map(
+          (slot) => getDomSlotName(component.key, slot),
+        ),
+      ),
     ),
     items,
   }

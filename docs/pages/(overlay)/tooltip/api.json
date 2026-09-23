@@ -149,7 +149,7 @@
         {
           "name": "as",
           "optional": true,
-          "type": "l",
+          "type": "i",
           "description": "Element or component to render as.",
           "default": {
             "kind": "literal",
@@ -258,8 +258,7 @@
     "trigger",
     "content",
     "text",
-    "kbds",
-    "kbd"
+    "kbds"
   ],
   "dataAttributes": [
     {

@@ -22,9 +22,9 @@ function ControlLink(props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) {
 describe('Pagination', () => {
   test('renders component defaults when provider is absent', () => {
     const screen = render(() => <Pagination total={30} itemsPerPage={10} />)
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="pagination"]')
     expect(root?.className).not.toBe('')
-    const list = screen.container.querySelector('[data-slot="list"]')
+    const list = screen.container.querySelector('[data-slot="pagination-list"]')
     expect(list?.className).not.toBe('')
   })
 
@@ -34,8 +34,10 @@ describe('Pagination', () => {
       <Pagination total={30} page={2} controlVariant={destructive() ? 'destructive' : 'ghost'} />
     ))
     const root = screen.getByRole('navigation')
-    const current = screen.container.querySelector('[data-slot="item"][aria-current="page"]')!
-    const next = screen.container.querySelector('[data-slot="next"]')!
+    const current = screen.container.querySelector(
+      '[data-slot="pagination-item"][aria-current="page"]',
+    )!
+    const next = screen.container.querySelector('[data-slot="pagination-next"]')!
     expect(root.className).not.toMatch(/bg-|hover:|border-/)
     expect(current.className).toContain('bg-background')
     expect(next.className).toContain('bg-muted-hover')
@@ -54,7 +56,7 @@ describe('Pagination', () => {
   })
   test('renders semantic root attributes by default', () => {
     const screen = renderWithTheme(() => <Pagination total={30} itemsPerPage={10} />)
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="pagination"]')
 
     expect(root?.getAttribute('aria-label')).toBe('Pagination')
     expect(root?.getAttribute('role')).toBe('navigation')
@@ -79,7 +81,7 @@ describe('Pagination', () => {
       />
     ))
 
-    const status = screen.container.querySelector('[data-slot="status"]')
+    const status = screen.container.querySelector('[data-slot="pagination-status"]')
     expect(status?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Page 1 of 1')
     expect(screen.container.textContent).not.toContain('Infinity')
     expect(screen.container.textContent).not.toContain('NaN')
@@ -92,7 +94,7 @@ describe('Pagination', () => {
     [{ total: 30, itemsPerPage: Number.POSITIVE_INFINITY }, 'Page 1 of 3'],
   ] as const)('normalizes fractional and out-of-range inputs %#', (input, expected) => {
     const screen = renderWithTheme(() => <Pagination {...input} />)
-    const status = screen.container.querySelector('[data-slot="status"]')
+    const status = screen.container.querySelector('[data-slot="pagination-status"]')
 
     expect(status?.textContent?.replace(/\s+/g, ' ').trim()).toBe(expected)
   })
@@ -108,7 +110,9 @@ describe('Pagination', () => {
       />
     ))
 
-    expect(screen.container.querySelectorAll('[data-slot="item"]').length).toBeLessThanOrEqual(205)
+    expect(
+      screen.container.querySelectorAll('[data-slot="pagination-item"]').length,
+    ).toBeLessThanOrEqual(205)
     expect(
       screen.getByLabelText('Page 4000000000 of 9007199254740991, current page'),
     ).not.toBeNull()
@@ -122,7 +126,7 @@ describe('Pagination', () => {
     ))
     const status = () =>
       screen.container
-        .querySelector('[data-slot="status"]')
+        .querySelector('[data-slot="pagination-status"]')
         ?.textContent?.replace(/\s+/g, ' ')
         .trim()
 
@@ -142,7 +146,7 @@ describe('Pagination', () => {
     ))
     const status = () =>
       screen.container
-        .querySelector('[data-slot="status"]')
+        .querySelector('[data-slot="pagination-status"]')
         ?.textContent?.replace(/\s+/g, ' ')
         .trim()
 
@@ -169,7 +173,9 @@ describe('Pagination', () => {
 
     expect(onPageChange).toHaveBeenCalledWith(3)
 
-    const current = screen.container.querySelector('[data-slot="item"][aria-current="page"]')
+    const current = screen.container.querySelector(
+      '[data-slot="pagination-item"][aria-current="page"]',
+    )
     expect(current?.textContent).toBe('2')
   })
 
@@ -197,21 +203,21 @@ describe('Pagination', () => {
       <Pagination total={30} itemsPerPage={10} showControls />
     ))
 
-    expect(withControls.container.querySelector('[data-slot="prev"]')).not.toBeNull()
-    expect(withControls.container.querySelector('[data-slot="next"]')).not.toBeNull()
+    expect(withControls.container.querySelector('[data-slot="pagination-prev"]')).not.toBeNull()
+    expect(withControls.container.querySelector('[data-slot="pagination-next"]')).not.toBeNull()
 
     const withoutControls = renderWithTheme(() => (
       <Pagination total={30} itemsPerPage={10} showControls={false} />
     ))
 
-    expect(withoutControls.container.querySelector('[data-slot="prev"]')).toBeNull()
-    expect(withoutControls.container.querySelector('[data-slot="next"]')).toBeNull()
+    expect(withoutControls.container.querySelector('[data-slot="pagination-prev"]')).toBeNull()
+    expect(withoutControls.container.querySelector('[data-slot="pagination-next"]')).toBeNull()
   })
 
   test('renders icon-only controls with icons in Button children', () => {
     const screen = renderWithTheme(() => <Pagination total={30} itemsPerPage={10} showControls />)
-    const prev = screen.container.querySelector('[data-slot="prev"]')
-    const next = screen.container.querySelector('[data-slot="next"]')
+    const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
+    const next = screen.container.querySelector('[data-slot="pagination-next"]')
 
     expect(prev?.className).toContain('size-8')
     expect(next?.className).toContain('size-8')
@@ -219,27 +225,50 @@ describe('Pagination', () => {
     expect(next?.hasAttribute('data-size')).toBe(false)
     expect(prev?.hasAttribute('data-text')).toBe(false)
     expect(next?.hasAttribute('data-text')).toBe(false)
-    expect(prev?.querySelector('[data-slot="leading"]')).toBeNull()
-    expect(next?.querySelector('[data-slot="trailing"]')).toBeNull()
-    expect(prev?.querySelector('[data-slot="label"] > [data-slot="icon"]')).not.toBeNull()
-    expect(next?.querySelector('[data-slot="label"] > [data-slot="icon"]')).not.toBeNull()
+    expect(prev?.querySelector('[data-slot="button-leading"]')).toBeNull()
+    expect(next?.querySelector('[data-slot="button-trailing"]')).toBeNull()
+    expect(prev?.querySelector('[data-slot="button-label"] > [data-slot="icon"]')).not.toBeNull()
+    expect(next?.querySelector('[data-slot="button-label"] > [data-slot="icon"]')).not.toBeNull()
   })
 
   test('renders text controls with icons in their leading and trailing slots', () => {
     const screen = renderWithTheme(() => (
       <Pagination total={30} itemsPerPage={10} prevText="Previous" nextText="Next" showControls />
     ))
-    const prev = screen.container.querySelector('[data-slot="prev"]')
-    const next = screen.container.querySelector('[data-slot="next"]')
+    const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
+    const next = screen.container.querySelector('[data-slot="pagination-next"]')
 
     expect(prev?.className).toContain('h-8')
     expect(next?.className).toContain('h-8')
     expect(prev?.className).toContain('ps-2!')
     expect(next?.className).toContain('pe-2!')
-    expect(prev?.querySelector('[data-slot="leading"]')).not.toBeNull()
-    expect(next?.querySelector('[data-slot="trailing"]')).not.toBeNull()
-    expect(prev?.querySelector('[data-slot="label"]')?.textContent).toBe('Previous')
-    expect(next?.querySelector('[data-slot="label"]')?.textContent).toBe('Next')
+    expect(prev?.querySelector('[data-slot="button-leading"]')).not.toBeNull()
+    expect(next?.querySelector('[data-slot="button-trailing"]')).not.toBeNull()
+    expect(prev?.querySelector('[data-slot="button-label"]')?.textContent).toBe('Previous')
+    expect(next?.querySelector('[data-slot="button-label"]')?.textContent).toBe('Next')
+  })
+
+  test('forwards control label classes and styles to Button-owned labels', () => {
+    const screen = render(() => (
+      <Pagination
+        total={30}
+        prevText="Previous"
+        nextText="Next"
+        classes={{ controlLabel: 'pagination-label' }}
+        styles={{ controlLabel: { 'letter-spacing': '2px' } }}
+      />
+    ))
+    const labels = screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="pagination-prev"] [data-slot="button-label"], [data-slot="pagination-next"] [data-slot="button-label"]',
+    )
+
+    expect(labels).toHaveLength(2)
+    for (const label of labels) {
+      expect(label.className).toContain('pagination-label')
+      expect(label.className).toContain('hidden sm:block')
+      expect(label.style.letterSpacing).toBe('2px')
+    }
+    expect(screen.container.querySelector('[data-slot="pagination-control-label"]')).toBeNull()
   })
 
   test('renders page items and controls as links when `to` is provided', () => {
@@ -247,9 +276,9 @@ describe('Pagination', () => {
       <Pagination page={2} total={30} itemsPerPage={10} to={(page) => `/page/${page}`} />
     ))
 
-    const prev = screen.container.querySelector('[data-slot="prev"]')
-    const pageLink = screen.getByText('3').closest('[data-slot="item"]')
-    const next = screen.container.querySelector('[data-slot="next"]')
+    const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
+    const pageLink = screen.getByText('3').closest('[data-slot="pagination-item"]')
+    const next = screen.container.querySelector('[data-slot="pagination-next"]')
 
     expect(prev?.tagName).toBe('A')
     expect(prev?.getAttribute('rel')).toBe('prev')
@@ -273,9 +302,9 @@ describe('Pagination', () => {
       />
     ))
 
-    const item = screen.getByText('3').closest('[data-slot="item"]')
-    const prev = screen.container.querySelector('[data-slot="prev"]')
-    const next = screen.container.querySelector('[data-slot="next"]')
+    const item = screen.getByText('3').closest('[data-slot="pagination-item"]')
+    const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
+    const next = screen.container.querySelector('[data-slot="pagination-next"]')
 
     expect(item?.hasAttribute('data-custom-item')).toBe(true)
     expect(item?.hasAttribute('data-custom-control')).toBe(false)
@@ -294,7 +323,7 @@ describe('Pagination', () => {
       <Pagination total={30} itemsPerPage={10} itemAs={ItemLink} showControls={false} />
     ))
 
-    const items = screen.container.querySelectorAll('[data-slot="item"]')
+    const items = screen.container.querySelectorAll('[data-slot="pagination-item"]')
     expect(items).toHaveLength(3)
     for (const item of items) {
       expect(item.tagName).toBe('A')
@@ -313,8 +342,8 @@ describe('Pagination', () => {
         to={(page) => `/page/${page}`}
       />
     ))
-    const prevAtStart = firstPage.container.querySelector('[data-slot="prev"]')
-    const nextAtStart = firstPage.container.querySelector('[data-slot="next"]')
+    const prevAtStart = firstPage.container.querySelector('[data-slot="pagination-prev"]')
+    const nextAtStart = firstPage.container.querySelector('[data-slot="pagination-next"]')
     expect(prevAtStart?.tagName).toBe('BUTTON')
     expect(prevAtStart?.hasAttribute('disabled')).toBe(true)
     expect(prevAtStart?.hasAttribute('data-custom-control')).toBe(false)
@@ -329,7 +358,7 @@ describe('Pagination', () => {
         to={(page) => `/page/${page}`}
       />
     ))
-    const nextAtEnd = lastPage.container.querySelector('[data-slot="next"]')
+    const nextAtEnd = lastPage.container.querySelector('[data-slot="pagination-next"]')
     expect(nextAtEnd?.tagName).toBe('BUTTON')
     expect(nextAtEnd?.hasAttribute('disabled')).toBe(true)
     expect(nextAtEnd?.hasAttribute('data-custom-control')).toBe(false)
@@ -345,7 +374,7 @@ describe('Pagination', () => {
       />
     ))
     for (const control of ['prev', 'next']) {
-      const element = disabled.container.querySelector(`[data-slot="${control}"]`)
+      const element = disabled.container.querySelector(`[data-slot="pagination-${control}"]`)
       expect(element?.tagName).toBe('BUTTON')
       expect(element?.hasAttribute('disabled')).toBe(true)
       expect(element?.hasAttribute('data-custom-control')).toBe(false)
@@ -389,8 +418,8 @@ describe('Pagination', () => {
       />
     ))
 
-    const prevAtStart = firstPage.container.querySelector('[data-slot="prev"]')
-    const nextAtStart = firstPage.container.querySelector('[data-slot="next"]')
+    const prevAtStart = firstPage.container.querySelector('[data-slot="pagination-prev"]')
+    const nextAtStart = firstPage.container.querySelector('[data-slot="pagination-next"]')
 
     expect(prevAtStart?.tagName).toBe('BUTTON')
     expect(prevAtStart?.getAttribute('disabled')).not.toBeNull()
@@ -401,7 +430,7 @@ describe('Pagination', () => {
       <Pagination page={2} total={30} itemsPerPage={10} showControls={false} />
     ))
 
-    const pageControl = withoutTo.getByText('3').closest('[data-slot="item"]')
+    const pageControl = withoutTo.getByText('3').closest('[data-slot="pagination-item"]')
     expect(pageControl?.tagName).toBe('BUTTON')
   })
 
@@ -410,13 +439,15 @@ describe('Pagination', () => {
     const screen = renderWithTheme(() => (
       <Pagination page={page()} total={30} itemsPerPage={10} to={(target) => `/page/${target}`} />
     ))
-    const nextLink = screen.container.querySelector('[data-slot="next"]') as HTMLElement
+    const nextLink = screen.container.querySelector('[data-slot="pagination-next"]') as HTMLElement
 
     nextLink.focus()
     expect(document.activeElement).toBe(nextLink)
     expect(nextLink.tagName).toBe('A')
     setPage(3)
-    const nextButton = screen.container.querySelector('[data-slot="next"]') as HTMLElement
+    const nextButton = screen.container.querySelector(
+      '[data-slot="pagination-next"]',
+    ) as HTMLElement
     expect(nextButton.tagName).toBe('BUTTON')
     expect(nextButton.hasAttribute('disabled')).toBe(true)
     expect(document.activeElement).toBe(document.body)
@@ -440,7 +471,7 @@ describe('Pagination', () => {
     ))
 
     const ellipsisNodes = screen.container.querySelectorAll(
-      'li[data-slot="list-item"][aria-hidden] > [data-slot="ellipsis"]',
+      'li[data-slot="pagination-list-item"][aria-hidden] > [data-slot="pagination-ellipsis"]',
     )
 
     expect(ellipsisNodes.length).toBe(2)
@@ -468,9 +499,9 @@ describe('Pagination', () => {
       ))
 
       const ellipsisItems = screen.container.querySelectorAll(
-        'li[data-slot="list-item"][data-ellipsis]',
+        'li[data-slot="pagination-list-item"][data-ellipsis]',
       )
-      const ellipsisIcons = screen.container.querySelectorAll('[data-slot="ellipsis"]')
+      const ellipsisIcons = screen.container.querySelectorAll('[data-slot="pagination-ellipsis"]')
 
       expect(ellipsisItems.length).toBe(2)
       for (const item of ellipsisItems) {
@@ -504,7 +535,7 @@ describe('Pagination', () => {
       />
     ))
 
-    const status = screen.container.querySelector('[data-slot="status"]')
+    const status = screen.container.querySelector('[data-slot="pagination-status"]')
     expect(status).not.toBeNull()
     expect(status?.getAttribute('role')).toBe('status')
     expect(status?.getAttribute('aria-live')).toBe('polite')
@@ -559,13 +590,13 @@ describe('Pagination', () => {
       />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const list = screen.container.querySelector('[data-slot="list"]')
+    const root = screen.container.querySelector('[data-slot="pagination"]')
+    const list = screen.container.querySelector('[data-slot="pagination-list"]')
     const currentPage = screen.getByLabelText('Page 5 of 10, current page')
-    const pageItem = currentPage.closest('li[data-slot="list-item"]')
-    const prev = screen.container.querySelector('[data-slot="prev"]')
-    const next = screen.container.querySelector('[data-slot="next"]')
-    const ellipsis = screen.container.querySelector('[data-slot="ellipsis"]')
+    const pageItem = currentPage.closest('li[data-slot="pagination-list-item"]')
+    const prev = screen.container.querySelector('[data-slot="pagination-prev"]')
+    const next = screen.container.querySelector('[data-slot="pagination-next"]')
+    const ellipsis = screen.container.querySelector('[data-slot="pagination-ellipsis"]')
 
     expect(root?.className).toContain('root-override')
     expect(list?.className).toContain('list-override')

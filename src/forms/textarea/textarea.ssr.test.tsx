@@ -13,7 +13,7 @@ describe('Textarea SSR Hydration', () => {
     )
     const textarea = container.firstElementChild as HTMLTextAreaElement
     expect(textarea.tagName).toBe('TEXTAREA')
-    expect(textarea.dataset.slot).toBe('root')
+    expect(textarea.dataset.slot).toBe('textarea')
     expect(textarea.value).toBe('Server value')
   })
 })

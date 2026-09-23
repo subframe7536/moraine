@@ -139,7 +139,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     <CollapsibleProvider value={context}>
       <div
         id={rootId()}
-        data-slot="root"
+        data-slot="collapsible"
         {...collapsibleDataAttributes.root({
           expanded: () => dataAttrs()['data-expanded'],
           closed: () => dataAttrs()['data-closed'],

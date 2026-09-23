@@ -329,7 +329,7 @@ describe('Form', () => {
 
     fireEvent.submit(screen.container.querySelector('form')!)
 
-    const thumb = screen.container.querySelector<HTMLElement>('[data-slot="thumb"]')!
+    const thumb = screen.container.querySelector<HTMLElement>('[data-slot="slider-thumb"]')!
     await waitFor(() => expect(document.activeElement).toBe(thumb))
   })
 
@@ -449,7 +449,9 @@ describe('Form', () => {
 
       fireEvent.submit(frameDocument.querySelector('form')!)
 
-      await waitFor(() => expect(frameDocument.querySelector('[data-slot="error"]')).not.toBeNull())
+      await waitFor(() =>
+        expect(frameDocument.querySelector('[data-slot="field-error"]')).not.toBeNull(),
+      )
       expect(frameDocument.activeElement).toBe(screen.getByLabelText('Second'))
     } finally {
       frame.remove()
@@ -481,7 +483,7 @@ describe('Form', () => {
     const input = shadow.querySelector<HTMLInputElement>('#shadow-email')!
     fireEvent.submit(formElement)
 
-    await waitFor(() => expect(shadow.querySelector('[data-slot="error"]')).not.toBeNull())
+    await waitFor(() => expect(shadow.querySelector('[data-slot="field-error"]')).not.toBeNull())
     expect(shadow.activeElement).toBe(input)
     expect(document.activeElement).toBe(host)
 
@@ -579,8 +581,8 @@ describe('Form', () => {
 
       fireEvent.input(input, { target: { value: 'invalid' } })
       fireEvent.blur(input)
-      fireEvent.click(screen.getByRole('switch'))
       await waitFor(() => expect(screen.getByText('Enter a valid email.')).not.toBeNull())
+      fireEvent.click(screen.getByRole('switch'))
       expect(form.isDirty).toBe(true)
       expect(form.isTouched).toBe(true)
 

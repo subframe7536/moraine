@@ -39,7 +39,7 @@ test('separates the Control anchor from the Trigger focus owner and cleans both 
       <Anatomy />
     </BaseSelect>
   ))
-  const control = screen.container.querySelector<HTMLElement>('[data-slot="control"]')!
+  const control = screen.container.querySelector<HTMLElement>('[data-slot="base-select-control"]')!
   const trigger = screen.getByRole('combobox')
   expect(control.tabIndex).toBe(-1)
   expect(control.getAttribute('role')).toBeNull()
@@ -144,7 +144,9 @@ test('supports a custom searchable Control without BaseSelect.Trigger', () => {
   ))
   const input = screen.getByRole('combobox')
   expect(input.getAttribute('autocomplete')).toBe('off')
-  expect(screen.container.querySelector('[data-slot="control"]')?.getAttribute('role')).toBeNull()
+  expect(
+    screen.container.querySelector('[data-slot="base-select-control"]')?.getAttribute('role'),
+  ).toBeNull()
   fireEvent.input(input, { target: { value: 'be' } })
   expect(input.getAttribute('aria-expanded')).toBe('true')
   fireEvent.click(screen.getByRole('button', { name: 'Toggle' }))
@@ -312,7 +314,7 @@ describe('BaseSelect composition', () => {
     ))
     const trigger = screen.getByRole('combobox')
     expect(trigger.tagName).toBe('BUTTON')
-    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.getAttribute('data-slot')).toBe('base-select-trigger')
     expect(trigger.getAttribute('type')).toBe('button')
     expect(trigger.className).toBe('')
     expect(trigger.parentElement).toBe(screen.container)
@@ -492,7 +494,9 @@ describe('canonical collection and search view', () => {
       ).toContain('Beta')
       expect(new FormData(screen.container.querySelector('form')!).getAll('choice')).toEqual(['1'])
       if (multiple) {
-        expect(screen.container.querySelector('[data-slot="tag"]')?.textContent).toContain('Alpha')
+        expect(
+          screen.container.querySelector('[data-slot="multi-select-tag"]')?.textContent,
+        ).toContain('Alpha')
       }
       fireEvent.input(screen.getByRole('combobox'), { target: { value: 'missing' } })
       expect(within(document.body).getByText('No items')).not.toBeNull()
@@ -540,7 +544,9 @@ test('virtual rows remain a small view of canonical selection and compose both r
   expect(
     within(document.body).getAllByRole('option', { hidden: true })[0]!.getAttribute('aria-setsize'),
   ).toBe(String(leaves.filter((item) => item.label.includes('Item 2')).length))
-  expect(screen.container.querySelector('[data-slot="tag"]')?.textContent).toContain('Item 3999')
+  expect(screen.container.querySelector('[data-slot="multi-select-tag"]')?.textContent).toContain(
+    'Item 3999',
+  )
   expect(new FormData(screen.container.querySelector('form')!).getAll('virtual')).toEqual(['3999'])
   expect(screen.container.querySelectorAll('input[type="hidden"]')).toHaveLength(0)
 })

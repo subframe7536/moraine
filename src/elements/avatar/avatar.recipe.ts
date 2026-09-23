@@ -19,9 +19,9 @@ export const avatarRecipe = /* @__PURE__ */ defineRecipe<AvatarStyleSlot, Avatar
         'opacity-0 pointer-events-none data-[status=loaded]:(opacity-100 pointer-events-auto) rounded-full size-full transition-opacity inset-0 absolute object-cover',
       fallback:
         'opacity-100 data-[status=loaded]:(opacity-0 pointer-events-none) text-muted-foreground font-medium rounded-full bg-muted flex uppercase transition-opacity items-center inset-0 justify-center absolute',
-      fallbackIcon: 'shrink-0',
+      fallbackContent: 'shrink-0',
       badge:
-        '[&>[data-slot=root]]:text-[0.75em] text-foreground rounded-full bg-background inline-flex pointer-events-none ring-2 ring-background items-center justify-center absolute z-sticky',
+        '[&>[data-slot=icon]]:text-[0.75em] text-foreground rounded-full bg-background inline-flex pointer-events-none ring-2 ring-background items-center justify-center absolute z-sticky',
     },
     defaultVariants: {
       size: 'md',
@@ -32,19 +32,19 @@ export const avatarRecipe = /* @__PURE__ */ defineRecipe<AvatarStyleSlot, Avatar
         sm: {
           root: 'text-xs size-6',
           fallback: 'text-xs',
-          fallbackIcon: 'text-sm',
+          fallbackContent: 'text-sm',
           badge: 'text-[9px] size-3',
         },
         md: {
           root: 'text-sm size-8',
           fallback: 'text-sm',
-          fallbackIcon: 'text-base',
+          fallbackContent: 'text-base',
           badge: 'text-[10px] size-3.5',
         },
         lg: {
           root: 'text-base size-10',
           fallback: 'text-base',
-          fallbackIcon: 'text-lg',
+          fallbackContent: 'text-lg',
           badge: 'text-xs size-4',
         },
       },
