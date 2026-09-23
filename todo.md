@@ -8,8 +8,8 @@
 - [x] autocomplete=off on multiselect/combobox
 - [x] fix from root: in input-group docs' dropdown example, click trigger and click outside, the input group's focus ring should never active
 - [x] expose slider & resizable hook
-- [ ] builtin icon names auto completion support for `IconT.Name`
-  - [ ] in toaster docs, use custom icon in provider
+- [x] builtin icon names auto completion support for `IconT.Name`
+  - [x] in toaster docs, use custom icon in provider
 - [ ] docs polish
 - [ ] slot indicator in playground, like https://www.chakra-ui.com/docs/components/pin-input#explorer
 

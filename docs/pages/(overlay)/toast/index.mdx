@@ -30,27 +30,38 @@ pnpm add solid-toaster
 npm i solid-toaster
 ```
 
-Then import styles and mount a `Toaster` instance at your application root:
+Then import styles and mount a `BaseToaster` host from `solid-toaster` at your application root. Supply Moraine's semantic icons through its `icons` prop:
 
 ```tsx
 import 'solid-toaster/style.css'
 
-import { Button } from 'moraine'
-import { Toaster, toast } from 'solid-toaster'
+import { Button, Icon } from 'moraine'
+import { BaseToaster, toast } from 'solid-toaster'
 
 export default function App() {
   return (
     <>
       <Button onClick={() => toast.success('Changes saved!')}>Save</Button>
-      <Toaster />
+      <BaseToaster
+        icons={{
+          success: <Icon name="icon-success" />,
+          error: <Icon name="icon-error" />,
+          warning: <Icon name="icon-warning" />,
+          info: <Icon name="icon-info" />,
+          loading: <Icon name="icon-loading" class="animate-spin" />,
+          close: <Icon name="icon-close" />,
+        }}
+      />
     </>
   )
 }
 ```
 
+`solid-toaster`'s `Toaster` wraps `BaseToaster` and supplies its own default icons. Using `BaseToaster` lets Moraine's `Icon` provide the visuals while `solid-toaster` manages toast state and rendering. The `icon-*` names are Moraine's semantic styling aliases.
+
 ## Features
 
-- **Asynchronous Promise Lifecycle**: `toast.promise(promise, { loading, success, error })` updates message tone and icons as a promise settles.
+- **Asynchronous Promise Lifecycle**: `toast.promise(promise, { loading, success, error })` updates message tone and selects the configured semantic icons as a promise settles.
 - **Multiple Semantic Tones**: Dedicated methods for `toast.success()`, `toast.error()`, `toast.warning()`, and `toast.info()`.
 - **Scoped Multi-Toaster Instances**: Target specific viewport regions or modal contexts using `toasterId`.
 - **Dismissal & Duration Controls**: Custom per-toast timeouts, progress timers, and manual `toast.dismiss()` triggers.
@@ -91,7 +102,7 @@ export default function App() {
           toast.error(message)
           break
         case 'info':
-          toast(message)
+          toast.info(message)
           break
         default:
           toast.success(message)
@@ -113,7 +124,7 @@ export default function App() {
 Hierarchical slot and element structure:
 
 ```text
-Toaster (viewport container)
+BaseToaster (viewport container)
 └── Toast (floating card ×n)
     ├── icon (status indicator icon)
     ├── content
@@ -123,14 +134,14 @@ Toaster (viewport container)
     └── close (optional dismiss button)
 ```
 
-- `Toaster`: Mounts at top-level root managing stacking, gaps, and z-index.
+- `BaseToaster`: Mounts at top-level root managing stacking, gaps, and z-index.
 - `Toast`: Individual animated notification card.
 
 ## Usage
 
 ### Setup
 
-Toast is provided by the `solid-toaster` integration, not a Moraine component export. Import its stylesheet and mount a `Toaster` host before calling `toast` methods.
+Toast is provided by the `solid-toaster` integration, not a Moraine component export. Import its stylesheet and mount a `BaseToaster` host with Moraine icons before calling `toast` methods.
 
 <Preview path="./setup-usage" />
 

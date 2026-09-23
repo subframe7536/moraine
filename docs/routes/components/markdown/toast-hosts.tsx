@@ -1,6 +1,8 @@
 import 'solid-toaster/style.css'
 
-import { Toaster } from 'solid-toaster'
+import { BaseToaster } from 'solid-toaster'
+
+import { createMoraineToastIcons } from './toast-icons.tsx'
 
 export const ToastHosts = () => {
   const TOASTER_STYLE = {
@@ -11,8 +13,18 @@ export const ToastHosts = () => {
   }
   return (
     <>
-      <Toaster preventDuplicate style={TOASTER_STYLE} visibleToasts={4} />
-      <Toaster id="custom" position="bottom-left" style={TOASTER_STYLE} />
+      <BaseToaster
+        preventDuplicate
+        style={TOASTER_STYLE}
+        visibleToasts={4}
+        icons={createMoraineToastIcons()}
+      />
+      <BaseToaster
+        id="custom"
+        position="bottom-left"
+        style={TOASTER_STYLE}
+        icons={createMoraineToastIcons()}
+      />
     </>
   )
 }
