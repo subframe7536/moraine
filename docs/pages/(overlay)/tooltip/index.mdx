@@ -22,7 +22,7 @@ import type { TooltipT } from 'moraine'
 ## Features
 
 - **Hover & Focus Triggers**: Opens from pointer hover or focus and uses configured open/close timing.
-- **Shortcut Keycaps**: `kbds` renders the provided shortcut keys with Moraine's Kbd components.
+- **Shortcut Keycaps**: `kbds` renders the provided shortcut keys with Moraine's Kbd components. `kbdVariant` selects their visual variant.
 - **Inverted Styling**: `invert` switches the tooltip color treatment.
 - **Floating Placement**: Uses the shared Floating UI positioning layer for placement and collision handling.
 - **Tooltip Semantics**: The floating hint uses `role="tooltip"` and associates itself with the trigger through the shared overlay trigger metadata.
@@ -98,7 +98,7 @@ Use tooltips for non-interactive hints that supplement an already labeled trigge
 
 ### Triggering and shortcuts
 
-Tooltip opens from pointer hover and focus. `kbds` displays shortcut notation alongside the hint; it does not register that shortcut.
+Tooltip opens from pointer hover and focus. `kbds` displays shortcut notation alongside the hint; it does not register that shortcut. Set `kbdVariant` on `Tooltip.Content` to `default`, `outline`, or `invert`. When omitted, keycaps follow the content's `invert` setting.
 
 <Preview path="./shortcuts-usage" />
 

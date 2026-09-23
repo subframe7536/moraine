@@ -377,6 +377,7 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'text',
     'kbds',
+    'kbdVariant',
     'children',
     'invert',
     'class',
@@ -441,7 +442,7 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
             <Show when={kbds()?.length ? kbds() : undefined}>
               {(keys) => (
                 <KbdGroup
-                  variant={resolved.variants.invert ? 'invert' : undefined}
+                  variant={local.kbdVariant ?? (resolved.variants.invert ? 'invert' : undefined)}
                   size="sm"
                   items={keys()}
                   {...resolved.styles.kbds}

@@ -168,6 +168,25 @@ describe('Tooltip', () => {
     expect(document.body.querySelectorAll('[data-slot="root"]').length).toBe(1)
   })
 
+  test.each([
+    { kbdVariant: undefined, expectedClass: 'bg-muted-foreground' },
+    { kbdVariant: 'outline' as const, expectedClass: 'border-b-2' },
+  ])('uses $kbdVariant keycap variant with inverted content', ({ kbdVariant, expectedClass }) => {
+    render(() => (
+      <Tooltip open>
+        <Tooltip.Trigger>Trigger</Tooltip.Trigger>
+        <Tooltip.Content text="Save" kbds={['Ctrl', 'S']} invert kbdVariant={kbdVariant} />
+      </Tooltip>
+    ))
+
+    const keycaps = document.body.querySelectorAll('[data-slot="item"]')
+    expect(keycaps).toHaveLength(2)
+    for (const keycap of keycaps) {
+      expect(keycap.classList.contains(expectedClass)).toBe(true)
+    }
+    expect(document.body.querySelector('[role="tooltip"]')?.hasAttribute('kbdVariant')).toBe(false)
+  })
+
   test('applies classes.content to content slot', () => {
     renderWithTheme(() => (
       <Tooltip open>

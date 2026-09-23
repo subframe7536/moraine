@@ -228,6 +228,12 @@
           "description": "Keyboard shortcuts to display next to the text."
         },
         {
+          "name": "kbdVariant",
+          "optional": true,
+          "type": "'default' | 'outline' | 'invert'",
+          "description": "Visual variant for the shortcut keycaps. Overrides the variant inferred from invert."
+        },
+        {
           "name": "style",
           "optional": true,
           "type": "SlotStyleValue",

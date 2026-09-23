@@ -1,5 +1,6 @@
 import type { JSX } from 'solid-js'
 
+import type { KbdGroupT } from '../../elements/kbd/kbd-group.types.ts'
 import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
 import type { OverlayPlacement } from '../../theme/style/style-types.ts'
 import type { PopperContentOptions, PopperProps } from '../base/popper.types'
@@ -74,6 +75,9 @@ export namespace TooltipT {
      * Keyboard shortcuts to display next to the text.
      */
     kbds?: string[]
+
+    /** Visual variant for the shortcut keycaps. Overrides the variant inferred from invert. */
+    kbdVariant?: KbdGroupT.Variant['variant']
 
     /** Text content when text is undefined. */
     children?: JSX.Element

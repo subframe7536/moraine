@@ -7,7 +7,7 @@ export function ShortcutsUsage() {
         <Tooltip.Trigger as={Button} leading="i-lucide:save">
           Save
         </Tooltip.Trigger>
-        <Tooltip.Content text="Save changes" kbds={['command', 's']} />
+        <Tooltip.Content text="Save changes" kbds={['command', 's']} kbdVariant="outline" />
       </Tooltip>
     </div>
   )
