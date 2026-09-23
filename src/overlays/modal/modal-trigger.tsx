@@ -68,7 +68,7 @@ export function ModalTrigger<T extends ValidComponent = 'button'>(
 
   return (
     <Dynamic
-      data-slot="trigger"
+      data-slot={binding.context.slotName('trigger')}
       {...interactionProps}
       component={tag()}
       style={local.style}

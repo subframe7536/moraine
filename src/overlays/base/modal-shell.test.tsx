@@ -11,6 +11,7 @@ describe.each([
   { name: 'Dialog', Root: Dialog },
   { name: 'Sheet', Root: Sheet },
 ])('$name composition', ({ Root, name }) => {
+  const owner = name.toLowerCase()
   test('does not instantiate closed content slots and reads children once on opening', () => {
     let titleReads = 0
     let bodyReads = 0
@@ -38,9 +39,9 @@ describe.each([
     expect(screen.container.children).toHaveLength(1)
     fireEvent.click(screen.getByRole('button', { name: 'Open' }))
     expect([titleReads, bodyReads, childrenReads]).toEqual([1, 1, 1])
-    const content = document.body.querySelector('[data-slot="content"]')!
-    expect(content.querySelector('[data-slot="body"]')?.textContent).toBe('Children')
-    expect(content.querySelector('[data-slot="title"]')?.textContent).toBe('Title')
+    const content = document.body.querySelector(`[data-slot="${owner}-content"]`)!
+    expect(content.querySelector(`[data-slot="${owner}-body"]`)?.textContent).toBe('Children')
+    expect(content.querySelector(`[data-slot="${owner}-title"]`)?.textContent).toBe('Title')
   })
 
   test.each([null, false])('explicit body %s suppresses children without reading them', (body) => {
@@ -57,7 +58,7 @@ describe.each([
       </Root>
     ))
     expect(reads).toBe(0)
-    expect(document.body.querySelector('[data-slot="body"]')).toBeNull()
+    expect(document.body.querySelector(`[data-slot="${owner}-body"]`)).toBeNull()
   })
 
   test('renders recipe-backed default presentation without a provider', () => {
@@ -72,20 +73,19 @@ describe.each([
       'overlay',
       'content',
       'header',
-      'wrapper',
       'title',
       'description',
-      'close',
+      'content-close',
       'body',
       'footer',
     ]
-    expect(document.body.querySelector<HTMLElement>('[data-slot="content"]')?.className).not.toBe(
-      '',
-    )
-    expect(document.body.querySelector<HTMLElement>('[data-slot="overlay"]')?.className).not.toBe(
-      '',
-    )
-    const selector = slots.map((slot) => `[data-slot="${slot}"]`).join(',')
+    expect(
+      document.body.querySelector<HTMLElement>(`[data-slot="${owner}-content"]`)?.className,
+    ).not.toBe('')
+    expect(
+      document.body.querySelector<HTMLElement>(`[data-slot="${owner}-overlay"]`)?.className,
+    ).not.toBe('')
+    const selector = slots.map((slot) => `[data-slot="${owner}-${slot}"]`).join(',')
     for (const element of document.body.querySelectorAll<HTMLElement>(selector)) {
       expect(element.getAttribute('style')).toBeNull()
     }
@@ -105,10 +105,10 @@ describe.each([
         </Root>
       </MoraineProvider>
     ))
-    const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
+    const content = document.body.querySelector<HTMLElement>(`[data-slot="${owner}-content"]`)!
     content.focus()
     setDesign(defineTheme({ [key]: { base: { content: 'next-content' } } }))
-    expect(document.body.querySelector('[data-slot="content"]')).toBe(content)
+    expect(document.body.querySelector(`[data-slot="${owner}-content"]`)).toBe(content)
     expect(content.className).toContain('next-content')
     expect(content.className).not.toContain('first-content')
     expect(document.activeElement).toBe(content)

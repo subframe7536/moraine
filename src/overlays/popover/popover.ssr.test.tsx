@@ -24,7 +24,7 @@ describe('Popover SSR Hydration', () => {
         ),
       )
 
-      const trigger = container.querySelector<HTMLButtonElement>('[data-slot="trigger"]')!
+      const trigger = container.querySelector<HTMLButtonElement>('[data-slot="popover-trigger"]')!
 
       expect(trigger).not.toBeNull()
       expect(document.body.querySelector('[role="dialog"]')).toBeNull()

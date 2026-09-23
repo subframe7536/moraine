@@ -14,6 +14,7 @@ import {
 import { Dynamic, Portal } from 'solid-js/web'
 
 import { useCn } from '../../provider/cn-context'
+import { dataSlotName } from '../../shared/data-slot.ts'
 import { renderComponentOrElement } from '../../shared/render-prop'
 import { applyDataAttributes } from '../../shared/style-contract.ts'
 import type { ValidComponent } from '../../shared/types.ts'
@@ -92,6 +93,7 @@ export function mergePopperElementProps<T extends HTMLElement>(
 }
 
 interface PopperContext {
+  slotName: (slot: string) => string
   options: PopperProps
   contentId: Accessor<string>
   isOpen: Accessor<boolean>
@@ -108,7 +110,7 @@ export function setPopperTestPlacementAccessor(accessor: Accessor<string> | unde
 }
 
 /** Creates shared state for positioned overlay primitives in the current owner. */
-export function createPopper(props: PopperProps): PopperContext {
+export function createPopper(props: PopperProps, owner: 'popover' | 'tooltip'): PopperContext {
   const rootId = useId(() => props.id, 'popper')
   const contentId = createMemo(() => `${rootId()}-content`)
   const [open, setControlledOpen] = useControllableValue<boolean>({
@@ -130,6 +132,7 @@ export function createPopper(props: PopperProps): PopperContext {
   }
 
   return {
+    slotName: (slot: string) => dataSlotName(owner, slot),
     options: props,
     contentId,
     isOpen,
@@ -198,7 +201,7 @@ export function PopperTrigger<T extends ValidComponent = 'button'>(
       get 'aria-expanded'() {
         return local.describeTrigger ? undefined : context.isOpen() ? 'true' : 'false'
       },
-      'data-slot': 'trigger',
+      'data-slot': context.slotName('trigger'),
     },
     interaction,
   )
@@ -534,7 +537,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
                   }
                 })
               }}
-              data-slot="positioner"
+              data-slot={context.slotName('positioner')}
               style={{ visibility: 'hidden', ...props.positionerStyle }}
               class={cn('left-0 top-0 absolute', props.positionerClass)}
             >

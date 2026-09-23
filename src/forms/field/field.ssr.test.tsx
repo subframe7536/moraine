@@ -16,7 +16,7 @@ test('hydrates standalone Field semantics', () => {
     ),
   )
   const input = container.querySelector('input')!
-  const label = container.querySelector<HTMLLabelElement>('[data-slot="label"]')!
+  const label = container.querySelector<HTMLLabelElement>('[data-slot="field-label"]')!
   expect(label.htmlFor).toBe(input.id)
   expect(input.required).toBe(true)
   expect(input.getAttribute('aria-describedby')).toContain('-description')

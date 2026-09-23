@@ -29,7 +29,7 @@ describe('Modal SSR Hydration', () => {
       ),
     )
 
-    const trigger = container.querySelector('[data-slot="trigger"]')!
+    const trigger = container.querySelector('[data-slot="modal-trigger"]')!
 
     expect(trigger).not.toBeNull()
     expect(mounts).toBe(0)

@@ -21,10 +21,10 @@ describe('Breadcrumb SSR Hydration', () => {
       ),
     )
 
-    const root = container.querySelector('[data-slot="root"]')
-    const list = container.querySelector('[data-slot="list"]')
-    const page = container.querySelector('[data-slot="page"]')
-    const separator = container.querySelector('[data-slot="separator"]')
+    const root = container.querySelector('[data-slot="breadcrumb"]')
+    const list = container.querySelector('[data-slot="breadcrumb-list"]')
+    const page = container.querySelector('[data-slot="breadcrumb-page"]')
+    const separator = container.querySelector('[data-slot="breadcrumb-separator"]')
 
     expect(root).not.toBeNull()
     expect(list).not.toBeNull()
@@ -50,8 +50,8 @@ describe('Breadcrumb SSR Hydration', () => {
       ),
     )
 
-    const root = container.querySelector('[data-slot="root"]')
-    const list = container.querySelector('[data-slot="list"]')
+    const root = container.querySelector('[data-slot="breadcrumb"]')
+    const list = container.querySelector('[data-slot="breadcrumb-list"]')
     const firstLink = container.querySelector<HTMLElement>('[data-slot="custom-link"]')
 
     expect(root).not.toBeNull()

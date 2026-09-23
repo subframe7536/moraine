@@ -30,7 +30,7 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Button' })
 
     expect(button.getAttribute('type')).toBe('button')
-    expect(button.getAttribute('data-slot')).toBe('root')
+    expect(button.getAttribute('data-slot')).toBe('button')
   })
 
   test('calls pointer handlers without replacing internal interaction behavior', async () => {
@@ -235,8 +235,8 @@ describe('Button', () => {
       ))
 
       const button = screen.getByRole('button', { name: 'Label' })
-      const leading = button.querySelector('[data-slot="leading"]')
-      const trailing = button.querySelector('[data-slot="trailing"]')
+      const leading = button.querySelector('[data-slot="button-leading"]')
+      const trailing = button.querySelector('[data-slot="button-trailing"]')
 
       expect(leading).not.toBeNull()
       expect(trailing).not.toBeNull()
@@ -271,7 +271,7 @@ describe('Button', () => {
     ))
 
     const button = screen.getByRole('button', { name: 'Icon LG' })
-    const leading = button.querySelector('[data-slot="leading"]')
+    const leading = button.querySelector('[data-slot="button-leading"]')
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('i-lucide-star')
@@ -283,8 +283,10 @@ describe('Button', () => {
     ))
     const button = screen.getByRole('button', { name: 'Search' })
 
-    expect(button.querySelector('[data-slot="label"]')).toBeNull()
-    expect(button.querySelector('[data-slot="leading"]')?.getAttribute('aria-hidden')).toBe('true')
+    expect(button.querySelector('[data-slot="button-label"]')).toBeNull()
+    expect(button.querySelector('[data-slot="button-leading"]')?.getAttribute('aria-hidden')).toBe(
+      'true',
+    )
   })
 
   test('renders leading and trailing content in normal state', () => {
@@ -320,9 +322,9 @@ describe('Button', () => {
     ))
 
     const button = screen.getByRole('button', { name: 'Label' })
-    const leading = button.querySelector('[data-slot="leading"]')
-    const label = button.querySelector('[data-slot="label"]')
-    const trailing = button.querySelector('[data-slot="trailing"]')
+    const leading = button.querySelector('[data-slot="button-leading"]')
+    const label = button.querySelector('[data-slot="button-label"]')
+    const trailing = button.querySelector('[data-slot="button-trailing"]')
 
     expect(leading?.className).toContain('leading-override')
     expect(label?.className).toContain('label-override')
@@ -347,9 +349,9 @@ describe('Button', () => {
     ))
 
     const button = screen.getByRole('button', { name: 'Label' })
-    const leading = button.querySelector<HTMLElement>('[data-slot="leading"]')
-    const label = button.querySelector<HTMLElement>('[data-slot="label"]')
-    const trailing = button.querySelector<HTMLElement>('[data-slot="trailing"]')
+    const leading = button.querySelector<HTMLElement>('[data-slot="button-leading"]')
+    const label = button.querySelector<HTMLElement>('[data-slot="button-label"]')
+    const trailing = button.querySelector<HTMLElement>('[data-slot="button-trailing"]')
 
     expect(leading?.style.width).toBe('200px')
     expect(label?.style.width).toBe('200px')
@@ -357,43 +359,45 @@ describe('Button', () => {
     expect(button.style.width).toBe('200px')
   })
 
-  test('applies loading slot class override while loading', () => {
+  test('applies leading slot class while loading', () => {
     const screen = render(() => (
       <Button
         loading
         loadingIcon="i-lucide-loader-circle"
-        classes={{ loading: 'loading-override', leading: 'leading-override' }}
+        classes={{ leading: 'leading-override' }}
       >
         Loading
       </Button>
     ))
 
     const button = screen.getByRole('button', { name: 'Loading' })
-    const leading = button.querySelector('[data-slot="leading"]')
+    const leading = button.querySelector('[data-slot="button-leading"]')
 
-    expect(leading?.className).toContain('loading-override')
+    expect(leading?.className).toContain('animate-spin')
     expect(leading?.className).toContain('leading-override')
     expect(leading?.className).toContain('i-lucide-loader-circle')
   })
 
-  test('resolves provider loading styles for the active icon slot', () => {
+  test('resolves provider trailing styles for the active loading icon', () => {
     const screen = render(() => (
       <MoraineProvider
         theme={defineTheme({
           button: {
-            base: { loading: 'provider-loading w-3' },
+            base: { trailing: 'provider-trailing w-3' },
           },
         })}
       >
-        <Button loading trailing="i-lucide:timer" classes={{ loading: 'instance-loading' }}>
+        <Button loading trailing="i-lucide:timer" classes={{ trailing: 'instance-trailing' }}>
           Loading
         </Button>
       </MoraineProvider>
     ))
 
-    const trailing = screen.getByRole('button').querySelector<HTMLElement>('[data-slot="trailing"]')
-    expect(trailing?.className).toContain('provider-loading')
-    expect(trailing?.className).toContain('instance-loading')
+    const trailing = screen
+      .getByRole('button')
+      .querySelector<HTMLElement>('[data-slot="button-trailing"]')
+    expect(trailing?.className).toContain('provider-trailing')
+    expect(trailing?.className).toContain('instance-trailing')
     expect(trailing?.className).toContain('w-3')
     expect(trailing?.getAttribute('aria-hidden')).toBe('true')
   })
@@ -406,7 +410,7 @@ describe('Button', () => {
     ))
 
     const button = screen.getByRole('button', { name: 'Saving' })
-    const leading = button.querySelector('[data-slot="leading"]')
+    const leading = button.querySelector('[data-slot="button-leading"]')
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('icon-loading')
@@ -456,7 +460,7 @@ describe('Button', () => {
     setVisible(false)
 
     await waitFor(() => {
-      expect(screen.getByRole('button').querySelector('[data-slot="label"]')).toBeNull()
+      expect(screen.getByRole('button').querySelector('[data-slot="button-label"]')).toBeNull()
     })
   })
 
@@ -464,14 +468,14 @@ describe('Button', () => {
     const screen = render(() => <Button>{() => false}</Button>)
     const button = screen.getByRole('button')
 
-    expect(button.querySelector('[data-slot="label"]')).toBeNull()
+    expect(button.querySelector('[data-slot="button-label"]')).toBeNull()
   })
 
   test('renders zero as label content', () => {
     const screen = render(() => <Button>{0}</Button>)
     const button = screen.getByRole('button', { name: '0' })
 
-    expect(button.querySelector('[data-slot="label"]')?.textContent).toBe('0')
+    expect(button.querySelector('[data-slot="button-label"]')?.textContent).toBe('0')
   })
 
   test('renders loadingIcon when loading', () => {
@@ -484,7 +488,7 @@ describe('Button', () => {
     ))
 
     const button = screen.getByRole('button', { name: 'Saving' })
-    const leading = button.querySelector('[data-slot="leading"]')
+    const leading = button.querySelector('[data-slot="button-leading"]')
 
     expect(leading).not.toBeNull()
     expect(leading?.className).toContain('i-lucide-loader-circle')
@@ -501,8 +505,8 @@ describe('Button', () => {
     ))
 
     const button = screen.getByRole('button')
-    const leadingSlot = button.querySelector('[data-slot="leading"]')
-    const trailingSlot = button.querySelector('[data-slot="trailing"]')
+    const leadingSlot = button.querySelector('[data-slot="button-leading"]')
+    const trailingSlot = button.querySelector('[data-slot="button-trailing"]')
 
     expect(button.getAttribute('aria-busy')).toBe('true')
     expect(button.hasAttribute('data-loading')).toBe(true)
@@ -529,7 +533,7 @@ describe('Button', () => {
     ))
 
     const button = screen.getByRole('button')
-    const leadingSlot = button.querySelector('[data-slot="leading"]')
+    const leadingSlot = button.querySelector('[data-slot="button-leading"]')
 
     expect(screen.queryByTestId('leading-icon')).toBeNull()
     expect(screen.queryByTestId('trailing-icon')).not.toBeNull()
@@ -537,26 +541,21 @@ describe('Button', () => {
     expect(leadingSlot?.className).toContain('animate-spin')
   })
 
-  test('applies loading class override when trailing slot is replaced by loading icon', () => {
+  test('applies trailing class override when trailing slot is replaced by loading icon', () => {
     const screen = render(() => (
       <MoraineProvider>
-        <Button
-          loading
-          trailing="i-lucide:timer"
-          classes={{ loading: 'loading-override', trailing: 'trailing-override' }}
-        >
+        <Button loading trailing="i-lucide:timer" classes={{ trailing: 'trailing-override' }}>
           Saving
         </Button>
       </MoraineProvider>
     ))
 
     const button = screen.getByRole('button', { name: 'Saving' })
-    const trailing = button.querySelector('[data-slot="trailing"]')
+    const trailing = button.querySelector('[data-slot="button-trailing"]')
 
     expect(trailing).not.toBeNull()
     expect(trailing?.className).toContain('icon-loading')
     expect(trailing?.className).toContain('animate-spin')
-    expect(trailing?.className).toContain('loading-override')
     expect(trailing?.className).toContain('trailing-override')
   })
 
@@ -971,7 +970,7 @@ describe('Button', () => {
           Link semantics
         </Button>
       ))
-      const root = screen.container.querySelector('[data-slot="root"]')!
+      const root = screen.container.querySelector('[data-slot="button"]')!
 
       if (href === undefined) {
         expect(root.getAttribute('role')).toBe('button')

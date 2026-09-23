@@ -189,7 +189,7 @@
     "label",
     "trailing",
     "content",
-    "contentInner"
+    "body"
   ],
   "dataAttributes": [
     {

@@ -30,7 +30,7 @@ export function List<
   return (
     <Dynamic
       role="list"
-      data-slot="root"
+      data-slot="list"
       {...rest}
       component={local.as ?? 'ul'}
       ref={(element: HTMLElement) => {

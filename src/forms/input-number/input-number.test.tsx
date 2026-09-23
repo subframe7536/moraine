@@ -18,7 +18,7 @@ const render: typeof baseRender = (ui, options) =>
 describe('InputNumber', () => {
   test('renders component defaults when provider is absent', () => {
     const screen = baseRender(() => <InputNumber />)
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="input-number"]')
     expect(root?.className).not.toBe('')
   })
 
@@ -35,7 +35,7 @@ describe('InputNumber', () => {
     ))
 
     expect(rootEl).toBeInstanceOf(HTMLDivElement)
-    expect(rootEl?.getAttribute('data-slot')).toBe('root')
+    expect(rootEl?.getAttribute('data-slot')).toBe('input-number')
     expect(inputEl).toBeInstanceOf(HTMLInputElement)
     expect(inputEl?.placeholder).toBe('ref test')
   })
@@ -80,7 +80,7 @@ describe('InputNumber', () => {
       name: 'Standalone quantity',
     })
     const fieldInput = screen.getByRole<HTMLInputElement>('spinbutton', { name: 'Field quantity' })
-    const root = standalone.closest('[data-slot="root"]')
+    const root = standalone.closest('[data-slot="input-number"]')
 
     expect(root?.getAttribute('aria-label')).toBeNull()
     expect(standalone.getAttribute('aria-label')).toBe('Standalone quantity')
@@ -103,7 +103,7 @@ describe('InputNumber', () => {
       const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
 
       expect(spinbutton.getAttribute('form')).toBe('external-form')
-      expect(spinbutton.closest('[data-slot="root"]')?.getAttribute('form')).toBeNull()
+      expect(spinbutton.closest('[data-slot="input-number"]')?.getAttribute('form')).toBeNull()
       expect(new FormData(externalForm).get('quantity')).toBe('4')
 
       fireEvent.input(spinbutton, { target: { value: '7' } })
@@ -123,7 +123,7 @@ describe('InputNumber', () => {
       <InputNumber defaultValue={1} required disabled placeholder="Qty" />
     ))
     const disabledSpinbutton = disabledScreen.getByRole<HTMLInputElement>('spinbutton')
-    const disabledRoot = disabledScreen.container.querySelector('[data-slot="root"]')
+    const disabledRoot = disabledScreen.container.querySelector('[data-slot="input-number"]')
 
     expect(disabledSpinbutton.required).toBe(true)
     expect(disabledSpinbutton.disabled).toBe(true)
@@ -138,7 +138,7 @@ describe('InputNumber', () => {
 
     const readOnlyScreen = render(() => <InputNumber defaultValue={1} readOnly />)
     const readOnlySpinbutton = readOnlyScreen.getByRole<HTMLInputElement>('spinbutton')
-    const readOnlyRoot = readOnlyScreen.container.querySelector('[data-slot="root"]')
+    const readOnlyRoot = readOnlyScreen.container.querySelector('[data-slot="input-number"]')
 
     expect(readOnlySpinbutton.readOnly).toBe(true)
     expect(readOnlySpinbutton.getAttribute('aria-readonly')).toBe('true')
@@ -1279,20 +1279,20 @@ describe('InputNumber', () => {
     const spinbutton = screen.getByRole<HTMLInputElement>('spinbutton')
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
     const decrementButton = screen.getByRole('button', { name: 'Decrement' })
-    const controls = screen.container.querySelector('[data-slot="controls"]')
+    const controls = screen.container.querySelector('[data-slot="input-number-controls"]')
 
-    expect(incrementButton.querySelector('[data-slot="leading"]')?.className).toContain(
+    expect(incrementButton.querySelector('[data-slot="icon"]')?.className).toContain(
       'icon-chevron-up',
     )
-    expect(decrementButton.querySelector('[data-slot="leading"]')?.className).toContain(
+    expect(decrementButton.querySelector('[data-slot="icon"]')?.className).toContain(
       'icon-chevron-down',
     )
     expect(controls?.className).toContain('flex-col')
     expect(controls?.className).toContain('w-9')
     expect(controls?.className).toContain('pe-1')
     expect(controls?.className).not.toContain('border-s')
-    expect(incrementButton.getAttribute('data-slot')).toBe('increment')
-    expect(decrementButton.getAttribute('data-slot')).toBe('decrement')
+    expect(incrementButton.getAttribute('data-slot')).toBe('input-number-increment')
+    expect(decrementButton.getAttribute('data-slot')).toBe('input-number-decrement')
     expect(incrementButton.className).toContain('flex-1')
     expect(decrementButton.className).toContain('flex-1')
     expect(decrementButton.className).not.toContain('border-t')
@@ -1314,10 +1314,8 @@ describe('InputNumber', () => {
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
     const decrementButton = screen.getByRole('button', { name: 'Decrement' })
 
-    expect(incrementButton.querySelector('[data-slot="leading"]')?.className).toContain('icon-plus')
-    expect(decrementButton.querySelector('[data-slot="leading"]')?.className).toContain(
-      'icon-minus',
-    )
+    expect(incrementButton.querySelector('[data-slot="icon"]')?.className).toContain('icon-plus')
+    expect(decrementButton.querySelector('[data-slot="icon"]')?.className).toContain('icon-minus')
 
     fireEvent.click(incrementButton)
     expect(spinbutton.value).toBe('2')
@@ -1328,9 +1326,13 @@ describe('InputNumber', () => {
 
   test('lays out horizontal link controls as sibling slots instead of overlaying the input', () => {
     const incrementOnly = render(() => <InputNumber size="lg" decrement={false} />)
-    const incrementOnlyRoot = incrementOnly.container.querySelector('[data-slot="root"]')
-    const incrementOnlyBase = incrementOnly.container.querySelector('[data-slot="input"]')
-    const incrementOnlyButton = incrementOnly.container.querySelector('[data-slot="increment"]')
+    const incrementOnlyRoot = incrementOnly.container.querySelector('[data-slot="input-number"]')
+    const incrementOnlyBase = incrementOnly.container.querySelector(
+      '[data-slot="input-number-input"]',
+    )
+    const incrementOnlyButton = incrementOnly.container.querySelector(
+      '[data-slot="input-number-increment"]',
+    )
 
     expect(incrementOnlyRoot?.className).toContain('overflow-hidden')
     expect(incrementOnlyButton?.hasAttribute('data-variant')).toBe(false)
@@ -1346,8 +1348,12 @@ describe('InputNumber', () => {
     incrementOnly.unmount()
 
     const decrementOnly = render(() => <InputNumber size="lg" increment={false} />)
-    const decrementOnlyBase = decrementOnly.container.querySelector('[data-slot="input"]')
-    const decrementOnlyButton = decrementOnly.container.querySelector('[data-slot="decrement"]')
+    const decrementOnlyBase = decrementOnly.container.querySelector(
+      '[data-slot="input-number-input"]',
+    )
+    const decrementOnlyButton = decrementOnly.container.querySelector(
+      '[data-slot="input-number-decrement"]',
+    )
 
     expect(decrementOnlyButton?.hasAttribute('data-variant')).toBe(false)
     expect(decrementOnlyButton?.className).toContain('w-9')
@@ -1363,8 +1369,12 @@ describe('InputNumber', () => {
     const incrementOnly = render(() => (
       <InputNumber size="sm" orientation="vertical" decrement={false} />
     ))
-    const incrementOnlyControls = incrementOnly.container.querySelector('[data-slot="controls"]')
-    const incrementOnlyBase = incrementOnly.container.querySelector('[data-slot="input"]')
+    const incrementOnlyControls = incrementOnly.container.querySelector(
+      '[data-slot="input-number-controls"]',
+    )
+    const incrementOnlyBase = incrementOnly.container.querySelector(
+      '[data-slot="input-number-input"]',
+    )
 
     expect(incrementOnlyControls?.className).toContain('w-8')
     expect(incrementOnlyControls?.className).toContain('pe-1')
@@ -1377,8 +1387,12 @@ describe('InputNumber', () => {
     const decrementOnly = render(() => (
       <InputNumber size="sm" orientation="vertical" increment={false} />
     ))
-    const decrementOnlyControls = decrementOnly.container.querySelector('[data-slot="controls"]')
-    const decrementOnlyBase = decrementOnly.container.querySelector('[data-slot="input"]')
+    const decrementOnlyControls = decrementOnly.container.querySelector(
+      '[data-slot="input-number-controls"]',
+    )
+    const decrementOnlyBase = decrementOnly.container.querySelector(
+      '[data-slot="input-number-input"]',
+    )
 
     expect(decrementOnlyControls?.className).toContain('w-8')
     expect(decrementOnlyControls?.className).toContain('pe-1')
@@ -1403,9 +1417,9 @@ describe('InputNumber', () => {
     const input = screen.getByRole('spinbutton')
     expect(screen.getByRole('button', { name: 'Increment' })).not.toBeNull()
     expect(screen.getByRole('button', { name: 'Decrement' })).not.toBeNull()
-    expect(screen.container.querySelector('[data-slot="controls"]')).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot="input-number-controls"]')).not.toBeNull()
     setOrientation('horizontal')
-    expect(screen.container.querySelector('[data-slot="controls"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="input-number-controls"]')).toBeNull()
     setControls(false)
     expect(screen.queryByRole('button', { name: 'Increment' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Decrement' })).toBeNull()
@@ -1418,8 +1432,8 @@ describe('InputNumber', () => {
     ['lg', 'h-9', 'text-base', 'leading-6'],
   ] as const)('applies %s size classes', (size, rootHeight, textClass, leadingClass) => {
     const screen = render(() => <InputNumber size={size} />)
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const base = screen.container.querySelector('[data-slot="input"]')
+    const root = screen.container.querySelector('[data-slot="input-number"]')
+    const base = screen.container.querySelector('[data-slot="input-number-input"]')
 
     expect(root?.className).toContain(rootHeight)
     expect(base?.className).toContain(textClass)
@@ -1433,7 +1447,7 @@ describe('InputNumber', () => {
     ['none', ['focus-within:ring-0']],
   ] as const)('applies %s variant classes', (variant, expectedClasses) => {
     const screen = render(() => <InputNumber variant={variant} />)
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="input-number"]')
 
     for (const expectedClass of expectedClasses) {
       expect(root?.className).toContain(expectedClass)
@@ -1442,7 +1456,7 @@ describe('InputNumber', () => {
 
   test('defaults to outline and exposes only the supported variants', () => {
     const screen = render(() => <InputNumber />)
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="input-number"]')
 
     expect(root?.className).toContain('bg-transparent')
     expectTypeOf<InputNumberT.Variant['variant']>().toEqualTypeOf<
@@ -1478,7 +1492,7 @@ describe('InputNumber', () => {
   ] as const)('applies Nuxt UI %s control sizes with inherited icons', (size, buttonSize) => {
     const screen = render(() => <InputNumber size={size} />)
     const incrementButton = screen.getByRole('button', { name: 'Increment' })
-    const incrementIcon = incrementButton.querySelector('[data-slot="leading"]')
+    const incrementIcon = incrementButton.querySelector('[data-slot="icon"]')
 
     expect(incrementButton.className).toContain(buttonSize)
     expect(incrementIcon?.className).not.toMatch(/(?:^|\s)size-/)
@@ -1519,14 +1533,14 @@ describe('InputNumber', () => {
 
   test('applies classes.root override', () => {
     const screen = render(() => <InputNumber classes={{ root: 'root-override' }} />)
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="input-number"]')
 
     expect(root?.className).toContain('root-override')
   })
 
   test('applies styles.root override', () => {
     const screen = render(() => <InputNumber styles={{ root: { width: '200px' } }} />)
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="input-number"]')
 
     expect(root?.style.width).toBe('200px')
   })

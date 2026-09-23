@@ -101,7 +101,7 @@
     "root",
     "image",
     "fallback",
-    "fallbackIcon",
+    "fallbackContent",
     "badge"
   ],
   "dataAttributes": [

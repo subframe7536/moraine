@@ -171,7 +171,10 @@ function createContextMenu(props: ContextMenuProps) {
   }
 
   const onContentPointerDown = (event: PointerEvent): void => {
-    if (event.target instanceof Element && event.target.closest('[data-slot="item"]')) {
+    if (
+      event.target instanceof Element &&
+      event.target.closest('[data-slot="context-menu-item"]')
+    ) {
       return
     }
 
@@ -449,7 +452,7 @@ function createContextMenu(props: ContextMenuProps) {
     get 'aria-expanded'() {
       return open() ? 'true' : 'false'
     },
-    'data-slot': 'trigger',
+    'data-slot': 'context-menu-trigger',
     get disabled() {
       return getOverlayTriggerAccessibility(trigger.element(), Boolean(merged.disabled)).disabled
     },
@@ -578,6 +581,7 @@ function ContextMenuTrigger<T extends ValidComponent = 'div'>(
       component={local.as ?? 'div'}
       type={undefined}
       {...binding}
+      data-slot="context-menu-trigger"
       {...resolved.styles.trigger}
     >
       {children()}
@@ -614,6 +618,7 @@ function ContextMenuContent(props: ContextMenuT.ContentProps): JSX.Element {
   return (
     <OverlayMenu<ContextMenuT.Item>
       {...context.menuProps}
+      owner="context-menu"
       slotBinding={(slot) => resolved.styles[slot]}
       size={resolved.variants.size ?? undefined}
       items={merged.items}

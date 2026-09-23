@@ -30,7 +30,7 @@ describe('Button SSR Hydration', () => {
       ),
     )
 
-    const button = container.querySelector('[data-slot="root"]')!
+    const button = container.querySelector('[data-slot="button"]')!
     expect(button).not.toBeNull()
     expect(button.textContent).toBe('Save')
 

@@ -26,7 +26,7 @@ export interface AccordionStyleSlot<T = unknown> {
   content?: T
 
   /** Inner container inside the collapsible panel for padding. */
-  contentInner?: T
+  body?: T
 }
 
 export type AccordionStyleVariant = never

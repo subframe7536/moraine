@@ -6,7 +6,7 @@ import { createStyles } from '../../provider'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types.ts'
-import { Modal } from '../modal/modal'
+import { Modal, ModalRoot } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'
 
@@ -25,7 +25,9 @@ export function Sheet(props: SheetProps): JSX.Element {
         },
       }}
     >
-      <Modal {...rest}>{local.children}</Modal>
+      <ModalRoot {...rest} slotOwner="sheet">
+        {local.children}
+      </ModalRoot>
     </SheetPresentationProvider>
   )
 }
@@ -42,7 +44,7 @@ function SheetTrigger<T extends ValidComponent = 'button'>(
 }
 
 function SheetClose<T extends ValidComponent = 'button'>(props: SheetT.CloseProps<T>): JSX.Element {
-  return <Modal.Close {...props} />
+  return <Modal.Close {...props} data-slot="sheet-close" />
 }
 
 function SheetContent(props: SheetT.ContentProps): JSX.Element {
@@ -125,20 +127,20 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
           children: () => (
             <>
               <Show when={hasCustomHeader() || hasDefaultHeader()}>
-                <div data-slot="header" {...resolved.styles.header}>
+                <div data-slot="sheet-header" {...resolved.styles.header}>
                   <Show
                     when={hasCustomHeader()}
                     fallback={
                       <>
                         <Show when={hasJsxContent(title())}>
-                          <h2 id={titleId()} data-slot="title" {...resolved.styles.title}>
+                          <h2 id={titleId()} data-slot="sheet-title" {...resolved.styles.title}>
                             {title()}
                           </h2>
                         </Show>
                         <Show when={hasJsxContent(description())}>
                           <p
                             id={descriptionId()}
-                            data-slot="description"
+                            data-slot="sheet-description"
                             {...resolved.styles.description}
                           >
                             {description()}
@@ -154,7 +156,7 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
 
               <Show when={closeContent() !== false}>
                 <Modal.Close
-                  data-slot="contentClose"
+                  data-slot="sheet-content-close"
                   aria-label="Close"
                   {...resolved.styles.contentClose}
                 >
@@ -166,7 +168,7 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
 
               <Show when={hasJsxContent(body())}>
                 <div
-                  data-slot="body"
+                  data-slot="sheet-body"
                   {...sheetDataAttributes.body({
                     header: () => hasCustomHeader() || hasDefaultHeader(),
                   })}
@@ -177,7 +179,7 @@ function SheetContent(props: SheetT.ContentProps): JSX.Element {
               </Show>
 
               <Show when={hasJsxContent(footer())}>
-                <div data-slot="footer" {...resolved.styles.footer}>
+                <div data-slot="sheet-footer" {...resolved.styles.footer}>
                   {footer()}
                 </div>
               </Show>

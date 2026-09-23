@@ -7,11 +7,9 @@ import type { CollapsibleT } from './collapsible.types'
 
 export interface CollapsibleContext {
   presentation: { readonly classes?: CollapsibleT.Classes; readonly styles?: CollapsibleT.Styles }
-  rootId: Accessor<string>
   triggerId: Accessor<string>
   contentId: Accessor<string>
   open: Accessor<boolean>
-  setOpen: (open: boolean) => void
   toggle: () => void
   disabled: Accessor<boolean>
   transition: Accessor<boolean>

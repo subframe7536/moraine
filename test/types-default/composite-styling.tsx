@@ -68,7 +68,9 @@ import { defineTheme } from 'moraine/theme'
 ;<Tooltip.Trigger class="trigger" />
 // @ts-expect-error Tooltip.Trigger is a one-slot part.
 ;<Tooltip.Trigger classes={{ trigger: 'trigger' }} />
-;<Tooltip.Content classes={{ content: 'content', text: 'text', kbds: 'kbds', kbd: 'kbd' }} />
+;<Tooltip.Content classes={{ content: 'content', text: 'text', kbds: 'kbds' }} />
+// @ts-expect-error Shortcut keycaps belong to KbdGroup.
+;<Tooltip.Content classes={{ kbd: 'kbd' }} />
 // @ts-expect-error Tooltip.Content cannot configure Tooltip.Trigger.
 ;<Tooltip.Content classes={{ trigger: 'trigger' }} />
 

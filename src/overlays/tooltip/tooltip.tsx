@@ -118,18 +118,21 @@ export function Tooltip(props: TooltipProps): JSX.Element {
     value: () => merged.open,
     defaultValue: () => merged.defaultOpen ?? false,
   })
-  const popper = createPopper({
-    get id() {
-      return tooltipId()
+  const popper = createPopper(
+    {
+      get id() {
+        return tooltipId()
+      },
+      get open() {
+        return open()
+      },
+      onOpenChange: requestOpen,
+      get disabled() {
+        return merged.disabled
+      },
     },
-    get open() {
-      return open()
-    },
-    onOpenChange: requestOpen,
-    get disabled() {
-      return merged.disabled
-    },
-  })
+    'tooltip',
+  )
   const timers: TooltipTimers = {}
   const [shouldUseInstantMotion, setShouldUseInstantMotion] = createSignal(false)
   let ownerAlive = true
@@ -430,24 +433,23 @@ function TooltipContent(props: TooltipT.ContentProps): JSX.Element {
         return (
           <div
             {...mergePopperElementProps(contentProps, rest)}
-            data-slot="content"
+            data-slot="tooltip-content"
             {...contentDataAttrs}
             {...resolved.styles.content}
           >
             <Show when={typeof text() === 'string'} fallback={text()}>
-              <span data-slot="text" {...resolved.styles.text}>
+              <span data-slot="tooltip-text" {...resolved.styles.text}>
                 {text()}
               </span>
             </Show>
             <Show when={kbds()?.length ? kbds() : undefined}>
               {(keys) => (
                 <KbdGroup
+                  data-slot="tooltip-kbds"
                   variant={local.kbdVariant ?? (resolved.variants.invert ? 'invert' : undefined)}
                   size="sm"
                   items={keys()}
                   {...resolved.styles.kbds}
-                  classes={{ item: resolved.styles.kbd.class }}
-                  styles={{ item: resolved.styles.kbd.style }}
                 />
               )}
             </Show>

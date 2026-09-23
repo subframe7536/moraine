@@ -92,7 +92,7 @@ test('uses the theme side for Sheet and lets explicit props override it', () => 
       </Sheet>
     </MoraineProvider>
   ))
-  const content = document.body.querySelector('[data-slot="content"]')!
+  const content = document.body.querySelector('[data-slot="sheet-content"]')!
   expect(content.classList.contains('left-0')).toBe(true)
   setSide('right')
   expect(content.classList.contains('right-0')).toBe(true)
@@ -143,7 +143,7 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
   // SidebarFrame inherits built-in side: 'left', so mobile Sheet opens on the left (left-0, not right-0)
   fireEvent.click(screen.getByText('Toggle Sidebar'))
   await waitFor(() => {
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
     expect(content).not.toBeNull()
     expect(content.classList.contains('left-0')).toBe(true)
     expect(content.classList.contains('right-0')).toBe(false)
@@ -172,7 +172,7 @@ test('inherits built-in defaultVariants on theme layers unless explicitly overri
     screen.getByRole('slider', { name: 'Thumb', hidden: true }).getAttribute('aria-orientation'),
   ).toBe('vertical')
   await waitFor(() => {
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
     expect(content.classList.contains('right-0')).toBe(true)
     expect(content.classList.contains('left-0')).toBe(false)
   })

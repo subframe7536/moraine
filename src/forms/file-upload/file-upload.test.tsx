@@ -71,8 +71,8 @@ async function dropFiles(target: HTMLElement, files: File[]): Promise<void> {
 describe('FileUpload', () => {
   test('renders component defaults when provider is absent', () => {
     const screen = render(() => <FileUpload />)
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const control = screen.container.querySelector('[data-slot="control"]')
+    const root = screen.container.querySelector('[data-slot="file-upload"]')
+    const control = screen.container.querySelector('[data-slot="file-upload-control"]')
     expect(root?.className).not.toBe('')
     expect(control?.className).not.toBe('')
   })
@@ -83,7 +83,7 @@ describe('FileUpload', () => {
         <FileUpload dropzone />
       </MoraineProvider>
     ))
-    const control = screen.container.querySelector('[data-slot="control"]')
+    const control = screen.container.querySelector('[data-slot="file-upload-control"]')
     expect(control?.className).toContain('border-dashed')
   })
 
@@ -96,7 +96,9 @@ describe('FileUpload', () => {
   test('supports tuple click handlers on the upload control', async () => {
     const onClick = vi.fn((_data: string, _event: MouseEvent) => undefined)
     const screen = render(() => <FileUpload onClick={[onClick, 'payload']} />)
-    const control = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const control = screen.container.querySelector(
+      '[data-slot="file-upload-control"]',
+    ) as HTMLElement
 
     fireEvent.click(control)
 
@@ -205,7 +207,7 @@ describe('FileUpload', () => {
 
     expect(onValueChange).toHaveBeenCalledTimes(1)
     expect(onValueChange).toHaveBeenLastCalledWith(first)
-    expect(screen.container.querySelectorAll('[data-slot="file"]').length).toBe(1)
+    expect(screen.container.querySelectorAll('[data-slot="file-upload-file"]').length).toBe(1)
   })
 
   test('multiple mode appends files and emits File[]', async () => {
@@ -221,13 +223,13 @@ describe('FileUpload', () => {
 
     expect(onValueChange).toHaveBeenCalledTimes(2)
     expect(onValueChange).toHaveBeenLastCalledWith([first, second])
-    expect(screen.container.querySelectorAll('[data-slot="file"]').length).toBe(2)
+    expect(screen.container.querySelectorAll('[data-slot="file-upload-file"]').length).toBe(2)
   })
 
   test('dropzone flow accepts files when enabled', async () => {
     const onValueChange = vi.fn()
     const screen = render(() => <FileUpload multiple dropzone onValueChange={onValueChange} />)
-    const base = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const base = screen.container.querySelector('[data-slot="file-upload-control"]') as HTMLElement
     const file = createFile('drop.txt')
 
     await dropFiles(base, [file])
@@ -241,7 +243,7 @@ describe('FileUpload', () => {
     const screen = render(() => (
       <FileUpload multiple dropzone={false} onValueChange={onValueChange} />
     ))
-    const base = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const base = screen.container.querySelector('[data-slot="file-upload-control"]') as HTMLElement
     const file = createFile('drop-disabled.txt')
 
     await dropFiles(base, [file])
@@ -251,7 +253,7 @@ describe('FileUpload', () => {
 
   test('dropzone drag-over uses color feedback without scale transform', async () => {
     const screen = render(() => <FileUpload dropzone />)
-    const base = screen.container.querySelector('[data-slot="control"]') as HTMLElement
+    const base = screen.container.querySelector('[data-slot="file-upload-control"]') as HTMLElement
 
     expect(base.className).not.toContain('scale-[')
 
@@ -279,16 +281,16 @@ describe('FileUpload', () => {
     const second = createFile('second.txt')
     await setInputFiles(input, [first, second])
 
-    let removeButtons = screen.container.querySelectorAll('[data-slot="fileRemove"]')
+    let removeButtons = screen.container.querySelectorAll('[data-slot="file-upload-file-remove"]')
     expect(removeButtons.length).toBe(2)
 
     fireEvent.click(removeButtons[0]!)
     expect(onValueChange).toHaveBeenLastCalledWith([second])
 
-    removeButtons = screen.container.querySelectorAll('[data-slot="fileRemove"]')
+    removeButtons = screen.container.querySelectorAll('[data-slot="file-upload-file-remove"]')
     fireEvent.click(removeButtons[0]!)
     expect(onValueChange).toHaveBeenLastCalledWith([])
-    expect(screen.container.querySelectorAll('[data-slot="file"]').length).toBe(0)
+    expect(screen.container.querySelectorAll('[data-slot="file-upload-file"]').length).toBe(0)
   })
 
   test('remove file emits null in single mode', async () => {
@@ -299,7 +301,9 @@ describe('FileUpload', () => {
 
     await setInputFiles(input, [file])
 
-    const removeButton = screen.container.querySelector('[data-slot="fileRemove"]') as HTMLElement
+    const removeButton = screen.container.querySelector(
+      '[data-slot="file-upload-file-remove"]',
+    ) as HTMLElement
     fireEvent.click(removeButton)
 
     expect(onValueChange).toHaveBeenNthCalledWith(1, file)
@@ -321,9 +325,11 @@ describe('FileUpload', () => {
       await setInputFiles(input, [image, text])
 
       expect(createObjectURL).toHaveBeenCalledTimes(1)
-      expect(screen.container.querySelector('[data-slot="files"]')).not.toBeNull()
+      expect(screen.container.querySelector('[data-slot="file-upload-files"]')).not.toBeNull()
 
-      const removeButtons = screen.container.querySelectorAll('[data-slot="fileRemove"]')
+      const removeButtons = screen.container.querySelectorAll(
+        '[data-slot="file-upload-file-remove"]',
+      )
       fireEvent.click(removeButtons[0]!)
 
       await waitFor(() => {
@@ -341,7 +347,7 @@ describe('FileUpload', () => {
 
     await setInputFiles(input, [createFile('file.txt')])
 
-    expect(screen.container.querySelector('[data-slot="files"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="file-upload-files"]')).toBeNull()
   })
 
   test('creates preview URLs only while previews are mounted and revokes each URL once', async () => {
@@ -385,7 +391,7 @@ describe('FileUpload', () => {
       ])
 
       expect(createObjectURL).not.toHaveBeenCalled()
-      expect(screen.container.querySelector('[data-slot="file"]')).toBeNull()
+      expect(screen.container.querySelector('[data-slot="file-upload-file"]')).toBeNull()
     } finally {
       createObjectURL.mockRestore()
     }
@@ -443,7 +449,7 @@ describe('FileUpload', () => {
 
     const nestedLeave = new Event('dragleave', { bubbles: true, cancelable: true })
     Object.defineProperty(nestedLeave, 'relatedTarget', {
-      value: control.querySelector('[data-slot="wrapper"]'),
+      value: control.querySelector('[data-slot="file-upload-wrapper"]'),
     })
     fireEvent(control, nestedLeave)
     expect(control.getAttribute('data-dragging')).toBe('')
@@ -482,7 +488,9 @@ describe('FileUpload', () => {
     const file = createFile('repeat.txt')
 
     await setInputFiles(input, [file])
-    fireEvent.click(screen.container.querySelector('[data-slot="fileRemove"]') as HTMLElement)
+    fireEvent.click(
+      screen.container.querySelector('[data-slot="file-upload-file-remove"]') as HTMLElement,
+    )
     await setInputFiles(input, [file])
 
     expect(onValueChange).toHaveBeenCalledTimes(3)
@@ -499,8 +507,8 @@ describe('FileUpload', () => {
 
     await setInputFiles(input, [createFile('styled.txt')])
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const file = screen.container.querySelector('[data-slot="file"]')
+    const root = screen.container.querySelector('[data-slot="file-upload"]')
+    const file = screen.container.querySelector('[data-slot="file-upload-file"]')
 
     expect(root?.className).toContain('root-override')
     expect(file?.className).toContain('file-override')
@@ -514,8 +522,8 @@ describe('FileUpload', () => {
 
     await setInputFiles(input, [createFile('styled.txt')])
 
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
-    const file = screen.container.querySelector<HTMLElement>('[data-slot="file"]')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="file-upload"]')
+    const file = screen.container.querySelector<HTMLElement>('[data-slot="file-upload-file"]')
 
     expect(root?.style.width).toBe('200px')
     expect(file?.style.width).toBe('200px')
@@ -595,6 +603,7 @@ describe('FileUpload', () => {
     const screen = render(() => (
       <FileUpload
         multiple
+        preview={false}
         accept="image/*"
         maxFiles={1}
         onValueChange={onValueChange}
@@ -649,12 +658,12 @@ describe('FileUpload', () => {
       const image = createFile('image.png', 'image/png', 'img')
 
       await setInputFiles(getFileInput(screen.container), [image])
-      expect(screen.container.querySelector('[data-slot="file"]')).not.toBeNull()
+      expect(screen.container.querySelector('[data-slot="file-upload-file"]')).not.toBeNull()
 
       form.reset()
 
       await waitFor(() => {
-        expect(screen.container.querySelector('[data-slot="file"]')).toBeNull()
+        expect(screen.container.querySelector('[data-slot="file-upload-file"]')).toBeNull()
         expect(revokeObjectURL).toHaveBeenCalledTimes(1)
       })
       expect(onValueChange).toHaveBeenCalledTimes(1)
@@ -692,7 +701,9 @@ describe('FileUpload', () => {
     expect(onSubmit.mock.calls[0]?.[0]).toEqual({ attachment: file })
 
     formElement.reset()
-    await waitFor(() => expect(screen.container.querySelector('[data-slot="file"]')).toBeNull())
+    await waitFor(() =>
+      expect(screen.container.querySelector('[data-slot="file-upload-file"]')).toBeNull(),
+    )
     fireEvent.submit(formElement)
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(2))
     expect(onSubmit.mock.calls[1]?.[0]).toEqual({ attachment: null })
@@ -787,20 +798,23 @@ describe('FileUpload', () => {
 
     await waitFor(() => {
       expect(
-        screen.container.querySelector<HTMLButtonElement>('[data-slot="fileRemove"]')?.disabled,
+        screen.container.querySelector<HTMLButtonElement>('[data-slot="file-upload-file-remove"]')
+          ?.disabled,
       ).toBe(true)
     })
 
-    fireEvent.click(screen.container.querySelector('[data-slot="fileRemove"]') as HTMLElement)
+    fireEvent.click(
+      screen.container.querySelector('[data-slot="file-upload-file-remove"]') as HTMLElement,
+    )
     await dropFiles(screen.getByRole('button', { name: 'File upload' }), [
       createFile('drop-blocked.txt'),
     ])
     await setInputFiles(input, [createFile('picker-blocked.txt')])
 
     expect(onValueChange).toHaveBeenCalledTimes(1)
-    expect(screen.container.querySelectorAll('[data-slot="file"]').length).toBe(1)
+    expect(screen.container.querySelectorAll('[data-slot="file-upload-file"]').length).toBe(1)
     expect(
-      screen.container.querySelector('[data-slot="root"]')?.getAttribute('data-readonly'),
+      screen.container.querySelector('[data-slot="file-upload"]')?.getAttribute('data-readonly'),
     ).toBe('')
   })
 })

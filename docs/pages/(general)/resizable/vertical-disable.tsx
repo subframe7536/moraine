@@ -2,7 +2,7 @@ import { Resizable } from '@src'
 
 function Stack(props: { disable?: boolean }) {
   return (
-    <Resizable disable={props.disable} orientation="vertical" classes={{ divider: 'bg-accent/80' }}>
+    <Resizable disable={props.disable} orientation="vertical" classes={{ handle: 'bg-accent/80' }}>
       <Resizable.Panel defaultSize="33%" class="p-4 bg-muted">
         Top
       </Resizable.Panel>

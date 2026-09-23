@@ -151,7 +151,8 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         return
       }
       field.setControlRef(
-        fieldsetEl?.querySelector<HTMLElement>('[data-slot="control"]:not(:disabled)') ?? undefined,
+        fieldsetEl?.querySelector<HTMLElement>('[data-slot="checkbox-control"]:not(:disabled)') ??
+          undefined,
       )
     })
 
@@ -241,7 +242,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     return (
       HTMLElement !== undefined &&
       target instanceof HTMLElement &&
-      target.matches('[data-slot="control"]')
+      target.matches('[data-slot="checkbox-control"]')
     )
   }
 
@@ -281,7 +282,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
     <div
       {...rest}
       id={`${groupId()}-root`}
-      data-slot="root"
+      data-slot="checkbox-group"
       {...checkboxGroupDataAttributes.root({
         disabled: field.disabled,
         readonly: () => merged.readOnly,
@@ -295,7 +296,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
           fieldsetEl = element
         }}
         id={groupId()}
-        data-slot="fieldset"
+        data-slot="checkbox-group-fieldset"
         disabled={field.disabled()}
         onFocusIn={onFieldsetFocusIn}
         onFocusOut={onFieldsetFocusOut}
@@ -308,7 +309,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
         <Show when={legend()}>
           <legend
             id={legendId()}
-            data-slot="legend"
+            data-slot="checkbox-group-legend"
             {...checkboxGroupDataAttributes.legend({ required: field.required })}
             {...resolved.styles.legend}
           >
@@ -323,6 +324,7 @@ export function CheckboxGroup<TTrue = boolean, TFalse = boolean>(
 
             return (
               <Checkbox
+                data-slot="checkbox-group-item"
                 id={itemId()}
                 name={field.name()}
                 fieldBind={false}

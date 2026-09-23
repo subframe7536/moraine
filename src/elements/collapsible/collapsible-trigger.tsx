@@ -60,7 +60,7 @@ export function CollapsibleTrigger<T extends ValidComponent = 'button'>(
   return (
     <Dynamic
       id={context.triggerId()}
-      data-slot="trigger"
+      data-slot="collapsible-trigger"
       {...interactionProps}
       component={tag()}
       {...resolved.styles.trigger}

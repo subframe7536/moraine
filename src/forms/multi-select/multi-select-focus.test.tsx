@@ -35,5 +35,7 @@ test('non-editable BaseSelect.Trigger owns focus and disclosure', () => {
 
   fireEvent.keyDown(document.activeElement!, { key: 'b' })
   fireEvent.keyDown(document.activeElement!, { key: 'Enter' })
-  expect(screen.container.querySelector('[data-slot="tagLabel"]')?.textContent).toBe('Banana')
+  expect(screen.container.querySelector('[data-slot="multi-select-tag-label"]')?.textContent).toBe(
+    'Banana',
+  )
 })

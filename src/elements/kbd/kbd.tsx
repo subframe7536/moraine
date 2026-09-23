@@ -33,7 +33,7 @@ export function Kbd(props: KbdProps): JSX.Element {
   return (
     <Show when={text()}>
       <kbd
-        data-slot={local.slotName ?? 'root'}
+        data-slot={local.slotName ?? 'kbd'}
         aria-label={local.label ?? alias()?.label}
         {...rest}
         {...resolved.styles.root}

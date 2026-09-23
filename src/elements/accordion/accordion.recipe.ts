@@ -24,6 +24,6 @@ export const accordionRecipe = /* @__PURE__ */ defineRecipe<AccordionStyleSlot>(
       'text-muted-foreground ml-auto shrink-0 size-4 pointer-events-none transition-transform group-aria-expanded:rotate-180',
     content:
       'text-sm h-(--mo-collapsible-content-height) overflow-hidden data-expanded:animate-accordion-down data-closed:(h-0 animate-accordion-up) motion-reduce:animate-none',
-    contentInner: 'pt-0 pb-4',
+    body: 'pt-0 pb-4',
   },
 })

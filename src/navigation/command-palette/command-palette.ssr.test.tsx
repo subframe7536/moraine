@@ -23,8 +23,8 @@ describe('CommandPalette SSR Hydration', () => {
       ),
     )
 
-    const label = container.querySelector('[data-slot="itemLabel"]')
-    const description = container.querySelector('[data-slot="itemDescription"]')
+    const label = container.querySelector('[data-slot="command-palette-item-label"]')
+    const description = container.querySelector('[data-slot="command-palette-item-description"]')
 
     expect(description?.parentElement).toBe(label)
     expect(label?.hasAttribute('data-description-position')).toBe(false)

@@ -153,6 +153,17 @@ Class inputs are passed to the active Moraine `cn` merger in this order: built-i
 
 Root-only components (`Icon`, `Kbd`, `Separator`, and the bound `form.Form`) expose direct `class` and `style`. Their Theme entries still have a `root` slot.
 
+### Style slots and DOM slots
+
+Style keys in `classes`, `styles`, recipes, and Theme entries are local camelCase names. The rendered `data-slot` value is a globally identifiable kebab-case name: the component name for `root`, or the component name followed by the slot name for other slots.
+
+```tsx
+<Select classes={{ itemLabel: 'font-semibold' }} />
+// The label element renders with data-slot="select-item-label".
+```
+
+Nested Moraine components keep ownership of their internal nodes. For example, Pagination's page Button root renders as `pagination-item`, while its label remains `button-label`. `AvatarGroup`, `CheckboxGroup`, and `Pagination` retain style keys that forward to child internals through their existing `classes` and `styles` APIs. Those nodes keep the child's DOM slot name: `AvatarGroup.classes.image` targets `avatar-image`, `CheckboxGroup.classes.icon` targets `checkbox-icon`, and `Pagination.classes.controlLabel` targets `button-label`. AvatarGroup's fallback content key is `fallbackContent`.
+
 Each rendered composite part resolves its recipe and nearest `MoraineProvider` itself. Family-instance defaults still flow from the nearest matching family root, including through a Portal, while an inner Provider supplies that part's Theme and `cnConfig`. A nested instance of the same family starts a new presentation scope and does not inherit the outer instance's overrides.
 
 CSS variables are slot-targeted. Portal DOM does not inherit variables from a trigger or layout root, so apply a variable to each affected slot explicitly—for example, `styles={{ content: { '--x': '...' }, overlay: { '--y': '...' } }}`. Moraine does not copy root variables across a family. Empty override values do not disable built-in recipes, and this API does not add an unstyled or replacement mode.

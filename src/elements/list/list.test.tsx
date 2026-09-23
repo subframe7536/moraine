@@ -39,7 +39,7 @@ describe('List', () => {
     const defaultRoot = defaultScreen.getByRole('list')
 
     expect(defaultRoot.getAttribute('role')).toBe('list')
-    expect(defaultRoot.getAttribute('data-slot')).toBe('root')
+    expect(defaultRoot.getAttribute('data-slot')).toBe('list')
 
     const overrideScreen = render(() => (
       <List

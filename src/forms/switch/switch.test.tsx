@@ -21,7 +21,7 @@ function expectSwitchChecked(element: Element, checked: boolean): void {
 describe('Switch', () => {
   test('renders component defaults when provider is absent', () => {
     const screen = baseRender(() => <Switch label="Test" />)
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="switch"]')
     expect(root?.className).not.toBe('')
   })
 
@@ -34,7 +34,7 @@ describe('Switch', () => {
     ))
 
     expect(rootEl).toBeInstanceOf(HTMLDivElement)
-    expect(rootEl?.getAttribute('data-slot')).toBe('root')
+    expect(rootEl?.getAttribute('data-slot')).toBe('switch')
     expect(inputEl).toBeInstanceOf(HTMLInputElement)
   })
 
@@ -42,11 +42,11 @@ describe('Switch', () => {
     const screen = render(() => <Switch label="Email alerts" description="Receive updates" />)
 
     const switchInput = screen.getByRole('switch', { name: 'Email alerts' })
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const track = screen.container.querySelector('[data-slot="track"]')
+    const root = screen.container.querySelector('[data-slot="switch"]')
+    const track = screen.container.querySelector('[data-slot="switch-track"]')
 
     expect(switchInput).not.toBeNull()
-    const input = screen.container.querySelector('[data-slot="input"]')
+    const input = screen.container.querySelector('[data-slot="switch-input"]')
 
     expect(root?.tagName).toBe('DIV')
     expect(track?.tagName).toBe('BUTTON')
@@ -57,8 +57,8 @@ describe('Switch', () => {
   test('supports uncontrolled toggle', async () => {
     const screen = render(() => <Switch label="Marketing" />)
     const switchInput = screen.getByRole('switch', { name: 'Marketing' })
-    const root = screen.container.querySelector('[data-slot="root"]')!
-    const thumb = screen.container.querySelector('[data-slot="thumb"]')!
+    const root = screen.container.querySelector('[data-slot="switch"]')!
+    const thumb = screen.container.querySelector('[data-slot="switch-thumb"]')!
 
     expectSwitchChecked(switchInput, false)
     expect(root.getAttribute('data-unchecked')).toBe('')
@@ -98,12 +98,14 @@ describe('Switch', () => {
       setValue: vi.fn(),
     }
     const screen = render(() => (
-      <FieldProvider value={{ ariaId: 'switch-field', binding }}>
+      <FieldProvider value={{ binding }}>
         <Switch label="Bound switch" onChange={onChange} />
       </FieldProvider>
     ))
     const track = screen.getByRole('switch', { name: 'Bound switch' })
-    const hiddenInput = screen.container.querySelector('[data-slot="input"]') as HTMLInputElement
+    const hiddenInput = screen.container.querySelector(
+      '[data-slot="switch-input"]',
+    ) as HTMLInputElement
 
     fireEvent.focus(track)
     fireEvent.blur(track)
@@ -164,7 +166,7 @@ describe('Switch', () => {
     ))
 
     const switchInput = screen.getByRole('switch', { name: 'Newsletter' })
-    const input = screen.container.querySelector('[data-slot="input"]')
+    const input = screen.container.querySelector('[data-slot="switch-input"]')
 
     expect(switchInput.getAttribute('id')).toBe('newsletter-switch')
     expect(input?.getAttribute('id')).toBe('newsletter-switch-input')
@@ -345,10 +347,10 @@ describe('Switch', () => {
   test('applies lg size classes on base and wrapper', () => {
     const screen = render(() => <Switch label="Classes" size="lg" />)
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const input = screen.container.querySelector('[data-slot="input"]')
-    const track = screen.container.querySelector('[data-slot="track"]')
-    const wrapper = screen.container.querySelector('[data-slot="wrapper"]')
+    const root = screen.container.querySelector('[data-slot="switch"]')
+    const input = screen.container.querySelector('[data-slot="switch-input"]')
+    const track = screen.container.querySelector('[data-slot="switch-track"]')
+    const wrapper = screen.container.querySelector('[data-slot="switch-wrapper"]')
 
     expect(root?.className).toContain('flex flex-row')
     expect(track?.className).toContain('cursor-pointer')
@@ -363,7 +365,7 @@ describe('Switch', () => {
 
   test('applies compact wrapper spacing on sm size', () => {
     const screen = render(() => <Switch label="Compact" size="sm" />)
-    const wrapper = screen.container.querySelector('[data-slot="wrapper"]')
+    const wrapper = screen.container.querySelector('[data-slot="switch-wrapper"]')
 
     expect(wrapper?.className).toContain('ms-1.5')
     expect(wrapper?.className).toContain('text-xs')
@@ -371,7 +373,7 @@ describe('Switch', () => {
 
   test('applies styles.root override', () => {
     const screen = render(() => <Switch label="Classes" styles={{ root: { width: '200px' } }} />)
-    const root = screen.container.querySelector('[data-slot="root"]') as HTMLElement | null
+    const root = screen.container.querySelector('[data-slot="switch"]') as HTMLElement | null
 
     expect(root?.style.width).toBe('200px')
   })
@@ -438,9 +440,9 @@ describe('Switch', () => {
 
   test('applies default md size variants when rendered standalone', () => {
     const screen = render(() => <Switch label="Default size" description="Helper" />)
-    const track = screen.container.querySelector('[data-slot="track"]')
-    const thumb = screen.container.querySelector('[data-slot="thumb"]')
-    const wrapper = screen.container.querySelector('[data-slot="wrapper"]')
+    const track = screen.container.querySelector('[data-slot="switch-track"]')
+    const thumb = screen.container.querySelector('[data-slot="switch-thumb"]')
+    const wrapper = screen.container.querySelector('[data-slot="switch-wrapper"]')
 
     expect(track?.className).toContain('h-4.5 w-8')
     expect(thumb?.className).toContain('size-3.5')
@@ -455,9 +457,9 @@ describe('Switch', () => {
     'applies explicit %s size variant classes',
     (size, trackClass, thumbClass, wrapperClass) => {
       const screen = render(() => <Switch size={size} label="Size test" description="Helper" />)
-      const track = screen.container.querySelector('[data-slot="track"]')
-      const thumb = screen.container.querySelector('[data-slot="thumb"]')
-      const wrapper = screen.container.querySelector('[data-slot="wrapper"]')
+      const track = screen.container.querySelector('[data-slot="switch-track"]')
+      const thumb = screen.container.querySelector('[data-slot="switch-thumb"]')
+      const wrapper = screen.container.querySelector('[data-slot="switch-wrapper"]')
 
       expect(track?.className).toContain(trackClass)
       expect(thumb?.className).toContain(thumbClass)

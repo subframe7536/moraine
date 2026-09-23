@@ -826,7 +826,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
     })
 
     const controlProps = mergeProps(dataAttrs, {
-      'data-slot': kind,
+      'data-slot': `input-number-${kind}`,
       type: 'button',
       tabIndex: -1,
       'aria-label': isIncrement ? 'Increment' : 'Decrement',
@@ -961,14 +961,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       ref={(element) => callRef(local.ref, element)}
       id={`${field.id()}-root`}
       role="group"
-      data-slot="root"
+      data-slot="input-number"
       {...resolved.styles.root}
       {...rootDataAttrs}
       {...rest}
     >
       <Show when={!isVertical() && showDecrement()}>
         <button {...resolveControlProps('decrement')}>
-          <Icon name={decrementIcon()} slotName="leading" />
+          <Icon name={decrementIcon()} />
         </button>
       </Show>
 
@@ -993,7 +993,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
         aria-valuenow={currentValue()}
         aria-valuetext={formattedValue()}
         placeholder={merged.placeholder}
-        data-slot="input"
+        data-slot="input-number-input"
         {...inputDataAttrs}
         {...resolved.styles.input}
         onInput={(event) => {
@@ -1105,15 +1105,15 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       />
 
       <Show when={isVertical() && (showIncrement() || showDecrement())}>
-        <div data-slot="controls" {...resolved.styles.controls}>
+        <div data-slot="input-number-controls" {...resolved.styles.controls}>
           <Show when={showIncrement()}>
             <button {...resolveControlProps('increment')}>
-              <Icon name={incrementIcon()} slotName="leading" />
+              <Icon name={incrementIcon()} />
             </button>
           </Show>
           <Show when={showDecrement()}>
             <button {...resolveControlProps('decrement')}>
-              <Icon name={decrementIcon()} slotName="leading" />
+              <Icon name={decrementIcon()} />
             </button>
           </Show>
         </div>
@@ -1121,7 +1121,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
 
       <Show when={!isVertical() && showIncrement()}>
         <button {...resolveControlProps('increment')}>
-          <Icon name={incrementIcon()} slotName="leading" />
+          <Icon name={incrementIcon()} />
         </button>
       </Show>
     </div>

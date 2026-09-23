@@ -60,7 +60,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
             id={context.contentId()}
             aria-labelledby={context.triggerId()}
             aria-hidden={closed() ? true : undefined}
-            data-slot="content-wrapper"
+            data-slot="collapsible-content-wrapper"
             hidden={hidden()}
             inert={closed() ? true : undefined}
             style={{
@@ -69,7 +69,7 @@ export function CollapsibleContent<T extends ValidComponent = 'div'>(
             class={COLLAPSIBLE_CONTENT_WRAPPER_CLASS}
           >
             <Dynamic
-              data-slot="content"
+              data-slot="collapsible-content"
               {...rest}
               {...collapsibleDataAttributes.content({
                 transition: context.transition,

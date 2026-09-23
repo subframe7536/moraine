@@ -20,10 +20,12 @@ export interface SelectItemStyleSlot<T = unknown> {
   empty?: T
   /** Leading icon inside an item row. */
   itemLeading?: T
-  /** Text region containing the primary label and optional description. */
+  /** Text column containing the label and description. */
+  itemWrapper?: T
+  /** Primary label inside an item row. */
   itemLabel?: T
   /** Supporting description text inside an item row. */
   itemDescription?: T
-  /** Trailing region inside an item row, usually for selection state or custom content. */
-  itemTrailing?: T
+  /** Selected-state indicator inside an item row. */
+  itemIndicator?: T
 }

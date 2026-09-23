@@ -322,7 +322,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       return
     }
 
-    if (target.closest('[data-slot="control"]')) {
+    if (target.closest('[data-slot="checkbox-control"]')) {
       toggle()
       return
     }
@@ -337,7 +337,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
   return (
     <div
       {...rest}
-      data-slot="root"
+      data-slot={(rest as { 'data-slot'?: string })['data-slot'] ?? 'checkbox'}
       {...checkboxDataAttributes.root({
         checked: resolvedChecked,
         unchecked: () => !resolvedChecked() && !indeterminate(),
@@ -350,7 +350,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
       {...resolved.styles.root}
       onClick={onRootClick}
     >
-      <div data-slot="container" {...resolved.styles.container}>
+      <div data-slot="checkbox-container" {...resolved.styles.container}>
         <HiddenInput
           ref={(element) => {
             inputEl = element
@@ -367,7 +367,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           tabIndex={-1}
           aria-hidden="true"
           class="peer"
-          data-slot="input"
+          data-slot="checkbox-input"
           onChange={(event) => {
             event.stopPropagation()
 
@@ -389,7 +389,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           type="button"
           role="checkbox"
           disabled={field.disabled()}
-          data-slot="control"
+          data-slot="checkbox-control"
           aria-checked={indeterminate() ? 'mixed' : resolvedChecked()}
           class={cn(resolved.styles.control.class, [
             resolved.variants.indicator === 'hidden' && 'sr-only',
@@ -414,7 +414,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
         >
           <Show when={resolvedChecked() || indeterminate()}>
             <span
-              data-slot="indicator"
+              data-slot="checkbox-indicator"
               {...resolved.styles.indicator}
               {...checkboxDataAttributes.indicator({
                 checked: resolvedChecked,
@@ -422,14 +422,14 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                 indeterminate,
               })}
             >
-              <Icon name={activeIcon()} {...resolved.styles.icon} />
+              <Icon name={activeIcon()} slotName="checkbox-icon" {...resolved.styles.icon} />
             </span>
           </Show>
         </button>
       </div>
 
       <Show when={label() || description()}>
-        <div data-slot="wrapper" {...resolved.styles.wrapper}>
+        <div data-slot="checkbox-wrapper" {...resolved.styles.wrapper}>
           <Show when={label()}>
             <Show
               when={resolved.variants.variant === 'card'}
@@ -437,7 +437,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
                 <label
                   for={field.id()}
                   id={labelId()}
-                  data-slot="label"
+                  data-slot="checkbox-label"
                   {...checkboxDataAttributes.label({ required: field.required })}
                   {...resolved.styles.label}
                 >
@@ -447,7 +447,7 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
             >
               <p
                 id={labelId()}
-                data-slot="label"
+                data-slot="checkbox-label"
                 {...checkboxDataAttributes.label({ required: field.required })}
                 {...resolved.styles.label}
               >
@@ -457,7 +457,11 @@ export function Checkbox<TTrue = boolean, TFalse = boolean>(
           </Show>
 
           <Show when={description()}>
-            <p id={descriptionId()} data-slot="description" {...resolved.styles.description}>
+            <p
+              id={descriptionId()}
+              data-slot="checkbox-description"
+              {...resolved.styles.description}
+            >
               {description()}
             </p>
           </Show>

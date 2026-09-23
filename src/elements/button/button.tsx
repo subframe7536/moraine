@@ -121,7 +121,7 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
 
   return (
     <Dynamic
-      data-slot={local.slotName || 'root'}
+      data-slot={local.slotName || 'button'}
       aria-busy={isLoading() ? true : undefined}
       {...buttonDataAttributes.root({
         loading: isLoading,
@@ -145,22 +145,19 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         {(leading) => (
           <Icon
             name={leading()}
-            slotName="leading"
+            slotName="button-leading"
             class={cn(
-              isLeadingLoading() ? resolved.styles.loading.class : undefined,
+              isLeadingLoading() ? 'opacity-80 cursor-wait animate-spin' : undefined,
               resolved.styles.leading.class,
             )}
-            style={{
-              ...(isLeadingLoading() ? resolved.styles.loading.style : undefined),
-              ...resolved.styles.leading.style,
-            }}
+            style={resolved.styles.leading.style}
             aria-hidden={isLeadingLoading() ? true : undefined}
           />
         )}
       </Show>
 
       <Show when={hasResolvedChildren()}>
-        <span data-slot="label" {...resolved.styles.label}>
+        <span data-slot="button-label" {...resolved.styles.label}>
           {resolvedChildren()}
         </span>
       </Show>
@@ -169,15 +166,12 @@ export function Button<T extends ValidComponent = 'button'>(props: ButtonProps<T
         {(trailing) => (
           <Icon
             name={trailing()}
-            slotName="trailing"
+            slotName="button-trailing"
             class={cn(
-              isTrailingLoading() ? resolved.styles.loading.class : undefined,
+              isTrailingLoading() ? 'opacity-80 cursor-wait animate-spin' : undefined,
               resolved.styles.trailing.class,
             )}
-            style={{
-              ...(isTrailingLoading() ? resolved.styles.loading.style : undefined),
-              ...resolved.styles.trailing.style,
-            }}
+            style={resolved.styles.trailing.style}
             aria-hidden={isTrailingLoading() ? true : undefined}
           />
         )}

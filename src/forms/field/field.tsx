@@ -153,15 +153,6 @@ export function renderField<T extends ValidComponent = 'div'>(
     get size() {
       return resolved.variants.size
     },
-    get hint() {
-      return hint()
-    },
-    get description() {
-      return description()
-    },
-    get help() {
-      return help()
-    },
     get disabled() {
       return local.disabled
     },
@@ -170,15 +161,6 @@ export function renderField<T extends ValidComponent = 'div'>(
     },
     get required() {
       return isRequired()
-    },
-    get ariaId() {
-      return ariaId()
-    },
-    get labelId() {
-      return showLabel() ? `${ariaId()}-label` : undefined
-    },
-    get controlId() {
-      return selectedControlId()
     },
     ariaAttrs: fieldAriaAttrs,
     registerControl,
@@ -194,21 +176,21 @@ export function renderField<T extends ValidComponent = 'div'>(
     )
 
     return (
-      <Dynamic data-slot="root" {...rest} component={local.as ?? 'div'} {...resolved.styles.root}>
-        <div data-slot="wrapper" {...resolved.styles.wrapper}>
+      <Dynamic data-slot="field" {...rest} component={local.as ?? 'div'} {...resolved.styles.root}>
+        <div data-slot="field-wrapper" {...resolved.styles.wrapper}>
           <Show when={showLabel()}>
-            <div data-slot="labelWrapper" {...resolved.styles.labelWrapper}>
+            <div data-slot="field-label-wrapper" {...resolved.styles.labelWrapper}>
               <label
                 id={`${ariaId()}-label`}
                 for={selectedControlId()}
-                data-slot="label"
+                data-slot="field-label"
                 {...fieldDataAttributes.label({ required: isRequired })}
                 {...resolved.styles.label}
               >
                 {label()}
               </label>
               <Show when={showHint()}>
-                <span id={`${ariaId()}-hint`} data-slot="hint" {...resolved.styles.hint}>
+                <span id={`${ariaId()}-hint`} data-slot="field-hint" {...resolved.styles.hint}>
                   {hint()}
                 </span>
               </Show>
@@ -217,7 +199,7 @@ export function renderField<T extends ValidComponent = 'div'>(
           <Show when={showDescription()}>
             <p
               id={`${ariaId()}-description`}
-              data-slot="description"
+              data-slot="field-description"
               {...resolved.styles.description}
             >
               {description()}
@@ -225,7 +207,7 @@ export function renderField<T extends ValidComponent = 'div'>(
           </Show>
         </div>
         <div
-          data-slot="container"
+          data-slot="field-container"
           {...fieldDataAttributes.container({
             hasText: () => showLabel() || showDescription(),
           })}
@@ -236,13 +218,13 @@ export function renderField<T extends ValidComponent = 'div'>(
             when={showError()}
             fallback={
               <Show when={showHelp()}>
-                <div id={`${ariaId()}-help`} data-slot="help" {...resolved.styles.help}>
+                <div id={`${ariaId()}-help`} data-slot="field-help" {...resolved.styles.help}>
                   {help()}
                 </div>
               </Show>
             }
           >
-            <div id={`${ariaId()}-error`} data-slot="error" {...resolved.styles.error}>
+            <div id={`${ariaId()}-error`} data-slot="field-error" {...resolved.styles.error}>
               {resolvedError()}
             </div>
           </Show>

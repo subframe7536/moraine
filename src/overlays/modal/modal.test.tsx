@@ -15,6 +15,37 @@ import { Sheet } from '../sheet/sheet'
 import { Modal } from './modal'
 
 describe('Modal primitives', () => {
+  test.each([
+    [
+      'dialog',
+      () => (
+        <Dialog defaultOpen>
+          <Dialog.Content>
+            <Modal defaultOpen>
+              <Modal.Content trapFocus={false}>Nested modal</Modal.Content>
+            </Modal>
+          </Dialog.Content>
+        </Dialog>
+      ),
+    ],
+    [
+      'sheet',
+      () => (
+        <Sheet defaultOpen>
+          <Sheet.Content>
+            <Modal defaultOpen>
+              <Modal.Content trapFocus={false}>Nested modal</Modal.Content>
+            </Modal>
+          </Sheet.Content>
+        </Sheet>
+      ),
+    ],
+  ] as const)('keeps an independent Modal owner inside %s', (owner, component) => {
+    render(component)
+    expect(document.body.querySelectorAll(`[data-slot="${owner}-content"]`)).toHaveLength(1)
+    expect(document.body.querySelectorAll('[data-slot="modal-content"]')).toHaveLength(1)
+  })
+
   test.each(['Trigger', 'Close'] as const)(
     'preserves %s children across polymorphic root replacement',
     (part) => {
@@ -139,7 +170,7 @@ describe('Modal primitives', () => {
     await finishExitMotion()
     await waitFor(() => {
       expect(cleanups).toBe(1)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
     })
 
     setOpen(true)
@@ -156,8 +187,8 @@ describe('Modal primitives', () => {
         <Modal.Content>Unstyled</Modal.Content>
       </Modal>
     ))
-    expect(document.querySelector('[data-slot="overlay"]')?.className).not.toBe('')
-    expect(document.querySelector('[data-slot="content"]')?.className).not.toBe('')
+    expect(document.querySelector('[data-slot="modal-overlay"]')?.className).not.toBe('')
+    expect(document.querySelector('[data-slot="modal-content"]')?.className).not.toBe('')
   })
 
   test('replaces modal Design without replacing the focused surface', () => {
@@ -174,19 +205,21 @@ describe('Modal primitives', () => {
         </Modal>
       </MoraineProvider>
     ))
-    const surface = document.querySelector<HTMLElement>('[data-slot="content"]')!
+    const surface = document.querySelector<HTMLElement>('[data-slot="modal-content"]')!
     surface.focus()
     setDesign(
       defineTheme({
         modal: { base: { content: 'second-surface', overlay: 'second-overlay' } },
       }),
     )
-    expect(document.querySelector('[data-slot="content"]')).toBe(surface)
+    expect(document.querySelector('[data-slot="modal-content"]')).toBe(surface)
     expect(document.activeElement).toBe(surface)
     expect(surface.className).toContain('second-surface')
     expect(surface.className).not.toContain('first-surface')
-    expect(document.querySelector('[data-slot="overlay"]')?.className).toContain('second-overlay')
-    expect(document.querySelector('[data-slot="overlay"]')?.className).not.toContain(
+    expect(document.querySelector('[data-slot="modal-overlay"]')?.className).toContain(
+      'second-overlay',
+    )
+    expect(document.querySelector('[data-slot="modal-overlay"]')?.className).not.toContain(
       'first-overlay',
     )
   })
@@ -203,7 +236,7 @@ describe('Modal primitives', () => {
         </Modal.Content>
       </Modal>
     ))
-    const close = document.body.querySelector<HTMLElement>('[data-slot="close"]')!
+    const close = document.body.querySelector<HTMLElement>('[data-slot="modal-close"]')!
     expect(close.getAttribute('role')).toBe('button')
     fireEvent.click(close)
     expect(onOpenChange).not.toHaveBeenCalled()
@@ -236,14 +269,14 @@ describe('Modal primitives', () => {
     expect(trigger).toBe(triggerElement)
     expect(trigger.className).toBe('flat-trigger')
     expect(trigger.style.color).toBe('red')
-    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.getAttribute('data-slot')).toBe('modal-trigger')
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
 
     fireEvent.click(trigger)
 
     expect(onClick).toHaveBeenCalledTimes(1)
     expect(onOpenChange).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
     screen.unmount()
   })
 
@@ -261,7 +294,7 @@ describe('Modal primitives', () => {
 
     expect(trigger.tagName).toBe('BUTTON')
     expect(trigger.type).toBe('button')
-    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.getAttribute('data-slot')).toBe('modal-trigger')
     expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
     expect(trigger.getAttribute('data-closed')).toBe('')
@@ -334,12 +367,16 @@ describe('Modal primitives', () => {
       </MoraineProvider>
     ))
 
-    const triggers = screen.container.querySelectorAll('[data-slot="trigger"]')
+    const triggers = screen.container.querySelectorAll(
+      '[data-slot="dialog-trigger"], [data-slot="sheet-trigger"]',
+    )
     expect(triggers).toHaveLength(2)
     expect(triggers[0]?.className).not.toContain('modal-provider')
     expect(triggers[1]?.className).not.toContain('modal-provider')
 
-    const contents = document.body.querySelectorAll('[data-slot="content"]')
+    const contents = document.body.querySelectorAll(
+      '[data-slot="dialog-content"], [data-slot="sheet-content"]',
+    )
     expect(contents).toHaveLength(2)
     expect((contents[0] as HTMLElement).className).not.toContain('modal-provider-class')
     expect((contents[0] as HTMLElement).className).not.toContain('modal-provider-trigger')
@@ -377,7 +414,7 @@ describe('Modal primitives', () => {
     fireEvent.click(screen.getByTestId('canceled-trigger'))
 
     expect(onOpenChange).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
     screen.unmount()
   })
 
@@ -514,7 +551,7 @@ describe('Modal primitives', () => {
     ))
     await Promise.resolve()
 
-    expect(document.body.querySelector('[data-slot="overlay"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="modal-overlay"]')).not.toBeNull()
     expect(document.body.style.overflow).toBe('hidden')
 
     fireEvent.keyDown(document, { key: 'Escape' })
@@ -532,7 +569,7 @@ describe('Modal primitives', () => {
       </Modal>
     ))
 
-    const overlay = document.body.querySelector('[data-slot="overlay"]')
+    const overlay = document.body.querySelector('[data-slot="modal-overlay"]')
     expect(overlay?.className).toContain('bg-black/10')
     expect(overlay?.className).not.toContain('duration-150')
     expect(overlay?.className).toContain('inset-0')
@@ -554,7 +591,7 @@ describe('Modal primitives', () => {
       </Modal>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')
+    const content = document.body.querySelector('[data-slot="modal-content"]')
     expect(content?.className).toContain('outline-none')
     expect(content?.className).toContain('w-full')
     expect(content?.className).toContain('z-floating')
@@ -571,7 +608,7 @@ describe('Modal primitives', () => {
       </Modal>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')
+    const content = document.body.querySelector('[data-slot="modal-content"]')
     expect(content?.className).toContain('custom-content')
     expect(content?.className).toContain('outline-none')
   })
@@ -588,8 +625,8 @@ describe('Modal primitives', () => {
       </Modal>
     ))
 
-    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const overlay = document.body.querySelector('[data-slot="modal-overlay"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="modal-content"]') as HTMLElement
     expect(overlay.getAttribute('data-expanded')).toBe('')
     expect(content.getAttribute('data-expanded')).toBe('')
 
@@ -599,13 +636,13 @@ describe('Modal primitives', () => {
 
     await Promise.resolve()
     fireEvent.animationEnd(content)
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="modal-content"]')).not.toBeNull()
     expect(onExitComplete).not.toHaveBeenCalled()
 
     fireEvent.animationEnd(overlay)
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
-      expect(document.body.querySelector('[data-slot="overlay"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="modal-content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="modal-overlay"]')).toBeNull()
       expect(onExitComplete).toHaveBeenCalledOnce()
     })
     screen.unmount()
@@ -640,8 +677,8 @@ describe('Modal primitives', () => {
       </Modal>
     ))
 
-    expect(document.body.querySelector('[data-slot="overlay"]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="modal-overlay"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="modal-content"]')).not.toBeNull()
   })
 
   test('renders overlay and content and forwards refs', () => {
@@ -657,8 +694,8 @@ describe('Modal primitives', () => {
       </Modal>
     ))
 
-    const overlay = document.body.querySelector('[data-slot="overlay"]')
-    const content = document.body.querySelector('[data-slot="content"]')
+    const overlay = document.body.querySelector('[data-slot="modal-overlay"]')
+    const content = document.body.querySelector('[data-slot="modal-content"]')
 
     expect(overlay).not.toBeNull()
     expect(content).not.toBeNull()
@@ -684,8 +721,8 @@ describe('Modal primitives', () => {
       </Modal>
     ))
 
-    const overlay = document.body.querySelector('[data-slot="overlay"]')
-    const content = document.body.querySelector('[data-slot="content"]')
+    const overlay = document.body.querySelector('[data-slot="modal-overlay"]')
+    const content = document.body.querySelector('[data-slot="modal-content"]')
 
     expect(overlay?.contains(content ?? null)).toBe(true)
     expect(overlay?.className).toContain('data-overlay-scroll:overflow-y-auto')
@@ -739,7 +776,7 @@ describe('Modal primitives', () => {
     await Promise.resolve()
     const outerContent = document.body
       .querySelector('[data-testid="outer-content"]')
-      ?.closest('[data-slot="content"]') as HTMLElement
+      ?.closest('[data-slot="modal-content"]') as HTMLElement
     const outerPortal = outerContent.parentElement!
 
     expect(background.getAttribute('aria-hidden')).toBe('true')
@@ -855,7 +892,7 @@ describe('Modal primitives', () => {
       </Modal>
     ))
     await Promise.resolve()
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="modal-content"]') as HTMLElement
     const event = new KeyboardEvent('keydown', {
       bubbles: true,
       cancelable: true,
@@ -954,7 +991,7 @@ describe('Modal primitives', () => {
 
     expect(onOpenChange).not.toHaveBeenCalled()
     expect(onClosePrevent).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="modal-content"]')).not.toBeNull()
     screen.unmount()
     outside.remove()
   })
@@ -1043,7 +1080,7 @@ describe('Modal primitives', () => {
     await Promise.resolve()
     await Promise.resolve()
     const button = document.body.querySelector('[data-testid="remove"]') as HTMLButtonElement
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="modal-content"]') as HTMLElement
     button.focus()
 
     fireEvent.pointerDown(button, { pointerType: 'mouse' })
@@ -1092,7 +1129,7 @@ describe('Modal primitives', () => {
 
     fireEvent.click(document.body.querySelector('[data-testid="close"]')!)
     await Promise.resolve()
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="modal-content"]')!
     fireEvent.animationEnd(content)
     fireEvent.transitionEnd(content)
 
@@ -1140,7 +1177,7 @@ describe('Modal primitives', () => {
 
     fireEvent.click(document.body.querySelector('[data-testid="inner-close"]')!)
     await Promise.resolve()
-    const innerContent = document.body.querySelectorAll('[data-slot="content"]')[1]!
+    const innerContent = document.body.querySelectorAll('[data-slot="modal-content"]')[1]!
     fireEvent.animationEnd(innerContent)
     fireEvent.transitionEnd(innerContent)
     await waitFor(() => {
@@ -1149,7 +1186,7 @@ describe('Modal primitives', () => {
 
     fireEvent.click(document.body.querySelector('[data-testid="outer-close"]')!)
     await Promise.resolve()
-    const outerContent = document.body.querySelector('[data-slot="content"]')!
+    const outerContent = document.body.querySelector('[data-slot="modal-content"]')!
     fireEvent.animationEnd(outerContent)
     fireEvent.transitionEnd(outerContent)
     await waitFor(() => {
@@ -1272,7 +1309,7 @@ describe('Modal primitives', () => {
     outside.focus()
     await Promise.resolve()
     await Promise.resolve()
-    const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
+    const content = document.body.querySelector<HTMLElement>('[data-slot="modal-content"]')!
     const last = document.body.querySelector('[data-testid="last-btn"]') as HTMLButtonElement
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(outside.getAttribute('aria-hidden')).toBeNull()
@@ -1326,7 +1363,7 @@ describe('Modal primitives', () => {
 
     fireEvent.click(document.body.querySelector('[data-testid="close-disabled"]')!)
     await Promise.resolve()
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="modal-content"]')!
     fireEvent.animationEnd(content)
     fireEvent.transitionEnd(content)
     await Promise.resolve()
@@ -1358,7 +1395,7 @@ describe('Modal primitives', () => {
 
     fireEvent.click(document.body.querySelector('[data-testid="close-removed"]')!)
     await Promise.resolve()
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="modal-content"]')!
     fireEvent.animationEnd(content)
     fireEvent.transitionEnd(content)
     await Promise.resolve()
@@ -1392,7 +1429,9 @@ describe('Modal primitives', () => {
     setOpen(true)
     await Promise.resolve()
 
-    const reopenedContent = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const reopenedContent = document.body.querySelector(
+      '[data-slot="modal-content"]',
+    ) as HTMLElement
     expect(reopenedContent.hasAttribute('data-expanded')).toBe(true)
     expect(onExitComplete).not.toHaveBeenCalled()
     expect(document.activeElement).not.toBe(trigger)
@@ -1403,7 +1442,7 @@ describe('Modal primitives', () => {
     fireEvent.transitionEnd(reopenedContent)
     expect(onExitComplete).not.toHaveBeenCalled()
 
-    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
+    const overlay = document.body.querySelector('[data-slot="modal-overlay"]') as HTMLElement
     fireEvent.animationEnd(overlay)
     fireEvent.transitionEnd(overlay)
     await waitFor(() => {
@@ -1467,7 +1506,7 @@ describe('Modal primitives', () => {
     ))
 
     expect(instances).toBe(0)
-    fireEvent.click(document.querySelector('[data-slot="trigger"]')!)
+    fireEvent.click(document.querySelector('[data-slot="modal-trigger"]')!)
 
     await waitFor(() => {
       expect(instances).toBe(1)
@@ -1504,14 +1543,14 @@ describe('Modal primitives', () => {
           document.body.querySelector<HTMLButtonElement>('[data-testid="content-action"]')!,
         ),
       )
-      const before = document.body.querySelector('[data-slot="content"]')
+      const before = document.body.querySelector('[data-slot="modal-content"]')
       setScroll(true)
       await Promise.resolve()
       await Promise.resolve()
       const after = document.body.querySelector<HTMLButtonElement>(
         '[data-testid="content-action"]',
       )!
-      expect(after.closest('[data-slot="content"]')).not.toBe(before)
+      expect(after.closest('[data-slot="modal-content"]')).not.toBe(before)
       expect(after.closest('[aria-hidden="true"]')).toBeNull()
       expect(document.activeElement).toBe(after)
     } finally {

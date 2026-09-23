@@ -37,7 +37,12 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
         },
       }}
     >
-      <div role={local.role ?? 'group'} data-slot="root" {...rest} {...resolved.styles.root}>
+      <div
+        role={local.role ?? 'group'}
+        data-slot="button-group"
+        {...rest}
+        {...resolved.styles.root}
+      >
         {local.children}
       </div>
     </ButtonGroupProvider>

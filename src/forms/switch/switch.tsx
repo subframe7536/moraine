@@ -255,7 +255,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     }
 
     const target = event.target
-    if (target instanceof Element && target.closest('[data-slot="track"]')) {
+    if (target instanceof Element && target.closest('[data-slot="switch-track"]')) {
       toggle()
     }
   }
@@ -264,7 +264,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
     <div
       ref={(element) => callRef(local.ref, element)}
       {...rest}
-      data-slot="root"
+      data-slot="switch"
       {...switchDataAttributes.root({
         checked,
         unchecked: () => !checked(),
@@ -293,7 +293,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         tabIndex={-1}
         aria-hidden="true"
         class="peer"
-        data-slot="input"
+        data-slot="switch-input"
         onChange={(event) => {
           event.stopPropagation()
 
@@ -313,7 +313,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         type="button"
         role="switch"
         disabled={field.disabled()}
-        data-slot="track"
+        data-slot="switch-track"
         aria-checked={checked()}
         {...switchAriaAttrs()}
         {...resolved.styles.track}
@@ -329,7 +329,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
         })}
       >
         <span
-          data-slot="thumb"
+          data-slot="switch-thumb"
           {...switchDataAttributes.thumb({
             checked,
             unchecked: () => !checked(),
@@ -340,6 +340,7 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           <Show when={resolvedIconName()} keyed>
             {(iconName) => (
               <Icon
+                slotName="switch-icon"
                 name={iconName}
                 {...switchDataAttributes.icon({
                   checked: () => !merged.loading && checked(),
@@ -354,12 +355,12 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
       </button>
 
       <Show when={showLabel() || showDescription()}>
-        <span data-slot="wrapper" {...resolved.styles.wrapper}>
+        <span data-slot="switch-wrapper" {...resolved.styles.wrapper}>
           <Show when={showLabel()}>
             <label
               for={field.id()}
               id={labelId()}
-              data-slot="label"
+              data-slot="switch-label"
               {...switchDataAttributes.label({ required: field.required })}
               {...resolved.styles.label}
             >
@@ -368,7 +369,11 @@ export function Switch<TTrue = boolean, TFalse = boolean>(
           </Show>
 
           <Show when={showDescription()}>
-            <span id={descriptionId()} data-slot="description" {...resolved.styles.description}>
+            <span
+              id={descriptionId()}
+              data-slot="switch-description"
+              {...resolved.styles.description}
+            >
               {description()}
             </span>
           </Show>

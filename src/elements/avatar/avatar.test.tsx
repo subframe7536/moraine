@@ -72,11 +72,11 @@ describe('Avatar', () => {
       </>
     ))
 
-    const avatarRoot = screen.container.querySelector('[data-slot="root"]')
+    const avatarRoot = screen.container.querySelector('[data-slot="avatar"]')
     expect(avatarRoot?.className).not.toBe('')
-    const badge = screen.container.querySelector('[data-slot="badge"]')
+    const badge = screen.container.querySelector('[data-slot="avatar-badge"]')
     expect(badge?.className).not.toBe('')
-    const groupRoot = screen.container.querySelectorAll('[data-slot="root"]')[1]
+    const groupRoot = screen.container.querySelector('[data-slot="avatar-group"]')
     expect(groupRoot?.className).not.toBe('')
   })
 
@@ -88,13 +88,13 @@ describe('Avatar', () => {
       </>
     ))
 
-    expect(screen.container.querySelectorAll('[data-slot="root"]')).toHaveLength(0)
+    expect(screen.container.querySelectorAll('[data-slot="avatar"]')).toHaveLength(0)
   })
 
   test('renders avatar root element with fallback text', () => {
     const screen = render(() => <Avatar text="MR" />)
 
-    expect(screen.container.querySelector('[data-slot="root"]')).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot="avatar"]')).not.toBeNull()
     expect(screen.getByText('MR')).not.toBeNull()
   })
 
@@ -102,9 +102,9 @@ describe('Avatar', () => {
     outcomesBySrc.set('/loading.png', 'pending')
     const screen = render(() => <Avatar src="/loading.png" text="MR" />)
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const image = screen.container.querySelector('[data-slot="image"]')
-    const fallback = screen.container.querySelector('[data-slot="fallback"]')
+    const root = screen.container.querySelector('[data-slot="avatar"]')
+    const image = screen.container.querySelector('[data-slot="avatar-image"]')
+    const fallback = screen.container.querySelector('[data-slot="avatar-fallback"]')
 
     expect(root?.getAttribute('data-status')).toBe('loading')
     expect(image?.getAttribute('data-status')).toBe('loading')
@@ -116,14 +116,14 @@ describe('Avatar', () => {
     outcomesBySrc.set('/loaded.png', 'success')
     const screen = render(() => <Avatar src="/loaded.png" alt="Moraine" />)
 
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="avatar"]')
 
     await waitFor(() => {
       expect(root?.getAttribute('data-status')).toBe('loaded')
     })
 
-    const image = screen.container.querySelector('[data-slot="image"]')
-    const fallback = screen.container.querySelector('[data-slot="fallback"]')
+    const image = screen.container.querySelector('[data-slot="avatar-image"]')
+    const fallback = screen.container.querySelector('[data-slot="avatar-fallback"]')
     expect(image?.getAttribute('src')).toContain('/loaded.png')
     expect(image?.getAttribute('data-status')).toBe('loaded')
     expect(fallback?.getAttribute('data-status')).toBe('loaded')
@@ -140,20 +140,22 @@ describe('Avatar', () => {
       <Avatar src="/cached.png" alt="Cached avatar" onStatusChange={onStatusChange} />
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="avatar"]')
     expect(root?.getAttribute('data-status')).toBe(status)
     expect(onStatusChange).not.toHaveBeenCalledWith('idle')
 
     if (status === 'loaded') {
-      expect(screen.container.querySelector('[data-slot="image"]')).not.toBeNull()
+      expect(screen.container.querySelector('[data-slot="avatar-image"]')).not.toBeNull()
       expect(
-        screen.container.querySelector('[data-slot="fallback"]')?.getAttribute('aria-hidden'),
+        screen.container
+          .querySelector('[data-slot="avatar-fallback"]')
+          ?.getAttribute('aria-hidden'),
       ).toBe('true')
     } else {
       expect(
-        screen.container.querySelector('[data-slot="image"]')?.getAttribute('aria-hidden'),
+        screen.container.querySelector('[data-slot="avatar-image"]')?.getAttribute('aria-hidden'),
       ).toBe('true')
-      expect(screen.container.querySelector('[data-slot="fallback"]')).not.toBeNull()
+      expect(screen.container.querySelector('[data-slot="avatar-fallback"]')).not.toBeNull()
     }
   })
 
@@ -161,8 +163,8 @@ describe('Avatar', () => {
     outcomesBySrc.set('/broken.png', 'error')
     const screen = render(() => <Avatar src="/broken.png" fallback="i-lucide-user" />)
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const icon = screen.container.querySelector('[data-slot="fallbackIcon"]')
+    const root = screen.container.querySelector('[data-slot="avatar"]')
+    const icon = screen.container.querySelector('[data-slot="avatar-fallback-content"]')
 
     await waitFor(() => {
       expect(root?.getAttribute('data-status')).toBe('error')
@@ -181,7 +183,7 @@ describe('Avatar', () => {
       </MoraineProvider>
     ))
 
-    const badges = Array.from(screen.container.querySelectorAll('[data-slot="badge"]'))
+    const badges = Array.from(screen.container.querySelectorAll('[data-slot="avatar-badge"]'))
     expect(badges).toHaveLength(4)
     expect(badges[0]?.className).toContain('-top-0.5')
     expect(badges[0]?.className).toContain('-left-0.5')
@@ -199,7 +201,7 @@ describe('Avatar', () => {
         <Avatar badge="i-lucide-check" />
       </MoraineProvider>
     ))
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="avatar"]')
 
     expect(root?.className).toContain('overflow-visible')
     expect(root?.className).not.toContain('overflow-hidden')
@@ -213,11 +215,11 @@ describe('Avatar', () => {
       </MoraineProvider>
     ))
 
-    const roots = Array.from(screen.container.querySelectorAll('[data-slot="root"]'))
+    const roots = Array.from(screen.container.querySelectorAll('[data-slot="avatar"]'))
     const fallbackIcons = Array.from(
-      screen.container.querySelectorAll('[data-slot="fallbackIcon"]'),
+      screen.container.querySelectorAll('[data-slot="avatar-fallback-content"]'),
     )
-    const badges = Array.from(screen.container.querySelectorAll('[data-slot="badge"]'))
+    const badges = Array.from(screen.container.querySelectorAll('[data-slot="avatar-badge"]'))
 
     expect(roots[0]?.className).toContain('size-6')
     expect(fallbackIcons[0]?.className).toContain('text-sm')
@@ -230,14 +232,14 @@ describe('Avatar', () => {
 
   test('generates initials from alt when text is not provided', () => {
     const screen = render(() => <Avatar alt="Moraine Team" />)
-    const fallback = screen.container.querySelector('[data-slot="fallback"]')
+    const fallback = screen.container.querySelector('[data-slot="avatar-fallback"]')
 
     expect(fallback?.textContent).toBe('MT')
   })
 
   test('generates Unicode-safe initials across non-space whitespace', () => {
     const screen = render(() => <Avatar alt={'Ada\t😀 Lovelace'} />)
-    const fallback = screen.container.querySelector('[data-slot="fallback"]')
+    const fallback = screen.container.querySelector('[data-slot="avatar-fallback"]')
 
     expect(fallback?.textContent).toBe('A😀')
   })
@@ -254,7 +256,7 @@ describe('Avatar', () => {
       return <Avatar src={source()} text="MR" />
     })
 
-    const root = screen.container.querySelector('[data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="avatar"]')
 
     await waitFor(() => {
       expect(root?.getAttribute('data-status')).toBe('loaded')
@@ -274,7 +276,7 @@ describe('Avatar', () => {
 
     await waitFor(() => {
       expect(
-        screen.container.querySelector('[data-slot="root"]')?.getAttribute('data-status'),
+        screen.container.querySelector('[data-slot="avatar"]')?.getAttribute('data-status'),
       ).toBe('loaded')
     })
     expect(mockImages).toHaveLength(1)
@@ -308,9 +310,9 @@ describe('Avatar', () => {
     const onStatusChange = vi.fn()
     const screen = render(() => <Avatar src={' \t '} onStatusChange={onStatusChange} />)
 
-    expect(screen.container.querySelector('[data-slot="root"]')?.getAttribute('data-status')).toBe(
-      'error',
-    )
+    expect(
+      screen.container.querySelector('[data-slot="avatar"]')?.getAttribute('data-status'),
+    ).toBe('error')
     expect(mockImages).toHaveLength(0)
     expect(onStatusChange.mock.calls.map(([status]) => status)).toEqual(['error'])
   })
@@ -325,14 +327,14 @@ describe('Avatar', () => {
     const secondLoader = mockImages[1]
     firstLoader?.onload?.()
 
-    expect(screen.container.querySelector('[data-slot="root"]')?.getAttribute('data-status')).toBe(
-      'loading',
-    )
+    expect(
+      screen.container.querySelector('[data-slot="avatar"]')?.getAttribute('data-status'),
+    ).toBe('loading')
 
     secondLoader?.onload?.()
-    expect(screen.container.querySelector('[data-slot="root"]')?.getAttribute('data-status')).toBe(
-      'loaded',
-    )
+    expect(
+      screen.container.querySelector('[data-slot="avatar"]')?.getAttribute('data-status'),
+    ).toBe('loaded')
 
     screen.unmount()
     secondLoader?.onerror?.(new Event('error'))
@@ -347,9 +349,9 @@ describe('Avatar', () => {
 
     const fallback = screen.getByRole('img', { name: 'Jane Doe' })
     expect(fallback.tagName).toBe('SPAN')
-    expect(screen.container.querySelector('[data-slot="image"]')?.getAttribute('aria-hidden')).toBe(
-      'true',
-    )
+    expect(
+      screen.container.querySelector('[data-slot="avatar-image"]')?.getAttribute('aria-hidden'),
+    ).toBe('true')
 
     mockImages[0]?.onload?.()
 
@@ -358,7 +360,7 @@ describe('Avatar', () => {
       expect(image.tagName).toBe('IMG')
     })
     expect(
-      screen.container.querySelector('[data-slot="fallback"]')?.getAttribute('aria-hidden'),
+      screen.container.querySelector('[data-slot="avatar-fallback"]')?.getAttribute('aria-hidden'),
     ).toBe('true')
   })
 
@@ -369,9 +371,9 @@ describe('Avatar', () => {
     ))
 
     const root = screen.getByRole('img', { name: 'Account owner' })
-    const image = screen.container.querySelector('[data-slot="image"]')
+    const image = screen.container.querySelector('[data-slot="avatar-image"]')
 
-    expect(root.getAttribute('data-slot')).toBe('root')
+    expect(root.getAttribute('data-slot')).toBe('avatar')
     expect(image?.getAttribute('aria-hidden')).toBe('true')
     expect(screen.queryByRole('img', { name: 'Original' })).toBeNull()
   })
@@ -381,7 +383,7 @@ describe('Avatar', () => {
 
     expect(screen.queryByRole('img')).toBeNull()
     expect(
-      screen.container.querySelector('[data-slot="fallback"]')?.getAttribute('role'),
+      screen.container.querySelector('[data-slot="avatar-fallback"]')?.getAttribute('role'),
     ).toBeNull()
   })
 
@@ -391,7 +393,7 @@ describe('Avatar', () => {
         <Avatar badge="i-lucide-check" text="MR" />
       </MoraineProvider>
     ))
-    const badge = screen.container.querySelector('[data-slot="badge"]')
+    const badge = screen.container.querySelector('[data-slot="avatar-badge"]')
 
     expect(badge?.className).toContain('pointer-events-none')
     expect(screen.container.querySelector('[tabindex="0"]')).toBeNull()
@@ -437,7 +439,7 @@ describe('Avatar', () => {
       </>
     ))
 
-    const roots = screen.container.querySelectorAll('[data-slot="root"]')
+    const roots = screen.container.querySelectorAll('[data-slot="avatar"]')
     await waitFor(() => {
       expect(roots[0]?.getAttribute('data-status')).toBe('loaded')
       expect(roots[1]?.getAttribute('data-status')).toBe('error')
@@ -454,10 +456,12 @@ describe('Avatar', () => {
       </MoraineProvider>
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const count = screen.container.querySelector('[data-slot="count"]')
+    const root = screen.container.querySelector('[data-slot="avatar-group"]')
+    const count = screen.container.querySelector('[data-slot="avatar-group-count"]')
     const fallbacks = Array.from(
-      screen.container.querySelectorAll('[data-slot="item"] [data-slot="fallback"]'),
+      screen.container.querySelectorAll(
+        '[data-slot="avatar-group-item"] [data-slot="avatar-fallback"]',
+      ),
     )
 
     expect(root).not.toBeNull()
@@ -467,7 +471,7 @@ describe('Avatar', () => {
     expect(fallbacks[1]?.textContent).toBe('A')
     expect(root?.className).toContain('flex-row-reverse')
     expect(root?.className).toContain('justify-end')
-    const item = screen.container.querySelector('[data-slot="item"]')
+    const item = screen.container.querySelector('[data-slot="avatar-group-item"]')
     expect(item?.className).toContain('-me-2')
   })
 
@@ -477,10 +481,12 @@ describe('Avatar', () => {
     ))
 
     const fallbacks = Array.from(
-      screen.container.querySelectorAll('[data-slot="item"] [data-slot="fallback"]'),
+      screen.container.querySelectorAll(
+        '[data-slot="avatar-group-item"] [data-slot="avatar-fallback"]',
+      ),
     )
 
-    expect(screen.container.querySelector('[data-slot="count"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="avatar-group-count"]')).toBeNull()
     expect(fallbacks).toHaveLength(3)
     expect(fallbacks[0]?.textContent).toBe('C')
     expect(fallbacks[1]?.textContent).toBe('B')
@@ -495,8 +501,12 @@ describe('Avatar', () => {
       </MoraineProvider>
     ))
 
-    const groupCounts = Array.from(screen.container.querySelectorAll('[data-slot="count"]'))
-    const groupItems = Array.from(screen.container.querySelectorAll('[data-slot="item"]'))
+    const groupCounts = Array.from(
+      screen.container.querySelectorAll('[data-slot="avatar-group-count"]'),
+    )
+    const groupItems = Array.from(
+      screen.container.querySelectorAll('[data-slot="avatar-group-item"]'),
+    )
 
     expect(groupCounts[0]?.className).toContain('size-6')
     expect(groupCounts[0]?.className).toContain('-me-2')
@@ -523,20 +533,22 @@ describe('Avatar', () => {
           badge="i-lucide-check"
           styles={{
             fallback: { width: '200px' },
-            fallbackIcon: { width: '200px' },
+            fallbackContent: { width: '200px' },
             badge: { width: '200px' },
           }}
         />
       </>
     ))
 
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
-    const image = screen.container.querySelector<HTMLElement>('[data-slot="image"]')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="avatar"]')
+    const image = screen.container.querySelector<HTMLElement>('[data-slot="avatar-image"]')
     const fallback = Array.from(
-      screen.container.querySelectorAll<HTMLElement>('[data-slot="fallback"]'),
+      screen.container.querySelectorAll<HTMLElement>('[data-slot="avatar-fallback"]'),
     ).at(-1)
-    const fallbackIcon = screen.container.querySelector<HTMLElement>('[data-slot="fallbackIcon"]')
-    const badge = screen.container.querySelector<HTMLElement>('[data-slot="badge"]')
+    const fallbackIcon = screen.container.querySelector<HTMLElement>(
+      '[data-slot="avatar-fallback-content"]',
+    )
+    const badge = screen.container.querySelector<HTMLElement>('[data-slot="avatar-badge"]')
 
     expect(root?.style.width).toBe('200px')
     expect(image?.style.width).toBe('200px')
@@ -558,13 +570,40 @@ describe('Avatar', () => {
       />
     ))
 
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
-    const item = screen.container.querySelector<HTMLElement>('[data-slot="item"]')
-    const count = screen.container.querySelector<HTMLElement>('[data-slot="count"]')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="avatar-group"]')
+    const item = screen.container.querySelector<HTMLElement>('[data-slot="avatar-group-item"]')
+    const count = screen.container.querySelector<HTMLElement>('[data-slot="avatar-group-count"]')
 
     expect(root?.style.width).toBe('200px')
     expect(item?.style.width).toBe('200px')
     expect(count?.style.width).toBe('200px')
+  })
+
+  test('forwards group styles to Avatar-owned child slots', () => {
+    const screen = render(() => (
+      <AvatarGroup
+        items={[{ fallback: 'icon-check', badge: 'icon-check' }]}
+        classes={{ image: 'group-image', fallbackContent: 'group-content', badge: 'group-badge' }}
+        styles={{
+          image: { width: '21px' },
+          fallbackContent: { width: '22px' },
+          badge: { width: '23px' },
+        }}
+      />
+    ))
+    const image = screen.container.querySelector<HTMLElement>('[data-slot="avatar-image"]')
+    const content = screen.container.querySelector<HTMLElement>(
+      '[data-slot="avatar-fallback-content"]',
+    )
+    const badge = screen.container.querySelector<HTMLElement>('[data-slot="avatar-badge"]')
+
+    expect(image?.className).toContain('group-image')
+    expect(image?.style.width).toBe('21px')
+    expect(content?.className).toContain('group-content')
+    expect(content?.style.width).toBe('22px')
+    expect(badge?.className).toContain('group-badge')
+    expect(badge?.style.width).toBe('23px')
+    expect(screen.container.querySelector('[data-slot^="avatar-group-fallback"]')).toBeNull()
   })
 
   test('keeps group root overrides off child avatars', () => {
@@ -575,9 +614,9 @@ describe('Avatar', () => {
       />
     ))
 
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
-    const item = screen.container.querySelector<HTMLElement>('[data-slot="item"]')
-    const fallback = screen.container.querySelector<HTMLElement>('[data-slot="fallback"]')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="avatar-group"]')
+    const item = screen.container.querySelector<HTMLElement>('[data-slot="avatar-group-item"]')
+    const fallback = screen.container.querySelector<HTMLElement>('[data-slot="avatar-fallback"]')
 
     expect(root?.className).toContain('group-root')
     expect(item?.className).toContain('group-item')
@@ -621,7 +660,7 @@ describe('Avatar', () => {
       expect(pAvatar.className).toContain('m-0.5')
       expect(pAvatar.className).toContain('text-red-500')
 
-      const pGroup = screen.container.querySelector('[data-slot="root"].p-group-root')
+      const pGroup = screen.container.querySelector('[data-slot="avatar-group"].p-group-root')
       expect(pGroup).not.toBeNull()
 
       const iAvatar = screen.getByTestId('i-avatar')

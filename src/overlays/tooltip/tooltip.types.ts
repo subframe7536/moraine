@@ -63,8 +63,8 @@ export namespace TooltipT {
   export type TriggerBase<T extends ValidComponent = 'button'> = ModalT.TriggerBase<T>
   export type TriggerProps<T extends ValidComponent = 'button'> = ModalT.TriggerProps<T>
 
-  export type ContentClasses = Pick<Classes, 'content' | 'text' | 'kbds' | 'kbd'>
-  export type ContentStyles = Pick<Styles, 'content' | 'text' | 'kbds' | 'kbd'>
+  export type ContentClasses = Pick<Classes, 'content' | 'text' | 'kbds'>
+  export type ContentStyles = Pick<Styles, 'content' | 'text' | 'kbds'>
   export interface ContentBase {
     /**
      * Primary text content or element to display.

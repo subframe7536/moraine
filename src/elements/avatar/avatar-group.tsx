@@ -58,9 +58,9 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
 
   return (
     <Show when={items().length > 0}>
-      <div data-slot="root" {...rest} {...resolved.styles.root}>
+      <div data-slot="avatar-group" {...rest} {...resolved.styles.root}>
         <Show when={hiddenCount() > 0}>
-          <span data-slot="count" {...resolved.styles.count}>
+          <span data-slot="avatar-group-count" {...resolved.styles.count}>
             +{hiddenCount()}
           </span>
         </Show>
@@ -70,18 +70,18 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
             <AvatarFace
               {...item}
               size={size()}
-              rootSlot="item"
+              rootSlot="avatar-group-item"
               {...resolved.styles.item}
               classes={{
                 image: resolved.styles.image.class,
                 fallback: resolved.styles.fallback.class,
-                fallbackIcon: resolved.styles.fallbackIcon.class,
+                fallbackContent: resolved.styles.fallbackContent.class,
                 badge: resolved.styles.badge.class,
               }}
               styles={{
                 image: resolved.styles.image.style,
                 fallback: resolved.styles.fallback.style,
-                fallbackIcon: resolved.styles.fallbackIcon.style,
+                fallbackContent: resolved.styles.fallbackContent.style,
                 badge: resolved.styles.badge.style,
               }}
             />

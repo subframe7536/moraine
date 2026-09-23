@@ -6,7 +6,7 @@ import { createStyles } from '../../provider'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types.ts'
-import { Modal } from '../modal/modal'
+import { Modal, ModalRoot } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
 import { useModalContext } from '../modal/modal-context'
 
@@ -25,7 +25,9 @@ export function Dialog(props: DialogProps): JSX.Element {
         },
       }}
     >
-      <Modal {...rest}>{local.children}</Modal>
+      <ModalRoot {...rest} slotOwner="dialog">
+        {local.children}
+      </ModalRoot>
     </DialogPresentationProvider>
   )
 }
@@ -44,7 +46,7 @@ function DialogTrigger<T extends ValidComponent = 'button'>(
 function DialogClose<T extends ValidComponent = 'button'>(
   props: DialogT.CloseProps<T>,
 ): JSX.Element {
-  return <Modal.Close {...props} />
+  return <Modal.Close {...props} data-slot="dialog-close" />
 }
 
 function DialogContent(props: DialogT.ContentProps): JSX.Element {
@@ -118,20 +120,20 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
           children: () => (
             <>
               <Show when={hasHeader()}>
-                <div data-slot="header" {...resolved.styles.header}>
+                <div data-slot="dialog-header" {...resolved.styles.header}>
                   <Show
                     when={hasCustomHeader()}
                     fallback={
                       <>
                         <Show when={hasJsxContent(title())}>
-                          <h2 id={titleId()} data-slot="title" {...resolved.styles.title}>
+                          <h2 id={titleId()} data-slot="dialog-title" {...resolved.styles.title}>
                             {title()}
                           </h2>
                         </Show>
                         <Show when={hasJsxContent(description())}>
                           <p
                             id={descriptionId()}
-                            data-slot="description"
+                            data-slot="dialog-description"
                             {...resolved.styles.description}
                           >
                             {description()}
@@ -146,7 +148,7 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
               </Show>
               <Show when={merged.close}>
                 <Modal.Close
-                  data-slot="contentClose"
+                  data-slot="dialog-content-close"
                   aria-label="Close"
                   {...resolved.styles.contentClose}
                 >
@@ -155,7 +157,7 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
               </Show>
               <Show when={hasJsxContent(body())}>
                 <div
-                  data-slot="body"
+                  data-slot="dialog-body"
                   {...dialogDataAttributes.body({
                     scroll: () => !overlayScroll(),
                     header: hasHeader,
@@ -167,7 +169,7 @@ function DialogContent(props: DialogT.ContentProps): JSX.Element {
                 </div>
               </Show>
               <Show when={hasJsxContent(footer())}>
-                <div data-slot="footer" {...resolved.styles.footer}>
+                <div data-slot="dialog-footer" {...resolved.styles.footer}>
                   {footer()}
                 </div>
               </Show>

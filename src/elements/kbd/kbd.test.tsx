@@ -11,13 +11,13 @@ import { KbdGroup } from './kbd-group'
 describe('Kbd', () => {
   test('renders component defaults when provider is absent', () => {
     const view = render(() => <Kbd value="K" />)
-    const root = view.container.querySelector('[data-slot="root"]')
+    const root = view.container.querySelector('[data-slot="kbd"]')
     expect(root?.className).not.toBe('')
   })
 
   test('renders a keycap in the root slot', () => {
     const view = render(() => <Kbd value="K" />)
-    const root = view.container.querySelector('[data-slot="root"]')
+    const root = view.container.querySelector('[data-slot="kbd"]')
 
     expect(root?.tagName).toBe('KBD')
     expect(root?.textContent).toBe('K')
@@ -60,13 +60,13 @@ describe('Kbd', () => {
       </div>
     ))
 
-    expect(view.container.querySelector('[data-slot="root"]')?.textContent).toBe('F13')
+    expect(view.container.querySelector('[data-slot="kbd"]')?.textContent).toBe('F13')
     expect(screen.getByLabelText('Primary modifier').textContent).toBe('⌘')
   })
 
   test('renders the raw key when symbol aliases are disabled', () => {
     const view = render(() => <Kbd value="meta" symbol={false} />)
-    const root = view.container.querySelector('[data-slot="root"]')
+    const root = view.container.querySelector('[data-slot="kbd"]')
 
     expect(root?.textContent).toBe('meta')
     expect(root?.getAttribute('aria-label')).toBeNull()
@@ -75,7 +75,7 @@ describe('Kbd', () => {
   test('does not render an empty value', () => {
     const view = render(() => <Kbd value="" />)
 
-    expect(view.container.querySelector('[data-slot="root"]')).toBeNull()
+    expect(view.container.querySelector('[data-slot="kbd"]')).toBeNull()
   })
 
   test('applies size classes on keycaps', () => {
@@ -91,7 +91,7 @@ describe('Kbd', () => {
           <Kbd size={size} value={size} />
         </MoraineProvider>
       ))
-      expect(view.container.querySelector('[data-slot="root"]')?.className).toContain(expectedClass)
+      expect(view.container.querySelector('[data-slot="kbd"]')?.className).toContain(expectedClass)
     }
   })
 
@@ -115,7 +115,7 @@ describe('Kbd', () => {
         style={{ width: '20px', color: 'red' }}
       />
     ))
-    const root = view.container.querySelector<HTMLElement>('[data-slot="root"]')!
+    const root = view.container.querySelector<HTMLElement>('[data-slot="kbd"]')!
 
     expect(root.className).toContain('slot-class')
     expect(root.className).toContain('native-class')
@@ -133,13 +133,13 @@ describe('Kbd', () => {
         <Kbd value="K" />
       </MoraineProvider>
     ))
-    const root = view.container.querySelector<HTMLElement>('[data-slot="root"]')!
+    const root = view.container.querySelector<HTMLElement>('[data-slot="kbd"]')!
 
     expect(root.className).toContain('p-2')
 
     setDesign(defineTheme({ kbd: { base: { root: 'p-4' } } }))
 
-    expect(view.container.querySelector('[data-slot="root"]')).toBe(root)
+    expect(view.container.querySelector('[data-slot="kbd"]')).toBe(root)
     expect(root.className).toContain('p-4')
     expect(root.className).not.toContain('p-2')
   })
@@ -148,7 +148,7 @@ describe('Kbd', () => {
 describe('KbdGroup', () => {
   test('renders the styled semantic kbd root when provider is absent', () => {
     const view = render(() => <KbdGroup items={['Ctrl', 'K']} />)
-    const root = view.container.querySelector('[data-slot="root"]')
+    const root = view.container.querySelector('[data-slot="kbd-group"]')
 
     expect(root?.tagName).toBe('KBD')
     expect(root?.className).not.toBe('')
@@ -157,8 +157,8 @@ describe('KbdGroup', () => {
 
   test('renders default inline separators without separator semantics', () => {
     const view = render(() => <KbdGroup items={['Ctrl', 'Shift', 'P']} />)
-    const items = view.container.querySelectorAll('[data-slot="item"]')
-    const root = view.container.querySelector('[data-slot="root"]')
+    const items = view.container.querySelectorAll('[data-slot="kbd-group-item"]')
+    const root = view.container.querySelector('[data-slot="kbd-group"]')
 
     expect([...items].map((item) => item.textContent)).toEqual(['Ctrl', '⇧', 'P'])
     expect(root?.textContent).toBe('Ctrl+⇧+P')
@@ -177,9 +177,9 @@ describe('KbdGroup', () => {
     const empty = render(() => <KbdGroup items={[]} />)
     const single = render(() => <KbdGroup items={['K']} separator="/" />)
 
-    expect(empty.container.querySelector('[data-slot="root"]')).toBeNull()
-    expect(single.container.querySelectorAll('[data-slot="item"]')).toHaveLength(1)
-    expect(single.container.querySelector('[data-slot="root"]')?.textContent).toBe('K')
+    expect(empty.container.querySelector('[data-slot="kbd-group"]')).toBeNull()
+    expect(single.container.querySelectorAll('[data-slot="kbd-group-item"]')).toHaveLength(1)
+    expect(single.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('K')
   })
 
   test('supports custom string and JSX separators', () => {
@@ -191,11 +191,13 @@ describe('KbdGroup', () => {
       />
     ))
 
-    expect(stringSeparator.container.querySelector('[data-slot="root"]')?.textContent).toBe(
+    expect(stringSeparator.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe(
       'Ctrl/K',
     )
     expect(jsxSeparator.getAllByTestId('custom-separator')).toHaveLength(2)
-    expect(jsxSeparator.container.querySelector('[data-slot="root"]')?.textContent).toBe('Ctrl·⇧·P')
+    expect(jsxSeparator.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe(
+      'Ctrl·⇧·P',
+    )
   })
 
   test('propagates size and variant to generated Kbd items', () => {
@@ -204,7 +206,7 @@ describe('KbdGroup', () => {
         <KbdGroup items={['Ctrl', 'K']} size="sm" variant="outline" />
       </MoraineProvider>
     ))
-    const items = view.container.querySelectorAll('[data-slot="item"]')
+    const items = view.container.querySelectorAll('[data-slot="kbd-group-item"]')
 
     for (const item of items) {
       expect(item.className).toContain('h-4.5')
@@ -224,8 +226,8 @@ describe('KbdGroup', () => {
           <KbdGroup items={['Ctrl', 'K']} size={size} />
         </MoraineProvider>
       ))
-      const root = view.container.querySelector('[data-slot="root"]')
-      const items = view.container.querySelectorAll('[data-slot="item"]')
+      const root = view.container.querySelector('[data-slot="kbd-group"]')
+      const items = view.container.querySelectorAll('[data-slot="kbd-group-item"]')
 
       expect(root?.className).toContain(rootText)
       for (const item of items) {
@@ -244,8 +246,8 @@ describe('KbdGroup', () => {
         styles={{ item: { height: '20px' } }}
       />
     ))
-    const root = view.container.querySelector('[data-slot="root"]') as HTMLElement | null
-    const item = view.container.querySelector('[data-slot="item"]') as HTMLElement | null
+    const root = view.container.querySelector('[data-slot="kbd-group"]') as HTMLElement | null
+    const item = view.container.querySelector('[data-slot="kbd-group-item"]') as HTMLElement | null
 
     expect(root?.className).toContain('root-class')
     expect(root?.style.width).toBe('200px')
@@ -257,8 +259,8 @@ describe('KbdGroup', () => {
     const [items, setItems] = createSignal(['Ctrl', 'K'])
     const view = render(() => <KbdGroup items={items()} />)
 
-    expect(view.container.querySelector('[data-slot="root"]')?.textContent).toBe('Ctrl+K')
+    expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('Ctrl+K')
     setItems(['Shift', 'P'])
-    expect(view.container.querySelector('[data-slot="root"]')?.textContent).toBe('⇧+P')
+    expect(view.container.querySelector('[data-slot="kbd-group"]')?.textContent).toBe('⇧+P')
   })
 })

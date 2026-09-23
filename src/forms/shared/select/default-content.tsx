@@ -19,7 +19,9 @@ export interface DefaultSelectContentProps<T extends SelectItem> extends Content
   onExitComplete?: () => void
   empty?: JSX.Element
   renderEmpty?: () => JSX.Element
-  slot: (name: 'itemLeading' | 'itemLabel' | 'itemDescription' | 'itemTrailing') => SlotBinding
+  slot: (
+    name: 'itemLeading' | 'itemWrapper' | 'itemLabel' | 'itemDescription' | 'itemIndicator',
+  ) => SlotBinding
 }
 
 function DefaultSelectContentBody<T extends SelectItem>(
@@ -107,21 +109,33 @@ function DefaultSelectContentBody<T extends SelectItem>(
               <>
                 <Show when={item().icon}>
                   {(icon) => (
-                    <Icon name={icon()} slotName="itemLeading" {...props.slot('itemLeading')} />
+                    <Icon
+                      name={icon()}
+                      slotName={state.slotName('itemLeading')}
+                      {...props.slot('itemLeading')}
+                    />
                   )}
                 </Show>
-                <span data-slot="itemLabel" {...props.slot('itemLabel')}>
-                  {item().label}
+                <span data-slot={state.slotName('itemWrapper')} {...props.slot('itemWrapper')}>
+                  <span data-slot={state.slotName('itemLabel')} {...props.slot('itemLabel')}>
+                    {item().label}
+                  </span>
                   <Show when={item().description}>
                     {(description) => (
-                      <span data-slot="itemDescription" {...props.slot('itemDescription')}>
+                      <span
+                        data-slot={state.slotName('itemDescription')}
+                        {...props.slot('itemDescription')}
+                      >
                         {description()}
                       </span>
                     )}
                   </Show>
                 </span>
                 <Show when={itemState.selected}>
-                  <span data-slot="itemTrailing" {...props.slot('itemTrailing')}>
+                  <span
+                    data-slot={state.slotName('itemIndicator')}
+                    {...props.slot('itemIndicator')}
+                  >
                     <Icon name="icon-check" />
                   </span>
                 </Show>

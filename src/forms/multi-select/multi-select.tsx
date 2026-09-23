@@ -5,7 +5,7 @@ import { Icon } from '../../elements/icon/index.ts'
 import { createStyles } from '../../provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef } from '../../shared/utils.ts'
-import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
+import { BaseSelect, BaseSelectRoot, useSelectState } from '../base-select/base-select.tsx'
 import { useBaseSelectSearchInput } from '../base-select/utils.ts'
 import { useFieldContext } from '../field/field-context.ts'
 import {
@@ -137,6 +137,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       tokenSeparators: () => local.tokenSeparators,
       locked: state.locked,
       slot: (slot) => styles.styles[slot],
+      slotName: state.slotName,
       closeIcon: () => local.closeIcon,
       resolve: (value) => {
         const item = source().byValue.get(value)
@@ -298,9 +299,11 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
           }}
         >
           <Show when={local.leadingIcon}>
-            {(icon) => <Icon name={icon()} slotName="leading" {...styles.styles.leading} />}
+            {(icon) => (
+              <Icon name={icon()} slotName="multi-select-leading" {...styles.styles.leading} />
+            )}
           </Show>
-          <div data-slot="tagsContainer" {...styles.styles.tagsContainer}>
+          <div data-slot="multi-select-tags-container" {...styles.styles.tagsContainer}>
             <For each={tags.visible()}>
               {(tag, index) => (
                 <Show
@@ -321,7 +324,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
                 when={local.tagOverflow !== undefined}
                 fallback={
                   <span
-                    data-slot="tagOverflow"
+                    data-slot="multi-select-tag-overflow"
                     aria-label={`${tags.overflow()} additional selections`}
                     {...styles.styles.tagOverflow}
                   >
@@ -344,7 +347,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               fallback={
                 <Show when={tags.tags().length === 0 && local.placeholder}>
                   <span
-                    data-slot="placeholder"
+                    data-slot="multi-select-placeholder"
                     class="text-muted-foreground/70 py-0.5 flex-1 min-w-12"
                   >
                     {local.placeholder}
@@ -355,7 +358,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
               <input
                 {...inputBinding.binding}
                 {...state.field.ariaAttrs()}
-                data-slot="input"
+                data-slot="multi-select-input"
                 {...multiSelectDataAttributes.input({ duplicate: isDuplicate })}
                 {...styles.styles.input}
                 placeholder={tags.tags().length ? '' : local.placeholder}
@@ -372,7 +375,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             <button
               type="button"
               tabIndex={-1}
-              data-slot="clear"
+              data-slot="multi-select-clear"
               aria-label="Clear selection"
               disabled={state.locked()}
               {...styles.styles.clear}
@@ -431,7 +434,7 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
             <button
               type="button"
               tabIndex={-1}
-              data-slot="trigger"
+              data-slot="multi-select-trigger"
               aria-label={local.loading ? 'Loading' : 'Toggle options'}
               aria-controls={state.listboxId()}
               aria-expanded={state.open() ? 'true' : 'false'}
@@ -506,7 +509,8 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   }
 
   return (
-    <BaseSelect<T>
+    <BaseSelectRoot<T>
+      slotOwner="multi-select"
       {...baseSelectProps}
       closeOnSelect={false}
       items={search.view().items}
@@ -534,6 +538,6 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
       styles={baseSelectStyles.styles()}
     >
       <Control />
-    </BaseSelect>
+    </BaseSelectRoot>
   )
 }

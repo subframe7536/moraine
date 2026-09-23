@@ -23,23 +23,23 @@ describe('Progress SSR Hydration', () => {
       ),
     )
 
-    const root = container.querySelector('[data-slot="root"]')!
+    const root = container.querySelector('[data-slot="progress"]')!
     expect(root).not.toBeNull()
     expect(Array.from(root.children).map((child) => child.getAttribute('data-slot'))).toEqual([
-      'status',
-      'track',
-      'steps',
+      'progress-status',
+      'progress-track',
+      'progress-steps',
     ])
     expect(root.getAttribute('data-progress')).toBe('loading')
 
     setValue(null)
     expect(root.hasAttribute('data-indeterminate')).toBe(true)
-    expect(container.querySelector('[data-slot="status"]')).toBeNull()
+    expect(container.querySelector('[data-slot="progress-status"]')).toBeNull()
     expect(container.querySelectorAll('[data-indeterminate]').length).toBeGreaterThan(1)
 
     setValue(2)
     expect(root.getAttribute('data-progress')).toBe('complete')
-    expect(container.querySelector('[data-slot="status"]')?.textContent).toBe('100%')
+    expect(container.querySelector('[data-slot="progress-status"]')?.textContent).toBe('100%')
     for (const part of container.querySelectorAll('[data-slot]')) {
       expect(part.hasAttribute('data-indeterminate')).toBe(false)
     }

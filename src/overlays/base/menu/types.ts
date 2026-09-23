@@ -234,6 +234,7 @@ export interface OverlayMenuSharedProps<TItem extends OverlayMenuSharedItem<TIte
 export interface OverlayMenuProps<
   TItem extends OverlayMenuSharedItem<TItem>,
 > extends OverlayMenuSharedProps<TItem> {
+  owner: 'dropdown-menu' | 'context-menu'
   /**
    * Strategy used to auto-focus the menu after it is positioned.
    */

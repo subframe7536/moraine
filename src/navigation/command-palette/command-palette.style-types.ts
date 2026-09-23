@@ -20,7 +20,7 @@ export interface CommandPaletteStyleSlot<T = unknown> {
   group?: T
 
   /** Group heading text. */
-  label?: T
+  groupLabel?: T
 
   /** Command row that can be highlighted, selected, or disabled. */
   item?: T
@@ -41,7 +41,7 @@ export interface CommandPaletteStyleSlot<T = unknown> {
   itemTrailing?: T
 
   /** Search icon or loading indicator displayed in the input row. */
-  search?: T
+  inputLeading?: T
 
   /** Button that dismisses the command palette. */
   close?: T

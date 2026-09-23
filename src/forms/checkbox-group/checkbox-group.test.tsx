@@ -30,9 +30,11 @@ describe('CheckboxGroup', () => {
         items={['One']}
       />
     ))
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const fieldset = screen.container.querySelector('[data-slot="fieldset"]')
-    const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')
+    const root = screen.container.querySelector('[data-slot="checkbox-group"]')
+    const fieldset = screen.container.querySelector('[data-slot="checkbox-group-fieldset"]')
+    const item = screen.container.querySelector(
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+    )
     expect(root?.className).not.toBe('')
     expect(fieldset?.className).not.toBe('')
     expect(item?.className).not.toBe('')
@@ -43,6 +45,28 @@ describe('CheckboxGroup', () => {
     expect(screen.getByText('Fruits')).not.toBeNull()
     expect(screen.getByRole('checkbox', { name: 'Apple' })).not.toBeNull()
     expect(screen.getByRole('checkbox', { name: 'Banana' })).not.toBeNull()
+  })
+
+  test('forwards group styles to Checkbox-owned child slots', () => {
+    const screen = render(() => (
+      <CheckboxGroup
+        items={['One']}
+        defaultValue={['One']}
+        classes={{ control: 'group-control', icon: 'group-icon', label: 'group-label' }}
+        styles={{ control: { width: '21px' }, icon: { width: '22px' }, label: { width: '23px' } }}
+      />
+    ))
+    const control = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-control"]')
+    const icon = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-icon"]')
+    const label = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-label"]')
+
+    expect(control?.className).toContain('group-control')
+    expect(control?.style.width).toBe('21px')
+    expect(icon?.className).toContain('group-icon')
+    expect(icon?.style.width).toBe('22px')
+    expect(label?.className).toContain('group-label')
+    expect(label?.style.width).toBe('23px')
+    expect(screen.container.querySelector('[data-slot^="checkbox-group-control"]')).toBeNull()
   })
 
   test('maps object items using default value/label/description fields', () => {
@@ -70,7 +94,7 @@ describe('CheckboxGroup', () => {
 
     const checkbox = screen.getByRole('checkbox', { name: 'Alpha' })
     const input = getHiddenCheckbox(screen.container, 'a')
-    const control = screen.container.querySelector('[data-slot="control"]')
+    const control = screen.container.querySelector('[data-slot="checkbox-control"]')
 
     await waitFor(() => {
       expect(input.indeterminate).toBe(true)
@@ -131,7 +155,7 @@ describe('CheckboxGroup', () => {
       setValue: vi.fn(),
     }
     const screen = render(() => (
-      <FieldProvider value={{ ariaId: 'checkbox-group-field', binding }}>
+      <FieldProvider value={{ binding }}>
         <CheckboxGroup items={['A', 'B']} />
       </FieldProvider>
     ))
@@ -264,7 +288,9 @@ describe('CheckboxGroup', () => {
       />
     ))
 
-    const fieldset = screen.container.querySelector('[data-slot="fieldset"]') as HTMLFieldSetElement
+    const fieldset = screen.container.querySelector(
+      '[data-slot="checkbox-group-fieldset"]',
+    ) as HTMLFieldSetElement
     const legend = screen.getByText('Channels')
     const checkbox = screen.getByRole('checkbox', { name: 'Email' })
     const input = getHiddenCheckbox(screen.container, 'email')
@@ -283,7 +309,7 @@ describe('CheckboxGroup', () => {
       </form>
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
-    const fieldset = screen.container.querySelector('[data-slot="fieldset"]')!
+    const fieldset = screen.container.querySelector('[data-slot="checkbox-group-fieldset"]')!
     const inputs = Array.from(
       screen.container.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'),
     )
@@ -372,7 +398,7 @@ describe('CheckboxGroup', () => {
     ))
     const form = screen.container.querySelector('form') as HTMLFormElement
     const controls = Array.from(
-      screen.container.querySelectorAll<HTMLElement>('[data-slot="control"]'),
+      screen.container.querySelectorAll<HTMLElement>('[data-slot="checkbox-control"]'),
     )
 
     expect(controls).toHaveLength(2)
@@ -390,8 +416,10 @@ describe('CheckboxGroup', () => {
       </MoraineProvider>
     ))
 
-    const fieldset = screen.container.querySelector('[data-slot="fieldset"]')
-    const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')
+    const fieldset = screen.container.querySelector('[data-slot="checkbox-group-fieldset"]')
+    const item = screen.container.querySelector(
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+    )
 
     expect(fieldset?.className).toContain('flex-row')
     expect(fieldset?.className).not.toContain('flex-wrap')
@@ -410,8 +438,10 @@ describe('CheckboxGroup', () => {
       </MoraineProvider>
     ))
 
-    const fieldset = screen.container.querySelector('[data-slot="fieldset"]')
-    const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')
+    const fieldset = screen.container.querySelector('[data-slot="checkbox-group-fieldset"]')
+    const item = screen.container.querySelector(
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+    )
 
     expect(fieldset?.className).toContain('flex-col')
     expect(item?.className).toContain('first-of-type:rounded-t-lg')
@@ -423,13 +453,13 @@ describe('CheckboxGroup', () => {
     const screen = render(() => <CheckboxGroup items={['A', 'B']} variant="table" />)
 
     const directItems = screen.container.querySelectorAll(
-      '[data-slot="fieldset"] > [data-slot="root"]',
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
     )
 
     expect(directItems).toHaveLength(2)
     expect(
       screen.container.querySelector(
-        '[data-slot="fieldset"] > [data-slot="root"] [data-slot="root"]',
+        '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"] [data-slot="checkbox-group-item"]',
       ),
     ).toBeNull()
   })
@@ -438,7 +468,9 @@ describe('CheckboxGroup', () => {
     const screen = render(() => <CheckboxGroup items={['A']} variant="table" />)
 
     const checkbox = screen.getByRole('checkbox', { name: 'A' })
-    const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')
+    const item = screen.container.querySelector(
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+    )
 
     expectCheckboxChecked(checkbox, false)
 
@@ -454,7 +486,9 @@ describe('CheckboxGroup', () => {
 
     const checkboxA = screen.getByRole('checkbox', { name: 'A' })
     const checkboxB = screen.getByRole('checkbox', { name: 'B' })
-    const items = screen.container.querySelectorAll('[data-slot="fieldset"] > [data-slot="root"]')
+    const items = screen.container.querySelectorAll(
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+    )
 
     expectCheckboxChecked(checkboxA, true)
     expectCheckboxChecked(checkboxB, false)
@@ -482,9 +516,11 @@ describe('CheckboxGroup', () => {
       </MoraineProvider>
     ))
 
-    const item = screen.container.querySelector('[data-slot="fieldset"] > [data-slot="root"]')
-    const base = screen.container.querySelector('[data-slot="control"]')
-    const label = screen.container.querySelector('[data-slot="label"]')
+    const item = screen.container.querySelector(
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
+    )
+    const base = screen.container.querySelector('[data-slot="checkbox-control"]')
+    const label = screen.container.querySelector('[data-slot="checkbox-label"]')
 
     expect(item?.className).toContain('item-override')
     expect(base?.className).toContain('control-override')
@@ -505,10 +541,10 @@ describe('CheckboxGroup', () => {
     ))
 
     const item = screen.container.querySelector<HTMLElement>(
-      '[data-slot="fieldset"] > [data-slot="root"]',
+      '[data-slot="checkbox-group-fieldset"] > [data-slot="checkbox-group-item"]',
     )
-    const base = screen.container.querySelector<HTMLElement>('[data-slot="control"]')
-    const label = screen.container.querySelector<HTMLElement>('[data-slot="label"]')
+    const base = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-control"]')
+    const label = screen.container.querySelector<HTMLElement>('[data-slot="checkbox-label"]')
 
     expect(item?.style.width).toBe('200px')
     expect(base?.style.width).toBe('200px')

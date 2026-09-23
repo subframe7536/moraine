@@ -28,7 +28,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
 
   return (
     <Show when={local.items.length > 0}>
-      <kbd data-slot="root" {...rest} {...resolved.styles.root}>
+      <kbd data-slot="kbd-group" {...rest} {...resolved.styles.root}>
         <For each={local.items}>
           {(item, index) => (
             <>
@@ -37,7 +37,7 @@ export function KbdGroup(props: KbdGroupProps): JSX.Element {
                 size={resolved.variants.size}
                 variant={resolved.variants.variant}
                 {...resolved.styles.item}
-                slotName="item"
+                slotName="kbd-group-item"
               />
               <Show when={index() < local.items.length - 1}>{local.separator ?? '+'}</Show>
             </>

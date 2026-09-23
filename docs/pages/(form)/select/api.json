@@ -364,9 +364,10 @@
     "leading",
     "clear",
     "itemLeading",
+    "itemWrapper",
     "itemLabel",
     "itemDescription",
-    "itemTrailing",
+    "itemIndicator",
     "trigger",
     "trailing",
     "value"

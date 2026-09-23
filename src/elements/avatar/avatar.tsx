@@ -41,7 +41,7 @@ interface AvatarFaceProps extends AvatarT.Base {
   classes?: AvatarT.Classes
   styles?: AvatarT.Styles
   size?: AvatarT.Variant['size'] | null
-  rootSlot?: 'root' | 'item'
+  rootSlot?: 'avatar' | 'avatar-group-item'
 }
 
 export function AvatarFace(props: AvatarFaceProps): JSX.Element {
@@ -134,14 +134,14 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
 
   return (
     <span
-      data-slot={local.rootSlot ?? 'root'}
+      data-slot={local.rootSlot ?? 'avatar'}
       {...avatarDataAttributes.root({ status })}
       role={rootAriaLabel() !== undefined ? 'img' : undefined}
       {...rest}
       {...resolved.styles.root}
     >
       <img
-        data-slot="image"
+        data-slot="avatar-image"
         {...avatarDataAttributes.image({ status })}
         src={resolvedSrc()}
         alt={alt() ?? ''}
@@ -150,7 +150,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
       />
 
       <span
-        data-slot="fallback"
+        data-slot="avatar-fallback"
         {...avatarDataAttributes.fallback({ status })}
         role={
           status() !== 'loaded' && rootAriaLabel() === undefined && fallbackAccessibleLabel()
@@ -166,15 +166,19 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         {...resolved.styles.fallback}
       >
         <Show when={fallback()} fallback={fallbackText()}>
-          {(fallbackIcon) => (
-            <Icon name={fallbackIcon()} slotName="fallbackIcon" {...resolved.styles.fallbackIcon} />
+          {(fallbackContent) => (
+            <Icon
+              name={fallbackContent()}
+              slotName="avatar-fallback-content"
+              {...resolved.styles.fallbackContent}
+            />
           )}
         </Show>
       </span>
 
       <Show when={badge()}>
         {(badge) => (
-          <span data-slot="badge" {...resolved.styles.badge}>
+          <span data-slot="avatar-badge" {...resolved.styles.badge}>
             <Icon name={badge()} />
           </span>
         )}

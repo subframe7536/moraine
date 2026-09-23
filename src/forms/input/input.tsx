@@ -203,7 +203,7 @@ export function Input<M extends ModelModifiers | undefined = ModelModifiers | un
       disabled={field.disabled()}
       readonly={field.readOnly()}
       autocomplete={merged.autocomplete}
-      data-slot="root"
+      data-slot="input"
       {...dataAttrs}
       {...ariaAttrs()}
       {...textControl.valueProps()}

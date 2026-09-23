@@ -140,7 +140,6 @@
   ],
   "slots": [
     "root",
-    "loading",
     "leading",
     "label",
     "trailing"

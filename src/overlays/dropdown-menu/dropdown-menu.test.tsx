@@ -35,15 +35,16 @@ describe('DropdownMenu', () => {
         expect(element).not.toBeNull()
         return element!
       })
-      const indicator = item.querySelector('[data-slot="itemIndicator"]')!
-      expect(indicator.parentElement?.getAttribute('data-slot')).toBe('itemTrailing')
+      const indicator = item.querySelector('[data-slot="dropdown-menu-item-indicator"]')!
+      expect(indicator.parentElement?.getAttribute('data-slot')).toBe('dropdown-menu-item-trailing')
       expect(indicator.classList.contains('absolute')).toBe(false)
       expect(indicator.classList.contains('shrink-0')).toBe(true)
       expect(indicator.childElementCount).toBe(0)
       setChecked(true)
       await waitFor(() => {
         expect(
-          document.body.querySelector('[data-slot="itemIndicator"]')?.childElementCount,
+          document.body.querySelector('[data-slot="dropdown-menu-item-indicator"]')
+            ?.childElementCount,
         ).toBeGreaterThan(0)
       })
     },
@@ -88,7 +89,7 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    const trigger = document.body.querySelector<HTMLElement>('[data-slot="trigger"]')
+    const trigger = document.body.querySelector<HTMLElement>('[data-slot="dropdown-menu-trigger"]')
 
     expect(trigger?.className).toContain('trigger-class')
     expect(trigger?.style.width).toBe('200px')
@@ -109,11 +110,15 @@ describe('DropdownMenu', () => {
     fireEvent.keyDown(screen.getByText('Actions'), { key: 'ArrowDown' })
 
     await waitFor(() => {
-      const highlighted = document.body.querySelector('[data-slot="item"][data-highlighted]')
+      const highlighted = document.body.querySelector(
+        '[data-slot="dropdown-menu-item"][data-highlighted]',
+      )
       expect(highlighted).not.toBeNull()
     })
 
-    const highlighted = document.body.querySelector('[data-slot="item"][data-highlighted]')
+    const highlighted = document.body.querySelector(
+      '[data-slot="dropdown-menu-item"][data-highlighted]',
+    )
     fireEvent.keyDown(highlighted!, { key: 'Enter' })
 
     expect(onSelect).toHaveBeenCalledTimes(1)
@@ -133,14 +138,18 @@ describe('DropdownMenu', () => {
     fireEvent.keyDown(trigger, { key: 'ArrowDown' })
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
     })
 
     fireEvent.keyDown(trigger, { key: 'Escape' })
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).toBeNull()
-      expect(document.body.querySelector('[data-slot="content"][data-closed]')).not.toBeNull()
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).toBeNull()
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-closed]'),
+      ).not.toBeNull()
     })
   })
 
@@ -169,17 +178,20 @@ describe('DropdownMenu', () => {
     fireEvent.click(trigger)
 
     await waitFor(() => {
-      const content = document.body.querySelector('[data-slot="content"]')
+      const content = document.body.querySelector('[data-slot="dropdown-menu-content"]')
       expect(content).not.toBeNull()
       expect(document.activeElement).toBe(content)
     })
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
     fireEvent.keyDown(content, { key: 'd' })
 
     await waitFor(() => {
       expect(
-        document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
+        document.body.querySelector('[data-slot="dropdown-menu-item"][data-highlighted]')
+          ?.textContent,
       ).toContain('Duplicate')
     })
 
@@ -234,16 +246,20 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="item"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dropdown-menu-item"]')).not.toBeNull()
     })
 
     fireEvent.keyDown(content, { key: 'ArrowDown' })
 
     const subTrigger = await waitFor(() => {
-      const highlighted = document.body.querySelector('[data-slot="item"][data-highlighted]')
+      const highlighted = document.body.querySelector(
+        '[data-slot="dropdown-menu-item"][data-highlighted]',
+      )
       expect(highlighted).not.toBeNull()
       return highlighted as HTMLElement
     })
@@ -251,18 +267,18 @@ describe('DropdownMenu', () => {
 
     await waitFor(() => {
       expect(document.body.textContent).toContain('Nested action')
-      expect(document.body.querySelectorAll('[data-slot="content"]')).toHaveLength(2)
+      expect(document.body.querySelectorAll('[data-slot="dropdown-menu-content"]')).toHaveLength(2)
     })
 
-    const submenuContent = Array.from(document.body.querySelectorAll('[data-slot="content"]')).find(
-      (element) => element.textContent?.includes('Nested action'),
-    ) as HTMLElement
+    const submenuContent = Array.from(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+    ).find((element) => element.textContent?.includes('Nested action')) as HTMLElement
 
     fireEvent.keyDown(submenuContent, { key: 'ArrowLeft' })
 
     await waitFor(() => {
       const closingSubmenu = Array.from(
-        document.body.querySelectorAll('[data-slot="content"]'),
+        document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
       ).find((element) => element.textContent?.includes('Nested action')) as HTMLElement
 
       expect(closingSubmenu?.getAttribute('data-closed')).toBe('')
@@ -271,7 +287,7 @@ describe('DropdownMenu', () => {
     await finishMenuExitMotion()
 
     await waitFor(() => {
-      expect(document.body.querySelectorAll('[data-slot="content"]')).toHaveLength(1)
+      expect(document.body.querySelectorAll('[data-slot="dropdown-menu-content"]')).toHaveLength(1)
     })
 
     expect(document.activeElement).toBe(subTrigger)
@@ -297,11 +313,11 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')!
+    const content = document.body.querySelector<HTMLElement>('[data-slot="dropdown-menu-content"]')!
     fireEvent.keyDown(content, { key: 'ArrowDown' })
     const subTrigger = await waitFor(() => {
       const highlighted = document.body.querySelector<HTMLElement>(
-        '[data-slot="item"][data-highlighted]',
+        '[data-slot="dropdown-menu-item"][data-highlighted]',
       )
       expect(highlighted).not.toBeNull()
       return highlighted!
@@ -309,7 +325,9 @@ describe('DropdownMenu', () => {
     fireEvent.keyDown(subTrigger, { key: 'ArrowRight' })
 
     await waitFor(() => {
-      const indicators = document.body.querySelectorAll('[data-slot="itemSubIndicator"]')
+      const indicators = document.body.querySelectorAll(
+        '[data-slot="dropdown-menu-item-sub-indicator"]',
+      )
       expect(indicators).toHaveLength(2)
       for (const indicator of indicators) {
         expect(indicator.classList).toContain('custom-sub-indicator')
@@ -326,7 +344,7 @@ describe('DropdownMenu', () => {
         if (
           name === 'data-closed' &&
           value === '' &&
-          this.getAttribute('data-slot') === 'content'
+          this.getAttribute('data-slot') === 'dropdown-menu-content'
         ) {
           closeOrder.push(this.id)
         }
@@ -359,10 +377,14 @@ describe('DropdownMenu', () => {
       ))
 
       await waitFor(() => {
-        expect(document.body.querySelectorAll('[data-slot="content"]')).toHaveLength(3)
+        expect(document.body.querySelectorAll('[data-slot="dropdown-menu-content"]')).toHaveLength(
+          3,
+        )
       })
 
-      const contents = Array.from(document.body.querySelectorAll('[data-slot="content"]'))
+      const contents = Array.from(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+      )
       const [rootContent, middleContent, deepestContent] = contents as [
         HTMLElement,
         HTMLElement,
@@ -399,7 +421,7 @@ describe('DropdownMenu', () => {
     ))
 
     const subTrigger = await waitFor(() => {
-      const item = document.body.querySelector('[data-slot="item"]')
+      const item = document.body.querySelector('[data-slot="dropdown-menu-item"]')
       expect(item).not.toBeNull()
       return item as HTMLElement
     })
@@ -407,9 +429,9 @@ describe('DropdownMenu', () => {
     fireEvent.click(subTrigger)
 
     const submenuContent = await waitFor(() => {
-      const content = Array.from(document.body.querySelectorAll('[data-slot="content"]')).find(
-        (element) => element.textContent?.includes('Nested action'),
-      ) as HTMLElement | undefined
+      const content = Array.from(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+      ).find((element) => element.textContent?.includes('Nested action')) as HTMLElement | undefined
 
       expect(content).not.toBeNull()
       return content!
@@ -434,17 +456,19 @@ describe('DropdownMenu', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
     })
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
     fireEvent.keyDown(content, { key: 'Escape' })
 
     await waitFor(() => {
       expect(onOpenChange).toHaveBeenCalledWith(false)
     })
 
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
   })
 
   test('keeps content mounted with closed data attrs until exit motion finishes', async () => {
@@ -458,27 +482,31 @@ describe('DropdownMenu', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
     })
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
     fireEvent.keyDown(content, { key: 'Escape' })
 
     await waitFor(() => {
-      const exitingContent = document.body.querySelector('[data-slot="content"]') as HTMLElement
+      const exitingContent = document.body.querySelector(
+        '[data-slot="dropdown-menu-content"]',
+      ) as HTMLElement
       expect(exitingContent).not.toBeNull()
       expect(exitingContent.getAttribute('data-closed')).toBe('')
       expect(exitingContent.hasAttribute('data-expanded')).toBe(false)
       expect(exitingContent.className).toContain('data-closed:animate-mo-exit')
     })
 
-    const positioner = content.closest('[data-slot="positioner"]') as HTMLElement
+    const positioner = content.closest('[data-slot="dropdown-menu-positioner"]') as HTMLElement
     expect(positioner.style.visibility).toBe('visible')
 
     await finishMenuExitMotion()
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).toBeNull()
       expect(positioner.isConnected).toBe(false)
     })
   })
@@ -494,10 +522,12 @@ describe('DropdownMenu', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
     })
 
-    const rootContent = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const rootContent = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
 
     expect(rootContent.className).toContain('mt-(--mo-popper-content-overflow-padding)')
     expect(rootContent.className).toContain('data-expanded:animate-mo-enter')
@@ -570,14 +600,16 @@ describe('DropdownMenu', () => {
       expect(document.body.textContent).toContain('Nested action')
     })
 
-    const rootContent = document.body.querySelector('[data-slot="content"]')
+    const rootContent = document.body.querySelector('[data-slot="dropdown-menu-content"]')
 
     expect(document.body.textContent).toContain('Account')
-    expect(document.body.querySelector('[data-slot="separator"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="dropdown-menu-separator"]')).not.toBeNull()
     expect(document.body.textContent).toContain('View profile')
-    expect(document.body.querySelectorAll('[data-slot="item"]').length).toBeGreaterThanOrEqual(2)
+    expect(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-item"]').length,
+    ).toBeGreaterThanOrEqual(2)
     expect(document.body.querySelector('[data-testid="avatar-node"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-slot="itemIndicator"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="dropdown-menu-item-indicator"]')).not.toBeNull()
 
     expect(rootContent?.className).toContain('mr-(--mo-popper-content-overflow-padding)')
     expect(rootContent?.className).toContain('border-border')
@@ -660,8 +692,8 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    expect(screen.container.querySelector('[data-slot="content"]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot="dropdown-menu-content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
   })
 
   test('renders the trigger content as a native button root', () => {
@@ -674,7 +706,7 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    const trigger = document.body.querySelector('[data-slot="trigger"]')
+    const trigger = document.body.querySelector('[data-slot="dropdown-menu-trigger"]')
 
     expect(trigger?.tagName).toBe('BUTTON')
     expect(trigger?.getAttribute('type')).toBe('button')
@@ -690,7 +722,9 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    const trigger = document.body.querySelector('[data-slot="trigger"]') as HTMLAnchorElement
+    const trigger = document.body.querySelector(
+      '[data-slot="dropdown-menu-trigger"]',
+    ) as HTMLAnchorElement
     expect(trigger.tagName).toBe('A')
     expect(trigger.getAttribute('href')).toBe('#menu')
   })
@@ -769,9 +803,9 @@ describe('DropdownMenu', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')?.textContent).toContain(
-        'Open item',
-      )
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"]')?.textContent,
+      ).toContain('Open item')
     })
   })
 
@@ -789,7 +823,7 @@ describe('DropdownMenu', () => {
     fireEvent.keyDown(trigger, { key: 'ArrowDown' })
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).toBeNull()
     })
   })
 
@@ -808,8 +842,12 @@ describe('DropdownMenu', () => {
     setDisabled(true)
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).toBeNull()
-      expect(document.body.querySelector('[data-slot="content"][data-closed]')).not.toBeNull()
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).toBeNull()
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-closed]'),
+      ).not.toBeNull()
     })
     expect(onOpenChange).toHaveBeenCalledTimes(1)
     expect(onOpenChange).toHaveBeenCalledWith(false)
@@ -834,7 +872,9 @@ describe('DropdownMenu', () => {
     })
     expect(onOpenChange).toHaveBeenCalledWith(false)
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).not.toBeNull()
     })
 
     await Promise.resolve()
@@ -860,7 +900,7 @@ describe('DropdownMenu', () => {
     const originalTrigger = screen.getByText('Button trigger')
     fireEvent.keyDown(originalTrigger, { key: 'ArrowDown' })
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
     })
 
     setTriggerKind(undefined)
@@ -886,7 +926,9 @@ describe('DropdownMenu', () => {
       expect(replacementRect).toHaveBeenCalled()
     })
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
     fireEvent.keyDown(content, { key: 'Escape' })
     await finishMenuExitMotion()
 
@@ -910,7 +952,7 @@ describe('DropdownMenu', () => {
     const trigger = screen.getByText('Removable trigger')
     fireEvent.keyDown(trigger, { key: 'ArrowDown' })
     const content = await waitFor(() => {
-      const element = document.body.querySelector('[data-slot="content"]')
+      const element = document.body.querySelector('[data-slot="dropdown-menu-content"]')
       expect(element).not.toBeNull()
       return element!
     })
@@ -951,22 +993,24 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    const checkboxItem = document.body.querySelector('[data-slot="item"]') as HTMLElement
+    const checkboxItem = document.body.querySelector(
+      '[data-slot="dropdown-menu-item"]',
+    ) as HTMLElement
     expect(checkboxItem.hasAttribute('data-selected')).toBe(false)
     checkboxItem.focus()
     fireEvent.keyDown(checkboxItem, { key: 'Enter' })
     expect(checkboxItem.hasAttribute('data-selected')).toBe(true)
 
-    const disabledItem = Array.from(document.body.querySelectorAll('[data-slot="item"]')).find(
-      (el) => el.textContent?.includes('Disabled action'),
-    ) as HTMLElement
+    const disabledItem = Array.from(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'),
+    ).find((el) => el.textContent?.includes('Disabled action')) as HTMLElement
 
     fireEvent.pointerDown(disabledItem)
     fireEvent.click(disabledItem)
 
     expect(onCheckedChange).toHaveBeenCalledWith(true)
     expect(onDisabledSelect).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
   })
 
   test('keeps dropdown menu open when clicking or pressing on a disabled item', async () => {
@@ -994,10 +1038,12 @@ describe('DropdownMenu', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
     })
 
-    const items = Array.from(document.body.querySelectorAll<HTMLElement>('[data-slot="item"]'))
+    const items = Array.from(
+      document.body.querySelectorAll<HTMLElement>('[data-slot="dropdown-menu-item"]'),
+    )
     const disabledItem = items[0]!
     const destructiveItem = items[1]!
 
@@ -1007,11 +1053,11 @@ describe('DropdownMenu', () => {
     expect(destructiveItem.className).toContain('data-destructive:text-destructive')
 
     fireEvent.pointerDown(disabledItem)
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
 
     fireEvent.click(disabledItem)
     expect(onSelect).not.toHaveBeenCalled()
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
   })
 
   test('supports radio items with grouped selection and disabled prevention', async () => {
@@ -1096,10 +1142,12 @@ describe('DropdownMenu', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="itemLeading"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dropdown-menu-item-leading"]')).not.toBeNull()
     })
 
-    const leading = document.body.querySelector('[data-slot="itemLeading"]') as HTMLElement
+    const leading = document.body.querySelector(
+      '[data-slot="dropdown-menu-item-leading"]',
+    ) as HTMLElement
     expect(leading.className).not.toContain('text-muted-foreground')
   })
 
@@ -1132,10 +1180,10 @@ describe('DropdownMenu', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelectorAll('[data-slot="item"]')).toHaveLength(5)
+      expect(document.body.querySelectorAll('[data-slot="dropdown-menu-item"]')).toHaveLength(5)
     })
 
-    const items = Array.from(document.body.querySelectorAll('[data-slot="item"]'))
+    const items = Array.from(document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'))
     expect(items[0]?.hasAttribute('data-destructive')).toBe(false)
     for (const item of items.slice(1)) {
       expect(item.getAttribute('data-destructive')).toBe('')
@@ -1162,12 +1210,14 @@ describe('DropdownMenu', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelectorAll('[data-slot="content"]').length).toBeGreaterThanOrEqual(
-        2,
-      )
+      expect(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-content"]').length,
+      ).toBeGreaterThanOrEqual(2)
     })
 
-    const contents = Array.from(document.body.querySelectorAll('[data-slot="content"]'))
+    const contents = Array.from(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+    )
     const root = contents[0] as HTMLElement
     const sub = contents[1] as HTMLElement
 
@@ -1194,19 +1244,19 @@ describe('DropdownMenu', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelectorAll('[data-slot="content"]').length).toBeGreaterThanOrEqual(
-        2,
-      )
+      expect(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-content"]').length,
+      ).toBeGreaterThanOrEqual(2)
     })
 
-    const items = Array.from(document.body.querySelectorAll('[data-slot="item"]'))
+    const items = Array.from(document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'))
     const subTrigger = items.find((item) => item.textContent?.includes('More')) as HTMLElement
     const sibling = items.find((item) =>
       item.textContent?.includes('Sibling action'),
     ) as HTMLElement
-    const subContent = Array.from(document.body.querySelectorAll('[data-slot="content"]')).find(
-      (content) => content.textContent?.includes('Nested action'),
-    ) as HTMLElement
+    const subContent = Array.from(
+      document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+    ).find((content) => content.textContent?.includes('Nested action')) as HTMLElement
 
     subContent.getBoundingClientRect = () => ({
       bottom: 120,
@@ -1257,14 +1307,14 @@ describe('DropdownMenu', () => {
         expect(document.body.textContent).toContain('Nested action')
       })
 
-      const items = Array.from(document.body.querySelectorAll('[data-slot="item"]'))
+      const items = Array.from(document.body.querySelectorAll('[data-slot="dropdown-menu-item"]'))
       const firstTrigger = items.find((item) => item.textContent?.includes('More')) as HTMLElement
       const secondTrigger = items.find((item) =>
         item.textContent?.includes('More tools'),
       ) as HTMLElement
-      const firstContent = Array.from(document.body.querySelectorAll('[data-slot="content"]')).find(
-        (content) => content.textContent?.includes('Nested action'),
-      ) as HTMLElement
+      const firstContent = Array.from(
+        document.body.querySelectorAll('[data-slot="dropdown-menu-content"]'),
+      ).find((content) => content.textContent?.includes('Nested action')) as HTMLElement
 
       firstContent.getBoundingClientRect = () => ({
         bottom: 120,
@@ -1315,10 +1365,10 @@ describe('DropdownMenu', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dropdown-menu-content"]')).not.toBeNull()
     })
 
-    const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')
+    const content = document.body.querySelector<HTMLElement>('[data-slot="dropdown-menu-content"]')
     expect(content?.style.width).toBe('200px')
   })
 
@@ -1366,7 +1416,9 @@ describe('DropdownMenu', () => {
 
     expect(onSelect).not.toHaveBeenCalled()
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).not.toBeNull()
     })
   })
 
@@ -1381,20 +1433,24 @@ describe('DropdownMenu', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="overlay"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="dropdown-menu-overlay"]')).not.toBeNull()
     })
 
-    const positioner = document.body.querySelector('[data-slot="positioner"]') as HTMLElement
+    const positioner = document.body.querySelector(
+      '[data-slot="dropdown-menu-positioner"]',
+    ) as HTMLElement
     expect(positioner.className).not.toContain('z-floating')
     expect(positioner.classList.contains('absolute')).toBe(true)
     expect(positioner.classList.contains('fixed')).toBe(false)
     expect(document.body.style.overflow).toBe('hidden')
 
-    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
+    const overlay = document.body.querySelector(
+      '[data-slot="dropdown-menu-overlay"]',
+    ) as HTMLElement
     fireEvent.pointerDown(overlay, { pointerType: 'mouse' })
     await finishMenuExitMotion()
 
-    expect(document.body.querySelector('[data-slot="overlay"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="dropdown-menu-overlay"]')).toBeNull()
     expect(document.body.style.overflow).toBe('')
   })
 
@@ -1416,27 +1472,34 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
     fireEvent.keyDown(content, { key: 'b' })
     expect(
-      document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
+      document.body.querySelector('[data-slot="dropdown-menu-item"][data-highlighted]')
+        ?.textContent,
     ).toContain('Banana')
 
     fireEvent.keyDown(document.activeElement!, { key: 'b' })
     expect(
-      document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
+      document.body.querySelector('[data-slot="dropdown-menu-item"][data-highlighted]')
+        ?.textContent,
     ).toContain('Bravo')
 
     fireEvent.keyDown(document.activeElement!, { key: 'o' })
     fireEvent.keyDown(document.activeElement!, { key: 'o' })
     expect(
-      document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
+      document.body.querySelector('[data-slot="dropdown-menu-item"][data-highlighted]')
+        ?.textContent,
     ).toContain('Open file')
 
     fireEvent.keyDown(document.activeElement!, { key: ' ' })
     expect(onOpenSelect).not.toHaveBeenCalled()
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).not.toBeNull()
     })
   })
 
@@ -1456,7 +1519,9 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
     fireEvent.keyDown(content, { key: 's' })
     fireEvent.keyDown(document.activeElement!, { key: ' ' })
 
@@ -1481,11 +1546,14 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector(
+      '[data-slot="dropdown-menu-content"]',
+    ) as HTMLElement
     fireEvent.keyDown(content, { key: 'a' })
 
     expect(
-      document.body.querySelector('[data-slot="item"][data-highlighted]')?.textContent,
+      document.body.querySelector('[data-slot="dropdown-menu-item"][data-highlighted]')
+        ?.textContent,
     ).toContain('Archive')
   })
 
@@ -1501,8 +1569,10 @@ describe('DropdownMenu', () => {
         </DropdownMenu>
       ))
 
-      const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
-      const item = document.body.querySelector('[data-slot="item"]') as HTMLElement
+      const content = document.body.querySelector(
+        '[data-slot="dropdown-menu-content"]',
+      ) as HTMLElement
+      const item = document.body.querySelector('[data-slot="dropdown-menu-item"]') as HTMLElement
       content.focus()
       fireEvent.pointerMove(item, { pointerType })
 
@@ -1535,7 +1605,9 @@ describe('DropdownMenu', () => {
 
     expect(onOpenChange).not.toHaveBeenCalled()
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).not.toBeNull()
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).not.toBeNull()
     })
   })
 
@@ -1590,7 +1662,7 @@ describe('DropdownMenu', () => {
     ))
 
     const secondContent = Array.from(
-      document.body.querySelectorAll<HTMLElement>('[data-slot="content"]'),
+      document.body.querySelectorAll<HTMLElement>('[data-slot="dropdown-menu-content"]'),
     ).find((content) => content.textContent?.includes('Second item'))!
     fireEvent.keyDown(secondContent, { key: 'Escape' })
     expect(secondChange).toHaveBeenCalledWith(false)
@@ -1622,13 +1694,15 @@ describe('DropdownMenu', () => {
       </>
     ))
 
-    const item = document.body.querySelector('[data-slot="item"]') as HTMLElement
+    const item = document.body.querySelector('[data-slot="dropdown-menu-item"]') as HTMLElement
     item.focus()
     fireEvent.keyDown(item, { key: 'Tab' })
 
     await waitFor(() => {
       expect(document.activeElement).toBe(screen.getByTestId('after'))
-      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).toBeNull()
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).toBeNull()
     })
   })
 
@@ -1642,13 +1716,15 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    const item = document.body.querySelector('[data-slot="item"]') as HTMLElement
+    const item = document.body.querySelector('[data-slot="dropdown-menu-item"]') as HTMLElement
     item.focus()
     fireEvent.keyDown(item, { key: 'Tab', shiftKey: true })
 
     await waitFor(() => {
       expect(document.activeElement).toBe(screen.getByText('Actions'))
-      expect(document.body.querySelector('[data-slot="content"][data-expanded]')).toBeNull()
+      expect(
+        document.body.querySelector('[data-slot="dropdown-menu-content"][data-expanded]'),
+      ).toBeNull()
     })
   })
 
@@ -1743,7 +1819,9 @@ describe('DropdownMenu', () => {
     ))
 
     const group = document.body.querySelector('[role="group"]') as HTMLElement
-    const label = document.body.querySelector('[data-slot="label"]') as HTMLElement
+    const label = document.body.querySelector(
+      '[data-slot="dropdown-menu-group-label"]',
+    ) as HTMLElement
     const item = document.body.querySelector('[role="menuitem"]') as HTMLElement
 
     expect(label.id).not.toBe('')
@@ -1772,7 +1850,9 @@ describe('DropdownMenu', () => {
       </DropdownMenu>
     ))
 
-    expect(document.body.querySelector('[data-slot="label"]')?.textContent).toBe('File actions')
+    expect(
+      document.body.querySelector('[data-slot="dropdown-menu-group-label"]')?.textContent,
+    ).toBe('File actions')
     expect(labelReads).toBe(1)
   })
 
@@ -1791,7 +1871,9 @@ describe('DropdownMenu', () => {
         </DropdownMenu>
       ))
 
-      const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+      const content = document.body.querySelector(
+        '[data-slot="dropdown-menu-content"]',
+      ) as HTMLElement
       const submenuTrigger = document.body.querySelector('[aria-haspopup="menu"][role="menuitem"]')!
       fireEvent.pointerMove(submenuTrigger, { pointerType: 'mouse' })
       fireEvent.keyDown(content, { key: 'Escape' })

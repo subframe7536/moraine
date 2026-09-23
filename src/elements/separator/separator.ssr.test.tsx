@@ -20,7 +20,7 @@ describe('Separator SSR Hydration', () => {
       ),
     )
 
-    const root = container.querySelector('[data-slot="root"]')!
+    const root = container.querySelector('[data-slot="separator"]')!
     expect(root).not.toBeNull()
     expect(root.children).toHaveLength(0)
     expect(root.getAttribute('data-orientation')).toBe('horizontal')
@@ -34,6 +34,6 @@ describe('Separator SSR Hydration', () => {
     expect(root.className).toContain('bg-border')
     expect(root.className).toContain('w-px')
     expect(root.className).toContain('h-full')
-    expect(container.querySelector('[data-slot="root"]')).toBe(root)
+    expect(container.querySelector('[data-slot="separator"]')).toBe(root)
   })
 })

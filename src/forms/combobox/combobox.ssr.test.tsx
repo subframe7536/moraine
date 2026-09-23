@@ -23,12 +23,12 @@ test('hydrates Combobox with one input focus owner', () => {
       }),
   )
   const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!
-  const trigger = container.querySelector<HTMLButtonElement>('[data-slot="trigger"]')!
+  const trigger = container.querySelector<HTMLButtonElement>('[data-slot="combobox-trigger"]')!
   expect(input.value).toBe('Banana')
   expect(input.getAttribute('aria-autocomplete')).toBe('list')
   expect(input.getAttribute('autocomplete')).toBe('off')
   expect(trigger.tabIndex).toBe(-1)
-  expect(container.querySelectorAll('input[data-slot="input"]')).toHaveLength(1)
+  expect(container.querySelectorAll('input[data-slot="combobox-input"]')).toHaveLength(1)
   fireEvent.click(trigger)
   expect(input.getAttribute('aria-expanded')).toBe('true')
 })
@@ -50,7 +50,7 @@ test('hydrates a read-only Combobox without list autocomplete', () => {
       }),
   )
   const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!
-  const trigger = container.querySelector<HTMLButtonElement>('[data-slot="trigger"]')!
+  const trigger = container.querySelector<HTMLButtonElement>('[data-slot="combobox-trigger"]')!
   expect(input.readOnly).toBe(true)
   expect(input.getAttribute('aria-readonly')).toBe('true')
   expect(input.getAttribute('aria-autocomplete')).toBe('none')

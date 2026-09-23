@@ -27,9 +27,9 @@ describe('Switch SSR Hydration', () => {
       ),
     )
 
-    const serverRoot = container.querySelector('[data-slot="root"]') as HTMLElement
-    const serverTrack = container.querySelector('[data-slot="track"]') as HTMLElement
-    const serverInput = container.querySelector('[data-slot="input"]') as HTMLInputElement
+    const serverRoot = container.querySelector('[data-slot="switch"]') as HTMLElement
+    const serverTrack = container.querySelector('[data-slot="switch-track"]') as HTMLElement
+    const serverInput = container.querySelector('[data-slot="switch-input"]') as HTMLInputElement
 
     expect(serverRoot).not.toBeNull()
     expect(serverTrack).not.toBeNull()

@@ -23,7 +23,7 @@ describe('CodeTabs', () => {
     fireEvent.keyDown(tabs[0]!, { key: 'ArrowRight' })
     expect(tabs[1]!.getAttribute('aria-selected')).toBe('true')
     expect(document.activeElement).toBe(tabs[1])
-    expect(screen.container.querySelector('[data-slot="indicator"]')).toBeTruthy()
+    expect(screen.container.querySelector('[data-slot="tabs-indicator"]')).toBeTruthy()
   })
 
   test('renders tab triggers for each item', () => {

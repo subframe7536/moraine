@@ -159,7 +159,7 @@ export function Progress(props: ProgressProps): JSX.Element {
       aria-valuemax={resolvedMax()}
       aria-valuenow={isIndeterminate() ? undefined : resolvedValue()}
       aria-valuetext={valueText()}
-      data-slot="root"
+      data-slot="progress"
       {...rootDataAttrs}
       {...resolved.styles.root}
     >
@@ -171,7 +171,7 @@ export function Progress(props: ProgressProps): JSX.Element {
           return (
             <Show when={shouldRenderStatus()}>
               <div
-                data-slot="status"
+                data-slot="progress-status"
                 class={resolved.styles.status.class}
                 style={{ ...statusStyle(), ...resolved.styles.status.style }}
               >
@@ -188,9 +188,9 @@ export function Progress(props: ProgressProps): JSX.Element {
         }}
       </Show>
 
-      <div data-slot="track" {...resolved.styles.track}>
+      <div data-slot="progress-track" {...resolved.styles.track}>
         <div
-          data-slot="indicator"
+          data-slot="progress-indicator"
           class={resolved.styles.indicator.class}
           style={{ ...indicatorStyle(), ...resolved.styles.indicator.style }}
           {...indicatorDataAttrs}
@@ -202,11 +202,11 @@ export function Progress(props: ProgressProps): JSX.Element {
           const stepRender = createMemo(() => local.stepRender)
 
           return (
-            <div data-slot="steps" {...resolved.styles.steps}>
+            <div data-slot="progress-steps" {...resolved.styles.steps}>
               <For each={steps()}>
                 {(step, index) => (
                   <div
-                    data-slot="step"
+                    data-slot="progress-step"
                     {...progressDataAttributes.step({ state: () => stepState(index()) })}
                     {...resolved.styles.step}
                   >

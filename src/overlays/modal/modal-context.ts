@@ -1,11 +1,12 @@
 import type { Accessor } from 'solid-js'
 
-import { createContextProvider } from '../../shared/create-context-provider'
+import { createContextProvider } from '../../shared/create-context-provider.tsx'
 import type { useTransitionPresence } from '../../shared/use-transition-presence'
 
 import type { ModalT } from './modal.types'
 
 export interface ModalContext {
+  slotName: (slot: string) => string
   readonly presentation: { classes?: ModalT.Classes; styles?: ModalT.Styles }
   open: Accessor<boolean>
   presence: ReturnType<typeof useTransitionPresence>
@@ -18,7 +19,6 @@ export interface ModalContext {
   setContentElement: (element: HTMLDivElement | undefined) => void
   registerContent: (trapFocus: Accessor<boolean>) => () => void
   contentPresent: Accessor<boolean>
-  isPresent: Accessor<boolean>
   isModal: Accessor<boolean>
 }
 

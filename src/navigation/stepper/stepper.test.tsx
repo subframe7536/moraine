@@ -87,7 +87,7 @@ describe('Stepper', () => {
     ))
 
     const getSelectedPanel = () =>
-      screen.container.querySelector('[data-slot="content"][data-selected]')
+      screen.container.querySelector('[data-slot="stepper-content"][data-selected]')
 
     expect(getSelectedPanel()?.textContent).toContain('Address content')
 
@@ -310,10 +310,10 @@ describe('Stepper', () => {
       </MoraineProvider>
     ))
 
-    const root = screen.container.querySelector('[data-slot="root"]')
-    const trigger = screen.container.querySelector('[data-slot="trigger"]')
-    const separator = screen.container.querySelector('[data-slot="separator"]')
-    const content = screen.container.querySelector('[data-slot="content"]')
+    const root = screen.container.querySelector('[data-slot="stepper"]')
+    const trigger = screen.container.querySelector('[data-slot="stepper-trigger"]')
+    const separator = screen.container.querySelector('[data-slot="stepper-separator"]')
+    const content = screen.container.querySelector('[data-slot="stepper-content"]')
 
     expect(root?.className).toContain('flex-row')
     expect(root?.className).toContain('root-override')
@@ -333,9 +333,13 @@ describe('Stepper', () => {
         <Stepper items={ITEMS} size={size} orientation={orientation()} />
       </MoraineProvider>
     ))
-    const indicator = screen.container.querySelector<HTMLElement>('[data-slot="indicator"]')!
-    const separator = screen.container.querySelector<HTMLElement>('[data-slot="separator"]')!
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')!
+    const indicator = screen.container.querySelector<HTMLElement>(
+      '[data-slot="stepper-indicator"]',
+    )!
+    const separator = screen.container.querySelector<HTMLElement>(
+      '[data-slot="stepper-separator"]',
+    )!
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="stepper"]')!
     expect(indicator.className).toContain(markerSize)
     expect(root.getAttribute('style')).toBeNull()
     expect(separator.classList.contains(start)).toBe(false)
@@ -346,7 +350,7 @@ describe('Stepper', () => {
     expect(separator.classList.contains(start)).toBe(true)
     expect(separator.classList.contains(top)).toBe(true)
     expect(separator.className).not.toContain('flex-1')
-    expect(screen.container.querySelector('[data-slot="indicator"]')).toBe(indicator)
+    expect(screen.container.querySelector('[data-slot="stepper-indicator"]')).toBe(indicator)
   })
 
   test('selects through the title and description and updates indicator state', () => {
@@ -360,12 +364,12 @@ describe('Stepper', () => {
     expect(triggers[1]!.getAttribute('aria-selected')).toBe('true')
     fireEvent.click(description)
     expect(triggers[2]!.getAttribute('aria-selected')).toBe('true')
-    const states = Array.from(screen.container.querySelectorAll('[data-slot="indicator"]')).map(
-      (element) => element.getAttribute('data-state'),
-    )
+    const states = Array.from(
+      screen.container.querySelectorAll('[data-slot="stepper-indicator"]'),
+    ).map((element) => element.getAttribute('data-state'))
     expect(states).toEqual(['completed', 'completed', 'active'])
     expect(screen.container.querySelector('[data-slot="container"]')).toBeNull()
-    const separators = screen.container.querySelectorAll('[data-slot="separator"]')
+    const separators = screen.container.querySelectorAll('[data-slot="stepper-separator"]')
     expect(separators).toHaveLength(2)
     expect(separators[0]!.getAttribute('aria-hidden')).toBe('true')
     expect(separators[0]!.parentElement).toBe(triggers[0]!.parentElement)
@@ -373,8 +377,8 @@ describe('Stepper', () => {
 
   test('omits empty text wrappers and the connector for a single step', () => {
     const screen = render(() => <Stepper items={[{}]} />)
-    expect(screen.container.querySelector('[data-slot="wrapper"]')).toBeNull()
-    expect(screen.container.querySelector('[data-slot="separator"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="stepper-wrapper"]')).toBeNull()
+    expect(screen.container.querySelector('[data-slot="stepper-separator"]')).toBeNull()
     expect(screen.getByRole('tab').textContent).toBe('1')
   })
 
@@ -383,7 +387,9 @@ describe('Stepper', () => {
     for (const element of screen.container.querySelectorAll('[data-slot]')) {
       expect(element.className).not.toBe('')
     }
-    expect(screen.container.querySelector('[data-slot="root"]')?.getAttribute('style')).toBeNull()
+    expect(
+      screen.container.querySelector('[data-slot="stepper"]')?.getAttribute('style'),
+    ).toBeNull()
     fireEvent.click(screen.getByRole('tab', { name: 'Shipping' }))
     expect(screen.getByRole('tabpanel').textContent).toContain('Shipping content')
   })
@@ -401,7 +407,7 @@ describe('Stepper', () => {
       />
     ))
 
-    expect(screen.container.querySelector('[data-slot="icon"]')).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot="stepper-icon"]')).not.toBeNull()
   })
 
   test('falls back to the first available step when defaultValue is invalid', () => {
@@ -478,9 +484,9 @@ describe('Stepper', () => {
       />
     ))
 
-    const root = screen.container.querySelector<HTMLElement>('[data-slot="root"]')
-    const trigger = screen.container.querySelector<HTMLElement>('[data-slot="trigger"]')
-    const content = screen.container.querySelector<HTMLElement>('[data-slot="content"]')
+    const root = screen.container.querySelector<HTMLElement>('[data-slot="stepper"]')
+    const trigger = screen.container.querySelector<HTMLElement>('[data-slot="stepper-trigger"]')
+    const content = screen.container.querySelector<HTMLElement>('[data-slot="stepper-content"]')
 
     expect(root?.style.width).toBe('200px')
     expect(trigger?.style.width).toBe('200px')

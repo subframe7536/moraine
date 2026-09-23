@@ -480,7 +480,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       <button
         type="button"
         aria-label={`Remove ${props.file.name}`}
-        data-slot="fileRemove"
+        data-slot="file-upload-file-remove"
         {...resolved.styles.fileRemove}
         disabled={field.disabled() || readOnly()}
         onClick={() => {
@@ -559,20 +559,24 @@ export function FileUpload<T extends ValidComponent = 'div'>(
   function Content(): JSX.Element {
     return (
       <div
-        data-slot="wrapper"
+        data-slot="file-upload-wrapper"
         {...fileUploadDataAttributes.wrapper({ dropzone })}
         {...resolved.styles.wrapper}
       >
-        <Icon name={merged.icon} slotName="icon" {...resolved.styles.icon} />
+        <Icon name={merged.icon} slotName="file-upload-icon" {...resolved.styles.icon} />
 
         <Show when={label()}>
-          <span id={labelId()} data-slot="label" {...resolved.styles.label}>
+          <span id={labelId()} data-slot="file-upload-label" {...resolved.styles.label}>
             {label()}
           </span>
         </Show>
 
         <Show when={description()}>
-          <span id={descriptionId()} data-slot="description" {...resolved.styles.description}>
+          <span
+            id={descriptionId()}
+            data-slot="file-upload-description"
+            {...resolved.styles.description}
+          >
             {description()}
           </span>
         </Show>
@@ -653,7 +657,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       aria-labelledby={field.ariaAttrs()['aria-labelledby'] ?? (label() ? labelId() : undefined)}
       aria-label={field.ariaAttrs()['aria-labelledby'] || label() ? undefined : 'File upload'}
       disabled={field.disabled()}
-      data-slot="root"
+      data-slot="file-upload"
       {...fileUploadDataAttributes.root({
         disabled: field.disabled,
         readonly: readOnly,
@@ -670,7 +674,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           <button
             ref={setControlElement}
             type="button"
-            data-slot="control"
+            data-slot="file-upload-control"
             {...resolved.styles.control}
             {...fileUploadDataAttributes.control({
               dragging: undefined,
@@ -692,7 +696,7 @@ export function FileUpload<T extends ValidComponent = 'div'>(
           role="button"
           tabIndex={field.disabled() ? undefined : 0}
           {...controlAriaAttrs()}
-          data-slot="control"
+          data-slot="file-upload-control"
           {...resolved.styles.control}
           {...fileUploadDataAttributes.control({
             dropzone,
@@ -738,24 +742,30 @@ export function FileUpload<T extends ValidComponent = 'div'>(
       />
 
       <Show when={preview() && selectedFiles().length > 0}>
-        <ul data-slot="files" {...resolved.styles.files}>
+        <ul data-slot="file-upload-files" {...resolved.styles.files}>
           <For each={selectedFiles()}>
             {(file, index) => (
-              <li data-slot="file" {...resolved.styles.file}>
-                <span data-slot="filePreview" {...resolved.styles.filePreview}>
+              <li data-slot="file-upload-file" {...resolved.styles.file}>
+                <span data-slot="file-upload-file-preview" {...resolved.styles.filePreview}>
                   <Show
                     when={previewUrls().get(file)}
-                    fallback={<Icon name={merged.fileIcon} class={resolved.styles.icon.class} />}
+                    fallback={
+                      <Icon
+                        name={merged.fileIcon}
+                        slotName="file-upload-icon"
+                        class={resolved.styles.icon.class}
+                      />
+                    }
                   >
                     {(url) => <img src={url()} alt={file.name} />}
                   </Show>
                 </span>
 
-                <div data-slot="fileMeta" {...resolved.styles.fileMeta}>
-                  <span data-slot="fileName" {...resolved.styles.fileName}>
+                <div data-slot="file-upload-file-meta" {...resolved.styles.fileMeta}>
+                  <span data-slot="file-upload-file-name" {...resolved.styles.fileName}>
                     {file.name}
                   </span>
-                  <span data-slot="fileSize" {...resolved.styles.fileSize}>
+                  <span data-slot="file-upload-file-size" {...resolved.styles.fileSize}>
                     {formatFileSize(file.size)}
                   </span>
                 </div>

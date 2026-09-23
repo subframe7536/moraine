@@ -20,6 +20,7 @@ import { KbdGroup } from '../../../elements/kbd'
 import { List } from '../../../elements/list'
 import { useCn } from '../../../provider/cn-context'
 import { createLazyMemo } from '../../../shared/create-lazy-memo'
+import { dataSlotName } from '../../../shared/data-slot.ts'
 import { renderComponentOrElement } from '../../../shared/render-prop'
 import type { ClassValue, ElementProps } from '../../../shared/types'
 import { useControllableValue } from '../../../shared/use-controllable-value'
@@ -94,6 +95,7 @@ function resolveMenuSlot(
 interface OverlayMenuLayerProps<
   TItem extends OverlayMenuSharedItem<TItem>,
 > extends OverlayMenuSharedProps<TItem> {
+  owner: 'dropdown-menu' | 'context-menu'
   autoFocusStrategy?: OverlayMenuFocusStrategy
   ariaLabelledBy?: string
   close: (options?: OverlayMenuCloseOptions) => void
@@ -122,6 +124,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
   const cn = useCn()
   const layer = useOverlayMenuLayerState()
   const resolveSlot = (slot: keyof OverlayMenuSharedSlots) => resolveMenuSlot(props, slot, cn)
+  const slotName = (slot: string) => dataSlotName(props.owner, slot)
   const resolvedPlacement = () =>
     resolveFloatingPlacement(props.placement ?? 'bottom', props.align ?? 'start')
   const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>(
@@ -406,32 +409,32 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         )}
       >
         <Show when={contentProps.item.icon}>
-          <span data-slot="itemLeading" {...resolveSlot('itemLeading')}>
+          <span data-slot={slotName('itemLeading')} {...resolveSlot('itemLeading')}>
             <Icon name={contentProps.item.icon} />
           </span>
         </Show>
 
         <Show when={label() || description()}>
-          <span data-slot="itemWrapper" {...resolveSlot('itemWrapper')}>
+          <span data-slot={slotName('itemWrapper')} {...resolveSlot('itemWrapper')}>
             <Show when={label()}>
-              <span data-slot="itemLabel" {...resolveSlot('itemLabel')}>
+              <span data-slot={slotName('itemLabel')} {...resolveSlot('itemLabel')}>
                 {label()}
               </span>
             </Show>
 
             <Show when={description()}>
-              <span data-slot="itemDescription" {...resolveSlot('itemDescription')}>
+              <span data-slot={slotName('itemDescription')} {...resolveSlot('itemDescription')}>
                 {description()}
               </span>
             </Show>
           </span>
         </Show>
 
-        <span data-slot="itemTrailing" {...resolveSlot('itemTrailing')}>
+        <span data-slot={slotName('itemTrailing')} {...resolveSlot('itemTrailing')}>
           <Show when={contentProps.hasChildren}>
             <Icon
               name={props.submenuIcon}
-              data-slot="itemSubIndicator"
+              data-slot={slotName('itemSubIndicator')}
               {...resolveSlot('itemSubIndicator')}
             />
           </Show>
@@ -440,6 +443,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
             <Show when={kbds()?.length ? kbds() : undefined}>
               {(value) => (
                 <KbdGroup
+                  data-slot={slotName('itemKbds')}
                   size="sm"
                   items={value()}
                   classes={{
@@ -454,7 +458,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           </Show>
 
           <Show when={contentProps.isCheckbox || contentProps.isRadio}>
-            <span data-slot="itemIndicator" {...resolveSlot('itemIndicator')}>
+            <span data-slot={slotName('itemIndicator')} {...resolveSlot('itemIndicator')}>
               <Show when={contentProps.checked?.()}>
                 <Icon name={props.checkedIcon} />
               </Show>
@@ -603,7 +607,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     return (
       <div
         id={itemId()}
-        data-slot="item"
+        data-slot={slotName('item')}
         role="menuitem"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-disabled={itemProps.item.disabled ? 'true' : undefined}
@@ -681,7 +685,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     return (
       <div
         id={itemId()}
-        data-slot="item"
+        data-slot={slotName('item')}
         role="menuitemcheckbox"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
@@ -778,7 +782,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
     return (
       <div
         id={itemId()}
-        data-slot="item"
+        data-slot={slotName('item')}
         role="menuitemradio"
         tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
         aria-checked={checked() ? 'true' : 'false'}
@@ -914,7 +918,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
       <>
         <div
           id={submenuId()}
-          data-slot="item"
+          data-slot={slotName('item')}
           role="menuitem"
           tabIndex={layer.highlightedItemId() === submenuId() ? 0 : -1}
           aria-haspopup="menu"
@@ -1070,6 +1074,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         <Show when={contentPresence.present()}>
           <Portal mount={triggerElement()?.ownerDocument.body}>
             <OverlayMenuLayer<TItem>
+              owner={props.owner}
               id={submenuContentId()}
               ariaLabelledBy={submenuId()}
               open={isOpen()}
@@ -1141,13 +1146,18 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
 
     return (
       <div
-        data-slot="group"
+        data-slot={slotName('group')}
         role="group"
         aria-labelledby={groupLabelId()}
         {...resolveSlot('group')}
       >
         <Show when={groupLabel()}>
-          <div id={groupLabelId()} data-slot="label" aria-hidden="true" {...resolveSlot('label')}>
+          <div
+            id={groupLabelId()}
+            data-slot={slotName('groupLabel')}
+            aria-hidden="true"
+            {...resolveSlot('groupLabel')}
+          >
             {groupLabel()}
           </div>
         </Show>
@@ -1156,7 +1166,11 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           {(item) => (
             <Switch fallback={<LeafItem item={item} />}>
               <Match when={item.type === 'separator'}>
-                <div data-slot="separator" role="separator" {...resolveSlot('separator')} />
+                <div
+                  data-slot={slotName('separator')}
+                  role="separator"
+                  {...resolveSlot('separator')}
+                />
               </Match>
 
               <Match when={item.type === 'checkbox'}>
@@ -1195,7 +1209,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
           element.style.visibility = 'hidden'
         }
       }}
-      data-slot="positioner"
+      data-slot={slotName('positioner')}
       class={'left-0 top-0 absolute'}
     >
       <List
@@ -1203,7 +1217,7 @@ function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
         items={listEntries()}
         itemRender={(context) => renderListEntry(context.item)}
         id={props.id}
-        data-slot="content"
+        data-slot={slotName('content')}
         role="menu"
         aria-labelledby={props.ariaLabelledBy}
         tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
@@ -1440,9 +1454,14 @@ export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
     <Show when={contentPresence.present()}>
       <Portal mount={props.triggerElement?.ownerDocument.body}>
         <Show when={props.preventScroll ?? true}>
-          <div data-slot="overlay" aria-hidden="true" {...resolveMenuSlot(props, 'overlay', cn)} />
+          <div
+            data-slot={dataSlotName(props.owner, 'overlay')}
+            aria-hidden="true"
+            {...resolveMenuSlot(props, 'overlay', cn)}
+          />
         </Show>
         <OverlayMenuLayer<TItem>
+          owner={props.owner}
           id={contentId()}
           ariaLabelledBy={props.triggerElement?.id}
           open={props.open}

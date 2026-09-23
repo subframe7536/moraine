@@ -10,9 +10,6 @@ export interface TooltipStyleSlot<T = unknown> {
 
   /** Container for shortcut hints displayed beside tooltip text. */
   kbds?: T
-
-  /** Individual keyboard key hint inside the tooltip. */
-  kbd?: T
 }
 
 export interface TooltipStyleVariant {

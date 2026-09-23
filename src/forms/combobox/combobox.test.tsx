@@ -22,11 +22,11 @@ const ITEMS = [
 
 async function finishExit(): Promise<void> {
   await waitFor(() =>
-    expect(document.body.querySelector('[data-slot="content"]')?.hasAttribute('data-closed')).toBe(
-      true,
-    ),
+    expect(
+      document.body.querySelector('[data-slot="combobox-content"]')?.hasAttribute('data-closed'),
+    ).toBe(true),
   )
-  const content = document.body.querySelector('[data-slot="content"]')
+  const content = document.body.querySelector('[data-slot="combobox-content"]')
   if (content) {
     fireEvent.animationEnd(content)
     fireEvent.transitionEnd(content)
@@ -40,10 +40,10 @@ describe('Combobox', () => {
     const input = screen.getByRole('combobox')
     const trigger = screen.getByRole('button', { name: 'Toggle options' })
     expect(input.tagName).toBe('INPUT')
-    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.getAttribute('data-slot')).toBe('combobox-trigger')
     expect(trigger.tabIndex).toBe(-1)
     expect(trigger.getAttribute('role')).toBeNull()
-    expect(screen.container.querySelectorAll('input[data-slot="input"]')).toHaveLength(1)
+    expect(screen.container.querySelectorAll('input[data-slot="combobox-input"]')).toHaveLength(1)
   })
 
   test('announces list autocomplete for an editable input', () => {
@@ -63,7 +63,7 @@ describe('Combobox', () => {
 
   test('control clicks do not open by default', () => {
     const screen = render(() => <Combobox items={ITEMS} />)
-    const control = screen.container.querySelector<HTMLElement>('[data-slot="control"]')!
+    const control = screen.container.querySelector<HTMLElement>('[data-slot="combobox-control"]')!
     const input = screen.getByRole('combobox')
     fireEvent.click(control)
     expect(input.getAttribute('aria-expanded')).toBe('false')
@@ -157,7 +157,7 @@ describe('Combobox', () => {
   test('keeps the trigger structurally present while loading', () => {
     const screen = render(() => <Combobox items={ITEMS} defaultValue="apple" allowClear loading />)
     const trigger = screen.getByRole('button', { name: 'Loading' })
-    expect(trigger.getAttribute('data-slot')).toBe('trigger')
+    expect(trigger.getAttribute('data-slot')).toBe('combobox-trigger')
     expect(trigger.hasAttribute('data-loading')).toBe(true)
   })
 
@@ -390,7 +390,7 @@ describe('Combobox', () => {
 
   test('has data-editable on control for search input focus ring', () => {
     const screen = render(() => <Combobox items={ITEMS} />)
-    const control = screen.container.querySelector('[data-slot="control"]')!
+    const control = screen.container.querySelector('[data-slot="combobox-control"]')!
     expect(control.hasAttribute('data-editable')).toBe(true)
   })
 })
@@ -413,7 +413,7 @@ test('selects, submits, clears, and resets string shorthand values', async () =>
   fireEvent.click(within(document.body).getByRole('option', { name: 'Banana', hidden: true }))
   expect(onChange).toHaveBeenLastCalledWith('Banana')
   expect(new FormData(form).getAll('string-fruit')).toEqual(['Banana'])
-  fireEvent.click(screen.container.querySelector<HTMLElement>('[data-slot="clear"]')!)
+  fireEvent.click(screen.container.querySelector<HTMLElement>('[data-slot="combobox-clear"]')!)
   expect(onChange).toHaveBeenLastCalledWith(null)
   form.reset()
   await Promise.resolve()

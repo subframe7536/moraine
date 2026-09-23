@@ -67,7 +67,7 @@ function FormRoot<TSchema extends FormSchema>(props: InternalFormProps<TSchema>)
       onSubmit={local.onSubmit ?? (() => {})}
       onReset={onReset}
       {...resolved.styles.root}
-      data-slot="root"
+      data-slot="form"
       {...formDataAttributes.root({ submitting: () => local.of.isSubmitting })}
     >
       {local.children}

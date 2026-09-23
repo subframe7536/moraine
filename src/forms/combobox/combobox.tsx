@@ -5,7 +5,7 @@ import { Icon } from '../../elements/icon/index.ts'
 import { createStyles } from '../../provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef } from '../../shared/utils.ts'
-import { BaseSelect, useSelectState } from '../base-select/base-select.tsx'
+import { BaseSelect, BaseSelectRoot, useSelectState } from '../base-select/base-select.tsx'
 import { useBaseSelectSearchInput } from '../base-select/utils.ts'
 import { useFieldContext } from '../field/field-context.ts'
 import {
@@ -122,12 +122,14 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           }}
         >
           <Show when={local.leadingIcon}>
-            {(icon) => <Icon name={icon()} slotName="leading" {...styles.styles.leading} />}
+            {(icon) => (
+              <Icon name={icon()} slotName="combobox-leading" {...styles.styles.leading} />
+            )}
           </Show>
           <input
             {...input.binding}
             {...state.field.ariaAttrs()}
-            data-slot="input"
+            data-slot="combobox-input"
             {...styles.styles.input}
             placeholder={local.placeholder}
             ref={(element) => {
@@ -138,7 +140,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           <Show when={local.allowClear && canClear()}>
             <button
               type="button"
-              data-slot="clear"
+              data-slot="combobox-clear"
               aria-label="Clear selection"
               tabIndex={-1}
               {...styles.styles.clear}
@@ -159,7 +161,7 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
           <button
             type="button"
             tabIndex={-1}
-            data-slot="trigger"
+            data-slot="combobox-trigger"
             aria-label={local.loading ? 'Loading' : 'Toggle options'}
             aria-controls={state.listboxId()}
             aria-expanded={state.open() ? 'true' : 'false'}
@@ -215,7 +217,8 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
   }
 
   return (
-    <BaseSelect<ComboboxT.NormalizedItem<T>>
+    <BaseSelectRoot<ComboboxT.NormalizedItem<T>>
+      slotOwner="combobox"
       {...baseSelectProps}
       items={search.view().items}
       getItemByValue={(value) => source().byValue.get(value)}
@@ -233,6 +236,6 @@ export function Combobox<T extends string | ComboboxT.Item = string | ComboboxT.
       styles={baseSelectStyles.styles()}
     >
       <Control />
-    </BaseSelect>
+    </BaseSelectRoot>
   )
 }

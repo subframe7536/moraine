@@ -57,19 +57,21 @@ describe('Sheet SSR Hydration', () => {
       ),
     )
 
-    const serverTriggers = container.querySelectorAll<HTMLButtonElement>('[data-slot="trigger"]')
+    const serverTriggers = container.querySelectorAll<HTMLButtonElement>(
+      '[data-slot="sheet-trigger"]',
+    )
     const customTrigger = serverTriggers[0]!
     const defaultTrigger = serverTriggers[1]!
 
     expect(customTrigger).not.toBeNull()
     expect(defaultTrigger).not.toBeNull()
-    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
 
     fireEvent.click(customTrigger)
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="sheet-content"]')).not.toBeNull()
     })
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
     expect(content.hasAttribute('data-side')).toBe(false)
     expect(content.hasAttribute('data-transition')).toBe(false)
     expect(content.getAttribute('aria-label')).toBe('Server sheet')
@@ -83,23 +85,23 @@ describe('Sheet SSR Hydration', () => {
     fireEvent.keyDown(content, { key: 'Escape' })
     await finishExitMotion()
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
       expect(document.activeElement).toBe(customTrigger)
     })
 
     fireEvent.click(defaultTrigger)
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="sheet-content"]')).not.toBeNull()
     })
-    const defaultContent = document.body.querySelector('[data-slot="content"]')!
+    const defaultContent = document.body.querySelector('[data-slot="sheet-content"]')!
     expect(defaultContent.hasAttribute('data-transition')).toBe(true)
     expectAriaReferencesToResolve(defaultContent)
     expect(document.body.querySelector('[data-testid="default-close-icon"]')).not.toBeNull()
 
-    fireEvent.click(document.body.querySelector('[data-slot="contentClose"]')!)
+    fireEvent.click(document.body.querySelector('[data-slot="sheet-content-close"]')!)
     await finishExitMotion()
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
       expect(document.activeElement).toBe(defaultTrigger)
     })
   })

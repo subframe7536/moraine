@@ -59,7 +59,9 @@ describe('composite family presentation', () => {
     ))
 
     const content = within(document.body).getByTestId('dialog-content')
-    const contentClose = document.body.querySelector<HTMLElement>('[data-slot="contentClose"]')!
+    const contentClose = document.body.querySelector<HTMLElement>(
+      '[data-slot="dialog-content-close"]',
+    )!
     expect(content.className).toContain('inner-theme')
     expect(contentClose.className).toContain('inner-close-theme')
     expect(content.className).not.toContain('outer-theme')
@@ -82,7 +84,7 @@ describe('composite family presentation', () => {
     setInstanceClass('next-instance p-7')
     setInstanceWidth('40px')
     expect(within(document.body).getByTestId('dialog-content')).toBe(content)
-    expect(document.body.querySelector('[data-slot="contentClose"]')).toBe(contentClose)
+    expect(document.body.querySelector('[data-slot="dialog-content-close"]')).toBe(contentClose)
     expect(content.className).toContain('next-theme')
     expect(contentClose.className).toContain('next-close-theme')
     expect(content.className).toContain('next-instance')

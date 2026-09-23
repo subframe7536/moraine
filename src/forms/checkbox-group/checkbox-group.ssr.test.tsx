@@ -24,8 +24,10 @@ describe('CheckboxGroup SSR Hydration', () => {
       ),
     )
 
-    const root = container.querySelector('[data-slot="root"]')!
-    const controls = Array.from(container.querySelectorAll<HTMLElement>('[data-slot="control"]'))
+    const root = container.querySelector('[data-slot="checkbox-group"]')!
+    const controls = Array.from(
+      container.querySelectorAll<HTMLElement>('[data-slot="checkbox-control"]'),
+    )
 
     expect(root).not.toBeNull()
     expect(new Set(controls.map((control) => control.id)).size).toBe(2)
@@ -40,9 +42,9 @@ describe('CheckboxGroup SSR Hydration', () => {
       'false',
     ])
     expect(
-      Array.from(container.querySelector('[data-slot="fieldset"]')!.children).map((child) =>
-        child.getAttribute('data-slot'),
+      Array.from(container.querySelector('[data-slot="checkbox-group-fieldset"]')!.children).map(
+        (child) => child.getAttribute('data-slot'),
       ),
-    ).toEqual(['legend', 'root', 'root'])
+    ).toEqual(['checkbox-group-legend', 'checkbox-group-item', 'checkbox-group-item'])
   })
 })

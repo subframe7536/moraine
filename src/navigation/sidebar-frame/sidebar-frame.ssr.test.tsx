@@ -49,16 +49,21 @@ test('replaces the SSR desktop layout without retaining duplicate mobile content
     ),
   )
   await waitFor(() =>
-    expect(container.querySelector('[data-slot="sidebar"]')).toHaveProperty('hidden', true),
+    expect(container.querySelector('[data-slot="sidebar-frame-sidebar"]')).toHaveProperty(
+      'hidden',
+      true,
+    ),
   )
   expect(container.querySelectorAll('h1')).toHaveLength(1)
-  expect(container.querySelector('[data-slot="main"] h1')?.textContent).toBe('Main content')
-  expect(container.querySelectorAll('[data-slot="trigger"]')).toHaveLength(1)
-  expect(container.querySelector('[data-slot="trigger"]')?.getAttribute('aria-expanded')).toBe(
-    'false',
+  expect(container.querySelector('[data-slot="sidebar-frame-main"] h1')?.textContent).toBe(
+    'Main content',
   )
+  expect(container.querySelectorAll('[data-slot="sidebar-frame-trigger"]')).toHaveLength(1)
+  expect(
+    container.querySelector('[data-slot="sidebar-frame-trigger"]')?.getAttribute('aria-expanded'),
+  ).toBe('false')
 
-  fireEvent.click(container.querySelector('[data-slot="trigger"]')!)
+  fireEvent.click(container.querySelector('[data-slot="sidebar-frame-trigger"]')!)
   await waitFor(() =>
     expect(document.body.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe(
       'Sidebar navigation',

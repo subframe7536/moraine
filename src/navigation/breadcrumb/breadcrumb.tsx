@@ -41,12 +41,12 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
   return (
     <nav
       ref={(el) => callRef(local.ref, el)}
-      data-slot="root"
+      data-slot="breadcrumb"
       aria-label={rest['aria-label'] ?? 'breadcrumb'}
       {...resolved.styles.root}
       {...rest}
     >
-      <ol data-slot="list" {...resolved.styles.list}>
+      <ol data-slot="breadcrumb-list" {...resolved.styles.list}>
         <For each={items()}>
           {(item, index) => {
             const isCurrent = createMemo(() => index() === currentIndex())
@@ -60,13 +60,13 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
 
             return (
               <>
-                <li data-slot="item" {...resolved.styles.item}>
+                <li data-slot="breadcrumb-item" {...resolved.styles.item}>
                   <Show
                     when={itemRender()}
                     fallback={
                       <Dynamic
                         component={isDisabled() ? 'span' : 'a'}
-                        data-slot={isCurrent() ? 'page' : 'link'}
+                        data-slot={isCurrent() ? 'breadcrumb-page' : 'breadcrumb-link'}
                         {...resolved.styles[isCurrent() ? 'page' : 'link']}
                         role={isDisabled() ? 'link' : undefined}
                         aria-disabled={isDisabled() ? 'true' : undefined}
@@ -82,11 +82,15 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
                       >
                         <Show when={leading()}>
                           {(icon) => (
-                            <Icon name={icon()} slotName="leading" {...resolved.styles.leading} />
+                            <Icon
+                              name={icon()}
+                              slotName="breadcrumb-leading"
+                              {...resolved.styles.leading}
+                            />
                           )}
                         </Show>
                         <Show when={hasLabel()}>
-                          <span data-slot="label" {...resolved.styles.label}>
+                          <span data-slot="breadcrumb-label" {...resolved.styles.label}>
                             {label()}
                           </span>
                         </Show>
@@ -112,7 +116,7 @@ export function Breadcrumb(props: BreadcrumbProps): JSX.Element {
 
                 <Show when={index() < items().length - 1}>
                   <li
-                    data-slot="separator"
+                    data-slot="breadcrumb-separator"
                     role="presentation"
                     aria-hidden="true"
                     {...resolved.styles.separator}

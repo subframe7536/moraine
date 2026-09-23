@@ -92,17 +92,20 @@ export function Accordion(props: AccordionProps): JSX.Element {
     const triggers: HTMLButtonElement[] = []
 
     for (const itemElement of rootElement.children) {
-      if (!(itemElement instanceof HTMLElement) || itemElement.dataset.slot !== 'item') {
+      if (!(itemElement instanceof HTMLElement) || itemElement.dataset.slot !== 'accordion-item') {
         continue
       }
 
       for (const header of itemElement.children) {
-        if (!(header instanceof HTMLElement) || header.dataset.slot !== 'header') {
+        if (!(header instanceof HTMLElement) || header.dataset.slot !== 'accordion-header') {
           continue
         }
 
         for (const trigger of header.children) {
-          if (trigger instanceof HTMLButtonElement && trigger.dataset.slot === 'trigger') {
+          if (
+            trigger instanceof HTMLButtonElement &&
+            trigger.dataset.slot === 'accordion-trigger'
+          ) {
             triggers.push(trigger)
           }
         }
@@ -225,7 +228,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
         callRef(local.ref, element)
       }}
       id={rootId()}
-      data-slot="root"
+      data-slot="accordion"
       {...accordionDataAttributes.root({ disabled: () => merged.disabled })}
       {...resolved.styles.root}
     >
@@ -275,7 +278,11 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
             return (
               <Show when={content()}>
-                {(value) => <div {...resolved.styles.contentInner}>{value()}</div>}
+                {(value) => (
+                  <div data-slot="accordion-body" {...resolved.styles.body}>
+                    {value()}
+                  </div>
+                )}
               </Show>
             )
           }
@@ -373,12 +380,12 @@ export function Accordion(props: AccordionProps): JSX.Element {
 
           return (
             <div
-              data-slot="item"
+              data-slot="accordion-item"
               class={cn(resolved.styles.item.class, item.class)}
               style={resolved.styles.item.style}
               {...itemDataAttrs}
             >
-              <h3 data-slot="header" {...resolved.styles.header}>
+              <h3 data-slot="accordion-header" {...resolved.styles.header}>
                 <button
                   ref={(element) => {
                     triggerElement = element
@@ -388,7 +395,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   aria-controls={expanded() ? contentId() : undefined}
                   aria-expanded={expanded()}
                   disabled={disabled()}
-                  data-slot="trigger"
+                  data-slot="accordion-trigger"
                   {...resolved.styles.trigger}
                   onClick={onTriggerClick}
                   onKeyDown={onTriggerKeyDown}
@@ -404,20 +411,28 @@ export function Accordion(props: AccordionProps): JSX.Element {
                 >
                   <Show when={leading()}>
                     {(value) => (
-                      <Icon name={value()} slotName="leading" {...resolved.styles.leading} />
+                      <Icon
+                        name={value()}
+                        slotName="accordion-leading"
+                        {...resolved.styles.leading}
+                      />
                     )}
                   </Show>
 
                   <Show when={label()}>
                     {(value) => (
-                      <span data-slot="label" {...resolved.styles.label}>
+                      <span data-slot="accordion-label" {...resolved.styles.label}>
                         {value()}
                       </span>
                     )}
                   </Show>
 
                   <Show when={trailing()}>
-                    <Icon name={trailing()} slotName="trailing" {...resolved.styles.trailing} />
+                    <Icon
+                      name={trailing()}
+                      slotName="accordion-trailing"
+                      {...resolved.styles.trailing}
+                    />
                   </Show>
                 </button>
               </h3>
@@ -439,7 +454,7 @@ export function Accordion(props: AccordionProps): JSX.Element {
                   aria-hidden={!expanded() ? true : undefined}
                   hidden={contentHidden()}
                   inert={!expanded() ? true : undefined}
-                  data-slot="content"
+                  data-slot="accordion-content"
                   class={resolved.styles.content.class}
                   style={{
                     get '--mo-collapsible-content-height'() {

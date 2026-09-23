@@ -36,7 +36,7 @@ export type UseSliderProps<TValue extends SliderValue = SliderValue> = {
   orientation?: Orientation
   readOnly?: boolean
   step?: number
-  styles?: { divider?: JSX.CSSProperties }
+  styles?: { mark?: JSX.CSSProperties }
   value?: TValue
   variant?: SliderT.Variant['variant'] | null
 }
@@ -194,7 +194,7 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
 
     return {
       [startEdge]: `${getValuePercent(value) * 100}%`,
-      ...merged.styles?.divider,
+      ...merged.styles?.mark,
     }
   }
   const rangeStyle = createMemo<JSX.CSSProperties>(() => {
@@ -652,14 +652,13 @@ export function useSlider<TValue extends SliderValue = SliderValue>(
       return
     }
 
-    options.onBlur?.(event)
-
     if (suppressNextBlurCommit) {
       suppressNextBlurCommit = false
-      return
+    } else {
+      commitPendingValues()
     }
 
-    commitPendingValues()
+    options.onBlur?.(event)
   }
 
   function getValuePercent(value: number): number {

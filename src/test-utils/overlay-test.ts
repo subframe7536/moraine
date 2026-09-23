@@ -13,10 +13,10 @@ export async function finishExitMotion(
 
   const contents = targetContent
     ? [targetContent]
-    : (Array.from(document.body.querySelectorAll('[data-slot="content"]')) as HTMLElement[])
+    : (Array.from(document.body.querySelectorAll('[data-slot$="-content"]')) as HTMLElement[])
   const overlays = targetOverlay
     ? [targetOverlay]
-    : (Array.from(document.body.querySelectorAll('[data-slot="overlay"]')) as HTMLElement[])
+    : (Array.from(document.body.querySelectorAll('[data-slot$="-overlay"]')) as HTMLElement[])
 
   for (const content of contents) {
     fireEvent.animationEnd(content)
@@ -36,7 +36,7 @@ export async function finishMenuExitMotion(): Promise<void> {
   await Promise.resolve()
 
   const contents = Array.from(
-    document.body.querySelectorAll('[data-slot="content"]'),
+    document.body.querySelectorAll('[data-slot$="-content"]'),
   ) as HTMLElement[]
   for (const content of contents) {
     fireEvent.animationEnd(content)

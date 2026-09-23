@@ -279,7 +279,7 @@ export function Tabs(props: TabsProps): JSX.Element {
     <div
       {...rest}
       id={rootId()}
-      data-slot="root"
+      data-slot="tabs"
       {...tabsDataAttributes.root({ disabled: () => merged.disabled })}
       {...resolved.styles.root}
     >
@@ -287,12 +287,12 @@ export function Tabs(props: TabsProps): JSX.Element {
         ref={(e) => (listRef = e)}
         role="tablist"
         aria-orientation={merged.orientation ?? undefined}
-        data-slot="list"
+        data-slot="tabs-list"
         {...resolved.styles.list}
       >
         <div
           aria-hidden="true"
-          data-slot="indicator"
+          data-slot="tabs-indicator"
           style={{ ...indicatorStyle(), ...resolved.styles.indicator.style }}
           class={resolved.styles.indicator.class}
         />
@@ -334,7 +334,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                   disabled: () => Boolean(merged.disabled || item.disabled),
                 })}
                 disabled={Boolean(merged.disabled || item.disabled)}
-                data-slot="trigger"
+                data-slot="tabs-trigger"
                 {...resolved.styles.trigger}
                 onClick={() => {
                   setHighlightedKey(item.instanceKey)
@@ -346,13 +346,13 @@ export function Tabs(props: TabsProps): JSX.Element {
                 }}
               >
                 <Show when={item.icon}>
-                  <span data-slot="leading" {...resolved.styles.leading}>
+                  <span data-slot="tabs-leading" {...resolved.styles.leading}>
                     <Icon name={item.icon} />
                   </span>
                 </Show>
 
                 <Show when={typeof item.label === 'string'} fallback={item.label}>
-                  <span data-slot="label" {...resolved.styles.label}>
+                  <span data-slot="tabs-label" {...resolved.styles.label}>
                     {item.label}
                   </span>
                 </Show>
@@ -374,7 +374,7 @@ export function Tabs(props: TabsProps): JSX.Element {
                 tabIndex={0}
                 aria-labelledby={getTriggerId(item.instanceKey)}
                 {...tabsDataAttributes.content({ selected: true })}
-                data-slot="content"
+                data-slot="tabs-content"
                 {...resolved.styles.content}
               >
                 {item.content}

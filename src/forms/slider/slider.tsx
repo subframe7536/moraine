@@ -124,7 +124,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
       ref={(element) => callRef(local.ref, element)}
       id={`${field.id()}-root`}
       role="group"
-      data-slot="root"
+      data-slot="slider"
       {...sliderDataAttributes.root({
         dragging: slider.dragging,
         disabled: field.disabled,
@@ -141,7 +141,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         ref={(element) => {
           slider.setTrackRef(element)
         }}
-        data-slot="track"
+        data-slot="slider-track"
         {...resolved.styles.track}
         onPointerDown={slider.onTrackPointerDown}
         onPointerMove={slider.onTrackPointerMove}
@@ -150,7 +150,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
         onLostPointerCapture={slider.onPointerCancel}
       >
         <div
-          data-slot="range"
+          data-slot="slider-range"
           {...sliderDataAttributes.range({
             multiple: () => slider.currentValues().length > 1,
             inverted: () => merged.inverted,
@@ -169,16 +169,16 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
           <For each={slider.dividerIndexes()}>
             {(dividerIndex) => (
               <div
-                data-slot="divider"
+                data-slot="slider-mark"
                 style={{
                   left: slider.getDividerStyle(dividerIndex).left,
                   right: slider.getDividerStyle(dividerIndex).right,
                   top: slider.getDividerStyle(dividerIndex).top,
                   bottom: slider.getDividerStyle(dividerIndex).bottom,
                   ...slider.getDividerStyle(dividerIndex),
-                  ...resolved.styles.divider.style,
+                  ...resolved.styles.mark.style,
                 }}
-                class={resolved.styles.divider.class}
+                class={resolved.styles.mark.class}
               />
             )}
           </For>
@@ -198,7 +198,7 @@ export function Slider<TValue extends SliderT.Value = SliderT.Value>(
                 field.setControlRef(element)
               }
             }}
-            data-slot="thumb"
+            data-slot="slider-thumb"
             {...sliderDataAttributes.thumb({
               inverted: () => merged.inverted,
               dragging: () => slider.dragging() && slider.activeThumbIndexState() === thumbIndex,

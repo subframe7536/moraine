@@ -14,7 +14,7 @@ export interface OverlayMenuStyleSlot<T = unknown> {
   group?: T
 
   /** Heading text for a menu group. */
-  label?: T
+  groupLabel?: T
 
   /** Non-interactive divider between menu sections. */
   separator?: T

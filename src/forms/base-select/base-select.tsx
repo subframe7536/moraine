@@ -2,7 +2,6 @@ import type { Accessor, JSX } from 'solid-js'
 import {
   batch,
   children as resolveChildren,
-  createContext,
   createEffect,
   createMemo,
   createSignal,
@@ -13,7 +12,6 @@ import {
   onCleanup,
   splitProps,
   untrack,
-  useContext,
 } from 'solid-js'
 import { Dynamic, Portal } from 'solid-js/web'
 
@@ -21,6 +19,8 @@ import { useFloatingPosition } from '../../overlays/base/floating.ts'
 import { useOverlayInteraction } from '../../overlays/base/interaction.ts'
 import { acquireBodyScrollLock } from '../../overlays/base/utils.ts'
 import { createStyles } from '../../provider/create-styles.ts'
+import { createContextProvider } from '../../shared/create-context-provider.tsx'
+import { dataSlotName } from '../../shared/data-slot.ts'
 import { HiddenInput } from '../../shared/hidden-input.tsx'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { createTypeahead } from '../../shared/typeahead.ts'
@@ -54,7 +54,11 @@ function selectionToFormValue<T extends BaseSelectValue>(
   return multiple ? [...values] : (values[0] ?? null)
 }
 
-function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>) {
+function createSelectState<T extends BaseSelectT.Item>(
+  props: BaseSelectProps<T>,
+  slotOwner: Accessor<string>,
+) {
+  const slotName = (slot: string) => dataSlotName(slotOwner(), slot)
   type Value = readonly T['value'][]
   const normalize = (values: Value): T['value'][] =>
     normalizeSelection(values, props.multiple === true)
@@ -374,6 +378,7 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
     itemId,
     field,
     stylePresentation,
+    slotName,
     get styleSize() {
       return styleState.variants.size
     },
@@ -429,27 +434,30 @@ function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>
 }
 
 type SelectState<T extends BaseSelectT.Item> = ReturnType<typeof createSelectState<T>>
-const SelectContext = createContext<SelectState<BaseSelectT.Item>>()
+const [SelectProvider, useSelectContext] =
+  createContextProvider<SelectState<BaseSelectT.Item>>('BaseSelect')
 /** Accesses BaseSelect state when composing custom controls. */
 export function useSelectState<T extends BaseSelectT.Item = BaseSelectT.Item>(): SelectState<T> {
-  const context = useContext(SelectContext)
-  if (!context) {
-    throw new Error('[Moraine BaseSelect] Parts must be used within BaseSelect.')
-  }
   // Solid context erases the item generic; the root and its parts share the same T.
-  return context as unknown as SelectState<T>
+  return useSelectContext() as unknown as SelectState<T>
 }
 
 /** Public selection primitive for a flat navigation collection. */
 export function BaseSelect<T extends BaseSelectT.Item = BaseSelectT.Item>(
   props: BaseSelectProps<T>,
 ): JSX.Element {
-  const state = createSelectState(props)
+  return <BaseSelectRoot {...props} slotOwner="base-select" />
+}
+
+export function BaseSelectRoot<T extends BaseSelectT.Item = BaseSelectT.Item>(
+  props: BaseSelectProps<T> & { slotOwner: string },
+): JSX.Element {
+  const state = createSelectState(props, () => props.slotOwner)
   return (
-    <SelectContext.Provider value={state as unknown as SelectState<BaseSelectT.Item>}>
+    <SelectProvider value={state as unknown as SelectState<BaseSelectT.Item>}>
       {props.children}
       {state.formControls()}
-    </SelectContext.Provider>
+    </SelectProvider>
   )
 }
 
@@ -464,7 +472,7 @@ function BaseSelectControl(props: BaseSelectT.ControlProps): JSX.Element {
   return (
     <div
       {...rest}
-      data-slot="control"
+      data-slot={state.slotName('control')}
       {...baseSelectDataAttributes.control({
         disabled: state.field.disabled,
         readonly: state.field.readOnly,
@@ -565,7 +573,7 @@ function BaseSelectTrigger<
       {...state.field.ariaAttrs()}
       id={state.field.id()}
       role="combobox"
-      data-slot="trigger"
+      data-slot={state.slotName('trigger')}
       {...baseSelectDataAttributes.trigger({
         invalid: state.field.invalid,
         expanded: state.open,
@@ -676,10 +684,10 @@ function BaseSelectContent(props: BaseSelectT.ContentProps): JSX.Element {
   return (
     <Show when={presence.present()}>
       <Portal mount={(state.anchor() ?? state.focusOwner())?.ownerDocument.body}>
-        <div data-slot="positioner" ref={setPositioner}>
+        <div data-slot={state.slotName('positioner')} ref={setPositioner}>
           <div
             {...rest}
-            data-slot="content"
+            data-slot={state.slotName('content')}
             {...baseSelectDataAttributes.content({
               expanded: () => presence.dataAttrs()['data-expanded'],
               closed: () => presence.dataAttrs()['data-closed'],
@@ -731,7 +739,7 @@ function BaseSelectListbox(props: BaseSelectPartProps): JSX.Element {
       id={state.listboxId()}
       role="listbox"
       tabIndex={-1}
-      data-slot="listbox"
+      data-slot={state.slotName('listbox')}
       aria-readonly={state.field.readOnly() || undefined}
       aria-multiselectable={state.props.multiple ? 'true' : undefined}
       ref={(element) => {
@@ -799,7 +807,7 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
       id={state.itemId(item().value)}
       role="option"
       tabIndex={-1}
-      data-slot="item"
+      data-slot={state.slotName('item')}
       aria-selected={selected() ? 'true' : 'false'}
       aria-disabled={disabled() || undefined}
       {...baseSelectDataAttributes.item({
@@ -841,10 +849,10 @@ function BaseSelectItem<T extends BaseSelectT.Item>(props: BaseSelectT.ItemProps
     </div>
   )
 }
-const GroupContext = createContext<{
+const [GroupProvider, useGroupContext] = createContextProvider<{
   labelId: Accessor<string | undefined>
   setLabelId: (id: string | undefined) => void
-}>()
+} | null>('BaseSelectGroup', null)
 function BaseSelectGroup(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectState()
   const [labelId, setLabelId] = createSignal<string>()
@@ -854,22 +862,22 @@ function BaseSelectGroup(props: BaseSelectPartProps): JSX.Element {
     inheritedVariants: () => ({ size: state.styleSize }),
   })
   return (
-    <GroupContext.Provider value={{ labelId, setLabelId }}>
+    <GroupProvider value={{ labelId, setLabelId }}>
       <div
         {...props}
         role="group"
         aria-labelledby={labelId() ?? props['aria-labelledby']}
-        data-slot="group"
+        data-slot={state.slotName('group')}
         {...resolved.styles.group}
       >
         {props.children}
       </div>
-    </GroupContext.Provider>
+    </GroupProvider>
   )
 }
 function BaseSelectGroupLabel(props: BaseSelectPartProps): JSX.Element {
   const state = useSelectState()
-  const group = useContext(GroupContext)
+  const group = useGroupContext()
   const id = useId(() => props.id, 'select-group-label')
   const resolved = createStyles(baseSelectRecipe, props, {
     rootSlot: 'groupLabel',
@@ -883,7 +891,12 @@ function BaseSelectGroupLabel(props: BaseSelectPartProps): JSX.Element {
     }),
   )
   return (
-    <div {...props} id={id()} data-slot="groupLabel" {...resolved.styles.groupLabel}>
+    <div
+      {...props}
+      id={id()}
+      data-slot={state.slotName('groupLabel')}
+      {...resolved.styles.groupLabel}
+    >
       {props.children}
     </div>
   )
@@ -900,7 +913,7 @@ function BaseSelectSeparator(props: BaseSelectPartProps): JSX.Element {
       {...props}
       role="presentation"
       aria-hidden="true"
-      data-slot="separator"
+      data-slot={state.slotName('separator')}
       {...resolved.styles.separator}
     />
   )
@@ -914,7 +927,7 @@ function BaseSelectEmpty(props: BaseSelectPartProps): JSX.Element {
   })
   return (
     <Show when={state.items().length === 0}>
-      <div {...props} data-slot="empty" {...resolved.styles.empty}>
+      <div {...props} data-slot={state.slotName('empty')} {...resolved.styles.empty}>
         {props.children}
       </div>
     </Show>

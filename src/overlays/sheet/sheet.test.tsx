@@ -35,7 +35,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')
+    const content = document.body.querySelector('[data-slot="sheet-content"]')
 
     expect(content?.hasAttribute('data-side')).toBe(false)
     expect(content?.className).toContain(expectedClass)
@@ -72,7 +72,7 @@ describe('Sheet', () => {
     await finishExitMotion()
     await waitFor(() => {
       expect(cleanups).toBe(1)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
     })
 
     setOpen(true)
@@ -125,7 +125,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')
+    const content = document.body.querySelector('[data-slot="sheet-content"]')
 
     expect(content?.className).toContain('sm:m-4 sm:border sm:border-border sm:rounded-2xl')
     expect(content?.hasAttribute('data-transition')).toBe(false)
@@ -151,7 +151,7 @@ describe('Sheet', () => {
     expect(document.body.textContent).toContain('Panel description')
     expect(document.body.textContent).toContain('Sheet body')
     expect(document.body.textContent).toContain('Sheet footer')
-    expect(document.body.querySelector('[data-slot="contentClose"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-content-close"]')).not.toBeNull()
   })
 
   test('only references mounted default title and description nodes', () => {
@@ -161,13 +161,13 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
     expectAriaReferencesToResolve(content)
     expect(content.getAttribute('aria-labelledby')).toBe(
-      document.body.querySelector('[data-slot="title"]')?.id,
+      document.body.querySelector('[data-slot="sheet-title"]')?.id,
     )
     expect(content.getAttribute('aria-describedby')).toBe(
-      document.body.querySelector('[data-slot="description"]')?.id,
+      document.body.querySelector('[data-slot="sheet-description"]')?.id,
     )
   })
 
@@ -184,7 +184,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
     expect(content.getAttribute('aria-label')).toBe('Account panel')
     expect(content.getAttribute('aria-labelledby')).toBeNull()
     expect(content.getAttribute('aria-describedby')).toBeNull()
@@ -210,7 +210,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
     expect(content.getAttribute('aria-label')).toBe('Native sheet label')
     expect(content.getAttribute('aria-labelledby')).toBe('custom-sheet-title')
     expect(content.getAttribute('aria-describedby')).toBe('custom-sheet-description')
@@ -233,7 +233,7 @@ describe('Sheet', () => {
     await Promise.resolve()
     await Promise.resolve()
 
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
     expect(content.getAttribute('aria-modal')).toBeNull()
     expect(outside.getAttribute('aria-hidden')).toBeNull()
     expect(document.body.style.overflow).toBe('')
@@ -248,11 +248,11 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    expect(document.body.querySelector('[data-slot="title"]')?.textContent).toBe('0')
-    expect(document.body.querySelector('[data-slot="description"]')?.textContent).toBe('0')
-    expect(document.body.querySelector('[data-slot="body"]')?.textContent).toBe('0')
-    expect(document.body.querySelector('[data-slot="footer"]')?.textContent).toBe('0')
-    expectAriaReferencesToResolve(document.body.querySelector('[data-slot="content"]')!)
+    expect(document.body.querySelector('[data-slot="sheet-title"]')?.textContent).toBe('0')
+    expect(document.body.querySelector('[data-slot="sheet-description"]')?.textContent).toBe('0')
+    expect(document.body.querySelector('[data-slot="sheet-body"]')?.textContent).toBe('0')
+    expect(document.body.querySelector('[data-slot="sheet-footer"]')?.textContent).toBe('0')
+    expectAriaReferencesToResolve(document.body.querySelector('[data-slot="sheet-content"]')!)
   })
 
   test.each([
@@ -273,7 +273,7 @@ describe('Sheet', () => {
         </Sheet>
       ))
 
-      const content = document.body.querySelector('[data-slot="content"]')!
+      const content = document.body.querySelector('[data-slot="sheet-content"]')!
       expect(Boolean(content.getAttribute('aria-labelledby'))).toBe(hasLabelledBy)
       expect(Boolean(content.getAttribute('aria-describedby'))).toBe(hasDescribedBy)
       expect(content.getAttribute('aria-label')).toBe(ariaLabel ?? null)
@@ -287,10 +287,10 @@ describe('Sheet', () => {
         <Sheet.Content title="" description="" body="" footer="" close={false} />
       </Sheet>
     ))
-    expect(document.body.querySelector('[data-slot="title"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-slot="description"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-slot="body"]')).not.toBeNull()
-    expect(document.body.querySelector('[data-slot="footer"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-title"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-description"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-body"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-footer"]')).not.toBeNull()
     empty.unmount()
 
     render(() => (
@@ -304,9 +304,9 @@ describe('Sheet', () => {
         />
       </Sheet>
     ))
-    expect(document.body.querySelector('[data-slot="header"]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="body"]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="footer"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-header"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-body"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-footer"]')).toBeNull()
   })
 
   test('evaluates every getter-backed shell JSX prop once', () => {
@@ -384,7 +384,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]')!
+    const content = document.body.querySelector('[data-slot="sheet-content"]')!
     expect(content.hasAttribute('data-side')).toBe(false)
     expect(content.className).toContain('left-0')
     expect(content.className).toContain('rounded-none')
@@ -394,7 +394,7 @@ describe('Sheet', () => {
     setInset(true)
     setTransition(false)
 
-    expect(document.body.querySelector('[data-slot="content"]')).toBe(content)
+    expect(document.body.querySelector('[data-slot="sheet-content"]')).toBe(content)
     expect(content.hasAttribute('data-side')).toBe(false)
     expect(content.className).toContain('right-0')
     expect(content.className).toContain('sm:m-4 sm:border sm:border-border sm:rounded-2xl')
@@ -411,12 +411,12 @@ describe('Sheet', () => {
     await waitFor(() => {
       expect(document.body.style.overflow).toBe('hidden')
     })
-    fireEvent.click(document.body.querySelector('[data-slot="contentClose"]')!)
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    fireEvent.click(document.body.querySelector('[data-slot="sheet-content-close"]')!)
+    expect(document.body.querySelector('[data-slot="sheet-content"]')).not.toBeNull()
 
     screen.unmount()
 
-    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
     expect(document.body.style.overflow).toBe('')
   })
 
@@ -430,7 +430,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    const trigger = document.body.querySelector('[data-slot="trigger"]')
+    const trigger = document.body.querySelector('[data-slot="sheet-trigger"]')
 
     expect(trigger?.tagName).toBe('BUTTON')
     expect(trigger?.getAttribute('type')).toBe('button')
@@ -444,7 +444,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    expect(document.body.querySelector('[data-slot="trigger"]')?.tagName).toBe('SPAN')
+    expect(document.body.querySelector('[data-slot="sheet-trigger"]')?.tagName).toBe('SPAN')
   })
 
   test('supports custom close content', () => {
@@ -471,7 +471,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    const automatic = document.body.querySelector<HTMLElement>('[data-slot="contentClose"]')!
+    const automatic = document.body.querySelector<HTMLElement>('[data-slot="sheet-content-close"]')!
     const explicit = screen.getByTestId('explicit-sheet-close')
     expect(automatic.className).toContain('automatic-close')
     expect(automatic.className).toContain('absolute')
@@ -490,9 +490,9 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    const header = document.body.querySelector('[data-slot="header"]') as HTMLElement
-    const body = document.body.querySelector('[data-slot="body"]') as HTMLElement
-    const footer = document.body.querySelector('[data-slot="footer"]') as HTMLElement
+    const header = document.body.querySelector('[data-slot="sheet-header"]') as HTMLElement
+    const body = document.body.querySelector('[data-slot="sheet-body"]') as HTMLElement
+    const footer = document.body.querySelector('[data-slot="sheet-footer"]') as HTMLElement
 
     expect(header.className).toContain('p-4')
     expect(body.className).toContain('px-4')
@@ -512,7 +512,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    expect(document.body.querySelector('[data-slot="contentClose"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-content-close"]')).toBeNull()
   })
 
   test('renders body content and keeps shell sections', () => {
@@ -546,24 +546,26 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
 
     fireEvent.click(screen.getByText('Open sheet'))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="sheet-content"]')).not.toBeNull()
     })
 
-    const closeButton = document.body.querySelector('[data-slot="contentClose"]') as HTMLElement
+    const closeButton = document.body.querySelector(
+      '[data-slot="sheet-content-close"]',
+    ) as HTMLElement
     fireEvent.click(closeButton)
 
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-content"]')).not.toBeNull()
 
     await finishExitMotion()
 
     await waitFor(() => {
       expect(onOpenChange).toHaveBeenCalledWith(false)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
     })
   })
 
@@ -577,8 +579,8 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    expect(screen.container.querySelector('[data-slot="content"]')).toBeNull()
-    expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+    expect(screen.container.querySelector('[data-slot="sheet-content"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-content"]')).not.toBeNull()
   })
 
   test('supports overlay=false', () => {
@@ -591,7 +593,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    expect(document.body.querySelector('[data-slot="overlay"]')).toBeNull()
+    expect(document.body.querySelector('[data-slot="sheet-overlay"]')).toBeNull()
   })
 
   test('preserves Modal overlay behavior when an instance slot overrides the backdrop', () => {
@@ -601,7 +603,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
+    const overlay = document.body.querySelector('[data-slot="sheet-overlay"]') as HTMLElement
     expect(overlay.className).toContain('fixed')
     expect(overlay.className).toContain('inset-0')
     expect(overlay.className).toContain('z-floating')
@@ -626,7 +628,7 @@ describe('Sheet', () => {
       </MoraineProvider>
     ))
 
-    const overlay = document.body.querySelector('[data-slot="overlay"]') as HTMLElement
+    const overlay = document.body.querySelector('[data-slot="sheet-overlay"]') as HTMLElement
     expect(overlay.className).toContain('fixed')
     expect(overlay.className).toContain('inset-0')
     expect(overlay.className).toContain('z-floating')
@@ -650,13 +652,13 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="sheet-content"]') as HTMLElement
     content.focus()
     fireEvent.keyDown(content, { key: 'Escape' })
 
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="sheet-content"]')).not.toBeNull()
     })
   })
 
@@ -682,7 +684,7 @@ describe('Sheet', () => {
 
     await waitFor(() => {
       expect(onClosePrevent).toHaveBeenCalledTimes(1)
-      expect(document.body.querySelector('[data-slot="content"]')).not.toBeNull()
+      expect(document.body.querySelector('[data-slot="sheet-content"]')).not.toBeNull()
     })
   })
 
@@ -699,7 +701,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement
+    const content = document.body.querySelector('[data-slot="sheet-content"]') as HTMLElement
     content.focus()
     fireEvent.keyDown(content, { key: 'Escape' })
 
@@ -708,7 +710,7 @@ describe('Sheet', () => {
     await waitFor(() => {
       expect(onClosePrevent).not.toHaveBeenCalled()
       expect(onOpenChange).toHaveBeenCalledWith(false)
-      expect(document.body.querySelector('[data-slot="content"]')).toBeNull()
+      expect(document.body.querySelector('[data-slot="sheet-content"]')).toBeNull()
     })
   })
 
@@ -720,7 +722,9 @@ describe('Sheet', () => {
     ))
 
     await waitFor(() => {
-      expect(document.body.querySelector('[data-slot="content"]')?.textContent).toContain('Body')
+      expect(document.body.querySelector('[data-slot="sheet-content"]')?.textContent).toContain(
+        'Body',
+      )
     })
   })
 
@@ -734,7 +738,7 @@ describe('Sheet', () => {
       </Sheet>
     ))
 
-    const content = document.body.querySelector('[data-slot="content"]') as HTMLElement | null
+    const content = document.body.querySelector('[data-slot="sheet-content"]') as HTMLElement | null
     expect(content?.style.width).toBe('200px')
   })
 })

@@ -21,7 +21,7 @@ export function InputGroupLeading(props: InputGroupT.LeadingProps): JSX.Element 
   return (
     <div
       {...rest}
-      data-slot="leading"
+      data-slot="input-group-leading"
       {...inputGroupDataAttributes.leading({
         orientation: () => group.orientation,
         compact: () => resolved.variants.compact,
@@ -47,7 +47,7 @@ export function InputGroupTrailing(props: InputGroupT.TrailingProps): JSX.Elemen
   return (
     <div
       {...rest}
-      data-slot="trailing"
+      data-slot="input-group-trailing"
       {...inputGroupDataAttributes.trailing({
         orientation: () => group.orientation,
         compact: () => resolved.variants.compact,
