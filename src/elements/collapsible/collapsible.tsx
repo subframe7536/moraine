@@ -118,11 +118,9 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
         return local.styles
       },
     },
-    rootId,
     triggerId,
     contentId,
     open,
-    setOpen,
     toggle: toggleContent,
     disabled,
     transition,

@@ -5,7 +5,7 @@ import { Icon } from '../../elements/icon/index.ts'
 import { createStyles } from '../../provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callRef } from '../../shared/utils.ts'
-import { BaseSelect, SelectSlotOwner, useSelectState } from '../base-select/base-select.tsx'
+import { BaseSelect, BaseSelectRoot, useSelectState } from '../base-select/base-select.tsx'
 import { useFieldContext } from '../field/field-context.ts'
 import {
   createSource,
@@ -131,22 +131,21 @@ export function Select<T extends string | SelectT.Item = string | SelectT.Item>(
   }
 
   return (
-    <SelectSlotOwner value="select">
-      <BaseSelect<SelectT.NormalizedItem<T>>
-        {...baseSelectProps}
-        items={source().items}
-        serializeValue={(value) => serializeSourceValue(source(), value)}
-        value={selection()}
-        defaultValue={defaultSelection()}
-        onChange={(values) => local.onChange?.(values[0] ?? null)}
-        onReset={local.onReset}
-        multiple={false}
-        size={styles.variants.size ?? undefined}
-        classes={baseSelectStyles.classes()}
-        styles={baseSelectStyles.styles()}
-      >
-        <Control />
-      </BaseSelect>
-    </SelectSlotOwner>
+    <BaseSelectRoot<SelectT.NormalizedItem<T>>
+      slotOwner="select"
+      {...baseSelectProps}
+      items={source().items}
+      serializeValue={(value) => serializeSourceValue(source(), value)}
+      value={selection()}
+      defaultValue={defaultSelection()}
+      onChange={(values) => local.onChange?.(values[0] ?? null)}
+      onReset={local.onReset}
+      multiple={false}
+      size={styles.variants.size ?? undefined}
+      classes={baseSelectStyles.classes()}
+      styles={baseSelectStyles.styles()}
+    >
+      <Control />
+    </BaseSelectRoot>
   )
 }

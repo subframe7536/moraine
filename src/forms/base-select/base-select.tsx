@@ -54,15 +54,11 @@ function selectionToFormValue<T extends BaseSelectValue>(
   return multiple ? [...values] : (values[0] ?? null)
 }
 
-const [SelectSlotOwner, useSelectSlotOwner] = createContextProvider<string>(
-  'SelectSlotOwner',
-  'base-select',
-)
-export { SelectSlotOwner }
-
-function createSelectState<T extends BaseSelectT.Item>(props: BaseSelectProps<T>) {
-  const slotOwner = useSelectSlotOwner()
-  const slotName = (slot: string) => dataSlotName(slotOwner, slot)
+function createSelectState<T extends BaseSelectT.Item>(
+  props: BaseSelectProps<T>,
+  slotOwner: Accessor<string>,
+) {
+  const slotName = (slot: string) => dataSlotName(slotOwner(), slot)
   type Value = readonly T['value'][]
   const normalize = (values: Value): T['value'][] =>
     normalizeSelection(values, props.multiple === true)
@@ -450,13 +446,17 @@ export function useSelectState<T extends BaseSelectT.Item = BaseSelectT.Item>():
 export function BaseSelect<T extends BaseSelectT.Item = BaseSelectT.Item>(
   props: BaseSelectProps<T>,
 ): JSX.Element {
-  const state = createSelectState(props)
+  return <BaseSelectRoot {...props} slotOwner="base-select" />
+}
+
+export function BaseSelectRoot<T extends BaseSelectT.Item = BaseSelectT.Item>(
+  props: BaseSelectProps<T> & { slotOwner: string },
+): JSX.Element {
+  const state = createSelectState(props, () => props.slotOwner)
   return (
     <SelectProvider value={state as unknown as SelectState<BaseSelectT.Item>}>
-      <SelectSlotOwner value="base-select">
-        {props.children}
-        {state.formControls()}
-      </SelectSlotOwner>
+      {props.children}
+      {state.formControls()}
     </SelectProvider>
   )
 }

@@ -33,16 +33,10 @@ export interface FieldContextOptions {
   path?: FieldPath
   binding?: FieldBinding
   size?: ComponentSize | null
-  hint?: JSX.Element
-  description?: JSX.Element
-  help?: JSX.Element
-  ariaId: string
-  labelId?: string
   required?: boolean
   disabled?: boolean
   readOnly?: boolean
   ariaAttrs?: Accessor<Record<string, string | boolean | undefined>>
-  controlId?: string
   registerControl?: (entry: { id: Accessor<string>; bind: Accessor<boolean> }) => () => void
 }
 

@@ -465,7 +465,7 @@ describe('Slider', () => {
       setValue: vi.fn(),
     }
     const screen = render(() => (
-      <FieldProvider value={{ ariaId: 'range-field', binding }}>
+      <FieldProvider value={{ binding }}>
         <Slider defaultValue={[20, 80]} onChange={onChange} />
       </FieldProvider>
     ))

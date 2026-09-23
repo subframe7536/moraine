@@ -10,7 +10,7 @@ import { FieldProvider, useFormField } from './field-context'
 
 function HookProbe(props: { binding?: FieldBinding }) {
   return (
-    <FieldProvider value={{ ariaId: 'probe', binding: props.binding, error: props.binding?.error }}>
+    <FieldProvider value={{ binding: props.binding, error: props.binding?.error }}>
       <Probe />
     </FieldProvider>
   )
@@ -156,7 +156,7 @@ describe('Field', () => {
       const [replacement, setReplacement] = createSignal(false)
       replace = () => setReplacement(true)
       return (
-        <FieldProvider value={{ ariaId: 'dynamic', binding }}>
+        <FieldProvider value={{ binding }}>
           <DynamicProbe replacement={replacement()} />
         </FieldProvider>
       )

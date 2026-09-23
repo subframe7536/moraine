@@ -197,7 +197,7 @@ describe('RadioGroup', () => {
     }
     const screen = render(() => (
       <>
-        <FieldProvider value={{ ariaId: 'plan-field', binding }}>
+        <FieldProvider value={{ binding }}>
           <RadioGroup items={['A', 'B']} />
         </FieldProvider>
         <button type="button">Outside</button>

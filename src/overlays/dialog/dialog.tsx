@@ -6,9 +6,9 @@ import { createStyles } from '../../provider'
 import { createLazyMemo } from '../../shared/create-lazy-memo'
 import { hasJsxContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types.ts'
-import { Modal } from '../modal/modal'
+import { Modal, ModalRoot } from '../modal/modal'
 import { ModalSurface } from '../modal/modal-content'
-import { ModalSlotOwner, useModalContext } from '../modal/modal-context'
+import { useModalContext } from '../modal/modal-context'
 
 import { DialogPresentationProvider, useDialogPresentation } from './dialog-context'
 import { dialogDataAttributes, dialogRecipe } from './dialog.recipe'
@@ -25,9 +25,9 @@ export function Dialog(props: DialogProps): JSX.Element {
         },
       }}
     >
-      <ModalSlotOwner value="dialog">
-        <Modal {...rest}>{local.children}</Modal>
-      </ModalSlotOwner>
+      <ModalRoot {...rest} slotOwner="dialog">
+        {local.children}
+      </ModalRoot>
     </DialogPresentationProvider>
   )
 }

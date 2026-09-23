@@ -31,7 +31,6 @@ import type { PopoverProps, PopoverT } from './popover.types'
 const [PopoverProvider, usePopoverContext] = createContextProvider<{
   options: PopoverProps
   popper: ReturnType<typeof createPopper>
-  mode: () => PopoverT.Props['mode']
   scheduleOpen: () => void
   scheduleClose: () => void
   clearCloseTimer: () => void
@@ -161,7 +160,6 @@ export function Popover(props: PopoverProps): JSX.Element {
   const behavior: ReturnType<typeof usePopoverContext> = {
     options: merged,
     popper,
-    mode: () => merged.mode,
     scheduleOpen,
     scheduleClose,
     clearCloseTimer,
@@ -188,7 +186,7 @@ function PopoverTrigger<T extends ValidComponent = 'button'>(
     mergePopperElementProps<HTMLElement>(
       {
         onClick: () => {
-          if (context.mode() === 'hover') {
+          if (context.options.mode === 'hover') {
             context.invalidateHoverTimers()
             if (!popper.isOpen()) {
               popper.setOpen(true)
@@ -199,7 +197,7 @@ function PopoverTrigger<T extends ValidComponent = 'button'>(
         onBlur: context.scheduleClose,
         onKeyDown: (event) => {
           if (
-            context.mode() !== 'hover' ||
+            context.options.mode !== 'hover' ||
             event.key !== 'Tab' ||
             event.shiftKey ||
             !popper.isOpen()
@@ -234,7 +232,7 @@ function PopoverTrigger<T extends ValidComponent = 'button'>(
     {
       context: popper,
       get toggleOnClick() {
-        return context.mode() === 'click'
+        return context.options.mode === 'click'
       },
     },
   ) as PopperTriggerProps<T> & { context: ReturnType<typeof createPopper> }
@@ -256,13 +254,13 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
   const behavior = usePopoverContext()
   const contentEvents: JSX.HTMLAttributes<HTMLDivElement> = {
     onFocus: () => {
-      if (behavior.mode() === 'hover') {
+      if (behavior.options.mode === 'hover') {
         behavior.clearCloseTimer()
       }
     },
     onBlur: behavior.scheduleClose,
     onKeyDown: (event) => {
-      if (behavior.mode() !== 'hover' || event.key !== 'Tab') {
+      if (behavior.options.mode !== 'hover' || event.key !== 'Tab') {
         return
       }
 
@@ -307,7 +305,7 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
       behavior.scheduleClose()
     },
     onPointerEnter: (event) => {
-      if (behavior.mode() === 'hover' && event.pointerType === 'mouse') {
+      if (behavior.options.mode === 'hover' && event.pointerType === 'mouse') {
         behavior.clearCloseTimer()
       }
     },
@@ -325,7 +323,7 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
   return (
     <PopperContent
       context={behavior.popper}
-      closeOnOutsideFocus={behavior.mode() === 'click'}
+      closeOnOutsideFocus={behavior.options.mode === 'click'}
       align={behavior.options.align}
       placement={behavior.options.placement}
       forceMount={behavior.options.forceMount}

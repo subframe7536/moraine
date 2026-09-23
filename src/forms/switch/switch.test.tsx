@@ -98,7 +98,7 @@ describe('Switch', () => {
       setValue: vi.fn(),
     }
     const screen = render(() => (
-      <FieldProvider value={{ ariaId: 'switch-field', binding }}>
+      <FieldProvider value={{ binding }}>
         <Switch label="Bound switch" onChange={onChange} />
       </FieldProvider>
     ))

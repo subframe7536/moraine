@@ -17,14 +17,17 @@ import {
 
 import { ModalClose } from './modal-close'
 import { ModalContent } from './modal-content'
-import { ModalProvider, ModalSlotOwner, useModalSlotOwner } from './modal-context'
+import { ModalProvider } from './modal-context'
 import { ModalOverlay } from './modal-overlay'
 import { ModalTrigger } from './modal-trigger'
 import type { ModalProps } from './modal.types'
 
 /** Low-level modal primitives for composing custom dialog surfaces. */
 export function Modal(props: ModalProps): JSX.Element {
-  const owner = useModalSlotOwner()
+  return <ModalRoot {...props} slotOwner="modal" />
+}
+
+export function ModalRoot(props: ModalProps & { slotOwner: string }): JSX.Element {
   const rootId = useId(() => props.id, 'modal')
   const contentId = createMemo(() => `${rootId()}-content`)
   const [open, setOpen] = useControllableValue<boolean>({
@@ -40,7 +43,6 @@ export function Modal(props: ModalProps): JSX.Element {
   const dismissible = createMemo(() => props.dismissible ?? true)
   const contentMounted = createMemo(() => contentRegistrations().size > 0)
   const isPresent = createMemo(() => contentMounted() && presence.present())
-  const contentPresent = isPresent
   const shouldContainFocus = () => {
     for (const trapFocus of contentTrapFocus.values()) {
       if (trapFocus()) {
@@ -262,7 +264,7 @@ export function Modal(props: ModalProps): JSX.Element {
   })
 
   const context = {
-    slotName: (slot: string) => dataSlotName(owner, slot),
+    slotName: (slot: string) => dataSlotName(props.slotOwner, slot),
     get presentation() {
       return { classes: props.classes, styles: props.styles }
     },
@@ -299,16 +301,11 @@ export function Modal(props: ModalProps): JSX.Element {
         })
       }
     },
-    contentPresent,
-    isPresent,
+    contentPresent: isPresent,
     isModal,
   }
 
-  return (
-    <ModalProvider value={context}>
-      <ModalSlotOwner value="modal">{props.children}</ModalSlotOwner>
-    </ModalProvider>
-  )
+  return <ModalProvider value={context}>{props.children}</ModalProvider>
 }
 
 Modal.Content = ModalContent

@@ -109,7 +109,7 @@ describe.each([Input, Textarea])('native text control: %s', (Control) => {
       },
     }
     const screen = render(() => (
-      <FieldProvider value={{ ariaId: 'message', binding }}>
+      <FieldProvider value={{ binding }}>
         <Control
           modelModifiers={{ lazy: true, trim: true, number: true }}
           onValueChange={(value) => calls.push(`value:${value}`)}

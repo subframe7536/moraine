@@ -19,13 +19,7 @@ export interface ModalContext {
   setContentElement: (element: HTMLDivElement | undefined) => void
   registerContent: (trapFocus: Accessor<boolean>) => () => void
   contentPresent: Accessor<boolean>
-  isPresent: Accessor<boolean>
   isModal: Accessor<boolean>
 }
 
 export const [ModalProvider, useModalContext] = createContextProvider<ModalContext>('Modal')
-
-export const [ModalSlotOwner, useModalSlotOwner] = createContextProvider<string>(
-  'ModalSlotOwner',
-  'modal',
-)

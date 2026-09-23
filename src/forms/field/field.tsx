@@ -153,15 +153,6 @@ export function renderField<T extends ValidComponent = 'div'>(
     get size() {
       return resolved.variants.size
     },
-    get hint() {
-      return hint()
-    },
-    get description() {
-      return description()
-    },
-    get help() {
-      return help()
-    },
     get disabled() {
       return local.disabled
     },
@@ -170,15 +161,6 @@ export function renderField<T extends ValidComponent = 'div'>(
     },
     get required() {
       return isRequired()
-    },
-    get ariaId() {
-      return ariaId()
-    },
-    get labelId() {
-      return showLabel() ? `${ariaId()}-label` : undefined
-    },
-    get controlId() {
-      return selectedControlId()
     },
     ariaAttrs: fieldAriaAttrs,
     registerControl,

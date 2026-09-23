@@ -116,7 +116,7 @@ describe('Checkbox', () => {
       setValue: vi.fn(),
     }
     const screen = render(() => (
-      <FieldProvider value={{ ariaId: 'checkbox-field', binding }}>
+      <FieldProvider value={{ binding }}>
         <Checkbox label="Bound checkbox" />
       </FieldProvider>
     ))
@@ -135,7 +135,7 @@ describe('Checkbox', () => {
     expect(emit).toHaveBeenCalledTimes(2)
 
     const unbound = render(() => (
-      <FieldProvider value={{ ariaId: 'checkbox-field', binding }}>
+      <FieldProvider value={{ binding }}>
         <Checkbox fieldBind={false} label="Unbound checkbox" />
       </FieldProvider>
     ))

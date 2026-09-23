@@ -155,7 +155,7 @@ describe('CheckboxGroup', () => {
       setValue: vi.fn(),
     }
     const screen = render(() => (
-      <FieldProvider value={{ ariaId: 'checkbox-group-field', binding }}>
+      <FieldProvider value={{ binding }}>
         <CheckboxGroup items={['A', 'B']} />
       </FieldProvider>
     ))

@@ -5,7 +5,7 @@ import { Icon } from '../../elements/icon/index.ts'
 import { createStyles } from '../../provider/index.ts'
 import { renderComponentOrElement } from '../../shared/render-prop.ts'
 import { callHandler, callRef } from '../../shared/utils.ts'
-import { BaseSelect, SelectSlotOwner, useSelectState } from '../base-select/base-select.tsx'
+import { BaseSelect, BaseSelectRoot, useSelectState } from '../base-select/base-select.tsx'
 import { useBaseSelectSearchInput } from '../base-select/utils.ts'
 import { useFieldContext } from '../field/field-context.ts'
 import {
@@ -509,36 +509,35 @@ export function MultiSelect<T extends MultiSelectT.Item = MultiSelectT.Item>(
   }
 
   return (
-    <SelectSlotOwner value="multi-select">
-      <BaseSelect<T>
-        {...baseSelectProps}
-        closeOnSelect={false}
-        items={search.view().items}
-        serializeValue={(value) => serializeSourceValue(source(), value)}
-        value={local.value}
-        defaultValue={local.defaultValue}
-        onChange={(values) => {
-          search.setQuery('')
-          local.onChange?.(values)
-        }}
-        onReset={() => {
-          search.setQuery('')
-          setCreated([])
-          local.onReset?.()
-        }}
-        isItemDisabled={(item, values) =>
-          baseSelectProps.isItemDisabled?.(item, values) === true ||
-          (local.maxCount !== undefined &&
-            values.length >= local.maxCount &&
-            !values.some((value) => sameValue(value, item.value)))
-        }
-        multiple
-        size={styles.variants.size ?? undefined}
-        classes={baseSelectStyles.classes()}
-        styles={baseSelectStyles.styles()}
-      >
-        <Control />
-      </BaseSelect>
-    </SelectSlotOwner>
+    <BaseSelectRoot<T>
+      slotOwner="multi-select"
+      {...baseSelectProps}
+      closeOnSelect={false}
+      items={search.view().items}
+      serializeValue={(value) => serializeSourceValue(source(), value)}
+      value={local.value}
+      defaultValue={local.defaultValue}
+      onChange={(values) => {
+        search.setQuery('')
+        local.onChange?.(values)
+      }}
+      onReset={() => {
+        search.setQuery('')
+        setCreated([])
+        local.onReset?.()
+      }}
+      isItemDisabled={(item, values) =>
+        baseSelectProps.isItemDisabled?.(item, values) === true ||
+        (local.maxCount !== undefined &&
+          values.length >= local.maxCount &&
+          !values.some((value) => sameValue(value, item.value)))
+      }
+      multiple
+      size={styles.variants.size ?? undefined}
+      classes={baseSelectStyles.classes()}
+      styles={baseSelectStyles.styles()}
+    >
+      <Control />
+    </BaseSelectRoot>
   )
 }

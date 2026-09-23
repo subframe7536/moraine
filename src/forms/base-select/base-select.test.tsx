@@ -98,7 +98,6 @@ test('BaseSelect.Control exposes inherited field state attributes', () => {
   const screen = render(() => (
     <FieldProvider
       value={{
-        ariaId: 'choice',
         disabled: true,
         readOnly: true,
         required: true,
@@ -636,7 +635,7 @@ test('normalizes controlled multiple values before synchronizing Form.Field', ()
     emit: () => undefined,
   }
   const screen = render(() => (
-    <FieldProvider value={{ ariaId: 'choices', binding }}>
+    <FieldProvider value={{ binding }}>
       <BaseSelect
         multiple
         items={[
