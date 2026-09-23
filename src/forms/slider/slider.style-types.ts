@@ -1,3 +1,4 @@
+import type { ComponentSize, Orientation } from '../../theme/style/style-types.ts'
 export interface SliderStyleSlot<T = unknown> {
   /**
    * Slider container that owns track, range, thumbs, and labels.
@@ -19,12 +20,12 @@ export interface SliderStyleSlot<T = unknown> {
 
 export interface SliderStyleVariant {
   /** Layout axis used by the component Recipe. */
-  orientation?: 'horizontal' | 'vertical'
+  orientation?: Orientation
 
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
   /** Visual treatment of the component.
    * @default 'default'
    */

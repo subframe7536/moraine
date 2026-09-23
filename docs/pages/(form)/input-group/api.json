@@ -43,7 +43,7 @@
         {
           "name": "size",
           "optional": true,
-          "type": "ComponentSize",
+          "type": "'sm' | 'md' | 'lg'",
           "description": "Visual size of the component.",
           "default": {
             "kind": "literal",
@@ -65,7 +65,7 @@
         {
           "name": "variant",
           "optional": true,
-          "type": "TextControlVariant",
+          "type": "'outline' | 'subtle' | 'ghost' | 'none'",
           "description": "Visual treatment of the component.",
           "default": {
             "kind": "literal",

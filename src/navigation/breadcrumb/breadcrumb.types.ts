@@ -3,6 +3,7 @@ import type { JSX, Ref } from 'solid-js'
 import type { IconT } from '../../elements/icon'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { ComponentSize } from '../../theme/style/style-types.ts'
 
 import type { BreadcrumbStyleSlot, BreadcrumbStyleVariant } from './breadcrumb.style-types'
 
@@ -101,7 +102,7 @@ export namespace BreadcrumbT {
      * Size of the breadcrumb items and icons.
      * @default 'md'
      */
-    size?: 'sm' | 'md' | 'lg'
+    size?: ComponentSize
 
     /**
      * Custom renderer for individual breadcrumb items.

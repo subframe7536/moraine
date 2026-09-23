@@ -1,3 +1,4 @@
+import type { ComponentSize } from '../../theme/style/style-types.ts'
 export interface AvatarStyleSlot<T = unknown> {
   /** Avatar frame that controls size, shape, image, fallback, and badge placement. */
   root?: T
@@ -19,7 +20,7 @@ export interface AvatarStyleVariant {
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
   /** Position of the badge relative to the avatar.
    * @default 'bottom-right'
    */

@@ -385,8 +385,8 @@ function PartMetadata(props: { part: PresentationPartSection; description?: stri
         <Show when={description()}>{`${description()} `}</Show>
 
         <Show when={props.part.defaultElement}>
-          Renders a <code class="font-mono">&lt;{props.part.defaultElement}&gt;</code> element by
-          default.
+          Renders a <code class="docs-inline-code">&lt;{props.part.defaultElement}&gt;</code>{' '}
+          element by default.
         </Show>
       </p>
     </Show>

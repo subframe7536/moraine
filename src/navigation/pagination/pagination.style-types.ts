@@ -1,4 +1,5 @@
 import type { ButtonStyleVariant } from '../../elements/button/button.style-types'
+import type { ComponentSize } from '../../theme/style/style-types.ts'
 
 export interface PaginationStyleSlot<T = unknown> {
   /**
@@ -33,7 +34,7 @@ export interface PaginationStyleVariant {
    * Size of the pagination buttons.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
 
   /**
    * Visual variant for the page buttons.

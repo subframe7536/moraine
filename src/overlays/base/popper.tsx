@@ -24,6 +24,7 @@ import { callHandler, callRef, useId } from '../../shared/utils'
 
 import { useFloatingPosition } from './floating'
 import { useOverlayInteraction } from './interaction'
+import { resolveFloatingPlacement } from './placement.ts'
 import { popperDataAttributes } from './popper.recipe'
 import type {
   PopperProps,
@@ -241,6 +242,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
       overlap: false,
       overflowPadding: 4,
       placement: 'bottom' as const,
+      align: 'center' as const,
       restoreFocusOnClose: true,
       sameWidth: false,
       shift: 0,
@@ -278,12 +280,9 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
   )
 
   createEffect(
-    on(
-      () => options.placement,
-      (placement) => {
-        setInternalCurrentPlacement(placement)
-      },
-    ),
+    on([() => options.placement, () => options.align], ([placement, align]) => {
+      setInternalCurrentPlacement(resolveFloatingPlacement(placement, align))
+    }),
   )
 
   createEffect(
@@ -311,7 +310,7 @@ export function PopperContent(props: PopperContentProps & { context: PopperConte
     open: contentPresence.present,
     overlap: () => options.overlap,
     overflowPadding: () => options.overflowPadding,
-    placement: () => options.placement,
+    placement: () => resolveFloatingPlacement(options.placement, options.align),
     sameWidth: () => options.sameWidth,
     shift: () => options.shift,
     slide: () => options.slide,

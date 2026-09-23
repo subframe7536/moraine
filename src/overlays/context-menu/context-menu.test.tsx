@@ -41,7 +41,7 @@ describe('ContextMenu', () => {
   })
 
   test('changes root transition direction when placement flips to the left', async () => {
-    const [placement, setPlacement] = createSignal<'right-start' | 'left-start'>('right-start')
+    const [placement, setPlacement] = createSignal<'right' | 'left'>('right')
     let initialContent: HTMLElement | null = null
 
     renderWithTheme(() => (
@@ -66,7 +66,7 @@ describe('ContextMenu', () => {
       )
     })
 
-    setPlacement('left-start')
+    setPlacement('left')
 
     await waitFor(() => {
       const content = document.body.querySelector<HTMLElement>('[data-slot="content"]')
@@ -470,7 +470,7 @@ describe('ContextMenu', () => {
 
   test('uses a centered origin without a placement alignment', async () => {
     renderWithTheme(() => (
-      <ContextMenu placement="bottom" defaultOpen>
+      <ContextMenu placement="bottom" align="center" defaultOpen>
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content items={[{ label: 'Centered item' }]} />
       </ContextMenu>
@@ -483,7 +483,7 @@ describe('ContextMenu', () => {
     })
 
     expect(content.getAttribute('data-side')).toBe('bottom')
-    expect(content.getAttribute('data-align')).toBeNull()
+    expect(content.getAttribute('data-align')).toBe('center')
     expect(content.classList).toContain('data-[side=bottom]:-enter-translate-y-1')
   })
 
@@ -979,7 +979,7 @@ describe('ContextMenu', () => {
     ))
 
     const screen = renderWithTheme(() => (
-      <ContextMenu placement="bottom-start">
+      <ContextMenu placement="bottom" align="start">
         <ContextMenu.Trigger as="div">Row Item</ContextMenu.Trigger>
         <ContextMenu.Content
           classes={{

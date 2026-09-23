@@ -43,12 +43,28 @@ import type { PopoverT } from 'moraine'
         { label: 'Left', value: 'left' },
       ],
     },
+    {
+      kind: 'select',
+      prop: 'align',
+      label: 'Align',
+      defaultValue: 'center',
+      options: [
+        { label: 'Start', value: 'start' },
+        { label: 'Center', value: 'center' },
+        { label: 'End', value: 'end' },
+      ],
+    },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
     { kind: 'switch', prop: 'dismissible', label: 'Dismissible', defaultValue: true },
   ]}
 >
   {(props) => (
-    <Popover placement={props.placement} disabled={props.disabled} dismissible={props.dismissible}>
+    <Popover
+      placement={props.placement}
+      align={props.align}
+      disabled={props.disabled}
+      dismissible={props.dismissible}
+    >
       <Popover.Trigger as={Button} variant="outline" size="sm">
         Adjust dimensions
       </Popover.Trigger>

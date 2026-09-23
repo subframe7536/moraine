@@ -1,11 +1,10 @@
-import type { Placement as FloatingPlacement } from '@floating-ui/dom'
 import type { Accessor, JSX } from 'solid-js'
 
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type { ValidComponent } from '../../shared/types.ts'
+import type { OverlayAlign, OverlayPlacement } from '../../theme/style/style-types.ts'
 import type { ModalT } from '../modal/modal.types'
 
-export type PopperPlacement = FloatingPlacement
 export interface PopperInteractOutsideEvent {
   defaultPrevented: boolean
   originalEvent: FocusEvent
@@ -162,7 +161,12 @@ export interface PopperContentOptions {
    * Preferred content placement relative to the trigger.
    * @default 'bottom'
    */
-  placement?: PopperPlacement
+  placement?: OverlayPlacement
+
+  /** Alignment along the cross axis.
+   * @default 'center'
+   */
+  align?: OverlayAlign
 
   /**
    * Whether body scroll should be locked while the content is present.

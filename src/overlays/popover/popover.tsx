@@ -20,7 +20,7 @@ import { hasJsxContent } from '../../shared/jsx-content'
 import type { ValidComponent } from '../../shared/types.ts'
 import { useButtonInteraction } from '../../shared/use-button-interaction'
 import { callRef } from '../../shared/utils'
-import { resolveOverlayMenuSide } from '../base'
+import { parseFloatingPlacement } from '../base/placement.ts'
 import { createPopper, PopperTrigger, PopperContent, mergePopperElementProps } from '../base/popper'
 import type { PopperTriggerProps } from '../base/popper.types'
 import { focusContent, getFocusableElements } from '../base/utils'
@@ -245,7 +245,6 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'ariaLabel',
     'children',
-    'side',
     'class',
     'style',
     'classes',
@@ -327,6 +326,7 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
     <PopperContent
       context={behavior.popper}
       closeOnOutsideFocus={behavior.mode() === 'click'}
+      align={behavior.options.align}
       placement={behavior.options.placement}
       forceMount={behavior.options.forceMount}
       modal={Boolean(behavior.options.modal && behavior.hasClose())}
@@ -373,7 +373,8 @@ function PopoverContent(props: PopoverT.ContentProps): JSX.Element {
         const contentProps = mergeProps(context.contentProps, contentEvents)
         const content = resolveChildren(() => local.children)
         const contentDataAttrs = popoverContentDataAttributes({
-          side: () => resolveOverlayMenuSide(context.currentPlacement() || local.side || 'bottom'),
+          side: () => parseFloatingPlacement(context.currentPlacement()).side,
+          align: () => parseFloatingPlacement(context.currentPlacement()).align,
         })
         return (
           <div

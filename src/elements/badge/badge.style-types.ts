@@ -1,3 +1,4 @@
+import type { ComponentSize } from '../../theme/style/style-types.ts'
 export interface BadgeStyleSlot<T = unknown> {
   /**
    * Inline badge container that carries the variant, size, and interactive state.
@@ -22,7 +23,7 @@ export interface BadgeStyleVariant {
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
 }
 
 export interface BadgeRecipeVariant extends BadgeStyleVariant {

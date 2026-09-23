@@ -251,7 +251,7 @@ describe('Tooltip', () => {
           <Tooltip.Trigger as="button" type="button">
             Trigger
           </Tooltip.Trigger>
-          <Tooltip.Content side="top" text="Tooltip content" />
+          <Tooltip.Content text="Tooltip content" />
         </Tooltip>
       )
     })
@@ -261,8 +261,9 @@ describe('Tooltip', () => {
     expect(initialContent?.className).toContain('data-closed:animate-mo-exit')
     expect(initialContent?.classList).toContain('data-[side=top]:enter-translate-y-1')
     expect(initialContent?.getAttribute('data-side')).toBe('top')
+    expect(initialContent?.getAttribute('data-align')).toBe('center')
 
-    setMockPlacement('bottom')
+    setMockPlacement('bottom-start')
     setVersion(1)
 
     const updatedContent = document.body.querySelector('[data-slot="content"]')
@@ -270,6 +271,7 @@ describe('Tooltip', () => {
     expect(updatedContent?.className).toContain('data-closed:animate-mo-exit')
     expect(updatedContent?.classList).toContain('data-[side=bottom]:-enter-translate-y-1')
     expect(updatedContent?.getAttribute('data-side')).toBe('bottom')
+    expect(updatedContent?.getAttribute('data-align')).toBe('start')
   })
 
   test('opens first hover after delay', async () => {

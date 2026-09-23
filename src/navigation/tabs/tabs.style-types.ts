@@ -1,3 +1,4 @@
+import type { ComponentSize, Orientation } from '../../theme/style/style-types.ts'
 export interface TabsStyleSlot<T = unknown> {
   /**
    * Tabs container that owns tab selection and panel rendering.
@@ -28,7 +29,7 @@ export interface TabsStyleSlot<T = unknown> {
 
 export interface TabsStyleVariant {
   /** Layout axis used by the component Recipe. */
-  orientation?: 'horizontal' | 'vertical'
+  orientation?: Orientation
 
   /** Visual treatment of the component.
    * @default 'pill'
@@ -37,5 +38,5 @@ export interface TabsStyleVariant {
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
 }

@@ -12,6 +12,16 @@
       },
       "props": [
         {
+          "name": "align",
+          "optional": true,
+          "type": "'start' | 'center' | 'end'",
+          "description": "Alignment along the cross axis.",
+          "default": {
+            "kind": "literal",
+            "value": "start"
+          }
+        },
+        {
           "name": "children",
           "optional": true,
           "type": "JSX.Element"
@@ -21,6 +31,16 @@
           "optional": true,
           "type": "Classes",
           "description": "Family slot class defaults for this ContextMenu instance."
+        },
+        {
+          "name": "placement",
+          "optional": true,
+          "type": "'top' | 'right' | 'bottom' | 'left'",
+          "description": "Preferred side relative to the anchor.",
+          "default": {
+            "kind": "literal",
+            "value": "right"
+          }
         },
         {
           "name": "styles",
@@ -121,7 +141,7 @@
         {
           "name": "size",
           "optional": true,
-          "type": "ComponentSize",
+          "type": "'sm' | 'md' | 'lg'",
           "description": "Visual size of menu items.",
           "default": {
             "kind": "literal",

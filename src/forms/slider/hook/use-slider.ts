@@ -10,6 +10,7 @@ import {
 } from 'solid-js'
 
 import { useControllableValue } from '../../../shared/use-controllable-value.ts'
+import type { Orientation } from '../../../theme/style/style-types.ts'
 import type { SliderT } from '../slider.types'
 import {
   clamp,
@@ -32,7 +33,7 @@ export type UseSliderProps<TValue extends SliderValue = SliderValue> = {
   max?: number
   min?: number
   minStepsBetweenThumbs?: number
-  orientation?: 'horizontal' | 'vertical'
+  orientation?: Orientation
   readOnly?: boolean
   step?: number
   styles?: { divider?: JSX.CSSProperties }

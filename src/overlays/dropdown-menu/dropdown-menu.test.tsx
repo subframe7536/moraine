@@ -523,7 +523,7 @@ describe('DropdownMenu', () => {
     ))
 
     renderWithTheme(() => (
-      <DropdownMenu defaultOpen placement="left-start">
+      <DropdownMenu defaultOpen placement="left" align="start">
         <DropdownMenu.Trigger as="button" type="button">
           Actions
         </DropdownMenu.Trigger>

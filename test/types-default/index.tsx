@@ -771,3 +771,13 @@ export type DefaultTagAssertions = [
   Assert<((props: any) => any) extends ValidComponent ? true : false>,
   Assert<string & {} extends ValidComponent ? true : false>,
 ]
+
+// Separate public floating dimensions accept sides and alignment independently.
+;<Popover placement="bottom" align="start" />
+;<Tooltip placement="top" align="end" />
+;<DropdownMenu placement="bottom" align="end" />
+;<ContextMenu placement="right" align="start" />
+// @ts-expect-error combined Floating UI placement strings are no longer public
+;<DropdownMenu placement="bottom-end" />
+// @ts-expect-error left is a side, not an alignment
+;<Popover align="left" />

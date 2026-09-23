@@ -28,6 +28,7 @@ export namespace PopoverT {
     | 'onOpenChange'
     | 'disabled'
     | 'placement'
+    | 'align'
     | 'forceMount'
     | 'preventScroll'
     | 'dismissible'
@@ -76,12 +77,6 @@ export namespace PopoverT {
   export type ContentClasses = Pick<Classes, 'content' | 'body'>
   export type ContentStyles = Pick<Styles, 'content' | 'body'>
   export interface ContentBase {
-    /**
-     * Preferred placement relative to the trigger.
-     * @default 'bottom'
-     */
-    side?: 'top' | 'right' | 'bottom' | 'left'
-
     ariaLabel?: string
     /** Body content. */
     children?: JSX.Element

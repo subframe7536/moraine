@@ -6,7 +6,7 @@ export function DropdownActions() {
       <InputGroup>
         <Input aria-label="File name" placeholder="Enter file name" />
         <InputGroup.Trailing compact>
-          <DropdownMenu placement="bottom-end">
+          <DropdownMenu placement="bottom" align="end">
             <DropdownMenu.Trigger as={Button} type="button" variant="ghost" size="icon-xs">
               <Icon name="i-lucide:ellipsis" />
               <span class="sr-only">More file actions</span>
@@ -24,7 +24,7 @@ export function DropdownActions() {
       <InputGroup>
         <Input aria-label="Search query" placeholder="Enter search query" />
         <InputGroup.Trailing compact>
-          <DropdownMenu placement="bottom-end">
+          <DropdownMenu placement="bottom" align="end">
             <DropdownMenu.Trigger
               as={Button}
               type="button"

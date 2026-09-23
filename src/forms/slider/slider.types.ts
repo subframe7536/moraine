@@ -1,6 +1,7 @@
 import type { Ref } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { Orientation } from '../../theme/style/style-types.ts'
 import type {
   FormDisableOption,
   FormIdentityOptions,
@@ -36,7 +37,7 @@ export namespace SliderT {
      * Direction of keyboard and pointer value movement.
      * @default 'horizontal'
      */
-    orientation?: 'horizontal' | 'vertical'
+    orientation?: Orientation
     /**
      * Reverses value movement along the track.
      * @default false

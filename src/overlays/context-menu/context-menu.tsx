@@ -63,7 +63,8 @@ function isContextMenuKeyboardEvent(event: KeyboardEvent): boolean {
 function createContextMenu(props: ContextMenuProps) {
   const merged = mergeProps(
     {
-      placement: 'right-start' as const,
+      placement: 'right' as const,
+      align: 'start' as const,
       shift: 4,
     },
     props,
@@ -524,6 +525,9 @@ function createContextMenu(props: ContextMenuProps) {
       },
       get placement() {
         return merged.placement
+      },
+      get align() {
+        return merged.align
       },
       get gutter() {
         return merged.gutter

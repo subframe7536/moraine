@@ -1,3 +1,4 @@
+import type { ComponentSize, Orientation } from '../../theme/style/style-types.ts'
 export interface RadioGroupStyleSlot<T = unknown> {
   /**
    * Radio group container that owns selection state and layout.
@@ -28,12 +29,12 @@ export interface RadioGroupStyleSlot<T = unknown> {
 
 export interface RadioGroupStyleVariant {
   /** Layout axis used by the component Recipe. */
-  orientation?: 'horizontal' | 'vertical'
+  orientation?: Orientation
 
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
   /** Visual treatment of the component.
    * @default 'list'
    */

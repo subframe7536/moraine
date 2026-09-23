@@ -7,10 +7,10 @@ import type { TooltipStyleSlot, TooltipStyleVariant } from './tooltip.style-type
 
 export const tooltipDataAttributes = {
   trigger: modalDataAttributes.trigger,
-  content: createDataAttributes('closed', 'expanded', 'instant-motion', 'side'),
+  content: createDataAttributes('closed', 'expanded', 'instant-motion', 'side', 'align'),
 } satisfies DataAttributeContract<keyof TooltipStyleSlot>
 
-export const tooltipContentDataAttributes = createDataAttributes('instant-motion', 'side')
+export const tooltipContentDataAttributes = createDataAttributes('instant-motion', 'side', 'align')
 
 export const tooltipRecipe = /* @__PURE__ */ defineRecipe<TooltipStyleSlot, TooltipStyleVariant>(
   'tooltip',

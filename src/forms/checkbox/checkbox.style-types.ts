@@ -1,3 +1,4 @@
+import type { ComponentSize } from '../../theme/style/style-types.ts'
 export interface CheckboxStyleSlot<T = unknown> {
   /** Labelable checkbox wrapper that coordinates input, indicator, and text content. */
   root?: T
@@ -28,7 +29,7 @@ export interface CheckboxStyleVariant {
   /** Visual size of the component.
    * @default 'md'
    */
-  size?: 'sm' | 'md' | 'lg'
+  size?: ComponentSize
   /** Visual treatment of the component.
    */
   variant?: 'card' | 'list'
