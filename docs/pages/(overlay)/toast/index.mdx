@@ -11,8 +11,8 @@ upstreamHref: https://github.com/subframe7536/solid-toaster
 ---
 
 import 'solid-toaster/style.css'
-import { Button } from '@src'
-import { toast } from 'solid-toaster'
+import { Button, Icon } from '@src'
+import { toast, BaseToaster } from 'solid-toaster'
 
 ## Import
 
@@ -43,6 +43,14 @@ export default function App() {
     <>
       <Button onClick={() => toast.success('Changes saved!')}>Save</Button>
       <BaseToaster
+        visibleToasts={4}
+        preventDuplicate
+        style={{
+          '--normal-bg': 'var(--popover)',
+          '--normal-text': 'var(--popover-foreground)',
+          '--normal-border': 'var(--border)',
+          '--border-radius': 'var(--radius)',
+        }}
         icons={{
           success: <Icon name="icon-success" />,
           error: <Icon name="icon-error" />,
@@ -89,6 +97,7 @@ export default function App() {
         { label: 'Info', value: 'info' },
       ],
     },
+    { kind: 'switch', prop: 'preventDuplicate', label: 'Prevent duplicate toasts', defaultValue: true },
   ]}
 >
   {(props) => {
@@ -115,7 +124,8 @@ export default function App() {
       </Button>
     )
 
-}}
+}
+}
 
 </Playground>
 

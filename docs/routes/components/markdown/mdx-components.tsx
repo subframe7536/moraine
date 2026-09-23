@@ -10,7 +10,6 @@ import { CodeTabs } from './docs-code-tabs'
 import { DocsPlayground as Playground } from './docs-playground'
 import { IntroComponents } from './intro-components'
 import { Markdown } from './markdown'
-import { ToastHosts } from './toast-hosts'
 
 const DOCS_DEMO_BLOCK_CLASS =
   'mb-6 mt-4 overflow-hidden border border-border/70 rounded-xl bg-card shadow-xs'
@@ -75,8 +74,6 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   CodeTabs,
 
   IntroComponents,
-
-  ToastHosts,
 
   CodeBlock(props: MdxProps) {
     return (
