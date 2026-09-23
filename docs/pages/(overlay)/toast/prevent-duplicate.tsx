@@ -3,12 +3,12 @@ import { BaseToaster, toast } from 'solid-toaster'
 
 export function PrevientDuplicate() {
   const ICONS = {
-    success: <Icon name="icon-success" />,
-    error: <Icon name="icon-error" />,
-    warning: <Icon name="icon-warning" />,
-    info: <Icon name="icon-info" />,
-    loading: <Icon name="icon-loading" class="animate-spin" />,
-    close: <Icon name="icon-close" />,
+    success: () => <Icon name="icon-success" />,
+    error: () => <Icon name="icon-error" />,
+    warning: () => <Icon name="icon-warning" />,
+    info: () => <Icon name="icon-info" />,
+    loading: () => <Icon name="icon-loading" class="animate-spin" />,
+    close: () => <Icon name="icon-close" />,
   }
 
   const TOASTER_STYLE = {

@@ -86,8 +86,8 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",
-    "@formisch/solid": "1.0.0",
-    "cn": "^0.2.5"
+    "@formisch/solid": "^1.1.0",
+    "cn": "^0.4.0"
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.129",
@@ -100,16 +100,16 @@
     "@tanstack/virtual-core": "^3.17.8",
     "@types/node": "^24.13.3",
     "bumpp": "^11.1.0",
-    "jsdom": "^29.1.1",
+    "jsdom": "^30.1.1",
     "magic-string": "^1.2.3",
-    "oxfmt": "^0.66.0",
+    "oxfmt": "^0.70.0",
     "oxlint": "^1.81.0",
     "oxlint-tsgolint": "^7.0.2001",
     "rolldown-plugin-unocss": "^0.1.0",
     "satteri": "^0.10.5",
     "shiki": "^4.4.3",
     "solid-file-router": "^0.7.3",
-    "solid-toaster": "^0.1.7",
+    "solid-toaster": "^0.2.0",
     "tailwindcss": "^4.3.3",
     "tsdown": "^0.23.0",
     "typescript": "^7.0.2",
