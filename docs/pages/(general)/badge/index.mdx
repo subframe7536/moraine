@@ -23,7 +23,7 @@ import type { BadgeT } from 'moraine'
 - **Visual Variants**: `solid`, `subtle`, `surface`, and `outline` presentations share the same content model.
 - **Leading & Trailing Adornments**: Add icons around an optional label; a single icon without text automatically uses square geometry.
 - **Size Scale**: `sm`, `md`, and `lg` adjust height, padding, gap, typography, and icon sizing.
-- **Presentation Semantics**: Badge is presentational text rather than a special ARIA widget. If a badge contains an interactive control, that control must provide its own semantics and accessible name.
+- **Root Element**: Badge renders a `span` by default. Use `as` to render a native element such as `button` when the badge itself is interactive.
 
 ## Playground
 
@@ -75,7 +75,7 @@ root
 
 ### Presentational status
 
-Use `Badge` for compact, presentational status or metadata alongside a separately labeled control or heading. It does not add interactive behavior or replace an accessible status announcement where one is required.
+Use `Badge` for compact, presentational status or metadata alongside a separately labeled control or heading. For an interactive badge, choose a semantic root with `as` and provide its required attributes, such as `type="button"`. Badge does not replace an accessible status announcement where one is required.
 
 <Preview path="./badge-usage" />
 

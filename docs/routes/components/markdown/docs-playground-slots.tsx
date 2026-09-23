@@ -13,7 +13,7 @@ import {
 } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-import { Icon, Switch } from '../../../../src'
+import { Badge, Icon, Switch } from '../../../../src'
 import { getDomSlotName } from '../../../build/api-doc/presentation'
 import type { ComponentApi } from '../../../build/api-doc/types'
 
@@ -121,8 +121,12 @@ export function DocsPlaygroundSlots(props: {
   const [autoHover, setAutoHover] = createSignal(true)
   const [locked, setLocked] = createSignal<string>()
   const [boxes, setBoxes] = createSignal<HighlightBox[]>([])
-  const [mounted, setMounted] = createSignal(false)
   const activeSlot = createMemo(() => listHovered() ?? previewHovered() ?? locked())
+  const clearHighlight = () => {
+    setListHovered(undefined)
+    setPreviewHovered(undefined)
+    setLocked(undefined)
+  }
 
   onMount(() => {
     const preview = props.preview()
@@ -176,7 +180,7 @@ export function DocsPlaygroundSlots(props: {
     }
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setLocked(undefined)
+        clearHighlight()
       }
     }
     const observer = new MutationObserver(scan)
@@ -189,7 +193,6 @@ export function DocsPlaygroundSlots(props: {
     doc.addEventListener('pointermove', onPointerMove)
     doc.addEventListener('keydown', onKeyDown)
     scan()
-    setMounted(true)
     onCleanup(() => {
       observer.disconnect()
       doc.removeEventListener('pointermove', onPointerMove)
@@ -244,8 +247,11 @@ export function DocsPlaygroundSlots(props: {
   )
 
   return (
-    <section class="pt-3 border-t border-border/60" aria-label="Component slots">
-      <div class="mb-2 flex gap-2 items-center justify-between">
+    <section
+      class="pt-3 border-t border-border/60 flex flex-col gap-3.5"
+      aria-label="Component slots"
+    >
+      <div class="flex gap-2 items-center justify-between">
         <span class="text-xs text-foreground/90 font-semibold flex gap-1.5 items-center">
           <Icon name="i-lucide:layers" class="text-muted-foreground size-3.5" />
           <span>Slots</span>
@@ -265,49 +271,60 @@ export function DocsPlaygroundSlots(props: {
       <div class="flex flex-wrap gap-1.5">
         <For each={slots}>
           {(slot) => (
-            <button
+            <Badge
+              as="button"
               type="button"
-              class="text-xs font-mono px-2 py-1 border border-border rounded-md transition-colors aria-pressed:(text-primary border-primary bg-primary/12) disabled:(opacity-40 cursor-not-allowed) enabled:hover:(border-primary/60 bg-primary/8)"
+              size="md"
+              variant="outline"
+              class={[
+                'font-mono cursor-pointer transition-colors focus-visible:(outline-none ring-2 ring-ring) disabled:(opacity-40 cursor-not-allowed pointer-events-none)',
+                locked() === slot.name
+                  ? 'text-primary border-primary bg-primary/12'
+                  : 'enabled:hover:(border-primary/60 bg-primary/8)',
+              ]}
               disabled={!nodes().has(slot.name)}
               aria-pressed={locked() === slot.name}
               onPointerEnter={() => setListHovered(slot.name)}
               onPointerLeave={() => setListHovered(undefined)}
               onFocus={() => setListHovered(slot.name)}
               onBlur={() => setListHovered(undefined)}
-              onClick={() =>
-                setLocked((current) => (current === slot.name ? undefined : slot.name))
-              }
+              onClick={() => {
+                if (locked() === slot.name) {
+                  clearHighlight()
+                } else {
+                  setLocked(slot.name)
+                }
+              }}
             >
               {slot.name}
-            </button>
+            </Badge>
           )}
         </For>
       </div>
-      <Show when={mounted()}>
-        {(_ready) => (
+      <Show when={boxes().length > 0}>
+        {(_boxes) => (
           <Portal mount={props.preview()!.ownerDocument.body}>
-            <div aria-hidden="true" class="pointer-events-none inset-0 fixed z-[2147483647]">
-              <For each={boxes()}>
-                {(box, index) => (
-                  <div
-                    data-docs-slot-highlight={activeSlot()}
-                    class="border-2 border-primary rounded-sm bg-primary/10 shadow-[0_0_0_2px_var(--background)] absolute"
-                    style={{
-                      top: `${box.top}px`,
-                      left: `${box.left}px`,
-                      width: `${box.width}px`,
-                      height: `${box.height}px`,
-                    }}
-                  >
-                    <Show when={index() === 0}>
-                      <span class="text-[10px] text-primary-foreground font-mono px-1.5 py-0.5 rounded-sm bg-primary whitespace-nowrap left-0 absolute -top-6">
-                        {activeSlot()}
-                      </span>
-                    </Show>
-                  </div>
-                )}
-              </For>
-            </div>
+            <For each={boxes()}>
+              {(box, index) => (
+                <div
+                  aria-hidden="true"
+                  data-docs-slot-highlight={activeSlot()}
+                  class="border-2 border-primary rounded-sm bg-primary/10 pointer-events-none shadow-[0_0_0_2px_var(--background)] fixed z-[2147483647]"
+                  style={{
+                    top: `${box.top}px`,
+                    left: `${box.left}px`,
+                    width: `${box.width}px`,
+                    height: `${box.height}px`,
+                  }}
+                >
+                  <Show when={index() === 0}>
+                    <span class="text-[10px] text-primary-foreground font-mono px-1.5 py-0.5 rounded-sm bg-primary whitespace-nowrap left-0 absolute -top-6">
+                      {activeSlot()}
+                    </span>
+                  </Show>
+                </div>
+              )}
+            </For>
           </Portal>
         )}
       </Show>

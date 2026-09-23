@@ -1,4 +1,5 @@
-import { describe, expect, test } from 'vitest'
+import { fireEvent } from '@solidjs/testing-library'
+import { describe, expect, test, vi } from 'vitest'
 
 import { hydrateFixture } from '../../test-utils/ssr-test'
 
@@ -22,5 +23,24 @@ describe('Badge SSR Hydration', () => {
       Array.from(root?.children ?? []).map((element) => element.getAttribute('data-slot')),
     ).toEqual(['badge-leading', 'badge-label', 'badge-trailing'])
     expect(container.querySelector('[data-slot="badge-trailing"]')?.tagName).toBe('DIV')
+  })
+
+  test('hydrates a button root and preserves its activation', () => {
+    const onClick = vi.fn()
+    const { container } = hydrateFixture(
+      '/src/elements/badge/badge.ssr.fixture.tsx',
+      'renderButtonBadgeFixture',
+      () => (
+        <Badge as="button" type="button" aria-pressed={false} onClick={onClick}>
+          Slot
+        </Badge>
+      ),
+    )
+
+    const button = container.querySelector<HTMLButtonElement>('[data-slot="badge"]')!
+    expect(button.tagName).toBe('BUTTON')
+    expect(button.getAttribute('aria-pressed')).toBe('false')
+    fireEvent.click(button)
+    expect(onClick).toHaveBeenCalledTimes(1)
   })
 })

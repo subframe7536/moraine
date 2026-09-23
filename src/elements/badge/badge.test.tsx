@@ -1,5 +1,5 @@
-import { render } from '@solidjs/testing-library'
-import { createComponent } from 'solid-js'
+import { fireEvent, render } from '@solidjs/testing-library'
+import { createComponent, createSignal } from 'solid-js'
 import { describe, expect, test, vi } from 'vitest'
 
 import { MoraineProvider } from '../../provider'
@@ -30,6 +30,36 @@ describe('Badge', () => {
     expect(badge?.hasAttribute('data-variant')).toBe(false)
     expect(badge?.hasAttribute('data-size')).toBe(false)
     expect(label?.textContent).toBe('New')
+  })
+
+  test('renders a native button with forwarded attributes and events', () => {
+    const onClick = vi.fn()
+    const screen = render(() => (
+      <Badge as="button" type="button" disabled aria-pressed onClick={onClick}>
+        Select
+      </Badge>
+    ))
+    const button = screen.getByRole('button', { name: 'Select' }) as HTMLButtonElement
+
+    expect(button.getAttribute('data-slot')).toBe('badge')
+    expect(button.type).toBe('button')
+    expect(button.disabled).toBe(true)
+    expect(button.getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(button)
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  test('merges reactive class arrays', () => {
+    const [active, setActive] = createSignal(false)
+    const screen = render(() => (
+      <Badge class={['custom-badge', active() && 'text-primary']}>State</Badge>
+    ))
+    const badge = screen.container.querySelector('[data-slot="badge"]')!
+
+    expect(badge.className).toContain('custom-badge')
+    expect(badge.className).not.toContain('text-primary')
+    setActive(true)
+    expect(badge.className).toContain('text-primary')
   })
 
   test('supports hiding decorative badges from the accessibility tree', () => {

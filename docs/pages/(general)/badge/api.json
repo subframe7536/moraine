@@ -12,8 +12,25 @@
         "name": "Badge"
       },
       "description": "Props for the Badge component.",
+      "generics": [
+        {
+          "name": "T",
+          "constraint": "ValidComponent",
+          "default": "'span'"
+        }
+      ],
       "defaultElement": "span",
       "props": [
+        {
+          "name": "as",
+          "optional": true,
+          "type": "T",
+          "description": "Root element or component.",
+          "default": {
+            "kind": "literal",
+            "value": "span"
+          }
+        },
         {
           "name": "children",
           "optional": true,

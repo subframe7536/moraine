@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 
-import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
+import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
 import type { IconT } from '../icon'
 
 import type { BadgeStyleSlot, BadgeStyleVariant } from './badge.style-types'
@@ -18,7 +18,13 @@ export namespace BadgeT {
   /**
    * Base props for the Badge component.
    */
-  export interface Base {
+  export interface Base<T extends ValidComponent = 'span'> {
+    /**
+     * Root element or component.
+     * @default 'span'
+     */
+    as?: T
+
     /** Accessible title shown by the browser for the badge root. */
     title?: string
 
@@ -41,10 +47,17 @@ export namespace BadgeT {
   /**
    * Props for the Badge component.
    */
-  export type Props = BaseProps<'span', Base, Variant, Classes, Styles>
+  export type Props<T extends ValidComponent = 'span'> = BaseProps<
+    T,
+    Base<T>,
+    Variant,
+    Classes,
+    Styles,
+    'span'
+  >
 }
 
 /**
  * Props for the Badge component.
  */
-export type BadgeProps = BadgeT.Props
+export type BadgeProps<T extends ValidComponent = 'span'> = BadgeT.Props<T>

@@ -76,6 +76,7 @@ describe('DocsPlayground', () => {
         view.getByRole('region', { name: 'Component slots' }),
       ).getAllByRole('button')
       expect(slotButtons.map((button) => button.textContent)).toEqual(['root', 'leading', 'label'])
+      expect(slotButtons.every((button) => button.getAttribute('data-slot') === 'badge')).toBe(true)
       expect(slotButtons[1]).toHaveProperty('disabled', true)
 
       fireEvent.pointerEnter(slotButtons[2]!)
@@ -83,11 +84,24 @@ describe('DocsPlayground', () => {
         expect(document.querySelectorAll('[data-docs-slot-highlight="label"]')).toHaveLength(2)
       })
       fireEvent.click(slotButtons[2]!)
-      fireEvent.pointerLeave(slotButtons[2]!)
       expect(slotButtons[2]!.getAttribute('aria-pressed')).toBe('true')
       expect(document.querySelectorAll('[data-docs-slot-highlight="label"]')).toHaveLength(2)
+      fireEvent.click(slotButtons[2]!)
+      expect(slotButtons[2]!.getAttribute('aria-pressed')).toBe('false')
+      await waitFor(() => {
+        expect(document.querySelectorAll('[data-docs-slot-highlight]')).toHaveLength(0)
+      })
+      fireEvent.pointerLeave(slotButtons[2]!)
+      fireEvent.pointerEnter(slotButtons[2]!)
+      await waitFor(() => {
+        expect(document.querySelectorAll('[data-docs-slot-highlight="label"]')).toHaveLength(2)
+      })
+      fireEvent.click(slotButtons[2]!)
       fireEvent.keyDown(document, { key: 'Escape' })
       expect(slotButtons[2]!.getAttribute('aria-pressed')).toBe('false')
+      await waitFor(() => {
+        expect(document.querySelectorAll('[data-docs-slot-highlight]')).toHaveLength(0)
+      })
       fireEvent.pointerMove(view.container.querySelectorAll('[data-slot="button-label"]')[1]!)
       await waitFor(() => {
         expect(document.querySelectorAll('[data-docs-slot-highlight="label"]')).toHaveLength(2)

@@ -9,3 +9,11 @@ export function renderBadgeFixture(): string {
     </Badge>
   ))
 }
+
+export function renderButtonBadgeFixture(): string {
+  return renderToString(() => (
+    <Badge as="button" type="button" aria-pressed={false}>
+      Slot
+    </Badge>
+  ))
+}
