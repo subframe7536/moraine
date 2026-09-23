@@ -25,6 +25,10 @@
   position: relative;
 }
 
+.shiki .line:empty {
+  min-height: 1.625em;
+}
+
 .shiki .line.highlighted {
   position: relative;
   isolation: isolate;
