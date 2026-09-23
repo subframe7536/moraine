@@ -6,7 +6,7 @@ import {
   getMoraineAnimTimingFns,
   toUnocssKeyframes,
 } from '../theme/style/animations.ts'
-import { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS } from '../theme/style/icons.ts'
+import { DEFAULT_ICON_SHORTCUTS } from '../theme/style/icons.ts'
 import {
   MORAINE_COLORS,
   MORAINE_FONT,
@@ -16,7 +16,7 @@ import {
   MORAINE_Z_INDEX,
 } from '../theme/style/theme.ts'
 
-export { DEFAULT_ICONS, DEFAULT_ICON_SHORTCUTS }
+export { DEFAULT_ICON_SHORTCUTS }
 
 export interface PresetThemeOptions {
   /**

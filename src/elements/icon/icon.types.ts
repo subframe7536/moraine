@@ -1,15 +1,11 @@
 import type { Component, JSX } from 'solid-js'
 
 import type { BaseProps, SlotClassValue, SlotStyleValue } from '../../shared/types'
-import type { DEFAULT_ICONS } from '../../theme/style/icons.ts'
+import type { DEFAULT_ICON_SHORTCUTS } from '../../theme/style/icons.ts'
 
 import type { IconStyleSlot, IconStyleVariant } from './icon.style-types'
 
-type KebabCase<T extends string> = T extends `${infer First}${infer Rest}`
-  ? `${Lowercase<First>}${Rest extends Uncapitalize<Rest> ? '' : '-'}${KebabCase<Rest>}`
-  : T
-
-type BuiltinIconName = `icon-${KebabCase<Extract<keyof typeof DEFAULT_ICONS, string>>}`
+type BuiltinIconName = (typeof DEFAULT_ICON_SHORTCUTS)[number][0]
 type IconStringName = BuiltinIconName | (string & {})
 
 export namespace IconT {
