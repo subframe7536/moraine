@@ -102,6 +102,12 @@ describe('DocsPlayground', () => {
       await waitFor(() => {
         expect(document.querySelectorAll('[data-docs-slot-highlight]')).toHaveLength(0)
       })
+      const autoSwitch = view.getByRole('switch', { name: 'Auto' })
+      expect(autoSwitch.getAttribute('aria-checked')).toBe('false')
+      fireEvent.pointerMove(view.container.querySelector('[data-slot="button-label"]')!)
+      expect(document.querySelectorAll('[data-docs-slot-highlight]')).toHaveLength(0)
+      fireEvent.click(autoSwitch)
+      expect(autoSwitch.getAttribute('aria-checked')).toBe('true')
       fireEvent.pointerMove(view.container.querySelectorAll('[data-slot="button-label"]')[1]!)
       await waitFor(() => {
         expect(document.querySelectorAll('[data-docs-slot-highlight="label"]')).toHaveLength(2)
@@ -117,8 +123,6 @@ describe('DocsPlayground', () => {
       await waitFor(() => {
         expect(document.querySelectorAll('[data-docs-slot-highlight]')).toHaveLength(0)
       })
-      const autoSwitch = view.getByRole('switch', { name: 'Auto' })
-      expect(autoSwitch.getAttribute('aria-checked')).toBe('true')
       fireEvent.click(autoSwitch)
       expect(autoSwitch.getAttribute('aria-checked')).toBe('false')
       fireEvent.pointerMove(view.container.querySelector('[data-slot="button-label"]')!)
