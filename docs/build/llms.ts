@@ -86,8 +86,8 @@ const INTRO_CARD_CONTENT = [
     'Visual variants, sizes, orientation, and state controls aligned across components.',
   ],
   [
-    'Accessible by Default',
-    'Keyboard and aria-ready primitives built on top of mature SolidJS foundations.',
+    'Interaction Details',
+    'Component pages explain state, keyboard behavior, and naming responsibilities where relevant.',
   ],
 ] as const
 
@@ -478,7 +478,7 @@ export function buildLlmsTxt(
     '',
     `> ${options.description}`,
     '',
-    'Moraine is an accessible, composable SolidJS component library. Use the linked Markdown pages for installation guidance, component behavior, previews, and API details.',
+    'Moraine is a composable SolidJS component library. Use the linked Markdown pages for installation guidance, component behavior, examples, and API details.',
   ]
   let currentGroup: string | undefined
   for (const route of routes) {

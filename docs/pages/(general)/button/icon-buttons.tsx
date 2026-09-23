@@ -1,30 +1,24 @@
-import { Button, Icon } from '@src'
-import type { ButtonT } from '@src'
-import { For } from 'solid-js'
+import { Button, Icon, Tooltip } from '@src'
+import { createSignal } from 'solid-js'
 
 export function IconButtons() {
-  const ICON_SIZES: NonNullable<ButtonT.Variant['size']>[] = [
-    'icon-xs',
-    'icon-sm',
-    'icon-md',
-    'icon-lg',
-    'icon-xl',
-  ]
+  const [bookmarked, setBookmarked] = createSignal(false)
 
   return (
-    <div class="flex flex-wrap gap-4 items-center">
-      <For each={ICON_SIZES}>
-        {(size) => (
-          <div class="flex gap-1.5 items-center">
-            <Button size={size} variant="outline" aria-label={`Decrease, ${size} button`}>
-              <Icon name="i-lucide:minus" />
-            </Button>
-            <Button size={size} variant="outline" aria-label={`Increase, ${size} button`}>
-              <Icon name="i-lucide:plus" />
-            </Button>
-          </div>
-        )}
-      </For>
+    <div class="flex gap-3 items-center">
+      <span class="text-sm">Release checklist</span>
+      <Tooltip>
+        <Tooltip.Trigger
+          as={Button}
+          variant="outline"
+          size="icon-sm"
+          aria-label={bookmarked() ? 'Remove bookmark' : 'Bookmark checklist'}
+          onClick={() => setBookmarked((value) => !value)}
+        >
+          <Icon name={bookmarked() ? 'i-lucide:bookmark-check' : 'i-lucide:bookmark'} />
+        </Tooltip.Trigger>
+        <Tooltip.Content text={bookmarked() ? 'Remove bookmark' : 'Bookmark checklist'} />
+      </Tooltip>
     </div>
   )
 }

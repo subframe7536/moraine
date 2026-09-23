@@ -74,16 +74,16 @@ navigation, and overlay; pages are sorted by `sidebar.order` inside each group.
 
 - Preview paths may omit the `.tsx` extension, must resolve inside `docs/pages`, and cannot contain runtime expressions, queries, or hashes.
 - Each preview file directly exports exactly one component. The internal `?preview` module exposes its component and highlighted source as a default descriptor.
+- Keep each preview self-contained in one TSX file. Its data, types, and helpers must be in that file so the displayed source and generated Markdown have no local docs imports.
 - Fenced blocks, Preview sources, and package-manager tabs are pre-rendered at build time with Shiki using `docs/build/core/shiki.ts`.
 - Code block styling uses dual-theme CSS variables in `docs/code.css` without runtime highlighter overhead; `<CodeBlock />` provides the shared interactive container for normal blocks, `<CodeTabs />`, and `<Preview />`.
 - During SSR, Preview descriptors avoid importing browser-only modules; the client loads the interactive preview while SSG retains the Preview container and source.
 - Previous/next cards use the flattened sidebar order and continue across group boundaries.
 
-Preview controls are deliberately author-selected rather than inferred from every public prop. A preview
-module provides the preview and source; its MDX `<Preview>` selects a compact Input, Switch, or Select
-control schema when a primitive prop makes the interaction clearer. JSX, callbacks, object values, render
-props, and other complex state stay in dedicated previews. This primitive-only boundary keeps playgrounds
-predictable, while `docs/PREVIEWS.md` records coverage for every component page.
+Each page's `<Playground>` selects a few meaningful primitive Input, Switch, or Select controls and
+renders its live specimen in MDX. `<Preview>` loads a separate, self-contained TSX example and its
+copyable source. JSX, callbacks, object values, render props, and complex state belong in those
+dedicated examples. The `llms` output omits Playground implementation and expands Preview source.
 
 ## Shell, Scrolling, And Theme
 
@@ -118,7 +118,7 @@ Run focused checks while changing the relevant area, then run the complete produ
 # Focused checks, selected for the area being changed.
 nub run test docs/build/routes.test.ts docs/build/markdown/page.test.ts
 nub run test sidebar.test.tsx docs-command-palette.test.tsx
-nub run test docs/build/previews/coverage.test.ts docs/build/previews/source.test.ts
+nub run test docs/build/content.test.ts docs/build/previews/source.test.ts
 
 # Repository and SSG gates.
 nub run test
@@ -130,10 +130,10 @@ git diff --check
 nub run docs:preview
 ```
 
-Use the preview to verify the route, responsive, keyboard, theme, reduced-motion, example-control, and
-anchor/history matrix documented in `plans/008-docs-production-verification.md`. Check browser console
-errors and uncaught exceptions for every route in that matrix; generated output under `docs/dist` must never
-be edited to make a check pass.
+Use the production preview to check representative component routes at narrow and desktop widths,
+including Playground controls, Preview source and rendering, anchors, themes, keyboard focus, and
+overlays. Check the browser console for errors and uncaught exceptions. Generated output under
+`docs/dist` must never be edited to make a check pass.
 
 ## LLM-Friendly Documentation
 

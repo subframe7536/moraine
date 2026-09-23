@@ -1,6 +1,6 @@
 ---
 title: BaseSelect
-description: Compose custom single or multiple collection selection controls from accessible primitives.
+description: Compose a custom listbox with selection, navigation, and popup ownership.
 api:
   path: src/forms/base-select/base-select
   parts: [Control, Trigger, Content, Listbox, Item, Group, GroupLabel, Separator, Empty]
@@ -24,13 +24,6 @@ import { useBaseSelectSearchInput, useSearchValue } from 'moraine/utils'
 BaseSelect owns array selection, disclosure, highlighted navigation, typeahead, listbox primitives,
 and form integration. Collection grouping, filtering, query state, tags, and item creation belong to
 the composing control.
-
-## Features
-
-- **Explicit ownership**: Control anchors the popup; Trigger owns select-like focus and activation.
-- **Single or multiple selection**: BaseSelect is the low-level cardinality escape hatch.
-- **Composable popup**: Items, groups, labels, separators, and empty state are public parts.
-- **Form integration**: Values serialize without adding a visible root wrapper.
 
 ## Playground
 

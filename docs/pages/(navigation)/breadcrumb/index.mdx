@@ -1,6 +1,6 @@
 ---
 title: Breadcrumb
-description: A hierarchical navigation trail with custom separators, optional leading icons, wrapping control, and current-page metadata.
+description: Show a resource hierarchy and mark its current page.
 api:
   path: src/navigation/breadcrumb/breadcrumb
 sidebar:
@@ -18,13 +18,7 @@ import { Breadcrumb } from 'moraine'
 import type { BreadcrumbT } from 'moraine'
 ```
 
-## Features
-
-- **Breadcrumb Landmark**: Uses `<nav aria-label="Breadcrumb">` with an ordered list.
-- **Current Page Metadata**: The terminal page item is non-interactive and marked with `aria-current="page"`.
-- **Custom Separators**: Use an icon source or custom separator content between trail entries.
-- **Leading Icons**: Individual items can include a leading icon.
-- **Wrapping Control**: `wrap` controls whether longer trails wrap onto additional lines.
+Use Breadcrumb to show a resource’s place in a navigation hierarchy. The current page is represented as a non-link item.
 
 ## Playground
 
@@ -84,10 +78,6 @@ root (<nav aria-label="Breadcrumb">)
 Use links for navigable ancestors. The last item is the current page by default; use `active` to select another item explicitly. Current and disabled items are non-interactive.
 
 <Preview path="./items-page" />
-
-### Keyboard interaction
-
-Breadcrumb does not add custom keyboard handling; linked ancestors use their underlying link/button semantics and normal document focus order.
 
 ## Examples
 

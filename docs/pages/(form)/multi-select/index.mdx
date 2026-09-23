@@ -1,6 +1,6 @@
 ---
 title: MultiSelect
-description: Collection-backed multiple selection with tags, optional search, token separators, and item creation.
+description: Choose multiple collection items in a searchable tag field.
 api:
   path: src/forms/multi-select/multi-select
 sidebar:
@@ -18,24 +18,12 @@ import { MultiSelect } from 'moraine'
 import type { MultiSelectT } from 'moraine'
 ```
 
-## Features
-
-- **Collection-backed values**: Every committed value resolves through a canonical `TItem` source.
-- **Interactive tag field**: Displays selected items as removable chips with optional overflow badge.
-- **Optional search & creation**: `search` filters; `createItem` constructs a `TItem` for free-form input.
-- **Unified tokenization**: Separators (comma, space) and paste reuse the same collection-aware creation path.
-- **Separate limits**: `maxCount` limits total selections; `maxTagCount` collapses visual tags into a customizable `+N` summary.
+Use MultiSelect for several selected collection items displayed as tags. Its values resolve through collection items; use [Select](/select) for one choice or [Combobox](/combobox) for editable single selection.
 
 ## Playground
 
 <Playground
   controls={[
-    {
-      kind: 'input',
-      prop: 'placeholder',
-      label: 'Placeholder',
-      defaultValue: 'Select topics...',
-    },
     {
       kind: 'select',
       prop: 'variant',
@@ -66,10 +54,7 @@ import type { MultiSelectT } from 'moraine'
       label: 'Open on control click',
       defaultValue: true,
     },
-    { kind: 'switch', prop: 'allowClear', label: 'Clearable', defaultValue: true },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-    { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
-    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
   ]}
 >
   {(props) => (
@@ -82,15 +67,12 @@ import type { MultiSelectT } from 'moraine'
         { label: 'Research', value: 'research', icon: 'i-lucide:search' },
       ]}
       defaultValue={['design']}
-      placeholder={props.placeholder}
+      placeholder="Select topics..."
       variant={props.variant}
       size={props.size}
       search={props.search}
       openOnControlClick={props.openOnControlClick}
-      allowClear={props.allowClear}
       disabled={props.disabled}
-      readOnly={props.readOnly}
-      loading={props.loading}
       class="max-w-96 min-w-40 w-60%"
     />
   )}
@@ -109,9 +91,16 @@ control
 │   └── input
 ├── clear (optional)
 └── trigger
+content (portaled while open)
+└── listbox
+    ├── group / groupLabel (optional)
+    ├── item (×n)
+    └── empty (optional)
 ```
 
 The control slot wraps the interactive tags container and floating anchor. When non-editable, clicking the control opens the panel by default; when editable (`search` or `createItem`), clicking the control focuses the input without opening the panel so users can type immediately. Use `openOnControlClick` to explicitly override this default behavior.
+
+The popup slots belong to MultiSelect's default collection content. Use `itemRender` for a custom option body; tags have their own rendering path through `tagRender`.
 
 ## Usage
 
@@ -183,10 +172,6 @@ Organize large collections into categorized option groups.
 Pre-locked items cannot be deselected, while individual options can be disabled in the listbox.
 
 <Preview path="./clear-and-disabled" />
-
-### Sizes and variants
-
-<Preview path="./sizes-and-variants" />
 
 ### Virtualization
 

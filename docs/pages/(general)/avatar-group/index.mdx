@@ -1,6 +1,6 @@
 ---
 title: AvatarGroup
-description: A container that stacks overlapping avatars horizontally with automatic overflow count calculation and hover depth effects.
+description: Show a compact stack of avatars with an overflow count.
 api:
   path: src/elements/avatar/avatar-group
 sidebar:
@@ -20,12 +20,7 @@ import { AvatarGroup } from 'moraine'
 import type { AvatarGroupT } from 'moraine'
 ```
 
-## Features
-
-- **Negative Spacing Stacking**: Automatically overlays avatars with matching background ring borders to cleanly delineate adjacent items.
-- **Dynamic Overflow Truncation**: When total items exceed `max`, extra avatars are summarized into an accessible `+N` badge.
-- **Cascading Size Control**: Setting `size` on `AvatarGroup` automatically propagates to all nested avatars and the overflow badge.
-- **Interactive Depth Elevation**: Individual avatars lift on hover with elevation z-index so users can inspect obscured faces.
+Use AvatarGroup to show a small set of people in a bounded space. It truncates the visible stack at `max`; keep the full membership available elsewhere when users need it.
 
 ## Playground
 

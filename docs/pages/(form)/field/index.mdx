@@ -1,6 +1,6 @@
 ---
 title: Field
-description: A generic layout and accessibility primitive for labels, descriptions, messages, and inherited control state.
+description: Associate a control with its label, help, error, and inherited state.
 api:
   path: src/forms/field/field
 sidebar:
@@ -21,15 +21,6 @@ It is used only for rendering field UI, registering controls, inheriting state, 
 
 For form integration, use `form.Field` returned by `createForm()`.
 
-## Features
-
-- **Standalone by Default**: Works without `createForm()` or any form store.
-- **Accessible Associations**: Connects labels, descriptions, help text, and errors to registered controls.
-- **Inherited State**: Child Moraine controls inherit `size`, `required`, `disabled`, and `readOnly` unless explicitly overridden.
-- **Flexible Messages**: Supports `description`, `hint`, `help`, and explicit `error` content.
-- **Layouts**: Supports vertical and horizontal field presentation.
-- **Control Agnostic**: Works with text inputs and non-text controls that participate in Field context.
-
 ## Anatomy
 
 ```text
@@ -46,6 +37,8 @@ root
 ```
 
 ## Usage
+
+Put a Moraine control inside `Field` so its label, description, and error IDs are registered with the actual focusable element. Standalone `Field` does not validate or submit values; use `form.Field` from `createForm()` when a schema owns the field. For local validation, pass the current message to `error`.
 
 <Preview path="./field-usage" />
 

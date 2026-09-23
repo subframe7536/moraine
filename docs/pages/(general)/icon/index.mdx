@@ -1,6 +1,6 @@
 ---
 title: Icon
-description: A flexible icon renderer for UnoCSS icon classes, JSX elements, and Solid components.
+description: Render decorative or named icons from utility names or JSX.
 api:
   path: src/elements/icon/icon
 sidebar:
@@ -18,13 +18,7 @@ import { Icon } from 'moraine'
 import type { IconT } from 'moraine'
 ```
 
-## Features
-
-- **Semantic Icon Aliases**: Moraine's styling integrations supply `icon-*` names such as `icon-search` and `icon-success`. TypeScript suggests these built-in names in `IconT.Name` and other icon props.
-- **Custom Utility Classes**: Arbitrary names such as `i-lucide-search` or `app-logo` remain accepted. Their CSS depends on your build configuration.
-- **JSX & Component Sources**: `name` can also be a JSX node or Solid component.
-- **Explicit Sizing**: Numeric `size` values are interpreted as pixels; string values are passed through as CSS font-size values.
-- **Decorative by Default**: When no `aria-label` is provided, the rendered icon receives `aria-hidden="true"`. Add an accessible label when the icon itself carries meaning.
+Use Icon for decoration or a named symbol alongside text. If the icon alone conveys meaning, give it an accessible name; otherwise it is hidden from assistive technology.
 
 ## Playground
 

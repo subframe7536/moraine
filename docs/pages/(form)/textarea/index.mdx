@@ -1,6 +1,6 @@
 ---
 title: Textarea
-description: A multi-line text input with optional auto-resizing, row limits, and Field integration.
+description: Edit multi-line text with optional auto-sizing and Field integration.
 api:
   path: src/forms/textarea/textarea
 sidebar:
@@ -18,13 +18,7 @@ import { Textarea } from 'moraine'
 import type { TextareaT } from 'moraine'
 ```
 
-## Features
-
-- **Auto Resize**: `autoResize` grows the textarea with its content instead of keeping a fixed-height internal scroll area.
-- **Row Limits**: Use `rows` and `maxRows` to bound auto-resized height.
-- **Composition**: Use [InputGroup](/input-group) parts for formatting controls, counters, badges, and action buttons.
-- **Visual Variants**: Supports `outline`, `subtle`, `ghost`, and `none`.
-- **Field Integration**: Uses the field context for identity, disabled/required state, validation metadata, and label/error associations.
+Use Textarea for multi-line native text entry. Use [InputGroup](/input-group) to put controls around it without changing which element receives typing and focus.
 
 ## Playground
 
@@ -99,12 +93,7 @@ Enable autoresize and constrain it with `rows` and `maxRows`. Use `InputGroup or
 
 ### Keyboard interaction
 
-Textarea preserves native keyboard behavior. Submit shortcuts such as Cmd/Ctrl+Enter and custom Tab indentation are application-level behaviors that callers can implement when needed.
-
-| Key              | Description                                                                    |
-| ---------------- | ------------------------------------------------------------------------------ |
-| <kbd>Enter</kbd> | Inserts a line break in the textarea.                                          |
-| <kbd>Tab</kbd>   | Moves focus according to normal browser behavior unless handled by the caller. |
+Textarea keeps native text editing. Submit shortcuts such as Cmd/Ctrl+Enter and custom Tab indentation belong to the application.
 
 ## Examples
 

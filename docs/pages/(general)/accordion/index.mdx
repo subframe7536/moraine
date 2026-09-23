@@ -1,6 +1,6 @@
 ---
 title: Accordion
-description: A stacked disclosure component with single or multiple expanded sections, optional collapse restrictions, and keyboard focus navigation.
+description: Coordinate one or several expandable sections with shared disclosure rules.
 api:
   path: src/elements/accordion/accordion
 sidebar:
@@ -18,14 +18,7 @@ import { Accordion } from 'moraine'
 import type { AccordionT } from 'moraine'
 ```
 
-## Features
-
-- **Single & Multiple Expansion**: `multiple={false}` keeps at most one item open; enable `multiple` for concurrent sections.
-- **Collapse Control**: `collapsible={false}` prevents the last open item from being collapsed in single-selection mode.
-- **Presence-Based Content Transition**: Expanded content is measured for disclosure styling and can remain mounted through its exit transition.
-- **Disclosure Semantics**: Each item uses an `<h3>` header and `<button>` trigger with `aria-expanded`; an expanded trigger references its content with `aria-controls`.
-- **Keyboard Focus Navigation**: Arrow keys, Home, and End move among enabled triggers; `loop` controls wrapping.
-- **Per-Item Disabling**: Disable individual sections or the entire accordion.
+Use Accordion for several related disclosures that share one open-item policy. For a single independent disclosure, use [Collapsible](/collapsible).
 
 ## Playground
 

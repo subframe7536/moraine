@@ -1,6 +1,6 @@
 ---
 title: Popover
-description: An anchored click- or hover-triggered dialog panel with Floating UI positioning and configurable dismissal behavior.
+description: Show anchored interactive content from click or hover.
 api:
   path: src/overlays/popover/popover
   parts: [Trigger, Content, Close]
@@ -19,13 +19,7 @@ import { Popover } from 'moraine'
 import type { PopoverT } from 'moraine'
 ```
 
-## Features
-
-- **Floating UI Positioning**: Anchors to the trigger and uses the shared Popper positioning layer for collision-aware placement.
-- **Click & Hover Modes**: `mode="click"` is the default; hover mode supports `openDelay` and `closeDelay` and also responds to trigger focus/blur.
-- **Dismissal Control**: Outside interaction and Escape close a dismissible popover. With `dismissible={false}`, those close attempts are prevented and can be observed through `onClosePrevent`.
-- **Optional Modal Behavior**: `modal` and `preventScroll` are forwarded to the underlying Popper primitive when modal interaction is required.
-- **Dialog Semantics**: The floating content uses `role="dialog"`; provide `ariaLabel` when the dialog does not have another accessible naming mechanism.
+Use Popover for anchored interactive content that does not need the structure of a full dialog. Use [Tooltip](/tooltip) for brief, non-interactive hints.
 
 ## Playground
 

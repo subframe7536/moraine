@@ -1,6 +1,6 @@
 ---
 title: SidebarFrame
-description: A responsive application shell with compound sidebar regions, collapsible groups, and an automatic mobile Sheet.
+description: Build desktop sidebar navigation that moves into a mobile drawer.
 api:
   path: src/navigation/sidebar-frame/sidebar-frame
   parts: [Sidebar, SidebarHeader, SidebarBody, SidebarFooter, Main, Trigger]
@@ -130,13 +130,15 @@ Root `classes` and `styles` provide defaults for `root`, `sidebar`, `sidebarHead
 
 Call `useSidebarFrame()` from a descendant component for advanced access to `isMobile`, `isOpen`, `scrolled`, `setOpen`, and `toggle`. A global application header belongs outside the frame. For desktop resizing, branch on `isMobile()` and compose the generic `Resizable` component explicitly.
 
-## Examples
+## Usage
 
-### Responsive usage
+### Responsive navigation ownership
 
-A complete SaaS application shell featuring quick command search (`⌘K`), grouped navigation, a user profile footer, breadcrumb navigation, and deployment status cards. On smaller screens, the sidebar transitions smoothly into an overlay Sheet drawer.
+`SidebarFrame.Sidebar` owns the same navigation content in desktop and mobile layouts. Put the application header outside the frame, then place `SidebarFrame.Trigger` where users need to reveal or collapse navigation. If a child needs to coordinate with the sidebar, read `useSidebarFrame()` within the provider rather than maintaining a second open state.
 
 <Preview path="./responsive-usage" />
+
+## Examples
 
 ### Collapsible sub-navigation
 

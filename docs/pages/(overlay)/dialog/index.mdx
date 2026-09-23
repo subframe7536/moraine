@@ -1,6 +1,6 @@
 ---
 title: Dialog
-description: A modal dialog with focus management, scroll locking, backdrop support, and structured header, body, and footer regions.
+description: Present a labeled modal task with structured content and dismissal.
 api:
   path: src/overlays/dialog/dialog
   parts: [Trigger, Content, Close]
@@ -19,13 +19,7 @@ import { Dialog } from 'moraine'
 import type { DialogT } from 'moraine'
 ```
 
-## Features
-
-- **Focus Management**: Constrains keyboard focus while the dialog is open and restores focus when it closes.
-- **Scroll Lock & Overlay**: Prevents background document scrolling while open and can render a backdrop overlay.
-- **Structured Content**: Provides `title`, `description`, `body`, `footer`, and close-button regions.
-- **Dismissal Control**: Set `dismissible={false}` to block normal dismissal. Use `onClosePrevent` to observe prevented close attempts.
-- **Dialog Semantics**: The dialog surface provides `role="dialog"`, `aria-modal`, and title/description associations when those regions are present.
+Use Dialog when an action or form needs focused attention with a labeled modal surface. The trigger and content share disclosure state through the root.
 
 ## Playground
 
@@ -127,9 +121,11 @@ Use title and description so the dialog receives an accessible name and descript
 
 ## Examples
 
-### Basic dialog
+### Destructive confirmation
 
-<Preview path="./basic" />
+Keep the item visible until the user confirms the action. Cancel and backdrop dismissal leave it intact.
+
+<Preview path="./delete-confirmation" />
 
 ### Scrollable and fullscreen content
 

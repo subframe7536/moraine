@@ -1,6 +1,6 @@
 ---
 title: Progress
-description: A determinate or indeterminate progress indicator with animation presets, optional step markers, and horizontal or vertical orientation.
+description: Show measurable or indeterminate task progress.
 api:
   path: src/elements/progress/progress
 sidebar:
@@ -18,13 +18,7 @@ import { Progress } from 'moraine'
 import type { ProgressT } from 'moraine'
 ```
 
-## Features
-
-- **Determinate & Indeterminate Modes**: Provide a value for determinate progress or use an indeterminate animation when completion cannot be measured.
-- **Animation Presets**: `carousel`, `reverse`, `swing`, and `elastic` provide built-in indeterminate motion styles.
-- **Step Markers**: Supply step labels to display discrete milestones along the progress track.
-- **Horizontal & Vertical Orientations**: Choose the track direction that fits the surrounding layout.
-- **Progressbar Metadata**: Exposes `role="progressbar"` and value-related ARIA attributes for determinate progress.
+Use Progress for measurable task completion or for work whose end is not yet known. Choose a determinate value only when it represents real progress.
 
 ## Playground
 

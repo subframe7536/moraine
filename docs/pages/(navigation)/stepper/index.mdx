@@ -1,6 +1,6 @@
 ---
 title: Stepper
-description: Tab-structured step navigation with linear or non-linear flows, horizontal or vertical layout, and optional active-step content.
+description: Guide users through a sequence of panels and completion states.
 api:
   path: src/navigation/stepper/stepper
 sidebar:
@@ -18,14 +18,7 @@ import { Stepper } from 'moraine'
 import type { StepperT } from 'moraine'
 ```
 
-## Features
-
-- **Linear & Non-Linear Navigation**: `linear` controls whether a clickable stepper can jump past the next step. It defaults to `true`.
-- **Explicit Clickability**: `clickable` defaults to `false`; when disabled, only the active step is interactive through the built-in triggers.
-- **Horizontal & Vertical Layouts**: Orientation changes both visual layout and arrow-key navigation direction.
-- **Active-Step Content**: An item's `content` renders as the selected tab panel.
-- **State Metadata**: Items are marked `inactive`, `active`, or `completed` according to their position relative to the active step. Moraine does not replace completed icons automatically; provide the icon you want in each item.
-- **Tab Semantics**: The header uses `role="tablist"`, triggers use `role="tab"`, and active content uses `role="tabpanel"` with ID associations.
+Use Stepper to show progress through a fixed sequence of steps. Decide whether users may jump ahead before enabling clickable navigation.
 
 ## Playground
 

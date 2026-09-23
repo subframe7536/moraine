@@ -1,6 +1,6 @@
 ---
 title: Select
-description: A single, non-editable collection selection with typeahead, rich items, groups, and virtual rendering.
+description: Choose one item from a non-editable collection.
 api:
   path: src/forms/select/select
 sidebar:
@@ -18,24 +18,12 @@ import { Select } from 'moraine'
 import type { SelectT } from 'moraine'
 ```
 
-## Features
-
-- **Single collection value**: Commits one `SelectT.NormalizedItem<TItem>['value']` or `null`.
-- **Non-editable trigger**: Focus stays on the button; printable keys navigate items via typeahead.
-- **Native rich items**: Built-in `icon` and multi-line `description` support out of the box.
-- **Collection rendering**: Supports groups, custom items, infinite scroll, and virtualization.
-- **Stable anatomy**: Control is the floating anchor, Trigger is the button, and Value is the label region.
+Use Select for one choice from a non-editable collection. Use [Combobox](/combobox) when users need to type a query, or [BaseSelect](/base-select) when you need to compose the listbox yourself.
 
 ## Playground
 
 <Playground
   controls={[
-    {
-      kind: 'input',
-      prop: 'placeholder',
-      label: 'Placeholder',
-      defaultValue: 'Select a framework...',
-    },
     {
       kind: 'select',
       prop: 'variant',
@@ -61,8 +49,6 @@ import type { SelectT } from 'moraine'
     },
     { kind: 'switch', prop: 'allowClear', label: 'Clearable', defaultValue: true },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-    { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
-    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
   ]}
 >
   {(props) => (
@@ -74,13 +60,11 @@ import type { SelectT } from 'moraine'
         { label: 'Svelte', value: 'svelte', icon: 'i-lucide:flame' },
         { label: 'Astro', value: 'astro', icon: 'i-lucide:rocket' },
       ]}
-      placeholder={props.placeholder}
+      placeholder="Select a framework..."
       variant={props.variant}
       size={props.size}
       allowClear={props.allowClear}
       disabled={props.disabled}
-      readOnly={props.readOnly}
-      loading={props.loading}
       class="max-w-72 min-w-40 w-60%"
     />
   )}
@@ -95,12 +79,20 @@ control
     ├── value
     ├── clear (optional)
     └── trailing (chevron / loading icon)
+content (portaled while open)
+└── listbox
+    ├── group / groupLabel (optional)
+    ├── item (×n)
+    ├── separator (optional)
+    └── empty (optional)
 ```
 
 The control slot is the outer visual field and floating anchor. The trigger slot is the sole
 interactive button and focus owner. The value slot displays the selected label or `String(value)`
 for an unresolved value. Clear is a pointer-only affordance inside the trigger that clears the
 selection without toggling the popup.
+
+The popup slots are rendered by Select's default collection content; they are styling targets, not attached `Select` child components. Use [BaseSelect](/base-select) when the listbox itself needs custom composition.
 
 ## Usage
 
@@ -137,10 +129,6 @@ Printable keys perform rapid typeahead navigation across available options witho
 
 ## Examples
 
-### Sizes and variants
-
-<Preview path="./sizes-and-variants" />
-
 ### Rich items
 
 Each item supports an `icon` and secondary `description` without requiring custom item templates.
@@ -156,10 +144,6 @@ Each item supports an `icon` and secondary `description` without requiring custo
 Organize options into labeled categories using `type: 'group'`.
 
 <Preview path="./grouped-items" />
-
-### Clearable, disabled, and read-only
-
-<Preview path="./states" />
 
 ### Incremental collections
 

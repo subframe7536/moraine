@@ -1,6 +1,6 @@
 ---
 title: Collapsible
-description: A disclosure primitive for controlled or uncontrolled expanding and collapsing content with optional transitions.
+description: Disclose one content region from a caller-placed trigger.
 api:
   path: src/elements/collapsible/collapsible
   parts: [Trigger, Content]
@@ -19,13 +19,7 @@ import { Collapsible } from 'moraine'
 import type { CollapsibleT } from 'moraine'
 ```
 
-## Features
-
-- **Controlled & Uncontrolled State**: Use `open` with `onOpenChange`, or initialize uncontrolled state with `defaultOpen`.
-- **Composable Trigger and Content**: `Collapsible.Trigger` and `Collapsible.Content` can be placed within caller-owned layout.
-- **Optional Transition**: `transition` enables the built-in open/close transition for the content region.
-- **Disclosure Metadata**: Trigger state is reflected through `aria-expanded` and the trigger/content association.
-- **Disabled State**: Disabling the root prevents its trigger from changing disclosure state.
+Use Collapsible for one disclosure whose trigger and content belong to the surrounding layout. Use [Accordion](/accordion) when several disclosures share selection rules.
 
 ## Playground
 
@@ -101,12 +95,7 @@ The content transition and mount behavior are separate choices. Keep content mou
 
 ### Keyboard interaction
 
-The trigger uses button semantics by default. Polymorphic triggers inherit the keyboard semantics of the supplied element or component.
-
-| Key                                 | Description                                               |
-| ----------------------------------- | --------------------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates a native button trigger and toggles disclosure. |
-| <kbd>Tab</kbd>                      | Follows normal document focus order.                      |
+The trigger uses button semantics by default. A polymorphic trigger follows the keyboard semantics of its supplied element or component.
 
 ## Examples
 

@@ -1,6 +1,6 @@
 ---
 title: Modal
-description: Low-level modal primitives with focus management, scroll locking, dismissal control, and overridable default surface styles.
+description: Compose a modal trigger, backdrop, and content surface.
 api:
   path: src/overlays/modal/modal
   parts: [Content, Overlay, Trigger, Close]
@@ -20,14 +20,7 @@ import { Modal } from 'moraine'
 import type { ModalT } from 'moraine'
 ```
 
-## Features
-
-- **Composable Primitives**: `Modal`, `Modal.Trigger`, `Modal.Overlay`, and `Modal.Content` separate state, trigger, backdrop overlay, and content responsibilities.
-- **Overridable Defaults**: Root `classes` and `styles` provide instance defaults for the `overlay` and `content` slots; each rendered part accepts direct `class` and `style`.
-- **Focus Management**: Keeps focus within the active modal surface and restores focus when it closes.
-- **Scroll Lock & Portal Rendering**: Portals modal overlay and content, and prevents background body scrolling while open.
-- **Dismissal & Overlay Control**: Configure outside/Escape dismissal and optional overlay rendering.
-- **Dialog Semantics**: Supports `ariaLabel`, `ariaLabelledBy`, and the dialog role on the content surface.
+Use Modal when you need to compose backdrop, trigger, and content directly. Use [Dialog](/dialog) for a structured title, description, body, and footer.
 
 ## Playground
 

@@ -1,49 +1,46 @@
 import { CommandPalette, Icon } from '@src'
 import type { CommandPaletteT } from '@src'
+import { createSignal } from 'solid-js'
 
 const COMMAND_GROUPS: CommandPaletteT.Group[] = [
   {
-    id: 'navigation',
-    label: 'Navigation',
+    id: 'workspace',
+    label: 'Workspace sections',
     items: [
       {
-        value: 'dash',
-        label: 'Go to Dashboard',
+        value: 'overview',
+        label: 'Overview',
+        description: 'Recent activity and open work',
         leadingRender: () => <Icon name="i-lucide:layout-dashboard" />,
       },
       {
-        value: 'settings',
-        label: 'Go to Settings',
-        leadingRender: () => <Icon name="i-lucide:settings" />,
-      },
-    ],
-  },
-  {
-    id: 'actions',
-    label: 'Actions',
-    items: [
-      {
-        value: 'new-proj',
-        label: 'Create new project',
-        leadingRender: () => <Icon name="i-lucide:folder-plus" />,
+        value: 'members',
+        label: 'Members',
+        description: 'People with workspace access',
+        leadingRender: () => <Icon name="i-lucide:users" />,
       },
       {
-        value: 'invite',
-        label: 'Invite team member',
-        leadingRender: () => <Icon name="i-lucide:user-plus" />,
+        value: 'security',
+        label: 'Security',
+        description: 'Sign-in and access policies',
+        leadingRender: () => <Icon name="i-lucide:shield-check" />,
       },
     ],
   },
 ]
 
 export function GroupsFiltering() {
+  const [section, setSection] = createSignal('overview')
+
   return (
-    <div class="b-(1 border) rounded-xl max-w-md w-full shadow-lg overflow-hidden">
+    <div class="max-w-md w-full space-y-3">
       <CommandPalette
         autofocus={false}
-        placeholder="Type a command or search..."
+        placeholder="Find a workspace section..."
         groups={COMMAND_GROUPS}
+        onSelect={(item) => setSection(item.value)}
       />
+      <p class="text-sm">Current section: {section()}</p>
     </div>
   )
 }

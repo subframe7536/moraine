@@ -1,6 +1,6 @@
 ---
 title: ButtonGroup
-description: A connected toolbar container for grouping related buttons with shared variants, sizes, explicit separators, and split action dropdowns.
+description: Join related buttons into one visual control set.
 api:
   path: src/elements/button/button-group
   parts: [Separator]
@@ -21,13 +21,7 @@ import { Button, ButtonGroup } from 'moraine'
 import type { ButtonGroupT } from 'moraine'
 ```
 
-## Features
-
-- **Connected Button Layout**: Removes intermediate border radii and collapses adjacent borders between grouped buttons.
-- **Explicit Separators**: Insert `ButtonGroup.Separator` only where a stronger boundary clarifies separate actions.
-- **Contextual Prop Inheritance**: Propagates `size` and `variant` to all child buttons, while allowing individual buttons to override them when necessary.
-- **Horizontal & Vertical Layouts**: Support both horizontal toolbar segments and vertical control stacks.
-- **Split-Button & Dropdown Compositions**: Effortlessly pair primary action buttons with chevron dropdown triggers in a unified pill container.
+Use ButtonGroup when adjacent actions should read as one control set. Each child remains its own interactive control; the group supplies layout and shared presentation.
 
 ## Playground
 
@@ -92,13 +86,6 @@ ButtonGroup
 `ButtonGroupT.Kind` is `composite`: use `ButtonGroup` to align related actions and attach `ButtonGroup.Separator` where needed without changing the semantics of its children. Root `classes` and `styles` configure the `root` and `separator` family slots. Separator is a one-slot part and therefore accepts direct `class` and `style`, not a full-family slot map. Compose a menu or popover trigger as a child when an action needs an attached overlay.
 
 <Preview path="./group-composition" />
-
-### Keyboard interaction
-
-| Key                                 | Description                                                |
-| ----------------------------------- | ---------------------------------------------------------- |
-| <kbd>Tab</kbd>                      | Moves focus sequentially through the buttons in the group. |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the currently focused button in the group.       |
 
 ## Examples
 

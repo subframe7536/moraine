@@ -1,6 +1,6 @@
 ---
 title: InputNumber
-description: A numeric spinbutton input with boundary clamping, configurable step intervals, press-and-hold repeat, and horizontal or vertical stepper layouts.
+description: Edit a constrained number with step buttons and keyboard controls.
 api:
   path: src/forms/input-number/input-number
 sidebar:
@@ -19,13 +19,7 @@ import { InputNumber } from 'moraine'
 import type { InputNumberT } from 'moraine'
 ```
 
-## Features
-
-- **Boundary Clamping**: `minValue` and `maxValue` constrain committed values.
-- **Decimal-Safe Stepping**: Increment and decrement operations use `step` without accumulating common floating-point artifacts.
-- **Horizontal & Vertical Controls**: Place decrement/increment buttons on the sides or stack them in a right-hand rail.
-- **Press-and-Hold Repeat**: Hold a step button to repeat after `repeatDelayMs` at the configured `repeatIntervalMs`; disable it with `holdRepeat={false}`.
-- **Spinbutton Semantics**: The input exposes spinbutton value metadata such as `aria-valuenow`, `aria-valuemin`, and `aria-valuemax` where applicable.
+Use InputNumber for a numeric field with step controls and constrained committed values. Choose a plain [Input](/input) when free-form numeric text is required.
 
 ## Playground
 

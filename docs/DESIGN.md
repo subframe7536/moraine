@@ -15,6 +15,10 @@ project lifecycle as **pre-1.0; breaking changes may occur**. Do not invent metr
 accessibility guarantees, browser-compatibility claims, or performance claims. State a limitation
 when it is known rather than implying support that the source does not demonstrate.
 
+Use `Usage` to explain choices, state models, composition, and consequences that a generated API table
+cannot convey. Keep accessibility guidance beside the behavior it explains. Avoid standalone feature
+lists and repeating native keyboard behavior where Moraine adds no special rule.
+
 ## Semantic Surfaces and Color Roles
 
 Use the semantic variables configured in `docs/unocss.config.ts`; no raw documentation color
@@ -84,10 +88,11 @@ source panel; regular `Preview` blocks provide source for usage subsections and 
 Controls are chosen by the author to demonstrate meaningful behavior and must wrap or move below the
 preview on narrow screens; they are not a generic property editor.
 
-Use dedicated previews in `Usage` for core API guides and in `Examples` for complex compositions, state
-transitions, render functions, accessibility-related attributes, or layout constraints. Keep the
-preview realistic enough to reveal behavior, but do not add fake application chrome or duplicate
-production previews only to fill a grid.
+Use dedicated previews in `Usage` for core API guides and in `Examples` for useful application tasks,
+complex compositions, state transitions, or layout constraints. A Preview is the copyable TSX source;
+keep its data and helpers in the same file. Prefer replacing a redundant prop demonstration with a
+realistic task over adding examples to reach a count. Do not add fake application chrome or duplicate
+Playground controls in standalone examples.
 
 ## Landing composition
 

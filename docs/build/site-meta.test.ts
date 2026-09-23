@@ -5,8 +5,7 @@ import { buildSiteMetaTags, siteMetaPlugin } from './site-meta'
 const SITE_META = {
   siteName: 'Moraine',
   title: 'Moraine Docs',
-  description:
-    'Accessible, composable SolidJS components with atomic class styling for UnoCSS and Tailwind.',
+  description: 'Composable SolidJS components with atomic class styling for UnoCSS and Tailwind.',
   siteUrl: 'https://ui.subf.dev/',
   imagePath: '/og-image.png',
   imageAlt: 'Moraine Docs brand cover image',

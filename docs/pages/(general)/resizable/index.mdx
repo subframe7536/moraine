@@ -1,6 +1,6 @@
 ---
 title: Resizable
-description: A multi-pane layout component with explicit panels and handles.
+description: Arrange panels with draggable and keyboard-operated size boundaries.
 api:
   path: src/elements/resizable/resizable
   parts: [Panel, Handle]
@@ -47,12 +47,22 @@ import type { ResizableT } from 'moraine'
 Resizable
 ├── Resizable.Panel
 ├── Resizable.Handle
+│   ├── handleControl (optional grip)
+│   └── intersection (optional pointer targets)
 └── Resizable.Panel
 ```
 
 Each handle can independently set `action="collapse"`, enable `intersection`, or render a custom grip through its children. Use `children={false}` to keep the divider while omitting the inner grip.
 
-## Keyboard interaction
+## Usage
+
+### Panel constraints
+
+Give each panel an initial size and any minimum or maximum it must respect. The handle changes the sizes of its adjacent panels; a panel without a neighboring handle remains fixed at that boundary. Use controlled sizes when the surrounding layout needs to persist or reset a split.
+
+<Preview path="./constraints" />
+
+### Keyboard interaction
 
 | Key                                          | Description                                                   |
 | -------------------------------------------- | ------------------------------------------------------------- |
@@ -63,8 +73,6 @@ Each handle can independently set `action="collapse"`, enable `intersection`, or
 | <kbd>Enter</kbd>                             | Toggles the nearest collapsible panel for collapse handles.   |
 
 ## Examples
-
-<Preview path="./constraints" />
 
 <Preview path="./composition" />
 

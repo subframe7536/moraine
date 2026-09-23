@@ -1,6 +1,6 @@
 ---
 title: DropdownMenu
-description: A trigger-anchored action menu with groups, submenus, shortcut hints, and checkbox or radio items.
+description: Open a compact action menu from a visible trigger.
 api:
   path: src/overlays/dropdown-menu/dropdown-menu
   parts: [Trigger, Content]
@@ -19,13 +19,7 @@ import { DropdownMenu } from 'moraine'
 import type { DropdownMenuT } from 'moraine'
 ```
 
-## Features
-
-- **Floating UI Positioning**: Anchors the menu to its trigger through Moraine's shared floating-positioning primitive.
-- **Groups & Separators**: Organize menu items into labeled sections.
-- **Nested Submenus**: Items can open child menus; nesting depth should be chosen with usability and layout constraints in mind rather than treated as unbounded.
-- **Checkbox & Radio Items**: Menu data supports toggle state and radio-style single-choice groups.
-- **Menu Semantics**: The shared menu behavior exposes menu/menuitem roles, highlighted state, and keyboard navigation without claiming conformance beyond the implemented behavior.
+Use DropdownMenu for a compact set of actions opened from a visible trigger. Use [Select](/select) for choosing a form value.
 
 ## Playground
 

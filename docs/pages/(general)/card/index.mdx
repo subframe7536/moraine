@@ -1,6 +1,6 @@
 ---
 title: Card
-description: A structured surface with optional header, title, description, action, body, footer, and compact spacing.
+description: Arrange related content, headings, and actions on a surface.
 api:
   path: src/elements/card/card
 sidebar:
@@ -18,14 +18,7 @@ import { Card } from 'moraine'
 import type { CardT } from 'moraine'
 ```
 
-## Features
-
-- **Structured Regions**: Compose `header`, `title`, `description`, `action`, body children, and `footer` content.
-- **Header Override**: Supplying `header` replaces the built-in title/description header content.
-- **Compact Spacing**: `compact` reduces header, body, and footer spacing for denser layouts.
-- **Flexible Body Content**: The body accepts arbitrary JSX, including media and interactive controls.
-
-`Card` renders a `<div>` root and does not assign document-section semantics automatically. Add suitable headings, landmarks, or ARIA metadata in the surrounding application when the content requires them.
+Use Card to arrange related content and actions on one surface. It does not make the content a document section or supply a heading level.
 
 ## Playground
 

@@ -1,6 +1,6 @@
 ---
 title: List
-description: A headless polymorphic collection primitive with caller-controlled item rendering and optional virtualization.
+description: Render caller-defined rows with optional virtual scrolling.
 api:
   path: src/elements/list/list
 sidebar:
@@ -17,14 +17,7 @@ import { useListVirtualizer } from 'moraine/virtualizer'
 import type { ListT } from 'moraine'
 ```
 
-## Features
-
-- **Caller-Controlled Rendering**: `itemRender` receives `{ item, index, props }`, leaving row markup to the caller.
-- **Polymorphic Root**: The root defaults to `<ul>` with `role="list"` and can be changed with `as`.
-- **Optional Virtual Rendering**: `virtualRender` replaces normal iteration with a caller-provided renderer.
-- **Virtualizer Helper**: `useListVirtualizer` can be used with `virtualRender` to render only the visible portion of larger collections and pass row measurement props to `itemRender`.
-
-`List` itself does not impose a dataset-size or frame-rate guarantee; virtualization performance depends on row content, browser workload, and virtualizer configuration.
+Use List when the caller owns each row’s markup and needs a stable collection surface. Add a virtual renderer for large collections only when ordinary rendering becomes costly.
 
 ## Anatomy
 
@@ -35,13 +28,17 @@ root (<ul> by default)
 
 When virtualization is enabled, `props` contains attributes supplied by the virtual renderer for the final row element.
 
-## Examples
+## Usage
 
-### Virtualization
+### Row ownership and virtualization
 
-Make sure `@tanstack/virtual-core` is installed.
+`itemRender` receives the item, its index, and row props. Apply those props to the final row element when using `virtualRender`; the virtualizer needs them for positioning and measurement. The default root is a `<ul>` with `role="list"`, so render list-item semantics in each row or choose a different root with `as` for another structure.
+
+`useListVirtualizer` is an optional adapter from `moraine/virtualizer` and needs `@tanstack/virtual-core`. The visible row count and scroll behavior depend on your estimated or measured row sizes.
 
 <Preview path="./virtualization" />
+
+## Examples
 
 ### Dynamic heights
 

@@ -1,6 +1,6 @@
 ---
 title: ContextMenu
-description: A context-triggered menu anchored to pointer coordinates, with grouped actions, submenus, shortcut hints, and checkbox or radio items.
+description: Open item-specific actions at a context interaction point.
 api:
   path: src/overlays/context-menu/context-menu
   parts: [Trigger, Content]
@@ -19,13 +19,7 @@ import { ContextMenu } from 'moraine'
 import type { ContextMenuT } from 'moraine'
 ```
 
-## Features
-
-- **Pointer-Anchored Positioning**: Opens at the context interaction point and uses the shared floating-positioning layer to stay within available viewport space.
-- **Pointer and Touch Triggers**: Supports context-menu pointer interaction and the component's long-press trigger behavior.
-- **Nested Submenus**: Menu items can contain nested child menus.
-- **Checkbox & Radio Items**: Menu data supports persistent checked items and radio-style single-choice groups.
-- **Menu Semantics**: The menu surface and interactive rows expose menu/menuitem semantics and keyboard-highlight state through the shared menu primitive.
+Use ContextMenu for actions tied to a specific surface or item at the pointer location. Keep essential actions discoverable through another visible path.
 
 ## Playground
 

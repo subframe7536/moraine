@@ -1,6 +1,6 @@
 ---
 title: InputGroup
-description: Compose icons, text, loading indicators, and actions around an independent Input or Textarea.
+description: Place addons and actions around a native text control.
 api:
   path: src/forms/input-group/input-group
   parts: [Leading, Trailing]
@@ -19,16 +19,21 @@ import { Input, InputGroup, Textarea } from 'moraine'
 import type { InputGroupT } from 'moraine'
 ```
 
+Use InputGroup when an editable control and its addons should share one visual boundary. The inner input or textarea still owns text entry and its accessible name.
+
 ## Anatomy
 
 ```text
 InputGroup (root)
 ├── InputGroup.Leading (leading slot, repeat as needed)
 ├── Input or Textarea (independent native control, root slot)
-└── InputGroup.Trailing (trailing slot, repeat as needed)
+├── InputGroup.Trailing (trailing slot, repeat as needed)
+└── frame (<span aria-hidden="true">)
 ```
 
 Place zero or more `Leading` parts first, then one `Input` or `Textarea`, then zero or more `Trailing` parts. `orientation` belongs to `InputGroup` and determines whether all parts sit beside or above/below the control. `Leading` and `Trailing` accept `compact` to use denser padding for the part. Child type never changes spacing implicitly; use `compact` explicitly when a `Button`, `Kbd`, or other addon should occupy less surrounding space. Both parts accept ordinary JSX.
+
+The final frame element paints the shared boundary and does not receive focus or control attributes.
 
 ## Playground
 

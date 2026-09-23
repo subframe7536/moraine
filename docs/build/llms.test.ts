@@ -34,6 +34,31 @@ ${body}
 }
 
 describe('llms.txt generation', () => {
+  test('keeps guidance and copyable examples on real component pages', async () => {
+    const projectRoot = path.resolve(__dirname, '../..')
+    const documents = await buildLlmsDocuments({
+      projectRoot,
+      siteName: 'Moraine',
+      description: 'Docs description.',
+      siteUrl: 'https://ui.subf.dev/',
+    })
+
+    for (const name of ['badge', 'button', 'select', 'multi-select', 'form', 'dialog']) {
+      const source = documents.find((document) => document.fileName === `${name}.md`)?.source
+      expect(source, `${name}.md`).toContain('## Usage')
+      expect(source, `${name}.md`).toContain('```tsx\nimport ')
+      expect(source, `${name}.md`).toContain('## Props')
+      expect(source, `${name}.md`).not.toContain('<Preview')
+      expect(source, `${name}.md`).not.toContain('<Playground')
+      expect(source, `${name}.md`).not.toContain('controls={')
+    }
+
+    const select = documents.find((document) => document.fileName === 'select.md')?.source
+    expect(select).toContain('`null` indicates no active selection')
+    expect(select).toContain('export function UserAssignee()')
+    expect(select).toContain("from 'moraine'")
+  })
+
   test('builds grouped index links with absolute markdown URLs', async () => {
     const projectRoot = await createTempProject()
 

@@ -2,7 +2,7 @@ import { Accordion } from '@src'
 import { createSignal } from 'solid-js'
 
 export function Single() {
-  const [openValue, setOpenValue] = createSignal<string[]>(['accessibility'])
+  const [openValue, setOpenValue] = createSignal<string[]>(['invite'])
 
   return (
     <div class="max-w-xl w-full space-y-3">
@@ -11,25 +11,25 @@ export function Single() {
         onChange={setOpenValue}
         items={[
           {
-            value: 'accessibility',
-            label: 'Is Moraine fully accessible (WAI-ARIA compliant)?',
-            leading: 'i-lucide:sparkles',
+            value: 'invite',
+            label: 'What should I check before inviting a member?',
+            leading: 'i-lucide:user-plus',
             content:
-              'Yes. Every primitive is built according to W3C WAI-ARIA authoring practices, featuring full keyboard navigation, roving focus, and screen-reader announcements.',
+              'Confirm the email address and choose the role that gives the person only the access they need.',
           },
           {
-            value: 'ssr',
-            label: 'Does it support SSR and hydration in SolidStart?',
-            leading: 'i-lucide:server',
+            value: 'archive',
+            label: 'When should I archive a project?',
+            leading: 'i-lucide:archive',
             content:
-              'All components are tested for strict SSR safety, deterministic ID generation, and identical client/server hydration trees without layout shifts.',
+              'Archive work that no longer needs active updates after your team has saved any reports it still needs.',
           },
           {
-            value: 'customization',
-            label: 'How does styling and theme customization work?',
-            leading: 'i-lucide:palette',
+            value: 'status',
+            label: 'Where should a release status be recorded?',
+            leading: 'i-lucide:list-checks',
             content:
-              'Moraine uses UnoCSS / Tailwind utility tokens with semantic variables. You can override classes cleanly using the classes prop or custom themes.',
+              'Keep the status on the release record so everyone sees the same source of truth.',
           },
         ]}
       />

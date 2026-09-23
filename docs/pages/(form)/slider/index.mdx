@@ -1,6 +1,6 @@
 ---
 title: Slider
-description: A single- or multi-thumb range slider with step dividers, vertical orientation, inverted direction, and keyboard control.
+description: Choose a number or range by moving one or more thumbs.
 api:
   path: src/forms/slider/slider
 sidebar:
@@ -19,14 +19,7 @@ import { Slider } from 'moraine'
 import type { SliderT } from 'moraine'
 ```
 
-## Features
-
-- **Single & Multi-Thumb Values**: Use a scalar number or an array of values for range selection.
-- **Horizontal & Vertical Orientations**: Supports standard horizontal tracks and vertical faders.
-- **Optional Step Dividers**: `divider` renders markers when a positive `step` is configured.
-- **Thumb Constraints**: `minStepsBetweenThumbs` and `allowThumbCrossing` control multi-thumb movement.
-- **Inverted Direction**: `inverted` reverses the value direction while respecting orientation and document direction.
-- **Slider Semantics**: Each thumb exposes `role="slider"`, value metadata, orientation, and disabled/read-only state through ARIA attributes.
+Use Slider when a numeric value or range is best chosen spatially. Pair it with a labeled numeric field when users need precise text entry.
 
 ## Playground
 

@@ -1,3 +1,6 @@
+import { readFileSync, readdirSync } from 'node:fs'
+import path from 'node:path'
+
 import { parse } from 'vite'
 import { describe, expect, test, vi } from 'vitest'
 
@@ -8,6 +11,45 @@ import { resolvePreviewComponentSource, transformPreviewSourceModule } from './s
 async function parsePreviewCode(code: string) {
   return (await parse('preview.tsx', code, PREVIEW_PARSE_OPTIONS)).program
 }
+
+function collectTsxFiles(directory: string): string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const filePath = path.join(directory, entry.name)
+    return entry.isDirectory()
+      ? collectTsxFiles(filePath)
+      : filePath.endsWith('.tsx')
+        ? [filePath]
+        : []
+  })
+}
+
+test('documentation previews are self-contained in one file', async () => {
+  const pagesRoot = path.resolve(__dirname, '../../pages')
+  const localImports: string[] = []
+
+  for (const filePath of collectTsxFiles(pagesRoot)) {
+    const source = readFileSync(filePath, 'utf8')
+    const program = await parsePreviewCode(source)
+    if (/\b(?:import|require)\s*\(\s*['"]\./u.test(source)) {
+      localImports.push(`${path.relative(pagesRoot, filePath)}: dynamic local import`)
+    }
+    for (const statement of program.body) {
+      if (
+        statement.type !== 'ImportDeclaration' &&
+        statement.type !== 'ExportNamedDeclaration' &&
+        statement.type !== 'ExportAllDeclaration'
+      ) {
+        continue
+      }
+      const specifier = statement.source?.value
+      if (typeof specifier === 'string' && specifier.startsWith('.')) {
+        localImports.push(`${path.relative(pagesRoot, filePath)}: ${specifier}`)
+      }
+    }
+  }
+
+  expect(localImports).toEqual([])
+})
 
 describe('resolvePreviewComponentSource', () => {
   test('reads the whole code and converts @src imports to moraine', async () => {

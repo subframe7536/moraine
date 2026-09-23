@@ -1,6 +1,6 @@
 ---
 title: Avatar
-description: An avatar with image preloading, fallback initials or icons, status metadata, badges, and consistent size variants.
+description: Show a person or resource image with a fallback while the image loads.
 api:
   path: src/elements/avatar/avatar
 sidebar:
@@ -18,15 +18,7 @@ import { Avatar } from 'moraine'
 import type { AvatarT } from 'moraine'
 ```
 
-## Features
-
-- **Image Preloading & Status**: Preloads `src` with `Image` in the browser and exposes `idle`, `loading`, `loaded`, or `error` through `data-status` and `onStatusChange`.
-- **Fallback Initials**: Uses explicit `text` when provided; otherwise derives up to two uppercase initials from `alt`.
-- **Icon Fallback**: `fallback` can provide an icon instead of fallback text.
-- **Status Badge**: Position a badge icon in any corner with `badgePosition`.
-- **Accessible Fallback**: The loaded image uses `alt`; while unavailable, fallback content can use `alt` or `text` as its accessible label.
-
-`Avatar` preloads the source before exposing it on the rendered `<img>`. It does not set native `loading="lazy"` automatically.
+Use Avatar where a person or resource needs a compact identity cue. Supply a meaningful `alt` for identity images; the fallback remains visible until the image loads.
 
 ## Playground
 
@@ -76,6 +68,8 @@ root (<span>)
 ### Image fallbacks
 
 Provide useful `alt` text for an image that conveys identity. When the image cannot load, the component can fall back to supplied text or initials; the application remains responsible for choosing an unambiguous accessible name.
+
+`Avatar` preloads the source before showing the `<img>` and does not set native `loading="lazy"` automatically.
 
 <Preview path="./fallback-usage" />
 

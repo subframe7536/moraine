@@ -1,6 +1,6 @@
 ---
 title: FileUpload
-description: A drag-and-drop file upload component supporting multiple files, rejection validation rules, image previews, and compact trigger buttons.
+description: Select and validate local files through a dropzone or trigger.
 api:
   path: src/forms/file-upload/file-upload
 sidebar:
@@ -20,13 +20,7 @@ import { FileUpload } from 'moraine'
 import type { FileUploadT } from 'moraine'
 ```
 
-## Features
-
-- **Drag-and-Drop Dropzone**: Native dragover, dragleave, and drop event handlers with visual focus and hover state feedback.
-- **Single & Multiple File Mode**: Select individual files (like avatars) or append multiple files up to a configured `maxFiles` limit.
-- **Granular Rejection Rules**: Built-in validation rejecting invalid MIME types (`accept`), oversized files (`maxSize`), undersized files (`minSize`), and duplicates with detailed error callbacks.
-- **Trigger-Only Mode**: Disable the full dropzone with `dropzone={false}` to render a compact, accessible file picker button.
-- **Integrated File Preview & Removal**: Built-in file items displaying thumbnail previews, formatted file sizes, and quick delete actions.
+Use FileUpload to collect local files before the application sends them. Selection and validation happen in the component; upload transport belongs to the caller.
 
 ## Playground
 

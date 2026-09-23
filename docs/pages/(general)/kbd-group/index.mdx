@@ -1,6 +1,6 @@
 ---
 title: KbdGroup
-description: A compact data-driven component for rendering one simultaneous keyboard shortcut with configurable inline notation.
+description: Display a multi-key shortcut with shared styling.
 api:
   path: src/elements/kbd/kbd-group
 sidebar:
@@ -20,15 +20,7 @@ import { KbdGroup } from 'moraine'
 import type { KbdGroupT } from 'moraine'
 ```
 
-## Features
-
-- **Data-driven Items**: Render one simultaneous shortcut from string keys or `Kbd` item objects.
-- **Automatic `Kbd` Rendering**: Every item becomes a generated `Kbd` while preserving accessible labels on object items.
-- **Inline Separator**: Customize the notation between keys with text or JSX; `"+"` is used by default.
-- **Semantic Root**: The group renders as a `<kbd>` element.
-- **Shared Size & Variant**: `size` and `variant` apply uniformly to every generated keycap.
-
-> `separator` is inline shortcut notation such as `"+"`; it is unrelated to the standalone `Separator` layout primitive.
+Use KbdGroup to display keys pressed together, such as Ctrl + K. It renders notation only; the application owns the shortcut listener.
 
 ## Playground
 
@@ -82,6 +74,8 @@ root <kbd>
 The only theme slots are `root` and `item`. Separator content is rendered inline and is not a theme slot.
 
 ## Usage
+
+The `separator` is inline shortcut notation such as `"+"`; it is unrelated to the standalone layout [Separator](/separator).
 
 ### Grouping shortcuts
 

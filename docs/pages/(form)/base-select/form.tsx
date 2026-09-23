@@ -1,7 +1,11 @@
 import { BaseSelect, Button } from '@src'
-import { createSignal } from 'solid-js'
+import { createSignal, For } from 'solid-js'
 
-import { FrameworkListbox, frameworks } from './frameworks'
+const FRAMEWORKS = [
+  { value: 'solid', label: 'Solid' },
+  { value: 'react', label: 'React' },
+  { value: 'vue', label: 'Vue' },
+]
 
 export default function Example() {
   const [submitted, setSubmitted] = createSignal('Not submitted')
@@ -14,19 +18,23 @@ export default function Example() {
         setSubmitted(typeof value === 'string' ? value : 'No selection')
       }}
     >
-      <BaseSelect items={frameworks} name="framework" required>
+      <BaseSelect items={FRAMEWORKS} name="framework" required>
         <BaseSelect.Control>
           <BaseSelect.Trigger as={Button} variant="outline" class="min-w-52">
             {(state) => (
               <span>
-                {frameworks.find((item) => item.value === state.value[0])?.label ??
+                {FRAMEWORKS.find((item) => item.value === state.value[0])?.label ??
                   'Select framework…'}
               </span>
             )}
           </BaseSelect.Trigger>
         </BaseSelect.Control>
         <BaseSelect.Content>
-          <FrameworkListbox items={() => frameworks} />
+          <BaseSelect.Listbox>
+            <For each={FRAMEWORKS}>
+              {(item) => <BaseSelect.Item item={item}>{item.label}</BaseSelect.Item>}
+            </For>
+          </BaseSelect.Listbox>
         </BaseSelect.Content>
       </BaseSelect>
       <Button type="submit">Submit</Button>

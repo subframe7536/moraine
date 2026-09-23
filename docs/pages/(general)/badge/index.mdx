@@ -1,6 +1,6 @@
 ---
 title: Badge
-description: A compact inline label for status and metadata with icon adornments, visual variants, and size options.
+description: Label status or metadata beside related content.
 api:
   path: src/elements/badge/badge
 sidebar:
@@ -18,18 +18,12 @@ import { Badge } from 'moraine'
 import type { BadgeT } from 'moraine'
 ```
 
-## Features
-
-- **Visual Variants**: `solid`, `subtle`, `surface`, and `outline` presentations share the same content model.
-- **Leading & Trailing Adornments**: Add icons around an optional label; a single icon without text automatically uses square geometry.
-- **Size Scale**: `sm`, `md`, and `lg` adjust height, padding, gap, typography, and icon sizing.
-- **Root Element**: Badge renders a `span` by default. Use `as` to render a native element such as `button` when the badge itself is interactive.
+Use Badge for compact status or metadata beside content. It is presentational by default; an action needs a semantic interactive root and an accessible name.
 
 ## Playground
 
 <Playground
   controls={[
-    { kind: 'input', prop: 'title', label: 'Title', defaultValue: 'New feature' },
     {
       kind: 'select',
       prop: 'variant',
@@ -57,7 +51,7 @@ import type { BadgeT } from 'moraine'
 >
   {(props) => (
     <Badge variant={props.variant} size={props.size} leading="i-lucide:sparkles">
-      {props.title}
+      New feature
     </Badge>
   )}
 </Playground>

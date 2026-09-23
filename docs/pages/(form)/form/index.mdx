@@ -1,6 +1,6 @@
 ---
 title: Form
-description: Type-safe Formisch form management with Valibot schemas, bound form and field components, real-time validation, and accessible feedback.
+description: Bind schema fields, validation, submission, and reset through createForm.
 api:
   path: src/forms/form/form
 sidebar:
@@ -66,17 +66,6 @@ export function NotificationForm() {
   )
 }
 ```
-
-## Features
-
-- **Bound Form Instance**: `createForm` creates a reactive Formisch store and attaches pre-bound `<form.Form>` and `<form.Field>` components.
-- **Field Adapter**: `form.Field` is the schema-bound version of the standalone [`Field`](/field) layout and accessibility primitive.
-- **Type-Safe Field Paths**: `<form.Field>` automatically infers its schema and provides autocomplete for flat and nested paths (`['profile', 'email']`) without manual generics.
-- **Formisch + Standard Schema**: Integrates reactive validation and input management with Valibot, Zod, or Standard Schema.
-- **Automated ARIA & Accessible Feedback**: Automatically links `<label>`, helper description (`aria-describedby`), and error messages (`aria-errormessage`, `role="alert"`) with child controls.
-- **Flexible Field Layouts**: Vertical by default, with `orientation="horizontal"` for 1-to-3 grid column layouts.
-- **Submission & Reset Coordination**: Tracks `form.isSubmitting`, mirrors `data-submitting` on the root, and handles native reset events.
-- **Custom Control Render Prop**: Child render functions receive the current effective `{ error }` while controls inherit field state through context.
 
 ## Playground
 
@@ -364,10 +353,6 @@ Read `form.isSubmitting` to derive button loading spinners or disabled states wh
 Coordinate native reset events with Formisch: clicking a `type="reset"` button restores the initial store input snapshot and clears validation metadata.
 
 <Preview path="./reset" />
-
-### Keyboard interaction
-
-`Form` relies on native form and child-control keyboard behavior. For example, Enter can submit from eligible single-line form controls, while Tab follows normal document focus order.
 
 ## Examples
 

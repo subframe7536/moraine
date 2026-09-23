@@ -1,6 +1,6 @@
 ---
 title: Input
-description: A native text input with model modifiers, visual variants, and Field integration.
+description: Edit single-line text with native input events and Field integration.
 api:
   path: src/forms/input/input
 sidebar:
@@ -18,12 +18,7 @@ import { Input } from 'moraine'
 import type { InputT } from 'moraine'
 ```
 
-## Features
-
-- **Visual Variants**: Supports `outline`, `subtle`, `ghost`, and `none` styling modes.
-- **Composable Actions**: Use [InputGroup](/input-group) and its Leading and Trailing parts to place icons, loading indicators, text, and buttons around the input.
-- **Field Integration**: Inherits field identity and state and applies generated validation/accessibility metadata to the native input.
-- **Model Modifiers**: Supports value modifiers such as `trim`, `lazy`, and `number` through `modelModifiers`.
+Use Input for native single-line text editing. Compose it with [Field](/field) for a label and validation message, or [InputGroup](/input-group) for adjacent controls.
 
 ## Playground
 
@@ -95,12 +90,7 @@ Use `InputGroup.Leading` and `InputGroup.Trailing` for static context such as an
 
 ### Keyboard interaction
 
-`Input` keeps native input keyboard behavior. Moraine does not add a built-in Escape-to-clear or search-submit shortcut.
-
-| Key              | Description                                                              |
-| ---------------- | ------------------------------------------------------------------------ |
-| <kbd>Tab</kbd>   | Moves focus to the input according to normal document focus order.       |
-| <kbd>Enter</kbd> | Participates in native form submission when the surrounding form allows. |
+`Input` keeps native input keyboard behavior. Escape-to-clear and search submission are application behavior.
 
 ## Examples
 

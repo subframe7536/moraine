@@ -1,6 +1,6 @@
 ---
 title: Tabs
-description: Tabbed content navigation with pill, link, and tab styles, horizontal or vertical orientation, and keyboard selection modes.
+description: Switch between peer panels with managed focus and activation.
 api:
   path: src/navigation/tabs/tabs
 sidebar:
@@ -18,13 +18,7 @@ import { Tabs } from 'moraine'
 import type { TabsT } from 'moraine'
 ```
 
-## Features
-
-- **Visual Variants**: `pill`, `link`, and `tab` change presentation without changing the tab data model.
-- **Horizontal & Vertical Orientation**: Orientation controls layout and directional keyboard navigation.
-- **Tab Semantics**: Exposes `tablist`, `tab`, and `tabpanel` roles with selection and ID associations.
-- **Automatic or Manual Activation**: Keyboard navigation can select on focus or wait for explicit activation, depending on `activationMode`.
-- **Controlled & Disabled State**: Control the selected value externally and disable individual tab items.
+Use Tabs to switch between peer panels while staying in the same page context. Use navigation links when each destination needs its own URL and document state.
 
 ## Playground
 

@@ -1,6 +1,6 @@
 ---
 title: CommandPalette
-description: A searchable command list with grouped items, custom row regions, loading state, and optional dialog composition.
+description: Search grouped commands and navigation targets from an inline surface.
 api:
   path: src/navigation/command-palette/command-palette
 sidebar:
@@ -18,28 +18,11 @@ import { CommandPalette } from 'moraine'
 import type { CommandPaletteT } from 'moraine'
 ```
 
-## Features
-
-- **Inline or Modal Composition**: Render the palette inline or place it inside `Dialog` when your application needs a modal command surface. Global shortcuts such as Cmd/Ctrl+K are registered by the application, not by `CommandPalette` itself.
-- **Search & Groups**: Filters command items while preserving grouped presentation.
-- **Custom Regions**: Supports `leadingRender`, `trailingRender`, `footerRender`, and custom item rendering.
-- **Sub-Navigation**: The sub-navigation APIs let a command surface replace its visible item set while remaining open.
-- **Combobox/Listbox Metadata**: The search input and result list expose the roles and active-item metadata used by keyboard navigation.
-- **Loading State**: `loading` changes the palette presentation; asynchronous request orchestration remains caller-owned.
+Use CommandPalette for searchable commands or navigation targets. The application decides when to open it and registers any global shortcut.
 
 ## Playground
 
-<Playground
-  controls={[
-    {
-      kind: 'input',
-      prop: 'placeholder',
-      label: 'Placeholder',
-      defaultValue: 'Search commands or pages...',
-    },
-    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
-  ]}
->
+<Playground controls={[{ kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false }]}>
   {(props) => {
     const GROUPS = [
       {
@@ -92,7 +75,7 @@ import type { CommandPaletteT } from 'moraine'
       <div class="border border-border/60 rounded-xl bg-card/40 max-w-full w-lg shadow-xs overflow-hidden">
         <CommandPalette
           groups={GROUPS}
-          placeholder={props.placeholder}
+          placeholder="Search commands or pages..."
           loading={props.loading}
           autofocus={false}
           showClose
@@ -160,10 +143,6 @@ Use the custom item renderer for a changed item layout, and provide loading or e
 | <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first or last available command.                          |
 
 ## Examples
-
-### Basic palette
-
-<Preview path="./usage" />
 
 ### Custom item rendering
 

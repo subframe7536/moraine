@@ -1,6 +1,6 @@
 ---
 title: Separator
-description: A horizontal or vertical semantic separator with theme-aware presentation.
+description: Divide content regions with an oriented semantic line.
 api:
   path: src/elements/separator/separator
 sidebar:
@@ -18,11 +18,7 @@ import { Separator } from 'moraine'
 import type { SeparatorT } from 'moraine'
 ```
 
-## Features
-
-- **Horizontal & Vertical Orientations**: Controls the line direction and sets matching `aria-orientation` and `data-orientation` attributes.
-- **Consistent Semantics**: The root always renders as `<div role="separator">` with its resolved orientation exposed to assistive technologies.
-- **Theme-Aware Presentation**: Configure `separator.base.root` in your Theme while keeping the semantic DOM contract intact.
+Use Separator to divide related regions with a visible line. Choose its orientation to match the layout boundary.
 
 ## Playground
 

@@ -1,6 +1,6 @@
 ---
 title: Pagination
-description: Page navigation with sibling windows, optional previous and next controls, link destinations, and current-page metadata.
+description: Navigate a result set by page using state or destinations.
 api:
   path: src/navigation/pagination/pagination
 sidebar:
@@ -19,13 +19,7 @@ import { Pagination } from 'moraine'
 import type { PaginationT } from 'moraine'
 ```
 
-## Features
-
-- **Sibling Window**: `siblingCount` controls how many nearby page numbers remain visible around the current page, with ellipses filling gaps.
-- **Navigation Controls**: `showControls` controls previous/next buttons. The first and last page numbers remain available around the sibling window.
-- **Pagination Landmark**: Uses a pagination navigation landmark and marks the active page with `aria-current="page"`.
-- **Flexible Navigation Elements**: `to(page)` generates destinations, while `itemAs` and `controlAs` can render numbered items and Previous/Next through custom components.
-- **Controlled State**: `page` and `onPageChange` support application-owned page state.
+Use Pagination when a result set has a known page count. The application owns data fetching and the mapping from page numbers to URLs or controlled state.
 
 ## Playground
 
@@ -112,6 +106,8 @@ Pagination does not add collection-style arrow navigation. Each interactive page
 
 <Preview path="./controlled" />
 
-### Minimal pagination
+### Page size and results
 
-<Preview path="./minimal" />
+Keep the requested page within the new page count when users change how many results are shown.
+
+<Preview path="./page-size" />

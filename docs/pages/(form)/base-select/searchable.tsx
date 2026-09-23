@@ -1,9 +1,14 @@
 import { BaseSelect, Icon, useSelectState } from '@src'
 import { useBaseSelectSearchInput, useSearchValue } from '@src/utils'
 import type { SearchValue } from '@src/utils'
-import { createMemo, untrack } from 'solid-js'
+import { createMemo, For, untrack } from 'solid-js'
 
-import { FrameworkListbox, frameworks } from './frameworks'
+const FRAMEWORKS = [
+  { value: 'solid', label: 'Solid', description: 'Fine-grained reactive UI' },
+  { value: 'react', label: 'React', description: 'Component-based UI' },
+  { value: 'astro', label: 'Astro', description: 'Content-focused web framework' },
+  { value: 'sveltekit', label: 'SvelteKit', description: 'Application framework for Svelte' },
+]
 
 function SearchControl(props: { search: SearchValue }) {
   const search = untrack(() => props.search)
@@ -41,22 +46,41 @@ export default function Example() {
   const items = createMemo(() => {
     const query = search.query().toLowerCase()
     return query
-      ? frameworks.filter(
+      ? FRAMEWORKS.filter(
           (item) =>
             item.label.toLowerCase().includes(query) ||
             item.description.toLowerCase().includes(query),
         )
-      : frameworks
+      : FRAMEWORKS
   })
   return (
     <BaseSelect
       items={items()}
-      getItemByValue={(value) => frameworks.find((item) => item.value === value)}
+      getItemByValue={(value) => FRAMEWORKS.find((item) => item.value === value)}
       itemToLabelString={(item) => `${item.label} ${item.description}`}
     >
       <SearchControl search={search} />
       <BaseSelect.Content onExitComplete={() => search.setQuery('')}>
-        <FrameworkListbox items={items} />
+        <BaseSelect.Listbox>
+          <For each={items()}>
+            {(item) => (
+              <BaseSelect.Item item={item}>
+                {(state) => (
+                  <>
+                    <Icon
+                      name="i-lucide:check"
+                      class={state.selected ? 'opacity-100' : 'opacity-0'}
+                    />
+                    <span>
+                      {state.item.label}
+                      <small class="text-muted-foreground block">{state.item.description}</small>
+                    </span>
+                  </>
+                )}
+              </BaseSelect.Item>
+            )}
+          </For>
+        </BaseSelect.Listbox>
         <BaseSelect.Empty>No frameworks found.</BaseSelect.Empty>
       </BaseSelect.Content>
     </BaseSelect>

@@ -1,6 +1,6 @@
 ---
 title: TypeScript
-description: Comprehensive guide to Moraine's type system architecture, component props, namespaces, polymorphic as, global type configuration, and SolidJS best practices.
+description: Type component props, slots, collection items, and polymorphic roots in SolidJS.
 sidebar:
   order: 3
 search:
@@ -10,7 +10,7 @@ search:
 
 ## Overview
 
-Moraine is designed from the ground up for strict, ergonomic TypeScript support in SolidJS. The project is **pre-1.0; breaking changes may occur**.
+Moraine exposes component props and supporting types for SolidJS. The project is **pre-1.0; breaking changes may occur**.
 
 The type system is structured around four architectural principles:
 
@@ -198,7 +198,7 @@ import { Button, DropdownMenu } from 'moraine'
 
 ### Overlay Triggers
 
-Overlay triggers (`DropdownMenu.Trigger`, `ContextMenu.Trigger`, `Dialog.Trigger`, `Sheet.Trigger`, `Modal.Trigger`) use Moraine's trigger prop merger under the hood. When combined with `as={Button}`, caller event listeners, ARIA attributes, and refs merge seamlessly without manual event chaining or type assertions.
+Overlay triggers (`DropdownMenu.Trigger`, `ContextMenu.Trigger`, `Dialog.Trigger`, `Sheet.Trigger`, `Modal.Trigger`) merge caller event listeners, ARIA attributes, and refs with their own trigger behavior when rendered `as={Button}`.
 
 ## Global Type Configuration (`MoraineTypeConfig`)
 
@@ -248,8 +248,14 @@ Following Moraine's naming conventions, any prop that renders a component or cus
 Render callbacks receive typed context objects containing the underlying item and state:
 
 ```tsx
-import type { SelectProps, SelectT } from 'moraine'
+import { Show } from 'solid-js'
+import type { SelectProps } from 'moraine'
 import { Select } from 'moraine'
+
+const items = [
+  { value: 'draft', label: 'Draft' },
+  { value: 'published', label: 'Published' },
+]
 
 const itemRender: SelectProps['itemRender'] = (context) => (
   <div class="flex items-center justify-between w-full">

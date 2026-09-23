@@ -1,6 +1,6 @@
 ---
 title: RadioGroup
-description: A single-selection radio group with list, card, and table variants, arrow-key navigation, and configurable indicators.
+description: Choose one value from a visible set of radio options.
 api:
   path: src/forms/radio-group/radio-group
 sidebar:
@@ -19,14 +19,7 @@ import { RadioGroup } from 'moraine'
 import type { RadioGroupT } from 'moraine'
 ```
 
-## Features
-
-- **Single Selection**: Maintains one selected value in controlled or uncontrolled mode.
-- **Arrow-Key Navigation**: Arrow keys move focus and selection among enabled options, with wrapping according to the component's navigation behavior.
-- **List, Card & Table Variants**: Present the same radio model in standard lists, selectable cards, or table-style rows.
-- **Indicator Placement**: Position the radio indicator at the start or end, or hide it for card-like selection surfaces.
-- **Per-Option Disabling**: Individual options can be disabled without disabling the rest of the group.
-- **Radio Group Semantics**: Exposes radiogroup/radio state and native form inputs while managing focus across the visible options.
+Use RadioGroup for one choice from a small visible set. For a longer or space-constrained collection, use [Select](/select).
 
 ## Playground
 

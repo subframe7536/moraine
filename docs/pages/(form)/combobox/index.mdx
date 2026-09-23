@@ -1,6 +1,6 @@
 ---
 title: Combobox
-description: Single collection selection with an editable query and a secondary popup trigger.
+description: Choose one collection item through an editable search input.
 api:
   path: src/forms/combobox/combobox
 sidebar:
@@ -18,23 +18,12 @@ import { Combobox } from 'moraine'
 import type { ComboboxT } from 'moraine'
 ```
 
-## Features
-
-- **Independent value and query**: Query text filters options; only an option commit sets the selected value.
-- **Single focus owner**: The editable input retains focus, combobox ARIA roles, and keyboard interaction.
-- **Explicit secondary trigger**: The trailing button always exists and toggles the popup without stealing input focus.
-- **Collection rendering**: Supports groups, custom items, filter strategies, external search, and virtualization.
+Use Combobox when users should type to find one item in a collection. Use [Select](/select) for a non-editable choice and [MultiSelect](/multi-select) for multiple collection values.
 
 ## Playground
 
 <Playground
   controls={[
-    {
-      kind: 'input',
-      prop: 'placeholder',
-      label: 'Placeholder',
-      defaultValue: 'Search frameworks...',
-    },
     {
       kind: 'select',
       prop: 'variant',
@@ -66,8 +55,6 @@ import type { ComboboxT } from 'moraine'
       defaultValue: false,
     },
     { kind: 'switch', prop: 'disabled', label: 'Disabled', defaultValue: false },
-    { kind: 'switch', prop: 'readOnly', label: 'Read-only', defaultValue: false },
-    { kind: 'switch', prop: 'loading', label: 'Loading', defaultValue: false },
   ]}
 >
   {(props) => (
@@ -79,14 +66,12 @@ import type { ComboboxT } from 'moraine'
         { label: 'Svelte', value: 'svelte' },
         { label: 'Astro', value: 'astro' },
       ]}
-      placeholder={props.placeholder}
+      placeholder="Search frameworks..."
       variant={props.variant}
       size={props.size}
       openOnControlClick={props.openOnControlClick}
       allowClear={props.allowClear}
       disabled={props.disabled}
-      readOnly={props.readOnly}
-      loading={props.loading}
       class="max-w-72 min-w-40 w-60%"
     />
   )}
@@ -100,11 +85,18 @@ control
 ├── input
 ├── clear (optional)
 └── trigger
+content (portaled while open)
+└── listbox
+    ├── group / groupLabel (optional)
+    ├── item (×n)
+    └── empty (optional)
 ```
 
 Control is the visual field and floating anchor. Input is the sole combobox ARIA and focus owner.
 Trigger is an always-present secondary button with `tabIndex={-1}` that toggles the dropdown without
 creating competing focus targets.
+
+Combobox renders the popup collection internally. Its content, listbox, and item names are style slots; customize item output with `itemRender` rather than composing attached child parts.
 
 ## Usage
 
@@ -181,10 +173,6 @@ Organize options into categories and customize the empty state when no matches e
 
 <Preview path="./groups" />
 
-### Sizes and variants
-
-<Preview path="./sizes-and-variants" />
-
 ### Virtualization
 
 Virtualize large lists of 10,000+ items using TanStack Virtualizer.
@@ -193,6 +181,6 @@ Virtualize large lists of 10,000+ items using TanStack Virtualizer.
 
 ### Form integration
 
-Integrates seamlessly with `createForm` and `form.Field` for validation and error handling.
+Use `form.Field` from `createForm` when the selected value needs schema validation and error display.
 
 <Preview path="./form-integration" />

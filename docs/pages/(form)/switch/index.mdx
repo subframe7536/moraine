@@ -1,6 +1,6 @@
 ---
 title: Switch
-description: A binary switch with custom true/false domain values, optional thumb icons, loading state, and Field integration.
+description: Toggle an on/off setting with switch semantics and form values.
 api:
   path: src/forms/switch/switch
 sidebar:
@@ -18,13 +18,7 @@ import { Switch } from 'moraine'
 import type { SwitchT } from 'moraine'
 ```
 
-## Features
-
-- **Switch Semantics**: The visible control uses `role="switch"` and reflects its state through `aria-checked`.
-- **Custom Thumb Icons**: `checkedIcon` and `uncheckedIcon` customize the thumb in each state.
-- **Loading State**: `loading` displays the loading icon and makes the control non-interactive; asynchronous work remains caller-owned.
-- **Domain Value Mapping**: `trueValue` and `falseValue` map checked state to application-specific values.
-- **Field Integration**: A hidden native checkbox participates in forms while the visible switch owns interaction and accessibility metadata.
+Use Switch for an on/off setting whose state is immediately meaningful. For an independent form choice that may be part of a set, use [Checkbox](/checkbox).
 
 ## Playground
 
@@ -84,15 +78,6 @@ root
 `loading` is visual state supplied by the application. It does not represent an asynchronous operation on its own; decide whether the switch should also be disabled while that operation is pending.
 
 <Preview path="./loading-state" />
-
-### Keyboard interaction
-
-The visible switch is a button, so native button activation applies.
-
-| Key                                 | Description                                |
-| ----------------------------------- | ------------------------------------------ |
-| <kbd>Space</kbd> / <kbd>Enter</kbd> | Toggles the switch when it is interactive. |
-| <kbd>Tab</kbd>                      | Moves focus to the visible switch control. |
 
 ## Examples
 

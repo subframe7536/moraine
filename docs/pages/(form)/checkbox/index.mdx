@@ -1,6 +1,6 @@
 ---
 title: Checkbox
-description: A checkbox control with checked, unchecked, and indeterminate states, custom true/false values, and list or card presentation.
+description: Capture an independent checked, unchecked, or mixed choice.
 api:
   path: src/forms/checkbox/checkbox
 sidebar:
@@ -18,14 +18,7 @@ import { Checkbox } from 'moraine'
 import type { CheckboxT } from 'moraine'
 ```
 
-## Features
-
-- **Three Visual States**: Supports checked, unchecked, and indeterminate presentation and exposes mixed checked state through checkbox ARIA metadata.
-- **Custom Value Mapping**: `trueValue` and `falseValue` map checkbox state to domain values instead of requiring booleans.
-- **List & Card Variants**: Use compact list presentation or a bounded card surface.
-- **Indicator Placement**: Position the checkbox indicator at the start or end, or hide it when the surrounding surface communicates selection.
-- **Form Integration**: Uses native checkbox behavior and Field metadata for labeling, validation, disabled, required, and read-only state.
-- **Custom Icons**: Checked and indeterminate indicators accept Moraine icon sources.
+Use Checkbox for an independent boolean or mapped choice that can be selected alongside other choices. Use [Switch](/switch) when the control represents an immediate on/off setting.
 
 ## Playground
 
@@ -94,14 +87,6 @@ Use `checked` with `onChange` when the application owns the value; otherwise use
 `disabled` removes the control from normal interaction. `readOnly` preserves the value and focusability while preventing changes.
 
 <Preview path="./disabled-readonly" />
-
-### Keyboard interaction
-
-| Key                    | Description                                                         |
-| ---------------------- | ------------------------------------------------------------------- |
-| <kbd>Space</kbd>       | Toggles the focused checkbox according to native checkbox behavior. |
-| <kbd>Tab</kbd>         | Moves focus according to normal document order.                     |
-| <kbd>Shift + Tab</kbd> | Moves focus backward according to normal document order.            |
 
 ## Examples
 

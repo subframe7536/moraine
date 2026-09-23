@@ -1,6 +1,6 @@
 ---
 title: CheckboxGroup
-description: A multi-selection checkbox group with array value binding, list, card, or table layouts, and Field integration.
+description: Collect multiple choices as one array-valued field.
 api:
   path: src/forms/checkbox-group/checkbox-group
 sidebar:
@@ -19,14 +19,7 @@ import { CheckboxGroup } from 'moraine'
 import type { CheckboxGroupT } from 'moraine'
 ```
 
-## Features
-
-- **Array Value Binding**: Supports controlled and uncontrolled `string[]` selection values.
-- **List, Card & Table Variants**: Reuses Checkbox presentation for standard lists, selectable cards, and bordered table-style rows.
-- **Orientation**: Arrange grouped options vertically or horizontally.
-- **Indicator Configuration**: Configure indicator placement and checked/indeterminate icons for the group.
-- **Per-Item State**: Individual items can be disabled or indeterminate and can override their state icons.
-- **Field Integration**: The group propagates identity, required, disabled, and validation metadata through a semantic fieldset.
+Use CheckboxGroup for several choices submitted as one array. Use individual [Checkbox](/checkbox) controls when the fields are independent.
 
 ## Playground
 
@@ -118,12 +111,6 @@ The group renders a semantic fieldset and its items retain native checkbox tab o
 ### Keyboard interaction
 
 Each item keeps native checkbox keyboard behavior; the group does not implement radio-style roving focus.
-
-| Key                    | Description                                                 |
-| ---------------------- | ----------------------------------------------------------- |
-| <kbd>Space</kbd>       | Toggles the focused checkbox item.                          |
-| <kbd>Tab</kbd>         | Moves through enabled checkbox items in normal focus order. |
-| <kbd>Shift + Tab</kbd> | Moves backward in normal focus order.                       |
 
 ## Examples
 

@@ -1,6 +1,6 @@
 ---
 title: Button
-description: An interactive button component with polymorphic rendering, optional promise-driven loading state, icon adornments, and semantic visual variants.
+description: Render actions and links with loading, icons, and semantic roots.
 api:
   path: src/elements/button/button
 sidebar:
@@ -18,21 +18,12 @@ import { Button } from 'moraine'
 import type { ButtonT } from 'moraine'
 ```
 
-## Features
-
-- **Polymorphic Rendering**: Render as a `<button>`, anchor, or custom Solid component while retaining Moraine styling.
-- **Optional Promise-Driven Loading**: Set `loadingAuto` to derive loading state from a promise-returning `onClick`. It is disabled by default.
-- **Stable Loading Focus**: Loading buttons block activation while remaining focusable, so async actions do not reset keyboard position.
-- **Controlled Loading**: Use `loading` directly when loading state comes from external state.
-- **Loading Placement**: The loading icon replaces the leading icon first, or the trailing icon when no leading icon is present.
-- **Icon Buttons**: Icon-only sizes are available; provide `aria-label` or another accessible name for icon-only controls.
-- **Semantic Variants**: Includes `default`, `secondary`, `outline`, `ghost`, `destructive`, and `link`.
+Use Button for actions and explicit navigation. Choose the underlying element with `as` according to the action: a button for commands and an anchor for destinations.
 
 ## Playground
 
 <Playground
   controls={[
-    { kind: 'input', prop: 'label', label: 'Label', defaultValue: 'Deploy Project' },
     {
       kind: 'select',
       prop: 'variant',
@@ -73,7 +64,7 @@ import type { ButtonT } from 'moraine'
         loading={props.loading}
         leading="i-lucide:rocket"
       >
-        {props.label}
+        Deploy Project
       </Button>
     )
   }}
@@ -106,26 +97,13 @@ Leading and trailing content can be icons or custom elements. Icon-only buttons 
 
 <Preview path="./icons-polymorphism" />
 
-### Keyboard interaction
-
-Native button keyboard behavior applies when the rendered root is a button. Non-link polymorphic roots receive button semantics and Enter/Space activation; anchors with `href` preserve native link keyboard behavior.
-
-| Key                                 | Description                                     |
-| ----------------------------------- | ----------------------------------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates a native button when it is focused.   |
-| <kbd>Tab</kbd>                      | Moves focus to the button when it is focusable. |
-
 ## Examples
-
-### Loading
-
-<Preview path="./loading-states" />
 
 ### Automatic loading
 
 <Preview path="./loading-auto" />
 
-### Icon buttons
+### Icon action with a hint
 
 <Preview path="./icon-buttons" />
 
