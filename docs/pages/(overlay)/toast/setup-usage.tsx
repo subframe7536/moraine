@@ -1,11 +1,21 @@
-import { Button } from '@src'
-import { toast, Toaster } from 'solid-toaster'
+import { Button, Icon } from '@src'
+import { BaseToaster, toast } from 'solid-toaster'
 
 export function SetupUsage() {
   return (
     <div class="space-y-4">
-      <Toaster position="bottom-right" />
-      <Button onClick={() => toast('Event notification triggered')}>Trigger Basic Toast</Button>
+      <BaseToaster
+        position="bottom-right"
+        icons={{
+          success: <Icon name="icon-success" />,
+          error: <Icon name="icon-error" />,
+          warning: <Icon name="icon-warning" />,
+          info: <Icon name="icon-info" />,
+          loading: <Icon name="icon-loading" class="animate-spin" />,
+          close: <Icon name="icon-close" />,
+        }}
+      />
+      <Button onClick={() => toast.success('Changes saved!')}>Trigger Success Toast</Button>
     </div>
   )
 }

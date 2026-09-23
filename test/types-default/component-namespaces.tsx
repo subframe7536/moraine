@@ -1,4 +1,4 @@
-import { Icon, Kbd, createForm } from 'moraine'
+import { Button, Icon, Kbd, createForm } from 'moraine'
 import type {
   AccordionT,
   AvatarGroupT,
@@ -251,7 +251,41 @@ export type ListStyleContract = [
 ]
 
 ;<Icon name="icon-search" classes={{ root: 'text-primary' }} styles={{ root: { color: 'red' } }} />
+;<Icon name="icon-close" />
+;<Icon name="icon-chevron-double-left" />
+;<Icon name="icon-panel-open" />
+;<Button leading="icon-plus">Add</Button>
+;<Icon name="i-lucide-search" />
+;<Icon name="i-lucide:search" />
+;<Icon name="app-brand-icon" />
+;<Icon name="whatever-runtime-class" />
+;<Icon name={<span />} />
+const Glyph = () => <span />
+;<Icon name={Glyph} />
 ;<Kbd value="K" classes={{ root: 'text-primary' }} styles={{ root: { color: 'red' } }} />
+
+type ExpectedIconNames =
+  | 'icon-arrow-down'
+  | 'icon-arrow-left'
+  | 'icon-arrow-right'
+  | 'icon-arrow-up'
+  | 'icon-chevron-double-left'
+  | 'icon-chevron-double-right'
+  | 'icon-copy-check'
+  | 'icon-folder-open'
+  | 'icon-panel-close'
+  | 'icon-panel-open'
+  | 'icon-search'
+  | 'icon-loading'
+  | 'icon-success'
+  | 'icon-error'
+  | 'icon-warning'
+  | 'icon-info'
+  | 'icon-close'
+
+export type IconLiteralContract = Assert<
+  IsNever<Exclude<ExpectedIconNames, Extract<IconT.Name, ExpectedIconNames>>>
+>
 
 const Schema = v.object({ name: v.string() })
 const form = createForm({ schema: Schema })
