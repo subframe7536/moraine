@@ -4,18 +4,9 @@ import { MDXProvider } from 'solid-file-router/mdx'
 import type { JSX } from 'solid-js'
 import { Show, Suspense, createEffect, createMemo, createSignal, on, untrack } from 'solid-js'
 
-import {
-  Button,
-  Icon,
-  MoraineProvider,
-  Progress,
-  SidebarFrame,
-  Switch,
-  cn,
-  useSidebarFrame,
-} from '../../src'
+import { Button, MoraineProvider, Progress, SidebarFrame, cn, useSidebarFrame } from '../../src'
 
-import { DocsCommandPalette } from './components/layout/docs-command-palette'
+import { PageActions } from './components/layout/page-actions'
 import { Sidebar, SidebarHeader } from './components/layout/sidebar'
 import { DOCS_MDX_COMPONENTS } from './components/markdown/mdx-components'
 import { getDocsPages } from './docs-route'
@@ -39,6 +30,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
 
   const [committedPage, setCommittedPage] = createSignal(untrack(activePage))
   const navigationLoading = createMemo(() => isRouting() && location.pathname === routingFromPath())
+  const isLanding = createMemo(() => location.pathname === '/')
   let renderedPage = untrack(committedPage)
 
   createEffect(
@@ -80,7 +72,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
     path: () => location.pathname,
   })
 
-  function FrameContent() {
+  function DocsShell() {
     const frame = useSidebarFrame()
 
     return (
@@ -132,36 +124,15 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
                 />
               </Show>
             </div>
-            <div class="flex shrink-0 gap-2 items-center" aria-label="Page actions">
-              <DocsCommandPalette
-                pages={pages}
-                open={paletteOpen}
-                setOpen={setPaletteOpen}
-                onNavigate={navigateToPage}
-                variant={frame.isMobile() ? 'mobile' : 'desktop'}
-              />
-              <Button
-                as="a"
-                href="https://github.com/subframe7536/moraine"
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="ghost"
-                size="icon-sm"
-                aria-label="GitHub repository"
-                class="text-muted-foreground hover:text-foreground"
-              >
-                <Icon name="i-lucide-github" />
-              </Button>
-              <Switch
-                size="sm"
-                label="Toggle color theme"
-                classes={{ wrapper: 'sr-only' }}
-                checked={theme() === 'dark'}
-                onChange={(next) => updateTheme(next ? 'dark' : 'light')}
-                checkedIcon="i-lucide-moon"
-                uncheckedIcon="i-lucide-sun"
-              />
-            </div>
+            <PageActions
+              pages={pages}
+              paletteOpen={paletteOpen}
+              setPaletteOpen={setPaletteOpen}
+              onNavigate={navigateToPage}
+              mobile={frame.isMobile()}
+              theme={theme}
+              updateTheme={updateTheme}
+            />
           </header>
 
           <main id="main-content" class="min-w-0" data-docs-main>
@@ -175,7 +146,7 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
   }
 
   return (
-    <SidebarFrame classes={{ sidebar: 'border-none' }} scrollThreshold={4}>
+    <>
       <Show when={navigationLoading()}>
         <Progress
           aria-label="Loading page"
@@ -187,8 +158,65 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           }}
         />
       </Show>
-      <FrameContent />
-    </SidebarFrame>
+      <Show
+        when={isLanding()}
+        fallback={
+          <SidebarFrame classes={{ sidebar: 'border-none' }} scrollThreshold={4}>
+            <DocsShell />
+          </SidebarFrame>
+        }
+      >
+        <div class="text-foreground bg-background min-h-screen">
+          <a
+            href="#main-content"
+            class="z-toast text-foreground px-4 py-2 rounded-md bg-background left-1/2 top-2 fixed focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
+          >
+            Skip to main content
+          </a>
+          <header class="border-b border-border/60 bg-background/90 top-0 sticky z-sticky backdrop-blur-md">
+            <nav
+              aria-label="Main"
+              class="mx-auto px-4 flex h-14 max-w-7xl items-center justify-between sm:px-8"
+            >
+              <div class="flex gap-3 items-center sm:gap-8">
+                <a
+                  href="/"
+                  aria-label="Moraine home"
+                  class="font-semibold flex gap-2 items-center focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+                >
+                  <img src="/favicon.svg" alt="" class="size-6" />
+                  <span class="hidden sm:inline">Moraine</span>
+                </a>
+                <a
+                  href="/start"
+                  class="text-sm text-muted-foreground hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+                >
+                  Start
+                </a>
+                <a
+                  href="/styling"
+                  class="text-sm text-muted-foreground hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+                >
+                  Styling
+                </a>
+              </div>
+              <PageActions
+                pages={pages}
+                paletteOpen={paletteOpen}
+                setPaletteOpen={setPaletteOpen}
+                onNavigate={navigateToPage}
+                mobile={true}
+                theme={theme}
+                updateTheme={updateTheme}
+              />
+            </nav>
+          </header>
+          <main id="main-content">
+            <Suspense>{props.children}</Suspense>
+          </main>
+        </div>
+      </Show>
+    </>
   )
 }
 

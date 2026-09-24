@@ -66,8 +66,8 @@ describe('llms.txt generation', () => {
       await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
       await writeProjectFile(
         projectRoot,
-        'docs/pages/index.mdx',
-        pageSource('Introduction', 1, 'Welcome.'),
+        'docs/pages/start.mdx',
+        pageSource('Getting Started', 1, 'Welcome.'),
       )
       await writeProjectFile(
         projectRoot,
@@ -90,7 +90,7 @@ describe('llms.txt generation', () => {
 
       expect(output).toContain('# Moraine\n\n> Docs description.')
       expect(output).toContain(
-        '- [Introduction](https://ui.subf.dev/index.md): Introduction page description.',
+        '- [Getting Started](https://ui.subf.dev/start.md): Getting Started page description.',
       )
       expect(output).toContain('## Form\n\n- [Input](https://ui.subf.dev/input.md)')
       expect(output).toContain('## General\n\n- [Button](https://ui.subf.dev/button.md)')
@@ -118,11 +118,11 @@ describe('llms.txt generation', () => {
       )
       await writeProjectFile(
         projectRoot,
-        'docs/pages/index.mdx',
+        'docs/pages/start.mdx',
         pageSource(
-          'Introduction',
+          'Getting Started',
           1,
-          '<IntroComponents />\n\n<CodeTabs>\n  <CodeTabs.Item lang="shell" title="bun">\n    bun add moraine\n  </CodeTabs.Item>\n  <CodeTabs.Item lang="shell" title="pnpm">\n    pnpm add moraine\n  </CodeTabs.Item>\n  <CodeTabs.Item lang="shell" title="npm">\n    npm i moraine\n  </CodeTabs.Item>\n</CodeTabs>',
+          '[Read setup](/start) and [homepage](/).\n\n<CodeTabs>\n  <CodeTabs.Item lang="shell" title="bun">\n    bun add moraine\n  </CodeTabs.Item>\n  <CodeTabs.Item lang="shell" title="pnpm">\n    pnpm add moraine\n  </CodeTabs.Item>\n  <CodeTabs.Item lang="shell" title="npm">\n    npm i moraine\n  </CodeTabs.Item>\n</CodeTabs>',
         ),
       )
       await writeProjectFile(
@@ -245,15 +245,17 @@ describe('llms.txt generation', () => {
         description: 'Docs description.',
         siteUrl: 'https://ui.subf.dev/',
       })
-      const introduction = documents.find((document) => document.fileName === 'index.md')?.source
+      const gettingStarted = documents.find((document) => document.fileName === 'start.md')?.source
       const button = documents.find((document) => document.fileName === 'button.md')?.source
       const dialog = documents.find((document) => document.fileName === 'dialog.md')?.source
 
-      expect(introduction).toContain('[Button](https://ui.subf.dev/button.md)')
-      expect(introduction).not.toContain('<CodeTabs')
-      expect(introduction).toContain('```shell bun\nbun add moraine\n```')
-      expect(introduction).toContain('```shell pnpm\npnpm add moraine\n```')
-      expect(introduction).toContain('```shell npm\nnpm i moraine\n```')
+      expect(gettingStarted).toContain('[Read setup](https://ui.subf.dev/start.md)')
+      expect(gettingStarted).toContain('[homepage](/)')
+      expect(documents.some((document) => document.fileName === 'index.md')).toBe(false)
+      expect(gettingStarted).not.toContain('<CodeTabs')
+      expect(gettingStarted).toContain('```shell bun\nbun add moraine\n```')
+      expect(gettingStarted).toContain('```shell pnpm\npnpm add moraine\n```')
+      expect(gettingStarted).toContain('```shell npm\nnpm i moraine\n```')
       expect(button).toContain('## Props')
       expect(button).not.toContain('## Items')
       expect(button).not.toContain('### Props')
@@ -300,8 +302,8 @@ describe('llms.txt generation', () => {
       await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
       await writeProjectFile(
         projectRoot,
-        'docs/pages/index.mdx',
-        pageSource('Introduction', 1, '<UnknownComponent />'),
+        'docs/pages/start.mdx',
+        pageSource('Getting Started', 1, '<UnknownComponent />'),
       )
 
       await expect(
@@ -332,11 +334,11 @@ describe('llms.txt generation', () => {
 
     try {
       await writeProjectFile(projectRoot, 'docs/pages/_api-index.json', '{"components":[]}')
-      const pagePath = 'docs/pages/index.mdx'
+      const pagePath = 'docs/pages/start.mdx'
       await writeProjectFile(
         projectRoot,
         pagePath,
-        pageSource('Introduction', 1, '<UnknownComponent />'),
+        pageSource('Getting Started', 1, '<UnknownComponent />'),
       )
 
       const generateBundle = llmsTxtPlugin(options).generateBundle as GenerateBundle
@@ -345,7 +347,7 @@ describe('llms.txt generation', () => {
         generateBundle.call({ environment: { name: 'client' }, emitFile }),
       ).rejects.toThrow('unsupported JSX component')
 
-      await writeProjectFile(projectRoot, pagePath, pageSource('Introduction', 1, 'Welcome.'))
+      await writeProjectFile(projectRoot, pagePath, pageSource('Getting Started', 1, 'Welcome.'))
       await generateBundle.call({ environment: { name: 'client' }, emitFile })
       expect(emitFile).toHaveBeenCalledTimes(2)
 

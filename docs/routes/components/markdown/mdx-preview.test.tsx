@@ -5,7 +5,6 @@ import { expect, test, vi } from 'vitest'
 
 import { DOCS_MDX_COMPONENTS } from './mdx-components'
 
-vi.mock('./intro-components', () => ({ IntroComponents: () => null }))
 vi.mock('./markdown', () => ({ Markdown: () => null }))
 
 test('loads the Preview descriptor once and mounts its client-only component once', async () => {

@@ -36,16 +36,16 @@ export function CollapsibleGroups() {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault()
-                  setActivePage('Introduction')
+                  setActivePage('Getting Started')
                 }}
                 class={`text-xs font-medium px-2.5 py-1.5 rounded-md flex gap-2 transition-colors items-center ${
-                  activePage() === 'Introduction'
+                  activePage() === 'Getting Started'
                     ? 'bg-accent text-accent-foreground font-semibold'
                     : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
                 }`}
               >
                 <Icon name="i-lucide:compass" class="shrink-0 size-3.5" />
-                <span>Introduction</span>
+                <span>Getting Started</span>
               </a>
               <a
                 href="#"

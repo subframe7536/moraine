@@ -41,7 +41,7 @@ export function IndeterminateCustomIcons() {
         indeterminateIcon="i-lucide:minus"
       />
 
-      <div class="pl-6 border-l-2 border-border space-y-2">
+      <div class="pl-6 border-border border-l-2 space-y-2">
         <For each={tasks()}>
           {(task) => (
             <Checkbox

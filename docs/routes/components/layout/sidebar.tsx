@@ -135,15 +135,19 @@ export const SidebarHeader = (props: SidebarHeaderProps) => {
         props.isMobile ? 'mt-1' : '',
       )}
     >
-      <div class="flex gap-2.5 min-w-0 items-center">
-        <img src="/favicon.svg" alt="icon" class="size-6" />
-        <p class="text-base font-semibold flex truncate items-center">
+      <a
+        href="/"
+        class="flex gap-2.5 min-w-0 items-center focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+        aria-label="Moraine home"
+      >
+        <img src="/favicon.svg" alt="" class="size-6" />
+        <span class="text-base font-semibold flex truncate items-center">
           Moraine
           <Badge size="sm" variant="outline" class="text-[0.7rem] font-mono ms-2 px-1.5 py-0">
             v{version}
           </Badge>
-        </p>
-      </div>
+        </span>
+      </a>
       <Show when={props.onClose}>
         <Button
           variant="ghost"
