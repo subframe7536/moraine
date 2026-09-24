@@ -159,4 +159,34 @@ describe('createDocsMdxOptions', () => {
       sections: [{ id: 'usage', label: 'Usage', level: 1 }],
     })
   })
+
+  test('uses ordinary documentation metadata for Getting Started', async () => {
+    const extension = await createDocsMdxOptions('/tmp/moraine-project').extendLoad?.(
+      {
+        source: '## Install',
+        code: 'function MDXContent() {}',
+        component: 'MDXContent',
+        frontmatter: {
+          title: 'Getting Started',
+          description: 'Install Moraine.',
+          sidebar: { order: 1 },
+          search: { tags: ['installation'] },
+        },
+        routeConfig: {},
+        data: {},
+      },
+      {
+        path: 'start.tsx',
+        routeId: '/start',
+        sourcePath: 'pages/start.mdx',
+        moduleId: '/tmp/start.mdx.solid-file-router.tsx',
+      },
+    )
+
+    expect(extension?.routeConfig?.info).toMatchObject({ key: 'start', title: 'Getting Started' })
+    expect(extension?.routeConfig?.metadata).toMatchObject({
+      title: 'Getting Started | Moraine',
+      canonical: 'https://ui.subf.dev/start',
+    })
+  })
 })

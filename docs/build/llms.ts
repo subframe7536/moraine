@@ -12,7 +12,7 @@ import {
 } from 'satteri'
 import type { Plugin } from 'vite'
 
-import { loadComponentApiDoc, loadApiDocIndex } from './api-doc/load.ts'
+import { loadComponentApiDoc } from './api-doc/load.ts'
 import { createApiReferenceModel } from './api-doc/presentation.ts'
 import type { PresentationAttributesSection, PresentationPropItem } from './api-doc/presentation.ts'
 import type { ComponentApi } from './api-doc/types.ts'
@@ -60,14 +60,6 @@ interface PageConversionContext {
   markdownSource?: string
 }
 
-const COMPONENT_CATEGORIES = new Map<string, string>([
-  ['elements', 'Elements'],
-  ['forms', 'Forms'],
-  ['navigation', 'Navigation'],
-  ['overlays', 'Overlays'],
-  ['utilities', 'Utilities'],
-])
-
 const GROUP_TITLES = new Map<string, string>([
   ['', 'Guides'],
   ['styling', 'Styling'],
@@ -76,21 +68,6 @@ const GROUP_TITLES = new Map<string, string>([
   ['navigation', 'Navigation'],
   ['overlay', 'Overlay'],
 ])
-
-const INTRO_CARD_CONTENT = [
-  [
-    'Composable API',
-    'Slot-based APIs with class and style overrides, designed for real product surfaces.',
-  ],
-  [
-    'Variant Coverage',
-    'Visual variants, sizes, orientation, and state controls aligned across components.',
-  ],
-  [
-    'Interaction Details',
-    'Component pages explain state, keyboard behavior, and naming responsibilities where relevant.',
-  ],
-] as const
 
 const PLAYGROUND_SECTION_PATTERN = /^## Playground\r?\n[\s\S]*?(?=^## |$(?![\s\S]))/gm
 
@@ -103,7 +80,7 @@ function absoluteUrl(siteUrl: string, value: string): string {
 }
 
 function markdownFileName(route: DocsRouteEntry): string {
-  return route.info.key === 'introduction' ? 'index.md' : `${route.info.key}.md`
+  return `${route.info.key}.md`
 }
 
 function markdownPageUrl(siteUrl: string, route: DocsRouteEntry): string {
@@ -192,45 +169,6 @@ function renderApiReference(apiDoc: ComponentApi): string {
   }
 
   return `${output.join('\n').trimEnd()}\n`
-}
-
-function renderIntroCards(): string {
-  return `${INTRO_CARD_CONTENT.map(([title, description]) => `- **${title}:** ${description}`).join('\n')}\n`
-}
-
-function renderIntroComponents(
-  projectRoot: string,
-  siteUrl: string,
-  routes: DocsRouteEntry[],
-): string {
-  const indexDoc = loadApiDocIndex(projectRoot)
-  if (!indexDoc || indexDoc.components.length === 0) {
-    return ''
-  }
-
-  const routeMap = routeByKey(routes)
-  const groups = new Map<string, typeof indexDoc.components>()
-  for (const component of indexDoc.components) {
-    const list = groups.get(component.category) ?? []
-    list.push(component)
-    groups.set(component.category, list)
-  }
-
-  const output: string[] = []
-  for (const [category, components] of groups) {
-    output.push(`#### ${COMPONENT_CATEGORIES.get(category) ?? category}`, '')
-    for (const component of [...components].sort((left, right) =>
-      left.name.localeCompare(right.name),
-    )) {
-      const route = routeMap.get(component.key)
-      const url = route
-        ? markdownPageUrl(siteUrl, route)
-        : absoluteUrl(siteUrl, `${component.key}.md`)
-      output.push(`- [${component.name}](${url})`)
-    }
-    output.push('')
-  }
-  return output.join('\n')
 }
 
 function getComponentAttribute(node: MdxComponentNode, name: string, id: string): string | null {
@@ -322,12 +260,6 @@ function renderComponentNode(
   }
   if (node.name === 'CodeTabs') {
     return renderCodeTabsNode(node, context)
-  }
-  if (node.name === 'IntroCards') {
-    return renderIntroCards()
-  }
-  if (node.name === 'IntroComponents') {
-    return renderIntroComponents(context.projectRoot, context.siteUrl, context.routes)
   }
   if (node.name === 'ToastHosts') {
     return ''
@@ -465,7 +397,7 @@ function normalizeInternalLinks(
       return match
     }
     const key = hrefMatch[1]?.split('/').pop() ?? ''
-    const route = routeMap.get(key) ?? (key === '' ? routeMap.get('introduction') : undefined)
+    const route = routeMap.get(key)
     return route ? `](${markdownPageUrl(siteUrl, route)}${hrefMatch[2] ?? ''})` : match
   })
 }
@@ -479,7 +411,7 @@ export function buildLlmsTxt(
     '',
     `> ${options.description}`,
     '',
-    'Moraine is a composable SolidJS component library. Use the linked Markdown pages for installation guidance, component behavior, examples, and API details.',
+    'Start with /start.md for installation and styling setup. Use the linked Markdown pages for component behavior, examples, and API details.',
   ]
   let currentGroup: string | undefined
   for (const route of routes) {

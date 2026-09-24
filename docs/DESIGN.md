@@ -96,13 +96,11 @@ Playground controls in standalone examples.
 
 ## Landing composition
 
-The landing page may be more expressive than reference pages, but it uses the same semantic colors,
-typography, spacing, focus treatment, and motion rules. Compose it around an asymmetric product
-statement and a real component specimen, followed by a setup flow, library principles, a dense
-component directory, compatibility context supported by source, and resources.
+The dedicated TSX landing route is short and uses minimal prose. Compose it as a hero with a live
+specimen, a curated component canvas, a visual styling comparison, and a compact quick start.
+It does not list every component; documentation search and the sidebar own discovery. The landing
+may use a wider measure than article pages, while keeping the same semantic colors, typography,
+spacing, focus treatment, and motion rules. Real Moraine components are its primary visual content.
 
 Do not use equal-card hero templates, generic feature-card grids, fabricated social proof, fake
-browser chrome, or decorative assets that do not explain the component library. Positioning may take
-principles from shadcn/ui's direct, navigable hierarchy and Nuxt UI's useful usage coverage with
-author-selected live controls, but it must not reuse their wording, layout, assets, or
-framework-specific APIs.
+browser chrome, or decorative assets that do not explain the component library.

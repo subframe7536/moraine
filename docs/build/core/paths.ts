@@ -4,7 +4,6 @@ import path from 'node:path'
 import { toPosixPath } from './strings.ts'
 
 export const DOCS_PAGE_FILE_RE = /[\\/]docs[\\/]pages[\\/].*\.mdx$/
-export const ROOT_DOCS_PAGE_KEY = 'introduction'
 
 export interface DocsPageContext {
   absolutePath: string
@@ -18,7 +17,12 @@ function derivePageKey(relativePath: string): string {
   const fileBaseName = path.basename(relativePath, '.mdx')
   const parentDirectory = path.basename(path.dirname(relativePath))
   if (fileBaseName === 'index') {
-    return parentDirectory === '.' ? ROOT_DOCS_PAGE_KEY : parentDirectory
+    if (parentDirectory === '.') {
+      throw new Error(
+        `[docs-plugin] root index.mdx is reserved for the landing route: ${relativePath}`,
+      )
+    }
+    return parentDirectory
   }
   return parentDirectory === fileBaseName ? parentDirectory : fileBaseName
 }

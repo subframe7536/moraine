@@ -28,7 +28,8 @@ Generated routes use pathless groups to keep short URLs:
 ```text
 docs/pages/(general)/button/index.mdx -> /button
 docs/pages/(form)/input/index.mdx -> /input
-docs/pages/index.mdx -> /
+docs/routes/index.tsx -> / (dedicated landing route)
+docs/pages/start.mdx -> /start
 ```
 
 The app layout is defined in `docs/routes/_app.tsx`; its route-local implementation components live in
@@ -95,11 +96,12 @@ and heading permalinks.
 Theme preference is persisted and applied before paint, then reconciled by the theme runtime. Keep this
 pre-paint behavior intact so a saved dark theme does not flash light during navigation or reload.
 
-## Introduction
+## Landing and Getting Started
 
-The landing page derives package and component values from generated data rather than hand-maintained totals.
-Its component directory uses the same route metadata and destinations as the rest of the documentation, so
-new component pages become discoverable without a second directory to maintain.
+`/` is a dedicated TSX product landing route with a lightweight shell and live Moraine components.
+It is separate from the docs route registry. `/start` is the first MDX documentation page,
+with installation, required styling setup, and first component usage. The docs shell, sidebar,
+search, and Markdown rendering apply to `/start` and other documentation routes.
 
 ## SSG
 
@@ -140,7 +142,7 @@ overlays. Check the browser console for errors and uncaught exceptions. Generate
 The docs build emits an `llms.txt` index and a Markdown representation for every page:
 
 - `/llms.txt` lists all documentation pages by group with absolute Markdown URLs.
-- `/index.md` is the Markdown version of the introduction page.
+- `/start.md` is the Markdown version of Getting Started; the landing has no Markdown export.
 - `/<page>.md` contains the page prose, expanded example source, installation commands, and generated API reference when available.
 
 The same endpoints are served by the Vite development server. Markdown output is generated from the page frontmatter, MDX source, colocated previews, and API JSON, so it should not be edited by hand.

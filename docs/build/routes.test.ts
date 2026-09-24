@@ -11,6 +11,14 @@ import { createDocsRouteInfo, scanDocsRoutes } from './routes'
 
 vi.mock('virtual:routes', () => ({
   routeInfo: {
+    '/': {},
+    '/start': {
+      key: 'start',
+      title: 'Getting Started',
+      description: 'Setup.',
+      order: 1,
+      tags: ['installation'],
+    },
     '/button': {
       key: 'button',
       title: 'Button',
@@ -62,6 +70,7 @@ describe('docs route metadata', () => {
     const { getDocsPages } = await import('../routes/docs-route')
 
     expect(getDocsPages()).toMatchObject([
+      { key: 'start', path: '/start', sections: [] },
       {
         key: 'button',
         path: '/button',
@@ -73,6 +82,9 @@ describe('docs route metadata', () => {
         sections: [],
       },
     ])
+    expect(getDocsPages().some((page) => page.path === '/' || page.key === 'introduction')).toBe(
+      false,
+    )
   })
 
   test('scans mdx pages into metadata', async () => {
@@ -84,7 +96,7 @@ describe('docs route metadata', () => {
         'docs/pages/_api-index.json',
         JSON.stringify({ components: [{ key: 'button', name: 'Button' }] }),
       )
-      await writeProjectFile(projectRoot, 'docs/pages/index.mdx', pageSource('Intro', 10))
+      await writeProjectFile(projectRoot, 'docs/pages/start.mdx', pageSource('Getting Started', 1))
       await writeProjectFile(
         projectRoot,
         'docs/pages/(general)/button/index.mdx',
@@ -92,7 +104,7 @@ describe('docs route metadata', () => {
       )
 
       expect(scanDocsRoutes(projectRoot)).toMatchObject([
-        { info: { key: 'introduction', title: 'Intro' } },
+        { info: { key: 'start', title: 'Getting Started' } },
         {
           info: { key: 'button', group: 'general', api: 'button', badge: 'New' },
         },
@@ -124,11 +136,13 @@ describe('docs route metadata', () => {
     }
   })
 
-  test('resolves root index pages and pathless groups like the file router', () => {
-    expect(resolveDocsPageContext('/tmp/docs/pages/index.mdx')).toMatchObject({
-      pageKey: 'introduction',
+  test('reserves the root index for the dedicated landing route', () => {
+    expect(() => resolveDocsPageContext('/tmp/docs/pages/index.mdx')).toThrow(
+      'reserved for the landing route',
+    )
+    expect(resolveDocsPageContext('/tmp/docs/pages/start.mdx')).toMatchObject({
+      pageKey: 'start',
       group: undefined,
-      relativePath: 'index.mdx',
     })
     expect(resolveDocsPageContext('/tmp/docs/pages/(general)/button/index.mdx')).toMatchObject({
       pageKey: 'button',
