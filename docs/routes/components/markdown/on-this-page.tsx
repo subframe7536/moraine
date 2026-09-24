@@ -82,6 +82,7 @@ export function OnThisPage(props: { entries: OnThisPageEntry[]; class?: string }
             {(entry) => (
               <a
                 href={`#${encodeURIComponent(entry.id)}`}
+                target="_self"
                 data-toc-id={entry.id}
                 aria-current={primaryActiveId() === entry.id ? 'location' : undefined}
                 data-active={activeIds().includes(entry.id) ? '' : undefined}

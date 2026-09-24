@@ -1,7 +1,16 @@
 import type { Accessor } from 'solid-js'
 import { createEffect, createSignal, on, onCleanup, onMount } from 'solid-js'
 
-import { decodeHashAnchor } from './use-table-of-contents'
+import { DOCS_HEADER_OFFSET, decodeHashAnchor } from './use-table-of-contents'
+
+/** Correct a hash jump if the sticky header still covers its target. */
+export function revealHashTarget(root: HTMLElement, target: HTMLElement) {
+  const hiddenBy =
+    root.getBoundingClientRect().top + DOCS_HEADER_OFFSET - target.getBoundingClientRect().top
+  if (hiddenBy > 0) {
+    root.scrollTop -= hiddenBy
+  }
+}
 
 export interface HashScrollingOptions {
   element: Accessor<HTMLElement | undefined>
@@ -41,6 +50,7 @@ export function useHashScrolling(options: HashScrollingOptions) {
             return false
           }
           target.scrollIntoView({ block: 'start' })
+          revealHashTarget(root, target)
           observer?.disconnect()
           observer = undefined
           return true

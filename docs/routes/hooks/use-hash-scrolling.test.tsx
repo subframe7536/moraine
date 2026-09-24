@@ -2,7 +2,7 @@ import { render, waitFor } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
-import { useHashScrolling } from './use-hash-scrolling'
+import { revealHashTarget, useHashScrolling } from './use-hash-scrolling'
 
 beforeEach(() => {
   vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
@@ -29,6 +29,21 @@ function setup() {
   })
   return { root, setPath, setHash, setReady, view }
 }
+
+test('reveals a hash heading obscured by the 52px sticky header', () => {
+  const root = document.createElement('div')
+  const target = document.createElement('h3')
+  root.scrollTop = 200
+  vi.spyOn(root, 'getBoundingClientRect').mockReturnValue({ top: 100 } as DOMRect)
+  vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({ top: 130 } as DOMRect)
+  revealHashTarget(root, target)
+  expect(root.scrollTop).toBe(178)
+
+  root.scrollTop = 200
+  vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({ top: 160 } as DOMRect)
+  revealHashTarget(root, target)
+  expect(root.scrollTop).toBe(200)
+})
 
 test('initial encoded hash scrolls after the committed target appears', async () => {
   window.history.replaceState(null, '', '/start#with%20space')

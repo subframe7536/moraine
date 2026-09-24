@@ -1,3 +1,4 @@
+import { Route, Router } from '@solidjs/router'
 import { render } from '@solidjs/testing-library'
 import { createSignal } from 'solid-js'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
@@ -7,7 +8,6 @@ import type { OnThisPageEntry } from '../../hooks/use-table-of-contents'
 import { OnThisPage } from './on-this-page'
 
 const [active, setActive] = createSignal<string[]>([])
-vi.mock('@solidjs/router', () => ({ useLocation: () => ({ hash: '' }) }))
 vi.mock('../../hooks/use-table-of-contents', () => ({
   useTableOfContents: () => ({ activeIds: active, primaryActiveId: () => active()[0] ?? '' }),
 }))
@@ -35,11 +35,19 @@ const entries: OnThisPageEntry[] = [
 beforeEach(() => {
   setActive([])
   vi.stubGlobal('ResizeObserver', ResizeObserverMock)
+  window.history.replaceState(null, '', '/input-number#usage')
 })
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+  vi.unstubAllGlobals()
+  window.history.replaceState(null, '', '/')
+})
 
 function setup() {
-  const view = render(() => <OnThisPage entries={entries} />)
+  const view = render(() => (
+    <Router>
+      <Route path="/input-number" component={() => <OnThisPage entries={entries} />} />
+    </Router>
+  ))
   const links = [...view.container.querySelectorAll<HTMLAnchorElement>('a[data-toc-id]')]
   let layout = [
     [0, 32],
@@ -60,6 +68,7 @@ function setup() {
 test('links are native anchors and repeated ordinary clicks are not suppressed', () => {
   const { view, links } = setup()
   expect(links.map((link) => link.getAttribute('href'))).toEqual(['#usage', '#options', '#api'])
+  expect(links.every((link) => link.target === '_self')).toBe(true)
   for (let click = 0; click < 2; click++) {
     const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
     links[0]!.dispatchEvent(event)

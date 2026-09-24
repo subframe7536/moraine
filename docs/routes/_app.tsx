@@ -10,7 +10,7 @@ import { PageActions } from './components/layout/page-actions'
 import { Sidebar, SidebarHeader } from './components/layout/sidebar'
 import { DOCS_MDX_COMPONENTS } from './components/markdown/mdx-components'
 import { getDocsPages } from './docs-route'
-import { useHashScrolling } from './hooks/use-hash-scrolling'
+import { revealHashTarget, useHashScrolling } from './hooks/use-hash-scrolling'
 import { useScrollRetention } from './hooks/use-scroll-retention'
 import { useTheme } from './hooks/use-theme'
 
@@ -112,7 +112,33 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           </SidebarFrame.SidebarBody>
         </SidebarFrame.Sidebar>
 
-        <SidebarFrame.Main ref={(element) => setMainEl(element)}>
+        <SidebarFrame.Main
+          ref={(element) => setMainEl(element)}
+          onClick={(event) => {
+            if (
+              event.defaultPrevented ||
+              event.button !== 0 ||
+              event.metaKey ||
+              event.ctrlKey ||
+              event.shiftKey ||
+              event.altKey ||
+              !(event.target instanceof Element)
+            ) {
+              return
+            }
+            const anchor = event.target.closest<HTMLAnchorElement>('a[data-toc-id]')
+            const root = event.currentTarget
+            if (!anchor || !root.contains(anchor)) {
+              return
+            }
+            requestAnimationFrame(() => {
+              const target = root.ownerDocument.getElementById(anchor.dataset.tocId ?? '')
+              if (root.isConnected && target && root.contains(target)) {
+                revealHashTarget(root, target)
+              }
+            })
+          }}
+        >
           <header
             data-scrolled={frame.scrolled() ? '' : undefined}
             class={cn(
