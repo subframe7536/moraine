@@ -12,6 +12,8 @@ import {
 } from 'satteri'
 import type { Plugin } from 'vite'
 
+import { DEFAULT_ICON_SHORTCUTS } from '../../src/theme/style/icons.ts'
+
 import { loadComponentApiDoc } from './api-doc/load.ts'
 import { createApiReferenceModel } from './api-doc/presentation.ts'
 import type { PresentationAttributesSection, PresentationPropItem } from './api-doc/presentation.ts'
@@ -62,6 +64,7 @@ interface PageConversionContext {
 
 const GROUP_TITLES = new Map<string, string>([
   ['', 'Guides'],
+  ['styling', 'Styling'],
   ['form', 'Form'],
   ['general', 'General'],
   ['navigation', 'Navigation'],
@@ -254,6 +257,9 @@ function renderComponentNode(
   node: MdxComponentNode,
   context: PageConversionContext,
 ): Promise<string> | string {
+  if (node.name === 'IconGallery') {
+    return DEFAULT_ICON_SHORTCUTS.map(([name]) => `- \`${name}\``).join('\n')
+  }
   if (node.name === 'Preview') {
     return renderPreviewNode(node, context)
   }

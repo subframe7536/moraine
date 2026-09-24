@@ -1,0 +1,21 @@
+---
+title: Animations
+description: Set Moraine animation durations and distinguish transitions.
+sidebar:
+  order: 4
+search:
+  tags: [animation, duration, CSS variables]
+---
+
+Set these variables in your application stylesheet to change the duration of Moraine's built-in CSS animations:
+
+```css
+:root {
+  --mo-anim-duration-enter: 150ms;
+  --mo-anim-duration-exit: 100ms;
+  --mo-anim-duration-loop: 2s;
+  --mo-anim-duration-spin: 1s;
+}
+```
+
+`--mo-anim-duration` overrides the duration of every Moraine CSS animation. Use the more specific variables to set entry, exit, looping, or spinner durations separately when the general override is absent. CSS transitions use the duration and timing function from your Tailwind CSS or UnoCSS setup; these animation variables do not change transitions.

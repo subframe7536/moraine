@@ -101,6 +101,16 @@ export const Sidebar = (props: SidebarProps) => {
                   </a>
                 )}
               />
+              <Show when={!section.group}>
+                <a
+                  href="/llms.txt"
+                  rel="alternate external"
+                  type="text/markdown"
+                  class="text-sm text-muted-foreground px-2.5 py-1.5 rounded-sm flex gap-2 transition-([background-color,color] duration-150 ease-out) items-center hover:(text-foreground bg-muted/60) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+                >
+                  <span class="truncate">llms.txt</span>
+                </a>
+              </Show>
             </section>
           )}
         </For>
@@ -108,20 +118,6 @@ export const Sidebar = (props: SidebarProps) => {
         <Show when={grouped().length === 0}>
           <p class="text-xs text-muted-foreground px-2 py-3">No results</p>
         </Show>
-
-        <section>
-          <div class="text-xs text-muted-foreground/80 tracking-tight font-semibold mb-1.5 mt-3 px-2 uppercase">
-            Resources
-          </div>
-          <a
-            href="/llms.txt"
-            rel="alternate external"
-            type="text/markdown"
-            class="text-sm text-muted-foreground px-2.5 py-1.5 rounded-sm flex gap-2 transition-([background-color,color] duration-150 ease-out) items-center hover:(text-foreground bg-muted/60) focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
-          >
-            <span class="truncate">llms.txt</span>
-          </a>
-        </section>
       </nav>
     </div>
   )

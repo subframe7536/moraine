@@ -74,7 +74,7 @@ Common supporting types are listed below. Unsupported members use `never`; compo
 
 ### Visual Variants (`XxxT.Variant`)
 
-Components that support visual variants expose `XxxT.Variant`. Variant fields accept `null` to explicitly clear a default variant without applying an alternative recipe class:
+Components that support visual variants expose `XxxT.Variant`. Variant fields accept `null` to explicitly clear a default variant without applying another variant's classes:
 
 ```tsx
 import type { ButtonT } from 'moraine'
@@ -138,7 +138,7 @@ Put native attributes on the component that renders the element. For example, `C
 
 ### Headless Composite Roots (`Dialog`, `Sheet`, `Modal`)
 
-`Dialog` has no root DOM element. Put DOM attributes and direct `class` or `style` on `Dialog.Trigger`, `Dialog.Content`, or another rendered part. Root `classes` and `styles` provide defaults for this Dialog instance; parts that render multiple configurable slots may also accept their own slot overrides. The same pattern applies to headless roots such as `Sheet`, `Modal`, `Popover`, `Tooltip`, `ContextMenu`, `DropdownMenu`, and `BaseSelect`. See [Styling](/styling#override-component-styles) for the override rules.
+`Dialog` has no root DOM element. Put DOM attributes and direct `class` or `style` on `Dialog.Trigger`, `Dialog.Content`, or another rendered part. Root `classes` and `styles` provide defaults for this Dialog instance; parts that render multiple configurable slots may also accept their own slot overrides. The same pattern applies to headless roots such as `Sheet`, `Modal`, `Popover`, `Tooltip`, `ContextMenu`, `DropdownMenu`, and `BaseSelect`. See [Styling](/styling/customization#style-overrides) for the override rules.
 
 ## Polymorphic Rendering (`as` Prop)
 

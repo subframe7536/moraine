@@ -48,7 +48,7 @@ test('shows the generated kind in the header and updates it with page metadata',
 
   const single = view.getByRole('link', { name: 'Single component: styling guide' })
   expect(single.textContent).toBe('Single')
-  expect(single.getAttribute('href')).toBe('/styling#component-kinds')
+  expect(single.getAttribute('href')).toBe('/styling/customization#component-kinds')
   expect(single.getAttribute('tabindex')).toBeNull()
   expect(single.closest('header')).not.toBeNull()
 

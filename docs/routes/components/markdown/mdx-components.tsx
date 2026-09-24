@@ -8,6 +8,7 @@ import { Kbd } from '../../../../src'
 import { CodeBlock } from './docs-code-block'
 import { CodeTabs } from './docs-code-tabs'
 import { DocsPlayground as Playground } from './docs-playground'
+import { IconGallery } from './icon-gallery'
 import { Markdown } from './markdown'
 
 const DOCS_DEMO_BLOCK_CLASS =
@@ -38,6 +39,7 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   ),
 
   Playground,
+  IconGallery,
 
   Preview(props: MdxProps) {
     const loader = untrack(() => props.load as () => Promise<{ default: DocsMdxPreview }>)

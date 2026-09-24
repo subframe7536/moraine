@@ -59,13 +59,13 @@ function App() {
 }
 ```
 
-4. See the [component guides](https://ui.subf.dev) for usage and [Styling](https://ui.subf.dev/styling) for customization. Components use built-in recipes by default. Add `MoraineProvider` for Theme or class-merging overrides; Styling explains inheritance and composition.
+4. See the [component guides](https://ui.subf.dev) for usage and [Customization](https://ui.subf.dev/styling/customization) for style overrides. Components use built-in styles by default. Add `MoraineProvider` for Theme or class-merging overrides; [Advanced](https://ui.subf.dev/styling/advanced) explains inheritance and composition.
 
 ## Package entry points
 
 Import components and `MoraineProvider` from `moraine`. Component subpaths and internal files are not supported entry points.
 
-Use `moraine/theme` for Theme authoring, `moraine/styles` for readonly recipe access, `moraine/utils` for shared hooks, and `moraine/unocss` or `moraine/tailwind` for styling integration. `moraine/virtualizer` provides the optional `useListVirtualizer` adapter and requires `@tanstack/virtual-core`.
+Use `moraine/theme` for Theme authoring, `moraine/styles` for readonly built-in style definitions, `moraine/utils` for shared hooks, and `moraine/unocss` or `moraine/tailwind` for styling integration. `moraine/virtualizer` provides the optional `useListVirtualizer` adapter and requires `@tanstack/virtual-core`.
 
 ## Development
 

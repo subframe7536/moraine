@@ -144,7 +144,7 @@ function ComponentCanvas() {
         </a>
       </div>
       <div class="border border-border/70 rounded-xl bg-card/50 grid overflow-hidden lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
-        <div class="p-4 border-b border-border/70 min-w-0 sm:p-6 lg:border-r lg:border-b-0">
+        <div class="p-4 border-b border-border/70 min-w-0 sm:p-6 lg:border-b-0 lg:border-r">
           <div class="flex gap-3 items-center justify-between">
             <div class="flex gap-2 items-center">
               <h3 class="text-sm font-semibold">Workspace</h3>
@@ -362,12 +362,15 @@ function StylingShowcase() {
             Change variants and slot classes; semantic tokens carry the result across themes.
           </p>
         </div>
-        <a href="/styling" class={`text-sm text-primary hover:text-primary-hover ${linkFocus}`}>
+        <a
+          href="/styling/customization"
+          class={`text-sm text-primary hover:text-primary-hover ${linkFocus}`}
+        >
           Explore styling →
         </a>
       </div>
       <div class="mt-5 border border-border/70 rounded-xl bg-card grid overflow-hidden md:grid-cols-2">
-        <div class="border-b border-border/70 md:border-r md:border-b-0">
+        <div class="border-b border-border/70 md:border-b-0 md:border-r">
           <StylingSpecimen />
         </div>
         <StylingSpecimen customized />
@@ -420,7 +423,7 @@ export function LandingPage() {
             <Button as="a" href="/start">
               Get started
             </Button>
-            <Button as="a" href="/styling" variant="outline">
+            <Button as="a" href="/styling/unocss" variant="outline">
               Styling guide
             </Button>
           </div>
@@ -447,7 +450,10 @@ export function LandingPage() {
         <Button as="a" href="/start" size="sm">
           Get started
         </Button>
-        <a href="/styling" class={`text-sm text-primary hover:text-primary-hover ${linkFocus}`}>
+        <a
+          href="/styling/unocss"
+          class={`text-sm text-primary hover:text-primary-hover ${linkFocus}`}
+        >
           Styling guide →
         </a>
       </section>

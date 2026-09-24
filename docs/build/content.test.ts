@@ -8,10 +8,11 @@ import { expect, test } from 'vitest'
 import { resolvePreviewFile } from './markdown/previews.ts'
 
 const PAGES_ROOT = path.resolve(__dirname, '../pages')
+const COMPONENT_GROUPS = new Set(['(form)', '(general)', '(navigation)', '(overlay)'])
 
 function componentPages(): string[] {
   return readdirSync(PAGES_ROOT, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && /^\(.+\)$/.test(entry.name))
+    .filter((entry) => entry.isDirectory() && COMPONENT_GROUPS.has(entry.name))
     .flatMap((group) =>
       readdirSync(path.join(PAGES_ROOT, group.name), { withFileTypes: true })
         .filter((entry) => entry.isDirectory())

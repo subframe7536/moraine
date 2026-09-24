@@ -1,0 +1,67 @@
+---
+title: UnoCSS
+description: Configure the UnoCSS preset and optional semantic color variables.
+sidebar:
+  order: 1
+search:
+  tags: [UnoCSS, preset, color variables]
+---
+
+Add `presetMoraine()` to your UnoCSS config and scan Moraine's published files. This lets UnoCSS generate the utility classes used by Moraine components. Choose the Wind preset that matches your project:
+
+```ts title="unocss.config.ts (Wind4)" {1,5} group-id="unocss"
+import { defineConfig, presetWind4 } from '@subf/unocss'
+import { presetMoraine } from 'moraine/unocss'
+
+export default defineConfig({
+  presets: [presetWind4(), presetMoraine()],
+  content: {
+    filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
+  },
+})
+```
+
+```ts title="unocss.config.ts (Wind3)" {1,5} group-id="unocss"
+import { defineConfig, presetWind3 } from '@subf/unocss'
+import { presetMoraine } from 'moraine/unocss'
+
+export default defineConfig({
+  presets: [presetWind3(), presetMoraine()],
+  content: {
+    filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
+  },
+})
+```
+
+The preset adds Moraine's theme tokens, animations, [z-index utilities](/styling/design#semantic-z-index-utilities), and `data-*` / `aria-*` variants. `globalStyles` defaults to `true`. Define the [CSS variables](/styling/design#css-variables) used for your colors, fonts, and other design values in your application stylesheet.
+
+## Color variables
+
+To generate light and dark semantic **color** variables from your palette, pass `colorVariables` to the preset. Without this option, the preset emits no color variable declarations; you can [define them yourself](/styling/design#css-variables). The generated selectors default to `:root` and `.dark`.
+
+```ts
+presetMoraine({
+  colorVariables: {
+    light: {
+      foreground: 'oklch(20% 0 0)',
+      primary: {
+        DEFAULT: 'oklch(55% 0.2 260)',
+        foreground: 'white',
+        hover: 8,
+        active: ({ base, foreground }) => `color-mix(in oklch, ${base}, ${foreground} 16%)`,
+      },
+      border: 'oklch(90% 0 0)',
+    },
+    dark: {
+      foreground: 'oklch(96% 0 0)',
+      primary: {
+        DEFAULT: 'oklch(70% 0.16 260)',
+        foreground: 'oklch(18% 0 0)',
+      },
+      border: 'oklch(32% 0 0)',
+    },
+    hoverAdjustment: 6,
+    activeAdjustment: 12,
+  },
+})
+```

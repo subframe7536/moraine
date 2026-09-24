@@ -1,0 +1,89 @@
+---
+title: Design
+description: Set CSS variables and browse z-index utilities and built-in icons.
+sidebar:
+  order: 3
+search:
+  tags: [CSS variables, tokens, z-index, icons]
+---
+
+## CSS variables
+
+Set colors and other design values in your application CSS. Moraine's built-in classes use semantic utilities such as `bg-primary`, `text-foreground`, and `rounded-lg`. As with [shadcn/ui's CSS-variable theming](https://ui.shadcn.com/docs/theming), changing a variable updates the components that use it without changing their classes. Moraine's UnoCSS preset and Tailwind plugin map these utilities to the variables below; neither supplies a default color palette.
+
+| Role              | CSS variables                                                                                                         |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Page              | `--background`, `--foreground`                                                                                        |
+| Primary           | `--primary`, `--primary-foreground`                                                                                   |
+| Secondary         | `--secondary`, `--secondary-foreground`                                                                               |
+| Card              | `--card`, `--card-foreground`                                                                                         |
+| Popover           | `--popover`, `--popover-foreground`                                                                                   |
+| Muted             | `--muted`, `--muted-foreground`                                                                                       |
+| Accent            | `--accent`, `--accent-foreground`                                                                                     |
+| Destructive       | `--destructive`, `--destructive-foreground`                                                                           |
+| Borders and focus | `--border`, `--input`, `--ring`                                                                                       |
+| Radius            | `--radius`                                                                                                            |
+| Fonts             | `--font-sans`, `--font-mono`, `--font-serif`                                                                          |
+| Shadows           | `--shadow`, `--shadow-2xs`, `--shadow-xs`, `--shadow-sm`, `--shadow-md`, `--shadow-lg`, `--shadow-xl`, `--shadow-2xl` |
+| Sidebar width     | `--sidebar-width` (optional)                                                                                          |
+
+Surface colors pair with their `-foreground` variables for text and icons on that surface. `--radius` controls the `rounded-*` scale. `--sidebar-width` falls back to `clamp(14rem,25%,20rem)` when omitted.
+
+Define values in your application stylesheet. Override the same variables under `.dark` for dark mode, or on a container to change its DOM descendants. This example sets a few variables; add the others used by your components:
+
+```css
+:root {
+  --background: oklch(100% 0 0);
+  --foreground: oklch(20% 0 0);
+  --primary: oklch(55% 0.2 260);
+  --primary-foreground: white;
+  --radius: 0.625rem;
+}
+
+.dark {
+  --background: oklch(18% 0 0);
+  --foreground: oklch(96% 0 0);
+  --primary: oklch(70% 0.16 260);
+  --primary-foreground: oklch(18% 0 0);
+}
+```
+
+For the eight surface colors above, optional `--*-hover` and `--*-active` variables control interaction states. Each hover value falls back to its base; each active value falls back to hover, then base. If you use UnoCSS, [`colorVariables`](/styling/unocss#color-variables) can generate these color declarations from supplied light and dark values. Define radius, shadow, and font variables separately. Component-specific variables such as `--mo-collapsible-content-height` and `--mo-anim-duration` control measurements and [animations](/styling/animations), not the color palette. CSS variables scoped to a container do not reach content portaled outside it; see [advanced style resolution](/styling/advanced#advanced-style-resolution).
+
+## Interactive color tokens
+
+Use the same semantic color utilities when styling your own interactive surfaces. Hover and active classes read the corresponding variables described above:
+
+```tsx
+<button class="bg-primary hover:bg-primary-hover active:bg-primary-active text-primary-foreground">
+  Continue
+</button>
+```
+
+## Semantic z-index utilities
+
+| Utility      | Value | Typical use                      |
+| ------------ | ----: | -------------------------------- |
+| `z-base`     |     1 | Base elevated content            |
+| `z-raised`   |     2 | Raised content and ranges        |
+| `z-control`  |     3 | Controls above local ranges      |
+| `z-sticky`   |    10 | Sticky content                   |
+| `z-resize`   |    20 | Resize affordances               |
+| `z-overlay`  |    40 | Overlay layers                   |
+| `z-floating` |    50 | Dialogs, menus, and other popups |
+
+## Icons
+
+Import `moraine/icon.css` if you want Moraine's built-in icon names without configuring a separate icon integration. It provides runtime mask styles for the icons below. Keep the Tailwind plugin or UnoCSS preset and the published-file scan for component utility classes.
+
+```css
+@import 'moraine/icon.css';
+```
+
+You can also configure an icon integration such as `@iconify/tailwind` instead of importing `moraine/icon.css`.
+
+### Built-in icon names
+
+The built-in names map to Lucide icons. Use `<Icon name="icon-search" />` or the name as a class. Click a card to copy its name.
+
+<IconGallery />

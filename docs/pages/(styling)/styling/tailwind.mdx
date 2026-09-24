@@ -1,0 +1,18 @@
+---
+title: Tailwind CSS v4
+description: Configure the Tailwind CSS v4 plugin and scan Moraine.
+sidebar:
+  order: 2
+search:
+  tags: [Tailwind CSS, plugin]
+---
+
+In your application stylesheet, import Tailwind CSS, register Moraine's plugin, and scan Moraine's published files. The scan lets Tailwind generate the classes used by Moraine components. Adjust the `@source` path to match the location of your stylesheet:
+
+```css
+@import 'tailwindcss';
+@plugin 'moraine/tailwind';
+@source '../node_modules/moraine/dist';
+```
+
+`@source` needs a resolvable path to `node_modules/moraine/dist`; `@source "moraine"` does not work. The plugin maps the same colors, typography, radius, shadows, animations, z-index values, and state variants as the [UnoCSS preset](/styling/unocss). Set your palette and other [CSS variables](/styling/design#css-variables) in your application stylesheet.
