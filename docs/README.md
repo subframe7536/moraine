@@ -1,11 +1,13 @@
 # Docs Architecture
 
-The docs app is a Vite + SolidJS application using `solid-file-router` for file-based routing and SSG prerendering.
+The docs app is the private `@moraine/docs` pnpm workspace package. It imports the root `src/`
+directly, so component edits update the development server through Vite HMR. The app uses Vite +
+SolidJS with `solid-file-router` for file-based routing and SSG prerendering.
 
 ## Build Pipeline
 
 - `docs/build/plugin.ts` owns docs-specific build work.
-- `configResolved` regenerates component API JSON from the public root declaration entry in `package.json`, following its declaration module graph. Namespace contracts and attached members are resolved across files; source JSX supplies slot attributes.
+- `configResolved` regenerates component API JSON from `src/` types, recipes, and JSX.
 - `docs/build/markdown/page.ts` configures the built-in `mdxRouteProvider` with docs metadata, previews, code tabs, and rendered Markdown layout.
 - `solid-file-router` discovers `docs/routes` through its built-in `fsRouteProvider`, discovers `docs/pages/**/*.mdx` through its built-in `mdxRouteProvider`, provides `virtual:routes`, and prerenders static HTML with its `ssg` option.
 
@@ -110,7 +112,7 @@ search, and Markdown rendering apply to `/start` and other documentation routes.
 - `solid({ ssr: true })`
 - `fileRouter({ pagesDir: 'routes', mdx: createDocsMdxOptions(projectRoot), ssg: { id: 'app' } })`
 
-`nub run docs:build` emits the prerendered site under `docs/dist/client`.
+`pnpm run docs:build` emits the prerendered site under `docs/dist/client`.
 
 ## Verification
 
@@ -118,18 +120,18 @@ Run focused checks while changing the relevant area, then run the complete produ
 
 ```bash
 # Focused checks, selected for the area being changed.
-nub run test docs/build/routes.test.ts docs/build/markdown/page.test.ts
-nub run test sidebar.test.tsx docs-command-palette.test.tsx
-nub run test docs/build/content.test.ts docs/build/previews/source.test.ts
+pnpm run test docs/build/routes.test.ts docs/build/markdown/page.test.ts
+pnpm run test sidebar.test.tsx docs-command-palette.test.tsx
+pnpm run test docs/build/content.test.ts docs/build/previews/source.test.ts
 
 # Repository and SSG gates.
-nub run test
-nub run qa
-nub run docs:build
+pnpm run test
+pnpm run qa
+pnpm run docs:build
 git diff --check
 
 # Production browser verification after the SSG build.
-nub run docs:preview
+pnpm run docs:preview
 ```
 
 Use the production preview to check representative component routes at narrow and desktop widths,

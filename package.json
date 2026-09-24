@@ -70,19 +70,19 @@
   },
   "scripts": {
     "build": "tsdown",
-    "dev": "cd docs && vite serve",
-    "docs:build": "cd docs && vite build",
-    "docs:preview": "nub run docs:build && vite preview docs --outDir dist/client",
-    "test": "nub run build && vitest --run",
-    "test:types": "nub run build && tsc -p test/types-default/tsconfig.json && tsc -p test/types-simple/tsconfig.json",
+    "dev": "pnpm --filter @moraine/docs dev",
+    "docs:build": "pnpm --filter @moraine/docs build",
+    "docs:preview": "pnpm --filter @moraine/docs preview",
+    "test": "pnpm run build && vitest --run",
+    "test:types": "pnpm run build && tsc -p test/types-default/tsconfig.json && tsc -p test/types-simple/tsconfig.json",
     "test:dev": "vitest",
     "lint": "oxlint --fix --max-warnings 0",
     "format": "oxfmt",
     "typecheck": "tsc --noEmit",
-    "oxc": "nub run lint && nub run format",
-    "qa": "nub run lint && nub run format && nub run typecheck && nub run test:types",
-    "release": "nub run test && nub run qa && bumpp --all",
-    "prepublishOnly": "nub run build"
+    "oxc": "pnpm run lint && pnpm run format",
+    "qa": "pnpm run lint && pnpm run format && pnpm run typecheck && pnpm run test:types",
+    "release": "pnpm run test && pnpm run qa && bumpp --all",
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",
@@ -92,7 +92,6 @@
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.129",
     "@iconify/tailwind": "1.2.0",
-    "@rolldown/pluginutils": "*",
     "@solidjs/router": "^1.0.0",
     "@solidjs/testing-library": "^0.8.10",
     "@subf/config": "^0.4.0",
@@ -107,17 +106,14 @@
     "oxlint-tsgolint": "^7.0.2001",
     "rolldown-plugin-unocss": "^0.1.0",
     "satteri": "^0.10.5",
-    "shiki": "^4.4.3",
     "solid-file-router": "^0.7.3",
-    "solid-toaster": "^0.2.0",
     "tailwindcss": "^4.3.3",
     "tsdown": "^0.23.0",
     "typescript": "^7.0.2",
     "valibot": "^1.4.2",
     "vite": "^8.2.2",
     "vite-plugin-solid": "^2.11.14",
-    "vitest": "^4.1.11",
-    "yaml": "^2.9.0"
+    "vitest": "^5.0.1"
   },
   "peerDependencies": {
     "@iconify/tailwind": "1.2.0",
@@ -140,11 +136,5 @@
       "optional": true
     }
   },
-  "devEngines": {
-    "packageManager": {
-      "name": "nub",
-      "version": "^0.7.5",
-      "onFail": "ignore"
-    }
-  }
+  "packageManager": "pnpm@12.6.0"
 }

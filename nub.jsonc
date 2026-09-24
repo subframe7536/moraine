@@ -1,9 +1,0 @@
-{
-  "install": {
-    "linker": {
-      "strategy": "global-virtual-store",
-      "eject": ["solid-file-router"],
-    },
-    "publicHoist": ["@types/*", "*oxlint*"],
-  },
-}

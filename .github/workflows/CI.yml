@@ -6,11 +6,12 @@ on:
       - main
     paths:
       - 'src/**'
+      - 'docs/**'
       - 'test/**'
       - '.node-version'
       - 'package.json'
-      - 'nub.jsonc'
-      - 'nub.lock'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
       - 'tsconfig.json'
       - 'tsdown.config.ts'
       - 'vitest.config.ts'
@@ -20,11 +21,12 @@ on:
       - main
     paths:
       - 'src/**'
+      - 'docs/**'
       - 'test/**'
       - '.node-version'
       - 'package.json'
-      - 'nub.jsonc'
-      - 'nub.lock'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
       - 'tsconfig.json'
       - 'tsdown.config.ts'
       - 'vitest.config.ts'
@@ -44,17 +46,17 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: nubjs/setup-nub@v0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
-          cache: true
-          cache-dependency-path: |
-            package.json
-            nub.lock
-            nub.jsonc
+          node-version-file: .node-version
+          cache: pnpm
 
-      - run: nub ci
+      - run: pnpm install --frozen-lockfile
 
-      - run: nub run qa
+      - run: pnpm run qa
+
+      - run: pnpm run docs:build
 
   test:
     name: Test
@@ -64,27 +66,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: nubjs/setup-nub@v0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
-          cache: true
-          cache-dependency-path: |
-            package.json
-            nub.lock
-            nub.jsonc
+          node-version-file: .node-version
+          cache: pnpm
 
-      - run: nub ci
+      - run: pnpm install --frozen-lockfile
 
       - name: Run tests
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             BASE_REF="${{ github.base_ref }}"
             if git rev-parse --verify "origin/$BASE_REF" >/dev/null 2>&1; then
-              nub run test --changed "origin/$BASE_REF"
+              pnpm run test --changed "origin/$BASE_REF"
             else
-              nub run test --changed "$BASE_REF"
+              pnpm run test --changed "$BASE_REF"
             fi
           elif [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ] && git rev-parse --verify "${{ github.event.before }}" >/dev/null 2>&1; then
-            nub run test --changed ${{ github.event.before }}
+            pnpm run test --changed ${{ github.event.before }}
           else
-            nub run test
+            pnpm run test
           fi

@@ -19,6 +19,7 @@ import unocfg from './unocss.config.ts'
 
 const docsRoot = fileURLToPath(new URL('.', import.meta.url))
 const projectRoot = path.resolve(docsRoot, '..')
+const sourceRoot = path.resolve(projectRoot, 'src')
 
 export default defineConfig({
   plugins: [
@@ -60,7 +61,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@src': path.resolve(projectRoot, 'src'),
+      '@src': sourceRoot,
+      moraine: sourceRoot,
     },
     dedupe: ['solid-js', '@solidjs/router'],
   },

@@ -260,10 +260,10 @@ also assert in a production browser that the hydrated node still exists under it
 Run:
 
 ```sh
-nub run test <focused-test-files>
-nub run qa
-nub run test
-nub run docs:preview
+pnpm run test <focused-test-files>
+pnpm run qa
+pnpm run test
+pnpm run docs:preview
 ```
 
 Use a real browser against the production preview. Listen for uncaught exceptions and error-level
@@ -289,7 +289,7 @@ Do not manually edit `dist`. Run `git diff --check` and confirm no unintended de
 
 If production hydration fails:
 
-1. Rebuild unminified with `nubx vite build docs --minify false`.
+1. Rebuild unminified with `pnpm exec vite build docs --minify false`.
 2. Break at Solid's `getNextElement` and inspect the first non-Solid stack frame.
 3. When available, use this conditional breakpoint:
 

@@ -17,21 +17,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: nubjs/setup-nub@v0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
-          nub-version: 0.7.5
-          cache: true
-          cache-dependency-path: |
-            package.json
-            nub.lock
-            nub.jsonc
+          node-version-file: .node-version
+          cache: pnpm
 
-      - run: nub ci
-      - run: nub publish --provenance --no-git-checks
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm publish --provenance --no-git-checks
       - name: Trigger Cloudflare Pages build
         run: curl -d "" ${PAGES_BUILD_HOOK_URL}
         env:
           PAGES_BUILD_HOOK_URL: ${{ secrets.PAGES_BUILD_HOOK_URL }}
-      - run: nubx changelogithub -y
+      - run: pnpm dlx changelogithub -y
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

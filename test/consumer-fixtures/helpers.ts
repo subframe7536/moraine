@@ -24,7 +24,7 @@ function ensureBuild(): void {
     const distMjs = join(PROJECT_ROOT, 'dist/index.mjs')
     const distDts = join(PROJECT_ROOT, 'dist/index.d.mts')
     if (!existsSync(distMjs) || !existsSync(distDts)) {
-      execFileSync('nub', ['run', 'build'], { cwd: PROJECT_ROOT, stdio: 'pipe' })
+      execFileSync('pnpm', ['run', 'build'], { cwd: PROJECT_ROOT, stdio: 'pipe' })
     }
     built = true
   }
@@ -134,7 +134,7 @@ for (const specifier of specifiers) {
 }
 `,
   )
-  execFileSync('nub', [verificationPath], { cwd: consumer.root, stdio: 'pipe' })
+  execFileSync('node', [verificationPath], { cwd: consumer.root, stdio: 'pipe' })
 }
 
 export function resolveStylesheet(id: string, base: string, packageDir: string): string {

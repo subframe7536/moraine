@@ -7,27 +7,30 @@ Current stage: pre-alpha. breaking change allowed.
 
 ## Essential Commands
 
-Use `nub` for package management and script execution. Prefer `nub` / `nubx` over `node`, `bun`, `npm`, `npx`, `pnpm`, and `yarn`.
+Use `pnpm` for package management and script execution.
 
-If not installed, follows the instructions at https://nubjs.com/start.md to install.
+The root package is the publishable `moraine` library in `src/`. The private `@moraine/docs`
+workspace package lives in `docs/` and imports the library source directly for live updates.
+Run workspace commands from the repository root.
 
 ### Build & Development
 
-- `nub run build` - Build the library using tsdown (outputs to dist/).
-- `nub run dev` - Build the library and start the documentation/development Vite server.
-- `nub run typecheck` - Run TypeScript type checking.
+- `pnpm run build` - Build the library using tsdown (outputs to dist/).
+- `pnpm run dev` - Build the library and start the documentation/development Vite server.
+- `pnpm run docs:build` - Build the documentation site from `src/`.
+- `pnpm run typecheck` - Run TypeScript type checking.
 
 ### Linting & Formatting
 
-- `nub run lint` - Run oxlint with fix (fast linter based on oxc).
-- `nub run format` - Format code using oxfmt.
-- `nub run qa` - Run format, lint (with --fix), and typecheck together. **Run this before every commit.**
+- `pnpm run lint` - Run oxlint with fix (fast linter based on oxc).
+- `pnpm run format` - Format code using oxfmt.
+- `pnpm run qa` - Run format, lint (with --fix), and typecheck together. **Run this before every commit.**
 
 ### Testing
 
-- `nub run test` - Run all tests in once.
-- `nub run test:dev` - Run tests in dev mode, watch file changes and rerun changed test.
-- `nub run test <test-file>` - Run a single test file (e.g., `nub run test button.test.tsx`).
+- `pnpm run test` - Run all tests in once.
+- `pnpm run test:dev` - Run tests in dev mode, watch file changes and rerun changed test.
+- `pnpm run test <test-file>` - Run a single test file (e.g., `pnpm run test button.test.tsx`).
 - **Note:** Tests use `jsdom` environment.
 
 ## Source Structure
@@ -36,50 +39,50 @@ The `src` directory is organized by component role and shared infrastructure:
 
 ```text
 src/
-├── index.ts              # Main public entry point; re-exports component categories and shared APIs.
-├── theme.ts              # Public theme entry point.
-├── styles.ts             # Public style-contract entry point.
-├── utils.ts              # Public utility entry point.
-├── virtualizer.ts        # Public virtual-list entry point.
-├── elements/             # Basic, non-form UI elements.
-│   ├── accordion/         # Accordion primitives.
-│   ├── avatar/            # Avatar and fallback display.
-│   ├── badge/             # Badge styles and component.
-│   ├── button/            # Button and button-like interactions.
-│   ├── card/              # Card layout primitives.
-│   ├── collapsible/       # Collapsible content primitives.
-│   ├── icon/              # Icon rendering helpers and component.
-│   ├── kbd/               # Keyboard shortcut display.
-│   ├── list/              # List and list-item primitives.
-│   ├── progress/          # Progress indicators.
-│   ├── resizable/         # Resizable panels and interaction hooks.
-│   └── separator/         # Visual separators.
-├── forms/                 # Form controls and form-state integration.
-│   ├── checkbox/          # Checkbox control.
-│   ├── checkbox-group/    # Checkbox group control.
-│   ├── base-select/       # Low-level selection, disclosure, and listbox primitive.
-│   ├── combobox/          # Editable single collection selection.
-│   ├── field/             # Field layout, labels, descriptions, and validation messages.
-│   ├── file-upload/       # File upload control and dropzone behavior.
-│   ├── form/              # Form root, field wrapper, submission, and context.
-│   ├── input/             # Text input control.
-│   ├── input-group/       # Compound input layout with addons and triggers.
-│   ├── input-number/      # Numeric input control.
-│   ├── multi-select/      # Collection-backed multiple selection.
-│   ├── radio-group/       # Radio group control.
+├── index.ts                # Main public entry point; re-exports component categories and shared APIs.
+├── theme.ts                # Public theme entry point.
+├── styles.ts               # Public style-contract entry point.
+├── utils.ts                # Public utility entry point.
+├── virtualizer.ts          # Public virtual-list entry point.
+├── element/                # Basic, non-form UI elements.
+│   ├── accordion/          # Accordion primitives.
+│   ├── avatar/             # Avatar and fallback display.
+│   ├── badge/              # Badge styles and component.
+│   ├── button/             # Button and button-like interactions.
+│   ├── card/               # Card layout primitives.
+│   ├── collapsible/        # Collapsible content primitives.
+│   ├── icon/               # Icon rendering helpers and component.
+│   ├── kbd/                # Keyboard shortcut display.
+│   ├── list/               # List and list-item primitives.
+│   ├── progress/           # Progress indicators.
+│   ├── resizable/          # Resizable panels and interaction hooks.
+│   └── separator/          # Visual separators.
+├── form/                   # Form controls and form-state integration.
+│   ├── checkbox/           # Checkbox control.
+│   ├── checkbox-group/     # Checkbox group control.
+│   ├── base-select/        # Low-level selection, disclosure, and listbox primitive.
+│   ├── combobox/           # Editable single collection selection.
+│   ├── field/              # Field layout, labels, descriptions, and validation messages.
+│   ├── file-upload/        # File upload control and dropzone behavior.
+│   ├── form/               # Form root, field wrapper, submission, and context.
+│   ├── input/              # Text input control.
+│   ├── input-group/        # Compound input layout with addons and triggers.
+│   ├── input-number/       # Numeric input control.
+│   ├── multi-select/       # Collection-backed multiple selection.
+│   ├── radio-group/        # Radio group control.
 │   ├── select/             # Non-editable single collection selection.
 │   ├── slider/             # Slider control and slider hooks.
 │   ├── switch/             # Switch control.
 │   ├── textarea/           # Textarea control.
 │   └── shared/             # Form-specific hooks, native control helpers, and select internals.
-├── navigation/            # Navigation and page-organization components.
+├── navigation/             # Navigation and page-organization components.
 │   ├── breadcrumb/         # Breadcrumb navigation.
 │   ├── command-palette/    # Command palette behavior and presentation.
 │   ├── pagination/         # Pagination controls.
 │   ├── sidebar-frame/      # Responsive sidebar layout.
 │   ├── stepper/            # Step-based navigation.
 │   └── tabs/               # Tab navigation.
-├── overlays/              # Layered, floating, and dismissible UI.
+├── overlay/                # Layered, floating, and dismissible UI.
 │   ├── base/               # Shared overlay and menu behavior.
 │   ├── context-menu/       # Context menu.
 │   ├── dialog/             # Dialog primitives.
@@ -88,8 +91,8 @@ src/
 │   ├── popover/            # Popover.
 │   ├── sheet/              # Side or bottom sheet.
 │   └── tooltip/            # Tooltip.
-├── provider/              # MoraineProvider plus theme, class-merging, and style resolution contexts.
-├── shared/                # Reusable internals that are not public components.
+├── provider/               # MoraineProvider plus theme, class-merging, and style resolution contexts.
+├── shared/                 # Reusable internals that are not public components.
 ├── tailwind/               # Tailwind integration.
 ├── test-utils/             # SSR, owner, overlay, and global test utilities.
 ├── theme/                  # Theme configuration, contracts, and creation primitives.

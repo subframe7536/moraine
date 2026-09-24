@@ -69,11 +69,15 @@ Use `moraine/theme` for Theme authoring, `moraine/styles` for readonly built-in 
 
 ## Development
 
+This repository is a pnpm workspace with the publishable `moraine` package at the root and the
+private documentation app in `docs/`. Run commands from the repository root.
+
 ```bash
-nub install
-nub run dev
-nub run test
-nub run qa
+pnpm install
+pnpm run dev
+pnpm run test
+pnpm run qa
+pnpm run docs:build
 ```
 
 ## License
