@@ -18,8 +18,9 @@ export interface DocsRouteSection {
 
 export const DOCS_GROUP_ORDER = new Map<string, number>([
   ['', 0],
-  ['form', 1],
-  ['general', 2],
-  ['navigation', 3],
-  ['overlay', 4],
+  ['styling', 1],
+  ['form', 2],
+  ['general', 3],
+  ['navigation', 4],
+  ['overlay', 5],
 ])

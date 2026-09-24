@@ -1,0 +1,20 @@
+---
+title: Animations
+description: Set Moraine animation durations and distinguish transitions.
+sidebar:
+  order: 5
+search:
+  tags: [animation, duration, CSS variables]
+---
+
+```css
+:root {
+  --mo-anim-duration: 180ms;
+  --mo-anim-duration-enter: 150ms;
+  --mo-anim-duration-exit: 100ms;
+  --mo-anim-duration-loop: 2s;
+  --mo-anim-duration-spin: 1s;
+}
+```
+
+The general variable overrides every Moraine CSS animation. The semantic variables target entry, exit, looping, and spinner animations separately. CSS transitions retain the duration and timing function configured by the host Tailwind CSS or UnoCSS setup.

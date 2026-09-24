@@ -1,0 +1,67 @@
+---
+title: UnoCSS
+description: Configure the UnoCSS preset and optional semantic color variables.
+sidebar:
+  order: 2
+search:
+  tags: [UnoCSS, preset, color variables]
+---
+
+Use either the Wind4 or Wind3 preset with `presetMoraine()`, and include Moraine's published JavaScript in the content scan.
+
+```ts title="unocss.config.ts (Wind4)" {1,5} group-id="unocss"
+import { defineConfig, presetWind4 } from '@subf/unocss'
+import { presetMoraine } from 'moraine/unocss'
+
+export default defineConfig({
+  presets: [presetWind4(), presetMoraine()],
+  content: {
+    filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
+  },
+})
+```
+
+```ts title="unocss.config.ts (Wind3)" {1,5} group-id="unocss"
+import { defineConfig, presetWind3 } from '@subf/unocss'
+import { presetMoraine } from 'moraine/unocss'
+
+export default defineConfig({
+  presets: [presetWind3(), presetMoraine()],
+  content: {
+    filesystem: ['./node_modules/moraine/dist/**/*.{mjs,jsx}'],
+  },
+})
+```
+
+The preset registers Moraine theme tokens, shared animations, semantic z-index values, and `data-*` / `aria-*` variants. `globalStyles` defaults to `true`.
+
+## Color variables
+
+The preset can generate light and dark semantic variables. Nothing is emitted unless `colorVariables` is configured; selectors default to `:root` and `.dark`.
+
+```ts
+presetMoraine({
+  colorVariables: {
+    light: {
+      foreground: 'oklch(20% 0 0)',
+      primary: {
+        DEFAULT: 'oklch(55% 0.2 260)',
+        foreground: 'white',
+        hover: 8,
+        active: ({ base, foreground }) => `color-mix(in oklch, ${base}, ${foreground} 16%)`,
+      },
+      border: 'oklch(90% 0 0)',
+    },
+    dark: {
+      foreground: 'oklch(96% 0 0)',
+      primary: {
+        DEFAULT: 'oklch(70% 0.16 260)',
+        foreground: 'oklch(18% 0 0)',
+      },
+      border: 'oklch(32% 0 0)',
+    },
+    hoverAdjustment: 6,
+    activeAdjustment: 12,
+  },
+})
+```

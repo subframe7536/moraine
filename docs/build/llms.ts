@@ -70,6 +70,7 @@ const COMPONENT_CATEGORIES = new Map<string, string>([
 
 const GROUP_TITLES = new Map<string, string>([
   ['', 'Guides'],
+  ['styling', 'Styling'],
   ['form', 'Form'],
   ['general', 'General'],
   ['navigation', 'Navigation'],

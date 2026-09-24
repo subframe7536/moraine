@@ -1,0 +1,18 @@
+---
+title: Tailwind CSS v4
+description: Configure the Tailwind CSS v4 plugin and scan Moraine.
+sidebar:
+  order: 3
+search:
+  tags: [Tailwind CSS, plugin]
+---
+
+Register the plugin and scan the published distribution. The `@source` path is relative to the stylesheet containing it, so adjust the leading `..` for your project layout.
+
+```css
+@import 'tailwindcss';
+@plugin 'moraine/tailwind';
+@source '../node_modules/moraine/dist';
+```
+
+`@source "moraine"` is not valid: Tailwind requires a resolvable source path. The plugin provides the same colors, typography, radius, shadows, animations, z-index values, and state variants as the UnoCSS preset.

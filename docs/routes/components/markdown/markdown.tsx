@@ -137,7 +137,7 @@ export function Markdown(input: RenderExampleMarkdownPageInput) {
             <Show when={component()?.kind}>
               {(kind) => (
                 <a
-                  href="/styling#component-kinds"
+                  href="/styling/overrides#component-kinds"
                   aria-label={`${kind() === 'single' ? 'Single' : 'Composite'} component: styling guide`}
                   class="text-xs text-muted-foreground px-2 py-0.5 border border-border rounded-md bg-muted/40 transition-colors hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
                 >
