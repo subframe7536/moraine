@@ -13,6 +13,7 @@ import { readCodeTabSource } from './mdx.ts'
 import type { MdxNode } from './mdx.ts'
 import {
   DOCS_HEADING_ANCHOR_ARIA_LABEL,
+  DOCS_INLINE_CODE_CLASS,
   MARKDOWN_ANCHOR_HEADING_CLASS,
   MARKDOWN_ANCHOR_LINK_CLASS,
 } from './shared.class.ts'
@@ -147,7 +148,7 @@ export function createDocsHastPlugin() {
       {
         filter: ['code'],
         visit(node, ctx) {
-          ctx.setProperty(node, 'class', appendClass(node, 'docs-inline-code'))
+          ctx.setProperty(node, 'class', appendClass(node, DOCS_INLINE_CODE_CLASS))
         },
       },
       {

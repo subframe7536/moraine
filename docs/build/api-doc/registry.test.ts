@@ -60,10 +60,7 @@ describe('loadApiRegistry', () => {
       'docs/pages/(general)/demo/index.mdx': page('src/element/demo/demo'),
       'src/element/demo/demo.types.ts': types('Demo', 'single'),
       'src/element/demo/demo.recipe.ts': `export const demoRecipe = defineRecipe('demo', { base: { root: '' } })`,
-      'docs/pages/(overlay)/panel/index.mdx': page(
-        'src/overlay/panel/panel',
-        '[Trigger, Content]',
-      ),
+      'docs/pages/(overlay)/panel/index.mdx': page('src/overlay/panel/panel', '[Trigger, Content]'),
       'src/overlay/panel/panel.types.ts': types(
         'Panel',
         'composite',

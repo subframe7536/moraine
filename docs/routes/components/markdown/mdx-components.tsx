@@ -1,20 +1,22 @@
 import type { MDXComponents } from 'solid-file-router/mdx'
 import type { Component, JSX } from 'solid-js'
-import { lazy, Show, createSignal, onMount, untrack } from 'solid-js'
+import { createSignal, lazy, onMount, Show, untrack } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 
-import { Kbd } from '../../../../src'
+import { Kbd, cn } from '../../../../src'
 
-import { CodeBlock } from './docs-code-block'
-import { CodeTabs } from './docs-code-tabs'
-import { DocsPlayground as Playground } from './docs-playground'
+import { CodeBlock, CodeTabs } from './code'
 import { IconGallery } from './icon-gallery'
 import { Markdown } from './markdown'
+import {
+  DOCS_BLOCK_CONTAINER_CLASS,
+  DOCS_INLINE_CODE_CLASS,
+  DOCS_PREVIEW_CANVAS_CLASS,
+} from './markdown.class.ts'
+import { DocsPlayground as Playground } from './playground'
 
-const DOCS_DEMO_BLOCK_CLASS =
-  'mb-6 mt-4 overflow-hidden border border-border/70 rounded-xl bg-card shadow-xs'
-const DOCS_DEMO_BLOCK_PREVIEW_CLASS =
-  'relative flex items-center justify-center min-h-[160px] p-6 sm:p-8 bg-background/45'
+export const DOCS_DEMO_BLOCK_CLASS = DOCS_BLOCK_CONTAINER_CLASS
+export const DOCS_DEMO_BLOCK_PREVIEW_CLASS = DOCS_PREVIEW_CANVAS_CLASS
 
 interface MdxProps {
   [key: string]: unknown
@@ -36,6 +38,9 @@ export const DOCS_MDX_COMPONENTS: MDXComponents = {
   label: (props: JSX.LabelHTMLAttributes<HTMLLabelElement>) => <label {...props} />,
   kbd: (props: JSX.IntrinsicElements['kbd']) => (
     <Kbd variant="outline" value={props.children as any} />
+  ),
+  code: (props: JSX.HTMLAttributes<HTMLElement>) => (
+    <code {...props} class={cn(DOCS_INLINE_CODE_CLASS, props.class)} />
   ),
 
   Playground,

@@ -35,14 +35,8 @@ import type {
   CheckboxGroupStyleSlot,
   CheckboxGroupStyleVariant,
 } from '../form/checkbox-group/checkbox-group.style-types'
-import type {
-  CheckboxStyleSlot,
-  CheckboxStyleVariant,
-} from '../form/checkbox/checkbox.style-types'
-import type {
-  ComboboxStyleSlot,
-  ComboboxStyleVariant,
-} from '../form/combobox/combobox.style-types'
+import type { CheckboxStyleSlot, CheckboxStyleVariant } from '../form/checkbox/checkbox.style-types'
+import type { ComboboxStyleSlot, ComboboxStyleVariant } from '../form/combobox/combobox.style-types'
 import type { FieldStyleSlot, FieldStyleVariant } from '../form/field/field.style-types'
 import type {
   FileUploadStyleSlot,

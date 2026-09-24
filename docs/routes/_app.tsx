@@ -6,9 +6,8 @@ import { Show, Suspense, createEffect, createMemo, createSignal, on, untrack } f
 
 import { Button, MoraineProvider, Progress, SidebarFrame, cn, useSidebarFrame } from '../../src'
 
-import { PageActions } from './components/layout/page-actions'
-import { Sidebar, SidebarHeader } from './components/layout/sidebar'
-import { DOCS_MDX_COMPONENTS } from './components/markdown/mdx-components'
+import { PageActions, Sidebar, SidebarHeader } from './components/layout'
+import { DOCS_MDX_COMPONENTS } from './components/markdown'
 import { getDocsPages } from './docs-route'
 import { revealHashTarget, useHashScrolling } from './hooks/use-hash-scrolling'
 import { useScrollRetention } from './hooks/use-scroll-retention'

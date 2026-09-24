@@ -1,6 +1,6 @@
 import { createRoute } from 'solid-file-router'
 
-import { LandingPage } from './components/landing/landing-page'
+import { LandingPage } from './components/landing'
 
 const title = 'Moraine — SolidJS component library'
 const description = 'Composable SolidJS components with styling through UnoCSS and Tailwind CSS.'

@@ -6,6 +6,8 @@ import type { ComponentApi } from '../../../build/api-doc/types'
 
 import { Markdown } from './markdown'
 
+vi.mock('./navigation', () => ({ DocsPageNavigation: () => null }))
+vi.mock('./toc', () => ({ OnThisPage: () => null }))
 vi.mock('./docs-page-navigation', () => ({ DocsPageNavigation: () => null }))
 vi.mock('./on-this-page', () => ({ OnThisPage: () => null }))
 
