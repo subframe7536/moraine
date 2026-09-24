@@ -54,7 +54,9 @@ describe('llms.txt generation', () => {
     }
 
     const select = documents.find((document) => document.fileName === 'select.md')?.source
-    expect(select).toContain('`null` indicates no active selection')
+    expect(select).toContain(
+      "`value` is the selected item's value, or `null` when nothing is selected",
+    )
     expect(select).toContain('export function UserAssignee()')
     expect(select).toContain("from 'moraine'")
   })

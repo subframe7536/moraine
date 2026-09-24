@@ -12,12 +12,14 @@ search:
 
 Moraine exposes component props and supporting types for SolidJS. The project is **pre-1.0; breaking changes may occur**.
 
-The type system is structured around four architectural principles:
-
-- **Two-tier public exports**: Every component exports a top-level `XxxProps` type for prop extension alongside a cohesive `XxxT` namespace for supporting types (items, values, slots, variants), preventing global type namespace pollution.
-- **Strict native element ownership**: Root and control elements expose strict native Solid attributes and camelCase event handlers, while omitting legacy lowercase event aliases and directive prefixes for noise-free completions.
-- **True polymorphic rendering**: The `as` prop supports both native HTML tags and custom Solid components (`as={Button}`), preserving required props, target variant completion, and "Go to Definition" navigation.
-- **Compile-time configuration**: Project-wide type behavior can be adjusted via module augmentation using `MoraineTypeConfig`.
+| I want to…                                 | Use                                                      |
+| ------------------------------------------ | -------------------------------------------------------- |
+| Type a component's full props              | `ButtonProps`                                            |
+| Access component-specific supporting types | `ButtonT.*`                                              |
+| Type collection items or selected values   | `SelectT.Item`, `SelectT.NormalizedItem<TItem>['value']` |
+| Type slot overrides                        | `CardT.Classes`, `CardT.Styles`                          |
+| Change the rendered element or component   | `as`                                                     |
+| Adjust global type behavior                | `MoraineTypeConfig`                                      |
 
 ```tsx
 import type { ButtonProps, ButtonT, DropdownMenuT, SelectProps, SelectT } from 'moraine'
@@ -42,7 +44,7 @@ export function PrimaryButton(props: PrimaryButtonProps) {
 
 ## Component Namespaces (`XxxT`)
 
-The `XxxT` namespace groups all supporting types for a component under a single import. Rather than exporting dozens of loosely named top-level types (such as `SelectOption`, `SelectValue`, `SelectRenderProps`), Moraine packages them into `SelectT`.
+Use `XxxProps` when you need the component's full props. Use `XxxT` for its supporting item, value, slot, variant, and style types. For example, `SelectT` groups the types related to Select under one import.
 
 ```tsx
 import type { SelectProps, SelectT } from 'moraine'
@@ -57,11 +59,10 @@ let selected: SelectT.Item['value'] | null = null
 
 ### Namespace Reference
 
-Every `XxxT` namespace starts with the same style header. Unsupported capabilities use `never` rather than placeholder objects. Component-specific domain, collection, and render-prop types follow only when they model real public behavior.
+Common supporting types are listed below. Unsupported members use `never`; component-specific collection and render types appear where relevant.
 
 | Member    | Description                                                                       |
 | --------- | --------------------------------------------------------------------------------- |
-| `Kind`    | Component composition model: literal `'single'` or `'composite'`.                 |
 | `Slot`    | Generic documented map of presentation slots, or `never` for headless components. |
 | `Variant` | Nullable visual variant options, or `never` when unavailable.                     |
 | `Classes` | Typed slot-class overrides, or `never` when unavailable.                          |
@@ -70,23 +71,6 @@ Every `XxxT` namespace starts with the same style header. Unsupported capabiliti
 | `Value`   | Domain type only when the component has meaningful value semantics.               |
 | `Base`    | Component-specific base/business props without root HTML attributes.              |
 | `Props`   | Final public props shape (identical to `XxxProps`).                               |
-
-### Component Kinds (`XxxT.Kind`)
-
-Every public component namespace declares `Kind` as a literal type:
-
-- `'single'`: A component configured primarily through its own props (e.g. `Button`, `Card`, `Select`, bound `form.Form`).
-- `'composite'`: A component composed of attached child parts that you arrange explicitly (e.g. `Dialog.Trigger`, `Dialog.Content`, `SidebarFrame.Main`).
-
-```ts
-import type { ButtonT, DialogT, FormT } from 'moraine'
-
-type ButtonKind = ButtonT.Kind // 'single'
-type DialogKind = DialogT.Kind // 'composite'
-type BoundFormKind = FormT.Kind // 'single': describes form.Form
-```
-
-`Kind` is type-only metadata read by the documentation generator to render the component's kind badge. See [Component kinds](/styling#component-kinds) for styling implications.
 
 ### Visual Variants (`XxxT.Variant`)
 
@@ -119,9 +103,9 @@ const cardStyles: CardT.Classes = {
 <Card classes={cardStyles}>Account Content</Card>
 ```
 
-## Root Props & Native Element Ownership
+## Where DOM props apply
 
-Components with a DOM root document that root through their public types. DOM roots expose precise native Solid attributes by default:
+Put native attributes on the component that renders the element. For example, `Card` renders a root element and accepts its `aria-*` and `data-*` attributes; `Button as="a"` accepts anchor attributes. Moraine types the target's native Solid attributes:
 
 - **Standard HTML & ARIA attributes**: `aria-*`, `data-*`, `id`, `tabIndex`, and standard attributes are fully typed.
 - **CamelCase event handlers**: `onClick`, `onInput`, `onKeyDown`, etc. Lowercase aliases (`onclick`) and Solid directive prefixes (`use:*`) are omitted to keep autocompletion focused.
@@ -134,7 +118,7 @@ Components with a DOM root document that root through their public types. DOM ro
 
 ### Editable Element Ownership (`Input`, `Textarea`)
 
-On text inputs and textareas, native attributes target the inner editable element rather than the outer layout container:
+`Input` and `Textarea` apply native attributes, events, `ref`, `class`, and `style` to their editable `<input>` or `<textarea>`, rather than the outer layout container:
 
 - Attributes like `form`, `list`, `enterkeyhint`, `placeholder`, `disabled`, and `aria-label` bind to the `<input>` or `<textarea>`.
 - Clipboard, composition, focus, keyboard, and input events fire from the native control.
@@ -154,11 +138,11 @@ On text inputs and textareas, native attributes target the inner editable elemen
 
 ### Headless Composite Roots (`Dialog`, `Sheet`, `Modal`)
 
-Some composite primitives (such as `Dialog`, `Sheet`, `Modal`, `Popover`, `Tooltip`, `ContextMenu`, `DropdownMenu`, and `BaseSelect`) are state and context providers without a DOM root element of their own. Their roots accept typed family `classes` and `styles` as instance defaults, but do not accept direct `class` or `style` because there is no root DOM element. DOM attributes and direct presentation belong on rendered parts. One-slot parts expose only `class` and `style`; multi-slot parts expose a scoped slot map containing only the slots they control.
+`Dialog` has no root DOM element. Put DOM attributes and direct `class` or `style` on `Dialog.Trigger`, `Dialog.Content`, or another rendered part. Root `classes` and `styles` provide defaults for this Dialog instance; parts that render multiple configurable slots may also accept their own slot overrides. The same pattern applies to headless roots such as `Sheet`, `Modal`, `Popover`, `Tooltip`, `ContextMenu`, `DropdownMenu`, and `BaseSelect`. See [Styling](/styling#override-component-styles) for the override rules.
 
 ## Polymorphic Rendering (`as` Prop)
 
-Moraine components support polymorphic rendering via the `as` prop, allowing you to alter the underlying DOM element or substitute another Solid component.
+“Polymorphic” means `as` changes which element or Solid component Moraine renders while preserving the target's props.
 
 ### HTML Element Tags (`as="tag"`)
 
@@ -229,42 +213,9 @@ declare module 'moraine' {
 ### `simpleRootAttributes`
 
 - **`false` (default)**: All intrinsic HTML attributes are strictly verified against `StrictedAttributes<T>`. Custom, misspelled, or non-standard attributes (outside `data-*` and `aria-*`) trigger TypeScript errors.
-- **`true`**: Root attributes accept component props + `Record<string, unknown>`. Unknown attributes pass without errors, while known component props (`variant`, `size`, `disabled`) remain strictly checked. Recommended for large enterprise codebases prioritizing compiler performance.
+- **`true`**: Root attributes accept component props + `Record<string, unknown>`. Unknown attributes pass without errors, while known component props (`variant`, `size`, `disabled`) remain strictly checked. This can reduce type-checking work at the cost of typo checking for unknown attributes.
 
 ### `simpleHtmlTags`
 
 - **`false` (default)**: `as` autocompletes all valid tags in `keyof JSX.IntrinsicElements`, including SVG (`svg`, `path`, `g`) and MathML elements.
 - **`true`**: Limits `as` tag completion to standard `keyof JSX.HTMLElementTags` (`div`, `span`, `button`, `a`, etc.), reducing autocompletion noise.
-
-## Render Props (`*Render`)
-
-Following Moraine's naming conventions, any prop that renders a component or custom JSX template is named with the `Render` suffix:
-
-- `itemRender`: Custom rendering for list/collection items (`Select`, `MultiSelect`, `CommandPalette`, `List`, `Breadcrumb`).
-- `contentRender`: Custom popup/panel content rendering.
-- `emptyRender`: Custom empty-state display when collections have no matching items.
-- `separatorRender`: Custom item separators.
-
-Render callbacks receive typed context objects containing the underlying item and state:
-
-```tsx
-import { Show } from 'solid-js'
-import type { SelectProps } from 'moraine'
-import { Select } from 'moraine'
-
-const items = [
-  { value: 'draft', label: 'Draft' },
-  { value: 'published', label: 'Published' },
-]
-
-const itemRender: SelectProps['itemRender'] = (context) => (
-  <div class="flex items-center justify-between w-full">
-    <span>{context.item.label}</span>
-    <Show when={context.selected}>
-      <span class="text-xs text-primary">Selected</span>
-    </Show>
-  </div>
-)
-
-<Select items={items} itemRender={itemRender} />
-```

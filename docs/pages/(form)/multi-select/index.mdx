@@ -106,7 +106,8 @@ The popup slots belong to MultiSelect's default collection content. Use `itemRen
 
 ### Values and tag lifecycle
 
-The committed selection is represented as an array of item values: `TItem['value'][]`.
+`value` contains the selected item values as an array. An empty array means no selection; an empty
+string can be one of the item values. The array type is `TItem['value'][]`.
 Without `search`, printable keys trigger collection typeahead. Enabling `search={true}` allows
 users to type directly in the field to filter available options.
 

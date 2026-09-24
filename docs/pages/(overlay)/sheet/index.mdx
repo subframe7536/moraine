@@ -82,7 +82,7 @@ Use Sheet for a focused drawer from a viewport edge, such as mobile navigation o
 
 ## Anatomy
 
-`Sheet` owns state and family presentation without adding a DOM element. Root `classes` and `styles` provide defaults for this Sheet instance. `Sheet.Trigger` owns its attributes, events, ref, and direct styling; `Sheet.Content` owns the floating surface and its scoped presentation props. Content children fill the body unless an explicit `body` prop is provided.
+`Sheet` does not render a DOM element itself. It coordinates its Trigger and Content. Content children fill the body unless you provide a `body` prop.
 
 Hierarchical slot and element structure:
 
@@ -103,9 +103,9 @@ Root (context only)
 - `overlay`: Backdrop element handling click-to-dismiss.
 - `content`: Sliding sheet element positioned along viewport edges.
 
-`Sheet.Close` is a behavior primitive with its own `class` and `style`; it has no Sheet family slot and does not receive the automatic corner-close recipe. With `close={true}`, `Sheet.Content` renders `contentClose` independently of a custom `header`. Put primary application actions in `footer`, or supply a specialized custom header when needed.
+Put DOM attributes and direct `class` or `style` on the part that renders the element. Root `classes` and `styles` provide defaults for this Sheet instance. See [Styling](/styling#override-component-styles) for how overrides combine.
 
-Sheet and Dialog share structured slot names but retain separate recipes, Theme keys, and visual layouts.
+`Sheet.Close` closes the Sheet and accepts its own `class` and `style`, but does not receive the automatic corner-close styling. With `close={true}`, `Sheet.Content` renders the `contentClose` button even with a custom `header`. Put primary actions in `footer` or supply a custom header.
 
 ## Usage
 
