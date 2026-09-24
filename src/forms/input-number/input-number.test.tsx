@@ -470,6 +470,13 @@ describe('InputNumber', () => {
 
       increment.dispatchEvent(createFramePointerEvent('pointerdown', 2))
       expect(frameDocument.body.style.getPropertyValue('user-select')).toBe('none')
+      increment.dispatchEvent(createFramePointerEvent('pointerup', 2))
+      expect(frameDocument.body.style.getPropertyValue('user-select')).toBe('text')
+      increment.click()
+      expect(spinbutton.value).toBe('3')
+
+      increment.dispatchEvent(createFramePointerEvent('pointerdown', 3))
+      expect(frameDocument.body.style.getPropertyValue('user-select')).toBe('none')
       screen.unmount()
       expect(frameDocument.body.style.getPropertyValue('user-select')).toBe('text')
     } finally {
