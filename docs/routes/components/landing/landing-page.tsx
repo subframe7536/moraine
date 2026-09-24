@@ -7,6 +7,7 @@ import {
   Card,
   Checkbox,
   Dialog,
+  Field,
   Input,
   Kbd,
   Select,
@@ -20,6 +21,8 @@ const linkFocus =
 
 function HeroSpecimen() {
   const [release, setRelease] = createSignal('Autumn release')
+  const [audience, setAudience] = createSignal('team')
+  const [previews, setPreviews] = createSignal(true)
   const [saved, setSaved] = createSignal(false)
 
   return (
@@ -38,13 +41,36 @@ function HeroSpecimen() {
           setSaved(true)
         }}
       >
-        <div class="space-y-1.5">
-          <label for="landing-release" class="text-sm font-medium">
-            Release name
-          </label>
-          <Input id="landing-release" value={release()} onValueChange={setRelease} />
-        </div>
-        <Checkbox label="Include component previews" defaultChecked />
+        <Field label="Release name" description="Appears in the update list.">
+          <Input
+            value={release()}
+            onValueChange={(value) => {
+              setRelease(value)
+              setSaved(false)
+            }}
+          />
+        </Field>
+        <Field label="Audience">
+          <Select
+            items={[
+              { label: 'Team', value: 'team' },
+              { label: 'Public', value: 'public' },
+            ]}
+            value={audience()}
+            onChange={(value) => {
+              setAudience(value ?? 'team')
+              setSaved(false)
+            }}
+          />
+        </Field>
+        <Checkbox
+          label="Include component previews"
+          checked={previews()}
+          onChange={(value) => {
+            setPreviews(value)
+            setSaved(false)
+          }}
+        />
         <div class="pt-3 border-t border-border/70 flex flex-wrap gap-2 items-center">
           <Button type="submit" size="sm">
             Save changes
@@ -56,9 +82,13 @@ function HeroSpecimen() {
             <Dialog.Content
               title="Release preview"
               body={
-                <p class="text-sm text-muted-foreground">
-                  {release() || 'Untitled release'} is ready for review.
-                </p>
+                <div class="text-sm space-y-2">
+                  <p>{release() || 'Untitled release'} is ready for review.</p>
+                  <p class="text-muted-foreground">
+                    Audience: {audience() === 'team' ? 'Team' : 'Public'} · Component previews{' '}
+                    {previews() ? 'included' : 'excluded'}.
+                  </p>
+                </div>
               }
             />
           </Dialog>
@@ -72,14 +102,21 @@ function HeroSpecimen() {
 }
 
 const PROJECTS = [
-  { name: 'Component library', description: 'Design system', initials: 'CL', status: 'Active' },
-  { name: 'Documentation', description: 'Content', initials: 'DO', status: 'In review' },
+  { name: 'Component library', description: 'Shared primitives', initials: 'CL', status: 'Active' },
+  {
+    name: 'Documentation',
+    description: 'Guides and examples',
+    initials: 'DO',
+    status: 'In review',
+  },
+  { name: 'Theme presets', description: 'Light and dark', initials: 'TP', status: 'Draft' },
 ] as const
 
 function ComponentCanvas() {
   const [filter, setFilter] = createSignal('')
   const [created, setCreated] = createSignal(false)
   const [view, setView] = createSignal('projects')
+  const [updates, setUpdates] = createSignal(true)
   const visibleProjects = createMemo(() =>
     [
       ...PROJECTS,
@@ -124,13 +161,13 @@ function ComponentCanvas() {
               <Tooltip.Content text="Add a draft project" />
             </Tooltip>
           </div>
-          <Input
-            aria-label="Filter projects"
-            placeholder="Filter projects..."
-            value={filter()}
-            onValueChange={setFilter}
-            class="mt-4 w-full"
-          />
+          <Field label="Filter projects" class="mt-4">
+            <Input
+              placeholder="Search by project name..."
+              value={filter()}
+              onValueChange={setFilter}
+            />
+          </Field>
           <Tabs
             value={view()}
             onChange={setView}
@@ -174,9 +211,37 @@ function ComponentCanvas() {
                 value: 'activity',
                 label: 'Activity',
                 content: (
-                  <p class="text-sm text-muted-foreground py-6 min-h-32">
-                    {created() ? 'New project was added to your workspace.' : 'No recent activity.'}
-                  </p>
+                  <ul class="text-sm m-0 p-0 pt-3 list-none min-h-32 divide-border/70 divide-y">
+                    <Show when={created()}>
+                      <li class="py-3 flex gap-2 items-center justify-between first:pt-0">
+                        <span>
+                          <span class="font-medium">New project</span>
+                          <span class="text-muted-foreground"> added to the workspace</span>
+                        </span>
+                        <Badge variant="outline" size="sm">
+                          New
+                        </Badge>
+                      </li>
+                    </Show>
+                    <li class="py-3 flex gap-2 items-center justify-between first:pt-0">
+                      <span>
+                        <span class="font-medium">Documentation</span>
+                        <span class="text-muted-foreground"> moved to review</span>
+                      </span>
+                      <Badge variant="surface" size="sm">
+                        Review
+                      </Badge>
+                    </li>
+                    <li class="py-3 flex gap-2 items-center justify-between last:pb-0">
+                      <span>
+                        <span class="font-medium">Theme presets</span>
+                        <span class="text-muted-foreground"> saved as a draft</span>
+                      </span>
+                      <Badge variant="outline" size="sm">
+                        Draft
+                      </Badge>
+                    </li>
+                  </ul>
                 ),
               },
             ]}
@@ -191,12 +256,8 @@ function ComponentCanvas() {
               </Badge>
             </div>
             <div class="mt-5 space-y-4">
-              <div class="space-y-1.5">
-                <label for="landing-view" class="text-sm font-medium">
-                  View
-                </label>
+              <Field label="View" description="Switch the workspace panel.">
                 <Select
-                  id="landing-view"
                   items={[
                     { label: 'Projects', value: 'projects' },
                     { label: 'Activity', value: 'activity' },
@@ -205,9 +266,14 @@ function ComponentCanvas() {
                   onChange={(value) => setView(value ?? 'projects')}
                   class="w-full"
                 />
-              </div>
+              </Field>
               <div class="pt-4 border-t border-border/70">
-                <Switch label="Email updates" defaultChecked />
+                <Switch
+                  label="Email updates"
+                  description="Get notified when a release is ready."
+                  checked={updates()}
+                  onChange={setUpdates}
+                />
               </div>
             </div>
           </div>
@@ -236,12 +302,13 @@ function StylingSpecimen(props: { customized?: boolean }) {
         </Badge>
         <span class="text-sm font-medium">New project</span>
       </div>
-      <Input
-        aria-label={props.customized ? 'Customized project name' : 'Default project name'}
-        defaultValue="Moraine"
-        variant={props.customized ? 'subtle' : 'outline'}
-        classes={props.customized ? { root: 'rounded-xl' } : undefined}
-      />
+      <Field label="Project name">
+        <Input
+          defaultValue="Moraine"
+          variant={props.customized ? 'subtle' : 'outline'}
+          classes={props.customized ? { root: 'rounded-xl' } : undefined}
+        />
+      </Field>
       <Button
         size="sm"
         variant={props.customized ? 'outline' : 'default'}
