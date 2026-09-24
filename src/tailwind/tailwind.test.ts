@@ -5,8 +5,8 @@ import { addIconSelectors } from '@iconify/tailwind'
 import { __unstable__loadDesignSystem, compile } from 'tailwindcss'
 import { describe, expect, test } from 'vitest'
 
-import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../elements/collapsible/collapsible.recipe.ts'
-import { sliderRecipe } from '../forms/slider/slider.recipe.ts'
+import { COLLAPSIBLE_CONTENT_WRAPPER_CLASS } from '../element/collapsible/collapsible.recipe.ts'
+import { sliderRecipe } from '../form/slider/slider.recipe.ts'
 import { cn } from '../theme/style/cn.ts'
 import { DEFAULT_ICON_SHORTCUTS } from '../theme/style/icons'
 

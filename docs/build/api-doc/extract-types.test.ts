@@ -15,13 +15,13 @@ describe('TypeExtractor', () => {
   test('expands shared style vocabulary in component props', async () => {
     for (const [file, namespace, expected] of [
       [
-        'src/forms/input/input.types.ts',
+        'src/form/input/input.types.ts',
         'InputT',
         { size: "'sm' | 'md' | 'lg'", variant: "'outline' | 'subtle' | 'ghost' | 'none'" },
       ],
-      ['src/navigation/tabs/tabs.types.ts', 'TabsT', { orientation: "'horizontal' | 'vertical'" }],
+      ['src/navigation/tab/tabs.types.ts', 'TabsT', { orientation: "'horizontal' | 'vertical'" }],
       [
-        'src/overlays/popover/popover.types.ts',
+        'src/overlay/popover/popover.types.ts',
         'PopoverT',
         { placement: "'top' | 'right' | 'bottom' | 'left'", align: "'start' | 'center' | 'end'" },
       ],
@@ -68,13 +68,13 @@ describe('TypeExtractor', () => {
   })
 
   test('extracts Button component types, generics, and BaseProps', async () => {
-    const module = await extractor.loadModule('src/elements/button/button.types.ts')
+    const module = await extractor.loadModule('src/element/button/button.types.ts')
     expect(module).toBeDefined()
 
     const kind = await extractor.extractKind(module!, 'ButtonT')
     expect(kind).toBe('single')
 
-    const recipe = await recipes.extract('src/elements/button/button.recipe.ts', 'Button')
+    const recipe = await recipes.extract('src/element/button/button.recipe.ts', 'Button')
     expect(recipe.slots).toEqual(['root', 'leading', 'label', 'trailing'])
 
     const part = await extractor.extractPart(
@@ -109,7 +109,7 @@ describe('TypeExtractor', () => {
   })
 
   test('extracts Dialog composite parts and inherited Modal props', async () => {
-    const module = await extractor.loadModule('src/overlays/dialog/dialog.types.ts')
+    const module = await extractor.loadModule('src/overlay/dialog/dialog.types.ts')
     expect(module).toBeDefined()
 
     const kind = await extractor.extractKind(module!, 'DialogT')
@@ -142,7 +142,7 @@ describe('TypeExtractor', () => {
   })
 
   test('extracts Select item metadata and props', async () => {
-    const module = await extractor.loadModule('src/forms/select/select.types.ts')
+    const module = await extractor.loadModule('src/form/select/select.types.ts')
     expect(module).toBeDefined()
 
     const item = await extractor.extractItem(module!, 'SelectT')
@@ -151,7 +151,7 @@ describe('TypeExtractor', () => {
       expect.arrayContaining(['value', 'label', 'disabled', 'icon', 'description']),
     )
 
-    const recipe = await recipes.extract('src/forms/select/select.recipe.ts', 'Select')
+    const recipe = await recipes.extract('src/form/select/select.recipe.ts', 'Select')
     const part = await extractor.extractPart(
       module!,
       'SelectT',
@@ -169,7 +169,7 @@ describe('TypeExtractor', () => {
   })
 
   test('extracts Form factory parts and schemas', async () => {
-    const module = await extractor.loadModule('src/forms/form/form.types.ts')
+    const module = await extractor.loadModule('src/form/form/form.types.ts')
     expect(module).toBeDefined()
 
     const formPart = await extractor.extractPart(module!, 'FormT', 'Props', 'form.Form', true)
@@ -312,7 +312,7 @@ export namespace NeverT {
 
   test('expands indexed access types in CheckboxGroup and Pagination', async () => {
     const checkboxGroupModule = await extractor.loadModule(
-      'src/forms/checkbox-group/checkbox-group.types.ts',
+      'src/form/checkbox-group/checkbox-group.types.ts',
     )
     expect(checkboxGroupModule).toBeDefined()
 

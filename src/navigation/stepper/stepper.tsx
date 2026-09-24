@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 import { For, Show, createMemo, mergeProps, splitProps } from 'solid-js'
 
-import { Icon } from '../../elements/icon/index.ts'
+import { Icon } from '../../element/icon/index.ts'
 import { useCn } from '../../provider/cn-context.ts'
 import { createStyles } from '../../provider/index.ts'
 import { createLazyMemo } from '../../shared/create-lazy-memo.ts'

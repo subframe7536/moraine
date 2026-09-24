@@ -2,7 +2,7 @@ import { createComponent, createSignal } from 'solid-js'
 import { hydrate } from 'solid-js/web'
 import { expect, test } from 'vitest'
 
-import { renderSsrFixture, installHydrationState } from '../test-utils/ssr-test'
+import { renderSsrFixture, installHydrationState } from '../test-util/ssr-test'
 import { defineTheme } from '../theme/create-theme'
 import type { CnConfig } from '../theme/style/cn'
 

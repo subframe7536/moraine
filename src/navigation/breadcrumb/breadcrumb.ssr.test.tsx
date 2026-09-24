@@ -1,7 +1,7 @@
 import { fireEvent } from '@solidjs/testing-library'
 import { describe, expect, test, vi } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test'
+import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { Breadcrumb } from './breadcrumb'
 import { renderBreadcrumbItem } from './breadcrumb.ssr.fixture'

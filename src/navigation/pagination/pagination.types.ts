@@ -1,6 +1,6 @@
 import type { Ref } from 'solid-js'
 
-import type { IconT } from '../../elements/icon'
+import type { IconT } from '../../element/icon'
 import type { BaseProps, SlotClassValue, SlotStyleValue, ValidComponent } from '../../shared/types'
 
 import type { PaginationStyleSlot, PaginationStyleVariant } from './pagination.style-types'

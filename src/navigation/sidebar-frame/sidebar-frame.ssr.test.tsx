@@ -1,7 +1,7 @@
 import { fireEvent, waitFor } from '@solidjs/testing-library'
 import { afterEach, expect, test, vi } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test'
+import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { SidebarFrame } from './sidebar-frame'
 import { useSidebarFrame } from './sidebar-frame-context'

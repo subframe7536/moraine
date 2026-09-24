@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { hydrateFixture } from '../../test-utils/ssr-test'
+import { hydrateFixture } from '../../test-util/ssr-test'
 
 import { CommandPalette } from './command-palette'
 

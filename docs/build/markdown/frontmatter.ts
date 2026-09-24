@@ -90,7 +90,7 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
     ) {
       return fail(
         'api.path',
-        'must be an extensionless component path under src/elements, src/forms, src/navigation, or src/overlays',
+        'must be an extensionless component path under src/element, src/form, src/navigation, or src/overlay',
       )
     }
 

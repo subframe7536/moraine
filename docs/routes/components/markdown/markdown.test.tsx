@@ -32,7 +32,7 @@ test('shows the generated kind in the header and updates it with page metadata',
       frontmatter: {
         title: 'Button',
         description: 'Button documentation.',
-        api: { path: 'src/elements/button/button' },
+        api: { path: 'src/element/button/button' },
         sidebar: { order: 1 },
         search: { tags: [] },
       },

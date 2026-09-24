@@ -1,7 +1,7 @@
 import type { Component, Ref } from 'solid-js'
 
-import type { IconT } from '../../elements/icon'
-import type { ListT } from '../../elements/list'
+import type { IconT } from '../../element/icon'
+import type { ListT } from '../../element/list'
 import type { ComponentOrElement } from '../../shared/render-prop'
 import type {
   BaseProps,

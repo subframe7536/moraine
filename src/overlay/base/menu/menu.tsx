@@ -1,0 +1,1509 @@
+import type { ReferenceElement } from '@floating-ui/dom'
+import type { Accessor, JSX } from 'solid-js'
+import {
+  For,
+  Match,
+  Show,
+  Switch,
+  createEffect,
+  createMemo,
+  createSignal,
+  on,
+  onCleanup,
+  onMount,
+  untrack,
+} from 'solid-js'
+import { Portal } from 'solid-js/web'
+
+import { Icon } from '../../../element/icon'
+import { KbdGroup } from '../../../element/kbd'
+import { List } from '../../../element/list'
+import { useCn } from '../../../provider/cn-context'
+import { createLazyMemo } from '../../../shared/create-lazy-memo'
+import { dataSlotName } from '../../../shared/data-slot.ts'
+import { renderComponentOrElement } from '../../../shared/render-prop'
+import type { ClassValue, ElementProps } from '../../../shared/types'
+import { useControllableValue } from '../../../shared/use-controllable-value'
+import { useEventListener } from '../../../shared/use-event-listener'
+import { useTransitionPresence } from '../../../shared/use-transition-presence'
+import { callHandler, callRef, useId } from '../../../shared/utils'
+import type { Cn } from '../../../theme/style/cn'
+import { containsComposed, isNode } from '../dom'
+import { useFloatingPosition } from '../floating'
+import { useOverlayInteraction } from '../interaction'
+import { parseFloatingPlacement, resolveFloatingPlacement } from '../placement.ts'
+import {
+  acquireBodyScrollLock,
+  focusTrigger,
+  focusWithoutScrolling,
+  getFocusableElements,
+  resolveDirection,
+} from '../utils'
+
+import { overlayMenuDataAttributes } from './menu.recipe'
+import {
+  createPointerGraceIntent,
+  createVirtualReference,
+  getOverlayMenuTextValue,
+  focusElement,
+  focusLayerFromStrategy,
+  hasOverlayMenuChildren,
+  onLayerKeyDown,
+  resolveMenuGroups,
+  useOverlayMenuLayerState,
+} from './menu.utils'
+import type {
+  OverlayMenuCloseOptions,
+  OverlayMenuFocusStrategy,
+  OverlayMenuLayerState,
+} from './menu.utils'
+import type {
+  OverlayMenuProps,
+  OverlayMenuSharedItem,
+  OverlayMenuSharedItemRenderProps,
+  OverlayMenuSharedProps,
+  OverlayMenuSharedSlots,
+} from './types'
+
+interface OverlayMenuResolvedGroup<TItem> {
+  label?: JSX.Element
+  items: TItem[]
+}
+
+type OverlayMenuListEntry<TItem> =
+  | { type: 'contentTop' }
+  | { type: 'group'; group: OverlayMenuResolvedGroup<TItem> }
+  | { type: 'contentBottom' }
+
+function resolveMenuSlot(
+  props: Pick<OverlayMenuSharedProps<never>, 'slotBinding' | 'classes' | 'styles'>,
+  slot: keyof OverlayMenuSharedSlots,
+  cn: Cn,
+) {
+  return (
+    props.slotBinding?.(slot) ?? {
+      get class() {
+        return cn(props.classes?.[slot])
+      },
+      get style() {
+        return props.styles?.[slot] ?? {}
+      },
+    }
+  )
+}
+
+interface OverlayMenuLayerProps<
+  TItem extends OverlayMenuSharedItem<TItem>,
+> extends OverlayMenuSharedProps<TItem> {
+  owner: 'dropdown-menu' | 'context-menu'
+  autoFocusStrategy?: OverlayMenuFocusStrategy
+  ariaLabelledBy?: string
+  close: (options?: OverlayMenuCloseOptions) => void
+  closeOnTab: (direction: 'forward' | 'backward') => void
+  closeRoot: (options?: OverlayMenuCloseOptions) => void
+  depth: number
+  getReferenceElement: () => ReferenceElement | undefined
+  onAutoFocusHandled?: () => void
+  onContentPointerDown?: JSX.EventHandler<HTMLDivElement, PointerEvent>
+  onContextMenu?: JSX.EventHandler<HTMLDivElement, MouseEvent>
+  open: boolean
+  parentLayer?: OverlayMenuLayerState
+  present: Accessor<boolean>
+  presenceDataAttrs: Accessor<{
+    'data-closed'?: string
+    'data-expanded'?: string
+  }>
+  refState?: (state: OverlayMenuLayerState | undefined) => void
+  registerBranch: (element: HTMLElement) => () => void
+  setPresenceElement: (element: HTMLElement | undefined) => void
+}
+
+function OverlayMenuLayer<TItem extends OverlayMenuSharedItem<TItem>>(
+  props: OverlayMenuLayerProps<TItem>,
+): JSX.Element {
+  const cn = useCn()
+  const layer = useOverlayMenuLayerState()
+  const resolveSlot = (slot: keyof OverlayMenuSharedSlots) => resolveMenuSlot(props, slot, cn)
+  const slotName = (slot: string) => dataSlotName(props.owner, slot)
+  const resolvedPlacement = () =>
+    resolveFloatingPlacement(props.placement ?? 'bottom', props.align ?? 'start')
+  const [positionerElement, setPositionerElement] = createSignal<HTMLDivElement | undefined>(
+    undefined,
+  )
+  const [isPositioned, setIsPositioned] = createSignal(false)
+  const groups = createMemo(() => resolveMenuGroups(props.items))
+  const [radioGroupValues, setRadioGroupValues] = createSignal<Record<string, string | undefined>>(
+    untrack(() => {
+      const initialValues: Record<string, string | undefined> = {}
+
+      for (const group of groups()) {
+        for (const item of group.items) {
+          if (
+            item.type === 'radio' &&
+            item.group &&
+            item.value !== undefined &&
+            (item.checked ?? item.defaultChecked)
+          ) {
+            initialValues[item.group] = item.value
+          }
+        }
+      }
+
+      return initialValues
+    }),
+  )
+  const listEntries = createMemo<OverlayMenuListEntry<TItem>[]>(() => [
+    { type: 'contentTop' },
+    ...groups().map((group) => ({ type: 'group' as const, group })),
+    { type: 'contentBottom' },
+  ])
+  const subtreeBranches = new Set<HTMLElement>()
+
+  /**
+   * Track this layer's positioner and descendant submenu branches while
+   * forwarding branch registration to the parent layer.
+   */
+  const registerLayerBranch = (element: HTMLElement): (() => void) => {
+    subtreeBranches.add(element)
+    const unregisterBranch = props.registerBranch(element)
+
+    return () => {
+      subtreeBranches.delete(element)
+      unregisterBranch()
+    }
+  }
+
+  createEffect(
+    on([() => props.placement, () => props.align], () => {
+      layer.setCurrentPlacement(resolvedPlacement())
+    }),
+  )
+
+  const radioItemSnapshot = () =>
+    groups().map((group) =>
+      group.items.map((item) => ({
+        type: item.type,
+        group: item.group,
+        value: item.value,
+        checked: item.checked,
+      })),
+    )
+
+  createEffect(
+    on(radioItemSnapshot, (groups) => {
+      const controlledGroups = new Set<string>()
+      const controlledValues: Record<string, string | undefined> = {}
+
+      for (const group of groups) {
+        for (const item of group) {
+          if (
+            item.type !== 'radio' ||
+            !item.group ||
+            item.value === undefined ||
+            item.checked === undefined
+          ) {
+            continue
+          }
+
+          controlledGroups.add(item.group)
+          if (item.checked) {
+            controlledValues[item.group] = item.value
+          }
+        }
+      }
+
+      if (controlledGroups.size === 0) {
+        return
+      }
+
+      setRadioGroupValues((currentValues) => {
+        const nextValues = { ...currentValues }
+
+        for (const group of controlledGroups) {
+          delete nextValues[group]
+          if (controlledValues[group] !== undefined) {
+            nextValues[group] = controlledValues[group]
+          }
+        }
+
+        return nextValues
+      })
+    }),
+  )
+
+  useFloatingPosition({
+    contentElement: layer.contentElement,
+    deferPositioned: true,
+    floatingElement: positionerElement,
+    getReferenceElement: () => props.getReferenceElement(),
+    gutter: () => props.gutter ?? 0,
+    shift: () => props.shift ?? 0,
+    onPositionedChange: setIsPositioned,
+    onPlacementChange: layer.setCurrentPlacement,
+    open: () => props.present(),
+    overflowPadding: () => props.overflowPadding ?? 4,
+    placement: resolvedPlacement,
+  })
+
+  createEffect(
+    on(
+      [positionerElement, () => props.open, () => props.present()],
+      ([positioner, open, present]) => {
+        if (!positioner || open || !present) {
+          return
+        }
+
+        positioner.style.visibility = 'visible'
+      },
+    ),
+  )
+
+  onMount(() => {
+    const branchElement = positionerElement()
+
+    if (!branchElement) {
+      return
+    }
+
+    onCleanup(registerLayerBranch(branchElement))
+  })
+
+  createEffect(
+    on([positionerElement, layer.contentElement], ([positioner, content]) => {
+      if (!positioner || !content) {
+        return
+      }
+
+      queueMicrotask(() => {
+        if (positioner.isConnected && content.isConnected) {
+          const contentZIndex = content.ownerDocument.defaultView?.getComputedStyle(content).zIndex
+          if (contentZIndex && contentZIndex !== 'auto') {
+            positioner.style.zIndex = contentZIndex
+          }
+        }
+      })
+    }),
+  )
+
+  createEffect(
+    on(
+      () => props.refState,
+      (refState) => {
+        refState?.(layer)
+
+        onCleanup(() => {
+          props.refState?.(undefined)
+        })
+      },
+    ),
+  )
+
+  createEffect(
+    on(layer.contentElement, (content) => {
+      if (!content) {
+        return
+      }
+
+      useEventListener(
+        content,
+        'keydown',
+        (event) => {
+          if (props.open && !event.defaultPrevented) {
+            layer.handleTypeaheadKeyDown(event)
+          }
+        },
+        true,
+      )
+    }),
+  )
+
+  createEffect(
+    on(
+      [() => props.open, isPositioned, () => props.autoFocusStrategy],
+      ([open, positioned, focusStrategy]) => {
+        if (!open) {
+          layer.setHighlightedItemId(undefined)
+          layer.setPointerGraceIntent(null)
+          layer.resetTypeahead()
+          return
+        }
+        if (!positioned || !focusStrategy || focusStrategy === 'none') {
+          return
+        }
+        const onAutoFocusHandled = props.onAutoFocusHandled
+        let frameId = 0
+        const ownerWindow = layer.contentElement()?.ownerDocument.defaultView
+
+        const runAutoFocus = () => {
+          focusLayerFromStrategy(layer, focusStrategy ?? 'none')
+          onAutoFocusHandled?.()
+        }
+
+        if (typeof ownerWindow?.requestAnimationFrame !== 'function') {
+          queueMicrotask(runAutoFocus)
+          return
+        }
+
+        frameId = ownerWindow.requestAnimationFrame(() => {
+          runAutoFocus()
+        })
+
+        onCleanup(() => {
+          if (frameId !== 0) {
+            ownerWindow.cancelAnimationFrame(frameId)
+          }
+        })
+      },
+    ),
+  )
+
+  function getItemSlot(itemAttrsStyle?: JSX.CSSProperties, itemAttrsClass?: ClassValue) {
+    const binding = resolveSlot('item')
+    return {
+      get class() {
+        return cn(binding.class, itemAttrsClass)
+      },
+      get style() {
+        return { ...itemAttrsStyle, ...binding.style }
+      },
+    }
+  }
+
+  function getItemRenderProps(
+    item: TItem,
+    hasChildren: boolean,
+    isCheckbox: boolean,
+    isRadio: boolean,
+  ): OverlayMenuSharedItemRenderProps<TItem> {
+    return {
+      item,
+      depth: props.depth,
+      hasChildren,
+      isCheckbox,
+      isRadio,
+    }
+  }
+
+  function RenderItemContent(contentProps: {
+    checked?: Accessor<boolean>
+    hasChildren: boolean
+    isCheckbox: boolean
+    isRadio: boolean
+    item: TItem
+  }): JSX.Element {
+    const itemRender = createLazyMemo(() => props.itemRender)
+    const label = createLazyMemo(() => contentProps.item.label)
+    const description = createLazyMemo(() => contentProps.item.description)
+    const kbds = createLazyMemo(() => contentProps.item.kbds)
+    return (
+      <Show
+        when={itemRender() === undefined}
+        fallback={renderComponentOrElement(
+          itemRender(),
+          getItemRenderProps(
+            contentProps.item,
+            contentProps.hasChildren,
+            contentProps.isCheckbox,
+            contentProps.isRadio,
+          ),
+        )}
+      >
+        <Show when={contentProps.item.icon}>
+          <span data-slot={slotName('itemLeading')} {...resolveSlot('itemLeading')}>
+            <Icon name={contentProps.item.icon} />
+          </span>
+        </Show>
+
+        <Show when={label() || description()}>
+          <span data-slot={slotName('itemWrapper')} {...resolveSlot('itemWrapper')}>
+            <Show when={label()}>
+              <span data-slot={slotName('itemLabel')} {...resolveSlot('itemLabel')}>
+                {label()}
+              </span>
+            </Show>
+
+            <Show when={description()}>
+              <span data-slot={slotName('itemDescription')} {...resolveSlot('itemDescription')}>
+                {description()}
+              </span>
+            </Show>
+          </span>
+        </Show>
+
+        <span data-slot={slotName('itemTrailing')} {...resolveSlot('itemTrailing')}>
+          <Show when={contentProps.hasChildren}>
+            <Icon
+              name={props.submenuIcon}
+              data-slot={slotName('itemSubIndicator')}
+              {...resolveSlot('itemSubIndicator')}
+            />
+          </Show>
+
+          <Show when={!contentProps.hasChildren}>
+            <Show when={kbds()?.length ? kbds() : undefined}>
+              {(value) => (
+                <KbdGroup
+                  data-slot={slotName('itemKbds')}
+                  size="sm"
+                  items={value()}
+                  classes={{
+                    root: resolveSlot('itemKbds').class,
+                  }}
+                  styles={{
+                    root: resolveSlot('itemKbds').style,
+                  }}
+                />
+              )}
+            </Show>
+          </Show>
+
+          <Show when={contentProps.isCheckbox || contentProps.isRadio}>
+            <span data-slot={slotName('itemIndicator')} {...resolveSlot('itemIndicator')}>
+              <Show when={contentProps.checked?.()}>
+                <Icon name={props.checkedIcon} />
+              </Show>
+            </span>
+          </Show>
+        </span>
+      </Show>
+    )
+  }
+
+  function createSelectableItemHandlers(options: {
+    activate: () => void
+    disabled: () => boolean
+    element: Accessor<HTMLDivElement | undefined>
+    itemAttributes: Accessor<ElementProps<HTMLDivElement> | undefined>
+    itemId: Accessor<string>
+  }): Pick<
+    JSX.HTMLAttributes<HTMLDivElement>,
+    | 'onClick'
+    | 'onFocus'
+    | 'onKeyDown'
+    | 'onPointerDown'
+    | 'onPointerEnter'
+    | 'onPointerMove'
+    | 'onPointerLeave'
+  > {
+    const highlight = (): void => {
+      layer.closeSubmenus()
+      layer.setHighlightedItemId(options.itemId())
+      focusElement(options.element())
+    }
+
+    const handlePointerMove = (event: PointerEvent & { currentTarget: HTMLDivElement }): void => {
+      if (event.pointerType !== 'mouse') {
+        return
+      }
+
+      if (options.disabled()) {
+        layer.focusContent()
+        return
+      }
+
+      if (layer.shouldBlockPointerEnter(event)) {
+        layer.queuePointerEnter(event.currentTarget, highlight)
+        event.preventDefault()
+        return
+      }
+
+      highlight()
+    }
+
+    return {
+      onClick: (event) => {
+        if (options.disabled()) {
+          event.preventDefault()
+          return
+        }
+        const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onClick)
+        if (!defaultPrevented) {
+          options.activate()
+        }
+      },
+      onFocus: (event) => {
+        const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onFocus)
+        if (!defaultPrevented && !options.disabled()) {
+          layer.closeSubmenus()
+          layer.setHighlightedItemId(options.itemId())
+        }
+      },
+      onKeyDown: (event) => {
+        const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onKeyDown)
+        if (
+          !defaultPrevented &&
+          !event.repeat &&
+          !options.disabled() &&
+          (event.key === 'Enter' || event.key === ' ')
+        ) {
+          event.preventDefault()
+          options.activate()
+        }
+      },
+      onPointerDown: (event) => {
+        const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerDown)
+        if (!defaultPrevented && options.disabled()) {
+          event.preventDefault()
+        }
+      },
+      onPointerEnter: (event) => {
+        const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerEnter)
+        if (!defaultPrevented) {
+          handlePointerMove(event)
+        }
+      },
+      onPointerMove: (event) => {
+        const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerMove)
+        if (!defaultPrevented) {
+          handlePointerMove(event)
+        }
+      },
+      onPointerLeave: (event) => {
+        const { defaultPrevented } = callHandler(event, options.itemAttributes()?.onPointerLeave)
+        if (!defaultPrevented && event.pointerType === 'mouse') {
+          layer.clearQueuedPointerEnter(event.currentTarget)
+          layer.focusContent()
+        }
+      },
+    }
+  }
+
+  function LeafItem(itemProps: { item: TItem }): JSX.Element {
+    const itemId = useId(undefined, `${props.id}-item`)
+    const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
+    const itemAttributes = createMemo(() =>
+      props.itemProps?.(getItemRenderProps(itemProps.item, false, false, false)),
+    )
+
+    onMount(() => {
+      onCleanup(
+        layer.registerItem({
+          disabled: () => Boolean(itemProps.item.disabled),
+          element,
+          hasSubmenu: false,
+          id: itemId(),
+          textValue: () => getOverlayMenuTextValue(itemProps.item) ?? element()?.textContent,
+        }),
+      )
+    })
+
+    const activate = (): void => {
+      if (itemProps.item.disabled) {
+        return
+      }
+
+      itemProps.item.onSelect?.()
+      props.closeRoot({ restoreFocus: true })
+    }
+
+    const handlers = createSelectableItemHandlers({
+      activate,
+      disabled: () => Boolean(itemProps.item.disabled),
+      element,
+      itemAttributes,
+      itemId,
+    })
+
+    return (
+      <div
+        id={itemId()}
+        data-slot={slotName('item')}
+        role="menuitem"
+        tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
+        aria-disabled={itemProps.item.disabled ? 'true' : undefined}
+        {...overlayMenuDataAttributes.item({
+          destructive: () => itemProps.item.variant === 'destructive',
+          disabled: () => itemProps.item.disabled,
+          expanded: undefined,
+          highlighted: () => layer.highlightedItemId() === itemId(),
+          selected: undefined,
+        })}
+        {...itemAttributes()}
+        ref={(itemElement) => {
+          setElement(itemElement)
+          callRef(itemAttributes()?.ref, itemElement)
+        }}
+        {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
+        {...handlers}
+      >
+        <RenderItemContent
+          item={itemProps.item}
+          hasChildren={false}
+          isCheckbox={false}
+          isRadio={false}
+        />
+      </div>
+    )
+  }
+
+  function CheckboxMenuItem(itemProps: { item: TItem }): JSX.Element {
+    const itemId = useId(undefined, `${props.id}-checkbox`)
+    const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
+    const [checked, setCheckedState] = useControllableValue<boolean>({
+      value: () => itemProps.item.checked,
+      defaultValue: () => itemProps.item.defaultChecked ?? false,
+    })
+    const itemAttributes = createMemo(() =>
+      props.itemProps?.(getItemRenderProps(itemProps.item, false, true, false)),
+    )
+
+    onMount(() => {
+      onCleanup(
+        layer.registerItem({
+          disabled: () => Boolean(itemProps.item.disabled),
+          element,
+          hasSubmenu: false,
+          id: itemId(),
+          textValue: () => getOverlayMenuTextValue(itemProps.item) ?? element()?.textContent,
+        }),
+      )
+    })
+
+    const toggle = (): void => {
+      if (itemProps.item.disabled) {
+        return
+      }
+
+      const nextChecked = !checked()
+
+      if (itemProps.item.checked === undefined) {
+        setCheckedState(nextChecked)
+      }
+
+      itemProps.item.onCheckedChange?.(nextChecked)
+      itemProps.item.onSelect?.()
+    }
+
+    const handlers = createSelectableItemHandlers({
+      activate: toggle,
+      disabled: () => Boolean(itemProps.item.disabled),
+      element,
+      itemAttributes,
+      itemId,
+    })
+
+    return (
+      <div
+        id={itemId()}
+        data-slot={slotName('item')}
+        role="menuitemcheckbox"
+        tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
+        aria-checked={checked() ? 'true' : 'false'}
+        aria-disabled={itemProps.item.disabled ? 'true' : undefined}
+        {...overlayMenuDataAttributes.item({
+          destructive: () => itemProps.item.variant === 'destructive',
+          selected: checked,
+          disabled: () => itemProps.item.disabled,
+          expanded: undefined,
+          highlighted: () => layer.highlightedItemId() === itemId(),
+        })}
+        {...itemAttributes()}
+        ref={(itemElement) => {
+          setElement(itemElement)
+          callRef(itemAttributes()?.ref, itemElement)
+        }}
+        {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
+        {...handlers}
+      >
+        <RenderItemContent
+          item={itemProps.item}
+          checked={checked}
+          hasChildren={false}
+          isCheckbox={true}
+          isRadio={false}
+        />
+      </div>
+    )
+  }
+
+  function RadioMenuItem(itemProps: { item: TItem }): JSX.Element {
+    const itemId = useId(undefined, `${props.id}-radio`)
+    const [element, setElement] = createSignal<HTMLDivElement | undefined>(undefined)
+    const [checkedState, setCheckedState] = useControllableValue<boolean>({
+      value: () => itemProps.item.checked,
+      defaultValue: () => itemProps.item.defaultChecked ?? false,
+    })
+    const checked = createMemo(() => {
+      if (itemProps.item.group && itemProps.item.value !== undefined) {
+        return radioGroupValues()[itemProps.item.group] === itemProps.item.value
+      }
+
+      return checkedState()
+    })
+    const itemAttributes = createMemo(() =>
+      props.itemProps?.(getItemRenderProps(itemProps.item, false, false, true)),
+    )
+
+    onMount(() => {
+      onCleanup(
+        layer.registerItem({
+          disabled: () => Boolean(itemProps.item.disabled),
+          element,
+          hasSubmenu: false,
+          id: itemId(),
+          textValue: () => getOverlayMenuTextValue(itemProps.item) ?? element()?.textContent,
+        }),
+      )
+    })
+
+    const select = (): void => {
+      if (itemProps.item.disabled) {
+        return
+      }
+
+      if (!checked() && itemProps.item.checked === undefined) {
+        setCheckedState(true)
+      }
+
+      if (itemProps.item.group && itemProps.item.value !== undefined) {
+        setRadioGroupValues((values) => ({
+          ...values,
+          [itemProps.item.group!]: itemProps.item.value,
+        }))
+      }
+
+      itemProps.item.onCheckedChange?.(true)
+
+      if (itemProps.item.value !== undefined) {
+        itemProps.item.onValueChange?.(itemProps.item.value)
+      }
+
+      itemProps.item.onSelect?.()
+    }
+
+    const handlers = createSelectableItemHandlers({
+      activate: select,
+      disabled: () => Boolean(itemProps.item.disabled),
+      element,
+      itemAttributes,
+      itemId,
+    })
+
+    return (
+      <div
+        id={itemId()}
+        data-slot={slotName('item')}
+        role="menuitemradio"
+        tabIndex={layer.highlightedItemId() === itemId() ? 0 : -1}
+        aria-checked={checked() ? 'true' : 'false'}
+        aria-disabled={itemProps.item.disabled ? 'true' : undefined}
+        {...overlayMenuDataAttributes.item({
+          destructive: () => itemProps.item.variant === 'destructive',
+          selected: checked,
+          disabled: () => itemProps.item.disabled,
+          expanded: undefined,
+          highlighted: () => layer.highlightedItemId() === itemId(),
+        })}
+        {...itemAttributes()}
+        ref={(itemElement) => {
+          setElement(itemElement)
+          callRef(itemAttributes()?.ref, itemElement)
+        }}
+        {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
+        {...handlers}
+      >
+        <RenderItemContent
+          item={itemProps.item}
+          checked={checked}
+          hasChildren={false}
+          isCheckbox={false}
+          isRadio={true}
+        />
+      </div>
+    )
+  }
+
+  function SubmenuItem(itemProps: { item: TItem }): JSX.Element {
+    const submenuId = useId(undefined, `${props.id}-sub`)
+    const submenuContentId = createMemo(() => `${submenuId()}-content`)
+    const [triggerElement, setTriggerElement] = createSignal<HTMLDivElement | undefined>(undefined)
+    const [isOpen, setOpenState] = useControllableValue<boolean>({
+      value: () => itemProps.item.open,
+      defaultValue: () => itemProps.item.defaultOpen ?? false,
+    })
+    const [autoFocusStrategy, setAutoFocusStrategy] = createSignal<OverlayMenuFocusStrategy>('none')
+    const contentPresence = useTransitionPresence({
+      open: isOpen,
+    })
+    const itemAttributes = createMemo(() =>
+      props.itemProps?.(getItemRenderProps(itemProps.item, true, false, false)),
+    )
+    let openTimeoutId = 0
+    let submenuLayerState: OverlayMenuLayerState | undefined
+
+    const clearOpenTimeout = (): void => {
+      window.clearTimeout(openTimeoutId)
+      openTimeoutId = 0
+    }
+
+    onMount(() => {
+      onCleanup(
+        layer.registerItem({
+          disabled: () => Boolean(itemProps.item.disabled),
+          element: triggerElement,
+          hasSubmenu: true,
+          id: submenuId(),
+          textValue: () => getOverlayMenuTextValue(itemProps.item) ?? triggerElement()?.textContent,
+        }),
+      )
+      onCleanup(
+        layer.registerSubmenu({
+          close: () => {
+            clearOpenTimeout()
+            submenuLayerState?.closeSubmenus()
+            setOpenState(false)
+            setAutoFocusStrategy('none')
+          },
+          id: submenuId(),
+        }),
+      )
+      onCleanup(clearOpenTimeout)
+    })
+
+    const closeSubmenu = (): void => {
+      clearOpenTimeout()
+      submenuLayerState?.closeSubmenus()
+      setOpenState(false)
+      setAutoFocusStrategy('none')
+      layer.setHighlightedItemId(submenuId())
+      focusWithoutScrolling(triggerElement())
+    }
+
+    const openSubmenu = (strategy: OverlayMenuFocusStrategy): void => {
+      layer.closeSubmenus(submenuId())
+      layer.setHighlightedItemId(submenuId())
+      setAutoFocusStrategy(strategy)
+      setOpenState(true)
+    }
+
+    createEffect(
+      on(contentPresence.present, (present) => {
+        if (present) {
+          return
+        }
+
+        submenuLayerState = undefined
+        contentPresence.setElement(undefined)
+      }),
+    )
+
+    const onPointerMove = (): void => {
+      if (itemProps.item.disabled) {
+        layer.focusContent()
+        return
+      }
+
+      layer.closeSubmenus(submenuId())
+      layer.setHighlightedItemId(submenuId())
+      clearOpenTimeout()
+
+      submenuLayerState?.setHighlightedItemId(undefined)
+      focusWithoutScrolling(triggerElement())
+
+      if (!isOpen()) {
+        openTimeoutId = window.setTimeout(() => {
+          openTimeoutId = 0
+          untrack(() => {
+            if (!props.open || itemProps.item.disabled) {
+              return
+            }
+
+            openSubmenu('content')
+          })
+        }, 100)
+      }
+    }
+
+    return (
+      <>
+        <div
+          id={submenuId()}
+          data-slot={slotName('item')}
+          role="menuitem"
+          tabIndex={layer.highlightedItemId() === submenuId() ? 0 : -1}
+          aria-haspopup="menu"
+          aria-controls={isOpen() ? submenuContentId() : undefined}
+          aria-expanded={isOpen() ? 'true' : 'false'}
+          aria-disabled={itemProps.item.disabled ? 'true' : undefined}
+          {...overlayMenuDataAttributes.item({
+            destructive: () => itemProps.item.variant === 'destructive',
+            disabled: () => itemProps.item.disabled,
+            highlighted: () => layer.highlightedItemId() === submenuId(),
+            expanded: isOpen,
+            selected: undefined,
+          })}
+          {...itemAttributes()}
+          ref={(itemElement) => {
+            setTriggerElement(itemElement)
+            callRef(itemAttributes()?.ref, itemElement)
+          }}
+          {...getItemSlot(itemAttributes()?.style, itemAttributes()?.class)}
+          onPointerDown={(event) => {
+            const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerDown)
+            if (!defaultPrevented && itemProps.item.disabled) {
+              event.preventDefault()
+            }
+          }}
+          onClick={(event) => {
+            const { defaultPrevented } = callHandler(event, itemAttributes()?.onClick)
+            if (defaultPrevented || itemProps.item.disabled) {
+              return
+            }
+
+            event.preventDefault()
+            openSubmenu('content')
+          }}
+          onFocus={(event) => {
+            const { defaultPrevented } = callHandler(event, itemAttributes()?.onFocus)
+            if (defaultPrevented || itemProps.item.disabled) {
+              return
+            }
+
+            layer.closeSubmenus(submenuId())
+            layer.setHighlightedItemId(submenuId())
+          }}
+          onKeyDown={(event) => {
+            const { defaultPrevented } = callHandler(event, itemAttributes()?.onKeyDown)
+            if (defaultPrevented) {
+              return
+            }
+
+            if (event.repeat) {
+              return
+            }
+
+            if (itemProps.item.disabled) {
+              return
+            }
+
+            const openKey =
+              resolveDirection(triggerElement()) === 'rtl' ? 'ArrowLeft' : 'ArrowRight'
+
+            if (event.key === openKey || event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault()
+              openSubmenu('first')
+            }
+          }}
+          onPointerEnter={(event) => {
+            const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerEnter)
+            if (defaultPrevented) {
+              return
+            }
+
+            if (itemProps.item.disabled || event.pointerType !== 'mouse') {
+              if (itemProps.item.disabled) {
+                layer.focusContent()
+              }
+
+              return
+            }
+
+            if (layer.shouldBlockPointerEnter(event)) {
+              layer.queuePointerEnter(event.currentTarget, onPointerMove)
+              event.preventDefault()
+              return
+            }
+
+            onPointerMove()
+          }}
+          onPointerMove={(event) => {
+            const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerMove)
+            if (defaultPrevented) {
+              return
+            }
+
+            if (itemProps.item.disabled || event.pointerType !== 'mouse') {
+              if (itemProps.item.disabled) {
+                layer.focusContent()
+              }
+
+              return
+            }
+
+            if (layer.shouldBlockPointerEnter(event)) {
+              layer.queuePointerEnter(event.currentTarget, onPointerMove)
+              event.preventDefault()
+              return
+            }
+
+            onPointerMove()
+          }}
+          onPointerLeave={(event) => {
+            const { defaultPrevented } = callHandler(event, itemAttributes()?.onPointerLeave)
+            if (defaultPrevented) {
+              return
+            }
+
+            if (event.pointerType !== 'mouse') {
+              return
+            }
+
+            layer.clearQueuedPointerEnter(event.currentTarget)
+            clearOpenTimeout()
+
+            const contentElement = submenuLayerState?.contentElement()
+            const submenuPlacement = submenuLayerState?.currentPlacement() ?? 'right-start'
+
+            if (!contentElement) {
+              layer.setPointerGraceIntent(null, [event.clientX, event.clientY])
+              layer.focusContent()
+              return
+            }
+
+            layer.setPointerGraceIntent(
+              {
+                ...createPointerGraceIntent(
+                  submenuPlacement,
+                  [event.clientX, event.clientY],
+                  event.currentTarget,
+                  contentElement,
+                ),
+              },
+              [event.clientX, event.clientY],
+            )
+          }}
+        >
+          <RenderItemContent
+            item={itemProps.item}
+            hasChildren={true}
+            isCheckbox={false}
+            isRadio={false}
+          />
+        </div>
+
+        <Show when={contentPresence.present()}>
+          <Portal mount={triggerElement()?.ownerDocument.body}>
+            <OverlayMenuLayer<TItem>
+              owner={props.owner}
+              id={submenuContentId()}
+              ariaLabelledBy={submenuId()}
+              open={isOpen()}
+              close={closeSubmenu}
+              closeOnTab={props.closeOnTab}
+              closeRoot={props.closeRoot}
+              depth={props.depth + 1}
+              items={itemProps.item.children}
+              classes={props.classes}
+              styles={props.styles}
+              slotBinding={props.slotBinding}
+              size={props.size}
+              checkedIcon={props.checkedIcon}
+              submenuIcon={props.submenuIcon}
+              itemRender={props.itemRender}
+              contentProps={props.contentProps}
+              itemProps={props.itemProps}
+              contentTop={props.contentTop}
+              contentBottom={props.contentBottom}
+              getReferenceElement={() => triggerElement()}
+              placement={resolveDirection(triggerElement()) === 'rtl' ? 'left' : 'right'}
+              align="start"
+              gutter={-2}
+              shift={-4}
+              overflowPadding={props.overflowPadding}
+              parentLayer={layer}
+              present={contentPresence.present}
+              presenceDataAttrs={contentPresence.dataAttrs}
+              registerBranch={registerLayerBranch}
+              setPresenceElement={contentPresence.setElement}
+              autoFocusStrategy={autoFocusStrategy()}
+              onAutoFocusHandled={() => {
+                setAutoFocusStrategy('none')
+              }}
+              refState={(state) => {
+                submenuLayerState = state
+              }}
+            />
+          </Portal>
+        </Show>
+      </>
+    )
+  }
+
+  const side = createMemo(() => parseFloatingPlacement(layer.currentPlacement()).side)
+  const align = createMemo(() => parseFloatingPlacement(layer.currentPlacement()).align)
+  const presenceDataAttrs = createMemo(() => {
+    const dataAttrs = props.presenceDataAttrs()
+
+    return dataAttrs['data-expanded'] !== undefined && !isPositioned() ? {} : dataAttrs
+  })
+  const closeParentKey = createMemo(() =>
+    props.parentLayer ? (side() === 'left' ? 'ArrowRight' : 'ArrowLeft') : undefined,
+  )
+
+  function renderListEntry(entry: OverlayMenuListEntry<TItem>): JSX.Element {
+    if (entry.type === 'contentTop') {
+      return <Show when={props.contentTop}>{(slot) => slot()({ sub: props.depth > 0 })}</Show>
+    }
+
+    if (entry.type === 'contentBottom') {
+      return <Show when={props.contentBottom}>{(slot) => slot()({ sub: props.depth > 0 })}</Show>
+    }
+
+    const groupLabel = createMemo(() => entry.group.label)
+    const groupLabelId = createMemo(() =>
+      groupLabel() ? `${props.id}-group-${groups().indexOf(entry.group)}-label` : undefined,
+    )
+
+    return (
+      <div
+        data-slot={slotName('group')}
+        role="group"
+        aria-labelledby={groupLabelId()}
+        {...resolveSlot('group')}
+      >
+        <Show when={groupLabel()}>
+          <div
+            id={groupLabelId()}
+            data-slot={slotName('groupLabel')}
+            aria-hidden="true"
+            {...resolveSlot('groupLabel')}
+          >
+            {groupLabel()}
+          </div>
+        </Show>
+
+        <For each={entry.group.items}>
+          {(item) => (
+            <Switch fallback={<LeafItem item={item} />}>
+              <Match when={item.type === 'separator'}>
+                <div
+                  data-slot={slotName('separator')}
+                  role="separator"
+                  {...resolveSlot('separator')}
+                />
+              </Match>
+
+              <Match when={item.type === 'checkbox'}>
+                <CheckboxMenuItem item={item} />
+              </Match>
+
+              <Match when={item.type === 'radio'}>
+                <RadioMenuItem item={item} />
+              </Match>
+
+              <Match when={hasOverlayMenuChildren(item)}>
+                <SubmenuItem item={item} />
+              </Match>
+            </Switch>
+          )}
+        </For>
+      </div>
+    )
+  }
+
+  const contentSlot = () => ({
+    class: cn(resolveSlot('content').class, props.contentProps?.class),
+    style: { ...props.contentProps?.style, ...resolveSlot('content').style },
+  })
+
+  return (
+    <div
+      ref={(element) => {
+        setPositionerElement(element)
+        element.style.position = 'absolute'
+        element.style.left = '0'
+        element.style.top = '0'
+        setIsPositioned(false)
+
+        if (props.open) {
+          element.style.visibility = 'hidden'
+        }
+      }}
+      data-slot={slotName('positioner')}
+      class={'left-0 top-0 absolute'}
+    >
+      <List
+        as="div"
+        items={listEntries()}
+        itemRender={(context) => renderListEntry(context.item)}
+        id={props.id}
+        data-slot={slotName('content')}
+        role="menu"
+        aria-labelledby={props.ariaLabelledBy}
+        tabIndex={layer.highlightedItemId() === undefined ? 0 : -1}
+        {...props.contentProps}
+        {...overlayMenuDataAttributes.content({
+          expanded: () => presenceDataAttrs()['data-expanded'],
+          closed: () => presenceDataAttrs()['data-closed'],
+          side,
+          align,
+        })}
+        ref={(element: HTMLDivElement) => {
+          layer.setContentElement(element)
+          props.setPresenceElement(element)
+          callRef(props.contentProps?.ref, element)
+          onCleanup(() => {
+            const ref = props.contentProps?.ref
+            if (typeof ref === 'function') {
+              ;(ref as (element: HTMLDivElement | undefined) => void)(undefined)
+            }
+          })
+        }}
+        class={contentSlot().class}
+        style={contentSlot().style}
+        onPointerDown={(event) => {
+          const { defaultPrevented } = callHandler(event, props.contentProps?.onPointerDown)
+          if (!defaultPrevented) {
+            props.onContentPointerDown?.(event)
+          }
+        }}
+        onContextMenu={(event) => {
+          const { defaultPrevented } = callHandler(event, props.contentProps?.onContextMenu)
+          if (!defaultPrevented) {
+            props.onContextMenu?.(event)
+          }
+        }}
+        onFocusIn={(event) => {
+          const { defaultPrevented } = callHandler(event, props.contentProps?.onFocusIn)
+          if (defaultPrevented) {
+            return
+          }
+
+          if (!event.currentTarget.contains(event.target)) {
+            return
+          }
+
+          if (event.target === event.currentTarget) {
+            layer.setHighlightedItemId(undefined)
+          }
+        }}
+        onFocusOut={(event) => {
+          const { defaultPrevented } = callHandler(event, props.contentProps?.onFocusOut)
+          if (defaultPrevented) {
+            return
+          }
+
+          if (event.currentTarget.contains(event.relatedTarget as Node | null)) {
+            return
+          }
+
+          layer.setHighlightedItemId(undefined)
+          layer.resetTypeahead()
+        }}
+        onKeyDown={(event) => {
+          const { defaultPrevented } = callHandler(event, props.contentProps?.onKeyDown)
+          if (!defaultPrevented) {
+            onLayerKeyDown(event, layer, props.close, closeParentKey(), props.closeOnTab)
+          }
+        }}
+      />
+    </div>
+  )
+}
+
+export function OverlayMenu<TItem extends OverlayMenuSharedItem<TItem>>(
+  props: OverlayMenuProps<TItem>,
+): JSX.Element {
+  const cn = useCn()
+  const rootId = useId(() => props.id, 'overlaymenu')
+  const contentId = createMemo(() => `${rootId()}-content`)
+  const contentPresence = useTransitionPresence({
+    open: () => props.open,
+  })
+  const branches = new Set<HTMLElement>()
+  const [pendingFocusOnClose, setPendingFocusOnClose] = createSignal<'trigger' | 'next'>()
+  const [rootLayerState, setRootLayerState] = createSignal<OverlayMenuLayerState | undefined>(
+    undefined,
+  )
+
+  createEffect(
+    on(contentPresence.present, (present) => {
+      if (present) {
+        return
+      }
+
+      contentPresence.setElement(undefined)
+    }),
+  )
+
+  createEffect(
+    on(
+      [() => props.open, pendingFocusOnClose, () => props.triggerElement],
+      ([open, pendingFocus, triggerElement]) => {
+        if (open || !pendingFocus) {
+          return
+        }
+
+        queueMicrotask(() => {
+          untrack(() => {
+            if (props.open || pendingFocusOnClose() !== pendingFocus) {
+              return
+            }
+
+            if (pendingFocus === 'trigger') {
+              focusTrigger(triggerElement)
+            } else if (triggerElement) {
+              const focusableElements = getFocusableElements(
+                triggerElement.ownerDocument.body,
+              ).filter(
+                (element) => ![...branches].some((branch) => containsComposed(branch, element)),
+              )
+              const triggerIndexes = focusableElements.flatMap((element, index) =>
+                element === triggerElement || containsComposed(triggerElement, element)
+                  ? [index]
+                  : [],
+              )
+              const triggerIndex = triggerIndexes[triggerIndexes.length - 1]
+              if (triggerIndex !== undefined) {
+                focusWithoutScrolling(focusableElements[triggerIndex + 1])
+              }
+            }
+
+            setPendingFocusOnClose(undefined)
+          })
+        })
+      },
+    ),
+  )
+
+  createEffect(
+    on(
+      [() => props.open, rootLayerState, () => rootLayerState()?.submenus()],
+      ([open, layer, submenus]) => {
+        if (!open && layer) {
+          layer.closeSubmenus(undefined, submenus)
+        }
+      },
+    ),
+  )
+
+  createEffect(
+    on(
+      [contentPresence.present, () => rootLayerState()?.contentElement()],
+      ([present, content]) => {
+        if (!present || !(props.preventScroll ?? true) || !content) {
+          return
+        }
+
+        const releaseBodyScrollLock = acquireBodyScrollLock(content)
+
+        onCleanup(() => {
+          releaseBodyScrollLock?.()
+        })
+      },
+    ),
+  )
+
+  const containsTarget = (node: Node): boolean => {
+    if (props.triggerElement?.contains(node)) {
+      return true
+    }
+
+    for (const branch of branches) {
+      if (branch.contains(node)) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  const closeRoot = (options?: OverlayMenuCloseOptions): void => {
+    if (options?.restoreFocus) {
+      setPendingFocusOnClose('trigger')
+    }
+
+    rootLayerState()?.closeSubmenus()
+    props.onClose()
+  }
+
+  const closeOnTab = (direction: 'forward' | 'backward'): void => {
+    setPendingFocusOnClose(direction === 'backward' ? 'trigger' : 'next')
+    rootLayerState()?.closeSubmenus()
+    props.onClose()
+  }
+
+  useOverlayInteraction({
+    containsTarget,
+    contentElement: () => rootLayerState()?.contentElement(),
+    triggerElement: () => props.triggerElement,
+    onPointerOutside: (event) => {
+      if (props.open && !event.defaultPrevented) {
+        closeRoot()
+      }
+    },
+    onFocusOutside: (event) => {
+      if (props.open && !event.defaultPrevented) {
+        closeRoot()
+      }
+    },
+    onEscape: (event, context) => {
+      const target = event.target
+      if (!props.open || (isNode(target) && context.isInside(target)) || event.defaultPrevented) {
+        return
+      }
+
+      event.preventDefault()
+      closeRoot()
+    },
+    enabled: contentPresence.present,
+    requireContent: true,
+  })
+
+  const getReferenceElement = createMemo<ReferenceElement | undefined>(() => {
+    const anchorRect = props.getAnchorRect?.(props.triggerElement)
+
+    if (anchorRect) {
+      return createVirtualReference(anchorRect, props.triggerElement)
+    }
+
+    return props.triggerElement
+  })
+
+  return (
+    <Show when={contentPresence.present()}>
+      <Portal mount={props.triggerElement?.ownerDocument.body}>
+        <Show when={props.preventScroll ?? true}>
+          <div
+            data-slot={dataSlotName(props.owner, 'overlay')}
+            aria-hidden="true"
+            {...resolveMenuSlot(props, 'overlay', cn)}
+          />
+        </Show>
+        <OverlayMenuLayer<TItem>
+          owner={props.owner}
+          id={contentId()}
+          ariaLabelledBy={props.triggerElement?.id}
+          open={props.open}
+          close={closeRoot}
+          closeOnTab={closeOnTab}
+          closeRoot={closeRoot}
+          depth={0}
+          items={props.items}
+          classes={props.classes}
+          styles={props.styles}
+          slotBinding={props.slotBinding}
+          size={props.size}
+          checkedIcon={props.checkedIcon}
+          submenuIcon={props.submenuIcon}
+          itemRender={props.itemRender}
+          contentProps={props.contentProps}
+          itemProps={props.itemProps}
+          contentTop={props.contentTop}
+          contentBottom={props.contentBottom}
+          getReferenceElement={getReferenceElement}
+          placement={props.placement}
+          align={props.align}
+          gutter={props.gutter}
+          shift={props.shift}
+          overflowPadding={props.overflowPadding}
+          present={contentPresence.present}
+          presenceDataAttrs={contentPresence.dataAttrs}
+          registerBranch={(element) => {
+            branches.add(element)
+
+            return () => {
+              branches.delete(element)
+            }
+          }}
+          setPresenceElement={contentPresence.setElement}
+          autoFocusStrategy={props.autoFocusStrategy}
+          onAutoFocusHandled={props.onAutoFocusHandled}
+          onContentPointerDown={props.onContentPointerDown}
+          onContextMenu={props.onContentContextMenu}
+          refState={setRootLayerState}
+        />
+      </Portal>
+    </Show>
+  )
+}

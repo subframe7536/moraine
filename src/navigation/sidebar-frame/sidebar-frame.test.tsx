@@ -2,8 +2,8 @@ import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createComponent, createSignal, onCleanup } from 'solid-js'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { finishExitMotion } from '../../test-utils/overlay-test'
-import { renderWithTheme } from '../../test-utils/theme-render'
+import { finishExitMotion } from '../../test-util/overlay-test'
+import { renderWithTheme } from '../../test-util/theme-render'
 
 import { SidebarFrame } from './sidebar-frame'
 import { useSidebarFrame } from './sidebar-frame-context'
