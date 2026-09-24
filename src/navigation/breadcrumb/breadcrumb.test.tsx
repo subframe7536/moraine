@@ -1,4 +1,3 @@
-import { A, Route, Router } from '@solidjs/router'
 import { fireEvent, render } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
 import { createComponent, createSignal } from 'solid-js'
@@ -352,28 +351,21 @@ describe('Breadcrumb', () => {
     expect(separator?.style.fontSize).toBe('')
   })
 
-  test('supports itemRender with @solidjs/router A component', () => {
+  test('supports itemRender with a custom link', () => {
     const itemRender = vi.fn((props: BreadcrumbT.ItemRenderProps) => (
-      <A data-slot="breadcrumb-link" href={props.item.href ?? props.item.to ?? '#'}>
+      <a data-slot="breadcrumb-link" href={props.item.href ?? props.item.to ?? '#'}>
         {props.item.label}
-      </A>
+      </a>
     ))
 
     const screen = renderWithTheme(() => (
-      <Router url="/">
-        <Route
-          path="/"
-          component={() => (
-            <Breadcrumb
-              itemRender={itemRender}
-              items={[
-                { label: 'Home', href: '/' },
-                { label: 'Current', href: '/current' },
-              ]}
-            />
-          )}
-        />
-      </Router>
+      <Breadcrumb
+        itemRender={itemRender}
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Current', href: '/current' },
+        ]}
+      />
     ))
 
     const links = screen.container.querySelectorAll('[data-slot="breadcrumb-link"]')

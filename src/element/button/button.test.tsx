@@ -1,4 +1,3 @@
-import { A, Route, Router } from '@solidjs/router'
 import { fireEvent, render, waitFor } from '@solidjs/testing-library'
 import type { JSX } from 'solid-js'
 import { Show, createComponent, createSignal } from 'solid-js'
@@ -94,18 +93,12 @@ describe('Button', () => {
     expect(onClick).toHaveBeenCalledWith('payload', expect.any(MouseEvent))
   })
 
-  test('supports as={A} from solid router', () => {
+  test('supports a custom link component as the root', () => {
+    const Link = (props: JSX.AnchorHTMLAttributes<HTMLAnchorElement>) => <a {...props} />
     const screen = render(() => (
-      <Router url="/">
-        <Route
-          path="/"
-          component={() => (
-            <Button as={A} href="/docs">
-              Docs
-            </Button>
-          )}
-        />
-      </Router>
+      <Button as={Link} href="/docs">
+        Docs
+      </Button>
     ))
 
     const link = screen.getByRole('link', { name: 'Docs' })

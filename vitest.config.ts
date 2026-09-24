@@ -11,15 +11,15 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '#binding': path.resolve('node_modules/satteri/dist/binding.js'),
-      [path.resolve('node_modules/satteri/dist/binding.browser.js')]: path.resolve(
-        'node_modules/satteri/dist/binding.js',
+      '#binding': path.resolve('docs/node_modules/satteri/dist/binding.js'),
+      [path.resolve('docs/node_modules/satteri/dist/binding.browser.js')]: path.resolve(
+        'docs/node_modules/satteri/dist/binding.js',
       ),
-      [path.resolve('node_modules/satteri/satteri_napi.wasi-browser.js')]: path.resolve(
-        'node_modules/satteri/satteri_napi.wasi.cjs',
+      [path.resolve('docs/node_modules/satteri/satteri_napi.wasi-browser.js')]: path.resolve(
+        'docs/node_modules/satteri/satteri_napi.wasi.cjs',
       ),
     },
-    dedupe: ['solid-js', '@solidjs/router'],
+    dedupe: ['solid-js'],
   },
   plugins: [variantGroupPlugin(), solid({ hot: false, solid: { hydratable: true } })],
   test: {

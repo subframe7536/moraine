@@ -58,6 +58,8 @@ jobs:
 
       - run: pnpm run docs:build
 
+      - run: pnpm run test:docs
+
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -72,19 +74,19 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --filter moraine --frozen-lockfile
 
       - name: Run tests
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             BASE_REF="${{ github.base_ref }}"
             if git rev-parse --verify "origin/$BASE_REF" >/dev/null 2>&1; then
-              pnpm run test --changed "origin/$BASE_REF"
+              pnpm run test:library --changed "origin/$BASE_REF"
             else
-              pnpm run test --changed "$BASE_REF"
+              pnpm run test:library --changed "$BASE_REF"
             fi
           elif [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ] && git rev-parse --verify "${{ github.event.before }}" >/dev/null 2>&1; then
-            pnpm run test --changed ${{ github.event.before }}
+            pnpm run test:library --changed ${{ github.event.before }}
           else
-            pnpm run test
+            pnpm run test:library
           fi

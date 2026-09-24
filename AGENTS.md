@@ -29,6 +29,8 @@ Run workspace commands from the repository root.
 ### Testing
 
 - `pnpm run test` - Run all tests in once.
+- `pnpm run test:library` - Run library and consumer tests without the docs tests.
+- `pnpm run test:docs` - Run docs tests.
 - `pnpm run test:dev` - Run tests in dev mode, watch file changes and rerun changed test.
 - `pnpm run test <test-file>` - Run a single test file (e.g., `pnpm run test button.test.tsx`).
 - **Note:** Tests use `jsdom` environment.
