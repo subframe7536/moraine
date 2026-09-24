@@ -9,7 +9,7 @@ search:
 
 ## CSS variables
 
-Like [shadcn/ui's CSS-variable theming](https://ui.shadcn.com/docs/theming), Moraine's built-in classes use semantic names such as `bg-primary`, `text-foreground`, and `rounded-lg`. The UnoCSS preset and Tailwind plugin map those classes to CSS variables that your application defines. They do not provide a default color palette. Moraine reads the following variables:
+Set colors and other design values in your application CSS. Moraine's built-in classes use semantic utilities such as `bg-primary`, `text-foreground`, and `rounded-lg`. As with [shadcn/ui's CSS-variable theming](https://ui.shadcn.com/docs/theming), changing a variable updates the components that use it without changing their classes. Moraine's UnoCSS preset and Tailwind plugin map these utilities to the variables below; neither supplies a default color palette.
 
 | Role              | CSS variables                                                                                                         |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -27,9 +27,9 @@ Like [shadcn/ui's CSS-variable theming](https://ui.shadcn.com/docs/theming), Mor
 | Shadows           | `--shadow`, `--shadow-2xs`, `--shadow-xs`, `--shadow-sm`, `--shadow-md`, `--shadow-lg`, `--shadow-xl`, `--shadow-2xl` |
 | Sidebar width     | `--sidebar-width` (optional)                                                                                          |
 
-`--radius` controls the `rounded-*` scale. `--sidebar-width` falls back to `clamp(14rem,25%,20rem)` when omitted.
+Surface colors pair with their `-foreground` variables for text and icons on that surface. `--radius` controls the `rounded-*` scale. `--sidebar-width` falls back to `clamp(14rem,25%,20rem)` when omitted.
 
-Define the values in your application stylesheet and override them for dark mode or a subtree. For example, this sets only some of the tokens; add the others used by your components:
+Define values in your application stylesheet. Override the same variables under `.dark` for dark mode, or on a container to change its DOM descendants. This example sets a few variables; add the others used by your components:
 
 ```css
 :root {
@@ -48,11 +48,11 @@ Define the values in your application stylesheet and override them for dark mode
 }
 ```
 
-For the eight surface colors above, optional `--*-hover` and `--*-active` variables control interaction states. Each hover value falls back to its base; each active value falls back to hover, then base. The UnoCSS [`colorVariables` option](/styling/unocss#color-variables) can generate semantic **color** variables from supplied light and dark values; it does not supply radius, shadow, or font values. Component-specific measurement and animation variables such as `--mo-collapsible-content-height` and `--mo-anim-duration` serve different purposes.
+For the eight surface colors above, optional `--*-hover` and `--*-active` variables control interaction states. Each hover value falls back to its base; each active value falls back to hover, then base. If you use UnoCSS, [`colorVariables`](/styling/unocss#color-variables) can generate these color declarations from supplied light and dark values. Define radius, shadow, and font variables separately. Component-specific variables such as `--mo-collapsible-content-height` and `--mo-anim-duration` control measurements and [animations](/styling/animations), not the color palette. CSS variables scoped to a container do not reach content portaled outside it; see [advanced style resolution](/styling/advanced#advanced-style-resolution).
 
 ## Interactive color tokens
 
-Use the same semantic color tokens when styling your own interactive surfaces:
+Use the same semantic color utilities when styling your own interactive surfaces. Hover and active classes read the corresponding variables described above:
 
 ```tsx
 <button class="bg-primary hover:bg-primary-hover active:bg-primary-active text-primary-foreground">
@@ -74,13 +74,13 @@ Use the same semantic color tokens when styling your own interactive surfaces:
 
 ## Icons
 
-`moraine/icon.css` is an optional runtime mask asset. It is independent of component utility generation and does not replace the required Tailwind plugin or UnoCSS preset.
+Import `moraine/icon.css` if you want Moraine's built-in icon names without configuring a separate icon integration. It provides runtime mask styles for the icons below. Keep the Tailwind plugin or UnoCSS preset and the published-file scan for component utility classes.
 
 ```css
 @import 'moraine/icon.css';
 ```
 
-You may instead configure an engine icon integration such as `@iconify/tailwind`. In either case, keep the Moraine plugin or preset and the published-distribution scan.
+You can also configure an icon integration such as `@iconify/tailwind` instead of importing `moraine/icon.css`.
 
 ### Built-in icon names
 

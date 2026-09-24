@@ -7,9 +7,11 @@ search:
   tags: [Theme, Provider, cnConfig, Portal]
 ---
 
+Use this page when you need custom class conflict rules, Theme defaults, or exact Provider and Portal style resolution. For everyday changes, see [Customization](/styling/customization) and [Design](/styling/design).
+
 ## Class merging configuration
 
-Moraine uses the upstream [cn](https://github.com/shadcn-ui/cn) package for utility-class conflict resolution. `cnConfig` accepts its `ConfigExtension` options; Moraine adds semantic z-index and animation rules to the upstream defaults. `cn`, `createCn`, and `useCn` are exported from `moraine`:
+If you add custom utility classes that conflict with one another, configure how Moraine merges them with `cnConfig`. Moraine uses the upstream [cn package](https://github.com/shadcn-ui/cn) for class conflict rules; `cnConfig` accepts its `ConfigExtension` options. Moraine adds rules for its semantic z-index and animation utilities. Import these helpers from `moraine`:
 
 | API                 | Rules and scope                                                                           |
 | ------------------- | ----------------------------------------------------------------------------------------- |
@@ -17,7 +19,7 @@ Moraine uses the upstream [cn](https://github.com/shadcn-ui/cn) package for util
 | `createCn(config?)` | An independent merger with application rules, usable in modules, scripts, or server code. |
 | `useCn()`           | A stable merger bound to the nearest Provider at component initialization.                |
 
-Components use the nearest Provider's rules when resolving component classes and merging them. `cnConfig` accepts `extend`, `override`, `prefix`, and `cacheSize`. Rules apply in order: upstream defaults, Moraine extensions, application `override`, then application `extend`. `cn()` also combines conditional class values; it does not generate CSS or scan component files.
+Components use the nearest Provider's rules when merging their classes. `cnConfig` accepts `extend`, `override`, `prefix`, and `cacheSize`. Rules apply in this order: upstream defaults, Moraine extensions, application `override`, application `extend`. `cn()` also combines conditional class values. Class merging does not generate CSS or scan component files.
 
 ```ts title="app-cn.ts"
 import { createCn } from 'moraine'
@@ -34,7 +36,7 @@ export const appCnConfig = {
 export const appCn = createCn(appCnConfig)
 ```
 
-Define the corresponding CSS in your application. Conflict rules do not generate CSS or expand UnoCSS shortcuts.
+Define the corresponding CSS in your application; conflict rules do not create these classes or expand UnoCSS shortcuts.
 
 ```css
 .density-roomy {
@@ -81,7 +83,7 @@ export function App() {
 | An extension object    | Replace the inherited merger with Moraine defaults plus this object; parent application extensions are not retained. |
 | `{}`                   | Reset to Moraine default rules.                                                                                      |
 
-Replace the config object to update existing descendants. Changing it back to `undefined` resumes live parent inheritance. Theme and class merging are independent: `theme={null}` clears inherited Theme overrides while preserving the current merger. `prefix` only changes class parsing; it does not prefix official theme classes or generated CSS. `cacheSize: 0` disables the upstream result cache.
+Replace the config object to update existing descendants. Changing it back to `undefined` resumes inheritance from the parent Provider. Theme and class merging are independent: `theme={null}` clears inherited Theme overrides while keeping the current merger. `prefix` changes only class parsing; it does not prefix Moraine's built-in classes or generated CSS. `cacheSize: 0` disables the upstream result cache.
 
 Call `useCn()` during initialization in a descendant such as `Preview`; a parent cannot read a Provider that it will later return. The captured handle remains usable in events and after `await` while its owner lives. Calls in JSX or memos track config changes; a previously computed string does not update itself. Without a Provider, `useCn()` uses the same rules as `cn`.
 
@@ -89,7 +91,7 @@ A merger cannot restore classes already removed by another merger. Use `useCn()`
 
 ## Themes and Providers
 
-Components use their built-in styles by default. Add `MoraineProvider` only when you need Theme or `cnConfig` overrides.
+Components use their built-in styles by default. Wrap a subtree in `MoraineProvider` to change Theme defaults for its components. Nested Providers can inherit, replace, or clear those overrides:
 
 | `theme`                | Behavior                                                                                                                  |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
@@ -120,7 +122,7 @@ const section = defineTheme({
 </MoraineProvider>
 ```
 
-`defineTheme()` creates an immutable Theme override; with no component entries, it adds no overrides to built-in component styles. `extends` composes Theme override layers, preserving parent values where the child supplies `undefined`, and evaluates parent overrides before child overrides. Update presentation by replacing the Theme object. Setting `theme` back to `undefined` resumes inheritance and follows subsequent parent updates.
+`defineTheme()` creates an immutable Theme override. A Theme with no component entries adds no overrides. To build on another Theme, use `extends`: parent values apply first, and `undefined` in the child leaves them in place. Replace the Theme object to update rendered components. Setting `theme` back to `undefined` resumes inheritance and follows later parent updates.
 
 ### Theme values and defaults
 

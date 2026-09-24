@@ -9,7 +9,7 @@ search:
 
 ## Style overrides
 
-Where should you put a style override?
+To change a palette, radius, font, or shadow across components, set the [design CSS variables](/styling/design#css-variables). For component classes or inline styles, choose the surface that renders the element you want to change:
 
 | Need                                          | Surface                        |
 | --------------------------------------------- | ------------------------------ |
@@ -18,7 +18,7 @@ Where should you put a style override?
 | Override slots rendered by a specific part    | Part `classes` / `styles`      |
 | Override the part's primary DOM element       | `class` / `style` on that part |
 
-For a Button, use `class` and `style` on the element itself. Use `classes` to change a named slot such as its label:
+For a Button, `class` and `style` change its button element. Use `classes` to change a named slot such as its label:
 
 ```tsx
 <Button class="bg-red-500" style={{ borderColor: 'red' }} classes={{ label: 'text-white' }}>
@@ -26,7 +26,7 @@ For a Button, use `class` and `style` on the element itself. Use `classes` to ch
 </Button>
 ```
 
-For a Dialog, root `classes` and `styles` set defaults for that instance. Put native DOM attributes and direct overrides on the part that renders the element:
+For a Dialog, root `classes` and `styles` set defaults for this Dialog. Put native DOM attributes and direct overrides on the part that renders the element:
 
 ```tsx
 <Dialog classes={{ content: 'max-w-lg', body: 'space-y-4' }}>
@@ -37,24 +37,24 @@ For a Dialog, root `classes` and `styles` set defaults for that instance. Put na
 </Dialog>
 ```
 
-A part rendering one public slot uses `class` and `style`. A part rendering multiple configurable slots may also expose `classes` and `styles` for those slots. `Dialog.Trigger` uses direct overrides; `Dialog.Content` can configure its `overlay`, `content`, `header`, `title`, `description`, `contentClose`, `body`, and `footer` slots.
+A part with one public slot uses `class` and `style`. A part with multiple configurable slots may also expose `classes` and `styles`. For example, `Dialog.Trigger` accepts direct overrides, while `Dialog.Content` lets you configure its `overlay`, `content`, `header`, `title`, `description`, `contentClose`, `body`, and `footer` slots.
 
-Roots that render an element, such as `InputGroup`, `Collapsible`, and `SidebarFrame`, also accept direct `class` and `style` for that root element. Headless roots such as `Dialog`, `Popover`, and `Tooltip` have no element for direct DOM props; use root `classes` and `styles` for instance defaults. Root-only components (`Icon`, `Kbd`, `Separator`, and the bound `form.Form`) expose direct `class` and `style`. Their Theme entries still have a `root` slot.
+Roots that render an element, such as `InputGroup`, `Collapsible`, and `SidebarFrame`, accept direct `class` and `style` for that element. `Dialog`, `Popover`, and `Tooltip` have no root DOM element: set instance defaults with root `classes` and `styles`, and place DOM props on their parts. Root-only components (`Icon`, `Kbd`, `Separator`, and the bound `form.Form`) use direct `class` and `style`. Their Theme entries still have a `root` slot.
 
 ### Style slots and DOM slots
 
-Use camelCase names in `classes` and `styles`; use the documented `data-slot` values in CSS selectors or DOM inspection. The rendered values use kebab-case: the component name for `root`, or the component name followed by the slot name for other slots. Theme entries use the same camelCase style keys.
+Use camelCase slot names in `classes` and `styles`. For CSS selectors and DOM inspection, use the component's documented kebab-case `data-slot` values. A root element uses the component name; other slots use the component name followed by the slot name. Theme entries use the same camelCase style keys.
 
 ```tsx
 <Select classes={{ itemLabel: 'font-semibold' }} />
 // The label element renders with data-slot="select-item-label".
 ```
 
-Some components expose style keys for elements rendered by a nested Moraine component. The [advanced style resolution](/styling/advanced#advanced-style-resolution) section explains how their DOM slot names differ.
+Some components expose style keys for elements rendered by another Moraine component. See [advanced style resolution](/styling/advanced#advanced-style-resolution) for those `data-slot` names and for Provider and Portal behavior.
 
 ## Component kinds
 
-The `Single` and `Composite` labels describe how you compose a component, regardless of how many DOM elements or style slots it renders.
+The `Single` and `Composite` labels describe how you assemble a component. They do not describe its number of DOM elements or style slots.
 
 **Single** components expose their configuration through one component's props. `Card` is single even though it has header, body, and footer slots. Apply root styles with `class` and `style`, and use `classes` and `styles` for named slots when the component supports them.
 

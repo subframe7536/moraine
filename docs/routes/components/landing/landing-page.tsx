@@ -10,6 +10,7 @@ import {
   Field,
   Input,
   Kbd,
+  Popover,
   Select,
   Switch,
   Tabs,
@@ -117,6 +118,7 @@ function ComponentCanvas() {
   const [created, setCreated] = createSignal(false)
   const [view, setView] = createSignal('projects')
   const [updates, setUpdates] = createSignal(true)
+  const [reviewed, setReviewed] = createSignal(false)
   const visibleProjects = createMemo(() =>
     [
       ...PROJECTS,
@@ -133,7 +135,9 @@ function ComponentCanvas() {
           <h2 id="canvas-title" class="text-xl tracking-tight font-semibold sm:text-2xl">
             A working set
           </h2>
-          <p class="text-sm text-muted-foreground mt-1">Components designed to share a surface.</p>
+          <p class="text-sm text-muted-foreground mt-1">
+            Search, change a view, and review a handoff without leaving the page.
+          </p>
         </div>
         <a href="/start" class={`text-sm text-primary hover:text-primary-hover ${linkFocus}`}>
           Browse docs →
@@ -282,6 +286,31 @@ function ComponentCanvas() {
             <Kbd value="⌘ K" variant="outline" class="ms-auto" />
           </div>
         </div>
+        <div class="px-4 py-3 border-t border-border/70 flex flex-wrap gap-3 items-center sm:px-6 lg:col-span-2">
+          <div class="flex-1 min-w-40">
+            <p class="text-sm font-medium">Documentation handoff</p>
+            <p class="text-xs text-muted-foreground">Review the update before marking it ready.</p>
+          </div>
+          <Badge variant={reviewed() ? 'surface' : 'outline'} size="sm">
+            {reviewed() ? 'Ready' : 'In review'}
+          </Badge>
+          <Popover>
+            <Popover.Trigger as={Button} variant="outline" size="sm">
+              Review note
+            </Popover.Trigger>
+            <Popover.Content ariaLabel="Documentation review note">
+              <div class="p-4 max-w-[calc(100vw-2rem)] w-64 space-y-3">
+                <p class="text-sm font-medium">Documentation handoff</p>
+                <p class="text-xs text-muted-foreground">
+                  Check the examples and styling guide before marking this update ready.
+                </p>
+                <Button size="sm" onClick={() => setReviewed(true)} disabled={reviewed()}>
+                  {reviewed() ? 'Marked ready' : 'Mark ready'}
+                </Button>
+              </div>
+            </Popover.Content>
+          </Popover>
+        </div>
       </div>
     </section>
   )
@@ -330,7 +359,7 @@ function StylingShowcase() {
             Shape it your way
           </h2>
           <p class="text-sm text-muted-foreground mt-1 max-w-xl">
-            Same components, different variants and slot classes.
+            Change variants and slot classes; semantic tokens carry the result across themes.
           </p>
         </div>
         <a
@@ -349,6 +378,25 @@ function StylingShowcase() {
           variant="subtle" &nbsp; classes=&#123;&#123; root: 'rounded-xl' &#125;&#125;
         </div>
       </div>
+      <div class="mt-4 px-4 py-3 border border-border/70 rounded-lg flex flex-wrap gap-x-6 gap-y-3 items-center sm:px-6">
+        <span class="text-xs text-muted-foreground">Shared color roles</span>
+        <div class="text-xs flex gap-2 items-center">
+          <span class="border border-border rounded-sm bg-background size-4" aria-hidden="true" />
+          <code>background</code>
+        </div>
+        <div class="text-xs flex gap-2 items-center">
+          <span class="border border-border rounded-sm bg-card size-4" aria-hidden="true" />
+          <code>card</code>
+        </div>
+        <div class="text-xs flex gap-2 items-center">
+          <span class="rounded-sm bg-primary size-4" aria-hidden="true" />
+          <code>primary</code>
+        </div>
+        <div class="text-xs flex gap-2 items-center">
+          <span class="rounded-sm bg-ring size-4" aria-hidden="true" />
+          <code>ring</code>
+        </div>
+      </div>
     </section>
   )
 }
@@ -361,17 +409,15 @@ export function LandingPage() {
         class="py-10 gap-8 grid items-center lg:py-20 sm:py-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]"
       >
         <div class="min-w-0">
-          <p class="text-xs text-muted-foreground tracking-wider font-mono uppercase">
-            Moraine / SolidJS
-          </p>
           <h1
             id="landing-title"
-            class="text-3xl leading-tight tracking-tight font-semibold mt-4 max-w-xl lg:text-5xl sm:text-4xl"
+            class="text-3xl leading-tight tracking-tight font-semibold max-w-xl lg:text-5xl sm:text-4xl"
           >
-            Components for SolidJS, without fighting your design system.
+            SolidJS components that fit your design system.
           </h1>
           <p class="text-sm text-muted-foreground leading-relaxed mt-4 max-w-lg sm:text-base">
-            Compose useful interfaces with components that fit your styles.
+            Compose forms, navigation, and overlays. Tune their variants and slots to make them
+            yours.
           </p>
           <div class="mt-6 flex flex-wrap gap-3 items-center">
             <Button as="a" href="/start">

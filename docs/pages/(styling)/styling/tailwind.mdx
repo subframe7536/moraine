@@ -7,7 +7,7 @@ search:
   tags: [Tailwind CSS, plugin]
 ---
 
-Register the plugin and scan the published distribution. The `@source` path is relative to the stylesheet containing it, so adjust the leading `..` for your project layout.
+In your application stylesheet, import Tailwind CSS, register Moraine's plugin, and scan Moraine's published files. The scan lets Tailwind generate the classes used by Moraine components. Adjust the `@source` path to match the location of your stylesheet:
 
 ```css
 @import 'tailwindcss';
@@ -15,4 +15,4 @@ Register the plugin and scan the published distribution. The `@source` path is r
 @source '../node_modules/moraine/dist';
 ```
 
-`@source "moraine"` is not valid: Tailwind requires a resolvable source path. The plugin provides the same colors, typography, radius, shadows, animations, z-index values, and state variants as the UnoCSS preset.
+`@source` needs a resolvable path to `node_modules/moraine/dist`; `@source "moraine"` does not work. The plugin maps the same colors, typography, radius, shadows, animations, z-index values, and state variants as the [UnoCSS preset](/styling/unocss). Set your palette and other [CSS variables](/styling/design#css-variables) in your application stylesheet.
