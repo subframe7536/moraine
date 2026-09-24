@@ -9,6 +9,9 @@
     - https://coss.com/ui/particles
     - https://reui.io/components
   - [x] make content more human and agent friendly
+- [ ] icon card copy should not cause layout shift
+- [ ] landing page polish
+- [ ] styling page polish
 
 # V1
 

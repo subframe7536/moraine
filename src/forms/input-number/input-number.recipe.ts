@@ -23,10 +23,10 @@ export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
     input:
       'placeholder:text-muted-foreground text-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none outline-none border-0 rounded-none bg-transparent flex-1 min-w-0 ring-0 shadow-none disabled:bg-transparent aria-invalid:ring-0 focus-visible:ring-0 text-center data-auto-align:text-start',
     increment:
-      'text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none touch-none whitespace-nowrap transition-colors items-center justify-center focus-visible:(outline-none ring-3 ring-ring/50) disabled:(opacity-64 pointer-events-none) hover:text-primary/75 active:text-primary/75 data-active:text-primary/75',
+      'text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none touch-none whitespace-nowrap transition-colors items-center justify-center disabled:(opacity-64 pointer-events-none) hover:text-primary-hover active:text-primary-active',
     decrement:
-      'text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none touch-none whitespace-nowrap transition-colors items-center justify-center focus-visible:(outline-none ring-3 ring-ring/50) disabled:(opacity-64 pointer-events-none) hover:text-primary/75 active:text-primary/75 data-active:text-primary/75',
-    controls: 'pe-1 flex shrink-0 flex-col h-full',
+      'text-primary font-medium outline-none border-0 rounded-md bg-transparent inline-flex shrink-0 cursor-pointer select-none touch-none whitespace-nowrap transition-colors items-center justify-center disabled:(opacity-64 pointer-events-none) hover:text-primary-hover active:text-primary-active',
+    controls: 'flex shrink-0 flex-col h-full',
   },
   defaultVariants: {
     size: 'md',
@@ -69,12 +69,12 @@ export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
     },
     orientation: {
       horizontal: {
-        increment: 'rounded-none self-stretch rounded-e-none',
-        decrement: 'rounded-none self-stretch rounded-s-none',
+        increment: 'self-stretch rounded-e-none',
+        decrement: 'self-stretch rounded-s-none',
       },
       vertical: {
-        increment: 'px-0 rounded-none flex-1 min-h-0 w-full scale-80',
-        decrement: 'px-0 rounded-none flex-1 min-h-0 w-full scale-80',
+        increment: 'px-0 rounded-none flex-1 min-h-0 w-full',
+        decrement: 'px-0 rounded-none flex-1 min-h-0 w-full',
       },
     },
   },
@@ -93,6 +93,11 @@ export const inputNumberRecipe = /* @__PURE__ */ defineRecipe<
       variants: { orientation: 'horizontal', size: 'lg' },
       increment: 'w-9',
       decrement: 'w-9',
+    },
+    {
+      variants: { orientation: 'vertical', variant: ['outline', 'subtle'] },
+      increment: 'border-b-1 border-border',
+      controls: 'border-s-1 border-border',
     },
   ],
 })

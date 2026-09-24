@@ -839,11 +839,11 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
       ...resolved.styles[kind],
       onClick: (event: Parameters<JSX.EventHandler<HTMLButtonElement, MouseEvent>>[0]) =>
         onControlClick(kind, event),
-      'on:pointerdown': (event: PointerEvent) => onControlPointerDown(kind, event),
-      'on:pointerup': (event: PointerEvent) => onControlPointerUp(kind, event),
-      'on:pointercancel': (event: PointerEvent) => onControlPointerCancel(kind, event),
-      'on:lostpointercapture': (event: PointerEvent) => onControlPointerCancel(kind, event),
-      'on:pointerleave': () => onControlPointerLeave(kind),
+      onPointerDown: (event: PointerEvent) => onControlPointerDown(kind, event),
+      onPointerUp: (event: PointerEvent) => onControlPointerUp(kind, event),
+      onPointerCancel: (event: PointerEvent) => onControlPointerCancel(kind, event),
+      onLostPointerCapture: (event: PointerEvent) => onControlPointerCancel(kind, event),
+      onPointerLeave: () => onControlPointerLeave(kind),
       onContextMenu: onControlContextMenu,
     })
     return controlProps as InputNumberControlProps
