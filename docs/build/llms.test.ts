@@ -113,7 +113,7 @@ describe('llms.txt generation', () => {
             {
               key: 'button',
               name: 'Button',
-              category: 'elements',
+              category: 'element',
             },
           ],
         }),

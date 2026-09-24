@@ -23,7 +23,7 @@ export interface RegisteredPart {
 export interface RegisteredComponent {
   key: string
   name: string
-  category: 'elements' | 'forms' | 'navigation' | 'overlays'
+  category: 'element' | 'form' | 'navigation' | 'overlay'
   typesPath: string
   recipePath?: string
   namespaceName: string
@@ -129,7 +129,7 @@ async function readTypesHeader(absolutePath: string): Promise<TypesHeader> {
 }
 
 function categoryFromPath(sourcePath: string): RegisteredComponent['category'] {
-  const match = sourcePath.match(/^src\/(elements|forms|navigation|overlays)\//)
+  const match = sourcePath.match(/^src\/(element|form|navigation|overlay)\//)
   if (!match) {
     throw new Error(`[api-doc] Unsupported component source path "${sourcePath}".`)
   }

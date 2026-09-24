@@ -3,27 +3,27 @@
     {
       "key": "accordion",
       "name": "Accordion",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "avatar",
       "name": "Avatar",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "avatar-group",
       "name": "AvatarGroup",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "badge",
       "name": "Badge",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "base-select",
       "name": "BaseSelect",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "breadcrumb",
@@ -33,37 +33,37 @@
     {
       "key": "button",
       "name": "Button",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "button-group",
       "name": "ButtonGroup",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "card",
       "name": "Card",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "checkbox",
       "name": "Checkbox",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "checkbox-group",
       "name": "CheckboxGroup",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "collapsible",
       "name": "Collapsible",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "combobox",
       "name": "Combobox",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "command-palette",
@@ -73,77 +73,77 @@
     {
       "key": "context-menu",
       "name": "ContextMenu",
-      "category": "overlays"
+      "category": "overlay"
     },
     {
       "key": "dialog",
       "name": "Dialog",
-      "category": "overlays"
+      "category": "overlay"
     },
     {
       "key": "dropdown-menu",
       "name": "DropdownMenu",
-      "category": "overlays"
+      "category": "overlay"
     },
     {
       "key": "field",
       "name": "Field",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "file-upload",
       "name": "FileUpload",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "form",
       "name": "Form",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "icon",
       "name": "Icon",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "input",
       "name": "Input",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "input-group",
       "name": "InputGroup",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "input-number",
       "name": "InputNumber",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "kbd",
       "name": "Kbd",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "kbd-group",
       "name": "KbdGroup",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "list",
       "name": "List",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "modal",
       "name": "Modal",
-      "category": "overlays"
+      "category": "overlay"
     },
     {
       "key": "multi-select",
       "name": "MultiSelect",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "pagination",
@@ -153,37 +153,37 @@
     {
       "key": "popover",
       "name": "Popover",
-      "category": "overlays"
+      "category": "overlay"
     },
     {
       "key": "progress",
       "name": "Progress",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "radio-group",
       "name": "RadioGroup",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "resizable",
       "name": "Resizable",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "select",
       "name": "Select",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "separator",
       "name": "Separator",
-      "category": "elements"
+      "category": "element"
     },
     {
       "key": "sheet",
       "name": "Sheet",
-      "category": "overlays"
+      "category": "overlay"
     },
     {
       "key": "sidebar-frame",
@@ -193,7 +193,7 @@
     {
       "key": "slider",
       "name": "Slider",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "stepper",
@@ -203,7 +203,7 @@
     {
       "key": "switch",
       "name": "Switch",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "tabs",
@@ -213,12 +213,12 @@
     {
       "key": "textarea",
       "name": "Textarea",
-      "category": "forms"
+      "category": "form"
     },
     {
       "key": "tooltip",
       "name": "Tooltip",
-      "category": "overlays"
+      "category": "overlay"
     }
   ]
 }

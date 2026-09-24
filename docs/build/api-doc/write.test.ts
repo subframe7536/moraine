@@ -53,7 +53,7 @@ describe('writeJsonFiles', () => {
 
     const result: GenerationResult = {
       indexDoc: {
-        components: [{ key: 'demo', name: 'Demo', category: 'elements' }],
+        components: [{ key: 'demo', name: 'Demo', category: 'element' }],
       },
       componentDocs: new Map([['demo', validComponent]]),
     }

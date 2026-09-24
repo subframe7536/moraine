@@ -123,7 +123,7 @@ export function validateFrontmatterData(value: unknown, id: string): Frontmatter
         seenParts.add(name)
         const partPath = readString(partValue, 'path')
         if (
-          !/^src\/(?:elements|forms|navigation|overlays)\/[a-z0-9/-]+$/.test(partPath) ||
+          !/^src\/(?:element|form|navigation|overlay)\/[a-z0-9/-]+$/.test(partPath) ||
           partPath.includes('..') ||
           /\.[cm]?[jt]sx?$/.test(partPath)
         ) {
