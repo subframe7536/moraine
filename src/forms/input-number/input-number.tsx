@@ -11,6 +11,7 @@ import {
   Show,
   untrack,
 } from 'solid-js'
+import { delegateEvents } from 'solid-js/web'
 
 import type { IconT } from '../../elements/icon'
 import { Icon } from '../../elements/icon'
@@ -27,7 +28,6 @@ import type { InputNumberProps } from './input-number.types'
 type ControlKind = 'increment' | 'decrement'
 type InputNumberControlProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
   [key: `data-${string}`]: string | undefined
-  [key: `on:${string}`]: unknown
 }
 
 interface PressRepeatState {
@@ -943,6 +943,14 @@ export function InputNumber(props: InputNumberProps): JSX.Element {
   onMount(() => {
     if (inputEl) {
       inputEl.defaultValue = formatLocaleNumber(initialResetValue, merged.locale)
+
+      // Solid delegates these events on the global document by default.
+      if (inputEl.ownerDocument !== document) {
+        delegateEvents(
+          ['click', 'contextmenu', 'input', 'keydown', 'pointerdown', 'pointerup'],
+          inputEl.ownerDocument,
+        )
+      }
     }
 
     if (!merged.autofocus) {
