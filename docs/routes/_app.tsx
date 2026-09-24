@@ -145,68 +145,6 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
     )
   }
 
-  function LandingShell() {
-    const [scrollEl, setScrollEl] = createSignal<HTMLDivElement>()
-
-    useScrollRetention({ element: scrollEl, path: () => '/' })
-
-    return (
-      <div
-        ref={(element) => setScrollEl(element)}
-        class="text-foreground bg-background h-screen overflow-y-auto"
-        data-landing-scroll
-      >
-        <a
-          href="#main-content"
-          class="z-toast text-foreground px-4 py-2 rounded-md bg-background left-1/2 top-2 fixed focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
-        >
-          Skip to main content
-        </a>
-        <header class="border-b border-border/60 bg-background/90 top-0 sticky z-sticky backdrop-blur-md">
-          <nav
-            aria-label="Main"
-            class="mx-auto px-4 flex h-14 max-w-7xl items-center justify-between sm:px-8"
-          >
-            <div class="flex gap-3 items-center sm:gap-8">
-              <a
-                href="/"
-                aria-label="Moraine home"
-                class="font-semibold flex gap-2 items-center focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
-              >
-                <img src="/favicon.svg" alt="" class="size-6" />
-                <span class="hidden sm:inline">Moraine</span>
-              </a>
-              <a
-                href="/start"
-                class="text-sm text-muted-foreground hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
-              >
-                Start
-              </a>
-              <a
-                href="/styling"
-                class="text-sm text-muted-foreground hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
-              >
-                Styling
-              </a>
-            </div>
-            <PageActions
-              pages={pages}
-              paletteOpen={paletteOpen}
-              setPaletteOpen={setPaletteOpen}
-              onNavigate={navigateToPage}
-              mobile={true}
-              theme={theme}
-              updateTheme={updateTheme}
-            />
-          </nav>
-        </header>
-        <main id="main-content">
-          <Suspense>{props.children}</Suspense>
-        </main>
-      </div>
-    )
-  }
-
   return (
     <>
       <Show when={navigationLoading()}>
@@ -228,7 +166,55 @@ function DocsAppLayout(props: { children?: JSX.Element }): JSX.Element {
           </SidebarFrame>
         }
       >
-        <LandingShell />
+        <div class="text-foreground bg-background min-h-screen">
+          <a
+            href="#main-content"
+            class="z-toast text-foreground px-4 py-2 rounded-md bg-background left-1/2 top-2 fixed focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background translate-y-0) -translate-x-1/2 -translate-y-full"
+          >
+            Skip to main content
+          </a>
+          <header class="border-b border-border/60 bg-background/90 top-0 sticky z-sticky backdrop-blur-md">
+            <nav
+              aria-label="Main"
+              class="mx-auto px-4 flex h-14 max-w-7xl items-center justify-between sm:px-8"
+            >
+              <div class="flex gap-3 items-center sm:gap-8">
+                <a
+                  href="/"
+                  aria-label="Moraine home"
+                  class="font-semibold flex gap-2 items-center focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+                >
+                  <img src="/favicon.svg" alt="" class="size-6" />
+                  <span class="hidden sm:inline">Moraine</span>
+                </a>
+                <a
+                  href="/start"
+                  class="text-sm text-muted-foreground hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+                >
+                  Start
+                </a>
+                <a
+                  href="/styling"
+                  class="text-sm text-muted-foreground hover:text-foreground focus-visible:(outline-none ring-2 ring-ring ring-offset-2 ring-offset-background)"
+                >
+                  Styling
+                </a>
+              </div>
+              <PageActions
+                pages={pages}
+                paletteOpen={paletteOpen}
+                setPaletteOpen={setPaletteOpen}
+                onNavigate={navigateToPage}
+                mobile={true}
+                theme={theme}
+                updateTheme={updateTheme}
+              />
+            </nav>
+          </header>
+          <main id="main-content">
+            <Suspense>{props.children}</Suspense>
+          </main>
+        </div>
       </Show>
     </>
   )
